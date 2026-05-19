@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://compass-sdd/schemas/task.schema.json",
+  "title": "Compass task.yml",
+  "description": "The machine-readable task spine. Lives at .compass/work/<task-slug>/task.yml. The human-readable companion is task.reference.yml.",
+  "type": "object",
+  "required": ["task", "created", "readings"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "The Compass task.yml schema version this file follows. The CLI warns/fails on incompatible versions. Optional in 1.0 for back-compat; recommended."
+    },
+    "task": { "type": "string", "description": "The task slug; matches the directory name." },
+    "created": { "type": "string", "description": "ISO date the task was framed." },
+
+    "readings": {
+      "type": "object",
+      "description": "The four-dimension judgement readings the Needle produces at Frame.",
+      "required": ["blast_radius", "terrain", "magnitude"],
+      "additionalProperties": false,
+      "properties": {
+        "blast_radius": { "enum": ["trivial", "contained", "cross-cutting", "critical"] },
+        "terrain": { "enum": ["greenfield", "brownfield-mapped", "brownfield-unmapped"] },
+        "magnitude": { "enum": ["atomic", "small", "standard", "large", "product"] },
+        "intent": { "enum": ["delivery", "exploration"] },
+        "urgency": { "enum": ["none", "live-defect"] },
+        "role": { "enum": ["engineer", "product-owner", "product-marketer", "designer", "qa"] },
+        "touches": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "route": { "type": ["string", "null"], "description": "The final route; filled by `compass route evaluate --write`." },
+    "topology": { "type": ["string", "null"] },
+    "fired_guardrails": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "kind": { "type": "string" },
+          "rationale": { "type": "string" },
+          "changed": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "phases": { "type": "object", "description": "phase name -> weight string; filled by route evaluate." },
+
+    "evidence": {
+      "type": "array",
+      "description": "The task's evidence registry — typed, id-tagged entries gates reference by id. Built incrementally across phases.",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": { "type": "string", "description": "Stable id, e.g. EV-001 or EV-A1." },
+          "type": {
+            "enum": ["test-run", "command-output", "manual-review", "human-approval",
+                     "security-review", "migration-plan", "rollback-plan",
+                     "claim-review", "spike-conclusion", "artifact"]
+          },
+          "path": { "type": "string", "description": "Path to the evidence file (relative to the task dir, or absolute)." },
+          "scenario": { "type": "string", "description": "Scenario id this evidence is FOR (when applicable)." },
+          "scope": { "type": "string", "description": "For human-approval: what the approval is for." },
+          "approver": { "type": "string", "description": "For human-approval: the approver's identifier." },
+          "role": { "type": "string", "description": "For human-approval: the approver's role." },
+          "decision": { "enum": ["pending", "approved", "rejected", "discard", "graduate-to-delivery", "defer"], "description": "For human-approval: pending | approved | rejected. For spike-conclusion: discard | graduate-to-delivery | defer." },
+          "timestamp": { "type": "string", "description": "ISO 8601." },
+          "conditions": { "type": "array", "items": { "type": "string" }, "description": "For human-approval: any conditions attached to the approval." },
+          "next_task": { "type": "string", "description": "For spike-conclusion with decision=graduate-to-delivery: the path to the new task that owns the delivery work (e.g. .compass/work/<new-slug>/)." }
+        }
+      }
+    },
+
+    "gates": {
+      "type": "array",
+      "description": "Seeded by route evaluate (status pending); each phase updates the gates it clears.",
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "enum": ["pending", "pass", "fail"] },
+          "evidence": {
+            "description": "When status is `pass`, a list of evidence ids referencing entries in the top-level `evidence` registry. `null` or empty until cleared.",
+            "oneOf": [
+              { "type": "null" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        }
+      }
+    },
+
+    "scenarios": {
+      "type": "array",
+      "description": "The machine-readable index of spec.feature.md; filled by Specify.",
+      "items": {
+        "type": "object",
+        "required": ["id", "intent"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "intent": { "type": "string", "description": "The intent id this scenario traces to." },
+          "tests": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "changed_files": {
+      "type": "array",
+      "description": "Every production file the task changes, each traced to >=1 scenario id; filled by Build.",
+      "items": {
+        "type": "object",
+        "required": ["path", "scenarios"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "scenarios": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        }
+      }
+    },
+
+    "claims": {
+      "type": "array",
+      "description": "Public/marketing claims, each traced to a backing scenario; filled by Position.",
+      "items": {
+        "type": "object",
+        "required": ["id", "text", "scenario"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "text": { "type": "string" },
+          "scenario": { "type": "string" }
+        }
+      }
+    },
+
+    "backfills": {
+      "type": "array",
+      "description": "Owed ceremony (e.g. a Hotfix's). `compass check` fails while any is unpaid.",
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "status": { "enum": ["owed", "paid"] }
+        }
+      }
+    },
+
+    "reframes": {
+      "type": "array",
+      "description": "Append-only log of re-frames (compass route evaluate --reframe). Feeds the Needle's calibration signal.",
+      "items": {
+        "type": "object",
+        "required": ["from_route", "to_route", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "from_route": { "type": "string" },
+          "to_route": { "type": "string" },
+          "reason": { "type": "string" },
+          "date": { "type": "string" }
+        }
+      }
+    }
+  }
+}

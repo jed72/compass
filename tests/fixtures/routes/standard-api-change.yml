@@ -1,0 +1,16 @@
+# Standard magnitude on mapped ground — the default working shape (RS-SHAPE-005).
+name: standard-api-change
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: standard
+  intent: delivery
+  role: engineer
+  touches: []
+expected:
+  candidate_route: standard
+  route: standard
+  fired_guardrail_ids: []
+  conflict: false
+  topology: solo-or-pair
+  has_gate: verify.regression

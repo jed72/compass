@@ -1,0 +1,109 @@
+# Plan — notifications-subsystem
+
+> **Phase:** Plan · **Date:** 2026-03-07 · **Owning agent:** planner
+> **Plan weight (from route.md):** plan.md + distribution-map.md (Expedition)
+
+---
+
+## 1. Approach
+
+A new `src/notifications/` module tree with four parts: `dispatch.py` (turns an
+event into a notification and routes it), `store.py` (the durable store),
+`preferences.py` (resolves whether a category reaches a user), and `api.py`
+(the read/mark-read/update-preferences surface). One new table,
+`migrations/0042_notifications.sql`, holds both notifications and per-user
+preferences.
+
+The build splits along the two scenario groups. **Stream-1** owns dispatch +
+store (group A): an event arrives, `dispatch.py` asks `preferences.py` whether
+the category is allowed, and on yes writes through `store.py` with the
+producer's idempotency key. **Stream-2** owns preferences (group B):
+`preferences.py` is a pure resolver — `(user, category) → deliver | suppress`,
+with the security category hard-wired to `deliver`. The two streams share only
+the migration (both read the table) and `api.py` (both add endpoints) — the
+orchestrator owns that shared surface.
+
+Order: the shared `migrations/0042` lands first as a foundation (both streams
+branch from it), then the two streams run in parallel.
+
+## 2. Design decisions (ADR-style)
+
+### DD-1 — Security override is a fixed category, not a per-notification flag
+
+- **Context:** SCN-006 / Clarify Q1 — mute must not be able to suppress
+  security notifications. The mechanism had to be chosen.
+- **Decision:** A fixed, closed `security` category. `preferences.py` resolves
+  any `(user, "security")` query to `deliver` regardless of stored preference.
+- **Alternatives considered:** A per-notification `overrides_mute` boolean —
+  rejected: the brief's pre-mortem named exactly this drift ("everything claims
+  to be security"). A configurable override list — rejected as v1 over-build.
+- **Consequences:** Adding a new must-not-miss category is a code change, not a
+  config change. Accepted — it should be: the set of un-mutable things deserves
+  a code review.
+- **Governance tie:** `brief.md` pre-mortem; product strategy "make the safe
+  path the easy path".
+
+### DD-2 — Idempotency key on the notification row, once-ever dedup
+
+- **Context:** SCN-002 / Clarify Q2 — a retried event must not double-deliver.
+- **Decision:** The producer supplies an idempotency key; `store.py` writes it
+  to a unique-constrained column. A second write with the same key is a
+  caught-and-logged no-op.
+- **Alternatives considered:** A time-windowed dedup cache — rejected: v1 has
+  no batching/digest concept (`brief.md` non-goal), so there is no window to
+  scope to; once-ever is simpler and correct.
+- **Consequences:** Producers must supply a stable key. Documented in the
+  dispatch contract; the API rejects a dispatch with no key rather than
+  silently risking duplicates.
+- **Governance tie:** engineering strategy S3 (simplest thing that works).
+
+### DD-3 — Durability via write-before-deliver, not an in-memory queue
+
+- **Context:** SCN-003 / INT-2 — a worker restart must not lose a notification.
+  The brief's pre-mortem flagged "looks durable in dev, isn't under real
+  restart" as the top technical risk.
+- **Decision:** `dispatch.py` writes the notification to `store.py` (the table)
+  *before* it is considered dispatched. Delivery marks a `delivered_at`; an
+  undelivered row after restart is simply re-picked. The table is the queue.
+- **Alternatives considered:** An in-memory or Redis queue with the table as a
+  log — rejected: it reintroduces exactly the lose-on-restart window the brief
+  named as the failure mode.
+- **Consequences:** Every notification is a table write before it is "sent" —
+  a small latency cost, well inside SCN-001's 5s bound. Worth it: durability is
+  a brief constraint, not a nice-to-have.
+- **Governance tie:** `brief.md` constraint (durable) and pre-mortem.
+
+## 3. Governance check
+
+| Area | Result | Evidence / note |
+|---|---|---|
+| Guardrails (G1–G5 + project) | pass | G1/G2/G3: all six scenarios stated and Clarify-closed before Build, each with a planned test and a TRC-id; `changed_files` will trace back. G4: every gate cleared with pasted evidence in `verification-report.md`. **G5: applies** — the task `touches: [migrations]`; a human signs off `migrations/0042` before Land, recorded in `task.yml` `approvals:`. The plan routes that sign-off into Land explicitly. |
+| Method strategies (S1–S4 + project) | followed | S1 BDD, S2 TDD apply per stream. S3 simplest-thing honoured in DD-1, DD-2, DD-3. No deviation. |
+| Product strategies | followed | The plan delivers `brief.md`'s outcome — durable, tunable, security-protected in-app notifications — and stays inside the v1 cut. "Depth for existing users" honoured: category preferences over the existing event types, no breadth grab. |
+| Voice & positioning strategies | n/a | No marketer in play on this task — the launch is a separate later task. `verify.claims` exists in the gate set but has no claims to check. |
+| Routing policy | pass | The plan skips nothing `route.md` kept — Expedition's de-scope ledger is empty and the plan keeps it empty. RG-FLOOR-003 (the `migrations` floor) is honoured, not dodged: the migration is treated as the irreversible thing it is, with a forward+rollback review and a G5 sign-off. RG-ROLE-002's Plan block was cleared before this file was written (`brief.md` intent-fidelity check, 2026-03-06). |
+
+## 4. Work units
+
+| Unit | Scenario group(s) it satisfies | Code surface it touches | Independent of |
+|---|---|---|---|
+| U0 | foundation — none directly | `migrations/0042_notifications.sql` | lands first; U1 and U2 branch from it |
+| U1 | group A — SCN-001, SCN-002, SCN-003 | `src/notifications/dispatch.py`, `src/notifications/store.py`, `src/notifications/api.py` (read/mark-read endpoints) | independent of U2 — calls `preferences.py` through a narrow interface but does not implement it |
+| U2 | group B — SCN-004, SCN-005, SCN-006 | `src/notifications/preferences.py`, `src/notifications/api.py` (preference endpoints) | independent of U1 — a pure resolver U1 calls; shares only `api.py` and the migration |
+
+**Parallelism assessment:** U1 and U2 are genuinely independent — disjoint
+scenario groups (A vs B) and *near*-disjoint code: their only overlap is
+`api.py` (different endpoints) and `migrations/0042` (the shared U0 foundation,
+landed first). That overlap is real but small and bounded, which is precisely
+the orchestrator's job to police → **swarm, 2 streams**. `distribution-map.md`
+written.
+
+---
+
+## Gate
+
+- [x] Every scenario in `spec.feature.md` is covered by a work unit — U1 covers SCN-001…003, U2 covers SCN-004…006, U0 is the shared foundation.
+- [x] Governance check passes — every guardrail clears with evidence; G5's Land sign-off is routed in; no strategy deviation to record.
+- [x] Parallel work is possible — `distribution-map.md` written next.
+
+Next phase: **Distribute** (`/compass:distribute`) — runs `scripts/swarm.sh` with the distribution map.

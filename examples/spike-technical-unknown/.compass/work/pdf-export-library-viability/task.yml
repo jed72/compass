@@ -1,0 +1,102 @@
+# =============================================================================
+# task.yml — pdf-export-library-viability  (EXAMPLE: the Spike route)
+# =============================================================================
+# A worked example. This is the task spine of a finished Spike. Note what is
+# DIFFERENT from every other example:
+#   - `intent: exploration` — this is what makes it a Spike (RS-SHAPE-001).
+#   - `scenarios: []`, `changed_files: []` — a Spike has no acceptance
+#     criteria and lands no production code. Its output is knowledge.
+#   - the gate is `spike.conclude` and nothing else — `compass route evaluate`
+#     does not staple the delivery (verify.*) gates onto a Spike.
+#
+# `compass check` on a Spike is route-aware: it skips the delivery defaults
+# (G1-G5) and runs the Spike-only guardrails instead — S1 (a conclusion is
+# recorded) and S2 (no production changed_files). Both PASS for this task.
+# A Spike is still controlled; it just isn't controlled by the delivery
+# guardrails, because it ships nothing. If the finding is acted on, a fresh
+# Frame re-frames it into a real route where the delivery guardrails apply
+# in full. See examples/README.md.
+# =============================================================================
+
+schema_version: "1.0"
+task: "pdf-export-library-viability"
+created: "2026-05-12"
+
+# --- the route -------------------------------------------------------------
+# JUDGEMENT: the Needle's Frame readings. `intent: exploration` is the reading
+# that selects Spike — the way `urgency` selects Hotfix. The other three
+# dimensions are still scored (they shape the timebox and confirm nothing
+# irreversible is in scope), but exploration is what picks the shape.
+readings:
+  blast_radius: contained
+  terrain: greenfield
+  magnitude: small
+  intent: exploration
+  role: engineer
+  touches: []
+
+# MECHANICAL: computed by `compass route evaluate --write`.
+# intent: exploration -> RS-SHAPE-001 -> spike.
+route: spike
+topology: solo
+fired_guardrails: []
+phases:
+  frame: light
+  specify: collapsed          # collapsed into the question
+  clarify: skipped            # nothing to QA — the unknown is the point
+  plan: collapsed             # collapsed to a timebox
+  distribute: skipped
+  build: explore              # TDD strategy SUSPENDED — the hook does not block
+  verify: conclude            # a findings check, not a test gate
+  land: graduate-or-discard   # never "merge to main"
+
+# --- evidence (the registry) -----------------------------------------------
+# A Spike's evidence is a single `spike-conclusion` entry. The conclusion (the
+# Land entry in devlog.md) IS the artifact pointed to by `path`; the decision
+# is the close-out — discard | graduate-to-delivery | defer. Because this
+# Spike graduates, `next_task` links the fresh Frame that owns the delivery
+# work; without that link, the Spike check S1 would fail.
+evidence:
+  - id: EV-SC1
+    type: spike-conclusion
+    path: devlog.md
+    decision: graduate-to-delivery
+    next_task: ".compass/work/pdf-export-with-weasyprint/"
+
+# --- gates -----------------------------------------------------------------
+# A Spike carries ONLY its own Conclude gate. `compass route evaluate` does
+# not staple the policy's immovable (verify.*) gates onto a Spike — those are
+# for delivery routes, and a Spike ships nothing. spike.conclude only accepts
+# `spike-conclusion` evidence; an artifact note will not do. The gate's pass
+# state references EV-SC1 above, which both lives at devlog.md (the written
+# finding) and carries the structured close-out fields.
+gates:
+  - id: spike.conclude
+    status: pass
+    evidence: [EV-SC1]
+
+# --- scenarios -------------------------------------------------------------
+# EMPTY, on purpose. A Spike has no acceptance criteria — its output is
+# knowledge, not behaviour. There is nothing for a scenario to describe yet.
+scenarios: []
+
+# --- changed_files ---------------------------------------------------------
+# EMPTY, on purpose. The throwaway exploration code lives on a scratch branch
+# that is NOT merged. Nothing this Spike wrote reaches a production file —
+# that is the whole safety model, and Spike guardrail S2 enforces it. If the
+# finding is acted on, a fresh Frame (graduation) owns that code under a real
+# route's guardrails.
+changed_files: []
+
+# --- claims ----------------------------------------------------------------
+claims: []
+
+# --- backfills -------------------------------------------------------------
+# EMPTY, on purpose. A Spike owes nothing — it borrows no ceremony because it
+# lands nothing. Its exit is graduate-or-discard, not a backfill.
+backfills: []
+
+# --- reframes --------------------------------------------------------------
+# Empty: this Spike was framed once. (Note: graduation is a FRESH Frame on a
+# new task — a new task.yml — not a re-frame entry on this one.)
+reframes: []

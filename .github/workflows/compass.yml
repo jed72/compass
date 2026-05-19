@@ -1,0 +1,41 @@
+# Compass framework repo — its own CI (dogfooding).
+#
+# This validates the Compass framework repository itself: the repo structure,
+# the governance YAML, and the CLI. It is also the live proof of the reference
+# workflow in ci/github-actions.yml — a project copies that one; this is the
+# framework keeping its own house in order.
+
+name: Compass (self-check)
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  self-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the CLI's dependencies
+        run: pip install pyyaml jsonschema
+
+      - name: Repo structure self-check
+        # scripts/validate.sh verifies the directory tree, that commands
+        # reference skills/agents/templates that exist, and that the kit layer
+        # is intact.
+        run: bash scripts/validate.sh
+
+      - name: CLI syntax
+        run: python3 -c "import ast; ast.parse(open('cli/compass').read())"
+
+      - name: Compass gate suite
+        # The framework repo has no .compass/work/ tasks, so this is
+        # `compass policy lint` in practice — it proves the shipped governance
+        # YAML is valid and the CLI runs.
+        run: python3 cli/compass ci

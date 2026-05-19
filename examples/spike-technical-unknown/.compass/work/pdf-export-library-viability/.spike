@@ -1,0 +1,8 @@
+This task is on the Spike route. The pre-tool hook reads this marker and
+suspends the TDD red-before-green strategy (S2) — code edits are not blocked,
+because exploration code is throwaway and red-before-green is the wrong
+discipline for it.
+
+Written by the Needle at Frame. Removed only if the spike is re-framed onto a
+delivery route (graduation), where the marker no longer applies and the
+guardrails apply in full.

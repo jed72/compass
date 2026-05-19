@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://compass-sdd/schemas/routing-policy.schema.json",
+  "title": "Compass governance/routing-policy.yml",
+  "description": "The machine-readable routing policy. The human-readable companion is routing-policy.reference.yml; routing-policy.md is the prose explanation.",
+  "type": "object",
+  "required": ["version", "routing_strategies", "routing_guardrails", "reading_vocabulary", "route_shapes"],
+  "properties": {
+    "version": { "type": "string" },
+
+    "routing_strategies": {
+      "type": "object",
+      "description": "The SOFT layer — biases the candidate route.",
+      "required": ["default_shapes", "default_route"],
+      "properties": {
+        "default_shapes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "when", "lean_toward", "rationale"],
+            "properties": {
+              "id": { "type": "string" },
+              "when": { "type": "object" },
+              "lean_toward": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "default_route": { "type": "string" },
+        "biases": { "type": "array", "items": { "type": "string" } },
+        "role_defaults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "when"],
+            "properties": {
+              "id": { "type": "string" },
+              "when": { "type": "object" },
+              "suggest_artifact": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "routing_guardrails": {
+      "type": "object",
+      "description": "The HARD layer — bounds the route.",
+      "properties": {
+        "floors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "when", "rationale"],
+            "properties": {
+              "id": { "type": "string" },
+              "when": { "type": "object" },
+              "force_minimum_route": { "type": "string" },
+              "require_phase": { "type": "string" },
+              "require_skill": { "type": "string" },
+              "never_skip": { "type": "array", "items": { "type": "string" } },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "caps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "when", "rationale"],
+            "properties": {
+              "id": { "type": "string" },
+              "when": { "type": "object" },
+              "max_worktrees": { "type": "integer" },
+              "forbid_route": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "immovable_gates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "gate", "rationale"],
+            "properties": {
+              "id": { "type": "string" },
+              "gate": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        },
+        "role_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "when", "rationale"],
+            "properties": {
+              "id": { "type": "string" },
+              "when": { "type": "object" },
+              "require_artifact": { "type": "string" },
+              "gate": { "type": "string" },
+              "block_phase": { "type": "string" },
+              "until": { "type": "string" },
+              "rationale": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "reading_vocabulary": {
+      "type": "object",
+      "description": "The closed value sets per reading dimension.",
+      "required": ["blast_radius", "terrain", "magnitude", "intent"],
+      "properties": {
+        "blast_radius": { "type": "array", "items": { "type": "string" } },
+        "terrain": { "type": "array", "items": { "type": "string" } },
+        "magnitude": { "type": "array", "items": { "type": "string" } },
+        "intent": { "type": "array", "items": { "type": "string" } },
+        "urgency": { "type": "array", "items": { "type": "string" } },
+        "role": { "type": "array", "items": { "type": "string" } },
+        "touches_common": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "route_shapes": {
+      "type": "object",
+      "description": "The machine mirror of the five reference routes.",
+      "required": ["spike", "express", "standard", "hotfix", "expedition"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["weight", "phases", "gates", "topology"],
+        "properties": {
+          "weight": { "type": "integer" },
+          "phases": { "type": "object" },
+          "gates": { "type": "array", "items": { "type": "string" } },
+          "topology": { "type": "string" }
+        }
+      }
+    }
+  }
+}

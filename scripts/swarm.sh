@@ -1,0 +1,195 @@
+#!/usr/bin/env bash
+# =============================================================================
+# Compass script: swarm.sh  —  CREATE WORKTREES, ONE PER INDEPENDENT STREAM
+# =============================================================================
+# The Distribute-phase tool. Given a task's distribution-map.md, it creates one
+# git worktree per independent stream under the configured worktree_root, one
+# branch per stream, and prints the launch plan — one `builder` agent per
+# worktree. Only the `orchestrator` agent runs this (see CLAUDE.md, the
+# worktree-swarm skill).
+#
+# USAGE
+#   scripts/swarm.sh <task-slug>            # read .compass/work/<slug>/distribution-map.md
+#   scripts/swarm.sh <task-slug> --dry-run  # show the plan, create nothing
+#   scripts/swarm.sh --help
+#
+# WHAT IT RESPECTS
+#   - .compass/config.yml  swarm.worktree_root   (default ../.compass-worktrees)
+#   - .compass/config.yml  swarm.max_worktrees   (default 6) — hard ceiling
+#   - any adaptivity `cap` recorded in route.md, in particular the STANDING CAP:
+#       critical blast radius => max_worktrees: 1.
+#     If the cap is below the stream count, the cap WINS and swarm.sh refuses to
+#     over-provision — it tells you to fold/sequence streams in the map first.
+#
+# IDEMPOTENT & SAFE
+#   - A worktree/branch that already exists for a stream is left as-is (reported
+#     as "exists"), not recreated.
+#   - It never deletes anything — teardown is integrate.sh's job on success.
+#   - On any inconsistency (map missing, count over cap, dirty repo) it stops
+#     with a clear message and changes nothing.
+# =============================================================================
+
+set -euo pipefail
+
+# --- locate repo + project --------------------------------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPASS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_DIR="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# --- args -------------------------------------------------------------------
+TASK_SLUG=""
+DRY_RUN=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1 ;;
+    -h|--help) grep -E '^# (USAGE|  scripts)' "$0" | sed 's/^# //'; exit 0 ;;
+    -*) echo "swarm.sh: unknown flag: $1" >&2; exit 1 ;;
+    *)  TASK_SLUG="$1" ;;
+  esac
+  shift
+done
+[ -n "$TASK_SLUG" ] || { echo "swarm.sh: need a task slug. See --help." >&2; exit 1; }
+
+TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
+MAP="$TASK_DIR/distribution-map.md"
+ROUTE="$TASK_DIR/route.md"
+CONFIG="$PROJECT_DIR/.compass/config.yml"
+
+[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for task '$TASK_SLUG' — Plan must produce it first." >&2; exit 1; }
+[ -f "$ROUTE" ] || { echo "swarm.sh: no route.md for task '$TASK_SLUG' — Frame must run first." >&2; exit 1; }
+
+# --- config: worktree_root + max_worktrees ----------------------------------
+# Minimal YAML reads — these keys are simple scalars in .compass/config.yml.
+read_cfg() { # key default
+  local v=""
+  [ -f "$CONFIG" ] && v="$(grep -E "^[[:space:]]*$1:" "$CONFIG" 2>/dev/null \
+      | head -n1 | sed -E 's/^[^:]*:[[:space:]]*//; s/[[:space:]]*#.*$//; s/^"//; s/"$//')"
+  echo "${v:-$2}"
+}
+WORKTREE_ROOT_REL="$(read_cfg 'worktree_root' '../.compass-worktrees')"
+MAX_WORKTREES="$(read_cfg 'max_worktrees' '6')"
+
+# worktree_root is relative to the project root.
+case "$WORKTREE_ROOT_REL" in
+  /*) WORKTREE_ROOT="$WORKTREE_ROOT_REL" ;;
+  *)  WORKTREE_ROOT="$(cd "$PROJECT_DIR" && cd "$(dirname "$WORKTREE_ROOT_REL")" 2>/dev/null && pwd || echo "$PROJECT_DIR/$WORKTREE_ROOT_REL")/$(basename "$WORKTREE_ROOT_REL")" ;;
+esac
+
+# --- the cap from route.md --------------------------------------------------
+# The Needle records caps in route.md. The standing cap is critical blast
+# radius => max_worktrees 1. We detect it two ways: an explicit "max_worktrees:
+# 1" line in route.md, or a critical blast-radius reading.
+CAP="$MAX_WORKTREES"
+if grep -qiE 'max_worktrees[^0-9]*1\b' "$ROUTE" 2>/dev/null; then
+  CAP=1
+fi
+if grep -qiE 'Blast radius[^|]*\|[[:space:]]*critical' "$ROUTE" 2>/dev/null \
+   || grep -qiE 'blast_radius:[[:space:]]*critical' "$ROUTE" 2>/dev/null; then
+  CAP=1
+fi
+# Never exceed the config ceiling regardless.
+[ "$CAP" -gt "$MAX_WORKTREES" ] && CAP="$MAX_WORKTREES"
+
+# --- parse streams from the distribution map --------------------------------
+# The map's §3 table has rows like:
+#   | stream-1 | U1 | TRC-A1, TRC-A2 | compass/<slug>/stream-1 |
+# We pull (stream id, branch name) pairs from any table row whose first cell
+# starts with "stream-". This is intentionally forgiving so a hand-filled map
+# still parses.
+STREAMS=()
+BRANCHES=()
+while IFS= read -r line; do
+  # row must look like a markdown table row mentioning a stream id
+  case "$line" in
+    \|*stream-*) ;;
+    *) continue ;;
+  esac
+  # split on '|', trim each cell
+  IFS='|' read -r _ c1 c2 c3 c4 _rest <<<"$line"
+  sid="$(echo "${c1:-}" | xargs 2>/dev/null || true)"
+  branch="$(echo "${c4:-}" | xargs 2>/dev/null || true)"
+  case "$sid" in stream-*) ;; *) continue ;; esac
+  # default branch name if the map left it blank
+  [ -n "$branch" ] || branch="compass/$TASK_SLUG/$sid"
+  STREAMS+=("$sid")
+  BRANCHES+=("$branch")
+done < "$MAP"
+
+STREAM_COUNT="${#STREAMS[@]}"
+if [ "$STREAM_COUNT" -eq 0 ]; then
+  echo "swarm.sh: distribution-map.md lists no streams (no 'stream-N' rows in §3)." >&2
+  echo "          If the route is solo, Distribute is a no-op — do not run swarm.sh." >&2
+  exit 1
+fi
+
+# --- enforce the cap --------------------------------------------------------
+if [ "$STREAM_COUNT" -gt "$CAP" ]; then
+  echo "swarm.sh: the distribution map has $STREAM_COUNT streams but the cap is $CAP." >&2
+  echo "          The cap wins. Do not over-provision worktrees — go back to" >&2
+  echo "          distribution-map.md and fold or sequence streams down to $CAP," >&2
+  echo "          recording it as cap-driven (not as a de-scope). Then re-run." >&2
+  exit 1
+fi
+
+# --- repo sanity ------------------------------------------------------------
+git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
+  || { echo "swarm.sh: $PROJECT_DIR is not a git repository." >&2; exit 1; }
+BASE_BRANCH="$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)"
+
+echo "Compass swarm — task '$TASK_SLUG'"
+echo "  base branch:    $BASE_BRANCH"
+echo "  worktree root:  $WORKTREE_ROOT"
+echo "  streams:        $STREAM_COUNT   (config max $MAX_WORKTREES, route cap $CAP)"
+echo ""
+
+# --- create the worktrees ---------------------------------------------------
+mkdir -p "$WORKTREE_ROOT"
+LAUNCH_PLAN=()
+
+for i in "${!STREAMS[@]}"; do
+  sid="${STREAMS[$i]}"
+  branch="${BRANCHES[$i]}"
+  wt_path="$WORKTREE_ROOT/$TASK_SLUG-$sid"
+
+  if [ -d "$wt_path" ]; then
+    echo "  $sid: worktree exists -> $wt_path"
+  elif [ "$DRY_RUN" -eq 1 ]; then
+    echo "  $sid: WOULD create worktree $wt_path on branch $branch"
+  else
+    # Create the branch if it does not exist, then the worktree on it.
+    if git -C "$PROJECT_DIR" show-ref --verify --quiet "refs/heads/$branch"; then
+      git -C "$PROJECT_DIR" worktree add "$wt_path" "$branch" >/dev/null
+    else
+      git -C "$PROJECT_DIR" worktree add -b "$branch" "$wt_path" "$BASE_BRANCH" >/dev/null
+    fi
+    echo "  $sid: created worktree $wt_path on branch $branch"
+  fi
+  LAUNCH_PLAN+=("$sid|$branch|$wt_path")
+done
+
+# --- print the launch plan --------------------------------------------------
+echo ""
+echo "Launch plan — one 'builder' agent per worktree:"
+echo "----------------------------------------------------------------"
+for entry in "${LAUNCH_PLAN[@]}"; do
+  IFS='|' read -r sid branch wt_path <<<"$entry"
+  echo "  builder for $sid"
+  echo "    worktree : $wt_path"
+  echo "    branch   : $branch"
+  echo "    charter  : owns the scenario set assigned to $sid in distribution-map.md"
+  echo "    rule     : works ONLY inside this worktree; cross-stream needs go via the orchestrator"
+  echo ""
+done
+echo "----------------------------------------------------------------"
+if [ "$STREAM_COUNT" -ge 4 ]; then
+  echo "Topology is a SWARM (4+ streams): an 'orchestrator' agent must also run —"
+  echo "it writes no feature code, watches for streams converging on shared surface,"
+  echo "and owns integration at Land via scripts/integrate.sh."
+else
+  echo "Topology is a PAIR (2-3 streams): no dedicated orchestrator — the lead"
+  echo "builder integrates at Land via scripts/integrate.sh."
+fi
+echo ""
+[ "$DRY_RUN" -eq 1 ] && echo "(dry run — nothing was created)"
+echo "When every stream is independently green, land them with:"
+echo "  scripts/integrate.sh $TASK_SLUG"

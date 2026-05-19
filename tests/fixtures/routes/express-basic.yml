@@ -1,0 +1,17 @@
+# A small, contained, mapped change in delivery mode — the Express shape.
+# No floor fires; no cap fires; no role rule fires.
+name: express-basic
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: small
+  intent: delivery
+  role: engineer
+  touches: []
+expected:
+  candidate_route: express
+  route: express
+  fired_guardrail_ids: []
+  conflict: false
+  topology: solo
+  has_gate: verify.correctness

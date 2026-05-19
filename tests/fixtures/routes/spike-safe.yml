@@ -1,0 +1,17 @@
+# Exploration intent on safe surface — routes to Spike, no floor would
+# raise it onto delivery, so no conflict.
+name: spike-safe
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: small
+  intent: exploration
+  role: engineer
+  touches: []
+expected:
+  candidate_route: spike
+  route: spike
+  fired_guardrail_ids: []
+  conflict: false
+  topology: solo
+  has_gate: spike.conclude

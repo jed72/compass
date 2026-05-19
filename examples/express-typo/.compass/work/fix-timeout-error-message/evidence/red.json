@@ -1,0 +1,7 @@
+{
+  "command": "pytest tests/api/test_upload_errors.py::test_timeout_message_names_size_limit",
+  "exit_code": 1,
+  "passed": false,
+  "timestamp": "2026-05-04T09:21:48+00:00",
+  "log_excerpt": "tests/api/test_upload_errors.py F                                        [100%]\n\n=================================== FAILURES ===================================\n_______________ test_timeout_message_names_size_limit __________________________\n\n    def test_timeout_message_names_size_limit():\n        resp = upload_oversize_file(size_mb=60, limit_mb=25)\n>       assert \"25 MB\" in resp.error\nE       AssertionError: assert '25 MB' in 'Upload failed. Please try again later.'\n\ntests/api/test_upload_errors.py:31: AssertionError\n=========================== 1 failed in 0.18s ============================="
+}

@@ -1,0 +1,17 @@
+# A live defect that is small enough to fix fast — the Hotfix shape (RS-SHAPE-002).
+name: hotfix-prod-defect
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: small
+  intent: delivery
+  urgency: live-defect
+  role: engineer
+  touches: []
+expected:
+  candidate_route: hotfix
+  route: hotfix
+  fired_guardrail_ids: []
+  conflict: false
+  topology: solo
+  has_gate: verify.regression

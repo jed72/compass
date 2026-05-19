@@ -1,0 +1,31 @@
+# Compass per-project working state is generated, not committed by the framework repo.
+# (In a real project, .compass/work/ IS committed — it's the audit trail.
+#  Here in the framework repo itself, we ignore scratch.)
+.compass/work/
+*.log
+
+# OS / editor noise
+.DS_Store
+__MACOSX/
+.idea/
+.vscode/
+
+# Python / pytest
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+.mypy_cache/
+
+# Backups (e.g. from `sed -i.bak`)
+*.bak
+
+# Node (if a project uses it)
+node_modules/
+
+# Release artifacts
+dist/
+build/
+*.tar.gz
+*.zip

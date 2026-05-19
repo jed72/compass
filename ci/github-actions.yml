@@ -1,0 +1,50 @@
+# Compass — reference GitHub Actions workflow.
+#
+# Copy this to `.github/workflows/compass.yml` in your project. It runs the
+# full mechanical gate suite (`compass ci`) on every pull request and on pushes
+# to main. The job fails if governance is malformed, a task.yml is off-schema,
+# or any task's guardrail checks do not pass.
+#
+# COMBINED WITH PROJECT CI
+#   Compass CI does NOT replace your project CI — it runs *alongside* it as a
+#   process-integrity lane. The recommended pattern is two jobs in one
+#   workflow: a `project-ci` job for your tests/lint/build/etc., and this
+#   `compass-ci` job gated on it (`needs: project-ci`) so a red test suite
+#   halts the pipeline before Compass runs. The combined example is in
+#   ci/README.md and in the top-level README's "Compass CI vs project CI"
+#   section.
+#
+# Adjust `COMPASS_CLI` to wherever the Compass CLI lives in your repo (a
+# vendored copy, a submodule, or a pinned checkout). Pin to a specific
+# commit SHA, not a branch — see docs/security.md for the supply-chain
+# stance. See ci/README.md for the full integration contract.
+
+name: Compass
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  compass-ci:
+    runs-on: ubuntu-latest
+    env:
+      COMPASS_CLI: cli/compass        # <- path to the Compass CLI in this repo
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the Compass CLI's dependencies
+        # pyyaml is the only hard dependency; jsonschema enables full JSON
+        # Schema validation (the CLI works without it, on its built-in linter).
+        run: pip install pyyaml jsonschema
+
+      - name: Compass mechanical gate suite
+        # `compass ci` exits non-zero if governance is invalid, a task.yml is
+        # off-schema, or any task's guardrail checks fail. That exit code is
+        # the entire integration contract.
+        run: python3 "$COMPASS_CLI" ci

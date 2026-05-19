@@ -1,0 +1,18 @@
+# A small change that touches auth. RS-SHAPE-003 picks express as the
+# candidate; RG-FLOOR-003 forces the route to at least expedition because
+# `touches` includes a G5 domain.
+name: expedition-auth-floor
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: small
+  intent: delivery
+  role: engineer
+  touches: [auth]
+expected:
+  candidate_route: express
+  route: expedition
+  fired_guardrail_ids: [RG-FLOOR-003]
+  conflict: false
+  topology: swarm
+  has_gate: verify.security
