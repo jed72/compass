@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/compass-icon.png" alt="Compass Framework Icon" width="320" max-width="100%">
+</p>
+
 # Compass — Adaptive Spec-Driven Development
 
 **Read the terrain. Then route.**
