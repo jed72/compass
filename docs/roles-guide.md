@@ -255,7 +255,7 @@ triages (guardrail violations, routes outgrown, stalls, owed backfills
 aggregated across the board), surfaces what needs a human first, and writes a
 periodic digest. It *advises* — it never gates and it never sets task state.
 The gates stay in the per-task pipeline, next to the evidence. See
-`methodology.md` §10 for the full rationale, and `commands/compass/flow.md` for
+`methodology.md` §10 for the full rationale, and `commands/flow.md` for
 the command.
 
 The test of whether this was the right call: nothing about delivery management

@@ -98,7 +98,7 @@ is checked, not just the file's existence.
 Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land
 ```
 
-Each phase has a slash command in `commands/compass/`. Run them in order. The
+Each phase has a slash command in `commands/`. Run them in order. The
 route in `route.md` tells you which phases are full-weight, which collapse,
 and which are skipped — and the route always states *why* a phase is skipped.
 Honour that; do not silently re-skip or re-add phases.
