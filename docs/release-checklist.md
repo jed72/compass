@@ -26,7 +26,7 @@ These cannot be cleared in code. They need running against the real world.
 
 - [ ] **Run the install smoke test on a real Claude Code session.** Follow `docs/install-smoke-test.md` end to end — install, frame a tiny test task, confirm `task.yml` / `route.md` / `.compass/current-task` all appear, run `compass check` against it. The static install test only proves the file paths resolve; this proves Claude Code picks the commands up.
 - [ ] **Pilot Compass on at least one real task per category** (Express, Standard, Expedition). Set `mode: advisory` in `.compass/config.yml` first so it does not block. Watch what the team trips on. Capture re-frames; run `compass calibration` after a week or two.
-- [ ] **Replace the placeholder repo URL** (`<YOUR-ORG-OR-FORK>`) in `README.md`, `docs/quickstart.md`, and `docs/install-smoke-test.md` with the real Compass repository URL before publication.
+- [x] **Replace the placeholder repo URL** (`<YOUR-ORG-OR-FORK>`) in `README.md`, `docs/quickstart.md`, and `docs/install-smoke-test.md` with the real Compass repository URL before publication.
 - [ ] **Audit any project guardrails** the team adds before turning on `mode: enforced`. A project-added guardrail must reference a check the CLI implements (the integrity rule is enforced, but reviewing the policy by eye still matters).
 - [ ] **Pin to a commit SHA in CI**, not a branch — `ci/README.md` and `docs/security.md` describe the supply-chain stance.
 

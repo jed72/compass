@@ -220,9 +220,7 @@ and `compass ci` will report failures without exiting non-zero. Flip to
 
 ```bash
 # Install (clones the framework, wires it into Claude Code).
-# Note: the URL below is a PLACEHOLDER for the pre-1.0 distribution.
-# Replace <YOUR-ORG-OR-FORK> with the real Compass repo before publishing.
-git clone https://github.com/<YOUR-ORG-OR-FORK>/compass.git
+git clone https://github.com/jed72/compass.git
 cd compass && bash scripts/install.sh --global
 pip install pyyaml      # the CLI's one dependency
 
