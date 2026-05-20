@@ -72,17 +72,15 @@ echo ""
 # --- helper: link or copy one component directory ---------------------------
 # Each of commands/agents/skills is installed as a subdirectory named
 # "compass" so it cannot collide with anything else the user has — the
-# resolved Claude Code path is ~/.claude/<name>/compass/<file>.
-#
-# NOTE the asymmetry in the repo layout: command files live in
-# commands/compass/*.md (the slash-command namespace dir), but agent and skill
-# files live directly in agents/*.md and skills/*/SKILL.md. So for commands we
-# take the src one level deeper — otherwise the install double-nests and the
-# commands resolve as /compass:compass:frame instead of /compass:frame.
+# resolved Claude Code path is ~/.claude/<name>/compass/<file>. The "compass"
+# destination dir is also what supplies the slash-command namespace, so the
+# repo's flat commands/*.md resolve as /compass:frame (not /compass:compass:…).
+# The repo layout is uniform: commands/*.md, agents/*.md, skills/*/SKILL.md —
+# all installed the same way. (The plugin path uses the plugin name for the
+# same namespace; see .claude-plugin/plugin.json.)
 install_component() {
   local name="$1"                      # commands | agents | skills
   local src="$COMPASS_HOME/$name"
-  [ "$name" = "commands" ] && src="$COMPASS_HOME/commands/compass"
   local dest_parent="$CLAUDE_ROOT/$name"
   local dest="$dest_parent/compass"
 

@@ -218,14 +218,29 @@ and `compass ci` will report failures without exiting non-zero. Flip to
 
 ## Quick start
 
+The fastest path is the plugin marketplace — no clone, no install script:
+
 ```bash
-# Install (clones the framework, wires it into Claude Code).
+# In Claude Code:
+/plugin marketplace add jed72/compass
+/plugin install compass@compass
+pip install pyyaml      # the CLI's one dependency
+```
+
+Enabling the plugin namespaces the commands as `/compass:…`, registers the
+hooks, and puts the `compass` CLI on your PATH. Or install from source — it
+wires the same pieces in by symlink, so edits to your clone are picked up live:
+
+```bash
 git clone https://github.com/jed72/compass.git
 cd compass && bash scripts/install.sh --global
-pip install pyyaml      # the CLI's one dependency
+pip install pyyaml
+```
 
-# Start a task right away — the default guardrails ship active,
-# so the Needle frames it and picks the route with zero setup.
+Either way, start a task right away — the default guardrails ship active, so
+the Needle frames it and picks the route with zero setup:
+
+```bash
 /compass:frame "Add rate limiting to the public API"
 
 # Walk the pipeline (or let the route auto-advance). The slash commands

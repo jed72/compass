@@ -258,7 +258,7 @@ both are mechanism the adapter calls.
 
 | Methodology / kit concept | Adapter must map it to… | Reference (Claude Code) |
 |---|---|---|
-| The eight phases | Invocable commands or equivalent units | `commands/compass/*.md` slash commands |
+| The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
 | The Needle | A triage routine that produces the *readings*, then calls the kit to compose the route | `/compass:frame` + the `navigator` agent + the `adaptive-routing` skill, calling `compass route evaluate` |
 | The kit-layer CLI | A shell-out from the adapter — never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green` |
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code) and `compass calibration` (the re-frame feedback loop) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration` |

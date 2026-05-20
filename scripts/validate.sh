@@ -59,7 +59,7 @@ say ""
 
 # --- 1. required structure --------------------------------------------------
 say "1. Directory structure and top-level files"
-for d in docs governance routes templates commands commands/compass \
+for d in docs governance routes templates commands \
          agents skills hooks scripts .compass; do
   if [ -d "$d" ]; then ok "dir  $d/"; else fail "missing directory: $d/"; fi
 done

@@ -33,7 +33,7 @@ Compass installer
   link mode:             symlink
 
 Installing adapter layer...
-  linked  commands/compass -> /path/to/compass/commands/compass
+  linked  commands/compass -> /path/to/compass/commands
   linked  agents/compass -> /path/to/compass/agents
   linked  skills/compass -> /path/to/compass/skills
   registered hooks in /Users/you/.claude/settings.json (PreToolUse, PostToolUse, Stop)
