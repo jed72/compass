@@ -17,9 +17,7 @@ into — wherever `scripts/install.sh` lives.
 ## 1. Clone the framework and install the adapter layer
 
 ```bash
-# NOTE: the URL is a PLACEHOLDER until the real repo URL is published.
-#       Replace <YOUR-ORG-OR-FORK> with the real Compass repo.
-git clone https://github.com/<YOUR-ORG-OR-FORK>/compass.git
+git clone https://github.com/jed72/compass.git
 cd compass
 bash scripts/install.sh --global       # or: bash scripts/install.sh --project DIR
 ```

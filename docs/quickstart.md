@@ -24,9 +24,7 @@ its commands and agents call the kit-layer CLI under the hood. See
 `docs/methodology.md` §9 and `docs/portability.md` for the full picture.
 
 ```bash
-# NOTE: the URL is a PLACEHOLDER until the real repo URL is published.
-#       Replace <YOUR-ORG-OR-FORK> with the real Compass repo.
-git clone https://github.com/<YOUR-ORG-OR-FORK>/compass.git
+git clone https://github.com/jed72/compass.git
 cd compass
 pip install pyyaml                    # the CLI's one hard dependency
 pip install jsonschema                # optional — turns on full JSON Schema lint
