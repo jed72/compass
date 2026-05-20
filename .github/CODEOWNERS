@@ -1,0 +1,11 @@
+# CODEOWNERS — who must approve PRs touching each path.
+#
+# The `protected-main` ruleset has `require_code_owner_review: true`, so any
+# PR that changes a path listed here needs an approving review from the
+# owner(s) below before it can merge.
+#
+# Syntax: <pattern>  <owner1> [<owner2> ...]
+# The last matching pattern wins, so put broad rules first, narrow last.
+# Docs: https://docs.github.com/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+
+* @jed72
