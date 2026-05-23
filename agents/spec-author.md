@@ -37,7 +37,26 @@ and you do not write production code.
    the happy path, the realistic edges, and the failure modes that matter. No
    code may exist that no scenario describes; equally, do not write scenarios
    the route does not need.
-4. **Seed traceability.** Every scenario carries an intent reference. Load the
+4. **Consult the architect-lens when the task touches boundaries.** Before
+   finalising scenarios, check `task.yml.readings.touches`. If it contains:
+   - the literal tag `public-api`, OR
+   - any tag that matches a service name in `architecture/relations.md`
+     (if that file exists in the project), OR
+   - any tag listed as a `lens_trigger_tag` in `architecture/invariants.yml`
+     (if that file exists in the project)
+
+   ...then invoke `/compass:roundtable architect-lens` before scenarios are
+   finalised. The architect-lens writes `architecture-notes.md` to the task
+   directory. You read that file and incorporate its boundary risks and
+   invariant flags into the spec as observable Given/When/Then assertions
+   (or record that no architectural risk applies). This is the Q5 trigger
+   defined in clarifications.md.
+
+   **Bootstrap exception:** if `agents/architect-lens.md` does not exist (e.g.
+   the current task is the one introducing the lens), do not attempt to invoke
+   it. Record the absence in `devlog.md` as a recordable absence, not a
+   silent skip.
+5. **Seed traceability.** Every scenario carries an intent reference. Load the
    `traceability` skill — the chain starts here.
 5. **Write the `scenarios:` block of `task.yml`.** Alongside the prose
    `spec.feature.md`, record each scenario in the task spine: a stable `id`, a
