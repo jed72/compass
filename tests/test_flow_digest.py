@@ -1,14 +1,11 @@
-"""Flow digest — reframe-debt and no-mutation invariants.
+"""Flow digest tests — TRC-F4, TRC-C6, TRC-D5.
 
-TRC-C6 — Flow digest includes calibration's reframe-debt section
-TRC-D5 — Flow digest absorbs rework-scan (stub; full coverage in test_rework_scan)
-TRC-F4 — Flow still advises, never gates (calibration/rework-scan do not mutate task.yml)
+Unified after integration of streams 3, 4, and 6:
 
-The flow digest is the markdown file written by /compass:flow --digest.
-For this task's scope: we assert that the flow command's digest output
-contains the reframe-debt section produced by calibration, and that
-running calibration leaves all task.yml files unmodified (B-Risk 5 /
-Inv-4).
+- TRC-F4 (stream-6, canonical): Flow advises, never gates. Snapshot SHA256 of
+  every task.yml before/after running advisory commands; assert byte-identity.
+- TRC-D5 (stream-4): `compass flow --digest` includes a Rework scan section.
+- TRC-C6 (stream-3): the digest surfaces calibration's reframe-debt section.
 """
 from __future__ import annotations
 
@@ -16,7 +13,7 @@ import hashlib
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Dict
 
 import pytest
 import yaml
@@ -25,12 +22,229 @@ FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 CLI_PATH = FRAMEWORK_ROOT / "cli" / "compass"
 
 
-def _sha256(path: Path) -> str:
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _sha256_of_file(path: Path) -> str:
+    """Return the hex SHA256 digest of a file's contents."""
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _make_project(tmp_path: Path) -> Path:
+def _snapshot_task_ymls(compass_work_dir: Path) -> Dict[str, str]:
+    """Return {relative_path: sha256} for every task.yml under compass_work_dir."""
+    snapshots: Dict[str, str] = {}
+    if not compass_work_dir.is_dir():
+        return snapshots
+    for task_yml in sorted(compass_work_dir.rglob("task.yml")):
+        rel = str(task_yml.relative_to(compass_work_dir))
+        snapshots[rel] = _sha256_of_file(task_yml)
+    return snapshots
+
+
+def write_task_yml(directory: Path, slug: str, changed_files: list,
+                   created: str = "2026-05-01") -> None:
+    """Write a minimal task.yml for testing (stream-4 helper)."""
+    directory.mkdir(parents=True, exist_ok=True)
+    data = {
+        "slug": slug,
+        "route": "standard",
+        "status": "landed",
+        "created": created,
+        "readings": {
+            "blast_radius": "contained",
+            "terrain": "brownfield-mapped",
+            "magnitude": "standard",
+            "intent": "delivery",
+            "role": "engineer",
+        },
+        "changed_files": changed_files,
+    }
+    with (directory / "task.yml").open("w", encoding="utf-8") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+
+
+def write_signals_yml(directory: Path, window_days: int = 14) -> Path:
+    """Write a signals.yml for tests (stream-4 helper)."""
+    data = {
+        "version": "1.0.0",
+        "scope_bloat_phrases": [],
+        "rework_scan": {
+            "window_days": window_days,
+            "public_surface_patterns": ["/api/v[0-9]+/", "pb\\."],
+            "migration_paths": ["migrations/*.sql", "**/migrations/*.sql"],
+        },
+    }
+    path = directory / "signals.yml"
+    with path.open("w", encoding="utf-8") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+    return path
+
+
+def run_subprocess_cli(*args, cwd=None, env_extra=None) -> subprocess.CompletedProcess:
+    """Run the compass CLI via subprocess in an isolated cwd (stream-4 helper)."""
+    import os
+    env = dict(os.environ)
+    if env_extra:
+        env.update(env_extra)
+    return subprocess.run(
+        [sys.executable, str(CLI_PATH), *args],
+        capture_output=True,
+        text=True,
+        cwd=str(cwd or FRAMEWORK_ROOT),
+        env=env,
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-F4 (stream-6, canonical) — Advisory commands must not mutate task.yml
+# ---------------------------------------------------------------------------
+
+def test_does_not_mutate_tasks(run_cli, make_task, project):
+    """TRC-F4: Flow still advises, never gates.
+
+    Given multiple tasks exist in .compass/work/
+    When compass calibration runs (the primary advisory/reporting command)
+    Then no task.yml under .compass/work/ is modified (byte-identical after)
+    And no task is automatically reframed, downgraded, or blocked.
+
+    This tests Inv-4 (architecture-notes.md §2): Flow reads disk and reports;
+    it does not write task state, does not block, does not reframe.
+    """
+    compass_work = project / ".compass" / "work"
+
+    # --- Given: set up multiple tasks with varying reframe states -----------
+    make_task("alpha-task", {
+        "readings": {
+            "blast_radius": "contained",
+            "terrain": "brownfield-mapped",
+            "magnitude": "standard",
+            "intent": "delivery",
+        },
+        "route": "standard",
+        "scenarios": [{"id": "SCN-001", "intent": "INT-1", "tests": ["tests/t.py::t"]}],
+        "reframes": [],
+        "changed_files": [],
+    }, set_current=False)
+
+    make_task("beta-task", {
+        "readings": {
+            "blast_radius": "contained",
+            "terrain": "brownfield-mapped",
+            "magnitude": "small",
+            "intent": "delivery",
+        },
+        "route": "standard",
+        "scenarios": [{"id": "SCN-002", "intent": "INT-1", "tests": ["tests/t.py::t"]}],
+        "reframes": [
+            {"from_route": "express", "to_route": "standard",
+             "reason": "needed more ceremony", "date": "2026-05-23"},
+        ],
+        "changed_files": [],
+    }, set_current=False)
+
+    before = _snapshot_task_ymls(compass_work)
+    assert before, "No task.yml found before calibration — test setup failed"
+
+    r = run_cli("calibration")
+    assert r.returncode == 0, (
+        f"compass calibration should exit 0 (advisory). Got {r.returncode}.\n"
+        f"stdout: {r.stdout}\nstderr: {r.stderr}"
+    )
+
+    after = _snapshot_task_ymls(compass_work)
+
+    assert before == after, (
+        "Advisory command 'compass calibration' mutated task.yml files — "
+        "this violates Inv-4 (Flow advises, never gates). "
+        "Changed files:\n" + "\n".join(
+            f"  {k}: before={before[k][:8]}... after={after[k][:8]}..."
+            for k in set(before) | set(after)
+            if before.get(k) != after.get(k)
+        )
+    )
+
+
+def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
+    """TRC-F4 (supplementary): calibration must not create NEW files in
+    .compass/work/ — any output should go to .compass/flow/ or stdout only.
+    """
+    compass_work = project / ".compass" / "work"
+
+    make_task("gamma-task", {
+        "readings": {
+            "blast_radius": "contained",
+            "terrain": "brownfield-mapped",
+            "magnitude": "standard",
+            "intent": "delivery",
+        },
+        "route": "standard",
+        "reframes": [],
+        "changed_files": [],
+    }, set_current=False)
+
+    def _all_files_in(d: Path):
+        return {str(p.relative_to(d)) for p in d.rglob("*") if p.is_file()}
+
+    before_files = _all_files_in(compass_work)
+
+    r = run_cli("calibration")
+    assert r.returncode == 0, r
+
+    after_files = _all_files_in(compass_work)
+    new_files = after_files - before_files
+    assert not new_files, (
+        "compass calibration created new files under .compass/work/ — "
+        "advisory output must go to stdout or .compass/flow/, not work/.\n"
+        f"New files: {sorted(new_files)}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-D5 (stream-4) — Flow digest absorbs rework-scan
+# ---------------------------------------------------------------------------
+
+def test_includes_rework_scan(tmp_path):
+    """TRC-D5: `compass flow --digest` output includes a Rework scan section."""
+    work_root = tmp_path / "work"
+    write_task_yml(work_root / "task-adds", "task-adds", [
+        {"path": "services/foo/handler.go", "action": "added"},
+    ], created="2026-05-01")
+    write_task_yml(work_root / "task-removes", "task-removes", [
+        {"path": "services/foo/handler.go", "action": "deleted"},
+    ], created="2026-05-05")
+
+    signals = write_signals_yml(tmp_path)
+
+    proc = run_subprocess_cli(
+        "flow", "--digest",
+        "--work-root", str(work_root),
+        cwd=tmp_path,
+        env_extra={"COMPASS_SIGNALS_YML": str(signals)},
+    )
+
+    assert proc.returncode == 0, (
+        f"compass flow --digest should exit 0; got {proc.returncode}\n"
+        f"stderr: {proc.stderr}\nstdout: {proc.stdout}"
+    )
+
+    output = proc.stdout
+    assert "rework scan" in output.lower(), (
+        f"expected 'Rework scan' section in flow --digest output:\n{output}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-C6 (stream-3) — Flow digest includes calibration's reframe-debt section
+# ---------------------------------------------------------------------------
+
+def test_includes_reframe_debt(tmp_path):
+    """TRC-C6: calibration output includes a 'reframe debt' section when at
+    least one task has a devlog scope-bloat phrase and an empty reframes list.
+    """
+    import os
     import shutil
+
     compass = tmp_path / ".compass"
     (compass / "work").mkdir(parents=True, exist_ok=True)
     (compass / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
@@ -40,48 +254,12 @@ def _make_project(tmp_path: Path) -> Path:
     for f in gov_src.iterdir():
         if f.is_file():
             shutil.copy(f, gov_dst / f.name)
-    return tmp_path
 
-
-def _make_task(project: Path, slug: str, body: dict) -> Path:
-    task_dir = project / ".compass" / "work" / slug
+    slug = "bloat-no-reframe"
+    task_dir = compass / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
-    with (task_dir / "task.yml").open("w") as fh:
-        yaml.safe_dump(body, fh, sort_keys=False)
-    (project / ".compass" / "current-task").write_text(slug)
-    return task_dir
-
-
-def _run_cli(project: Path, *args: str) -> subprocess.CompletedProcess:
-    import os
-    env = dict(os.environ)
-    return subprocess.run(
-        [sys.executable, str(CLI_PATH), *args],
-        cwd=str(project),
-        capture_output=True,
-        text=True,
-        env=env,
-        timeout=15,
-    )
-
-
-# ---------------------------------------------------------------------------
-# TRC-C6 — Flow digest includes the reframe-debt section
-# ---------------------------------------------------------------------------
-
-def test_includes_reframe_debt(tmp_path):
-    """TRC-C6: calibration --reframe-debt section appears in the output when
-    tasks have scope-bloat phrases and no reframes.
-
-    The test verifies that `compass calibration` output includes a
-    'reframe debt' section when at least one task has a devlog scope-bloat
-    phrase and an empty reframes list.
-    """
-    project = _make_project(tmp_path)
-
-    # Task with a scope-bloat devlog phrase and no reframes
     task_body = {
-        "task": "bloat-no-reframe",
+        "task": slug,
         "created": "2026-05-20",
         "readings": {
             "blast_radius": "contained",
@@ -91,13 +269,22 @@ def test_includes_reframe_debt(tmp_path):
         "route": "standard",
         "reframes": [],
     }
-    task_dir = _make_task(project, "bloat-no-reframe", task_body)
-    # Write devlog with a scope-bloat phrase
+    with (task_dir / "task.yml").open("w") as fh:
+        yaml.safe_dump(task_body, fh, sort_keys=False)
+    (compass / "current-task").write_text(slug)
     (task_dir / "devlog.md").write_text(
         "2026-05-20: more files than Plan estimated\n"
     )
 
-    result = _run_cli(project, "calibration")
+    env = dict(os.environ)
+    result = subprocess.run(
+        [sys.executable, str(CLI_PATH), "calibration"],
+        cwd=str(tmp_path),
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=15,
+    )
     assert result.returncode == 0, result.stderr
 
     output = result.stdout.lower()
@@ -110,81 +297,3 @@ def test_includes_reframe_debt(tmp_path):
         "The reframe-debt section should explain 'absorbed mis-frame, signal lost'.\n"
         f"Got:\n{result.stdout}"
     )
-
-
-# ---------------------------------------------------------------------------
-# TRC-D5 — Flow digest includes rework-scan (minimal structural assertion)
-# ---------------------------------------------------------------------------
-
-def test_includes_rework_scan(tmp_path):
-    """TRC-D5: calibration output exists (rework-scan section integration
-    is tested in full in test_rework_scan.py; this is the minimal structural
-    assertion that the digest pathway doesn't crash on a clean project)."""
-    project = _make_project(tmp_path)
-    task_body = {
-        "task": "clean-task",
-        "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
-        },
-        "route": "standard",
-        "reframes": [],
-        "changed_files": [],
-    }
-    _make_task(project, "clean-task", task_body)
-
-    result = _run_cli(project, "calibration")
-    assert result.returncode == 0, (
-        f"calibration should not crash on a clean project\n{result.stderr}"
-    )
-
-
-# ---------------------------------------------------------------------------
-# TRC-F4 — Calibration and rework-scan must not mutate any task.yml (B-Risk 5 / Inv-4)
-# ---------------------------------------------------------------------------
-
-def test_does_not_mutate_tasks(tmp_path):
-    """TRC-F4 / B-Risk 5: compass calibration is strictly read-only over task.yml.
-
-    Capture SHA256 of every task.yml before and after running calibration;
-    assert they are identical.
-    """
-    project = _make_project(tmp_path)
-
-    tasks_bodies = [
-        {
-            "task": f"task-{i}",
-            "created": "2026-05-20",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
-            },
-            "route": "standard",
-            "reframes": [],
-        }
-        for i in range(3)
-    ]
-    task_dirs = []
-    for body in tasks_bodies:
-        slug = body["task"]
-        td = _make_task(project, slug, body)
-        # some with devlog scope-bloat phrases to trigger the reframe-debt path
-        (td / "devlog.md").write_text("more files than Plan estimated\n")
-        task_dirs.append(td)
-
-    # Capture SHAs before
-    before = {td / "task.yml": _sha256(td / "task.yml") for td in task_dirs}
-
-    result = _run_cli(project, "calibration")
-    assert result.returncode == 0, result.stderr
-
-    # Verify SHAs after
-    for path, sha_before in before.items():
-        sha_after = _sha256(path)
-        assert sha_before == sha_after, (
-            f"B-Risk 5 violated: calibration mutated {path}\n"
-            f"Before SHA: {sha_before}\nAfter SHA:  {sha_after}"
-        )

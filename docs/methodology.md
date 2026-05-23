@@ -462,31 +462,37 @@ survives session boundaries and context compaction — which is the core problem
 it solves.  An agent that needs to know whether the project has a stable
 service boundary, who owns a given surface, or which decisions are already
 recorded reads this file, not the raw `architecture/` tree.
+## 12. Cross-task rework
 
-## 12. Design principles (the short version)
+Each Compass task owns its own `changed_files` record — a list of paths and
+their actions (`added`, `modified`, `deleted`). These records are the code-half
+of traceability (G3), but they also carry a cross-task signal: if task B deletes
+a file that task A added within a short window, that is rework — task A's effort
+was undone before it delivered lasting value.
 
-1. **Compute the process, don't select it.** Intensity is a function of the
-   terrain, not a menu choice.
-2. **Adapt the ceremony and the strategy — never the guardrail.** A few hard,
-   checkable limits never flex; the form of how you meet them does.
-3. **Outcome is the guardrail; ritual is a strategy.** "Tested before it
-   lands" is hard. Red-before-green is the strong default way to get there —
-   and Spike can suspend it. That is how rigour stays proportionate.
-4. **Governance is a gradient, not a threshold.** Ship the defaults; accrete
-   the rest. There is a valid, complete *light* state — `/compass:init` is
-   optional.
-5. **One spec, many lenses.** The scenario file is the shared substrate for
-   every role.
-6. **De-scoping is a written decision.** If a route skips something, the
-   reason is in `route.md`.
-7. **Governance governs the router.** Routing guardrails bound the Needle;
-   routing strategies bias it. Flexibility is real and bounded.
-8. **Evidence over assertion, persistence over conversation.** Artifacts on
-   disk, not claims in chat.
+`compass rework-scan` reads every `task.yml.changed_files` under a configured
+root and detects:
 
----
+- **Add-then-delete pairs.** File added in task A, deleted by task B within the
+  configured `window_days` (default 14, from `governance/signals.yml`).
+- **Public-surface churn.** Files matching `rework_scan.public_surface_patterns`
+  (API routes, proto symbols, etc.) that follow the add-then-delete pattern.
+- **Migration pairs.** A migration file matching `rework_scan.migration_paths`
+  added by task A, paired with a semantically related drop migration added by
+  task B in the same window.
 
-## Reframes — feedback signal
+**Exit code is always 0.** The scan is a signal, not a gate (Inv-4: Flow
+advises, never gates). Detection of rework does not block delivery. The output
+surfaces in `/compass:flow --digest` as the "Rework scan" section, which a team
+reviews on a cadence to decide whether to act — spawning a sibling task,
+filing an ADR, or accepting the churn as intentional.
+
+Configuration lives in `governance/signals.yml` and is loaded at runtime;
+patterns are never hardcoded in the CLI. Projects override by editing their own
+`governance/signals.yml` using the same convention as `guardrails.yml` and
+`routing-policy.yml`.
+
+## 13. Reframes — feedback signal
 
 A **re-frame** is what happens when the Needle (or a human) re-reads the
 terrain mid-task and concludes that the initial route was wrong. Re-framing is
@@ -548,3 +554,24 @@ a nudge is appropriate.
 
 **The rule:** if scope grew, file the re-frame. The re-frame is not a failure;
 it is the calibration signal working as intended.
+
+## 14. Design principles (the short version)
+
+1. **Compute the process, don't select it.** Intensity is a function of the
+   terrain, not a menu choice.
+2. **Adapt the ceremony and the strategy — never the guardrail.** A few hard,
+   checkable limits never flex; the form of how you meet them does.
+3. **Outcome is the guardrail; ritual is a strategy.** "Tested before it
+   lands" is hard. Red-before-green is the strong default way to get there —
+   and Spike can suspend it. That is how rigour stays proportionate.
+4. **Governance is a gradient, not a threshold.** Ship the defaults; accrete
+   the rest. There is a valid, complete *light* state — `/compass:init` is
+   optional.
+5. **One spec, many lenses.** The scenario file is the shared substrate for
+   every role.
+6. **De-scoping is a written decision.** If a route skips something, the
+   reason is in `route.md`.
+7. **Governance governs the router.** Routing guardrails bound the Needle;
+   routing strategies bias it. Flexibility is real and bounded.
+8. **Evidence over assertion, persistence over conversation.** Artifacts on
+   disk, not claims in chat.
