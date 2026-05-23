@@ -42,6 +42,32 @@ user's experience, a priority conflict between intent and effort.
    rationale. If the decision changes scope or route, that is a trigger to
    re-frame (`/compass:frame --reframe`) — say so.
 
+## Reframe trigger
+
+Some roundtable outcomes do more than record a tradeoff — they change the
+scope, the boundary, or the migration surface of the current task. When that
+happens, a re-frame is not optional.
+
+**Any roundtable outcome that changes a service boundary or migration scope
+must end with a re-frame:**
+
+```
+/compass:frame --reframe --reason "<roundtable id> — <what changed and why>"
+```
+
+Examples of outcomes that require a re-frame:
+
+- The roundtable decides to extend a planned migration to cover an adjacent
+  service that was not in the original scope.
+- A boundary call moves a module from one service to another, adding files
+  that were not in `plan.md`.
+- A scope cut removes a deliverable that was in `spec.feature.md`.
+
+In all these cases, file the re-frame immediately after the roundtable
+decision is recorded in `devlog.md`. The re-frame is the calibration signal
+that `compass calibration` reads — absorbing a mis-frame silently loses the
+signal.
+
 ## Gate
 
 The decision is written to `devlog.md` with its rationale and the tradeoffs it

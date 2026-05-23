@@ -1101,6 +1101,101 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
 # across every task and reports whether the Needle is systematically over- or
 # under-sizing. Read-only; it advises, it does not gate.
 
+def _load_scope_bloat_phrases():
+    """Load scope_bloat_phrases from signals.yml at runtime.
+
+    B-Risk 6: patterns are never hardcoded in the CLI — always read from the
+    governance file. Returns an empty list if signals.yml is absent or
+    unreadable (graceful degradation).
+    """
+    try:
+        gov = find_governance()
+        sig_path = os.path.join(gov, "signals.yml")
+        if not os.path.isfile(sig_path):
+            return []
+        sig = load_yaml(sig_path)
+        return list(sig.get("scope_bloat_phrases") or [])
+    except CompassError:
+        return []
+
+
+def _find_reframe_debt(tasks, work):
+    """Return a list of absorbed mis-frame records.
+
+    For each task, scan its devlog.md for scope_bloat_phrases.  A task
+    qualifies as 'reframe debt' when:
+      - at least one scope-bloat phrase appears as the start of a devlog line
+        (column-0 anchor — same rule as the stop-hook, for consistency), AND
+      - task.yml.reframes has no entry whose date is >= the date of the
+        matching devlog line.
+
+    B-Risk 5: this function is strictly READ-ONLY; it never writes to any
+    task.yml or any other file.
+    B-Risk 6: patterns are supplied by the caller from signals.yml.
+    """
+    phrases = _load_scope_bloat_phrases()
+    if not phrases:
+        return []
+
+    debts = []
+    for slug, task in tasks:
+        devlog_path = os.path.join(work, slug, "devlog.md")
+        if not os.path.isfile(devlog_path):
+            continue
+
+        try:
+            with open(devlog_path, "r", encoding="utf-8") as fh:
+                devlog_lines = fh.readlines()
+        except OSError:
+            continue
+
+        # Latest reframe date for this task
+        reframes = task.get("reframes") or []
+        reframe_dates = sorted(
+            r.get("date", "") for r in reframes if r.get("date")
+        )
+        latest_reframe_date = reframe_dates[-1] if reframe_dates else ""
+
+        # Match a phrase as a top-level statement (not nested in
+        # quotes/indentation).  The phrase must appear at column 0 OR
+        # immediately after an optional YYYY-MM-DD[: ] date prefix.
+        # Lines starting with whitespace are skipped (indented/quoted context
+        # must not fire — consistency with the stop-hook's TRC-X3 rule).
+        import re as _re
+        _DATE_PREFIX_PAT = r'^(?:\d{4}-\d{2}-\d{2}[: ]+)?'
+
+        for phrase in phrases:
+            compiled = _re.compile(_DATE_PREFIX_PAT + _re.escape(phrase))
+            for raw_line in devlog_lines:
+                line = raw_line.rstrip("\n")
+                # Skip lines with leading whitespace (quoted/indented context)
+                if line and line[0].isspace():
+                    continue
+                if not compiled.match(line):
+                    continue
+                # Extract a date from the line start (YYYY-MM-DD prefix, if any)
+                line_date = ""
+                m = _re.match(r'^(\d{4}-\d{2}-\d{2})', line)
+                if m:
+                    line_date = m.group(1)
+                # Suppression: a reframe filed after (or on) the line date
+                if latest_reframe_date:
+                    if not line_date:
+                        # No date on the devlog line → can't order; suppress
+                        break
+                    if latest_reframe_date >= line_date:
+                        break  # reframe filed after or on the bloat line
+                # Record the debt
+                debts.append({
+                    "task": slug,
+                    "devlog_line": line,
+                    "phrase": phrase,
+                })
+                break  # one match per phrase per task is enough
+
+    return debts
+
+
 def cmd_calibration(args):
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
@@ -1192,6 +1287,25 @@ def cmd_calibration(args):
         print(f"  {ups} up / {downs} down — roughly balanced, re-frame rate "
               f"{pct}%.")
         print("  Routing looks reasonably calibrated; keep watching the trend.")
+
+    # --- Reframe debt (TRC-C5) -----------------------------------------------
+    # Read devlogs for scope-bloat signals that were absorbed without a reframe.
+    # B-Risk 5: strictly read-only — no task.yml is written here.
+    # B-Risk 6: patterns loaded from signals.yml at runtime (never hardcoded).
+    # Inv-4: advisory only — this section reports, never gates.
+    debts = _find_reframe_debt(tasks, work)
+    if debts:
+        print()
+        print("Reframe debt — absorbed mis-frames, signal lost:")
+        print("  Each entry below is a task where a scope-bloat signal was")
+        print("  detected in devlog.md but no reframe was filed afterwards.")
+        print("  These are missed calibration signals. File a reframe retroactively")
+        print("  with: /compass:frame --reframe --reason \"<why scope grew>\"")
+        print()
+        for d in debts:
+            print(f"  task    : {d['task']}")
+            print(f"  signal  : {d['devlog_line']!r}")
+            print()
     return 0
 
 

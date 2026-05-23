@@ -126,7 +126,7 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   fi
 done
 
-# --- emit ---------------------------------------------------------------------
+# --- emit gate-state warnings ------------------------------------------------
 if [ "${#WARNINGS[@]}" -gt 0 ]; then
   {
     echo ""
@@ -143,5 +143,142 @@ if [ "${#WARNINGS[@]}" -gt 0 ]; then
     echo ""
   } >&2
 fi
+
+# --- 4. scope-bloat reframe nudge -------------------------------------------
+# Reads governance/signals.yml at runtime (B-Risk 6: never hardcoded).
+# For each scope_bloat_phrase, greps the current task's devlog.md.
+# The regex anchors the phrase at the start of the line (no leading whitespace
+# beyond the line start) — this prevents false positives when the phrase
+# appears inside a block-quote (`> "..."`) or inside backtick code context,
+# where the line begins with whitespace or special characters (TRC-X3).
+#
+# Suppression rule: if task.yml contains a `reframes:` entry whose `date`
+# field sorts lexicographically after the date prefix of the matching devlog
+# line, the nudge is suppressed — the reframe was already filed (TRC-C3).
+#
+# This block is NON-BLOCKING: it always exits 0.
+_nudge_scope_bloat() {
+  local task_dir="$1"
+  local slug
+  slug="$(basename "$task_dir")"
+  local devlog="$task_dir/devlog.md"
+  local task_yml="$task_dir/task.yml"
+
+  [ -f "$devlog" ] || return 0
+  [ -f "$task_yml" ] || return 0
+
+  # Locate governance/signals.yml — project-local first, then framework default.
+  local signals=""
+  if [ -f "$PROJECT_DIR/governance/signals.yml" ]; then
+    signals="$PROJECT_DIR/governance/signals.yml"
+  else
+    # Walk up from the hook's own directory to find the framework's shipped copy.
+    local hook_dir
+    hook_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local fw_root
+    fw_root="$(dirname "$hook_dir")"
+    if [ -f "$fw_root/governance/signals.yml" ]; then
+      signals="$fw_root/governance/signals.yml"
+    fi
+  fi
+  [ -n "$signals" ] || return 0
+
+  # Extract scope_bloat_phrases using Python (lightest dependency — already
+  # required by the CLI for PyYAML). Python is guaranteed present if the
+  # Compass CLI has ever run.
+  local phrases
+  phrases="$(python3 - "$signals" <<'PYEOF'
+import sys, yaml
+sig = yaml.safe_load(open(sys.argv[1]))
+phrases = sig.get("scope_bloat_phrases") or []
+for p in phrases:
+    print(p)
+PYEOF
+)" || return 0
+
+  # Extract the latest reframe date from task.yml (if any).
+  local latest_reframe_date
+  latest_reframe_date="$(python3 - "$task_yml" <<'PYEOF'
+import sys, yaml
+task = yaml.safe_load(open(sys.argv[1])) or {}
+dates = [r.get("date","") for r in (task.get("reframes") or []) if r.get("date")]
+print(max(dates) if dates else "")
+PYEOF
+)" || latest_reframe_date=""
+
+  local nudges=()
+  while IFS= read -r phrase; do
+    [ -n "$phrase" ] || continue
+
+    # Anchor: phrase must appear as a top-level statement — either at column 0
+    # or immediately after an optional YYYY-MM-DD[: ] date prefix at column 0.
+    # Lines starting with whitespace are excluded (they are indented/quoted
+    # context that must not fire — TRC-X3).
+    #
+    # We use Python for the regex so that the pattern is applied uniformly with
+    # the calibration CLI (both use the same anchoring rule).
+    local matched_line
+    matched_line="$(python3 - "$devlog" "$phrase" <<'PYEOF'
+import sys, re
+devlog, phrase = sys.argv[1], sys.argv[2]
+pat = re.compile(r'^(?:\d{4}-\d{2}-\d{2}[: ]+)?' + re.escape(phrase))
+with open(devlog) as fh:
+    for line in fh:
+        stripped = line.rstrip('\n')
+        if stripped and stripped[0].isspace():
+            continue  # leading whitespace = quoted/indented context
+        if pat.match(stripped):
+            print(stripped)
+            break
+PYEOF
+)" || true
+    [ -n "$matched_line" ] || continue
+
+    # Extract a date from the matched line (YYYY-MM-DD at line start, if present).
+    local line_date
+    line_date="$(echo "$matched_line" | grep -oE '^[0-9]{4}-[0-9]{2}-[0-9]{2}' || true)"
+
+    # Suppression: if there is a reframe dated >= the line date, skip.
+    if [ -n "$latest_reframe_date" ] && [ -n "$line_date" ]; then
+      if [[ "$latest_reframe_date" > "$line_date" ]] || [[ "$latest_reframe_date" == "$line_date" ]]; then
+        continue
+      fi
+    elif [ -n "$latest_reframe_date" ] && [ -z "$line_date" ]; then
+      # Can't compare — a reframe exists and the line has no date; suppress.
+      continue
+    fi
+
+    nudges+=("[$slug] Scope-bloat signal detected in devlog: \"$matched_line\"")
+  done <<< "$phrases"
+
+  if [ "${#nudges[@]}" -gt 0 ]; then
+    {
+      echo ""
+      echo "================================================================"
+      echo " COMPASS — REFRAME NUDGE"
+      echo "================================================================"
+      echo "  The following scope-bloat signals were found in devlog.md"
+      echo "  but no reframe has been filed after them:"
+      echo ""
+      for n in "${nudges[@]}"; do
+        echo "  ! $n"
+      done
+      echo ""
+      echo "  If the scope grew during Build, file a reframe now:"
+      echo "    /compass:frame --reframe --reason \"<what changed and why>\""
+      echo ""
+      echo "  This preserves the calibration signal (compass calibration)."
+      echo "  The nudge is non-blocking — the session ends regardless."
+      echo "================================================================"
+      echo ""
+    } >&2
+  fi
+}
+
+for TASK_DIR in "$WORK_DIR"/*/; do
+  [ -d "$TASK_DIR" ] || continue
+  TASK_DIR="${TASK_DIR%/}"
+  _nudge_scope_bloat "$TASK_DIR"
+done
 
 exit 0

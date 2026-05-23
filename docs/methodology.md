@@ -425,3 +425,68 @@ is exactly the cross-task question no single task can answer.
    routing strategies bias it. Flexibility is real and bounded.
 8. **Evidence over assertion, persistence over conversation.** Artifacts on
    disk, not claims in chat.
+
+---
+
+## Reframes — feedback signal
+
+A **re-frame** is what happens when the Needle (or a human) re-reads the
+terrain mid-task and concludes that the initial route was wrong. Re-framing is
+normal and expected — it is the mechanism that keeps process proportionate when
+reality turns out to differ from first impressions. What is *not* normal is
+absorbing a scope change silently, without filing the re-frame.
+
+### Why absorbed mis-frames matter
+
+When a builder discovers during Build that the task is larger, narrower, or
+differently shaped than Plan described, and works around it without filing a
+re-frame, two things happen:
+
+1. **The calibration signal is lost.** `compass calibration` reads the
+   `reframes:` log across all tasks and reports whether the Needle is
+   systematically over- or under-sizing. An absorbed mis-frame — a real scope
+   change that was not recorded — makes calibration less accurate. The pattern
+   repeats; the Needle never learns.
+2. **The audit trail has a gap.** The task's `task.yml` says it was a
+   `standard` task; the devlog says scope ballooned. Anyone reading the history
+   cannot reconstruct why the task took longer than Plan said.
+
+### The stop-hook nudge
+
+`hooks/stop.sh` reads `governance/signals.yml`'s `scope_bloat_phrases` list at
+runtime and checks each active task's `devlog.md` against those patterns at
+session end. If a scope-bloat phrase appears as a top-level statement in the
+devlog (not nested in quotes or indentation) AND no reframe has been filed
+after it, the hook emits a nudge to stderr suggesting:
+
+```
+/compass:frame --reframe --reason "<what changed and why>"
+```
+
+The hook is **non-blocking** — it exits 0 regardless. It nudges; the human
+decides.
+
+### compass calibration --reframe-debt
+
+`compass calibration` includes a **Reframe debt** section in its output when it
+finds tasks that have scope-bloat devlog signals and no corresponding reframe.
+These are listed as "absorbed mis-frames, signal lost" — advisory only. The
+command is read-only: it never writes to `task.yml` or any other file (this
+is a hard architectural invariant, not a convention).
+
+### The roundtable trigger
+
+Any roundtable outcome that changes a service boundary or migration scope must
+end with a re-frame. See `commands/roundtable.md` §"Reframe trigger" for the
+exact procedure and example invocation.
+
+### What counts as a filed reframe
+
+A re-frame is filed when `compass route evaluate --write --reason "..."` runs
+and the computed route differs from the previously recorded one. This appends
+an entry to `task.yml.reframes` with `from_route`, `to_route`, `reason`, and
+`date`. The stop-hook and calibration both check this field to decide whether
+a nudge is appropriate.
+
+**The rule:** if scope grew, file the re-frame. The re-frame is not a failure;
+it is the calibration signal working as intended.
