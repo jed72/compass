@@ -405,7 +405,65 @@ systematically over- or under-sizing routes? Flow surfaces that read alongside
 the board and folds it into the digest, because "are we right-sizing process?"
 is exactly the cross-task question no single task can answer.
 
-## 11. Design principles (the short version)
+## 11. Loading project architecture
+
+Every Compass task begins with Frame.  As part of Frame, the CLI's internal
+`frame_load_architecture` helper scans the project's `architecture/` directory
+(when present) and writes a structured record of what it found to
+`.compass/work/<task>/architecture-loaded.yml`.
+
+**Why a separate file, not a `task.yml` field?**  `task.yml.readings` is the
+*judgement* block — the Needle's assessment of the four dimensions.  Mechanism-
+produced state (what files exist on disk, their hashes) does not belong there.
+`architecture-loaded.yml` is the mechanism's output; `readings` is the human's.
+Keeping them separate preserves the determinism boundary: same inputs to the
+mechanism always produce the same record, independent of the Needle's
+judgement.
+
+**What the record contains:**
+
+```yaml
+schema_version: "1.0"
+loaded_at: <ISO timestamp>
+artifacts:
+  - path: architecture/system-context.md
+    sha256: <hex>
+    type: narrative
+  - path: architecture/invariants.yml
+    sha256: <hex>
+    type: structured
+    parsed: <inline YAML content>   # structured artifacts only
+adrs:
+  - id: ADR-001
+    path: architecture/decisions/ADR-001-<slug>.md
+    title: <title from frontmatter>
+    status: proposed | accepted | superseded
+```
+
+The `sha256` per artifact lets downstream agents detect mid-task drift: if an
+architecture file changes after Frame loaded it, the hash will not match, and
+the agent knows to ask Frame to reload.  The `parsed` field for structured
+files means downstream agents do not need to re-read the file from disk.
+
+**Backward compatibility:** if `architecture/` does not exist the helper
+writes the record with empty `artifacts: []` and `adrs: []` and returns
+without error.  Every existing project that has not yet adopted the
+`architecture/` convention continues to work unchanged.
+
+**Malformed structured files fail loudly:** if `architecture/invariants.yml`
+exists but is not valid YAML, Frame raises an error that names the file and
+the parse error.  A malformed structured artifact is never silently swallowed —
+it would produce incorrect architectural context for every downstream agent in
+this task.
+
+**Downstream agents:** spec-author, planner, and the architect-lens all read
+`architecture-loaded.yml` to get persistent architectural context.  The file
+survives session boundaries and context compaction — which is the core problem
+it solves.  An agent that needs to know whether the project has a stable
+service boundary, who owns a given surface, or which decisions are already
+recorded reads this file, not the raw `architecture/` tree.
+
+## 12. Design principles (the short version)
 
 1. **Compute the process, don't select it.** Intensity is a function of the
    terrain, not a menu choice.
