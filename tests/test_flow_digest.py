@@ -10,6 +10,7 @@ Unified after integration of streams 3, 4, and 6:
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -83,7 +84,6 @@ def write_signals_yml(directory: Path, window_days: int = 14) -> Path:
 
 def run_subprocess_cli(*args, cwd=None, env_extra=None) -> subprocess.CompletedProcess:
     """Run the compass CLI via subprocess in an isolated cwd (stream-4 helper)."""
-    import os
     env = dict(os.environ)
     if env_extra:
         env.update(env_extra)
@@ -114,6 +114,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     compass_work = project / ".compass" / "work"
 
     # --- Given: set up multiple tasks with varying reframe states -----------
+    # Task with no reframes — calibration should report but not modify.
     make_task("alpha-task", {
         "readings": {
             "blast_radius": "contained",
@@ -127,6 +128,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
         "changed_files": [],
     }, set_current=False)
 
+    # Task with a reframe — calibration should count it but not modify.
     make_task("beta-task", {
         "readings": {
             "blast_radius": "contained",
@@ -143,15 +145,19 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
         "changed_files": [],
     }, set_current=False)
 
+    # --- Snapshot before advisory command -----------------------------------
     before = _snapshot_task_ymls(compass_work)
     assert before, "No task.yml found before calibration — test setup failed"
 
+    # --- When: run the advisory command -------------------------------------
     r = run_cli("calibration")
+    # calibration always exits 0 (it is advisory, not a gate)
     assert r.returncode == 0, (
         f"compass calibration should exit 0 (advisory). Got {r.returncode}.\n"
         f"stdout: {r.stdout}\nstderr: {r.stderr}"
     )
 
+    # --- Then: task.ymls must be byte-identical after -----------------------
     after = _snapshot_task_ymls(compass_work)
 
     assert before == after, (
@@ -242,7 +248,6 @@ def test_includes_reframe_debt(tmp_path):
     """TRC-C6: calibration output includes a 'reframe debt' section when at
     least one task has a devlog scope-bloat phrase and an empty reframes list.
     """
-    import os
     import shutil
 
     compass = tmp_path / ".compass"
