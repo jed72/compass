@@ -323,3 +323,165 @@ def test_check_fails_when_scenario_has_no_intent(run_cli, make_task):
     r = run_cli("check", "--task", "no-intent")
     assert r.returncode != 0, r
     assert "scenario-has-id-and-intent" in r.stdout, r
+
+
+# ---------------------------------------------------------------------------
+# Group E — Typed Definition of Done (TRC-E1..E5, TRC-X4)
+# ---------------------------------------------------------------------------
+
+def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
+                        extra_backfills=None):
+    """Create a task + green evidence + verification-report.md with the
+    given DoD lines.  Returns (task_dir, project_root)."""
+    body = _correct_body()
+    if extra_evidence:
+        body["evidence"].extend(extra_evidence)
+    if extra_backfills:
+        body["backfills"] = extra_backfills
+    task_dir = make_task(slug, body)
+    _make_green(task_dir)
+    # Write a verification-report.md that contains a "Definition of Done" section
+    dod_content = "\n".join(dod_lines)
+    report = (
+        "# Verification Report — {}\n\n"
+        "## Gate\n\n"
+        "### Definition of Done\n\n"
+        "{}\n"
+    ).format(slug, dod_content)
+    (task_dir / "verification-report.md").write_text(report, encoding="utf-8")
+    return task_dir
+
+
+def test_dod_unbacked_fails(run_cli, make_task):
+    """TRC-E1: A bare unchecked DoD box with no evidence or backfill tag
+    blocks Land — the check must fail."""
+    task_dir = _make_task_with_dod(
+        make_task,
+        "e1-bare-unchecked",
+        ["- [ ] All branch-protection rules applied"],
+    )
+    r = run_cli("check", "--task", "e1-bare-unchecked")
+    assert r.returncode != 0, r
+    combined = r.stdout + r.stderr
+    assert "dod-evidence-typed" in combined, r
+    assert "branch-protection" in combined.lower() or "bare" in combined.lower(), r
+
+
+def test_dod_with_evidence_passes(run_cli, make_task):
+    """TRC-E2: An unchecked DoD line tagged (evidence: EV-A1) passes when
+    EV-A1 is in the task's evidence registry with an accepted type."""
+    task_dir = _make_task_with_dod(
+        make_task,
+        "e2-evidence-tag",
+        ["- [ ] (evidence: EV-A1) Branch-protection rule applied"],
+        extra_evidence=[
+            {"id": "EV-A1", "type": "human-approval",
+             "approver": "ada@example.com", "role": "lead",
+             "scope": "branch protection", "decision": "approved",
+             "timestamp": "2026-05-23T10:00:00Z"},
+        ],
+    )
+    r = run_cli("check", "--task", "e2-evidence-tag")
+    # The DoD check itself should pass for this line
+    combined = r.stdout + r.stderr
+    assert "PASS dod-evidence-typed" in combined, r
+
+
+def test_owed_backfill_chains(run_cli, make_task):
+    """TRC-E3: backfill chain.
+    Part A: T1's DoD line tagged (backfill: BF-1) passes T1's check.
+    Part B: T2's compass check fails because T1 has BF-1 status=owed
+            with target_task=T2.
+    """
+    # ---- Part A: T1 passes ----
+    task_dir_t1 = _make_task_with_dod(
+        make_task,
+        "e3-t1",
+        ["- [ ] (backfill: BF-1) Fix the integration test harness"],
+        extra_backfills=[
+            {"id": "BF-1", "description": "Fix the integration test harness",
+             "status": "owed", "target_task": "e3-t2"},
+        ],
+    )
+    r_t1 = run_cli("check", "--task", "e3-t1")
+    combined_t1 = r_t1.stdout + r_t1.stderr
+    assert "PASS dod-evidence-typed" in combined_t1, (
+        "T1's DoD check should pass when backfill is tagged and recorded", r_t1)
+
+    # ---- Part B: T2 fails because T1 has an owed backfill targeting T2 ----
+    # Make T2 as a minimal passing task (no DoD issues itself)
+    task_dir_t2 = _make_task_with_dod(
+        make_task,
+        "e3-t2",
+        ["- [x] All unit tests green"],  # checked — no evidence tag needed
+    )
+    r_t2 = run_cli("check", "--task", "e3-t2")
+    assert r_t2.returncode != 0, (
+        "T2 check should fail because T1's BF-1 (target_task=e3-t2) is owed", r_t2)
+    combined_t2 = r_t2.stdout + r_t2.stderr
+    assert "BF-1" in combined_t2 or "e3-t1" in combined_t2, (
+        "Failure message should mention the blocking backfill or its source", r_t2)
+
+
+def test_narrative_not_evidence(run_cli, make_task):
+    """TRC-E4: A bare unchecked DoD line fails even when devlog.md contains
+    'USER TO APPLY' — narrative notes do NOT clear the typed DoD check."""
+    task_dir = _make_task_with_dod(
+        make_task,
+        "e4-user-to-apply",
+        ["- [ ] Configure the staging environment"],
+    )
+    # Write a devlog.md with USER TO APPLY to confirm it has no effect
+    (task_dir / "devlog.md").write_text(
+        "# Devlog\n\n## 2026-05-23\n\nUSER TO APPLY the env config.\n",
+        encoding="utf-8",
+    )
+    r = run_cli("check", "--task", "e4-user-to-apply")
+    assert r.returncode != 0, r
+    combined = r.stdout + r.stderr
+    assert "dod-evidence-typed" in combined, r
+    # The failure message should cite G4 (evidence, not assertion)
+    assert "G4" in combined or "evidence" in combined.lower(), r
+
+
+def test_human_approval_clears_dod(run_cli, make_task):
+    """TRC-E5: A DoD line with (evidence: EV-A1) where EV-A1 is of type
+    human-approval passes — human-approval is an accepted DoD evidence type."""
+    task_dir = _make_task_with_dod(
+        make_task,
+        "e5-human-approval",
+        ["- [ ] (evidence: EV-H1) Branch-protection rule applied"],
+        extra_evidence=[
+            {"id": "EV-H1", "type": "human-approval",
+             "approver": "bob@example.com", "role": "lead",
+             "scope": "branch protection", "decision": "approved",
+             "timestamp": "2026-05-23T12:00:00Z"},
+        ],
+    )
+    r = run_cli("check", "--task", "e5-human-approval")
+    combined = r.stdout + r.stderr
+    assert "PASS dod-evidence-typed" in combined, r
+
+
+def test_empty_dod_passes(run_cli, make_task):
+    """TRC-X4: A task with no DoD section (or empty DoD) passes the typed
+    DoD check — backward compat for tasks that predate the typed check."""
+    # Case 1: no verification-report.md at all
+    body = _correct_body()
+    task_dir = make_task("x4-no-report", body)
+    _make_green(task_dir)
+    r = run_cli("check", "--task", "x4-no-report")
+    combined = r.stdout + r.stderr
+    assert "PASS dod-evidence-typed" in combined, (
+        "Should pass when verification-report.md is absent", r)
+
+    # Case 2: verification-report.md exists but DoD section is empty
+    task_dir2 = _make_task_with_dod(
+        make_task,
+        "x4-empty-dod",
+        [],  # no DoD lines
+    )
+    r2 = run_cli("check", "--task", "x4-empty-dod")
+    combined2 = r2.stdout + r2.stderr
+    assert "PASS dod-evidence-typed" in combined2, (
+        "Should pass when DoD section has no items", r2)

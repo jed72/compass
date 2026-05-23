@@ -56,6 +56,26 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
    traceability holds, every `pass` gate has evidence, no unpaid backfill, and
    (when G5 applies) a human approval is on record. It exits non-zero on any
    failure; paste its output. This is the checkable backbone of Land.
+
+   **Typed Definition of Done (G4 — evidence, not assertion):** `compass check`
+   also parses the `### Definition of Done` section of `verification-report.md`
+   and enforces the inline-tag rule. Every unchecked DoD box must carry one of:
+
+   - `- [ ] (evidence: EV-<id>) <description>` — passes if `EV-<id>` is in
+     `task.yml`'s evidence registry with an accepted type (`test-run`,
+     `command-output`, `manual-review`, `human-approval`, `artifact`, etc.).
+   - `- [ ] (backfill: BF-<id>) <description>` — passes if `BF-<id>` is in
+     `task.yml`'s `backfills:` with `status: owed`. The backfill can carry an
+     optional `target_task: <slug>` field; when set, the named task's Land check
+     fails until this entry is paid (`compass backfill pay --task <slug> <BF-id>`).
+   - `- [x] <description>` — a human-ticked box passes unconditionally.
+   - `- [ ] <bare description>` — **fails**. Narrative notes in `devlog.md`
+     (e.g. "USER TO APPLY") never clear a DoD item (G4: evidence, not assertion).
+
+   Cross-task blocking: if another task's `backfills:` has `target_task` pointing
+   at the task being landed, and that backfill is still `status: owed`, `compass
+   check` fails at Land even if this task's own DoD section is clean. Pay the
+   upstream backfill first.
 6. **Final devlog entry.** One entry: what landed, how it was verified, what
    backfills were paid.
 
