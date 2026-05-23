@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-import yaml
 
 
 # conftest.py provides: project, run_cli, make_task fixtures

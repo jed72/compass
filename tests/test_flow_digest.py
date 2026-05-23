@@ -16,7 +16,6 @@ import sys
 from pathlib import Path
 from typing import Dict
 
-import pytest
 import yaml
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent

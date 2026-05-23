@@ -28,7 +28,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-import pytest
 
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent

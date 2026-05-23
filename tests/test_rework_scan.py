@@ -39,7 +39,6 @@ def run_rework_scan(root: Path, extra_args: list[str] | None = None,
         cmd.extend(extra_args)
     env = None
     if signals_yml is not None:
-        import os
         env = dict(__import__("os").environ)
         env["COMPASS_SIGNALS_YML"] = str(signals_yml)
     return subprocess.run(cmd, capture_output=True, text=True, env=env)

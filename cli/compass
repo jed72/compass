@@ -654,9 +654,9 @@ def cmd_route_evaluate(args):
             print(f"  RE-FRAME recorded: {prior_route} -> {result['route']}")
             if not args.reason:
                 sys.stderr.write(
-                    f"compass: re-frame recorded with no reason. Re-run with "
-                    f"--reason \"...\" or edit task.yml's last `reframes` "
-                    f"entry — the reason is the calibration signal.\n"
+                    "compass: re-frame recorded with no reason. Re-run with "
+                    "--reason \"...\" or edit task.yml's last `reframes` "
+                    "entry — the reason is the calibration signal.\n"
                 )
     return 0
 
@@ -1401,8 +1401,8 @@ def cmd_tdd_green(args):
     bound = f" (bound to {scenario})" if scenario else " (unbound — consider --scenario)"
     print(f"compass tdd-green: passing suite recorded (exit 0){bound}.")
     print(f"  evidence : {ev_path}")
-    print(f"  registry : task.yml `evidence:` updated with the test-run entry")
-    print(f"  marker   : .red cleared — red -> green is on record.")
+    print("  registry : task.yml `evidence:` updated with the test-run entry")
+    print("  marker   : .red cleared — red -> green is on record.")
     return 0
 
 
@@ -1612,12 +1612,12 @@ def cmd_calibration(args):
     print(f"  tasks that re-framed : {reframed_tasks} of {len(tasks)} ({pct}%)")
     print(f"  total re-frames      : {total}")
     if total:
-        print(f"  direction:")
+        print("  direction:")
         print(f"    up   (Needle under-sized) : {ups}")
         print(f"    down (Needle over-sized)  : {downs}")
         if sideways:
             print(f"    sideways                  : {sideways}")
-        print(f"  transitions:")
+        print("  transitions:")
         for k, v in sorted(transitions.items(), key=lambda x: -x[1]):
             print(f"    {k} : {v}")
     print()
@@ -1971,21 +1971,21 @@ def cmd_rework_scan(args):
 
 def _emit_markdown_report(instances, tasks, skipped, window_days, root):
     n = len(instances)
-    print(f"## Rework scan")
-    print(f"")
+    print("## Rework scan")
+    print("")
     print(f"Scanned {len(tasks)} task(s) under `{root}` "
           f"(window: {window_days} days).")
     if skipped:
         print(f"Skipped {len(skipped)} task(s) due to parse errors "
               f"(see stderr for details).")
-    print(f"")
+    print("")
     if n == 0:
-        print(f"**0 rework instances detected.** No add-then-delete patterns "
-              f"within the window.")
+        print("**0 rework instances detected.** No add-then-delete patterns "
+              "within the window.")
         return
     print(f"**{n} rework instance(s) detected** — these are informational "
           f"signals; no task state has been modified.")
-    print(f"")
+    print("")
     for i, inst in enumerate(instances, 1):
         kind = inst["kind"]
         path = inst.get("path", "")
@@ -2002,8 +2002,8 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
             label = "public-surface-churn" if kind == "public-surface-churn" else "add-then-delete"
             print(f"{i}. **{label}** — `{path}` added by `{added_by}`, "
                   f"deleted by `{removed_by}`{gap_str}.")
-    print(f"")
-    print(f"> This report is advisory only. Flow advises, never gates (Inv-4).")
+    print("")
+    print("> This report is advisory only. Flow advises, never gates (Inv-4).")
 
 
 # --- command: backfill pay --------------------------------------------------
@@ -2378,8 +2378,8 @@ def cmd_adr_new(args):
 
     print(f"compass adr new: created {full_path}")
     print(f"  registered in {readme_path}")
-    print(f"  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) — "
-          f"if another worktree creates ADRs in parallel, renumber at Land.")
+    print("  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) — "
+          "if another worktree creates ADRs in parallel, renumber at Land.")
     return 0
 
 
@@ -2427,11 +2427,12 @@ def cmd_flow(args):
         return 0
 
     # --digest mode: produce a digest including rework-scan
-    import io as _io, contextlib as _cl
+    import io as _io
+    import contextlib as _cl
 
     today = datetime.date.today().isoformat()
     print(f"# Flow digest — {today}\n")
-    print(f"> Advisory only. This digest does not modify any task state (Inv-4).\n")
+    print("> Advisory only. This digest does not modify any task state (Inv-4).\n")
 
     # --- Rework scan section (TRC-D5) ---
     # Capture rework-scan output by invoking the scan logic directly

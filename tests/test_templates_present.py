@@ -31,7 +31,7 @@ def test_architecture_templates_exist():
     ]
     missing = [str(p) for p in required if not p.exists()]
     assert not missing, \
-        f"Missing required architecture templates:\n  " + "\n  ".join(missing)
+        "Missing required architecture templates:\n  " + "\n  ".join(missing)
 
 
 def test_narrative_templates_have_content():
