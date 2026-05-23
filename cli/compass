@@ -686,6 +686,204 @@ def _check_gate_evidence(task, task_dir):
     return True, f"{len(passed)}/{len(gates)} pass gate(s), all backed by registry evidence of accepted type"
 
 
+def _parse_dod_lines(task_dir):
+    """Read verification-report.md from task_dir and return a list of DoD
+    line strings found under the "Definition of Done" heading.
+
+    Returns an empty list if the file is absent or the section is missing.
+    This is the correct backward-compat behaviour (TRC-X4): no file → no
+    items → check passes.
+    """
+    report_path = os.path.join(task_dir, "verification-report.md")
+    if not os.path.isfile(report_path):
+        return []
+    with open(report_path, "r", encoding="utf-8") as fh:
+        lines = fh.readlines()
+    in_dod = False
+    dod_lines = []
+    for line in lines:
+        stripped = line.rstrip("\n")
+        # Detect the heading — allow any heading level (##, ###, ####)
+        if stripped.strip().lstrip("#").strip() == "Definition of Done":
+            in_dod = True
+            continue
+        if in_dod:
+            # A new heading (line starting with #) ends the section
+            if stripped.strip().startswith("#"):
+                break
+            dod_lines.append(stripped)
+    return dod_lines
+
+
+# Regex to match a DoD checklist item:
+#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
+import re as _re
+
+_DOD_ITEM_RE = _re.compile(r"^\s*-\s+\[([ xX])\]\s*(.*)")
+_EVIDENCE_TAG_RE = _re.compile(r"\(evidence:\s*(EV-[^\)]+)\)")
+_BACKFILL_TAG_RE = _re.compile(r"\(backfill:\s*(BF-[^\)]+)\)")
+
+# Evidence types accepted for DoD evidence (all types that represent real,
+# typed evidence — not the catch-all `artifact` which is the weakest).
+_DOD_ACCEPTED_EVIDENCE_TYPES = {
+    "test-run",
+    "command-output",
+    "manual-review",
+    "human-approval",
+    "security-review",
+    "migration-plan",
+    "rollback-plan",
+    "claim-review",
+    "artifact",  # weakest but still typed — accepted for DoD
+    "spike-conclusion",
+}
+
+
+def _check_dod_evidence_typed(task, task_dir):
+    """Parse the DoD section of verification-report.md and enforce the
+    inline-tag rule (DD-3):
+
+    - `- [x] ...`                  → passes (human ticked it)
+    - `- [ ] (evidence: EV-id) ...` → passes if EV-id is in the evidence
+                                       registry with an accepted type
+    - `- [ ] (backfill: BF-id) ...` → passes if BF-id is in task.yml
+                                       backfills with status: owed
+    - `- [ ] <bare description>`   → FAILS (evidence, not assertion — G4)
+
+    Cross-task half (TRC-E3): scan sibling task.yml files for backfills with
+    target_task equal to this task's slug and status: owed — any such entry
+    blocks this task's Land.
+    """
+    dod_lines = _parse_dod_lines(task_dir)
+
+    # Build lookup structures from the current task
+    ev_registry = {
+        e.get("id"): e
+        for e in (task.get("evidence") or [])
+        if isinstance(e, dict) and e.get("id")
+    }
+    backfills = {
+        b.get("id"): b
+        for b in (task.get("backfills") or [])
+        if isinstance(b, dict) and b.get("id")
+    }
+
+    problems = []
+    item_count = 0
+
+    for raw in dod_lines:
+        m = _DOD_ITEM_RE.match(raw)
+        if not m:
+            continue  # not a checklist item — skip (comments, blank lines, etc.)
+        item_count += 1
+        checked, rest = m.group(1), m.group(2)
+
+        if checked.lower() == "x":
+            # Human-ticked — passes unconditionally
+            continue
+
+        # Unchecked — must have an inline tag
+        ev_match = _EVIDENCE_TAG_RE.search(rest)
+        bf_match = _BACKFILL_TAG_RE.search(rest)
+
+        if not ev_match and not bf_match:
+            # Bare unchecked — fails G4 (evidence, not assertion)
+            desc = rest.strip() or raw.strip()
+            problems.append(
+                f"bare unchecked DoD item (no evidence or backfill tag): "
+                f"'{desc}' — add (evidence: EV-<id>) or (backfill: BF-<id>) "
+                f"inline tag, or tick the box if done. G4: evidence, not "
+                f"assertion."
+            )
+            continue
+
+        if ev_match:
+            ev_id = ev_match.group(1).strip()
+            entry = ev_registry.get(ev_id)
+            if not entry:
+                problems.append(
+                    f"DoD item references evidence id '{ev_id}' which is not "
+                    f"in task.yml evidence registry"
+                )
+            elif entry.get("type") not in _DOD_ACCEPTED_EVIDENCE_TYPES:
+                problems.append(
+                    f"DoD item references evidence '{ev_id}' with type "
+                    f"'{entry.get('type')}' which is not an accepted DoD "
+                    f"evidence type"
+                )
+            # else: passes
+
+        if bf_match:
+            bf_id = bf_match.group(1).strip()
+            bf_entry = backfills.get(bf_id)
+            if not bf_entry:
+                problems.append(
+                    f"DoD item references backfill id '{bf_id}' which is not "
+                    f"in task.yml backfills"
+                )
+            elif bf_entry.get("status") not in ("owed", "paid"):
+                problems.append(
+                    f"backfill '{bf_id}' has unrecognised status "
+                    f"'{bf_entry.get('status')}' (must be 'owed' or 'paid')"
+                )
+            # status: owed or paid both pass here; paying is a separate
+            # concern tracked by _check_backfills_paid
+
+    # Cross-task check (TRC-E3): scan sibling tasks for backfills that
+    # target this task and are still owed. Use the directory name as the slug
+    # (authoritative) in preference to task.get("task") which may be a
+    # template placeholder; the directory name is always the true slug.
+    this_slug = os.path.basename(task_dir) or task.get("task") or ""
+    sibling_problems = _check_inbound_backfills(task_dir, this_slug)
+    problems.extend(sibling_problems)
+
+    if problems:
+        return False, "; ".join(problems)
+
+    if item_count == 0:
+        return True, "DoD section is empty or absent — nothing to evidence"
+    return True, f"all {item_count} DoD item(s) are typed or human-ticked"
+
+
+def _check_inbound_backfills(task_dir, this_slug):
+    """Scan sibling task directories for backfills with target_task == this_slug
+    and status: owed. Each such entry is a blocking cross-task debt."""
+    problems = []
+    # task_dir is .compass/work/<slug>/; sibling dirs are alongside it
+    work_dir = os.path.dirname(task_dir)
+    if not os.path.isdir(work_dir):
+        return problems
+    for entry in os.listdir(work_dir):
+        sibling = os.path.join(work_dir, entry)
+        if sibling == task_dir:
+            continue
+        tp = os.path.join(sibling, "task.yml")
+        if not os.path.isfile(tp):
+            continue
+        try:
+            with open(tp, "r", encoding="utf-8") as fh:
+                try:
+                    import yaml as _yaml
+                    sibling_task = _yaml.safe_load(fh) or {}
+                except Exception:
+                    continue
+        except OSError:
+            continue
+        for bf in (sibling_task.get("backfills") or []):
+            if not isinstance(bf, dict):
+                continue
+            if (bf.get("target_task") == this_slug
+                    and bf.get("status") == "owed"):
+                src_slug = sibling_task.get("task") or entry
+                problems.append(
+                    f"cross-task block: task '{src_slug}' has backfill "
+                    f"'{bf.get('id', '?')}' (status: owed) targeting this "
+                    f"task — pay it with `compass backfill pay --task "
+                    f"{src_slug} {bf.get('id', '?')}` before Land"
+                )
+    return problems
+
+
 def _check_human_approval(task, task_dir):
     # Approvals are typed evidence in the registry. G5 applies when the task
     # touches irreversible surface (the routing policy floors it to Expedition);
@@ -765,6 +963,7 @@ CHECK_FNS = {
     "scenario-has-id-and-intent": _check_scenario_has_id_and_intent,
     "claim-traces-to-scenario": _check_claim_traces,
     "gate-evidence-present": _check_gate_evidence,
+    "dod-evidence-typed": _check_dod_evidence_typed,
     "human-approval-present": _check_human_approval,
     "backfills-paid": _check_backfills_paid,
     "spike-conclusion-present": _check_spike_conclusion_present,
@@ -816,6 +1015,16 @@ CHECK_GUIDANCE = {
     "spike-no-production-changes": {
         "why": "A Spike's safety model is that it ships nothing — graduating to delivery must be a fresh Frame, not a silent merge.",
         "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:frame` to start a new delivery task that owns the code under a real route.",
+    },
+    "dod-evidence-typed": {
+        "why": "Guardrail G4 (evidence, not assertion): the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed backfill — narrative notes in devlog.md do not count.",
+        "fix": (
+            "For each bare unchecked DoD item: (a) add `(evidence: EV-<id>)` "
+            "inline, where EV-<id> is an entry in the task's evidence registry "
+            "with an accepted type; or (b) add `(backfill: BF-<id>)` inline and "
+            "record BF-<id> in task.yml backfills with status: owed; or (c) tick "
+            "the box `[x]` if a human has actually done the work."
+        ),
     },
 }
 
@@ -1195,6 +1404,42 @@ def cmd_calibration(args):
     return 0
 
 
+# --- command: backfill pay --------------------------------------------------
+# Mark a named backfill as paid. This is the complement to the cross-task
+# check in `dod-evidence-typed`: once a backfill is paid, the target task's
+# Land check can proceed. The command writes to task.yml — the only write
+# path in this stream, because Flow/calibration are read-only advisors.
+
+def cmd_backfill_pay(args):
+    """Flip the named backfill to status: paid in the given task's task.yml."""
+    task_dir = resolve_task_dir(args.task)
+    task, task_path = load_task(task_dir)
+    bf_id = args.backfill_id
+    backfills = task.get("backfills") or []
+    found = None
+    for bf in backfills:
+        if isinstance(bf, dict) and bf.get("id") == bf_id:
+            found = bf
+            break
+    if not found:
+        raise CompassError(
+            f"backfill '{bf_id}' not found in task '{args.task}'. "
+            f"Available backfills: {[b.get('id') for b in backfills if isinstance(b, dict)]}"
+        )
+    if found.get("status") == "paid":
+        print(f"compass backfill pay: backfill '{bf_id}' is already paid.")
+        return 0
+    found["status"] = "paid"
+    task["backfills"] = backfills
+    save_task(task, task_path)
+    target = found.get("target_task")
+    target_note = (f" (cross-task debt on '{target}' is now cleared)"
+                   if target else "")
+    print(f"compass backfill pay: backfill '{bf_id}' in task '{args.task}' "
+          f"marked paid{target_note}.")
+    return 0
+
+
 # --- command: ci ------------------------------------------------------------
 # The full mechanical gate suite, for CI / pre-merge. It is a convenience: it
 # just runs the checks that already exist — `policy lint`, then `task lint` and
@@ -1474,6 +1719,25 @@ def build_parser():
     ptl.add_argument("--task", help="task slug (default: current-task pointer)")
     ptl.add_argument("--file", help="lint a specific task.yml file")
     ptl.set_defaults(func=cmd_task_lint)
+
+    pbf = sub.add_parser(
+        "backfill",
+        help="manage task backfills (owed / paid ceremony)"
+    )
+    pbfs = pbf.add_subparsers(dest="subcmd", required=True)
+    pbfp = pbfs.add_parser(
+        "pay",
+        help="mark a backfill as paid in a task's task.yml"
+    )
+    pbfp.add_argument(
+        "--task", required=True,
+        help="task slug whose backfill is being paid"
+    )
+    pbfp.add_argument(
+        "backfill_id",
+        help="the backfill id to mark paid (e.g. BF-1)"
+    )
+    pbfp.set_defaults(func=cmd_backfill_pay)
 
     return p
 
