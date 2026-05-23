@@ -405,7 +405,37 @@ systematically over- or under-sizing routes? Flow surfaces that read alongside
 the board and folds it into the digest, because "are we right-sizing process?"
 is exactly the cross-task question no single task can answer.
 
-## 11. Design principles (the short version)
+## 11. Cross-task rework
+
+Each Compass task owns its own `changed_files` record — a list of paths and
+their actions (`added`, `modified`, `deleted`). These records are the code-half
+of traceability (G3), but they also carry a cross-task signal: if task B deletes
+a file that task A added within a short window, that is rework — task A's effort
+was undone before it delivered lasting value.
+
+`compass rework-scan` reads every `task.yml.changed_files` under a configured
+root and detects:
+
+- **Add-then-delete pairs.** File added in task A, deleted by task B within the
+  configured `window_days` (default 14, from `governance/signals.yml`).
+- **Public-surface churn.** Files matching `rework_scan.public_surface_patterns`
+  (API routes, proto symbols, etc.) that follow the add-then-delete pattern.
+- **Migration pairs.** A migration file matching `rework_scan.migration_paths`
+  added by task A, paired with a semantically related drop migration added by
+  task B in the same window.
+
+**Exit code is always 0.** The scan is a signal, not a gate (Inv-4: Flow
+advises, never gates). Detection of rework does not block delivery. The output
+surfaces in `/compass:flow --digest` as the "Rework scan" section, which a team
+reviews on a cadence to decide whether to act — spawning a sibling task,
+filing an ADR, or accepting the churn as intentional.
+
+Configuration lives in `governance/signals.yml` and is loaded at runtime;
+patterns are never hardcoded in the CLI. Projects override by editing their own
+`governance/signals.yml` using the same convention as `guardrails.yml` and
+`routing-policy.yml`.
+
+## 12. Design principles (the short version)
 
 1. **Compute the process, don't select it.** Intensity is a function of the
    terrain, not a menu choice.
