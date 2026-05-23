@@ -1,0 +1,38 @@
+# Ownership
+
+<!-- HOW FRAME USES THIS FILE
+     Frame reads this file and includes it in architecture-loaded.yml as a
+     narrative artifact.  The architect-lens uses ownership information to
+     flag when a proposed change crosses team boundaries — a common source of
+     undetected coupling and rework.
+
+     Keep this file current.  Stale ownership is worse than no ownership file:
+     the lens will flag risks against the wrong team, creating noise and eroding
+     trust in the mechanism.
+-->
+
+## Service / module ownership table
+
+<!-- One row per service, module, or significant library. -->
+
+| Surface | Owning team | Primary contact | Notes |
+|---|---|---|---|
+| <!-- name --> | <!-- team name --> | <!-- person or alias --> | <!-- e.g. "on-call rotation" --> |
+
+## Ownership rules
+
+<!-- State any rules that govern how ownership can change or how cross-team
+     changes must be coordinated.  These rules are candidates for
+     architecture/invariants.yml once the schema is finalised. -->
+
+- <!-- example: a change to a service's public API must be approved by that service's
+       owning team before it can land. -->
+
+## Cross-team dependencies
+
+<!-- Enumerate dependencies where the caller is owned by a different team
+     than the callee.  These are highest-priority for the architect-lens. -->
+
+| Caller (team) | Callee (team) | Contract | Review required |
+|---|---|---|---|
+| <!-- name (team) --> | <!-- name (team) --> | <!-- contract name --> | <!-- yes / no --> |

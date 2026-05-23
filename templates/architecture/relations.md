@@ -1,0 +1,47 @@
+# Service Relations
+
+<!-- HOW FRAME USES THIS FILE
+     Frame reads this file and includes it in architecture-loaded.yml as a
+     narrative artifact.  The architect-lens reads it to determine which
+     `touches:` tags in task.yml.readings map to known service names, so it
+     knows when to fire automatically at Specify time (see TRC-B2).
+
+     Format: keep service names consistent with the tags you use in
+     task.yml.readings.touches so the lens can match them.
+-->
+
+## Service map
+
+<!-- List every service / application / external dependency this context
+     interacts with.  One row per relation.  Direction: A -> B means A calls B
+     (A is the caller, B is the callee).
+-->
+
+| From | To | Protocol | Purpose | Criticality |
+|---|---|---|---|---|
+| <!-- name --> | <!-- name --> | <!-- HTTP / gRPC / event / DB / etc. --> | <!-- one line --> | <!-- high / medium / low --> |
+
+## Ownership
+
+<!-- Cross-reference to ownership.md when the caller and callee have
+     different owners — those relations are highest-risk for architectural
+     drift. -->
+
+## Known interface contracts
+
+<!-- List any stable contracts (OpenAPI specs, proto files, event schemas)
+     that this service publishes or consumes.  A change that modifies a
+     contract must create or update an ADR. -->
+
+| Contract | Location | Owned by |
+|---|---|---|
+| <!-- name --> | <!-- path or URL --> | <!-- team / person --> |
+
+## Prohibited relations
+
+<!-- Relations that must NEVER be created — typically because they would
+     create a cycle, violate ownership, or cross a data-classification
+     boundary.  These become invariants when architecture/invariants.yml
+     is populated. -->
+
+- <!-- example: service-A must not call service-B directly (use the event bus) -->

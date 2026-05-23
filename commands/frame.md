@@ -63,6 +63,22 @@ force; if it is still a Spike, leave the marker in place.
 1. **Create the task spine.** Pick a task slug, make
    `.compass/work/<task-slug>/`, and write `task.yml` from `templates/task.yml`
    into it. This is the machine-readable spine the CLI reads and writes.
+1a. **Load project architecture if present.** Call
+    `frame_load_architecture(project_root, task_dir)` — the internal CLI helper.
+    It scans `architecture/` at the project root (sibling to `governance/`), reads
+    any narrative files (`system-context.md`, `relations.md`, `ownership.md`) and
+    the optional structured file (`invariants.yml`), collects any `ADR-*.md` files
+    from `architecture/decisions/`, and writes the result to
+    `.compass/work/<task-slug>/architecture-loaded.yml`.  If `architecture/` does
+    not exist the file is written with empty `artifacts: []` and `adrs: []` — no
+    error (backward compat).  If `invariants.yml` exists but is not valid YAML,
+    Frame fails loudly with the file path and parse error in the message — a
+    malformed structured artifact is never silently swallowed.
+    `architecture-loaded.yml` is the **downstream agents' input** for all
+    architectural context in this task session; see `docs/methodology.md` for the
+    contract.
+    **Do not write load state into `task.yml.readings`** — `readings` is the
+    judgement block only (Inv-1; see `architecture-notes.md §2`).
 2. **Read the four dimensions — this is the judgement** — blast radius,
    terrain, magnitude, intent & role, plus `touches:` domain tags. Each gets a
    value and a one-line justification. If a value cannot be justified, ask the

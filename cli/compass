@@ -44,6 +44,7 @@
 
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import subprocess
@@ -229,6 +230,147 @@ def load_task(task_dir):
 def save_task(task, path):
     with open(path, "w", encoding="utf-8") as fh:
         yaml.safe_dump(task, fh, sort_keys=False, default_flow_style=False)
+
+
+# --- architecture loading (Frame mechanism) ----------------------------------
+# Inv-1: readings stays judgement-only. The load record goes to
+# architecture-loaded.yml (a separate file), never into task.yml.readings.
+# Inv-7: deterministic — same inputs produce same output; sha256 per artifact
+#         lets downstream agents detect mid-task drift.
+# Inv-8: backward compat — absence of architecture/ is silent (empty record).
+
+#: Narrative files Frame looks for under architecture/ (in order).
+_NARRATIVE_FILES = [
+    "architecture/system-context.md",
+    "architecture/relations.md",
+    "architecture/ownership.md",
+]
+
+#: The optional structured file.
+_INVARIANTS_FILE = "architecture/invariants.yml"
+
+
+def _file_sha256(path: str) -> str:
+    """Return the hex SHA-256 digest of the file at *path*."""
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def _scan_adrs(arch_dir: str) -> list:
+    """Return a list of ADR summary dicts from architecture/decisions/ADR-*.md.
+
+    Each dict: {id, path, title, status}
+    Frontmatter is parsed as YAML between the first pair of '---' lines.
+    If a file has no parseable frontmatter the id/title/status are inferred
+    from the filename so the list is always machine-usable.
+    """
+    decisions_dir = os.path.join(arch_dir, "decisions")
+    if not os.path.isdir(decisions_dir):
+        return []
+    adrs = []
+    for name in sorted(os.listdir(decisions_dir)):
+        if not (name.startswith("ADR-") and name.endswith(".md")):
+            continue
+        # Derive id from filename as the reliable fallback.
+        stem = name[:-3]  # strip .md
+        parts = stem.split("-", 2)       # ADR-NNN-slug
+        adr_id = "-".join(parts[:2]) if len(parts) >= 2 else stem
+        rel_path = f"architecture/decisions/{name}"
+        title, status = stem, "proposed"
+        full = os.path.join(decisions_dir, name)
+        try:
+            text = open(full, encoding="utf-8").read()
+            # Extract YAML frontmatter between first two '---' lines
+            if text.startswith("---"):
+                end = text.find("\n---", 3)
+                if end != -1:
+                    fm_text = text[3:end].strip()
+                    fm = yaml.safe_load(fm_text) or {}
+                    title = fm.get("title", title)
+                    status = fm.get("status", status)
+                    if fm.get("id"):
+                        adr_id = fm["id"]
+        except Exception:
+            pass
+        adrs.append({"id": adr_id, "path": rel_path,
+                     "title": title, "status": status})
+    return adrs
+
+
+def frame_load_architecture(project_root: str, task_dir: str) -> dict:
+    """Load the project's architecture/ artifacts into a structured record.
+
+    Writes ``.compass/work/<task>/architecture-loaded.yml`` and returns the
+    same dict.  Never raises on absent files (Inv-8).  Does raise on malformed
+    invariants.yml (TRC-X1 — fail loudly on bad structured input).
+
+    Schema (schema_version 1.0):
+        schema_version: "1.0"
+        loaded_at: <ISO timestamp>
+        artifacts:
+          - path: <relative to project_root>
+            sha256: <hex>
+            type: narrative | structured
+            parsed: <inline content>   # structured only
+        adrs:
+          - id: "ADR-001"
+            path: <relative path>
+            title: <string>
+            status: proposed | accepted | superseded
+    """
+    arch_dir = os.path.join(project_root, "architecture")
+    artifacts: list = []
+
+    if os.path.isdir(arch_dir):
+        # 1. Narrative files
+        for rel in _NARRATIVE_FILES:
+            full = os.path.join(project_root, rel)
+            if os.path.isfile(full):
+                artifacts.append({
+                    "path": rel,
+                    "sha256": _file_sha256(full),
+                    "type": "narrative",
+                })
+
+        # 2. Optional structured file — fail loudly on bad YAML (TRC-X1)
+        inv_rel = _INVARIANTS_FILE
+        inv_full = os.path.join(project_root, inv_rel)
+        if os.path.isfile(inv_full):
+            raw = open(inv_full, encoding="utf-8").read()
+            try:
+                parsed = yaml.safe_load(raw)
+            except yaml.YAMLError as exc:
+                raise CompassError(
+                    f"invariants.yml parse error in {inv_full}: {exc}"
+                )
+            artifacts.append({
+                "path": inv_rel,
+                "sha256": _file_sha256(inv_full),
+                "type": "structured",
+                "parsed": parsed,
+            })
+
+        # 3. Discover ADRs
+        adrs = _scan_adrs(arch_dir)
+    else:
+        # architecture/ absent — backward compat: produce an empty record
+        adrs = []
+
+    record = {
+        "schema_version": "1.0",
+        "loaded_at": now_iso(),
+        "artifacts": artifacts,
+        "adrs": adrs,
+    }
+
+    # Write to task dir (never to task.yml.readings — Inv-1)
+    os.makedirs(task_dir, exist_ok=True)
+    out_path = os.path.join(task_dir, "architecture-loaded.yml")
+    with open(out_path, "w", encoding="utf-8") as fh:
+        yaml.safe_dump(record, fh, sort_keys=False, default_flow_style=False,
+                       allow_unicode=True)
+
+    return record
 
 
 # --- the route evaluator (the deterministic core) ---------------------------
@@ -1404,6 +1546,138 @@ def cmd_task_lint(args):
     return 0
 
 
+# --- command: adr ------------------------------------------------------------
+# `compass adr new <slug>` creates a sequentially-numbered ADR file under
+# architecture/decisions/ and registers it in the README.md index.
+#
+# Inv-7: sequential within a tree at invocation time; concurrent worktrees may
+#         collide and surface the conflict as a normal git merge conflict (DD-8).
+# Inv-8: the directory is created if absent.
+
+_ADR_TEMPLATE = """\
+---
+id: {id}
+title: {title}
+status: proposed
+date: {date}
+supersedes: ''
+superseded_by: ''
+---
+
+## Context
+
+<!-- Describe the situation that necessitated this decision. -->
+
+## Decision
+
+<!-- State the decision clearly and concisely. -->
+
+## Alternatives considered
+
+<!-- List alternatives that were evaluated and why they were not chosen. -->
+
+## Consequences
+
+<!-- Describe the positive and negative consequences of this decision. -->
+
+## References
+
+<!-- Link to ADRs, issues, or documents that influenced this decision. -->
+"""
+
+_ADR_README_HEADER = """\
+# Architecture Decision Records
+
+This directory contains the project's Architecture Decision Records (ADRs).
+
+Each ADR captures one significant architectural decision: its context, the
+choice made, the alternatives considered, and the consequences.
+
+## Numbering
+
+ADRs are numbered sequentially.  `compass adr new <slug>` assigns the next
+available number so the index is always in creation order.  When two worktrees
+create ADRs concurrently, a git merge conflict on this README signals the
+collision; resolve by renumbering one side.
+
+## Index
+
+| ID | Title | Status |
+|---|---|---|
+"""
+
+
+def _adr_readme_row(adr_id: str, title: str, status: str, path: str) -> str:
+    return f"| {adr_id} | {title} | {status} |\n"
+
+
+def cmd_adr_new(args):
+    """Create a new numbered ADR file and register it in the decisions README."""
+    slug = args.slug
+    if not slug:
+        raise CompassError("compass adr new requires a slug argument")
+    # Sanitise slug: lowercase, replace spaces/underscores with hyphens
+    slug = slug.strip().lower().replace(" ", "-").replace("_", "-")
+
+    # Find the architecture/decisions directory
+    proj = find_upwards(os.getcwd(), os.path.join("architecture", "decisions"))
+    if proj:
+        decisions_dir = os.path.join(proj, "architecture", "decisions")
+    else:
+        # Not found walking up — create relative to cwd
+        decisions_dir = os.path.join(os.getcwd(), "architecture", "decisions")
+
+    os.makedirs(decisions_dir, exist_ok=True)
+
+    # Count existing ADR-*.md files to determine the next number
+    existing = sorted(
+        f for f in os.listdir(decisions_dir)
+        if f.startswith("ADR-") and f.endswith(".md")
+           and f != "ADR-template.md"
+    )
+    next_num = len(existing) + 1
+    num_str = f"{next_num:03d}"
+    adr_id = f"ADR-{num_str}"
+    filename = f"ADR-{num_str}-{slug}.md"
+    full_path = os.path.join(decisions_dir, filename)
+
+    if os.path.exists(full_path):
+        raise CompassError(
+            f"{full_path} already exists. If you are in a concurrent worktree, "
+            f"this is expected — rename one side at Land."
+        )
+
+    title_words = slug.replace("-", " ").title()
+    content = _ADR_TEMPLATE.format(
+        id=adr_id,
+        title=title_words,
+        date=datetime.date.today().isoformat(),
+    )
+    with open(full_path, "w", encoding="utf-8") as fh:
+        fh.write(content)
+
+    # Update README.md index
+    readme_path = os.path.join(decisions_dir, "README.md")
+    if os.path.exists(readme_path):
+        readme_text = open(readme_path, encoding="utf-8").read()
+    else:
+        readme_text = _ADR_README_HEADER
+
+    row = _adr_readme_row(adr_id, title_words, "proposed", filename)
+    if adr_id not in readme_text:
+        with open(readme_path, "a", encoding="utf-8") as fh:
+            # If the file was just created (header only), the table is already
+            # there; append row.  If we appended the header we need a trailing
+            # newline before the row.
+            fh.write(row)
+
+    print(f"compass adr new: created {full_path}")
+    print(f"  registered in {readme_path}")
+    print(f"  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) — "
+          f"if another worktree creates ADRs in parallel, renumber at Land.")
+    return 0
+
+
 # --- argparse ----------------------------------------------------------------
 
 def build_parser():
@@ -1474,6 +1748,18 @@ def build_parser():
     ptl.add_argument("--task", help="task slug (default: current-task pointer)")
     ptl.add_argument("--file", help="lint a specific task.yml file")
     ptl.set_defaults(func=cmd_task_lint)
+
+    padr = sub.add_parser("adr", help="Architecture Decision Record tools")
+    padrs = padr.add_subparsers(dest="subcmd", required=True)
+    padrn = padrs.add_parser(
+        "new",
+        help="create a new numbered ADR file in architecture/decisions/",
+    )
+    padrn.add_argument(
+        "slug",
+        help="short kebab-case slug for the ADR (e.g. 'use-postgres')",
+    )
+    padrn.set_defaults(func=cmd_adr_new)
 
     return p
 
