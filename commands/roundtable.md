@@ -24,11 +24,42 @@ user's experience, a priority conflict between intent and effort.
   Strategy-vs-strategy tension is exactly what a roundtable *is* for; a
   guardrail is not up for negotiation.
 
+## Agent roster
+
+The following agents are part of the standard roundtable roster and may be
+convened by name:
+
+| Agent | Invocation | Auto-trigger condition |
+|---|---|---|
+| `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`brief.md` exists) |
+| `marketing-lens` | `/compass:roundtable marketing-lens` | When a marketer is in play (`positioning.md` exists) |
+| `architect-lens` | `/compass:roundtable architect-lens` | When `task.yml.readings.touches` contains `public-api`, a service name from `architecture/relations.md`, or a `lens_trigger_tag` from `architecture/invariants.yml` |
+| `planner` | `/compass:roundtable planner` | On request |
+| `reviewer` | `/compass:roundtable reviewer` | On request |
+
+**Registration contract:** a lens is invoked only if its agent file exists in
+`agents/`. If the file does not exist, `/compass:roundtable` skips that lens
+and records the absence in `devlog.md` rather than failing. This prevents
+recursive invocation when a task itself introduces a new lens — the bootstrap
+case (see TRC-X5 in the spec and `agents/architect-lens.md` §How you work).
+
+**Named invocation:** pass the agent name as a positional argument:
+```
+/compass:roundtable architect-lens
+```
+This convenes only the architect-lens, regardless of auto-trigger conditions.
+The lens writes `architecture-notes.md` to the task directory.
+
+**Auto-convene (no args):** when invoked with no positional agent name,
+`/compass:roundtable` auto-convenes every lens whose trigger condition is met
+for the current task.
+
 ## Procedure
 
 1. **Pick the table.** Convene the lenses the question actually needs — some
-   of `product-lens`, `marketing-lens`, `planner`, `reviewer`,
-   and the designer or QA perspective. Name who is at the table and why.
+   of `product-lens`, `marketing-lens`, `architect-lens`, `planner`,
+   `reviewer`, and the designer or QA perspective. Name who is at the table
+   and why.
 2. **State the question** crisply, with the constraints that bound it (the
    guardrails, the route, fixed deadlines).
 3. **Each lens speaks in its own vocabulary.** The product owner argues intent
