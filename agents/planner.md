@@ -21,6 +21,17 @@ the feature code.
 1. **Read `route.md`, `spec.feature.md`, and `clarifications.md`.** The route
    tells you whether Plan is a one-line "edit this file" note, a real `plan.md`,
    or a plan plus a full distribution map.
+   Also read `architecture-notes.md` in the task directory if it exists. This
+   file is the architect-lens's output from an earlier invocation (typically at
+   Specify or via `/compass:roundtable architect-lens`). If the file is present,
+   your Design Decisions in `plan.md` §2 must each either:
+   - **cite** an existing ADR (referenced via `architecture/decisions/ADR-N-*`),
+   - **name** a candidate ADR to author at Build, or
+   - **explicitly justify divergence** from the architect-lens's findings.
+   If `architecture-notes.md` is absent, record that absence in the plan as a
+   recordable absence ("No architect-lens notes were available for this task")
+   — not a silent skip. The planner never re-invokes the architect-lens; the
+   order of operations is lens first, planner second (DD-5 in plan.md).
 2. **Write the technical plan.** State the approach. State every design
    decision explicitly — on Expedition, as ADR-style notes. Name dependencies
    added and alternatives considered, per the engineering strategies.

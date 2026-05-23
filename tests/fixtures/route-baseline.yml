@@ -1,0 +1,140 @@
+# Captured at 2026-05-23T19:45:58Z by `compass route evaluate --json`
+# against the routing-policy.yml at HEAD fb092c0 (main, prior to
+# cross-task-architectural-integrity work).
+#
+# Purpose (TRC-F3 / TRC-G1): the regression baseline for adaptive routing.
+# `tests/test_route_selection.py::test_existing_combinations_unchanged` reads
+# this fixture and asserts that for each combination of readings below, the
+# current `compass route evaluate` output still matches `expected_route`,
+# `expected_topology`, `expected_phases`, and `expected_gates`.
+#
+# If a future task legitimately changes routing, regenerate this fixture in
+# the same PR — the diff is the audit trail.
+
+- name: spike
+  readings:
+    blast_radius: trivial
+    terrain: greenfield
+    magnitude: atomic
+    intent: exploration
+    role: engineer
+    touches: []
+  expected_route: spike
+  expected_topology: solo
+  expected_phases:
+    frame: light
+    specify: collapsed
+    clarify: skipped
+    plan: collapsed
+    distribute: skipped
+    build: explore
+    verify: conclude
+    land: graduate-or-discard
+  expected_gates:
+    - spike.conclude
+
+- name: express
+  readings:
+    blast_radius: trivial
+    terrain: brownfield-mapped
+    magnitude: atomic
+    intent: delivery
+    role: engineer
+    touches: []
+  expected_route: express
+  expected_topology: solo
+  expected_phases:
+    frame: full
+    specify: light
+    clarify: collapsed
+    plan: collapsed
+    distribute: skipped
+    build: full
+    verify: light
+    land: light
+  expected_gates:
+    - verify.correctness
+    - verify.governance
+    - verify.traceability
+
+- name: standard
+  readings:
+    blast_radius: contained
+    terrain: brownfield-mapped
+    magnitude: standard
+    intent: delivery
+    role: engineer
+    touches: []
+  expected_route: standard
+  expected_topology: solo-or-pair
+  expected_phases:
+    frame: full
+    specify: full
+    clarify: light
+    plan: full
+    distribute: solo-or-pair
+    build: full
+    verify: full
+    land: full
+  expected_gates:
+    - verify.correctness
+    - verify.governance
+    - verify.traceability
+    - verify.regression
+    - verify.clarity
+    - verify.security
+
+- name: hotfix
+  readings:
+    blast_radius: contained
+    terrain: brownfield-mapped
+    magnitude: small
+    intent: delivery
+    urgency: live-defect
+    role: engineer
+    touches: []
+  expected_route: hotfix
+  expected_topology: solo
+  expected_phases:
+    frame: light
+    specify: reproduce-first
+    clarify: collapsed
+    plan: collapsed
+    distribute: skipped
+    build: expedited
+    verify: full
+    land: full-plus-backfill
+  expected_gates:
+    - verify.correctness
+    - verify.governance
+    - verify.traceability
+    - verify.regression
+    - verify.security
+
+- name: expedition
+  readings:
+    blast_radius: cross-cutting
+    terrain: brownfield-mapped
+    magnitude: large
+    intent: delivery
+    role: engineer
+    touches: []
+  expected_route: expedition
+  expected_topology: swarm
+  expected_phases:
+    frame: full
+    specify: full
+    clarify: full
+    plan: full
+    distribute: swarm
+    build: full
+    verify: full
+    land: full
+  expected_gates:
+    - verify.correctness
+    - verify.governance
+    - verify.traceability
+    - verify.regression
+    - verify.security
+    - verify.clarity
+    - verify.claims

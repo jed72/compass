@@ -1,3 +1,10 @@
+# Local-only working proposals. These are team-internal planning notes,
+# not part of the framework's public surface. The rationale that survives
+# into the framework lives in docs/methodology.md and the rest of the
+# public docs — not here. Root-anchored for the same reason as the patterns
+# below.
+/docs/proposals/
+
 # Compass per-project working state.
 #
 # IMPORTANT — in a real project that USES Compass, `.compass/work/` IS

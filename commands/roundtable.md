@@ -24,11 +24,42 @@ user's experience, a priority conflict between intent and effort.
   Strategy-vs-strategy tension is exactly what a roundtable *is* for; a
   guardrail is not up for negotiation.
 
+## Agent roster
+
+The following agents are part of the standard roundtable roster and may be
+convened by name:
+
+| Agent | Invocation | Auto-trigger condition |
+|---|---|---|
+| `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`brief.md` exists) |
+| `marketing-lens` | `/compass:roundtable marketing-lens` | When a marketer is in play (`positioning.md` exists) |
+| `architect-lens` | `/compass:roundtable architect-lens` | When `task.yml.readings.touches` contains `public-api`, a service name from `architecture/relations.md`, or a `lens_trigger_tag` from `architecture/invariants.yml` |
+| `planner` | `/compass:roundtable planner` | On request |
+| `reviewer` | `/compass:roundtable reviewer` | On request |
+
+**Registration contract:** a lens is invoked only if its agent file exists in
+`agents/`. If the file does not exist, `/compass:roundtable` skips that lens
+and records the absence in `devlog.md` rather than failing. This prevents
+recursive invocation when a task itself introduces a new lens — the bootstrap
+case (see TRC-X5 in the spec and `agents/architect-lens.md` §How you work).
+
+**Named invocation:** pass the agent name as a positional argument:
+```
+/compass:roundtable architect-lens
+```
+This convenes only the architect-lens, regardless of auto-trigger conditions.
+The lens writes `architecture-notes.md` to the task directory.
+
+**Auto-convene (no args):** when invoked with no positional agent name,
+`/compass:roundtable` auto-convenes every lens whose trigger condition is met
+for the current task.
+
 ## Procedure
 
 1. **Pick the table.** Convene the lenses the question actually needs — some
-   of `product-lens`, `marketing-lens`, `planner`, `reviewer`,
-   and the designer or QA perspective. Name who is at the table and why.
+   of `product-lens`, `marketing-lens`, `architect-lens`, `planner`,
+   `reviewer`, and the designer or QA perspective. Name who is at the table
+   and why.
 2. **State the question** crisply, with the constraints that bound it (the
    guardrails, the route, fixed deadlines).
 3. **Each lens speaks in its own vocabulary.** The product owner argues intent
@@ -41,6 +72,32 @@ user's experience, a priority conflict between intent and effort.
    was at the table, the options, the tradeoffs, the decision, and the
    rationale. If the decision changes scope or route, that is a trigger to
    re-frame (`/compass:frame --reframe`) — say so.
+
+## Reframe trigger
+
+Some roundtable outcomes do more than record a tradeoff — they change the
+scope, the boundary, or the migration surface of the current task. When that
+happens, a re-frame is not optional.
+
+**Any roundtable outcome that changes a service boundary or migration scope
+must end with a re-frame:**
+
+```
+/compass:frame --reframe --reason "<roundtable id> — <what changed and why>"
+```
+
+Examples of outcomes that require a re-frame:
+
+- The roundtable decides to extend a planned migration to cover an adjacent
+  service that was not in the original scope.
+- A boundary call moves a module from one service to another, adding files
+  that were not in `plan.md`.
+- A scope cut removes a deliverable that was in `spec.feature.md`.
+
+In all these cases, file the re-frame immediately after the roundtable
+decision is recorded in `devlog.md`. The re-frame is the calibration signal
+that `compass calibration` reads — absorbing a mis-frame silently loses the
+signal.
 
 ## Gate
 

@@ -10,6 +10,7 @@ each fixture in tests/fixtures/routes/ declares an input + expected output.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -183,6 +184,89 @@ def test_candidate_and_final_route_both_recorded(run_cli):
     assert data["candidate_route"] == "express"
     assert data["route"] == "expedition"
     assert data["candidate_via"], "candidate_via must say WHY the candidate was picked"
+
+
+# --- TRC-F3: regression baseline — adaptive routing is unchanged ----------
+
+
+def test_existing_combinations_unchanged(run_cli):
+    """TRC-F3: The five reference routes still compose the same way.
+
+    Loads tests/fixtures/route-baseline.yml (captured at HEAD fb092c0 before
+    the cross-task-architectural-integrity work started) and asserts that for
+    each reading combination, `compass route evaluate --json` still produces:
+      - the same route name (expected_route)
+      - the same topology (expected_topology)
+      - the same per-phase weights (expected_phases)
+      - the same gate set (expected_gates)
+
+    A mismatch is a real regression: routing has drifted from the baseline.
+    If that happens, this test must STOP and report — do not patch the
+    fixture to make a regression pass.
+    """
+    import yaml
+
+    baseline_path = (
+        Path(__file__).resolve().parent / "fixtures" / "route-baseline.yml"
+    )
+    assert baseline_path.is_file(), f"Baseline fixture not found: {baseline_path}"
+
+    baseline = yaml.safe_load(baseline_path.read_text(encoding="utf-8"))
+    assert baseline, "Baseline fixture is empty — cannot verify routing"
+
+    failures = []
+
+    for entry in baseline:
+        name = entry.get("name", "?")
+        readings = entry["readings"]
+        expected_route = entry["expected_route"]
+        expected_topology = entry["expected_topology"]
+        expected_phases = entry["expected_phases"]
+        expected_gates = set(entry["expected_gates"])
+
+        r = run_cli("route", "evaluate", "--json", *_reading_args(readings))
+
+        if r.returncode != 0:
+            failures.append(
+                f"[{name}] compass route evaluate failed (exit {r.returncode}):\n"
+                f"  stderr: {r.stderr}"
+            )
+            continue
+
+        data = json.loads(r.stdout)
+
+        actual_route = data.get("route")
+        actual_topology = data.get("topology", "")
+        actual_phases = data.get("phases", {})
+        actual_gates = set(data.get("gates", []))
+
+        if actual_route != expected_route:
+            failures.append(
+                f"[{name}] ROUTE DRIFT: expected '{expected_route}', "
+                f"got '{actual_route}'"
+            )
+        if expected_topology not in actual_topology:
+            failures.append(
+                f"[{name}] TOPOLOGY DRIFT: expected '{expected_topology}' "
+                f"(substring), got '{actual_topology}'"
+            )
+        if actual_phases != expected_phases:
+            failures.append(
+                f"[{name}] PHASE DRIFT:\n"
+                f"  expected: {expected_phases}\n"
+                f"  actual  : {actual_phases}"
+            )
+        if actual_gates != expected_gates:
+            failures.append(
+                f"[{name}] GATE DRIFT:\n"
+                f"  expected: {sorted(expected_gates)}\n"
+                f"  actual  : {sorted(actual_gates)}"
+            )
+
+    assert not failures, (
+        "Adaptive routing has drifted from the baseline — these are REAL "
+        "REGRESSIONS, not test-logic errors:\n\n" + "\n\n".join(failures)
+    )
 
 
 # --- the YAML fixtures: one parameterised test for the whole set ----------

@@ -405,7 +405,157 @@ systematically over- or under-sizing routes? Flow surfaces that read alongside
 the board and folds it into the digest, because "are we right-sizing process?"
 is exactly the cross-task question no single task can answer.
 
-## 11. Design principles (the short version)
+## 11. Loading project architecture
+
+Every Compass task begins with Frame.  As part of Frame, the CLI's internal
+`frame_load_architecture` helper scans the project's `architecture/` directory
+(when present) and writes a structured record of what it found to
+`.compass/work/<task>/architecture-loaded.yml`.
+
+**Why a separate file, not a `task.yml` field?**  `task.yml.readings` is the
+*judgement* block — the Needle's assessment of the four dimensions.  Mechanism-
+produced state (what files exist on disk, their hashes) does not belong there.
+`architecture-loaded.yml` is the mechanism's output; `readings` is the human's.
+Keeping them separate preserves the determinism boundary: same inputs to the
+mechanism always produce the same record, independent of the Needle's
+judgement.
+
+**What the record contains:**
+
+```yaml
+schema_version: "1.0"
+loaded_at: <ISO timestamp>
+artifacts:
+  - path: architecture/system-context.md
+    sha256: <hex>
+    type: narrative
+  - path: architecture/invariants.yml
+    sha256: <hex>
+    type: structured
+    parsed: <inline YAML content>   # structured artifacts only
+adrs:
+  - id: ADR-001
+    path: architecture/decisions/ADR-001-<slug>.md
+    title: <title from frontmatter>
+    status: proposed | accepted | superseded
+```
+
+The `sha256` per artifact lets downstream agents detect mid-task drift: if an
+architecture file changes after Frame loaded it, the hash will not match, and
+the agent knows to ask Frame to reload.  The `parsed` field for structured
+files means downstream agents do not need to re-read the file from disk.
+
+**Backward compatibility:** if `architecture/` does not exist the helper
+writes the record with empty `artifacts: []` and `adrs: []` and returns
+without error.  Every existing project that has not yet adopted the
+`architecture/` convention continues to work unchanged.
+
+**Malformed structured files fail loudly:** if `architecture/invariants.yml`
+exists but is not valid YAML, Frame raises an error that names the file and
+the parse error.  A malformed structured artifact is never silently swallowed —
+it would produce incorrect architectural context for every downstream agent in
+this task.
+
+**Downstream agents:** spec-author, planner, and the architect-lens all read
+`architecture-loaded.yml` to get persistent architectural context.  The file
+survives session boundaries and context compaction — which is the core problem
+it solves.  An agent that needs to know whether the project has a stable
+service boundary, who owns a given surface, or which decisions are already
+recorded reads this file, not the raw `architecture/` tree.
+## 12. Cross-task rework
+
+Each Compass task owns its own `changed_files` record — a list of paths and
+their actions (`added`, `modified`, `deleted`). These records are the code-half
+of traceability (G3), but they also carry a cross-task signal: if task B deletes
+a file that task A added within a short window, that is rework — task A's effort
+was undone before it delivered lasting value.
+
+`compass rework-scan` reads every `task.yml.changed_files` under a configured
+root and detects:
+
+- **Add-then-delete pairs.** File added in task A, deleted by task B within the
+  configured `window_days` (default 14, from `governance/signals.yml`).
+- **Public-surface churn.** Files matching `rework_scan.public_surface_patterns`
+  (API routes, proto symbols, etc.) that follow the add-then-delete pattern.
+- **Migration pairs.** A migration file matching `rework_scan.migration_paths`
+  added by task A, paired with a semantically related drop migration added by
+  task B in the same window.
+
+**Exit code is always 0.** The scan is a signal, not a gate (Inv-4: Flow
+advises, never gates). Detection of rework does not block delivery. The output
+surfaces in `/compass:flow --digest` as the "Rework scan" section, which a team
+reviews on a cadence to decide whether to act — spawning a sibling task,
+filing an ADR, or accepting the churn as intentional.
+
+Configuration lives in `governance/signals.yml` and is loaded at runtime;
+patterns are never hardcoded in the CLI. Projects override by editing their own
+`governance/signals.yml` using the same convention as `guardrails.yml` and
+`routing-policy.yml`.
+
+## 13. Reframes — feedback signal
+
+A **re-frame** is what happens when the Needle (or a human) re-reads the
+terrain mid-task and concludes that the initial route was wrong. Re-framing is
+normal and expected — it is the mechanism that keeps process proportionate when
+reality turns out to differ from first impressions. What is *not* normal is
+absorbing a scope change silently, without filing the re-frame.
+
+### Why absorbed mis-frames matter
+
+When a builder discovers during Build that the task is larger, narrower, or
+differently shaped than Plan described, and works around it without filing a
+re-frame, two things happen:
+
+1. **The calibration signal is lost.** `compass calibration` reads the
+   `reframes:` log across all tasks and reports whether the Needle is
+   systematically over- or under-sizing. An absorbed mis-frame — a real scope
+   change that was not recorded — makes calibration less accurate. The pattern
+   repeats; the Needle never learns.
+2. **The audit trail has a gap.** The task's `task.yml` says it was a
+   `standard` task; the devlog says scope ballooned. Anyone reading the history
+   cannot reconstruct why the task took longer than Plan said.
+
+### The stop-hook nudge
+
+`hooks/stop.sh` reads `governance/signals.yml`'s `scope_bloat_phrases` list at
+runtime and checks each active task's `devlog.md` against those patterns at
+session end. If a scope-bloat phrase appears as a top-level statement in the
+devlog (not nested in quotes or indentation) AND no reframe has been filed
+after it, the hook emits a nudge to stderr suggesting:
+
+```
+/compass:frame --reframe --reason "<what changed and why>"
+```
+
+The hook is **non-blocking** — it exits 0 regardless. It nudges; the human
+decides.
+
+### compass calibration --reframe-debt
+
+`compass calibration` includes a **Reframe debt** section in its output when it
+finds tasks that have scope-bloat devlog signals and no corresponding reframe.
+These are listed as "absorbed mis-frames, signal lost" — advisory only. The
+command is read-only: it never writes to `task.yml` or any other file (this
+is a hard architectural invariant, not a convention).
+
+### The roundtable trigger
+
+Any roundtable outcome that changes a service boundary or migration scope must
+end with a re-frame. See `commands/roundtable.md` §"Reframe trigger" for the
+exact procedure and example invocation.
+
+### What counts as a filed reframe
+
+A re-frame is filed when `compass route evaluate --write --reason "..."` runs
+and the computed route differs from the previously recorded one. This appends
+an entry to `task.yml.reframes` with `from_route`, `to_route`, `reason`, and
+`date`. The stop-hook and calibration both check this field to decide whether
+a nudge is appropriate.
+
+**The rule:** if scope grew, file the re-frame. The re-frame is not a failure;
+it is the calibration signal working as intended.
+
+## 14. Design principles (the short version)
 
 1. **Compute the process, don't select it.** Intensity is a function of the
    terrain, not a menu choice.

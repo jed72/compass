@@ -142,8 +142,11 @@ state (state is always inferred from artifacts on disk).
 - During **Verify**, the `verifier` and `reviewer` agents run; load
   `evidence-gates`.
 - For any role-facing work, load `role-translation` — it is how one spec is
-  read through five lenses. The `product-lens` and `marketing-lens` agents
-  apply specific role perspectives.
+  read through five lenses. The `product-lens`, `marketing-lens`, and
+  `architect-lens` agents apply specific role perspectives. The architect-lens
+  reads the project's `architecture/` artifacts and writes `architecture-notes.md`
+  in the task dir; spec-author and planner consult those notes rather than
+  re-invoking the lens.
 - `traceability` is loaded whenever an artifact is written.
 
 ## Roles
@@ -181,18 +184,38 @@ solo, there is no worktree — work on the current branch.
 │       ├── distribution-map.md  Swarm topology (Expedition / larger routes)
 │       ├── positioning.md       Marketer messaging + PRFAQ (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)
-│       ├── verification-report.md  (ends with the Definition of Done gate)
+│       ├── verification-report.md  (ends with the Definition of Done gate;
+│       │                            DoD lines use the typed inline tags
+│       │                            `(evidence: EV-id)` or `(backfill: BF-id)`
+│       │                            — bare unchecked items fail compass check)
+│       ├── architecture-loaded.yml (written at Frame if architecture/ is
+│       │                            present; the per-task snapshot of what
+│       │                            cross-task architectural state was loaded)
+│       ├── architecture-notes.md   (written by the architect-lens — annotations
+│       │                            on plan.md; not a parallel spec)
 │       ├── evidence/            red.json/green.json + gate evidence the CLI records
 │       └── devlog.md            Append-only running log
 └── flow/
-    └── digest-<date>.md         Periodic cross-task digest (/compass:flow --digest)
+    ├── digest-<date>.md         Periodic cross-task digest (/compass:flow --digest)
+    └── rework-<date>.md         Cross-task rework scan (compass rework-scan)
 ```
 
 `governance/` lives at the project root — the `.md` files (`guardrails.md`,
 `strategies.md`, `routing-policy.md`) and the `.yml` files the CLI runs
-(`routing-policy.yml`, `guardrails.yml`) — not under `.compass/`. If
-`/compass:init` has not been run, the framework's shipped `governance/`
-defaults apply as-is; the CLI falls back to them the same way.
+(`routing-policy.yml`, `guardrails.yml`, `signals.yml`) — not under
+`.compass/`. `signals.yml` holds advisory patterns (scope-bloat phrases the
+stop-hook nudges on, rework-scan window + public-surface patterns); soft
+signals, not guardrails. If `/compass:init` has not been run, the framework's
+shipped `governance/` defaults apply as-is; the CLI falls back to them the
+same way.
+
+`architecture/` also lives at the project root, sibling to `governance/`,
+when adopted. It holds the cross-task architectural contract —
+`system-context.md`, `relations.md`, `ownership.md`, and `decisions/ADR-*.md`
+— so the design that should not silently drift survives across tasks. Frame
+loads it (when present) into `architecture-loaded.yml` in the task dir; the
+architect-lens reads it. Projects without `architecture/` continue to work;
+the load no-ops cleanly.
 
 ## When you are unsure
 

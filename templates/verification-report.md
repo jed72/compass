@@ -105,17 +105,44 @@ evidence block is an automatic fail.
 <!-- The crisp exit check. The Definition of Ready (clarifications.md) was the
      entry gate into Plan; this is the exit gate out of Verify. Items 1–5 are
      proven here, with evidence above. Items 6–7 are carried into Land — they
-     are listed so the close-out is one continuous checklist, not two. -->
+     are listed so the close-out is one continuous checklist, not two.
 
-- [ ] **Every scenario passes** — §1 is all PASS; the spec, read as the
-      acceptance suite, is green.
-- [ ] **TDD suite green** — §2 shows the full suite passing, output pasted.
-- [ ] **Coverage meets the guardrail floor (G1-related)** — evidence in §2.
-- [ ] **No lint / format / type errors** — clean, evidence pasted.
-- [ ] **Traceability intact** — code → scenario → intent holds; claim →
-      scenario holds where the marketer is in play.
-- [ ] *(carried to Land)* Living docs updated to match reality.
-- [ ] *(carried to Land)* Every owed backfill paid — no unpaid Hotfix
-      backfill, no unbacked marketing claim.
+TYPED DOD — REQUIRED INLINE-TAG SYNTAX (G4: evidence, not assertion):
+  Every unchecked box must carry exactly ONE of these inline tags, or be ticked:
+
+    - [ ] (evidence: EV-<id>) <description>
+        Passes when EV-<id> is in task.yml's evidence registry with an accepted
+        type (test-run, command-output, manual-review, human-approval, artifact,
+        security-review, migration-plan, rollback-plan, claim-review).
+
+    - [ ] (backfill: BF-<id>) <description>
+        Passes (defers) when BF-<id> is in task.yml backfills with status: owed.
+        Add target_task: <slug> on the backfill entry to block that task's Land
+        until paid (compass backfill pay --task <source-slug> BF-<id>).
+
+    - [x] <description>
+        A human-ticked box passes unconditionally — the human took responsibility.
+
+    - [ ] <bare description>   ← FAILS compass check (bare unchecked box)
+        Narrative notes in devlog.md do NOT clear a DoD item. G4 applies.
+
+  Cross-task: if another task has a backfill with target_task pointing at this
+  task and status: owed, compass check at Land fails until that backfill is paid.
+-->
+
+- [ ] (evidence: {{EV-id}}) **Every scenario passes** — §1 is all PASS; the
+      spec, read as the acceptance suite, is green.
+- [ ] (evidence: {{EV-id}}) **TDD suite green** — §2 shows the full suite
+      passing, output pasted.
+- [ ] (evidence: {{EV-id}}) **Coverage meets the guardrail floor (G1-related)**
+      — evidence in §2.
+- [ ] (evidence: {{EV-id}}) **No lint / format / type errors** — clean,
+      evidence pasted.
+- [ ] (evidence: {{EV-id}}) **Traceability intact** — code → scenario → intent
+      holds; claim → scenario holds where the marketer is in play.
+- [ ] (backfill: {{BF-id}}) *(carried to Land)* Living docs updated to match
+      reality.
+- [ ] (backfill: {{BF-id}}) *(carried to Land)* Every owed backfill paid — no
+      unpaid Hotfix backfill, no unbacked marketing claim.
 
 Next phase: **Land** (`/compass:land`) — only on overall PASS.

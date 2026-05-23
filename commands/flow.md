@@ -64,18 +64,31 @@ dated digest file (see below).
    the fix is in `governance/routing-policy.yml` or the Frame rubric, not in
    any one task.
 
-7. **Report**, ordering by what needs attention first: human decisions →
-   guardrail violations → blockers → owed backfills → calibration signal →
-   healthy in-flight → landed.
+7. **Run rework-scan.** Run `compass rework-scan --format markdown` and embed
+   the output in the report as a "Rework scan" section. This surfaces
+   cross-task add-then-delete patterns within the configured window
+   (`governance/signals.yml rework_scan.window_days`). The scan is a signal —
+   it never gates, never modifies task state, and always exits 0 on detection
+   (Inv-4: Flow advises, never gates). If the section is empty, record
+   "0 rework instances detected" to confirm the scan ran.
+
+8. **Report**, ordering by what needs attention first: human decisions →
+   guardrail violations → blockers → owed backfills → rework signals →
+   calibration signal → healthy in-flight → landed.
 
 ## `--digest`
 
 With `--digest`, also write a dated digest to `.compass/flow/digest-{{DATE}}.md`
 using the format in the `flow-management` skill: landed since the last digest,
-in flight, blocked, owed backfills, and next up. The digest is the artifact a
-team reviews on a cadence — and `/compass:flow --digest` is a natural fit for a
-scheduled task (e.g. a weekly run). It is append-only history: never overwrite
-a prior digest.
+in flight, blocked, owed backfills, rework signals, and next up. The digest is
+the artifact a team reviews on a cadence — and `/compass:flow --digest` is a
+natural fit for a scheduled task (e.g. a weekly run). It is append-only
+history: never overwrite a prior digest.
+
+The digest must include a **Rework scan** section produced by
+`compass rework-scan --format markdown`. This section is informational — it
+does not change any task's state, and a non-empty rework report does not block
+or gate anything.
 
 ## Note
 
