@@ -107,7 +107,13 @@ while IFS= read -r line; do
   # split on '|', trim each cell
   IFS='|' read -r _ c1 c2 c3 c4 _rest <<<"$line"
   sid="$(echo "${c1:-}" | xargs 2>/dev/null || true)"
-  branch="$(echo "${c4:-}" | xargs 2>/dev/null || true)"
+  # Trim whitespace AND strip leading/trailing markdown punctuation (`, *).
+  # The map's branch-name cell is often wrapped in backticks for readability
+  # (`compass/<slug>/stream-N`) or bold (**...**); the parser must treat the
+  # cell as a clean git ref, not the literal-with-markdown string. Bare names
+  # round-trip unchanged. Markdown *inside* a ref name is out of scope —
+  # git ref-validation rejects such names anyway.
+  branch="$(echo "${c4:-}" | xargs 2>/dev/null | sed -E 's/^[`*]+//; s/[`*]+$//' || true)"
   case "$sid" in stream-*) ;; *) continue ;; esac
   # default branch name if the map left it blank
   [ -n "$branch" ] || branch="compass/$TASK_SLUG/$sid"
