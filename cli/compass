@@ -261,8 +261,10 @@ def _scan_adrs(arch_dir: str) -> list:
 
     Each dict: {id, path, title, status}
     Frontmatter is parsed as YAML between the first pair of '---' lines.
-    If a file has no parseable frontmatter the id/title/status are inferred
-    from the filename so the list is always machine-usable.
+    Raises ValueError on malformed YAML frontmatter (TRC-X1 — fail loudly on
+    bad structured input, naming the file path and the parse error).
+    Files with no frontmatter delimiters have their id/title/status inferred
+    from the filename (missing frontmatter is not an error; bad YAML is).
     """
     decisions_dir = os.path.join(arch_dir, "decisions")
     if not os.path.isdir(decisions_dir):
@@ -278,20 +280,22 @@ def _scan_adrs(arch_dir: str) -> list:
         rel_path = f"architecture/decisions/{name}"
         title, status = stem, "proposed"
         full = os.path.join(decisions_dir, name)
-        try:
-            text = open(full, encoding="utf-8").read()
-            # Extract YAML frontmatter between first two '---' lines
-            if text.startswith("---"):
-                end = text.find("\n---", 3)
-                if end != -1:
-                    fm_text = text[3:end].strip()
+        text = open(full, encoding="utf-8").read()  # noqa: WPS515
+        # Extract YAML frontmatter between first two '---' lines
+        if text.startswith("---"):
+            end = text.find("\n---", 3)
+            if end != -1:
+                fm_text = text[3:end].strip()
+                try:
                     fm = yaml.safe_load(fm_text) or {}
-                    title = fm.get("title", title)
-                    status = fm.get("status", status)
-                    if fm.get("id"):
-                        adr_id = fm["id"]
-        except Exception:
-            pass
+                except yaml.YAMLError as exc:
+                    raise ValueError(
+                        f"ADR parse error in {full}: {exc}"
+                    ) from exc
+                title = fm.get("title", title)
+                status = fm.get("status", status)
+                if fm.get("id"):
+                    adr_id = fm["id"]
         adrs.append({"id": adr_id, "path": rel_path,
                      "title": title, "status": status})
     return adrs

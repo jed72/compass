@@ -1,0 +1,126 @@
+---
+STATUS: ACCEPTED
+date: 2026-05-24
+---
+
+# Compass — System Context
+
+<!-- Frame reads this file at the start of every task and includes it (with
+     its SHA-256 fingerprint) in .compass/work/<task>/architecture-loaded.yml.
+     Downstream agents — spec-author, planner, and the architect-lens — read
+     architecture-loaded.yml to get persistent architectural context that
+     survives session boundaries and context compaction.
+
+     Keep this file factual and concise. It is machine-read as well as
+     human-read. -->
+
+## Purpose
+
+Compass is an adaptive spec-driven development framework that runs inside
+Claude Code. Its primary purpose is to reduce the cost of doing things right:
+writing testable acceptance criteria before building, routing tasks to the
+appropriate level of ceremony, and producing an auditable evidence trail that
+proves work landed safely.
+
+Compass governs its own development using the same mechanisms it supplies to
+adopters. This `architecture/` tree is the self-application of that governance.
+
+## Components
+
+The framework has five logical surfaces. Each maps to artefacts on disk and
+to agent roles that own them.
+
+### Pipeline
+
+The pipeline is the ordered sequence of phases every delivery task passes
+through: Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land.
+Phase weights (full / light / skipped) are determined at Frame by the router.
+The pipeline is implemented through the slash commands in `commands/` and the
+CLI subcommands in `cli/compass`.
+
+Logical surface: **pipeline**
+
+### Router
+
+The router reads the four context dimensions (blast radius, terrain, magnitude,
+intent + role) recorded in `task.yml.readings` and deterministically selects a
+route, phase weights, and gate set by running `governance/routing-policy.yml`
+through `compass route evaluate`. No human judgement enters after the readings
+are recorded; the route is a pure function of the readings.
+
+Logical surface: **router**
+
+### Guardrails
+
+Guardrails are the five hard, checkable, blocking rules that no route, agent,
+or convenience can cross: G1 (tested before it lands), G2 (acceptance defined
+before built), G3 (traceability holds), G4 (evidence not assertion), G5 (human
+signs off on the irreversible). They are encoded in `governance/guardrails.yml`
+and checked mechanically by `compass check`.
+
+Logical surface: **guardrails**
+
+### Strategies
+
+Strategies are directional biases that are on by default but are not blocking:
+BDD (Given/When/Then scenarios as spec), TDD (red-green-refactor), simplest
+correct implementation, and persistence over conversation. They are encoded in
+`governance/strategies.md`. The TDD strategy enforcement is implemented in
+`hooks/pre-tool.sh` (the `.red` marker gate).
+
+Logical surface: **strategies**
+
+### Role Pipeline
+
+Compass has five roles — engineer, product owner, designer, marketer, QA — all
+of whom are full pipeline citizens. Each role has entry-point slash commands
+(`/compass:intent`, `/compass:position`, `/compass:design`,
+`/compass:roundtable`) and dedicated agent files in `agents/`. The architect
+lens (`agents/architect-lens.md`) is an advisory lens over the role pipeline,
+not a sixth full role.
+
+Logical surface: **role pipeline**
+
+## External dependencies
+
+| Dependency | What Compass reads / writes | Criticality |
+|---|---|---|
+| `governance/routing-policy.yml` | Router reads this at Frame to compute the route | high |
+| `governance/guardrails.yml` | `compass check` reads this to run gate assertions | high |
+| `governance/strategies.md` | Consulted by agents when deciding TDD/BDD application | medium |
+| `governance/signals.yml` | `hooks/stop.sh` and `compass rework-scan` read this | medium |
+| `.compass/work/<task>/task.yml` | The machine-readable task spine; written by Frame, read by all phases | high |
+| `.compass/work/<task>/*.md` | Phase artefacts (spec, plan, clarifications, etc.) | high |
+| `.compass/current-task` | One-line pointer resolved by CLI and hooks | high |
+| `architecture/` (this tree) | Frame loads into `architecture-loaded.yml`; architect-lens reads | medium |
+| `templates/` | Worked examples and starting shapes for adopter artefacts | low |
+| Claude Code session | The execution environment; not a file dependency | n/a |
+
+## Boundary conditions
+
+1. **Frame is always first.** No code-changing tool call may precede a Frame
+   invocation for the active task. The pre-tool hook (`hooks/pre-tool.sh`)
+   enforces the `.red` marker contract; it cannot enforce Frame itself, but the
+   methodology makes Frame mandatory.
+
+2. **Readings are the only judgement field in `task.yml`.** Everything else in
+   `task.yml` is mechanism-produced: route, phases, gates, scenarios,
+   changed_files, evidence, backfills, reframes. No mechanism may write into
+   `task.yml.readings`.
+
+3. **Guardrails are not configurable.** Projects may add their own governance
+   checks, but they cannot remove or soften G1–G5.
+
+4. **The router is not extensible in-line.** Adding a new route shape or
+   reading dimension requires a deliberate framework change with its own
+   task and ADR; it is not a per-project configuration option.
+
+5. **The `architecture/` tree is advisory.** A project may operate Compass
+   without an `architecture/` directory. Frame degrades gracefully to an
+   empty load record. The architect-lens degrades gracefully to heuristic
+   analysis with a `WARNING:` prefix. Neither absence causes a phase to fail.
+
+## Open questions
+
+- None open at time of authoring (2026-05-24). Opened questions will be
+  recorded here with a date and a link to the task that raised them.

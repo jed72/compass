@@ -1,0 +1,49 @@
+schema_version: '1.0'
+task: hypothetical-framework-task
+created: '2026-05-24'
+readings:
+  blast_radius: cross-cutting
+  terrain: brownfield-mapped
+  magnitude: standard
+  intent: delivery
+  urgency: none
+  role: engineer
+  touches:
+    - public-api
+route: standard
+topology: solo-or-pair
+fired_guardrails: []
+phases:
+  frame: full
+  specify: full
+  clarify: light
+  plan: full
+  distribute: solo-or-pair
+  build: full
+  verify: full
+  land: full
+evidence: []
+gates:
+- id: verify.correctness
+  status: pending
+  evidence: []
+- id: verify.governance
+  status: pending
+  evidence: []
+- id: verify.traceability
+  status: pending
+  evidence: []
+- id: verify.regression
+  status: pending
+  evidence: []
+- id: verify.clarity
+  status: pending
+  evidence: []
+- id: verify.security
+  status: pending
+  evidence: []
+scenarios: []
+changed_files: []
+claims: []
+backfills: []
+reframes: []
