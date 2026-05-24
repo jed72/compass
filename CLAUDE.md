@@ -209,13 +209,16 @@ signals, not guardrails. If `/compass:init` has not been run, the framework's
 shipped `governance/` defaults apply as-is; the CLI falls back to them the
 same way.
 
-`architecture/` also lives at the project root, sibling to `governance/`,
-when adopted. It holds the cross-task architectural contract —
-`system-context.md`, `relations.md`, `ownership.md`, and `decisions/ADR-*.md`
-— so the design that should not silently drift survives across tasks. Frame
-loads it (when present) into `architecture-loaded.yml` in the task dir; the
-architect-lens reads it. Projects without `architecture/` continue to work;
-the load no-ops cleanly.
+`architecture/` also lives at the project root, sibling to `governance/`.
+**Compass itself ships one** — read it for the framework's own invariants,
+service-ownership rules, and the ADRs that codify the principles behind the
+five guardrails, the routing model, and the lens pattern. It also doubles as
+a worked example for adopters: the shape of `system-context.md`,
+`relations.md`, `ownership.md`, and `decisions/ADR-*.md` shown in
+`architecture/` is the form your own project's `architecture/` should take.
+Frame loads it (when present) into `architecture-loaded.yml` in the task dir;
+the architect-lens reads it. Projects without `architecture/` continue to
+work; the load no-ops cleanly.
 
 ## When you are unsure
 
