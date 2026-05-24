@@ -27,7 +27,7 @@ exclusively, and what it must not do.
 | `commands/*.md` | Phase slash-command definitions | The user-facing pipeline protocol |
 | `agents/*.md` | Role and lens agent definitions | Agent instructions and hard boundary statements |
 | `governance/` | Routing policy, guardrails, strategies, signals | The machine-readable governance files that the CLI runs |
-| `architecture/` (this tree) | Compass's own architectural record | The ADRs, narrative files, and invariants that describe the framework itself |
+| `architecture/` (this tree) | Compass's own architectural record | The ADRs and narrative files that describe the framework itself |
 | `templates/` | Worked examples for adopters | The template shapes adopters copy; not consumed by the CLI |
 
 ---
