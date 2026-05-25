@@ -1110,6 +1110,124 @@ def _check_spike_no_production_changes(task, task_dir):
     return True, "no production changed_files (correct — a Spike ships nothing)"
 
 
+def _load_quarantine_registry(gov_dir):
+    """Load governance/quarantine.yml and return a set of quarantined test ids.
+
+    Returns a dict mapping test id -> entry, so callers can check for
+    tracking_task presence. Returns an empty dict if quarantine.yml is absent
+    (zero-setup default, ADR-006).
+    """
+    path = os.path.join(gov_dir, "quarantine.yml")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        data = load_yaml(path)
+    except CompassError:
+        return {}
+    result = {}
+    for entry in (data.get("quarantined") or []):
+        if isinstance(entry, dict) and entry.get("test"):
+            result[entry["test"]] = entry
+    return result
+
+
+def _check_no_trusted_rerun(task, task_dir):
+    """G4 extension (TRC-A3, TRC-A4, TRC-A5, TRC-FM3 / DD-3): verify that
+    no test-run evidence records a rerun-to-green without either:
+      (a) the test being listed in governance/quarantine.yml with a tracking_task, OR
+      (b) evidence with attempts:1 (clean first pass), OR
+      (c) no attempts field at all (old evidence — backward compat, TRC-A5).
+
+    Failure cases (DD-3):
+      - rerun_without_change: true AND test not quarantined → FAIL
+      - attempts > 1 AND rerun_without_change absent → FAIL (incomplete evidence)
+
+    This check reads governance/quarantine.yml at runtime; the registry is
+    loaded lazily so zero-setup projects (no quarantine.yml) pass trivially.
+    """
+    registry_entries = [
+        e for e in (task.get("evidence") or [])
+        if isinstance(e, dict) and e.get("type") == "test-run"
+    ]
+    if not registry_entries:
+        return True, "no test-run evidence to evaluate"
+
+    # Load quarantine registry once
+    try:
+        gov = find_governance()
+    except CompassError:
+        gov = None
+    quarantine = _load_quarantine_registry(gov) if gov else {}
+
+    problems = []
+    notes = []
+    for entry in registry_entries:
+        path = entry.get("path")
+        ev_id = entry.get("id", "?")
+        # Try to read the evidence file to get attempts/rerun_without_change
+        green_data = {}
+        if path:
+            full = path if os.path.isabs(path) else os.path.join(task_dir, path)
+            if os.path.isfile(full):
+                try:
+                    green_data = json.load(open(full, encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    green_data = {}
+        # Also check the registry entry itself for the fields (tdd-green upserts
+        # them there from the payload)
+        attempts = green_data.get("attempts") if "attempts" in green_data else entry.get("attempts")
+        rerun_flag = (green_data.get("rerun_without_change")
+                      if "rerun_without_change" in green_data
+                      else entry.get("rerun_without_change"))
+        test_id = green_data.get("test") or entry.get("test")
+
+        # Case 1: TRC-A5 backward compat — no attempts field → trivial pass
+        if attempts is None:
+            continue
+
+        # Case 2: attempts > 1, rerun_without_change absent → incomplete evidence
+        if isinstance(attempts, int) and attempts > 1 and rerun_flag is None:
+            problems.append(
+                f"evidence {ev_id}: attempts={attempts} but rerun_without_change "
+                f"marker is absent — incomplete evidence cannot clear G4. "
+                f"Either add the marker (with evidence that no source change "
+                f"intervened) or quarantine the test in governance/quarantine.yml "
+                f"with a tracking_task (TRC-FM3)"
+            )
+            continue
+
+        # Case 3: rerun_without_change: true → test must be quarantined
+        if rerun_flag:
+            if not test_id:
+                problems.append(
+                    f"evidence {ev_id}: rerun_without_change:true but no `test` "
+                    f"field to look up in the quarantine registry — add the test "
+                    f"id to the evidence record"
+                )
+                continue
+            if test_id not in quarantine:
+                problems.append(
+                    f"evidence {ev_id}: test '{test_id}' ran {attempts} time(s) "
+                    f"and passed without a source change (rerun_without_change:true) "
+                    f"but is not in governance/quarantine.yml — a rerun-to-green is "
+                    f"the loss of the most useful signal (S5). Fix the root cause "
+                    f"or add the test to governance/quarantine.yml with a "
+                    f"tracking_task (TRC-A3)"
+                )
+            else:
+                q_entry = quarantine[test_id]
+                notes.append(
+                    f"evidence {ev_id}: test '{test_id}' is quarantined "
+                    f"(tracking: {q_entry.get('tracking_task', '?')}) — "
+                    f"rerun-to-green noted; fix tracked"
+                )
+
+    if problems:
+        return False, "; ".join(problems)
+    note_str = f" (quarantine notes: {len(notes)})" if notes else ""
+    return True, f"no trusted-rerun violations{note_str}"
+
+
 def _check_coherence_check_passes(task, task_dir):
     """G4 extension (ADR-007 / DD-2): verify.analyze requires a coherence-check
     evidence entry with zero findings. Only runs when verify.analyze is in the
@@ -1159,6 +1277,7 @@ CHECK_FNS = {
     "spike-conclusion-present": _check_spike_conclusion_present,
     "spike-no-production-changes": _check_spike_no_production_changes,
     "coherence-check-passes": _check_coherence_check_passes,
+    "no-trusted-rerun": _check_no_trusted_rerun,
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
@@ -2878,13 +2997,57 @@ def _schema_note(ran):
             "`pip install jsonschema` for full JSON Schema validation)")
 
 
+def _lint_errors_quarantine(gov_dir):
+    """Validate governance/quarantine.yml if present.
+
+    Returns a list of error strings. An absent quarantine.yml is not an error
+    (zero-setup default, ADR-006). Required fields per entry: test,
+    tracking_task, reason, added. An entry without tracking_task is malformed
+    (TRC-A7 — a quarantine without a tracking task is a graveyard).
+    """
+    path = os.path.join(gov_dir, "quarantine.yml")
+    if not os.path.isfile(path):
+        return []
+    try:
+        data = load_yaml(path)
+    except CompassError as exc:
+        return [f"quarantine.yml: {exc}"]
+    errs = []
+    if not isinstance(data, dict):
+        return ["quarantine.yml: top-level value is not a mapping"]
+    if "version" not in data:
+        errs.append("quarantine.yml: missing required key `version`")
+    quarantined = data.get("quarantined")
+    if quarantined is None:
+        errs.append("quarantine.yml: missing required key `quarantined`")
+        return errs
+    if not isinstance(quarantined, list):
+        errs.append("quarantine.yml: `quarantined` must be a list")
+        return errs
+    required_fields = ("test", "tracking_task", "reason", "added")
+    for i, entry in enumerate(quarantined):
+        if not isinstance(entry, dict):
+            errs.append(f"quarantine.yml: entry #{i + 1} is not a mapping")
+            continue
+        for field in required_fields:
+            if not entry.get(field):
+                errs.append(
+                    f"quarantine.yml: entry #{i + 1} (test={entry.get('test', '?')!r}) "
+                    f"is malformed — missing or empty `{field}`. A quarantine entry "
+                    f"without `tracking_task` is a graveyard, not a registry (TRC-A7)"
+                )
+    return errs
+
+
 def cmd_policy_lint(args):
     gov = find_governance()
     rp = load_yaml(os.path.join(gov, "routing-policy.yml"))
     gr = load_yaml(os.path.join(gov, "guardrails.yml"))
     # The built-in lint always runs — the no-dependency floor, and the only
     # thing that cross-checks declared guardrail checks against CHECK_FNS.
-    errs = _lint_errors_routing_policy(rp) + _lint_errors_guardrails(gr)
+    errs = (_lint_errors_routing_policy(rp)
+            + _lint_errors_guardrails(gr)
+            + _lint_errors_quarantine(gov))
     # JSON Schema validation runs additionally when `jsonschema` is installed.
     schema_ran = False
     for inst, sname, label in (
