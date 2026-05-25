@@ -1,0 +1,294 @@
+schema_version: '1.1'
+task: farley-guidebook
+created: '2026-05-25'
+status: active
+readings:
+  blast_radius: cross-cutting
+  terrain: brownfield-mapped
+  magnitude: large
+  intent: delivery
+  urgency: none
+  role: engineer
+  touches:
+  - public-api
+route: expedition
+topology: swarm
+fired_guardrails: []
+phases:
+  frame: full
+  specify: full
+  clarify: full
+  plan: full
+  distribute: swarm
+  build: full
+  verify: full
+  land: full
+evidence:
+- id: EV-T-TRC-B1
+  type: test-run
+  path: evidence/green-TRC-B1.json
+  scenario: TRC-B1
+- id: EV-T-TRC-B2
+  type: test-run
+  path: evidence/green-TRC-B2.json
+  scenario: TRC-B2
+- id: EV-T-TRC-B3
+  type: test-run
+  path: evidence/green-TRC-B3.json
+  scenario: TRC-B3
+- id: EV-T-TRC-B4
+  type: test-run
+  path: evidence/green-TRC-B4.json
+  scenario: TRC-B4
+- id: EV-T-TRC-B5
+  type: test-run
+  path: evidence/green-TRC-B5.json
+  scenario: TRC-B5
+- id: EV-T-TRC-B6
+  type: test-run
+  path: evidence/green-TRC-B6.json
+  scenario: TRC-B6
+- id: EV-T-TRC-B7
+  type: test-run
+  path: evidence/green-TRC-B7.json
+  scenario: TRC-B7
+- id: EV-T-TRC-B8
+  type: test-run
+  path: evidence/green-TRC-B8.json
+  scenario: TRC-B8
+- id: EV-T-TRC-FM1
+  type: test-run
+  path: evidence/green-TRC-FM1.json
+  scenario: TRC-FM1
+gates:
+- id: verify.correctness
+  status: pending
+  evidence: []
+- id: verify.governance
+  status: pending
+  evidence: []
+- id: verify.traceability
+  status: pending
+  evidence: []
+- id: verify.regression
+  status: pending
+  evidence: []
+- id: verify.security
+  status: pending
+  evidence: []
+- id: verify.clarity
+  status: pending
+  evidence: []
+- id: verify.claims
+  status: pending
+  evidence: []
+- id: verify.fitness
+  status: pending
+  evidence: []
+scenarios:
+- id: TRC-A1
+  title: tdd-green records attempts:1 on a clean first pass
+  intent: INT-2
+  tests: []
+- id: TRC-A2
+  title: tdd-green records attempts > 1 and rerun_without_change when no edits intervened
+  intent: INT-2
+  tests: []
+- id: TRC-A3
+  title: G4 fails when a test-run shows rerun-to-green and no quarantine entry
+  intent: INT-1
+  tests: []
+- id: TRC-A4
+  title: G4 passes when a quarantined test links to a tracking task
+  intent: INT-1
+  tests: []
+- id: TRC-A5
+  title: old evidence without the attempts field clears G4 trivially
+  intent: INT-2
+  tests: []
+- id: TRC-A6
+  title: "strategies.md declares S5 \u2014 'Intermittency is failure.'"
+  intent: INT-1
+  tests: []
+- id: TRC-A7
+  title: a quarantined test without a tracking task fails compass policy lint
+  intent: INT-1
+  tests: []
+- id: TRC-B1
+  title: a command-passes project guardrail clears when the declared command exits
+    0
+  intent: INT-3
+  tests:
+  - tests/test_fitness_functions.py::TestCommandPassesSuccess::test_command_passes_check_succeeds_on_exit_0
+  - tests/test_fitness_functions.py::TestCommandPassesSuccess::test_command_passes_succeeds_in_check_output
+- id: TRC-B2
+  title: a command-passes project guardrail fails when the declared command exits
+    non-zero
+  intent: INT-3
+  tests:
+  - tests/test_fitness_functions.py::TestCommandPassesFailure::test_command_passes_check_fails_on_non_zero_exit
+  - tests/test_fitness_functions.py::TestCommandPassesFailure::test_command_passes_failure_detail_includes_exit_code
+- id: TRC-B3
+  title: verify.fitness is advisory by default
+  intent: INT-4
+  tests:
+  - tests/test_fitness_functions.py::TestVerifyFitnessAdvisory::test_fitness_not_in_gates_for_contained_blast_radius
+  - tests/test_fitness_functions.py::TestVerifyFitnessAdvisory::test_command_passes_still_reported_but_advisory_ok
+- id: TRC-B4
+  title: verify.fitness is promoted to blocking when blast_radius reaches cross-cutting
+    or critical
+  intent: INT-4
+  tests:
+  - tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionBlastRadius::test_cross_cutting_blast_radius_adds_verify_fitness
+  - tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionBlastRadius::test_critical_blast_radius_adds_verify_fitness
+  - tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionBlastRadius::test_fired_guardrails_names_floor_rg_floor_006
+  - tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionBlastRadius::test_contained_blast_radius_does_not_add_verify_fitness
+- id: TRC-B5
+  title: verify.fitness is promoted to blocking when touches lists an irreversible
+    domain
+  intent: INT-4
+  tests:
+  - "tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionTouches::test_irreversible_domain_adds_verify_fitness[auth]"
+  - "tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionTouches::test_irreversible_domain_adds_verify_fitness[payments]"
+  - "tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionTouches::test_irreversible_domain_adds_verify_fitness[personal-data]"
+  - "tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionTouches::test_irreversible_domain_adds_verify_fitness[migrations]"
+  - tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionTouches::test_fired_guardrails_names_floor_rg_floor_007
+  - tests/test_verify_fitness_route_promotion.py::TestVerifyFitnessPromotionTouches::test_safe_domain_does_not_add_verify_fitness
+- id: TRC-B6
+  title: a project with no project guardrails sees no verify.fitness behaviour
+  intent: INT-5
+  tests:
+  - tests/test_fitness_functions.py::TestVacuousClear::test_no_project_guardrails_vacuous_clear
+  - tests/test_fitness_functions.py::TestVacuousClear::test_vacuous_clear_exits_pass
+- id: TRC-B7
+  title: command-passes is recognised by compass policy lint
+  intent: INT-3
+  tests:
+  - tests/test_fitness_functions.py::TestPolicyLintCommandPasses::test_policy_lint_passes_with_command_passes_check
+  - tests/test_fitness_functions.py::TestPolicyLintCommandPasses::test_command_passes_in_policy_lint_pass_message
+- id: TRC-B8
+  title: architecture/ documents the fitness-functions pattern
+  intent: INT-3
+  tests:
+  - tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation::test_adr_009_exists
+  - tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation::test_adr_009_status_is_proposed
+  - tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation::test_adr_009_covers_command_passes_and_verify_fitness
+  - tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation::test_adr_009_in_decisions_readme
+  - tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation::test_system_context_mentions_adr_009
+  - tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation::test_evidence_gates_skill_mentions_fitness_functions
+- id: TRC-C1
+  title: S2 names both governance and design-feedback roles
+  intent: INT-6
+  tests: []
+- id: TRC-C2
+  title: tdd-discipline contains a 'Listen to your tests' section
+  intent: INT-6
+  tests: []
+- id: TRC-C3
+  title: tdd-discipline contains a 'test behaviour, not implementation' anti-pattern
+  intent: INT-6
+  tests: []
+- id: TRC-C4
+  title: signals.yml defines a design_smell advisory category
+  intent: INT-6
+  tests: []
+- id: TRC-C5
+  title: the coverage-floor example carries the floor-never-target caveat
+  intent: INT-7
+  tests: []
+- id: TRC-C6
+  title: no new check and no new gate are added for B1
+  intent: INT-6
+  tests: []
+- id: TRC-D1
+  title: bdd-specification teaches the example-first refinement chain
+  intent: INT-8
+  tests: []
+- id: TRC-D2
+  title: user stories remain refused as a per-role spec format
+  intent: INT-8
+  tests: []
+- id: TRC-E1
+  title: evidence-gates frames verify.correctness as the acceptance/releasability
+    gate
+  intent: INT-9
+  tests: []
+- id: TRC-E2
+  title: evidence-gates frames the tdd-red/tdd-green loop as the commit stage
+  intent: INT-9
+  tests: []
+- id: TRC-E3
+  title: Release and Production stages stay out of scope in evidence-gates
+  intent: INT-9
+  tests: []
+- id: TRC-F1
+  title: "verify.fitness is not selectable via a tier menu \u2014 only by computed\
+    \ route"
+  intent: INT-10
+  tests: []
+- id: TRC-F2
+  title: "every new check is mechanical \u2014 no runtime model call"
+  intent: INT-10
+  tests: []
+- id: TRC-F3
+  title: no sixth guardrail is introduced
+  intent: INT-11
+  tests: []
+- id: TRC-F4
+  title: routing dimensions stay at four
+  intent: INT-11
+  tests: []
+- id: TRC-F5
+  title: a bare-repo project sees no behavioural change without opt-in
+  intent: INT-12
+  tests: []
+- id: TRC-F6
+  title: net-new top-level concept count is bounded
+  intent: INT-13
+  tests: []
+- id: TRC-F7
+  title: pre-existing tasks pass without modification
+  intent: INT-12
+  tests: []
+- id: TRC-FM1
+  title: a malformed command-passes declaration fails policy lint
+  intent: INT-3
+  tests:
+  - tests/test_fitness_functions.py::TestMalformedCommandPasses::test_missing_command_field_fails_lint
+  - tests/test_fitness_functions.py::TestMalformedCommandPasses::test_non_string_command_field_fails_lint
+- id: TRC-FM2
+  title: an attempts field with a non-positive value fails task lint
+  intent: INT-2
+  tests: []
+- id: TRC-FM3
+  title: attempts > 1 without rerun_without_change marker fails the check
+  intent: INT-1
+  tests: []
+- id: TRC-FM4
+  title: "refused candidates from the proposal stay refused \u2014 no surface introduced"
+  intent: INT-11
+  tests: []
+changed_files:
+- path: cli/compass
+  scenarios: [TRC-B1, TRC-B2, TRC-B3, TRC-B4, TRC-B5, TRC-B6, TRC-B7, TRC-FM1]
+- path: governance/guardrails.yml
+  scenarios: [TRC-B1, TRC-B2, TRC-B3, TRC-B6, TRC-B7, TRC-FM1]
+- path: governance/routing-policy.yml
+  scenarios: [TRC-B3, TRC-B4, TRC-B5]
+- path: architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md
+  scenarios: [TRC-B8]
+- path: architecture/decisions/README.md
+  scenarios: [TRC-B8]
+- path: architecture/system-context.md
+  scenarios: [TRC-B8]
+- path: skills/evidence-gates/SKILL.md
+  scenarios: [TRC-B8]
+- path: tests/test_fitness_functions.py
+  scenarios: [TRC-B1, TRC-B2, TRC-B3, TRC-B6, TRC-B7, TRC-FM1]
+- path: tests/test_verify_fitness_route_promotion.py
+  scenarios: [TRC-B4, TRC-B5, TRC-B8]
+- path: tests/fixtures/route-baseline.yml
+  scenarios: [TRC-B4]
+claims: []
+backfills: []
+reframes: []

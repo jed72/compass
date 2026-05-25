@@ -49,6 +49,7 @@ Rules:
 | [ADR-006](ADR-006-backward-compat-is-non-negotiable.md) | Backward compat is non-negotiable | accepted | Inv-8 (backward compat for projects without new surfaces) |
 | [ADR-007](ADR-007-conditional-gate-promotion-via-floors.md) | Gates may be conditionally promoted from advisory to blocking via routing-policy floors; advisory gates write evidence but do not block Land | proposed | RG-FLOOR-004/005, verify.analyze, BR-007 |
 | [ADR-008](ADR-008-cross-task-derived-artifacts.md) | Cross-task derived artifacts are generated from landed task scenarios at Land time; the derivation is reconstructible, idempotent, and never a source-of-truth | proposed | Inv-5, Inv-6, Inv-8 (living spec, derived at Land, silent overwrite contract) |
+| [ADR-009](ADR-009-fitness-functions-are-project-guardrails.md) | Architectural fitness functions are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; vacuous-clear on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
 
 ## Principle → ADR mapping
 

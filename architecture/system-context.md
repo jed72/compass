@@ -109,7 +109,11 @@ Logical surface: **role pipeline**
    `task.yml.readings`.
 
 3. **Guardrails are not configurable.** Projects may add their own governance
-   checks, but they cannot remove or soften G1–G5.
+   checks, but they cannot remove or soften G1–G5. Adopters declare
+   architectural fitness functions as project guardrails using the generic
+   `command-passes` check (see ADR-009); the `verify.fitness` gate is promoted
+   to blocking by routing floors `RG-FLOOR-006/007` when the task's blast
+   radius or domain tags warrant it.
 
 4. **The router is not extensible in-line.** Adding a new route shape or
    reading dimension requires a deliberate framework change with its own
