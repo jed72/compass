@@ -2478,6 +2478,159 @@ def cmd_flow(args):
     return 0
 
 
+# --- command: next -----------------------------------------------------------
+# TRC-C4 through TRC-C10, TRC-F6
+#
+# `compass next` reads task.yml + route.md and prints ONE line: the next
+# phase, the next uncleared gate, and route-aware collapsed-phase markers.
+# It is strictly READ-ONLY over .compass/work/<task>/ — no file is written
+# or created (TRC-C7).  It derives its answer from task.yml + route.md only
+# (TRC-C8); nothing else is read.
+#
+# Output format (devlog: chosen for clarity without colour escapes):
+#   "<NextPhase> [gate: <gate-id>][ | <phase> is collapsed on this route]"
+# When all phases are complete / landed:
+#   "all phases complete"
+# When route.md is missing:
+#   exit non-zero with a message naming route.md
+# When task.yml is missing (Frame not yet run):
+#   exit non-zero with a message naming Frame
+#
+# The canonical phase order Compass follows:
+_PHASE_ORDER = [
+    "frame",
+    "specify",
+    "clarify",
+    "plan",
+    "distribute",
+    "build",
+    "verify",
+    "land",
+]
+
+# Weights that indicate a phase was deliberately excluded from this route
+_SKIPPED_WEIGHTS = {"skipped", "collapsed"}
+
+
+def _next_active_phase(phases: dict) -> str | None:
+    """Return the slug of the next phase that actively runs on this route.
+
+    Skipped / collapsed phases are bypassed.  Returns None when every phase
+    has a skipped weight (degenerate route) or phases is empty.
+    """
+    for p in _PHASE_ORDER:
+        weight = (phases.get(p) or "").strip().lower()
+        if weight not in _SKIPPED_WEIGHTS:
+            return p
+    return None
+
+
+def _detect_collapsed_phases(phases: dict) -> list:
+    """Return phase names (title-cased) that are collapsed on this route."""
+    out = []
+    for p in _PHASE_ORDER:
+        weight = (phases.get(p) or "").strip().lower()
+        if weight == "collapsed":
+            out.append(p.capitalize())
+    return out
+
+
+def _first_pending_gate(gates: list) -> str | None:
+    """Return the id of the first gate whose status is not 'pass'."""
+    for g in (gates or []):
+        if isinstance(g, dict) and g.get("status") != "pass":
+            return g.get("id")
+    return None
+
+
+def _all_gates_pass(gates: list) -> bool:
+    """True when every gate is marked pass."""
+    if not gates:
+        return False
+    return all(
+        isinstance(g, dict) and g.get("status") == "pass"
+        for g in gates
+    )
+
+
+def _current_phase_from_task(task: dict) -> str | None:
+    """Determine the current (active) phase from task.yml.
+
+    Priority:
+      1. task.yml top-level `current_phase` field (builder sets this).
+      2. Fall back to the first non-skipped phase in the phases map.
+    """
+    cp = task.get("current_phase")
+    if cp and isinstance(cp, str):
+        return cp.strip().lower()
+    phases = task.get("phases") or {}
+    return _next_active_phase(phases)
+
+
+def cmd_next(args):
+    """compass next — what comes next on this task's route?
+
+    Reads task.yml + route.md and prints ONE line.
+    Strictly read-only (TRC-C7).
+    """
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+
+    # --- task.yml: must exist (Frame check) ---
+    task_path = os.path.join(task_dir, "task.yml")
+    if not os.path.isfile(task_path):
+        sys.stdout.write(
+            "Frame has not run for this task — task.yml is missing.\n"
+            f"  Run /compass:frame to start the task at: {task_dir}\n"
+        )
+        return 2
+
+    task = load_yaml(task_path)
+
+    # --- route.md: must exist (TRC-F6) ---
+    route_md_path = os.path.join(task_dir, "route.md")
+    if not os.path.isfile(route_md_path):
+        sys.stdout.write(
+            f"route.md is missing from {task_dir}\n"
+            "  Run /compass:frame to produce route.md before using compass next.\n"
+        )
+        return 2
+
+    # --- completed task (TRC-C6) ---
+    status = task.get("status", "")
+    gates = task.get("gates") or []
+    if status == "landed" or _all_gates_pass(gates):
+        sys.stdout.write("all phases complete\n")
+        return 0
+
+    # --- determine next phase and collapsed siblings (TRC-C4, TRC-C5) ---
+    phases = task.get("phases") or {}
+    current_phase = _current_phase_from_task(task)
+
+    # The "next phase" is the current_phase (the one in progress, or the
+    # first non-skipped phase on a fresh task).
+    next_phase = current_phase
+    if not next_phase:
+        # No current phase derivable — route is complete or degenerate
+        sys.stdout.write("all phases complete\n")
+        return 0
+
+    # Find the first pending gate for the "next gate" display
+    pending_gate = _first_pending_gate(gates)
+
+    # Collapsed phases on this route (TRC-C5)
+    collapsed = _detect_collapsed_phases(phases)
+
+    # --- compose the one-line output (TRC-C4) ---
+    parts = [next_phase.capitalize()]
+    if pending_gate:
+        parts[0] += f" [gate: {pending_gate}]"
+    if collapsed:
+        parts.append(f"{', '.join(collapsed)} collapsed on this route")
+
+    sys.stdout.write(" | ".join(parts) + "\n")
+    return 0
+
+
 # --- argparse ----------------------------------------------------------------
 
 def build_parser():
@@ -2606,6 +2759,13 @@ def build_parser():
              "(default: .compass/work/ in the current project)",
     )
     pfl.set_defaults(func=cmd_flow)
+
+    pnx = sub.add_parser(
+        "next",
+        help="what comes next on this task's route? (read-only; one line)",
+    )
+    pnx.add_argument("--task", help="task slug (default: current-task pointer)")
+    pnx.set_defaults(func=cmd_next)
 
     pbf = sub.add_parser(
         "backfill",

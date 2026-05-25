@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Owns the Build phase — runs the TDD red→green→refactor cycle inside one assigned worktree (or the current branch on solo routes), implementing exactly the scenarios in its charter. Never touches a sibling worktree. Invoke during Build.
+description: Owns the Build phase — runs the TDD red→green→refactor cycle inside one assigned worktree (or the current branch on solo routes), implementing exactly the scenarios in its charter. Never touches a sibling worktree. Invoke during Build. Trigger Frame on intent — if the user describes a build or code-change request without typing /compass:frame, invoke Frame before any artifact-changing action.
 tools: Read, Glob, Grep, Write, Edit, Bash
 model: sonnet
 ---
