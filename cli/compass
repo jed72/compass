@@ -1415,6 +1415,89 @@ def cmd_tdd_red(args):
     return 0
 
 
+def _source_tree_hash(project_root):
+    """Compute a stable SHA-256 of the source tree under project_root.
+
+    Covers all *.py, *.md, *.yml, *.yaml, *.json, *.toml files, ordered by
+    their relative path (deterministic). Excludes .compass/, .git/,
+    __pycache__/, .venv/, node_modules/, and evidence/ directories.
+
+    Returns a hex digest string. Performance target: < 200 ms on typical
+    project trees (< 100 MB of source files).
+
+    DD-7: hash is content + path, deterministic. Used by cmd_tdd_green to
+    detect whether any source file changed between two invocations.
+    """
+    _EXCLUDED_DIRS = {".compass", ".git", "__pycache__", ".venv",
+                      "node_modules", "evidence"}
+    _INCLUDED_EXTS = {".py", ".md", ".yml", ".yaml", ".json", ".toml"}
+
+    h = hashlib.sha256()
+    # Walk the tree in sorted order to be deterministic across file systems
+    for root, dirs, files in os.walk(project_root):
+        # Prune excluded directories in-place so os.walk skips them
+        dirs[:] = sorted(d for d in dirs if d not in _EXCLUDED_DIRS)
+        for fname in sorted(files):
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in _INCLUDED_EXTS:
+                continue
+            full = os.path.join(root, fname)
+            rel = os.path.relpath(full, project_root)
+            # Hash the relative path (so renames are detected) then content
+            h.update(rel.encode("utf-8", errors="replace"))
+            try:
+                with open(full, "rb") as fh:
+                    h.update(fh.read())
+            except OSError:
+                pass  # file disappeared mid-walk — skip it
+    return h.hexdigest()
+
+
+def _tdd_state_path(task_dir):
+    """Path to the CLI-internal sidecar that tracks the source-tree hash and
+    attempt counter between tdd-green invocations. Not part of task.yml schema.
+    """
+    return os.path.join(task_dir, "evidence", ".tdd-state.json")
+
+
+def _load_tdd_state(task_dir, scenario):
+    """Load the per-scenario TDD state from the sidecar file.
+
+    Returns a dict with keys: 'tree_hash' (str), 'attempts' (int),
+    'scenario' (str|None). Returns a fresh empty state if absent or unreadable.
+    """
+    path = _tdd_state_path(task_dir)
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, dict):
+            return {}
+        # State is keyed by scenario id (or "" for unbound runs)
+        key = scenario or ""
+        return data.get(key) or {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _save_tdd_state(task_dir, scenario, tree_hash, attempts):
+    """Persist the per-scenario TDD state in the sidecar file."""
+    path = _tdd_state_path(task_dir)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    existing = {}
+    if os.path.isfile(path):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                existing = json.load(fh) or {}
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+    key = scenario or ""
+    existing[key] = {"tree_hash": tree_hash, "attempts": attempts}
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(existing, fh, indent=2)
+
+
 def cmd_tdd_green(args):
     task_dir = resolve_task_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
@@ -1428,15 +1511,44 @@ def cmd_tdd_green(args):
             f"green yet. The .red marker is left in place.\n"
             f"--- output (tail) ---\n" + excerpt
         )
+
+    # --- DD-7: attempts + rerun_without_change detection --------------------
+    # Find the project root: walk up from the task_dir to the directory that
+    # contains .compass/ — that is the project root the hash covers.
+    project_root = find_upwards(task_dir, ".compass") or task_dir
+    current_hash = _source_tree_hash(project_root)
+    prior_state = _load_tdd_state(task_dir, scenario)
+    prior_hash = prior_state.get("tree_hash")
+    prior_attempts = prior_state.get("attempts") or 0
+
+    if prior_hash is None:
+        # First invocation for this scenario — clean first pass
+        attempts = 1
+        rerun_without_change = False
+    elif prior_hash == current_hash:
+        # Same tree hash: source did not change since the last green invocation
+        attempts = prior_attempts + 1
+        rerun_without_change = True
+    else:
+        # Tree changed: this is a new attempt after real work
+        attempts = prior_attempts + 1
+        rerun_without_change = False
+
+    # Persist the updated state for the next invocation
+    _save_tdd_state(task_dir, scenario, current_hash, attempts)
+
     payload = {
         "command": " ".join(args.command),
         "scenario": scenario,          # the scenario this green is evidence FOR
         "exit_code": 0,
         "passed": True,
+        "attempts": attempts,
         "timestamp": now_iso(),
         "log_excerpt": excerpt,
         "_full_log": out,
     }
+    if rerun_without_change:
+        payload["rerun_without_change"] = True
     ev_path = _write_evidence(task_dir, "green", payload)
     # If scenario-bound, also write a scenario-specific copy so multiple
     # scenarios' green records do not overwrite each other.
