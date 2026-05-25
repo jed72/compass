@@ -1146,6 +1146,97 @@ def _check_coherence_check_passes(task, task_dir):
     return True, "coherence-check evidence on record — verify.analyze gate cleared"
 
 
+def _check_command_passes(task, task_dir):
+    """A2 (ADR-009 / DD-2): run each project guardrail's declared `command:`
+    and report pass/fail.
+
+    Behaviour:
+    - When verify.fitness is in the gate set but zero project guardrails
+      declare check: command-passes → vacuous-clear (DD-6).
+    - For each project guardrail with check: command-passes, run
+      subprocess.run(shell=True, timeout=timeout_seconds) from the project
+      root (inferred as the directory 2 levels above task_dir, which is
+      .compass/work/<slug>).
+    - All commands must exit 0 for the check to pass.
+    - If any command exits non-zero, the check fails with exit code + stderr.
+
+    This check is purely mechanical: no network call, no LLM client (TRC-F2).
+    """
+    # Locate the project root (2 levels up from task_dir: .compass/work/<slug>)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(task_dir)))
+    if not os.path.isdir(project_root):
+        project_root = os.getcwd()
+
+    # Load the guardrails to find project guardrails with check: command-passes
+    try:
+        gov = find_governance()
+        gpolicy = load_yaml(os.path.join(gov, "guardrails.yml"))
+    except CompassError:
+        gpolicy = {}
+
+    project_guardrails = gpolicy.get("project") or []
+    cp_guardrails = [
+        g for g in project_guardrails
+        if isinstance(g, dict) and "command-passes" in (g.get("checks") or [])
+    ]
+
+    # Vacuous-clear (DD-6): verify.fitness in gate set, zero command-passes
+    # guardrails declared → the gate has nothing to check; it clears by vacuity.
+    if not cp_guardrails:
+        return True, ("verify.fitness: 0 project guardrails declared with "
+                      "command-passes; clearing by vacuity (no fitness functions "
+                      "to check — declare project guardrails with "
+                      "`check: command-passes` to add fitness functions)")
+
+    failures = []
+    for g in cp_guardrails:
+        params = g.get("params") or {}
+        command = params.get("command")
+        if not command or not isinstance(command, str):
+            failures.append(
+                f"project guardrail {g.get('id', '?')}: missing or non-string "
+                f"`command` in params — declaration is malformed"
+            )
+            continue
+        timeout = params.get("timeout_seconds", 300)
+        if timeout == 0:
+            timeout = None  # 0 = no timeout (discouraged, as per DD-2)
+        try:
+            proc = subprocess.run(
+                command,
+                shell=True,
+                timeout=timeout,
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
+            if proc.returncode != 0:
+                stderr_snippet = (proc.stderr or "").strip()[:200]
+                failures.append(
+                    f"project guardrail {g.get('id', '?')} "
+                    f"({g.get('name', 'unnamed')}): command exited {proc.returncode}"
+                    + (f"; stderr: {stderr_snippet}" if stderr_snippet else "")
+                )
+        except subprocess.TimeoutExpired:
+            failures.append(
+                f"project guardrail {g.get('id', '?')} "
+                f"({g.get('name', 'unnamed')}): command timed out "
+                f"after {timeout}s"
+            )
+        except Exception as exc:
+            failures.append(
+                f"project guardrail {g.get('id', '?')} "
+                f"({g.get('name', 'unnamed')}): command error: {exc}"
+            )
+
+    if failures:
+        return False, "; ".join(failures)
+
+    n = len(cp_guardrails)
+    return True, (f"{n} command-passes guardrail(s) all exited 0 — "
+                  f"architectural fitness checks pass")
+
+
 CHECK_FNS = {
     "scenarios-have-tests": _check_scenarios_have_tests,
     "suite-passed": _check_suite_passed,
@@ -1159,6 +1250,7 @@ CHECK_FNS = {
     "spike-conclusion-present": _check_spike_conclusion_present,
     "spike-no-production-changes": _check_spike_no_production_changes,
     "coherence-check-passes": _check_coherence_check_passes,
+    "command-passes": _check_command_passes,
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
@@ -2737,6 +2829,11 @@ def _lint_errors_guardrails(p):
     if "defaults" not in p:
         errs.append("missing top-level key: defaults")
     known_checks = set((p.get("checks") or {}).keys())
+    # Validate all guardrails (defaults + project) for structural integrity.
+    # command-passes `params` validation ONLY applies to project guardrails —
+    # the framework's own G4 legitimately registers command-passes without
+    # per-guardrail params (it's a cross-cutting check that reads params from
+    # the project: guardrails it finds at run time).
     for g in list(p.get("defaults", [])) + list(p.get("project", [])):
         if "id" not in g:
             errs.append(f"a guardrail has no id: {g}")
@@ -2757,6 +2854,36 @@ def _lint_errors_guardrails(p):
                             f"'{c}' which the CLI does not implement (not in "
                             f"CHECK_FNS) — implement it, or move the guardrail "
                             f"to strategies.md")
+
+    # command-passes params validation — only for project guardrails (TRC-FM1 / DD-2).
+    # Framework defaults (G4) can reference command-passes without params; the params
+    # come from the project guardrails that declare the actual commands to run.
+    for g in list(p.get("project", [])):
+        if "command-passes" not in (g.get("checks") or []):
+            continue
+        params = g.get("params") or {}
+        command = params.get("command")
+        gid = g.get("id", "?")
+        if command is None:
+            errs.append(
+                f"project guardrail {gid} uses check "
+                f"'command-passes' but `params.command` is missing — "
+                f"add a `command:` string to the guardrail's `params:` "
+                f"block (e.g. `command: 'pytest tests/architecture/'`)"
+            )
+        elif not isinstance(command, str):
+            errs.append(
+                f"project guardrail {gid} uses check "
+                f"'command-passes' but `params.command` is not a string "
+                f"(got {type(command).__name__!r}) — the command must be "
+                f"a shell-invocable string"
+            )
+        elif not command.strip():
+            errs.append(
+                f"project guardrail {gid} uses check "
+                f"'command-passes' but `params.command` is an empty "
+                f"string — provide a non-empty shell command"
+            )
     return errs
 
 

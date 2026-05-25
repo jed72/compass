@@ -59,6 +59,8 @@ checks:
       this task, that backfill must be paid before this task's Land closes.
   coherence-check-passes:
     description: "compass analyze reports zero coherence findings. Gate-clearing runs write type coherence-check evidence; advisory runs write command-output and do not clear verify.analyze."
+  command-passes:
+    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, clears by vacuity (no declarations = no fitness functions to check)."
 
 # -----------------------------------------------------------------------------
 # Evidence types — what KINDS of evidence a gate can be cleared with. Without
@@ -109,6 +111,7 @@ gate_evidence_requirements:
   verify.clarity: [manual-review, artifact]       # inherently judgement — and now visibly so
   spike.conclude: [spike-conclusion]              # SPECIFIC: a generic artifact will not do
   verify.analyze: [coherence-check]              # SPECIFIC: advisory command-output does NOT clear this gate
+  verify.fitness: [test-run, command-output]    # fitness checks: command-output from command-passes, or a test-run
 
 # -----------------------------------------------------------------------------
 # DEFAULT GUARDRAILS — G1–G5. Shipped active. The floor under every route.
@@ -146,7 +149,7 @@ defaults:
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed backfill — narrative notes never clear it.
-    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes]
+    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, command-passes]
     checked_at: [verify, land]
 
   - id: G5

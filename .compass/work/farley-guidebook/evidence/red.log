@@ -1,0 +1,66 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____ TestCommandPassesSuccess.test_command_passes_check_succeeds_on_exit_0 _____
+
+self = <test_fitness_functions.TestCommandPassesSuccess object at 0x10b06a6d0>
+tmp_path = PosixPath('/private/var/folders/b1/5v5dtk5d13bbr6jmg6lhgctw0000gn/T/pytest-of-jed/pytest-651/test_command_passes_check_succ0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b10af50>
+
+    def test_command_passes_check_succeeds_on_exit_0(self, tmp_path, monkeypatch):
+        """The _check_command_passes function reports success when the
+        project has a command-passes guardrail whose command exits 0."""
+        import importlib
+        import types
+    
+        # Build project with a command-passes guardrail pointing at `true`
+        project_guardrails = [
+            {
+                "id": "F1",
+                "name": "Module directions",
+                "statement": "Modules respect direction.",
+                "checks": ["command-passes"],
+                "params": {"command": "true"},
+                "checked_at": ["verify"],
+            }
+        ]
+        project_root, task_dir, gov_dir = _make_project(
+            tmp_path, project_guardrails=project_guardrails
+        )
+        monkeypatch.chdir(project_root)
+    
+        # Import CLI module fresh
+>       import cli.compass as c  # noqa: PLC0415
+        ^^^^^^^^^^^^^^^^^^^^^^^
+E       ModuleNotFoundError: No module named 'cli.compass'
+
+/Users/jed/dev/.compass-worktrees/farley-guidebook-stream-B/tests/test_fitness_functions.py:195: ModuleNotFoundError
+_ TestCommandPassesSuccess.test_command_passes_writes_command_output_evidence __
+
+self = <test_fitness_functions.TestCommandPassesSuccess object at 0x10b06b4d0>
+tmp_path = PosixPath('/private/var/folders/b1/5v5dtk5d13bbr6jmg6lhgctw0000gn/T/pytest-of-jed/pytest-651/test_command_passes_writes_com0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b05d5d0>
+
+    def test_command_passes_writes_command_output_evidence(self, tmp_path, monkeypatch):
+        """On success, command-output evidence is emitted."""
+        project_guardrails = [
+            {
+                "id": "F1",
+                "name": "Module directions",
+                "statement": "Modules respect direction.",
+                "checks": ["command-passes"],
+                "params": {"command": "true"},
+                "checked_at": ["verify"],
+            }
+        ]
+        project_root, task_dir, gov_dir = _make_project(
+            tmp_path, project_guardrails=project_guardrails
+        )
+        monkeypatch.chdir(project_root)
+    
+>       import cli.compass as c
+E       ModuleNotFoundError: No module named 'cli.compass'
+
+/Users/jed/dev/.compass-worktrees/farley-guidebook-stream-B/tests/test_fitness_functions.py:220: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_fitness_functions.py::TestCommandPassesSuccess::test_command_passes_check_succeeds_on_exit_0
+FAILED tests/test_fitness_functions.py::TestCommandPassesSuccess::test_command_passes_writes_command_output_evidence

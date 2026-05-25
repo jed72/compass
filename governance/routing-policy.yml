@@ -110,6 +110,16 @@ routing_guardrails:
       add_gate: verify.analyze
       rationale: "Irreversible-surface tasks have coherence checked before Land."
 
+    - id: RG-FLOOR-006
+      when: { blast_radius: [cross-cutting, critical] }
+      add_gate: verify.fitness
+      rationale: "Architectural fitness checked before cross-cutting or critical changes land."
+
+    - id: RG-FLOOR-007
+      when: { touches_any: [auth, payments, personal-data, migrations] }
+      add_gate: verify.fitness
+      rationale: "Irreversible-surface tasks have fitness checked before Land."
+
   # caps — limits on scaling up.
   caps:
     - id: RG-CAP-001
