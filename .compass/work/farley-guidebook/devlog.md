@@ -168,3 +168,11 @@ All 9 scenarios are implemented and tested. `python -m pytest tests/ 2>&1 | tail
 ## 2026-05-25 20:12 — edit: /Users/jed/dev/compass/governance/guardrails.yml
 
 - **Tool:** Edit
+
+## 2026-05-25 20:13 — edit: /Users/jed/dev/compass/skills/evidence-gates/SKILL.md
+
+- **Tool:** Edit
+
+## 2026-05-25 20:15 — edit: /Users/jed/dev/compass/tests/test_stream_c_no_new_checks_or_gates.py
+
+- **Tool:** Edit

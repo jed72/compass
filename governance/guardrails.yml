@@ -213,12 +213,14 @@ spike_guardrails:
 # put it in strategies.md instead. Leave this empty rather than padding it.
 # -----------------------------------------------------------------------------
 project: []
+# stream-C (B1 / TRC-C6): only the coverage-floor caveat comment above was added — no new checks or gates.
 #  - id: Q1
 #    name: "Coverage floor"
 #    statement: "Line coverage does not drop below 80%."
 #    checks: [coverage-floor]          # <- a project-added check
 #    params: { min_line_coverage: 80 }
 #    checked_at: [verify]
+#    # Coverage is a floor, never a target — a high coverage number is a side effect of test discipline, not its goal.
 
 # -----------------------------------------------------------------------------
 # Cross-cutting: the conflict rule (a guardrail beats a strategy) and the

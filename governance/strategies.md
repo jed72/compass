@@ -43,6 +43,14 @@ right reason, writing the minimal code to pass, then refactoring. This is the
 shipped-on way to satisfy **guardrail G1** ("tested before it lands"). The
 pre-tool hook enforces red-before-green by default.
 
+TDD serves **two purposes**, not one. The first is governance: red-before-green
+is the mechanism that makes G1 checkable — it ensures there is a test, and that
+the test was there first. The second is **design feedback**: a hard-to-write
+test is the design speaking. As Dave Farley puts it, "TDD is less about testing
+and more about good design." A test that is painful to set up, or that needs
+elaborate mocking to run, is not a test problem — it is a design problem. The
+red-green-refactor loop is the design-feedback loop.
+
 *Why a strategy and not a guardrail:* G1 — that code is *tested before it
 lands* — is the hard line, checked at Verify and Land. Red-before-green is the
 *discipline* that gets you there reliably. It is the strong default on every

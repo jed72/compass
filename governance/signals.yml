@@ -18,6 +18,15 @@ scope_bloat_phrases:
   - "(carried to Land)"
   - "USER TO APPLY"
 
+# Advisory patterns assessed by the reviewer agent at Verify — judgement,
+# never a gate. A match is a nudge to the reviewer to investigate a potential
+# design smell; it does not fail any check. Projects extend by editing their
+# own copy of signals.yml.
+design_smell:
+  - "tests dominated by mocking or setup"
+  - "assertions on internal method calls"
+  - "single test asserts more than one behaviour"
+
 rework_scan:
   window_days: 14
   public_surface_patterns:
