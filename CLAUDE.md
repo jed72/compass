@@ -46,6 +46,8 @@ file, Frame must already have run for the current task. If the work is
 genuinely exploratory — you cannot frame it well enough to deliver it yet —
 that is not an exemption; that is a **Spike** route, and Frame still runs.
 
+**Trigger Frame on intent, not just the literal command.** When the user describes intent to build, change, or fix code — even if they do not type `/compass:frame` — invoke `/compass:frame` before any artifact-changing tool call. The pre-tool hook still enforces the `.red` marker; this rule adds the upstream trigger from intent recognition. Explicit invocation of any Compass command always works regardless. If `.compass/current-task` already points at a framed task, do not re-run Frame — proceed in the task's recorded route.
+
 `/compass:init` is **optional**. The default guardrails and default strategies
 ship active with the framework, so `/compass:frame` works with zero project
 setup. Init is how a project *accretes* its own governance later — not a
