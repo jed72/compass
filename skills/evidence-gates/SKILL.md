@@ -126,6 +126,22 @@ with no red rows.
 4. The gate passes only if every applicable dimension passes. One no-pass sends
    the work back — to Build, or to a re-frame. A gate is not "mostly passed."
 
+## Coverage as evidence
+
+A project coverage-floor guardrail (e.g. "line coverage does not drop below
+80%") is expressed as a *project guardrail* backed by a check, not as a
+claim or an assertion. The coverage report is the evidence; the number
+speaks for itself.
+
+One important caveat, from Farley's discipline: **coverage is a floor, never
+a target**. A high coverage number is a side effect of test discipline, not
+its goal. Chasing a coverage metric — writing tests specifically to hit a
+number — produces tests that cover lines without asserting anything useful.
+The real goal is the design-feedback loop (strategy S2: "Listen to your
+tests"). Treat the floor as a safety net that catches a serious regression in
+test discipline; treat the design-feedback loop as the thing that builds
+quality in.
+
 ## Anti-patterns
 
 - **The assertion gate** — "all green, looks good" with nothing pasted. The most
