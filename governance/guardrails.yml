@@ -195,6 +195,7 @@ spike_guardrails:
 # put it in strategies.md instead. Leave this empty rather than padding it.
 # -----------------------------------------------------------------------------
 project: []
+# stream-C (B1 / TRC-C6): only the coverage-floor caveat comment above was added — no new checks or gates.
 #  - id: Q1
 #    name: "Coverage floor"
 #    statement: "Line coverage does not drop below 80%."
