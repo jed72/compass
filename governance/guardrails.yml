@@ -57,6 +57,8 @@ checks:
       responsibility. Narrative notes (devlog 'USER TO APPLY') never count.
       Cross-task: when another task has a backfill with target_task pointing at
       this task, that backfill must be paid before this task's Land closes.
+  coherence-check-passes:
+    description: "compass analyze reports zero coherence findings. Gate-clearing runs write type coherence-check evidence; advisory runs write command-output and do not clear verify.analyze."
 
 # -----------------------------------------------------------------------------
 # Evidence types — what KINDS of evidence a gate can be cleared with. Without
@@ -88,6 +90,8 @@ evidence_types:
     description: "A recorded review of public/user-facing claims against backing scenarios — the marketer's audit trail."
   spike-conclusion:
     description: "A recorded close-out of a Spike: what was learned, a decision (discard | graduate-to-delivery | defer), and any link to the next task."
+  coherence-check:
+    description: "Output of compass analyze — a structured coherence findings list. Gate-clearing: zero findings. Only this type clears verify.analyze; advisory command-output entries do not."
   artifact:
     description: "A written record without a more specific type — a review note, a verification report. The weakest, by design: honest for judgement-shaped gates, never enough for a mechanical one."
 
@@ -104,6 +108,7 @@ gate_evidence_requirements:
   verify.claims: [claim-review, command-output, artifact]
   verify.clarity: [manual-review, artifact]       # inherently judgement — and now visibly so
   spike.conclude: [spike-conclusion]              # SPECIFIC: a generic artifact will not do
+  verify.analyze: [coherence-check]              # SPECIFIC: advisory command-output does NOT clear this gate
 
 # -----------------------------------------------------------------------------
 # DEFAULT GUARDRAILS — G1–G5. Shipped active. The floor under every route.
@@ -141,7 +146,7 @@ defaults:
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed backfill — narrative notes never clear it.
-    checks: [gate-evidence-present, dod-evidence-typed]
+    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes]
     checked_at: [verify, land]
 
   - id: G5
