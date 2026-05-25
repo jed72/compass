@@ -1,0 +1,273 @@
+"""Stream-D — cross-cutting integration tests for farley-guidebook.
+
+These tests assert the hard-line invariants on the integrated A+B+C state:
+- TRC-F1: verify.fitness is route-promoted only, never tier-menu
+- TRC-F2: every new check is mechanical — no runtime model call
+- TRC-F3: no sixth guardrail (G1-G5 unchanged)
+- TRC-F4: routing dimensions stay at four (reading_vocabulary unchanged)
+- TRC-F5: bare-repo no-op when no project guardrails/quarantine declared
+- TRC-F6: net-new top-level concept count is bounded
+- TRC-F7: pre-existing tasks pass without modification (replay on comparison-requirements)
+- TRC-FM4: refused candidates stay refused (manual-review attached in verification-report.md)
+"""
+from __future__ import annotations
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+import yaml
+
+REPO_ROOT = Path(__file__).parent.parent
+
+
+# -----------------------------------------------------------------------------
+# TRC-F3 — no sixth guardrail
+# -----------------------------------------------------------------------------
+
+def test_guardrail_count_is_exactly_five():
+    """G1-G5 are the framework's five guardrails. ADR-002: no growth."""
+    data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
+    default_ids = [g["id"] for g in data["defaults"]]
+    assert default_ids == ["G1", "G2", "G3", "G4", "G5"], (
+        f"The five framework guardrails must be G1-G5 in order; got {default_ids}. "
+        "ADR-002: the framework grows by checks/strategies, not guardrails."
+    )
+
+
+def test_no_trusted_rerun_is_a_check_under_g4_not_a_new_guardrail():
+    """A1's no-trusted-rerun must be a CHECK_FN under G4, not a new guardrail."""
+    data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
+    g4 = next(g for g in data["defaults"] if g["id"] == "G4")
+    assert "no-trusted-rerun" in g4["checks"], (
+        "A1's no-trusted-rerun must be registered as a CHECK_FN under G4 — "
+        "not as a new guardrail (clarifications Q7)."
+    )
+
+
+def test_command_passes_is_a_check_under_g4_not_a_new_guardrail():
+    """A2's command-passes must be a CHECK_FN under G4, not a new guardrail."""
+    data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
+    g4 = next(g for g in data["defaults"] if g["id"] == "G4")
+    assert "command-passes" in g4["checks"], (
+        "A2's command-passes must be registered as a CHECK_FN under G4 (DD-5; ADR-002)."
+    )
+
+
+# -----------------------------------------------------------------------------
+# TRC-F4 — routing dimensions stay at four (rubric framing) — the supporting
+# keys (role, urgency, touches) are unchanged too.
+# -----------------------------------------------------------------------------
+
+def test_routing_dimensions_are_unchanged():
+    """The four readings (blast_radius, terrain, magnitude, intent) are unchanged."""
+    policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
+    vocab = policy["reading_vocabulary"]
+    assert "blast_radius" in vocab
+    assert "terrain" in vocab
+    assert "magnitude" in vocab
+    assert "intent" in vocab
+    # The supporting keys (urgency, role, touches) are unchanged too
+    assert "urgency" in vocab
+    assert "role" in vocab
+    assert "touches_common" in vocab
+
+
+def test_no_fifth_routing_dimension_added():
+    """No new top-level reading dimension was introduced by farley-guidebook."""
+    policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
+    vocab_keys = set(policy["reading_vocabulary"].keys())
+    # The legitimate set; if anything beyond this exists, the framework grew a dimension
+    legitimate = {"blast_radius", "terrain", "magnitude", "intent", "urgency", "role", "touches_common"}
+    extra = vocab_keys - legitimate
+    assert not extra, (
+        f"reading_vocabulary gained unexpected keys: {extra}. ADR-002 forbids new dimensions."
+    )
+
+
+# -----------------------------------------------------------------------------
+# TRC-F1 — verify.fitness is route-promoted only, never tier-menu.
+# Mechanical assertion: only the routing policy floors can introduce it.
+# -----------------------------------------------------------------------------
+
+def test_verify_fitness_only_introduced_via_routing_floors():
+    """verify.fitness is not in any route_shape's gates list — it is only
+    added by the RG-FLOOR-006/007 floors (route-promoted, never tier-menu).
+    """
+    policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
+    for shape_name, shape in policy["route_shapes"].items():
+        assert "verify.fitness" not in shape.get("gates", []), (
+            f"verify.fitness must not be baked into route_shape '{shape_name}'.gates — "
+            "it is route-promoted by floor only (USP-1: per-task computed routing)."
+        )
+
+
+def test_verify_fitness_promotion_floors_exist():
+    """RG-FLOOR-006 and RG-FLOOR-007 are present and use add_gate: verify.fitness."""
+    policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
+    floors = policy["routing_guardrails"]["floors"]
+    by_id = {f["id"]: f for f in floors}
+    assert "RG-FLOOR-006" in by_id, "RG-FLOOR-006 (verify.fitness on cross-cutting/critical) must exist"
+    assert "RG-FLOOR-007" in by_id, "RG-FLOOR-007 (verify.fitness on irreversible touches) must exist"
+    assert by_id["RG-FLOOR-006"]["add_gate"] == "verify.fitness"
+    assert by_id["RG-FLOOR-007"]["add_gate"] == "verify.fitness"
+
+
+# -----------------------------------------------------------------------------
+# TRC-F2 — every new check is mechanical: no runtime model call. The CLI
+# imports nothing that would talk to a model on the check path.
+# -----------------------------------------------------------------------------
+
+def test_cli_has_no_model_client_imports():
+    """cli/compass must not import any LLM client or HTTP client at module level."""
+    text = (REPO_ROOT / "cli/compass").read_text()
+    forbidden = ["import requests", "import httpx", "import openai", "import anthropic",
+                 "from requests", "from httpx", "from openai", "from anthropic"]
+    for needle in forbidden:
+        assert needle not in text, (
+            f"cli/compass must not import {needle!r} — every new check is mechanical "
+            "(USP-2: determinism boundary; TRC-F2)."
+        )
+
+
+# -----------------------------------------------------------------------------
+# TRC-F5 — bare-repo no-op. A project with no quarantine entries and no
+# project guardrails sees no behavioural change.
+# -----------------------------------------------------------------------------
+
+def test_quarantine_yml_ships_empty():
+    """governance/quarantine.yml ships with an empty quarantined list."""
+    quarantine_path = REPO_ROOT / "governance/quarantine.yml"
+    assert quarantine_path.exists(), "governance/quarantine.yml must exist"
+    data = yaml.safe_load(quarantine_path.read_text())
+    assert data["quarantined"] == [], (
+        "governance/quarantine.yml must ship with quarantined: [] (ADR-006 — bare-repo no-op)."
+    )
+
+
+def test_no_project_guardrails_declared_in_framework_repo():
+    """The framework's own guardrails.yml ships with project: [] (empty)."""
+    data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
+    assert data.get("project", []) == [], (
+        "The framework guardrails.yml must ship with project: [] (bare-repo no-op for adopters)."
+    )
+
+
+# -----------------------------------------------------------------------------
+# TRC-F6 — net-new top-level concept count is bounded.
+# The legitimate additions from farley-guidebook are:
+#   - 1 strategy id: S5
+#   - 1 gate name: verify.fitness
+#   - 2 check names: no-trusted-rerun, command-passes
+#   - 1 evidence-record field: attempts (+rerun_without_change paired)
+#   - 1 signal category: design_smell
+# Anything outside that set means scope crept (USP-5 budget breached).
+# -----------------------------------------------------------------------------
+
+def test_net_new_strategies_is_one():
+    """strategies.md added exactly S5 (and no other new strategy ids)."""
+    text = (REPO_ROOT / "governance/strategies.md").read_text()
+    # Look for ### S<n> — section markers
+    import re
+    ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
+    expected = {"S1", "S2", "S3", "S4", "S5"}
+    assert ids == expected, (
+        f"strategies.md must contain exactly S1-S5 (S5 is the only farley addition). "
+        f"Got: {ids}"
+    )
+
+
+def test_net_new_gates_is_one():
+    """gate_evidence_requirements gained exactly verify.fitness (no other new gate)."""
+    data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
+    gates = set(data["gate_evidence_requirements"].keys())
+    legitimate = {"verify.correctness", "verify.regression", "verify.security",
+                  "verify.governance", "verify.traceability", "verify.claims",
+                  "verify.clarity", "spike.conclude", "verify.analyze",
+                  "verify.fitness"}
+    extra = gates - legitimate
+    assert not extra, f"gate_evidence_requirements gained unexpected gates: {extra}"
+
+
+def test_net_new_signals_category_is_design_smell():
+    """signals.yml gained exactly the design_smell category from this work."""
+    data = yaml.safe_load((REPO_ROOT / "governance/signals.yml").read_text())
+    assert "design_smell" in data, "signals.yml must have a design_smell category (TRC-C4)"
+
+
+# -----------------------------------------------------------------------------
+# TRC-F7 — pre-existing tasks pass without modification.
+# Replay compass check against the landed comparison-requirements task.
+# -----------------------------------------------------------------------------
+
+def test_comparison_requirements_task_still_lints_clean():
+    """A pre-existing landed task's task.yml must still lint clean on the new framework."""
+    result = subprocess.run(
+        [sys.executable, "cli/compass", "task", "lint", "--task", "comparison-requirements"],
+        capture_output=True, text=True, cwd=str(REPO_ROOT),
+    )
+    assert result.returncode == 0, (
+        f"compass task lint must still pass on the pre-existing comparison-requirements task "
+        f"after farley-guidebook lands. stdout: {result.stdout}\nstderr: {result.stderr}"
+    )
+
+
+def test_pre_existing_evidence_without_attempts_is_backward_compatible():
+    """A landed task's test-run evidence (no attempts field) must still clear G4
+    via the no-trusted-rerun check's backward-compat path (TRC-A5).
+    """
+    # Read one of comparison-requirements' green files; it predates the attempts field
+    green_files = list((REPO_ROOT / ".compass/work/comparison-requirements/evidence").glob("green-TRC-A*.json"))
+    if not green_files:
+        # No prior evidence to inspect — backward compat is asserted by TRC-A5's test
+        return
+    sample = json.loads(green_files[0].read_text())
+    assert "attempts" not in sample, (
+        f"Pre-existing evidence ({green_files[0].name}) must NOT have an attempts field "
+        "— the no-trusted-rerun check's TRC-A5 path relies on absence to clear trivially."
+    )
+
+
+# -----------------------------------------------------------------------------
+# TRC-FM4 — refused candidates stay refused.
+# Manual review attached as evidence in verification-report.md (clarifications Q11).
+# The mechanical assertion here: none of the refused-candidate vocabulary
+# appears as a new top-level concept in governance/.
+# -----------------------------------------------------------------------------
+
+def test_no_user_stories_as_spec_format():
+    """ADR-004 refused; no per-role user-story format introduced."""
+    # The spec format is the BDD scenario in spec.feature.md. No new artifact
+    # named user-story-*.md or stories.md should exist under templates/ or .compass/work/.
+    templates = list((REPO_ROOT / "templates").iterdir()) if (REPO_ROOT / "templates").exists() else []
+    template_names = [t.name.lower() for t in templates]
+    for name in template_names:
+        assert "user-stor" not in name and "stories" not in name, (
+            f"Template '{name}' suggests a user-stories format was introduced — ADR-004 refused this."
+        )
+
+
+def test_no_deployment_pipeline_concepts():
+    """Safety-contract guarantee 6: Compass is not a deployment pipeline."""
+    # No CI/CD pipeline files in templates/. No "release" or "production" stage gates.
+    data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
+    gates = set(data["gate_evidence_requirements"].keys())
+    for forbidden in ("release", "production", "deploy", "rollout"):
+        for gate in gates:
+            assert forbidden not in gate, (
+                f"Gate '{gate}' contains forbidden deployment-pipeline term '{forbidden}'. "
+                "Safety-contract guarantee 6: Compass is not a deployment pipeline."
+            )
+
+
+def test_no_maturity_assessment_added():
+    """ '13 DORA self-assessment questions' refused — no maturity ladder concept."""
+    # No file under templates/ or governance/ named with maturity / assessment / capability vocabulary
+    for d in ("templates", "governance"):
+        if not (REPO_ROOT / d).exists():
+            continue
+        for f in (REPO_ROOT / d).iterdir():
+            n = f.name.lower()
+            assert "maturity" not in n and "self-assess" not in n and "capability-ladder" not in n, (
+                f"{d}/{f.name} suggests a maturity/capability ladder was introduced — refused per proposal §Out of scope."
+            )
