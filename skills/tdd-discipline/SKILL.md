@@ -119,6 +119,33 @@ destabilise a sibling. Keep every change inside your stream. If a test you need
 to write reaches into another stream's surface, that is a signal for the
 orchestrator, not a reason to reach across.
 
+## Listen to your tests
+
+A hard-to-write test is a design smell — not a reason to write a clever test,
+but a signal to change the design.
+
+When a test requires extensive setup, elaborate mocking, or deep knowledge of
+internal state to run, the code under test is telling you something: it has too
+many dependencies, it couples the what to the how, or it lives in the wrong
+place. The test is the first client of your code; if that client is struggling,
+the next client will too.
+
+The response to a hard-to-write test is **not** to write a harder test. It is
+to ask: *what would make this test easy to write?* Then change the design to
+match. This is TDD's second payoff — not just coverage, but continuous
+design pressure toward simplicity.
+
+Signals that your test is listening to a design problem:
+
+- You cannot test the new behaviour without instantiating five other classes.
+- Your test setup is longer than the assertion.
+- You need to reach into private state or patch internal calls to set up the
+  scenario.
+- The test breaks every time you touch an unrelated part of the codebase.
+
+Each of these is the test speaking. The right answer is refactoring the
+production code so the test becomes easy, not accepting the pain.
+
 ## Anti-patterns
 
 - **Green-first, test-after.** Writing the code, then a test that happens to
@@ -133,3 +160,11 @@ orchestrator, not a reason to reach across.
 - **Skipping refactor under deadline.** The mess compounds. Refactor is part of
   the cycle, not an optional third act — even Hotfix refactors, when the
   refactor is itself low-risk.
+- **Test behaviour, not implementation.** Writing assertions that are coupled
+  to how the code works internally — checking which methods were called, which
+  internal variables were set, or which collaborators were invoked in which
+  order. The test should observe *what* the code does from outside, not *how*
+  it does it. A reliable check: **swap the implementation — does the test
+  survive? It should.** If swapping a correct reimplementation breaks the test,
+  the test was asserting implementation details, not behaviour. Test what the
+  contract promises; let the implementation change freely underneath.
