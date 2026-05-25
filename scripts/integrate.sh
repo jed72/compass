@@ -190,6 +190,44 @@ else
   echo "per-stream green does not imply integrated green."
 fi
 
+# --- write status: landed and derive the living system spec -----------------
+echo ""
+echo "Writing status: landed to task.yml and deriving living system spec..."
+
+TASK_YML="$TASK_DIR/task.yml"
+if [ -f "$TASK_YML" ]; then
+  python3 - <<PYEOF
+import yaml, datetime, sys
+path = "$TASK_YML"
+try:
+    with open(path, 'r', encoding='utf-8') as f:
+        task = yaml.safe_load(f) or {}
+    if not isinstance(task, dict):
+        task = {}
+    task['status'] = 'landed'
+    task['land_timestamp'] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
+    with open(path, 'w', encoding='utf-8') as f:
+        yaml.safe_dump(task, f, sort_keys=False, default_flow_style=False)
+    print("  task.yml: status=landed, land_timestamp written.")
+except Exception as exc:
+    print(f"WARNING: could not write status: landed to {path}: {exc}", file=sys.stderr)
+PYEOF
+else
+  echo "  WARNING: no task.yml found at $TASK_YML — skipping status write."
+fi
+
+COMPASS_CLI="$COMPASS_HOME/cli/compass"
+if [ -x "$COMPASS_CLI" ] || [ -f "$COMPASS_CLI" ]; then
+  if ( cd "$PROJECT_DIR" && python3 "$COMPASS_CLI" _derive-system-spec --internal ); then
+    echo "  docs/system-spec.md updated (living spec derived)."
+  else
+    echo "  WARNING: living spec derivation failed — docs/system-spec.md may be stale."
+    echo "  Re-run: python3 cli/compass _derive-system-spec --internal"
+  fi
+else
+  echo "  WARNING: compass CLI not found at $COMPASS_CLI — skipping derivation."
+fi
+
 # --- clean up the worktrees -------------------------------------------------
 echo ""
 if [ "$CLEAN" -eq 1 ]; then

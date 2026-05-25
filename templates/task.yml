@@ -14,9 +14,14 @@
 # task this file stays tiny. `compass task lint` checks it is well-formed.
 # =============================================================================
 
-schema_version: "1.0"     # the Compass task.yml schema this file follows
+schema_version: "1.1"     # the Compass task.yml schema this file follows
+                          # '1.1': added optional `status` (active|landed) and
+                          #         `land_timestamp` fields (ADR-008, DD-3).
+                          # '1.0' task.ymls are still valid and are treated as
+                          #         status: active by the derivation walker.
 task: "{{TASK_SLUG}}"
 created: "{{DATE}}"
+status: active            # lifecycle: active (in-flight) | landed (complete)
 
 # --- the route -------------------------------------------------------------
 # `readings` is JUDGEMENT — the Needle (an LLM or a human) produces it during

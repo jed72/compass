@@ -47,6 +47,7 @@ Rules:
 | [ADR-004](ADR-004-one-spec-many-lenses.md) | One spec, many lenses; the lens annotates, never forks | accepted | Inv-5 (one spec, many lenses) |
 | [ADR-005](ADR-005-state-lives-on-disk.md) | State lives on disk; conversation reconstructs from artifacts | accepted | Inv-6 (persistence over conversation) |
 | [ADR-006](ADR-006-backward-compat-is-non-negotiable.md) | Backward compat is non-negotiable | accepted | Inv-8 (backward compat for projects without new surfaces) |
+| [ADR-008](ADR-008-cross-task-derived-artifacts.md) | Cross-task derived artifacts are generated from landed task scenarios at Land time; the derivation is reconstructible, idempotent, and never a source-of-truth | proposed | Inv-5, Inv-6, Inv-8 (living spec, derived at Land, silent overwrite contract) |
 
 ## Principle → ADR mapping
 
