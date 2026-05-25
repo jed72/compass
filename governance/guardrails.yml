@@ -59,6 +59,17 @@ checks:
       this task, that backfill must be paid before this task's Land closes.
   coherence-check-passes:
     description: "compass analyze reports zero coherence findings. Gate-clearing runs write type coherence-check evidence; advisory runs write command-output and do not clear verify.analyze."
+  no-trusted-rerun:
+    description: >
+      Every test-run evidence entry is checked for rerun integrity. A record
+      with rerun_without_change: true must have its test listed in the project
+      quarantine registry (governance/quarantine.yml) with a tracking task — a
+      rerun-to-green without a quarantine entry is a G4 failure (S5: intermittency
+      is failure). A record with attempts > 1 but no rerun_without_change marker
+      is also rejected — incomplete evidence cannot clear G4. Old evidence without
+      an attempts field passes trivially (backward compat, TRC-A5). May carry
+      attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
+      (see strategy S5).
 
 # -----------------------------------------------------------------------------
 # Evidence types — what KINDS of evidence a gate can be cleared with. Without
@@ -73,7 +84,11 @@ checks:
 # -----------------------------------------------------------------------------
 evidence_types:
   test-run:
-    description: "A recorded test execution — e.g. evidence/green.json from `compass tdd-green`. The strongest: a machine ran it."
+    description: >
+      A recorded test execution — e.g. evidence/green.json from `compass tdd-green`.
+      The strongest: a machine ran it. May carry attempts: <int> and
+      rerun_without_change: <bool> to signal rerun integrity (see strategy S5 and
+      the no-trusted-rerun check).
   command-output:
     description: "Captured output of a command — a scanner, a linter, a coverage run, a `compass check` run."
   manual-review:
@@ -146,7 +161,7 @@ defaults:
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed backfill — narrative notes never clear it.
-    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes]
+    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun]
     checked_at: [verify, land]
 
   - id: G5

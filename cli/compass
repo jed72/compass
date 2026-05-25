@@ -1110,6 +1110,124 @@ def _check_spike_no_production_changes(task, task_dir):
     return True, "no production changed_files (correct — a Spike ships nothing)"
 
 
+def _load_quarantine_registry(gov_dir):
+    """Load governance/quarantine.yml and return a set of quarantined test ids.
+
+    Returns a dict mapping test id -> entry, so callers can check for
+    tracking_task presence. Returns an empty dict if quarantine.yml is absent
+    (zero-setup default, ADR-006).
+    """
+    path = os.path.join(gov_dir, "quarantine.yml")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        data = load_yaml(path)
+    except CompassError:
+        return {}
+    result = {}
+    for entry in (data.get("quarantined") or []):
+        if isinstance(entry, dict) and entry.get("test"):
+            result[entry["test"]] = entry
+    return result
+
+
+def _check_no_trusted_rerun(task, task_dir):
+    """G4 extension (TRC-A3, TRC-A4, TRC-A5, TRC-FM3 / DD-3): verify that
+    no test-run evidence records a rerun-to-green without either:
+      (a) the test being listed in governance/quarantine.yml with a tracking_task, OR
+      (b) evidence with attempts:1 (clean first pass), OR
+      (c) no attempts field at all (old evidence — backward compat, TRC-A5).
+
+    Failure cases (DD-3):
+      - rerun_without_change: true AND test not quarantined → FAIL
+      - attempts > 1 AND rerun_without_change absent → FAIL (incomplete evidence)
+
+    This check reads governance/quarantine.yml at runtime; the registry is
+    loaded lazily so zero-setup projects (no quarantine.yml) pass trivially.
+    """
+    registry_entries = [
+        e for e in (task.get("evidence") or [])
+        if isinstance(e, dict) and e.get("type") == "test-run"
+    ]
+    if not registry_entries:
+        return True, "no test-run evidence to evaluate"
+
+    # Load quarantine registry once
+    try:
+        gov = find_governance()
+    except CompassError:
+        gov = None
+    quarantine = _load_quarantine_registry(gov) if gov else {}
+
+    problems = []
+    notes = []
+    for entry in registry_entries:
+        path = entry.get("path")
+        ev_id = entry.get("id", "?")
+        # Try to read the evidence file to get attempts/rerun_without_change
+        green_data = {}
+        if path:
+            full = path if os.path.isabs(path) else os.path.join(task_dir, path)
+            if os.path.isfile(full):
+                try:
+                    green_data = json.load(open(full, encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    green_data = {}
+        # Also check the registry entry itself for the fields (tdd-green upserts
+        # them there from the payload)
+        attempts = green_data.get("attempts") if "attempts" in green_data else entry.get("attempts")
+        rerun_flag = (green_data.get("rerun_without_change")
+                      if "rerun_without_change" in green_data
+                      else entry.get("rerun_without_change"))
+        test_id = green_data.get("test") or entry.get("test")
+
+        # Case 1: TRC-A5 backward compat — no attempts field → trivial pass
+        if attempts is None:
+            continue
+
+        # Case 2: attempts > 1, rerun_without_change absent → incomplete evidence
+        if isinstance(attempts, int) and attempts > 1 and rerun_flag is None:
+            problems.append(
+                f"evidence {ev_id}: attempts={attempts} but rerun_without_change "
+                f"marker is absent — incomplete evidence cannot clear G4. "
+                f"Either add the marker (with evidence that no source change "
+                f"intervened) or quarantine the test in governance/quarantine.yml "
+                f"with a tracking_task (TRC-FM3)"
+            )
+            continue
+
+        # Case 3: rerun_without_change: true → test must be quarantined
+        if rerun_flag:
+            if not test_id:
+                problems.append(
+                    f"evidence {ev_id}: rerun_without_change:true but no `test` "
+                    f"field to look up in the quarantine registry — add the test "
+                    f"id to the evidence record"
+                )
+                continue
+            if test_id not in quarantine:
+                problems.append(
+                    f"evidence {ev_id}: test '{test_id}' ran {attempts} time(s) "
+                    f"and passed without a source change (rerun_without_change:true) "
+                    f"but is not in governance/quarantine.yml — a rerun-to-green is "
+                    f"the loss of the most useful signal (S5). Fix the root cause "
+                    f"or add the test to governance/quarantine.yml with a "
+                    f"tracking_task (TRC-A3)"
+                )
+            else:
+                q_entry = quarantine[test_id]
+                notes.append(
+                    f"evidence {ev_id}: test '{test_id}' is quarantined "
+                    f"(tracking: {q_entry.get('tracking_task', '?')}) — "
+                    f"rerun-to-green noted; fix tracked"
+                )
+
+    if problems:
+        return False, "; ".join(problems)
+    note_str = f" (quarantine notes: {len(notes)})" if notes else ""
+    return True, f"no trusted-rerun violations{note_str}"
+
+
 def _check_coherence_check_passes(task, task_dir):
     """G4 extension (ADR-007 / DD-2): verify.analyze requires a coherence-check
     evidence entry with zero findings. Only runs when verify.analyze is in the
@@ -1159,6 +1277,7 @@ CHECK_FNS = {
     "spike-conclusion-present": _check_spike_conclusion_present,
     "spike-no-production-changes": _check_spike_no_production_changes,
     "coherence-check-passes": _check_coherence_check_passes,
+    "no-trusted-rerun": _check_no_trusted_rerun,
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
@@ -1415,6 +1534,89 @@ def cmd_tdd_red(args):
     return 0
 
 
+def _source_tree_hash(project_root):
+    """Compute a stable SHA-256 of the source tree under project_root.
+
+    Covers all *.py, *.md, *.yml, *.yaml, *.json, *.toml files, ordered by
+    their relative path (deterministic). Excludes .compass/, .git/,
+    __pycache__/, .venv/, node_modules/, and evidence/ directories.
+
+    Returns a hex digest string. Performance target: < 200 ms on typical
+    project trees (< 100 MB of source files).
+
+    DD-7: hash is content + path, deterministic. Used by cmd_tdd_green to
+    detect whether any source file changed between two invocations.
+    """
+    _EXCLUDED_DIRS = {".compass", ".git", "__pycache__", ".venv",
+                      "node_modules", "evidence"}
+    _INCLUDED_EXTS = {".py", ".md", ".yml", ".yaml", ".json", ".toml"}
+
+    h = hashlib.sha256()
+    # Walk the tree in sorted order to be deterministic across file systems
+    for root, dirs, files in os.walk(project_root):
+        # Prune excluded directories in-place so os.walk skips them
+        dirs[:] = sorted(d for d in dirs if d not in _EXCLUDED_DIRS)
+        for fname in sorted(files):
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in _INCLUDED_EXTS:
+                continue
+            full = os.path.join(root, fname)
+            rel = os.path.relpath(full, project_root)
+            # Hash the relative path (so renames are detected) then content
+            h.update(rel.encode("utf-8", errors="replace"))
+            try:
+                with open(full, "rb") as fh:
+                    h.update(fh.read())
+            except OSError:
+                pass  # file disappeared mid-walk — skip it
+    return h.hexdigest()
+
+
+def _tdd_state_path(task_dir):
+    """Path to the CLI-internal sidecar that tracks the source-tree hash and
+    attempt counter between tdd-green invocations. Not part of task.yml schema.
+    """
+    return os.path.join(task_dir, "evidence", ".tdd-state.json")
+
+
+def _load_tdd_state(task_dir, scenario):
+    """Load the per-scenario TDD state from the sidecar file.
+
+    Returns a dict with keys: 'tree_hash' (str), 'attempts' (int),
+    'scenario' (str|None). Returns a fresh empty state if absent or unreadable.
+    """
+    path = _tdd_state_path(task_dir)
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, dict):
+            return {}
+        # State is keyed by scenario id (or "" for unbound runs)
+        key = scenario or ""
+        return data.get(key) or {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _save_tdd_state(task_dir, scenario, tree_hash, attempts):
+    """Persist the per-scenario TDD state in the sidecar file."""
+    path = _tdd_state_path(task_dir)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    existing = {}
+    if os.path.isfile(path):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                existing = json.load(fh) or {}
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+    key = scenario or ""
+    existing[key] = {"tree_hash": tree_hash, "attempts": attempts}
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(existing, fh, indent=2)
+
+
 def cmd_tdd_green(args):
     task_dir = resolve_task_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
@@ -1428,15 +1630,44 @@ def cmd_tdd_green(args):
             f"green yet. The .red marker is left in place.\n"
             f"--- output (tail) ---\n" + excerpt
         )
+
+    # --- DD-7: attempts + rerun_without_change detection --------------------
+    # Find the project root: walk up from the task_dir to the directory that
+    # contains .compass/ — that is the project root the hash covers.
+    project_root = find_upwards(task_dir, ".compass") or task_dir
+    current_hash = _source_tree_hash(project_root)
+    prior_state = _load_tdd_state(task_dir, scenario)
+    prior_hash = prior_state.get("tree_hash")
+    prior_attempts = prior_state.get("attempts") or 0
+
+    if prior_hash is None:
+        # First invocation for this scenario — clean first pass
+        attempts = 1
+        rerun_without_change = False
+    elif prior_hash == current_hash:
+        # Same tree hash: source did not change since the last green invocation
+        attempts = prior_attempts + 1
+        rerun_without_change = True
+    else:
+        # Tree changed: this is a new attempt after real work
+        attempts = prior_attempts + 1
+        rerun_without_change = False
+
+    # Persist the updated state for the next invocation
+    _save_tdd_state(task_dir, scenario, current_hash, attempts)
+
     payload = {
         "command": " ".join(args.command),
         "scenario": scenario,          # the scenario this green is evidence FOR
         "exit_code": 0,
         "passed": True,
+        "attempts": attempts,
         "timestamp": now_iso(),
         "log_excerpt": excerpt,
         "_full_log": out,
     }
+    if rerun_without_change:
+        payload["rerun_without_change"] = True
     ev_path = _write_evidence(task_dir, "green", payload)
     # If scenario-bound, also write a scenario-specific copy so multiple
     # scenarios' green records do not overwrite each other.
@@ -2766,13 +2997,57 @@ def _schema_note(ran):
             "`pip install jsonschema` for full JSON Schema validation)")
 
 
+def _lint_errors_quarantine(gov_dir):
+    """Validate governance/quarantine.yml if present.
+
+    Returns a list of error strings. An absent quarantine.yml is not an error
+    (zero-setup default, ADR-006). Required fields per entry: test,
+    tracking_task, reason, added. An entry without tracking_task is malformed
+    (TRC-A7 — a quarantine without a tracking task is a graveyard).
+    """
+    path = os.path.join(gov_dir, "quarantine.yml")
+    if not os.path.isfile(path):
+        return []
+    try:
+        data = load_yaml(path)
+    except CompassError as exc:
+        return [f"quarantine.yml: {exc}"]
+    errs = []
+    if not isinstance(data, dict):
+        return ["quarantine.yml: top-level value is not a mapping"]
+    if "version" not in data:
+        errs.append("quarantine.yml: missing required key `version`")
+    quarantined = data.get("quarantined")
+    if quarantined is None:
+        errs.append("quarantine.yml: missing required key `quarantined`")
+        return errs
+    if not isinstance(quarantined, list):
+        errs.append("quarantine.yml: `quarantined` must be a list")
+        return errs
+    required_fields = ("test", "tracking_task", "reason", "added")
+    for i, entry in enumerate(quarantined):
+        if not isinstance(entry, dict):
+            errs.append(f"quarantine.yml: entry #{i + 1} is not a mapping")
+            continue
+        for field in required_fields:
+            if not entry.get(field):
+                errs.append(
+                    f"quarantine.yml: entry #{i + 1} (test={entry.get('test', '?')!r}) "
+                    f"is malformed — missing or empty `{field}`. A quarantine entry "
+                    f"without `tracking_task` is a graveyard, not a registry (TRC-A7)"
+                )
+    return errs
+
+
 def cmd_policy_lint(args):
     gov = find_governance()
     rp = load_yaml(os.path.join(gov, "routing-policy.yml"))
     gr = load_yaml(os.path.join(gov, "guardrails.yml"))
     # The built-in lint always runs — the no-dependency floor, and the only
     # thing that cross-checks declared guardrail checks against CHECK_FNS.
-    errs = _lint_errors_routing_policy(rp) + _lint_errors_guardrails(gr)
+    errs = (_lint_errors_routing_policy(rp)
+            + _lint_errors_guardrails(gr)
+            + _lint_errors_quarantine(gov))
     # JSON Schema validation runs additionally when `jsonschema` is installed.
     schema_ran = False
     for inst, sname, label in (
@@ -2817,6 +3092,18 @@ def cmd_task_lint(args):
     for cf in task.get("changed_files") or []:
         if "path" not in cf:
             errs.append(f"a changed_files entry has no `path`: {cf}")
+    # TRC-FM2: validate attempts field on test-run evidence entries
+    for ev in task.get("evidence") or []:
+        if not isinstance(ev, dict):
+            continue
+        if ev.get("type") == "test-run" and "attempts" in ev:
+            attempts = ev["attempts"]
+            if not isinstance(attempts, int) or attempts < 1:
+                errs.append(
+                    f"evidence {ev.get('id', '?')}: attempts must be a positive "
+                    f"integer (>= 1), got {attempts!r} — "
+                    f"an attempt count of 0 or negative is out of domain (TRC-FM2)"
+                )
     # JSON Schema validation (when `jsonschema` is installed)
     je = _jsonschema_errors(task, "task.schema.json")
     schema_ran = je is not None
