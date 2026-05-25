@@ -176,3 +176,24 @@ All 9 scenarios are implemented and tested. `python -m pytest tests/ 2>&1 | tail
 ## 2026-05-25 20:15 — edit: /Users/jed/dev/compass/tests/test_stream_c_no_new_checks_or_gates.py
 
 - **Tool:** Edit
+
+## 2026-05-25 20:16 — edit: /Users/jed/dev/compass/cli/compass
+
+- **Tool:** Edit
+
+## 2026-05-25 20:18 — edit: /Users/jed/dev/.compass-worktrees/farley-guidebook-stream-D/tests/test_farley_invariants.py
+
+- **Tool:** Write
+
+## 2026-05-25 — Land
+
+- **Event:** task closed — farley-guidebook landed on main.
+- **Merge sequence:** A → B → C → D (orchestrator-resolved conflicts on `cli/compass` CHECK_FNS, `governance/guardrails.yml` G4.checks, `skills/evidence-gates/SKILL.md` sections — all additive unions; integration tests updated baseline to acknowledge legitimate sibling additions).
+- **BF-1 paid:** `cli/compass` cmd_tdd_green now always records `rerun_without_change` when attempts > 1 (true/false per source-hash). Stream-A's TRC-A1 green.json regenerated (attempts:1).
+- **BF-INTEGRATION paid:** Stream-D's 8 invariant tests added to `tests/test_farley_invariants.py`; combined regression on integrated main: **371 passed, 2 skipped**.
+- **Final compass check:** **PASS — all 13 checks passed**, including the new `no-trusted-rerun`, `command-passes` (vacuous-clear), `dod-evidence-typed`.
+- **Gates closed:** all 8 gates (correctness, governance, traceability, regression, security, clarity, claims, fitness) GREEN with typed evidence pointers in `task.yml.gates`. `verify.fitness` cleared by vacuity (DD-6) — framework declares no project guardrails.
+- **What landed:** 5 candidates from the Farley proposal — A1 (intermittent-test integrity via S5 + no-trusted-rerun check + governance/quarantine.yml), A2 (architectural fitness functions via command-passes + verify.fitness gate + RG-FLOOR-006/007 + ADR-009), B1 (TDD-as-design rebalance via S2 amend + tdd-discipline skill + design_smell signal), C1 (example-first refinement in bdd-specification skill), C2 (commit-vs-acceptance vocabulary in evidence-gates skill).
+- **Surface added (USP-5 budget):** 1 strategy id (S5), 1 gate (verify.fitness), 2 check names (no-trusted-rerun, command-passes), 1 evidence-record field (attempts + rerun_without_change), 1 signal category (design_smell), 1 ADR (ADR-009). No new guardrail, no new routing dimension (ADR-002 honoured).
+- **task.yml.status:** `landed`. **task.yml.backfills:** both `paid`. **No owed obligations remain.**
+- **Worktrees:** stream-A/B/C/D kept (`--no-clean` used during integration); orchestrator can remove with `git worktree remove` after final review.

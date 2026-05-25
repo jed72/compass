@@ -1,9 +1,10 @@
 {
-  "command": "python -m pytest tests/test_fitness_functions.py::TestMalformedCommandPasses -q",
-  "scenario": "TRC-FM1",
+  "command": "python3 -m pytest tests/test_intermittent_tests.py::TestNoTrustedRerunInGuardrailsYml -q",
+  "scenario": "TRC-A1",
   "exit_code": 0,
   "passed": true,
-  "timestamp": "2026-05-25T18:52:24+00:00",
-  "log_excerpt": "..                                                                       [100%]",
-  "_full_log": "..                                                                       [100%]\n"
+  "attempts": 1,
+  "timestamp": "2026-05-25T19:16:07+00:00",
+  "log_excerpt": "...                                                                      [100%]",
+  "_full_log": "...                                                                      [100%]\n"
 }

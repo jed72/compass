@@ -1758,8 +1758,13 @@ def cmd_tdd_green(args):
         "log_excerpt": excerpt,
         "_full_log": out,
     }
-    if rerun_without_change:
-        payload["rerun_without_change"] = True
+    # BF-1: always record the marker when attempts > 1. Absence of the field on
+    # a multi-attempt record fails the no-trusted-rerun check (DD-3: incomplete
+    # evidence cannot clear G4). The marker is informative either way — true
+    # means "no source change between attempts" (the failure mode S5 protects
+    # against), false means "source did change" (a legitimate red→green path).
+    if attempts > 1:
+        payload["rerun_without_change"] = rerun_without_change
     ev_path = _write_evidence(task_dir, "green", payload)
     # If scenario-bound, also write a scenario-specific copy so multiple
     # scenarios' green records do not overwrite each other.
