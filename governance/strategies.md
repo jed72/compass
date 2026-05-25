@@ -65,6 +65,21 @@ Decisions, specs, routes, and rationale live in files (`.compass/work/<task>/`,
 different agent — should be able to resume from disk. If it is not written
 down, it did not happen.
 
+### S5 — Intermittency is failure.
+
+A test that fails then passes without an intervening source change is not a
+clean green — it is the loss of the most useful signal a test suite produces.
+A rerun-to-green hides a real failure behind timing, environment state, or
+shared mutable setup. It is never trusted as a pass.
+
+When a test reruns to green: either fix the root cause or quarantine the test
+in `governance/quarantine.yml` with a tracking task. Silence is not evidence
+(guardrail G4). The `no-trusted-rerun` check attached to G4 reads the
+`attempts` and `rerun_without_change` fields from evidence records and refuses
+to clear silently when a rerun is unaccounted for.
+
+*Cross-reference: G4 (evidence, not assertion). See also `governance/quarantine.yml`.*
+
 ---
 
 ## Project strategies
