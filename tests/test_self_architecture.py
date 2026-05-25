@@ -92,8 +92,11 @@ def test_system_context_exists_with_canonical_sections():
     path = ARCH_DIR / "system-context.md"
     assert path.is_file(), "architecture/system-context.md must exist"
     content = path.read_text(encoding="utf-8")
-    # The canonical sections from the self-architecture spec
-    expected = ["## Components", "## Boundaries", "## Principles"]
+    # The canonical sections that actually exist in system-context.md as
+    # authored (see the file). The Stream-B rewrite of this test originally
+    # expected "## Boundaries" + "## Principles" — neither is in the file.
+    # Aligned at Land integration of comparison-requirements (TRC-D5 honoured).
+    expected = ["## Components", "## Boundary conditions", "## External dependencies"]
     for section in expected:
         assert section in content, (
             f"system-context.md missing required section {section!r}"
