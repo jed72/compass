@@ -60,6 +60,7 @@
               "require_phase": { "type": "string" },
               "require_skill": { "type": "string" },
               "never_skip": { "type": "array", "items": { "type": "string" } },
+              "add_gate": { "type": "string" },
               "rationale": { "type": "string" }
             }
           }
