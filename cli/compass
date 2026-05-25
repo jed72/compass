@@ -2817,6 +2817,18 @@ def cmd_task_lint(args):
     for cf in task.get("changed_files") or []:
         if "path" not in cf:
             errs.append(f"a changed_files entry has no `path`: {cf}")
+    # TRC-FM2: validate attempts field on test-run evidence entries
+    for ev in task.get("evidence") or []:
+        if not isinstance(ev, dict):
+            continue
+        if ev.get("type") == "test-run" and "attempts" in ev:
+            attempts = ev["attempts"]
+            if not isinstance(attempts, int) or attempts < 1:
+                errs.append(
+                    f"evidence {ev.get('id', '?')}: attempts must be a positive "
+                    f"integer (>= 1), got {attempts!r} — "
+                    f"an attempt count of 0 or negative is out of domain (TRC-FM2)"
+                )
     # JSON Schema validation (when `jsonschema` is installed)
     je = _jsonschema_errors(task, "task.schema.json")
     schema_ran = je is not None
