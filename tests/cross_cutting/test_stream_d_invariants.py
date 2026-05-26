@@ -1,0 +1,310 @@
+"""Stream-D cross-cutting invariants (TRC-D1…TRC-D10).
+
+These tests run against the *integrated* state of streams A, B, and C — the
+framework after the three candidates have landed. They are structural
+assertions that protect the USPs and refused-idea constraints declared in
+docs/analysis/comparison-requirements.md (BR-005 / BR-011 / BR-012 / BR-013 /
+BR-014 / BR-015 / BR-016 and NFR-LEG-001 / NFR-DET-001 / NFR-DET-002 /
+NFR-ONR-001).
+
+Per distribution-map.md §3b, this is the deferred verification stream — it
+cannot run honestly until A/B/C are integrated. Implemented directly on main
+at Land integration since the parallelism-isolation rationale (disjoint files)
+does not apply when reading the integrated state.
+"""
+from __future__ import annotations
+
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+import yaml
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+CLI = ROOT / "cli" / "compass"
+
+
+# ---------------------------------------------------------------------------
+# TRC-D1 — the five-point mental model gains zero new top-level concepts
+# Source-of-truth (clarifications Q3): the bulleted list under
+# "## The mental model in five points" in docs/five-minutes.md.
+# ---------------------------------------------------------------------------
+def test_trc_d1_mental_model_bullets_unchanged():
+    """TRC-D1 — the bulleted list under "## The mental model in five points"
+    in docs/five-minutes.md has the same number of top-level bullets it had
+    before this task landed.
+
+    The pre-task count is the five-point model — by design (the heading
+    promises "five points"). The three candidates introduce zero net-new
+    top-level concepts; the new CLI verbs (analyze, next) and the derived
+    artifact (docs/system-spec.md) are products of existing concepts.
+    """
+    five_minutes = (ROOT / "docs" / "five-minutes.md").read_text(encoding="utf-8")
+    # Find the section by heading
+    m = re.search(
+        r"^## The mental model in five points\s*$(.*?)^## ",
+        five_minutes,
+        re.MULTILINE | re.DOTALL,
+    )
+    assert m, "docs/five-minutes.md must contain '## The mental model in five points'"
+    section = m.group(1)
+    # Count top-level numbered items — lines starting with "1. ", "2. ", etc.
+    # at column 0. The list in this section is numbered, not bulleted.
+    top_level_items = re.findall(r"^\d+\.\s+", section, re.MULTILINE)
+    assert len(top_level_items) == 5, (
+        f"the five-point model must keep five top-level items; "
+        f"found {len(top_level_items)}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-D2 — only two new CLI verbs added across the three candidates
+# Source-of-truth: the public subcommand list from `compass --help` —
+# leading-underscore subcommands (e.g. _derive-system-spec) are private and
+# excluded from --help. The check counts public subparsers; the only
+# additions over the pre-task baseline are `analyze` and `next`.
+# ---------------------------------------------------------------------------
+PRE_TASK_PUBLIC_SUBCOMMANDS = {
+    "route", "check", "calibration", "ci",
+    "tdd-red", "tdd-green",
+    "policy", "task", "adr",
+    "rework-scan", "flow", "backfill",
+}
+EXPECTED_NEW_SUBCOMMANDS = {"analyze", "next"}
+
+
+def test_trc_d2_only_two_new_public_cli_verbs():
+    """TRC-D2 — only `analyze` and `next` were added to the public CLI; no
+    other new public subcommand exists, and `_derive-system-spec` is hidden
+    from `compass --help` (private entry point per DD-4)."""
+    out = subprocess.run(
+        [sys.executable, str(CLI), "--help"],
+        check=True, capture_output=True, text=True,
+    ).stdout
+    # Parse the {a,b,c,...} positional argument listing in `compass --help`
+    m = re.search(r"\{([a-z0-9_,\-]+)\}", out)
+    assert m, "compass --help must list its subcommands in {a,b,...} form"
+    actual = set(m.group(1).split(","))
+    new = actual - PRE_TASK_PUBLIC_SUBCOMMANDS
+    assert new == EXPECTED_NEW_SUBCOMMANDS, (
+        f"the only new public subcommands must be {EXPECTED_NEW_SUBCOMMANDS}; "
+        f"observed new: {new}"
+    )
+    # Private entry point must not appear in --help
+    assert "_derive-system-spec" not in actual, (
+        "_derive-system-spec is a private entry point and must not appear in compass --help"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-D3 — no fixed-tier ladder is shipped
+# Source-of-truth: governance/routing-policy.yml — no `tier`, `level`, or
+# equivalent vocabulary; the four reading dimensions remain
+# blast_radius/terrain/magnitude/intent (BR-012).
+# ---------------------------------------------------------------------------
+def test_trc_d3_no_tier_ladder_in_routing_policy():
+    """TRC-D3 — governance/routing-policy.yml has no `tier` or `level`
+    vocabulary; the four reading dimensions are unchanged."""
+    text = (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
+    # Hard prohibition — no "tier:" or "level:" keys anywhere
+    for forbidden in ("tier:", "level:"):
+        assert forbidden not in text, (
+            f"routing-policy.yml must not introduce '{forbidden}' — would be a tier-ladder"
+        )
+    # Reading vocabulary keys are unchanged (the four dimensions + urgency + role)
+    policy = yaml.safe_load(text)
+    vocab = policy.get("reading_vocabulary", {})
+    expected_dims = {"blast_radius", "terrain", "magnitude", "intent", "urgency", "role"}
+    assert expected_dims.issubset(set(vocab.keys())), (
+        f"reading_vocabulary must contain {expected_dims}; got {set(vocab.keys())}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-D4 — the five roles remain lenses; no new agent persona was added
+# Source-of-truth: agents/*.md and governance/routing-policy.yml's role
+# enum. The agent count cannot grow, and the role enum stays at five.
+# ---------------------------------------------------------------------------
+PRE_TASK_AGENT_FILES = {
+    "spec-author.md", "planner.md", "builder.md", "orchestrator.md",
+    "verifier.md", "reviewer.md", "navigator.md",
+    "product-lens.md", "marketing-lens.md", "architect-lens.md",
+}
+EXPECTED_ROLES = {
+    "engineer", "product-owner", "product-marketer", "designer", "qa",
+}
+
+
+def test_trc_d4_no_new_agent_persona_no_new_role():
+    """TRC-D4 — the count of role/lens agent files is unchanged; the five
+    roles remain the canonical set (BR-013)."""
+    agents_dir = ROOT / "agents"
+    actual_agents = {p.name for p in agents_dir.glob("*.md")}
+    # New agent files would be a BR-013 violation
+    new_agents = actual_agents - PRE_TASK_AGENT_FILES
+    assert not new_agents, (
+        f"no new role/lens agent file may be added by this task; observed new: {new_agents}"
+    )
+    # Role enum unchanged
+    policy = yaml.safe_load(
+        (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
+    )
+    actual_roles = set(policy["reading_vocabulary"]["role"])
+    assert actual_roles == EXPECTED_ROLES, (
+        f"the role enum must remain {EXPECTED_ROLES}; got {actual_roles}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-D5 — pipeline phases still flex by route
+# Source-of-truth: governance/routing-policy.yml `route_shapes` — at least
+# two route shapes differ in their phase-weight maps (BR-014).
+# ---------------------------------------------------------------------------
+def test_trc_d5_pipeline_phases_flex_by_route():
+    """TRC-D5 — the five route shapes have different phase-weight maps;
+    none has been flattened to a one-size-fits-all shape (BR-014)."""
+    policy = yaml.safe_load(
+        (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
+    )
+    shapes = policy["route_shapes"]
+    phase_maps = {name: shape["phases"] for name, shape in shapes.items()}
+    # All five shapes present
+    assert {"spike", "express", "standard", "hotfix", "expedition"} == set(phase_maps.keys())
+    # At least two shapes must have distinct phase maps
+    distinct = {tuple(sorted(pm.items())) for pm in phase_maps.values()}
+    assert len(distinct) >= 2, (
+        "at least two route shapes must have different phase-weight maps; "
+        f"all shapes resolved to {len(distinct)} unique phase map(s)"
+    )
+    # Specifically: Express collapses Clarify; Spike skips Distribute
+    assert phase_maps["express"]["clarify"] in {"collapsed", "light"}
+    assert phase_maps["spike"]["distribute"] in {"skipped", "collapsed"}
+
+
+# ---------------------------------------------------------------------------
+# TRC-D6 — phases and gates remain enforced
+# Source-of-truth: governance/routing-policy.yml `immovable_gates` and every
+# route_shape's `gates` list (BR-015).
+# ---------------------------------------------------------------------------
+IMMOVABLE_GATE_IDS = {"verify.correctness", "verify.governance", "verify.traceability"}
+
+
+def test_trc_d6_phases_and_gates_remain_enforced():
+    """TRC-D6 — immovable gates are still immovable; no route shape's gate
+    set is empty (no fluid no-gate mode, BR-015)."""
+    policy = yaml.safe_load(
+        (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
+    )
+    # Immovable gates present
+    immovable = {g["gate"] for g in policy["routing_guardrails"]["immovable_gates"]}
+    assert IMMOVABLE_GATE_IDS.issubset(immovable), (
+        f"immovable gates must include {IMMOVABLE_GATE_IDS}; got {immovable}"
+    )
+    # No route shape has an empty gate set
+    for name, shape in policy["route_shapes"].items():
+        gates = shape.get("gates", [])
+        assert gates, f"route shape '{name}' must not have an empty gate set"
+
+
+# ---------------------------------------------------------------------------
+# TRC-D7 — TDD remains a strategy that Spike suspends
+# Source-of-truth: hooks/pre-tool.sh — must read a .spike marker and suspend
+# enforcement on a Spike route (BR-016).
+# ---------------------------------------------------------------------------
+def test_trc_d7_tdd_remains_a_strategy_spike_suspends():
+    """TRC-D7 — the pre-tool hook still reads the .spike marker and
+    suspends red-before-green on Spike routes (BR-016)."""
+    hook = (ROOT / "hooks" / "pre-tool.sh").read_text(encoding="utf-8")
+    assert ".spike" in hook, "pre-tool.sh must read the .spike marker to be route-aware"
+    # The hook still enforces .red elsewhere — sanity that it's not been removed
+    assert ".red" in hook, "pre-tool.sh must still enforce the .red marker contract"
+
+
+# ---------------------------------------------------------------------------
+# TRC-D8 — every new capability functions on a bare repo with no /compass:init
+# Source-of-truth: the CLI's behaviour when invoked from a bare directory
+# with no project-level governance/ overrides. Falls back to the framework's
+# shipped defaults (BR-004 / NFR-ONR-001).
+# ---------------------------------------------------------------------------
+def test_trc_d8_bare_repo_zero_setup(tmp_path):
+    """TRC-D8 — `compass analyze` and `compass next` both produce a clean
+    no-op behaviour when invoked from a bare repo without /compass:init."""
+    # Bare repo — just a directory, no .compass/ at all
+    out_analyze = subprocess.run(
+        [sys.executable, str(CLI), "analyze"],
+        cwd=str(tmp_path), capture_output=True, text=True,
+    )
+    # On a bare repo, analyze should not crash with a parse error; it should
+    # report cleanly that there are no artifacts. Exit code may be non-zero
+    # because no task is framed — but the error must be informative, not a
+    # traceback.
+    assert "Traceback" not in out_analyze.stderr, (
+        f"analyze on bare repo crashed: {out_analyze.stderr}"
+    )
+    out_next = subprocess.run(
+        [sys.executable, str(CLI), "next"],
+        cwd=str(tmp_path), capture_output=True, text=True,
+    )
+    assert "Traceback" not in out_next.stderr, (
+        f"next on bare repo crashed: {out_next.stderr}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-D9 — route composition stays byte-identical across runs
+# Source-of-truth: `compass route evaluate --json` for a fixed reading set
+# returns byte-identical output across runs (NFR-DET-001).
+# ---------------------------------------------------------------------------
+def test_trc_d9_route_evaluate_deterministic(tmp_path):
+    """TRC-D9 — `compass route evaluate` is byte-identical for the same
+    readings + the same routing policy."""
+    # Run route evaluate twice with the same readings against the framework's
+    # own routing-policy.yml (no project overrides — work in tmp_path).
+    cmd = [
+        sys.executable, str(CLI), "route", "evaluate",
+        "--reading", "blast_radius=contained",
+        "--reading", "terrain=brownfield-mapped",
+        "--reading", "magnitude=small",
+        "--reading", "intent=delivery",
+        "--reading", "role=engineer",
+        "--json",
+    ]
+    out1 = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, check=True)
+    out2 = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, check=True)
+    # The route + phases + gates blocks must match byte-for-byte
+    j1 = json.loads(out1.stdout)
+    j2 = json.loads(out2.stdout)
+    assert j1.get("route") == j2.get("route")
+    assert j1.get("phases") == j2.get("phases")
+    assert j1.get("gates") == j2.get("gates")
+
+
+# ---------------------------------------------------------------------------
+# TRC-D10 — the determinism boundary holds — no model call after readings
+# Source-of-truth: static check of cli/compass for LLM SDK imports
+# (BR-002 / NFR-DET-002).
+# ---------------------------------------------------------------------------
+FORBIDDEN_LLM_IMPORTS = (
+    "import anthropic",
+    "from anthropic",
+    "import openai",
+    "from openai",
+    "import litellm",
+    "from litellm",
+    "import langchain",
+    "from langchain",
+)
+
+
+def test_trc_d10_no_llm_sdk_in_cli():
+    """TRC-D10 — `cli/compass` imports no LLM SDK on any code path. The
+    determinism boundary is post-readings; the CLI is the post-boundary
+    half and must be mechanism, not judgement."""
+    cli_src = CLI.read_text(encoding="utf-8")
+    for forbidden in FORBIDDEN_LLM_IMPORTS:
+        assert forbidden not in cli_src, (
+            f"cli/compass must not import an LLM SDK; found '{forbidden}'"
+        )

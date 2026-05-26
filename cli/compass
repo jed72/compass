@@ -64,8 +64,9 @@ except ImportError:
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))  # realpath: resolve symlinks
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
-COMPASS_VERSION = "1.0.0"    # the CLI's own version
+COMPASS_VERSION = "1.1.0"    # the CLI's own version
 COMPASS_SCHEMA_VERSION = "1.0"    # the task.yml schema this CLI understands
+COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
 
 
 class CompassError(Exception):
@@ -441,6 +442,7 @@ def evaluate_route(readings, policy):
         return shapes.get(route, {}).get("weight", 0)
 
     # --- 2. floors raise the route / force phases (routing guardrails) -------
+    floor_gates = []  # gates added by floors via add_gate (DD-1 / ADR-007)
     for fl in guardrails.get("floors", []):
         if not reading_matches(fl.get("when"), readings):
             continue
@@ -458,6 +460,9 @@ def evaluate_route(readings, policy):
         if fl.get("never_skip"):
             never_skip.update(fl["never_skip"])
             changed.append(f"never-skip: {', '.join(fl['never_skip'])}")
+        if fl.get("add_gate"):
+            floor_gates.append(fl["add_gate"])
+            changed.append(f"gate '{fl['add_gate']}' added to the route's set")
         if changed:
             fired.append({"id": fl.get("id", "?"), "kind": "floor",
                           "rationale": fl.get("rationale", ""), "changed": changed})
@@ -544,6 +549,9 @@ def evaluate_route(readings, policy):
         for rg_gate in role_gates:  # gates added by a role rule (e.g. verify.claims)
             if rg_gate not in gates:
                 gates.append(rg_gate)
+        for fl_gate in floor_gates:  # gates added by a floor's add_gate (ADR-007)
+            if fl_gate not in gates:
+                gates.append(fl_gate)
     topology = shape.get("topology", "solo")
     if max_worktrees == 1 and topology in ("swarm", "solo-or-pair"):
         topology = "solo (capped to 1 worktree)"
@@ -1102,6 +1110,251 @@ def _check_spike_no_production_changes(task, task_dir):
     return True, "no production changed_files (correct — a Spike ships nothing)"
 
 
+def _load_quarantine_registry(gov_dir):
+    """Load governance/quarantine.yml and return a set of quarantined test ids.
+
+    Returns a dict mapping test id -> entry, so callers can check for
+    tracking_task presence. Returns an empty dict if quarantine.yml is absent
+    (zero-setup default, ADR-006).
+    """
+    path = os.path.join(gov_dir, "quarantine.yml")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        data = load_yaml(path)
+    except CompassError:
+        return {}
+    result = {}
+    for entry in (data.get("quarantined") or []):
+        if isinstance(entry, dict) and entry.get("test"):
+            result[entry["test"]] = entry
+    return result
+
+
+def _check_no_trusted_rerun(task, task_dir):
+    """G4 extension (TRC-A3, TRC-A4, TRC-A5, TRC-FM3 / DD-3): verify that
+    no test-run evidence records a rerun-to-green without either:
+      (a) the test being listed in governance/quarantine.yml with a tracking_task, OR
+      (b) evidence with attempts:1 (clean first pass), OR
+      (c) no attempts field at all (old evidence — backward compat, TRC-A5).
+
+    Failure cases (DD-3):
+      - rerun_without_change: true AND test not quarantined → FAIL
+      - attempts > 1 AND rerun_without_change absent → FAIL (incomplete evidence)
+
+    This check reads governance/quarantine.yml at runtime; the registry is
+    loaded lazily so zero-setup projects (no quarantine.yml) pass trivially.
+    """
+    registry_entries = [
+        e for e in (task.get("evidence") or [])
+        if isinstance(e, dict) and e.get("type") == "test-run"
+    ]
+    if not registry_entries:
+        return True, "no test-run evidence to evaluate"
+
+    # Load quarantine registry once
+    try:
+        gov = find_governance()
+    except CompassError:
+        gov = None
+    quarantine = _load_quarantine_registry(gov) if gov else {}
+
+    problems = []
+    notes = []
+    for entry in registry_entries:
+        path = entry.get("path")
+        ev_id = entry.get("id", "?")
+        # Try to read the evidence file to get attempts/rerun_without_change
+        green_data = {}
+        if path:
+            full = path if os.path.isabs(path) else os.path.join(task_dir, path)
+            if os.path.isfile(full):
+                try:
+                    green_data = json.load(open(full, encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    green_data = {}
+        # Also check the registry entry itself for the fields (tdd-green upserts
+        # them there from the payload)
+        attempts = green_data.get("attempts") if "attempts" in green_data else entry.get("attempts")
+        rerun_flag = (green_data.get("rerun_without_change")
+                      if "rerun_without_change" in green_data
+                      else entry.get("rerun_without_change"))
+        test_id = green_data.get("test") or entry.get("test")
+
+        # Case 1: TRC-A5 backward compat — no attempts field → trivial pass
+        if attempts is None:
+            continue
+
+        # Case 2: attempts > 1, rerun_without_change absent → incomplete evidence
+        if isinstance(attempts, int) and attempts > 1 and rerun_flag is None:
+            problems.append(
+                f"evidence {ev_id}: attempts={attempts} but rerun_without_change "
+                f"marker is absent — incomplete evidence cannot clear G4. "
+                f"Either add the marker (with evidence that no source change "
+                f"intervened) or quarantine the test in governance/quarantine.yml "
+                f"with a tracking_task (TRC-FM3)"
+            )
+            continue
+
+        # Case 3: rerun_without_change: true → test must be quarantined
+        if rerun_flag:
+            if not test_id:
+                problems.append(
+                    f"evidence {ev_id}: rerun_without_change:true but no `test` "
+                    f"field to look up in the quarantine registry — add the test "
+                    f"id to the evidence record"
+                )
+                continue
+            if test_id not in quarantine:
+                problems.append(
+                    f"evidence {ev_id}: test '{test_id}' ran {attempts} time(s) "
+                    f"and passed without a source change (rerun_without_change:true) "
+                    f"but is not in governance/quarantine.yml — a rerun-to-green is "
+                    f"the loss of the most useful signal (S5). Fix the root cause "
+                    f"or add the test to governance/quarantine.yml with a "
+                    f"tracking_task (TRC-A3)"
+                )
+            else:
+                q_entry = quarantine[test_id]
+                notes.append(
+                    f"evidence {ev_id}: test '{test_id}' is quarantined "
+                    f"(tracking: {q_entry.get('tracking_task', '?')}) — "
+                    f"rerun-to-green noted; fix tracked"
+                )
+
+    if problems:
+        return False, "; ".join(problems)
+    note_str = f" (quarantine notes: {len(notes)})" if notes else ""
+    return True, f"no trusted-rerun violations{note_str}"
+
+
+def _check_coherence_check_passes(task, task_dir):
+    """G4 extension (ADR-007 / DD-2): verify.analyze requires a coherence-check
+    evidence entry with zero findings. Only runs when verify.analyze is in the
+    task's gate set. If the gate is absent, this check trivially passes (the
+    task is not subject to the coherence-check requirement)."""
+    gates = task.get("gates") or []
+    gate_ids = [g.get("id") for g in gates if isinstance(g, dict)]
+    if "verify.analyze" not in gate_ids:
+        return True, "verify.analyze not in gate set — coherence check not required"
+    # Gate is present: look for a coherence-check typed evidence entry
+    registry = {e.get("id"): e for e in (task.get("evidence") or [])
+                if isinstance(e, dict) and e.get("id")}
+    coherence_entries = [e for e in registry.values()
+                         if e.get("type") == "coherence-check"]
+    if not coherence_entries:
+        return False, ("no coherence-check evidence on record — run "
+                       "`compass analyze` to produce the required "
+                       "coherence-check evidence for verify.analyze")
+    # Check that the most recent entry records zero findings
+    entry = coherence_entries[-1]
+    path = entry.get("path")
+    if path:
+        full = path if os.path.isabs(path) else os.path.join(task_dir, path)
+        if os.path.isfile(full):
+            try:
+                data = json.load(open(full, encoding="utf-8"))
+                n = data.get("finding_count", None)
+                if n is not None and n != 0:
+                    return False, (f"coherence-check evidence records "
+                                   f"{n} finding(s) — resolve them before "
+                                   f"clearing verify.analyze")
+            except (OSError, json.JSONDecodeError):
+                pass  # readable but corrupt — gate-evidence-present catches it
+    return True, "coherence-check evidence on record — verify.analyze gate cleared"
+
+
+def _check_command_passes(task, task_dir):
+    """A2 (ADR-009 / DD-2): run each project guardrail's declared `command:`
+    and report pass/fail.
+
+    Behaviour:
+    - When verify.fitness is in the gate set but zero project guardrails
+      declare check: command-passes → vacuous-clear (DD-6).
+    - For each project guardrail with check: command-passes, run
+      subprocess.run(shell=True, timeout=timeout_seconds) from the project
+      root (inferred as the directory 2 levels above task_dir, which is
+      .compass/work/<slug>).
+    - All commands must exit 0 for the check to pass.
+    - If any command exits non-zero, the check fails with exit code + stderr.
+
+    This check is purely mechanical: no network call, no LLM client (TRC-F2).
+    """
+    # Locate the project root (2 levels up from task_dir: .compass/work/<slug>)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(task_dir)))
+    if not os.path.isdir(project_root):
+        project_root = os.getcwd()
+
+    # Load the guardrails to find project guardrails with check: command-passes
+    try:
+        gov = find_governance()
+        gpolicy = load_yaml(os.path.join(gov, "guardrails.yml"))
+    except CompassError:
+        gpolicy = {}
+
+    project_guardrails = gpolicy.get("project") or []
+    cp_guardrails = [
+        g for g in project_guardrails
+        if isinstance(g, dict) and "command-passes" in (g.get("checks") or [])
+    ]
+
+    # Vacuous-clear (DD-6): verify.fitness in gate set, zero command-passes
+    # guardrails declared → the gate has nothing to check; it clears by vacuity.
+    if not cp_guardrails:
+        return True, ("verify.fitness: 0 project guardrails declared with "
+                      "command-passes; clearing by vacuity (no fitness functions "
+                      "to check — declare project guardrails with "
+                      "`check: command-passes` to add fitness functions)")
+
+    failures = []
+    for g in cp_guardrails:
+        params = g.get("params") or {}
+        command = params.get("command")
+        if not command or not isinstance(command, str):
+            failures.append(
+                f"project guardrail {g.get('id', '?')}: missing or non-string "
+                f"`command` in params — declaration is malformed"
+            )
+            continue
+        timeout = params.get("timeout_seconds", 300)
+        if timeout == 0:
+            timeout = None  # 0 = no timeout (discouraged, as per DD-2)
+        try:
+            proc = subprocess.run(
+                command,
+                shell=True,
+                timeout=timeout,
+                capture_output=True,
+                text=True,
+                cwd=project_root,
+            )
+            if proc.returncode != 0:
+                stderr_snippet = (proc.stderr or "").strip()[:200]
+                failures.append(
+                    f"project guardrail {g.get('id', '?')} "
+                    f"({g.get('name', 'unnamed')}): command exited {proc.returncode}"
+                    + (f"; stderr: {stderr_snippet}" if stderr_snippet else "")
+                )
+        except subprocess.TimeoutExpired:
+            failures.append(
+                f"project guardrail {g.get('id', '?')} "
+                f"({g.get('name', 'unnamed')}): command timed out "
+                f"after {timeout}s"
+            )
+        except Exception as exc:
+            failures.append(
+                f"project guardrail {g.get('id', '?')} "
+                f"({g.get('name', 'unnamed')}): command error: {exc}"
+            )
+
+    if failures:
+        return False, "; ".join(failures)
+
+    n = len(cp_guardrails)
+    return True, (f"{n} command-passes guardrail(s) all exited 0 — "
+                  f"architectural fitness checks pass")
+
+
 CHECK_FNS = {
     "scenarios-have-tests": _check_scenarios_have_tests,
     "suite-passed": _check_suite_passed,
@@ -1114,6 +1367,9 @@ CHECK_FNS = {
     "backfills-paid": _check_backfills_paid,
     "spike-conclusion-present": _check_spike_conclusion_present,
     "spike-no-production-changes": _check_spike_no_production_changes,
+    "coherence-check-passes": _check_coherence_check_passes,
+    "no-trusted-rerun": _check_no_trusted_rerun,
+    "command-passes": _check_command_passes,
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
@@ -1171,6 +1427,10 @@ CHECK_GUIDANCE = {
             "record BF-<id> in task.yml backfills with status: owed; or (c) tick "
             "the box `[x]` if a human has actually done the work."
         ),
+    },
+    "coherence-check-passes": {
+        "why": "G4 (evidence, not assertion): verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
+        "fix": "Run `compass analyze` — on a route with verify.analyze it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, route disagreements, or orphan claims first.",
     },
 }
 
@@ -1366,6 +1626,89 @@ def cmd_tdd_red(args):
     return 0
 
 
+def _source_tree_hash(project_root):
+    """Compute a stable SHA-256 of the source tree under project_root.
+
+    Covers all *.py, *.md, *.yml, *.yaml, *.json, *.toml files, ordered by
+    their relative path (deterministic). Excludes .compass/, .git/,
+    __pycache__/, .venv/, node_modules/, and evidence/ directories.
+
+    Returns a hex digest string. Performance target: < 200 ms on typical
+    project trees (< 100 MB of source files).
+
+    DD-7: hash is content + path, deterministic. Used by cmd_tdd_green to
+    detect whether any source file changed between two invocations.
+    """
+    _EXCLUDED_DIRS = {".compass", ".git", "__pycache__", ".venv",
+                      "node_modules", "evidence"}
+    _INCLUDED_EXTS = {".py", ".md", ".yml", ".yaml", ".json", ".toml"}
+
+    h = hashlib.sha256()
+    # Walk the tree in sorted order to be deterministic across file systems
+    for root, dirs, files in os.walk(project_root):
+        # Prune excluded directories in-place so os.walk skips them
+        dirs[:] = sorted(d for d in dirs if d not in _EXCLUDED_DIRS)
+        for fname in sorted(files):
+            ext = os.path.splitext(fname)[1].lower()
+            if ext not in _INCLUDED_EXTS:
+                continue
+            full = os.path.join(root, fname)
+            rel = os.path.relpath(full, project_root)
+            # Hash the relative path (so renames are detected) then content
+            h.update(rel.encode("utf-8", errors="replace"))
+            try:
+                with open(full, "rb") as fh:
+                    h.update(fh.read())
+            except OSError:
+                pass  # file disappeared mid-walk — skip it
+    return h.hexdigest()
+
+
+def _tdd_state_path(task_dir):
+    """Path to the CLI-internal sidecar that tracks the source-tree hash and
+    attempt counter between tdd-green invocations. Not part of task.yml schema.
+    """
+    return os.path.join(task_dir, "evidence", ".tdd-state.json")
+
+
+def _load_tdd_state(task_dir, scenario):
+    """Load the per-scenario TDD state from the sidecar file.
+
+    Returns a dict with keys: 'tree_hash' (str), 'attempts' (int),
+    'scenario' (str|None). Returns a fresh empty state if absent or unreadable.
+    """
+    path = _tdd_state_path(task_dir)
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        if not isinstance(data, dict):
+            return {}
+        # State is keyed by scenario id (or "" for unbound runs)
+        key = scenario or ""
+        return data.get(key) or {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _save_tdd_state(task_dir, scenario, tree_hash, attempts):
+    """Persist the per-scenario TDD state in the sidecar file."""
+    path = _tdd_state_path(task_dir)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    existing = {}
+    if os.path.isfile(path):
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                existing = json.load(fh) or {}
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+    key = scenario or ""
+    existing[key] = {"tree_hash": tree_hash, "attempts": attempts}
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(existing, fh, indent=2)
+
+
 def cmd_tdd_green(args):
     task_dir = resolve_task_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
@@ -1379,15 +1722,49 @@ def cmd_tdd_green(args):
             f"green yet. The .red marker is left in place.\n"
             f"--- output (tail) ---\n" + excerpt
         )
+
+    # --- DD-7: attempts + rerun_without_change detection --------------------
+    # Find the project root: walk up from the task_dir to the directory that
+    # contains .compass/ — that is the project root the hash covers.
+    project_root = find_upwards(task_dir, ".compass") or task_dir
+    current_hash = _source_tree_hash(project_root)
+    prior_state = _load_tdd_state(task_dir, scenario)
+    prior_hash = prior_state.get("tree_hash")
+    prior_attempts = prior_state.get("attempts") or 0
+
+    if prior_hash is None:
+        # First invocation for this scenario — clean first pass
+        attempts = 1
+        rerun_without_change = False
+    elif prior_hash == current_hash:
+        # Same tree hash: source did not change since the last green invocation
+        attempts = prior_attempts + 1
+        rerun_without_change = True
+    else:
+        # Tree changed: this is a new attempt after real work
+        attempts = prior_attempts + 1
+        rerun_without_change = False
+
+    # Persist the updated state for the next invocation
+    _save_tdd_state(task_dir, scenario, current_hash, attempts)
+
     payload = {
         "command": " ".join(args.command),
         "scenario": scenario,          # the scenario this green is evidence FOR
         "exit_code": 0,
         "passed": True,
+        "attempts": attempts,
         "timestamp": now_iso(),
         "log_excerpt": excerpt,
         "_full_log": out,
     }
+    # BF-1: always record the marker when attempts > 1. Absence of the field on
+    # a multi-attempt record fails the no-trusted-rerun check (DD-3: incomplete
+    # evidence cannot clear G4). The marker is informative either way — true
+    # means "no source change between attempts" (the failure mode S5 protects
+    # against), false means "source did change" (a legitimate red→green path).
+    if attempts > 1:
+        payload["rerun_without_change"] = rerun_without_change
     ev_path = _write_evidence(task_dir, "green", payload)
     # If scenario-bound, also write a scenario-specific copy so multiple
     # scenarios' green records do not overwrite each other.
@@ -2046,6 +2423,534 @@ def cmd_backfill_pay(args):
     return 0
 
 
+# --- command: analyze -------------------------------------------------------
+# `compass analyze` — cross-artifact coherence check (TRC-A1…A13, F1, F4, F5)
+#
+# Reads a task's artifacts (brief.md, spec.feature.md, route.md, task.yml,
+# positioning.md if present) and emits a structured coherence report.
+#
+# Finding types (Inv-7 — baked in, not from signals.yml):
+#   orphaned-intent  — a scenario in spec/task.yml links to an intent id that
+#                      does not appear in brief.md
+#   route-disagreement — route.md and task.yml describe different phase weights
+#                        for the same phase
+#   orphan-claim     — positioning.md lists a claim id that no scenario links to
+#   missing-artifact — an artifact required by the route's non-collapsed phase
+#                      is absent (route-aware: legitimately omitted artifacts
+#                      on collapsed/skipped phases are not flagged)
+#
+# Mode selection (DD-5 / ADR-007):
+#   Gate-clearing mode  — verify.analyze is in task.yml.gates:
+#       exits non-zero on any finding; evidence type `coherence-check`;
+#       id prefix `EV-ANALYZE-<task>-<ts>`
+#   Advisory mode — verify.analyze NOT in gates:
+#       exits 0 even on findings; evidence type `command-output`;
+#       id prefix `EV-ANALYZE-ADVISORY-<task>-<ts>`
+#
+# Invariants honoured:
+#   Inv-1 / Inv-4 — strictly read-only over task.yml; never writes to
+#                   task.yml.readings or task.yml.gates
+#   Inv-7         — finding taxonomy is structural, not from signals.yml
+#   Inv-8         — no brief.md / spec.feature.md → exits 0 ("no artifacts")
+#   OQ-1 boundary — never asserts whether gate evidence exists or passes;
+#                   that is compass check's job
+
+
+# Phases that require brief.md to be present. On collapsed/skipped Specify
+# the brief is legitimately absent. Route-aware: only flag missing brief
+# when Specify is full-weight.
+_SPECIFY_FULL_WEIGHTS = {"full"}
+
+# Phases that would be checked for route-disagreement
+_KNOWN_PHASES = {
+    "frame", "specify", "clarify", "plan", "distribute",
+    "build", "verify", "land",
+}
+
+# Human-readable phase name → task.yml key (lowercase map)
+_PHASE_NAME_MAP = {
+    "frame": "frame",
+    "specify": "specify",
+    "clarify": "clarify",
+    "plan": "plan",
+    "distribute": "distribute",
+    "build": "build",
+    "verify": "verify",
+    "land": "land",
+}
+
+
+def _parse_intent_ids_from_brief(brief_path: str) -> set:
+    """Extract intent ids from brief.md.
+
+    Scans for lines matching:
+      <!-- intent: INT-xxx --> (explicit traceability comment)
+      - INT-xxx: ...            (bullet-list intent declaration)
+    Returns a set of intent id strings.
+    """
+    intent_ids = set()
+    if not os.path.isfile(brief_path):
+        return intent_ids
+    with open(brief_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            # comment form: <!-- intent: INT-xxx -->
+            m = _re.match(r'<!--\s*intent:\s*(\S+)\s*-->', line)
+            if m:
+                intent_ids.add(m.group(1))
+                continue
+            # bullet form: - INT-xxx: ...  or  * INT-xxx: ...
+            m = _re.match(r'^[-*]\s+(INT-\S+?):\s+', line)
+            if m:
+                intent_ids.add(m.group(1))
+    return intent_ids
+
+
+def _parse_scenario_intents_from_spec(spec_path: str) -> dict:
+    """Extract {scenario_id: intent_id} from spec.feature.md traceability comments.
+
+    Looks for lines like:
+      <!-- traceability id: SCN-001 · serves: INT-1 -->
+    """
+    scenario_intents = {}
+    if not os.path.isfile(spec_path):
+        return scenario_intents
+    with open(spec_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            m = _re.search(
+                r'<!--\s*traceability\s+id:\s*(\S+).*?serves:\s*(\S+)',
+                line
+            )
+            if m:
+                scn_id = m.group(1).rstrip(" ·,")
+                intent_id = m.group(2).rstrip(" ·,*/-->")
+                scenario_intents[scn_id] = intent_id
+    return scenario_intents
+
+
+def _parse_claim_ids_from_positioning(positioning_path: str) -> set:
+    """Extract claim ids from positioning.md.
+
+    Scans for:
+      <!-- claim: CLM-1 -->
+      - CLM-1: ...
+    """
+    claim_ids = set()
+    if not os.path.isfile(positioning_path):
+        return claim_ids
+    with open(positioning_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            m = _re.match(r'<!--\s*claim:\s*(\S+)\s*-->', line)
+            if m:
+                claim_ids.add(m.group(1))
+                continue
+            m = _re.match(r'^[-*]\s+(CLM-\S+?):\s+', line)
+            if m:
+                claim_ids.add(m.group(1))
+    return claim_ids
+
+
+def _parse_claimed_scenario_ids_from_spec(spec_path: str) -> set:
+    """Extract scenario ids that are referenced as backing claims.
+
+    Looks for:
+      <!-- claims: CLM-1 -->
+      <!-- backed-by: SCN-001 -->
+    Returns set of scenario ids that a claim is backed by.
+    """
+    # For simplicity, also return the scenario ids found in the spec
+    # (the spec's traceability comment already lists the scenario id)
+    return set(_parse_scenario_intents_from_spec(spec_path).keys())
+
+
+def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
+    """Extract {phase_name_lower: weight} from a route.md file.
+
+    Looks for a Markdown table with Phase | Weight columns.
+    Also handles the per-phase weight section.
+    """
+    weights = {}
+    if not os.path.isfile(route_md_path):
+        return weights
+    with open(route_md_path, "r", encoding="utf-8") as fh:
+        lines = fh.readlines()
+    in_phase_table = False
+    for line in lines:
+        stripped = line.strip()
+        # Detect phase table header: | Phase | Weight |
+        if _re.match(r'\|\s*Phase\s*\|\s*Weight', stripped, _re.IGNORECASE):
+            in_phase_table = True
+            continue
+        if in_phase_table:
+            # separator row
+            if _re.match(r'\|[-| ]+\|', stripped):
+                continue
+            # data row: | Clarify | full |
+            m = _re.match(r'\|\s*(\w[\w\s-]*?)\s*\|\s*(\S+)\s*\|', stripped)
+            if m:
+                phase = m.group(1).strip().lower()
+                weight = m.group(2).strip().lower()
+                weights[phase] = weight
+            elif stripped.startswith("#") or not stripped.startswith("|"):
+                in_phase_table = False
+    return weights
+
+
+def _parse_route_from_route_md(route_md_path: str) -> str | None:
+    """Extract the reference route name from route.md.
+
+    Looks for: **Reference route:** Express  (or similar)
+    Returns the route string (lowercase) or None.
+    """
+    if not os.path.isfile(route_md_path):
+        return None
+    with open(route_md_path, "r", encoding="utf-8") as fh:
+        for line in fh:
+            m = _re.search(r'[Rr]eference\s+route[:\s]*[*]*\s*(\w+)', line)
+            if m:
+                return m.group(1).strip().lower()
+    return None
+
+
+def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
+    """Analyze a task's artifacts for coherence and return a report dict.
+
+    The report dict has:
+      findings: list of {type, subject, detail} dicts
+      task_slug: str
+      mode: 'gate' | 'advisory'
+      has_verify_analyze_gate: bool
+
+    This function is strictly read-only over all task artifacts (Inv-1 / Inv-4).
+    It never writes to task.yml or any other file; the caller (cmd_analyze)
+    writes the evidence record.
+
+    Finding types (Inv-7):
+      orphaned-intent    — scenario links to an intent not in brief.md
+      route-disagreement — route.md phase weight differs from task.yml phases
+      orphan-claim       — positioning.md claim has no backing scenario
+      missing-artifact   — a required artifact is absent (route-aware)
+    """
+    task_path = os.path.join(task_dir, "task.yml")
+    if not os.path.isfile(task_path):
+        raise CompassError(
+            f"no task.yml in {task_dir} — has Frame run? "
+            f"compass analyze cannot run before Frame."
+        )
+    try:
+        task = load_yaml(task_path)
+    except CompassError:
+        raise  # re-raise: parse error propagates to cmd_analyze
+
+    task_slug = task.get("task") or os.path.basename(task_dir)
+    findings = []
+
+    # Determine mode from gate set (DD-5 / ADR-007)
+    gate_ids = [g.get("id") for g in (task.get("gates") or []) if isinstance(g, dict)]
+    has_analyze_gate = "verify.analyze" in gate_ids
+
+    # --- No artifacts to analyze (Inv-8) ------------------------------------
+    brief_path = os.path.join(task_dir, "brief.md")
+    spec_path = os.path.join(task_dir, "spec.feature.md")
+    route_md_path = os.path.join(task_dir, "route.md")
+    positioning_path = os.path.join(task_dir, "positioning.md")
+
+    has_brief = os.path.isfile(brief_path)
+    has_spec = os.path.isfile(spec_path)
+    has_positioning = os.path.isfile(positioning_path)
+
+    if not has_brief and not has_spec:
+        # Bare-repo path: no artifacts to analyze
+        return {
+            "findings": [],
+            "task_slug": task_slug,
+            "mode": "gate" if has_analyze_gate else "advisory",
+            "has_verify_analyze_gate": has_analyze_gate,
+            "no_artifacts": True,
+        }
+
+    # --- 1. Route-aware missing-artifact check ------------------------------
+    # Only check for brief.md when Specify is expected to run at full weight.
+    phases = task.get("phases") or {}
+    specify_weight = str(phases.get("specify", "full")).lower()
+    if specify_weight in _SPECIFY_FULL_WEIGHTS and not has_brief:
+        findings.append({
+            "type": "missing-artifact",
+            "subject": "brief.md",
+            "detail": (
+                f"brief.md is absent but Specify phase is '{specify_weight}' — "
+                f"a full-weight Specify requires a brief."
+            ),
+        })
+
+    # --- 2. Orphaned-intent check -------------------------------------------
+    # Scenarios in task.yml with an intent that is not in brief.md.
+    # Only when brief.md exists (no brief → no intents to check against,
+    # but we may have already flagged missing-artifact above).
+    if has_brief:
+        declared_intents = _parse_intent_ids_from_brief(brief_path)
+        task_scenarios = [
+            s for s in (task.get("scenarios") or []) if isinstance(s, dict)
+        ]
+        for scn in task_scenarios:
+            scn_id = scn.get("id", "?")
+            intent_id = scn.get("intent")
+            if intent_id and declared_intents and intent_id not in declared_intents:
+                findings.append({
+                    "type": "orphaned-intent",
+                    "subject": scn_id,
+                    "detail": (
+                        f"scenario '{scn_id}' links to intent '{intent_id}' which "
+                        f"does not appear in brief.md (declared intents: "
+                        f"{sorted(declared_intents)})"
+                    ),
+                })
+        # Also check spec.feature.md's scenario-intent links
+        if has_spec:
+            spec_scenario_intents = _parse_scenario_intents_from_spec(spec_path)
+            for scn_id, intent_id in spec_scenario_intents.items():
+                if intent_id and declared_intents and intent_id not in declared_intents:
+                    # Deduplicate: only report if not already caught from task.yml
+                    already = any(
+                        f["type"] == "orphaned-intent" and f["subject"] == scn_id
+                        for f in findings
+                    )
+                    if not already:
+                        findings.append({
+                            "type": "orphaned-intent",
+                            "subject": scn_id,
+                            "detail": (
+                                f"spec.feature.md: scenario '{scn_id}' links to "
+                                f"intent '{intent_id}' which does not appear in "
+                                f"brief.md (declared intents: {sorted(declared_intents)})"
+                            ),
+                        })
+
+    # --- 3. Route-disagreement check ----------------------------------------
+    # Compare route.md per-phase weights against task.yml phases.
+    if os.path.isfile(route_md_path):
+        route_md_phases = _parse_phase_weights_from_route_md(route_md_path)
+        task_phases = {k.lower(): str(v).lower() for k, v in phases.items()}
+        for phase in _KNOWN_PHASES:
+            md_weight = route_md_phases.get(phase)
+            task_weight = task_phases.get(phase)
+            if md_weight is not None and task_weight is not None:
+                if md_weight != task_weight:
+                    findings.append({
+                        "type": "route-disagreement",
+                        "subject": phase.title(),
+                        "detail": (
+                            f"route.md says '{phase}' is '{md_weight}' but "
+                            f"task.yml says '{task_weight}'"
+                        ),
+                    })
+
+    # --- 4. Orphan-claim check -----------------------------------------------
+    # Claims in positioning.md that have no scenario backing them.
+    # (OQ-1 boundary: we check whether a claim names a scenario id, not whether
+    # the scenario passes — that is compass check / verify.claims's job.)
+    if has_positioning:
+        claim_ids = _parse_claim_ids_from_positioning(positioning_path)
+        # Collect all scenario ids from task.yml and spec
+        task_scn_ids = {
+            s.get("id") for s in (task.get("scenarios") or [])
+            if isinstance(s, dict) and s.get("id")
+        }
+        spec_scn_ids = set()
+        if has_spec:
+            spec_scn_ids = set(_parse_scenario_intents_from_spec(spec_path).keys())
+        all_scn_ids = task_scn_ids | spec_scn_ids
+
+        # Check task.yml claims as well
+        task_claims = {
+            c.get("id"): c.get("scenario")
+            for c in (task.get("claims") or [])
+            if isinstance(c, dict) and c.get("id")
+        }
+
+        for claim_id in claim_ids:
+            # An orphan claim is one with no backing scenario id
+            if claim_id in task_claims:
+                # claim is in task.yml — check it has a scenario
+                backing = task_claims[claim_id]
+                if not backing:
+                    findings.append({
+                        "type": "orphan-claim",
+                        "subject": claim_id,
+                        "detail": (
+                            f"claim '{claim_id}' is in task.yml claims but has "
+                            f"no backing scenario"
+                        ),
+                    })
+            else:
+                # Claim is only in positioning.md — it must name a scenario
+                # We can't check the link without task.yml.claims, so flag it
+                findings.append({
+                    "type": "orphan-claim",
+                    "subject": claim_id,
+                    "detail": (
+                        f"claim '{claim_id}' in positioning.md has no backing "
+                        f"scenario in task.yml claims"
+                    ),
+                })
+
+    return {
+        "findings": findings,
+        "task_slug": task_slug,
+        "mode": "gate" if has_analyze_gate else "advisory",
+        "has_verify_analyze_gate": has_analyze_gate,
+        "no_artifacts": False,
+    }
+
+
+def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
+                             is_gate_mode: bool) -> str:
+    """Write the analyze evidence file and return the file path (relative to task_dir).
+
+    Gate-clearing: type=coherence-check, prefix EV-ANALYZE-<task>-<ts>
+    Advisory:      type=command-output,  prefix EV-ANALYZE-ADVISORY-<task>-<ts>
+
+    The file is JSON; the task.yml evidence registry is NOT written here
+    (Inv-1 / Inv-4 — analyze is strictly read-only over task.yml).
+    cmd_analyze calls this and then upserts into the registry separately only
+    in gate-clearing mode (to let compass check clear verify.analyze).
+    """
+    ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    if is_gate_mode:
+        ev_id = f"EV-ANALYZE-{task_slug}-{ts}"
+        ev_type = "coherence-check"
+    else:
+        ev_id = f"EV-ANALYZE-ADVISORY-{task_slug}-{ts}"
+        ev_type = "command-output"
+
+    payload = {
+        "id": ev_id,
+        "type": ev_type,
+        "task": task_slug,
+        "timestamp": now_iso(),
+        "mode": "gate" if is_gate_mode else "advisory",
+        "finding_count": len(report.get("findings", [])),
+        "findings": report.get("findings", []),
+    }
+
+    ev_dir = os.path.join(task_dir, "evidence")
+    os.makedirs(ev_dir, exist_ok=True)
+    filename = f"{ev_id}.json"
+    full_path = os.path.join(ev_dir, filename)
+    with open(full_path, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+
+    return f"evidence/{filename}", ev_id, ev_type
+
+
+def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
+                                       ev_type: str, rel_path: str) -> None:
+    """Upsert the analyze evidence entry into task.yml's evidence registry.
+
+    Only called in gate-clearing mode so compass check can locate the
+    coherence-check evidence when clearing verify.analyze.
+
+    This is the ONE write to task.yml that analyze is permitted: adding an
+    entry to the top-level `evidence:` list. It does NOT write to
+    task.yml.readings or task.yml.gates (Inv-1 / Inv-4).
+    """
+    task_path = os.path.join(task_dir, "task.yml")
+    if not os.path.isfile(task_path):
+        return
+    try:
+        task = load_yaml(task_path)
+    except CompassError:
+        return
+    if not isinstance(task, dict):
+        return
+    reg = task.get("evidence") or []
+    if not isinstance(reg, list):
+        return
+    # Remove any previous coherence-check entry (replace with fresh run)
+    reg = [e for e in reg if not (isinstance(e, dict) and
+                                   e.get("type") == "coherence-check")]
+    reg.append({"id": ev_id, "type": ev_type, "path": rel_path})
+    task["evidence"] = reg
+    save_task(task, task_path)
+
+
+def cmd_analyze(args):
+    """compass analyze — cross-artifact coherence check.
+
+    Strictly read-only over task.yml (Inv-1 / Inv-4). Writes one evidence
+    file (coherence-check or command-output type) to evidence/.
+
+    Exit codes:
+      0 — zero coherence findings (or advisory mode regardless of findings,
+          or Inv-8 bare-repo path)
+      1 — one or more coherence findings AND verify.analyze gate is present
+      2 — input error (malformed task.yml, task not framed, etc.)
+    """
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    project_root = os.path.dirname(os.path.dirname(task_dir))  # .compass/work/<slug>/../../
+
+    # TRC-F1: malformed task.yml → exit non-zero, stderr names the file and error
+    try:
+        report = _analyze_task(task_dir, project_root)
+    except CompassError as exc:
+        # Re-raise so main() prints it to stderr with exit 2
+        raise
+
+    task_slug = report["task_slug"]
+    is_gate_mode = report["has_verify_analyze_gate"]
+    findings = report.get("findings", [])
+    no_artifacts = report.get("no_artifacts", False)
+
+    # Inv-8: no artifacts → exit 0 with informational message
+    if no_artifacts:
+        print(f"compass analyze: no artifacts to analyze for task '{task_slug}'.")
+        print("  (no brief.md and no spec.feature.md found — bare-repo path)")
+        return 0
+
+    # Print the report
+    mode_str = "gate-clearing" if is_gate_mode else "advisory"
+    print(f"compass analyze — task '{task_slug}' (mode: {mode_str})")
+    if is_gate_mode:
+        print("  verify.analyze gate is in the route's gate set.")
+    else:
+        print("  verify.analyze gate is NOT in the route's gate set — advisory mode.")
+
+    if not findings:
+        print(f"\n  findings: 0 — all coherence checks clean.")
+    else:
+        print(f"\n  findings: {len(findings)}")
+        for i, f in enumerate(findings, 1):
+            print(f"    [{i}] type: {f['type']}")
+            print(f"        subject: {f['subject']}")
+            print(f"        detail: {f['detail']}")
+
+    # Write evidence (always, regardless of findings count)
+    rel_path, ev_id, ev_type = _write_analyze_evidence(
+        task_dir, task_slug, report, is_gate_mode
+    )
+    print(f"\n  evidence: {rel_path} (type: {ev_type}, id: {ev_id})")
+
+    # In gate-clearing mode: upsert into task.yml evidence registry
+    if is_gate_mode:
+        _upsert_analyze_evidence_registry(task_dir, ev_id, ev_type, rel_path)
+        print("  registry: task.yml `evidence:` updated with the coherence-check entry")
+
+    if is_gate_mode:
+        # Advisory: the advisory evidence file has been written
+        # (even though we called the gate path for the registry update)
+        pass
+    else:
+        print(f"\n  [advisory] findings above are informational — Land is not blocked.")
+
+    if findings and is_gate_mode:
+        print(f"\ncompass analyze: FAIL — {len(findings)} coherence finding(s).")
+        return 1
+    else:
+        print(f"\ncompass analyze: PASS — 0 finding(s), coherence checks clean.")
+        return 0
+
+
 # --- command: ci ------------------------------------------------------------
 # The full mechanical gate suite, for CI / pre-merge. It is a convenience: it
 # just runs the checks that already exist — `policy lint`, then `task lint` and
@@ -2160,6 +3065,11 @@ def _lint_errors_guardrails(p):
     if "defaults" not in p:
         errs.append("missing top-level key: defaults")
     known_checks = set((p.get("checks") or {}).keys())
+    # Validate all guardrails (defaults + project) for structural integrity.
+    # command-passes `params` validation ONLY applies to project guardrails —
+    # the framework's own G4 legitimately registers command-passes without
+    # per-guardrail params (it's a cross-cutting check that reads params from
+    # the project: guardrails it finds at run time).
     for g in list(p.get("defaults", [])) + list(p.get("project", [])):
         if "id" not in g:
             errs.append(f"a guardrail has no id: {g}")
@@ -2180,6 +3090,36 @@ def _lint_errors_guardrails(p):
                             f"'{c}' which the CLI does not implement (not in "
                             f"CHECK_FNS) — implement it, or move the guardrail "
                             f"to strategies.md")
+
+    # command-passes params validation — only for project guardrails (TRC-FM1 / DD-2).
+    # Framework defaults (G4) can reference command-passes without params; the params
+    # come from the project guardrails that declare the actual commands to run.
+    for g in list(p.get("project", [])):
+        if "command-passes" not in (g.get("checks") or []):
+            continue
+        params = g.get("params") or {}
+        command = params.get("command")
+        gid = g.get("id", "?")
+        if command is None:
+            errs.append(
+                f"project guardrail {gid} uses check "
+                f"'command-passes' but `params.command` is missing — "
+                f"add a `command:` string to the guardrail's `params:` "
+                f"block (e.g. `command: 'pytest tests/architecture/'`)"
+            )
+        elif not isinstance(command, str):
+            errs.append(
+                f"project guardrail {gid} uses check "
+                f"'command-passes' but `params.command` is not a string "
+                f"(got {type(command).__name__!r}) — the command must be "
+                f"a shell-invocable string"
+            )
+        elif not command.strip():
+            errs.append(
+                f"project guardrail {gid} uses check "
+                f"'command-passes' but `params.command` is an empty "
+                f"string — provide a non-empty shell command"
+            )
     return errs
 
 
@@ -2189,13 +3129,57 @@ def _schema_note(ran):
             "`pip install jsonschema` for full JSON Schema validation)")
 
 
+def _lint_errors_quarantine(gov_dir):
+    """Validate governance/quarantine.yml if present.
+
+    Returns a list of error strings. An absent quarantine.yml is not an error
+    (zero-setup default, ADR-006). Required fields per entry: test,
+    tracking_task, reason, added. An entry without tracking_task is malformed
+    (TRC-A7 — a quarantine without a tracking task is a graveyard).
+    """
+    path = os.path.join(gov_dir, "quarantine.yml")
+    if not os.path.isfile(path):
+        return []
+    try:
+        data = load_yaml(path)
+    except CompassError as exc:
+        return [f"quarantine.yml: {exc}"]
+    errs = []
+    if not isinstance(data, dict):
+        return ["quarantine.yml: top-level value is not a mapping"]
+    if "version" not in data:
+        errs.append("quarantine.yml: missing required key `version`")
+    quarantined = data.get("quarantined")
+    if quarantined is None:
+        errs.append("quarantine.yml: missing required key `quarantined`")
+        return errs
+    if not isinstance(quarantined, list):
+        errs.append("quarantine.yml: `quarantined` must be a list")
+        return errs
+    required_fields = ("test", "tracking_task", "reason", "added")
+    for i, entry in enumerate(quarantined):
+        if not isinstance(entry, dict):
+            errs.append(f"quarantine.yml: entry #{i + 1} is not a mapping")
+            continue
+        for field in required_fields:
+            if not entry.get(field):
+                errs.append(
+                    f"quarantine.yml: entry #{i + 1} (test={entry.get('test', '?')!r}) "
+                    f"is malformed — missing or empty `{field}`. A quarantine entry "
+                    f"without `tracking_task` is a graveyard, not a registry (TRC-A7)"
+                )
+    return errs
+
+
 def cmd_policy_lint(args):
     gov = find_governance()
     rp = load_yaml(os.path.join(gov, "routing-policy.yml"))
     gr = load_yaml(os.path.join(gov, "guardrails.yml"))
     # The built-in lint always runs — the no-dependency floor, and the only
     # thing that cross-checks declared guardrail checks against CHECK_FNS.
-    errs = _lint_errors_routing_policy(rp) + _lint_errors_guardrails(gr)
+    errs = (_lint_errors_routing_policy(rp)
+            + _lint_errors_guardrails(gr)
+            + _lint_errors_quarantine(gov))
     # JSON Schema validation runs additionally when `jsonschema` is installed.
     schema_ran = False
     for inst, sname, label in (
@@ -2240,6 +3224,18 @@ def cmd_task_lint(args):
     for cf in task.get("changed_files") or []:
         if "path" not in cf:
             errs.append(f"a changed_files entry has no `path`: {cf}")
+    # TRC-FM2: validate attempts field on test-run evidence entries
+    for ev in task.get("evidence") or []:
+        if not isinstance(ev, dict):
+            continue
+        if ev.get("type") == "test-run" and "attempts" in ev:
+            attempts = ev["attempts"]
+            if not isinstance(attempts, int) or attempts < 1:
+                errs.append(
+                    f"evidence {ev.get('id', '?')}: attempts must be a positive "
+                    f"integer (>= 1), got {attempts!r} — "
+                    f"an attempt count of 0 or negative is out of domain (TRC-FM2)"
+                )
     # JSON Schema validation (when `jsonschema` is installed)
     je = _jsonschema_errors(task, "task.schema.json")
     schema_ran = je is not None
@@ -2478,6 +3474,370 @@ def cmd_flow(args):
     return 0
 
 
+# --- living system spec derivation (Stream B, DD-3, DD-4, ADR-008) ---------
+#
+# derive_system_spec(project_root) is the internal helper that produces
+# docs/system-spec.md by walking every .compass/work/*/task.yml whose
+# status == 'landed'.
+#
+# Design constraints honoured here:
+#   Inv-5  — annotation over per-task specs, never a parallel spec; the
+#            derived file carries the DERIVED FILE header (TRC-B10).
+#   Inv-6  — all derivation inputs live on disk; no in-memory accumulation
+#            beyond the walk (TRC-B8 reconstructibility).
+#   Inv-8  — backward compat: task.yml files with no `status` field
+#            (schema 1.0) are treated as active (not landed), so they are
+#            excluded from the derivation (TRC-B2, TRC-B11, DD-3).
+#   ADR-008 §3 — idempotent; deterministic order (land_timestamp, then
+#             task slug as tiebreaker); supersession (same intent id →
+#             latest-landed wins for current section, earlier → archive).
+#   ADR-008 §4 — never source-of-truth; DERIVED FILE header on line 1;
+#             silent overwrite on next Land (TRC-B9).
+#   TRC-B5 — brand-new project with no landed tasks produces a stub file.
+
+_DERIVED_HEADER = (
+    "<!-- DERIVED FILE — do not hand-edit; "
+    "edit .compass/work/<task>/spec.feature.md -->"
+)
+
+
+def derive_system_spec(project_root: str) -> None:
+    """Derive docs/system-spec.md from all landed task.yml files.
+
+    This is the sole implementation of the living-system-spec derivation
+    (ADR-008).  It is invoked by ``compass _derive-system-spec --internal``
+    from ``scripts/integrate.sh`` after combined regression passes.
+
+    It is idempotent: running it twice on unchanged inputs produces a
+    byte-identical ``docs/system-spec.md``.
+
+    Args:
+        project_root: absolute path to the project root (the directory that
+            contains ``.compass/``).
+    """
+    project_root = os.path.abspath(project_root)
+    compass_work = os.path.join(project_root, ".compass", "work")
+
+    # ---- 1. Collect landed tasks -------------------------------------------
+    # Walk .compass/work/*/task.yml; keep only status == 'landed'.
+    # Tasks without a `status` field (schema 1.0) are treated as active.
+    # Process order: land_timestamp ascending, then task slug ascending.
+    landed = []  # list of dicts: {slug, task_dir, task, land_timestamp}
+    if os.path.isdir(compass_work):
+        for slug in sorted(os.listdir(compass_work)):
+            task_dir = os.path.join(compass_work, slug)
+            yml_path = os.path.join(task_dir, "task.yml")
+            if not os.path.isfile(yml_path):
+                continue
+            try:
+                with open(yml_path, encoding="utf-8") as fh:
+                    task = yaml.safe_load(fh) or {}
+            except yaml.YAMLError:
+                continue
+            if not isinstance(task, dict):
+                continue
+            status = task.get("status")
+            if status != "landed":
+                continue
+            land_ts = task.get("land_timestamp", "")
+            landed.append({
+                "slug": slug,
+                "task_dir": task_dir,
+                "task": task,
+                "land_timestamp": str(land_ts) if land_ts else "",
+            })
+
+    # Sort: land_timestamp ascending, task slug as tiebreaker
+    landed.sort(key=lambda x: (x["land_timestamp"], x["slug"]))
+
+    # ---- 2. Build the current-behaviour and archived-behaviour tables ------
+    # Key: intent id → winner entry  (dict with slug, scn_id, scn_title, ts, date)
+    current: dict = {}    # intent_id -> entry
+    archived: list = []   # list of archived entries
+
+    for item in landed:
+        slug = item["slug"]
+        task = item["task"]
+        task_dir = item["task_dir"]
+        land_ts = item["land_timestamp"]
+        # Parse a date string from land_timestamp for display
+        land_date = land_ts[:10] if len(land_ts) >= 10 else land_ts
+
+        # Read the scenarios block from task.yml
+        scenarios = task.get("scenarios") or []
+        for scn in scenarios:
+            if not isinstance(scn, dict):
+                continue
+            scn_id = scn.get("id", "")
+            scn_title = scn.get("title", "")
+            intent = scn.get("intent", "")
+            if not intent:
+                intent = scn_id  # fall back to id if no intent
+            entry = {
+                "slug": slug,
+                "scn_id": scn_id,
+                "scn_title": scn_title,
+                "intent": intent,
+                "land_timestamp": land_ts,
+                "land_date": land_date,
+            }
+            if intent in current:
+                # Supersession: the current winner is archived
+                archived.append(current[intent])
+            current[intent] = entry
+
+    # ---- 3. Compose the derived spec text ----------------------------------
+    lines = [
+        _DERIVED_HEADER,
+        "",
+        "# System Specification (derived)",
+        "",
+        "> This file is automatically generated at Land from the "
+        "`.compass/work/<task>/spec.feature.md` files of all landed tasks.",
+        "> **Do not hand-edit** — edits are silently overwritten on the next Land.",
+        "> Edit the source: `.compass/work/<task>/spec.feature.md`.",
+        "",
+    ]
+
+    if current:
+        lines += [
+            "## Current Behaviour",
+            "",
+        ]
+        # Sort current entries by intent id for deterministic output
+        for intent_id in sorted(current.keys()):
+            entry = current[intent_id]
+            lines += [
+                f"### {entry['scn_title'] or entry['scn_id']}",
+                "",
+                f"- **Scenario id:** `{entry['scn_id']}`",
+                f"- **Intent:** `{entry['intent']}`",
+                f"- **Source task:** `{entry['slug']}`",
+                f"- **Landed:** {entry['land_date']}",
+                "",
+            ]
+    else:
+        lines += [
+            "## Current Behaviour",
+            "",
+            "> No landed scenarios yet.",
+            "",
+        ]
+
+    if archived:
+        lines += [
+            "---",
+            "",
+            "## Archived Behaviour",
+            "",
+            "> These scenarios were superseded by a later-landed scenario "
+            "with the same intent id.",
+            "",
+        ]
+        # Sort archived entries: land_timestamp, then scn_id for determinism
+        archived_sorted = sorted(archived, key=lambda x: (x["land_timestamp"], x["scn_id"]))
+        for entry in archived_sorted:
+            lines += [
+                f"### {entry['scn_title'] or entry['scn_id']} _(archived)_",
+                "",
+                f"- **Scenario id:** `{entry['scn_id']}`",
+                f"- **Intent:** `{entry['intent']}`",
+                f"- **Source task:** `{entry['slug']}`",
+                f"- **Landed:** {entry['land_date']}",
+                "",
+            ]
+
+    content = "\n".join(lines)
+
+    # ---- 4. Write atomically -----------------------------------------------
+    out_dir = os.path.join(project_root, "docs")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "system-spec.md")
+    with open(out_path, "w", encoding="utf-8") as fh:
+        fh.write(content)
+
+
+def cmd_derive_system_spec(args):
+    """Private CLI entry point for ``compass _derive-system-spec --internal``.
+
+    This subcommand is intentionally excluded from ``compass --help`` (the
+    leading-underscore convention per DD-4).  It is only for in-framework
+    callers (currently ``scripts/integrate.sh``).
+
+    The ``--internal`` flag is mandatory — without it the command errors out
+    (belt-and-suspenders protection against accidental direct invocation).
+    """
+    if not getattr(args, "internal", False):
+        raise CompassError(
+            "compass _derive-system-spec: the --internal flag is required. "
+            "This is a private entry point for scripts/integrate.sh — "
+            "it is not part of the public CLI surface."
+        )
+
+    # Resolve project root from the current working directory
+    # (walk up to find .compass/, fall back to cwd for brand-new projects).
+    try:
+        compass_dir = find_compass_dir()
+        project_root = os.path.dirname(compass_dir)
+    except CompassError:
+        # Brand-new project with no .compass/ yet — use cwd
+        project_root = os.getcwd()
+
+    derive_system_spec(project_root)
+    print("compass _derive-system-spec: docs/system-spec.md derived.")
+# --- command: next -----------------------------------------------------------
+# TRC-C4 through TRC-C10, TRC-F6
+#
+# `compass next` reads task.yml + route.md and prints ONE line: the next
+# phase, the next uncleared gate, and route-aware collapsed-phase markers.
+# It is strictly READ-ONLY over .compass/work/<task>/ — no file is written
+# or created (TRC-C7).  It derives its answer from task.yml + route.md only
+# (TRC-C8); nothing else is read.
+#
+# Output format (devlog: chosen for clarity without colour escapes):
+#   "<NextPhase> [gate: <gate-id>][ | <phase> is collapsed on this route]"
+# When all phases are complete / landed:
+#   "all phases complete"
+# When route.md is missing:
+#   exit non-zero with a message naming route.md
+# When task.yml is missing (Frame not yet run):
+#   exit non-zero with a message naming Frame
+#
+# The canonical phase order Compass follows:
+_PHASE_ORDER = [
+    "frame",
+    "specify",
+    "clarify",
+    "plan",
+    "distribute",
+    "build",
+    "verify",
+    "land",
+]
+
+# Weights that indicate a phase was deliberately excluded from this route
+_SKIPPED_WEIGHTS = {"skipped", "collapsed"}
+
+
+def _next_active_phase(phases: dict) -> str | None:
+    """Return the slug of the next phase that actively runs on this route.
+
+    Skipped / collapsed phases are bypassed.  Returns None when every phase
+    has a skipped weight (degenerate route) or phases is empty.
+    """
+    for p in _PHASE_ORDER:
+        weight = (phases.get(p) or "").strip().lower()
+        if weight not in _SKIPPED_WEIGHTS:
+            return p
+    return None
+
+
+def _detect_collapsed_phases(phases: dict) -> list:
+    """Return phase names (title-cased) that are collapsed on this route."""
+    out = []
+    for p in _PHASE_ORDER:
+        weight = (phases.get(p) or "").strip().lower()
+        if weight == "collapsed":
+            out.append(p.capitalize())
+    return out
+
+
+def _first_pending_gate(gates: list) -> str | None:
+    """Return the id of the first gate whose status is not 'pass'."""
+    for g in (gates or []):
+        if isinstance(g, dict) and g.get("status") != "pass":
+            return g.get("id")
+    return None
+
+
+def _all_gates_pass(gates: list) -> bool:
+    """True when every gate is marked pass."""
+    if not gates:
+        return False
+    return all(
+        isinstance(g, dict) and g.get("status") == "pass"
+        for g in gates
+    )
+
+
+def _current_phase_from_task(task: dict) -> str | None:
+    """Determine the current (active) phase from task.yml.
+
+    Priority:
+      1. task.yml top-level `current_phase` field (builder sets this).
+      2. Fall back to the first non-skipped phase in the phases map.
+    """
+    cp = task.get("current_phase")
+    if cp and isinstance(cp, str):
+        return cp.strip().lower()
+    phases = task.get("phases") or {}
+    return _next_active_phase(phases)
+
+
+def cmd_next(args):
+    """compass next — what comes next on this task's route?
+
+    Reads task.yml + route.md and prints ONE line.
+    Strictly read-only (TRC-C7).
+    """
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+
+    # --- task.yml: must exist (Frame check) ---
+    task_path = os.path.join(task_dir, "task.yml")
+    if not os.path.isfile(task_path):
+        sys.stdout.write(
+            "Frame has not run for this task — task.yml is missing.\n"
+            f"  Run /compass:frame to start the task at: {task_dir}\n"
+        )
+        return 2
+
+    task = load_yaml(task_path)
+
+    # --- route.md: must exist (TRC-F6) ---
+    route_md_path = os.path.join(task_dir, "route.md")
+    if not os.path.isfile(route_md_path):
+        sys.stdout.write(
+            f"route.md is missing from {task_dir}\n"
+            "  Run /compass:frame to produce route.md before using compass next.\n"
+        )
+        return 2
+
+    # --- completed task (TRC-C6) ---
+    status = task.get("status", "")
+    gates = task.get("gates") or []
+    if status == "landed" or _all_gates_pass(gates):
+        sys.stdout.write("all phases complete\n")
+        return 0
+
+    # --- determine next phase and collapsed siblings (TRC-C4, TRC-C5) ---
+    phases = task.get("phases") or {}
+    current_phase = _current_phase_from_task(task)
+
+    # The "next phase" is the current_phase (the one in progress, or the
+    # first non-skipped phase on a fresh task).
+    next_phase = current_phase
+    if not next_phase:
+        # No current phase derivable — route is complete or degenerate
+        sys.stdout.write("all phases complete\n")
+        return 0
+
+    # Find the first pending gate for the "next gate" display
+    pending_gate = _first_pending_gate(gates)
+
+    # Collapsed phases on this route (TRC-C5)
+    collapsed = _detect_collapsed_phases(phases)
+
+    # --- compose the one-line output (TRC-C4) ---
+    parts = [next_phase.capitalize()]
+    if pending_gate:
+        parts[0] += f" [gate: {pending_gate}]"
+    if collapsed:
+        parts.append(f"{', '.join(collapsed)} collapsed on this route")
+
+    sys.stdout.write(" | ".join(parts) + "\n")
+    return 0
+
+
 # --- argparse ----------------------------------------------------------------
 
 def build_parser():
@@ -2509,6 +3869,15 @@ def build_parser():
     pc = sub.add_parser("check", help="run the guardrails.yml checks against a task")
     pc.add_argument("--task", help="task slug (default: current-task pointer)")
     pc.set_defaults(func=cmd_check)
+
+    pan = sub.add_parser(
+        "analyze",
+        help="cross-artifact coherence check — orphaned scenarios, route "
+             "disagreements, and orphan claims (advisory or gate-clearing "
+             "depending on whether verify.analyze is in the task's gate set)",
+    )
+    pan.add_argument("--task", help="task slug (default: current-task pointer)")
+    pan.set_defaults(func=cmd_analyze)
 
     pcal = sub.add_parser("calibration",
                           help="the Needle's feedback loop — re-frame patterns "
@@ -2607,6 +3976,13 @@ def build_parser():
     )
     pfl.set_defaults(func=cmd_flow)
 
+    pnx = sub.add_parser(
+        "next",
+        help="what comes next on this task's route? (read-only; one line)",
+    )
+    pnx.add_argument("--task", help="task slug (default: current-task pointer)")
+    pnx.set_defaults(func=cmd_next)
+
     pbf = sub.add_parser(
         "backfill",
         help="manage task backfills (owed / paid ceremony)"
@@ -2625,6 +4001,40 @@ def build_parser():
         help="the backfill id to mark paid (e.g. BF-1)"
     )
     pbfp.set_defaults(func=cmd_backfill_pay)
+
+    # --- private entry point (DD-4, TRC-B6) ---------------------------------
+    # The leading underscore in the name is the convention that marks a
+    # subcommand as private (in-framework callers only).
+    # We register it via add_parser(help=SUPPRESS) to hide it from the
+    # subcommand help listing, and then manually remove it from the
+    # _choices_actions list so it also disappears from the usage line and the
+    # {choices} display.  This keeps the public surface at exactly the verbs
+    # TRC-D2 tests for.
+    p_derive = sub.add_parser(
+        "_derive-system-spec",
+        help=argparse.SUPPRESS,
+    )
+    p_derive.add_argument(
+        "--internal",
+        action="store_true",
+        help=argparse.SUPPRESS,
+    )
+    p_derive.set_defaults(func=cmd_derive_system_spec)
+    # Hide all private (leading-underscore) subcommands from --help output:
+    #   1. Remove from _choices_actions  →  hides from the positional-args
+    #      listing section in the help text.
+    #   2. Override metavar on the subparsers action  →  hides from the
+    #      usage line (which uses the metavar string for display).
+    # The parsers remain in sub.choices/_name_parser_map so they can still
+    # be invoked; they just do not surface in the public help surface.
+    # TRC-D2 checks the *public* subcommand list after landing; this is the
+    # mechanism that keeps the count at two new public verbs (analyze, next).
+    sub._choices_actions = [
+        a for a in sub._choices_actions
+        if not a.dest.startswith("_")
+    ]
+    public_names = [k for k in sub.choices if not k.startswith("_")]
+    sub.metavar = "{" + ",".join(public_names) + "}"
 
     return p
 

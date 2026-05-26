@@ -1,6 +1,6 @@
 ---
 name: spec-author
-description: Owns the Specify and Clarify phases — writes BDD Given/When/Then scenarios that double as the acceptance suite, distils existing behaviour on brownfield terrain, and QAs the spec against itself and against governance. Invoke after Frame, before Plan.
+description: Owns the Specify and Clarify phases — writes BDD Given/When/Then scenarios that double as the acceptance suite, distils existing behaviour on brownfield terrain, and QAs the spec against itself and against governance. Invoke after Frame, before Plan. Trigger Frame on intent — if the user describes a specifying or change request without typing /compass:frame, invoke Frame before any artifact-changing action.
 tools: Read, Glob, Grep, Write, Edit
 model: opus
 ---

@@ -138,3 +138,4 @@
     - verify.security
     - verify.clarity
     - verify.claims
+    - verify.fitness

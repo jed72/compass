@@ -59,6 +59,36 @@ is assertion.
   run, that absence is itself reported. A gap surfaced is a finding; a gap
   hidden is a lie the gate cannot catch.
 
+## Pipeline stage vocabulary — commit, acceptance, and beyond
+
+A deployment pipeline distinguishes stages by what they test and how fast
+they test it — commit, acceptance, release, production. Compass maps onto
+two of those stages and explicitly stays out of the rest.
+
+**The commit stage** is the `.red`/`tdd-green` loop — "anything that can fail
+fast." `compass tdd-red` records a failing test; `compass tdd-green` records a
+passing suite. These are fast, isolated, developer-feedback cycles. Evidence
+here is `test-run`; it is the closest feedback loop in the pipeline. The
+pre-tool hook enforces the ordering (strategy S2); guardrail G4 enforces
+that the evidence is real, not asserted.
+
+**The acceptance/releasability stage** is `verify.correctness` — "anything
+that defines releasable." This is the gate that says *yes, this behaviour is
+what was specified* (G2 in evidence form) and *yes, the tests pass* (G1 in
+evidence form). `verify.correctness` accepts only `test-run` evidence — not
+assertions, not opinions, not coverage numbers. A task that clears
+`verify.correctness` is a task whose acceptance criteria were met by running
+the acceptance suite. That is the definition of releasable within Compass.
+
+**Release and Production stages** are out of scope for Compass — see
+safety-contract guarantee 6: Compass is not a deployment pipeline. It has no
+concept of staging environments, progressive rollout, smoke tests in
+production, or canary evaluation. Those are deployment concerns; Compass ends
+at Land. The standing version of the falsification principle (guardrail G4)
+is what Compass contributes: *evidence, not assertion* — the same principle
+that drives continuous delivery discipline, but scoped to the development and
+verification pipeline.
+
 ## How the two halves of Verify split
 
 - The **Verifier** does the mechanical half: runs the scenarios as the
@@ -125,6 +155,43 @@ with no red rows.
    change. Record per-dimension **pass** or **no-pass with the specific reason**.
 4. The gate passes only if every applicable dimension passes. One no-pass sends
    the work back — to Build, or to a re-frame. A gate is not "mostly passed."
+
+## Architectural fitness functions and the verify.fitness gate
+
+The `verify.fitness` gate is the route-promoted pattern for architectural
+fitness functions — project-declared `command-passes` guardrails that assert
+structural properties of the codebase (e.g. "modules respect the dependency
+direction", "no cyclic imports in the domain layer"). Adopters declare each
+fitness function as a project guardrail in `governance/guardrails.yml` with
+`check: command-passes` and a `params.command:` that exits 0 on pass. The gate
+is advisory by default and promoted to blocking by routing floors `RG-FLOOR-006`
+(blast_radius ∈ {cross-cutting, critical}) and `RG-FLOOR-007` (touches ∈
+irreversible domains) — following the same promotion pattern as `verify.analyze`
+(ADR-007). When no project guardrails declare `command-passes`, the gate clears
+by vacuity: a project that has not yet declared any fitness functions sees no
+behavioural change (ADR-006; ADR-009). Evidence type accepted: `command-output`
+(the subprocess result) or `test-run` (if the fitness function is run as part
+of a test suite).
+
+See ADR-009 — *Architectural fitness functions are project guardrails, not
+framework guardrails* — for the ownership-boundary decision and the full list
+of alternatives considered.
+
+## Coverage as evidence
+
+A project coverage-floor guardrail (e.g. "line coverage does not drop below
+80%") is expressed as a *project guardrail* backed by a check, not as a
+claim or an assertion. The coverage report is the evidence; the number
+speaks for itself.
+
+One important caveat: **coverage is a floor, never a target**. A high coverage
+number is a side effect of test discipline, not its goal. Chasing a coverage
+metric — writing tests specifically to hit a number — produces tests that
+cover lines without asserting anything useful.
+The real goal is the design-feedback loop (strategy S2: "Listen to your
+tests"). Treat the floor as a safety net that catches a serious regression in
+test discipline; treat the design-feedback loop as the thing that builds
+quality in.
 
 ## Anti-patterns
 

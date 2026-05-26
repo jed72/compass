@@ -57,6 +57,21 @@ checks:
       responsibility. Narrative notes (devlog 'USER TO APPLY') never count.
       Cross-task: when another task has a backfill with target_task pointing at
       this task, that backfill must be paid before this task's Land closes.
+  coherence-check-passes:
+    description: "compass analyze reports zero coherence findings. Gate-clearing runs write type coherence-check evidence; advisory runs write command-output and do not clear verify.analyze."
+  no-trusted-rerun:
+    description: >
+      Every test-run evidence entry is checked for rerun integrity. A record
+      with rerun_without_change: true must have its test listed in the project
+      quarantine registry (governance/quarantine.yml) with a tracking task — a
+      rerun-to-green without a quarantine entry is a G4 failure (S5: intermittency
+      is failure). A record with attempts > 1 but no rerun_without_change marker
+      is also rejected — incomplete evidence cannot clear G4. Old evidence without
+      an attempts field passes trivially (backward compat, TRC-A5). May carry
+      attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
+      (see strategy S5).
+  command-passes:
+    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, clears by vacuity (no declarations = no fitness functions to check)."
 
 # -----------------------------------------------------------------------------
 # Evidence types — what KINDS of evidence a gate can be cleared with. Without
@@ -71,7 +86,11 @@ checks:
 # -----------------------------------------------------------------------------
 evidence_types:
   test-run:
-    description: "A recorded test execution — e.g. evidence/green.json from `compass tdd-green`. The strongest: a machine ran it."
+    description: >
+      A recorded test execution — e.g. evidence/green.json from `compass tdd-green`.
+      The strongest: a machine ran it. May carry attempts: <int> and
+      rerun_without_change: <bool> to signal rerun integrity (see strategy S5 and
+      the no-trusted-rerun check).
   command-output:
     description: "Captured output of a command — a scanner, a linter, a coverage run, a `compass check` run."
   manual-review:
@@ -88,6 +107,8 @@ evidence_types:
     description: "A recorded review of public/user-facing claims against backing scenarios — the marketer's audit trail."
   spike-conclusion:
     description: "A recorded close-out of a Spike: what was learned, a decision (discard | graduate-to-delivery | defer), and any link to the next task."
+  coherence-check:
+    description: "Output of compass analyze — a structured coherence findings list. Gate-clearing: zero findings. Only this type clears verify.analyze; advisory command-output entries do not."
   artifact:
     description: "A written record without a more specific type — a review note, a verification report. The weakest, by design: honest for judgement-shaped gates, never enough for a mechanical one."
 
@@ -104,6 +125,8 @@ gate_evidence_requirements:
   verify.claims: [claim-review, command-output, artifact]
   verify.clarity: [manual-review, artifact]       # inherently judgement — and now visibly so
   spike.conclude: [spike-conclusion]              # SPECIFIC: a generic artifact will not do
+  verify.analyze: [coherence-check]              # SPECIFIC: advisory command-output does NOT clear this gate
+  verify.fitness: [test-run, command-output]    # fitness checks: command-output from command-passes, or a test-run
 
 # -----------------------------------------------------------------------------
 # DEFAULT GUARDRAILS — G1–G5. Shipped active. The floor under every route.
@@ -141,7 +164,7 @@ defaults:
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed backfill — narrative notes never clear it.
-    checks: [gate-evidence-present, dod-evidence-typed]
+    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun, command-passes]
     checked_at: [verify, land]
 
   - id: G5
@@ -190,12 +213,14 @@ spike_guardrails:
 # put it in strategies.md instead. Leave this empty rather than padding it.
 # -----------------------------------------------------------------------------
 project: []
+# stream-C (B1 / TRC-C6): only the coverage-floor caveat comment above was added — no new checks or gates.
 #  - id: Q1
 #    name: "Coverage floor"
 #    statement: "Line coverage does not drop below 80%."
 #    checks: [coverage-floor]          # <- a project-added check
 #    params: { min_line_coverage: 80 }
 #    checked_at: [verify]
+#    # Coverage is a floor, never a target — a high coverage number is a side effect of test discipline, not its goal.
 
 # -----------------------------------------------------------------------------
 # Cross-cutting: the conflict rule (a guardrail beats a strategy) and the

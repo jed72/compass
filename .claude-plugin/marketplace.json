@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Compass — adaptive spec-driven development for Claude Code.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "compass",
       "source": "./",
       "description": "Adaptive spec-driven development. The Needle reads four context dimensions and a deterministic CLI computes the route; BDD/TDD strategies and five hard guardrails keep work honest. Ships the /compass: pipeline, agents, skills, hooks, and the compass CLI.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": { "name": "jed72" },
       "homepage": "https://github.com/jed72/compass",
       "license": "Apache-2.0",

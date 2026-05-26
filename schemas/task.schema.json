@@ -9,10 +9,21 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "description": "The Compass task.yml schema version this file follows. The CLI warns/fails on incompatible versions. Optional in 1.0 for back-compat; recommended."
+      "description": "The Compass task.yml schema version this file follows. The CLI warns/fails on incompatible versions. Optional in 1.0 for back-compat; recommended. '1.1' introduced the optional `status` and `land_timestamp` fields."
     },
     "task": { "type": "string", "description": "The task slug; matches the directory name." },
     "created": { "type": "string", "description": "ISO date the task was framed." },
+
+    "status": {
+      "type": "string",
+      "enum": ["active", "landed"],
+      "description": "Optional. Lifecycle status of the task. 'active' (default when absent) means the task is in-flight; 'landed' means the task has completed Land and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3). Tasks with schema_version '1.0' that lack this field are treated as 'active' by the derivation walker (Inv-8 backward compat)."
+    },
+
+    "land_timestamp": {
+      "type": "string",
+      "description": "Optional. ISO 8601 timestamp of when the task was Landed. Written by scripts/integrate.sh alongside status: landed. Used as the primary sort key for the living spec derivation order (ADR-008 §3)."
+    },
 
     "readings": {
       "type": "object",
