@@ -17,7 +17,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 GUARDRAILS_YML = "governance/guardrails.yml"
 
-# The legitimate set of check names after the farley-guidebook task lands.
+# The legitimate set of check names after the 1.1.0 release lands.
 # TRC-C6's invariant is "stream-C / B1 adds no new checks" — the diff-scan
 # test below is the canonical guard. The state-based tests below use the
 # integration-time legitimate set: B1 introduced none of these. Additions

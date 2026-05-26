@@ -9,11 +9,12 @@ superseded_by: ''
 
 ## Context
 
-Dave Farley's _Modern Software Engineering_ names architectural fitness
-functions as a way for a team to declare the structural properties their
-codebase must maintain — and run them continuously on every change. Compass
-`farley-guidebook` task (proposal §A2) asks: how should a Compass project
-declare fitness functions and have them checked?
+Architectural fitness functions are a way for a team to declare the structural
+properties their codebase must maintain — module dependency direction, "no
+cycles in the domain layer", latency budgets, "no public method longer than
+N lines" — and run those declarations continuously on every change. The
+design question this ADR records: how should a Compass project declare
+fitness functions and have them checked?
 
 Three options were considered:
 
@@ -104,9 +105,6 @@ fitness functions yet (ADR-006).
 
 ## References
 
-- `docs/proposals/farley-guidebook.md` §A2 "Architectural fitness functions"
-- `.compass/work/farley-guidebook/plan.md` DD-2 (command-passes knobs), DD-4
-  (verify.fitness floors), DD-5 (registered under G4), DD-6 (vacuous-clear)
 - `ADR-002` — framework grows by checks/strategies, not guardrails or dimensions
 - `ADR-006` — backward compat: zero declared fitness functions → no-op
 - `ADR-007` — the floor mechanism this ADR reuses for verify.fitness promotion

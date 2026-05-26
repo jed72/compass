@@ -4,7 +4,7 @@ Serves: INT-6
 Spec: governance/strategies.md S2 section should name:
   - red-before-green as the way to satisfy G1 (governance role)
   - the design-feedback role
-  - Farley's quote that TDD is less about testing and more about good design
+  - the framing that TDD is less about testing and more about good design
 """
 from __future__ import annotations
 from pathlib import Path
@@ -59,16 +59,15 @@ def test_s2_names_design_feedback_role():
     )
 
 
-def test_s2_quotes_farley_tdd_design():
-    """S2 must quote or paraphrase Farley: TDD is less about testing and more about good design."""
+def test_s2_frames_tdd_as_design_tool():
+    """S2 must include the framing that TDD is less about testing and more about good design."""
     s2 = _read_s2_section()
     s2_lower = s2.lower()
-    # Must contain Farley's framing
     assert "less about testing" in s2_lower or "more about" in s2_lower, (
-        "S2 must include Farley's framing: 'TDD is less about testing and more about good design'. "
+        "S2 must include the framing: 'TDD is less about testing and more about good design'. "
         f"Found S2 section:\n{s2}"
     )
     assert "good design" in s2_lower or "design" in s2_lower, (
-        "S2 must reference 'good design' in Farley's framing. "
+        "S2 must reference 'good design' as the framing. "
         f"Found S2 section:\n{s2}"
     )

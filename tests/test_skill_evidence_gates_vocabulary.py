@@ -7,7 +7,7 @@ Spec:
   - skills/evidence-gates/SKILL.md must frame verify.correctness as
     "anything that defines releasable" (acceptance/releasability gate)
   - must frame .red/.tdd-green loop as the commit stage ("anything that can fail fast")
-  - must cite Farley's pipeline stages
+  - must name the deployment-pipeline stage vocabulary (commit, acceptance)
   - must explicitly state Release and Production stages are out of scope
     (safety-contract guarantee 6)
   - must cite G4 (falsification principle) as the standing version

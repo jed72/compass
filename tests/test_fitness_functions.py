@@ -1,8 +1,6 @@
 """
-Tests for A2: Architectural fitness functions
-TRC-B1, TRC-B2, TRC-B3, TRC-B6, TRC-B7, TRC-FM1
-
-Stream-B builder — farley-guidebook task.
+Tests for architectural fitness functions (command-passes + verify.fitness).
+TRC-B1, TRC-B2, TRC-B3, TRC-B6, TRC-B7, TRC-FM1.
 """
 from __future__ import annotations
 

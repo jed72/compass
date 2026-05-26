@@ -1,14 +1,14 @@
-"""Stream-D — cross-cutting integration tests for farley-guidebook.
+"""Cross-cutting release invariants.
 
-These tests assert the hard-line invariants on the integrated A+B+C state:
+These tests assert the hard-line invariants that must hold across releases:
 - TRC-F1: verify.fitness is route-promoted only, never tier-menu
 - TRC-F2: every new check is mechanical — no runtime model call
 - TRC-F3: no sixth guardrail (G1-G5 unchanged)
 - TRC-F4: routing dimensions stay at four (reading_vocabulary unchanged)
 - TRC-F5: bare-repo no-op when no project guardrails/quarantine declared
 - TRC-F6: net-new top-level concept count is bounded
-- TRC-F7: pre-existing tasks pass without modification (replay on comparison-requirements)
-- TRC-FM4: refused candidates stay refused (manual-review attached in verification-report.md)
+- TRC-F7: pre-existing tasks pass without modification
+- TRC-FM4: refused candidates stay refused
 """
 from __future__ import annotations
 import json
@@ -74,7 +74,7 @@ def test_routing_dimensions_are_unchanged():
 
 
 def test_no_fifth_routing_dimension_added():
-    """No new top-level reading dimension was introduced by farley-guidebook."""
+    """No new top-level reading dimension was introduced by the 1.1.0 release."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     vocab_keys = set(policy["reading_vocabulary"].keys())
     # The legitimate set; if anything beyond this exists, the framework grew a dimension
@@ -155,7 +155,7 @@ def test_no_project_guardrails_declared_in_framework_repo():
 
 # -----------------------------------------------------------------------------
 # TRC-F6 — net-new top-level concept count is bounded.
-# The legitimate additions from farley-guidebook are:
+# The legitimate additions from the 1.1.0 release are:
 #   - 1 strategy id: S5
 #   - 1 gate name: verify.fitness
 #   - 2 check names: no-trusted-rerun, command-passes
@@ -172,7 +172,7 @@ def test_net_new_strategies_is_one():
     ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
     expected = {"S1", "S2", "S3", "S4", "S5"}
     assert ids == expected, (
-        f"strategies.md must contain exactly S1-S5 (S5 is the only farley addition). "
+        f"strategies.md must contain exactly S1-S5 (S5 is the only 1.1.0 addition). "
         f"Got: {ids}"
     )
 
@@ -208,7 +208,7 @@ def test_comparison_requirements_task_still_lints_clean():
     )
     assert result.returncode == 0, (
         f"compass task lint must still pass on the pre-existing comparison-requirements task "
-        f"after farley-guidebook lands. stdout: {result.stdout}\nstderr: {result.stderr}"
+        f"after 1.1.0 lands. stdout: {result.stdout}\nstderr: {result.stderr}"
     )
 
 

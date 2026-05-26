@@ -61,9 +61,9 @@ is assertion.
 
 ## Pipeline stage vocabulary — commit, acceptance, and beyond
 
-Dave Farley's deployment pipeline distinguishes stages by what they test and
-how fast they test it. Compass maps onto two of those stages and explicitly
-stays out of the rest.
+A deployment pipeline distinguishes stages by what they test and how fast
+they test it — commit, acceptance, release, production. Compass maps onto
+two of those stages and explicitly stays out of the rest.
 
 **The commit stage** is the `.red`/`tdd-green` loop — "anything that can fail
 fast." `compass tdd-red` records a failing test; `compass tdd-green` records a
@@ -184,10 +184,10 @@ A project coverage-floor guardrail (e.g. "line coverage does not drop below
 claim or an assertion. The coverage report is the evidence; the number
 speaks for itself.
 
-One important caveat, from Farley's discipline: **coverage is a floor, never
-a target**. A high coverage number is a side effect of test discipline, not
-its goal. Chasing a coverage metric — writing tests specifically to hit a
-number — produces tests that cover lines without asserting anything useful.
+One important caveat: **coverage is a floor, never a target**. A high coverage
+number is a side effect of test discipline, not its goal. Chasing a coverage
+metric — writing tests specifically to hit a number — produces tests that
+cover lines without asserting anything useful.
 The real goal is the design-feedback loop (strategy S2: "Listen to your
 tests"). Treat the floor as a safety net that catches a serious regression in
 test discipline; treat the design-feedback loop as the thing that builds
