@@ -1,9 +1,0 @@
-{
-  "command": "python -m pytest tests/test_fitness_functions.py::TestPolicyLintCommandPasses -q",
-  "scenario": "TRC-B7",
-  "exit_code": 0,
-  "passed": true,
-  "timestamp": "2026-05-25T18:52:13+00:00",
-  "log_excerpt": "..                                                                       [100%]",
-  "_full_log": "..                                                                       [100%]\n"
-}

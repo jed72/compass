@@ -1,9 +1,0 @@
-{
-  "command": "python -m pytest tests/test_verify_fitness_route_promotion.py::TestArchitectureDocumentation -q",
-  "scenario": "TRC-B8",
-  "exit_code": 0,
-  "passed": true,
-  "timestamp": "2026-05-25T18:52:18+00:00",
-  "log_excerpt": "......                                                                   [100%]",
-  "_full_log": "......                                                                   [100%]\n"
-}
