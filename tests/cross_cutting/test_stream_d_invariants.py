@@ -1,16 +1,10 @@
-"""Stream-D cross-cutting invariants (TRC-D1…TRC-D10).
+"""Cross-cutting invariants for compass analyze + living-spec + compass next.
 
-These tests run against the *integrated* state of streams A, B, and C — the
-framework after the three candidates have landed. They are structural
-assertions that protect the USPs and refused-idea constraints declared in
-docs/analysis/comparison-requirements.md (BR-005 / BR-011 / BR-012 / BR-013 /
-BR-014 / BR-015 / BR-016 and NFR-LEG-001 / NFR-DET-001 / NFR-DET-002 /
-NFR-ONR-001).
-
-Per distribution-map.md §3b, this is the deferred verification stream — it
-cannot run honestly until A/B/C are integrated. Implemented directly on main
-at Land integration since the parallelism-isolation rationale (disjoint files)
-does not apply when reading the integrated state.
+These tests are structural assertions that protect Compass's USPs across the
+three capabilities introduced in the 1.0 line: legibility budget,
+determinism boundary, refused-idea boundaries (no tier menu, no persona zoo,
+no fixed-depth pipeline, no fluid no-gate mode, no mandatory universal TDD),
+and zero-setup on-ramp.
 """
 from __future__ import annotations
 

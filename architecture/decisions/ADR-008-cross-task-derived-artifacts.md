@@ -11,9 +11,9 @@ superseded_by: ''
 
 Every artifact Compass produces today is **per-task**: `route.md`, `spec.feature.md`, `plan.md`, `verification-report.md`, `task.yml`, and so on all live under a single `.compass/work/<task>/` directory and describe one task's slice of work. The framework has no first-class concept of a **cross-task** artifact — a single document derived from many tasks' outputs.
 
-The "living system spec" capability (introduced under task `comparison-requirements`) is the first such cross-task artifact. The requirement per `BR-008` of `docs/analysis/comparison-requirements.md` is that the framework leave behind "a durable, current description of the system derived from scenarios as they land" — not a pile of task directories, and not a document a human maintains by hand.
+The "living system spec" capability is the first such cross-task artifact. The requirement: the framework leaves behind *a durable, current description of the system derived from scenarios as they land* — not a pile of task directories, and not a document a human maintains by hand.
 
-The architecture-notes for this task (`architecture-notes.md` §2 Inv-5 / Inv-6) identified two specific risks:
+Two specific risks need to be addressed:
 
 - **Treating the derived artifact as a second canonical spec** — a future agent or human edits `docs/system-spec.md` and the framework now has two competing sources of truth. This is the same risk `architecture-notes.md` files run against `spec.feature.md`, resolved there by the "lens annotates, never forks" pattern (ADR-004).
 - **In-memory derivation state that is not reconstructible from disk** — if the derivation accumulates ephemeral state during `scripts/integrate.sh` execution, the artifact can drift from what the landed task.ymls actually contain, and cold reconstruction is impossible. ADR-005 (state lives on disk) applies and must be honoured for the derivation's inputs too.
@@ -36,10 +36,10 @@ Cross-task derived artifacts follow four invariants:
 
 | Alternative | Why considered | Why rejected |
 |---|---|---|
-| Make `docs/system-spec.md` an editable canonical spec maintained alongside the per-task specs | Familiar pattern; humans can refine the language | Re-introduces hand-maintenance and rot; violates BR-008. Creates two competing sources of truth for the same behaviour, exactly the failure mode ADR-004 was written to prevent |
+| Make `docs/system-spec.md` an editable canonical spec maintained alongside the per-task specs | Familiar pattern; humans can refine the language | Re-introduces hand-maintenance and rot, and violates the "derived not hand-maintained" requirement. Creates two competing sources of truth for the same behaviour, exactly the failure mode ADR-004 was written to prevent |
 | Derive at every gate, not only at Land | The artifact is always current, not stale between Lands | Adds derivation overhead to every gate transition; the artifact's job is to describe what is *in production*, which by definition is only updated by Land. Pre-Land derivation describes work-in-progress, which is precisely what `spec.feature.md` is for |
 | Cache derived state in `.compass/cache/system-spec.json` and reconstruct only on cache miss | Faster derivation; explicit reconstruction trigger | Adds a new on-disk concept (cache directory); creates a second source of truth (the cache); breaks "reconstructible from landed-task state alone." S3 (simplest thing) rules against caching until proven necessary |
-| Maintain a `.compass/landed/<task>.json` summary file at Land instead of a `status` field on `task.yml` | Compact derivation input; separates landed from active state cleanly | Adds a new on-disk artifact type (BR-009 friction); duplicates information already in `task.yml`; breaks the "no second source of truth" rule that `task.yml.scenarios` is canonical |
+| Maintain a `.compass/landed/<task>.json` summary file at Land instead of a `status` field on `task.yml` | Compact derivation input; separates landed from active state cleanly | Adds a new on-disk artifact type (upfront-tax friction); duplicates information already in `task.yml`; breaks the "no second source of truth" rule that `task.yml.scenarios` is canonical |
 
 ## Consequences
 
@@ -60,10 +60,6 @@ Cross-task derived artifacts follow four invariants:
 
 ## References
 
-- `docs/analysis/comparison-requirements.md` — BR-008, BR-009 (the originating constraints)
-- `.compass/work/comparison-requirements/clarifications.md` Q5, Q6, Q8, Q10 (derivation entry point, landed-state location, supersession reconciliation, hand-edit policy)
-- `.compass/work/comparison-requirements/architecture-notes.md` §2 Inv-5 + Inv-6, §3 B-Risk 3 + B-Risk 4, §4 Candidate ADR-008 (the architect-lens framing)
-- `.compass/work/comparison-requirements/plan.md` DD-3 + DD-4 + Stream B description (the design decisions this ADR records)
 - `ADR-004` (one spec, many lenses; the lens annotates, never forks — the analogous pattern at the per-task level)
 - `ADR-005` (state lives on disk; conversation reconstructs from artifacts — the reconstructibility invariant)
 - `ADR-006` (backward compat is non-negotiable; every new mechanism no-ops cleanly — the schema migration discipline)
