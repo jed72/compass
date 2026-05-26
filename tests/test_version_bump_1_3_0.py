@@ -1,8 +1,8 @@
-"""Every published version surface reports `1.2.0`.
+"""Every published version surface reports `1.3.0`.
 
 The Compass version appears in five places: the build artifact VERSION file,
 the plugin manifest, two fields of the marketplace listing, and the CLI's
-`COMPASS_VERSION` constant. This test asserts every surface reports `1.2.0`
+`COMPASS_VERSION` constant. This test asserts every surface reports `1.3.0`
 and earlier versions do not appear anywhere those surfaces are read.
 """
 from __future__ import annotations
@@ -15,8 +15,8 @@ import pytest
 
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_VERSION = "1.2.0"
-OLD_VERSIONS = {"1.1.0", "1.0.0", "1.0.0-rc.1"}
+EXPECTED_VERSION = "1.3.0"
+OLD_VERSIONS = {"1.2.0", "1.1.0", "1.0.0", "1.0.0-rc.1"}
 
 
 def _read_json(path: Path) -> dict:
@@ -54,7 +54,7 @@ def _read_version_file() -> str:
     ],
 )
 def test_published_surface_reports_new_version(label, reader):
-    """Every published surface reports 1.2.0 — no partial bumps."""
+    """Every published surface reports 1.3.0 — no partial bumps."""
     actual = reader()
     assert actual == EXPECTED_VERSION, (
         f"{label} reports {actual!r}, expected {EXPECTED_VERSION!r}"
