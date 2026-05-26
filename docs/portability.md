@@ -266,8 +266,10 @@ both are mechanism the adapter calls.
 |---|---|---|
 | The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
 | The Needle | A triage routine that produces the *readings*, then calls the kit to compose the route | `/compass:frame` + the `navigator` agent + the `adaptive-routing` skill, calling `compass route evaluate` |
-| The kit-layer CLI | A shell-out from the adapter — never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green` |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code) and `compass calibration` (the re-frame feedback loop) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration` |
+| The kit-layer CLI | A shell-out from the adapter — never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence — orphaned scenarios, route disagreements, orphan claims) |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-task view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration`, `compass rework-scan`, and `compass flow --digest` together |
+| Per-task next-step + backfill | The adapter wires `compass next` (surface the next action on the current task) and `compass backfill pay` (mark an owed backfill as paid) into its task-resumption and Land flows | `/compass:status` and `/compass:land` invoke them |
+| ADR creation | `compass adr new` (creates a numbered ADR file under `architecture/decisions/`) — the adapter exposes this in whatever shape its agents use for recording architectural decisions | `architect-lens` agent invokes it |
 | Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens) | Distinct agent contexts or personas | `agents/*.md` |
 | Skills | Loadable procedural-knowledge modules | `skills/*/SKILL.md` |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise | `compass check` + `hooks/pre-tool.sh`, `post-tool.sh`, `stop.sh` |

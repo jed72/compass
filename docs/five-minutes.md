@@ -230,6 +230,13 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
+compass analyze          cross-artifact coherence check (orphaned scenarios,
+                         route disagreements, orphan claims)
+compass adr new          create a new numbered ADR in architecture/decisions/
+compass rework-scan      scan tasks for rework patterns (uses signals.yml)
+compass flow [--digest]  cross-task flow view; --digest writes a dated digest
+compass next             surface the next action on the current task
+compass backfill pay     mark a backfill as paid in a task's task.yml
 compass calibration      aggregate the re-frame log — is routing well-sized?
 compass ci               the full mechanical gate suite, for CI
 ```

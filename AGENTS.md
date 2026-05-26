@@ -96,12 +96,14 @@ and reporting surfaces; it does not re-derive them.
 |---|---|
 | The eight phases | Invocable commands or equivalent |
 | The Needle | A triage routine that produces the readings, then *calls the kit* (`compass route evaluate`) to compose the route |
-| The kit-layer CLI | A shell-out, not a reimplementation — the adapter runs `compass route evaluate`, `compass check`, `compass tdd-red/green` for the deterministic parts |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code) and `compass calibration` (the re-frame feedback loop) |
+| The kit-layer CLI | A shell-out, not a reimplementation — the adapter runs `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal), and `compass flow` (cross-task view; `--digest` writes a dated digest combining rework-scan and calibration) |
 | Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens) | Distinct agent contexts or personas |
 | Skills | Loadable procedural-knowledge modules |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise |
 | Role entry points | Distinct session-start modes |
+| Per-task next-step + backfill management | The adapter wires `compass next` (surface the next action on the current task) and `compass backfill pay` (mark an owed backfill as paid) into its task-resumption and Land flows |
+| ADR creation | `compass adr new` (creates a numbered ADR file under `architecture/decisions/`) — the adapter exposes this in whatever shape its agents use for recording architectural decisions |
 
 The kit layer (`cli/compass`, `governance/*.yml`, `schemas/`, `task.yml`) is
 itself runtime-neutral — an adapter does not rewrite it, it invokes it. The
