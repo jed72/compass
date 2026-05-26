@@ -228,14 +228,23 @@ pip install pyyaml      # the CLI's one dependency
 ```
 
 Enabling the plugin namespaces the commands as `/compass:…`, registers the
-hooks, and puts the `compass` CLI on your PATH. Or install from source — it
-wires the same pieces in by symlink, so edits to your clone are picked up live:
+hooks, and puts the `compass` CLI on your PATH (Claude Code adds the plugin's
+`bin/` to PATH automatically — that is the plugin-path-only convenience).
+
+Or install from source — `install.sh` wires the slash commands, agents,
+skills, and hooks in by symlink, so edits to your clone are picked up live:
 
 ```bash
 git clone https://github.com/jed72/compass.git
 cd compass && bash scripts/install.sh --global
 pip install pyyaml
 ```
+
+`install.sh` does **not** modify your PATH — the source install does not have
+the plugin runtime to do it for you. To make `compass` invokable from your
+shell, add `$PWD/bin` to your `PATH` (or invoke the CLI as
+`python3 $COMPASS_HOME/cli/compass`). The slash commands run the CLI on your
+behalf, so this only matters when you call it directly.
 
 Either way, start a task right away — the default guardrails ship active, so
 the Needle frames it and picks the route with zero setup:
@@ -276,6 +285,10 @@ compass/
 │                      task.yml, with human-readable .reference.yml companions
 ├── cli/               compass — the deterministic CLI (route evaluate, check,
 │                      tdd-red/green, lint, calibration, ci); the kit's mechanism
+├── bin/               compass — plugin CLI shim that execs cli/compass.
+│                      Claude Code adds the plugin's bin/ to PATH when the
+│                      plugin is enabled, so `compass <subcommand>` resolves
+│                      without a manual symlink or alias
 ├── ci/                CI integration: the reference workflow + the contract
 │                      ("run compass ci, honour the exit code")
 ├── commands/          Slash commands: the pipeline + role entry points
@@ -285,6 +298,9 @@ compass/
 ├── templates/         Artifact templates for every phase and role —
 │                      including task.yml, the machine-readable task spine
 ├── scripts/           install, swarm, integrate, validate
+├── .claude-plugin/    Claude Code plugin manifest (plugin.json) +
+│                      marketplace manifest — the install path used by
+│                      `/plugin install`, parallel to scripts/install.sh
 └── docs/              methodology.md is the canonical design doc — start there
 ```
 

@@ -355,12 +355,19 @@ Compass is built in three layers, deliberately separated.
   part that makes the framework's checks real rather than aspirational.
 
 - **The Claude Code adapter layer** — `commands/`, `agents/`, `skills/`,
-  `hooks/`, `CLAUDE.md`. This wires the methodology and the kit into one
-  specific runtime: slash commands invoke phases, subagents are the swarm,
-  skills carry the procedural knowledge, hooks enforce the guardrails and the
+  `hooks/`, `CLAUDE.md`, plus the runtime-specific install surface:
+  `bin/compass` (a thin shim that execs the kit-layer `cli/compass`; Claude
+  Code adds the plugin's `bin/` to PATH automatically) and `.claude-plugin/`
+  (the plugin and marketplace manifests for the `/plugin install` path).
+  This wires the methodology and the kit into one specific runtime: slash
+  commands invoke phases, subagents are the swarm, skills carry the
+  procedural knowledge, hooks enforce the guardrails and the
   red-before-green strategy, and the commands and agents *call the kit* —
   `/compass:frame` runs `compass route evaluate`, `/compass:verify` runs
-  `compass check`.
+  `compass check`. `bin/compass` and `.claude-plugin/` are the
+  runtime-specific install wiring; another runtime's adapter would replace
+  them with its own equivalent (a shell PATH addition, a different plugin
+  manifest, or whatever the new runtime exposes).
 
 Porting Compass to another agent runtime means rewriting only the **adapter
 layer** — the methodology layer is already runtime-neutral, and the kit layer

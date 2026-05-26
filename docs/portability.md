@@ -91,6 +91,12 @@ skills/          procedural-knowledge modules — adaptive-routing,
 hooks/           pre-tool.sh, post-tool.sh, stop.sh — mechanical guardrail
                  enforcement
 CLAUDE.md        the operating instructions loaded every Claude Code session
+bin/             compass — plugin CLI shim that execs cli/compass. Claude
+                 Code adds the plugin's bin/ to PATH automatically when the
+                 plugin is enabled
+.claude-plugin/  plugin.json + marketplace.json — the Claude Code plugin
+                 and marketplace manifests; the install path used by
+                 `/plugin install`, parallel to scripts/install.sh
 scripts/         install.sh, swarm.sh, integrate.sh, validate.sh
 ```
 
@@ -267,6 +273,7 @@ both are mechanism the adapter calls.
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise | `compass check` + `hooks/pre-tool.sh`, `post-tool.sh`, `stop.sh` |
 | Role entry points | Distinct session-start modes | `/compass:intent`, `/compass:position`, `/compass:design`, `/compass:roundtable` |
 | The operating instructions | The runtime's always-loaded instruction file | `CLAUDE.md` (neutral form: `AGENTS.md`) |
+| Install surface | Whatever the runtime exposes for wiring the adapter in — a plugin manifest, a config-file edit, a PATH addition, an install script | `bin/compass` (plugin CLI shim) + `.claude-plugin/plugin.json` (plugin path used by `/plugin install`); `scripts/install.sh` (clone path, symlinks the adapter into `~/.claude/`) |
 
 ### State on disk — the non-negotiable substrate
 

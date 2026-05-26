@@ -33,15 +33,22 @@ bash scripts/install.sh --global      # or: bash scripts/install.sh  (project-lo
 
 `install.sh` symlinks `commands/`, `agents/`, and `skills/` into your Claude
 Code config as a `compass` subdirectory (so nothing collides with your own
-files), registers the three hooks — `pre-tool.sh`, `post-tool.sh`, `stop.sh` —
-in `settings.json`, and puts the `compass` CLI on your path. It is idempotent:
-re-running refreshes the links and never clobbers a file Compass did not
-create. `--global` makes the `/compass:*` commands available in every project;
-`--copy` installs copies instead of symlinks if you prefer. The CLI's only
-*hard* dependency is PyYAML — if it is missing, `compass` says so and exits;
-`jsonschema` is optional and turns on full JSON Schema validation in `compass
-policy lint` and `compass task lint` (without it the built-in linter still
-runs — see `schemas/README.md`).
+files) and registers the three hooks — `pre-tool.sh`, `post-tool.sh`,
+`stop.sh` — in `settings.json`. It is idempotent: re-running refreshes the
+links and never clobbers a file Compass did not create. `--global` makes the
+`/compass:*` commands available in every project; `--copy` installs copies
+instead of symlinks if you prefer. The CLI's only *hard* dependency is PyYAML
+— if it is missing, `compass` says so and exits; `jsonschema` is optional and
+turns on full JSON Schema validation in `compass policy lint` and
+`compass task lint` (without it the built-in linter still runs — see
+`schemas/README.md`).
+
+`install.sh` does **not** modify your PATH. If you want to call `compass`
+directly from your shell, add `$COMPASS_HOME/bin` to your `PATH` (or invoke
+the CLI as `python3 $COMPASS_HOME/cli/compass`). The slash commands run the
+CLI on your behalf, so this only matters when you call it directly. The
+plugin install path bypasses this — Claude Code adds the plugin's `bin/` to
+PATH automatically.
 
 One thing to know going in: the `pre-tool.sh` hook enforces the red-before-green
 TDD strategy. Once Compass is installed, an attempt to edit a recognised code

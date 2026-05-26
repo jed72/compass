@@ -113,7 +113,9 @@ explicit `--task` slug) so the CLI can resolve which task it is acting on.
 All task state is files, not conversation. `governance/` at the project root —
 the `.md` files and the `.yml` files the CLI runs — or the framework's shipped
 defaults if a project has not run init; per-task artifacts in a
-`work/<task-slug>/` directory, including `task.yml` (the machine-readable task
-spine) and `evidence/` (the CLI's test and gate records). A different session,
-agent, or runtime must be able to resume a task by reading `route.md`,
-`task.yml`, and the artifacts — nothing essential lives only in context.
+`.compass/work/<task-slug>/` directory, including `task.yml` (the
+machine-readable task spine) and `evidence/` (the CLI's test and gate
+records); a `.compass/current-task` pointer so the CLI and any hooks resolve
+"the current task" unambiguously. A different session, agent, or runtime must
+be able to resume a task by reading `route.md`, `task.yml`, and the
+artifacts — nothing essential lives only in context.
