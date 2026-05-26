@@ -1,0 +1,67 @@
+# =============================================================================
+# Fixture: comparison-requirements — a pre-v1.1.0-shape landed task.yml
+# =============================================================================
+# This is a constructed fixture for `test_release_invariants.py`'s backward-
+# compatibility tests (TRC-F7, TRC-A5). The actual comparison-requirements
+# task that landed in v1.1.0 lived under `.compass/work/` — gitignored, never
+# tracked. This fixture is what the tests test against.
+#
+# Shape: pre-v1.1.0 task.yml — no `attempts` field on evidence entries, no
+# typed inline DoD tags. ADR-006 (backward compatibility) requires that the
+# current CLI lints this file cleanly. If it doesn't, the framework has
+# broken back-compat — that is exactly what these tests defend.
+#
+# Do NOT update this fixture to track later-version conveniences. Its value
+# is being frozen in the v1.0.x / v1.1.0 shape. Bumping VERSION later does
+# not change what this fixture represents.
+# =============================================================================
+schema_version: "1.0"
+task: "comparison-requirements"
+created: "2026-05-25"
+
+readings:
+  blast_radius: "cross-cutting"
+  terrain: "brownfield-mapped"
+  magnitude: "large"
+  intent: "delivery"
+  role: "engineer"
+  touches: []
+
+route: "expedition"
+topology: "swarm"
+fired_guardrails: []
+phases:
+  frame: full
+  specify: full
+  clarify: full
+  plan: full
+  distribute: swarm
+  build: full
+  verify: full
+  land: full
+
+evidence:
+- id: EV-T-TRC-A1
+  type: test-run
+  path: evidence/green-TRC-A1.json
+  scenario: TRC-A1
+
+gates:
+- id: verify.correctness
+  status: pass
+  evidence: [EV-T-TRC-A1]
+
+scenarios:
+- id: TRC-A1
+  title: "Example pre-existing scenario (placeholder; preserves shape)"
+  intent: INT-1
+  tests:
+  - tests/example/test_example.py::test_example
+
+changed_files:
+- path: src/example.py
+  scenarios: [TRC-A1]
+
+claims: []
+backfills: []
+reframes: []

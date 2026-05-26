@@ -1,0 +1,6 @@
+{
+  "command": "pytest tests/example/test_example.py::test_example",
+  "exit_code": 0,
+  "scenario": "TRC-A1",
+  "timestamp": "2026-05-25T12:00:00Z"
+}
