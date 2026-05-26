@@ -96,6 +96,16 @@ lint errors, traceability intact. The checklists live at the foot of
 `clarifications.md` and `verification-report.md` respectively; on routes where
 Clarify collapses, the Definition of Ready is satisfied by construction.
 
+**The Definition of Done is a typed gate, not a narrative.** Every unchecked
+DoD item must carry a typed inline tag pointing at the evidence that would
+clear it — `(evidence: EV-<id>)` referencing an entry in the task's typed
+evidence registry, or `(backfill: BF-<id>)` referencing an owed backfill — or
+be ticked `[x]` when a human has actually done the work. Bare unchecked items
+fail `compass check`'s `dod-evidence-typed` rule. This is G4 (evidence, not
+assertion) expressed at the checklist level: a written note in a devlog is
+not evidence, and the typed-tag form is what makes the DoD mechanically
+checkable rather than aspirational.
+
 ---
 
 ## 4. Governance: guardrails and strategies
@@ -159,6 +169,22 @@ the lightweight path real rather than a bolted-on exception.
 
 If a route ever appears to require crossing a guardrail, that is a bug in the
 route definition, not a license.
+
+**Fitness functions and intermittent-test integrity.** Two v1.1.0 additions
+extend the governance discipline without adding to the hard guardrail count.
+*Fitness functions as project guardrails* — codified in
+`architecture/decisions/ADR-009` — let a project declare a check in
+`governance/guardrails.yml` with `check: command-passes` plus the command to
+run; `compass check` runs the command at Verify and refuses to clear the gate
+on non-zero exit. This is how a team encodes project-specific invariants ("the
+build is under N MB", "no API endpoint regresses past P95 = X ms") *as
+guardrails*, not as advisory strategies. *Intermittent-test integrity* —
+detailed in `governance/strategies.md` §6 and operationalised through
+`governance/quarantine.yml` — pairs with G4 (evidence, not assertion): the
+`no-trusted-rerun` rule refuses to clear a test-run when a rerun was needed
+unless the root cause is fixed or the test is explicitly quarantined with a
+tracking task. A test that reruns to green is the classic way a guardrail
+becomes silently advisory; the rule closes that drift surface.
 
 ---
 
@@ -335,9 +361,12 @@ its de-scopes are all backed by the same fact — nothing lands from it.
 Compass is built in three layers, deliberately separated.
 
 - **The methodology layer** — `docs/`, `governance/` (the `.md` files),
-  `routes/`, `templates/`. Plain markdown. No tool-specific syntax, no code.
-  This layer *is* the framework; it would be valid if neither a CLI nor Claude
-  Code existed. It is what you read to *understand* Compass.
+  `routes/`, `templates/`, and `architecture/` (the project's cross-task
+  architectural artifacts — `system-context.md`, `relations.md`,
+  `ownership.md`, and ADRs in `decisions/`; Compass ships its own as a
+  worked example for adopters). Plain markdown. No tool-specific syntax, no
+  code. This layer *is* the framework; it would be valid if neither a CLI
+  nor Claude Code existed. It is what you read to *understand* Compass.
 
 - **The kit layer** — `cli/compass`, the machine-readable governance files
   (`governance/routing-policy.yml`, `governance/guardrails.yml`), `schemas/`,
@@ -490,9 +519,11 @@ root and detects:
 
 **Exit code is always 0.** The scan is a signal, not a gate (Inv-4: Flow
 advises, never gates). Detection of rework does not block delivery. The output
-surfaces in `/compass:flow --digest` as the "Rework scan" section, which a team
-reviews on a cadence to decide whether to act — spawning a sibling task,
-filing an ADR, or accepting the churn as intentional.
+surfaces in `/compass:flow --digest` as the "Rework scan" section and is
+also written to its own dated artifact at `.compass/flow/rework-<date>.md`
+(an append-only record the team reviews on a cadence to decide whether to
+act — spawning a sibling task, filing an ADR, or accepting the churn as
+intentional).
 
 Configuration lives in `governance/signals.yml` and is loaded at runtime;
 patterns are never hardcoded in the CLI. Projects override by editing their own

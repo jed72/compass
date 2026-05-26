@@ -83,7 +83,7 @@ commands/        slash commands — the eight pipeline phases plus the role
                  entry points (all under the /compass: namespace)
 agents/          subagent definitions — navigator, spec-author, planner,
                  orchestrator, builder, verifier, reviewer, product-lens,
-                 marketing-lens
+                 marketing-lens, architect-lens
 skills/          procedural-knowledge modules — adaptive-routing,
                  bdd-specification, tdd-discipline, blueprint-distillation,
                  worktree-swarm, governance-check, traceability,
@@ -270,7 +270,7 @@ both are mechanism the adapter calls.
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-task view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration`, `compass rework-scan`, and `compass flow --digest` together |
 | Per-task next-step + backfill | The adapter wires `compass next` (surface the next action on the current task) and `compass backfill pay` (mark an owed backfill as paid) into its task-resumption and Land flows | `/compass:status` and `/compass:land` invoke them |
 | ADR creation | `compass adr new` (creates a numbered ADR file under `architecture/decisions/`) — the adapter exposes this in whatever shape its agents use for recording architectural decisions | `architect-lens` agent invokes it |
-| Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens) | Distinct agent contexts or personas | `agents/*.md` |
+| Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens, architect-lens) | Distinct agent contexts or personas. The 10th — architect-lens — reads the project's `architecture/` artifacts and writes `architecture-notes.md`; consulted by spec-author and planner | `agents/*.md` |
 | Skills | Loadable procedural-knowledge modules | `skills/*/SKILL.md` |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise | `compass check` + `hooks/pre-tool.sh`, `post-tool.sh`, `stop.sh` |
 | Role entry points | Distinct session-start modes | `/compass:intent`, `/compass:position`, `/compass:design`, `/compass:roundtable` |
@@ -347,9 +347,11 @@ The adapter layer, against the contract above:
   Build procedure to `compass tdd-red` / `tdd-green`. Re-expressing the
   procedure does not mean re-implementing the mechanism it invokes.
 - **`agents/`** → the new runtime's notion of distinct agent contexts. The
-  nine agents and their boundaries (the navigator owns Frame and only Frame;
+  ten agents and their boundaries (the navigator owns Frame and only Frame;
   the orchestrator writes no feature code; a builder never touches a sibling
-  worktree) are methodology; the wrapper is runtime.
+  worktree; the architect-lens reads `architecture/` and annotates `plan.md`
+  via `architecture-notes.md`, never writing feature code) are methodology;
+  the wrapper is runtime.
 - **`skills/`** → loadable procedural-knowledge modules in whatever form the
   runtime supports. If the runtime has no skill mechanism, the procedural
   knowledge has to be delivered another way — inlined into the command

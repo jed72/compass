@@ -90,6 +90,27 @@ And governance is a **gradient, not a threshold**: the defaults ship active,
 so `/compass:init` is optional and `/compass:frame` works on day one. A team
 *accretes* its own strategies as it forms opinions. See `governance/`.
 
+### Fitness functions and intermittent-test integrity
+
+Two related v1.1.0 capabilities extend the governance story without adding to
+the hard guardrail count:
+
+- **Fitness functions as project guardrails.** A project declares a fitness
+  function as a guardrail in `governance/guardrails.yml` with
+  `check: command-passes` plus the command to run; `compass check` runs the
+  command at Verify and refuses to clear the gate if it does not exit 0. This
+  lets a team encode "the build is under N MB", "the API never returns 500 in
+  the smoke suite", "performance does not regress past P95 = X ms" *as
+  guardrails* — checkable, blocking, evidence-backed — without having to
+  invent new check types in the framework. See `architecture/decisions/ADR-009`.
+- **Intermittent-test integrity.** Tests that rerun to green are the classic
+  way a guardrail becomes silently advisory. The `no-trusted-rerun` rule on
+  G4 (evidence, not assertion) refuses to clear a test-run when a rerun was
+  needed unless either the root cause is fixed *or* the test is explicitly
+  quarantined in `governance/quarantine.yml` with a tracking task. The detail
+  lives in `governance/strategies.md` §6; the discipline is part of how
+  Compass takes G4 seriously.
+
 ## Roles are full citizens — one spec, many lenses
 
 Compass isn't an engineering framework with bolted-on hooks for everyone else.
@@ -108,6 +129,15 @@ every role reads it through their own lens:
 The product owner enters *upstream* of the spec. The marketer works *parallel*
 to it. The designer feeds *into* it. Nobody is just a downstream consumer of a
 finished engineering process.
+
+**A lens does not always have an entry point.** The table above lists five
+**entry-point roles** — each starts a Compass task with its own `/compass:…`
+command. The framework ships ten agents though, not five, because some lenses
+apply *during* the pipeline rather than starting it. The 10th — the
+**architect-lens** — reads the project's `architecture/` artifacts at Frame
+and annotates `plan.md` via `architecture-notes.md` at Plan; it is consulted
+by `spec-author` and `planner`, not invoked as its own entry point. See
+[`docs/roles-guide.md`](docs/roles-guide.md) for the full lens treatment.
 
 ## The five reference routes
 
@@ -288,7 +318,13 @@ Claude-Code-specific). The adapter layer wires both into Claude Code.
 ```
 compass/
 ├── governance/        Guardrails + strategies + routing policy — .md (prose)
-│                      AND .yml (the machine-readable governance the CLI runs)
+│                      AND .yml (the machine-readable governance the CLI runs;
+│                      including signals.yml and quarantine.yml)
+├── architecture/      The project's cross-task architectural artifacts:
+│                      system-context.md, relations.md, ownership.md, and
+│                      ADRs in decisions/. Compass ships its own (the
+│                      framework's founding ADRs) as a worked example for
+│                      adopters; another project drops its own here
 ├── routes/            The Needle (router.md) + the 5 reference routes
 ├── schemas/           Executable JSON Schema (.schema.json) for the .yml +
 │                      task.yml, with human-readable .reference.yml companions

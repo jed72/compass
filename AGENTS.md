@@ -33,6 +33,15 @@ the evaluator, and writes the human-readable `route.md`. The route is computed
 from context, not chosen from a menu. Genuinely exploratory work is not exempt
 from Frame — it composes a **Spike** route.
 
+**Trigger Frame on intent, not just on the literal command.** When the user
+describes intent to build, change, or fix code — even when they do not type
+`/compass:frame` (or the adapter's equivalent) — the adapter must invoke Frame
+before any artifact-changing tool call. Explicit invocation always works
+regardless. If `.compass/current-task` already points at a framed task, do not
+re-Frame — proceed in the task's recorded route. This intent-recognition is an
+adapter responsibility (it is *when* to invoke Frame, not what Frame does);
+methodology describes Frame as a phase, this rule describes the trigger.
+
 **2. Walk the eight-phase pipeline.** `Frame → Specify → Clarify → Plan →
 Distribute → Build → Verify → Land`. The route says which phases are
 full-weight, which collapse, and which are skipped — and why. Each phase emits
@@ -45,7 +54,12 @@ its artifact (templates in `templates/`) to the task's working directory.
      checkable acceptance criterion.
    - **G3 Traceability:** code → criterion → intent, and claim → criterion.
    - **G4 Evidence, not assertion:** guardrails clear with command output, not
-     claims.
+     claims. The Definition of Done is itself a typed gate — every unchecked
+     DoD item must reference typed inline evidence as `(evidence: EV-<id>)` or
+     a filed backfill as `(backfill: BF-<id>)`, or be ticked `[x]` if a human
+     has actually done the work. Bare unchecked items fail `compass check`'s
+     `dod-evidence-typed` rule. An adapter that emits DoD output is
+     responsible for emitting it in this form.
    - **G5 Human sign-off on the irreversible:** data, money, auth, privacy get
      a human checkpoint.
 
@@ -98,7 +112,7 @@ and reporting surfaces; it does not re-derive them.
 | The Needle | A triage routine that produces the readings, then *calls the kit* (`compass route evaluate`) to compose the route |
 | The kit-layer CLI | A shell-out, not a reimplementation — the adapter runs `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal), and `compass flow` (cross-task view; `--digest` writes a dated digest combining rework-scan and calibration) |
-| Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens) | Distinct agent contexts or personas |
+| Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens, architect-lens) | Distinct agent contexts or personas. The 10th — architect-lens — applies a lens (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, ADRs) at Frame and annotates `plan.md` via `architecture-notes.md` at Plan. Consulted by `spec-author` and `planner`; never writes feature code |
 | Skills | Loadable procedural-knowledge modules |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise |
 | Role entry points | Distinct session-start modes |
@@ -116,8 +130,13 @@ All task state is files, not conversation. `governance/` at the project root —
 the `.md` files and the `.yml` files the CLI runs — or the framework's shipped
 defaults if a project has not run init; per-task artifacts in a
 `.compass/work/<task-slug>/` directory, including `task.yml` (the
-machine-readable task spine) and `evidence/` (the CLI's test and gate
-records); a `.compass/current-task` pointer so the CLI and any hooks resolve
-"the current task" unambiguously. A different session, agent, or runtime must
-be able to resume a task by reading `route.md`, `task.yml`, and the
-artifacts — nothing essential lives only in context.
+machine-readable task spine), `evidence/` (the CLI's test and gate records),
+and — when the project ships an `architecture/` directory — two derived
+files Frame writes when present: `architecture-loaded.yml` (the per-task
+snapshot of which cross-task architectural state was loaded) and
+`architecture-notes.md` (annotations the architect-lens writes on
+`plan.md`, *not* a parallel spec); a `.compass/current-task` pointer so the
+CLI and any hooks resolve "the current task" unambiguously. A different
+session, agent, or runtime must be able to resume a task by reading
+`route.md`, `task.yml`, and the artifacts — nothing essential lives only in
+context.
