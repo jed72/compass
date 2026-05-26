@@ -1,0 +1,67 @@
+schema_version: "1.1"
+task: receipt-task
+created: "2026-05-26"
+status: landed
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: standard
+  intent: delivery
+  urgency: none
+  role: engineer
+  touches: [public-api]
+route: standard
+topology: solo-or-pair
+fired_guardrails: []
+phases:
+  frame: full
+  specify: full
+  clarify: light
+  plan: full
+  distribute: solo-or-pair
+  build: full
+  verify: full
+  land: full
+evidence:
+- id: EV-001
+  type: test-run
+  path: evidence/green-canonical.json
+  scenario: SCN-001
+- id: EV-002
+  type: command-output
+  path: evidence/check.txt
+- id: EV-003
+  type: manual-review
+  path: evidence/clarity-review.md
+  reviewer: qa@example.com
+gates:
+- id: verify.correctness
+  status: pass
+  evidence: [EV-001]
+- id: verify.governance
+  status: pass
+  evidence: [EV-002]
+- id: verify.traceability
+  status: pass
+  evidence: [EV-002]
+- id: verify.regression
+  status: pass
+  evidence: [EV-001]
+- id: verify.clarity
+  status: pass
+  evidence: [EV-003]
+- id: verify.security
+  status: pass
+  evidence: [EV-002]
+scenarios:
+- id: SCN-001
+  title: "the fixture scenario"
+  intent: INT-1
+  tests:
+  - "tests/test_demo.py::test_demo"
+changed_files:
+- path: src/demo.py
+  scenarios: [SCN-001]
+claims: []
+backfills: []
+reframes: []
