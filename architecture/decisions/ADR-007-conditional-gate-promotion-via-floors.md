@@ -11,7 +11,7 @@ superseded_by: ''
 
 Compass has two classes of gate today: **immovable gates** (`verify.correctness`, `verify.governance`, `verify.traceability`) baked into every delivery route's `route_shapes.*.gates` list, and **role-conditioned gates** (`verify.claims` via `RG-ROLE-001`) added when a specific role is in play. Both are unconditional once their trigger condition holds: immovable gates always block; role-conditioned gates always block when the role is present.
 
-The `compass analyze` capability (introduced under task `comparison-requirements`) needs a third lifecycle: a gate that is **advisory** on routes whose blast radius does not warrant it and **blocking** on routes whose readings *do* warrant it. The requirement is per `BR-007` of `docs/analysis/comparison-requirements.md`: "advisory by default; a gate only by route, never globally." The same pattern would apply to future capabilities (e.g. a hypothetical `verify.migration-plan` that should block on migration-touching tasks but not others).
+The `compass analyze` capability needs a third lifecycle: a gate that is **advisory** on routes whose blast radius does not warrant it and **blocking** on routes whose readings *do* warrant it — *advisory by default; a gate only by route, never globally*. The same pattern would apply to future capabilities (e.g. a hypothetical `verify.migration-plan` that should block on migration-touching tasks but not others).
 
 The framework also requires that the promotion rule be encoded in `governance/routing-policy.yml`, not hard-coded in `cli/compass` — both to honour ADR-001 (the evaluator applies policy; it does not encode it) and to satisfy `TRC-A12` (the gate-promotion test reads the policy file).
 
@@ -46,7 +46,7 @@ When a route is below the promotion threshold and `compass analyze` is invoked, 
 | Add `verify.analyze` directly to each `route_shapes.*.gates` list that should have it | Avoids extending the floor schema | Duplicates the gate-promotion logic across multiple shape definitions; couples the shape definitions to the floor's condition; if `RG-FLOOR-003`'s irreversible-surface conditions ever change, the gate list must be updated in two places |
 | Have the route evaluator infer `verify.analyze` from `touches`/`blast_radius` readings without a floor rule | Smallest schema change | Fails `TRC-A12` (the gate must be driven by routing-policy, not hard-coded in the CLI); violates ADR-001 (evaluator's job is to apply, not encode) |
 | Add `verify.analyze` as a sixth guardrail (G6) | Most direct enforcement | ADR-002 explicitly rejects guardrail growth as the mechanism for new checks. The framework grows by adding artifacts and lenses; `verify.analyze` is a CHECK_FN under G4 |
-| Add `verify.analyze` as an immovable gate (always on, every route) | Simplest mental model | Violates `BR-007` and `BR-001` — promoting a check to a gate globally imposes ceremony irrespective of route, exactly what the adaptive-routing pattern exists to avoid |
+| Add `verify.analyze` as an immovable gate (always on, every route) | Simplest mental model | Violates the per-task computed routing principle and the "advisory by default" requirement — promoting a check to a gate globally imposes ceremony irrespective of route, exactly what the adaptive-routing pattern exists to avoid |
 
 ## Consequences
 
@@ -66,10 +66,6 @@ When a route is below the promotion threshold and `compass analyze` is invoked, 
 
 ## References
 
-- `docs/analysis/comparison-requirements.md` — BR-006, BR-007 (the originating constraints)
-- `.compass/work/comparison-requirements/clarifications.md` Q7 (the irreversible-surface promotion decision)
-- `.compass/work/comparison-requirements/architecture-notes.md` §3 B-Risk 2 + §4 Candidate ADR-007 (the architect-lens framing)
-- `.compass/work/comparison-requirements/plan.md` DD-1 + DD-2 (the design decisions this ADR records)
 - `ADR-001` (judgement and mechanism are separated — the evaluator's role boundary)
 - `ADR-002` (framework grows by artifacts and lenses, not guardrails or dimensions)
 - `governance/routing-policy.yml` — the file the floors live in
