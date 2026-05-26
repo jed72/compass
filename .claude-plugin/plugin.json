@@ -1,6 +1,6 @@
 {
   "name": "compass",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Compass — an adaptive spec-driven development framework. The Needle reads four context dimensions and a deterministic CLI computes the route; BDD/TDD strategies and five hard guardrails keep the work honest. Ships the /compass: pipeline commands, agents, skills, hooks, and the compass CLI.",
   "author": {
     "name": "jed72"
