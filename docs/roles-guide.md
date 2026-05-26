@@ -150,6 +150,58 @@ at Specify — it becomes an acceptance check and seeds the TDD cycle exactly
 like the engineer-facing scenarios. The designer feeds the shared file rather
 than consuming a finished one.
 
+### The architect-lens reads it against the project's architecture
+
+The sixth lens is the architect's, and like the designer's it is slightly
+different: the architect-lens reads `spec.feature.md` *and* the project's
+cross-task architectural artifacts under `architecture/`. Its governing
+question: **does this scenario respect the system's invariants — the
+boundaries in `relations.md`, the ownership rules in `ownership.md`, the
+decisions codified in `decisions/ADR-*.md`?**
+
+Take the finance export scenario above. The architect walks the scenario
+against `architecture/relations.md` and asks: *which service generates this
+export, and is the call path it implies allowed by the relations diagram?*
+If `relations.md` says the dashboard service may not call the ledger service
+directly (the export must go through the reporting service for caching and
+audit), and the scenario as written implies a direct call, the architect-lens
+flags the drift — *the scenario is well-formed and faithful to the brief, but
+it would cut a relation the architecture doesn't permit.* That is exactly the
+kind of failure mode the lens exists to catch.
+
+The architect-lens does **not** write a parallel spec. The scenario file is
+still the shared substrate; the lens's output is `architecture-notes.md` in
+the task directory — annotations *on* `plan.md`, pointing at the relevant
+ADR or relation each annotation defends:
+
+```markdown
+## Architecture notes for fix-export-cors
+
+- **Scenario TRC-A1** crosses `dashboard → ledger`, which `relations.md`
+  forbids (decided in `ADR-007 — reporting service owns ledger reads`).
+  → Plan must route the export through the reporting service. Direct
+    dashboard→ledger call is not an option.
+- **Plan §2 DD-1** assumes the existing reporting service exposes a
+  ledger-export endpoint. It does not. Either extend `reporting` or
+  re-frame this task to include that extension.
+```
+
+The architect-lens is **applied by `spec-author` and `planner` during the
+pipeline** — it does *not* have its own `/compass:…` entry point and is *not*
+counted as a sixth entry-point role. The other lenses in this guide are
+**entry-point roles** (each starts a Compass task); the architect-lens is a
+lens-without-an-entry-point. That is why Compass ships ten agents but only
+five entry-point roles: the architect-lens is the 10th agent and the 6th
+lens, applied at Specify and Plan when the project ships an `architecture/`
+directory. (Projects without `architecture/` get the lens as a no-op; the
+load is route-aware.)
+
+QA still owns the Verify gate; the architect-lens is *consulted* at Plan
+rather than gating it. But a Plan that an architect-lens annotation flags as
+architecturally unsound either gets re-planned or sent back to Specify — the
+annotation is not advisory, it identifies a fact about the system that the
+spec or plan needs to accept.
+
 ---
 
 ## What this demonstrates

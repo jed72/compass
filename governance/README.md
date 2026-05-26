@@ -92,6 +92,8 @@ stale, contradictory strategies is its own kind of mess. So:
 | `guardrails.md` | The 5 shipped default guardrails + a project-guardrails section | Hard, checkable, blocking |
 | `strategies.md` | The shipped default method strategies (incl. BDD and TDD) + a project-strategies section | Soft, assessed, accretive |
 | `routing-policy.md` | Routing guardrails (bound the Needle) + routing strategies (bias the Needle) | Both, applied to routing |
+| `signals.yml` | Advisory patterns: scope-bloat phrases the stop-hook nudges on, the rework-scan window, public-surface patterns | Soft signals — *not* guardrails; advisory only |
+| `quarantine.yml` | Records of intermittent tests explicitly quarantined with a tracking task | Pairs with the `no-trusted-rerun` rule on G4 (see `strategies.md` §6) |
 
 The framework ships these with sane, active defaults. `/compass:init` copies
 them into a project so the team can extend them; until then, the shipped

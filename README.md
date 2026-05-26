@@ -90,6 +90,27 @@ And governance is a **gradient, not a threshold**: the defaults ship active,
 so `/compass:init` is optional and `/compass:frame` works on day one. A team
 *accretes* its own strategies as it forms opinions. See `governance/`.
 
+### Fitness functions and intermittent-test integrity
+
+Two related v1.1.0 capabilities extend the governance story without adding to
+the hard guardrail count:
+
+- **Fitness functions as project guardrails.** A project declares a fitness
+  function as a guardrail in `governance/guardrails.yml` with
+  `check: command-passes` plus the command to run; `compass check` runs the
+  command at Verify and refuses to clear the gate if it does not exit 0. This
+  lets a team encode "the build is under N MB", "the API never returns 500 in
+  the smoke suite", "performance does not regress past P95 = X ms" *as
+  guardrails* — checkable, blocking, evidence-backed — without having to
+  invent new check types in the framework. See `architecture/decisions/ADR-009`.
+- **Intermittent-test integrity.** Tests that rerun to green are the classic
+  way a guardrail becomes silently advisory. The `no-trusted-rerun` rule on
+  G4 (evidence, not assertion) refuses to clear a test-run when a rerun was
+  needed unless either the root cause is fixed *or* the test is explicitly
+  quarantined in `governance/quarantine.yml` with a tracking task. The detail
+  lives in `governance/strategies.md` §6; the discipline is part of how
+  Compass takes G4 seriously.
+
 ## Roles are full citizens — one spec, many lenses
 
 Compass isn't an engineering framework with bolted-on hooks for everyone else.
@@ -108,6 +129,15 @@ every role reads it through their own lens:
 The product owner enters *upstream* of the spec. The marketer works *parallel*
 to it. The designer feeds *into* it. Nobody is just a downstream consumer of a
 finished engineering process.
+
+**A lens does not always have an entry point.** The table above lists five
+**entry-point roles** — each starts a Compass task with its own `/compass:…`
+command. The framework ships ten agents though, not five, because some lenses
+apply *during* the pipeline rather than starting it. The 10th — the
+**architect-lens** — reads the project's `architecture/` artifacts at Frame
+and annotates `plan.md` via `architecture-notes.md` at Plan; it is consulted
+by `spec-author` and `planner`, not invoked as its own entry point. See
+[`docs/roles-guide.md`](docs/roles-guide.md) for the full lens treatment.
 
 ## The five reference routes
 
@@ -143,6 +173,15 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
+compass analyze          cross-artifact coherence check: orphaned scenarios,
+                         route disagreements, orphan claims (advisory or
+                         gate-clearing if verify.analyze is in the route)
+compass adr new          create a new numbered ADR in architecture/decisions/
+compass rework-scan      scan tasks for rework patterns (window from signals.yml)
+compass flow [--digest]  cross-task flow view; --digest writes a dated digest
+                         with the rework-scan section and calibration signal
+compass next             surface the next action on the current task
+compass backfill pay     mark a backfill as paid in a task's task.yml
 compass calibration      aggregate the re-frame log — is routing well-sized?
 compass ci               the full mechanical gate suite, for CI — honour the exit code
 ```
@@ -228,14 +267,23 @@ pip install pyyaml      # the CLI's one dependency
 ```
 
 Enabling the plugin namespaces the commands as `/compass:…`, registers the
-hooks, and puts the `compass` CLI on your PATH. Or install from source — it
-wires the same pieces in by symlink, so edits to your clone are picked up live:
+hooks, and puts the `compass` CLI on your PATH (Claude Code adds the plugin's
+`bin/` to PATH automatically — that is the plugin-path-only convenience).
+
+Or install from source — `install.sh` wires the slash commands, agents,
+skills, and hooks in by symlink, so edits to your clone are picked up live:
 
 ```bash
 git clone https://github.com/jed72/compass.git
 cd compass && bash scripts/install.sh --global
 pip install pyyaml
 ```
+
+`install.sh` does **not** modify your PATH — the source install does not have
+the plugin runtime to do it for you. To make `compass` invokable from your
+shell, add `$PWD/bin` to your `PATH` (or invoke the CLI as
+`python3 $COMPASS_HOME/cli/compass`). The slash commands run the CLI on your
+behalf, so this only matters when you call it directly.
 
 Either way, start a task right away — the default guardrails ship active, so
 the Needle frames it and picks the route with zero setup:
@@ -270,12 +318,22 @@ Claude-Code-specific). The adapter layer wires both into Claude Code.
 ```
 compass/
 ├── governance/        Guardrails + strategies + routing policy — .md (prose)
-│                      AND .yml (the machine-readable governance the CLI runs)
+│                      AND .yml (the machine-readable governance the CLI runs;
+│                      including signals.yml and quarantine.yml)
+├── architecture/      The project's cross-task architectural artifacts:
+│                      system-context.md, relations.md, ownership.md, and
+│                      ADRs in decisions/. Compass ships its own (the
+│                      framework's founding ADRs) as a worked example for
+│                      adopters; another project drops its own here
 ├── routes/            The Needle (router.md) + the 5 reference routes
 ├── schemas/           Executable JSON Schema (.schema.json) for the .yml +
 │                      task.yml, with human-readable .reference.yml companions
 ├── cli/               compass — the deterministic CLI (route evaluate, check,
 │                      tdd-red/green, lint, calibration, ci); the kit's mechanism
+├── bin/               compass — plugin CLI shim that execs cli/compass.
+│                      Claude Code adds the plugin's bin/ to PATH when the
+│                      plugin is enabled, so `compass <subcommand>` resolves
+│                      without a manual symlink or alias
 ├── ci/                CI integration: the reference workflow + the contract
 │                      ("run compass ci, honour the exit code")
 ├── commands/          Slash commands: the pipeline + role entry points
@@ -285,6 +343,9 @@ compass/
 ├── templates/         Artifact templates for every phase and role —
 │                      including task.yml, the machine-readable task spine
 ├── scripts/           install, swarm, integrate, validate
+├── .claude-plugin/    Claude Code plugin manifest (plugin.json) +
+│                      marketplace manifest — the install path used by
+│                      `/plugin install`, parallel to scripts/install.sh
 └── docs/              methodology.md is the canonical design doc — start there
 ```
 

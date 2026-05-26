@@ -201,9 +201,20 @@ def test_net_new_signals_category_is_design_smell():
 # -----------------------------------------------------------------------------
 
 def test_comparison_requirements_task_still_lints_clean():
-    """A pre-existing landed task's task.yml must still lint clean on the new framework."""
+    """A pre-existing landed task's task.yml must still lint clean on the new framework.
+
+    The fixture lives under `tests/fixtures/comparison-requirements/` (a tracked
+    path). The original comparison-requirements task lived under `.compass/work/`,
+    which the framework repo's own .gitignore excludes — so the test must point
+    at the tracked fixture, not the gitignored slug.
+    """
+    fixture = REPO_ROOT / "tests" / "fixtures" / "comparison-requirements" / "task.yml"
+    assert fixture.exists(), (
+        f"Fixture missing at {fixture}. ADR-006 backward-compat test relies on "
+        f"this pre-v1.1.0-shape task.yml; constructing it is the v1-2-era fix."
+    )
     result = subprocess.run(
-        [sys.executable, "cli/compass", "task", "lint", "--task", "comparison-requirements"],
+        [sys.executable, "cli/compass", "task", "lint", "--file", str(fixture)],
         capture_output=True, text=True, cwd=str(REPO_ROOT),
     )
     assert result.returncode == 0, (
@@ -215,12 +226,21 @@ def test_comparison_requirements_task_still_lints_clean():
 def test_pre_existing_evidence_without_attempts_is_backward_compatible():
     """A landed task's test-run evidence (no attempts field) must still clear G4
     via the no-trusted-rerun check's backward-compat path (TRC-A5).
+
+    Reads from the tracked fixture under `tests/fixtures/` rather than the
+    gitignored `.compass/work/` slug. Previously the test silently
+    early-returned on a fresh clone when the gitignored fixture was missing
+    — that meant the assertion behind it never ran. Now the test fails
+    loudly if the tracked fixture is missing (which means a more meaningful
+    backward-compat test, defending ADR-006).
     """
-    # Read one of comparison-requirements' green files; it predates the attempts field
-    green_files = list((REPO_ROOT / ".compass/work/comparison-requirements/evidence").glob("green-TRC-A*.json"))
-    if not green_files:
-        # No prior evidence to inspect — backward compat is asserted by TRC-A5's test
-        return
+    evidence_dir = REPO_ROOT / "tests" / "fixtures" / "comparison-requirements" / "evidence"
+    green_files = list(evidence_dir.glob("green-TRC-A*.json"))
+    assert green_files, (
+        f"No green-TRC-A*.json files in {evidence_dir}. ADR-006 backward-compat "
+        f"test requires at least one pre-v1.1.0-shape evidence file to exercise "
+        f"the no-trusted-rerun check's TRC-A5 path."
+    )
     sample = json.loads(green_files[0].read_text())
     assert "attempts" not in sample, (
         f"Pre-existing evidence ({green_files[0].name}) must NOT have an attempts field "

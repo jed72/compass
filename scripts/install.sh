@@ -194,6 +194,43 @@ unregister_hooks() {
 chmod +x "$COMPASS_HOME"/hooks/*.sh 2>/dev/null || true
 chmod +x "$COMPASS_HOME"/scripts/*.sh 2>/dev/null || true
 
+# --- guard: don't double-register hooks in a plugin-source target -----------
+# If --project DIR is itself a Claude Code plugin source (it contains
+# .claude-plugin/plugin.json), the plugin manifest's own hook registration
+# already applies whenever the plugin is enabled. Adding a project-local
+# registration in DIR/.claude/settings.json AS WELL means every Edit/Write
+# fires pre-tool.sh and post-tool.sh TWICE (symptom: doubled devlog
+# entries). The detection looks for the manifest FILE — a stray
+# .claude-plugin/ directory without plugin.json is not a plugin source.
+#
+# The guard is install-only and project-mode-only:
+#   - On --uninstall we always want to strip prior registrations, regardless
+#     of plugin presence (recovery for users already in the bad state).
+#   - On --global we cannot reliably tell whether the user has the plugin
+#     enabled in any of their projects, so the guard does not fire there.
+PLUGIN_MANIFEST="$PROJECT_DIR/.claude-plugin/plugin.json"
+if [ "$ACTION" = "install" ] && [ "$MODE" = "project" ] && [ -f "$PLUGIN_MANIFEST" ]; then
+  echo "  plugin source detected: $PLUGIN_MANIFEST exists."
+  echo ""
+  echo "  This project is itself a Claude Code plugin. When the plugin is"
+  echo "  enabled, the plugin manifest's hook registration already applies;"
+  echo "  adding a project-local registration here as well would cause every"
+  echo "  Edit/Write tool call to fire pre-tool.sh and post-tool.sh TWICE."
+  echo ""
+  echo "  Refusing to install the adapter layer into a plugin source."
+  echo "  Cleaning up any prior Compass adapter wiring left over from an"
+  echo "  earlier install.sh run (so this is also the recovery path)..."
+  uninstall_component commands
+  uninstall_component agents
+  uninstall_component skills
+  unregister_hooks
+  echo ""
+  echo "  Done. Use the Compass plugin path (/plugin install) for this"
+  echo "  project, or run install.sh --project against a directory that is"
+  echo "  NOT itself a plugin source."
+  exit 0
+fi
+
 # --- run ---------------------------------------------------------------------
 if [ "$ACTION" = "uninstall" ]; then
   echo "Uninstalling..."

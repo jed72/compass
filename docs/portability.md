@@ -83,7 +83,7 @@ commands/        slash commands — the eight pipeline phases plus the role
                  entry points (all under the /compass: namespace)
 agents/          subagent definitions — navigator, spec-author, planner,
                  orchestrator, builder, verifier, reviewer, product-lens,
-                 marketing-lens
+                 marketing-lens, architect-lens
 skills/          procedural-knowledge modules — adaptive-routing,
                  bdd-specification, tdd-discipline, blueprint-distillation,
                  worktree-swarm, governance-check, traceability,
@@ -91,6 +91,12 @@ skills/          procedural-knowledge modules — adaptive-routing,
 hooks/           pre-tool.sh, post-tool.sh, stop.sh — mechanical guardrail
                  enforcement
 CLAUDE.md        the operating instructions loaded every Claude Code session
+bin/             compass — plugin CLI shim that execs cli/compass. Claude
+                 Code adds the plugin's bin/ to PATH automatically when the
+                 plugin is enabled
+.claude-plugin/  plugin.json + marketplace.json — the Claude Code plugin
+                 and marketplace manifests; the install path used by
+                 `/plugin install`, parallel to scripts/install.sh
 scripts/         install.sh, swarm.sh, integrate.sh, validate.sh
 ```
 
@@ -260,13 +266,16 @@ both are mechanism the adapter calls.
 |---|---|---|
 | The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
 | The Needle | A triage routine that produces the *readings*, then calls the kit to compose the route | `/compass:frame` + the `navigator` agent + the `adaptive-routing` skill, calling `compass route evaluate` |
-| The kit-layer CLI | A shell-out from the adapter — never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green` |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code) and `compass calibration` (the re-frame feedback loop) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration` |
-| Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens) | Distinct agent contexts or personas | `agents/*.md` |
+| The kit-layer CLI | A shell-out from the adapter — never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence — orphaned scenarios, route disagreements, orphan claims) |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-task view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration`, `compass rework-scan`, and `compass flow --digest` together |
+| Per-task next-step + backfill | The adapter wires `compass next` (surface the next action on the current task) and `compass backfill pay` (mark an owed backfill as paid) into its task-resumption and Land flows | `/compass:status` and `/compass:land` invoke them |
+| ADR creation | `compass adr new` (creates a numbered ADR file under `architecture/decisions/`) — the adapter exposes this in whatever shape its agents use for recording architectural decisions | `architect-lens` agent invokes it |
+| Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens, architect-lens) | Distinct agent contexts or personas. The 10th — architect-lens — reads the project's `architecture/` artifacts and writes `architecture-notes.md`; consulted by spec-author and planner | `agents/*.md` |
 | Skills | Loadable procedural-knowledge modules | `skills/*/SKILL.md` |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise | `compass check` + `hooks/pre-tool.sh`, `post-tool.sh`, `stop.sh` |
 | Role entry points | Distinct session-start modes | `/compass:intent`, `/compass:position`, `/compass:design`, `/compass:roundtable` |
 | The operating instructions | The runtime's always-loaded instruction file | `CLAUDE.md` (neutral form: `AGENTS.md`) |
+| Install surface | Whatever the runtime exposes for wiring the adapter in — a plugin manifest, a config-file edit, a PATH addition, an install script | `bin/compass` (plugin CLI shim) + `.claude-plugin/plugin.json` (plugin path used by `/plugin install`); `scripts/install.sh` (clone path, symlinks the adapter into `~/.claude/`) |
 
 ### State on disk — the non-negotiable substrate
 
@@ -338,9 +347,11 @@ The adapter layer, against the contract above:
   Build procedure to `compass tdd-red` / `tdd-green`. Re-expressing the
   procedure does not mean re-implementing the mechanism it invokes.
 - **`agents/`** → the new runtime's notion of distinct agent contexts. The
-  nine agents and their boundaries (the navigator owns Frame and only Frame;
+  ten agents and their boundaries (the navigator owns Frame and only Frame;
   the orchestrator writes no feature code; a builder never touches a sibling
-  worktree) are methodology; the wrapper is runtime.
+  worktree; the architect-lens reads `architecture/` and annotates `plan.md`
+  via `architecture-notes.md`, never writing feature code) are methodology;
+  the wrapper is runtime.
 - **`skills/`** → loadable procedural-knowledge modules in whatever form the
   runtime supports. If the runtime has no skill mechanism, the procedural
   knowledge has to be delivered another way — inlined into the command
