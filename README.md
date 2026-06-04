@@ -173,6 +173,8 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
+compass task receipt     render a one-screen receipt for a landed task —
+                         readings → route → typed evidence → gate verdicts
 compass analyze          cross-artifact coherence check: orphaned scenarios,
                          route disagreements, orphan claims (advisory or
                          gate-clearing if verify.analyze is in the route)

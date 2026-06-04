@@ -84,6 +84,40 @@ def test_trc_a2_five_minutes_cli_block_tracks_compass_help():
     )
 
 
+def _sub_verbs(parent):
+    """Parse `compass <parent> --help` and return the set of sub-verb names."""
+    result = subprocess.run(
+        [sys.executable, str(COMPASS_CLI), parent, "--help"],
+        capture_output=True, text=True, check=True, timeout=10,
+    )
+    m = re.search(r"\{([a-zA-Z0-9_,\-]+)\}", result.stdout)
+    assert m, (
+        f"Could not find sub-verb list in `compass {parent} --help` output:\n{result.stdout}"
+    )
+    return set(m.group(1).split(","))
+
+
+def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
+    """README.md and docs/five-minutes.md CLI blocks name every `compass task`
+    sub-verb (lint, receipt, ...). The earlier tests cover top-level verbs; this
+    one covers the sub-verbs under `task` so a new one cannot ship undocumented
+    behind a top-level no-op (e.g. `compass task receipt` adding to existing
+    `compass task lint`).
+    """
+    sub_verbs = _sub_verbs("task")
+    for doc_file in ("README.md", "docs/five-minutes.md"):
+        block = _cli_block_in(doc_file)
+        missing = sorted(
+            v for v in sub_verbs
+            if not re.search(rf"(?<![\w-])compass task {re.escape(v)}(?![\w-])", block)
+        )
+        assert not missing, (
+            f"{doc_file} CLI block does not name {['compass task ' + v for v in missing]}. "
+            f"`compass task --help` declares: {sorted(sub_verbs)}.\n\n"
+            f"Block content:\n{block}"
+        )
+
+
 # ---------------------------------------------------------------------------
 # Group B — adapter contract tables (runtime-neutral)
 # ---------------------------------------------------------------------------

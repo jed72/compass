@@ -64,7 +64,7 @@ except ImportError:
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))  # realpath: resolve symlinks
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
-COMPASS_VERSION = "1.3.0"    # the CLI's own version
+COMPASS_VERSION = "1.4.0"    # the CLI's own version
 COMPASS_SCHEMA_VERSION = "1.0"    # the task.yml schema this CLI understands
 COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
 
@@ -1928,6 +1928,215 @@ def _find_reframe_debt(tasks, work):
     return debts
 
 
+def _load_friction_threshold():
+    """Load friction.recurrence_threshold from signals.yml at runtime.
+
+    Mirrors _load_scope_bloat_phrases (B-Risk 6: never hardcode the value in
+    the CLI — read it from the governance file). Defaults to 2 when signals.yml
+    is absent or the block is unset (ADR-006: clean no-op for non-adopters; and
+    2 mirrors `calibration`'s own >=2 up/down-sizing thresholds).
+    """
+    default = 2
+    try:
+        gov = find_governance()
+        sig_path = os.path.join(gov, "signals.yml")
+        if not os.path.isfile(sig_path):
+            return default
+        sig = load_yaml(sig_path)
+        fr = sig.get("friction") or {}
+        n = fr.get("recurrence_threshold", default)
+        n = int(n)
+        return n if n >= 1 else default
+    except (CompassError, ValueError, TypeError):
+        return default
+
+
+def _aggregate_friction(tasks, threshold):
+    """Aggregate the `friction:` lists across tasks into recurring clusters.
+
+    Grouping is by case/whitespace-normalised `proposed_change` (clarifications
+    Q2 — exact-normalised, never semantic: the aggregator is mechanism, so it
+    must be reproducible, ADR-001). A cluster is `recurring` when it is proposed
+    by at least `threshold` distinct tasks. Pure function; reads nothing, writes
+    nothing.
+    """
+    import re as _re
+
+    def _norm(s):
+        return _re.sub(r"\s+", " ", (s or "").strip()).lower()
+
+    clusters = {}
+    by_category = {}
+    n_with_friction = 0
+    for slug, t in tasks:
+        fr = t.get("friction") or []
+        if fr:
+            n_with_friction += 1
+        for e in fr:
+            if not isinstance(e, dict):
+                continue
+            cat = e.get("category", "other")
+            by_category[cat] = by_category.get(cat, 0) + 1
+            pc = e.get("proposed_change") or ""
+            key = _norm(pc)
+            if not key:
+                continue  # nothing to cluster on; still counted by category
+            c = clusters.setdefault(
+                key, {"proposed_change": pc.strip(), "categories": set(),
+                      "tasks": set()})
+            c["categories"].add(cat)
+            c["tasks"].add(slug)
+
+    recurring, below = [], []
+    for c in clusters.values():
+        item = {
+            "proposed_change": c["proposed_change"],
+            "categories": sorted(c["categories"]),
+            "tasks": sorted(c["tasks"]),
+            "count": len(c["tasks"]),
+        }
+        (recurring if item["count"] >= threshold else below).append(item)
+    recurring.sort(key=lambda x: (-x["count"], x["proposed_change"]))
+    below.sort(key=lambda x: x["proposed_change"])
+    return {
+        "threshold": threshold,
+        "tasks_with_friction": n_with_friction,
+        "by_category": dict(sorted(by_category.items(), key=lambda kv: -kv[1])),
+        "recurring": recurring,
+        "below_threshold": below,
+    }
+
+
+def _cmd_calibration_friction(args, tasks):
+    """The `compass calibration --friction` view. Read-only; exit 0 always
+    (Inv: friction advises, never gates — like rework-scan and flow)."""
+    threshold = _load_friction_threshold()
+    agg = _aggregate_friction(tasks, threshold)
+
+    fmt = getattr(args, "format", "markdown") or "markdown"
+    if fmt == "json":
+        print(json.dumps(agg, indent=2))
+        return 0
+
+    print(f"compass calibration --friction — {agg['tasks_with_friction']} "
+          f"task(s) with recorded friction\n")
+    if agg["tasks_with_friction"] == 0:
+        print("No friction recorded — nothing to aggregate. Either Compass is "
+              "staying out of the way, or\nthere is not enough history yet.")
+        return 0
+
+    print("Friction by category:")
+    for cat, n in agg["by_category"].items():
+        print(f"  {cat:<16}: {n}")
+    print()
+    print(f"Recurring friction (>= {threshold} tasks) — candidate framework "
+          f"changes:")
+    if agg["recurring"]:
+        for c in agg["recurring"]:
+            cats = ", ".join(c["categories"])
+            print(f"  [{cats}] {c['proposed_change']}")
+            print(f"      {c['count']} tasks: {', '.join(c['tasks'])}")
+    else:
+        print("  (none yet — no proposed change has recurred across enough "
+              "tasks)")
+    if agg["below_threshold"]:
+        print()
+        print(f"Below threshold (not yet a trend): "
+              f"{len(agg['below_threshold'])} item(s)")
+    print()
+    print("Advisory only. Claude or a human reads these and drafts targeted "
+          "changes to\ngovernance/ or the routes — the loop never edits "
+          "governance itself (ADR-001, USP-2).")
+    return 0
+
+
+def derive_friction(slug, task, work):
+    """Assemble the `source: derived` friction entries for one task from signals
+    the CLI already computes — recorded reframes and absorbed reframe-debt.
+
+    A reframe is a Frame that mis-read the terrain; reframe-debt is a mis-frame
+    absorbed without one being filed. Both are friction by definition. Pure: it
+    reads task.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
+    entries carry no `proposed_change` — a reframe does not propose a specific
+    governance change; it is the recurrence of *human*-proposed changes that the
+    aggregator clusters on.
+    """
+    entries = []
+    for rf in (task.get("reframes") or []):
+        if not isinstance(rf, dict):
+            continue
+        fr = rf.get("from_route", "?")
+        to = rf.get("to_route", "?")
+        reason = (rf.get("reason") or "").strip()
+        obs = f"reframe {fr} -> {to}"
+        if reason:
+            obs += f": {reason}"
+        entries.append({
+            "phase": "frame",
+            "category": "mis-route",
+            "observation": obs,
+            "source": "derived",
+        })
+    for d in _find_reframe_debt([(slug, task)], work):
+        entries.append({
+            "phase": "frame",
+            "category": "mis-route",
+            "observation": ("absorbed scope-bloat without a reframe: "
+                            f"{d['devlog_line']}"),
+            "source": "derived",
+        })
+    return entries
+
+
+def cmd_friction_capture(args):
+    """Private entry point for `compass _friction-capture --internal`, called by
+    the Land procedure. Assembles the task's `friction:` list from derived
+    signals plus an optional human note and writes it into the task spine.
+
+    It writes ONLY the friction section — never a backfill or a gate. Friction
+    is a strategy-class signal and must never become something that blocks Land
+    (USP-3, ADR-002). The derivation is mechanism; the `--note` is the only
+    judgement input, supplied human-side (ADR-001).
+    """
+    if not getattr(args, "internal", False):
+        raise CompassError(
+            "compass _friction-capture: the --internal flag is required — this "
+            "is an in-framework entry point called by the Land procedure, not a "
+            "public verb.")
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task, path = load_task(task_dir)
+    slug = os.path.basename(os.path.normpath(task_dir))
+    work = os.path.join(find_compass_dir(), "work")
+
+    entries = derive_friction(slug, task, work)
+
+    note = getattr(args, "note", None)
+    if note:
+        human = {
+            "phase": getattr(args, "note_phase", None) or None,
+            "category": getattr(args, "note_category", None) or "other",
+            "observation": note,
+            "source": "human",
+        }
+        if human["phase"] is None:
+            del human["phase"]
+        entries.append(human)
+
+    if entries:
+        task["friction"] = entries
+        save_task(task, path)
+        print(f"compass _friction-capture: recorded {len(entries)} friction "
+              f"entry(ies) -> {path}")
+        for e in entries:
+            print(f"  [{e['source']}/{e['category']}] {e.get('observation', '')}")
+    else:
+        # Recording nothing is a valid, common outcome (TRC-A5). Leave the key
+        # absent so a task that hit no friction stays a clean no-op (ADR-006).
+        print("compass _friction-capture: no friction derived and no note "
+              "supplied — nothing recorded (a valid, common outcome).")
+    return 0
+
+
 def cmd_calibration(args):
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
@@ -1948,6 +2157,12 @@ def cmd_calibration(args):
                     tasks.append((d, load_yaml(tp)))
                 except CompassError:
                     pass
+
+    # --- friction view (TRC-B*) — a flag on calibration, not a new verb.
+    # Read-only, exit 0 always; handles the empty corpus gracefully.
+    if getattr(args, "friction", False):
+        return _cmd_calibration_friction(args, tasks)
+
     if not tasks:
         print("compass calibration: no tasks under .compass/work/ yet — "
               "nothing to calibrate against.")
@@ -3251,6 +3466,322 @@ def cmd_task_lint(args):
     return 0
 
 
+# --- command: task receipt ---------------------------------------------------
+# `compass task receipt --task <slug>` renders a one-screen receipt of a task:
+# readings -> route -> gates with verdicts -> evidence registry -> overall
+# verdict. Read-only over .compass/work/<slug>/{task.yml, route.md, evidence/}
+# plus governance/guardrails.yml; never re-executes checks (INT-2 / ADR-005).
+# Clustered here next to cmd_task_lint so Move 5C can relocate as one block.
+
+def _receipt_resolve_task_dir(args):
+    """Resolve a task dir for the receipt, honouring --workdir if present.
+
+    Returns (task_dir, slug, project_root). Raises CompassError with a
+    receipt-specific message that names both the slug and the expected
+    directory (TRC-D3).
+    """
+    workdir = getattr(args, "workdir", None)
+    slug = args.task
+    if workdir:
+        project_root = os.path.abspath(workdir)
+        compass_dir = os.path.join(project_root, ".compass")
+    else:
+        compass_dir = find_compass_dir()
+        project_root = os.path.dirname(compass_dir)
+    if not slug:
+        ptr = os.path.join(compass_dir, "current-task")
+        if os.path.isfile(ptr):
+            with open(ptr, "r", encoding="utf-8") as fh:
+                slug = fh.read().strip()
+    if not slug:
+        raise CompassError(
+            "compass task receipt: no --task and no .compass/current-task pointer"
+        )
+    task_dir = os.path.join(compass_dir, "work", slug)
+    if not os.path.isdir(task_dir):
+        raise CompassError(
+            f"compass task receipt: task '{slug}' not found at "
+            f".compass/work/{slug} (looked under {task_dir})"
+        )
+    return task_dir, slug, project_root
+
+
+def _receipt_gate_requirements(project_root):
+    """Read gate_evidence_requirements from governance/guardrails.yml (DD-3).
+
+    Returns {gate_id: frozenset(accepted_types)}. {} when the file is absent —
+    type-mismatch detection then silently no-ops (degrades gracefully on
+    projects that have not adopted governance, per ADR-006).
+    """
+    path = os.path.join(project_root, "governance", "guardrails.yml")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        data = load_yaml(path) or {}
+    except CompassError:
+        return {}
+    raw = data.get("gate_evidence_requirements") or {}
+    return {
+        k: frozenset(v) for k, v in raw.items()
+        if isinstance(v, list) and v
+    }
+
+
+def _receipt_parse_route_md_readings(route_md_path):
+    """Parse the four-readings table out of a route.md file.
+
+    Returns {key: (value, justification)} for the four dimensions; absent
+    rows are simply not in the dict. If the file is missing or unparseable,
+    returns {} — the caller renders "(no justification on file)" in that case.
+    """
+    import re as _re
+    if not os.path.isfile(route_md_path):
+        return {}
+    text = open(route_md_path, "r", encoding="utf-8").read()
+    out = {}
+    for dim_label, key in [
+        ("Blast radius", "blast_radius"),
+        ("Terrain", "terrain"),
+        ("Magnitude", "magnitude"),
+        ("Intent & role", "intent"),
+    ]:
+        m = _re.search(
+            rf"\|\s*\*\*{_re.escape(dim_label)}\*\*\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|",
+            text,
+        )
+        if m:
+            out[key] = (m.group(1).strip(), m.group(2).strip())
+    return out
+
+
+_RECEIPT_RULE = "=" * 80
+_RECEIPT_LINE_CAP = 100
+
+# Per DD-3: types not listed render as id+type+path. Listing extras here is the
+# only piece that adapts when a type gains meaningful payload fields.
+_RECEIPT_EVIDENCE_EXTRAS = {
+    "test-run": ("scenario",),
+    "manual-review": ("reviewer",),
+    "human-approval": ("approver", "role", "decision"),
+    "spike-conclusion": ("decision", "next_task"),
+}
+
+
+def _receipt_truncate(text, width=_RECEIPT_LINE_CAP):
+    """ASCII-safe line truncation. Honours DD-2 (no ANSI; bytes stable across
+    terminals/CI). Tail "..." indicates the cut."""
+    if len(text) <= width:
+        return text
+    if width <= 3:
+        return text[:width]
+    return text[:width - 3] + "..."
+
+
+def _receipt_render(task, slug, route_readings, gate_requirements=None):
+    """Render the one-screen receipt for a task. Returns a string.
+
+    Sections (TRC-A1 order):
+      1. header  — slug + landed/in-progress status
+      2. readings + justifications
+      3. route + fired routing guardrails
+      4. gates + verdicts + evidence ids
+      5. evidence registry (id, type, path)
+      6. overall verdict line
+    """
+    lines = []
+    schema_version = str(task.get("schema_version") or "")
+    # 1.x is the current schema; anything else (or absent) is legacy. ADR-006:
+    # render meaningfully on pre-feature task.ymls, do not crash.
+    is_legacy = not schema_version.startswith("1.1")
+    # status: in 1.0 there is no status field — those tasks are treated as
+    # active by the rest of the CLI, and the receipt does the same. Honesty:
+    # a legacy task with no status cannot be reported as cleanly landed.
+    raw_status = task.get("status")
+    is_landed = (raw_status == "landed")
+    if is_landed:
+        header_status = "landed"
+    elif raw_status == "active" or raw_status is None:
+        header_status = "IN PROGRESS — not yet landed"
+    else:
+        header_status = str(raw_status).upper()
+    schema_note = f" — schema {schema_version or '1.0'} (legacy)" if is_legacy else ""
+
+    # 1. header
+    lines.append(_RECEIPT_RULE)
+    lines.append(f"Receipt — {slug} ({header_status}){schema_note}")
+    lines.append(_RECEIPT_RULE)
+    lines.append("")
+
+    # 2. readings + justifications
+    lines.append("Readings")
+    lines.append("--------")
+    readings = task.get("readings") or {}
+    for label, key in [
+        ("blast radius", "blast_radius"),
+        ("terrain", "terrain"),
+        ("magnitude", "magnitude"),
+        ("intent", "intent"),
+    ]:
+        if key == "intent":
+            role = readings.get("role") or "engineer"
+            intent_v = readings.get("intent") or "(not recorded)"
+            value = f"{intent_v} ({role})"
+        else:
+            value = str(readings.get(key) or "(not recorded)")
+        justification = "(no justification on file)"
+        if key in route_readings:
+            justification = route_readings[key][1]
+        lines.append(_receipt_truncate(
+            f"  {label:<14}  {value:<22}  {justification}"))
+    touches = readings.get("touches") or []
+    if touches:
+        lines.append(_receipt_truncate(
+            f"  {'touches':<14}  {', '.join(touches)}"))
+    lines.append("")
+
+    # 3. route + fired routing guardrails
+    lines.append("Route")
+    lines.append("-----")
+    route_name = task.get("route") or "(not recorded)"
+    topology = task.get("topology") or ""
+    lines.append(_receipt_truncate(
+        f"  {route_name}  (topology: {topology})"))
+    fired = task.get("fired_guardrails") or []
+    if fired:
+        lines.append("  routing guardrails fired:")
+        for g in fired:
+            gid = g.get("id", "?") if isinstance(g, dict) else str(g)
+            rationale = g.get("rationale", "") if isinstance(g, dict) else ""
+            lines.append(_receipt_truncate(f"    {gid}: {rationale}"))
+    else:
+        lines.append("  routing guardrails fired: none")
+    lines.append("")
+
+    # 4. gates + verdicts + evidence ids
+    # The verdict label is honest about the recorded state (TRC-C1, TRC-C2):
+    # a pass referencing wrong-typed evidence is type-mismatch; a pass with no
+    # evidence is unsupported. The receipt reports; it does not enforce.
+    lines.append("Gates")
+    lines.append("-----")
+    gates = task.get("gates") or []
+    evidence_by_id = {ev.get("id"): ev for ev in (task.get("evidence") or [])
+                      if isinstance(ev, dict) and ev.get("id")}
+    any_fail = False
+    any_caveat = False
+    requirements = gate_requirements or {}
+    for g in gates:
+        gid = g.get("id", "?")
+        gstatus = g.get("status", "pending")
+        ev_ids = g.get("evidence") or []
+        if gstatus == "fail":
+            verdict = "[ FAIL ]"
+            any_fail = True
+        elif gstatus == "pass":
+            if not ev_ids:
+                verdict = "[ UNSUPPORTED ]"
+                any_caveat = True
+            else:
+                req_types = requirements.get(gid)
+                if req_types:
+                    ev_types = {evidence_by_id.get(eid, {}).get("type")
+                                for eid in ev_ids}
+                    ev_types.discard(None)
+                    if ev_types and not (ev_types & req_types):
+                        verdict = "[ TYPE-MISMATCH ]"
+                        any_caveat = True
+                    else:
+                        verdict = "[ PASS ]"
+                else:
+                    verdict = "[ PASS ]"
+        elif gstatus == "pending":
+            verdict = "[ PENDING ]"
+        else:
+            verdict = f"[ {gstatus.upper()} ]"
+        ev_str = ", ".join(ev_ids) if ev_ids else "(none)"
+        lines.append(_receipt_truncate(
+            f"  {gid:<26} {verdict:<18} evidence: {ev_str}"))
+    lines.append("")
+
+    # 5. evidence registry — type-specific minimal fields rendered alongside
+    # the path (TRC-B1). The dispatch table covers only types with meaningful
+    # extras; any future type without an entry renders id+type+path (DD-3 —
+    # adding an evidence type to governance/guardrails.yml does not require a
+    # renderer change, it just lands as a path-only entry until/unless someone
+    # adds an extras tuple here).
+    lines.append("Evidence")
+    lines.append("--------")
+    evs = task.get("evidence") or []
+    if not evs:
+        lines.append("  (no evidence recorded)")
+    else:
+        for ev in evs:
+            if not isinstance(ev, dict):
+                continue
+            eid = ev.get("id", "?")
+            etype = ev.get("type", "?")
+            epath = ev.get("path", "")
+            lines.append(_receipt_truncate(
+                f"  {eid:<8}  {etype:<18}  {epath}"))
+            extras = _RECEIPT_EVIDENCE_EXTRAS.get(etype, ())
+            extra_pairs = ", ".join(
+                f"{k}: {ev.get(k)}" for k in extras if ev.get(k) is not None
+            )
+            if extra_pairs:
+                # Continuation line, indented under the entry to keep the
+                # primary row narrow and avoid hitting the 100-col cap on
+                # long extras (e.g. spike-conclusion's decision + next_task).
+                lines.append(_receipt_truncate(f"            {extra_pairs}"))
+    lines.append("")
+
+    # 5b. backfills (rendered only when any exist)
+    backfills = task.get("backfills") or []
+    if backfills:
+        lines.append("Backfills")
+        lines.append("---------")
+        for b in backfills:
+            if not isinstance(b, dict):
+                continue
+            bid = b.get("id", "?")
+            bstatus = b.get("status", "?")
+            bdesc = b.get("description", "")
+            marker = "[ OWED ]" if bstatus == "owed" else "[ paid ]"
+            lines.append(_receipt_truncate(
+                f"  {bid:<8}  {marker:<10} {bdesc}"))
+        lines.append("")
+
+    # 6. overall verdict
+    lines.append(_RECEIPT_RULE)
+    n_owed = sum(1 for b in backfills if isinstance(b, dict)
+                 and b.get("status") == "owed")
+    if not is_landed:
+        verdict_line = "Verdict: not yet landed"
+    elif any_fail:
+        verdict_line = "Verdict: FAILED — does not satisfy its own gates"
+    elif n_owed:
+        verdict_line = f"Verdict: landed with caveats — {n_owed} backfill(s) owed"
+    elif any_caveat:
+        verdict_line = "Verdict: landed with caveats"
+    else:
+        verdict_line = "Verdict: landed cleanly"
+    lines.append(verdict_line)
+
+    return "\n".join(lines)
+
+
+def cmd_task_receipt(args):
+    try:
+        task_dir, slug, project_root = _receipt_resolve_task_dir(args)
+    except CompassError as exc:
+        sys.stderr.write(f"{exc}\n")
+        return 1
+    task = load_yaml(os.path.join(task_dir, "task.yml")) or {}
+    route_readings = _receipt_parse_route_md_readings(
+        os.path.join(task_dir, "route.md"))
+    gate_requirements = _receipt_gate_requirements(project_root)
+    print(_receipt_render(task, slug, route_readings, gate_requirements))
+    return 0
+
+
 # --- command: adr ------------------------------------------------------------
 # `compass adr new <slug>` creates a sequentially-numbered ADR file under
 # architecture/decisions/ and registers it in the README.md index.
@@ -3882,6 +4413,19 @@ def build_parser():
     pcal = sub.add_parser("calibration",
                           help="the Needle's feedback loop — re-frame patterns "
                                "across all tasks (is routing well-sized?)")
+    pcal.add_argument(
+        "--friction",
+        action="store_true",
+        help="aggregate the per-task `friction:` signal instead of reframes — "
+             "recurring process friction grouped by category and proposed "
+             "change (advisory only; exit 0 always)",
+    )
+    pcal.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="output format for --friction (default: markdown)",
+    )
     pcal.set_defaults(func=cmd_calibration)
 
     pci = sub.add_parser("ci",
@@ -3917,6 +4461,11 @@ def build_parser():
     ptl.add_argument("--task", help="task slug (default: current-task pointer)")
     ptl.add_argument("--file", help="lint a specific task.yml file")
     ptl.set_defaults(func=cmd_task_lint)
+
+    ptr = pts.add_parser("receipt", help="render a one-screen receipt for a task")
+    ptr.add_argument("--task", help="task slug (default: current-task pointer)")
+    ptr.add_argument("--workdir", help="alternate project root (default: cwd)")
+    ptr.set_defaults(func=cmd_task_receipt)
 
     padr = sub.add_parser("adr", help="Architecture Decision Record tools")
     padrs = padr.add_subparsers(dest="subcmd", required=True)
@@ -4020,6 +4569,18 @@ def build_parser():
         help=argparse.SUPPRESS,
     )
     p_derive.set_defaults(func=cmd_derive_system_spec)
+
+    # Private entry point for the Land friction-capture step (DD-3). Hidden the
+    # same way as _derive-system-spec; called by commands/land.md, not a public
+    # verb (PRD Goal 4 — deepen, don't widen the surface).
+    p_fric = sub.add_parser("_friction-capture", help=argparse.SUPPRESS)
+    p_fric.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
+    p_fric.add_argument("--task", help=argparse.SUPPRESS)
+    p_fric.add_argument("--note", help=argparse.SUPPRESS)
+    p_fric.add_argument("--note-category", dest="note_category",
+                        help=argparse.SUPPRESS)
+    p_fric.add_argument("--note-phase", dest="note_phase", help=argparse.SUPPRESS)
+    p_fric.set_defaults(func=cmd_friction_capture)
     # Hide all private (leading-underscore) subcommands from --help output:
     #   1. Remove from _choices_actions  →  hides from the positional-args
     #      listing section in the help text.

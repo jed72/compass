@@ -27,6 +27,14 @@ design_smell:
   - "assertions on internal method calls"
   - "single test asserts more than one behaviour"
 
+# The framework's self-calibration signal (see commands/land.md, `compass
+# calibration --friction`). `recurrence_threshold` is the number of distinct
+# tasks that must independently propose the same change before it is surfaced
+# as a recurring pattern — below it, an item is noise, not a trend. Read at
+# runtime (never hardcoded — B-Risk 6); advisory only, never a gate (USP-3).
+friction:
+  recurrence_threshold: 2
+
 rework_scan:
   window_days: 14
   public_surface_patterns:

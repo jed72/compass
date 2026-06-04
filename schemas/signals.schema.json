@@ -49,6 +49,18 @@
       "items": { "type": "string", "minLength": 1 },
       "minItems": 0,
       "uniqueItems": true
+    },
+    "friction": {
+      "type": "object",
+      "description": "Config for the framework's self-calibration friction signal, aggregated by `compass calibration --friction`. Advisory only — never a gate (USP-3).",
+      "additionalProperties": false,
+      "properties": {
+        "recurrence_threshold": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of distinct tasks that must independently propose the same change before it is reported as a recurring pattern. Below it, an item is noise, not a trend. Defaults to 2 when absent."
+        }
+      }
     }
   }
 }
