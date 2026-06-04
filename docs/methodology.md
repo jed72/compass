@@ -593,6 +593,45 @@ a nudge is appropriate.
 **The rule:** if scope grew, file the re-frame. The re-frame is not a failure;
 it is the calibration signal working as intended.
 
+### The friction signal — calibrating the ceremony itself
+
+The `reframes:` log answers "did the Needle mis-*size* the route?" The
+**friction signal** answers a different question on the same axis: "did
+Compass's own ceremony cost more than it returned on this task?" — a phase that
+fought the work, a gate that demanded ceremony the task didn't warrant, a
+routing default that routed badly, a missing strategy that would have caught a
+defect earlier.
+
+It is captured at **Land**, when the gap between what Frame promised and what
+Build/Verify actually cost is freshest. `compass _friction-capture` (called by
+the Land procedure) assembles a draft `friction:` list in `task.yml` from
+signals the CLI already computes — recorded `reframes` and absorbed
+reframe-debt become `source: derived` entries — and the author may add one
+optional `source: human` line. **Recording nothing is a valid, common
+outcome.** Each entry carries a `category` (over-ceremony, under-ceremony,
+mis-route, missing-strategy, tooling, docs, other) and, for human entries, a
+`proposed_change` describing how the framework could have been configured to
+avoid the friction.
+
+`compass calibration --friction` aggregates these across every task, groups
+recurring `proposed_change` targets (exact-normalised, never semantic), and
+surfaces only those that recur at or above `signals.yml`'s
+`friction.recurrence_threshold` (default 2) — a one-off is noise, not a trend.
+The output (`--format json` for machine consumers) is what Claude or a human
+reads to **draft** a targeted change to `governance/` or the routes.
+
+Three properties keep this on the right side of every Compass line:
+
+1. **It never gates.** Friction is a strategy-class signal, not a guardrail
+   (ADR-002 keeps the guardrail count at five). A task with no friction record
+   Lands exactly as one with. `compass calibration --friction` is read-only and
+   exits 0 always — like `rework-scan` and `flow`.
+2. **It never auto-tunes.** The loop produces drafts; a human edits governance.
+   Telemetry advises, judgement stays human-side (ADR-001, the determinism
+   boundary).
+3. **It no-ops cleanly.** Absent a `friction:` block, every command behaves
+   exactly as before — a 1.x `task.yml` without the field is valid (ADR-006).
+
 ## 14. Design principles (the short version)
 
 1. **Compute the process, don't select it.** Intensity is a function of the

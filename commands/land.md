@@ -76,7 +76,19 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
    at the task being landed, and that backfill is still `status: owed`, `compass
    check` fails at Land even if this task's own DoD section is clean. Pay the
    upstream backfill first.
-6. **Final devlog entry.** One entry: what landed, how it was verified, what
+6. **Capture process friction (advisory — never a gate).** With the gate
+   already cleared in step 5, record where Compass's *own* ceremony cost more
+   than it returned between Frame and Land. Run
+   `compass _friction-capture --internal` — it assembles a draft `friction:`
+   list from signals the CLI already computed (recorded `reframes`, absorbed
+   reframe-debt) and writes it into `task.yml`. Then offer the author **one
+   optional line**: *"anything the framework made harder than it should have
+   been?"* — pass it with `--note "…" --note-category <over-ceremony|tooling|…>
+   --note-phase <phase>`. **Recording nothing is a valid, common outcome.**
+   This step never blocks Land: it runs after the gate, writes only the
+   `friction:` section (no backfill, no gate), and `compass calibration
+   --friction` later aggregates it across tasks as advice (USP-3, ADR-001/003).
+7. **Final devlog entry.** One entry: what landed, how it was verified, what
    backfills were paid.
 
 ## Gate — Land refuses to close the task unless

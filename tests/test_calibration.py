@@ -310,6 +310,168 @@ def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project)
         )
 
 
+# --- friction aggregation: calibration --friction --------------------------
+# TRC-B1, TRC-B2, TRC-B3, TRC-F1, TRC-F2, TRC-F3.
+
+
+def _task_with_friction(slug, friction, base_route="standard"):
+    return {
+        "task": slug,
+        "created": "2026-05-15",
+        "readings": {
+            "blast_radius": "contained",
+            "terrain": "brownfield-mapped",
+            "magnitude": "small",
+            "intent": "delivery",
+        },
+        "route": base_route,
+        "friction": friction,
+    }
+
+
+def _friction(proposed_change, category="over-ceremony", source="human"):
+    return {
+        "phase": "plan",
+        "category": category,
+        "observation": "ceremony got in the way",
+        "proposed_change": proposed_change,
+        "source": source,
+    }
+
+
+PC_CLARIFY = "routing-policy.yml: lower Clarify weight for magnitude=small."
+
+
+def test_friction_groups_recurring_by_category_and_target(run_cli, make_task):
+    """TRC-B1: friction recurring across tasks is grouped by category and by
+    proposed_change target, and reports the contributing count."""
+    make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
+    make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
+    make_task("ft3", _task_with_friction("ft3", [_friction(PC_CLARIFY)]))
+    r = run_cli("calibration", "--friction")
+    assert r.returncode == 0, r
+    out = r.stdout
+    assert "over-ceremony" in out, r          # grouped by category
+    assert PC_CLARIFY in out, r               # grouped by proposed_change target
+    assert "3" in out, r                      # contributing count
+
+
+def test_friction_one_off_below_threshold(run_cli, make_task):
+    """TRC-B2: a single occurrence (below the default threshold of 2) is not
+    surfaced as a recurring trend."""
+    make_task("ft1", _task_with_friction(
+        "ft1", [_friction("a one-off proposal nobody else made")]))
+    # plus an unrelated recurring pair so the report is non-empty
+    make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
+    make_task("ft3", _task_with_friction("ft3", [_friction(PC_CLARIFY)]))
+    r = run_cli("calibration", "--friction")
+    assert r.returncode == 0, r
+    # The recurring cluster is surfaced…
+    assert PC_CLARIFY in r.stdout, r
+    # …but the one-off must NOT be reported as a recurring/trend item.
+    # We assert it does not appear in a "recurring" context: simplest robust
+    # check — the JSON view classifies it below threshold.
+    rj = run_cli("calibration", "--friction", "--format", "json")
+    assert rj.returncode == 0, rj
+    import json as _json
+    data = _json.loads(rj.stdout)
+    recurring_pcs = {c["proposed_change"] for c in data["recurring"]}
+    assert PC_CLARIFY in recurring_pcs, rj
+    assert "a one-off proposal nobody else made" not in recurring_pcs, rj
+
+
+def test_friction_json_format(run_cli, make_task):
+    """TRC-B3: --friction --format json emits machine-consumable JSON carrying
+    the grouped, threshold-filtered clusters with contributing task slugs."""
+    make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
+    make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
+    r = run_cli("calibration", "--friction", "--format", "json")
+    assert r.returncode == 0, r
+    import json as _json
+    data = _json.loads(r.stdout)          # must be valid JSON
+    assert "recurring" in data, r
+    cluster = next(c for c in data["recurring"]
+                   if c["proposed_change"] == PC_CLARIFY)
+    assert cluster["count"] == 2, r
+    assert set(cluster["tasks"]) == {"ft1", "ft2"}, r
+
+
+def test_friction_view_writes_nothing(run_cli, make_task, project):
+    """TRC-F2: the friction view is read-only — it writes no task.yml and no
+    file under governance/, and exits 0."""
+    import hashlib
+
+    task_dir = make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
+    task_yml = task_dir / "task.yml"
+
+    def _tree_sha(root):
+        h = hashlib.sha256()
+        for p in sorted(root.rglob("*")):
+            if p.is_file():
+                h.update(p.relative_to(root).as_posix().encode())
+                h.update(p.read_bytes())
+        return h.hexdigest()
+
+    gov_before = _tree_sha(project / "governance")
+    task_before = hashlib.sha256(task_yml.read_bytes()).hexdigest()
+
+    r = run_cli("calibration", "--friction")
+    assert r.returncode == 0, r
+
+    assert _tree_sha(project / "governance") == gov_before, (
+        "TRC-F2 violated: --friction modified a file under governance/")
+    assert hashlib.sha256(task_yml.read_bytes()).hexdigest() == task_before, (
+        "TRC-F2 violated: --friction mutated task.yml")
+
+
+def test_friction_never_in_land_gate(framework_root):
+    """TRC-F1: friction is a strategy-class signal — it never appears as a
+    guardrail check or in Land's gate. A regression guard against the design
+    drifting across ADR-002 / USP-3."""
+    guardrails = (framework_root / "governance" / "guardrails.yml").read_text().lower()
+    assert "friction" not in guardrails, (
+        "TRC-F1 violated: guardrails.yml references friction — it must never "
+        "be a gate (ADR-002, USP-3).")
+    land = (framework_root / "commands" / "land.md").read_text()
+    # The gate is the checklist under the '## Gate — Land refuses to close …'
+    # heading (not the intro, and not the Procedure, where friction capture is
+    # an explicit *non*-gate step).
+    gate_section = land.split("## Gate", 1)[-1].lower()
+    assert "friction" not in gate_section, (
+        "TRC-F1 violated: friction appears in Land's 'refuses to close' gate.")
+
+
+def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
+        run_cli, make_task):
+    """A task that recorded friction with no proposed_change (e.g. a derived
+    reframe entry, or a human note without a proposal) must NOT be reported as
+    'No friction recorded' — that line is for an empty corpus only. The entry is
+    still surfaced (by category), it just hasn't clustered into a trend."""
+    make_task("ft1", _task_with_friction("ft1", [
+        {"phase": "build", "category": "tooling",
+         "observation": "the devlog auto-log is noisy", "source": "human"},
+    ]))
+    r = run_cli("calibration", "--friction")
+    assert r.returncode == 0, r
+    out = r.stdout
+    assert "1 task" in out, r
+    assert "No friction recorded" not in out, (
+        "recorded-but-unclusterable friction must not read as 'No friction "
+        f"recorded':\n{out}")
+    assert "tooling" in out, r          # the entry is still visible by category
+
+
+def test_calibration_without_friction_unchanged(run_cli, make_task):
+    """TRC-F3: plain `compass calibration` (no --friction) ignores friction
+    entirely — its output never mentions friction. The no-op guarantee."""
+    make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
+    make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
+    r = run_cli("calibration")
+    assert r.returncode == 0, r
+    assert "friction" not in r.stdout.lower(), (
+        "TRC-F3 violated: plain calibration leaked friction into its output.")
+
+
 def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
     """B-Risk 5: calibration is read-only — task.yml must be unchanged after running."""
     import pathlib

@@ -112,3 +112,64 @@ def test_task_lint_with_explicit_file_path(run_cli, make_task, project):
     path = project / ".compass" / "work" / "via-file" / "task.yml"
     r = run_cli("task", "lint", "--file", str(path))
     assert r.returncode != 0, r
+
+
+# --- friction (the self-calibration signal) --------------------------------
+# TRC-A1, TRC-F3 — the optional `friction:` block on the task spine.
+
+
+def test_friction_block_validates(run_cli, make_task):
+    """TRC-A1: an optional friction list with the documented fields validates,
+    and category/source are constrained to their enums."""
+    body = _valid_task_body(friction=[
+        {
+            "phase": "plan",
+            "category": "over-ceremony",
+            "observation": "Standard route's full Clarify added a gate the change didn't need.",
+            "proposed_change": "routing-policy.yml: lower Clarify weight for magnitude=small.",
+            "source": "derived",
+        },
+        {
+            "category": "tooling",
+            "observation": "had to hand-edit the marker",
+            "source": "human",
+        },
+    ])
+    make_task("friction-ok", body)
+    r = run_cli("task", "lint", "--task", "friction-ok")
+    assert r.returncode == 0, r
+    assert "PASS" in r.stdout, r
+
+
+def test_friction_bad_category_rejected(run_cli, make_task):
+    """TRC-A1: a category outside the documented set fails validation."""
+    body = _valid_task_body(friction=[
+        {"category": "vibes", "observation": "x", "source": "derived"},
+    ])
+    make_task("friction-bad-cat", body)
+    r = run_cli("task", "lint", "--task", "friction-bad-cat")
+    assert r.returncode != 0, r
+    combined = (r.stdout + r.stderr).lower()
+    assert "vibes" in combined or "category" in combined or "enum" in combined, r
+
+
+def test_friction_bad_source_rejected(run_cli, make_task):
+    """TRC-A1: source is constrained to derived | human."""
+    body = _valid_task_body(friction=[
+        {"category": "tooling", "observation": "x", "source": "guessed"},
+    ])
+    make_task("friction-bad-src", body)
+    r = run_cli("task", "lint", "--task", "friction-bad-src")
+    assert r.returncode != 0, r
+    combined = (r.stdout + r.stderr).lower()
+    assert "guessed" in combined or "source" in combined or "enum" in combined, r
+
+
+def test_friction_absent_is_valid(run_cli, make_task):
+    """TRC-F3: a 1.x task.yml with no friction key stays valid (ADR-006 no-op)."""
+    body = _valid_task_body()
+    body.pop("friction", None)
+    make_task("friction-absent", body)
+    r = run_cli("task", "lint", "--task", "friction-absent")
+    assert r.returncode == 0, r
+    assert "PASS" in r.stdout, r

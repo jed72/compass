@@ -1928,6 +1928,215 @@ def _find_reframe_debt(tasks, work):
     return debts
 
 
+def _load_friction_threshold():
+    """Load friction.recurrence_threshold from signals.yml at runtime.
+
+    Mirrors _load_scope_bloat_phrases (B-Risk 6: never hardcode the value in
+    the CLI — read it from the governance file). Defaults to 2 when signals.yml
+    is absent or the block is unset (ADR-006: clean no-op for non-adopters; and
+    2 mirrors `calibration`'s own >=2 up/down-sizing thresholds).
+    """
+    default = 2
+    try:
+        gov = find_governance()
+        sig_path = os.path.join(gov, "signals.yml")
+        if not os.path.isfile(sig_path):
+            return default
+        sig = load_yaml(sig_path)
+        fr = sig.get("friction") or {}
+        n = fr.get("recurrence_threshold", default)
+        n = int(n)
+        return n if n >= 1 else default
+    except (CompassError, ValueError, TypeError):
+        return default
+
+
+def _aggregate_friction(tasks, threshold):
+    """Aggregate the `friction:` lists across tasks into recurring clusters.
+
+    Grouping is by case/whitespace-normalised `proposed_change` (clarifications
+    Q2 — exact-normalised, never semantic: the aggregator is mechanism, so it
+    must be reproducible, ADR-001). A cluster is `recurring` when it is proposed
+    by at least `threshold` distinct tasks. Pure function; reads nothing, writes
+    nothing.
+    """
+    import re as _re
+
+    def _norm(s):
+        return _re.sub(r"\s+", " ", (s or "").strip()).lower()
+
+    clusters = {}
+    by_category = {}
+    n_with_friction = 0
+    for slug, t in tasks:
+        fr = t.get("friction") or []
+        if fr:
+            n_with_friction += 1
+        for e in fr:
+            if not isinstance(e, dict):
+                continue
+            cat = e.get("category", "other")
+            by_category[cat] = by_category.get(cat, 0) + 1
+            pc = e.get("proposed_change") or ""
+            key = _norm(pc)
+            if not key:
+                continue  # nothing to cluster on; still counted by category
+            c = clusters.setdefault(
+                key, {"proposed_change": pc.strip(), "categories": set(),
+                      "tasks": set()})
+            c["categories"].add(cat)
+            c["tasks"].add(slug)
+
+    recurring, below = [], []
+    for c in clusters.values():
+        item = {
+            "proposed_change": c["proposed_change"],
+            "categories": sorted(c["categories"]),
+            "tasks": sorted(c["tasks"]),
+            "count": len(c["tasks"]),
+        }
+        (recurring if item["count"] >= threshold else below).append(item)
+    recurring.sort(key=lambda x: (-x["count"], x["proposed_change"]))
+    below.sort(key=lambda x: x["proposed_change"])
+    return {
+        "threshold": threshold,
+        "tasks_with_friction": n_with_friction,
+        "by_category": dict(sorted(by_category.items(), key=lambda kv: -kv[1])),
+        "recurring": recurring,
+        "below_threshold": below,
+    }
+
+
+def _cmd_calibration_friction(args, tasks):
+    """The `compass calibration --friction` view. Read-only; exit 0 always
+    (Inv: friction advises, never gates — like rework-scan and flow)."""
+    threshold = _load_friction_threshold()
+    agg = _aggregate_friction(tasks, threshold)
+
+    fmt = getattr(args, "format", "markdown") or "markdown"
+    if fmt == "json":
+        print(json.dumps(agg, indent=2))
+        return 0
+
+    print(f"compass calibration --friction — {agg['tasks_with_friction']} "
+          f"task(s) with recorded friction\n")
+    if agg["tasks_with_friction"] == 0:
+        print("No friction recorded — nothing to aggregate. Either Compass is "
+              "staying out of the way, or\nthere is not enough history yet.")
+        return 0
+
+    print("Friction by category:")
+    for cat, n in agg["by_category"].items():
+        print(f"  {cat:<16}: {n}")
+    print()
+    print(f"Recurring friction (>= {threshold} tasks) — candidate framework "
+          f"changes:")
+    if agg["recurring"]:
+        for c in agg["recurring"]:
+            cats = ", ".join(c["categories"])
+            print(f"  [{cats}] {c['proposed_change']}")
+            print(f"      {c['count']} tasks: {', '.join(c['tasks'])}")
+    else:
+        print("  (none yet — no proposed change has recurred across enough "
+              "tasks)")
+    if agg["below_threshold"]:
+        print()
+        print(f"Below threshold (not yet a trend): "
+              f"{len(agg['below_threshold'])} item(s)")
+    print()
+    print("Advisory only. Claude or a human reads these and drafts targeted "
+          "changes to\ngovernance/ or the routes — the loop never edits "
+          "governance itself (ADR-001, USP-2).")
+    return 0
+
+
+def derive_friction(slug, task, work):
+    """Assemble the `source: derived` friction entries for one task from signals
+    the CLI already computes — recorded reframes and absorbed reframe-debt.
+
+    A reframe is a Frame that mis-read the terrain; reframe-debt is a mis-frame
+    absorbed without one being filed. Both are friction by definition. Pure: it
+    reads task.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
+    entries carry no `proposed_change` — a reframe does not propose a specific
+    governance change; it is the recurrence of *human*-proposed changes that the
+    aggregator clusters on.
+    """
+    entries = []
+    for rf in (task.get("reframes") or []):
+        if not isinstance(rf, dict):
+            continue
+        fr = rf.get("from_route", "?")
+        to = rf.get("to_route", "?")
+        reason = (rf.get("reason") or "").strip()
+        obs = f"reframe {fr} -> {to}"
+        if reason:
+            obs += f": {reason}"
+        entries.append({
+            "phase": "frame",
+            "category": "mis-route",
+            "observation": obs,
+            "source": "derived",
+        })
+    for d in _find_reframe_debt([(slug, task)], work):
+        entries.append({
+            "phase": "frame",
+            "category": "mis-route",
+            "observation": ("absorbed scope-bloat without a reframe: "
+                            f"{d['devlog_line']}"),
+            "source": "derived",
+        })
+    return entries
+
+
+def cmd_friction_capture(args):
+    """Private entry point for `compass _friction-capture --internal`, called by
+    the Land procedure. Assembles the task's `friction:` list from derived
+    signals plus an optional human note and writes it into the task spine.
+
+    It writes ONLY the friction section — never a backfill or a gate. Friction
+    is a strategy-class signal and must never become something that blocks Land
+    (USP-3, ADR-002). The derivation is mechanism; the `--note` is the only
+    judgement input, supplied human-side (ADR-001).
+    """
+    if not getattr(args, "internal", False):
+        raise CompassError(
+            "compass _friction-capture: the --internal flag is required — this "
+            "is an in-framework entry point called by the Land procedure, not a "
+            "public verb.")
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task, path = load_task(task_dir)
+    slug = os.path.basename(os.path.normpath(task_dir))
+    work = os.path.join(find_compass_dir(), "work")
+
+    entries = derive_friction(slug, task, work)
+
+    note = getattr(args, "note", None)
+    if note:
+        human = {
+            "phase": getattr(args, "note_phase", None) or None,
+            "category": getattr(args, "note_category", None) or "other",
+            "observation": note,
+            "source": "human",
+        }
+        if human["phase"] is None:
+            del human["phase"]
+        entries.append(human)
+
+    if entries:
+        task["friction"] = entries
+        save_task(task, path)
+        print(f"compass _friction-capture: recorded {len(entries)} friction "
+              f"entry(ies) -> {path}")
+        for e in entries:
+            print(f"  [{e['source']}/{e['category']}] {e.get('observation', '')}")
+    else:
+        # Recording nothing is a valid, common outcome (TRC-A5). Leave the key
+        # absent so a task that hit no friction stays a clean no-op (ADR-006).
+        print("compass _friction-capture: no friction derived and no note "
+              "supplied — nothing recorded (a valid, common outcome).")
+    return 0
+
+
 def cmd_calibration(args):
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
@@ -1948,6 +2157,12 @@ def cmd_calibration(args):
                     tasks.append((d, load_yaml(tp)))
                 except CompassError:
                     pass
+
+    # --- friction view (TRC-B*) — a flag on calibration, not a new verb.
+    # Read-only, exit 0 always; handles the empty corpus gracefully.
+    if getattr(args, "friction", False):
+        return _cmd_calibration_friction(args, tasks)
+
     if not tasks:
         print("compass calibration: no tasks under .compass/work/ yet — "
               "nothing to calibrate against.")
@@ -4198,6 +4413,19 @@ def build_parser():
     pcal = sub.add_parser("calibration",
                           help="the Needle's feedback loop — re-frame patterns "
                                "across all tasks (is routing well-sized?)")
+    pcal.add_argument(
+        "--friction",
+        action="store_true",
+        help="aggregate the per-task `friction:` signal instead of reframes — "
+             "recurring process friction grouped by category and proposed "
+             "change (advisory only; exit 0 always)",
+    )
+    pcal.add_argument(
+        "--format",
+        choices=["markdown", "json"],
+        default="markdown",
+        help="output format for --friction (default: markdown)",
+    )
     pcal.set_defaults(func=cmd_calibration)
 
     pci = sub.add_parser("ci",
@@ -4341,6 +4569,18 @@ def build_parser():
         help=argparse.SUPPRESS,
     )
     p_derive.set_defaults(func=cmd_derive_system_spec)
+
+    # Private entry point for the Land friction-capture step (DD-3). Hidden the
+    # same way as _derive-system-spec; called by commands/land.md, not a public
+    # verb (PRD Goal 4 — deepen, don't widen the surface).
+    p_fric = sub.add_parser("_friction-capture", help=argparse.SUPPRESS)
+    p_fric.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
+    p_fric.add_argument("--task", help=argparse.SUPPRESS)
+    p_fric.add_argument("--note", help=argparse.SUPPRESS)
+    p_fric.add_argument("--note-category", dest="note_category",
+                        help=argparse.SUPPRESS)
+    p_fric.add_argument("--note-phase", dest="note_phase", help=argparse.SUPPRESS)
+    p_fric.set_defaults(func=cmd_friction_capture)
     # Hide all private (leading-underscore) subcommands from --help output:
     #   1. Remove from _choices_actions  →  hides from the positional-args
     #      listing section in the help text.
