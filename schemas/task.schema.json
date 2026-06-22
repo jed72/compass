@@ -114,7 +114,15 @@
         "properties": {
           "id": { "type": "string" },
           "title": { "type": "string" },
-          "intent": { "type": "string", "description": "The intent id this scenario traces to." },
+          "intent": {
+            "description": "The intent id(s) this scenario traces to — a string or a list of strings (a scenario may serve more than one intent).",
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+            ]
+          },
+          "group": { "type": "string", "description": "Independence group seeding the distribution map." },
+          "verifiable": { "type": "string", "description": "Scenario taxonomy, e.g. 'narrative' for a documentation-as-acceptance playbook." },
           "tests": { "type": "array", "items": { "type": "string" } }
         }
       }
