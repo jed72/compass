@@ -71,9 +71,19 @@ evidence: []
 # Seeded by route evaluate (status: pending). Each phase updates the gates it
 # clears. `compass check` verifies every `pass` gate references evidence in the
 # registry above, of a type that gate accepts (see governance/guardrails.yml
-# gate_evidence_requirements).
+# gate_evidence_requirements). On `route evaluate --write` each seeded gate is
+# annotated with a `# accepts: [...]` comment naming the evidence types it will
+# accept — so the author knows the accepted types up front, not by trial at
+# `compass check`. Flip a gate with `compass gate pass <id> --evidence <ids>`,
+# which validates the type at write time and rejects a mismatch.
+#   accepts (from guardrails.yml gate_evidence_requirements):
+#     verify.correctness -> [test-run]
+#     verify.regression  -> [test-run]
+#     verify.governance  -> [command-output, manual-review, artifact]
+#     verify.claims      -> [claim-review, command-output, artifact]
 gates: []
 #  - id: verify.correctness
+#    # accepts: ['test-run']
 #    status: pending          # pending | pass | fail
 #    evidence: []             # when status is `pass`, list of evidence ids
 #                             # from the registry above:

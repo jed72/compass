@@ -661,6 +661,7 @@ def cmd_route_evaluate(args):
         task.setdefault("evidence", [])
         task["topology"] = result["topology"]
         save_task(task, task_path)
+        _annotate_gate_accepts(task_path)   # R6-6: seed accepted-type comments
         print(f"\n  wrote route, phases, gates -> {task_path}")
         if reframed:
             print(f"  RE-FRAME recorded: {prior_route} -> {result['route']}")
@@ -835,7 +836,9 @@ def _check_gate_evidence(task, task_dir):
                             f"a mechanical gate cannot be cleared with the "
                             f"wrong kind of evidence")
     if problems:
-        return False, "; ".join(problems)
+        # R6-5: enumerate one problem per line so two mismatched gates surface
+        # as two distinct, readable failures — not one concatenated string.
+        return False, "\n         ".join(problems)
     passed = [g.get("id") for g in gates if g.get("status") == "pass"]
     return True, f"{len(passed)}/{len(gates)} pass gate(s), all backed by registry evidence of accepted type"
 
@@ -2010,6 +2013,162 @@ def cmd_land_commit(args):
     print(f"compass land-commit: committed{suffix}. "
           f"HEAD {head_before[:8]} -> {head_after[:8]}")
     return 0
+
+
+# --- commands: task-spine mutators (R9) + gate pass (R6) ---------------------
+# Thin, schema-owning mutators so the task.yml spine below `readings` is never
+# hand-edited YAML. `compass gate pass` is the shared R6/R9 command: it flips a
+# gate to pass (R9) AND validates the evidence type against
+# gate_evidence_requirements at write time (R6) — so a mismatch is caught
+# before it is recorded, not discovered later at `compass check`.
+
+
+def _load_gate_requirements():
+    """Return (gate_evidence_requirements, known_evidence_types) from
+    guardrails.yml. Empty/empty on any load failure."""
+    try:
+        g = load_yaml(os.path.join(find_governance(), "guardrails.yml"))
+    except CompassError:
+        return {}, set()
+    return (g.get("gate_evidence_requirements") or {},
+            set((g.get("evidence_types") or {}).keys()))
+
+
+def cmd_gate_pass(args):
+    task_dir = resolve_task_dir(args.task)
+    task, task_path = load_task(task_dir)
+    gates = task.get("gates") or []
+    gate = next((g for g in gates
+                 if isinstance(g, dict) and g.get("id") == args.gate_id), None)
+    if gate is None:
+        raise CompassError(
+            f"compass gate pass: '{args.gate_id}' is not a gate in this task "
+            f"({[g.get('id') for g in gates]}). Has the route been evaluated?"
+        )
+    ev_ids = args.evidence or []
+    if not ev_ids:
+        raise CompassError("compass gate pass needs --evidence <id> [<id> ...]")
+    registry = {e.get("id"): e for e in (task.get("evidence") or [])
+                if isinstance(e, dict)}
+    reqs, _known = _load_gate_requirements()
+    accepted = reqs.get(args.gate_id)
+    types_seen = set()
+    for eid in ev_ids:
+        entry = registry.get(eid)
+        if not entry:
+            raise CompassError(
+                f"compass gate pass: evidence id '{eid}' is not in the task's "
+                f"evidence registry ({sorted(registry)}). Record it first with "
+                f"`compass evidence add` (or `compass tdd-green` for a test-run)."
+            )
+        types_seen.add(entry.get("type"))
+    if accepted and not (types_seen & set(accepted)):
+        raise CompassError(
+            f"compass gate pass: {args.gate_id} accepts evidence of type "
+            f"{accepted}, but the evidence you gave is {sorted(types_seen)}. A "
+            f"mechanical gate cannot be cleared with the wrong kind of evidence "
+            f"— point it at evidence of an accepted type."
+        )
+    gate["status"] = "pass"
+    gate["evidence"] = list(ev_ids)
+    save_task(task, task_path)
+    print(f"compass gate pass: {args.gate_id} -> pass "
+          f"(evidence: {', '.join(ev_ids)}).")
+    return 0
+
+
+def cmd_scenario_add(args):
+    task_dir = resolve_task_dir(args.task)
+    task, task_path = load_task(task_dir)
+    scns = task.setdefault("scenarios", [])
+    if any(isinstance(s, dict) and s.get("id") == args.scenario_id for s in scns):
+        raise CompassError(
+            f"compass scenario add: scenario '{args.scenario_id}' already "
+            f"exists. Edit it directly if a change was intended."
+        )
+    scns.append({
+        "id": args.scenario_id,
+        "title": args.title or args.scenario_id,
+        "intent": args.intent,
+        "tests": list(args.test or []),
+    })
+    save_task(task, task_path)
+    print(f"compass scenario add: {args.scenario_id} added.")
+    return 0
+
+
+def cmd_changed_file_add(args):
+    task_dir = resolve_task_dir(args.task)
+    task, task_path = load_task(task_dir)
+    cfs = task.setdefault("changed_files", [])
+    existing = next((c for c in cfs
+                     if isinstance(c, dict) and c.get("path") == args.path), None)
+    if existing:
+        scns = set(existing.get("scenarios") or [])
+        scns.add(args.scenario)
+        existing["scenarios"] = sorted(scns)
+    else:
+        cfs.append({"path": args.path, "scenarios": [args.scenario]})
+    save_task(task, task_path)
+    print(f"compass changed-file add: {args.path} -> {args.scenario}.")
+    return 0
+
+
+def cmd_evidence_add(args):
+    task_dir = resolve_task_dir(args.task)
+    task, task_path = load_task(task_dir)
+    _reqs, known = _load_gate_requirements()
+    if known and args.type not in known:
+        raise CompassError(
+            f"compass evidence add: '{args.type}' is not a known evidence type "
+            f"({sorted(known)})."
+        )
+    reg = task.setdefault("evidence", [])
+    if any(isinstance(e, dict) and e.get("id") == args.evidence_id for e in reg):
+        raise CompassError(
+            f"compass evidence add: evidence id '{args.evidence_id}' already "
+            f"exists. Use a fresh id."
+        )
+    entry = {"id": args.evidence_id, "type": args.type, "path": args.path}
+    if getattr(args, "scenario", None):
+        entry["scenario"] = args.scenario
+    reg.append(entry)
+    save_task(task, task_path)
+    print(f"compass evidence add: {args.evidence_id} ({args.type}) added.")
+    return 0
+
+
+def _annotate_gate_accepts(task_path):
+    """R6-6: annotate each gate in the gates block with a `# accepts: [...]`
+    comment naming its accepted evidence types (from guardrails.yml). A seeding
+    nicety — yaml round-trips drop it, so it is re-applied after each route
+    evaluate --write."""
+    reqs, _known = _load_gate_requirements()
+    if not reqs:
+        return
+    try:
+        with open(task_path, "r", encoding="utf-8") as fh:
+            lines = fh.read().splitlines()
+    except OSError:
+        return
+    out, in_gates = [], False
+    for line in lines:
+        if _re.match(r"^gates:\s*$", line):
+            in_gates = True
+            out.append(line)
+            continue
+        if in_gates and _re.match(r"^[A-Za-z_]", line):
+            in_gates = False     # a new top-level key ends the gates block
+        if in_gates:
+            m = _re.match(r"^(\s*)-\s+id:\s*([^\s#]+)", line)
+            if m:
+                indent, gid = m.group(1), m.group(2)
+                acc = reqs.get(gid)
+                if acc:
+                    out.append(f"{indent}# accepts: {acc}")
+        out.append(line)
+    with open(task_path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(out) + "\n")
 
 
 # --- command: calibration ---------------------------------------------------
@@ -4747,6 +4906,46 @@ def build_parser():
     plc.add_argument("files", nargs="*",
                      help="optional paths to stage before committing")
     plc.set_defaults(func=cmd_land_commit)
+
+    # --- task-spine mutators (R9) + gate pass (R6) --------------------------
+    pgate = sub.add_parser("gate", help="task gate tools")
+    pgs = pgate.add_subparsers(dest="subcmd", required=True)
+    pgp = pgs.add_parser(
+        "pass", help="mark a gate pass, validating evidence type at write time")
+    pgp.add_argument("gate_id", help="gate id (e.g. verify.correctness)")
+    pgp.add_argument("--task", help="task slug (default: current-task pointer)")
+    pgp.add_argument("--evidence", action="append",
+                     help="evidence id backing this gate (repeatable)")
+    pgp.set_defaults(func=cmd_gate_pass)
+
+    pscn = sub.add_parser("scenario", help="task scenario tools")
+    pscs = pscn.add_subparsers(dest="subcmd", required=True)
+    psca = pscs.add_parser("add", help="append a scenario to task.yml")
+    psca.add_argument("scenario_id", help="scenario id (e.g. SCN-001)")
+    psca.add_argument("--task", help="task slug (default: current-task pointer)")
+    psca.add_argument("--title", help="scenario title")
+    psca.add_argument("--intent", required=True, help="linked intent id")
+    psca.add_argument("--test", action="append",
+                      help="test that exercises it (repeatable)")
+    psca.set_defaults(func=cmd_scenario_add)
+
+    pcf = sub.add_parser("changed-file", help="task changed-file tools")
+    pcfs = pcf.add_subparsers(dest="subcmd", required=True)
+    pcfa = pcfs.add_parser("add", help="trace a changed production file to a scenario")
+    pcfa.add_argument("path", help="production file path")
+    pcfa.add_argument("--task", help="task slug (default: current-task pointer)")
+    pcfa.add_argument("--scenario", required=True, help="scenario id it traces to")
+    pcfa.set_defaults(func=cmd_changed_file_add)
+
+    pev = sub.add_parser("evidence", help="task evidence-registry tools")
+    pevs = pev.add_subparsers(dest="subcmd", required=True)
+    peva = pevs.add_parser("add", help="append a typed evidence entry")
+    peva.add_argument("evidence_id", help="evidence id (e.g. EV-5)")
+    peva.add_argument("--task", help="task slug (default: current-task pointer)")
+    peva.add_argument("--type", required=True, help="evidence type (see guardrails.yml)")
+    peva.add_argument("--path", required=True, help="path to the evidence file")
+    peva.add_argument("--scenario", help="scenario this evidence is for (optional)")
+    peva.set_defaults(func=cmd_evidence_add)
 
     # --- private entry point (DD-4, TRC-B6) ---------------------------------
     # The leading underscore in the name is the convention that marks a

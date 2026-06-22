@@ -70,6 +70,7 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
     "rework-scan", "flow", "backfill",
     "analyze", "next",            # cross-task-architectural-integrity
     "land-commit",                # framework-field-feedback R5
+    "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
 }
 
 
