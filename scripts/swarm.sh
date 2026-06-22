@@ -53,10 +53,12 @@ done
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"
 ROUTE="$TASK_DIR/route.md"
+TASK_YML="$TASK_DIR/task.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
 [ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for task '$TASK_SLUG' — Plan must produce it first." >&2; exit 1; }
 [ -f "$ROUTE" ] || { echo "swarm.sh: no route.md for task '$TASK_SLUG' — Frame must run first." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for task '$TASK_SLUG' — the worktree cap is read from structured readings, not route.md prose. Run Frame." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
 # Minimal YAML reads — these keys are simple scalars in .compass/config.yml.
@@ -75,18 +77,41 @@ case "$WORKTREE_ROOT_REL" in
   *)  WORKTREE_ROOT="$(cd "$PROJECT_DIR" && cd "$(dirname "$WORKTREE_ROOT_REL")" 2>/dev/null && pwd || echo "$PROJECT_DIR/$WORKTREE_ROOT_REL")/$(basename "$WORKTREE_ROOT_REL")" ;;
 esac
 
-# --- the cap from route.md --------------------------------------------------
-# The Needle records caps in route.md. The standing cap is critical blast
-# radius => max_worktrees 1. We detect it two ways: an explicit "max_worktrees:
-# 1" line in route.md, or a critical blast-radius reading.
-CAP="$MAX_WORKTREES"
-if grep -qiE 'max_worktrees[^0-9]*1\b' "$ROUTE" 2>/dev/null; then
-  CAP=1
-fi
-if grep -qiE 'Blast radius[^|]*\|[[:space:]]*critical' "$ROUTE" 2>/dev/null \
-   || grep -qiE 'blast_radius:[[:space:]]*critical' "$ROUTE" 2>/dev/null; then
-  CAP=1
-fi
+# --- the cap from task.yml (R4) ---------------------------------------------
+# The cap is a MACHINE FACT and must come from the structured readings, not from
+# grepping route.md prose — a well-formed route.md quotes 'blast_radius: critical'
+# and 'RG-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
+# prose grep false-positived on exactly those, capping a non-critical swarm to 1.
+# The standing cap (RG-CAP-001): critical blast radius => max_worktrees 1. We read
+# it from readings.blast_radius and fired_guardrails. Absent readings is a hard
+# error — never a silent cap, never a fall back to prose.
+CAP_INFO="$(python3 - "$TASK_YML" <<'PY'
+import sys
+try:
+    import yaml
+    d = yaml.safe_load(open(sys.argv[1]))
+except Exception as e:
+    print("ERR:" + str(e)); sys.exit(0)
+if not isinstance(d, dict):
+    print("ERR:task.yml is not a mapping"); sys.exit(0)
+br = (d.get("readings") or {}).get("blast_radius")
+if not br:
+    print("ERR:no readings.blast_radius in task.yml"); sys.exit(0)
+fired = d.get("fired_guardrails") or []
+capped = (br == "critical") or any(
+    isinstance(f, dict) and f.get("id") == "RG-CAP-001" for f in fired)
+print("OK:" + ("1" if capped else "0"))
+PY
+)"
+case "$CAP_INFO" in
+  OK:1) CAP=1 ;;
+  OK:0) CAP="$MAX_WORKTREES" ;;
+  *)    echo "swarm.sh: cannot read the cap from task.yml (${CAP_INFO#ERR:})." >&2
+        echo "          The worktree cap is a machine fact in readings.blast_radius +" >&2
+        echo "          fired_guardrails — fix task.yml. swarm.sh does NOT fall back to" >&2
+        echo "          grepping route.md prose (that was the R4 false-positive)." >&2
+        exit 1 ;;
+esac
 # Never exceed the config ceiling regardless.
 [ "$CAP" -gt "$MAX_WORKTREES" ] && CAP="$MAX_WORKTREES"
 
@@ -103,6 +128,12 @@ while IFS= read -r line; do
   case "$line" in
     \|*stream-*) ;;
     *) continue ;;
+  esac
+  # R4: count only worktree-provisioning streams. A map may mark an
+  # integration/verify stream as non-provisioning — exclude it from the cap
+  # arithmetic and from worktree creation.
+  case "$line" in
+    *"not a parallel worktree"*|*"not a worktree"*|*"non-provisioning"*|*"integration/verify"*) continue ;;
   esac
   # split on '|', trim each cell
   IFS='|' read -r _ c1 c2 c3 c4 _rest <<<"$line"
