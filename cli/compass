@@ -1553,10 +1553,88 @@ def cmd_check(args):
 
 # --- commands: tdd-red / tdd-green ------------------------------------------
 
+# R2 — exit-code-masking integrity for piped test commands.
+# A command wrapped in `bash -c '... | tail'` returns the LAST pipeline stage's
+# exit code (tail = 0), masking an inner test failure as a false green. Three
+# layered signals defend against it (DD-2): (1) inject `set -o pipefail` into
+# bash/zsh wrappers so a mid-pipeline failure propagates; (2) warn when the
+# wrapped script is a top-level pipe ending in a pager/filter; (3) cross-check
+# output for a known-runner fail-token even on a zero exit.
+_PIPE_FILTER_CMDS = {"tail", "head", "grep", "cat", "less", "more", "tee", "sort",
+                     "uniq", "wc", "awk", "sed"}
+_PIPEFAIL_SHELLS = {"bash", "zsh"}
+
+
+def _shell_wrapper_script(cmd):
+    """If cmd is a shell wrapper (`bash -c <script>` / `sh -c <script>` / zsh),
+    return (shell_basename, script_index, script). Else (None, None, None)."""
+    if len(cmd) >= 3 and cmd[1] == "-c":
+        base = os.path.basename(cmd[0])
+        if base in ("bash", "sh", "zsh", "dash"):
+            return base, 2, cmd[2]
+    return None, None, None
+
+
+def _final_pipe_filter(script):
+    """If `script` is a top-level pipe (not `||`) whose final stage's command is
+    a pager/filter, return that command's name. Else None."""
+    if "|" not in script:
+        return None
+    # split on a single | that is not part of '||'
+    parts = _re.split(r"(?<!\|)\|(?!\|)", script)
+    if len(parts) < 2:
+        return None
+    last = parts[-1].strip()
+    if not last:
+        return None
+    first_tok = last.split()[0]
+    base = os.path.basename(first_tok)
+    return base if base in _PIPE_FILTER_CMDS else None
+
+
+def _output_fail_token(out):
+    """Return a recognised runner fail-token if the output indicates a failure,
+    even on a zero exit. Conservative — only strong, runner-specific patterns,
+    so a passing run ('0 failed', '5 passed') is never flagged."""
+    patterns = [
+        r"\b[1-9]\d* failed\b",        # pytest:  "1 failed"
+        r"(?m)^FAILED\b",              # pytest -v line, generic
+        r"(?m)^--- FAIL",             # go test
+        r"(?m)^FAIL\b",               # go test summary
+        r"\bFAILURES!\b",             # junit-style
+    ]
+    for pat in patterns:
+        m = _re.search(pat, out)
+        if m:
+            return m.group(0).strip()
+    return None
+
+
 def _run_test(cmd):
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    """Run a test command and return (exit_code, combined_output, warnings).
+
+    Hardens against pipeline exit-code masking (R2): pipefail is injected into
+    bash/zsh `-c` wrappers; a pager/filter final stage raises a warning.
+    """
+    warnings = []
+    run_cmd = list(cmd)
+    shell, idx, script = _shell_wrapper_script(cmd)
+    if script is not None:
+        filt = _final_pipe_filter(script)
+        if filt:
+            warnings.append(
+                f"pipe-masking risk: the exit code reflects the last pipeline "
+                f"stage ({filt}), not your test. "
+                + (f"`set -o pipefail` was injected so a mid-pipeline failure "
+                   f"still propagates." if shell in _PIPEFAIL_SHELLS else
+                   f"this {shell} wrapper cannot take `set -o pipefail` safely — "
+                   f"the inner failure may be masked.")
+            )
+        if shell in _PIPEFAIL_SHELLS and "pipefail" not in script:
+            run_cmd[idx] = "set -o pipefail\n" + script
+    proc = subprocess.run(run_cmd, capture_output=True, text=True)
     out = (proc.stdout or "") + (proc.stderr or "")
-    return proc.returncode, out
+    return proc.returncode, out, warnings
 
 
 def _write_evidence(task_dir, name, payload):
@@ -1598,7 +1676,9 @@ def cmd_tdd_red(args):
     if not args.command:
         raise CompassError("compass tdd-red needs a test command, e.g. "
                            "`compass tdd-red --scenario SCN-001 -- pytest tests/test_x.py`")
-    code, out = _run_test(args.command)
+    code, out, warnings = _run_test(args.command)
+    for w in warnings:
+        sys.stderr.write(f"compass tdd-red: warning — {w}\n")
     excerpt = "\n".join(out.splitlines()[-25:])
     if code == 0:
         raise CompassError(
@@ -1714,13 +1794,26 @@ def cmd_tdd_green(args):
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
     if not args.command:
         raise CompassError("compass tdd-green needs a test command")
-    code, out = _run_test(args.command)
+    code, out, warnings = _run_test(args.command)
+    for w in warnings:
+        sys.stderr.write(f"compass tdd-green: warning — {w}\n")
     excerpt = "\n".join(out.splitlines()[-25:])
     if code != 0:
         raise CompassError(
             f"compass tdd-green: the test command FAILED (exit {code}) — not "
             f"green yet. The .red marker is left in place.\n"
             f"--- output (tail) ---\n" + excerpt
+        )
+    # R2 signal (3): output-token cross-check. A zero exit whose output carries
+    # a known-runner fail-token is a suspected masked failure — refuse rather
+    # than record a clean green on a contradictory signal (TRC-R2-5).
+    fail_token = _output_fail_token(out)
+    if fail_token:
+        raise CompassError(
+            f"compass tdd-green: the command exited 0 but its output shows a "
+            f"failure token ('{fail_token}') — a possible masked failure. "
+            f"Refusing to record a green on a contradictory signal. The .red "
+            f"marker is left in place.\n--- output (tail) ---\n" + excerpt
         )
 
     # --- DD-7: attempts + rerun_without_change detection --------------------
