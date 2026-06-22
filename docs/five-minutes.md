@@ -239,6 +239,7 @@ compass rework-scan      scan tasks for rework patterns (uses signals.yml)
 compass flow [--digest]  cross-task flow view; --digest writes a dated digest
 compass next             surface the next action on the current task
 compass backfill pay     mark a backfill as paid in a task's task.yml
+compass land-commit -m   commit staged artifacts robustly; verifies HEAD advanced (R5)
 compass calibration      aggregate the re-frame log — is routing well-sized?
 compass ci               the full mechanical gate suite, for CI
 ```

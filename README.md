@@ -184,6 +184,8 @@ compass flow [--digest]  cross-task flow view; --digest writes a dated digest
                          with the rework-scan section and calibration signal
 compass next             surface the next action on the current task
 compass backfill pay     mark a backfill as paid in a task's task.yml
+compass land-commit -m   commit staged artifacts robustly — survives auto-fixing
+                         pre-commit hooks and verifies HEAD advanced (R5)
 compass calibration      aggregate the re-frame log — is routing well-sized?
 compass ci               the full mechanical gate suite, for CI — honour the exit code
 ```

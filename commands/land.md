@@ -25,10 +25,15 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
 
 ## Procedure
 
-1. **Integrate.** Solo route: commit on the current branch. Pair or swarm: the
-   `orchestrator` (or lead builder on a pair) runs `scripts/integrate.sh` — an
-   orchestrated merge of all worktrees. The orchestrator is the only agent
-   allowed to resolve cross-stream conflicts.
+1. **Integrate.** Solo route: commit on the current branch with
+   `compass land-commit -m "<message>"` — it is robust to auto-fixing
+   pre-commit hooks (which otherwise silently no-op the commit and leave HEAD
+   unmoved), retries once after re-staging the hooks' fixes, and **errors if
+   HEAD did not advance** so a Land can never falsely believe it landed (R5).
+   Pass `--task <slug>` to mark the task landed only on a verified commit.
+   Pair or swarm: the `orchestrator` (or lead builder on a pair) runs
+   `scripts/integrate.sh` — an orchestrated merge of all worktrees. The
+   orchestrator is the only agent allowed to resolve cross-stream conflicts.
 2. **Combined regression.** Run regression across the *combined* result. On a
    swarm this is non-negotiable — per-stream green does not imply integrated
    green. Paste the output.

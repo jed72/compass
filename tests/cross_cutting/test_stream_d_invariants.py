@@ -55,25 +55,29 @@ def test_trc_d1_mental_model_bullets_unchanged():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2 — only two new CLI verbs added across the three candidates
-# Source-of-truth: the public subcommand list from `compass --help` —
-# leading-underscore subcommands (e.g. _derive-system-spec) are private and
-# excluded from --help. The check counts public subparsers; the only
-# additions over the pre-task baseline are `analyze` and `next`.
+# Public CLI surface guard. Originally TRC-D2 (cross-task-architectural-
+# integrity) froze the surface at "+analyze, +next". It is now the framework's
+# living public-surface fitness function: the public subcommand set must equal
+# the known list below, so no verb is added (or a private one exposed) without
+# a deliberate update here. framework-field-feedback (R5/R9) adds land-commit
+# and the task-spine mutators; each addition updates this set on purpose.
+# Leading-underscore subcommands stay private and excluded from --help (DD-4).
 # ---------------------------------------------------------------------------
-PRE_TASK_PUBLIC_SUBCOMMANDS = {
+EXPECTED_PUBLIC_SUBCOMMANDS = {
     "route", "check", "calibration", "ci",
     "tdd-red", "tdd-green",
     "policy", "task", "adr",
     "rework-scan", "flow", "backfill",
+    "analyze", "next",            # cross-task-architectural-integrity
+    "land-commit",                # framework-field-feedback R5
 }
-EXPECTED_NEW_SUBCOMMANDS = {"analyze", "next"}
 
 
 def test_trc_d2_only_two_new_public_cli_verbs():
-    """TRC-D2 — only `analyze` and `next` were added to the public CLI; no
-    other new public subcommand exists, and `_derive-system-spec` is hidden
-    from `compass --help` (private entry point per DD-4)."""
+    """The public CLI surface equals the known set (no unexpected additions or
+    removals), and `_derive-system-spec` stays hidden from `compass --help`
+    (private entry point per DD-4). Deliberate additions update
+    EXPECTED_PUBLIC_SUBCOMMANDS."""
     out = subprocess.run(
         [sys.executable, str(CLI), "--help"],
         check=True, capture_output=True, text=True,
@@ -82,10 +86,10 @@ def test_trc_d2_only_two_new_public_cli_verbs():
     m = re.search(r"\{([a-z0-9_,\-]+)\}", out)
     assert m, "compass --help must list its subcommands in {a,b,...} form"
     actual = set(m.group(1).split(","))
-    new = actual - PRE_TASK_PUBLIC_SUBCOMMANDS
-    assert new == EXPECTED_NEW_SUBCOMMANDS, (
-        f"the only new public subcommands must be {EXPECTED_NEW_SUBCOMMANDS}; "
-        f"observed new: {new}"
+    assert actual == EXPECTED_PUBLIC_SUBCOMMANDS, (
+        f"public CLI surface drift: added {actual - EXPECTED_PUBLIC_SUBCOMMANDS}, "
+        f"removed {EXPECTED_PUBLIC_SUBCOMMANDS - actual}. If deliberate, update "
+        f"EXPECTED_PUBLIC_SUBCOMMANDS in this test."
     )
     # Private entry point must not appear in --help
     assert "_derive-system-spec" not in actual, (

@@ -1919,6 +1919,99 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
     save_task(task, task_path)
 
 
+# --- command: land-commit ---------------------------------------------------
+# R5 — the Land commit step, made robust to auto-fixing pre-commit hooks.
+# An auto-fixer (ruff format/--fix) rewrites a staged file and aborts the
+# commit; pre-commit stashes the unstaged delta, the commit no-ops, and HEAD
+# does not move — yet nothing notices, so an unattended Land believes it landed
+# when it didn't. land-commit (DD-5) does all three R5 fixes: (a) best-effort
+# clean-first via the pre-commit framework when present; (b) detect the no-op
+# (HEAD unchanged), re-stage the hook's fixes, and retry once; (c) ALWAYS
+# verify HEAD advanced and error loudly if not.
+
+
+def _git(args, cwd):
+    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
+
+
+def cmd_land_commit(args):
+    import shutil
+    cwd = os.getcwd()
+    msg = args.message
+    files = getattr(args, "files", None) or []
+
+    # Confirm we are in a git work tree.
+    inside = _git(["rev-parse", "--is-inside-work-tree"], cwd)
+    if inside.returncode != 0:
+        raise CompassError("compass land-commit: not inside a git repository.")
+
+    # Stage any explicitly named paths.
+    for f in files:
+        _git(["add", "--", f], cwd)
+
+    # Nothing staged → explicit error, never a retry loop (TRC-R5-F2).
+    if _git(["diff", "--cached", "--quiet"], cwd).returncode == 0:
+        raise CompassError(
+            "compass land-commit: nothing staged to land. Stage the artifacts "
+            "first (e.g. `git add <paths>`), then re-run."
+        )
+
+    head_before = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
+
+    # (a) best-effort clean-first: only if the pre-commit framework is set up.
+    if shutil.which("pre-commit") and os.path.isfile(
+            os.path.join(cwd, ".pre-commit-config.yaml")):
+        names = _git(["diff", "--cached", "--name-only"], cwd).stdout.split()
+        if names:
+            subprocess.run(["pre-commit", "run", "--files", *names],
+                           cwd=cwd, capture_output=True, text=True)
+            _git(["add", "-A"], cwd)  # re-stage anything the hooks rewrote
+
+    # First commit attempt.
+    c1 = _git(["commit", "-m", msg], cwd)
+    head_after = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
+
+    retried = False
+    if head_after == head_before:
+        # (b) the commit no-op'd — a hook likely auto-fixed and aborted. Stage
+        # whatever it rewrote and retry exactly once.
+        _git(["add", "-A"], cwd)
+        retried = True
+        if _git(["diff", "--cached", "--quiet"], cwd).returncode != 0:
+            _git(["commit", "-m", msg], cwd)
+            head_after = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
+
+    # (c) ALWAYS verify HEAD advanced — the land's evidence is the moved HEAD.
+    if head_after == head_before:
+        log = ((c1.stdout or "") + (c1.stderr or ""))[-800:]
+        raise CompassError(
+            "compass land-commit: HEAD did not advance"
+            + (" after a retry" if retried else "")
+            + " — the land did NOT happen. A pre-commit hook may be aborting "
+            "the commit repeatedly; resolve it and re-run.\n"
+            "--- commit output (tail) ---\n" + log
+        )
+
+    # Success. Mark the task landed only now that HEAD is confirmed advanced.
+    if getattr(args, "task", None):
+        try:
+            task_dir = resolve_task_dir(args.task)
+            task_path = os.path.join(task_dir, "task.yml")
+            if os.path.isfile(task_path):
+                task = load_yaml(task_path)
+                if isinstance(task, dict):
+                    task["status"] = "landed"
+                    task["land_timestamp"] = now_iso()
+                    save_task(task, task_path)
+        except CompassError:
+            pass  # status update is best-effort; the commit already succeeded
+
+    suffix = " (after one retry)" if retried else ""
+    print(f"compass land-commit: committed{suffix}. "
+          f"HEAD {head_before[:8]} -> {head_after[:8]}")
+    return 0
+
+
 # --- command: calibration ---------------------------------------------------
 # The Needle's feedback loop. The Needle reads context — judgement — and a
 # framework about right-sizing process owes an answer to "is the right-sizing
@@ -4643,6 +4736,17 @@ def build_parser():
         help="the backfill id to mark paid (e.g. BF-1)"
     )
     pbfp.set_defaults(func=cmd_backfill_pay)
+
+    plc = sub.add_parser(
+        "land-commit",
+        help="commit staged artifacts robustly — survives auto-fixing "
+             "pre-commit hooks and verifies HEAD advanced (R5)",
+    )
+    plc.add_argument("-m", "--message", required=True, help="commit message")
+    plc.add_argument("--task", help="task slug to mark landed on a verified commit")
+    plc.add_argument("files", nargs="*",
+                     help="optional paths to stage before committing")
+    plc.set_defaults(func=cmd_land_commit)
 
     # --- private entry point (DD-4, TRC-B6) ---------------------------------
     # The leading underscore in the name is the convention that marks a
