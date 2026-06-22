@@ -676,13 +676,74 @@ def cmd_route_evaluate(args):
 
 # --- command: check ----------------------------------------------------------
 
+def _scenario_documented_in_spec(spec_path, scenario_id):
+    """R1: a `verifiable: narrative` scenario is 'documented' when its gherkin
+    block in spec.feature.md has a non-empty When AND Then. The When/Then is
+    documentation-as-acceptance and lives only in the spec (it has no structured
+    home to duplicate), so reading it is reading the artifact — NOT the R4
+    prose-grep-for-a-machine-fact anti-pattern."""
+    if not spec_path or not os.path.isfile(spec_path):
+        return False
+    try:
+        lines = open(spec_path, encoding="utf-8").read().splitlines()
+    except OSError:
+        return False
+    idx = None
+    for i, ln in enumerate(lines):
+        m = _re.search(r"<!--\s*traceability\s+id:\s*(\S+)", ln)
+        if m and m.group(1).rstrip(" ·,") == scenario_id:
+            idx = i
+            break
+    if idx is None:
+        return False
+    has_when = has_then = in_block = False
+    for ln in lines[idx + 1:]:
+        if _re.search(r"<!--\s*traceability\s+id:", ln):
+            break                       # reached the next scenario
+        if ln.strip().startswith("```"):
+            if not in_block:
+                in_block = True
+                continue
+            break                       # end of this scenario's gherkin block
+        if in_block:
+            if _re.match(r"\s*When\b", ln):
+                has_when = True
+            if _re.match(r"\s*Then\b", ln):
+                has_then = True
+    return has_when and has_then
+
+
 def _check_scenarios_have_tests(task, task_dir):
     scns = task.get("scenarios") or []
     if not scns:
         return False, "no scenarios in task.yml"
-    missing = [s.get("id", "?") for s in scns if not s.get("tests")]
-    if missing:
-        return False, f"scenarios with no test: {', '.join(missing)}"
+    spec_path = os.path.join(task_dir, "spec.feature.md")
+    missing_test, undocumented, documented_narr = [], [], 0
+    for s in scns:
+        sid = s.get("id", "?")
+        # R1: narrative scenarios are assessed on documentation, never on a
+        # test — so an incidental command does not buy a pass, and a documented
+        # playbook does not need a fabricated one.
+        if s.get("verifiable") == "narrative":
+            if _scenario_documented_in_spec(spec_path, sid):
+                documented_narr += 1
+            else:
+                undocumented.append(sid)
+        elif not s.get("tests"):
+            missing_test.append(sid)
+    problems = []
+    if missing_test:
+        problems.append(f"scenarios with no test: {', '.join(missing_test)}")
+    if undocumented:
+        problems.append(
+            f"narrative scenario(s) not documented (empty When/Then in "
+            f"spec.feature.md): {', '.join(undocumented)}")
+    if problems:
+        return False, "; ".join(problems)
+    if documented_narr:
+        return True, (f"all {len(scns)} scenario(s) accounted for "
+                      f"({documented_narr} documented narrative, exempt from "
+                      f"tests-required)")
     return True, f"all {len(scns)} scenario(s) list a test"
 
 
@@ -1382,8 +1443,8 @@ CHECK_FNS = {
 # a failure without reads like bureaucracy.
 CHECK_GUIDANCE = {
     "scenarios-have-tests": {
-        "why": "Every scenario must have a test that exercises it — without one, the scenario is a wish, not a checkable acceptance criterion (guardrail G2).",
-        "fix": "Add at least one test reference to the scenario's `tests:` list in task.yml, or remove the scenario.",
+        "why": "Every scenario must have a test that exercises it — without one, the scenario is a wish, not a checkable acceptance criterion (guardrail G2). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented — a non-empty When/Then in spec.feature.md — not by a fabricated test.",
+        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in spec.feature.md — documentation is its acceptance.",
     },
     "suite-passed": {
         "why": "Guardrail G1 (tested before it lands) requires a recorded green test run.",
