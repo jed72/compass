@@ -200,3 +200,45 @@ def test_hook_exits_zero_for_non_code_file():
         )
     finally:
         shutil.rmtree(str(project), ignore_errors=True)
+
+
+# ---------------------------------------------------------------------------
+# R8 — a first-class "verified-by" red (TRC-R8-1, R8-2 hook side)
+# The hook gates on the .red marker; R8 widens HOW a red is recorded
+# (tdd-red --verified-by), not how the hook reads it. These guard the marker
+# contract the verified-by red plugs into.
+# ---------------------------------------------------------------------------
+
+def test_no_red_blocks_wiring_change_baseline():
+    """TRC-R8-1 (baseline): with a framed task but no .red marker, the hook
+    blocks a production edit — the gap a verified-by red exists to fill honestly."""
+    project = _fresh_project_dir()
+    try:
+        _make_compass_project(project, "wire-slug", with_route_md=True)
+        target = str(project / "src" / "app.py")
+        result = subprocess.run(
+            ["bash", str(HOOK_PATH)],
+            input=_tool_call_json(target, tool_name="Edit"),
+            capture_output=True, text=True, env=_hook_env(project),
+        )
+        assert result.returncode == 2, result.stderr
+    finally:
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def test_verified_by_red_allows_edit():
+    """TRC-R8-2 (hook side): a recorded red (the .red marker a verified-by red
+    drops) allows the production edit."""
+    project = _fresh_project_dir()
+    try:
+        task_dir = _make_compass_project(project, "wire-ok", with_route_md=True)
+        (task_dir / ".red").write_text("")   # a verified-by red drops this marker
+        target = str(project / "src" / "app.py")
+        result = subprocess.run(
+            ["bash", str(HOOK_PATH)],
+            input=_tool_call_json(target, tool_name="Edit"),
+            capture_output=True, text=True, env=_hook_env(project),
+        )
+        assert result.returncode == 0, result.stderr
+    finally:
+        shutil.rmtree(project, ignore_errors=True)

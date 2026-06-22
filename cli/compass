@@ -1752,13 +1752,70 @@ def _resolve_scenario(task_dir, scenario):
     return scenario
 
 
+# R7 — coverage-floor neutralisation + the test_micro_command knob.
+# R8 — the sanctioned verified-by kinds for an honest non-unit red.
+_VERIFIED_BY_KINDS = {"regression", "e2e", "typecheck", "live"}
+
+
+def _read_config(task_dir):
+    """Load .compass/config.yml for the project containing task_dir. {} on miss."""
+    root = find_upwards(task_dir, ".compass") or task_dir
+    path = os.path.join(root, ".compass", "config.yml")
+    try:
+        cfg = load_yaml(path)
+        return cfg if isinstance(cfg, dict) else {}
+    except CompassError:
+        return {}
+
+
+def _micro_command(args, task_dir):
+    """The command a TDD micro-run executes: the explicit `-- <cmd>` if given,
+    else project.test_micro_command, else project.test_command (R7)."""
+    if args.command:
+        return list(args.command)
+    proj = _read_config(task_dir).get("project") or {}
+    cmd = proj.get("test_micro_command") or proj.get("test_command")
+    if not cmd:
+        return None
+    import shlex
+    return shlex.split(cmd)
+
+
+def _neutralise_coverage(cmd):
+    """R7: for a recognised pytest micro-run, inject --cov-fail-under=0 so a
+    project-wide coverage floor cannot refuse a passing targeted test. The
+    micro-run is never the coverage gate — the full suite at Verify is. An
+    explicit --cov-fail-under is preserved (the full-suite floor is respected);
+    a non-pytest command is left untouched."""
+    if not cmd:
+        return cmd
+    if any("--cov-fail-under" in str(c) for c in cmd):
+        return cmd
+    base = os.path.basename(str(cmd[0]))
+    is_pytest = base.startswith("pytest") or "pytest" in cmd
+    if is_pytest:
+        return list(cmd) + ["--cov-fail-under=0"]
+    return cmd
+
+
 def cmd_tdd_red(args):
     task_dir = resolve_task_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
-    if not args.command:
+    verified_by = getattr(args, "verified_by", None)
+    if verified_by and verified_by not in _VERIFIED_BY_KINDS:
+        raise CompassError(
+            f"compass tdd-red: --verified-by '{verified_by}' is not a recognised "
+            f"kind. Allowed: {sorted(_VERIFIED_BY_KINDS)}. A verified-by red ties "
+            f"the scenario's acceptance to a non-unit guard (a typecheck, an e2e "
+            f"or regression suite, a live run) for changes with no natural unit red."
+        )
+    command = _micro_command(args, task_dir)
+    if not command:
         raise CompassError("compass tdd-red needs a test command, e.g. "
-                           "`compass tdd-red --scenario SCN-001 -- pytest tests/test_x.py`")
-    code, out, warnings = _run_test(args.command)
+                           "`compass tdd-red --scenario SCN-001 -- pytest tests/test_x.py`"
+                           " (or set project.test_micro_command in .compass/config.yml)")
+    command = _neutralise_coverage(command)
+    code, out, warnings = _run_test(command)
     for w in warnings:
         sys.stderr.write(f"compass tdd-red: warning — {w}\n")
     excerpt = "\n".join(out.splitlines()[-25:])
@@ -1769,7 +1826,7 @@ def cmd_tdd_red(args):
             "actually fails first.\n--- output (tail) ---\n" + excerpt
         )
     payload = {
-        "command": " ".join(args.command),
+        "command": " ".join(command),
         "scenario": scenario,          # the scenario this red is evidence FOR
         "exit_code": code,
         "passed": False,
@@ -1777,6 +1834,8 @@ def cmd_tdd_red(args):
         "log_excerpt": excerpt,
         "_full_log": out,
     }
+    if verified_by:
+        payload["verified_by"] = verified_by   # R8: a sanctioned non-unit red
     ev_path = _write_evidence(task_dir, "red", payload)
     open(os.path.join(task_dir, ".red"), "w").close()  # the hook reads this
     payload.pop("_full_log", None)
@@ -1874,9 +1933,17 @@ def _save_tdd_state(task_dir, scenario, tree_hash, attempts):
 def cmd_tdd_green(args):
     task_dir = resolve_task_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
-    if not args.command:
-        raise CompassError("compass tdd-green needs a test command")
-    code, out, warnings = _run_test(args.command)
+    verified_by = getattr(args, "verified_by", None)
+    if verified_by and verified_by not in _VERIFIED_BY_KINDS:
+        raise CompassError(
+            f"compass tdd-green: --verified-by '{verified_by}' is not a "
+            f"recognised kind. Allowed: {sorted(_VERIFIED_BY_KINDS)}.")
+    command = _micro_command(args, task_dir)
+    if not command:
+        raise CompassError("compass tdd-green needs a test command (-- <cmd>) "
+                           "or project.test_micro_command in .compass/config.yml")
+    command = _neutralise_coverage(command)
+    code, out, warnings = _run_test(command)
     for w in warnings:
         sys.stderr.write(f"compass tdd-green: warning — {w}\n")
     excerpt = "\n".join(out.splitlines()[-25:])
@@ -1924,7 +1991,7 @@ def cmd_tdd_green(args):
     _save_tdd_state(task_dir, scenario, current_hash, attempts)
 
     payload = {
-        "command": " ".join(args.command),
+        "command": " ".join(command),
         "scenario": scenario,          # the scenario this green is evidence FOR
         "exit_code": 0,
         "passed": True,
@@ -1940,6 +2007,8 @@ def cmd_tdd_green(args):
     # against), false means "source did change" (a legitimate red→green path).
     if attempts > 1:
         payload["rerun_without_change"] = rerun_without_change
+    if verified_by:
+        payload["verified_by"] = verified_by   # R8: carry the guard kind forward
     ev_path = _write_evidence(task_dir, "green", payload)
     # If scenario-bound, also write a scenario-specific copy so multiple
     # scenarios' green records do not overwrite each other.
@@ -4862,6 +4931,10 @@ def build_parser():
     prd.add_argument("--scenario", help="scenario id this red is evidence FOR "
                      "(e.g. SCN-001) — binds the failure to a scenario, so it "
                      "proves relevance, not just that something failed")
+    prd.add_argument("--verified-by", dest="verified_by",
+                     help="sanction a non-unit red for a change with no natural "
+                          "unit test: regression | e2e | typecheck | live (R8). "
+                          "The guard must still genuinely fail first.")
     prd.add_argument("command", nargs=argparse.REMAINDER,
                      help="the test command (after --)")
     prd.set_defaults(func=cmd_tdd_red)
@@ -4870,6 +4943,10 @@ def build_parser():
     pg.add_argument("--task", help="task slug (default: current-task pointer)")
     pg.add_argument("--scenario", help="scenario id this green is evidence FOR "
                     "(e.g. SCN-001)")
+    pg.add_argument("--verified-by", dest="verified_by",
+                    help="carry forward a verified-by guard kind (regression | "
+                         "e2e | typecheck | live) — the green re-runs the guard "
+                         "that stood in for a unit red (R8)")
     pg.add_argument("command", nargs=argparse.REMAINDER,
                     help="the test command (after --)")
     pg.set_defaults(func=cmd_tdd_green)
