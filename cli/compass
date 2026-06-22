@@ -556,6 +556,19 @@ def evaluate_route(readings, policy):
     if max_worktrees == 1 and topology in ("swarm", "solo-or-pair"):
         topology = "solo (capped to 1 worktree)"
 
+    # --- soft advisory strategies (R10) -------------------------------------
+    # These BIAS/ASSESS only — they never alter the route, gates, weight, or
+    # topology. Surfaced for the Needle and the reviewer (e.g. regression-
+    # baseline on shared/critical surface). A strategy, not a guardrail.
+    applicable_strategies = []
+    for adv in strategies.get("advisory_strategies", []):
+        if reading_matches(adv.get("when"), readings):
+            applicable_strategies.append({
+                "id": adv.get("id", "?"),
+                "strategy": adv.get("strategy", ""),
+                "rationale": adv.get("rationale", ""),
+            })
+
     return {
         "candidate_route": candidate,
         "candidate_via": candidate_via,
@@ -568,6 +581,7 @@ def evaluate_route(readings, policy):
         "required_skills": sorted(required_skills),
         "blocked_phases": blocked_phases,
         "max_worktrees": max_worktrees,
+        "applicable_strategies": applicable_strategies,
     }
 
 
@@ -628,6 +642,10 @@ def cmd_route_evaluate(args):
         if result["blocked_phases"]:
             for b in result["blocked_phases"]:
                 print(f"  BLOCKED phase   : {b['phase']} until {b['until']}")
+        if result.get("applicable_strategies"):
+            print("  advisory strategies (soft — assessed, never gating):")
+            for s in result["applicable_strategies"]:
+                print(f"    [{s['id']}] {s['strategy']}: {s['rationale']}")
 
     # --write: fold the result back into task.yml
     if args.write:

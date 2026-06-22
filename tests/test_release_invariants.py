@@ -165,15 +165,17 @@ def test_no_project_guardrails_declared_in_framework_repo():
 # -----------------------------------------------------------------------------
 
 def test_net_new_strategies_is_one():
-    """strategies.md added exactly S5 (and no other new strategy ids)."""
+    """strategies.md contains the known method strategies. S5 was the 1.1.0
+    addition; S6 (regression-baseline) is the framework-field-feedback (R10)
+    addition — both soft, additive, ADR-002-compliant."""
     text = (REPO_ROOT / "governance/strategies.md").read_text()
     # Look for ### S<n> — section markers
     import re
     ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6"}
     assert ids == expected, (
-        f"strategies.md must contain exactly S1-S5 (S5 is the only 1.1.0 addition). "
-        f"Got: {ids}"
+        f"strategies.md must contain exactly S1-S6 (S6 = regression-baseline, "
+        f"R10). Got: {ids}"
     )
 
 

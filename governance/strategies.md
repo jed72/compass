@@ -90,6 +90,33 @@ to clear silently when a rerun is unaccounted for.
 
 ---
 
+### S6 — regression-baseline: green before, re-run after, on shared surface
+
+**Soft, assessed — not a guardrail.** When a change touches shared or critical
+surface (`blast_radius` cross-cutting or critical), the highest-value evidence
+is a *baseline*: run a designated existing end-to-end / regression suite green
+**before** the change, keep the change additive / guarded, and re-run it
+**after**. Record both as `test-run` evidence on `verify.regression`.
+
+This is G1's spirit applied to the *non-regression of untouched behaviour* — it
+catches a high-consequence break in code you did not mean to change (the field
+case: a new emission silently broke a live solve; a pre-change demo baseline
+surfaced it immediately). The designated suite is a project knob
+(`project.regression_baseline_suite` in `.compass/config.yml`; falls back to
+`project.test_command`). Build prompts for the baseline **up front**, not as an
+afterthought; `compass route evaluate` surfaces it under
+`applicable_strategies` when the readings match (`RS-ADV-001`).
+
+It adds **no guardrail and no new gate**, and it **does not block Land** when
+absent — it reuses the existing `verify.regression` gate and is assessed as
+reviewer judgement (a strategy note), never a mechanical failure. The framework
+grows by adding artifacts, not rules (ADR-002, ADR-006).
+
+*Cross-reference: G1 (tested before it lands), applied to non-regression;
+`verify.regression`; `routing-policy.yml` `advisory_strategies` RS-ADV-001.*
+
+---
+
 ## Project strategies
 
 <!-- Add strategies specific to this project here. Add freely — strategies are
