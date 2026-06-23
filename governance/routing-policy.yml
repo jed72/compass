@@ -71,6 +71,21 @@ routing_strategies:
       suggest_artifact: ui-contract.md
       rationale: "A new user-facing surface usually wants a UI contract."
 
+  # advisory_strategies — soft strategies the evaluator surfaces (in
+  # `applicable_strategies`) when their `when` matches the readings. They BIAS
+  # and are ASSESSED at Verify; they NEVER add a gate, raise the route, or block
+  # Land. A strategy, not a guardrail (the full method strategy is S6 in
+  # governance/strategies.md).
+  advisory_strategies:
+    - id: RS-ADV-001
+      strategy: regression-baseline
+      when: { blast_radius: [cross-cutting, critical] }
+      rationale: "Shared/critical surface — capture a green baseline of the
+        designated existing suite (project.regression_baseline_suite, else
+        test_command) BEFORE the change and re-run it AFTER; record both as
+        test-run evidence on verify.regression. Soft: assessed as reviewer
+        judgement, never gating (S6)."
+
 # -----------------------------------------------------------------------------
 # ROUTING GUARDRAILS — hard. They BOUND the candidate route. The evaluator
 # applies these after composition; they cannot be routed around, and a human

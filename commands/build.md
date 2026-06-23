@@ -26,6 +26,15 @@ delivery — but G1 still applies to anything a Spike *graduates* into a real ro
   streams are converging on shared surface and intervenes *before* they
   collide. Cross-stream changes go through the orchestrator, never builder to
   builder.
+- **Capture the regression baseline first (strategy S6).** If `route.md` reads
+  `blast_radius` cross-cutting or critical — or `compass route evaluate`
+  surfaced `regression-baseline` under `applicable_strategies` — run the
+  designated existing suite (`project.regression_baseline_suite`, else
+  `project.test_command`) **green now, before editing shared code**, and record
+  it as `test-run` evidence on `verify.regression`. Re-run it after the change.
+  This is soft (assessed, never gating), but it is captured up front, not as an
+  afterthought — it catches a high-consequence break in behaviour you did not
+  mean to touch.
 
 ## The cycle, per scenario
 

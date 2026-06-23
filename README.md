@@ -175,6 +175,10 @@ compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
 compass task receipt     render a one-screen receipt for a landed task —
                          readings → route → typed evidence → gate verdicts
+compass gate pass        flip a gate to pass; validates evidence type at write time (R6)
+compass scenario add     append a scenario to task.yml (schema-owning mutator, R9)
+compass changed-file add trace a changed production file to a scenario (R9)
+compass evidence add     append a typed evidence entry to the registry (R9)
 compass analyze          cross-artifact coherence check: orphaned scenarios,
                          route disagreements, orphan claims (advisory or
                          gate-clearing if verify.analyze is in the route)
@@ -184,6 +188,8 @@ compass flow [--digest]  cross-task flow view; --digest writes a dated digest
                          with the rework-scan section and calibration signal
 compass next             surface the next action on the current task
 compass backfill pay     mark a backfill as paid in a task's task.yml
+compass land-commit -m   commit staged artifacts robustly — survives auto-fixing
+                         pre-commit hooks and verifies HEAD advanced (R5)
 compass calibration      aggregate the re-frame log — is routing well-sized?
 compass ci               the full mechanical gate suite, for CI — honour the exit code
 ```
