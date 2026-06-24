@@ -167,7 +167,10 @@
         "properties": {
           "id": { "type": "string" },
           "description": { "type": "string" },
-          "status": { "enum": ["owed", "paid"] }
+          "status": { "enum": ["owed", "paid"] },
+          "target_task": { "type": "string", "description": "Cross-task backfill: the task whose Land is blocked until this is paid." },
+          "paid_at": { "type": "string", "description": "Optional audit field: when the backfill was paid." },
+          "paid_note": { "type": "string", "description": "Optional audit field: a note recorded when paying." }
         }
       }
     },
