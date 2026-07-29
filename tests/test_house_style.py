@@ -176,6 +176,51 @@ def test_no_agent_coauthor_trailer_in_tracked_files():
     )
 
 
+def test_no_undefined_internal_identifiers():
+    """No prose cites an identifier the repository never defines.
+
+    Compass has plenty of legitimate identifiers - G1 to G5, S1 to S7, Inv-1 to
+    Inv-8, scenario and intent ids - and every one of them is defined somewhere
+    a reader can reach. The patterns below are the ones that were not: internal
+    work-stream numbering and pointers into a per-task `architecture-notes.md`,
+    which is never committed. A reader hitting one of those has no way to
+    resolve it, which is what strategy S7 forbids.
+
+    Scope is markdown, which is what a reader of the project encounters. The
+    same tokens still appear in Python docstrings and in `cli/compass`
+    comments; cleaning those is a separate pass and this test does not yet
+    cover them.
+
+    Two exclusions. `docs/system-spec.md` is generated at Land from task specs
+    and hand-edits to it are silently overwritten. `tests/fixtures/` is data
+    that other tests assert on, so its content is fixed by those tests rather
+    than by style.
+
+    Needles are assembled from parts so this file does not trip its own scan.
+    """
+    needles = {
+        "B" + "-Risk": "risk numbering from a work stream that was never committed",
+        "S" + "-Risk": "risk numbering from a work stream that was never committed",
+        "USP" + "-": "differentiator numbering that no file in the repository defines",
+        "architecture-notes.md " + "§": "a section pointer into a per-task file that is never committed",
+    }
+    excluded = ("docs/system-spec.md:", "tests/fixtures/")
+    hits: list[str] = []
+    for needle, why in needles.items():
+        for hit in _scan(needle, only_suffix=".md"):
+            if hit.startswith(excluded):
+                continue
+            hits.append(f"{hit}   <- {why}")
+    assert not hits, _report(
+        hits,
+        "Rule: state the substance, do not cite an identifier the reader "
+        "cannot resolve (governance/strategies.md, strategy S7).",
+        "Fix: say what the thing is. If it deserves an id, define it somewhere "
+        "a reader can reach, as Inv-1 to Inv-8 are defined in "
+        "architecture/decisions/README.md.",
+    )
+
+
 def test_house_style_is_documented():
     """The mechanical rules above have a written home.
 

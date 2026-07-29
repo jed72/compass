@@ -61,12 +61,12 @@ or cross boundary rules encoded in the ADRs.
 
 - **`hooks/stop.sh` and `compass rework-scan` must not mutate `task.yml`** -
   both are read-only over the task spine. Detection is advisory; blocking on
-  detection would violate ADR-003 (Flow advises, never gates). (Cited source:
-  Inv-4, B-Risk 3, B-Risk 5.)
+  detection would violate ADR-003 (Flow advises, never gates) and the
+  invariant behind it, Inv-4.
 
 - **`compass calibration` must not mutate `task.yml`** - calibration aggregates
-  reframe data read-only; it never writes back to individual task spines.
-  (Cited source: Inv-4, B-Risk 5.)
+  reframe data read-only; it never writes back to individual task spines
+  (Inv-4: Flow advises, never gates).
 
 ## Known interface contracts
 

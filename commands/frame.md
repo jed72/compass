@@ -78,7 +78,7 @@ force; if it is still a Spike, leave the marker in place.
     architectural context in this task session; see `docs/methodology.md` for the
     contract.
     **Do not write load state into `task.yml.readings`** - `readings` is the
-    judgement block only (Inv-1; see `architecture-notes.md §2`).
+    judgement block only (Inv-1, defined in `architecture/decisions/README.md`).
 2. **Read the four dimensions - this is the judgement** - blast radius,
    terrain, magnitude, intent & role, plus `touches:` domain tags. Each gets a
    value and a one-line justification. If a value cannot be justified, ask the

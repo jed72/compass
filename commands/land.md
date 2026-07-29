@@ -29,7 +29,7 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
    `compass land-commit -m "<message>"` - it is robust to auto-fixing
    pre-commit hooks (which otherwise silently no-op the commit and leave HEAD
    unmoved), retries once after re-staging the hooks' fixes, and **errors if
-   HEAD did not advance** so a Land can never falsely believe it landed (R5).
+   HEAD did not advance** so a Land can never falsely believe it landed.
    Pass `--task <slug>` to mark the task landed only on a verified commit.
    The message follows strategy S7 (write for a cold reader): say what changed
    and why, for someone who was not in the conversation; no `Co-Authored-By:`
@@ -96,7 +96,8 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
    --note-phase <phase>`. **Recording nothing is a valid, common outcome.**
    This step never blocks Land: it runs after the gate, writes only the
    `friction:` section (no backfill, no gate), and `compass calibration
-   --friction` later aggregates it across tasks as advice (USP-3, ADR-001/003).
+   --friction` later aggregates it across tasks as advice, never as a gate
+   (ADR-003: Flow advises but never gates).
 7. **Final devlog entry.** One entry: what landed, how it was verified, what
    backfills were paid.
 

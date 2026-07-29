@@ -56,6 +56,6 @@ Order of operations:
 
 ## References
 
-- Clarifications Q3 (architect-lens vs planner split)
+- The task's `clarifications.md`, where the split between the architect lens and the planner was settled
 - Plan DD-5 (lens-first/planner-second design decision)
-- architecture-notes.md §2 Inv-5 (one spec, many lenses)
+- The invariant that there is one spec read through many lenses, and a lens annotates rather than forks it

@@ -71,8 +71,8 @@ fitness functions yet (ADR-006).
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Ship a curated framework fitness suite | Simple for adopters - just works out of the box | The framework cannot know the project's architecture; any curated set would be wrong for most adopters. It would violate ADR-002 (framework grows by adding artifacts and lenses, not by adding project-specific guardrails). |
-| Hand-written `CHECK_FN` per project | Direct: the CLI implements exactly what each project needs | Requires a CLI maintainer change per adopter - contradicting USP-4 (gradient from zero; zero-setup). ADR-002's growth model is checks + strategies; per-project CLI hacks are not that model. |
-| Make `verify.fitness` immovable (always blocking) | Simplest mental model | Violates USP-1 (per-task computed routing). A task that doesn't touch architecture doesn't need fitness blocking. ADR-007's floor mechanism is exactly the right home for conditional promotion. |
+| Hand-written `CHECK_FN` per project | Direct: the CLI implements exactly what each project needs | Requires a CLI maintainer change per adopter, which breaks the gradient-from-zero promise that Compass works with no project setup at all. ADR-002's growth model is checks + strategies; per-project CLI hacks are not that model. |
+| Make `verify.fitness` immovable (always blocking) | Simplest mental model | Violates per-task computed routing. A task that doesn't touch architecture doesn't need fitness blocking. ADR-007's floor mechanism is exactly the right home for conditional promotion. |
 | Use `verify.governance` evidence to gate fitness results | Reuse an existing gate | Fitness evidence is structurally different from governance evidence (command output vs. review); conflating them would blur the evidence-type model that ADR-007 relies on. |
 
 ## Consequences
@@ -85,7 +85,7 @@ fitness functions yet (ADR-006).
 - The pattern is reusable: any future "project-declared, route-promoted" gate
   follows the same shape (`command-passes` + a floor in `routing-policy.yml`).
 - The vacuous-clear prevents cross-cutting tasks from being blocked by
-  fitness gates on projects that simply haven't declared any yet (USP-4).
+  fitness gates on projects that simply haven't declared any yet.
 
 **Negative:**
 - The `shell=True` execution model means the command runs with the project's

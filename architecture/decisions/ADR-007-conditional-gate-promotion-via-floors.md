@@ -33,7 +33,7 @@ Extend the routing-policy floor schema with a new optional property `add_gate: <
   rationale: "Irreversible-surface tasks have coherence checked before Land."
 ```
 
-The OR semantics from the originating requirement (clarifications Q7) are expressed as two separate floor entries - consistent with the existing policy that each floor has a single `when:` clause.
+The OR semantics from the originating requirement are expressed as two separate floor entries - consistent with the existing policy that each floor has a single `when:` clause.
 
 When a route is below the promotion threshold and `compass analyze` is invoked, the analyze report writes as advisory evidence: a typed `command-output` entry with id prefix `EV-ANALYZE-ADVISORY-<task>-<timestamp>`. Advisory evidence does not satisfy `gate-evidence-present` for `verify.analyze` (because `gate_evidence_requirements` for `verify.analyze` accepts only the typed `coherence-check` evidence type), so an advisory run cannot accidentally clear the gate if the route is later re-framed and the gate is added.
 
@@ -53,7 +53,7 @@ When a route is below the promotion threshold and `compass analyze` is invoked, 
 **Positive:**
 - A third gate-lifecycle class (advisory-with-conditional-promotion) is available for future capabilities that don't warrant unconditional gating but do warrant gating on high-care work.
 - The `add_gate` floor property is reusable - a future `verify.migration-plan` or `verify.architecture-review` could follow the same pattern.
-- The conditions for promotion are visible in `governance/routing-policy.yml` and testable by reading the same file (TRC-A12).
+- The conditions for promotion are visible in `governance/routing-policy.yml` and testable by reading the same file.
 - The advisory/blocking split is encoded in the evidence type system, not in the gate-presence check, so a misconfigured advisory run cannot accidentally clear a blocking gate.
 
 **Negative:**

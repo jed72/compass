@@ -69,6 +69,6 @@ Projects override by editing their own `governance/signals.yml`.
 
 ## References
 
-- Clarifications Q9 (where patterns live)
+- The task's `clarifications.md`, where the question of where advisory patterns live was settled
 - Plan DD-1 (signals.yml as a separate file)
-- architecture-notes.md §2 Inv-2 (five guardrails, not six)
+- The invariant that the framework holds five guardrails, not six

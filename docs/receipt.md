@@ -2,7 +2,7 @@
 
 The receipt is **one screen** that shows a task's enforcement story end to end: the four-dimension readings the Needle judged, the route the policy computed, the gates the task cleared, and the typed evidence each gate cleared with. It is a *view* over the task's recorded state - a render of what's on disk, not a re-run of the checks. Reading the receipt is reading the audit trail.
 
-This is Compass's two differentiators made demonstrable in plain text - **per-task computed routing** (USP-1) on the *Readings* and *Route* lines, and **typed, gate-binding evidence** (USP-2) in the *Gates* and *Evidence* sections.
+This is Compass's two differentiators made demonstrable in plain text - **per-task computed routing** on the *Readings* and *Route* lines, and **typed, gate-binding evidence** in the *Gates* and *Evidence* sections.
 
 ## Invoking
 

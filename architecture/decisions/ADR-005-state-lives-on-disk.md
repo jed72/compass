@@ -78,7 +78,7 @@ if it isn't on disk, it didn't happen."
 
 ## References
 
-- Prior task's `architecture-notes.md` §2 Inv-6 (persistence over conversation)
+- Invariant Inv-6 (every mechanism output is a named file on disk), defined in `architecture/decisions/README.md`
 - `CLAUDE.md` §"The pipeline" ("if it isn't on disk, it didn't happen")
 - `docs/methodology.md` §"Where state lives"
 - `CLAUDE.md` §"Where state lives"

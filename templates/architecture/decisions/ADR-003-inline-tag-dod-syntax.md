@@ -57,6 +57,6 @@ Two inline tag forms on the DoD line itself:
 
 ## References
 
-- Clarifications Q11 (DoD evidence syntax resolution)
+- The task's `clarifications.md`, where the Definition-of-Done evidence syntax was settled
 - Plan DD-3 (inline-tag design decision)
 - Guardrail G4 (evidence, not assertion)

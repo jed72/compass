@@ -84,7 +84,7 @@ architect-lens is the canonical example: it reads `architecture/` and produces
 
 ## References
 
-- Prior task's `architecture-notes.md` §2 Inv-2 (five guardrails) and Inv-3 (adaptive routing untouched)
+- Invariants Inv-2 (five guardrails, not more) and Inv-3 (adaptive routing untouched; no new routes or dimensions), defined in `architecture/decisions/README.md`
 - `governance/guardrails.md` (the five guardrails)
 - `governance/routing-policy.yml` (the routing dimensions and route shapes)
 - `agents/architect-lens.md` (canonical lens example)

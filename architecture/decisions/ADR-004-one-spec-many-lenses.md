@@ -76,8 +76,8 @@ annotations, candidate ADR titles, and boundary-risk flags."
 
 ## References
 
-- Prior task's `architecture-notes.md` §2 Inv-5 (one spec, many lenses)
-- Prior task's `architecture-notes.md` §3 B-Risk 2 (architect-lens producing scenarios)
+- Invariant Inv-5 (one spec, many lenses; lenses annotate, never fork), defined in `architecture/decisions/README.md`
+- Boundary rule: a lens never emits Given/When/Then scenarios; those live only in `spec.feature.md` (`architecture/ownership.md`)
 - `agents/architect-lens.md` §"What you do NOT do"
 - `docs/methodology.md` §"Roles"
 - `CLAUDE.md` §"Roles"

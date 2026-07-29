@@ -53,9 +53,9 @@ Rules:
 
 ## Principle → ADR mapping
 
-The eight invariants (Inv-1..Inv-8) from the Compass architectural bootstrap
-(`cross-task-architectural-integrity/architecture-notes.md`) are covered by
-these six ADRs:
+Compass holds eight architectural invariants. The table below is where they are
+defined; everything else in `architecture/` cites them by id. Six ADRs cover
+them:
 
 | Invariant | Principle statement | ADR |
 |---|---|---|

@@ -71,9 +71,9 @@ inputs: same output.
   calibration signal is worth more than the saved seconds per task.
 - Mechanism-produced state living outside `task.yml.readings` means the schema
   has multiple sections with different write-authorities. New contributors
-  sometimes misplace state into `readings` by accident (see B-Risk 1 in the
-  prior task's architecture-notes.md). The `compass check` validation catches
-  this, but the rule needs to be taught.
+  sometimes misplace state into `readings` by accident, which is why
+  `architecture/ownership.md` states it as a boundary rule. The `compass check`
+  validation catches this, but the rule needs to be taught.
 
 **Neutral / follow-on:**
 - This decision implies that a tool that proposes readings ("I think this is
@@ -84,7 +84,7 @@ inputs: same output.
 ## References
 
 - Compass methodology: `docs/methodology.md` §"The one rule that creates every other rule"
-- Prior task's `architecture-notes.md` §2 Inv-1 (Frame is mandatory; readings are sole judgement field)
-- Prior task's `architecture-notes.md` §3 B-Risk 1 (Loading architecture content into task.yml.readings)
+- Invariant Inv-1 (Frame is mandatory; `readings` is the only judgement field), defined in `architecture/decisions/README.md`
+- Boundary rule: no mechanism may write loaded architecture content into `task.yml.readings` (`architecture/ownership.md`)
 - `governance/routing-policy.yml` (the policy the mechanism runs)
 - `tests/fixtures/route-baseline.yml` (the regression fixture for determinism)

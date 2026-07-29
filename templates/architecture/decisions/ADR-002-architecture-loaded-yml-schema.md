@@ -64,6 +64,6 @@ between Frame time and when they read the loaded record.
 
 ## References
 
-- architecture-notes.md §2 Inv-1 (readings is judgement-only)
-- architecture-notes.md §3 B-Risk 1 (builder boundary risk)
-- Clarifications Q8 (shape resolution)
+- The invariant that `task.yml.readings` holds judgement only, and nothing a mechanism produced
+- The boundary rule that a builder never writes loaded architecture content into `readings`
+- The task's `clarifications.md`, where the shape of this file was settled
