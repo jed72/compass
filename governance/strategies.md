@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.2.0 · **Last amended:** {{DATE}}
+> **Version:** 0.3.0 · **Last amended:** {{DATE}}
 
 ---
 
@@ -117,6 +117,52 @@ grows by adding artifacts, not rules (ADR-002, ADR-006).
 
 ---
 
+### S7 - cold reader: write so a stranger can follow it without asking
+
+**Soft, assessed - not a guardrail.** Assume the reader has zero prior context.
+They were not in the conversation, they have not read the review, and they
+cannot ask a follow-up question. Every artifact Compass produces - a brief, a
+scenario, a route, a plan, a devlog entry, a code comment, a commit message, a
+pull-request body - is written to stand on its own.
+
+This is S4 (persistence over conversation) carried one step further. S4 says
+put it on disk. S7 says put enough on disk that the next reader does not need
+the conversation you had while writing it.
+
+**Context before detail.** Say what the thing is and why it matters before you
+say how it works. A reader who does not yet know why should not have to reach
+the last paragraph to find out.
+
+**No dangling references.** Never write "Option 2", "Finding 1/3", "per the
+review", "as discussed", or an internal review number. Each of those points at
+a conversation the reader does not have, and the pointer rots the moment that
+conversation ends. Name the thing instead. When you link an issue or a pull
+request, say in the same sentence what it actually is - "#412, which moved rate
+limiting into the gateway" - so the sentence still works when the link is dead.
+
+**Self-contained, and short.** Say it once, plainly, then stop. Length is not
+thoroughness: an artifact nobody finishes has communicated nothing. Cut every
+sentence that only restates the one before it.
+
+**No agent co-author trailer.** Commit messages and pull-request bodies never
+carry a `Co-Authored-By:` line naming an agent, and never a "Generated with"
+footer. The human author owns the change; what typed it is not part of the
+permanent record. `devlog.md` and `task.yml` already hold the provenance that
+matters, in a form the framework can read.
+
+*Why a strategy and not a guardrail:* clarity is judgement. No mechanical check
+tells you whether a stranger would understand a paragraph, and inventing one
+would produce a rule you could satisfy while still writing badly. The
+`reviewer` agent assesses this at Verify under the `clarity` review dimension;
+nothing here fails `compass check`.
+
+*Cross-reference: S4 (persistence over conversation), which this extends; G3
+(traceability) - a reference the reader cannot resolve is not traceability.
+Assessed under the `clarity` review dimension; restated at the point of use in
+`commands/land.md` (commit messages).*
+
+---
+
 ## Project strategies
 
 <!-- Add strategies specific to this project here. Add freely - strategies are
@@ -145,7 +191,30 @@ grows by adding artifacts, not rules (ADR-002, ADR-006).
      Curate this section - see README.md. A strategy nobody follows is noise;
      drop it. Leave the section empty rather than padding it. -->
 
-_(none yet - add project strategies as the team forms opinions)_
+### Voice and writing strategies
+
+**House style, this repository.** Compass's own prose follows S7, plus two
+conventions this repository holds itself to.
+
+- **No em dashes.** Where an em dash would go, write a plain hyphen with spaces
+  around it. En dashes stay: they do real work in ranges like `G1-G5` and
+  `2-3 streams`.
+- **No agent co-author trailer**, which is S7's fourth rule stated as the thing
+  this repository enforces on itself rather than merely prefers.
+
+Both are checked by `tests/test_house_style.py`, and both are still strategies
+rather than guardrails. What separates them is *what the check protects*. The
+checks in `guardrails.yml` run against an adopting project's `task.yml` and
+`evidence/`, and can block a Land. `tests/test_house_style.py` is one of this
+repository's own source invariants, alongside `test_release_invariants.py`. It
+never runs in an adopting project and never touches a gate. A style rule is a
+preference held consistently, not a must-never, so it does not become a sixth
+guardrail (ADR-002).
+
+**If you are adopting Compass:** the two rules above are a worked example of
+the shape a project strategy takes, not something you inherit. `/compass:init`
+copies this file wholesale, so delete this block if your team writes
+differently. S7 above it is the part that ships on.
 
 ---
 

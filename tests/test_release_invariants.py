@@ -155,27 +155,44 @@ def test_no_project_guardrails_declared_in_framework_repo():
 
 # -----------------------------------------------------------------------------
 # TRC-F6 - net-new top-level concept count is bounded.
-# The legitimate additions from the 1.1.0 release are:
-#   - 1 strategy id: S5
-#   - 1 gate name: verify.fitness
-#   - 2 check names: no-trusted-rerun, command-passes
-#   - 1 evidence-record field: attempts (+rerun_without_change paired)
-#   - 1 signal category: design_smell
+# The legitimate additions, cumulative across releases:
+#   1.1.0 - 1 strategy id: S5 (intermittency is failure)
+#         - 1 gate name: verify.fitness
+#         - 2 check names: no-trusted-rerun, command-passes
+#         - 1 evidence-record field: attempts (+rerun_without_change paired)
+#         - 1 signal category: design_smell
+#   1.5.0 - 1 strategy id: S6 (regression-baseline, from field feedback)
+#   next  - 1 strategy id: S7 (cold-reader prose)
 # Anything outside that set means scope crept (USP-5 budget breached).
+#
+# Why adding a strategy does not breach the budget. ADR-002 bounds growth in
+# the *hard* concepts: the five guardrails, the four reading dimensions, the
+# gate set, the check set, the evidence types, the signal categories. S7 adds
+# none of those - it is assessed under the existing `clarity` review dimension
+# and fails nothing. Strategies are the accretive half of the model by design;
+# strategies.md opens by calling them "cheap to add, expected to evolve, fine
+# to drop". The list below is enumerated so that each addition is a deliberate,
+# reviewed act, not to freeze the count.
 # -----------------------------------------------------------------------------
 
-def test_net_new_strategies_is_one():
-    """strategies.md contains the known method strategies. S5 was the 1.1.0
-    addition; S6 (regression-baseline) is the framework-field-feedback (R10)
-    addition - both soft, additive, ADR-002-compliant."""
+def test_default_method_strategy_set_is_the_known_set():
+    """strategies.md declares exactly the known default method strategies.
+
+    Each id was added deliberately: S5 (intermittency) in 1.1.0, S6
+    (regression-baseline) from field feedback, S7 (cold-reader prose). Adding a
+    strategy is allowed and cheap, but it must be a decision - so this list is
+    updated by hand, in the same commit as the strategy it admits.
+    """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
-    # Look for ### S<n> - section markers
+    # Section markers have the form: ### S<n> - <slug>: <statement>
     import re
     ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5", "S6"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7"}
     assert ids == expected, (
-        f"strategies.md must contain exactly S1-S6 (S6 = regression-baseline, "
-        f"R10). Got: {ids}"
+        f"strategies.md declares {sorted(ids)}; this invariant expects "
+        f"{sorted(expected)}. If you added a strategy on purpose, add its id "
+        f"here and to the ledger comment above, in the same commit. If you did "
+        f"not, a heading has drifted."
     )
 
 
