@@ -186,6 +186,18 @@ def test_no_undefined_internal_identifiers():
     which is never committed. A reader hitting one of those has no way to
     resolve it, which is what strategy S7 forbids.
 
+    Scenario ids of the form `TRC-<letter><number>` are deliberately NOT
+    scanned, and the distinction matters. They are the code-to-scenario half of
+    the traceability chain guardrail G3 requires, not internal numbering: a
+    test docstring naming one says which acceptance criterion that test exists
+    to satisfy. Most of them resolve through `docs/system-spec.md`, which is
+    derived at Land from landed task specs. The ones that do not resolve fail
+    for a structural reason rather than a stylistic one: `.compass/work/` is
+    gitignored, so the specs of the framework's own tasks were never committed.
+    Deleting the ids would remove the visible half of a chain the project
+    mandates without making a single spec easier to find. Closing that gap
+    means making them resolve, not stripping them.
+
     Scope is every tracked file, not just prose: a comment in `cli/compass` or
     a test docstring is read by exactly the same person.
 
