@@ -1,5 +1,5 @@
 # =============================================================================
-# task.yml — notifications-subsystem  (EXAMPLE: the Expedition route)
+# task.yml - notifications-subsystem  (EXAMPLE: the Expedition route)
 # =============================================================================
 # A worked example. This is the task spine after a finished Expedition: full
 # weight, every gate, a swarm across worktrees. Note two things the readings
@@ -18,7 +18,7 @@ task: "notifications-subsystem"
 created: "2026-03-02"
 
 # --- the route -------------------------------------------------------------
-# JUDGEMENT: the Needle's Frame readings. Magnitude is `standard` on its own —
+# JUDGEMENT: the Needle's Frame readings. Magnitude is `standard` on its own -
 # but it touches migrations, and that is what decides the route. See route.md.
 readings:
   blast_radius: contained
@@ -29,7 +29,7 @@ readings:
   touches: [migrations]
 
 # MECHANICAL: computed by `compass route evaluate --write`. The candidate was
-# `standard` (RS-SHAPE-005) — RG-FLOOR-003 raised it to expedition because the
+# `standard` (RS-SHAPE-005) - RG-FLOOR-003 raised it to expedition because the
 # work touches migrations. "Domain risk overrides magnitude."
 route: expedition
 topology: swarm
@@ -64,7 +64,7 @@ phases:
 #   - G5 sign-off: a structured `human-approval` entry with full fields. The
 #     fields below (approver, role, scope, decision, timestamp, conditions)
 #     are what `_check_human_approval` looks for; without them the gate
-#     "human-approval-present" fails. They are not ceremony — they are what
+#     "human-approval-present" fails. They are not ceremony - they are what
 #     makes the approval auditable: who, in what role, for exactly what scope,
 #     when, and under what conditions.
 evidence:
@@ -81,7 +81,7 @@ evidence:
   - id: EV-A1
     type: human-approval
     path: evidence/approval-migration-0042.json
-    scope: "migrations/0042_notifications.sql — additive notifications schema; irreversible forward migration on production."
+    scope: "migrations/0042_notifications.sql - additive notifications schema; irreversible forward migration on production."
     approver: "l.haddad@example.com"
     role: "engineering-lead"
     decision: approved
@@ -89,11 +89,11 @@ evidence:
     conditions:
       - "Rollback plan (0042_notifications.down.sql) included in the PR."
       - "Migration run in staging first; production cutover only after a clean staging dry-run."
-      - "Migration is purely additive — no change to any existing table."
+      - "Migration is purely additive - no change to any existing table."
 
 # --- gates -----------------------------------------------------------------
 # Expedition's gate set: all seven review dimensions. (verify.claims is in the
-# set because Expedition's shape includes it — here no marketer was in play, so
+# set because Expedition's shape includes it - here no marketer was in play, so
 # it is satisfied trivially: there are no claims to back. The gate still exists;
 # it just has nothing to check.) Each `pass` gate references registry evidence
 # by id; `compass check` verifies the type is one the gate accepts.
@@ -121,7 +121,7 @@ gates:
     evidence: [EV-V1]
 
 # --- scenarios (filled by Specify) -----------------------------------------
-# Grouped by independence — group A (delivery + dispatch) and group B
+# Grouped by independence - group A (delivery + dispatch) and group B
 # (preferences) became the two swarm streams. See distribution-map.md.
 scenarios:
   - id: SCN-001
@@ -169,12 +169,12 @@ changed_files:
     scenarios: [SCN-001, SCN-004, SCN-005]
 
 # --- claims ----------------------------------------------------------------
-# No product-marketer was in play on this task — the launch is a later task.
+# No product-marketer was in play on this task - the launch is a later task.
 # verify.claims is therefore satisfied trivially: no claims, nothing to back.
 claims: []
 
 # --- backfills -------------------------------------------------------------
-# Expedition borrows no ceremony from the front of the pipeline — its de-scope
+# Expedition borrows no ceremony from the front of the pipeline - its de-scope
 # ledger is empty by definition. Nothing owed.
 backfills: []
 

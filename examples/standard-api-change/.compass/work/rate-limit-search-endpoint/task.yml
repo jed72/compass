@@ -1,9 +1,9 @@
 # =============================================================================
-# task.yml — rate-limit-search-endpoint  (EXAMPLE: the Standard route)
+# task.yml - rate-limit-search-endpoint  (EXAMPLE: the Standard route)
 # =============================================================================
 # A worked example. This is the full task spine after a finished Standard
 # task: a real feature set of scenarios, every changed file traced, two gates
-# cleared with evidence. Compare it to the Express example — same shape, more
+# cleared with evidence. Compare it to the Express example - same shape, more
 # of it, because the work earned more of it.
 # =============================================================================
 
@@ -13,7 +13,7 @@ created: "2026-04-21"
 
 # --- the route -------------------------------------------------------------
 # JUDGEMENT: the Needle's Frame readings. Standard magnitude, contained blast
-# radius, mapped terrain — the default working shape. See route.md §1.
+# radius, mapped terrain - the default working shape. See route.md §1.
 readings:
   blast_radius: contained
   terrain: brownfield-mapped

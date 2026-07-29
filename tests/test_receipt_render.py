@@ -33,7 +33,7 @@ def _make_route_md(slug: str, readings: Dict[str, str], route: str,
         "\n".join(f"- {g['id']}: {g['rationale']}" for g in fired)
         if fired else "No routing guardrail fired."
     )
-    return f"""# Route — {slug}
+    return f"""# Route - {slug}
 
 ## 1. The four dimension readings
 
@@ -270,7 +270,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
 
     Given a task "alpha" with status=active and at least one gate pending
     When `compass task receipt --task alpha` is run
-    Then the receipt's header explicitly reads "IN PROGRESS — not yet landed"
+    Then the receipt's header explicitly reads "IN PROGRESS - not yet landed"
     And the receipt still renders the readings, the route, and the gates' state
     And no gate's verdict is rendered as "landed"
     And the process exits with code 0
@@ -288,7 +288,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
     assert "Readings" in out
     assert "Route" in out
     assert "Gates" in out
-    # No gate is labeled "landed" — that word should not appear next to a gate
+    # No gate is labeled "landed" - that word should not appear next to a gate
     # verdict marker (we use [ PASS ]/[ FAIL ]/[ PENDING ]).
     for line in out.splitlines():
         if "verify." in line:
@@ -399,7 +399,7 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
     assert result.returncode == 0, repr(result)
 
     out = result.stdout
-    # Slice out the Evidence section — bounded by the section heading at the
+    # Slice out the Evidence section - bounded by the section heading at the
     # top and the next ==== rule (start of the verdict block) at the bottom.
     # Some types render extras on a continuation line under the primary row;
     # both belong to the same logical "row" for this scenario's purposes.
@@ -425,7 +425,7 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
 
 def test_wrong_typed_evidence_flagged(run_cli, project):
     """TRC-C1: a pass gate cleared by wrong-typed evidence is rendered as
-    "type-mismatch" (not as a clean pass). Exit 0 — receipt reports, does not
+    "type-mismatch" (not as a clean pass). Exit 0 - receipt reports, does not
     enforce (Q4)."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "task.yml").read_text())
@@ -490,7 +490,7 @@ def test_schema_1_0_renders(run_cli, project):
     slug = "legacy"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
-    # Bare 1.0 — no `status`, no `evidence`, no `gates`. Only the very
+    # Bare 1.0 - no `status`, no `evidence`, no `gates`. Only the very
     # earliest required fields.
     legacy_body = {
         "schema_version": "1.0",
@@ -508,7 +508,7 @@ def test_schema_1_0_renders(run_cli, project):
     }
     (task_dir / "task.yml").write_text(
         yaml.safe_dump(legacy_body, sort_keys=False))
-    # No route.md, no evidence/, no gates — the absent-data path.
+    # No route.md, no evidence/, no gates - the absent-data path.
 
     result = run_cli("task", "receipt", "--task", slug)
     assert result.returncode == 0, repr(result)
@@ -521,7 +521,7 @@ def test_schema_1_0_renders(run_cli, project):
     # Readings + route are still rendered.
     assert "trivial" in out  # blast_radius value
     assert "express" in out  # route name
-    # Absent data is labelled — somewhere in the receipt, "not recorded" or
+    # Absent data is labelled - somewhere in the receipt, "not recorded" or
     # "no evidence recorded" surfaces honestly rather than crashing.
     assert "not recorded" in out or "no evidence recorded" in out, (
         f"absent data should be clearly labelled:\n{out}"
@@ -531,7 +531,7 @@ def test_schema_1_0_renders(run_cli, project):
 # --- TRC-E1 -----------------------------------------------------------------
 
 
-import hashlib  # noqa: E402 — used only here
+import hashlib  # noqa: E402 - used only here
 
 
 def _file_tree_sha(root: Path) -> Dict[str, str]:
@@ -565,7 +565,7 @@ def test_receipt_is_read_only(run_cli, project):
     assert not diffs, f"files mutated: {diffs!r}"
 
 
-# --- DD-4 — docs example pinned to actual renderer output -------------------
+# --- DD-4 - docs example pinned to actual renderer output -------------------
 
 
 import subprocess as _subprocess  # noqa: E402
@@ -604,7 +604,7 @@ def test_docs_example_matches_actual_output(framework_root, cli_path):
     # First triple-backtick-delimited block in that section.
     parts = block_match.split("```", 2)
     assert len(parts) >= 3, "no fenced block under '## Example' in docs/receipt.md"
-    # parts[1] is "<lang?>\n<content>" — strip the optional language tag on the
+    # parts[1] is "<lang?>\n<content>" - strip the optional language tag on the
     # first line, then the content.
     body = parts[1].lstrip("\n")
     # If the fence opened with a language tag, skip the tag line.

@@ -160,7 +160,7 @@ def test_check_suite_passed_fails_on_unresolvable_binding(run_cli, make_task):
 
 
 # ===========================================================================
-# R2 — exit-code masking in piped test commands (TRC-R2-1 … TRC-R2-5)
+# R2 - exit-code masking in piped test commands (TRC-R2-1 … TRC-R2-5)
 # The masking path is caller-introduced: `bash -c '... | tail'` makes the
 # shell return the final stage's exit code (tail = 0), masking an inner
 # failure. The fix injects `set -o pipefail` into bash/zsh wrappers, warns on
@@ -184,7 +184,7 @@ def test_pipe_masking_records_false_green_baseline(run_cli, make_task):
     (task_dir / ".red").write_text("")
     r = run_cli("tdd-green", "--task", "r2-mask", "--scenario", "SCN-001",
                 "--", "bash", "-c", "exit 1 | tail -1")
-    assert r.returncode != 0, r              # refused — not a false green
+    assert r.returncode != 0, r              # refused - not a false green
     assert (task_dir / ".red").exists(), r   # marker NOT cleared
 
 
@@ -244,7 +244,7 @@ def test_output_token_crosscheck_on_known_runner(run_cli, make_task):
 
 
 # ===========================================================================
-# R7 — coverage-floor neutralisation on TDD micro-runs (TRC-R7-1 … R7-5)
+# R7 - coverage-floor neutralisation on TDD micro-runs (TRC-R7-1 … R7-5)
 # A project --cov-fail-under floor must not turn a passing single-file micro-run
 # into a refused green. tdd-red/green inject --cov-fail-under=0 for recognised
 # pytest invocations (absent an explicit one) and honour a test_micro_command knob.
@@ -253,7 +253,7 @@ def test_output_token_crosscheck_on_known_runner(run_cli, make_task):
 
 def test_coverage_floor_refuses_micro_run_baseline(run_cli, make_task):
     """TRC-R7-1 (regression guard): a recognised pytest micro-run is neutralised
-    — the recorded command carries --cov-fail-under=0 so a project floor cannot
+    - the recorded command carries --cov-fail-under=0 so a project floor cannot
     refuse a passing targeted test."""
     task_dir = make_task("r7-base", _r2_body())
     (task_dir / ".red").write_text("")
@@ -275,7 +275,7 @@ def test_micro_run_neutralises_coverage_floor(run_cli, make_task):
 
 
 def test_full_suite_coverage_gate_unaffected(run_cli, make_task):
-    """TRC-R7-3: an explicit --cov-fail-under is preserved (not clobbered to 0) —
+    """TRC-R7-3: an explicit --cov-fail-under is preserved (not clobbered to 0) -
     the full-suite gate's floor is respected."""
     task_dir = make_task("r7-full", _r2_body())
     (task_dir / ".red").write_text("")
@@ -309,7 +309,7 @@ def test_test_micro_command_knob_precedence(run_cli, make_task, project):
 
 
 # ===========================================================================
-# R8 — first-class verified-by red (TRC-R8-2..6; R8-1 hook part in test_pre_tool_hook)
+# R8 - first-class verified-by red (TRC-R8-2..6; R8-1 hook part in test_pre_tool_hook)
 # ===========================================================================
 
 
@@ -340,7 +340,7 @@ def test_verified_by_guard_bound_to_scenario_at_verify(run_cli, make_task):
 
 
 def test_passing_command_without_verified_by_rejected(run_cli, make_task):
-    """TRC-R8-4: no smuggling — a passing command with no --verified-by records no red."""
+    """TRC-R8-4: no smuggling - a passing command with no --verified-by records no red."""
     task_dir = make_task("r8-nosmug", _r2_body())
     r = run_cli("tdd-red", "--task", "r8-nosmug", "--scenario", "SCN-001",
                 "--", "true")

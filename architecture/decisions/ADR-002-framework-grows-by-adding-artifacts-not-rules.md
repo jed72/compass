@@ -31,14 +31,14 @@ them), not by adding guardrails or routing dimensions.
 
 The five guardrails (G1–G5) are fixed. Any new check that an adopter or the
 framework maintainer wants to enforce registers as a `CHECK_FN` entry under an
-existing guardrail (typically G4 — evidence not assertion), not as a new
+existing guardrail (typically G4 - evidence not assertion), not as a new
 G-letter. The guardrail count in `governance/guardrails.md` must remain five.
 
 The four reading dimensions (blast radius, terrain, magnitude, intent + role)
 are fixed. The routing policy may evolve the values within each dimension
 (e.g. adding a new route shape), but it may not add a fifth dimension. New
-concerns are expressed as `touches:` tags — an open-ended list on the existing
-`intent + role` dimension — not as new dimension slots.
+concerns are expressed as `touches:` tags - an open-ended list on the existing
+`intent + role` dimension - not as new dimension slots.
 
 New capabilities are introduced as lenses (agents that read artifacts and
 produce annotated artifacts) or as new artifact types that Frame loads. The
@@ -68,7 +68,7 @@ architect-lens is the canonical example: it reads `architecture/` and produces
 
 **Negative:**
 - Advisory lenses can be ignored. A team that consistently ignores the
-  architect-lens does not face a blocking gate — only a missing evidence
+  architect-lens does not face a blocking gate - only a missing evidence
   artifact. The framework accepts this gap deliberately: it cannot police
   human attention, only make the information visible.
 - The `CHECK_FN` mechanism for extending G4 is less discoverable than "add a
@@ -88,4 +88,4 @@ architect-lens is the canonical example: it reads `architecture/` and produces
 - `governance/guardrails.md` (the five guardrails)
 - `governance/routing-policy.yml` (the routing dimensions and route shapes)
 - `agents/architect-lens.md` (canonical lens example)
-- `governance/strategies.md` (S3 — simplest thing)
+- `governance/strategies.md` (S3 - simplest thing)

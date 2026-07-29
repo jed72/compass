@@ -1,15 +1,15 @@
-# Spec — rate-limit-search-endpoint
+# Spec - rate-limit-search-endpoint
 
 > **Phase:** Specify · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
-> **Terrain:** brownfield-mapped — the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
+> **Terrain:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
 
 ## How each role reads this file
 
-- **Product owner / manager** — reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
-- **Product marketer** — reads for *claims*: every line of launch copy must point at a scenario id here.
-- **Engineer** — reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
-- **QA** — reads for *coverage*: which scenarios are exercised, which edges are not.
-- **Designer** — UI behaviour authored in `ui-contract.md` flows in here as scenarios.
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
+- **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
+- **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
+- **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
+- **Designer** - UI behaviour authored in `ui-contract.md` flows in here as scenarios.
 
 ---
 
@@ -18,11 +18,11 @@
 | Intent id | Source | Statement |
 |---|---|---|
 | INT-1 | The incident write-up | A single client must not be able to degrade `/search` latency for everyone else; each client gets a fair, bounded share of the endpoint. |
-| INT-2 | The incident write-up | When a client is limited, it must be able to recover on its own — the response has to tell it how long to wait. |
+| INT-2 | The incident write-up | When a client is limited, it must be able to recover on its own - the response has to tell it how long to wait. |
 
 ---
 
-## Scenario group A — Rate limiting behaviour
+## Scenario group A - Rate limiting behaviour
 
 **Independence note:** single group. All five scenarios exercise the one new middleware; per `plan.md` §4 they share code surface and are built as one solo stream.
 
@@ -89,7 +89,7 @@ Scenario: Two clients have independent limits
 
 ## Failure-mode scenarios
 
-The failure mode that mattered here — the over-limit case — is SCN-002, kept in
+The failure mode that mattered here - the over-limit case - is SCN-002, kept in
 group A because it is the core behaviour, not an afterthought. `contained`
 blast radius does not call for adversarial inputs; the missing-client-id edge
 was raised in Clarify and resolved as a config default (see

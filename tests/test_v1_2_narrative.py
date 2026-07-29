@@ -7,7 +7,7 @@ DoD tags) that is missing from the public-facing docs.
 
 Tests are grep/regex assertions over docs at file:line precision. The
 F1 coverage rule asserts every v1.2.0 capability named in CLAUDE.md is
-documented in AGENTS.md or methodology.md — the structural anti-drift
+documented in AGENTS.md or methodology.md - the structural anti-drift
 guard analogous to Task B's `compass --help` parsing.
 """
 import re
@@ -36,7 +36,7 @@ def _section_after(text, heading_pattern):
 
 
 # ---------------------------------------------------------------------------
-# Group A — port-author contract (AGENTS.md + portability.md)
+# Group A - port-author contract (AGENTS.md + portability.md)
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_agents_subagent_list_names_architect_lens():
@@ -69,7 +69,7 @@ def test_trc_a3_agents_state_on_disk_lists_per_task_architecture_files():
     section = _section_after(agents, r"^##\s+State on disk")
     assert section, "'State on disk' section not found in AGENTS.md"
     assert "architecture-loaded.yml" in section, (
-        "AGENTS.md State on disk does not name architecture-loaded.yml — "
+        "AGENTS.md State on disk does not name architecture-loaded.yml - "
         "a port author would not know to support it."
     )
     assert "architecture-notes.md" in section, (
@@ -89,7 +89,7 @@ def test_trc_a4_agents_states_trigger_on_intent_rule():
     )
     assert has_rule, (
         "AGENTS.md does not state the Trigger-Frame-on-intent rule. "
-        "The adapter contract is incomplete — a port author following AGENTS.md "
+        "The adapter contract is incomplete - a port author following AGENTS.md "
         "would only invoke Frame on literal `/compass:frame`, missing the "
         "intent-recognition trigger."
     )
@@ -125,7 +125,7 @@ def test_trc_a5_typed_dod_tags_documented_in_both_agents_and_methodology():
 
 
 # ---------------------------------------------------------------------------
-# Group B — public-facing pitch (README + methodology)
+# Group B - public-facing pitch (README + methodology)
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_readme_architect_lens_in_surrounding_prose_not_table():
@@ -230,7 +230,7 @@ def test_trc_b5_fitness_functions_subsection_in_readme_and_paragraph_in_methodol
 
 
 # ---------------------------------------------------------------------------
-# Group C — roles-guide architect-lens parity
+# Group C - roles-guide architect-lens parity
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_roles_guide_has_architect_lens_section_with_parity():
@@ -275,7 +275,7 @@ def test_trc_c1_roles_guide_has_architect_lens_section_with_parity():
         f"Per DD-4, the section must have parity with the other lenses."
     )
 
-    # Parity by length — the architect-lens section should be at least
+    # Parity by length - the architect-lens section should be at least
     # comparable in length to the other lens sections. A footnote does not
     # count as parity.
     word_count = len(section.split())
@@ -287,7 +287,7 @@ def test_trc_c1_roles_guide_has_architect_lens_section_with_parity():
 
 
 # ---------------------------------------------------------------------------
-# Group D — governance index
+# Group D - governance index
 # ---------------------------------------------------------------------------
 
 def test_trc_d1_governance_readme_files_table_lists_signals_and_quarantine():
@@ -295,7 +295,7 @@ def test_trc_d1_governance_readme_files_table_lists_signals_and_quarantine():
     gov_readme = _read("governance/README.md")
     # Both files must be named in governance/README.md.
     assert "signals.yml" in gov_readme, (
-        "governance/README.md does not name signals.yml — the index of "
+        "governance/README.md does not name signals.yml - the index of "
         "governance/ files is incomplete."
     )
     assert "quarantine.yml" in gov_readme, (
@@ -304,7 +304,7 @@ def test_trc_d1_governance_readme_files_table_lists_signals_and_quarantine():
 
 
 # ---------------------------------------------------------------------------
-# Coverage rule — F1
+# Coverage rule - F1
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_v1_2_capability_in_claude_md_omitted_from_agents_or_methodology():

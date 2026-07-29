@@ -16,7 +16,7 @@ only the core framework files (`governance/routing-policy.yml`,
 
 When a new Compass capability is released (e.g. `frame_load_architecture`, the
 architect-lens, `compass rework-scan`), it runs against all projects that
-upgrade Compass — including the ones that have not yet set up the new
+upgrade Compass - including the ones that have not yet set up the new
 capability's prerequisite files.
 
 The question is: when a new mechanism encounters a project that has not
@@ -54,7 +54,7 @@ require a major version bump and an explicit migration guide.
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Fail loudly when prerequisites are absent, forcing adoption | Ensures every project that upgrades Compass also sets up the full capability; prevents "partial adoption" drift | A team upgrading Compass for an unrelated fix (e.g. a bug fix in `compass check`) should not be forced to also set up `architecture/` before their tasks can Frame. Mandatory adoption converts an upgrade into a migration, blocking adoption entirely for teams that can't do both at once. |
-| Produce a deprecation warning but still exit 0 | Communicates the gap without blocking | A warning that appears on every task for months while a team works on unrelated features becomes noise, is dismissed, and eventually turns off the signal that was meant to prompt adoption. No-op clean is more honest — the capability is simply absent, not degraded. |
+| Produce a deprecation warning but still exit 0 | Communicates the gap without blocking | A warning that appears on every task for months while a team works on unrelated features becomes noise, is dismissed, and eventually turns off the signal that was meant to prompt adoption. No-op clean is more honest - the capability is simply absent, not degraded. |
 
 ## Consequences
 

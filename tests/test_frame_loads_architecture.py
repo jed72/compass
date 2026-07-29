@@ -1,11 +1,11 @@
 """Tests for Frame's architecture-loading mechanism.
 
 Covers:
-  TRC-A1 — Frame loads architecture/ into the task's working context
-  TRC-A2 — Frame degrades gracefully when architecture/ is absent
-  TRC-A5 — invariants.yml is loaded by mechanism when present
-  TRC-A5b — Frame proceeds normally when invariants.yml is absent
-  TRC-X1 — Malformed invariants.yml fails Frame loudly
+  TRC-A1 - Frame loads architecture/ into the task's working context
+  TRC-A2 - Frame degrades gracefully when architecture/ is absent
+  TRC-A5 - invariants.yml is loaded by mechanism when present
+  TRC-A5b - Frame proceeds normally when invariants.yml is absent
+  TRC-X1 - Malformed invariants.yml fails Frame loudly
 
 The helper under test is `frame_load_architecture(project_root, task_dir)`
 in cli/compass.  It is imported via importlib so we don't need to install
@@ -60,7 +60,7 @@ def _make_arch(base: Path, files: dict[str, str]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 — loads when architecture/ is present
+# TRC-A1 - loads when architecture/ is present
 # ---------------------------------------------------------------------------
 
 def test_loads_when_present(tmp_path):
@@ -121,7 +121,7 @@ def test_loads_when_present(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 — degrades gracefully when architecture/ is absent
+# TRC-A2 - degrades gracefully when architecture/ is absent
 # ---------------------------------------------------------------------------
 
 def test_noop_when_absent(tmp_path):
@@ -147,7 +147,7 @@ def test_noop_when_absent(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5 — invariants.yml loaded when present (valid YAML)
+# TRC-A5 - invariants.yml loaded when present (valid YAML)
 # ---------------------------------------------------------------------------
 
 def test_invariants_parsed_when_present(tmp_path):
@@ -181,7 +181,7 @@ def test_invariants_parsed_when_present(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5b — no invariants.yml is fine (only narrative files)
+# TRC-A5b - no invariants.yml is fine (only narrative files)
 # ---------------------------------------------------------------------------
 
 def test_no_invariants_file_ok(tmp_path):
@@ -209,7 +209,7 @@ def test_no_invariants_file_ok(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-X1 — malformed invariants.yml fails loudly
+# TRC-X1 - malformed invariants.yml fails loudly
 # ---------------------------------------------------------------------------
 
 def test_malformed_invariants_fails(tmp_path):

@@ -1,4 +1,4 @@
-"""Tests for `compass next` — TRC-C4 through C10, TRC-F6.
+"""Tests for `compass next` - TRC-C4 through C10, TRC-F6.
 
 `compass next` is a pure read-only subcommand that reads task.yml + route.md
 and prints exactly one line: the next phase, the next-uncleared gate, and
@@ -84,7 +84,7 @@ def make_task(project: Path, slug: str, task_body: dict,
     return task_dir
 
 
-STANDARD_ROUTE_MD = """# Route — test-task
+STANDARD_ROUTE_MD = """# Route - test-task
 
 ## 4. The final route
 
@@ -102,7 +102,7 @@ STANDARD_ROUTE_MD = """# Route — test-task
 | Land | Full |
 """
 
-EXPRESS_ROUTE_MD = """# Route — express-task
+EXPRESS_ROUTE_MD = """# Route - express-task
 
 ## 4. The final route
 
@@ -156,12 +156,12 @@ STANDARD_TASK = {
 
 
 # ---------------------------------------------------------------------------
-# TRC-C4 — next reports the upcoming phase and gate in one line
+# TRC-C4 - next reports the upcoming phase and gate in one line
 # ---------------------------------------------------------------------------
 
 class TestNextReportsPhaseAndGate:
     def test_next_outputs_exactly_one_line(self, tmp_path):
-        """TRC-C4 — stdout is exactly one non-empty line."""
+        """TRC-C4 - stdout is exactly one non-empty line."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         # Specify completed: mark it so next phase is Clarify
@@ -179,7 +179,7 @@ class TestNextReportsPhaseAndGate:
         )
 
     def test_next_names_next_phase(self, tmp_path):
-        """TRC-C4 — the single line names the next phase."""
+        """TRC-C4 - the single line names the next phase."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "clarify"
@@ -190,7 +190,7 @@ class TestNextReportsPhaseAndGate:
         assert "Clarify" in result.stdout
 
     def test_next_names_next_uncleared_gate(self, tmp_path):
-        """TRC-C4 — the single line names the next uncleared gate."""
+        """TRC-C4 - the single line names the next uncleared gate."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "verify"
@@ -203,12 +203,12 @@ class TestNextReportsPhaseAndGate:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C5 — next states which phases are optional on this route
+# TRC-C5 - next states which phases are optional on this route
 # ---------------------------------------------------------------------------
 
 class TestNextShowsCollapsedPhases:
     def test_express_clarify_marked_collapsed(self, tmp_path):
-        """TRC-C5 — on an Express route, Clarify is marked as collapsed."""
+        """TRC-C5 - on an Express route, Clarify is marked as collapsed."""
         project = make_project(tmp_path)
         task_body = {
             "schema_version": "1.0",
@@ -251,7 +251,7 @@ class TestNextShowsCollapsedPhases:
         assert "collapsed" in output.lower() or "Clarify" in output
 
     def test_express_names_plan_as_next_running_phase(self, tmp_path):
-        """TRC-C5 — on Express after Specify, Plan is named as the actual next phase."""
+        """TRC-C5 - on Express after Specify, Plan is named as the actual next phase."""
         project = make_project(tmp_path)
         task_body = {
             "schema_version": "1.0",
@@ -293,12 +293,12 @@ class TestNextShowsCollapsedPhases:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C6 — next on a completed task reports nothing remains
+# TRC-C6 - next on a completed task reports nothing remains
 # ---------------------------------------------------------------------------
 
 class TestNextCompletedTask:
     def test_completed_task_reports_nothing_remains(self, tmp_path):
-        """TRC-C6 — when all gates pass, next reports no phase remains."""
+        """TRC-C6 - when all gates pass, next reports no phase remains."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "land"
@@ -318,7 +318,7 @@ class TestNextCompletedTask:
                 or "nothing remains" in output or "all phases" in output)
 
     def test_completed_task_exit_zero(self, tmp_path):
-        """TRC-C6 — exit code is 0 for a completed task."""
+        """TRC-C6 - exit code is 0 for a completed task."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "land"
@@ -333,12 +333,12 @@ class TestNextCompletedTask:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C7 — next writes no new task state
+# TRC-C7 - next writes no new task state
 # ---------------------------------------------------------------------------
 
 class TestNextIsReadOnly:
     def test_no_file_modified_after_next(self, tmp_path):
-        """TRC-C7 — no file under .compass/work/<task>/ is modified by next."""
+        """TRC-C7 - no file under .compass/work/<task>/ is modified by next."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "clarify"
@@ -376,7 +376,7 @@ class TestNextIsReadOnly:
                 )
 
     def test_no_new_file_created_after_next(self, tmp_path):
-        """TRC-C7 — no new file is created under .compass/work/<task>/ by next."""
+        """TRC-C7 - no new file is created under .compass/work/<task>/ by next."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "build"
@@ -391,12 +391,12 @@ class TestNextIsReadOnly:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C8 — next derives its answer only from task.yml and the route
+# TRC-C8 - next derives its answer only from task.yml and the route
 # ---------------------------------------------------------------------------
 
 class TestNextDerivesFromTaskYmlOnly:
     def test_next_works_from_scratch_dir(self, tmp_path):
-        """TRC-C8 — moved task.yml + route.md to scratch dir gives same answer."""
+        """TRC-C8 - moved task.yml + route.md to scratch dir gives same answer."""
         # Build original project
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
@@ -440,12 +440,12 @@ class TestNextDerivesFromTaskYmlOnly:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C9 — next on a task with no Frame reports that Frame is needed
+# TRC-C9 - next on a task with no Frame reports that Frame is needed
 # ---------------------------------------------------------------------------
 
 class TestNextNoFrame:
     def test_no_task_yml_reports_frame_needed(self, tmp_path):
-        """TRC-C9 — when task.yml is absent, next reports Frame has not run."""
+        """TRC-C9 - when task.yml is absent, next reports Frame has not run."""
         project = make_project(tmp_path)
         # Create task directory but NO task.yml
         task_dir = project / ".compass" / "work" / "unframed-task"
@@ -462,7 +462,7 @@ class TestNextNoFrame:
         )
 
     def test_no_task_yml_exit_nonzero(self, tmp_path):
-        """TRC-C9 — exit code is non-zero when task.yml absent."""
+        """TRC-C9 - exit code is non-zero when task.yml absent."""
         project = make_project(tmp_path)
         task_dir = project / ".compass" / "work" / "no-frame"
         task_dir.mkdir(parents=True)
@@ -473,12 +473,12 @@ class TestNextNoFrame:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C10 — next returns under the interactive latency target (<200ms p95)
+# TRC-C10 - next returns under the interactive latency target (<200ms p95)
 # ---------------------------------------------------------------------------
 
 class TestNextLatency:
     def test_next_under_200ms_p95(self, tmp_path):
-        """TRC-C10 — p95 of 20 runs is under 200ms (BF-1 provisional target)."""
+        """TRC-C10 - p95 of 20 runs is under 200ms (BF-1 provisional target)."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "build"
@@ -494,18 +494,18 @@ class TestNextLatency:
         times.sort()
         p95_ms = times[18] * 1000  # 19th of 20 is p95
         assert p95_ms < 200, (
-            f"compass next p95 latency is {p95_ms:.1f}ms — exceeds the "
+            f"compass next p95 latency is {p95_ms:.1f}ms - exceeds the "
             "200ms target (TRC-C10 / BF-1). Investigate the performance path."
         )
 
 
 # ---------------------------------------------------------------------------
-# TRC-F6 — next on a task whose route.md is missing reports the artifact
+# TRC-F6 - next on a task whose route.md is missing reports the artifact
 # ---------------------------------------------------------------------------
 
 class TestNextMissingRouteMd:
     def test_missing_route_md_reported(self, tmp_path):
-        """TRC-F6 — when route.md is absent, next names the missing artifact."""
+        """TRC-F6 - when route.md is absent, next names the missing artifact."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         task_body["current_phase"] = "plan"
@@ -521,7 +521,7 @@ class TestNextMissingRouteMd:
         )
 
     def test_missing_route_md_exit_nonzero(self, tmp_path):
-        """TRC-F6 — exit code is non-zero when route.md is absent."""
+        """TRC-F6 - exit code is non-zero when route.md is absent."""
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         make_task(project, "test-task", task_body, route_md=None)

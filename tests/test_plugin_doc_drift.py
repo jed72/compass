@@ -7,7 +7,7 @@ assertions over the published doc files.
 
 Why this file exists separate from the rest of tests/: the existing test
 suite defends the CLI's safety contract (see tests/README.md). These tests
-defend a one-off documentation fix. They are still real tests — they run
+defend a one-off documentation fix. They are still real tests - they run
 under `pytest tests/`, they fail when the docs drift, and `compass tdd-red`
 / `compass tdd-green` write typed test-run evidence the verify gates accept.
 """
@@ -22,12 +22,12 @@ def _read(rel):
 
 
 # ---------------------------------------------------------------------------
-# Group A — install-surface accuracy (D1)
+# Group A - install-surface accuracy (D1)
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_readme_source_install_has_path_note():
     """README's source-install paragraph tells the reader how to invoke the
-    compass CLI — by adding bin/ to PATH or via `python3 cli/compass`."""
+    compass CLI - by adding bin/ to PATH or via `python3 cli/compass`."""
     readme = _read("README.md")
 
     # The source-install code block (clone → bash install.sh → pip install).
@@ -85,7 +85,7 @@ def test_trc_a2_quickstart_drops_install_sh_path_claim():
 
 
 # ---------------------------------------------------------------------------
-# Group B — adapter-layer file listings (D2)
+# Group B - adapter-layer file listings (D2)
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_readme_tree_lists_bin_and_plugin_manifest():
@@ -135,7 +135,7 @@ def test_trc_b3_portability_adapter_block_and_mapping_table():
     and the mapping table has a row for the install surface."""
     port = _read("docs/portability.md")
 
-    # The adapter-layer block — the fenced code listing that starts with
+    # The adapter-layer block - the fenced code listing that starts with
     # `commands/` and lists agents/, skills/, hooks/, etc.
     m = re.search(
         r"###\s+The Claude Code adapter layer.*?(?=^###\s|\Z)",
@@ -169,7 +169,7 @@ def test_trc_b3_portability_adapter_block_and_mapping_table():
 
 
 # ---------------------------------------------------------------------------
-# Group C — runtime-neutral path string (D3)
+# Group C - runtime-neutral path string (D3)
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_agents_uses_compass_prefix():
@@ -194,7 +194,7 @@ def test_trc_c1_agents_uses_compass_prefix():
 
 
 # ---------------------------------------------------------------------------
-# Failure-mode coverage — no half-fix (F1)
+# Failure-mode coverage - no half-fix (F1)
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_half_fix_misleading_phrases_removed():

@@ -1,4 +1,4 @@
-"""TRC-C4 — signals.yml defines a design_smell advisory category.
+"""TRC-C4 - signals.yml defines a design_smell advisory category.
 
 Serves: INT-6
 Spec:

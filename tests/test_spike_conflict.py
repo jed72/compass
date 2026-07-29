@@ -2,7 +2,7 @@
 
 When the candidate route is Spike (intent=exploration) and a routing
 guardrail floor would push the route onto a delivery shape (because the
-work touches risky surface), the evaluator MUST refuse — silent promotion
+work touches risky surface), the evaluator MUST refuse - silent promotion
 of a Spike into delivery would defeat the whole safety model. The honest
 output is a routing conflict that demands a re-frame.
 """
@@ -54,7 +54,7 @@ def test_spike_conflict_on_critical_blast_radius(run_cli):
 
 
 def test_safe_exploration_still_routes_to_spike(run_cli):
-    """Exploration on safe surface still routes to Spike — the safety
+    """Exploration on safe surface still routes to Spike - the safety
     mechanism does not over-fire."""
     r = run_cli("route", "evaluate", "--json",
                 *_readings_to_args({"blast_radius": "contained",
@@ -69,7 +69,7 @@ def test_safe_exploration_still_routes_to_spike(run_cli):
 
 
 def test_spike_conflict_message_actionable(run_cli):
-    """The conflict message must tell the user what to do next — re-frame."""
+    """The conflict message must tell the user what to do next - re-frame."""
     r = run_cli("route", "evaluate", "--json",
                 *_readings_to_args({"blast_radius": "contained",
                                     "terrain": "brownfield-mapped",

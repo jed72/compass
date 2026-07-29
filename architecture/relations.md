@@ -3,7 +3,7 @@ STATUS: ACCEPTED
 date: 2026-05-24
 ---
 
-# Compass — Component Relations
+# Compass - Component Relations
 
 <!-- Frame reads this file and includes it in architecture-loaded.yml as a
      narrative artifact. The architect-lens reads it to determine which
@@ -49,22 +49,22 @@ components. Relations are ordered by the calling component.
 The following relations must never be created. They would violate invariants
 or cross boundary rules encoded in the ADRs.
 
-- **`architect-lens` must not read any directory other than `architecture/`** —
+- **`architect-lens` must not read any directory other than `architecture/`** -
   the lens reads exactly `architecture/` at the project root. Reading any
   sibling or adjacent directory that might contain draft or provisional content
   would introduce undeclared dependencies. The lens reads `architecture/` only.
   (Cited source: TRC-D2 and the `architect-lens` agent's hard boundaries.)
 
-- **Any mechanism must not write into `task.yml.readings`** — readings are the
+- **Any mechanism must not write into `task.yml.readings`** - readings are the
   human's judgement field; mechanism-produced state lives in `architecture-loaded.yml`
   and elsewhere in `task.yml`. (See ADR-001.)
 
-- **`hooks/stop.sh` and `compass rework-scan` must not mutate `task.yml`** —
+- **`hooks/stop.sh` and `compass rework-scan` must not mutate `task.yml`** -
   both are read-only over the task spine. Detection is advisory; blocking on
   detection would violate ADR-003 (Flow advises, never gates). (Cited source:
   Inv-4, B-Risk 3, B-Risk 5.)
 
-- **`compass calibration` must not mutate `task.yml`** — calibration aggregates
+- **`compass calibration` must not mutate `task.yml`** - calibration aggregates
   reframe data read-only; it never writes back to individual task spines.
   (Cited source: Inv-4, B-Risk 5.)
 

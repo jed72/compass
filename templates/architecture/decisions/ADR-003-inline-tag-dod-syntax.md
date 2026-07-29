@@ -12,7 +12,7 @@ superseded_by: ''
 The Definition of Done (DoD) in `verification-report.md` consisted of simple
 checkbox lines (`- [ ] description`).  A human ticking the box was the only
 way to mark a line done.  This meant "the test passes" could clear a DoD item
-the same way as "branch protection is configured" — no distinction between
+the same way as "branch protection is configured" - no distinction between
 automated evidence and a human assertion.  Guardrail G4 (evidence, not
 assertion) was eroding.
 
@@ -27,8 +27,8 @@ Two inline tag forms on the DoD line itself:
 ```
 - [ ] (evidence: EV-<id>) <description>   → passes if EV-<id> is in task.yml.evidence with an accepted type
 - [ ] (backfill: BF-<id>) <description>   → passes if BF-<id> is in task.yml.backfills with status: owed
-- [ ] <description>                        → bare unchecked — fails compass check
-- [x] <description>                        → human ticked — passes
+- [ ] <description>                        → bare unchecked - fails compass check
+- [x] <description>                        → human ticked - passes
 ```
 
 `compass check` parses each line under the DoD heading with a regex.

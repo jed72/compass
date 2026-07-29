@@ -7,7 +7,7 @@ import json
 
 
 def _failing_task_body():
-    """A task with a missing test-run binding — fails the suite-passed check."""
+    """A task with a missing test-run binding - fails the suite-passed check."""
     return {
         "task": "fail-me",
         "created": "2026-05-15",
@@ -75,7 +75,7 @@ def test_ci_respects_advisory_mode(run_cli, project, make_task):
 
 
 def test_same_task_different_exit_under_two_modes(run_cli, project, make_task):
-    """Same failing task, same machine, different exit code per mode — that
+    """Same failing task, same machine, different exit code per mode - that
     is the entire point of adoption-mode."""
     make_task("twin", _failing_task_body())
 
@@ -87,6 +87,6 @@ def test_same_task_different_exit_under_two_modes(run_cli, project, make_task):
 
     assert r1.returncode != 0, r1
     assert r2.returncode == 0, r2
-    # both produce a FAIL message — the difference is the exit code
+    # both produce a FAIL message - the difference is the exit code
     assert "FAIL" in r1.stdout
     assert "FAIL" in r2.stdout

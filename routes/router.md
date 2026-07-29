@@ -1,4 +1,4 @@
-# The Needle — Routing Logic
+# The Needle - Routing Logic
 
 The Needle is the component that runs during **Frame**. It reads four context
 dimensions, applies `governance/routing-policy.md`, and writes `route.md`. This
@@ -9,17 +9,17 @@ The Needle does not pick a route from a list. It *scores four dimensions*,
 *composes* a candidate route (biased by the routing strategies), *constrains*
 it (bounded by the routing guardrails), and *explains* the result. The five
 reference routes in this directory are common shapes the composition lands
-near — not a menu.
+near - not a menu.
 
 ---
 
-## Step 1 — Score the four dimensions
+## Step 1 - Score the four dimensions
 
 For each dimension, the Needle assigns a value and writes a one-line
 justification. If it cannot justify a value, it asks the human rather than
-guessing — an unjustified reading is worse than a question.
+guessing - an unjustified reading is worse than a question.
 
-### Blast radius — *if this goes wrong, how bad and how wide?*
+### Blast radius - *if this goes wrong, how bad and how wide?*
 
 | Value | Test |
 |---|---|
@@ -31,15 +31,15 @@ guessing — an unjustified reading is worse than a question.
 Blast radius is about *consequence*, never *effort*. A one-character change can
 be `critical`.
 
-### Terrain — *new code or existing code, and how well mapped?*
+### Terrain - *new code or existing code, and how well mapped?*
 
 | Value | Test |
 |---|---|
 | `greenfield` | Net-new code with no existing behaviour to preserve. |
 | `brownfield-mapped` | Existing code, and its current behaviour is already captured in scenarios (or trivially readable). |
-| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `blueprint-distillation` here — you cannot safely change what you have not first described. |
+| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `blueprint-distillation` here - you cannot safely change what you have not first described. |
 
-### Magnitude — *how much work is this, honestly?*
+### Magnitude - *how much work is this, honestly?*
 
 | Value | Test |
 |---|---|
@@ -50,10 +50,10 @@ be `critical`.
 | `product` | A new system or subsystem, 2+ weeks, many independent work streams. |
 
 Magnitude is the only dimension a person reliably over- or under-estimates.
-When unsure, the Needle estimates *up* — it is cheaper to collapse a phase
+When unsure, the Needle estimates *up* - it is cheaper to collapse a phase
 that turned out easy than to discover mid-Build that the route was too light.
 
-### Intent & role — *who is invoking, and what outcome are they after?*
+### Intent & role - *who is invoking, and what outcome are they after?*
 
 | Value | Entry point | What it changes |
 |---|---|---|
@@ -68,7 +68,7 @@ a CSV export" invoked by a product owner whose brief says "let finance
 self-serve" may need more than a button. The Needle reads the brief if one
 exists.
 
-One intent value is not a role: **exploration** — "I cannot frame this well
+One intent value is not a role: **exploration** - "I cannot frame this well
 enough to deliver it yet." Exploration intent composes toward the **Spike**
 route (see `routes/spike.md`), the way live-defect urgency composes toward
 Hotfix. The Needle still scores all four dimensions; the intent is what selects
@@ -76,7 +76,7 @@ the shape.
 
 ---
 
-## Step 2 — Compose the candidate route
+## Step 2 - Compose the candidate route
 
 The candidate route is a composition, not a lookup. The Needle assembles it
 from per-dimension contributions:
@@ -90,16 +90,16 @@ from per-dimension contributions:
 
 Concretely, the Needle decides, per phase:
 
-- **Specify** — how many scenarios, discovery vs. distillation, how deep.
-- **Clarify** — full pass, light pass, or collapsed (only collapsible when the
+- **Specify** - how many scenarios, discovery vs. distillation, how deep.
+- **Clarify** - full pass, light pass, or collapsed (only collapsible when the
   spec is a single unambiguous scenario *and* no routing guardrail requires it).
-- **Plan** — "edit this file" one-liner, a real technical plan, or a plan plus
+- **Plan** - "edit this file" one-liner, a real technical plan, or a plan plus
   a distribution map.
-- **Distribute** — skipped (solo), pair, or swarm. Stream count comes from the
+- **Distribute** - skipped (solo), pair, or swarm. Stream count comes from the
   distribution map; topology thresholds come from `.compass/config.yml`.
-- **Build** — test surface target, scaled to blast radius.
-- **Verify** — which review dimensions apply (see below), how many gates.
-- **Land** — trivial integration vs. coordinated multi-worktree merge; which
+- **Build** - test surface target, scaled to blast radius.
+- **Verify** - which review dimensions apply (see below), how many gates.
+- **Land** - trivial integration vs. coordinated multi-worktree merge; which
   backfills are owed.
 
 Most compositions land near one of the five reference routes
@@ -107,31 +107,31 @@ Most compositions land near one of the five reference routes
 nearest reference route in `route.md` for shared vocabulary, then lists any
 phase-level deviations from it. A route that is "Standard, but Verify also runs
 the security dimension because blast radius is cross-cutting" is a perfectly
-normal output — that is the framework working as designed.
+normal output - that is the framework working as designed.
 
 ### Review dimensions by route (the default; routing guardrails can add but not remove)
 
 | Dimension | Express | Standard | Expedition | Hotfix | Spike |
 |---|---|---|---|---|---|
-| correctness | ✓ | ✓ | ✓ | ✓ | — |
-| governance | ✓ | ✓ | ✓ | ✓ | — |
-| traceability | ✓ | ✓ | ✓ | ✓ | — |
-| regression | — | ✓ | ✓ | ✓ | — |
-| security | — | scaled | ✓ | ✓ | — |
-| clarity | — | ✓ | ✓ | — | — |
-| claims | if role | if role | ✓ | if role | — |
+| correctness | ✓ | ✓ | ✓ | ✓ | - |
+| governance | ✓ | ✓ | ✓ | ✓ | - |
+| traceability | ✓ | ✓ | ✓ | ✓ | - |
+| regression | - | ✓ | ✓ | ✓ | - |
+| security | - | scaled | ✓ | ✓ | - |
+| clarity | - | ✓ | ✓ | - | - |
+| claims | if role | if role | ✓ | if role | - |
 
 "scaled" = applied in proportion to blast radius. "if role" = applied when the
 product-marketer role is in play. `correctness`, `governance`, `traceability`
 are on for every delivery route because they *are* the default guardrails in
-review form. **Spike** runs none of these — it ships nothing, so it has only
+review form. **Spike** runs none of these - it ships nothing, so it has only
 its own Conclude gate ("was the question answered?"); see `routes/spike.md`.
 
 ---
 
-## Step 3 — Constrain with the routing guardrails
+## Step 3 - Constrain with the routing guardrails
 
-The candidate route — already biased by the routing strategies in Step 2 — is
+The candidate route - already biased by the routing strategies in Step 2 - is
 now bounded by the **routing guardrails** in `governance/routing-policy.md`:
 
 1. **floors** raise the route or force phases/skills back to full weight.
@@ -140,12 +140,12 @@ now bounded by the **routing guardrails** in `governance/routing-policy.md`:
 4. **blocking role_rules** add required artifacts and phase blocks.
 
 Every routing guardrail that fires is recorded. The Needle never applies a
-constraint silently — if Express became Expedition, `route.md` says which floor
+constraint silently - if Express became Expedition, `route.md` says which floor
 did it and quotes the floor's rationale.
 
 ---
 
-## Step 4 — Write `route.md` and confirm
+## Step 4 - Write `route.md` and confirm
 
 The Needle writes `.compass/work/<task-slug>/route.md` from
 `templates/route.md`. It contains:
@@ -154,13 +154,13 @@ The Needle writes `.compass/work/<task-slug>/route.md` from
 - the composed candidate route;
 - every routing guardrail that fired and what it changed;
 - the final route: per-phase weight, the gate set, the swarm topology;
-- **the de-scope ledger** — every phase or check that is collapsed or skipped,
+- **the de-scope ledger** - every phase or check that is collapsed or skipped,
   each with an explicit "safe to skip because…" line. A phase with no
   justification cannot be skipped; if the Needle cannot justify a skip, the
   phase runs.
 
 Routing is **advisory until confirmed**. The human can override any reading or
-the final route — overrides are recorded in `route.md` too, with who and why.
+the final route - overrides are recorded in `route.md` too, with who and why.
 What cannot be overridden: an `immovable_gate`, or a `floor` (a routing
 guardrail is governance speaking; changing it means amending
 `governance/routing-policy.md`, not overriding a route).
@@ -169,8 +169,8 @@ guardrail is governance speaking; changing it means amending
 
 ## Re-framing mid-task
 
-If Build reveals the terrain was misread — the "small" change is unspooling
-into a multi-module refactor — the correct move is to **stop and re-frame**,
+If Build reveals the terrain was misread - the "small" change is unspooling
+into a multi-module refactor - the correct move is to **stop and re-frame**,
 not to push on with a route you no longer believe. `/compass:frame --reframe`
 re-scores the dimensions, writes a new `route.md` revision, and records what
 changed and why. A re-frame is a normal event, not a failure. A route quietly

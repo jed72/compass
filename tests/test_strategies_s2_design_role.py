@@ -1,4 +1,4 @@
-"""TRC-C1 — S2 names both governance and design-feedback roles.
+"""TRC-C1 - S2 names both governance and design-feedback roles.
 
 Serves: INT-6
 Spec: governance/strategies.md S2 section should name:
@@ -35,7 +35,7 @@ def _read_s2_section() -> str:
 
 
 def test_s2_names_governance_role():
-    """S2 must mention satisfying guardrail G1 — the governance role."""
+    """S2 must mention satisfying guardrail G1 - the governance role."""
     s2 = _read_s2_section()
     assert "G1" in s2, (
         "S2 section in strategies.md must mention G1 (the governance/guardrail role). "

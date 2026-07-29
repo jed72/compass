@@ -3,17 +3,17 @@ TEMPLATE: ui-contract.md
 Produced by: the designer via `/compass:design`.
 Lives at:    .compass/work/<task-slug>/ui-contract.md
 Role in the pipeline: the designer's artifact. The designer feeds INTO
-Specify — UI behaviour here is authored as Given/When/Then scenarios so it
+Specify - UI behaviour here is authored as Given/When/Then scenarios so it
 flows directly into spec.feature.md as scenarios, not as a separate track.
 That is how the designer is a full pipeline citizen and not a downstream
 consumer. Accessibility commitments here are checked against the
 accessibility strategy in governance/strategies.md.
 
-Fill every {{PLACEHOLDER}}. Write behaviour as scenarios — the same Gherkin
-shape the spec uses — so the handoff into Specify is mechanical.
+Fill every {{PLACEHOLDER}}. Write behaviour as scenarios - the same Gherkin
+shape the spec uses - so the handoff into Specify is mechanical.
 -->
 
-# UI Contract — {{TASK_SLUG}}
+# UI Contract - {{TASK_SLUG}}
 
 > **Author:** {{DESIGNER NAME}} · **Date:** {{DATE}}
 > **Feeds into:** spec.feature.md (the scenarios below become spec scenarios)
@@ -43,7 +43,7 @@ shape the spec uses — so the handoff into Specify is mechanical.
 ## Interaction scenarios
 
 <!-- Behaviour as Given/When/Then. These are written to be lifted straight
-     into spec.feature.md — give each a traceability id now so the chain is
+     into spec.feature.md - give each a traceability id now so the chain is
      unbroken across the handoff. -->
 
 ### Scenario: {{INTERACTION TITLE}}
@@ -56,7 +56,7 @@ Scenario: {{scenario title}}
   Then {{the surface transitions to / shows Z}}
 ```
 
-### Scenario: {{INTERACTION TITLE — an edge or error path}}
+### Scenario: {{INTERACTION TITLE - an edge or error path}}
 <!-- traceability id: TRC-UI2 · serves: {{INT-id}} -->
 
 ```gherkin

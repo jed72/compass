@@ -1,4 +1,4 @@
-# Standard magnitude on mapped ground — the default working shape (RS-SHAPE-005).
+# Standard magnitude on mapped ground - the default working shape (RS-SHAPE-005).
 name: standard-api-change
 readings:
   blast_radius: contained

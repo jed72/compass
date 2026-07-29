@@ -1,5 +1,5 @@
-"""TRC-D1 — bdd-specification teaches the example-first refinement chain.
-TRC-D2 — user stories remain refused as a per-role spec format.
+"""TRC-D1 - bdd-specification teaches the example-first refinement chain.
+TRC-D2 - user stories remain refused as a per-role spec format.
 
 Serves: INT-8 (D1), INT-8+INT-11 (D2)
 Spec:
@@ -87,7 +87,7 @@ def test_bdd_spec_refuses_user_stories_as_spec_format():
         "bdd-specification/SKILL.md must mention user stories (to refuse them as a per-role spec format). "
         "The refusal should be explicit."
     )
-    # The skill must contain a refusal — words like "refused", "not", "reject"
+    # The skill must contain a refusal - words like "refused", "not", "reject"
     # near "user stories"
     lines = text.splitlines()
     user_story_context = []

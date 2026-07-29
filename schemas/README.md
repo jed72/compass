@@ -11,7 +11,7 @@ forms:
 
 **The `.schema.json` files are real, executable JSON Schema** (draft-07) and
 are the authority for structure. **The `.reference.yml` files are the
-human-readable companions** — JSON Schema is precise but hard to read at a
+human-readable companions** - JSON Schema is precise but hard to read at a
 glance, so each field is also documented in a plain annotated YAML file. Where
 the two could be read to differ, the `.schema.json` wins.
 
@@ -19,12 +19,12 @@ the two could be read to differ, the `.schema.json` wins.
 
 `compass policy lint` and `compass task lint` validate in two layers:
 
-1. **The built-in structural linter — always runs.** No dependencies. It is
+1. **The built-in structural linter - always runs.** No dependencies. It is
    the floor, and it does the one thing JSON Schema *cannot*: cross-check that
    every guardrail's declared `checks` is actually implemented in the CLI's
    `CHECK_FNS`. A declared check with no implementation is the integrity hole
-   the linter exists to close — see `governance/guardrails.md`.
-2. **JSON Schema validation — runs when `jsonschema` is installed.** Fuller
+   the linter exists to close - see `governance/guardrails.md`.
+2. **JSON Schema validation - runs when `jsonschema` is installed.** Fuller
    structural coverage (required keys, enums, nested shapes) against the
    `.schema.json` files. `jsonschema` is an *optional* dependency; PyYAML
    stays the CLI's only hard one. If `jsonschema` is absent, the lint commands

@@ -1,4 +1,4 @@
-"""The framework's own CI workflow must SHA-pin third-party actions — the
+"""The framework's own CI workflow must SHA-pin third-party actions - the
 same supply-chain stance `docs/security.md` asks Compass consumers to take.
 
 Traces to: .compass/work/sha-pin-workflow-actions/spec.feature.md SCN-001.

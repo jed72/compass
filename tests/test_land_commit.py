@@ -4,7 +4,7 @@ pre-commit hooks and never silently believe a land that didn't move HEAD.
 The defect: an auto-fixing pre-commit hook (ruff format/--fix) rewrites a
 staged file and aborts the commit; HEAD does not move, but nothing notices.
 land-commit detects the no-op, re-stages the hook's fixes, retries once, and
-always verifies HEAD advanced — erroring loudly if not.
+always verifies HEAD advanced - erroring loudly if not.
 """
 from __future__ import annotations
 
@@ -59,7 +59,7 @@ def _head(d: Path) -> str:
 
 def test_single_commit_noops_under_autofix_hook(run_cli, tmp_path):
     """TRC-R5-1 (distillation): a bare `git commit` no-ops under an auto-fixing
-    hook — HEAD does not move. This is the trap land-commit must defeat."""
+    hook - HEAD does not move. This is the trap land-commit must defeat."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
@@ -68,7 +68,7 @@ def test_single_commit_noops_under_autofix_hook(run_cli, tmp_path):
     _git(repo, "add", "-A")
     h0 = _head(repo)
     _git(repo, "commit", "-m", "try")     # hook rewrites + aborts
-    assert _head(repo) == h0               # HEAD did NOT move — the silent no-op
+    assert _head(repo) == h0               # HEAD did NOT move - the silent no-op
 
 
 def test_clean_then_commit_advances_head(run_cli, tmp_path):

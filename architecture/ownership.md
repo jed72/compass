@@ -3,11 +3,11 @@ STATUS: ACCEPTED
 date: 2026-05-24
 ---
 
-# Compass — Service Ownership
+# Compass - Service Ownership
 
 <!-- Frame reads this file and includes it in architecture-loaded.yml as a
      narrative artifact. The architect-lens uses ownership information to
-     flag when a proposed change crosses component boundaries — a common source
+     flag when a proposed change crosses component boundaries - a common source
      of undetected coupling and rework.
 
      Keep this file current. Stale ownership is worse than no ownership file:
@@ -32,7 +32,7 @@ exclusively, and what it must not do.
 
 ---
 
-## Must own — per component
+## Must own - per component
 
 ### Pipeline (commands/ + phases)
 
@@ -56,7 +56,7 @@ exclusively, and what it must not do.
 
 **Must own:**
 - The five hard guardrail definitions (G1–G5) and their check logic.
-- The typed gate evidence schema (`{type, path}` — not bare paths).
+- The typed gate evidence schema (`{type, path}` - not bare paths).
 - The mechanical pass/fail determination for each gate.
 
 ### Strategies (governance/strategies.md + hooks/pre-tool.sh)
@@ -77,7 +77,7 @@ exclusively, and what it must not do.
 
 ---
 
-## Must not do — boundary rules (citing B-Risk references from Inv-1..Inv-8)
+## Must not do - boundary rules (citing B-Risk references from Inv-1..Inv-8)
 
 The following rules are the boundary risks identified in the prior task's
 `architecture-notes.md` (B-Risk 1..6 and the invariants they protect).
@@ -94,7 +94,7 @@ never gates) and **B-Risk 5** (calibration reframe-debt mutating task.yml).
 ### rework-scan must not exit non-zero on detection
 
 `compass rework-scan` exits 0 whether or not rework signals are detected.
-Detection is advisory — it writes a report to `.compass/flow/rework-<date>.md`
+Detection is advisory - it writes a report to `.compass/flow/rework-<date>.md`
 and continues. Exiting non-zero would make rework-scan a blocking gate,
 violating **Inv-4** and **B-Risk 3** (rework-scan blocking on detection).
 
@@ -128,7 +128,7 @@ entries. This protects **Inv-2** (five guardrails) and guards against **B-Risk 4
 `hooks/stop.sh` and `compass rework-scan` must read `governance/signals.yml` at
 runtime, not replicate its patterns in Python or shell code. Hard-coding the
 patterns defeats the Q9 extensibility design and violates **Inv-7**
-(deterministic mechanism — the CLI must read the file) and **B-Risk 6**
+(deterministic mechanism - the CLI must read the file) and **B-Risk 6**
 (hand-writing signals.yml patterns into the CLI).
 
 ---

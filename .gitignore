@@ -1,20 +1,20 @@
 # Local-only working proposals and analyses. These are team-internal planning
 # notes, not part of the framework's public surface. The rationale that
 # survives into the framework lives in docs/methodology.md, the ADRs, and the
-# rest of the public docs — not here. Root-anchored for the same reason as
+# rest of the public docs - not here. Root-anchored for the same reason as
 # the patterns below.
 /docs/proposals/
 /docs/analysis/
 
 # Compass per-project working state.
 #
-# IMPORTANT — in a real project that USES Compass, `.compass/work/` IS
+# IMPORTANT - in a real project that USES Compass, `.compass/work/` IS
 # committed: it is the audit trail (task.yml, route.md, evidence, devlog).
 # Only the framework repo itself ignores its own root-level `.compass/work/`,
 # and the patterns below are ROOT-ANCHORED with a leading `/` so they do not
-# also exclude `examples/<x>/.compass/work/...` — those ARE part of the
+# also exclude `examples/<x>/.compass/work/...` - those ARE part of the
 # repo and must be tracked. (Without the leading `/`, git matches the
-# pattern at any depth, which silently drops the examples — the exact same
+# pattern at any depth, which silently drops the examples - the exact same
 # bug the release-tarball excludes hit.)
 /.compass/work/
 /.compass/flow/
@@ -42,7 +42,7 @@ __pycache__/
 # Node (if a project uses it)
 node_modules/
 
-# Release artifacts (root only — a project that vendors Compass may legitimately
+# Release artifacts (root only - a project that vendors Compass may legitimately
 # have its own dist/ or build/ elsewhere).
 /dist/
 /build/

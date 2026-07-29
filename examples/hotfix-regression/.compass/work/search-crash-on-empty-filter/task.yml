@@ -1,9 +1,9 @@
 # =============================================================================
-# task.yml — search-crash-on-empty-filter  (EXAMPLE: the Hotfix route)
+# task.yml - search-crash-on-empty-filter  (EXAMPLE: the Hotfix route)
 # =============================================================================
 # A worked example. This is the task spine after a finished Hotfix: the
 # reproduction test IS the spec (SCN-001), the Build was expedited, and the
-# mandatory backfill is recorded in `backfills:` — and PAID. `compass check`
+# mandatory backfill is recorded in `backfills:` - and PAID. `compass check`
 # fails a Hotfix while any backfill is `owed`; this one is closed because
 # every backfill below reads `paid`.
 # =============================================================================
@@ -14,7 +14,7 @@ created: "2026-05-11"
 
 # --- the route -------------------------------------------------------------
 # JUDGEMENT: the Needle's Frame readings, written fast but real. Hotfix is
-# selected by URGENCY, not by the magnitude/blast composition — see route.md.
+# selected by URGENCY, not by the magnitude/blast composition - see route.md.
 readings:
   blast_radius: cross-cutting
   terrain: brownfield-mapped
@@ -26,7 +26,7 @@ readings:
 
 # MECHANICAL: computed by `compass route evaluate --write`. urgency:live-defect
 # + small magnitude -> RS-SHAPE-002 -> hotfix. (Note: had blast_radius been
-# `critical`, RG-FLOOR-001 would have raised this to expedition — a critical
+# `critical`, RG-FLOOR-001 would have raised this to expedition - a critical
 # defect is an incident, not a hotfix. cross-cutting is the hotfix band.)
 route: hotfix
 topology: solo
@@ -42,7 +42,7 @@ phases:
   land: full-plus-backfill
 
 # --- evidence (the registry) -----------------------------------------------
-# Typed, id-tagged. Urgency does NOT soften the strength of the evidence —
+# Typed, id-tagged. Urgency does NOT soften the strength of the evidence -
 # correctness and regression still demand the recorded test run (test-run),
 # security still demands the captured scan (command-output). A Hotfix borrows
 # speed from the front of the pipeline, never from the strength of its evidence.
@@ -80,7 +80,7 @@ gates:
 
 # --- scenarios (filled by Specify = reproduce-first) -----------------------
 # On Hotfix the failing regression test IS the scenario. SCN-001 was written
-# RED first (evidence/red.json) — it reproduced the crash before any fix.
+# RED first (evidence/red.json) - it reproduced the crash before any fix.
 # It was promoted into a proper Given/When/Then in spec.feature.md as the
 # backfill (BF-001 below).
 scenarios:
@@ -101,18 +101,18 @@ claims: []
 # --- backfills (Hotfix's defining obligation) ------------------------------
 # Hotfix borrows ceremony from the front of the pipeline and pays it back at
 # Land. The task does NOT close while any of these is `owed`. All `paid` here
-# — that is what makes this a CLOSED task and not an open one.
+# - that is what makes this a CLOSED task and not an open one.
 backfills:
   - id: BF-001
     description: "Promote the reproduction test into a proper Given/When/Then scenario in spec.feature.md, traceable to the defect."
     status: paid
   - id: BF-002
-    description: "Complete route.md properly — the four dimension readings and the root-cause note, not just the urgent stub."
+    description: "Complete route.md properly - the four dimension readings and the root-cause note, not just the urgent stub."
     status: paid
   - id: BF-003
     description: "Root-cause line in devlog.md, plus the follow-up task for the missing-scenario class of gap."
     status: paid
 
 # --- reframes --------------------------------------------------------------
-# Empty: urgency selected Hotfix at Frame and the route held — no re-frame.
+# Empty: urgency selected Hotfix at Frame and the route held - no re-frame.
 reframes: []

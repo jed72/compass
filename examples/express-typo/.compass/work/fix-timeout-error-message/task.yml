@@ -1,10 +1,10 @@
 # =============================================================================
-# task.yml — fix-timeout-error-message  (EXAMPLE: the Express route)
+# task.yml - fix-timeout-error-message  (EXAMPLE: the Express route)
 # =============================================================================
 # A worked example. This is what task.yml looks like after a finished Express
 # task: tiny. Frame wrote `readings`; `compass route evaluate --write` filled
 # `route`/`topology`/`phases`/`gates`; Specify added the one scenario; Build
-# added the one changed file. Nothing else was needed — that is the point of
+# added the one changed file. Nothing else was needed - that is the point of
 # Express.
 # =============================================================================
 
@@ -14,7 +14,7 @@ created: "2026-05-04"
 
 # --- the route -------------------------------------------------------------
 # JUDGEMENT: the Needle read these during Frame. Small on every axis, on
-# mapped ground — see route.md §1 for the per-dimension justifications.
+# mapped ground - see route.md §1 for the per-dimension justifications.
 readings:
   blast_radius: trivial
   terrain: brownfield-mapped
@@ -53,7 +53,7 @@ evidence:
 
 # --- gates -----------------------------------------------------------------
 # Express's gate set: the three immovable review dimensions, one gate at Verify.
-# Each `pass` gate references registry evidence by id — `compass check` verifies
+# Each `pass` gate references registry evidence by id - `compass check` verifies
 # the referenced evidence is of a type the gate accepts (see governance/
 # guardrails.yml `gate_evidence_requirements`).
 gates:
@@ -82,7 +82,7 @@ changed_files:
 
 # --- claims / backfills ----------------------------------------------------
 # Both empty: no marketer in play, no borrowed ceremony. (Approvals are no
-# longer a separate section in 1.0 — they live in `evidence:` as typed
+# longer a separate section in 1.0 - they live in `evidence:` as typed
 # `human-approval` entries when irreversible surface is touched. Nothing
 # irreversible here, so the registry has none.)
 claims: []

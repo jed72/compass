@@ -14,7 +14,7 @@ The governance check here is run by the `governance-check` skill.
 Fill every {{PLACEHOLDER}}.
 -->
 
-# Plan — {{TASK_SLUG}}
+# Plan - {{TASK_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Owning agent:** planner
 > **Plan weight (from route.md):** {{real plan.md \| plan.md + distribution-map.md}}
@@ -32,17 +32,17 @@ Fill every {{PLACEHOLDER}}.
 
 <!-- One block per real design decision. A decision with no alternative
      considered is usually not a decision yet. Express has none of these by
-     definition; if you have one, the route was mis-composed — re-frame. -->
+     definition; if you have one, the route was mis-composed - re-frame. -->
 
-### DD-1 — {{DECISION TITLE}}
+### DD-1 - {{DECISION TITLE}}
 
 - **Context:** {{what forced a choice}}
 - **Decision:** {{what was chosen}}
 - **Alternatives considered:** {{what else, and why not}}
 - **Consequences:** {{what this commits us to; what it rules out}}
-- **Governance tie:** {{which guardrail or engineering strategy this honours — or "n/a"}}
+- **Governance tie:** {{which guardrail or engineering strategy this honours - or "n/a"}}
 
-### DD-2 — {{DECISION TITLE}}
+### DD-2 - {{DECISION TITLE}}
 
 - **Context:** {{…}}
 - **Decision:** {{…}}
@@ -52,8 +52,8 @@ Fill every {{PLACEHOLDER}}.
 
 ## 3. Governance check
 
-<!-- Run against ALL of governance/ — guardrails.md, strategies.md, and
-     routing-policy.md. A failed guardrail here blocks the phase — fix the
+<!-- Run against ALL of governance/ - guardrails.md, strategies.md, and
+     routing-policy.md. A failed guardrail here blocks the phase - fix the
      plan, do not note the violation and move on. A strategy not followed is
      a recorded judgement, not an automatic block. This is the
      `governance-check` skill's output. -->
@@ -74,17 +74,17 @@ Fill every {{PLACEHOLDER}}.
 
 | Unit | Scenario group(s) it satisfies | Code surface it touches | Independent of |
 |---|---|---|---|
-| U1 | {{group A — TRC-A1, TRC-A2}} | {{files / modules}} | {{U2, U3 — or "shares surface with U2"}} |
-| U2 | {{group B — TRC-B1}} | {{…}} | {{…}} |
+| U1 | {{group A - TRC-A1, TRC-A2}} | {{files / modules}} | {{U2, U3 - or "shares surface with U2"}} |
+| U2 | {{group B - TRC-B1}} | {{…}} | {{…}} |
 
-**Parallelism assessment:** {{"U1 and U2 are genuinely independent → candidate pair/swarm" — or "all units share surface → solo"}}
+**Parallelism assessment:** {{"U1 and U2 are genuinely independent → candidate pair/swarm" - or "all units share surface → solo"}}
 
 ---
 
 ## Gate
 
 - [ ] Every scenario in `spec.feature.md` is covered by a work unit.
-- [ ] Governance check passes — every guardrail clears with evidence; any strategy deviation is recorded (above).
+- [ ] Governance check passes - every guardrail clears with evidence; any strategy deviation is recorded (above).
 - [ ] If parallel work is possible, `distribution-map.md` is written next.
 
-Next phase: **Distribute** (`/compass:distribute`) — or straight to **Build** if the route is solo.
+Next phase: **Distribute** (`/compass:distribute`) - or straight to **Build** if the route is solo.

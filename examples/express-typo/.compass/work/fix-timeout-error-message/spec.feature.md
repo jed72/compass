@@ -1,15 +1,15 @@
-# Spec — fix-timeout-error-message
+# Spec - fix-timeout-error-message
 
 > **Phase:** Specify · **Last updated:** 2026-05-04 · **Owning agent:** spec-author
-> **Terrain:** brownfield-mapped — the timeout branch already exists; this is one scenario for its corrected behaviour, not a discovery.
+> **Terrain:** brownfield-mapped - the timeout branch already exists; this is one scenario for its corrected behaviour, not a discovery.
 
 ## How each role reads this file
 
-- **Product owner / manager** — reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
-- **Product marketer** — reads for *claims*: every line of launch copy must point at a scenario id here.
-- **Engineer** — reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
-- **QA** — reads for *coverage*: which scenarios are exercised, which edges are not.
-- **Designer** — UI behaviour authored in `ui-contract.md` flows in here as scenarios.
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
+- **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
+- **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
+- **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
+- **Designer** - UI behaviour authored in `ui-contract.md` flows in here as scenarios.
 
 ---
 
@@ -21,9 +21,9 @@
 
 ---
 
-## Scenario group A — Timeout error messaging
+## Scenario group A - Timeout error messaging
 
-**Independence note:** single group, no parallelism expected — the change is one branch in one file.
+**Independence note:** single group, no parallelism expected - the change is one branch in one file.
 
 ### Scenario: Upload timeout reports the real cause and the real limit
 <!-- traceability id: SCN-001 · serves: INT-1 -->

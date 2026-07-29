@@ -6,7 +6,7 @@ Each test_trc_* function asserts the fix for one scenario in
 and inspect exit code, stdout, and the resulting `.claude/settings.json`.
 
 These tests are independent of `tests/conftest.py`'s `project` fixture
-(which is shaped for the CLI's behaviour) — install.sh's behaviour is the
+(which is shaped for the CLI's behaviour) - install.sh's behaviour is the
 subject here, and a plain tmp directory is the right scaffold for it.
 """
 import json
@@ -91,7 +91,7 @@ def _compass_hook_paths(settings):
 
 
 # ---------------------------------------------------------------------------
-# Group A — install.sh refuses double-registration in a plugin-source target
+# Group A - install.sh refuses double-registration in a plugin-source target
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_install_skips_hooks_in_plugin_source(tmp_path):
@@ -124,7 +124,7 @@ def test_trc_a2_install_cleans_existing_duplicate_on_rerun(tmp_path):
 
     # Sanity: the pre-seed put three compass hooks in place.
     assert len(_compass_hook_paths(_read_settings(tmp_path))) == 3, (
-        "test setup failed — pre-seed should leave 3 Compass hooks in settings"
+        "test setup failed - pre-seed should leave 3 Compass hooks in settings"
     )
 
     result = _run_install(tmp_path)
@@ -142,12 +142,12 @@ def test_trc_a2_install_cleans_existing_duplicate_on_rerun(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Group B — non-plugin install regression guard
+# Group B - non-plugin install regression guard
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_install_registers_hooks_in_non_plugin_target(tmp_path):
     """install.sh registers hooks normally when target has no plugin manifest."""
-    # tmp_path has no .claude-plugin/plugin.json — the canonical install target.
+    # tmp_path has no .claude-plugin/plugin.json - the canonical install target.
     result = _run_install(tmp_path)
 
     assert result.returncode == 0, (
@@ -172,7 +172,7 @@ def test_trc_b1_install_registers_hooks_in_non_plugin_target(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Group C — --uninstall recovery
+# Group C - --uninstall recovery
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_uninstall_strips_hooks_regardless_of_plugin(tmp_path):
@@ -193,7 +193,7 @@ def test_trc_c1_uninstall_strips_hooks_regardless_of_plugin(tmp_path):
 
     # The plugin manifest is untouched.
     assert (tmp_path / ".claude-plugin" / "plugin.json").exists(), (
-        "--uninstall touched the plugin manifest — it must not"
+        "--uninstall touched the plugin manifest - it must not"
     )
 
     # Idempotent.
@@ -202,11 +202,11 @@ def test_trc_c1_uninstall_strips_hooks_regardless_of_plugin(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Failure-mode coverage — detection precision
+# Failure-mode coverage - detection precision
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_detection_requires_actual_manifest_file(tmp_path):
-    """Detection requires plugin.json — a directory without it is not a plugin source."""
+    """Detection requires plugin.json - a directory without it is not a plugin source."""
     # A .claude-plugin/ dir exists but contains NO plugin.json.
     (tmp_path / ".claude-plugin").mkdir(parents=True, exist_ok=True)
 

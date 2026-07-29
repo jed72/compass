@@ -1,10 +1,10 @@
-"""TRC-C6 — no new check and no new gate are added for B1.
+"""TRC-C6 - no new check and no new gate are added for B1.
 
 Serves: INT-6, INT-11
 Spec: The diff that lands the B1 candidate must not introduce any new check
 name or gate name in governance/guardrails.yml.
 
-This is a negative assertion test — it checks that stream-C (B1) does NOT
+This is a negative assertion test - it checks that stream-C (B1) does NOT
 add new checks or gates. It runs git diff to inspect changes to guardrails.yml.
 
 The test also verifies that the guardrails.yml carries a stream-C provenance
@@ -18,7 +18,7 @@ REPO_ROOT = Path(__file__).parent.parent
 GUARDRAILS_YML = "governance/guardrails.yml"
 
 # The legitimate set of check names after the 1.1.0 release lands.
-# TRC-C6's invariant is "stream-C / B1 adds no new checks" — the diff-scan
+# TRC-C6's invariant is "stream-C / B1 adds no new checks" - the diff-scan
 # test below is the canonical guard. The state-based tests below use the
 # integration-time legitimate set: B1 introduced none of these. Additions
 # `no-trusted-rerun` (stream-A) and `command-passes` (stream-B) are sibling-
@@ -90,7 +90,7 @@ def test_no_new_check_names_added_by_stream_c():
     assert not new_checks, (
         f"Stream C (B1) must not add new checks to guardrails.yml. "
         f"New checks found: {new_checks}. "
-        "B1 is a judgement-side rebalance — no new mechanism."
+        "B1 is a judgement-side rebalance - no new mechanism."
     )
 
 
@@ -106,7 +106,7 @@ def test_no_new_gate_names_added_by_stream_c():
     assert not new_gates, (
         f"Stream C (B1) must not add new gates to guardrails.yml gate_evidence_requirements. "
         f"New gates found: {new_gates}. "
-        "B1 is judgement-side only — no new gate."
+        "B1 is judgement-side only - no new gate."
     )
 
 
@@ -120,7 +120,7 @@ def test_guardrails_diff_has_only_comment_additions():
         stripped = line.strip()
         assert stripped.startswith("#"), (
             f"Stream C added a non-comment line to guardrails.yml: {line!r}. "
-            "Only a comment (inline caveat) is permitted — no structural changes."
+            "Only a comment (inline caveat) is permitted - no structural changes."
         )
 
 
@@ -134,5 +134,5 @@ def test_guardrails_b1_provenance_comment_present():
     assert "stream-C" in text or "B1" in text or "TRC-C6" in text, (
         "guardrails.yml must carry a provenance comment referencing stream-C / B1 / TRC-C6 "
         "confirming this file was reviewed and only a comment was added. "
-        "Add: '# stream-C (B1 / TRC-C6): only the coverage-floor caveat comment above was added — no new checks or gates.'"
+        "Add: '# stream-C (B1 / TRC-C6): only the coverage-floor caveat comment above was added - no new checks or gates.'"
     )

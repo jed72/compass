@@ -1,6 +1,6 @@
-"""R10 — the regression-baseline strategy (S6): a named, SOFT strategy that
+"""R10 - the regression-baseline strategy (S6): a named, SOFT strategy that
 makes "green baseline before, re-run after, on shared/critical surface" the
-assessed-and-prompted default at Verify. Additive only — no new guardrail, no
+assessed-and-prompted default at Verify. Additive only - no new guardrail, no
 new gate, never a Land blocker (ADR-002, ADR-006).
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ def test_s6_registered_in_strategies_md(framework_root):
 
 def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task):
     """TRC-R10-2: route evaluate surfaces regression-baseline as applicable for a
-    cross-cutting task — without adding or altering a gate."""
+    cross-cutting task - without adding or altering a gate."""
     body = {"task": "rb", "created": "2026-06-22",
             "readings": {"blast_radius": "cross-cutting",
                          "terrain": "brownfield-mapped", "magnitude": "large",
@@ -71,7 +71,7 @@ def test_build_prompts_baseline_before_change(framework_root):
 
 
 def test_absent_baseline_does_not_block_land(framework_root):
-    """TRC-R10-5: no guardrails.yml check enforces a baseline — its absence
+    """TRC-R10-5: no guardrails.yml check enforces a baseline - its absence
     cannot fail compass check or block Land (soft strategy)."""
     g = yaml.safe_load((framework_root / "governance" / "guardrails.yml").read_text())
     checks = g.get("checks") or {}
@@ -84,7 +84,7 @@ def test_no_new_guardrail_or_gate_added(framework_root):
     verify.regression's accepted types are unchanged ([test-run]); guardrails.yml
     does not define the strategy (it is a strategy, not a guardrail)."""
     gov = framework_root / "governance"
-    # the five guardrails live in guardrails.md — still G1..G5, no G6
+    # the five guardrails live in guardrails.md - still G1..G5, no G6
     md = (gov / "guardrails.md").read_text()
     for gid in ("G1", "G2", "G3", "G4", "G5"):
         assert gid in md, gid

@@ -1,4 +1,4 @@
-"""Tests for `compass rework-scan` — cross-task rework detection (R4).
+"""Tests for `compass rework-scan` - cross-task rework detection (R4).
 
 Scenarios covered:
   TRC-D1  clean repo reports 0 rework instances
@@ -90,7 +90,7 @@ def write_signals_yml(directory: Path, window_days: int = 14,
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1  Clean repo — no rework detected
+# TRC-D1  Clean repo - no rework detected
 # ---------------------------------------------------------------------------
 
 def test_clean_repo(tmp_path):
@@ -180,7 +180,7 @@ def test_public_surface_patterns_loaded_at_runtime(tmp_path):
     We use a unique sentinel pattern that would not match if patterns were hardcoded.
     """
     root = tmp_path / "work"
-    # A completely custom pattern — proves runtime loading
+    # A completely custom pattern - proves runtime loading
     sentinel_pattern = "SENTINEL_CUSTOM_PATTERN_[0-9]+"
     signals = write_signals_yml(
         tmp_path,
@@ -251,7 +251,7 @@ def test_add_then_delete_pair_fixture():
 
     # B-Risk 3: exit code must be 0 even when rework is detected
     assert proc.returncode == 0, (
-        f"B-Risk 3 VIOLATION — rework-scan must exit 0 on detection (it is a "
+        f"B-Risk 3 VIOLATION - rework-scan must exit 0 on detection (it is a "
         f"signal, not a gate). Got exit {proc.returncode}.\n"
         f"stderr: {proc.stderr}"
     )
@@ -320,7 +320,7 @@ def test_window_days_respected(tmp_path):
     write_task_yml(root / "task-a", "task-a", [
         {"path": "services/foo/handler.go", "action": "added"},
     ], created="2026-05-01")
-    # task-b is 10 days later — outside the window
+    # task-b is 10 days later - outside the window
     write_task_yml(root / "task-b", "task-b", [
         {"path": "services/foo/handler.go", "action": "deleted"},
     ], created="2026-05-11")

@@ -4,7 +4,7 @@ These tests prove that `compass route evaluate` is a pure function: given
 readings + the shipped routing-policy.yml, it produces the documented route,
 fires the documented floors/caps, and selects the documented topology.
 
-The bulk of the proof is the YAML-driven parameterised test at the bottom —
+The bulk of the proof is the YAML-driven parameterised test at the bottom -
 each fixture in tests/fixtures/routes/ declares an input + expected output.
 """
 from __future__ import annotations
@@ -172,7 +172,7 @@ def test_cap_critical_caps_worktrees_to_one(run_cli):
 
 def test_candidate_and_final_route_both_recorded(run_cli):
     """The JSON output records both the composed candidate and the final
-    route — the floor's effect must be visible, not hidden."""
+    route - the floor's effect must be visible, not hidden."""
     r = run_cli("route", "evaluate", "--json",
                 *_reading_args({"blast_radius": "contained",
                                 "terrain": "brownfield-mapped",
@@ -186,7 +186,7 @@ def test_candidate_and_final_route_both_recorded(run_cli):
     assert data["candidate_via"], "candidate_via must say WHY the candidate was picked"
 
 
-# --- TRC-F3: regression baseline — adaptive routing is unchanged ----------
+# --- TRC-F3: regression baseline - adaptive routing is unchanged ----------
 
 
 def test_existing_combinations_unchanged(run_cli):
@@ -201,7 +201,7 @@ def test_existing_combinations_unchanged(run_cli):
       - the same gate set (expected_gates)
 
     A mismatch is a real regression: routing has drifted from the baseline.
-    If that happens, this test must STOP and report — do not patch the
+    If that happens, this test must STOP and report - do not patch the
     fixture to make a regression pass.
     """
     import yaml
@@ -212,7 +212,7 @@ def test_existing_combinations_unchanged(run_cli):
     assert baseline_path.is_file(), f"Baseline fixture not found: {baseline_path}"
 
     baseline = yaml.safe_load(baseline_path.read_text(encoding="utf-8"))
-    assert baseline, "Baseline fixture is empty — cannot verify routing"
+    assert baseline, "Baseline fixture is empty - cannot verify routing"
 
     failures = []
 
@@ -264,7 +264,7 @@ def test_existing_combinations_unchanged(run_cli):
             )
 
     assert not failures, (
-        "Adaptive routing has drifted from the baseline — these are REAL "
+        "Adaptive routing has drifted from the baseline - these are REAL "
         "REGRESSIONS, not test-logic errors:\n\n" + "\n\n".join(failures)
     )
 

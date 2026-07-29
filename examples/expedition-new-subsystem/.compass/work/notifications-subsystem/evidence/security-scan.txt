@@ -27,8 +27,8 @@ Files skipped (0):
 $ pip-audit -r requirements.txt
 No known vulnerabilities found
 
-# verify.security gate — the new subsystem adds no third-party dependency.
+# verify.security gate - the new subsystem adds no third-party dependency.
 # The one security-shaped requirement (SCN-006: a muted category must NOT
 # suppress a security notification) is covered by a behavioural scenario, not
-# by this scan — see test_security_overrides_mute in the suite and section 4
+# by this scan - see test_security_overrides_mute in the suite and section 4
 # of verification-report.md. This capture covers the static/dependency surface.

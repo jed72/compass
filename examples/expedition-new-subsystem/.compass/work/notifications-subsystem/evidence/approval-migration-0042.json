@@ -1,6 +1,6 @@
 {
   "task": "notifications-subsystem",
-  "scope": "migrations/0042_notifications.sql — additive schema introducing the notifications subsystem (irreversible by virtue of being a forward migration on production).",
+  "scope": "migrations/0042_notifications.sql - additive schema introducing the notifications subsystem (irreversible by virtue of being a forward migration on production).",
   "approver": "l.haddad@example.com",
   "role": "engineering-lead",
   "decision": "approved",
@@ -12,7 +12,7 @@
   ],
   "reviewed": [
     "Forward migration applies cleanly against a production-shaped snapshot.",
-    "Rollback drops only the new tables — no data loss outside the subsystem being introduced.",
+    "Rollback drops only the new tables - no data loss outside the subsystem being introduced.",
     "PR #618 carries the dual-path review and a tagged snapshot id."
   ],
   "pr": "#618"

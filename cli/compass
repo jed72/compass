@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass — the Compass CLI
+# compass - the Compass CLI
 # =============================================================================
 # The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* — that is judgement, and judgement is the
+# the four-dimension *readings* - that is judgement, and judgement is the
 # adaptivity. Everything downstream of the readings is mechanical, and this is
 # where the mechanism lives:
 #
@@ -14,7 +14,7 @@
 #                            task's task.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record
-#                            evidence/red.json + the .red marker (honestly —
+#                            evidence/red.json + the .red marker (honestly -
 #                            the marker is only written after a real failure).
 #                            --scenario SCN-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
@@ -22,14 +22,14 @@
 #                            evidence/green.json, clear the .red marker.
 #                            --scenario binds the green the same way.
 #   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml — including that every guardrail's
+#                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
 #   compass task lint [F]     Structurally validate a task.yml.
-#   compass calibration       The Needle's feedback loop — aggregate the
+#   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
 #   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) — for CI.
+#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML (`pip install pyyaml`). It is the only dependency; the
 # rest is the Python 3 standard library. If PyYAML is missing the CLI says so
@@ -38,7 +38,7 @@
 # GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
 # (walking up from the working directory); if there is none, it falls back to
 # the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code — the defaults work with zero
+# the "gradient, not threshold" rule in code - the defaults work with zero
 # project setup.
 # =============================================================================
 
@@ -110,7 +110,7 @@ def find_governance():
     if os.path.isfile(os.path.join(shipped, "routing-policy.yml")):
         return shipped
     raise CompassError(
-        "could not find governance/ — neither a project-local one nor the "
+        "could not find governance/ - neither a project-local one nor the "
         "framework's shipped defaults. Run from inside a Compass project or repo."
     )
 
@@ -120,7 +120,7 @@ def find_compass_dir():
     proj = find_upwards(os.getcwd(), ".compass")
     if not proj:
         raise CompassError(
-            "no .compass/ directory found — run from inside a Compass project."
+            "no .compass/ directory found - run from inside a Compass project."
         )
     return os.path.join(proj, ".compass")
 
@@ -128,7 +128,7 @@ def find_compass_dir():
 def load_mode():
     """Read the adoption mode from .compass/config.yml: 'enforced' (default)
     or 'advisory'. In advisory mode every failure is still reported, but the
-    CLI exits 0 — useful for piloting Compass without blocking delivery."""
+    CLI exits 0 - useful for piloting Compass without blocking delivery."""
     try:
         cfg_path = os.path.join(find_compass_dir(), "config.yml")
         if os.path.isfile(cfg_path):
@@ -144,7 +144,7 @@ def load_mode():
 def mode_banner(mode):
     """The visible banner so an advisory run is never mistaken for enforced."""
     if mode == "advisory":
-        return ("[mode: advisory] — every failure below is reported but NOT "
+        return ("[mode: advisory] - every failure below is reported but NOT "
                 "blocking; exit code will be 0. Set `mode: enforced` in "
                 ".compass/config.yml when the team is ready.")
     return "[mode: enforced]"
@@ -161,7 +161,7 @@ def resolve_task_dir(slug=None):
     """Resolve a task's working directory.
 
     Priority: explicit slug > .compass/current-task pointer > most recently
-    modified dir under .compass/work/ (with a warning — ambiguous).
+    modified dir under .compass/work/ (with a warning - ambiguous).
     """
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
@@ -180,9 +180,9 @@ def resolve_task_dir(slug=None):
                 return d
             sys.stderr.write(
                 f"compass: .compass/current-task points at '{s}' but that "
-                f"task directory does not exist — ignoring.\n"
+                f"task directory does not exist - ignoring.\n"
             )
-    # fallback: most recently modified — warn, because this is the fragile path
+    # fallback: most recently modified - warn, because this is the fragile path
     if not os.path.isdir(work):
         raise CompassError(f"no tasks found: {work} does not exist")
     candidates = [
@@ -193,7 +193,7 @@ def resolve_task_dir(slug=None):
         raise CompassError(f"no task directories under {work}")
     if len(candidates) > 1:
         sys.stderr.write(
-            "compass: no --task slug and no .compass/current-task pointer — "
+            "compass: no --task slug and no .compass/current-task pointer - "
             "falling back to the most recently modified task directory. This "
             "is ambiguous; write .compass/current-task to be sure.\n"
         )
@@ -204,12 +204,12 @@ def load_task(task_dir):
     path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(path):
         raise CompassError(
-            f"no task.yml in {task_dir} — has Frame run? task.yml is the "
+            f"no task.yml in {task_dir} - has Frame run? task.yml is the "
             f"machine-readable task spine."
         )
     task = load_yaml(path)
     # schema_version compatibility: a major mismatch is unsafe to silently run
-    # against — the shape may have changed. Same major is OK (additive); absent
+    # against - the shape may have changed. Same major is OK (additive); absent
     # is OK in 1.0 for back-compat with pre-versioned files.
     sv = task.get("schema_version")
     if sv:
@@ -236,9 +236,9 @@ def save_task(task, path):
 # --- architecture loading (Frame mechanism) ----------------------------------
 # Inv-1: readings stays judgement-only. The load record goes to
 # architecture-loaded.yml (a separate file), never into task.yml.readings.
-# Inv-7: deterministic — same inputs produce same output; sha256 per artifact
+# Inv-7: deterministic - same inputs produce same output; sha256 per artifact
 #         lets downstream agents detect mid-task drift.
-# Inv-8: backward compat — absence of architecture/ is silent (empty record).
+# Inv-8: backward compat - absence of architecture/ is silent (empty record).
 
 #: Narrative files Frame looks for under architecture/ (in order).
 _NARRATIVE_FILES = [
@@ -262,7 +262,7 @@ def _scan_adrs(arch_dir: str) -> list:
 
     Each dict: {id, path, title, status}
     Frontmatter is parsed as YAML between the first pair of '---' lines.
-    Raises ValueError on malformed YAML frontmatter (TRC-X1 — fail loudly on
+    Raises ValueError on malformed YAML frontmatter (TRC-X1 - fail loudly on
     bad structured input, naming the file path and the parse error).
     Files with no frontmatter delimiters have their id/title/status inferred
     from the filename (missing frontmatter is not an error; bad YAML is).
@@ -307,7 +307,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
 
     Writes ``.compass/work/<task>/architecture-loaded.yml`` and returns the
     same dict.  Never raises on absent files (Inv-8).  Does raise on malformed
-    invariants.yml (TRC-X1 — fail loudly on bad structured input).
+    invariants.yml (TRC-X1 - fail loudly on bad structured input).
 
     Schema (schema_version 1.0):
         schema_version: "1.0"
@@ -337,7 +337,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
                     "type": "narrative",
                 })
 
-        # 2. Optional structured file — fail loudly on bad YAML (TRC-X1)
+        # 2. Optional structured file - fail loudly on bad YAML (TRC-X1)
         inv_rel = _INVARIANTS_FILE
         inv_full = os.path.join(project_root, inv_rel)
         if os.path.isfile(inv_full):
@@ -358,7 +358,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
         # 3. Discover ADRs
         adrs = _scan_adrs(arch_dir)
     else:
-        # architecture/ absent — backward compat: produce an empty record
+        # architecture/ absent - backward compat: produce an empty record
         adrs = []
 
     record = {
@@ -368,7 +368,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
         "adrs": adrs,
     }
 
-    # Write to task dir (never to task.yml.readings — Inv-1)
+    # Write to task dir (never to task.yml.readings - Inv-1)
     os.makedirs(task_dir, exist_ok=True)
     out_path = os.path.join(task_dir, "architecture-loaded.yml")
     with open(out_path, "w", encoding="utf-8") as fh:
@@ -469,7 +469,7 @@ def evaluate_route(readings, policy):
 
     # --- 2b. routing conflict: exploration must not silently become delivery -
     # If the candidate was a Spike and a routing floor would force it onto a
-    # delivery route, that is NOT "Spike raised to Expedition" — it is "this is
+    # delivery route, that is NOT "Spike raised to Expedition" - it is "this is
     # not a Spike." A Spike ships nothing and must not touch production-critical
     # surface (routes/spike.md). Auto-promoting it would quietly change the
     # *meaning* of the work from "explore" to "deliver." The honest answer is a
@@ -477,11 +477,11 @@ def evaluate_route(readings, policy):
     if candidate == "spike" and final != "spike":
         floor_ids = [f["id"] for f in fired if f["kind"] == "floor"]
         raise CompassError(
-            "routing conflict — exploration cannot silently become delivery.\n"
+            "routing conflict - exploration cannot silently become delivery.\n"
             f"  Intent is 'exploration' (a Spike candidate), but routing "
             f"guardrail(s) {floor_ids} would force at least '{final}'.\n"
             f"  A Spike ships nothing and must not touch production-critical "
-            f"surface — that is its whole safety model (routes/spike.md).\n"
+            f"surface - that is its whole safety model (routes/spike.md).\n"
             f"  Re-frame: either scope a narrower discovery task that does not "
             f"touch the risky surface, or set intent=delivery and accept the "
             f"'{final}' route deliberately. The point is that this is a choice "
@@ -526,7 +526,7 @@ def evaluate_route(readings, policy):
     if final in forbidden:
         raise CompassError(
             f"routing conflict: the composed route '{final}' is forbidden by a "
-            f"cap for these readings. Re-frame — the readings and the policy "
+            f"cap for these readings. Re-frame - the readings and the policy "
             f"disagree, and that needs a human."
         )
 
@@ -540,7 +540,7 @@ def evaluate_route(readings, policy):
             phases[p] = "full"
     gates = list(shape.get("gates", []))
     # Immovable gates and role-added gates apply to DELIVERY routes only. Spike
-    # ships nothing — it carries only its own Conclude gate, by design. (A
+    # ships nothing - it carries only its own Conclude gate, by design. (A
     # spike that needs a delivery gate is not a spike; it graduates.)
     if final != "spike":
         for ig in guardrails.get("immovable_gates", []):
@@ -557,7 +557,7 @@ def evaluate_route(readings, policy):
         topology = "solo (capped to 1 worktree)"
 
     # --- soft advisory strategies (R10) -------------------------------------
-    # These BIAS/ASSESS only — they never alter the route, gates, weight, or
+    # These BIAS/ASSESS only - they never alter the route, gates, weight, or
     # topology. Surfaced for the Needle and the reviewer (e.g. regression-
     # baseline on shared/critical surface). A strategy, not a guardrail.
     applicable_strategies = []
@@ -609,7 +609,7 @@ def cmd_route_evaluate(args):
         readings = task.get("readings")
         if not readings:
             raise CompassError(
-                f"{task_path} has no `readings:` block — Frame records the "
+                f"{task_path} has no `readings:` block - Frame records the "
                 f"four-dimension readings there before the route is evaluated."
             )
 
@@ -643,7 +643,7 @@ def cmd_route_evaluate(args):
             for b in result["blocked_phases"]:
                 print(f"  BLOCKED phase   : {b['phase']} until {b['until']}")
         if result.get("applicable_strategies"):
-            print("  advisory strategies (soft — assessed, never gating):")
+            print("  advisory strategies (soft - assessed, never gating):")
             for s in result["applicable_strategies"]:
                 print(f"    [{s['id']}] {s['strategy']}: {s['rationale']}")
 
@@ -653,13 +653,13 @@ def cmd_route_evaluate(args):
             raise CompassError("--write needs a task (use --task or run in a "
                                "task; it cannot write with ad-hoc --reading)")
         # Re-frame detection: the task already had a route, and the newly
-        # computed one differs. This is the Needle's feedback signal — record
+        # computed one differs. This is the Needle's feedback signal - record
         # it. The reason comes from --reason; if absent, record a placeholder
         # and warn, so the signal is captured even when the agent forgets.
         prior_route = task.get("route")
         reframed = bool(prior_route) and prior_route != result["route"]
         if reframed:
-            reason = args.reason or "(reason not given — fill this in)"
+            reason = args.reason or "(reason not given - fill this in)"
             task.setdefault("reframes", []).append({
                 "from_route": prior_route,
                 "to_route": result["route"],
@@ -687,7 +687,7 @@ def cmd_route_evaluate(args):
                 sys.stderr.write(
                     "compass: re-frame recorded with no reason. Re-run with "
                     "--reason \"...\" or edit task.yml's last `reframes` "
-                    "entry — the reason is the calibration signal.\n"
+                    "entry - the reason is the calibration signal.\n"
                 )
     return 0
 
@@ -698,7 +698,7 @@ def _scenario_documented_in_spec(spec_path, scenario_id):
     """R1: a `verifiable: narrative` scenario is 'documented' when its gherkin
     block in spec.feature.md has a non-empty When AND Then. The When/Then is
     documentation-as-acceptance and lives only in the spec (it has no structured
-    home to duplicate), so reading it is reading the artifact — NOT the R4
+    home to duplicate), so reading it is reading the artifact - NOT the R4
     prose-grep-for-a-machine-fact anti-pattern."""
     if not spec_path or not os.path.isfile(spec_path):
         return False
@@ -740,7 +740,7 @@ def _check_scenarios_have_tests(task, task_dir):
     for s in scns:
         sid = s.get("id", "?")
         # R1: narrative scenarios are assessed on documentation, never on a
-        # test — so an incidental command does not buy a pass, and a documented
+        # test - so an incidental command does not buy a pass, and a documented
         # playbook does not need a fabricated one.
         if s.get("verifiable") == "narrative":
             if _scenario_documented_in_spec(spec_path, sid):
@@ -773,7 +773,7 @@ def _check_suite_passed(task, task_dir):
     registry = [e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("type") == "test-run"]
     if not registry:
-        return False, ("no test-run evidence in the registry — run "
+        return False, ("no test-run evidence in the registry - run "
                        "`compass tdd-green` to record a passing suite")
     scn_ids = {s.get("id") for s in (task.get("scenarios") or []) if isinstance(s, dict)}
     green = []
@@ -790,7 +790,7 @@ def _check_suite_passed(task, task_dir):
             return False, f"test-run evidence {entry.get('id', '?')} unreadable: {exc}"
         if data.get("exit_code") != 0:
             return False, (f"test-run evidence {entry.get('id', '?')} records "
-                           f"exit_code {data.get('exit_code')} — not green")
+                           f"exit_code {data.get('exit_code')} - not green")
         scn = entry.get("scenario") or data.get("scenario")
         if scn and scn_ids and scn not in scn_ids:
             return False, (f"test-run evidence {entry.get('id', '?')} is bound "
@@ -856,7 +856,7 @@ def _check_claim_traces(task, task_dir):
 def _check_gate_evidence(task, task_dir):
     gates = task.get("gates") or []
     if not gates:
-        return False, "no gates in task.yml — has the route been evaluated?"
+        return False, "no gates in task.yml - has the route been evaluated?"
     registry = {e.get("id"): e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("id")}
     # Load the evidence typing rules. The one extra yaml load per `check` run is
@@ -875,7 +875,7 @@ def _check_gate_evidence(task, task_dir):
         gid = g.get("id", "?")
         ev = g.get("evidence")
         # Gates now reference evidence by id (a list). Reject the older inline
-        # {type, path} dict form explicitly — the registry is the model.
+        # {type, path} dict form explicitly - the registry is the model.
         if isinstance(ev, dict):
             problems.append(f"{gid} uses the old inline-evidence shape "
                             f"({{type, path}}); convert to evidence ids "
@@ -911,12 +911,12 @@ def _check_gate_evidence(task, task_dir):
                                 f"resolve: {epath}")
         if accepted and not (types_seen & set(accepted)):
             problems.append(f"{gid} requires evidence of type {accepted} but "
-                            f"its referenced evidence is {sorted(types_seen)} — "
+                            f"its referenced evidence is {sorted(types_seen)} - "
                             f"a mechanical gate cannot be cleared with the "
                             f"wrong kind of evidence")
     if problems:
         # R6-5: enumerate one problem per line so two mismatched gates surface
-        # as two distinct, readable failures — not one concatenated string.
+        # as two distinct, readable failures - not one concatenated string.
         return False, "\n         ".join(problems)
     passed = [g.get("id") for g in gates if g.get("status") == "pass"]
     return True, f"{len(passed)}/{len(gates)} pass gate(s), all backed by registry evidence of accepted type"
@@ -939,7 +939,7 @@ def _parse_dod_lines(task_dir):
     dod_lines = []
     for line in lines:
         stripped = line.rstrip("\n")
-        # Detect the heading — allow any heading level (##, ###, ####)
+        # Detect the heading - allow any heading level (##, ###, ####)
         if stripped.strip().lstrip("#").strip() == "Definition of Done":
             in_dod = True
             continue
@@ -960,7 +960,7 @@ _EVIDENCE_TAG_RE = _re.compile(r"\(evidence:\s*(EV-[^\)]+)\)")
 _BACKFILL_TAG_RE = _re.compile(r"\(backfill:\s*(BF-[^\)]+)\)")
 
 # Evidence types accepted for DoD evidence (all types that represent real,
-# typed evidence — not the catch-all `artifact` which is the weakest).
+# typed evidence - not the catch-all `artifact` which is the weakest).
 _DOD_ACCEPTED_EVIDENCE_TYPES = {
     "test-run",
     "command-output",
@@ -970,7 +970,7 @@ _DOD_ACCEPTED_EVIDENCE_TYPES = {
     "migration-plan",
     "rollback-plan",
     "claim-review",
-    "artifact",  # weakest but still typed — accepted for DoD
+    "artifact",  # weakest but still typed - accepted for DoD
     "spike-conclusion",
 }
 
@@ -984,10 +984,10 @@ def _check_dod_evidence_typed(task, task_dir):
                                        registry with an accepted type
     - `- [ ] (backfill: BF-id) ...` → passes if BF-id is in task.yml
                                        backfills with status: owed
-    - `- [ ] <bare description>`   → FAILS (evidence, not assertion — G4)
+    - `- [ ] <bare description>`   → FAILS (evidence, not assertion - G4)
 
     Cross-task half (TRC-E3): scan sibling task.yml files for backfills with
-    target_task equal to this task's slug and status: owed — any such entry
+    target_task equal to this task's slug and status: owed - any such entry
     blocks this task's Land.
     """
     dod_lines = _parse_dod_lines(task_dir)
@@ -1010,24 +1010,24 @@ def _check_dod_evidence_typed(task, task_dir):
     for raw in dod_lines:
         m = _DOD_ITEM_RE.match(raw)
         if not m:
-            continue  # not a checklist item — skip (comments, blank lines, etc.)
+            continue  # not a checklist item - skip (comments, blank lines, etc.)
         item_count += 1
         checked, rest = m.group(1), m.group(2)
 
         if checked.lower() == "x":
-            # Human-ticked — passes unconditionally
+            # Human-ticked - passes unconditionally
             continue
 
-        # Unchecked — must have an inline tag
+        # Unchecked - must have an inline tag
         ev_match = _EVIDENCE_TAG_RE.search(rest)
         bf_match = _BACKFILL_TAG_RE.search(rest)
 
         if not ev_match and not bf_match:
-            # Bare unchecked — fails G4 (evidence, not assertion)
+            # Bare unchecked - fails G4 (evidence, not assertion)
             desc = rest.strip() or raw.strip()
             problems.append(
                 f"bare unchecked DoD item (no evidence or backfill tag): "
-                f"'{desc}' — add (evidence: EV-<id>) or (backfill: BF-<id>) "
+                f"'{desc}' - add (evidence: EV-<id>) or (backfill: BF-<id>) "
                 f"inline tag, or tick the box if done. G4: evidence, not "
                 f"assertion."
             )
@@ -1077,7 +1077,7 @@ def _check_dod_evidence_typed(task, task_dir):
         return False, "; ".join(problems)
 
     if item_count == 0:
-        return True, "DoD section is empty or absent — nothing to evidence"
+        return True, "DoD section is empty or absent - nothing to evidence"
     return True, f"all {item_count} DoD item(s) are typed or human-ticked"
 
 
@@ -1114,7 +1114,7 @@ def _check_inbound_backfills(task_dir, this_slug):
                 problems.append(
                     f"cross-task block: task '{src_slug}' has backfill "
                     f"'{bf.get('id', '?')}' (status: owed) targeting this "
-                    f"task — pay it with `compass backfill pay --task "
+                    f"task - pay it with `compass backfill pay --task "
                     f"{src_slug} {bf.get('id', '?')}` before Land"
                 )
     return problems
@@ -1130,7 +1130,7 @@ def _check_human_approval(task, task_dir):
                  and e.get("type") == "human-approval"]
     approved = [a for a in approvals if a.get("decision") == "approved"]
     if not approved:
-        return False, ("no human-approval evidence with decision=approved — "
+        return False, ("no human-approval evidence with decision=approved - "
                        "G5 applies because this task touches irreversible "
                        "surface. Add a `human-approval` entry to the evidence "
                        "registry with approver, role, scope, decision, and "
@@ -1144,7 +1144,7 @@ def _check_human_approval(task, task_dir):
                        f"evidence entry must record who approved, in what role, "
                        f"the scope, and when.")
     return True, (f"approval on record: {a.get('approver')} "
-                  f"({a.get('role')}) — scope: {a.get('scope')}")
+                  f"({a.get('role')}) - scope: {a.get('scope')}")
 
 
 def _check_backfills_paid(task, task_dir):
@@ -1160,7 +1160,7 @@ def _check_spike_conclusion_present(task, task_dir):
     concs = [e for e in registry if isinstance(e, dict)
              and e.get("type") == "spike-conclusion"]
     if not concs:
-        return False, ("no `spike-conclusion` evidence on record — a Spike "
+        return False, ("no `spike-conclusion` evidence on record - a Spike "
                        "must record what it learned and a close-out decision "
                        "(discard | graduate-to-delivery | defer) before it "
                        "closes")
@@ -1172,7 +1172,7 @@ def _check_spike_conclusion_present(task, task_dir):
                        f"decision={decision!r}; it must be one of {valid}")
     if decision == "graduate-to-delivery" and not c.get("next_task"):
         return False, (f"spike-conclusion {c.get('id', '?')} graduates to "
-                       f"delivery, but `next_task:` is empty — link the new "
+                       f"delivery, but `next_task:` is empty - link the new "
                        f"task (e.g. .compass/work/<new-slug>/). Graduation is "
                        f"a fresh Frame, not a merge.")
     nt = f" -> {c['next_task']}" if c.get("next_task") else ""
@@ -1187,9 +1187,9 @@ def _check_spike_no_production_changes(task, task_dir):
                        f"(found: {paths}). Exploration code stays on a scratch "
                        f"branch; if the finding is acted on, a fresh Frame "
                        f"owns the code under a real route's guardrails. This "
-                       f"is the safety model — a Spike cannot silently become "
+                       f"is the safety model - a Spike cannot silently become "
                        f"delivery.")
-    return True, "no production changed_files (correct — a Spike ships nothing)"
+    return True, "no production changed_files (correct - a Spike ships nothing)"
 
 
 def _load_quarantine_registry(gov_dir):
@@ -1218,7 +1218,7 @@ def _check_no_trusted_rerun(task, task_dir):
     no test-run evidence records a rerun-to-green without either:
       (a) the test being listed in governance/quarantine.yml with a tracking_task, OR
       (b) evidence with attempts:1 (clean first pass), OR
-      (c) no attempts field at all (old evidence — backward compat, TRC-A5).
+      (c) no attempts field at all (old evidence - backward compat, TRC-A5).
 
     Failure cases (DD-3):
       - rerun_without_change: true AND test not quarantined → FAIL
@@ -1263,7 +1263,7 @@ def _check_no_trusted_rerun(task, task_dir):
                       else entry.get("rerun_without_change"))
         test_id = green_data.get("test") or entry.get("test")
 
-        # Case 1: TRC-A5 backward compat — no attempts field → trivial pass
+        # Case 1: TRC-A5 backward compat - no attempts field → trivial pass
         if attempts is None:
             continue
 
@@ -1271,7 +1271,7 @@ def _check_no_trusted_rerun(task, task_dir):
         if isinstance(attempts, int) and attempts > 1 and rerun_flag is None:
             problems.append(
                 f"evidence {ev_id}: attempts={attempts} but rerun_without_change "
-                f"marker is absent — incomplete evidence cannot clear G4. "
+                f"marker is absent - incomplete evidence cannot clear G4. "
                 f"Either add the marker (with evidence that no source change "
                 f"intervened) or quarantine the test in governance/quarantine.yml "
                 f"with a tracking_task (TRC-FM3)"
@@ -1283,7 +1283,7 @@ def _check_no_trusted_rerun(task, task_dir):
             if not test_id:
                 problems.append(
                     f"evidence {ev_id}: rerun_without_change:true but no `test` "
-                    f"field to look up in the quarantine registry — add the test "
+                    f"field to look up in the quarantine registry - add the test "
                     f"id to the evidence record"
                 )
                 continue
@@ -1291,7 +1291,7 @@ def _check_no_trusted_rerun(task, task_dir):
                 problems.append(
                     f"evidence {ev_id}: test '{test_id}' ran {attempts} time(s) "
                     f"and passed without a source change (rerun_without_change:true) "
-                    f"but is not in governance/quarantine.yml — a rerun-to-green is "
+                    f"but is not in governance/quarantine.yml - a rerun-to-green is "
                     f"the loss of the most useful signal (S5). Fix the root cause "
                     f"or add the test to governance/quarantine.yml with a "
                     f"tracking_task (TRC-A3)"
@@ -1300,7 +1300,7 @@ def _check_no_trusted_rerun(task, task_dir):
                 q_entry = quarantine[test_id]
                 notes.append(
                     f"evidence {ev_id}: test '{test_id}' is quarantined "
-                    f"(tracking: {q_entry.get('tracking_task', '?')}) — "
+                    f"(tracking: {q_entry.get('tracking_task', '?')}) - "
                     f"rerun-to-green noted; fix tracked"
                 )
 
@@ -1318,14 +1318,14 @@ def _check_coherence_check_passes(task, task_dir):
     gates = task.get("gates") or []
     gate_ids = [g.get("id") for g in gates if isinstance(g, dict)]
     if "verify.analyze" not in gate_ids:
-        return True, "verify.analyze not in gate set — coherence check not required"
+        return True, "verify.analyze not in gate set - coherence check not required"
     # Gate is present: look for a coherence-check typed evidence entry
     registry = {e.get("id"): e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("id")}
     coherence_entries = [e for e in registry.values()
                          if e.get("type") == "coherence-check"]
     if not coherence_entries:
-        return False, ("no coherence-check evidence on record — run "
+        return False, ("no coherence-check evidence on record - run "
                        "`compass analyze` to produce the required "
                        "coherence-check evidence for verify.analyze")
     # Check that the most recent entry records zero findings
@@ -1339,11 +1339,11 @@ def _check_coherence_check_passes(task, task_dir):
                 n = data.get("finding_count", None)
                 if n is not None and n != 0:
                     return False, (f"coherence-check evidence records "
-                                   f"{n} finding(s) — resolve them before "
+                                   f"{n} finding(s) - resolve them before "
                                    f"clearing verify.analyze")
             except (OSError, json.JSONDecodeError):
-                pass  # readable but corrupt — gate-evidence-present catches it
-    return True, "coherence-check evidence on record — verify.analyze gate cleared"
+                pass  # readable but corrupt - gate-evidence-present catches it
+    return True, "coherence-check evidence on record - verify.analyze gate cleared"
 
 
 def _check_command_passes(task, task_dir):
@@ -1385,7 +1385,7 @@ def _check_command_passes(task, task_dir):
     if not cp_guardrails:
         return True, ("verify.fitness: 0 project guardrails declared with "
                       "command-passes; clearing by vacuity (no fitness functions "
-                      "to check — declare project guardrails with "
+                      "to check - declare project guardrails with "
                       "`check: command-passes` to add fitness functions)")
 
     failures = []
@@ -1395,7 +1395,7 @@ def _check_command_passes(task, task_dir):
         if not command or not isinstance(command, str):
             failures.append(
                 f"project guardrail {g.get('id', '?')}: missing or non-string "
-                f"`command` in params — declaration is malformed"
+                f"`command` in params - declaration is malformed"
             )
             continue
         timeout = params.get("timeout_seconds", 300)
@@ -1433,7 +1433,7 @@ def _check_command_passes(task, task_dir):
         return False, "; ".join(failures)
 
     n = len(cp_guardrails)
-    return True, (f"{n} command-passes guardrail(s) all exited 0 — "
+    return True, (f"{n} command-passes guardrail(s) all exited 0 - "
                   f"architectural fitness checks pass")
 
 
@@ -1455,18 +1455,18 @@ CHECK_FNS = {
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
-# *why it matters* and the *how to fix it* — the bits a check's own detail
+# *why it matters* and the *how to fix it* - the bits a check's own detail
 # string usually does not have room for. The check returns the "what failed";
 # this table supplies the rest. A failure with guidance reads like support;
 # a failure without reads like bureaucracy.
 CHECK_GUIDANCE = {
     "scenarios-have-tests": {
-        "why": "Every scenario must have a test that exercises it — without one, the scenario is a wish, not a checkable acceptance criterion (guardrail G2). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented — a non-empty When/Then in spec.feature.md — not by a fabricated test.",
-        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in spec.feature.md — documentation is its acceptance.",
+        "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (guardrail G2). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in spec.feature.md - not by a fabricated test.",
+        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in spec.feature.md - documentation is its acceptance.",
     },
     "suite-passed": {
         "why": "Guardrail G1 (tested before it lands) requires a recorded green test run.",
-        "fix": "Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` — it will run the test, confirm green, and record the evidence in task.yml's registry.",
+        "fix": "Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
     },
     "changed-code-traces-to-scenario": {
         "why": "Compass requires every production change to trace back to a stated acceptance criterion (guardrail G3 traceability).",
@@ -1477,7 +1477,7 @@ CHECK_GUIDANCE = {
         "fix": "Add `id:` (e.g. SCN-003) and `intent:` (the intent id from brief.md) fields to the scenario in task.yml.",
     },
     "claim-traces-to-scenario": {
-        "why": "Public claims must trace to a scenario that backs them (G3) — an unbacked claim is a promise the framework cannot prove.",
+        "why": "Public claims must trace to a scenario that backs them (G3) - an unbacked claim is a promise the framework cannot prove.",
         "fix": "Add a backing `scenario:` field to the claim in task.yml, or remove the claim from `claims:`.",
     },
     "gate-evidence-present": {
@@ -1489,19 +1489,19 @@ CHECK_GUIDANCE = {
         "fix": "Add a `human-approval` evidence entry to the registry with approver, role, scope, decision=approved, and timestamp. Then reference it from the relevant gate's evidence.",
     },
     "backfills-paid": {
-        "why": "Borrowed ceremony — a Hotfix backfill or a de-scoped artifact — must be paid before a task closes. Otherwise the audit trail has a hole.",
+        "why": "Borrowed ceremony - a Hotfix backfill or a de-scoped artifact - must be paid before a task closes. Otherwise the audit trail has a hole.",
         "fix": "Complete each unpaid backfill (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in task.yml.",
     },
     "spike-conclusion-present": {
-        "why": "A Spike without a recorded conclusion is just untracked work — the conclusion is what makes the exploration accountable.",
+        "why": "A Spike without a recorded conclusion is just untracked work - the conclusion is what makes the exploration accountable.",
         "fix": "Add a `spike-conclusion` evidence entry to the registry with `decision:` (discard | graduate-to-delivery | defer). If graduating, include `next_task:` linking the new delivery task.",
     },
     "spike-no-production-changes": {
-        "why": "A Spike's safety model is that it ships nothing — graduating to delivery must be a fresh Frame, not a silent merge.",
+        "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh Frame, not a silent merge.",
         "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:frame` to start a new delivery task that owns the code under a real route.",
     },
     "dod-evidence-typed": {
-        "why": "Guardrail G4 (evidence, not assertion): the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed backfill — narrative notes in devlog.md do not count.",
+        "why": "Guardrail G4 (evidence, not assertion): the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed backfill - narrative notes in devlog.md do not count.",
         "fix": (
             "For each bare unchecked DoD item: (a) add `(evidence: EV-<id>)` "
             "inline, where EV-<id> is an entry in the task's evidence registry "
@@ -1512,7 +1512,7 @@ CHECK_GUIDANCE = {
     },
     "coherence-check-passes": {
         "why": "G4 (evidence, not assertion): verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
-        "fix": "Run `compass analyze` — on a route with verify.analyze it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, route disagreements, or orphan claims first.",
+        "fix": "Run `compass analyze` - on a route with verify.analyze it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, route disagreements, or orphan claims first.",
     },
 }
 
@@ -1539,16 +1539,16 @@ def cmd_check(args):
     mode = load_mode()
 
     # Route-aware: a Spike does not need the delivery guardrails (G1-G5 do not
-    # apply — a spike ships nothing), but it IS controlled: it must conclude,
+    # apply - a spike ships nothing), but it IS controlled: it must conclude,
     # and it must not silently produce production change. `compass check` runs
     # `spike_guardrails` from guardrails.yml on a Spike route instead of the
     # delivery defaults.
     if task.get("route") == "spike":
         spike_gs = list(guardrails.get("spike_guardrails", []))
-        print(f"compass check — task '{os.path.basename(task_dir)}' (route: spike)")
+        print(f"compass check - task '{os.path.basename(task_dir)}' (route: spike)")
         print(f"{mode_banner(mode)}\n")
         if not spike_gs:
-            print("  WARNING: no `spike_guardrails:` defined in guardrails.yml — a Spike is uncontrolled.")
+            print("  WARNING: no `spike_guardrails:` defined in guardrails.yml - a Spike is uncontrolled.")
             return exit_for_mode(1, mode)
         failures = 0
         ran = 0
@@ -1573,16 +1573,16 @@ def cmd_check(args):
             print()
         print("-" * 60)
         if failures:
-            print(f"compass check: FAIL — {failures} of {ran} Spike check(s) failed.")
+            print(f"compass check: FAIL - {failures} of {ran} Spike check(s) failed.")
         else:
-            print(f"compass check: PASS — all {ran} Spike check(s) passed. "
+            print(f"compass check: PASS - all {ran} Spike check(s) passed. "
                   "Spike is concluded and contained.")
         return exit_for_mode(failures, mode)
 
     all_guardrails = list(guardrails.get("defaults", [])) + list(guardrails.get("project", []))
     failures = 0
     ran = 0
-    print(f"compass check — task '{os.path.basename(task_dir)}' "
+    print(f"compass check - task '{os.path.basename(task_dir)}' "
           f"(route: {task.get('route', '?')})")
     print(f"{mode_banner(mode)}\n")
 
@@ -1590,7 +1590,7 @@ def cmd_check(args):
         gid = g.get("id", "?")
         applies = g.get("applies_when")
         if applies and not reading_matches(applies, readings):
-            print(f"  {gid} {g.get('name', '')}: not applicable for these readings — skipped")
+            print(f"  {gid} {g.get('name', '')}: not applicable for these readings - skipped")
             continue
         print(f"  {gid} {g.get('name', '')}")
         for check_name in g.get("checks", []):
@@ -1600,10 +1600,10 @@ def cmd_check(args):
                 # A declared guardrail check with no implementation is the one
                 # thing that quietly breaks the guardrail/strategy model: the
                 # team believes they have a hard, blocking check, and they do
-                # not. So this FAILS — loudly — rather than warning.
+                # not. So this FAILS - loudly - rather than warning.
                 failures += 1
                 _print_check_result(check_name, False,
-                    "declared guardrail check has NO CLI implementation — "
+                    "declared guardrail check has NO CLI implementation - "
                     "it cannot run, so it is not a guardrail. Implement it "
                     "in CHECK_FNS, or move the guardrail to strategies.md.")
                 continue
@@ -1616,7 +1616,7 @@ def cmd_check(args):
             _print_check_result(check_name, passed, detail)
         print()
 
-    # backfills are cross-cutting — always run them
+    # backfills are cross-cutting - always run them
     ran += 1
     passed, detail = _check_backfills_paid(task, task_dir)
     print("  owed backfills")
@@ -1627,15 +1627,15 @@ def cmd_check(args):
 
     print("-" * 60)
     if failures:
-        print(f"compass check: FAIL — {failures} of {ran} check(s) failed.")
+        print(f"compass check: FAIL - {failures} of {ran} check(s) failed.")
     else:
-        print(f"compass check: PASS — all {ran} check(s) passed.")
+        print(f"compass check: PASS - all {ran} check(s) passed.")
     return exit_for_mode(failures, mode)
 
 
 # --- commands: tdd-red / tdd-green ------------------------------------------
 
-# R2 — exit-code-masking integrity for piped test commands.
+# R2 - exit-code-masking integrity for piped test commands.
 # A command wrapped in `bash -c '... | tail'` returns the LAST pipeline stage's
 # exit code (tail = 0), masking an inner test failure as a false green. Three
 # layered signals defend against it (DD-2): (1) inject `set -o pipefail` into
@@ -1676,7 +1676,7 @@ def _final_pipe_filter(script):
 
 def _output_fail_token(out):
     """Return a recognised runner fail-token if the output indicates a failure,
-    even on a zero exit. Conservative — only strong, runner-specific patterns,
+    even on a zero exit. Conservative - only strong, runner-specific patterns,
     so a passing run ('0 failed', '5 passed') is never flagged."""
     patterns = [
         r"\b[1-9]\d* failed\b",        # pytest:  "1 failed"
@@ -1709,7 +1709,7 @@ def _run_test(cmd):
                 f"stage ({filt}), not your test. "
                 + (f"`set -o pipefail` was injected so a mid-pipeline failure "
                    f"still propagates." if shell in _PIPEFAIL_SHELLS else
-                   f"this {shell} wrapper cannot take `set -o pipefail` safely — "
+                   f"this {shell} wrapper cannot take `set -o pipefail` safely - "
                    f"the inner failure may be masked.")
             )
         if shell in _PIPEFAIL_SHELLS and "pipefail" not in script:
@@ -1734,14 +1734,14 @@ def _write_evidence(task_dir, name, payload):
 
 def _resolve_scenario(task_dir, scenario):
     """Validate a --scenario binding. A red/green that proves a test ran is
-    weaker than one bound to the scenario it is evidence FOR — relevance, not
+    weaker than one bound to the scenario it is evidence FOR - relevance, not
     just failure. If the task has a scenarios block, the id must be in it."""
     if not scenario:
         return None
     try:
         task, _ = load_task(task_dir)
     except CompassError:
-        return scenario  # no task.yml yet — record the binding, can't check it
+        return scenario  # no task.yml yet - record the binding, can't check it
     ids = {s.get("id") for s in (task.get("scenarios") or []) if isinstance(s, dict)}
     if ids and scenario not in ids:
         raise CompassError(
@@ -1752,8 +1752,8 @@ def _resolve_scenario(task_dir, scenario):
     return scenario
 
 
-# R7 — coverage-floor neutralisation + the test_micro_command knob.
-# R8 — the sanctioned verified-by kinds for an honest non-unit red.
+# R7 - coverage-floor neutralisation + the test_micro_command knob.
+# R8 - the sanctioned verified-by kinds for an honest non-unit red.
 _VERIFIED_BY_KINDS = {"regression", "e2e", "typecheck", "live"}
 
 
@@ -1784,7 +1784,7 @@ def _micro_command(args, task_dir):
 def _neutralise_coverage(cmd):
     """R7: for a recognised pytest micro-run, inject --cov-fail-under=0 so a
     project-wide coverage floor cannot refuse a passing targeted test. The
-    micro-run is never the coverage gate — the full suite at Verify is. An
+    micro-run is never the coverage gate - the full suite at Verify is. An
     explicit --cov-fail-under is preserved (the full-suite floor is respected);
     a non-pytest command is left untouched."""
     if not cmd:
@@ -1817,11 +1817,11 @@ def cmd_tdd_red(args):
     command = _neutralise_coverage(command)
     code, out, warnings = _run_test(command)
     for w in warnings:
-        sys.stderr.write(f"compass tdd-red: warning — {w}\n")
+        sys.stderr.write(f"compass tdd-red: warning - {w}\n")
     excerpt = "\n".join(out.splitlines()[-25:])
     if code == 0:
         raise CompassError(
-            "compass tdd-red: the test command PASSED (exit 0) — there is no "
+            "compass tdd-red: the test command PASSED (exit 0) - there is no "
             "red to record. Strategy S2 is red-before-green: write a test that "
             "actually fails first.\n--- output (tail) ---\n" + excerpt
         )
@@ -1839,7 +1839,7 @@ def cmd_tdd_red(args):
     ev_path = _write_evidence(task_dir, "red", payload)
     open(os.path.join(task_dir, ".red"), "w").close()  # the hook reads this
     payload.pop("_full_log", None)
-    bound = f" (bound to {scenario})" if scenario else " (unbound — consider --scenario)"
+    bound = f" (bound to {scenario})" if scenario else " (unbound - consider --scenario)"
     print(f"compass tdd-red: failing test recorded (exit {code}){bound}.")
     print(f"  evidence : {ev_path}")
     print(f"  marker   : {os.path.join(task_dir, '.red')}  (the pre-tool hook "
@@ -1881,7 +1881,7 @@ def _source_tree_hash(project_root):
                 with open(full, "rb") as fh:
                     h.update(fh.read())
             except OSError:
-                pass  # file disappeared mid-walk — skip it
+                pass  # file disappeared mid-walk - skip it
     return h.hexdigest()
 
 
@@ -1945,29 +1945,29 @@ def cmd_tdd_green(args):
     command = _neutralise_coverage(command)
     code, out, warnings = _run_test(command)
     for w in warnings:
-        sys.stderr.write(f"compass tdd-green: warning — {w}\n")
+        sys.stderr.write(f"compass tdd-green: warning - {w}\n")
     excerpt = "\n".join(out.splitlines()[-25:])
     if code != 0:
         raise CompassError(
-            f"compass tdd-green: the test command FAILED (exit {code}) — not "
+            f"compass tdd-green: the test command FAILED (exit {code}) - not "
             f"green yet. The .red marker is left in place.\n"
             f"--- output (tail) ---\n" + excerpt
         )
     # R2 signal (3): output-token cross-check. A zero exit whose output carries
-    # a known-runner fail-token is a suspected masked failure — refuse rather
+    # a known-runner fail-token is a suspected masked failure - refuse rather
     # than record a clean green on a contradictory signal (TRC-R2-5).
     fail_token = _output_fail_token(out)
     if fail_token:
         raise CompassError(
             f"compass tdd-green: the command exited 0 but its output shows a "
-            f"failure token ('{fail_token}') — a possible masked failure. "
+            f"failure token ('{fail_token}') - a possible masked failure. "
             f"Refusing to record a green on a contradictory signal. The .red "
             f"marker is left in place.\n--- output (tail) ---\n" + excerpt
         )
 
     # --- DD-7: attempts + rerun_without_change detection --------------------
     # Find the project root: walk up from the task_dir to the directory that
-    # contains .compass/ — that is the project root the hash covers.
+    # contains .compass/ - that is the project root the hash covers.
     project_root = find_upwards(task_dir, ".compass") or task_dir
     current_hash = _source_tree_hash(project_root)
     prior_state = _load_tdd_state(task_dir, scenario)
@@ -1975,7 +1975,7 @@ def cmd_tdd_green(args):
     prior_attempts = prior_state.get("attempts") or 0
 
     if prior_hash is None:
-        # First invocation for this scenario — clean first pass
+        # First invocation for this scenario - clean first pass
         attempts = 1
         rerun_without_change = False
     elif prior_hash == current_hash:
@@ -2002,7 +2002,7 @@ def cmd_tdd_green(args):
     }
     # BF-1: always record the marker when attempts > 1. Absence of the field on
     # a multi-attempt record fails the no-trusted-rerun check (DD-3: incomplete
-    # evidence cannot clear G4). The marker is informative either way — true
+    # evidence cannot clear G4). The marker is informative either way - true
     # means "no source change between attempts" (the failure mode S5 protects
     # against), false means "source did change" (a legitimate red→green path).
     if attempts > 1:
@@ -2017,17 +2017,17 @@ def cmd_tdd_green(args):
         scn_name = "green-" + scenario.replace("/", "_")
         _write_evidence(task_dir, scn_name, payload)
         rel_path = f"evidence/{scn_name}.json"
-    # Upsert a test-run entry in the task's evidence registry — the registry
+    # Upsert a test-run entry in the task's evidence registry - the registry
     # is what `compass check` reads, so the green has to land there.
     _upsert_test_run_evidence(task_dir, scenario, rel_path)
     red_marker = os.path.join(task_dir, ".red")
     if os.path.exists(red_marker):
         os.remove(red_marker)
-    bound = f" (bound to {scenario})" if scenario else " (unbound — consider --scenario)"
+    bound = f" (bound to {scenario})" if scenario else " (unbound - consider --scenario)"
     print(f"compass tdd-green: passing suite recorded (exit 0){bound}.")
     print(f"  evidence : {ev_path}")
     print("  registry : task.yml `evidence:` updated with the test-run entry")
-    print("  marker   : .red cleared — red -> green is on record.")
+    print("  marker   : .red cleared - red -> green is on record.")
     return 0
 
 
@@ -2037,7 +2037,7 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
     green visible to `compass check`, which reads the registry, not the file."""
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
-        return  # no task.yml — Frame hasn't run; nothing to update
+        return  # no task.yml - Frame hasn't run; nothing to update
     try:
         task = load_yaml(task_path)
     except CompassError:
@@ -2071,10 +2071,10 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
 
 
 # --- command: land-commit ---------------------------------------------------
-# R5 — the Land commit step, made robust to auto-fixing pre-commit hooks.
+# R5 - the Land commit step, made robust to auto-fixing pre-commit hooks.
 # An auto-fixer (ruff format/--fix) rewrites a staged file and aborts the
 # commit; pre-commit stashes the unstaged delta, the commit no-ops, and HEAD
-# does not move — yet nothing notices, so an unattended Land believes it landed
+# does not move - yet nothing notices, so an unattended Land believes it landed
 # when it didn't. land-commit (DD-5) does all three R5 fixes: (a) best-effort
 # clean-first via the pre-commit framework when present; (b) detect the no-op
 # (HEAD unchanged), re-stage the hook's fixes, and retry once; (c) ALWAYS
@@ -2124,7 +2124,7 @@ def cmd_land_commit(args):
 
     retried = False
     if head_after == head_before:
-        # (b) the commit no-op'd — a hook likely auto-fixed and aborted. Stage
+        # (b) the commit no-op'd - a hook likely auto-fixed and aborted. Stage
         # whatever it rewrote and retry exactly once.
         _git(["add", "-A"], cwd)
         retried = True
@@ -2132,13 +2132,13 @@ def cmd_land_commit(args):
             _git(["commit", "-m", msg], cwd)
             head_after = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
 
-    # (c) ALWAYS verify HEAD advanced — the land's evidence is the moved HEAD.
+    # (c) ALWAYS verify HEAD advanced - the land's evidence is the moved HEAD.
     if head_after == head_before:
         log = ((c1.stdout or "") + (c1.stderr or ""))[-800:]
         raise CompassError(
             "compass land-commit: HEAD did not advance"
             + (" after a retry" if retried else "")
-            + " — the land did NOT happen. A pre-commit hook may be aborting "
+            + " - the land did NOT happen. A pre-commit hook may be aborting "
             "the commit repeatedly; resolve it and re-run.\n"
             "--- commit output (tail) ---\n" + log
         )
@@ -2167,7 +2167,7 @@ def cmd_land_commit(args):
 # Thin, schema-owning mutators so the task.yml spine below `readings` is never
 # hand-edited YAML. `compass gate pass` is the shared R6/R9 command: it flips a
 # gate to pass (R9) AND validates the evidence type against
-# gate_evidence_requirements at write time (R6) — so a mismatch is caught
+# gate_evidence_requirements at write time (R6) - so a mismatch is caught
 # before it is recorded, not discovered later at `compass check`.
 
 
@@ -2214,8 +2214,8 @@ def cmd_gate_pass(args):
         raise CompassError(
             f"compass gate pass: {args.gate_id} accepts evidence of type "
             f"{accepted}, but the evidence you gave is {sorted(types_seen)}. A "
-            f"mechanical gate cannot be cleared with the wrong kind of evidence "
-            f"— point it at evidence of an accepted type."
+            f"mechanical gate cannot be cleared with the wrong kind of evidence. "
+            f"Point it at evidence of an accepted type."
         )
     gate["status"] = "pass"
     gate["evidence"] = list(ev_ids)
@@ -2289,7 +2289,7 @@ def cmd_evidence_add(args):
 def _annotate_gate_accepts(task_path):
     """R6-6: annotate each gate in the gates block with a `# accepts: [...]`
     comment naming its accepted evidence types (from guardrails.yml). A seeding
-    nicety — yaml round-trips drop it, so it is re-applied after each route
+    nicety - yaml round-trips drop it, so it is re-applied after each route
     evaluate --write."""
     reqs, _known = _load_gate_requirements()
     if not reqs:
@@ -2320,7 +2320,7 @@ def _annotate_gate_accepts(task_path):
 
 
 # --- command: calibration ---------------------------------------------------
-# The Needle's feedback loop. The Needle reads context — judgement — and a
+# The Needle's feedback loop. The Needle reads context - judgement - and a
 # framework about right-sizing process owes an answer to "is the right-sizing
 # any good?" `compass calibration` is that answer: it reads the re-frame log
 # across every task and reports whether the Needle is systematically over- or
@@ -2329,7 +2329,7 @@ def _annotate_gate_accepts(task_path):
 def _load_scope_bloat_phrases():
     """Load scope_bloat_phrases from signals.yml at runtime.
 
-    B-Risk 6: patterns are never hardcoded in the CLI — always read from the
+    B-Risk 6: patterns are never hardcoded in the CLI - always read from the
     governance file. Returns an empty list if signals.yml is absent or
     unreadable (graceful degradation).
     """
@@ -2350,7 +2350,7 @@ def _find_reframe_debt(tasks, work):
     For each task, scan its devlog.md for scope_bloat_phrases.  A task
     qualifies as 'reframe debt' when:
       - at least one scope-bloat phrase appears as the start of a devlog line
-        (column-0 anchor — same rule as the stop-hook, for consistency), AND
+        (column-0 anchor - same rule as the stop-hook, for consistency), AND
       - task.yml.reframes has no entry whose date is >= the date of the
         matching devlog line.
 
@@ -2385,7 +2385,7 @@ def _find_reframe_debt(tasks, work):
         # quotes/indentation).  The phrase must appear at column 0 OR
         # immediately after an optional YYYY-MM-DD[: ] date prefix.
         # Lines starting with whitespace are skipped (indented/quoted context
-        # must not fire — consistency with the stop-hook's TRC-X3 rule).
+        # must not fire - consistency with the stop-hook's TRC-X3 rule).
         import re as _re
         _DATE_PREFIX_PAT = r'^(?:\d{4}-\d{2}-\d{2}[: ]+)?'
 
@@ -2425,7 +2425,7 @@ def _load_friction_threshold():
     """Load friction.recurrence_threshold from signals.yml at runtime.
 
     Mirrors _load_scope_bloat_phrases (B-Risk 6: never hardcode the value in
-    the CLI — read it from the governance file). Defaults to 2 when signals.yml
+    the CLI - read it from the governance file). Defaults to 2 when signals.yml
     is absent or the block is unset (ADR-006: clean no-op for non-adopters; and
     2 mirrors `calibration`'s own >=2 up/down-sizing thresholds).
     """
@@ -2448,7 +2448,7 @@ def _aggregate_friction(tasks, threshold):
     """Aggregate the `friction:` lists across tasks into recurring clusters.
 
     Grouping is by case/whitespace-normalised `proposed_change` (clarifications
-    Q2 — exact-normalised, never semantic: the aggregator is mechanism, so it
+    Q2 - exact-normalised, never semantic: the aggregator is mechanism, so it
     must be reproducible, ADR-001). A cluster is `recurring` when it is proposed
     by at least `threshold` distinct tasks. Pure function; reads nothing, writes
     nothing.
@@ -2502,7 +2502,7 @@ def _aggregate_friction(tasks, threshold):
 
 def _cmd_calibration_friction(args, tasks):
     """The `compass calibration --friction` view. Read-only; exit 0 always
-    (Inv: friction advises, never gates — like rework-scan and flow)."""
+    (Inv: friction advises, never gates - like rework-scan and flow)."""
     threshold = _load_friction_threshold()
     agg = _aggregate_friction(tasks, threshold)
 
@@ -2511,10 +2511,10 @@ def _cmd_calibration_friction(args, tasks):
         print(json.dumps(agg, indent=2))
         return 0
 
-    print(f"compass calibration --friction — {agg['tasks_with_friction']} "
+    print(f"compass calibration --friction - {agg['tasks_with_friction']} "
           f"task(s) with recorded friction\n")
     if agg["tasks_with_friction"] == 0:
-        print("No friction recorded — nothing to aggregate. Either Compass is "
+        print("No friction recorded - nothing to aggregate. Either Compass is "
               "staying out of the way, or\nthere is not enough history yet.")
         return 0
 
@@ -2522,7 +2522,7 @@ def _cmd_calibration_friction(args, tasks):
     for cat, n in agg["by_category"].items():
         print(f"  {cat:<16}: {n}")
     print()
-    print(f"Recurring friction (>= {threshold} tasks) — candidate framework "
+    print(f"Recurring friction (>= {threshold} tasks) - candidate framework "
           f"changes:")
     if agg["recurring"]:
         for c in agg["recurring"]:
@@ -2530,7 +2530,7 @@ def _cmd_calibration_friction(args, tasks):
             print(f"  [{cats}] {c['proposed_change']}")
             print(f"      {c['count']} tasks: {', '.join(c['tasks'])}")
     else:
-        print("  (none yet — no proposed change has recurred across enough "
+        print("  (none yet - no proposed change has recurred across enough "
               "tasks)")
     if agg["below_threshold"]:
         print()
@@ -2538,19 +2538,19 @@ def _cmd_calibration_friction(args, tasks):
               f"{len(agg['below_threshold'])} item(s)")
     print()
     print("Advisory only. Claude or a human reads these and drafts targeted "
-          "changes to\ngovernance/ or the routes — the loop never edits "
+          "changes to\ngovernance/ or the routes - the loop never edits "
           "governance itself (ADR-001, USP-2).")
     return 0
 
 
 def derive_friction(slug, task, work):
     """Assemble the `source: derived` friction entries for one task from signals
-    the CLI already computes — recorded reframes and absorbed reframe-debt.
+    the CLI already computes - recorded reframes and absorbed reframe-debt.
 
     A reframe is a Frame that mis-read the terrain; reframe-debt is a mis-frame
     absorbed without one being filed. Both are friction by definition. Pure: it
     reads task.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
-    entries carry no `proposed_change` — a reframe does not propose a specific
+    entries carry no `proposed_change` - a reframe does not propose a specific
     governance change; it is the recurrence of *human*-proposed changes that the
     aggregator clusters on.
     """
@@ -2586,14 +2586,14 @@ def cmd_friction_capture(args):
     the Land procedure. Assembles the task's `friction:` list from derived
     signals plus an optional human note and writes it into the task spine.
 
-    It writes ONLY the friction section — never a backfill or a gate. Friction
+    It writes ONLY the friction section - never a backfill or a gate. Friction
     is a strategy-class signal and must never become something that blocks Land
     (USP-3, ADR-002). The derivation is mechanism; the `--note` is the only
     judgement input, supplied human-side (ADR-001).
     """
     if not getattr(args, "internal", False):
         raise CompassError(
-            "compass _friction-capture: the --internal flag is required — this "
+            "compass _friction-capture: the --internal flag is required - this "
             "is an in-framework entry point called by the Land procedure, not a "
             "public verb.")
     task_dir = resolve_task_dir(getattr(args, "task", None))
@@ -2626,7 +2626,7 @@ def cmd_friction_capture(args):
         # Recording nothing is a valid, common outcome (TRC-A5). Leave the key
         # absent so a task that hit no friction stays a clean no-op (ADR-006).
         print("compass _friction-capture: no friction derived and no note "
-              "supplied — nothing recorded (a valid, common outcome).")
+              "supplied - nothing recorded (a valid, common outcome).")
     return 0
 
 
@@ -2651,13 +2651,13 @@ def cmd_calibration(args):
                 except CompassError:
                     pass
 
-    # --- friction view (TRC-B*) — a flag on calibration, not a new verb.
+    # --- friction view (TRC-B*) - a flag on calibration, not a new verb.
     # Read-only, exit 0 always; handles the empty corpus gracefully.
     if getattr(args, "friction", False):
         return _cmd_calibration_friction(args, tasks)
 
     if not tasks:
-        print("compass calibration: no tasks under .compass/work/ yet — "
+        print("compass calibration: no tasks under .compass/work/ yet - "
               "nothing to calibrate against.")
         return 0
 
@@ -2688,7 +2688,7 @@ def cmd_calibration(args):
             else:
                 sideways += 1
 
-    print(f"compass calibration — {len(tasks)} task(s) under .compass/work/\n")
+    print(f"compass calibration - {len(tasks)} task(s) under .compass/work/\n")
     print("Route distribution:")
     for r in sorted(dist, key=lambda x: weights.get(x, 99)):
         print(f"  {r:<12}: {dist[r]}")
@@ -2712,31 +2712,31 @@ def cmd_calibration(args):
     print()
     print("Signal:")
     if total == 0:
-        print("  No re-frames recorded — either routing is well-calibrated, or")
+        print("  No re-frames recorded - either routing is well-calibrated, or")
         print("  there is not enough history yet. Revisit after more tasks.")
     elif ups >= 2 and ups > downs * 2:
-        print(f"  {ups} up-reframes vs {downs} down — a lean toward UNDER-sizing.")
+        print(f"  {ups} up-reframes vs {downs} down - a lean toward UNDER-sizing.")
         print("  The Needle is reading magnitude or blast radius low. Tune")
         print("  routing-policy.yml `default_shapes`, or sharpen the Frame")
         print("  rubric in routes/router.md.")
     elif downs >= 2 and downs > ups * 2:
-        print(f"  {downs} down-reframes vs {ups} up — a lean toward OVER-sizing.")
+        print(f"  {downs} down-reframes vs {ups} up - a lean toward OVER-sizing.")
         print("  The Needle is reading risk high; the routes may be heavier")
         print("  than the work warrants. Review routing-policy.yml.")
     else:
-        print(f"  {ups} up / {downs} down — roughly balanced, re-frame rate "
+        print(f"  {ups} up / {downs} down - roughly balanced, re-frame rate "
               f"{pct}%.")
         print("  Routing looks reasonably calibrated; keep watching the trend.")
 
     # --- Reframe debt (TRC-C5) -----------------------------------------------
     # Read devlogs for scope-bloat signals that were absorbed without a reframe.
-    # B-Risk 5: strictly read-only — no task.yml is written here.
+    # B-Risk 5: strictly read-only - no task.yml is written here.
     # B-Risk 6: patterns loaded from signals.yml at runtime (never hardcoded).
-    # Inv-4: advisory only — this section reports, never gates.
+    # Inv-4: advisory only - this section reports, never gates.
     debts = _find_reframe_debt(tasks, work)
     if debts:
         print()
-        print("Reframe debt — absorbed mis-frames, signal lost:")
+        print("Reframe debt - absorbed mis-frames, signal lost:")
         print("  Each entry below is a task where a scope-bloat signal was")
         print("  detected in devlog.md but no reframe was filed afterwards.")
         print("  These are missed calibration signals. File a reframe retroactively")
@@ -2753,7 +2753,7 @@ def cmd_calibration(args):
 # Cross-task rework scanner (R4). Reads every task.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate — exit code is always 0 unless the scan itself errors
+# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors
 # (B-Risk 3). Patterns are loaded from governance/signals.yml at runtime
 # (B-Risk 6). Suitable for piping into .compass/flow/rework-<date>.md.
 #
@@ -2922,7 +2922,7 @@ def cmd_rework_scan(args):
         except CompassError:
             root = ".compass/work"
 
-    # Load signals (runtime — B-Risk 6)
+    # Load signals (runtime - B-Risk 6)
     signals = _load_signals(root)
     window_days = int(getattr(args, "window_days", None) or signals["window_days"])
     public_patterns = signals["public_surface_patterns"]
@@ -2933,7 +2933,7 @@ def cmd_rework_scan(args):
         tasks, skipped_warnings = _read_tasks_from_root(root)
     except CompassError as exc:
         sys.stderr.write(f"compass rework-scan: {exc}\n")
-        return 1  # scan itself errored — non-zero is correct here
+        return 1  # scan itself errored - non-zero is correct here
 
     # Build a list of (slug, path, action, date) records
     records = []
@@ -2969,7 +2969,7 @@ def cmd_rework_scan(args):
                     continue
                 # Both must have dates; delete must be after add
                 if add["date"] is None or delete["date"] is None:
-                    in_window = True  # no date — assume within window
+                    in_window = True  # no date - assume within window
                 else:
                     if delete["date"] < add["date"]:
                         continue
@@ -3054,7 +3054,7 @@ def cmd_rework_scan(args):
         _emit_markdown_report(rework_instances, tasks, skipped_warnings,
                               window_days, root)
 
-    # B-Risk 3: always exit 0 — detection is a signal, not a gate
+    # B-Risk 3: always exit 0 - detection is a signal, not a gate
     return 0
 
 
@@ -3072,7 +3072,7 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
         print("**0 rework instances detected.** No add-then-delete patterns "
               "within the window.")
         return
-    print(f"**{n} rework instance(s) detected** — these are informational "
+    print(f"**{n} rework instance(s) detected** - these are informational "
           f"signals; no task state has been modified.")
     print("")
     for i, inst in enumerate(instances, 1):
@@ -3084,12 +3084,12 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
         gap_str = f" ({gap} day(s) apart)" if gap is not None else ""
         if kind == "migration-pair":
             counterpart = inst.get("counterpart_path", "")
-            print(f"{i}. **migration-pair** — `{path}` added by `{added_by}`, "
+            print(f"{i}. **migration-pair** - `{path}` added by `{added_by}`, "
                   f"drop migration `{counterpart}` added by `{removed_by}`"
                   f"{gap_str}.")
         else:
             label = "public-surface-churn" if kind == "public-surface-churn" else "add-then-delete"
-            print(f"{i}. **{label}** — `{path}` added by `{added_by}`, "
+            print(f"{i}. **{label}** - `{path}` added by `{added_by}`, "
                   f"deleted by `{removed_by}`{gap_str}.")
     print("")
     print("> This report is advisory only. Flow advises, never gates (Inv-4).")
@@ -3098,7 +3098,7 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
 # --- command: backfill pay --------------------------------------------------
 # Mark a named backfill as paid. This is the complement to the cross-task
 # check in `dod-evidence-typed`: once a backfill is paid, the target task's
-# Land check can proceed. The command writes to task.yml — the only write
+# Land check can proceed. The command writes to task.yml - the only write
 # path in this stream, because Flow/calibration are read-only advisors.
 
 def cmd_backfill_pay(args):
@@ -3132,35 +3132,35 @@ def cmd_backfill_pay(args):
 
 
 # --- command: analyze -------------------------------------------------------
-# `compass analyze` — cross-artifact coherence check (TRC-A1…A13, F1, F4, F5)
+# `compass analyze` - cross-artifact coherence check (TRC-A1…A13, F1, F4, F5)
 #
 # Reads a task's artifacts (brief.md, spec.feature.md, route.md, task.yml,
 # positioning.md if present) and emits a structured coherence report.
 #
-# Finding types (Inv-7 — baked in, not from signals.yml):
-#   orphaned-intent  — a scenario in spec/task.yml links to an intent id that
+# Finding types (Inv-7 - baked in, not from signals.yml):
+#   orphaned-intent  - a scenario in spec/task.yml links to an intent id that
 #                      does not appear in brief.md
-#   route-disagreement — route.md and task.yml describe different phase weights
+#   route-disagreement - route.md and task.yml describe different phase weights
 #                        for the same phase
-#   orphan-claim     — positioning.md lists a claim id that no scenario links to
-#   missing-artifact — an artifact required by the route's non-collapsed phase
+#   orphan-claim     - positioning.md lists a claim id that no scenario links to
+#   missing-artifact - an artifact required by the route's non-collapsed phase
 #                      is absent (route-aware: legitimately omitted artifacts
 #                      on collapsed/skipped phases are not flagged)
 #
 # Mode selection (DD-5 / ADR-007):
-#   Gate-clearing mode  — verify.analyze is in task.yml.gates:
+#   Gate-clearing mode  - verify.analyze is in task.yml.gates:
 #       exits non-zero on any finding; evidence type `coherence-check`;
 #       id prefix `EV-ANALYZE-<task>-<ts>`
-#   Advisory mode — verify.analyze NOT in gates:
+#   Advisory mode - verify.analyze NOT in gates:
 #       exits 0 even on findings; evidence type `command-output`;
 #       id prefix `EV-ANALYZE-ADVISORY-<task>-<ts>`
 #
 # Invariants honoured:
-#   Inv-1 / Inv-4 — strictly read-only over task.yml; never writes to
+#   Inv-1 / Inv-4 - strictly read-only over task.yml; never writes to
 #                   task.yml.readings or task.yml.gates
-#   Inv-7         — finding taxonomy is structural, not from signals.yml
-#   Inv-8         — no brief.md / spec.feature.md → exits 0 ("no artifacts")
-#   OQ-1 boundary — never asserts whether gate evidence exists or passes;
+#   Inv-7         - finding taxonomy is structural, not from signals.yml
+#   Inv-8         - no brief.md / spec.feature.md → exits 0 ("no artifacts")
+#   OQ-1 boundary - never asserts whether gate evidence exists or passes;
 #                   that is compass check's job
 
 
@@ -3335,15 +3335,15 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     writes the evidence record.
 
     Finding types (Inv-7):
-      orphaned-intent    — scenario links to an intent not in brief.md
-      route-disagreement — route.md phase weight differs from task.yml phases
-      orphan-claim       — positioning.md claim has no backing scenario
-      missing-artifact   — a required artifact is absent (route-aware)
+      orphaned-intent    - scenario links to an intent not in brief.md
+      route-disagreement - route.md phase weight differs from task.yml phases
+      orphan-claim       - positioning.md claim has no backing scenario
+      missing-artifact   - a required artifact is absent (route-aware)
     """
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
         raise CompassError(
-            f"no task.yml in {task_dir} — has Frame run? "
+            f"no task.yml in {task_dir} - has Frame run? "
             f"compass analyze cannot run before Frame."
         )
     try:
@@ -3387,7 +3387,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
             "type": "missing-artifact",
             "subject": "brief.md",
             "detail": (
-                f"brief.md is absent but Specify phase is '{specify_weight}' — "
+                f"brief.md is absent but Specify phase is '{specify_weight}' - "
                 f"a full-weight Specify requires a brief."
             ),
         })
@@ -3457,7 +3457,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     # --- 4. Orphan-claim check -----------------------------------------------
     # Claims in positioning.md that have no scenario backing them.
     # (OQ-1 boundary: we check whether a claim names a scenario id, not whether
-    # the scenario passes — that is compass check / verify.claims's job.)
+    # the scenario passes - that is compass check / verify.claims's job.)
     if has_positioning:
         claim_ids = _parse_claim_ids_from_positioning(positioning_path)
         # Collect all scenario ids from task.yml and spec
@@ -3480,7 +3480,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
         for claim_id in claim_ids:
             # An orphan claim is one with no backing scenario id
             if claim_id in task_claims:
-                # claim is in task.yml — check it has a scenario
+                # claim is in task.yml - check it has a scenario
                 backing = task_claims[claim_id]
                 if not backing:
                     findings.append({
@@ -3492,7 +3492,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                         ),
                     })
             else:
-                # Claim is only in positioning.md — it must name a scenario
+                # Claim is only in positioning.md - it must name a scenario
                 # We can't check the link without task.yml.claims, so flag it
                 findings.append({
                     "type": "orphan-claim",
@@ -3520,7 +3520,7 @@ def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
     Advisory:      type=command-output,  prefix EV-ANALYZE-ADVISORY-<task>-<ts>
 
     The file is JSON; the task.yml evidence registry is NOT written here
-    (Inv-1 / Inv-4 — analyze is strictly read-only over task.yml).
+    (Inv-1 / Inv-4 - analyze is strictly read-only over task.yml).
     cmd_analyze calls this and then upserts into the registry separately only
     in gate-clearing mode (to let compass check clear verify.analyze).
     """
@@ -3584,16 +3584,16 @@ def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
 
 
 def cmd_analyze(args):
-    """compass analyze — cross-artifact coherence check.
+    """compass analyze - cross-artifact coherence check.
 
     Strictly read-only over task.yml (Inv-1 / Inv-4). Writes one evidence
     file (coherence-check or command-output type) to evidence/.
 
     Exit codes:
-      0 — zero coherence findings (or advisory mode regardless of findings,
+      0 - zero coherence findings (or advisory mode regardless of findings,
           or Inv-8 bare-repo path)
-      1 — one or more coherence findings AND verify.analyze gate is present
-      2 — input error (malformed task.yml, task not framed, etc.)
+      1 - one or more coherence findings AND verify.analyze gate is present
+      2 - input error (malformed task.yml, task not framed, etc.)
     """
     task_dir = resolve_task_dir(getattr(args, "task", None))
     project_root = os.path.dirname(os.path.dirname(task_dir))  # .compass/work/<slug>/../../
@@ -3613,19 +3613,19 @@ def cmd_analyze(args):
     # Inv-8: no artifacts → exit 0 with informational message
     if no_artifacts:
         print(f"compass analyze: no artifacts to analyze for task '{task_slug}'.")
-        print("  (no brief.md and no spec.feature.md found — bare-repo path)")
+        print("  (no brief.md and no spec.feature.md found - bare-repo path)")
         return 0
 
     # Print the report
     mode_str = "gate-clearing" if is_gate_mode else "advisory"
-    print(f"compass analyze — task '{task_slug}' (mode: {mode_str})")
+    print(f"compass analyze - task '{task_slug}' (mode: {mode_str})")
     if is_gate_mode:
         print("  verify.analyze gate is in the route's gate set.")
     else:
-        print("  verify.analyze gate is NOT in the route's gate set — advisory mode.")
+        print("  verify.analyze gate is NOT in the route's gate set - advisory mode.")
 
     if not findings:
-        print(f"\n  findings: 0 — all coherence checks clean.")
+        print(f"\n  findings: 0 - all coherence checks clean.")
     else:
         print(f"\n  findings: {len(findings)}")
         for i, f in enumerate(findings, 1):
@@ -3649,27 +3649,27 @@ def cmd_analyze(args):
         # (even though we called the gate path for the registry update)
         pass
     else:
-        print(f"\n  [advisory] findings above are informational — Land is not blocked.")
+        print(f"\n  [advisory] findings above are informational - Land is not blocked.")
 
     if findings and is_gate_mode:
-        print(f"\ncompass analyze: FAIL — {len(findings)} coherence finding(s).")
+        print(f"\ncompass analyze: FAIL - {len(findings)} coherence finding(s).")
         return 1
     else:
-        print(f"\ncompass analyze: PASS — 0 finding(s), coherence checks clean.")
+        print(f"\ncompass analyze: PASS - 0 finding(s), coherence checks clean.")
         return 0
 
 
 # --- command: ci ------------------------------------------------------------
 # The full mechanical gate suite, for CI / pre-merge. It is a convenience: it
-# just runs the checks that already exist — `policy lint`, then `task lint` and
-# `check` for every task under .compass/work/ — and aggregates the exit codes.
+# just runs the checks that already exist - `policy lint`, then `task lint` and
+# `check` for every task under .compass/work/ - and aggregates the exit codes.
 # CI integration is genuinely this small: run `compass ci`, honour the exit
 # code. See ci/README.md.
 
 def cmd_ci(args):
     import types
     mode = load_mode()
-    print(f"compass ci — the full mechanical gate suite "
+    print(f"compass ci - the full mechanical gate suite "
           f"(compass {COMPASS_VERSION}, schema {COMPASS_SCHEMA_VERSION})")
     print(f"{mode_banner(mode)}\n")
     failures = 0
@@ -3688,13 +3688,13 @@ def cmd_ci(args):
         pass
 
     if not slugs:
-        print("\n  no tasks under .compass/work/ — governance policy only.")
+        print("\n  no tasks under .compass/work/ - governance policy only.")
     for slug in slugs:
         print(f"\n[task] {slug}")
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
         print()
-        # cmd_check honours the mode itself — but to know whether it had real
+        # cmd_check honours the mode itself - but to know whether it had real
         # failures (regardless of mode's effect on its exit), check ran already
         # and we capture exit. For ci aggregation in advisory mode we still
         # want to honour mode at the top level, so call cmd_check and let it
@@ -3704,9 +3704,9 @@ def cmd_ci(args):
 
     print("\n" + "=" * 60)
     if failures:
-        print(f"compass ci: FAIL — {failures} check group(s) failed.")
+        print(f"compass ci: FAIL - {failures} check group(s) failed.")
     else:
-        print("compass ci: PASS — governance valid; every task lints clean and "
+        print("compass ci: PASS - governance valid; every task lints clean and "
               "checks green.")
     return exit_for_mode(failures, mode)
 
@@ -3714,7 +3714,7 @@ def cmd_ci(args):
 # --- commands: policy lint / task lint --------------------------------------
 
 # The built-in `_lint_errors_*` functions below are the no-dependency floor:
-# they always run, and they do the one thing JSON Schema cannot — cross-check
+# they always run, and they do the one thing JSON Schema cannot - cross-check
 # that every declared guardrail check is actually implemented in CHECK_FNS.
 # `_jsonschema_errors` adds fuller structural validation against the real JSON
 # Schema files in schemas/, but only when the optional `jsonschema` library is
@@ -3774,7 +3774,7 @@ def _lint_errors_guardrails(p):
         errs.append("missing top-level key: defaults")
     known_checks = set((p.get("checks") or {}).keys())
     # Validate all guardrails (defaults + project) for structural integrity.
-    # command-passes `params` validation ONLY applies to project guardrails —
+    # command-passes `params` validation ONLY applies to project guardrails -
     # the framework's own G4 legitimately registers command-passes without
     # per-guardrail params (it's a cross-cutting check that reads params from
     # the project: guardrails it finds at run time).
@@ -3782,7 +3782,7 @@ def _lint_errors_guardrails(p):
         if "id" not in g:
             errs.append(f"a guardrail has no id: {g}")
         if not g.get("checks"):
-            errs.append(f"guardrail {g.get('id', '?')} has no `checks` — a "
+            errs.append(f"guardrail {g.get('id', '?')} has no `checks` - a "
                         f"guardrail with no mechanical check is a strategy")
         for c in g.get("checks", []):
             if c not in known_checks:
@@ -3796,10 +3796,10 @@ def _lint_errors_guardrails(p):
                 # "guardrail" meaning hard-and-blocking.
                 errs.append(f"guardrail {g.get('id', '?')} references check "
                             f"'{c}' which the CLI does not implement (not in "
-                            f"CHECK_FNS) — implement it, or move the guardrail "
+                            f"CHECK_FNS) - implement it, or move the guardrail "
                             f"to strategies.md")
 
-    # command-passes params validation — only for project guardrails (TRC-FM1 / DD-2).
+    # command-passes params validation - only for project guardrails (TRC-FM1 / DD-2).
     # Framework defaults (G4) can reference command-passes without params; the params
     # come from the project guardrails that declare the actual commands to run.
     for g in list(p.get("project", [])):
@@ -3811,7 +3811,7 @@ def _lint_errors_guardrails(p):
         if command is None:
             errs.append(
                 f"project guardrail {gid} uses check "
-                f"'command-passes' but `params.command` is missing — "
+                f"'command-passes' but `params.command` is missing - "
                 f"add a `command:` string to the guardrail's `params:` "
                 f"block (e.g. `command: 'pytest tests/architecture/'`)"
             )
@@ -3819,21 +3819,21 @@ def _lint_errors_guardrails(p):
             errs.append(
                 f"project guardrail {gid} uses check "
                 f"'command-passes' but `params.command` is not a string "
-                f"(got {type(command).__name__!r}) — the command must be "
+                f"(got {type(command).__name__!r}) - the command must be "
                 f"a shell-invocable string"
             )
         elif not command.strip():
             errs.append(
                 f"project guardrail {gid} uses check "
                 f"'command-passes' but `params.command` is an empty "
-                f"string — provide a non-empty shell command"
+                f"string - provide a non-empty shell command"
             )
     return errs
 
 
 def _schema_note(ran):
     return ("" if ran else
-            "  (jsonschema not installed — built-in linter only; "
+            "  (jsonschema not installed - built-in linter only; "
             "`pip install jsonschema` for full JSON Schema validation)")
 
 
@@ -3843,7 +3843,7 @@ def _lint_errors_quarantine(gov_dir):
     Returns a list of error strings. An absent quarantine.yml is not an error
     (zero-setup default, ADR-006). Required fields per entry: test,
     tracking_task, reason, added. An entry without tracking_task is malformed
-    (TRC-A7 — a quarantine without a tracking task is a graveyard).
+    (TRC-A7 - a quarantine without a tracking task is a graveyard).
     """
     path = os.path.join(gov_dir, "quarantine.yml")
     if not os.path.isfile(path):
@@ -3873,7 +3873,7 @@ def _lint_errors_quarantine(gov_dir):
             if not entry.get(field):
                 errs.append(
                     f"quarantine.yml: entry #{i + 1} (test={entry.get('test', '?')!r}) "
-                    f"is malformed — missing or empty `{field}`. A quarantine entry "
+                    f"is malformed - missing or empty `{field}`. A quarantine entry "
                     f"without `tracking_task` is a graveyard, not a registry (TRC-A7)"
                 )
     return errs
@@ -3883,7 +3883,7 @@ def cmd_policy_lint(args):
     gov = find_governance()
     rp = load_yaml(os.path.join(gov, "routing-policy.yml"))
     gr = load_yaml(os.path.join(gov, "guardrails.yml"))
-    # The built-in lint always runs — the no-dependency floor, and the only
+    # The built-in lint always runs - the no-dependency floor, and the only
     # thing that cross-checks declared guardrail checks against CHECK_FNS.
     errs = (_lint_errors_routing_policy(rp)
             + _lint_errors_guardrails(gr)
@@ -3903,7 +3903,7 @@ def cmd_policy_lint(args):
         for e in errs:
             print(f"  - {e}")
         return 1
-    print("compass policy lint: PASS — routing-policy.yml and guardrails.yml "
+    print("compass policy lint: PASS - routing-policy.yml and guardrails.yml "
           "are structurally valid." + ("\n" + _schema_note(schema_ran)
                                         if not schema_ran else ""))
     return 0
@@ -3921,7 +3921,7 @@ def cmd_task_lint(args):
     if "task" not in task:
         errs.append("missing `task:` (the task slug)")
     if "readings" not in task:
-        errs.append("missing `readings:` — Frame records the four-dimension readings")
+        errs.append("missing `readings:` - Frame records the four-dimension readings")
     else:
         for dim in ("blast_radius", "terrain", "magnitude"):
             if dim not in task["readings"]:
@@ -3941,7 +3941,7 @@ def cmd_task_lint(args):
             if not isinstance(attempts, int) or attempts < 1:
                 errs.append(
                     f"evidence {ev.get('id', '?')}: attempts must be a positive "
-                    f"integer (>= 1), got {attempts!r} — "
+                    f"integer (>= 1), got {attempts!r} - "
                     f"an attempt count of 0 or negative is out of domain (TRC-FM2)"
                 )
     # JSON Schema validation (when `jsonschema` is installed)
@@ -3950,11 +3950,11 @@ def cmd_task_lint(args):
     if je:
         errs += je
     if errs:
-        print(f"compass task lint: FAIL — {path}")
+        print(f"compass task lint: FAIL - {path}")
         for e in errs:
             print(f"  - {e}")
         return 1
-    print(f"compass task lint: PASS — {path} is structurally valid."
+    print(f"compass task lint: PASS - {path} is structurally valid."
           + ("\n" + _schema_note(schema_ran) if not schema_ran else ""))
     return 0
 
@@ -4002,7 +4002,7 @@ def _receipt_resolve_task_dir(args):
 def _receipt_gate_requirements(project_root):
     """Read gate_evidence_requirements from governance/guardrails.yml (DD-3).
 
-    Returns {gate_id: frozenset(accepted_types)}. {} when the file is absent —
+    Returns {gate_id: frozenset(accepted_types)}. {} when the file is absent -
     type-mismatch detection then silently no-ops (degrades gracefully on
     projects that have not adopted governance, per ADR-006).
     """
@@ -4025,7 +4025,7 @@ def _receipt_parse_route_md_readings(route_md_path):
 
     Returns {key: (value, justification)} for the four dimensions; absent
     rows are simply not in the dict. If the file is missing or unparseable,
-    returns {} — the caller renders "(no justification on file)" in that case.
+    returns {} - the caller renders "(no justification on file)" in that case.
     """
     import re as _re
     if not os.path.isfile(route_md_path):
@@ -4074,7 +4074,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
     """Render the one-screen receipt for a task. Returns a string.
 
     Sections (TRC-A1 order):
-      1. header  — slug + landed/in-progress status
+      1. header  - slug + landed/in-progress status
       2. readings + justifications
       3. route + fired routing guardrails
       4. gates + verdicts + evidence ids
@@ -4086,7 +4086,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
     # 1.x is the current schema; anything else (or absent) is legacy. ADR-006:
     # render meaningfully on pre-feature task.ymls, do not crash.
     is_legacy = not schema_version.startswith("1.1")
-    # status: in 1.0 there is no status field — those tasks are treated as
+    # status: in 1.0 there is no status field - those tasks are treated as
     # active by the rest of the CLI, and the receipt does the same. Honesty:
     # a legacy task with no status cannot be reported as cleanly landed.
     raw_status = task.get("status")
@@ -4094,14 +4094,14 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
     if is_landed:
         header_status = "landed"
     elif raw_status == "active" or raw_status is None:
-        header_status = "IN PROGRESS — not yet landed"
+        header_status = "IN PROGRESS - not yet landed"
     else:
         header_status = str(raw_status).upper()
-    schema_note = f" — schema {schema_version or '1.0'} (legacy)" if is_legacy else ""
+    schema_note = f" - schema {schema_version or '1.0'} (legacy)" if is_legacy else ""
 
     # 1. header
     lines.append(_RECEIPT_RULE)
-    lines.append(f"Receipt — {slug} ({header_status}){schema_note}")
+    lines.append(f"Receipt - {slug} ({header_status}){schema_note}")
     lines.append(_RECEIPT_RULE)
     lines.append("")
 
@@ -4195,9 +4195,9 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
             f"  {gid:<26} {verdict:<18} evidence: {ev_str}"))
     lines.append("")
 
-    # 5. evidence registry — type-specific minimal fields rendered alongside
+    # 5. evidence registry - type-specific minimal fields rendered alongside
     # the path (TRC-B1). The dispatch table covers only types with meaningful
-    # extras; any future type without an entry renders id+type+path (DD-3 —
+    # extras; any future type without an entry renders id+type+path (DD-3 -
     # adding an evidence type to governance/guardrails.yml does not require a
     # renderer change, it just lands as a path-only entry until/unless someone
     # adds an extras tuple here).
@@ -4249,9 +4249,9 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
     if not is_landed:
         verdict_line = "Verdict: not yet landed"
     elif any_fail:
-        verdict_line = "Verdict: FAILED — does not satisfy its own gates"
+        verdict_line = "Verdict: FAILED - does not satisfy its own gates"
     elif n_owed:
-        verdict_line = f"Verdict: landed with caveats — {n_owed} backfill(s) owed"
+        verdict_line = f"Verdict: landed with caveats - {n_owed} backfill(s) owed"
     elif any_caveat:
         verdict_line = "Verdict: landed with caveats"
     else:
@@ -4353,7 +4353,7 @@ def cmd_adr_new(args):
     if proj:
         decisions_dir = os.path.join(proj, "architecture", "decisions")
     else:
-        # Not found walking up — create relative to cwd
+        # Not found walking up - create relative to cwd
         decisions_dir = os.path.join(os.getcwd(), "architecture", "decisions")
 
     os.makedirs(decisions_dir, exist_ok=True)
@@ -4373,7 +4373,7 @@ def cmd_adr_new(args):
     if os.path.exists(full_path):
         raise CompassError(
             f"{full_path} already exists. If you are in a concurrent worktree, "
-            f"this is expected — rename one side at Land."
+            f"this is expected - rename one side at Land."
         )
 
     title_words = slug.replace("-", " ").title()
@@ -4402,7 +4402,7 @@ def cmd_adr_new(args):
 
     print(f"compass adr new: created {full_path}")
     print(f"  registered in {readme_path}")
-    print("  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) — "
+    print("  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) - "
           "if another worktree creates ADRs in parallel, renumber at Land.")
     return 0
 
@@ -4414,7 +4414,7 @@ def cmd_adr_new(args):
 def cmd_flow(args):
     """Produce the flow board; with --digest also output a dated digest section
     to stdout. The digest includes the rework-scan section (TRC-D5) and a
-    calibration summary. Exit code is always 0 — this is advisory.
+    calibration summary. Exit code is always 0 - this is advisory.
     """
     work_root = getattr(args, "work_root", None)
     do_digest = getattr(args, "digest", False)
@@ -4428,16 +4428,16 @@ def cmd_flow(args):
             work_root = ".compass/work"
 
     if not do_digest:
-        # Live board mode: minimal — list tasks and their routes
+        # Live board mode: minimal - list tasks and their routes
         if not os.path.isdir(work_root):
-            print("compass flow: no tasks found — work root does not exist.")
+            print("compass flow: no tasks found - work root does not exist.")
             return 0
         slugs = [d for d in sorted(os.listdir(work_root))
                  if os.path.isdir(os.path.join(work_root, d))]
         if not slugs:
             print("compass flow: no tasks under work root.")
             return 0
-        print("compass flow — cross-task board (advisory)\n")
+        print("compass flow - cross-task board (advisory)\n")
         for slug in slugs:
             task_yml = os.path.join(work_root, slug, "task.yml")
             if os.path.isfile(task_yml):
@@ -4455,7 +4455,7 @@ def cmd_flow(args):
     import contextlib as _cl
 
     today = datetime.date.today().isoformat()
-    print(f"# Flow digest — {today}\n")
+    print(f"# Flow digest - {today}\n")
     print("> Advisory only. This digest does not modify any task state (Inv-4).\n")
 
     # --- Rework scan section (TRC-D5) ---
@@ -4505,22 +4505,22 @@ def cmd_flow(args):
 # status == 'landed'.
 #
 # Design constraints honoured here:
-#   Inv-5  — annotation over per-task specs, never a parallel spec; the
+#   Inv-5  - annotation over per-task specs, never a parallel spec; the
 #            derived file carries the DERIVED FILE header (TRC-B10).
-#   Inv-6  — all derivation inputs live on disk; no in-memory accumulation
+#   Inv-6  - all derivation inputs live on disk; no in-memory accumulation
 #            beyond the walk (TRC-B8 reconstructibility).
-#   Inv-8  — backward compat: task.yml files with no `status` field
+#   Inv-8  - backward compat: task.yml files with no `status` field
 #            (schema 1.0) are treated as active (not landed), so they are
 #            excluded from the derivation (TRC-B2, TRC-B11, DD-3).
-#   ADR-008 §3 — idempotent; deterministic order (land_timestamp, then
+#   ADR-008 §3 - idempotent; deterministic order (land_timestamp, then
 #             task slug as tiebreaker); supersession (same intent id →
 #             latest-landed wins for current section, earlier → archive).
-#   ADR-008 §4 — never source-of-truth; DERIVED FILE header on line 1;
+#   ADR-008 §4 - never source-of-truth; DERIVED FILE header on line 1;
 #             silent overwrite on next Land (TRC-B9).
-#   TRC-B5 — brand-new project with no landed tasks produces a stub file.
+#   TRC-B5 - brand-new project with no landed tasks produces a stub file.
 
 _DERIVED_HEADER = (
-    "<!-- DERIVED FILE — do not hand-edit; "
+    "<!-- DERIVED FILE - do not hand-edit; "
     "edit .compass/work/<task>/spec.feature.md -->"
 )
 
@@ -4618,7 +4618,7 @@ def derive_system_spec(project_root: str) -> None:
         "",
         "> This file is automatically generated at Land from the "
         "`.compass/work/<task>/spec.feature.md` files of all landed tasks.",
-        "> **Do not hand-edit** — edits are silently overwritten on the next Land.",
+        "> **Do not hand-edit** - edits are silently overwritten on the next Land.",
         "> Edit the source: `.compass/work/<task>/spec.feature.md`.",
         "",
     ]
@@ -4688,13 +4688,13 @@ def cmd_derive_system_spec(args):
     leading-underscore convention per DD-4).  It is only for in-framework
     callers (currently ``scripts/integrate.sh``).
 
-    The ``--internal`` flag is mandatory — without it the command errors out
+    The ``--internal`` flag is mandatory - without it the command errors out
     (belt-and-suspenders protection against accidental direct invocation).
     """
     if not getattr(args, "internal", False):
         raise CompassError(
             "compass _derive-system-spec: the --internal flag is required. "
-            "This is a private entry point for scripts/integrate.sh — "
+            "This is a private entry point for scripts/integrate.sh - "
             "it is not part of the public CLI surface."
         )
 
@@ -4704,7 +4704,7 @@ def cmd_derive_system_spec(args):
         compass_dir = find_compass_dir()
         project_root = os.path.dirname(compass_dir)
     except CompassError:
-        # Brand-new project with no .compass/ yet — use cwd
+        # Brand-new project with no .compass/ yet - use cwd
         project_root = os.getcwd()
 
     derive_system_spec(project_root)
@@ -4714,7 +4714,7 @@ def cmd_derive_system_spec(args):
 #
 # `compass next` reads task.yml + route.md and prints ONE line: the next
 # phase, the next uncleared gate, and route-aware collapsed-phase markers.
-# It is strictly READ-ONLY over .compass/work/<task>/ — no file is written
+# It is strictly READ-ONLY over .compass/work/<task>/ - no file is written
 # or created (TRC-C7).  It derives its answer from task.yml + route.md only
 # (TRC-C8); nothing else is read.
 #
@@ -4799,7 +4799,7 @@ def _current_phase_from_task(task: dict) -> str | None:
 
 
 def cmd_next(args):
-    """compass next — what comes next on this task's route?
+    """compass next - what comes next on this task's route?
 
     Reads task.yml + route.md and prints ONE line.
     Strictly read-only (TRC-C7).
@@ -4810,7 +4810,7 @@ def cmd_next(args):
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
         sys.stdout.write(
-            "Frame has not run for this task — task.yml is missing.\n"
+            "Frame has not run for this task - task.yml is missing.\n"
             f"  Run /compass:frame to start the task at: {task_dir}\n"
         )
         return 2
@@ -4841,7 +4841,7 @@ def cmd_next(args):
     # first non-skipped phase on a fresh task).
     next_phase = current_phase
     if not next_phase:
-        # No current phase derivable — route is complete or degenerate
+        # No current phase derivable - route is complete or degenerate
         sys.stdout.write("all phases complete\n")
         return 0
 
@@ -4867,7 +4867,7 @@ def cmd_next(args):
 def build_parser():
     p = argparse.ArgumentParser(
         prog="compass",
-        description="The Compass CLI — the deterministic half of an adaptive "
+        description="The Compass CLI - the deterministic half of an adaptive "
                     "framework. Judgement produces the readings; this applies "
                     "the policy and runs the checks.",
     )
@@ -4886,7 +4886,7 @@ def build_parser():
                      help="fold route/phases/gates back into the task's task.yml")
     pre.add_argument("--reason",
                      help="when --write detects a re-frame (the route changed), "
-                          "record this as the reason — it is the calibration signal")
+                          "record this as the reason - it is the calibration signal")
     pre.add_argument("--json", action="store_true", help="emit JSON")
     pre.set_defaults(func=cmd_route_evaluate)
 
@@ -4896,7 +4896,7 @@ def build_parser():
 
     pan = sub.add_parser(
         "analyze",
-        help="cross-artifact coherence check — orphaned scenarios, route "
+        help="cross-artifact coherence check - orphaned scenarios, route "
              "disagreements, and orphan claims (advisory or gate-clearing "
              "depending on whether verify.analyze is in the task's gate set)",
     )
@@ -4904,12 +4904,12 @@ def build_parser():
     pan.set_defaults(func=cmd_analyze)
 
     pcal = sub.add_parser("calibration",
-                          help="the Needle's feedback loop — re-frame patterns "
+                          help="the Needle's feedback loop - re-frame patterns "
                                "across all tasks (is routing well-sized?)")
     pcal.add_argument(
         "--friction",
         action="store_true",
-        help="aggregate the per-task `friction:` signal instead of reframes — "
+        help="aggregate the per-task `friction:` signal instead of reframes - "
              "recurring process friction grouped by category and proposed "
              "change (advisory only; exit 0 always)",
     )
@@ -4923,13 +4923,13 @@ def build_parser():
 
     pci = sub.add_parser("ci",
                          help="run the full mechanical gate suite (policy lint "
-                              "+ task lint + check, all tasks) — for CI")
+                              "+ task lint + check, all tasks) - for CI")
     pci.set_defaults(func=cmd_ci)
 
     prd = sub.add_parser("tdd-red", help="run a test, assert it FAILS, record the red")
     prd.add_argument("--task", help="task slug (default: current-task pointer)")
     prd.add_argument("--scenario", help="scenario id this red is evidence FOR "
-                     "(e.g. SCN-001) — binds the failure to a scenario, so it "
+                     "(e.g. SCN-001) - binds the failure to a scenario, so it "
                      "proves relevance, not just that something failed")
     prd.add_argument("--verified-by", dest="verified_by",
                      help="sanction a non-unit red for a change with no natural "
@@ -4945,7 +4945,7 @@ def build_parser():
                     "(e.g. SCN-001)")
     pg.add_argument("--verified-by", dest="verified_by",
                     help="carry forward a verified-by guard kind (regression | "
-                         "e2e | typecheck | live) — the green re-runs the guard "
+                         "e2e | typecheck | live) - the green re-runs the guard "
                          "that stood in for a unit red (R8)")
     pg.add_argument("command", nargs=argparse.REMAINDER,
                     help="the test command (after --)")
@@ -4982,7 +4982,7 @@ def build_parser():
 
     prs2 = sub.add_parser(
         "rework-scan",
-        help="cross-task rework scanner — detect add-then-delete patterns "
+        help="cross-task rework scanner - detect add-then-delete patterns "
              "across tasks (signal only; exit 0 on detection)",
     )
     prs2.add_argument(
@@ -5008,7 +5008,7 @@ def build_parser():
 
     pfl = sub.add_parser(
         "flow",
-        help="cross-task flow view — status board and optional digest "
+        help="cross-task flow view - status board and optional digest "
              "(advisory only; never modifies task state)",
     )
     pfl.add_argument(
@@ -5054,7 +5054,7 @@ def build_parser():
 
     plc = sub.add_parser(
         "land-commit",
-        help="commit staged artifacts robustly — survives auto-fixing "
+        help="commit staged artifacts robustly - survives auto-fixing "
              "pre-commit hooks and verifies HEAD advanced (R5)",
     )
     plc.add_argument("-m", "--message", required=True, help="commit message")
@@ -5124,7 +5124,7 @@ def build_parser():
 
     # Private entry point for the Land friction-capture step (DD-3). Hidden the
     # same way as _derive-system-spec; called by commands/land.md, not a public
-    # verb (PRD Goal 4 — deepen, don't widen the surface).
+    # verb (PRD Goal 4 - deepen, don't widen the surface).
     p_fric = sub.add_parser("_friction-capture", help=argparse.SUPPRESS)
     p_fric.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
     p_fric.add_argument("--task", help=argparse.SUPPRESS)

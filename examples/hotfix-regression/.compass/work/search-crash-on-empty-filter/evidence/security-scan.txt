@@ -24,6 +24,6 @@ Run metrics:
                 High: 0
 Files skipped (0):
 
-# verify.security gate — the fix is a one-line null-guard in the filter
+# verify.security gate - the fix is a one-line null-guard in the filter
 # compiler. No new dependency, no input-handling surface widened (it narrows
 # one). Static scan clean. See verification-report.md for the reasoning.

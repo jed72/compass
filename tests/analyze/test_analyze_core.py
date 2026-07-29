@@ -1,4 +1,4 @@
-"""Tests for `compass analyze` — Group A coherence and failure-mode scenarios.
+"""Tests for `compass analyze` - Group A coherence and failure-mode scenarios.
 
 Covers TRC-A1 through TRC-A13, TRC-F1, TRC-F4, TRC-F5.
 
@@ -19,7 +19,7 @@ import pytest
 import yaml
 
 # ---------------------------------------------------------------------------
-# Helpers — build minimal task fixtures
+# Helpers - build minimal task fixtures
 # ---------------------------------------------------------------------------
 
 _MINIMAL_READINGS = {
@@ -116,7 +116,7 @@ def _write_route_md(task_dir: Path, route: str, phases: dict | None = None) -> N
             "Plan": "collapsed", "Distribute": "skipped", "Build": "full",
             "Verify": "light", "Land": "light",
         }
-    lines = [f"# Route — test-task\n\n**Reference route:** {route.title()}\n\n"]
+    lines = [f"# Route - test-task\n\n**Reference route:** {route.title()}\n\n"]
     lines.append("## Per-phase weight\n\n")
     lines.append("| Phase | Weight |\n|---|---|\n")
     for phase, weight in phases.items():
@@ -125,7 +125,7 @@ def _write_route_md(task_dir: Path, route: str, phases: dict | None = None) -> N
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 — coherent artifacts pass cleanly
+# TRC-A1 - coherent artifacts pass cleanly
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_coherent_artifacts_pass_cleanly(project: Path, run_cli):
@@ -158,7 +158,7 @@ def test_trc_a1_coherent_artifacts_pass_cleanly(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 — a scenario with no upstream intent is flagged as orphaned
+# TRC-A2 - a scenario with no upstream intent is flagged as orphaned
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_orphaned_scenario_flagged(project: Path, run_cli):
@@ -191,7 +191,7 @@ def test_trc_a2_orphaned_scenario_flagged(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 — route disagreement between route.md and task.yml is flagged
+# TRC-A3 - route disagreement between route.md and task.yml is flagged
 # ---------------------------------------------------------------------------
 
 def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
@@ -231,7 +231,7 @@ def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A4 — claim with no backing scenario is flagged
+# TRC-A4 - claim with no backing scenario is flagged
 # ---------------------------------------------------------------------------
 
 def test_trc_a4_orphan_claim_flagged(project: Path, run_cli):
@@ -272,7 +272,7 @@ def test_trc_a4_orphan_claim_flagged(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5 — same artifacts and policy yield the same verdict (determinism)
+# TRC-A5 - same artifacts and policy yield the same verdict (determinism)
 # ---------------------------------------------------------------------------
 
 def test_trc_a5_determinism(project: Path, run_cli):
@@ -298,7 +298,7 @@ def test_trc_a5_determinism(project: Path, run_cli):
         "Same inputs must yield same exit code"
 
     # Strip lines that contain timestamps or unique evidence IDs from the output
-    # before comparing — the evidence FILE NAME contains a timestamp (by design,
+    # before comparing - the evidence FILE NAME contains a timestamp (by design,
     # DD-5), but the REPORT CONTENT (findings, mode, task name) must be identical.
     def _strip_evidence_line(out: str) -> str:
         lines = [l for l in out.splitlines()
@@ -313,7 +313,7 @@ def test_trc_a5_determinism(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A6 — analyze opens no network or model client on its decision path
+# TRC-A6 - analyze opens no network or model client on its decision path
 # ---------------------------------------------------------------------------
 
 def test_trc_a6_no_network_no_model_client(project: Path, run_cli):
@@ -335,7 +335,7 @@ def test_trc_a6_no_network_no_model_client(project: Path, run_cli):
     if analyze_start >= 0 and analyze_end > analyze_start:
         analyze_src = src[analyze_start:analyze_end]
     else:
-        analyze_src = src  # fall back to whole file — conservative check
+        analyze_src = src  # fall back to whole file - conservative check
 
     # None of these should appear in the analyze section
     bad_libs = ["requests", "httpx", "urllib.request", "openai", "anthropic", "boto3", "aiohttp"]
@@ -344,7 +344,7 @@ def test_trc_a6_no_network_no_model_client(project: Path, run_cli):
         f"Network/LLM client library references found in analyze code: {found}"
 
     # Also run analyze to confirm no network socket is opened.
-    # We check this by running analyze in a subprocess — if it completes quickly
+    # We check this by running analyze in a subprocess - if it completes quickly
     # and without errors, no network call was made (network calls would hang).
     slug = "no-network-task"
     task_dir = project / ".compass" / "work" / slug
@@ -365,7 +365,7 @@ def test_trc_a6_no_network_no_model_client(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A7 — incoherence on a route below threshold warns but does not block Land
+# TRC-A7 - incoherence on a route below threshold warns but does not block Land
 # ---------------------------------------------------------------------------
 
 def test_trc_a7_advisory_mode_does_not_block(project: Path, run_cli):
@@ -409,7 +409,7 @@ def test_trc_a7_advisory_mode_does_not_block(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A8 — incoherence on a route that earns the analyze gate blocks Land
+# TRC-A8 - incoherence on a route that earns the analyze gate blocks Land
 # ---------------------------------------------------------------------------
 
 def test_trc_a8_gate_mode_blocks_on_findings(project: Path, run_cli):
@@ -453,7 +453,7 @@ def test_trc_a8_gate_mode_blocks_on_findings(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A9 — analyze is never promoted to a gate globally
+# TRC-A9 - analyze is never promoted to a gate globally
 # ---------------------------------------------------------------------------
 
 def test_trc_a9_analyze_not_a_global_gate(project: Path, run_cli):
@@ -463,7 +463,7 @@ def test_trc_a9_analyze_not_a_global_gate(project: Path, run_cli):
         task_dir.mkdir(parents=True, exist_ok=True)
 
         body = _minimal_task(slug)
-        # Orphan scenario — findings exist
+        # Orphan scenario - findings exist
         body["scenarios"] = [{"id": "SCN-orphan", "intent": "INT-MISSING", "title": "x", "tests": []}]
         # Route does NOT have verify.analyze
         body["gates"] = [
@@ -485,7 +485,7 @@ def test_trc_a9_analyze_not_a_global_gate(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A10 — an artifact a route legitimately omits is not flagged
+# TRC-A10 - an artifact a route legitimately omits is not flagged
 # ---------------------------------------------------------------------------
 
 def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cli):
@@ -494,7 +494,7 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
-    # Hotfix route — brief.md is legitimately absent (reproduce-first, no Specify)
+    # Hotfix route - brief.md is legitimately absent (reproduce-first, no Specify)
     body = _minimal_task(slug)
     body["route"] = "hotfix"
     body["phases"] = {
@@ -510,7 +510,7 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     _write_task(task_dir, body)
 
-    # NO brief.md — route legitimately omits it
+    # NO brief.md - route legitimately omits it
     # spec.feature.md still exists (minimal)
     _write_spec(task_dir, [{"id": "SCN-001", "intent": "INT-1"}])
     _write_route_md(task_dir, "hotfix", phases={
@@ -526,14 +526,14 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     # No "missing brief" or "missing-artifact" finding about brief.md
     assert "brief.md" not in combined or "missing" not in combined.lower(), \
         f"Hotfix route must not flag missing brief.md:\n{result}"
-    # Should not flag orphaned scenarios either (spec links INT-1 but no brief — that's OK on hotfix)
+    # Should not flag orphaned scenarios either (spec links INT-1 but no brief - that's OK on hotfix)
     # The key assertion: no route-disagreement finding (route.md and task.yml agree on hotfix)
     assert "route-disagreement" not in combined.lower(), \
         f"No route-disagreement expected for consistent hotfix:\n{result}"
 
 
 # ---------------------------------------------------------------------------
-# TRC-A11 — analyze reports only coherence findings, not evidence findings
+# TRC-A11 - analyze reports only coherence findings, not evidence findings
 # ---------------------------------------------------------------------------
 
 def test_trc_a11_no_evidence_findings(project: Path, run_cli):
@@ -544,7 +544,7 @@ def test_trc_a11_no_evidence_findings(project: Path, run_cli):
 
     body = _minimal_task(slug)
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
-    # Gate is 'pass' but NO evidence referenced — compass check would fail this
+    # Gate is 'pass' but NO evidence referenced - compass check would fail this
     # But analyze should NOT report it
     body["gates"] = [
         {"id": "verify.correctness", "status": "pass", "evidence": []},  # missing evidence!
@@ -568,7 +568,7 @@ def test_trc_a11_no_evidence_findings(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A12 — analyze gate promotion is driven by routing-policy, not hard-coded
+# TRC-A12 - analyze gate promotion is driven by routing-policy, not hard-coded
 # ---------------------------------------------------------------------------
 
 def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
@@ -610,7 +610,7 @@ def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A13 — analyze completes within the interactive latency target (<3s p95)
+# TRC-A13 - analyze completes within the interactive latency target (<3s p95)
 # ---------------------------------------------------------------------------
 
 def test_trc_a13_latency_under_3s(project: Path, run_cli):
@@ -639,7 +639,7 @@ def test_trc_a13_latency_under_3s(project: Path, run_cli):
         durations.append(elapsed)
 
     durations.sort()
-    # p95 index for 20 samples — index 18 (0-based, sorted ascending)
+    # p95 index for 20 samples - index 18 (0-based, sorted ascending)
     p95_idx = int(RUNS * 0.95) - 1
     p95 = durations[p95_idx]
     # BF-1: provisional target 3s p95; confirmed by these measurements
@@ -649,7 +649,7 @@ def test_trc_a13_latency_under_3s(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 — analyze on a malformed task.yml exits non-zero with structured error
+# TRC-F1 - analyze on a malformed task.yml exits non-zero with structured error
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_malformed_task_yml(project: Path, run_cli):
@@ -678,7 +678,7 @@ def test_trc_f1_malformed_task_yml(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 — analyze on a task that has not yet been framed reports clearly
+# TRC-F4 - analyze on a task that has not yet been framed reports clearly
 # ---------------------------------------------------------------------------
 
 def test_trc_f4_unframed_task(project: Path, run_cli):
@@ -701,7 +701,7 @@ def test_trc_f4_unframed_task(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F5 — a hand-edit to task.yml made by a tool is caught by analyze
+# TRC-F5 - a hand-edit to task.yml made by a tool is caught by analyze
 # ---------------------------------------------------------------------------
 
 def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
@@ -729,7 +729,7 @@ def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
     _write_task(task_dir, body)
     _write_brief(task_dir, ["INT-1"])
     _write_spec(task_dir, [{"id": "SCN-001", "intent": "INT-1"}])
-    # route.md says express with express phases — disagrees with task.yml's expedition phases
+    # route.md says express with express phases - disagrees with task.yml's expedition phases
     _write_route_md(task_dir, "express", phases={
         "Frame": "full", "Specify": "light", "Clarify": "collapsed",
         "Plan": "collapsed", "Distribute": "skipped", "Build": "full",

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass script: validate.sh  —  SELF-CHECK FOR THE FRAMEWORK REPO
+# Compass script: validate.sh  -  SELF-CHECK FOR THE FRAMEWORK REPO
 # =============================================================================
-# A coherence check for the Compass repository ITSELF — not for a project using
+# A coherence check for the Compass repository ITSELF - not for a project using
 # Compass. It verifies the directory structure is intact and that the adapter
 # layer's internal references resolve: commands referencing skills, agents, and
 # templates that actually exist; no dangling pointers.
@@ -27,7 +27,7 @@
 #   6. Every script and hook referenced in the repo exists and is executable.
 #   7. The five reference routes exist and the router references them.
 #   8. The kit layer is present: the CLI, the machine-readable governance,
-#      the schemas, and the task.yml template — and `compass policy lint`
+#      the schemas, and the task.yml template - and `compass policy lint`
 #      passes if python3 and the CLI are runnable.
 #
 # This script is deliberately dependency-free (pure bash + coreutils + grep).
@@ -54,7 +54,7 @@ say()  { [ "$QUIET" -eq 1 ] || echo "$@"; }
 ok()   { [ "$QUIET" -eq 1 ] || echo "  ok   $*"; }
 fail() { echo "  FAIL $*" >&2; FAILURES=$((FAILURES + 1)); }
 
-say "Compass repo self-check — $COMPASS_HOME"
+say "Compass repo self-check - $COMPASS_HOME"
 say ""
 
 # --- 1. required structure --------------------------------------------------
@@ -95,7 +95,7 @@ say "3. Agent references in commands/"
 REFS="$(grep -rohE '`[a-z][a-z-]+`[[:space:]]+agent' commands/ 2>/dev/null \
         | sed -E 's/`([a-z-]+)`.*/\1/' | sort -u || true)"
 if [ -z "$REFS" ]; then
-  say "  (no agent references found in commands/ — nothing to check)"
+  say "  (no agent references found in commands/ - nothing to check)"
 else
   for a in $REFS; do
     if has "$a" "$EXISTING_AGENTS"; then ok "agent  $a  <- referenced, exists"
@@ -110,7 +110,7 @@ say "4. Skill references in commands/"
 REFS="$(grep -rohE '`[a-z][a-z-]+`[[:space:]]+skill' commands/ 2>/dev/null \
         | sed -E 's/`([a-z-]+)`.*/\1/' | sort -u || true)"
 if [ -z "$REFS" ]; then
-  say "  (no skill references found in commands/ — nothing to check)"
+  say "  (no skill references found in commands/ - nothing to check)"
 else
   for s in $REFS; do
     if has "$s" "$EXISTING_SKILLS"; then ok "skill  $s  <- referenced, exists"
@@ -125,7 +125,7 @@ say "5. Template references in commands/"
 REFS="$(grep -rohE 'templates/[a-z][a-z.-]+\.md' commands/ 2>/dev/null \
         | sed -E 's:templates/([a-z.-]+)\.md:\1:' | sort -u || true)"
 if [ -z "$REFS" ]; then
-  say "  (no template references found in commands/ — nothing to check)"
+  say "  (no template references found in commands/ - nothing to check)"
 else
   for t in $REFS; do
     if has "$t" "$EXISTING_TEMPLATES"; then ok "template  $t  <- referenced, exists"
@@ -160,7 +160,7 @@ for r in express standard expedition hotfix spike; do
     if grep -qiE "(\`|/| )$r\b" routes/router.md 2>/dev/null; then
       ok "route  $r  <- exists, named in router.md"
     else
-      ok "route  $r  <- exists (router.md mention not detected — review by eye)"
+      ok "route  $r  <- exists (router.md mention not detected - review by eye)"
     fi
   else
     fail "missing reference route: routes/$r.md"
@@ -169,7 +169,7 @@ done
 say ""
 
 # --- 8. the kit layer -------------------------------------------------------
-say "8. Kit layer — CLI, machine-readable governance, schemas, task spine"
+say "8. Kit layer - CLI, machine-readable governance, schemas, task spine"
 # 8a. the CLI exists and is executable
 if [ -f "cli/compass" ]; then
   if [ -x "cli/compass" ]; then ok "exec cli/compass  <- exists, executable"
@@ -202,7 +202,7 @@ if command -v python3 >/dev/null 2>&1 && [ -x "cli/compass" ]; then
   if LINT_OUT="$(python3 cli/compass policy lint 2>&1)"; then
     ok "compass policy lint  <- PASS"
   else
-    # a non-zero exit may be a real failure OR a missing PyYAML — distinguish
+    # a non-zero exit may be a real failure OR a missing PyYAML - distinguish
     if printf '%s' "$LINT_OUT" | grep -qi "PyYAML"; then
       say "  skip compass policy lint  <- PyYAML not installed (pip install pyyaml); skipped, not failed"
     else
@@ -217,9 +217,9 @@ say ""
 
 # --- verdict ----------------------------------------------------------------
 if [ "$FAILURES" -eq 0 ]; then
-  echo "validate.sh: PASS — repo structure and internal references are intact."
+  echo "validate.sh: PASS - repo structure and internal references are intact."
   exit 0
 else
-  echo "validate.sh: FAIL — $FAILURES problem(s) above. Fix them before committing." >&2
+  echo "validate.sh: FAIL - $FAILURES problem(s) above. Fix them before committing." >&2
   exit 1
 fi

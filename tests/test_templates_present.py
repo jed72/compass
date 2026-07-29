@@ -1,7 +1,7 @@
 """Tests that the shipped architecture templates are present.
 
 Covers:
-  TRC-A4 — Compass ships templates for the architecture artifacts
+  TRC-A4 - Compass ships templates for the architecture artifacts
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ TEMPLATES_DECISIONS = TEMPLATES_ARCH / "decisions"
 
 
 # ---------------------------------------------------------------------------
-# TRC-A4 — templates exist
+# TRC-A4 - templates exist
 # ---------------------------------------------------------------------------
 
 def test_architecture_templates_exist():
@@ -39,7 +39,7 @@ def test_narrative_templates_have_content():
     for name in ("system-context.md", "relations.md", "ownership.md"):
         p = TEMPLATES_ARCH / name
         if not p.exists():
-            pytest.skip(f"{name} does not exist — covered by test_architecture_templates_exist")
+            pytest.skip(f"{name} does not exist - covered by test_architecture_templates_exist")
         text = p.read_text(encoding="utf-8")
         assert len(text) > 50, f"{name} template appears empty"
         # Each template should carry at least a minimal heading

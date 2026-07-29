@@ -27,6 +27,6 @@ Files skipped (0):
 $ pip-audit -r requirements.txt
 No known vulnerabilities found
 
-# verify.security gate — the rate-limit change adds no new dependency and
+# verify.security gate - the rate-limit change adds no new dependency and
 # touches no auth/secret-handling path. Static scan + dependency audit both
 # clean. See verification-report.md for the reviewer's reasoning.

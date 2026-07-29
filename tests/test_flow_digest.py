@@ -1,4 +1,4 @@
-"""Flow digest tests — TRC-F4, TRC-C6, TRC-D5.
+"""Flow digest tests - TRC-F4, TRC-C6, TRC-D5.
 
 Unified after integration of streams 3, 4, and 6:
 
@@ -96,7 +96,7 @@ def run_subprocess_cli(*args, cwd=None, env_extra=None) -> subprocess.CompletedP
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 (stream-6, canonical) — Advisory commands must not mutate task.yml
+# TRC-F4 (stream-6, canonical) - Advisory commands must not mutate task.yml
 # ---------------------------------------------------------------------------
 
 def test_does_not_mutate_tasks(run_cli, make_task, project):
@@ -113,7 +113,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     compass_work = project / ".compass" / "work"
 
     # --- Given: set up multiple tasks with varying reframe states -----------
-    # Task with no reframes — calibration should report but not modify.
+    # Task with no reframes - calibration should report but not modify.
     make_task("alpha-task", {
         "readings": {
             "blast_radius": "contained",
@@ -127,7 +127,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
         "changed_files": [],
     }, set_current=False)
 
-    # Task with a reframe — calibration should count it but not modify.
+    # Task with a reframe - calibration should count it but not modify.
     make_task("beta-task", {
         "readings": {
             "blast_radius": "contained",
@@ -146,7 +146,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
 
     # --- Snapshot before advisory command -----------------------------------
     before = _snapshot_task_ymls(compass_work)
-    assert before, "No task.yml found before calibration — test setup failed"
+    assert before, "No task.yml found before calibration - test setup failed"
 
     # --- When: run the advisory command -------------------------------------
     r = run_cli("calibration")
@@ -160,7 +160,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     after = _snapshot_task_ymls(compass_work)
 
     assert before == after, (
-        "Advisory command 'compass calibration' mutated task.yml files — "
+        "Advisory command 'compass calibration' mutated task.yml files - "
         "this violates Inv-4 (Flow advises, never gates). "
         "Changed files:\n" + "\n".join(
             f"  {k}: before={before[k][:8]}... after={after[k][:8]}..."
@@ -172,7 +172,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
 
 def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
     """TRC-F4 (supplementary): calibration must not create NEW files in
-    .compass/work/ — any output should go to .compass/flow/ or stdout only.
+    .compass/work/ - any output should go to .compass/flow/ or stdout only.
     """
     compass_work = project / ".compass" / "work"
 
@@ -199,14 +199,14 @@ def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
     after_files = _all_files_in(compass_work)
     new_files = after_files - before_files
     assert not new_files, (
-        "compass calibration created new files under .compass/work/ — "
+        "compass calibration created new files under .compass/work/ - "
         "advisory output must go to stdout or .compass/flow/, not work/.\n"
         f"New files: {sorted(new_files)}"
     )
 
 
 # ---------------------------------------------------------------------------
-# TRC-D5 (stream-4) — Flow digest absorbs rework-scan
+# TRC-D5 (stream-4) - Flow digest absorbs rework-scan
 # ---------------------------------------------------------------------------
 
 def test_includes_rework_scan(tmp_path):
@@ -240,7 +240,7 @@ def test_includes_rework_scan(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C6 (stream-3) — Flow digest includes calibration's reframe-debt section
+# TRC-C6 (stream-3) - Flow digest includes calibration's reframe-debt section
 # ---------------------------------------------------------------------------
 
 def test_includes_reframe_debt(tmp_path):

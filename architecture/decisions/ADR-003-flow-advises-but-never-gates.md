@@ -65,7 +65,7 @@ retroactively gate a completed Verify.
 **Negative:**
 - Advisory signals can be ignored. A team that ignores rework signals
   accumulates technical debt without any hard reminder. The framework cannot
-  prevent this — it can only make the cost visible.
+  prevent this - it can only make the cost visible.
 
 **Neutral / follow-on:**
 - This decision does not prevent an adopter from wiring `compass rework-scan`

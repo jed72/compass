@@ -1,9 +1,9 @@
-"""TRC-C5 — the coverage-floor example carries the floor-never-target caveat.
+"""TRC-C5 - the coverage-floor example carries the floor-never-target caveat.
 
 Serves: INT-7
 Spec:
   - governance/guardrails.yml coverage-floor example must carry a caveat
-  - caveat: a floor, never a target — coverage is a side effect of test discipline, not a goal
+  - caveat: a floor, never a target - coverage is a side effect of test discipline, not a goal
   - skills/evidence-gates/SKILL.md must also carry the coverage caveat paragraph
 """
 from __future__ import annotations

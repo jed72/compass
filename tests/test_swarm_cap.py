@@ -1,4 +1,4 @@
-"""R4 — swarm.sh derives the worktree cap from structured task.yml truth
+"""R4 - swarm.sh derives the worktree cap from structured task.yml truth
 (readings.blast_radius + fired_guardrails), not by grepping route.md prose
 (which false-positives on 'did-not-fire' audit notes), and counts only
 worktree-provisioning streams.
@@ -60,7 +60,7 @@ def _map(td, slug, n_streams, *, extra_nonworktree=False):
     for i in range(1, n_streams + 1):
         rows.append(f"| stream-{i} | U{i} | TRC-{i} | compass/{slug}/stream-{i} |")
     if extra_nonworktree:
-        rows.append(f"| stream-int | integration/verify — not a parallel worktree | - | n/a |")
+        rows.append(f"| stream-int | integration/verify - not a parallel worktree | - | n/a |")
     (td / "distribution-map.md").write_text("\n".join(rows) + "\n")
 
 
@@ -70,12 +70,12 @@ def _run(repo, slug):
 
 
 # did-not-fire prose that the OLD grep false-positived on:
-_PROSE = "RG-CAP-001 (`blast_radius: critical`) — not matched; blast radius is contained."
+_PROSE = "RG-CAP-001 (`blast_radius: critical`) - not matched; blast radius is contained."
 
 
 def test_did_not_fire_note_caps_to_one_today(tmp_path):
     """TRC-R4-1 (regression guard): a route.md 'did-not-fire' note quoting
-    `blast_radius: critical` no longer collapses the cap — the reading is
+    `blast_radius: critical` no longer collapses the cap - the reading is
     contained, so the swarm provisions."""
     repo = _repo(tmp_path)
     td = _task(repo, "t1", blast_radius="contained")
@@ -121,7 +121,7 @@ def test_non_worktree_stream_excluded_from_count(tmp_path):
 
 
 def test_missing_readings_errors_not_silent_cap(tmp_path):
-    """TRC-R4-F1: absent readings.blast_radius is a hard error — never a silent
+    """TRC-R4-F1: absent readings.blast_radius is a hard error - never a silent
     cap=1 and never a fall back to grepping route.md prose."""
     repo = _repo(tmp_path)
     td = _task(repo, "t5", blast_radius=None)   # readings present but no blast_radius

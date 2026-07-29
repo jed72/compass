@@ -1,6 +1,6 @@
 """The integrity rule: a declared guardrail's check must be implemented in
 the CLI's CHECK_FNS. The contract (guarantee 2 in safety-contract.md) says
-this must fail in BOTH `compass policy lint` and `compass check` — otherwise
+this must fail in BOTH `compass policy lint` and `compass check` - otherwise
 a team could believe they have a hard guardrail when in fact none runs.
 """
 from __future__ import annotations
@@ -39,7 +39,7 @@ def test_policy_lint_fails_on_missing_check_implementation(run_cli, edit_governa
 
 
 def test_check_fails_on_missing_check_implementation(run_cli, edit_governance, make_task):
-    """The same defect must also be caught by `compass check` at run time —
+    """The same defect must also be caught by `compass check` at run time -
     not just at lint. This is the integrity belt-and-braces."""
     with edit_governance("guardrails.yml") as gr:
         gr.setdefault("checks", {})
@@ -96,13 +96,13 @@ def test_policy_lint_fails_on_invalid_yaml_structure(run_cli, edit_governance):
 
 
 # ---------------------------------------------------------------------------
-# TRC-E6 — guardrails.yml registers the new DoD check
+# TRC-E6 - guardrails.yml registers the new DoD check
 # ---------------------------------------------------------------------------
 
 def test_dod_check_registered(run_cli):
     """TRC-E6: governance/guardrails.yml must contain a check entry named
     'dod-evidence-typed', and the CLI must implement CHECK_FNS for that key.
-    `compass policy lint` must still pass — the new entry is well-formed."""
+    `compass policy lint` must still pass - the new entry is well-formed."""
     import yaml
     from pathlib import Path
 
@@ -130,17 +130,17 @@ def test_dod_check_registered(run_cli):
         "guardrails.yml `defaults:` or `project:`")
     assert registered_guardrail_id == "G4", (
         f"dod-evidence-typed must be registered under G4 (evidence, not "
-        f"assertion), not under {registered_guardrail_id!r} — see B-Risk 4 "
+        f"assertion), not under {registered_guardrail_id!r} - see B-Risk 4 "
         f"in architecture-notes.md")
 
-    # 3. The CLI must implement CHECK_FNS for this key — `policy lint` verifies it
+    # 3. The CLI must implement CHECK_FNS for this key - `policy lint` verifies it
     r = run_cli("policy", "lint")
     assert r.returncode == 0, (
         f"policy lint must pass after adding dod-evidence-typed: {r}")
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 — Guardrail count is still five
+# TRC-F2 - Guardrail count is still five
 # ---------------------------------------------------------------------------
 
 def test_guardrail_count_unchanged():
@@ -150,7 +150,7 @@ def test_guardrail_count_unchanged():
     governance/guardrails.yml must have no guardrail entries beyond G1..G5
     in its `defaults:` block.
 
-    This is a regression test over the framework's shipped content — it
+    This is a regression test over the framework's shipped content - it
     verifies Inv-2 (architecture-notes.md §2) is preserved.
     """
     import re
@@ -163,7 +163,7 @@ def test_guardrail_count_unchanged():
     assert guardrails_yml.is_file(), f"not found: {guardrails_yml}"
 
     # --- guardrails.md: parse the canonical G<N> headings -------------------
-    # The canonical guardrails use H3 headings "### G<N> — <name>".
+    # The canonical guardrails use H3 headings "### G<N> - <name>".
     md_text = guardrails_md.read_text(encoding="utf-8")
     g_headings = re.findall(r"^###\s+(G\d+)", md_text, re.MULTILINE)
     assert len(g_headings) == 5, (
@@ -201,7 +201,7 @@ def test_guardrail_count_unchanged():
 
 def test_guardrail_ids_in_yml_match_md():
     """TRC-F2 (supplementary): the five G-ids in guardrails.yml match those
-    in guardrails.md — no silent split between the prose and the machine file.
+    in guardrails.md - no silent split between the prose and the machine file.
     """
     import re
 

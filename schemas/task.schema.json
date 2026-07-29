@@ -59,7 +59,7 @@
 
     "evidence": {
       "type": "array",
-      "description": "The task's evidence registry — typed, id-tagged entries gates reference by id. Built incrementally across phases.",
+      "description": "The task's evidence registry - typed, id-tagged entries gates reference by id. Built incrementally across phases.",
       "items": {
         "type": "object",
         "required": ["id", "type"],
@@ -115,7 +115,7 @@
           "id": { "type": "string" },
           "title": { "type": "string" },
           "intent": {
-            "description": "The intent id(s) this scenario traces to — a string or a list of strings (a scenario may serve more than one intent).",
+            "description": "The intent id(s) this scenario traces to - a string or a list of strings (a scenario may serve more than one intent).",
             "oneOf": [
               { "type": "string" },
               { "type": "array", "items": { "type": "string" }, "minItems": 1 }
@@ -193,7 +193,7 @@
 
     "friction": {
       "type": "array",
-      "description": "Optional. Written at Land. Records where Compass's own ceremony cost more than it returned between Frame and Land, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) — never gates Land (USP-3). Absent on tasks that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
+      "description": "Optional. Written at Land. Records where Compass's own ceremony cost more than it returned between Frame and Land, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates Land (USP-3). Absent on tasks that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
       "items": {
         "type": "object",
         "required": ["category", "source"],
@@ -208,7 +208,7 @@
             "description": "What kind of friction this was."
           },
           "observation": { "type": "string", "description": "What got in the way, stated concretely." },
-          "proposed_change": { "type": "string", "description": "How the framework could have been configured to avoid it — the aggregation key." },
+          "proposed_change": { "type": "string", "description": "How the framework could have been configured to avoid it - the aggregation key." },
           "source": {
             "enum": ["derived", "human"],
             "description": "derived: assembled automatically at Land from reframes/reframe-debt. human: supplied by the author."

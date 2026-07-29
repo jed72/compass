@@ -54,7 +54,7 @@ def _read_version_file() -> str:
     ],
 )
 def test_published_surface_reports_new_version(label, reader):
-    """Every published surface reports 1.5.0 — no partial bumps."""
+    """Every published surface reports 1.5.0 - no partial bumps."""
     actual = reader()
     assert actual == EXPECTED_VERSION, (
         f"{label} reports {actual!r}, expected {EXPECTED_VERSION!r}"

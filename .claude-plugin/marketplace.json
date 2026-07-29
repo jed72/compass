@@ -5,7 +5,7 @@
     "url": "https://github.com/jed72"
   },
   "metadata": {
-    "description": "Compass \u2014 adaptive spec-driven development for Claude Code.",
+    "description": "Compass - adaptive spec-driven development for Claude Code.",
     "version": "1.5.0"
   },
   "plugins": [

@@ -1,4 +1,4 @@
-"""Tests for the architect-lens agent (U2 — stream-2).
+"""Tests for the architect-lens agent (U2 - stream-2).
 
 Covers scenarios: TRC-B1, TRC-B2, TRC-B3, TRC-B4, TRC-B5, TRC-X5, TRC-F5.
 
@@ -8,7 +8,7 @@ Trigger-detection logic (TRC-B2) is tested with mocked task.yml and
 mocked architecture files via filesystem fixtures in tmp_path.
 
 Architectural invariant (B-Risk 2): architecture-notes.md is ANNOTATIONS
-+ candidate ADR titles — NOT Given/When/Then scenarios. TRC-F5 encodes
++ candidate ADR titles - NOT Given/When/Then scenarios. TRC-F5 encodes
 this prohibition explicitly.
 """
 from __future__ import annotations
@@ -35,7 +35,7 @@ def command_file(name: str) -> Path:
 
 
 # --------------------------------------------------------------------------
-# TRC-B1 — architect-lens is invocable from roundtable
+# TRC-B1 - architect-lens is invocable from roundtable
 # --------------------------------------------------------------------------
 
 
@@ -55,7 +55,7 @@ def test_invocable_from_roundtable():
 
 
 # --------------------------------------------------------------------------
-# TRC-B1 (continued) — the agent file itself must exist with required shape
+# TRC-B1 (continued) - the agent file itself must exist with required shape
 # --------------------------------------------------------------------------
 
 
@@ -132,7 +132,7 @@ def test_architect_lens_reads_architecture_files():
 
 
 def test_architect_lens_reads_task_artifacts():
-    """TRC-B1/Inv-5: architect-lens reads spec.feature.md and plan.md — it is
+    """TRC-B1/Inv-5: architect-lens reads spec.feature.md and plan.md - it is
     a lens OVER the spec, not an author of the spec.
     """
     content = agent_file("architect-lens.md").read_text(encoding="utf-8")
@@ -155,7 +155,7 @@ def test_architect_lens_writes_architecture_notes():
 
 
 # --------------------------------------------------------------------------
-# TRC-B2 — spec-author consults architect-lens for boundary-touching tasks
+# TRC-B2 - spec-author consults architect-lens for boundary-touching tasks
 # --------------------------------------------------------------------------
 
 
@@ -194,7 +194,7 @@ def test_spec_author_trigger_conditions():
 
 
 # --------------------------------------------------------------------------
-# TRC-B3 — planner reads existing architect-lens notes and cites or diverges
+# TRC-B3 - planner reads existing architect-lens notes and cites or diverges
 # --------------------------------------------------------------------------
 
 
@@ -213,7 +213,7 @@ def test_consulted_by_planner():
 
 
 def test_planner_cites_or_diverges():
-    """TRC-B3: planner.md must document the cite-or-diverge behaviour —
+    """TRC-B3: planner.md must document the cite-or-diverge behaviour -
     either cite an existing ADR, name a candidate ADR, or justify divergence.
     When architecture-notes.md is absent the absence is recorded (not silent skip).
     """
@@ -233,7 +233,7 @@ def test_planner_cites_or_diverges():
 
 
 # --------------------------------------------------------------------------
-# TRC-B4 — architect-lens degrades when architecture/ is absent
+# TRC-B4 - architect-lens degrades when architecture/ is absent
 # --------------------------------------------------------------------------
 
 
@@ -254,21 +254,21 @@ def test_degrades_gracefully():
 def test_degrades_writes_warning_line():
     """TRC-B4: the warning first line must be documented in the agent instructions."""
     content = agent_file("architect-lens.md").read_text(encoding="utf-8")
-    # The spec requires: "WARNING: No architecture/ artifacts found — running on heuristics only"
+    # The spec requires: "WARNING: No architecture/ artifacts found - running on heuristics only"
     assert "No architecture/" in content or "no architecture/" in content.lower(), (
         "architect-lens.md does not document the exact WARNING message for missing architecture/"
     )
 
 
 # --------------------------------------------------------------------------
-# TRC-B5 — architect-lens findings persist on disk
+# TRC-B5 - architect-lens findings persist on disk
 # --------------------------------------------------------------------------
 
 
 def test_persists_notes():
     """TRC-B5: architect-lens.md must document that its output is always
     written to architecture-notes.md in the task directory (persistence over
-    conversation — Inv-6).
+    conversation - Inv-6).
     """
     content = agent_file("architect-lens.md").read_text(encoding="utf-8")
     assert "architecture-notes.md" in content, (
@@ -281,7 +281,7 @@ def test_persists_notes():
 
 
 # --------------------------------------------------------------------------
-# TRC-X5 — bootstrap: roundtable does NOT invoke architect-lens if the
+# TRC-X5 - bootstrap: roundtable does NOT invoke architect-lens if the
 # agent file doesn't exist (prevents infinite recursion on the task that
 # introduces the lens)
 # --------------------------------------------------------------------------
@@ -307,7 +307,7 @@ def test_bootstrap_no_recursion():
 
 
 # --------------------------------------------------------------------------
-# TRC-F5 — architect-lens does NOT fork the spec (B-Risk 2)
+# TRC-F5 - architect-lens does NOT fork the spec (B-Risk 2)
 # --------------------------------------------------------------------------
 
 
@@ -334,7 +334,7 @@ def test_notes_are_annotations_not_spec():
 
 def test_no_gherkin_in_architecture_notes_contract():
     """TRC-F5: architect-lens.md must describe architecture-notes.md as
-    containing annotations and candidate ADR titles — NOT Given/When/Then.
+    containing annotations and candidate ADR titles - NOT Given/When/Then.
     The word 'scenario' should only appear in the context of reading
     spec.feature.md, not in the context of writing output.
     """

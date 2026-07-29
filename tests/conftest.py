@@ -123,7 +123,7 @@ def write_evidence_file(project: Path):
 
 
 class CliResult:
-    """The return type from `run_cli` — exit code + stdout + stderr."""
+    """The return type from `run_cli` - exit code + stdout + stderr."""
 
     def __init__(self, proc: subprocess.CompletedProcess):
         self.returncode: int = proc.returncode
@@ -154,7 +154,7 @@ def run_cli(cli_path: Path, project: Path):
              extra_env: Optional[Dict[str, str]] = None,
              input_text: Optional[str] = None,
              timeout: int = 10) -> CliResult:
-        # Default timeout 10s — the CLI's real operations finish in under a
+        # Default timeout 10s - the CLI's real operations finish in under a
         # second; anything beyond 10s is a hang, and a hang should fail fast
         # rather than compounding 30s * 93 tests on a slow environment.
         env = dict(os.environ)

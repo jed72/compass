@@ -1,4 +1,4 @@
-"""Roundtable doc — Reframe trigger section.
+"""Roundtable doc - Reframe trigger section.
 
 TRC-C4: commands/roundtable.md contains a "Reframe trigger" section that
 documents the requirement to run /compass:frame --reframe after boundary

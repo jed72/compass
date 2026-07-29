@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass hook: pre-tool.sh  —  THE RED-BEFORE-GREEN STRATEGY ENFORCER
+# Compass hook: pre-tool.sh  -  THE RED-BEFORE-GREEN STRATEGY ENFORCER
 # =============================================================================
-# Enforces the TDD strategy (S2: red-green-refactor) mechanically — in service
+# Enforces the TDD strategy (S2: red-green-refactor) mechanically - in service
 # of guardrail G1 ("tested before it lands"). Note the distinction, because it
 # is the whole point of Compass's governance model:
 #
 #   * G1 (a GUARDRAIL) is the hard line: no code lands without a passing test
 #     it traces to. G1 is checked at Verify and Land, with evidence.
 #   * Red-before-green (a STRATEGY) is the strong, shipped-on *way* to satisfy
-#     G1. This hook enforces the strategy — and a strategy is route-aware.
+#     G1. This hook enforces the strategy - and a strategy is route-aware.
 #
-# This hook therefore BLOCKS code edits with no failing test on record — EXCEPT
+# This hook therefore BLOCKS code edits with no failing test on record - EXCEPT
 # on a Spike route, where the TDD strategy is deliberately suspended so
 # exploration is not throttled. A Spike still cannot violate G1: nothing lands
 # from a Spike without graduating (re-framing) into a real route first, where
@@ -21,12 +21,12 @@
 #   Runs as a Claude Code PreToolUse hook. On a tool call that edits or writes a
 #   *code* file (not a test, not docs, not a Compass artifact):
 #     - if the current task's route is Spike (a ".spike" marker exists) → ALLOW.
-#     - else, require a recorded failing test — a ".red" marker file under
+#     - else, require a recorded failing test - a ".red" marker file under
 #       .compass/work/<task-slug>/. No .red marker → the edit is BLOCKED.
 #
-# THE MARKER CONVENTION  (this is the "not magic" part — read this)
+# THE MARKER CONVENTION  (this is the "not magic" part - read this)
 #   .compass/work/<task-slug>/.red    "a failing test currently exists for this
-#                                      task". It is NOT a bare `touch` — it is
+#                                      task". It is NOT a bare `touch` - it is
 #                                      written by `compass tdd-red <test-cmd>`,
 #                                      which runs the test, confirms it really
 #                                      fails, writes evidence/red.json with the
@@ -35,17 +35,17 @@
 #                                      means "a real, observed failure is on
 #                                      record", not "someone touched a file".
 #     1. Build: `compass tdd-red -- <your failing test command>`.
-#     2. Edit the production code — this hook sees .red and allows it.
+#     2. Edit the production code - this hook sees .red and allows it.
 #     3. `compass tdd-green -- <test command>` confirms green, writes
-#        evidence/green.json, and clears .red — the hand-off to Verify.
-#   .compass/work/<task-slug>/.spike  "this task is on a Spike route — the TDD
+#        evidence/green.json, and clears .red - the hand-off to Verify.
+#   .compass/work/<task-slug>/.spike  "this task is on a Spike route - the TDD
 #                                      strategy is suspended". /compass:frame
 #                                      writes this when it composes a Spike.
 #   Markers are deliberately plain files so they are inspectable and auditable;
 #   the evidence/*.json records next to them are the audit trail.
 #
 # ESCAPE HATCH
-#   Test files, docs, config, and .compass/ artifacts are never blocked — you
+#   Test files, docs, config, and .compass/ artifacts are never blocked - you
 #   must be able to write the failing test in the first place. The Spike route
 #   is the *intentional* escape hatch for exploratory work. There is no env var
 #   to disable the check on a delivery route: that would not be suspending a
@@ -92,7 +92,7 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
 # --- classify the target file -----------------------------------------------
 # A "code file" here means: a production-impacting file whose change must be
-# preceded by a failing test. That is broader than application source — a
+# preceded by a failing test. That is broader than application source - a
 # Terraform file, a SQL migration, a Kubernetes manifest, or a CI workflow can
 # be more dangerous than ordinary code. Test files, docs, and Compass's own
 # artifacts are exempt.
@@ -104,7 +104,7 @@ case "$TARGET" in
   *.lock|*.gitignore|*.gitkeep|*.gitattributes|*.editorconfig) exit 0 ;;
 esac
 
-# Exempt: test files — you have to be able to write the red. Tune these globs
+# Exempt: test files - you have to be able to write the red. Tune these globs
 # to the project's test conventions.
 case "$TARGET" in
   *test*|*Test*|*spec*|*Spec*|*__tests__*|*.test.*|*.spec.*|*_test.*|*/tests/*) exit 0 ;;
@@ -120,7 +120,7 @@ case "$TARGET" in
   *.php|*.scala|*.ex|*.exs|*.clj|*.elm|*.dart) IS_CODE=1 ;;
 esac
 
-# (b) infrastructure / data / pipeline files — production-impacting even though
+# (b) infrastructure / data / pipeline files - production-impacting even though
 #     they are not "application code". A SQL migration or a Terraform plan
 #     deserves a failing test (or a tested rollback) as much as a service does.
 case "$TARGET" in
@@ -129,11 +129,11 @@ case "$TARGET" in
   Dockerfile|*/Dockerfile|*.dockerfile) IS_CODE=1 ;;      # container images
 esac
 
-# (c) path-scoped: YAML/JSON are exempt by default (config, data) — EXCEPT
+# (c) path-scoped: YAML/JSON are exempt by default (config, data) - EXCEPT
 #     under infrastructure-ish paths, where a yaml IS the production change
 #     (k8s manifests, Helm charts, CI workflows, migrations, dbt models).
 #     Note: in a `case` glob, `*` also matches `/`, so `*migrations/*` catches
-#     both `migrations/x` and `db/migrations/x` — leading `*` with no slash.
+#     both `migrations/x` and `db/migrations/x` - leading `*` with no slash.
 case "$TARGET" in
   *migrations/*|*db/migrate/*) IS_CODE=1 ;;
   *.github/workflows/*|*.gitlab-ci.yml) IS_CODE=1 ;;
@@ -142,7 +142,7 @@ case "$TARGET" in
   *dbt/*|*models/*.sql) IS_CODE=1 ;;
 esac
 
-# Anything still unrecognised is allowed — the enforcer blocks KNOWN
+# Anything still unrecognised is allowed - the enforcer blocks KNOWN
 # production-impacting files; it does not block the unknown. If a project has
 # a production-impacting file type that slips through, add it above.
 [ "$IS_CODE" -eq 0 ] && exit 0
@@ -150,13 +150,13 @@ esac
 # --- find the current task --------------------------------------------------
 # The current task is named by the .compass/current-task pointer (written by
 # /compass:frame and /compass:resume). The pointer is what makes this reliable
-# when more than one task is in flight — "most recently modified directory" is
+# when more than one task is in flight - "most recently modified directory" is
 # only the fallback, and it is ambiguous, so it warns. If there is no task at
-# all, Frame has not run — CLAUDE.md's one rule is "Never skip Frame".
+# all, Frame has not run - CLAUDE.md's one rule is "Never skip Frame".
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ — Frame has not run. Run /compass:frame before changing code." >&2
+  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:frame before changing code." >&2
   exit 2
 fi
 
@@ -169,28 +169,28 @@ if [ -f "$POINTER" ]; then
   fi
 fi
 if [ -z "$TASK_DIR" ]; then
-  # fallback: most recently modified — ambiguous, so say so.
+  # fallback: most recently modified - ambiguous, so say so.
   TASK_DIR="$(ls -dt "$WORK_DIR"/*/ 2>/dev/null | head -n1 || true)"
   TASK_DIR="${TASK_DIR%/}"
-  [ -n "$TASK_DIR" ] && echo "Compass: no .compass/current-task pointer — falling back to the most recently modified task ($(basename "$TASK_DIR")). Write .compass/current-task to be unambiguous." >&2
+  [ -n "$TASK_DIR" ] && echo "Compass: no .compass/current-task pointer - falling back to the most recently modified task ($(basename "$TASK_DIR")). Write .compass/current-task to be unambiguous." >&2
 fi
 
 if [ -z "${TASK_DIR:-}" ]; then
-  echo "Compass: no task under .compass/work/ — Frame has not run for this change." >&2
+  echo "Compass: no task under .compass/work/ - Frame has not run for this change." >&2
   exit 2
 fi
 
 TASK_SLUG="$(basename "$TASK_DIR")"
 
-# A route.md must exist — code work without a computed route is route laundering.
+# A route.md must exist - code work without a computed route is route laundering.
 if [ ! -f "$TASK_DIR/route.md" ]; then
-  echo "Compass: task '$TASK_SLUG' has no route.md — Frame did not complete. Run /compass:frame." >&2
+  echo "Compass: task '$TASK_SLUG' has no route.md - Frame did not complete. Run /compass:frame." >&2
   exit 2
 fi
 
 # --- route-aware: the TDD strategy is suspended on a Spike route -------------
 # /compass:frame writes a .spike marker when it composes a Spike route. On a
-# Spike, exploration is not throttled — the red-before-green strategy is
+# Spike, exploration is not throttled - the red-before-green strategy is
 # suspended. Guardrail G1 is NOT suspended: nothing lands from a Spike without
 # graduating into a real route, where this hook applies in full.
 if [ -f "$TASK_DIR/.spike" ]; then
@@ -205,7 +205,7 @@ fi
 
 # No .red marker → no failing test on record → block the code edit.
 cat >&2 <<EOF
-Compass: BLOCKED — no failing test on record for task '$TASK_SLUG'.
+Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
 
   Strategy S2 (red-before-green) applies on this route, in service of
   guardrail G1 (tested before it lands).
@@ -213,7 +213,7 @@ Compass: BLOCKED — no failing test on record for task '$TASK_SLUG'.
 
   To proceed the Compass way:
     1. Write the failing test for the scenario you are implementing.
-    2. Record the red — run it through the CLI so the failure is observed
+    2. Record the red - run it through the CLI so the failure is observed
        and the evidence is captured:
          compass tdd-red -- <your failing test command>
        (this runs the test, confirms it fails, writes evidence/red.json,
@@ -221,9 +221,9 @@ Compass: BLOCKED — no failing test on record for task '$TASK_SLUG'.
     3. Re-try this edit.
 
   Later, \`compass tdd-green -- <test command>\` confirms green, writes
-  evidence/green.json, and clears the .red marker — the hand-off to Verify.
+  evidence/green.json, and clears the .red marker - the hand-off to Verify.
 
-  If this is genuinely exploratory work, it should be a Spike route — re-run
+  If this is genuinely exploratory work, it should be a Spike route - re-run
   /compass:frame. The fix is to write the test or re-frame, not to route
   around the hook.
 EOF

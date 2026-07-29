@@ -1,6 +1,6 @@
-"""R3 — task lint's scenario schema agrees with the convention compass check
+"""R3 - task lint's scenario schema agrees with the convention compass check
 already accepts: `intent` may be a string OR a list of strings, and `group` +
-`verifiable` are admitted optional fields. The widening is precise — a numeric
+`verifiable` are admitted optional fields. The widening is precise - a numeric
 intent, or a list with a non-string element, still fails.
 """
 from __future__ import annotations
@@ -17,7 +17,7 @@ def _body(scenario):
 
 def test_baseline_lint_check_disagree_on_corpus_shape(run_cli, make_task):
     """TRC-R3-1: the de-facto corpus shape (list intent + group + verifiable) is
-    accepted by compass check's scenario-has-id-and-intent — the check side that
+    accepted by compass check's scenario-has-id-and-intent - the check side that
     the schema must be reconciled to."""
     make_task("r3-base", _body(
         {"id": "TRC-Z1", "intent": ["INT-1", "INT-2"], "group": "A",
@@ -48,7 +48,7 @@ def test_string_intent_still_passes(run_cli, make_task):
 
 
 def test_numeric_intent_still_fails(run_cli, make_task):
-    """TRC-R3-4: a numeric intent is still rejected — widened, not removed."""
+    """TRC-R3-4: a numeric intent is still rejected - widened, not removed."""
     make_task("r3-num", _body({"id": "TRC-Z3", "intent": 7, "tests": []}))
     r = run_cli("task", "lint", "--task", "r3-num")
     assert r.returncode != 0, r

@@ -1,4 +1,4 @@
-# Route — hypothetical-framework-task (fixture)
+# Route - hypothetical-framework-task (fixture)
 
 > This is a minimal fixture for TRC-C3 testing. It represents a hypothetical
 > framework task that touches the public-api surface, which should trigger

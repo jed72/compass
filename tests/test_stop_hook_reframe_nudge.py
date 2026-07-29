@@ -1,9 +1,9 @@
 """Stop-hook scope-bloat phrase detection.
 
-TRC-C1 — Stop-hook nudges when scope-bloat phrases appear in devlog
-TRC-C2 — Stop-hook stays silent when no scope-bloat is detected
-TRC-C3 — Stop-hook stays silent when a reframe has already been filed
-TRC-X3 — Stop-hook regex doesn't produce false positives on quoted context
+TRC-C1 - Stop-hook nudges when scope-bloat phrases appear in devlog
+TRC-C2 - Stop-hook stays silent when no scope-bloat is detected
+TRC-C3 - Stop-hook stays silent when a reframe has already been filed
+TRC-X3 - Stop-hook regex doesn't produce false positives on quoted context
 
 The hook reads patterns from governance/signals.yml at runtime (B-Risk 6:
 never hardcoded), emits a nudge to stderr, and exits 0 (non-blocking).
@@ -50,16 +50,16 @@ def _make_task(project: Path, slug: str, *,
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
-    # route.md — minimal so the hook can see it
+    # route.md - minimal so the hook can see it
     (task_dir / "route.md").write_text(
-        f"# Route — {slug}\n\n> **Reference route:** {route}\n"
+        f"# Route - {slug}\n\n> **Reference route:** {route}\n"
     )
 
-    # devlog.md — the content under test
+    # devlog.md - the content under test
     lines = devlog_lines or []
     (task_dir / "devlog.md").write_text("\n".join(lines) + "\n")
 
-    # task.yml — needed by the hook's reframes check
+    # task.yml - needed by the hook's reframes check
     body: dict = {
         "task": slug,
         "created": "2026-05-20",
@@ -95,7 +95,7 @@ def _run_hook(project: Path) -> subprocess.CompletedProcess:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 — nudge fires when scope-bloat phrase is in devlog and no reframe
+# TRC-C1 - nudge fires when scope-bloat phrase is in devlog and no reframe
 # ---------------------------------------------------------------------------
 
 def test_nudge_on_bloat(tmp_path):
@@ -106,7 +106,7 @@ def test_nudge_on_bloat(tmp_path):
         "bloat-task",
         devlog_lines=[
             "2026-05-20: Started build",
-            "more files than Plan estimated — had to touch core module",
+            "more files than Plan estimated - had to touch core module",
             "Finished for the day",
         ],
         reframes=[],
@@ -122,7 +122,7 @@ def test_nudge_on_bloat(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 — silent when no scope-bloat detected
+# TRC-C2 - silent when no scope-bloat detected
 # ---------------------------------------------------------------------------
 
 def test_silent_on_clean(tmp_path):
@@ -146,7 +146,7 @@ def test_silent_on_clean(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C3 — silent when a reframe has already been filed after the bloat line
+# TRC-C3 - silent when a reframe has already been filed after the bloat line
 # ---------------------------------------------------------------------------
 
 def test_silent_when_reframed(tmp_path):
@@ -176,7 +176,7 @@ def test_silent_when_reframed(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-X3 — no false positives on quoted or cited context
+# TRC-X3 - no false positives on quoted or cited context
 # ---------------------------------------------------------------------------
 
 def test_no_false_positive_in_quoted_context(tmp_path):
@@ -188,7 +188,7 @@ def test_no_false_positive_in_quoted_context(tmp_path):
         devlog_lines=[
             # These lines quote or cite the phrase, not report it as an actual
             # scope-bloat event. The hook must not fire on them.
-            '    > "more files than Plan estimated" — quoted from spec discussion',
+            '    > "more files than Plan estimated" - quoted from spec discussion',
             "    The pattern `more files than Plan estimated` is documented in signals.yml",
             "We avoided narrowing scope by keeping everything in one stream",
         ],

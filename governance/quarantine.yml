@@ -1,8 +1,8 @@
 # =============================================================================
-# Compass — quarantine.yml
+# Compass - quarantine.yml
 # =============================================================================
 # The project's test quarantine registry. A test listed here is flagged as
-# known-flaky and excused from the `no-trusted-rerun` check (G4) — provided
+# known-flaky and excused from the `no-trusted-rerun` check (G4) - provided
 # it links a tracking task that records the intent to fix it.
 #
 # Schema (version 1.0.0):
@@ -13,11 +13,11 @@
 #       reason: <one-line>                 # required; why this test is flaky
 #       added: <ISO date>                  # required; when it was quarantined
 #
-# Ship this file empty — `quarantined: []` — per ADR-006 (zero-setup default).
+# Ship this file empty - `quarantined: []` - per ADR-006 (zero-setup default).
 # `compass policy lint` validates this file's schema. Entries without
 # `tracking_task`, `reason`, or `added` are rejected as malformed (TRC-A7).
 #
-# Example (commented out — uncomment and adapt when quarantining a test):
+# Example (commented out - uncomment and adapt when quarantining a test):
 #   - test: "tests/api/test_export.py::test_excludes_drafts"
 #     tracking_task: "fix-flaky-export-test"
 #     reason: "Race between cache warm and assertion"

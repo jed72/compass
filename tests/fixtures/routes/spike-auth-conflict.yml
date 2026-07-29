@@ -1,4 +1,4 @@
-# Exploration intent that would touch auth — RG-FLOOR-003 would force
+# Exploration intent that would touch auth - RG-FLOOR-003 would force
 # delivery, but the candidate is Spike. That is the routing-conflict case
 # and the evaluator MUST refuse (not silently promote).
 name: spike-auth-conflict

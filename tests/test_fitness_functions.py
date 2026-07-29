@@ -278,7 +278,7 @@ class TestVerifyFitnessAdvisory:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6: vacuous-clear — no project guardrails → verify.fitness clears
+# TRC-B6: vacuous-clear - no project guardrails → verify.fitness clears
 # ---------------------------------------------------------------------------
 
 class TestVacuousClear:

@@ -10,8 +10,8 @@ superseded_by: ''
 ## Context
 
 Claude Code sessions do not have persistent memory across invocations. A task
-that spans multiple sessions — a Standard route task with a two-day Build
-phase, for example — must be resumable by a new session (or a different agent)
+that spans multiple sessions - a Standard route task with a two-day Build
+phase, for example - must be resumable by a new session (or a different agent)
 without loss of context.
 
 There are two design choices for how to handle this: (a) keep the important

@@ -1,4 +1,4 @@
-"""R6 + R9 — schema-owning task.yml mutators and the write-time gate-evidence
+"""R6 + R9 - schema-owning task.yml mutators and the write-time gate-evidence
 type guard. `compass gate pass` is the shared command: it is R9's gate mutator
 whose write-time validation against gate_evidence_requirements IS the R6 fix.
 """
@@ -37,7 +37,7 @@ def _mk_evfile(task_dir, rel):
 # --- R9-1 (baseline → guard): the mutators now exist -----------------------
 
 def test_no_mutator_exists_today_baseline(run_cli, make_task):
-    """TRC-R9-1: the gap is closed — schema-owning mutators are registered
+    """TRC-R9-1: the gap is closed - schema-owning mutators are registered
     verbs (no longer hand-edited YAML)."""
     make_task("mut-help", _body_with_gates())
     for verb in (("scenario", "add"), ("changed-file", "add"),

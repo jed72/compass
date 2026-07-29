@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass script: install.sh  —  WIRE COMPASS INTO CLAUDE CODE
+# Compass script: install.sh  -  WIRE COMPASS INTO CLAUDE CODE
 # =============================================================================
 # Installs the Claude Code adapter layer (commands/, agents/, skills/, hooks/)
 # into the right Claude Code locations and registers the hooks in settings.
 #
 # The methodology layer (docs/, governance/, routes/, templates/) is NOT
-# installed anywhere — it is read in place from this repo. What this script
+# installed anywhere - it is read in place from this repo. What this script
 # wires up is only the runtime adapter.
 #
 # USAGE
@@ -71,11 +71,11 @@ echo ""
 
 # --- helper: link or copy one component directory ---------------------------
 # Each of commands/agents/skills is installed as a subdirectory named
-# "compass" so it cannot collide with anything else the user has — the
+# "compass" so it cannot collide with anything else the user has - the
 # resolved Claude Code path is ~/.claude/<name>/compass/<file>. The "compass"
 # destination dir is also what supplies the slash-command namespace, so the
 # repo's flat commands/*.md resolve as /compass:frame (not /compass:compass:…).
-# The repo layout is uniform: commands/*.md, agents/*.md, skills/*/SKILL.md —
+# The repo layout is uniform: commands/*.md, agents/*.md, skills/*/SKILL.md -
 # all installed the same way. (The plugin path uses the plugin name for the
 # same namespace; see .claude-plugin/plugin.json.)
 install_component() {
@@ -88,12 +88,12 @@ install_component() {
   mkdir -p "$dest_parent"
 
   if [ -e "$dest" ] || [ -L "$dest" ]; then
-    # Only refresh something we own — a symlink, or a dir we previously copied
+    # Only refresh something we own - a symlink, or a dir we previously copied
     # (marked with .compass-installed). Never clobber the user's own files.
     if [ -L "$dest" ] || [ -f "$dest/.compass-installed" ]; then
       rm -rf "$dest"
     else
-      echo "  ERROR: $dest exists and was not created by Compass — refusing to overwrite." >&2
+      echo "  ERROR: $dest exists and was not created by Compass - refusing to overwrite." >&2
       echo "         Move it aside and re-run." >&2
       exit 1
     fi
@@ -135,7 +135,7 @@ register_hooks() {
 
   if ! command -v jq >/dev/null 2>&1; then
     echo ""
-    echo "  NOTE: jq is not installed — cannot auto-register hooks."
+    echo "  NOTE: jq is not installed - cannot auto-register hooks."
     echo "        Add these to $SETTINGS by hand:"
     cat <<EOF
         "hooks": {
@@ -173,7 +173,7 @@ EOF
 
 unregister_hooks() {
   [ -f "$SETTINGS" ] || return 0
-  command -v jq >/dev/null 2>&1 || { echo "  NOTE: jq missing — remove Compass hooks from $SETTINGS by hand."; return 0; }
+  command -v jq >/dev/null 2>&1 || { echo "  NOTE: jq missing - remove Compass hooks from $SETTINGS by hand."; return 0; }
   local pre="$COMPASS_HOME/hooks/pre-tool.sh"
   local post="$COMPASS_HOME/hooks/post-tool.sh"
   local stop="$COMPASS_HOME/hooks/stop.sh"
@@ -200,7 +200,7 @@ chmod +x "$COMPASS_HOME"/scripts/*.sh 2>/dev/null || true
 # already applies whenever the plugin is enabled. Adding a project-local
 # registration in DIR/.claude/settings.json AS WELL means every Edit/Write
 # fires pre-tool.sh and post-tool.sh TWICE (symptom: doubled devlog
-# entries). The detection looks for the manifest FILE — a stray
+# entries). The detection looks for the manifest FILE - a stray
 # .claude-plugin/ directory without plugin.json is not a plugin source.
 #
 # The guard is install-only and project-mode-only:
@@ -254,14 +254,14 @@ echo "Done. Compass is wired into Claude Code ($MODE)."
 echo ""
 echo "Next steps:"
 echo "  1. cd into the project you want to use Compass in."
-echo "  2. Run  /compass:frame \"<your task>\"  — that's it. The default guardrails"
+echo "  2. Run  /compass:frame \"<your task>\"  - that's it. The default guardrails"
 echo "     and strategies ship active, so the Needle computes a route with zero setup."
-echo "  3. Optional, whenever you have governance to encode:  /compass:init  —"
+echo "  3. Optional, whenever you have governance to encode:  /compass:init  -"
 echo "     it copies governance/ into the project so you can add project-specific"
 echo "     guardrails and strategies. It is accretion, not a prerequisite."
 echo ""
 if [ "$MODE" = "global" ]; then
   echo "Note: a global install makes the /compass: commands available everywhere."
-  echo "No per-project setup is required — /compass:frame works immediately; run"
+  echo "No per-project setup is required - /compass:frame works immediately; run"
   echo "/compass:init only when a project wants its own governance."
 fi

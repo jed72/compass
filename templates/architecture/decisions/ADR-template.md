@@ -14,21 +14,21 @@ superseded_by: ''
      so it can cite them in architecture-notes.md rather than re-litigating
      closed decisions.
 
-     Use `compass adr new <slug>` to create a new ADR from this template —
+     Use `compass adr new <slug>` to create a new ADR from this template -
      it assigns the next sequential number and registers the file in README.md.
 
      Status lifecycle:
-       proposed   — decision is being considered
-       accepted   — decision is in effect
-       superseded — replaced by a later ADR (set superseded_by: ADR-NNN)
+       proposed   - decision is being considered
+       accepted   - decision is in effect
+       superseded - replaced by a later ADR (set superseded_by: ADR-NNN)
 
      Frontmatter field guide:
-       id             — matches the filename prefix (ADR-NNN)
-       title          — short imperative phrase describing the decision
-       status         — one of: proposed | accepted | superseded
-       date           — ISO date when the decision was recorded
-       supersedes     — id of the ADR this decision replaces ('' if none)
-       superseded_by  — id of the ADR that replaced this one ('' if active)
+       id             - matches the filename prefix (ADR-NNN)
+       title          - short imperative phrase describing the decision
+       status         - one of: proposed | accepted | superseded
+       date           - ISO date when the decision was recorded
+       supersedes     - id of the ADR this decision replaces ('' if none)
+       superseded_by  - id of the ADR that replaced this one ('' if active)
 -->
 
 ## Context
@@ -54,7 +54,7 @@ superseded_by: ''
 
 ## Consequences
 
-<!-- Describe the outcomes of this decision — positive, negative, and
+<!-- Describe the outcomes of this decision - positive, negative, and
      neutral.  Include: what becomes easier, what becomes harder, what
      is now deprecated or forbidden, and what follow-on decisions are
      implied. -->

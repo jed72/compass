@@ -16,13 +16,13 @@ already made deliberately.
 ## Numbering
 
 ADRs are numbered sequentially (`ADR-001`, `ADR-002`, ...).  Use
-`compass adr new <slug>` to create the next ADR — it counts the existing
+`compass adr new <slug>` to create the next ADR - it counts the existing
 `ADR-*.md` files, assigns `N+1`, and registers the new file in this README.
 
 **Concurrency note:** if two worktrees both call `compass adr new` at the same
 time they may each produce an `ADR-NNN` with the same number.  This surfaces
 as a normal git merge conflict on this README at integration.  The orchestrator
-resolves it by renumbering one side.  This is deliberate — sequential numbers
+resolves it by renumbering one side.  This is deliberate - sequential numbers
 matter more than collision-freedom (see ADR-001 for the decision).
 
 ## Supersession

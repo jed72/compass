@@ -1,15 +1,15 @@
-# Spec — notifications-subsystem
+# Spec - notifications-subsystem
 
 > **Phase:** Specify · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
-> **Terrain:** greenfield discovery — there is no notifications capability today; these scenarios are discovered from `brief.md`, not distilled from existing behaviour.
+> **Terrain:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `brief.md`, not distilled from existing behaviour.
 
 ## How each role reads this file
 
-- **Product owner / manager** — reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
-- **Product marketer** — reads for *claims*: every line of launch copy must point at a scenario id here.
-- **Engineer** — reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
-- **QA** — reads for *coverage*: which scenarios are exercised, which edges are not.
-- **Designer** — UI behaviour authored in `ui-contract.md` flows in here as scenarios.
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
+- **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
+- **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
+- **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
+- **Designer** - UI behaviour authored in `ui-contract.md` flows in here as scenarios.
 
 ---
 
@@ -18,15 +18,15 @@
 | Intent id | Source | Statement |
 |---|---|---|
 | INT-1 | `brief.md` desired outcome | A user is reliably told about events that affect them, in-app, within seconds. |
-| INT-2 | `brief.md` constraint | Notifications are durable — a worker restart or brief outage does not lose one a user should have received. |
+| INT-2 | `brief.md` constraint | Notifications are durable - a worker restart or brief outage does not lose one a user should have received. |
 | INT-3 | `brief.md` desired outcome | A user can tune what they hear about, with safe defaults, but cannot mute what they must not miss. |
 
 ---
 
-## Scenario group A — Delivery & dispatch
+## Scenario group A - Delivery & dispatch
 
-**Independence note:** group A owns the dispatch pipeline and the durable store
-— `dispatch.py`, `store.py`. It is separable from group B: a notification can
+**Independence note:** group A owns the dispatch pipeline and the durable store -
+`dispatch.py`, `store.py`. It is separable from group B: a notification can
 be created, stored, and delivered without any preference logic (the default is
 "deliver"). Group A became swarm **stream-1**.
 
@@ -66,13 +66,13 @@ Scenario: Notifications survive a worker restart
 
 ---
 
-## Scenario group B — User preferences
+## Scenario group B - User preferences
 
-**Independence note:** group B owns the preference model — `preferences.py`. It
+**Independence note:** group B owns the preference model - `preferences.py`. It
 is separable from group A: preference resolution is a pure decision ("should
 this category reach this user?") that group A *calls*, but does not implement.
 The two groups share only `migrations/0042` (the table both read) and `api.py`
-(the surface) — that shared surface is what the orchestrator polices. Group B
+(the surface) - that shared surface is what the orchestrator polices. Group B
 became swarm **stream-2**.
 
 ### Scenario: A user mutes a category and stops receiving that category
@@ -114,7 +114,7 @@ Scenario: A muted category does not suppress a security notification
 
 <!-- This is the brief's hardest constraint made into a scenario: mute must not
      be able to suppress the things a user must not miss. It sits in group B's
-     surface (preferences.py) — stream-2 owns it. -->
+     surface (preferences.py) - stream-2 owns it. -->
 
 ---
 

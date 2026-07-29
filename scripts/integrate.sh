@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass script: integrate.sh  —  LAND THE WORKTREES BACK TOGETHER
+# Compass script: integrate.sh  -  LAND THE WORKTREES BACK TOGETHER
 # =============================================================================
 # The Land-phase counterpart to swarm.sh. It merges the per-stream branches
 # back into the base branch in a coordinated order, runs the project's test
 # command for combined regression, reports any conflicts for the `orchestrator`
 # to resolve, and cleans up the worktrees on success. Only the `orchestrator`
-# agent runs this (the lead builder on a pair) — see CLAUDE.md and the
+# agent runs this (the lead builder on a pair) - see CLAUDE.md and the
 # worktree-swarm skill.
 #
 # USAGE
@@ -24,12 +24,12 @@
 #   This script does NOT auto-resolve conflicts. If a merge conflicts, it
 #   aborts that merge, leaves the repo clean, reports exactly which stream and
 #   which files conflicted, and stops. Resolving cross-stream conflicts is the
-#   orchestrator's job and no one else's — the script just surfaces them.
+#   orchestrator's job and no one else's - the script just surfaces them.
 #
 # COMBINED REGRESSION
 #   After all streams merge cleanly, the project's test command runs once
 #   against the integrated result. Per-stream green does not imply integrated
-#   green — proving the combination is the whole point of Land. If combined
+#   green - proving the combination is the whole point of Land. If combined
 #   regression fails, worktrees are NOT cleaned up (you will need them) and the
 #   script exits non-zero.
 #
@@ -69,7 +69,7 @@ CONFIG="$PROJECT_DIR/.compass/config.yml"
 git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
   || { echo "integrate.sh: $PROJECT_DIR is not a git repository." >&2; exit 1; }
 if [ -n "$(git -C "$PROJECT_DIR" status --porcelain)" ]; then
-  echo "integrate.sh: working tree is dirty — commit or stash before integrating." >&2
+  echo "integrate.sh: working tree is dirty - commit or stash before integrating." >&2
   exit 1
 fi
 BASE_BRANCH="$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)"
@@ -101,7 +101,7 @@ done < "$MAP"
 
 if [ "${#STREAMS[@]}" -eq 0 ]; then
   echo "integrate.sh: no streams in distribution-map.md. If the route is solo," >&2
-  echo "              Land integrates with a plain commit — integrate.sh is not needed." >&2
+  echo "              Land integrates with a plain commit - integrate.sh is not needed." >&2
   exit 1
 fi
 
@@ -116,10 +116,10 @@ if [ -z "$TEST_CMD" ] && [ -f "$PROJECT_DIR/Makefile" ] \
   TEST_CMD="make test"
 fi
 
-echo "Compass integrate — task '$TASK_SLUG'"
+echo "Compass integrate - task '$TASK_SLUG'"
 echo "  base branch:   $BASE_BRANCH"
 echo "  streams:       ${#STREAMS[@]}  (merged in map order)"
-echo "  test command:  ${TEST_CMD:-<none resolved — combined regression cannot run automatically>}"
+echo "  test command:  ${TEST_CMD:-<none resolved - combined regression cannot run automatically>}"
 echo ""
 
 # --- merge each stream in order ---------------------------------------------
@@ -129,13 +129,13 @@ for i in "${!STREAMS[@]}"; do
   branch="${BRANCHES[$i]}"
 
   if ! git -C "$PROJECT_DIR" show-ref --verify --quiet "refs/heads/$branch"; then
-    echo "  $sid: branch '$branch' does not exist — skipping (was the swarm ever created?)."
+    echo "  $sid: branch '$branch' does not exist - skipping (was the swarm ever created?)."
     continue
   fi
 
   # Already merged?
   if git -C "$PROJECT_DIR" merge-base --is-ancestor "$branch" "$BASE_BRANCH"; then
-    echo "  $sid: already merged into $BASE_BRANCH — skipping."
+    echo "  $sid: already merged into $BASE_BRANCH - skipping."
     MERGED+=("$sid")
     continue
   fi
@@ -155,7 +155,7 @@ for i in "${!STREAMS[@]}"; do
     echo "$CONFLICTS" | sed 's/^/    - /'
     echo ""
     echo "  The merge was aborted; the repo is clean again. This is the"
-    echo "  orchestrator's call to resolve — re-cut the boundary, re-sequence,"
+    echo "  orchestrator's call to resolve - re-cut the boundary, re-sequence,"
     echo "  or escalate to a re-frame. No one else may resolve a cross-stream"
     echo "  conflict. Streams merged so far: ${MERGED[*]:-none}."
     exit 2
@@ -180,13 +180,13 @@ if [ -n "$TEST_CMD" ]; then
     echo "----------------------------------------------------------------"
     echo "Combined regression FAILED. Per-stream green did not survive integration."
     echo "Worktrees are LEFT IN PLACE so you can fix the stream that broke."
-    echo "The merge commits are on $BASE_BRANCH — revert or fix forward; do not"
+    echo "The merge commits are on $BASE_BRANCH - revert or fix forward; do not"
     echo "clean up until combined regression is green."
     exit 1
   fi
 else
   echo "No test command resolved (set 'test_command:' in .compass/config.yml)."
-  echo "Combined regression MUST still be run by hand before Land closes —"
+  echo "Combined regression MUST still be run by hand before Land closes -"
   echo "per-stream green does not imply integrated green."
 fi
 
@@ -213,7 +213,7 @@ except Exception as exc:
     print(f"WARNING: could not write status: landed to {path}: {exc}", file=sys.stderr)
 PYEOF
 else
-  echo "  WARNING: no task.yml found at $TASK_YML — skipping status write."
+  echo "  WARNING: no task.yml found at $TASK_YML - skipping status write."
 fi
 
 COMPASS_CLI="$COMPASS_HOME/cli/compass"
@@ -221,11 +221,11 @@ if [ -x "$COMPASS_CLI" ] || [ -f "$COMPASS_CLI" ]; then
   if ( cd "$PROJECT_DIR" && python3 "$COMPASS_CLI" _derive-system-spec --internal ); then
     echo "  docs/system-spec.md updated (living spec derived)."
   else
-    echo "  WARNING: living spec derivation failed — docs/system-spec.md may be stale."
+    echo "  WARNING: living spec derivation failed - docs/system-spec.md may be stale."
     echo "  Re-run: python3 cli/compass _derive-system-spec --internal"
   fi
 else
-  echo "  WARNING: compass CLI not found at $COMPASS_CLI — skipping derivation."
+  echo "  WARNING: compass CLI not found at $COMPASS_CLI - skipping derivation."
 fi
 
 # --- clean up the worktrees -------------------------------------------------
@@ -237,12 +237,12 @@ if [ "$CLEAN" -eq 1 ]; then
     if [ -d "$wt_path" ]; then
       git -C "$PROJECT_DIR" worktree remove --force "$wt_path" 2>/dev/null \
         && echo "  removed $wt_path" \
-        || echo "  could not remove $wt_path — remove by hand with: git worktree remove '$wt_path'"
+        || echo "  could not remove $wt_path - remove by hand with: git worktree remove '$wt_path'"
     fi
   done
   git -C "$PROJECT_DIR" worktree prune
   echo ""
-  echo "Per-stream branches are left in place for history — delete them when you"
+  echo "Per-stream branches are left in place for history - delete them when you"
   echo "are sure: git branch -d <branch>"
 else
   echo "(--no-clean) worktrees kept in place."

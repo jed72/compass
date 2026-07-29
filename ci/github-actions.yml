@@ -1,4 +1,4 @@
-# Compass — reference GitHub Actions workflow.
+# Compass - reference GitHub Actions workflow.
 #
 # Copy this to `.github/workflows/compass.yml` in your project. It runs the
 # full mechanical gate suite (`compass ci`) on every pull request and on pushes
@@ -6,7 +6,7 @@
 # or any task's guardrail checks do not pass.
 #
 # COMBINED WITH PROJECT CI
-#   Compass CI does NOT replace your project CI — it runs *alongside* it as a
+#   Compass CI does NOT replace your project CI - it runs *alongside* it as a
 #   process-integrity lane. The recommended pattern is two jobs in one
 #   workflow: a `project-ci` job for your tests/lint/build/etc., and this
 #   `compass-ci` job gated on it (`needs: project-ci`) so a red test suite
@@ -16,7 +16,7 @@
 #
 # Adjust `COMPASS_CLI` to wherever the Compass CLI lives in your repo (a
 # vendored copy, a submodule, or a pinned checkout). Pin to a specific
-# commit SHA, not a branch — see docs/security.md for the supply-chain
+# commit SHA, not a branch - see docs/security.md for the supply-chain
 # stance. See ci/README.md for the full integration contract.
 
 name: Compass

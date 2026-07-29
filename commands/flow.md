@@ -1,5 +1,5 @@
 ---
-description: The cross-task flow view — triage, blockers, owed backfills, and the periodic digest across all Compass work
+description: The cross-task flow view - triage, blockers, owed backfills, and the periodic digest across all Compass work
 argument-hint: "[--digest]"
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---
@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 # /compass:flow
 
 `/compass:status` looks *down* into one task. `/compass:flow` looks *across*
-every task — it is the delivery-management function as a capability, not a
+every task - it is the delivery-management function as a capability, not a
 persona. Anyone can run it; it is not a role entry point.
 
 Compass is task-centric by design: each task carries its own route, artifacts,
@@ -15,15 +15,15 @@ and gates. But a team runs many tasks at once, and nothing in the per-task
 pipeline answers "what is the state of *everything*, and what needs a human's
 attention first?" That is this command.
 
-**Mode:** $ARGUMENTS — default is the live flow board; `--digest` writes a
+**Mode:** $ARGUMENTS - default is the live flow board; `--digest` writes a
 dated digest file (see below).
 
 ## Setup
 
-- Load the `flow-management` skill — it carries the triage heuristics, the
+- Load the `flow-management` skill - it carries the triage heuristics, the
   blocker protocol, and the digest format.
 - This command reads broadly and writes only the digest. It never edits a
-  task's artifacts — task state is inferred from artifacts on disk, never
+  task's artifacts - task state is inferred from artifacts on disk, never
   set by a label.
 
 ## Procedure
@@ -31,7 +31,7 @@ dated digest file (see below).
 1. **Enumerate.** List every task directory under `.compass/work/`. For each,
    read `route.md`, `task.yml` (the machine-readable spine), and whichever phase
    artifacts exist. To report a task's *mechanical* gate status you may run
-   `compass check --task <slug>` — it is read-only and changes nothing.
+   `compass check --task <slug>` - it is read-only and changes nothing.
 
 2. **Triage each task.** Apply the `flow-management` triage heuristics:
    - **No `route.md`** → a guardrail violation (work started without Frame).
@@ -51,11 +51,11 @@ dated digest file (see below).
    goes to the top.
 
 5. **Aggregate owed backfills.** `/compass:status` flags backfills per task;
-   `/compass:flow` collects them all into one list — every unpaid Hotfix
+   `/compass:flow` collects them all into one list - every unpaid Hotfix
    backfill, every unbacked marketing claim, every de-scoped artifact still
    owed, across all tasks.
 
-6. **Read the calibration signal.** Run `compass calibration` — it reads the
+6. **Read the calibration signal.** Run `compass calibration` - it reads the
    `reframes:` log across every task and reports whether the Needle is
    systematically over- or under-sizing routes (a run of "up" re-frames means
    the Needle keeps reading work lighter than it is). This is the framework's
@@ -67,7 +67,7 @@ dated digest file (see below).
 7. **Run rework-scan.** Run `compass rework-scan --format markdown` and embed
    the output in the report as a "Rework scan" section. This surfaces
    cross-task add-then-delete patterns within the configured window
-   (`governance/signals.yml rework_scan.window_days`). The scan is a signal —
+   (`governance/signals.yml rework_scan.window_days`). The scan is a signal -
    it never gates, never modifies task state, and always exits 0 on detection
    (Inv-4: Flow advises, never gates). If the section is empty, record
    "0 rework instances detected" to confirm the scan ran.
@@ -81,12 +81,12 @@ dated digest file (see below).
 With `--digest`, also write a dated digest to `.compass/flow/digest-{{DATE}}.md`
 using the format in the `flow-management` skill: landed since the last digest,
 in flight, blocked, owed backfills, rework signals, and next up. The digest is
-the artifact a team reviews on a cadence — and `/compass:flow --digest` is a
+the artifact a team reviews on a cadence - and `/compass:flow --digest` is a
 natural fit for a scheduled task (e.g. a weekly run). It is append-only
 history: never overwrite a prior digest.
 
 The digest must include a **Rework scan** section produced by
-`compass rework-scan --format markdown`. This section is informational — it
+`compass rework-scan --format markdown`. This section is informational - it
 does not change any task's state, and a non-empty rework report does not block
 or gate anything.
 
@@ -94,4 +94,4 @@ or gate anything.
 
 `/compass:flow` advises; it does not gate. The gates live in the per-task
 pipeline where the evidence is. Flow's job is to make sure no task is quietly
-stuck, off-route, or sitting on an unpaid debt — not to add another gate.
+stuck, off-route, or sitting on an unpaid debt - not to add another gate.
