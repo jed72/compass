@@ -6,22 +6,32 @@ leaves on disk and what the gates feel like when you hit them. There are three
 walkthroughs - an engineer, a product owner, a marketer - because Compass has
 five roles and the entry point you use shapes the route the Needle composes.
 
-If you have not read `docs/methodology.md`, read it first. This document
-assumes its vocabulary: the eight-phase pipeline, the four dimensions, the
-default guardrails, the Needle.
+This document uses Compass's vocabulary: the eight-phase pipeline, the four
+dimensions, the default guardrails, the Needle. Each term is introduced as it
+comes up, so you can work through this page first and read
+`docs/methodology.md` afterwards for the design reasoning behind any of them.
 
 ---
 
 ## 1. Install
 
-Compass ships in three layers. The **methodology layer** (`docs/`,
-`governance/` `.md` files, `routes/`, `templates/`) is plain markdown and is
-read in place - it is never copied anywhere. The **kit layer** (`cli/compass`,
-`governance/*.yml`, `schemas/`, the `task.yml` spine) is the deterministic
-mechanism - a plain CLI. The **Claude Code adapter layer** (`commands/`,
-`agents/`, `skills/`, `hooks/`) is what `install.sh` wires into Claude Code;
-its commands and agents call the kit-layer CLI under the hood. See
-`docs/methodology.md` §9 and `docs/portability.md` for the full picture.
+There are two ways in. Pick one.
+
+**The plugin marketplace is the fastest.** No clone, no install script:
+
+```bash
+# In Claude Code:
+/plugin marketplace add jed72/compass
+/plugin install compass@compass
+pip install pyyaml      # the CLI's one dependency
+```
+
+Enabling the plugin namespaces the commands as `/compass:…`, registers the
+hooks, and puts the `compass` CLI on your PATH. Skip to step 2.
+
+**Install from source** if you want to read or edit the framework as you go.
+`scripts/install.sh` wires everything in by symlink, so edits to your clone are
+picked up live:
 
 ```bash
 git clone https://github.com/jed72/compass.git
@@ -43,12 +53,19 @@ turns on full JSON Schema validation in `compass policy lint` and
 `compass task lint` (without it the built-in linter still runs - see
 `schemas/README.md`).
 
-`install.sh` does **not** modify your PATH. If you want to call `compass`
-directly from your shell, add `$COMPASS_HOME/bin` to your `PATH` (or invoke
-the CLI as `python3 $COMPASS_HOME/cli/compass`). The slash commands run the
-CLI on your behalf, so this only matters when you call it directly. The
-plugin install path bypasses this - Claude Code adds the plugin's `bin/` to
-PATH automatically.
+Unlike the plugin, `install.sh` does **not** modify your PATH. If you want to
+call `compass` directly from your shell, add `$COMPASS_HOME/bin` to your
+`PATH` (or invoke the CLI as `python3 $COMPASS_HOME/cli/compass`). The slash
+commands run the CLI on your behalf, so this only matters when you call it
+directly.
+
+Either way, what you have installed is three layers: the **methodology** (the
+markdown in `docs/`, `governance/*.md`, `routes/` and `templates/`, read in
+place and never copied), the **kit** (`cli/compass`, `governance/*.yml`,
+`schemas/` and the `task.yml` spine, which is the deterministic mechanism), and
+the **Claude Code adapter** (`commands/`, `agents/`, `skills/`, `hooks/`),
+whose commands call the kit underneath. `docs/methodology.md` §9 and
+`docs/portability.md` have the full picture; you do not need it to continue.
 
 One thing to know going in: the `pre-tool.sh` hook enforces the red-before-green
 TDD strategy. Once Compass is installed, an attempt to edit a recognised code

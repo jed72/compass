@@ -5,9 +5,11 @@ end to end. A real Claude Code install cannot be smoke-tested in a sandbox -
 the framework relies on the local Claude Code config and the user's
 shell - so this is the procedure to walk by hand once.
 
-Run it once after `scripts/install.sh`, and again whenever you change how
-Compass is installed. Each step lists the *expected output* so you can
-compare line by line. Common gotchas are at the end.
+This checklist covers the **install-from-source** path. Run it once after
+`scripts/install.sh`, and again whenever you change how Compass is installed.
+Each step lists the *expected output* so you can compare line by line. Common
+gotchas are at the end. If you installed through the plugin marketplace
+instead, steps 1 and 7 do not apply; the rest still does.
 
 Throughout, `COMPASS_HOME` means the directory you cloned the framework
 into - wherever `scripts/install.sh` lives.

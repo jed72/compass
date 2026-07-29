@@ -1,8 +1,14 @@
 # Compass in five minutes
 
-The shortest path from "what is this" to "I've shipped a task with it." Read
-`docs/methodology.md` afterwards for the design; read `docs/safety-contract.md`
-for the 1.0 promises. This page is just enough to get going.
+The shortest path from "what is this" to "I've shipped a task with it." This
+page is just enough to get going. Read `docs/methodology.md` afterwards for the
+design, and `docs/safety-contract.md` for what Compass 1.0 does and does not
+promise.
+
+To run the commands below you need Compass installed. The quickest way, inside
+Claude Code, is `/plugin marketplace add jed72/compass` then
+`/plugin install compass@compass`, followed by `pip install pyyaml`.
+`docs/quickstart.md` §1 covers that and the install-from-source alternative.
 
 ---
 
