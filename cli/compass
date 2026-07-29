@@ -2329,7 +2329,7 @@ def _annotate_gate_accepts(task_path):
 def _load_scope_bloat_phrases():
     """Load scope_bloat_phrases from signals.yml at runtime.
 
-    B-Risk 6: patterns are never hardcoded in the CLI - always read from the
+    Patterns are never hardcoded in the CLI - always read from the
     governance file. Returns an empty list if signals.yml is absent or
     unreadable (graceful degradation).
     """
@@ -2354,9 +2354,9 @@ def _find_reframe_debt(tasks, work):
       - task.yml.reframes has no entry whose date is >= the date of the
         matching devlog line.
 
-    B-Risk 5: this function is strictly READ-ONLY; it never writes to any
+    This function is strictly READ-ONLY; it never writes to any
     task.yml or any other file.
-    B-Risk 6: patterns are supplied by the caller from signals.yml.
+    Patterns are supplied by the caller from signals.yml.
     """
     phrases = _load_scope_bloat_phrases()
     if not phrases:
@@ -2424,7 +2424,7 @@ def _find_reframe_debt(tasks, work):
 def _load_friction_threshold():
     """Load friction.recurrence_threshold from signals.yml at runtime.
 
-    Mirrors _load_scope_bloat_phrases (B-Risk 6: never hardcode the value in
+    Mirrors _load_scope_bloat_phrases (never hardcode the value in
     the CLI - read it from the governance file). Defaults to 2 when signals.yml
     is absent or the block is unset (ADR-006: clean no-op for non-adopters; and
     2 mirrors `calibration`'s own >=2 up/down-sizing thresholds).
@@ -2539,7 +2539,7 @@ def _cmd_calibration_friction(args, tasks):
     print()
     print("Advisory only. Claude or a human reads these and drafts targeted "
           "changes to\ngovernance/ or the routes - the loop never edits "
-          "governance itself (ADR-001, USP-2).")
+          "governance itself (ADR-001).")
     return 0
 
 
@@ -2588,7 +2588,7 @@ def cmd_friction_capture(args):
 
     It writes ONLY the friction section - never a backfill or a gate. Friction
     is a strategy-class signal and must never become something that blocks Land
-    (USP-3, ADR-002). The derivation is mechanism; the `--note` is the only
+    (ADR-002). The derivation is mechanism; the `--note` is the only
     judgement input, supplied human-side (ADR-001).
     """
     if not getattr(args, "internal", False):
@@ -2730,8 +2730,8 @@ def cmd_calibration(args):
 
     # --- Reframe debt (TRC-C5) -----------------------------------------------
     # Read devlogs for scope-bloat signals that were absorbed without a reframe.
-    # B-Risk 5: strictly read-only - no task.yml is written here.
-    # B-Risk 6: patterns loaded from signals.yml at runtime (never hardcoded).
+    # Strictly read-only - no task.yml is written here.
+    # Patterns loaded from signals.yml at runtime (never hardcoded).
     # Inv-4: advisory only - this section reports, never gates.
     debts = _find_reframe_debt(tasks, work)
     if debts:
@@ -2753,9 +2753,9 @@ def cmd_calibration(args):
 # Cross-task rework scanner (R4). Reads every task.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors
-# (B-Risk 3). Patterns are loaded from governance/signals.yml at runtime
-# (B-Risk 6). Suitable for piping into .compass/flow/rework-<date>.md.
+# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
+# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
+# Suitable for piping into .compass/flow/rework-<date>.md.
 #
 # Detection modes:
 #   1. Simple add-then-delete: file added by task A, deleted by task B within
@@ -2922,7 +2922,7 @@ def cmd_rework_scan(args):
         except CompassError:
             root = ".compass/work"
 
-    # Load signals (runtime - B-Risk 6)
+    # Load signals from disk at runtime, never hardcoded
     signals = _load_signals(root)
     window_days = int(getattr(args, "window_days", None) or signals["window_days"])
     public_patterns = signals["public_surface_patterns"]
@@ -3054,7 +3054,7 @@ def cmd_rework_scan(args):
         _emit_markdown_report(rework_instances, tasks, skipped_warnings,
                               window_days, root)
 
-    # B-Risk 3: always exit 0 - detection is a signal, not a gate
+    # Always exit 0 - detection is a signal, not a gate
     return 0
 
 

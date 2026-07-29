@@ -23,7 +23,7 @@ CLI = ROOT / "cli" / "compass"
 
 # ---------------------------------------------------------------------------
 # TRC-D1 - the five-point mental model gains zero new top-level concepts
-# Source-of-truth (clarifications Q3): the bulleted list under
+# Source-of-truth: the bulleted list under
 # "## The mental model in five points" in docs/five-minutes.md.
 # ---------------------------------------------------------------------------
 def test_trc_d1_mental_model_bullets_unchanged():

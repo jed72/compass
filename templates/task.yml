@@ -140,7 +140,7 @@ reframes: []
 # Optional. Written at Land. Records where Compass's own ceremony cost more
 # than it returned between Frame and Land, and how the framework could have
 # been configured to avoid it. A strategy-class signal - soft, advisory; it
-# never gates Land (USP-3). Absent on tasks that hit no friction; the loop
+# never gates Land. Absent on tasks that hit no friction; the loop
 # no-ops cleanly for projects that never write it (ADR-006). Assembled at Land
 # by `compass _friction-capture` and aggregated by `compass calibration
 # --friction`.

@@ -155,7 +155,7 @@ if [ "${#WARNINGS[@]}" -gt 0 ]; then
 fi
 
 # --- 4. scope-bloat reframe nudge -------------------------------------------
-# Reads governance/signals.yml at runtime (B-Risk 6: never hardcoded).
+# Reads governance/signals.yml at runtime; the patterns are never hardcoded.
 # For each scope_bloat_phrase, greps the current task's devlog.md.
 # The regex anchors the phrase at the start of the line (no leading whitespace
 # beyond the line start) - this prevents false positives when the phrase

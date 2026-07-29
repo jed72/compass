@@ -186,7 +186,7 @@ def test_reframe_debt_section(run_cli, make_task, project):
     reported in a 'reframe debt' section, with the matched devlog signal
     and explicit mention that the signal was absorbed/lost.
 
-    B-Risk 6: the devlog patterns come from signals.yml, not hardcoded in
+    The devlog patterns come from signals.yml, not hardcoded in
     the CLI.
     """
     import pathlib
@@ -427,11 +427,11 @@ def test_friction_view_writes_nothing(run_cli, make_task, project):
 def test_friction_never_in_land_gate(framework_root):
     """TRC-F1: friction is a strategy-class signal - it never appears as a
     guardrail check or in Land's gate. A regression guard against the design
-    drifting across ADR-002 / USP-3."""
+    drifting across ADR-002."""
     guardrails = (framework_root / "governance" / "guardrails.yml").read_text().lower()
     assert "friction" not in guardrails, (
         "TRC-F1 violated: guardrails.yml references friction - it must never "
-        "be a gate (ADR-002, USP-3).")
+        "be a gate (ADR-002).")
     land = (framework_root / "commands" / "land.md").read_text()
     # The gate is the checklist under the '## Gate - Land refuses to close …'
     # heading (not the intro, and not the Procedure, where friction capture is
@@ -473,7 +473,7 @@ def test_calibration_without_friction_unchanged(run_cli, make_task):
 
 
 def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
-    """B-Risk 5: calibration is read-only - task.yml must be unchanged after running."""
+    """Calibration is read-only - task.yml must be unchanged after running."""
     import pathlib
     import hashlib
     import shutil
@@ -506,6 +506,6 @@ def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
 
     sha_after = hashlib.sha256(task_yml.read_bytes()).hexdigest()
     assert sha_before == sha_after, (
-        f"B-Risk 5 violated: calibration mutated task.yml\n"
+        f"calibration mutated task.yml, but it must be read-only\n"
         f"Before SHA: {sha_before}\nAfter SHA:  {sha_after}"
     )

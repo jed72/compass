@@ -7,7 +7,7 @@ Tests use file-existence + content-regex assertions (structural contract).
 Trigger-detection logic (TRC-B2) is tested with mocked task.yml and
 mocked architecture files via filesystem fixtures in tmp_path.
 
-Architectural invariant (B-Risk 2): architecture-notes.md is ANNOTATIONS
+Architectural invariant: architecture-notes.md is ANNOTATIONS
 + candidate ADR titles - NOT Given/When/Then scenarios. TRC-F5 encodes
 this prohibition explicitly.
 """
@@ -307,12 +307,12 @@ def test_bootstrap_no_recursion():
 
 
 # --------------------------------------------------------------------------
-# TRC-F5 - architect-lens does NOT fork the spec (B-Risk 2)
+# TRC-F5 - architect-lens does NOT fork the spec
 # --------------------------------------------------------------------------
 
 
 def test_notes_are_annotations_not_spec():
-    """TRC-F5 / B-Risk 2: architect-lens.md must explicitly prohibit
+    """TRC-F5: architect-lens.md must explicitly prohibit
     writing Given/When/Then scenarios into architecture-notes.md.
     The output is ANNOTATIONS + candidate ADR titles, not a parallel spec.
     """
@@ -328,7 +328,7 @@ def test_notes_are_annotations_not_spec():
         or "annotations" in combined
     ), (
         "architect-lens.md does not prohibit writing Given/When/Then scenarios "
-        "into architecture-notes.md (B-Risk 2 violation)"
+        "into architecture-notes.md, which would fork the spec"
     )
 
 

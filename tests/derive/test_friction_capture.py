@@ -131,7 +131,7 @@ def test_no_friction_lands_unchanged(run_cli, make_task, project):
 def test_capture_adds_no_backfill_or_gate(run_cli, make_task, project):
     """TRC-F1: capture writes only the friction section - never a backfill or a
     gate. Friction is strategy-class and cannot become something that blocks
-    Land (USP-3, ADR-002)."""
+    Land (ADR-002)."""
     _copy_signals(project)
     task_dir = make_task("ft-nogate", _base_body(
         "ft-nogate",

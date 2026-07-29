@@ -130,7 +130,7 @@ def test_dod_check_registered(run_cli):
         "guardrails.yml `defaults:` or `project:`")
     assert registered_guardrail_id == "G4", (
         f"dod-evidence-typed must be registered under G4 (evidence, not "
-        f"assertion), not under {registered_guardrail_id!r} - see B-Risk 4 "
+        f"assertion), not under {registered_guardrail_id!r} - a check belongs "
         f"in architecture-notes.md")
 
     # 3. The CLI must implement CHECK_FNS for this key - `policy lint` verifies it
@@ -151,7 +151,7 @@ def test_guardrail_count_unchanged():
     in its `defaults:` block.
 
     This is a regression test over the framework's shipped content - it
-    verifies Inv-2 (architecture-notes.md §2) is preserved.
+    verifies Inv-2 (defined in architecture/decisions/README.md) is preserved.
     """
     import re
 
@@ -169,7 +169,7 @@ def test_guardrail_count_unchanged():
     assert len(g_headings) == 5, (
         f"Expected exactly 5 guardrail headings (G1..G5) in guardrails.md, "
         f"found {len(g_headings)}: {g_headings}. "
-        f"Inv-2 (architecture-notes.md §2): the principle is 'few guardrails'; "
+        f"Inv-2: the principle is 'few guardrails'; "
         f"adding a sixth requires explicit review."
     )
     assert sorted(g_headings) == ["G1", "G2", "G3", "G4", "G5"], (

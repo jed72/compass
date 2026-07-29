@@ -15,7 +15,7 @@
 #
 # Ship this file empty - `quarantined: []` - per ADR-006 (zero-setup default).
 # `compass policy lint` validates this file's schema. Entries without
-# `tracking_task`, `reason`, or `added` are rejected as malformed (TRC-A7).
+# `tracking_task`, `reason`, or `added` are rejected as malformed.
 #
 # Example (commented out - uncomment and adapt when quarantining a test):
 #   - test: "tests/api/test_export.py::test_excludes_drafts"

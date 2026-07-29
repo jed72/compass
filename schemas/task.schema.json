@@ -193,7 +193,7 @@
 
     "friction": {
       "type": "array",
-      "description": "Optional. Written at Land. Records where Compass's own ceremony cost more than it returned between Frame and Land, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates Land (USP-3). Absent on tasks that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
+      "description": "Optional. Written at Land. Records where Compass's own ceremony cost more than it returned between Frame and Land, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates Land. Absent on tasks that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
       "items": {
         "type": "object",
         "required": ["category", "source"],

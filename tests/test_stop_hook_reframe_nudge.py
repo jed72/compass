@@ -5,7 +5,7 @@ TRC-C2 - Stop-hook stays silent when no scope-bloat is detected
 TRC-C3 - Stop-hook stays silent when a reframe has already been filed
 TRC-X3 - Stop-hook regex doesn't produce false positives on quoted context
 
-The hook reads patterns from governance/signals.yml at runtime (B-Risk 6:
+The hook reads patterns from governance/signals.yml at runtime (
 never hardcoded), emits a nudge to stderr, and exits 0 (non-blocking).
 
 Each test invokes hooks/stop.sh as a subprocess with a crafted temp project.
@@ -202,11 +202,11 @@ def test_no_false_positive_in_quoted_context(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# B-Risk 6 guard: changing signals.yml changes the hook's behaviour
+# Guard: changing signals.yml changes the hook's behaviour
 # ---------------------------------------------------------------------------
 
 def test_hook_reads_signals_at_runtime(tmp_path):
-    """B-Risk 6: The hook loads patterns from signals.yml, not hardcoded.
+    """The hook loads patterns from signals.yml, not hardcoded.
 
     Modify signals.yml to use a custom phrase; verify the hook fires on that
     phrase and not on one of the default phrases that was removed.

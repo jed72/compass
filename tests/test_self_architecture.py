@@ -159,8 +159,8 @@ def test_adrs_cover_p1_to_p8():
     assert len(numbers) == len(set(numbers)), "ADR numbers must be unique"
 
     # The founding six (001-006) must be contiguous with no gaps.
-    # ADRs beyond 006 are added by tasks in this Expedition (ADR-007 by stream-A,
-    # ADR-008 by stream-B); they may be present or absent depending on integration
+    # ADRs beyond 006 are added by later tasks; they may be present or absent
+    # depending on integration
     # order, so they are not checked for contiguity here.
     founding = sorted(n for n in numbers if n <= 6)
     assert founding == list(range(1, len(founding) + 1)), (

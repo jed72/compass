@@ -1,7 +1,7 @@
 """Tests for invisible triggering - TRC-C1, TRC-C2, TRC-C3, TRC-F3.
 
 These are static content-assertion tests. Invisible triggering is prompt-only
-(no new hook code - clarifications Q4). The test strategy:
+(no new hook code). The test strategy:
   - Read CLAUDE.md and assert the intent-triggering rule paragraph is present.
   - Read each agent file and assert the supporting sentence is present.
   - Assert the rule does NOT instruct re-running Frame when a framed task is
@@ -86,7 +86,7 @@ class TestCLAUDEMdInvisibleTriggering:
         )
 
     def test_existing_never_skip_frame_preserved(self):
-        """TRC-C2 / B-Risk 5 - the existing 'Never skip Frame' paragraph is untouched."""
+        """TRC-C2 - the existing 'Never skip Frame' paragraph is untouched."""
         content = CLAUDE_MD.read_text(encoding="utf-8")
         assert EXISTING_PARAGRAPH in content, (
             f"The existing paragraph {EXISTING_PARAGRAPH!r} is missing from "
@@ -94,7 +94,7 @@ class TestCLAUDEMdInvisibleTriggering:
         )
 
     def test_never_skip_frame_comes_before_trigger_rule(self):
-        """B-Risk 5 - the new rule is added AFTER the existing paragraph, not before."""
+        """The new rule is added AFTER the existing paragraph, not before."""
         content = CLAUDE_MD.read_text(encoding="utf-8")
         existing_pos = content.find(EXISTING_PARAGRAPH)
         trigger_pos = content.find(DD6_HEADING)

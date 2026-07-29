@@ -107,7 +107,8 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     Then no task.yml under .compass/work/ is modified (byte-identical after)
     And no task is automatically reframed, downgraded, or blocked.
 
-    This tests Inv-4 (architecture-notes.md §2): Flow reads disk and reports;
+    This tests Inv-4 (defined in architecture/decisions/README.md): Flow reads disk
+    and reports;
     it does not write task state, does not block, does not reframe.
     """
     compass_work = project / ".compass" / "work"

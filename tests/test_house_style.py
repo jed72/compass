@@ -186,10 +186,8 @@ def test_no_undefined_internal_identifiers():
     which is never committed. A reader hitting one of those has no way to
     resolve it, which is what strategy S7 forbids.
 
-    Scope is markdown, which is what a reader of the project encounters. The
-    same tokens still appear in Python docstrings and in `cli/compass`
-    comments; cleaning those is a separate pass and this test does not yet
-    cover them.
+    Scope is every tracked file, not just prose: a comment in `cli/compass` or
+    a test docstring is read by exactly the same person.
 
     Two exclusions. `docs/system-spec.md` is generated at Land from task specs
     and hand-edits to it are silently overwritten. `tests/fixtures/` is data
@@ -203,11 +201,14 @@ def test_no_undefined_internal_identifiers():
         "S" + "-Risk": "risk numbering from a work stream that was never committed",
         "USP" + "-": "differentiator numbering that no file in the repository defines",
         "architecture-notes.md " + "§": "a section pointer into a per-task file that is never committed",
+        "stream" + "-A": "an internal work stream that no file in the repository defines",
+        "stream" + "-B": "an internal work stream that no file in the repository defines",
+        "stream" + "-C": "an internal work stream that no file in the repository defines",
     }
     excluded = ("docs/system-spec.md:", "tests/fixtures/")
     hits: list[str] = []
     for needle, why in needles.items():
-        for hit in _scan(needle, only_suffix=".md"):
+        for hit in _scan(needle):
             if hit.startswith(excluded):
                 continue
             hits.append(f"{hit}   <- {why}")

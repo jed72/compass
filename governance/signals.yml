@@ -6,7 +6,6 @@
 # guardrails.yml and routing-policy.yml). The framework ships these defaults;
 # `/compass:init` copies them into a consuming project on first use.
 #
-# Resolved by clarifications.md Q9 (cross-task-architectural-integrity).
 
 version: 1.0.0
 
@@ -31,7 +30,7 @@ design_smell:
 # calibration --friction`). `recurrence_threshold` is the number of distinct
 # tasks that must independently propose the same change before it is surfaced
 # as a recurring pattern - below it, an item is noise, not a trend. Read at
-# runtime (never hardcoded - B-Risk 6); advisory only, never a gate (USP-3).
+# runtime, never hardcoded; advisory only, never a gate.
 friction:
   recurrence_threshold: 2
 

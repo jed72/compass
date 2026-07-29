@@ -52,7 +52,7 @@
     },
     "friction": {
       "type": "object",
-      "description": "Config for the framework's self-calibration friction signal, aggregated by `compass calibration --friction`. Advisory only - never a gate (USP-3).",
+      "description": "Config for the framework's self-calibration friction signal, aggregated by `compass calibration --friction`. Advisory only - never a gate.",
       "additionalProperties": false,
       "properties": {
         "recurrence_threshold": {

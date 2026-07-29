@@ -41,7 +41,7 @@ def test_no_trusted_rerun_is_a_check_under_g4_not_a_new_guardrail():
     g4 = next(g for g in data["defaults"] if g["id"] == "G4")
     assert "no-trusted-rerun" in g4["checks"], (
         "A1's no-trusted-rerun must be registered as a CHECK_FN under G4 - "
-        "not as a new guardrail (clarifications Q7)."
+        "not as a new guardrail."
     )
 
 
@@ -98,7 +98,7 @@ def test_verify_fitness_only_introduced_via_routing_floors():
     for shape_name, shape in policy["route_shapes"].items():
         assert "verify.fitness" not in shape.get("gates", []), (
             f"verify.fitness must not be baked into route_shape '{shape_name}'.gates - "
-            "it is route-promoted by floor only (USP-1: per-task computed routing)."
+            "it is route-promoted by floor only, so routing stays per-task."
         )
 
 
@@ -126,7 +126,7 @@ def test_cli_has_no_model_client_imports():
     for needle in forbidden:
         assert needle not in text, (
             f"cli/compass must not import {needle!r} - every new check is mechanical "
-            "(USP-2: determinism boundary; TRC-F2)."
+            "- the determinism boundary holds (TRC-F2)."
         )
 
 
@@ -163,7 +163,7 @@ def test_no_project_guardrails_declared_in_framework_repo():
 #         - 1 signal category: design_smell
 #   1.5.0 - 1 strategy id: S6 (regression-baseline, from field feedback)
 #   next  - 1 strategy id: S7 (cold-reader prose)
-# Anything outside that set means scope crept (USP-5 budget breached).
+# Anything outside that set means scope crept.
 #
 # Why adding a strategy does not breach the budget. ADR-002 bounds growth in
 # the *hard* concepts: the five guardrails, the four reading dimensions, the
@@ -269,7 +269,7 @@ def test_pre_existing_evidence_without_attempts_is_backward_compatible():
 
 # -----------------------------------------------------------------------------
 # TRC-FM4 - refused candidates stay refused.
-# Manual review attached as evidence in verification-report.md (clarifications Q11).
+# Manual review attached as evidence in verification-report.md.
 # The mechanical assertion here: none of the refused-candidate vocabulary
 # appears as a new top-level concept in governance/.
 # -----------------------------------------------------------------------------
