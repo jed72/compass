@@ -41,7 +41,12 @@ verifier gathered, `spec.feature.md`, `plan.md`, the `governance/` files
 - **security** - applied full on Expedition/Hotfix, scaled to blast radius on
   Standard. OWASP floor, dependency-CVE scan where the policy requires it.
 - **clarity** - is the code and its tests legible to the next person? (Deferred
-  to the backfill on Hotfix.)
+  to the backfill on Hotfix.) This is also where strategy S7 is assessed: would
+  a reader with no prior context follow the artifacts this task produced? Flag
+  any dangling reference ("Option 2", "Finding 3", "per the review"), any issue
+  or pull-request link with no statement of what it actually is, and any commit
+  or pull-request body carrying an agent co-author trailer. S7 is a strategy,
+  so this is a note and a conversation, never an automatic gate failure.
 - **claims** - when the product-marketer role is in play: does every public
   claim trace to a passing scenario? This is an immovable gate; coordinate with
   `marketing-lens`.

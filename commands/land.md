@@ -31,6 +31,10 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
    unmoved), retries once after re-staging the hooks' fixes, and **errors if
    HEAD did not advance** so a Land can never falsely believe it landed (R5).
    Pass `--task <slug>` to mark the task landed only on a verified commit.
+   The message follows strategy S7 (write for a cold reader): say what changed
+   and why, for someone who was not in the conversation; no `Co-Authored-By:`
+   trailer for any agent and no "Generated with" footer. The same applies to a
+   pull-request body.
    Pair or swarm: the `orchestrator` (or lead builder on a pair) runs
    `scripts/integrate.sh` - an orchestrated merge of all worktrees. The
    orchestrator is the only agent allowed to resolve cross-stream conflicts.

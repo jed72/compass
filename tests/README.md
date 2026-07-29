@@ -67,6 +67,7 @@ Each test file maps to a section of the safety contract:
 | `test_ci.py`              | 6 - `compass ci` exit-code aggregation |
 | `test_modes.py`           | 7 - enforced vs advisory adoption mode |
 | `test_calibration.py`     | the Needle's feedback loop - re-frame log and trend signal |
+| `test_house_style.py`     | this repository's own writing invariants (strategy S7) - not a safety-contract guarantee |
 
 ## Fixtures
 

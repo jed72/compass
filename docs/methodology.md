@@ -186,6 +186,16 @@ unless the root cause is fixed or the test is explicitly quarantined with a
 tracking task. A test that reruns to green is the classic way a guardrail
 becomes silently advisory; the rule closes that drift surface.
 
+*Writing for a cold reader* - strategy S7 - extends persistence over
+conversation (S4) by one step. S4 says put the decision on disk. S7 says put
+enough on disk that the next reader does not need the conversation you had
+while writing it: context before detail, no reference the reader cannot
+resolve, and no length that stops them finishing. It is the strategy that
+makes the rest of the framework's artifacts worth persisting, and it applies
+to commit messages and pull-request bodies as much as to a spec. Like every
+strategy it is assessed, not checked: the reviewer raises it at Verify under
+the `clarity` dimension, and it fails nothing.
+
 ---
 
 ## 5. One spec, many lenses: roles as full citizens

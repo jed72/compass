@@ -94,6 +94,15 @@ evidence in `task.yml` is **typed** - a `{type, path}` record (`test-run`,
 accepts. A mechanical gate cannot be cleared with a written note; the type
 is checked, not just the file's existence.
 
+Strategy **S7** governs how you write, in every artifact and every message.
+Assume the reader has zero context: give the why before the detail, never
+leave a dangling reference like "Option 2" or "per the review", say what a
+linked issue or pull request actually changed rather than only citing it, and
+stop once you have said it. Commit messages and pull-request bodies never
+carry a `Co-Authored-By:` trailer for an agent, and never a "Generated with"
+footer. This repository additionally writes a plain hyphen where an em dash
+would go; `tests/test_house_style.py` enforces that.
+
 ## The pipeline
 
 ```

@@ -83,6 +83,15 @@ its artifact (templates in `templates/`) to the task's working directory.
    the shipped default guardrails and strategies apply with zero project setup;
    project-specific governance is accreted, not required up front.
 
+   **Artifacts are written for a cold reader** (strategy S7). Every artifact a
+   runtime emits is read later by someone who was not in the conversation, so
+   it states its context before its detail, resolves its own references rather
+   than pointing at a discussion ("Option 2", "per the review"), and stops when
+   it has said the thing. Commit messages and pull-request bodies the runtime
+   generates carry no agent co-author trailer and no "Generated with" footer;
+   `devlog.md` and `task.yml` already record provenance in a form the framework
+   can read. Like every strategy this is assessed at Verify, never gating.
+
 **4. Support five roles as full citizens.** Engineer, product owner/manager,
 product marketer, designer, QA. Each has an entry point and artifacts that
 plug into the same pipeline. The BDD scenario file is the shared substrate
