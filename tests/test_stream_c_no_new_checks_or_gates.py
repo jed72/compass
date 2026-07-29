@@ -57,24 +57,56 @@ BASELINE_GATES = {
 }
 
 
-def _get_diff_lines() -> list[str]:
-    """Get the diff of guardrails.yml from main to HEAD on this branch."""
+def _guardrails_on_main() -> dict | None:
+    """guardrails.yml as it stands on main, or None if main is not reachable.
+
+    CI clones at depth 1, so the main ref is often absent there and no
+    comparison is possible. Returning None makes the caller pass rather than
+    fail on a missing ref, which is what a branch-relative test can honestly
+    do in a shallow checkout.
+    """
+    import yaml
+
     result = subprocess.run(
-        ["git", "diff", "main...HEAD", "--", GUARDRAILS_YML],
-        capture_output=True,
-        text=True,
-        cwd=str(REPO_ROOT),
+        ["git", "show", f"main:{GUARDRAILS_YML}"],
+        capture_output=True, text=True, cwd=str(REPO_ROOT),
     )
-    return result.stdout.splitlines()
+    if result.returncode != 0 or not result.stdout.strip():
+        return None
+    return yaml.safe_load(result.stdout)
 
 
-def _get_added_lines() -> list[str]:
-    """Return lines added (starting with '+') in the guardrails.yml diff."""
-    return [
-        line[1:]  # strip the leading '+'
-        for line in _get_diff_lines()
-        if line.startswith("+") and not line.startswith("+++")
-    ]
+def _mechanism(data: dict) -> dict:
+    """The parts of guardrails.yml that are mechanism rather than prose.
+
+    Everything a check, a gate, or the CLI acts on. Free text (`name`,
+    `statement`, `description`) is deliberately excluded: rewording a
+    guardrail is an editorial act, adding one is a structural act, and only
+    the second is what this file guards against.
+    """
+    def rules(items):
+        return {
+            r["id"]: {
+                "checks": sorted(r.get("checks", [])),
+                "checked_at": sorted(r.get("checked_at", [])),
+                "applies_when": r.get("applies_when"),
+                "params": r.get("params"),
+            }
+            for r in (items or [])
+        }
+
+    return {
+        "top_level_keys": sorted(data.keys()),
+        "check_names": sorted(data.get("checks", {})),
+        "evidence_types": sorted(data.get("evidence_types", {})),
+        "gate_evidence_requirements": {
+            gate: sorted(types)
+            for gate, types in (data.get("gate_evidence_requirements") or {}).items()
+        },
+        "defaults": rules(data.get("defaults")),
+        "spike_guardrails": rules(data.get("spike_guardrails")),
+        "project": rules(data.get("project")),
+    }
 
 
 def test_no_new_check_names_added_by_stream_c():
@@ -110,17 +142,32 @@ def test_no_new_gate_names_added_by_stream_c():
     )
 
 
-def test_guardrails_diff_has_only_comment_additions():
-    """The diff of guardrails.yml by stream C must only contain comment additions (+#)."""
-    added = _get_added_lines()
-    # Filter to non-empty, non-blank lines
-    meaningful_additions = [line for line in added if line.strip()]
+def test_guardrails_gains_no_mechanism_on_this_branch():
+    """No branch may add mechanism to guardrails.yml: same checks, gates, rules.
 
-    for line in meaningful_additions:
-        stripped = line.strip()
-        assert stripped.startswith("#"), (
-            f"Stream C added a non-comment line to guardrails.yml: {line!r}. "
-            "Only a comment (inline caveat) is permitted - no structural changes."
+    This compares the parsed structure against main rather than the raw text.
+    An earlier version required every added line to be a comment, which meant
+    any edit to the prose inside the file - rewording a guardrail statement,
+    or the repository-wide punctuation sweep - read as a structural change.
+    Prose is editorial and free to change; the mechanism is what must not grow.
+    """
+    import yaml
+
+    baseline = _guardrails_on_main()
+    if baseline is None:
+        return  # main not reachable (shallow clone); nothing to compare against
+
+    current = yaml.safe_load((REPO_ROOT / GUARDRAILS_YML).read_text(encoding="utf-8"))
+    before, after = _mechanism(baseline), _mechanism(current)
+
+    for field in sorted(before):
+        assert before[field] == after[field], (
+            f"guardrails.yml changed mechanism in {field!r} relative to main.\n"
+            f"  on main: {before[field]!r}\n"
+            f"  now:     {after[field]!r}\n"
+            "Guardrails are capped at five and grow by checks and strategies, "
+            "not by new rules (ADR-002). Rewording prose is fine; adding a "
+            "check, gate, evidence type, or rule is not."
         )
 
 
