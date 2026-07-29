@@ -26,8 +26,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install the CLI's dependencies
-        run: pip install pyyaml jsonschema
+      - name: Install the CLI's dependencies and the test runner
+        # pyyaml is the CLI's only hard dependency; jsonschema turns on full
+        # JSON Schema validation in the lint commands. pytest is for the test
+        # suite step below.
+        run: pip install pyyaml jsonschema pytest
 
       - name: Repo structure self-check
         # scripts/validate.sh verifies the directory tree, that commands
@@ -43,3 +46,15 @@ jobs:
         # `compass policy lint` in practice - it proves the shipped governance
         # YAML is valid and the CLI runs.
         run: python3 cli/compass ci
+
+      - name: Test suite
+        # `compass ci` above checks governance and per-task guardrails; it does
+        # not run the tests. Without this step nothing in tests/ gates a merge,
+        # including the release invariants that cap the guardrail count and the
+        # house-style guards. Plugin autoload is disabled for the same reason
+        # `make test` disables it: third-party pytest plugins sometimes hang on
+        # a clean machine. Runs last because it is the slowest step, so the
+        # cheaper checks above fail first.
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: python3 -m pytest tests/ -q
