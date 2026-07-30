@@ -48,3 +48,7 @@ node_modules/
 /build/
 *.tar.gz
 *.zip
+
+# Local editor/tool MCP server config. Points at a port on one developer's
+# machine, so it is never shareable.
+/.mcp.json
