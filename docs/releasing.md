@@ -13,16 +13,27 @@ release to a clean, reproducible artifact.
 
 ## The release procedure
 
-1. **Bump the version** in every location that carries it. The four
-   locations: `VERSION` (root), `COMPASS_VERSION` in `cli/compass`,
-   `.claude-plugin/plugin.json`, and the two version fields in
-   `.claude-plugin/marketplace.json` (`metadata.version` and
-   `plugins[0].version`).
+1. **Bump the version** in every location that carries it. There are six:
 
-   `tests/test_release_invariants.py` carries a partial-bump guard:
-   if any of the four locations is out of sync with the others, the
-   suite fails. That is the integrity check for the bump - do not
-   skip running it.
+   | Location | Guarded by |
+   |---|---|
+   | `VERSION` (root) | `tests/test_version_consistency.py` |
+   | `COMPASS_VERSION` in `cli/compass` | `tests/test_version_consistency.py` |
+   | `.claude-plugin/plugin.json` `$.version` | `tests/test_version_consistency.py` |
+   | `.claude-plugin/marketplace.json` `$.metadata.version` | `tests/test_version_consistency.py` |
+   | `.claude-plugin/marketplace.json` `$.plugins[0].version` | `tests/test_version_consistency.py` |
+   | The expected `compass --version` output in `docs/install-smoke-test.md` | `tests/test_cli_surface_drift.py` |
+
+   Then update `EXPECTED_VERSION` in `tests/test_version_consistency.py`
+   and add the version you are leaving behind to its `OLD_VERSIONS` set.
+   That constant is hardcoded on purpose: reading it from `VERSION` would
+   make the guard self-maintaining but blind to a release where nothing
+   was bumped at all.
+
+   A partial bump ships a plugin whose manifest disagrees with the CLI it
+   installs, so do not skip running the suite after this step. The last
+   row is the one that gets forgotten, because it lives in prose rather
+   than in a manifest.
 
 2. **`make clean`** - clears local noise (`__pycache__`, `*.bak`,
    `.DS_Store`, `.pytest_cache`, `_deltest`, `pytest-cache-files-*`).
