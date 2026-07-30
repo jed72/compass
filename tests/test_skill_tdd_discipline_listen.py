@@ -1,12 +1,12 @@
-"""TRC-C2 — tdd-discipline contains a "Listen to your tests" section.
-TRC-C3 — tdd-discipline contains a "test behaviour, not implementation" anti-pattern.
+"""TRC-C2 - tdd-discipline contains a "Listen to your tests" section.
+TRC-C3 - tdd-discipline contains a "test behaviour, not implementation" anti-pattern.
 
 Serves: INT-6
 Spec:
   - skills/tdd-discipline/SKILL.md must have a section on "Listen to your tests"
-  - that section says: a hard-to-write test is a design smell — change the design, not the test
+  - that section says: a hard-to-write test is a design smell - change the design, not the test
   - must have an anti-pattern about testing behaviour not implementation
-  - the anti-pattern includes "swap the implementation — does the test survive?"
+  - the anti-pattern includes "swap the implementation - does the test survive?"
 """
 from __future__ import annotations
 from pathlib import Path
@@ -31,7 +31,7 @@ def test_tdd_discipline_has_listen_to_tests_section():
 
 
 def test_tdd_discipline_listen_section_has_design_smell_message():
-    """The Listen section must say: a hard-to-write test is a design smell — change the design."""
+    """The Listen section must say: a hard-to-write test is a design smell - change the design."""
     text = _read_skill()
     text_lower = text.lower()
     assert "hard-to-write" in text_lower or "hard to write" in text_lower, (
@@ -74,7 +74,7 @@ def test_tdd_discipline_swap_implementation_check():
     text = _read_skill()
     text_lower = text.lower()
     assert "swap" in text_lower, (
-        "tdd-discipline must include the 'swap the implementation — does the test survive?' check."
+        "tdd-discipline must include the 'swap the implementation - does the test survive?' check."
     )
     assert "survive" in text_lower, (
         "The swap check must ask 'does the test survive?'"

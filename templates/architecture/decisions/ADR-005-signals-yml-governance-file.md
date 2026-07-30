@@ -50,7 +50,7 @@ Projects override by editing their own `governance/signals.yml`.
 
 | Alternative | Why considered | Why rejected |
 |---|---|---|
-| Fold into `guardrails.yml` | One fewer file | Guardrails are hard and blocking; signals are soft and advisory — mixing dilutes both |
+| Fold into `guardrails.yml` | One fewer file | Guardrails are hard and blocking; signals are soft and advisory - mixing dilutes both |
 | Put in `.compass/config.yml` | Config is already project-scoped | Config holds project knobs (test command, worktree root); governance content belongs in `governance/` |
 | Hard-code in the CLI | Simplest implementation | Non-overridable; defeats the "adaptive" principle for project-specific conventions |
 
@@ -69,6 +69,6 @@ Projects override by editing their own `governance/signals.yml`.
 
 ## References
 
-- Clarifications Q9 (where patterns live)
+- The task's `clarifications.md`, where the question of where advisory patterns live was settled
 - Plan DD-1 (signals.yml as a separate file)
-- architecture-notes.md §2 Inv-2 (five guardrails, not six)
+- The invariant that the framework holds five guardrails, not six

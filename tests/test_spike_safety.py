@@ -1,4 +1,4 @@
-"""Spike mechanical safety — guarantee 4 of the safety contract.
+"""Spike mechanical safety - guarantee 4 of the safety contract.
 
 On a Spike route, the delivery guardrails do not apply; instead the spike
 guardrails do. The CLI must enforce:
@@ -101,7 +101,7 @@ def test_spike_graduate_with_next_task_passes(run_cli, make_task):
 
 def test_spike_check_does_not_run_delivery_guardrails(run_cli, make_task):
     """A Spike route shouldn't be hit by G1-G5 (no scenarios needed, no
-    test-run evidence, etc.) — the check output is the spike guardrails."""
+    test-run evidence, etc.) - the check output is the spike guardrails."""
     body = _spike_body()
     body["evidence"].append({
         "id": "EV-CONC", "type": "spike-conclusion",

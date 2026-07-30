@@ -1,4 +1,4 @@
-"""`compass ci` — the aggregated mechanical gate suite.
+"""`compass ci` - the aggregated mechanical gate suite.
 
 Returns non-zero when ANY task fails check, zero when everything passes. The
 mode interaction is covered in test_modes; here we just verify the exit-code

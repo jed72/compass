@@ -1,7 +1,7 @@
 """Tests for the `compass adr new <slug>` subcommand.
 
 Covers:
-  TRC-A3 — compass adr new <slug> creates a numbered ADR file
+  TRC-A3 - compass adr new <slug> creates a numbered ADR file
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 — creates a numbered ADR file
+# TRC-A3 - creates a numbered ADR file
 # ---------------------------------------------------------------------------
 
 def test_creates_numbered_adr(project: Path, run_cli):

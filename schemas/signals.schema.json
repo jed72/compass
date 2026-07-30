@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://compass.dev/schemas/signals.schema.json",
   "title": "governance/signals.yml",
-  "description": "Structural validator for Compass's signals.yml — the file that ships pattern defaults consumed by the stop-hook (scope-bloat phrases) and `compass rework-scan` (window + public-surface + migration patterns). Projects override by editing their own governance/signals.yml; the schema is the contract.",
+  "description": "Structural validator for Compass's signals.yml - the file that ships pattern defaults consumed by the stop-hook (scope-bloat phrases) and `compass rework-scan` (window + public-surface + migration patterns). Projects override by editing their own governance/signals.yml; the schema is the contract.",
   "type": "object",
   "required": ["version", "scope_bloat_phrases", "rework_scan"],
   "additionalProperties": false,
@@ -14,7 +14,7 @@
     },
     "scope_bloat_phrases": {
       "type": "array",
-      "description": "Substrings searched in agent-authored text (devlog, verification-report) by the stop-hook to nudge a re-frame. Case-insensitive substring match — not regex.",
+      "description": "Substrings searched in agent-authored text (devlog, verification-report) by the stop-hook to nudge a re-frame. Case-insensitive substring match - not regex.",
       "items": { "type": "string", "minLength": 1 },
       "minItems": 0,
       "uniqueItems": true
@@ -45,14 +45,14 @@
     },
     "design_smell": {
       "type": "array",
-      "description": "Advisory patterns assessed by the reviewer agent at Verify — judgement, never a gate. A match is a nudge to investigate a potential design smell. Projects extend by editing their own signals.yml.",
+      "description": "Advisory patterns assessed by the reviewer agent at Verify - judgement, never a gate. A match is a nudge to investigate a potential design smell. Projects extend by editing their own signals.yml.",
       "items": { "type": "string", "minLength": 1 },
       "minItems": 0,
       "uniqueItems": true
     },
     "friction": {
       "type": "object",
-      "description": "Config for the framework's self-calibration friction signal, aggregated by `compass calibration --friction`. Advisory only — never a gate (USP-3).",
+      "description": "Config for the framework's self-calibration friction signal, aggregated by `compass calibration --friction`. Advisory only - never a gate.",
       "additionalProperties": false,
       "properties": {
         "recurrence_threshold": {

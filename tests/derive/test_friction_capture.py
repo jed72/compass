@@ -1,6 +1,6 @@
 """Tests for the Land friction-capture step (`compass _friction-capture`).
 
-Covers TRC-A2..A5 — Land assembles a draft `friction:` list from signals the
+Covers TRC-A2..A5 - Land assembles a draft `friction:` list from signals the
 CLI already computes (reframes, reframe-debt) plus an optional human note, and
 writes it into the task spine. Capture is mechanism; the human note is the only
 judgement input (ADR-001). It writes the friction section and nothing that
@@ -76,7 +76,7 @@ def test_reframe_debt_seeds_derived_friction(run_cli, make_task, project):
     _copy_signals(project)
     task_dir = make_task("ft-debt", _base_body("ft-debt", reframes=[]))
     (task_dir / "devlog.md").write_text(
-        "2026-05-20: more files than Plan estimated — scope grew\n",
+        "2026-05-20: more files than Plan estimated - scope grew\n",
         encoding="utf-8",
     )
     r = _capture(run_cli, "ft-debt")
@@ -116,22 +116,22 @@ def test_human_note_recorded(run_cli, make_task, project):
 
 def test_no_friction_lands_unchanged(run_cli, make_task, project):
     """TRC-A5: a task that hit no friction (no reframes, no debt, no note)
-    records no friction, and capture adds nothing — recording nothing is valid."""
+    records no friction, and capture adds nothing - recording nothing is valid."""
     _copy_signals(project)
     task_dir = make_task("ft-none", _base_body("ft-none", reframes=[]))
     r = _capture(run_cli, "ft-none")
     assert r.returncode == 0, r
 
     task = yaml.safe_load((task_dir / "task.yml").read_text())
-    # Either no friction key, or an empty list — both are valid no-op states.
+    # Either no friction key, or an empty list - both are valid no-op states.
     assert not task.get("friction"), (
         f"expected no friction recorded; got {task.get('friction')}")
 
 
 def test_capture_adds_no_backfill_or_gate(run_cli, make_task, project):
-    """TRC-F1: capture writes only the friction section — never a backfill or a
+    """TRC-F1: capture writes only the friction section - never a backfill or a
     gate. Friction is strategy-class and cannot become something that blocks
-    Land (USP-3, ADR-002)."""
+    Land (ADR-002)."""
     _copy_signals(project)
     task_dir = make_task("ft-nogate", _base_body(
         "ft-nogate",

@@ -1,16 +1,18 @@
 # Install smoke test
 
 A documented manual checklist to verify that a fresh Compass install works
-end to end. A real Claude Code install cannot be smoke-tested in a sandbox
-— the framework relies on the local Claude Code config and the user's
-shell — so this is the procedure to walk by hand once.
+end to end. A real Claude Code install cannot be smoke-tested in a sandbox -
+the framework relies on the local Claude Code config and the user's
+shell - so this is the procedure to walk by hand once.
 
-Run it once after `scripts/install.sh`, and again whenever you change how
-Compass is installed. Each step lists the *expected output* so you can
-compare line by line. Common gotchas are at the end.
+This checklist covers the **install-from-source** path. Run it once after
+`scripts/install.sh`, and again whenever you change how Compass is installed.
+Each step lists the *expected output* so you can compare line by line. Common
+gotchas are at the end. If you installed through the plugin marketplace
+instead, steps 1 and 7 do not apply; the rest still does.
 
 Throughout, `COMPASS_HOME` means the directory you cloned the framework
-into — wherever `scripts/install.sh` lives.
+into - wherever `scripts/install.sh` lives.
 
 ---
 
@@ -50,7 +52,7 @@ ls -la ~/.claude/skills/compass
 ```
 
 Each should resolve into the `compass/` repo you cloned. The hook
-registration should be visible in `~/.claude/settings.json` — three
+registration should be visible in `~/.claude/settings.json` - three
 entries naming `pre-tool.sh`, `post-tool.sh`, and `stop.sh` under
 `$COMPASS_HOME/hooks/`.
 
@@ -93,7 +95,7 @@ Expected outcomes:
   one-line slug `test-installation`.
 
 If `/compass:frame` is unknown to Claude Code, the adapter layer is not
-on the Claude Code config path — re-check step 1.
+on the Claude Code config path - re-check step 1.
 
 ## 4. Validate the governance YAML
 
@@ -108,7 +110,7 @@ compass policy lint: PASS
 ```
 
 A `FAIL` here means either the shipped `governance/*.yml` is corrupt
-(rare — re-clone) or a project-local `governance/` exists and has a
+(rare - re-clone) or a project-local `governance/` exists and has a
 problem (the CLI prefers project-local; `find_governance` walks up from
 the cwd).
 
@@ -121,7 +123,7 @@ python3 $COMPASS_HOME/cli/compass --version
 Expected output:
 
 ```
-compass 1.5.0 (task schema 1.0)
+compass 1.6.0 (task schema 1.0)
 ```
 
 The schema version is what the CLI will accept in a `task.yml`. A
@@ -134,28 +136,28 @@ The schema version is what the CLI will accept in a `task.yml`. A
 python3 $COMPASS_HOME/cli/compass check --task test-installation
 ```
 
-The check runs against an early-task state — Frame has run but Specify,
+The check runs against an early-task state - Frame has run but Specify,
 Build, and Verify have not. The check will report what is missing
 honestly. Expected output shape:
 
 ```
-compass check — task 'test-installation' (route: express)
+compass check - task 'test-installation' (route: express)
 [mode: enforced]
 
   G1 Tested before it lands
     FAIL suite-passed
-         what: no test-run evidence in the registry — run `compass tdd-green` to record a passing suite
+         what: no test-run evidence in the registry - run `compass tdd-green` to record a passing suite
          why : Guardrail G1 (tested before it lands) requires a recorded green test run.
          fix : Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` ...
   ...
-compass check: FAIL — N of M check(s) failed.
+compass check: FAIL - N of M check(s) failed.
 ```
 
 That is the correct early-task state: the gates have not been cleared
 yet because no work has been done. The structured `what / why / fix`
 blocks are how the CLI guides you to the next move. If `compass check`
-*errors* — a traceback, "could not find governance/", "no .compass/
-directory found" — re-check steps 1 and 3.
+*errors* - a traceback, "could not find governance/", "no .compass/
+directory found" - re-check steps 1 and 3.
 
 ## 7. Uninstall and reinstall
 
@@ -176,7 +178,7 @@ Compass adapter layer removed. The methodology layer in /path/to/compass is unto
 ```
 
 The methodology and kit layers (`docs/`, `governance/`, `routes/`,
-`templates/`, `cli/`, `schemas/`) are unchanged — only the adapter
+`templates/`, `cli/`, `schemas/`) are unchanged - only the adapter
 wiring is removed.
 
 Now reinstall to confirm idempotency:
@@ -205,10 +207,10 @@ Code at least once to confirm `settings.json` is in a place Claude
 respects.
 
 **An existing non-Compass `~/.claude/commands/compass` directory.** The
-installer refuses to clobber files it did not create — it stops with:
+installer refuses to clobber files it did not create - it stops with:
 
 ```
-  ERROR: ~/.claude/commands/compass exists and was not created by Compass — refusing to overwrite.
+  ERROR: ~/.claude/commands/compass exists and was not created by Compass - refusing to overwrite.
          Move it aside and re-run.
 ```
 
@@ -227,12 +229,12 @@ or stripped the framework directory, point your CI step at the
 correct CLI location (see `ci/README.md`).
 
 **The hook blocks an edit unexpectedly.** That is the red-before-green
-TDD strategy working — it means you tried to edit production code with
+TDD strategy working - it means you tried to edit production code with
 no failing test recorded for the current task. The fix is always:
 write the test first, then `compass tdd-red -- <test cmd>`, then edit.
 On a Spike route the hook does not block; if you want to suspend the
 strategy for genuinely exploratory work, frame the task as a Spike.
 
 If a step here fails in a way the docs do not anticipate, the failure
-itself is signal — open an issue with the exact command, expected
+itself is signal - open an issue with the exact command, expected
 output, and what you saw.

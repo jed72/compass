@@ -70,7 +70,7 @@ class TestIntegrateSh:
 
     def test_derive_invocation_comes_after_regression(self):
         """In integrate.sh, the _derive-system-spec invocation appears AFTER
-        the combined regression section — not before (ADR-008 §1: derivation
+        the combined regression section - not before (ADR-008 §1: derivation
         runs at Land, after regression passes)."""
         content = INTEGRATE_SH.read_text(encoding="utf-8")
 
@@ -206,7 +206,7 @@ class TestStatusLandedWrite:
         try:
             import jsonschema
         except ImportError:
-            pytest.skip("jsonschema not installed — schema validation not available")
+            pytest.skip("jsonschema not installed - schema validation not available")
 
         task_dir = tmp_path / ".compass" / "work" / "test-bad-status"
         task_dir.mkdir(parents=True, exist_ok=True)

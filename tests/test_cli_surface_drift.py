@@ -55,7 +55,7 @@ def _cli_block_in(file_path):
 
 
 # ---------------------------------------------------------------------------
-# Group A — public-facing CLI surface blocks
+# Group A - public-facing CLI surface blocks
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_readme_cli_block_tracks_compass_help():
@@ -119,11 +119,11 @@ def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
 
 
 # ---------------------------------------------------------------------------
-# Group B — adapter contract tables (runtime-neutral)
+# Group B - adapter contract tables (runtime-neutral)
 # ---------------------------------------------------------------------------
 
 def _new_cross_task_commands():
-    """The six commands that ship between fb092c0 and v1.2.0 — must appear in
+    """The six commands that ship between fb092c0 and v1.2.0 - must appear in
     the runtime-neutral adapter contracts."""
     return ["compass analyze", "compass rework-scan", "compass backfill",
             "compass flow", "compass next", "compass adr"]
@@ -161,7 +161,7 @@ def test_trc_b2_portability_mapping_table_names_new_cross_task_kit_calls():
 
 
 # ---------------------------------------------------------------------------
-# Group C — smoke-test version coherence
+# Group C - smoke-test version coherence
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_install_smoke_test_shows_current_version():

@@ -105,7 +105,7 @@ def test_check_fails_when_test_run_records_failure(run_cli, make_task):
 
 def test_check_fails_when_test_run_bound_to_unknown_scenario(run_cli, make_task):
     """A test-run entry with `scenario: SCN-999` (not in task.yml) must
-    fail — the binding has to resolve."""
+    fail - the binding has to resolve."""
     body = _correct_body()
     body["evidence"][0]["scenario"] = "SCN-999"   # not in scenarios
     task_dir = make_task("bad-binding", body)
@@ -249,7 +249,7 @@ def test_check_fails_on_g5_touched_task_with_no_approval(run_cli, make_task):
 
 def test_check_fails_on_g5_approval_missing_fields(run_cli, make_task):
     """A human-approval entry without the required structured fields must
-    fail — partial approvals are worse than missing ones."""
+    fail - partial approvals are worse than missing ones."""
     body = _correct_body()
     body["readings"]["touches"] = ["auth"]
     body["route"] = "expedition"
@@ -281,7 +281,7 @@ def test_check_passes_on_complete_g5_approval(run_cli, make_task):
     task_dir = make_task("g5-ok", body)
     _make_green(task_dir)
     r = run_cli("check", "--task", "g5-ok")
-    # the approval check should pass — overall result depends on the other
+    # the approval check should pass - overall result depends on the other
     # checks all passing (they do, in this baseline task), so we just check
     # the approval check passes its own line.
     assert "PASS human-approval-present" in r.stdout, r
@@ -326,7 +326,7 @@ def test_check_fails_when_scenario_has_no_intent(run_cli, make_task):
 
 
 # ---------------------------------------------------------------------------
-# Group E — Typed Definition of Done (TRC-E1..E5, TRC-X4)
+# Group E - Typed Definition of Done (TRC-E1..E5, TRC-X4)
 # ---------------------------------------------------------------------------
 
 def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
@@ -343,7 +343,7 @@ def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
     # Write a verification-report.md that contains a "Definition of Done" section
     dod_content = "\n".join(dod_lines)
     report = (
-        "# Verification Report — {}\n\n"
+        "# Verification Report - {}\n\n"
         "## Gate\n\n"
         "### Definition of Done\n\n"
         "{}\n"
@@ -354,7 +354,7 @@ def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
 
 def test_dod_unbacked_fails(run_cli, make_task):
     """TRC-E1: A bare unchecked DoD box with no evidence or backfill tag
-    blocks Land — the check must fail."""
+    blocks Land - the check must fail."""
     task_dir = _make_task_with_dod(
         make_task,
         "e1-bare-unchecked",
@@ -413,7 +413,7 @@ def test_owed_backfill_chains(run_cli, make_task):
     task_dir_t2 = _make_task_with_dod(
         make_task,
         "e3-t2",
-        ["- [x] All unit tests green"],  # checked — no evidence tag needed
+        ["- [x] All unit tests green"],  # checked - no evidence tag needed
     )
     r_t2 = run_cli("check", "--task", "e3-t2")
     assert r_t2.returncode != 0, (
@@ -425,7 +425,7 @@ def test_owed_backfill_chains(run_cli, make_task):
 
 def test_narrative_not_evidence(run_cli, make_task):
     """TRC-E4: A bare unchecked DoD line fails even when devlog.md contains
-    'USER TO APPLY' — narrative notes do NOT clear the typed DoD check."""
+    'USER TO APPLY' - narrative notes do NOT clear the typed DoD check."""
     task_dir = _make_task_with_dod(
         make_task,
         "e4-user-to-apply",
@@ -446,7 +446,7 @@ def test_narrative_not_evidence(run_cli, make_task):
 
 def test_human_approval_clears_dod(run_cli, make_task):
     """TRC-E5: A DoD line with (evidence: EV-A1) where EV-A1 is of type
-    human-approval passes — human-approval is an accepted DoD evidence type."""
+    human-approval passes - human-approval is an accepted DoD evidence type."""
     task_dir = _make_task_with_dod(
         make_task,
         "e5-human-approval",
@@ -465,7 +465,7 @@ def test_human_approval_clears_dod(run_cli, make_task):
 
 def test_empty_dod_passes(run_cli, make_task):
     """TRC-X4: A task with no DoD section (or empty DoD) passes the typed
-    DoD check — backward compat for tasks that predate the typed check."""
+    DoD check - backward compat for tasks that predate the typed check."""
     # Case 1: no verification-report.md at all
     body = _correct_body()
     task_dir = make_task("x4-no-report", body)

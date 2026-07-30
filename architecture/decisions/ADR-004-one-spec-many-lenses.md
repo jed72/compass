@@ -9,7 +9,7 @@ superseded_by: ''
 
 ## Context
 
-Compass has five roles — engineer, product owner, designer, marketer, QA —
+Compass has five roles - engineer, product owner, designer, marketer, QA -
 plus an architect lens. Each role reads the task's specification with different
 concerns. A product owner reads for user outcomes; an engineer reads for test
 coverage; a marketer reads for claims that need evidence.
@@ -49,13 +49,13 @@ annotations, candidate ADR titles, and boundary-risk flags."
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Let each role maintain its own spec format (engineering: Gherkin; product: user stories; QA: risk register) | Matches many teams' existing practice; roles feel less constrained | When specs diverge, there is no single acceptance criterion. "Does this feature pass?" becomes unanswerable without reconciling multiple documents. Compass is designed to make that question have one answer. |
-| Keep one spec file but allow lenses to append scenarios to it | Ensures scenarios stay in one file; lenses can add missing coverage | A lens that writes scenarios becomes a parallel spec author. The lens's scenarios may not be reviewed to the same standard as the spec-author's. Traceability (G3) requires knowing who wrote each scenario and why — a mixed-authorship file defeats this. |
+| Keep one spec file but allow lenses to append scenarios to it | Ensures scenarios stay in one file; lenses can add missing coverage | A lens that writes scenarios becomes a parallel spec author. The lens's scenarios may not be reviewed to the same standard as the spec-author's. Traceability (G3) requires knowing who wrote each scenario and why - a mixed-authorship file defeats this. |
 
 ## Consequences
 
 **Positive:**
 - There is one file that answers "what are the acceptance criteria for this
-  task?" — `spec.feature.md`. Reviewers, verifiers, and the build agent all
+  task?" - `spec.feature.md`. Reviewers, verifiers, and the build agent all
   read the same file.
 - Traceability is clean: every scenario in `spec.feature.md` traces to an
   intent; every changed file in `task.yml.changed_files` traces to a scenario.
@@ -63,7 +63,7 @@ annotations, candidate ADR titles, and boundary-risk flags."
 - The architect-lens can annotate without risk of polluting the spec.
 
 **Negative:**
-- A lens that finds a genuinely missing scenario cannot fix it directly — it
+- A lens that finds a genuinely missing scenario cannot fix it directly - it
   must flag the gap and wait for the spec-author to update `spec.feature.md`.
   This is a workflow friction point, especially when the lens is invoked late
   in the pipeline.
@@ -72,12 +72,12 @@ annotations, candidate ADR titles, and boundary-risk flags."
 - Role-specific views of the spec (for a marketer, a product owner) are
   addressed by the `role-translation` skill, which reads `spec.feature.md` and
   produces a role-appropriate summary. The summary is never stored as a
-  canonical artifact — it is transient output for the role's consumption.
+  canonical artifact - it is transient output for the role's consumption.
 
 ## References
 
-- Prior task's `architecture-notes.md` §2 Inv-5 (one spec, many lenses)
-- Prior task's `architecture-notes.md` §3 B-Risk 2 (architect-lens producing scenarios)
+- Invariant Inv-5 (one spec, many lenses; lenses annotate, never fork), defined in `architecture/decisions/README.md`
+- Boundary rule: a lens never emits Given/When/Then scenarios; those live only in `spec.feature.md` (`architecture/ownership.md`)
 - `agents/architect-lens.md` §"What you do NOT do"
 - `docs/methodology.md` §"Roles"
 - `CLAUDE.md` §"Roles"

@@ -65,7 +65,7 @@ retroactively gate a completed Verify.
 **Negative:**
 - Advisory signals can be ignored. A team that ignores rework signals
   accumulates technical debt without any hard reminder. The framework cannot
-  prevent this — it can only make the cost visible.
+  prevent this - it can only make the cost visible.
 
 **Neutral / follow-on:**
 - This decision does not prevent an adopter from wiring `compass rework-scan`
@@ -76,8 +76,8 @@ retroactively gate a completed Verify.
 
 ## References
 
-- Prior task's `architecture-notes.md` §2 Inv-4 (Flow advises, never gates)
-- Prior task's `architecture-notes.md` §3 B-Risk 3 (rework-scan blocking on detection)
-- Prior task's `architecture-notes.md` §3 B-Risk 5 (calibration mutating task.yml)
+- Invariant Inv-4 (Flow advises; it never gates or mutates), defined in `architecture/decisions/README.md`
+- Boundary rule: `compass rework-scan` exits 0 whether or not it detects anything (`architecture/ownership.md`)
+- Boundary rule: `compass calibration` is read-only over every task spine (`architecture/ownership.md`)
 - `docs/methodology.md` §"Beyond the per-task pipeline"
 - `CLAUDE.md` §"Beyond the per-task pipeline"

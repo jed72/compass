@@ -3,11 +3,11 @@ STATUS: ACCEPTED
 date: 2026-05-24
 ---
 
-# Compass — Service Ownership
+# Compass - Service Ownership
 
 <!-- Frame reads this file and includes it in architecture-loaded.yml as a
      narrative artifact. The architect-lens uses ownership information to
-     flag when a proposed change crosses component boundaries — a common source
+     flag when a proposed change crosses component boundaries - a common source
      of undetected coupling and rework.
 
      Keep this file current. Stale ownership is worse than no ownership file:
@@ -32,7 +32,7 @@ exclusively, and what it must not do.
 
 ---
 
-## Must own — per component
+## Must own - per component
 
 ### Pipeline (commands/ + phases)
 
@@ -56,7 +56,7 @@ exclusively, and what it must not do.
 
 **Must own:**
 - The five hard guardrail definitions (G1–G5) and their check logic.
-- The typed gate evidence schema (`{type, path}` — not bare paths).
+- The typed gate evidence schema (`{type, path}` - not bare paths).
 - The mechanical pass/fail determination for each gate.
 
 ### Strategies (governance/strategies.md + hooks/pre-tool.sh)
@@ -77,34 +77,36 @@ exclusively, and what it must not do.
 
 ---
 
-## Must not do — boundary rules (citing B-Risk references from Inv-1..Inv-8)
+## Must not do - boundary rules
 
-The following rules are the boundary risks identified in the prior task's
-`architecture-notes.md` (B-Risk 1..6 and the invariants they protect).
-They are the most likely places where a future change could violate an
-invariant.
+Each rule below names an invariant from the table in
+`architecture/decisions/README.md` and the specific way a future change is
+most likely to break it. These are the places where a plausible, well-meant
+change would quietly cross a line.
 
 ### calibration must not mutate task.yml
 
 `compass calibration` is read-only over all task spines. It aggregates reframe
 data to produce a calibration report but never writes back to any
 `.compass/work/*/task.yml`. Mutation would violate **Inv-4** (Flow advises,
-never gates) and **B-Risk 5** (calibration reframe-debt mutating task.yml).
+never gates). The likely way in is the reframe-debt pass: it reads every task's
+reframe log, so writing a debt marker back into `task.yml` looks harmless.
 
 ### rework-scan must not exit non-zero on detection
 
 `compass rework-scan` exits 0 whether or not rework signals are detected.
-Detection is advisory — it writes a report to `.compass/flow/rework-<date>.md`
+Detection is advisory - it writes a report to `.compass/flow/rework-<date>.md`
 and continues. Exiting non-zero would make rework-scan a blocking gate,
-violating **Inv-4** and **B-Risk 3** (rework-scan blocking on detection).
+violating **Inv-4**. Detection is not the same as a verdict, and a scan that
+can fail a build will be tuned until it stops detecting anything.
 
 ### architect-lens must not emit Gherkin scenarios
 
 `architecture-notes.md` contains annotations, candidate ADR titles, and
 boundary-risk flags. It never contains Given/When/Then scenarios. Scenarios live
 in `spec.feature.md` exclusively. Emitting scenarios from the lens would violate
-**Inv-5** (one spec, many lenses) and **B-Risk 2** (architect-lens producing
-scenarios).
+**Inv-5** (one spec, many lenses). A lens that emits scenarios has forked the
+spec, which is exactly what the one-spec rule exists to prevent.
 
 ### No mechanism may write into task.yml.readings
 
@@ -112,24 +114,26 @@ scenarios).
 radius, terrain, magnitude, intent, role, touches). Every mechanism-produced
 load record (`architecture-loaded.yml`, `architecture-notes.md`, `evidence/`,
 etc.) lives in its own named file outside `task.yml.readings`. Violating this
-would cross **Inv-1** and **B-Risk 1** (loading architecture content into
-readings).
+would cross **Inv-1**. The tempting mistake is folding loaded architecture
+content into `readings` because it informed the judgement; it did not make it.
 
 ### The guardrail count stays at five (G1–G5)
 
 No new guardrail may be added without a deliberate framework change. Mechanisms
 that extend gate checks (typed DoD, architectural-integrity checks) register as
 CHECK\_FN entries under an existing guardrail (typically G4), not as new G-N
-entries. This protects **Inv-2** (five guardrails) and guards against **B-Risk 4**
-(a DoD check piggy-backing on G1 rather than G4).
+entries. This protects **Inv-2** (five guardrails). Register each check under
+the guardrail it actually serves: a Definition-of-Done check is about evidence
+(G4), not about having a test (G1), and filing it under G1 misreports what
+cleared the gate.
 
 ### No mechanism may hard-code governance/signals.yml content
 
 `hooks/stop.sh` and `compass rework-scan` must read `governance/signals.yml` at
-runtime, not replicate its patterns in Python or shell code. Hard-coding the
-patterns defeats the Q9 extensibility design and violates **Inv-7**
-(deterministic mechanism — the CLI must read the file) and **B-Risk 6**
-(hand-writing signals.yml patterns into the CLI).
+runtime, not replicate its patterns in Python or shell code. `signals.yml`
+exists so a project can extend the patterns without touching the CLI;
+hard-coding them takes that away and violates **Inv-7** (deterministic
+mechanism - the CLI must read the file).
 
 ---
 

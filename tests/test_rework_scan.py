@@ -1,4 +1,4 @@
-"""Tests for `compass rework-scan` — cross-task rework detection (R4).
+"""Tests for `compass rework-scan` - cross-task rework detection (R4).
 
 Scenarios covered:
   TRC-D1  clean repo reports 0 rework instances
@@ -9,8 +9,8 @@ Scenarios covered:
   TRC-X2  corrupt task.yml is skipped gracefully
 
 Architectural invariants under test:
-  B-Risk 3: exit code is ALWAYS 0 when rework is detected (signal, not gate).
-  B-Risk 6: patterns are loaded from signals.yml at runtime, not hardcoded.
+  The exit code is ALWAYS 0 when rework is detected: it is a signal, not a gate.
+  Patterns are loaded from signals.yml at runtime, not hardcoded.
   Inv-7:   given identical input, output is deterministic.
 """
 from __future__ import annotations
@@ -90,7 +90,7 @@ def write_signals_yml(directory: Path, window_days: int = 14,
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1  Clean repo — no rework detected
+# TRC-D1  Clean repo - no rework detected
 # ---------------------------------------------------------------------------
 
 def test_clean_repo(tmp_path):
@@ -130,7 +130,7 @@ def test_add_then_delete(tmp_path):
 
     proc = run_rework_scan(root, signals_yml=signals)
     assert proc.returncode == 0, (
-        f"B-Risk 3 violation: exit code should be 0 even when rework is detected. "
+        f"exit code should be 0 even when rework is detected. "
         f"Got {proc.returncode}\n{proc.stderr}"
     )
     output = proc.stdout
@@ -147,7 +147,7 @@ def test_add_then_delete(tmp_path):
 
 def test_public_surface_churn(tmp_path):
     """TRC-D3: path matching public_surface_patterns added then removed is reported.
-    Also verifies B-Risk 6: pattern is loaded from signals.yml at runtime.
+    Also verifies the pattern is loaded from signals.yml at runtime.
     """
     root = tmp_path / "work"
     # Use a custom pattern to prove runtime-loading (not hardcoded)
@@ -165,7 +165,7 @@ def test_public_surface_churn(tmp_path):
 
     proc = run_rework_scan(root, signals_yml=signals)
     assert proc.returncode == 0, (
-        f"B-Risk 3: exit 0 required even with public-surface rework. "
+        f"exit 0 required even with public-surface rework. "
         f"Got {proc.returncode}\n{proc.stderr}"
     )
     output = proc.stdout
@@ -176,11 +176,11 @@ def test_public_surface_churn(tmp_path):
 
 
 def test_public_surface_patterns_loaded_at_runtime(tmp_path):
-    """B-Risk 6: scanner uses patterns from signals.yml, not hardcoded values.
+    """The scanner uses patterns from signals.yml, not hardcoded values.
     We use a unique sentinel pattern that would not match if patterns were hardcoded.
     """
     root = tmp_path / "work"
-    # A completely custom pattern — proves runtime loading
+    # A completely custom pattern - proves runtime loading
     sentinel_pattern = "SENTINEL_CUSTOM_PATTERN_[0-9]+"
     signals = write_signals_yml(
         tmp_path,
@@ -219,7 +219,7 @@ def test_migration_pair(tmp_path):
 
     proc = run_rework_scan(root, signals_yml=signals)
     assert proc.returncode == 0, (
-        f"B-Risk 3: exit 0 required even with migration rework. "
+        f"exit 0 required even with migration rework. "
         f"Got {proc.returncode}\n{proc.stderr}"
     )
     output = proc.stdout
@@ -238,7 +238,7 @@ def test_migration_pair(tmp_path):
 def test_add_then_delete_pair_fixture():
     """TRC-D6: the canonical checked-in fixture must yield exactly one rework instance.
 
-    Also verifies B-Risk 3: exit code must be 0 even when rework is detected.
+    Also verifies the exit code is 0 even when rework is detected.
     The scanner is a SIGNAL, not a gate.
     """
     fixture_root = FIXTURES_DIR / "rework-scan" / "add-then-delete-pair"
@@ -249,9 +249,9 @@ def test_add_then_delete_pair_fixture():
 
     proc = run_rework_scan(fixture_root, signals_yml=signals_yml)
 
-    # B-Risk 3: exit code must be 0 even when rework is detected
+    # The exit code must be 0 even when rework is detected
     assert proc.returncode == 0, (
-        f"B-Risk 3 VIOLATION — rework-scan must exit 0 on detection (it is a "
+        f"rework-scan must exit 0 on detection (it is a "
         f"signal, not a gate). Got exit {proc.returncode}.\n"
         f"stderr: {proc.stderr}"
     )
@@ -320,7 +320,7 @@ def test_window_days_respected(tmp_path):
     write_task_yml(root / "task-a", "task-a", [
         {"path": "services/foo/handler.go", "action": "added"},
     ], created="2026-05-01")
-    # task-b is 10 days later — outside the window
+    # task-b is 10 days later - outside the window
     write_task_yml(root / "task-b", "task-b", [
         {"path": "services/foo/handler.go", "action": "deleted"},
     ], created="2026-05-11")

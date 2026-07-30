@@ -3,7 +3,7 @@
 <!-- HOW FRAME USES THIS FILE
      Frame reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The architect-lens uses ownership information to
-     flag when a proposed change crosses team boundaries — a common source of
+     flag when a proposed change crosses team boundaries - a common source of
      undetected coupling and rework.
 
      Keep this file current.  Stale ownership is worse than no ownership file:

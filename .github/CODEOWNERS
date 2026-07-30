@@ -1,4 +1,4 @@
-# CODEOWNERS — who must approve PRs touching each path.
+# CODEOWNERS - who must approve PRs touching each path.
 #
 # The `protected-main` ruleset has `require_code_owner_review: true`, so any
 # PR that changes a path listed here needs an approving review from the

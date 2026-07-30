@@ -1,4 +1,4 @@
-"""TRC-F1 — Frame remains mandatory, unchanged.
+"""TRC-F1 - Frame remains mandatory, unchanged.
 
 pre-tool.sh blocks an Edit on a production file when the current task has no
 route.md (i.e. Frame did not complete).
@@ -95,7 +95,7 @@ def _fresh_project_dir() -> Path:
 # ---------------------------------------------------------------------------
 
 def test_blocks_without_frame():
-    """Frame is still required — hook exits 2 and names missing route.md.
+    """Frame is still required - hook exits 2 and names missing route.md.
 
     Given a fresh task with no route.md
     When any tool attempts to Edit a file under the project source (a .py file)
@@ -110,7 +110,7 @@ def test_blocks_without_frame():
         _make_compass_project(project, slug, with_route_md=False)
 
         # Target a recognised production file (.py extension).
-        # "src/app.py" — no "test" component anywhere in the path.
+        # "src/app.py" - no "test" component anywhere in the path.
         target = str(project / "src" / "app.py")
         assert "test" not in target.lower(), (
             f"Target path must not contain 'test': {target}"
@@ -141,7 +141,7 @@ def test_blocks_without_frame():
 def test_allows_when_route_md_present_and_red_marker():
     """Hook allows the edit when route.md exists and the .red marker is set.
 
-    This is the complementary positive case — confirms the hook's basic
+    This is the complementary positive case - confirms the hook's basic
     allow-path still works after the F1 regression check.
     """
     assert HOOK_PATH.is_file(), f"pre-tool.sh not found at {HOOK_PATH}"
@@ -203,7 +203,7 @@ def test_hook_exits_zero_for_non_code_file():
 
 
 # ---------------------------------------------------------------------------
-# R8 — a first-class "verified-by" red (TRC-R8-1, R8-2 hook side)
+# R8 - a first-class "verified-by" red (TRC-R8-1, R8-2 hook side)
 # The hook gates on the .red marker; R8 widens HOW a red is recorded
 # (tdd-red --verified-by), not how the hook reads it. These guard the marker
 # contract the verified-by red plugs into.
@@ -211,7 +211,7 @@ def test_hook_exits_zero_for_non_code_file():
 
 def test_no_red_blocks_wiring_change_baseline():
     """TRC-R8-1 (baseline): with a framed task but no .red marker, the hook
-    blocks a production edit — the gap a verified-by red exists to fill honestly."""
+    blocks a production edit - the gap a verified-by red exists to fill honestly."""
     project = _fresh_project_dir()
     try:
         _make_compass_project(project, "wire-slug", with_route_md=True)

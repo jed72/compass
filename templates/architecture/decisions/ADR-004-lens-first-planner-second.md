@@ -28,7 +28,7 @@ Order of operations:
    `plan.md §2` DDs that either cite an existing ADR, name a candidate ADR
    to author at Build, or explicitly justify divergence.
 3. Planner never re-invokes the lens.  If `architecture-notes.md` is missing,
-   the planner records a "no lens consultation applied" note in `plan.md` —
+   the planner records a "no lens consultation applied" note in `plan.md` -
    not a silent skip.
 
 ## Alternatives considered
@@ -52,10 +52,10 @@ Order of operations:
 **Neutral / follow-on:**
 - If `architecture-notes.md` is absent (no architecture/ in the project), the
   planner records the absence explicitly.  This is a recordable absence, not
-  a silent skip (Strategy S4 — persistence over conversation).
+  a silent skip (Strategy S4 - persistence over conversation).
 
 ## References
 
-- Clarifications Q3 (architect-lens vs planner split)
+- The task's `clarifications.md`, where the split between the architect lens and the planner was settled
 - Plan DD-5 (lens-first/planner-second design decision)
-- architecture-notes.md §2 Inv-5 (one spec, many lenses)
+- The invariant that there is one spec read through many lenses, and a lens annotates rather than forks it

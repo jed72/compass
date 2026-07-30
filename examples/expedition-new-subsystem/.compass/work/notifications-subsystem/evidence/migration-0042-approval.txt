@@ -1,8 +1,8 @@
-Human sign-off — guardrail G5 (a human signs off on the irreversible)
+Human sign-off - guardrail G5 (a human signs off on the irreversible)
 =====================================================================
 
 Task        : notifications-subsystem
-Change      : migrations/0042_notifications.sql — new schema, irreversible
+Change      : migrations/0042_notifications.sql - new schema, irreversible
 Why G5      : readings include `touches: [migrations]`
 Approver    : L. Haddad (eng lead)
 Status      : approved
@@ -11,7 +11,7 @@ Reference   : PR #618
 
 Reviewed:
   - Forward migration applies cleanly against a production-shaped snapshot.
-  - Rollback path (0042_notifications.down.sql) drops the new tables only —
+  - Rollback path (0042_notifications.down.sql) drops the new tables only -
     no data loss outside the subsystem being introduced.
   - No change to any existing table; the migration is purely additive.
 

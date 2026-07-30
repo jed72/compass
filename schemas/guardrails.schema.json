@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://compass-sdd/schemas/guardrails.schema.json",
   "title": "Compass governance/guardrails.yml",
-  "description": "The machine-readable guardrail definitions. The human-readable companion is guardrails.reference.yml; guardrails.md is the prose explanation. NOTE: JSON Schema cannot express the integrity rule that every guardrail's `checks` must also be implemented in the CLI's CHECK_FNS — `compass policy lint`'s built-in linter enforces that, and `compass check` fails on it at run time.",
+  "description": "The machine-readable guardrail definitions. The human-readable companion is guardrails.reference.yml; guardrails.md is the prose explanation. NOTE: JSON Schema cannot express the integrity rule that every guardrail's `checks` must also be implemented in the CLI's CHECK_FNS - `compass policy lint`'s built-in linter enforces that, and `compass check` fails on it at run time.",
   "type": "object",
   "required": ["version", "checks", "defaults"],
   "properties": {

@@ -25,7 +25,7 @@ def _readings_to_args(d):
 
 def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
     """A task that ALREADY had a route (express) gets re-evaluated as
-    expedition (after a touches: [auth] is added) — the diff must be
+    expedition (after a touches: [auth] is added) - the diff must be
     appended to `reframes:`."""
     body = {
         "task": "rf-task",
@@ -82,7 +82,7 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
 
 def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
                                                         project):
-    """Re-frame with no --reason still records the entry, but warns — the
+    """Re-frame with no --reason still records the entry, but warns - the
     reason is the calibration signal."""
     body = {
         "task": "rf-noreason",
@@ -161,7 +161,7 @@ def test_calibration_aggregates_down_reframes(run_cli, make_task):
 
 
 def test_calibration_balanced(run_cli, make_task):
-    """One up, one down — balanced; neither over nor under."""
+    """One up, one down - balanced; neither over nor under."""
     make_task("t1", _task_with_reframes(
         "t1", [("express", "standard")], base_route="standard"))
     make_task("t2", _task_with_reframes(
@@ -186,7 +186,7 @@ def test_reframe_debt_section(run_cli, make_task, project):
     reported in a 'reframe debt' section, with the matched devlog signal
     and explicit mention that the signal was absorbed/lost.
 
-    B-Risk 6: the devlog patterns come from signals.yml, not hardcoded in
+    The devlog patterns come from signals.yml, not hardcoded in
     the CLI.
     """
     import pathlib
@@ -211,7 +211,7 @@ def test_reframe_debt_section(run_cli, make_task, project):
         "reframes": [],
     })
     (task_dir / "devlog.md").write_text(
-        "2026-05-20: more files than Plan estimated — had to extend the scope\n"
+        "2026-05-20: more files than Plan estimated - had to extend the scope\n"
     )
 
     r = run_cli("calibration")
@@ -299,7 +299,7 @@ def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project)
 
     r = run_cli("calibration")
     assert r.returncode == 0, r
-    # The task had a bloat phrase BUT a reframe was filed after — no debt
+    # The task had a bloat phrase BUT a reframe was filed after - no debt
     # (If the section is absent entirely, or the task is not in it, pass.)
     out = r.stdout.lower()
     if "reframe debt" in out:
@@ -370,7 +370,7 @@ def test_friction_one_off_below_threshold(run_cli, make_task):
     assert PC_CLARIFY in r.stdout, r
     # …but the one-off must NOT be reported as a recurring/trend item.
     # We assert it does not appear in a "recurring" context: simplest robust
-    # check — the JSON view classifies it below threshold.
+    # check - the JSON view classifies it below threshold.
     rj = run_cli("calibration", "--friction", "--format", "json")
     assert rj.returncode == 0, rj
     import json as _json
@@ -397,7 +397,7 @@ def test_friction_json_format(run_cli, make_task):
 
 
 def test_friction_view_writes_nothing(run_cli, make_task, project):
-    """TRC-F2: the friction view is read-only — it writes no task.yml and no
+    """TRC-F2: the friction view is read-only - it writes no task.yml and no
     file under governance/, and exits 0."""
     import hashlib
 
@@ -425,15 +425,15 @@ def test_friction_view_writes_nothing(run_cli, make_task, project):
 
 
 def test_friction_never_in_land_gate(framework_root):
-    """TRC-F1: friction is a strategy-class signal — it never appears as a
+    """TRC-F1: friction is a strategy-class signal - it never appears as a
     guardrail check or in Land's gate. A regression guard against the design
-    drifting across ADR-002 / USP-3."""
+    drifting across ADR-002."""
     guardrails = (framework_root / "governance" / "guardrails.yml").read_text().lower()
     assert "friction" not in guardrails, (
-        "TRC-F1 violated: guardrails.yml references friction — it must never "
-        "be a gate (ADR-002, USP-3).")
+        "TRC-F1 violated: guardrails.yml references friction - it must never "
+        "be a gate (ADR-002).")
     land = (framework_root / "commands" / "land.md").read_text()
-    # The gate is the checklist under the '## Gate — Land refuses to close …'
+    # The gate is the checklist under the '## Gate - Land refuses to close …'
     # heading (not the intro, and not the Procedure, where friction capture is
     # an explicit *non*-gate step).
     gate_section = land.split("## Gate", 1)[-1].lower()
@@ -445,7 +445,7 @@ def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
         run_cli, make_task):
     """A task that recorded friction with no proposed_change (e.g. a derived
     reframe entry, or a human note without a proposal) must NOT be reported as
-    'No friction recorded' — that line is for an empty corpus only. The entry is
+    'No friction recorded' - that line is for an empty corpus only. The entry is
     still surfaced (by category), it just hasn't clustered into a trend."""
     make_task("ft1", _task_with_friction("ft1", [
         {"phase": "build", "category": "tooling",
@@ -463,7 +463,7 @@ def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
 
 def test_calibration_without_friction_unchanged(run_cli, make_task):
     """TRC-F3: plain `compass calibration` (no --friction) ignores friction
-    entirely — its output never mentions friction. The no-op guarantee."""
+    entirely - its output never mentions friction. The no-op guarantee."""
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
     r = run_cli("calibration")
@@ -473,7 +473,7 @@ def test_calibration_without_friction_unchanged(run_cli, make_task):
 
 
 def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
-    """B-Risk 5: calibration is read-only — task.yml must be unchanged after running."""
+    """Calibration is read-only - task.yml must be unchanged after running."""
     import pathlib
     import hashlib
     import shutil
@@ -506,6 +506,6 @@ def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
 
     sha_after = hashlib.sha256(task_yml.read_bytes()).hexdigest()
     assert sha_before == sha_after, (
-        f"B-Risk 5 violated: calibration mutated task.yml\n"
+        f"calibration mutated task.yml, but it must be read-only\n"
         f"Before SHA: {sha_before}\nAfter SHA:  {sha_after}"
     )

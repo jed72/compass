@@ -12,7 +12,7 @@ superseded_by: ''
 When Frame loads the project's `architecture/` artifacts, it needs to expose
 the result to downstream agents (spec-author, planner, architect-lens) in a
 structured, persistent form.  The first design placed this data in
-`task.yml.readings` — the existing machine-readable task spine.  However,
+`task.yml.readings` - the existing machine-readable task spine.  However,
 `readings` is the *judgement* block, where the Needle records its four-dimension
 assessment.  Mixing mechanism-produced load state into the judgement block
 violates the invariant that `readings` is the only judgement field.
@@ -64,6 +64,6 @@ between Frame time and when they read the loaded record.
 
 ## References
 
-- architecture-notes.md §2 Inv-1 (readings is judgement-only)
-- architecture-notes.md §3 B-Risk 1 (builder boundary risk)
-- Clarifications Q8 (shape resolution)
+- The invariant that `task.yml.readings` holds judgement only, and nothing a mechanism produced
+- The boundary rule that a builder never writes loaded architecture content into `readings`
+- The task's `clarifications.md`, where the shape of this file was settled

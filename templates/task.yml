@@ -1,5 +1,5 @@
 # =============================================================================
-# TEMPLATE: task.yml  —  the machine-readable task spine
+# TEMPLATE: task.yml  -  the machine-readable task spine
 # Produced by: /compass:frame (creates it), then every later phase fills its
 #              part. Lives at: .compass/work/<task-slug>/task.yml
 # =============================================================================
@@ -9,7 +9,7 @@
 # `compass check` reads the rest and verifies the guardrail checks.
 #
 # It is NOT extra ceremony you hand-author. Each phase's command/agent fills
-# its section as a by-product of doing the phase — Frame writes the readings,
+# its section as a by-product of doing the phase - Frame writes the readings,
 # Specify adds scenarios, Build adds changed_files, and so on. On an Express
 # task this file stays tiny. `compass task lint` checks it is well-formed.
 # =============================================================================
@@ -24,8 +24,8 @@ created: "{{DATE}}"
 status: active            # lifecycle: active (in-flight) | landed (complete)
 
 # --- the route -------------------------------------------------------------
-# `readings` is JUDGEMENT — the Needle (an LLM or a human) produces it during
-# Frame. Everything below `readings` is MECHANICAL — `compass route evaluate
+# `readings` is JUDGEMENT - the Needle (an LLM or a human) produces it during
+# Frame. Everything below `readings` is MECHANICAL - `compass route evaluate
 # --write` computes it deterministically from `readings` + routing-policy.yml.
 readings:
   blast_radius: "{{trivial | contained | cross-cutting | critical}}"
@@ -38,14 +38,14 @@ readings:
 
 route: null                  # filled by `compass route evaluate --write`
 topology: null               # filled by route evaluate
-fired_guardrails: []          # filled by route evaluate — [{id, kind, rationale, changed}]
-phases: {}                   # filled by route evaluate — {frame: full, specify: light, …}
+fired_guardrails: []          # filled by route evaluate - [{id, kind, rationale, changed}]
+phases: {}                   # filled by route evaluate - {frame: full, specify: light, …}
 
 # --- evidence (the registry) -----------------------------------------------
 # A typed, id-tagged registry of every piece of evidence this task has. Built
 # incrementally: `compass tdd-green --scenario SCN-... -- <cmd>` appends a
 # `test-run` entry; reviews and approvals are added by their phase/agent.
-# Gates below reference these entries by id — multiple gates can share one
+# Gates below reference these entries by id - multiple gates can share one
 # piece of evidence, and `compass check` verifies the *type* each gate accepts.
 # Types declared in governance/guardrails.yml: test-run, command-output,
 # manual-review, human-approval, security-review, migration-plan,
@@ -73,7 +73,7 @@ evidence: []
 # registry above, of a type that gate accepts (see governance/guardrails.yml
 # gate_evidence_requirements). On `route evaluate --write` each seeded gate is
 # annotated with a `# accepts: [...]` comment naming the evidence types it will
-# accept — so the author knows the accepted types up front, not by trial at
+# accept - so the author knows the accepted types up front, not by trial at
 # `compass check`. Flip a gate with `compass gate pass <id> --evidence <ids>`,
 # which validates the type at write time and rejects a mismatch.
 #   accepts (from guardrails.yml gate_evidence_requirements):
@@ -108,7 +108,7 @@ changed_files: []
 #  - path: "src/api/ledger_export.py"
 #    scenarios: [SCN-001]
 
-# --- claims (filled by Position — only if a marketer is in play) -----------
+# --- claims (filled by Position - only if a marketer is in play) -----------
 # Every public/marketing claim, each traced to a backing scenario id.
 # This is the claim -> criterion half of guardrail G3.
 claims: []
@@ -116,7 +116,7 @@ claims: []
 #    text: "Export your month-end ledger in seconds"
 #    scenario: SCN-001
 
-# --- backfills (owed ceremony — e.g. a Hotfix's, or a de-scoped artifact) ---
+# --- backfills (owed ceremony - e.g. a Hotfix's, or a de-scoped artifact) ---
 # `compass check` fails while any backfill is unpaid. Land refuses to close.
 backfills: []
 #  - id: BF-001
@@ -125,7 +125,7 @@ backfills: []
 
 # --- reframes (the Needle's feedback signal) -------------------------------
 # Append-only. `compass route evaluate --write` adds an entry here whenever it
-# computes a route that differs from the one already recorded — i.e. a
+# computes a route that differs from the one already recorded - i.e. a
 # re-frame. `compass calibration` aggregates these across all tasks: a pattern
 # of "up" re-frames means the Needle is systematically under-sizing and the
 # routing policy (or the Frame rubric) needs tuning. A re-frame is a normal
@@ -139,8 +139,8 @@ reframes: []
 # --- friction (the framework's self-calibration signal) --------------------
 # Optional. Written at Land. Records where Compass's own ceremony cost more
 # than it returned between Frame and Land, and how the framework could have
-# been configured to avoid it. A strategy-class signal — soft, advisory; it
-# never gates Land (USP-3). Absent on tasks that hit no friction; the loop
+# been configured to avoid it. A strategy-class signal - soft, advisory; it
+# never gates Land. Absent on tasks that hit no friction; the loop
 # no-ops cleanly for projects that never write it (ADR-006). Assembled at Land
 # by `compass _friction-capture` and aggregated by `compass calibration
 # --friction`.

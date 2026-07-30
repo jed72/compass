@@ -67,11 +67,11 @@ def _load_compass_module():
 
 def _import_derive():
     """Import derive_system_spec from cli/compass.  Raises AttributeError if
-    not yet implemented — letting the TDD-red state surface cleanly."""
+    not yet implemented - letting the TDD-red state surface cleanly."""
     mod = _load_compass_module()
     if not hasattr(mod, "derive_system_spec"):
         raise AttributeError(
-            "derive_system_spec not found in cli/compass — not yet implemented"
+            "derive_system_spec not found in cli/compass - not yet implemented"
         )
     return mod.derive_system_spec
 
@@ -118,7 +118,7 @@ def make_scenario_entry(scn_id: str, title: str, intent: str = "INT-1") -> Dict:
 
 
 SAMPLE_FEATURE = textwrap.dedent("""\
-    # Spec — sample-task
+    # Spec - sample-task
 
     ## Scenario: {title}
     <!-- traceability id: {scn_id} · serves: {intent} -->
@@ -137,7 +137,7 @@ def make_feature_text(scn_id: str, title: str, intent: str = "INT-1") -> str:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B10 — the derived spec carries a "DERIVED FILE" header
+# TRC-B10 - the derived spec carries a "DERIVED FILE" header
 # ---------------------------------------------------------------------------
 
 class TestTrcB10:
@@ -195,7 +195,7 @@ class TestTrcB10:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B5 — a greenfield project Lands with no pre-existing system spec
+# TRC-B5 - a greenfield project Lands with no pre-existing system spec
 # ---------------------------------------------------------------------------
 
 class TestTrcB5:
@@ -243,7 +243,7 @@ class TestTrcB5:
     def test_greenfield_no_compass_dir_creates_stub(self, tmp_path):
         """A project with no .compass/ at all produces a stub spec and exits 0."""
         derive = _import_derive()
-        # No .compass/ directory — brand new project
+        # No .compass/ directory - brand new project
         derive(str(tmp_path))
 
         spec_path = tmp_path / "docs" / "system-spec.md"
@@ -251,7 +251,7 @@ class TestTrcB5:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 — a landed behaviour change accretes into the system spec
+# TRC-B1 - a landed behaviour change accretes into the system spec
 # ---------------------------------------------------------------------------
 
 class TestTrcB1:
@@ -294,7 +294,7 @@ class TestTrcB1:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B2 — a pure Spike contributes nothing to the system spec
+# TRC-B2 - a pure Spike contributes nothing to the system spec
 # ---------------------------------------------------------------------------
 
 class TestTrcB2:
@@ -335,7 +335,7 @@ class TestTrcB2:
             "schema_version": "1.0",
             "task": "old-task",
             "created": "2026-05-25",
-            # NO status field — backward compat
+            # NO status field - backward compat
             "readings": {
                 "blast_radius": "contained",
                 "terrain": "greenfield",
@@ -359,7 +359,7 @@ class TestTrcB2:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3 — re-deriving from unchanged scenarios produces no diff (idempotency)
+# TRC-B3 - re-deriving from unchanged scenarios produces no diff (idempotency)
 # ---------------------------------------------------------------------------
 
 class TestTrcB3:
@@ -411,7 +411,7 @@ class TestTrcB3:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4 — superseding change updates the prior behaviour and archives the prior
+# TRC-B4 - superseding change updates the prior behaviour and archives the prior
 # ---------------------------------------------------------------------------
 
 class TestTrcB4:
@@ -441,9 +441,9 @@ class TestTrcB4:
         derive(str(tmp_path))
         spec = (tmp_path / "docs" / "system-spec.md").read_text(encoding="utf-8")
 
-        # SCN-NEW should be in the current section — it came later
+        # SCN-NEW should be in the current section - it came later
         assert "SCN-NEW" in spec, "Newer scenario not found in spec"
-        # SCN-OLD should be in the archive — it was superseded
+        # SCN-OLD should be in the archive - it was superseded
         assert "SCN-OLD" in spec, "Superseded scenario should appear in archive"
 
     def test_superseded_moves_to_archive_appendix(self, tmp_path):
@@ -477,7 +477,7 @@ class TestTrcB4:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4a — archived-behaviour appendix preserves the trace back to the prior task
+# TRC-B4a - archived-behaviour appendix preserves the trace back to the prior task
 # ---------------------------------------------------------------------------
 
 class TestTrcB4a:
@@ -540,7 +540,7 @@ class TestTrcB4a:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B7 — every entry in the system spec traces to a landed scenario
+# TRC-B7 - every entry in the system spec traces to a landed scenario
 # ---------------------------------------------------------------------------
 
 class TestTrcB7:
@@ -574,12 +574,12 @@ class TestTrcB7:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B8 — the derivation is not the sole source of truth (delete-and-rederive)
+# TRC-B8 - the derivation is not the sole source of truth (delete-and-rederive)
 # ---------------------------------------------------------------------------
 
 class TestTrcB8:
     """TRC-B8: deleting docs/system-spec.md and re-running derivation produces
-    a byte-identical file — the derivation is reconstructible."""
+    a byte-identical file - the derivation is reconstructible."""
 
     def test_delete_and_rederive_produces_identical_output(self, tmp_path):
         """Delete the derived file, re-run, get back the same bytes."""
@@ -609,7 +609,7 @@ class TestTrcB8:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B9 — a hand-edit to the spec is silently overwritten by the next Land
+# TRC-B9 - a hand-edit to the spec is silently overwritten by the next Land
 # ---------------------------------------------------------------------------
 
 class TestTrcB9:
@@ -667,7 +667,7 @@ class TestTrcB9:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6 — introducing the living spec adds no new phase or gate
+# TRC-B6 - introducing the living spec adds no new phase or gate
 # ---------------------------------------------------------------------------
 
 class TestTrcB6:
@@ -729,7 +729,7 @@ class TestTrcB6:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B11 — a landed task is the source-of-truth via task.yml.status
+# TRC-B11 - a landed task is the source-of-truth via task.yml.status
 # ---------------------------------------------------------------------------
 
 class TestTrcB11:
@@ -829,7 +829,7 @@ class TestTrcB11:
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 — derivation handles conflicting scenarios deterministically
+# TRC-F2 - derivation handles conflicting scenarios deterministically
 # ---------------------------------------------------------------------------
 
 class TestTrcF2:
@@ -894,7 +894,7 @@ class TestTrcF2:
 
     def test_tiebreaker_by_task_slug(self, tmp_path):
         """When two tasks have the same land_timestamp, task slug is the
-        tiebreaker (alphabetically later slug wins) — produces defined, stable output."""
+        tiebreaker (alphabetically later slug wins) - produces defined, stable output."""
         derive = _import_derive()
 
         same_ts = "2026-05-25T10:00:00+00:00"
@@ -916,11 +916,11 @@ class TestTrcF2:
         derive(str(tmp_path))
         spec = (tmp_path / "docs" / "system-spec.md").read_text(encoding="utf-8")
 
-        # Both appear (one current, one archived) — result is defined
+        # Both appear (one current, one archived) - result is defined
         assert "SCN-AAA" in spec
         assert "SCN-ZZZ" in spec
 
-        # Run again — same outcome
+        # Run again - same outcome
         derive(str(tmp_path))
         spec2 = (tmp_path / "docs" / "system-spec.md").read_text(encoding="utf-8")
         assert spec == spec2, "Tiebreaker result is not stable"

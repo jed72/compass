@@ -3,7 +3,7 @@
 <!-- HOW FRAME USES THIS FILE
      Frame reads this file at the start of every task and includes it (with
      its SHA-256 fingerprint) in .compass/work/<task>/architecture-loaded.yml.
-     Downstream agents — spec-author, planner, and the architect-lens — read
+     Downstream agents - spec-author, planner, and the architect-lens - read
      architecture-loaded.yml to get persistent architectural context that
      survives session boundaries and context compaction.
 

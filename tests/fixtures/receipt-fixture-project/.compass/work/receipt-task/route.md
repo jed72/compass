@@ -1,4 +1,4 @@
-# Route — receipt-task
+# Route - receipt-task
 
 ## 1. The four dimension readings
 

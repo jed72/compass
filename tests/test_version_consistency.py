@@ -1,9 +1,14 @@
-"""Every published version surface reports `1.5.0`.
+"""Every published version surface reports the same version.
 
-The Compass version appears in five places: the build artifact VERSION file,
-the plugin manifest, two fields of the marketplace listing, and the CLI's
-`COMPASS_VERSION` constant. This test asserts every surface reports `1.5.0`
-and earlier versions do not appear anywhere those surfaces are read.
+The Compass version appears in five places: the VERSION file, the plugin
+manifest, two fields of the marketplace listing, and the CLI's
+`COMPASS_VERSION` constant. A release that updates some but not all of them
+ships a plugin whose manifest disagrees with the CLI it installs.
+
+EXPECTED_VERSION below is deliberately hardcoded rather than read from the
+VERSION file. Reading it would make this test self-maintaining but blind to
+the case it most needs to catch: a release where nothing was bumped at all.
+Editing this constant is the deliberate act that says a release is intended.
 """
 from __future__ import annotations
 
@@ -15,8 +20,8 @@ import pytest
 
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_VERSION = "1.5.0"
-OLD_VERSIONS = {"1.4.0", "1.3.0", "1.2.0", "1.1.0", "1.0.0", "1.0.0-rc.1"}
+EXPECTED_VERSION = "1.6.0"
+OLD_VERSIONS = {"1.5.0", "1.4.0", "1.3.0", "1.2.0", "1.1.0", "1.0.0", "1.0.0-rc.1"}
 
 
 def _read_json(path: Path) -> dict:
@@ -54,7 +59,7 @@ def _read_version_file() -> str:
     ],
 )
 def test_published_surface_reports_new_version(label, reader):
-    """Every published surface reports 1.5.0 — no partial bumps."""
+    """Every published surface reports the same version - no partial bumps."""
     actual = reader()
     assert actual == EXPECTED_VERSION, (
         f"{label} reports {actual!r}, expected {EXPECTED_VERSION!r}"

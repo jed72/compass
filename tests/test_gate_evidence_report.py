@@ -1,4 +1,4 @@
-"""R6 — gate-evidence type mismatches are reported in one enumerated pass, and
+"""R6 - gate-evidence type mismatches are reported in one enumerated pass, and
 route evaluate seeds the gates block with each gate's accepted evidence types.
 """
 from __future__ import annotations

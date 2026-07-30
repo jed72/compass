@@ -2,7 +2,7 @@
 
 These tests assert the hard-line invariants that must hold across releases:
 - TRC-F1: verify.fitness is route-promoted only, never tier-menu
-- TRC-F2: every new check is mechanical — no runtime model call
+- TRC-F2: every new check is mechanical - no runtime model call
 - TRC-F3: no sixth guardrail (G1-G5 unchanged)
 - TRC-F4: routing dimensions stay at four (reading_vocabulary unchanged)
 - TRC-F5: bare-repo no-op when no project guardrails/quarantine declared
@@ -22,7 +22,7 @@ REPO_ROOT = Path(__file__).parent.parent
 
 
 # -----------------------------------------------------------------------------
-# TRC-F3 — no sixth guardrail
+# TRC-F3 - no sixth guardrail
 # -----------------------------------------------------------------------------
 
 def test_guardrail_count_is_exactly_five():
@@ -40,8 +40,8 @@ def test_no_trusted_rerun_is_a_check_under_g4_not_a_new_guardrail():
     data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
     g4 = next(g for g in data["defaults"] if g["id"] == "G4")
     assert "no-trusted-rerun" in g4["checks"], (
-        "A1's no-trusted-rerun must be registered as a CHECK_FN under G4 — "
-        "not as a new guardrail (clarifications Q7)."
+        "A1's no-trusted-rerun must be registered as a CHECK_FN under G4 - "
+        "not as a new guardrail."
     )
 
 
@@ -55,7 +55,7 @@ def test_command_passes_is_a_check_under_g4_not_a_new_guardrail():
 
 
 # -----------------------------------------------------------------------------
-# TRC-F4 — routing dimensions stay at four (rubric framing) — the supporting
+# TRC-F4 - routing dimensions stay at four (rubric framing) - the supporting
 # keys (role, urgency, touches) are unchanged too.
 # -----------------------------------------------------------------------------
 
@@ -86,19 +86,19 @@ def test_no_fifth_routing_dimension_added():
 
 
 # -----------------------------------------------------------------------------
-# TRC-F1 — verify.fitness is route-promoted only, never tier-menu.
+# TRC-F1 - verify.fitness is route-promoted only, never tier-menu.
 # Mechanical assertion: only the routing policy floors can introduce it.
 # -----------------------------------------------------------------------------
 
 def test_verify_fitness_only_introduced_via_routing_floors():
-    """verify.fitness is not in any route_shape's gates list — it is only
+    """verify.fitness is not in any route_shape's gates list - it is only
     added by the RG-FLOOR-006/007 floors (route-promoted, never tier-menu).
     """
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     for shape_name, shape in policy["route_shapes"].items():
         assert "verify.fitness" not in shape.get("gates", []), (
-            f"verify.fitness must not be baked into route_shape '{shape_name}'.gates — "
-            "it is route-promoted by floor only (USP-1: per-task computed routing)."
+            f"verify.fitness must not be baked into route_shape '{shape_name}'.gates - "
+            "it is route-promoted by floor only, so routing stays per-task."
         )
 
 
@@ -114,7 +114,7 @@ def test_verify_fitness_promotion_floors_exist():
 
 
 # -----------------------------------------------------------------------------
-# TRC-F2 — every new check is mechanical: no runtime model call. The CLI
+# TRC-F2 - every new check is mechanical: no runtime model call. The CLI
 # imports nothing that would talk to a model on the check path.
 # -----------------------------------------------------------------------------
 
@@ -125,13 +125,13 @@ def test_cli_has_no_model_client_imports():
                  "from requests", "from httpx", "from openai", "from anthropic"]
     for needle in forbidden:
         assert needle not in text, (
-            f"cli/compass must not import {needle!r} — every new check is mechanical "
-            "(USP-2: determinism boundary; TRC-F2)."
+            f"cli/compass must not import {needle!r} - every new check is mechanical "
+            "- the determinism boundary holds (TRC-F2)."
         )
 
 
 # -----------------------------------------------------------------------------
-# TRC-F5 — bare-repo no-op. A project with no quarantine entries and no
+# TRC-F5 - bare-repo no-op. A project with no quarantine entries and no
 # project guardrails sees no behavioural change.
 # -----------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ def test_quarantine_yml_ships_empty():
     assert quarantine_path.exists(), "governance/quarantine.yml must exist"
     data = yaml.safe_load(quarantine_path.read_text())
     assert data["quarantined"] == [], (
-        "governance/quarantine.yml must ship with quarantined: [] (ADR-006 — bare-repo no-op)."
+        "governance/quarantine.yml must ship with quarantined: [] (ADR-006 - bare-repo no-op)."
     )
 
 
@@ -154,28 +154,45 @@ def test_no_project_guardrails_declared_in_framework_repo():
 
 
 # -----------------------------------------------------------------------------
-# TRC-F6 — net-new top-level concept count is bounded.
-# The legitimate additions from the 1.1.0 release are:
-#   - 1 strategy id: S5
-#   - 1 gate name: verify.fitness
-#   - 2 check names: no-trusted-rerun, command-passes
-#   - 1 evidence-record field: attempts (+rerun_without_change paired)
-#   - 1 signal category: design_smell
-# Anything outside that set means scope crept (USP-5 budget breached).
+# TRC-F6 - net-new top-level concept count is bounded.
+# The legitimate additions, cumulative across releases:
+#   1.1.0 - 1 strategy id: S5 (intermittency is failure)
+#         - 1 gate name: verify.fitness
+#         - 2 check names: no-trusted-rerun, command-passes
+#         - 1 evidence-record field: attempts (+rerun_without_change paired)
+#         - 1 signal category: design_smell
+#   1.5.0 - 1 strategy id: S6 (regression-baseline, from field feedback)
+#   next  - 1 strategy id: S7 (cold-reader prose)
+# Anything outside that set means scope crept.
+#
+# Why adding a strategy does not breach the budget. ADR-002 bounds growth in
+# the *hard* concepts: the five guardrails, the four reading dimensions, the
+# gate set, the check set, the evidence types, the signal categories. S7 adds
+# none of those - it is assessed under the existing `clarity` review dimension
+# and fails nothing. Strategies are the accretive half of the model by design;
+# strategies.md opens by calling them "cheap to add, expected to evolve, fine
+# to drop". The list below is enumerated so that each addition is a deliberate,
+# reviewed act, not to freeze the count.
 # -----------------------------------------------------------------------------
 
-def test_net_new_strategies_is_one():
-    """strategies.md contains the known method strategies. S5 was the 1.1.0
-    addition; S6 (regression-baseline) is the framework-field-feedback (R10)
-    addition — both soft, additive, ADR-002-compliant."""
+def test_default_method_strategy_set_is_the_known_set():
+    """strategies.md declares exactly the known default method strategies.
+
+    Each id was added deliberately: S5 (intermittency) in 1.1.0, S6
+    (regression-baseline) from field feedback, S7 (cold-reader prose). Adding a
+    strategy is allowed and cheap, but it must be a decision - so this list is
+    updated by hand, in the same commit as the strategy it admits.
+    """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
-    # Look for ### S<n> — section markers
+    # Section markers have the form: ### S<n> - <slug>: <statement>
     import re
     ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5", "S6"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7"}
     assert ids == expected, (
-        f"strategies.md must contain exactly S1-S6 (S6 = regression-baseline, "
-        f"R10). Got: {ids}"
+        f"strategies.md declares {sorted(ids)}; this invariant expects "
+        f"{sorted(expected)}. If you added a strategy on purpose, add its id "
+        f"here and to the ledger comment above, in the same commit. If you did "
+        f"not, a heading has drifted."
     )
 
 
@@ -198,7 +215,7 @@ def test_net_new_signals_category_is_design_smell():
 
 
 # -----------------------------------------------------------------------------
-# TRC-F7 — pre-existing tasks pass without modification.
+# TRC-F7 - pre-existing tasks pass without modification.
 # Replay compass check against the landed comparison-requirements task.
 # -----------------------------------------------------------------------------
 
@@ -207,7 +224,7 @@ def test_comparison_requirements_task_still_lints_clean():
 
     The fixture lives under `tests/fixtures/comparison-requirements/` (a tracked
     path). The original comparison-requirements task lived under `.compass/work/`,
-    which the framework repo's own .gitignore excludes — so the test must point
+    which the framework repo's own .gitignore excludes - so the test must point
     at the tracked fixture, not the gitignored slug.
     """
     fixture = REPO_ROOT / "tests" / "fixtures" / "comparison-requirements" / "task.yml"
@@ -232,7 +249,7 @@ def test_pre_existing_evidence_without_attempts_is_backward_compatible():
     Reads from the tracked fixture under `tests/fixtures/` rather than the
     gitignored `.compass/work/` slug. Previously the test silently
     early-returned on a fresh clone when the gitignored fixture was missing
-    — that meant the assertion behind it never ran. Now the test fails
+    - that meant the assertion behind it never ran. Now the test fails
     loudly if the tracked fixture is missing (which means a more meaningful
     backward-compat test, defending ADR-006).
     """
@@ -245,14 +262,14 @@ def test_pre_existing_evidence_without_attempts_is_backward_compatible():
     )
     sample = json.loads(green_files[0].read_text())
     assert "attempts" not in sample, (
-        f"Pre-existing evidence ({green_files[0].name}) must NOT have an attempts field "
-        "— the no-trusted-rerun check's TRC-A5 path relies on absence to clear trivially."
+        f"Pre-existing evidence ({green_files[0].name}) must NOT have an attempts field. "
+        "The no-trusted-rerun check's TRC-A5 path relies on absence to clear trivially."
     )
 
 
 # -----------------------------------------------------------------------------
-# TRC-FM4 — refused candidates stay refused.
-# Manual review attached as evidence in verification-report.md (clarifications Q11).
+# TRC-FM4 - refused candidates stay refused.
+# Manual review attached as evidence in verification-report.md.
 # The mechanical assertion here: none of the refused-candidate vocabulary
 # appears as a new top-level concept in governance/.
 # -----------------------------------------------------------------------------
@@ -265,7 +282,7 @@ def test_no_user_stories_as_spec_format():
     template_names = [t.name.lower() for t in templates]
     for name in template_names:
         assert "user-stor" not in name and "stories" not in name, (
-            f"Template '{name}' suggests a user-stories format was introduced — ADR-004 refused this."
+            f"Template '{name}' suggests a user-stories format was introduced - ADR-004 refused this."
         )
 
 
@@ -283,7 +300,7 @@ def test_no_deployment_pipeline_concepts():
 
 
 def test_no_maturity_assessment_added():
-    """ '13 DORA self-assessment questions' refused — no maturity ladder concept."""
+    """ '13 DORA self-assessment questions' refused - no maturity ladder concept."""
     # No file under templates/ or governance/ named with maturity / assessment / capability vocabulary
     for d in ("templates", "governance"):
         if not (REPO_ROOT / d).exists():
@@ -291,5 +308,5 @@ def test_no_maturity_assessment_added():
         for f in (REPO_ROOT / d).iterdir():
             n = f.name.lower()
             assert "maturity" not in n and "self-assess" not in n and "capability-ladder" not in n, (
-                f"{d}/{f.name} suggests a maturity/capability ladder was introduced — refused per proposal §Out of scope."
+                f"{d}/{f.name} suggests a maturity/capability ladder was introduced - refused per proposal §Out of scope."
             )

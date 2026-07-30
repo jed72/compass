@@ -3,7 +3,7 @@
 A **route** is the computed shape of the pipeline for one task: how heavy each
 of the eight phases is, which gates apply, and whether work runs solo or as a
 swarm. Routes are *composed* by the Needle from the four context dimensions
-(see `router.md`) — they are not picked from this list.
+(see `router.md`) - they are not picked from this list.
 
 The five files here are **reference routes**: the common shapes that
 composition lands near. The Needle names the nearest reference route in
@@ -13,18 +13,18 @@ expected output.
 
 | Route | One-line character | Read |
 |---|---|---|
-| **Express** | The change is small, safe, and on mapped ground — stay out of the way, but still tested before it lands. | `express.md` |
-| **Standard** | The default working shape — full pipeline, solo or pair, two gates. | `standard.md` |
-| **Expedition** | Big, cross-cutting, or greenfield — full weight, governance check, agent swarm across worktrees. | `expedition.md` |
-| **Hotfix** | Something is broken in production now — reproduce-first, expedited Build, mandatory backfill. | `hotfix.md` |
-| **Spike** | You do not understand the problem well enough to frame it — explore freely, then graduate or discard. Nothing lands from here. | `spike.md` |
+| **Express** | The change is small, safe, and on mapped ground - stay out of the way, but still tested before it lands. | `express.md` |
+| **Standard** | The default working shape - full pipeline, solo or pair, two gates. | `standard.md` |
+| **Expedition** | Big, cross-cutting, or greenfield - full weight, governance check, agent swarm across worktrees. | `expedition.md` |
+| **Hotfix** | Something is broken in production now - reproduce-first, expedited Build, mandatory backfill. | `hotfix.md` |
+| **Spike** | You do not understand the problem well enough to frame it - explore freely, then graduate or discard. Nothing lands from here. | `spike.md` |
 
 Every route, no matter how light or how exploratory, obeys the **default
 guardrails** (G1–G5 in `governance/guardrails.md`). What a route adapts is
-*ceremony* and *strategy* — Spike, for instance, suspends the red-before-green
+*ceremony* and *strategy* - Spike, for instance, suspends the red-before-green
 TDD strategy, but it cannot suspend guardrail G1, because nothing lands from a
 Spike without graduating to a real route first. If a route file ever seems to
-permit crossing a guardrail, that is a bug in the route file —
+permit crossing a guardrail, that is a bug in the route file -
 `docs/methodology.md` and `governance/guardrails.md` are the authority.
 
 ## How to read a route file

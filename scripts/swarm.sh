@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass script: swarm.sh  —  CREATE WORKTREES, ONE PER INDEPENDENT STREAM
+# Compass script: swarm.sh  -  CREATE WORKTREES, ONE PER INDEPENDENT STREAM
 # =============================================================================
 # The Distribute-phase tool. Given a task's distribution-map.md, it creates one
 # git worktree per independent stream under the configured worktree_root, one
-# branch per stream, and prints the launch plan — one `builder` agent per
+# branch per stream, and prints the launch plan - one `builder` agent per
 # worktree. Only the `orchestrator` agent runs this (see CLAUDE.md, the
 # worktree-swarm skill).
 #
@@ -15,16 +15,16 @@
 #
 # WHAT IT RESPECTS
 #   - .compass/config.yml  swarm.worktree_root   (default ../.compass-worktrees)
-#   - .compass/config.yml  swarm.max_worktrees   (default 6) — hard ceiling
+#   - .compass/config.yml  swarm.max_worktrees   (default 6) - hard ceiling
 #   - any adaptivity `cap` recorded in route.md, in particular the STANDING CAP:
 #       critical blast radius => max_worktrees: 1.
 #     If the cap is below the stream count, the cap WINS and swarm.sh refuses to
-#     over-provision — it tells you to fold/sequence streams in the map first.
+#     over-provision - it tells you to fold/sequence streams in the map first.
 #
 # IDEMPOTENT & SAFE
 #   - A worktree/branch that already exists for a stream is left as-is (reported
 #     as "exists"), not recreated.
-#   - It never deletes anything — teardown is integrate.sh's job on success.
+#   - It never deletes anything - teardown is integrate.sh's job on success.
 #   - On any inconsistency (map missing, count over cap, dirty repo) it stops
 #     with a clear message and changes nothing.
 # =============================================================================
@@ -56,12 +56,12 @@ ROUTE="$TASK_DIR/route.md"
 TASK_YML="$TASK_DIR/task.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
-[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for task '$TASK_SLUG' — Plan must produce it first." >&2; exit 1; }
-[ -f "$ROUTE" ] || { echo "swarm.sh: no route.md for task '$TASK_SLUG' — Frame must run first." >&2; exit 1; }
-[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for task '$TASK_SLUG' — the worktree cap is read from structured readings, not route.md prose. Run Frame." >&2; exit 1; }
+[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for task '$TASK_SLUG' - Plan must produce it first." >&2; exit 1; }
+[ -f "$ROUTE" ] || { echo "swarm.sh: no route.md for task '$TASK_SLUG' - Frame must run first." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for task '$TASK_SLUG' - the worktree cap is read from structured readings, not route.md prose. Run Frame." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
-# Minimal YAML reads — these keys are simple scalars in .compass/config.yml.
+# Minimal YAML reads - these keys are simple scalars in .compass/config.yml.
 read_cfg() { # key default
   local v=""
   [ -f "$CONFIG" ] && v="$(grep -E "^[[:space:]]*$1:" "$CONFIG" 2>/dev/null \
@@ -79,12 +79,12 @@ esac
 
 # --- the cap from task.yml (R4) ---------------------------------------------
 # The cap is a MACHINE FACT and must come from the structured readings, not from
-# grepping route.md prose — a well-formed route.md quotes 'blast_radius: critical'
+# grepping route.md prose - a well-formed route.md quotes 'blast_radius: critical'
 # and 'RG-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
 # prose grep false-positived on exactly those, capping a non-critical swarm to 1.
 # The standing cap (RG-CAP-001): critical blast radius => max_worktrees 1. We read
 # it from readings.blast_radius and fired_guardrails. Absent readings is a hard
-# error — never a silent cap, never a fall back to prose.
+# error - never a silent cap, never a fall back to prose.
 CAP_INFO="$(python3 - "$TASK_YML" <<'PY'
 import sys
 try:
@@ -108,7 +108,7 @@ case "$CAP_INFO" in
   OK:0) CAP="$MAX_WORKTREES" ;;
   *)    echo "swarm.sh: cannot read the cap from task.yml (${CAP_INFO#ERR:})." >&2
         echo "          The worktree cap is a machine fact in readings.blast_radius +" >&2
-        echo "          fired_guardrails — fix task.yml. swarm.sh does NOT fall back to" >&2
+        echo "          fired_guardrails - fix task.yml. swarm.sh does NOT fall back to" >&2
         echo "          grepping route.md prose (that was the R4 false-positive)." >&2
         exit 1 ;;
 esac
@@ -130,7 +130,7 @@ while IFS= read -r line; do
     *) continue ;;
   esac
   # R4: count only worktree-provisioning streams. A map may mark an
-  # integration/verify stream as non-provisioning — exclude it from the cap
+  # integration/verify stream as non-provisioning - exclude it from the cap
   # arithmetic and from worktree creation.
   case "$line" in
     *"not a parallel worktree"*|*"not a worktree"*|*"non-provisioning"*|*"integration/verify"*) continue ;;
@@ -142,7 +142,7 @@ while IFS= read -r line; do
   # The map's branch-name cell is often wrapped in backticks for readability
   # (`compass/<slug>/stream-N`) or bold (**...**); the parser must treat the
   # cell as a clean git ref, not the literal-with-markdown string. Bare names
-  # round-trip unchanged. Markdown *inside* a ref name is out of scope —
+  # round-trip unchanged. Markdown *inside* a ref name is out of scope -
   # git ref-validation rejects such names anyway.
   branch="$(echo "${c4:-}" | xargs 2>/dev/null | sed -E 's/^[`*]+//; s/[`*]+$//' || true)"
   case "$sid" in stream-*) ;; *) continue ;; esac
@@ -155,14 +155,14 @@ done < "$MAP"
 STREAM_COUNT="${#STREAMS[@]}"
 if [ "$STREAM_COUNT" -eq 0 ]; then
   echo "swarm.sh: distribution-map.md lists no streams (no 'stream-N' rows in §3)." >&2
-  echo "          If the route is solo, Distribute is a no-op — do not run swarm.sh." >&2
+  echo "          If the route is solo, Distribute is a no-op - do not run swarm.sh." >&2
   exit 1
 fi
 
 # --- enforce the cap --------------------------------------------------------
 if [ "$STREAM_COUNT" -gt "$CAP" ]; then
   echo "swarm.sh: the distribution map has $STREAM_COUNT streams but the cap is $CAP." >&2
-  echo "          The cap wins. Do not over-provision worktrees — go back to" >&2
+  echo "          The cap wins. Do not over-provision worktrees - go back to" >&2
   echo "          distribution-map.md and fold or sequence streams down to $CAP," >&2
   echo "          recording it as cap-driven (not as a de-scope). Then re-run." >&2
   exit 1
@@ -173,7 +173,7 @@ git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
   || { echo "swarm.sh: $PROJECT_DIR is not a git repository." >&2; exit 1; }
 BASE_BRANCH="$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)"
 
-echo "Compass swarm — task '$TASK_SLUG'"
+echo "Compass swarm - task '$TASK_SLUG'"
 echo "  base branch:    $BASE_BRANCH"
 echo "  worktree root:  $WORKTREE_ROOT"
 echo "  streams:        $STREAM_COUNT   (config max $MAX_WORKTREES, route cap $CAP)"
@@ -206,7 +206,7 @@ done
 
 # --- print the launch plan --------------------------------------------------
 echo ""
-echo "Launch plan — one 'builder' agent per worktree:"
+echo "Launch plan - one 'builder' agent per worktree:"
 echo "----------------------------------------------------------------"
 for entry in "${LAUNCH_PLAN[@]}"; do
   IFS='|' read -r sid branch wt_path <<<"$entry"
@@ -219,14 +219,14 @@ for entry in "${LAUNCH_PLAN[@]}"; do
 done
 echo "----------------------------------------------------------------"
 if [ "$STREAM_COUNT" -ge 4 ]; then
-  echo "Topology is a SWARM (4+ streams): an 'orchestrator' agent must also run —"
+  echo "Topology is a SWARM (4+ streams): an 'orchestrator' agent must also run -"
   echo "it writes no feature code, watches for streams converging on shared surface,"
   echo "and owns integration at Land via scripts/integrate.sh."
 else
-  echo "Topology is a PAIR (2-3 streams): no dedicated orchestrator — the lead"
+  echo "Topology is a PAIR (2-3 streams): no dedicated orchestrator - the lead"
   echo "builder integrates at Land via scripts/integrate.sh."
 fi
 echo ""
-[ "$DRY_RUN" -eq 1 ] && echo "(dry run — nothing was created)"
+[ "$DRY_RUN" -eq 1 ] && echo "(dry run - nothing was created)"
 echo "When every stream is independently green, land them with:"
 echo "  scripts/integrate.sh $TASK_SLUG"

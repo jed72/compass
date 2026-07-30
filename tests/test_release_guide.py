@@ -49,7 +49,7 @@ def test_trc_a1_release_guide_contains_durable_operational_steps():
     and preserves the tarball-hygiene lesson."""
     text = _release_guide_text()
 
-    # The numbered operational steps (or their substance — the test is
+    # The numbered operational steps (or their substance - the test is
     # forgiving about heading shape but firm about what's named).
     must_have_steps = [
         ("VERSION bump", r"\bVERSION\b"),
@@ -65,14 +65,14 @@ def test_trc_a1_release_guide_contains_durable_operational_steps():
         f"F Spike's decision, the durable procedure must survive the rewrite."
     )
 
-    # The tarball-hygiene lesson — the "do not zip from Finder / Download
+    # The tarball-hygiene lesson - the "do not zip from Finder / Download
     # ZIP" rule. Forgiving about exact wording; firm about the substance.
     has_tarball_hygiene = bool(
         re.search(r"(?is)(don'?t|do\s+not|never).{0,80}zip", text)
         or re.search(r"(?is)download\s+zip", text)
     )
     assert has_tarball_hygiene, (
-        "Release guide is missing the tarball-hygiene lesson — the rule "
+        "Release guide is missing the tarball-hygiene lesson - the rule "
         "that the distributed artifact must be the `make release` tarball, "
         "not a zip from Finder or 'Download ZIP'. That lesson was earned "
         "the hard way by a v1 reviewer; the rewrite must preserve it."
@@ -112,7 +112,7 @@ def test_trc_b1_release_guide_does_not_carry_rc1_specific_history():
         "checklist. The rewrite was supposed to drop that framing."
     )
 
-    # The v1 readiness table — 13 rows about whether v1 items were Done —
+    # The v1 readiness table - 13 rows about whether v1 items were Done -
     # must be gone. We look for the distinctive header phrase.
     assert "Status of the v1 checklist" not in text, (
         "The release guide still contains the 'Status of the v1 checklist' "

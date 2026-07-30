@@ -24,7 +24,7 @@
 ## Ownership
 
 <!-- Cross-reference to ownership.md when the caller and callee have
-     different owners — those relations are highest-risk for architectural
+     different owners - those relations are highest-risk for architectural
      drift. -->
 
 ## Known interface contracts
@@ -39,7 +39,7 @@
 
 ## Prohibited relations
 
-<!-- Relations that must NEVER be created — typically because they would
+<!-- Relations that must NEVER be created - typically because they would
      create a cycle, violate ownership, or cross a data-classification
      boundary.  These become invariants when architecture/invariants.yml
      is populated. -->

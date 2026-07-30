@@ -10,7 +10,7 @@
 
     "routing_strategies": {
       "type": "object",
-      "description": "The SOFT layer — biases the candidate route.",
+      "description": "The SOFT layer - biases the candidate route.",
       "required": ["default_shapes", "default_route"],
       "properties": {
         "default_shapes": {
@@ -46,7 +46,7 @@
 
     "routing_guardrails": {
       "type": "object",
-      "description": "The HARD layer — bounds the route.",
+      "description": "The HARD layer - bounds the route.",
       "properties": {
         "floors": {
           "type": "array",

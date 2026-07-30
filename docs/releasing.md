@@ -1,11 +1,11 @@
-# Compass — Releasing
+# Compass - Releasing
 
 The procedure for cutting a Compass release. The mechanics live in
 [`scripts/release.sh`](../scripts/release.sh); this file is the
 human-readable guidance for invoking it and the lessons that pin a
 release to a clean, reproducible artifact.
 
-> **What this file is.** Generic operational guidance — apply it for
+> **What this file is.** Generic operational guidance - apply it for
 > every release. Frozen rc.1-era status tables and per-release "owed
 > items" no longer live here; that history lives in git.
 
@@ -13,26 +13,37 @@ release to a clean, reproducible artifact.
 
 ## The release procedure
 
-1. **Bump the version** in every location that carries it. The four
-   locations: `VERSION` (root), `COMPASS_VERSION` in `cli/compass`,
-   `.claude-plugin/plugin.json`, and the two version fields in
-   `.claude-plugin/marketplace.json` (`metadata.version` and
-   `plugins[0].version`).
+1. **Bump the version** in every location that carries it. There are six:
 
-   `tests/test_release_invariants.py` carries a partial-bump guard:
-   if any of the four locations is out of sync with the others, the
-   suite fails. That is the integrity check for the bump — do not
-   skip running it.
+   | Location | Guarded by |
+   |---|---|
+   | `VERSION` (root) | `tests/test_version_consistency.py` |
+   | `COMPASS_VERSION` in `cli/compass` | `tests/test_version_consistency.py` |
+   | `.claude-plugin/plugin.json` `$.version` | `tests/test_version_consistency.py` |
+   | `.claude-plugin/marketplace.json` `$.metadata.version` | `tests/test_version_consistency.py` |
+   | `.claude-plugin/marketplace.json` `$.plugins[0].version` | `tests/test_version_consistency.py` |
+   | The expected `compass --version` output in `docs/install-smoke-test.md` | `tests/test_cli_surface_drift.py` |
 
-2. **`make clean`** — clears local noise (`__pycache__`, `*.bak`,
+   Then update `EXPECTED_VERSION` in `tests/test_version_consistency.py`
+   and add the version you are leaving behind to its `OLD_VERSIONS` set.
+   That constant is hardcoded on purpose: reading it from `VERSION` would
+   make the guard self-maintaining but blind to a release where nothing
+   was bumped at all.
+
+   A partial bump ships a plugin whose manifest disagrees with the CLI it
+   installs, so do not skip running the suite after this step. The last
+   row is the one that gets forgotten, because it lives in prose rather
+   than in a manifest.
+
+2. **`make clean`** - clears local noise (`__pycache__`, `*.bak`,
    `.DS_Store`, `.pytest_cache`, `_deltest`, `pytest-cache-files-*`).
    The release tarball must not carry any of these.
 
-3. **`make test`** — must be green. The full test suite, including:
+3. **`make test`** - must be green. The full test suite, including:
    - `tests/test_cli_surface_drift.py` (every CLI subcommand documented
-     in the public CLI surface blocks — added in v1.2-era Task B)
+     in the public CLI surface blocks - added in v1.2-era Task B)
    - `tests/test_v1_2_narrative.py` (every v1.2.0 feature reflected in
-     `AGENTS.md` and methodology — added in v1.2-era Task C)
+     `AGENTS.md` and methodology - added in v1.2-era Task C)
    - `tests/test_release_invariants.py` (the partial-version-bump guard
      + the `comparison-requirements` ADR-006 backward-compat fixture +
      `signals.yml` shape invariants)
@@ -42,14 +53,14 @@ release to a clean, reproducible artifact.
 
    If any of the drift-guard tests fail, **do not bump VERSION further.**
    A failed drift-guard means a public-facing artifact has not been
-   updated for a behaviour change — the framework's own G3 (traceability)
+   updated for a behaviour change - the framework's own G3 (traceability)
    is at risk. Fix the docs to catch up, re-run, then bump.
 
-4. **`make ci`** — must be green. Runs `compass policy lint` + `task
+4. **`make ci`** - must be green. Runs `compass policy lint` + `task
    lint` + `check` across all tasks under `.compass/work/`. (`make ci`
    is what CI runs; failing it locally means CI will fail.)
 
-5. **`make release`** — produces `dist/compass-<version>.tar.gz`.
+5. **`make release`** - produces `dist/compass-<version>.tar.gz`.
 
    The release script:
    - Clears `dist/` of any prior tarball so you publish one artifact,
@@ -65,14 +76,14 @@ release to a clean, reproducible artifact.
      not root-anchored and silently stripped the example task files.
 
 6. **Inspect the tarball.** `tar -tzf dist/compass-<version>.tar.gz | less`
-   — eyeballs are still useful even when the script's checks have
+   - eyeballs are still useful even when the script's checks have
    passed.
 
 7. **Distribute ONLY the tarball from step 5.** Do not zip the source
    tree from Finder, GitHub's "Download ZIP," or any other tool. Those
    zip the live working tree, including `__MACOSX`, `.DS_Store`,
    `.pytest_cache`, any `.bak` file, and any other dev noise. The
-   release script is the one place the artifact is guaranteed clean —
+   release script is the one place the artifact is guaranteed clean -
    every other path round-trips through dirt.
 
    The previous two RC reviewers both flagged the same dirty zip; the
@@ -108,8 +119,8 @@ release-time touchpoints:
 - **Pin to a commit SHA, not a branch**, wherever Compass is consumed
   downstream (in CI workflows, in vendored copies, in plugin
   installations). A branch can be rewritten; a SHA cannot.
-- **Mirror to a trusted location** for organisational use — a private
-  fork or an internal package mirror — and pin to that mirror.
+- **Mirror to a trusted location** for organisational use - a private
+  fork or an internal package mirror - and pin to that mirror.
 - **Review the diff between SHAs** before bumping the pin. Compass is
   small enough that this is realistic.
 
@@ -134,7 +145,7 @@ catch common drift:
 | `install.sh` does not double-register hooks in a plugin-source repo | `tests/test_install_plugin_detection.py` |
 | The release tarball contains no noise files | `scripts/release.sh` (built into `make release`) |
 
-These tests are not formalities — they are what makes a Compass
+These tests are not formalities - they are what makes a Compass
 release credibly reproducible. Run them; honour them.
 
 ---
@@ -144,5 +155,5 @@ release credibly reproducible. Run them; honour them.
 The release-procedure substance above is preserved from the
 1.0.0-rc.1 → 1.0.0 release checklist (see commit history). The
 rc.1-era readiness status table and the per-release "owed items" list
-that lived in that file are *resolved history* and live in git —
+that lived in that file are *resolved history* and live in git -
 this file is now generic guidance.

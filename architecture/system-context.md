@@ -3,11 +3,11 @@ STATUS: ACCEPTED
 date: 2026-05-24
 ---
 
-# Compass — System Context
+# Compass - System Context
 
 <!-- Frame reads this file at the start of every task and includes it (with
      its SHA-256 fingerprint) in .compass/work/<task>/architecture-loaded.yml.
-     Downstream agents — spec-author, planner, and the architect-lens — read
+     Downstream agents - spec-author, planner, and the architect-lens - read
      architecture-loaded.yml to get persistent architectural context that
      survives session boundaries and context compaction.
 
@@ -72,7 +72,7 @@ Logical surface: **strategies**
 
 ### Role Pipeline
 
-Compass has five roles — engineer, product owner, designer, marketer, QA — all
+Compass has five roles - engineer, product owner, designer, marketer, QA - all
 of whom are full pipeline citizens. Each role has entry-point slash commands
 (`/compass:intent`, `/compass:position`, `/compass:design`,
 `/compass:roundtable`) and dedicated agent files in `agents/`. The architect

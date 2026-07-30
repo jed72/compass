@@ -1,5 +1,5 @@
 """
-Tests for TRC-B4, TRC-B5, TRC-B8 — verify.fitness route promotion and
+Tests for TRC-B4, TRC-B5, TRC-B8 - verify.fitness route promotion and
 architecture documentation.
 """
 from __future__ import annotations

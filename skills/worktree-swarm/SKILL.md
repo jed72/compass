@@ -10,7 +10,7 @@ Parallelism in Compass is **decided in Plan** (the distribution map) and
 halves: how to decompose work correctly, and how to run and land the swarm
 without the parallelism costing more than it saves.
 
-## Topology — what runs when
+## Topology - what runs when
 
 | Topology | Streams | Setup | Who integrates |
 |---|---|---|---|
@@ -25,11 +25,11 @@ routing-guardrail caps bound it.
 ## The critical-blast-radius cap
 
 The standing cap: **`critical` blast radius pins `max_worktrees` to 1.** A
-critical change runs solo even on Expedition. This is deliberate — a swarm buys
+critical change runs solo even on Expedition. This is deliberate - a swarm buys
 speed but carries coordination risk, and on a critical change the coordination
 risk costs more than the speed saves. An Expedition that is heavy *and* solo is
 not a contradiction; it is the cap working. The Expedition still writes a
-`distribution-map.md` — it is the record of what could have been parallel and
+`distribution-map.md` - it is the record of what could have been parallel and
 why it wasn't.
 
 ## Decomposing work into independent streams (Plan)
@@ -42,14 +42,14 @@ and both must hold:
 2. **Disjoint scenarios.** The streams satisfy non-overlapping scenario groups
    from `spec.feature.md`.
 
-Independence is *determined*, not guessed — you derive it from the scenario
+Independence is *determined*, not guessed - you derive it from the scenario
 file and the technical plan. The scenario grouping done at Specify
 (Expedition's "group scenarios by independence") is the seed; the distribution
 map is where you confirm it against the plan.
 
 Practical decomposition heuristics:
 
-- **Cut along seams the architecture already has** — module boundaries, service
+- **Cut along seams the architecture already has** - module boundaries, service
   boundaries, layers. Cutting across a seam creates a shared surface and a
   guaranteed collision.
 - **Shared surface = shared stream, or sequenced streams.** If two units both
@@ -60,12 +60,12 @@ Practical decomposition heuristics:
   type or utility, that is a stream-zero that lands first, not a thing three
   streams each invent.
 - **Be honest about the count.** Four shaky streams are worse than two clean
-  ones. The map records *what could be parallel* — if the honest answer is
+  ones. The map records *what could be parallel* - if the honest answer is
   "less than it looks," that is the map's job to say.
 
 ## Git worktree mechanics
 
-A git worktree is a second working directory backed by the same repository —
+A git worktree is a second working directory backed by the same repository -
 its own checked-out branch, its own files, sharing one `.git`. That isolation
 is what lets a builder run a full red→green TDD cycle, including a failing
 suite, without destabilising siblings.
@@ -83,7 +83,7 @@ detection, and integration:
 
 - Hands each builder a charter: its worktree, its scenario group, its slice of
   the plan.
-- Monitors streams during Build for convergence on shared surface — shared
+- Monitors streams during Build for convergence on shared surface - shared
   files, shared interfaces, a scenario whose implementation reaches outside its
   group.
 - Intervenes *before* a collision: re-sequences streams, re-cuts a boundary, or
@@ -93,18 +93,18 @@ detection, and integration:
 **A builder** owns its stream and nothing else:
 
 - Works only inside its assigned worktree. Never touches a sibling's.
-- Routes every cross-stream need through the orchestrator — "I need to change
+- Routes every cross-stream need through the orchestrator - "I need to change
   an interface another stream owns" is an orchestrator message, never a reach
   across.
 - Runs full TDD inside its worktree (see `tdd-discipline`).
 
 ## Integration discipline (Land)
 
-1. Confirm every stream is independently green — the `verifier` has per-stream
+1. Confirm every stream is independently green - the `verifier` has per-stream
    evidence.
 2. The orchestrator runs `scripts/integrate.sh` to merge worktrees in a
    coordinated order (foundations first, dependents after).
-3. The orchestrator resolves any merge conflicts — no one else may.
+3. The orchestrator resolves any merge conflicts - no one else may.
 4. **Run combined regression across the integrated result.** This is
    non-negotiable on Expedition. Per-stream green does not imply integrated
    green; proving the combination is the entire reason the orchestrator owns
@@ -114,14 +114,14 @@ detection, and integration:
 
 ## Anti-patterns
 
-- **Optimistic decomposition** — declaring streams independent because you want
+- **Optimistic decomposition** - declaring streams independent because you want
   parallelism, not because the code and scenarios are disjoint. The collision
   surfaces at integration, where it is most expensive.
-- **The reaching builder** — a builder editing a sibling's worktree "just to
+- **The reaching builder** - a builder editing a sibling's worktree "just to
   unblock myself." It destroys the isolation guarantee for everyone.
-- **The coding orchestrator** — an orchestrator writing feature code. If it is
+- **The coding orchestrator** - an orchestrator writing feature code. If it is
   tempted to, the decomposition was wrong; fix the decomposition.
-- **Skipping combined regression** — trusting per-stream green. The integration
+- **Skipping combined regression** - trusting per-stream green. The integration
   is exactly where the untested interactions live.
-- **Swarming a critical change** — ignoring the cap. The cap is a routing
+- **Swarming a critical change** - ignoring the cap. The cap is a routing
   guardrail; honour it.

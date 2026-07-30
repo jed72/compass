@@ -22,16 +22,16 @@ CLI = ROOT / "cli" / "compass"
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 — the five-point mental model gains zero new top-level concepts
-# Source-of-truth (clarifications Q3): the bulleted list under
+# TRC-D1 - the five-point mental model gains zero new top-level concepts
+# Source-of-truth: the bulleted list under
 # "## The mental model in five points" in docs/five-minutes.md.
 # ---------------------------------------------------------------------------
 def test_trc_d1_mental_model_bullets_unchanged():
-    """TRC-D1 — the bulleted list under "## The mental model in five points"
+    """TRC-D1 - the bulleted list under "## The mental model in five points"
     in docs/five-minutes.md has the same number of top-level bullets it had
     before this task landed.
 
-    The pre-task count is the five-point model — by design (the heading
+    The pre-task count is the five-point model - by design (the heading
     promises "five points"). The three candidates introduce zero net-new
     top-level concepts; the new CLI verbs (analyze, next) and the derived
     artifact (docs/system-spec.md) are products of existing concepts.
@@ -45,7 +45,7 @@ def test_trc_d1_mental_model_bullets_unchanged():
     )
     assert m, "docs/five-minutes.md must contain '## The mental model in five points'"
     section = m.group(1)
-    # Count top-level numbered items — lines starting with "1. ", "2. ", etc.
+    # Count top-level numbered items - lines starting with "1. ", "2. ", etc.
     # at column 0. The list in this section is numbered, not bulleted.
     top_level_items = re.findall(r"^\d+\.\s+", section, re.MULTILINE)
     assert len(top_level_items) == 5, (
@@ -99,19 +99,19 @@ def test_trc_d2_only_two_new_public_cli_verbs():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D3 — no fixed-tier ladder is shipped
-# Source-of-truth: governance/routing-policy.yml — no `tier`, `level`, or
+# TRC-D3 - no fixed-tier ladder is shipped
+# Source-of-truth: governance/routing-policy.yml - no `tier`, `level`, or
 # equivalent vocabulary; the four reading dimensions remain
 # blast_radius/terrain/magnitude/intent (BR-012).
 # ---------------------------------------------------------------------------
 def test_trc_d3_no_tier_ladder_in_routing_policy():
-    """TRC-D3 — governance/routing-policy.yml has no `tier` or `level`
+    """TRC-D3 - governance/routing-policy.yml has no `tier` or `level`
     vocabulary; the four reading dimensions are unchanged."""
     text = (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
-    # Hard prohibition — no "tier:" or "level:" keys anywhere
+    # Hard prohibition - no "tier:" or "level:" keys anywhere
     for forbidden in ("tier:", "level:"):
         assert forbidden not in text, (
-            f"routing-policy.yml must not introduce '{forbidden}' — would be a tier-ladder"
+            f"routing-policy.yml must not introduce '{forbidden}' - would be a tier-ladder"
         )
     # Reading vocabulary keys are unchanged (the four dimensions + urgency + role)
     policy = yaml.safe_load(text)
@@ -123,7 +123,7 @@ def test_trc_d3_no_tier_ladder_in_routing_policy():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D4 — the five roles remain lenses; no new agent persona was added
+# TRC-D4 - the five roles remain lenses; no new agent persona was added
 # Source-of-truth: agents/*.md and governance/routing-policy.yml's role
 # enum. The agent count cannot grow, and the role enum stays at five.
 # ---------------------------------------------------------------------------
@@ -138,7 +138,7 @@ EXPECTED_ROLES = {
 
 
 def test_trc_d4_no_new_agent_persona_no_new_role():
-    """TRC-D4 — the count of role/lens agent files is unchanged; the five
+    """TRC-D4 - the count of role/lens agent files is unchanged; the five
     roles remain the canonical set (BR-013)."""
     agents_dir = ROOT / "agents"
     actual_agents = {p.name for p in agents_dir.glob("*.md")}
@@ -158,12 +158,12 @@ def test_trc_d4_no_new_agent_persona_no_new_role():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D5 — pipeline phases still flex by route
-# Source-of-truth: governance/routing-policy.yml `route_shapes` — at least
+# TRC-D5 - pipeline phases still flex by route
+# Source-of-truth: governance/routing-policy.yml `route_shapes` - at least
 # two route shapes differ in their phase-weight maps (BR-014).
 # ---------------------------------------------------------------------------
 def test_trc_d5_pipeline_phases_flex_by_route():
-    """TRC-D5 — the five route shapes have different phase-weight maps;
+    """TRC-D5 - the five route shapes have different phase-weight maps;
     none has been flattened to a one-size-fits-all shape (BR-014)."""
     policy = yaml.safe_load(
         (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
@@ -184,7 +184,7 @@ def test_trc_d5_pipeline_phases_flex_by_route():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D6 — phases and gates remain enforced
+# TRC-D6 - phases and gates remain enforced
 # Source-of-truth: governance/routing-policy.yml `immovable_gates` and every
 # route_shape's `gates` list (BR-015).
 # ---------------------------------------------------------------------------
@@ -192,7 +192,7 @@ IMMOVABLE_GATE_IDS = {"verify.correctness", "verify.governance", "verify.traceab
 
 
 def test_trc_d6_phases_and_gates_remain_enforced():
-    """TRC-D6 — immovable gates are still immovable; no route shape's gate
+    """TRC-D6 - immovable gates are still immovable; no route shape's gate
     set is empty (no fluid no-gate mode, BR-015)."""
     policy = yaml.safe_load(
         (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
@@ -209,36 +209,36 @@ def test_trc_d6_phases_and_gates_remain_enforced():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D7 — TDD remains a strategy that Spike suspends
-# Source-of-truth: hooks/pre-tool.sh — must read a .spike marker and suspend
+# TRC-D7 - TDD remains a strategy that Spike suspends
+# Source-of-truth: hooks/pre-tool.sh - must read a .spike marker and suspend
 # enforcement on a Spike route (BR-016).
 # ---------------------------------------------------------------------------
 def test_trc_d7_tdd_remains_a_strategy_spike_suspends():
-    """TRC-D7 — the pre-tool hook still reads the .spike marker and
+    """TRC-D7 - the pre-tool hook still reads the .spike marker and
     suspends red-before-green on Spike routes (BR-016)."""
     hook = (ROOT / "hooks" / "pre-tool.sh").read_text(encoding="utf-8")
     assert ".spike" in hook, "pre-tool.sh must read the .spike marker to be route-aware"
-    # The hook still enforces .red elsewhere — sanity that it's not been removed
+    # The hook still enforces .red elsewhere - sanity that it's not been removed
     assert ".red" in hook, "pre-tool.sh must still enforce the .red marker contract"
 
 
 # ---------------------------------------------------------------------------
-# TRC-D8 — every new capability functions on a bare repo with no /compass:init
+# TRC-D8 - every new capability functions on a bare repo with no /compass:init
 # Source-of-truth: the CLI's behaviour when invoked from a bare directory
 # with no project-level governance/ overrides. Falls back to the framework's
 # shipped defaults (BR-004 / NFR-ONR-001).
 # ---------------------------------------------------------------------------
 def test_trc_d8_bare_repo_zero_setup(tmp_path):
-    """TRC-D8 — `compass analyze` and `compass next` both produce a clean
+    """TRC-D8 - `compass analyze` and `compass next` both produce a clean
     no-op behaviour when invoked from a bare repo without /compass:init."""
-    # Bare repo — just a directory, no .compass/ at all
+    # Bare repo - just a directory, no .compass/ at all
     out_analyze = subprocess.run(
         [sys.executable, str(CLI), "analyze"],
         cwd=str(tmp_path), capture_output=True, text=True,
     )
     # On a bare repo, analyze should not crash with a parse error; it should
     # report cleanly that there are no artifacts. Exit code may be non-zero
-    # because no task is framed — but the error must be informative, not a
+    # because no task is framed - but the error must be informative, not a
     # traceback.
     assert "Traceback" not in out_analyze.stderr, (
         f"analyze on bare repo crashed: {out_analyze.stderr}"
@@ -253,15 +253,15 @@ def test_trc_d8_bare_repo_zero_setup(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D9 — route composition stays byte-identical across runs
+# TRC-D9 - route composition stays byte-identical across runs
 # Source-of-truth: `compass route evaluate --json` for a fixed reading set
 # returns byte-identical output across runs (NFR-DET-001).
 # ---------------------------------------------------------------------------
 def test_trc_d9_route_evaluate_deterministic(tmp_path):
-    """TRC-D9 — `compass route evaluate` is byte-identical for the same
+    """TRC-D9 - `compass route evaluate` is byte-identical for the same
     readings + the same routing policy."""
     # Run route evaluate twice with the same readings against the framework's
-    # own routing-policy.yml (no project overrides — work in tmp_path).
+    # own routing-policy.yml (no project overrides - work in tmp_path).
     cmd = [
         sys.executable, str(CLI), "route", "evaluate",
         "--reading", "blast_radius=contained",
@@ -282,7 +282,7 @@ def test_trc_d9_route_evaluate_deterministic(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D10 — the determinism boundary holds — no model call after readings
+# TRC-D10 - the determinism boundary holds - no model call after readings
 # Source-of-truth: static check of cli/compass for LLM SDK imports
 # (BR-002 / NFR-DET-002).
 # ---------------------------------------------------------------------------
@@ -299,7 +299,7 @@ FORBIDDEN_LLM_IMPORTS = (
 
 
 def test_trc_d10_no_llm_sdk_in_cli():
-    """TRC-D10 — `cli/compass` imports no LLM SDK on any code path. The
+    """TRC-D10 - `cli/compass` imports no LLM SDK on any code path. The
     determinism boundary is post-readings; the CLI is the post-boundary
     half and must be mechanism, not judgement."""
     cli_src = CLI.read_text(encoding="utf-8")

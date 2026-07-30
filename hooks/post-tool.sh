@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass hook: post-tool.sh  —  DEVLOG APPENDER
+# Compass hook: post-tool.sh  -  DEVLOG APPENDER
 # =============================================================================
 # Runs as a Claude Code PostToolUse hook, after an Edit/Write/MultiEdit tool
 # call completes. It does ONE lightweight thing: appends a short line to the
@@ -9,7 +9,7 @@
 #
 # WHAT IT DOES NOT DO (any more)
 #   It does not run the test suite, and it does not clear the .red marker. That
-#   is now `compass tdd-green`'s job — and the CLI does it honestly: it runs the
+#   is now `compass tdd-green`'s job - and the CLI does it honestly: it runs the
 #   test, confirms it passes, writes evidence/green.json, and only then clears
 #   .red. A hook quietly running a discovered test command and clearing the
 #   marker was the brittle, trust-based version; the CLI replaces it with an
@@ -56,7 +56,7 @@ else
 fi
 [ -z "${TARGET:-}" ] && exit 0
 
-# Ignore edits to Compass's own artifacts — they are not "the work", they are
+# Ignore edits to Compass's own artifacts - they are not "the work", they are
 # the record of it, and the devlog logs the work.
 case "$TARGET" in
   *.compass/*|*/.compass/*) exit 0 ;;
@@ -84,7 +84,7 @@ NOW="$(date '+%Y-%m-%d %H:%M')"
 # devlog.md is append-only; we only ever add to the bottom.
 if [ -f "$DEVLOG" ]; then
   {
-    printf '\n## %s — edit: %s\n\n' "$NOW" "$TARGET"
+    printf '\n## %s - edit: %s\n\n' "$NOW" "$TARGET"
     printf -- '- **Tool:** %s\n' "${TOOL:-edit}"
   } >> "$DEVLOG"
 fi

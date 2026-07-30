@@ -1,4 +1,4 @@
-# Architecture Decision Records — Compass Framework
+# Architecture Decision Records - Compass Framework
 
 This directory contains Compass's own Architecture Decision Records (ADRs).
 These are the founding decisions that define how the framework itself works and
@@ -26,14 +26,14 @@ Rules:
   number.
 - Numbers are **per-tree**. Compass's `architecture/decisions/` numbering
   starts at ADR-001. An adopting project's `architecture/decisions/` also
-  starts at ADR-001 — these are different trees, different sequences.
+  starts at ADR-001 - these are different trees, different sequences.
 - **Supersession** is via the `superseded_by` field, not by renumbering. If
   ADR-003 is replaced by a new decision, ADR-003 gains `superseded_by: ADR-007`
   and ADR-007 gains `supersedes: ADR-003`. The chain is navigable in both
   directions.
 - The `compass adr new <slug>` subcommand assigns the next sequential number
   and registers the file here. On a swarm with concurrent worktrees, two
-  streams may produce the same number — the orchestrator resolves the conflict
+  streams may produce the same number - the orchestrator resolves the conflict
   at integration by renumbering one side (see ADR-001 for the decision context
   that informs this).
 
@@ -53,9 +53,9 @@ Rules:
 
 ## Principle → ADR mapping
 
-The eight invariants (Inv-1..Inv-8) from the Compass architectural bootstrap
-(`cross-task-architectural-integrity/architecture-notes.md`) are covered by
-these six ADRs:
+Compass holds eight architectural invariants. The table below is where they are
+defined; everything else in `architecture/` cites them by id. Six ADRs cover
+them:
 
 | Invariant | Principle statement | ADR |
 |---|---|---|

@@ -9,16 +9,16 @@ superseded_by: ''
 
 ## Context
 
-Every artifact Compass produces today is **per-task**: `route.md`, `spec.feature.md`, `plan.md`, `verification-report.md`, `task.yml`, and so on all live under a single `.compass/work/<task>/` directory and describe one task's slice of work. The framework has no first-class concept of a **cross-task** artifact — a single document derived from many tasks' outputs.
+Every artifact Compass produces today is **per-task**: `route.md`, `spec.feature.md`, `plan.md`, `verification-report.md`, `task.yml`, and so on all live under a single `.compass/work/<task>/` directory and describe one task's slice of work. The framework has no first-class concept of a **cross-task** artifact - a single document derived from many tasks' outputs.
 
-The "living system spec" capability is the first such cross-task artifact. The requirement: the framework leaves behind *a durable, current description of the system derived from scenarios as they land* — not a pile of task directories, and not a document a human maintains by hand.
+The "living system spec" capability is the first such cross-task artifact. The requirement: the framework leaves behind *a durable, current description of the system derived from scenarios as they land* - not a pile of task directories, and not a document a human maintains by hand.
 
 Two specific risks need to be addressed:
 
-- **Treating the derived artifact as a second canonical spec** — a future agent or human edits `docs/system-spec.md` and the framework now has two competing sources of truth. This is the same risk `architecture-notes.md` files run against `spec.feature.md`, resolved there by the "lens annotates, never forks" pattern (ADR-004).
-- **In-memory derivation state that is not reconstructible from disk** — if the derivation accumulates ephemeral state during `scripts/integrate.sh` execution, the artifact can drift from what the landed task.ymls actually contain, and cold reconstruction is impossible. ADR-005 (state lives on disk) applies and must be honoured for the derivation's inputs too.
+- **Treating the derived artifact as a second canonical spec** - a future agent or human edits `docs/system-spec.md` and the framework now has two competing sources of truth. This is the same risk `architecture-notes.md` files run against `spec.feature.md`, resolved there by the "lens annotates, never forks" pattern (ADR-004).
+- **In-memory derivation state that is not reconstructible from disk** - if the derivation accumulates ephemeral state during `scripts/integrate.sh` execution, the artifact can drift from what the landed task.ymls actually contain, and cold reconstruction is impossible. ADR-005 (state lives on disk) applies and must be honoured for the derivation's inputs too.
 
-The framework also requires that landed-task state stay in place (clarifications Q6 — no `.compass/archive/` directory; ADR-006 backward-compat through optional fields) and that the derivation invocation not introduce a new public CLI verb (clarifications Q5 — public surface capped at `analyze` and `next`).
+The framework also requires that landed-task state stay in place (no `.compass/archive/` directory; ADR-006 keeps backward compatibility through optional fields) and that the derivation invocation not introduce a new public CLI verb (the public CLI surface stays capped at `analyze` and `next`).
 
 ## Decision
 
@@ -26,11 +26,11 @@ Cross-task derived artifacts follow four invariants:
 
 1. **Derived at Land.** Derivation runs as the final step of `scripts/integrate.sh`, after combined-regression green and the worktree merge. It is invoked through a private CLI entry point `compass _derive-system-spec --internal` whose subcommand name begins with `_` and is omitted from `compass --help`. The public CLI verb count is unchanged.
 
-2. **Reconstructible from landed-task state alone.** The derivation reads `.compass/work/*/task.yml` for every task whose `task.yml.status == 'landed'` and that file's linked `spec.feature.md`. No intermediate state, cache, or registry exists outside `.compass/work/`. Deleting `docs/system-spec.md` and re-running the derivation produces a byte-identical file (TRC-B8 + TRC-B11). The `task.yml.status` field is a new schema field added under ADR-006's backward-compat contract: absent or `'1.0'`-schema files default to `active` (not landed), so the derivation excludes them.
+2. **Reconstructible from landed-task state alone.** The derivation reads `.compass/work/*/task.yml` for every task whose `task.yml.status == 'landed'` and that file's linked `spec.feature.md`. No intermediate state, cache, or registry exists outside `.compass/work/`. Deleting `docs/system-spec.md` and re-running the derivation produces a byte-identical file. The `task.yml.status` field is a new schema field added under ADR-006's backward-compat contract: absent or `'1.0'`-schema files default to `active` (not landed), so the derivation excludes them.
 
-3. **Idempotent and deterministically ordered.** Re-running the derivation against unchanged inputs yields a byte-identical artifact (TRC-B3). Tasks are processed in Land-timestamp order, with task slug as the tiebreaker for ties. Supersession follows a defined algorithm: scenarios sharing an intent id across tasks → latest-landed wins for the current-behaviour section, earlier moves to an archived-behaviour appendix with task slug + Land date recorded against the entry (TRC-B4 + TRC-B4a, resolving clarifications Q8). Scenarios whose intent ids drift across tasks (a renaming refactor) cannot be auto-reconciled and surface as "potential supersession" advisories — the only human-judgement gap in the algorithm.
+3. **Idempotent and deterministically ordered.** Re-running the derivation against unchanged inputs yields a byte-identical artifact. Tasks are processed in Land-timestamp order, with task slug as the tiebreaker for ties. Supersession follows a defined algorithm: scenarios sharing an intent id across tasks → latest-landed wins for the current-behaviour section, earlier moves to an archived-behaviour appendix with task slug and Land date recorded against the entry. Scenarios whose intent ids drift across tasks (a renaming refactor) cannot be auto-reconciled and surface as "potential supersession" advisories - the only human-judgement gap in the algorithm.
 
-4. **Never a source-of-truth.** The derived artifact carries a header on its first line: `DERIVED FILE — do not hand-edit; edit .compass/work/<task>/spec.feature.md` (TRC-B10). Hand-edits to the derived file are silently overwritten by the next Land (TRC-B9, resolving clarifications Q10). The source-of-truth is, and remains, the per-task `spec.feature.md` files plus their `task.yml.scenarios` index. This is the same relationship `architecture-notes.md` has to `spec.feature.md` (ADR-004 — lens annotates, never forks) extended one level up: a derived cross-task artifact annotates the corpus of per-task specs, but does not replace them.
+4. **Never a source-of-truth.** The derived artifact carries a header on its first line: `DERIVED FILE - do not hand-edit; edit .compass/work/<task>/spec.feature.md`. Hand-edits to the derived file are silently overwritten by the next Land. The source-of-truth is, and remains, the per-task `spec.feature.md` files plus their `task.yml.scenarios` index. This is the same relationship `architecture-notes.md` has to `spec.feature.md` (ADR-004 - lens annotates, never forks) extended one level up: a derived cross-task artifact annotates the corpus of per-task specs, but does not replace them.
 
 ## Alternatives considered
 
@@ -51,7 +51,7 @@ Cross-task derived artifacts follow four invariants:
 
 **Negative:**
 - The `task.yml` schema gains a field (`status`), and `schema_version` bumps to `'1.1'`. Adopters who validate task.ymls in their own tooling against the published schema will need to update.
-- The supersession algorithm cannot auto-reconcile cases where intent ids drift across tasks; those cases surface as "potential supersession" advisories that a human must inspect. The framework accepts this gap deliberately — automated intent-id reconciliation would risk silently merging genuinely-different behaviours.
+- The supersession algorithm cannot auto-reconcile cases where intent ids drift across tasks; those cases surface as "potential supersession" advisories that a human must inspect. The framework accepts this gap deliberately - automated intent-id reconciliation would risk silently merging genuinely-different behaviours.
 - The private-entry-point convention (`_<name>`) is invisible to `compass --help` users but visible to anyone reading `cli/compass`. It must be clearly documented in the file's header comment.
 
 **Neutral / follow-on:**
@@ -60,8 +60,8 @@ Cross-task derived artifacts follow four invariants:
 
 ## References
 
-- `ADR-004` (one spec, many lenses; the lens annotates, never forks — the analogous pattern at the per-task level)
-- `ADR-005` (state lives on disk; conversation reconstructs from artifacts — the reconstructibility invariant)
-- `ADR-006` (backward compat is non-negotiable; every new mechanism no-ops cleanly — the schema migration discipline)
-- `scripts/integrate.sh` — the Land integration script the derivation hooks into
-- `schemas/task.schema.json` — the schema gaining the `status` field
+- `ADR-004` (one spec, many lenses; the lens annotates, never forks - the analogous pattern at the per-task level)
+- `ADR-005` (state lives on disk; conversation reconstructs from artifacts - the reconstructibility invariant)
+- `ADR-006` (backward compat is non-negotiable; every new mechanism no-ops cleanly - the schema migration discipline)
+- `scripts/integrate.sh` - the Land integration script the derivation hooks into
+- `schemas/task.schema.json` - the schema gaining the `status` field

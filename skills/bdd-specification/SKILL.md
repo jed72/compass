@@ -1,25 +1,25 @@
 ---
 name: bdd-specification
-description: How to write Given/When/Then scenarios that double as the acceptance suite — scenario granularity, the qualities of a runnable scenario, and how depth scales by route. Triggers during Specify and Clarify.
+description: How to write Given/When/Then scenarios that double as the acceptance suite - scenario granularity, the qualities of a runnable scenario, and how depth scales by route. Triggers during Specify and Clarify.
 ---
 
 # BDD Specification
 
-**BDD is strategy S1** — expressing acceptance criteria as Given/When/Then
+**BDD is strategy S1** - expressing acceptance criteria as Given/When/Then
 scenarios. It is the strong, shipped-on default *way* to satisfy **guardrail
-G2**: *acceptance defined before it is built — stated, and checkable*. Keep that
+G2**: *acceptance defined before it is built - stated, and checkable*. Keep that
 relationship straight.
 
-- **G2 is the guardrail** — hard, checkable. No code is written that no stated,
-  checkable acceptance criterion describes. The outcome — acceptance is stated
-  and it is checkable — is non-negotiable on every delivery route.
-- **BDD is the strategy** — Given/When/Then is the *form*. It is strong and
+- **G2 is the guardrail** - hard, checkable. No code is written that no stated,
+  checkable acceptance criterion describes. The outcome - acceptance is stated
+  and it is checkable - is non-negotiable on every delivery route.
+- **BDD is the strategy** - Given/When/Then is the *form*. It is strong and
   shipped-on, but it is a strategy: a context where the form genuinely does not
   fit is a recorded strategy deviation, not a framework violation. The hard
   line is that acceptance exists and is checkable; G/W/G is the default way to
   make it so.
 
-In Compass the BDD spec is not documentation that precedes the tests — it *is*
+In Compass the BDD spec is not documentation that precedes the tests - it *is*
 the tests, read at a different time. `spec.feature.md` is written once at
 Specify and run as the acceptance check at Verify. It is also the one artifact
 five roles read (see `role-translation`). Write it knowing all of that.
@@ -31,7 +31,7 @@ disciplined refinement chain: **vague idea → concrete examples → acceptance
 criteria → at least one executable specification each**.
 
 1. **Start with the vague idea.** "Users should be able to reset their
-   password." This is a wish, not a spec. It is the right starting point —
+   password." This is a wish, not a spec. It is the right starting point -
    not the ending point.
 
 2. **Generate concrete examples.** Ask: *what does that look like in the
@@ -42,7 +42,7 @@ criteria → at least one executable specification each**.
 
 3. **Distil into acceptance criteria.** Each example suggests a criterion:
    "Given a valid, unexpired reset token, the user can set a new password."
-   At this step you are also applying the ubiquitous language — the shared
+   At this step you are also applying the ubiquitous language - the shared
    vocabulary of the domain that every role (engineer, product owner, QA,
    marketer) uses consistently. Terms that are vague in conversation become
    precise in criteria. "Expired" gets a definition; "rate limit" gets a
@@ -50,14 +50,14 @@ criteria → at least one executable specification each**.
 
 4. **Write at least one executable specification per criterion.** The
    criterion becomes a Given/When/Then scenario. A criterion with no
-   runnable scenario is a wish that never became a check — and guardrail G2
+   runnable scenario is a wish that never became a check - and guardrail G2
    refuses that: acceptance must be *stated and checkable*. One runnable
    scenario per criterion is the minimum; multiple scenarios cover the edges.
 
 ### Naming discipline
 
 Scenario names carry the refinement: they state an **outcome**, not a step.
-"should" as a prefix disciplines this well — "should reject an expired
+"should" as a prefix disciplines this well - "should reject an expired
 token" names a required outcome, not a call-path.
 
 - *Prefer:* `Scenario: expired token should be rejected`
@@ -66,19 +66,19 @@ token" names a required outcome, not a call-path.
 The ubiquitous language is not optional. When "user," "subscriber," and
 "account" are used interchangeably in scenarios, they carry different
 implications to different readers. Pick the domain term and use it
-consistently — the spec is the contract between all five roles.
+consistently - the spec is the contract between all five roles.
 
 ### What stays refused
 
 **User stories** ("As a [role], I want [feature], so that [outcome]") are
-refused as a per-role spec format in Compass — see **ADR-004 (one spec, many
+refused as a per-role spec format in Compass - see **ADR-004 (one spec, many
 lenses)**. The rationale: a user story format embeds a single role's
 perspective into the spec, which means one role's spec and another role's
 spec diverge. Compass uses one `spec.feature.md` that all five roles read
 through their own lens (see `role-translation`), not five separate
 role-scoped artifacts. The BDD scenario *is* the shared artifact; the
 role-translation lens is how each role reads it. User stories as a format
-are fine upstream of Compass (in a brief, a brief or a Jira ticket) — they
+are fine upstream of Compass (in a brief, a brief or a Jira ticket) - they
 are not the spec, and they do not replace the scenario.
 
 ## What a scenario is
@@ -92,7 +92,7 @@ Scenario: <a behaviour, named as an outcome>
 
 A scenario is a single behaviour with a single trigger. It is concrete enough
 that someone could execute it by hand and concrete enough that a test can
-assert it automatically — those are the same bar.
+assert it automatically - those are the same bar.
 
 ## The qualities of a good scenario
 
@@ -100,7 +100,7 @@ assert it automatically — those are the same bar.
   verified email and no active subscription" can be set up and asserted.
 - **One When.** Two actions in `When` means two scenarios. The trigger is
   singular.
-- **Observable Then.** The outcome must be checkable from outside — a returned
+- **Observable Then.** The outcome must be checkable from outside - a returned
   value, a stored state, a rendered element, an emitted event. "Then it works"
   is not a Then. "Then the response is 402 and no charge row is written" is.
 - **Declarative, not procedural.** Describe *what* is true, not the click-path
@@ -109,52 +109,52 @@ assert it automatically — those are the same bar.
   "Scenario: test token". The name is the first thing the PM, marketer, and QA
   read.
 
-## Scenario granularity — splitting and merging
+## Scenario granularity - splitting and merging
 
 - **Split** when a scenario has an "and" in its `When`, or branches in its
-  `Then` ("Then either X or Y"), or needs a paragraph of `Given` — those are
+  `Then` ("Then either X or Y"), or needs a paragraph of `Given` - those are
   multiple behaviours wearing one name.
 - **Merge** when two scenarios differ only in an incidental value and assert the
-  same behaviour — use a scenario outline / examples table instead of copying.
+  same behaviour - use a scenario outline / examples table instead of copying.
 - The unit is *one behaviour*, not one feature and not one line of code. A
   feature is a set of scenarios; a line of code traces *up* to a scenario but is
   not one-to-one with it.
 
 ## How depth scales by route
 
-The vocabulary never changes. The depth does — and the route tells you how much.
+The vocabulary never changes. The depth does - and the route tells you how much.
 
-- **Express** — exactly one scenario. The happy path of the new behaviour, no
+- **Express** - exactly one scenario. The happy path of the new behaviour, no
   more. If you cannot capture it in one unambiguous scenario, the route was
   mis-composed: it is not Express. Say so and send it back to Frame.
-- **Standard** — a small feature set: the happy path, the realistic edges, and
-  the failure modes that actually matter. Not every conceivable edge — the ones
+- **Standard** - a small feature set: the happy path, the realistic edges, and
+  the failure modes that actually matter. Not every conceivable edge - the ones
   with real consequence.
-- **Expedition** — full discovery. Work the brief and the problem space for the
-  whole behaviour set. Then **group the scenarios by independence** — disjoint
-  code, disjoint scenarios — because that grouping is what seeds the
+- **Expedition** - full discovery. Work the brief and the problem space for the
+  whole behaviour set. Then **group the scenarios by independence** - disjoint
+  code, disjoint scenarios - because that grouping is what seeds the
   distribution map the Planner builds.
-- **Hotfix** — the scenario *is* a failing regression test that reproduces the
+- **Hotfix** - the scenario *is* a failing regression test that reproduces the
   defect. It is written reproduce-first, before any fix, and it is
   simultaneously the BDD scenario and the TDD red. At Land it gets promoted into
   a properly-formed Given/When/Then scenario as part of the mandatory backfill.
-- **Spike** — the BDD strategy does **not** run. A spike has no acceptance
-  criteria — its output is knowledge, not behaviour — so Specify collapses to
+- **Spike** - the BDD strategy does **not** run. A spike has no acceptance
+  criteria - its output is knowledge, not behaviour - so Specify collapses to
   the *question* ("what do we need to learn, and what would a useful answer look
   like?") and Clarify is skipped. You write no scenario file on a Spike. If the
   spike graduates, real scenarios are written when it re-frames into a delivery
   route, where G2 applies in full.
 
-## Clarify — QA the spec against itself and against governance
+## Clarify - QA the spec against itself and against governance
 
 Clarify is where the spec is verified *as a spec*, before anyone builds from it.
 Walk it for:
 
-- **Contradictions** — two scenarios that cannot both hold.
-- **Gaps** — a stated outcome (or a brief success signal) with no scenario.
-- **Untestable Thens** — outcomes that cannot be observed from outside.
-- **Ambiguous quantifiers** — "quickly", "most", "large" with no number.
-- **Governance conflicts** — scenarios that cross a guardrail (a project
+- **Contradictions** - two scenarios that cannot both hold.
+- **Gaps** - a stated outcome (or a brief success signal) with no scenario.
+- **Untestable Thens** - outcomes that cannot be observed from outside.
+- **Ambiguous quantifiers** - "quickly", "most", "large" with no number.
+- **Governance conflicts** - scenarios that cross a guardrail (a project
   coverage or security floor, an irreversible-surface rule) or that depart from
   an applicable strategy without a recorded reason. A guardrail conflict is a
   must-fix; a strategy departure is a note and a conversation.
@@ -167,13 +167,13 @@ on Express only because the one scenario was certified unambiguous; it is
 
 ## Anti-patterns
 
-- **The implementation scenario** — `Given the cache is warm, When flushCache()
+- **The implementation scenario** - `Given the cache is warm, When flushCache()
   is called…`. That tests the code's shape, not its behaviour. Scenarios outlive
   implementations.
-- **The unfalsifiable Then** — "Then the user has a good experience." If it
+- **The unfalsifiable Then** - "Then the user has a good experience." If it
   cannot fail, it cannot pass; it is not a scenario.
-- **The orphan-creating spec** — leaving real behaviour with no scenario.
+- **The orphan-creating spec** - leaving real behaviour with no scenario.
   Guardrail G2 forbids code that no stated acceptance criterion describes; the
   spec is where you prevent the orphan, not Verify.
-- **The novel** — a scenario with five `Given` lines and three `When` lines.
+- **The novel** - a scenario with five `Given` lines and three `When` lines.
   Split it.

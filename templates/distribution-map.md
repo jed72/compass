@@ -6,7 +6,7 @@ Produced by: the Plan phase (`/compass:plan`) on pair/swarm-capable routes;
 Lives at:    .compass/work/<task-slug>/distribution-map.md
 Role in the pipeline: the record of what could run in parallel and why.
 Plan produces it; `scripts/swarm.sh` reads it to create worktrees. An
-Expedition writes this file even if a cap pins it solo — the map is the
+Expedition writes this file even if a cap pins it solo - the map is the
 record of what could have been parallel and why it wasn't.
 
 Independence has two tests, both must hold: disjoint code AND disjoint
@@ -15,7 +15,7 @@ scenario groups (see the worktree-swarm skill).
 Fill every {{PLACEHOLDER}}.
 -->
 
-# Distribution Map — {{TASK_SLUG}}
+# Distribution Map - {{TASK_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** plan.md §4, spec.feature.md
 > **Consumed by:** Distribute, `scripts/swarm.sh`, the `orchestrator` agent
@@ -34,15 +34,15 @@ Fill every {{PLACEHOLDER}}.
 
 <!-- For each pair of units, are they independent? Independent = disjoint
      code AND disjoint scenarios. Shared surface = either fold into one
-     stream or sequence them. Be honest — optimistic decomposition surfaces
+     stream or sequence them. Be honest - optimistic decomposition surfaces
      as a collision at integration. -->
 
 | Unit pair | Disjoint code? | Disjoint scenarios? | Verdict |
 |---|---|---|---|
-| U1 ↔ U2 | {{yes/no}} | {{yes/no}} | {{independent \| shared surface — fold \| shared surface — sequence}} |
+| U1 ↔ U2 | {{yes/no}} | {{yes/no}} | {{independent \| shared surface - fold \| shared surface - sequence}} |
 | U1 ↔ U3 | {{…}} | {{…}} | {{…}} |
 
-**Shared foundations pulled forward:** {{e.g. "U0: the shared `Money` type — lands first, others branch from it" — or "none"}}
+**Shared foundations pulled forward:** {{e.g. "U0: the shared `Money` type - lands first, others branch from it" - or "none"}}
 
 ## 3. Scenario-group → stream mapping
 
@@ -66,11 +66,11 @@ Fill every {{PLACEHOLDER}}.
 <!-- Topology is a routed decision. The worktree cap comes from the
      routing-guardrail `caps` in governance/routing-policy.yml, recorded in
      route.md by the CLI. THE STANDING CAP: critical blast radius pins
-     max_worktrees to 1 — an Expedition can be heavy AND solo. If the cap
+     max_worktrees to 1 - an Expedition can be heavy AND solo. If the cap
      and the proposed count disagree, the cap wins; record it as
      cap-driven, not as a de-scope. -->
 
-- Routing-guardrail cap from `route.md`: {{e.g. "critical blast radius → max_worktrees: 1" — or "none"}}
+- Routing-guardrail cap from `route.md`: {{e.g. "critical blast radius → max_worktrees: 1" - or "none"}}
 - **Final stream count after caps:** {{N}}
 - If capped below the proposed count: {{which units were folded/sequenced as a result, and the new branch plan}}
 
@@ -82,4 +82,4 @@ Fill every {{PLACEHOLDER}}.
 - [ ] Every "independent" verdict in §2 passed both tests (disjoint code AND scenarios).
 - [ ] Final stream count respects every cap in §5.
 
-Next phase: **Distribute** (`/compass:distribute`) — runs `scripts/swarm.sh` with this map.
+Next phase: **Distribute** (`/compass:distribute`) - runs `scripts/swarm.sh` with this map.

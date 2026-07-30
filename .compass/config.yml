@@ -1,15 +1,15 @@
-# Compass — per-project configuration
-# Copied into a project by `/compass:init` (which is optional — the shipped
+# Compass - per-project configuration
+# Copied into a project by `/compass:init` (which is optional - the shipped
 # governance/ defaults apply with zero setup).
 #
 # AUTHORITATIVE GOVERNANCE LIVES IN governance/, NOT HERE.
-#   - governance/routing-policy.yml — the machine-readable routing policy:
+#   - governance/routing-policy.yml - the machine-readable routing policy:
 #     route shapes, default_shapes, floors, caps, immovable_gates, role_rules.
 #     `compass route evaluate` runs this. It is the single source of truth for
 #     how a route is composed and constrained.
-#   - governance/guardrails.yml — the machine-readable guardrail checks.
+#   - governance/guardrails.yml - the machine-readable guardrail checks.
 #     `compass check` runs this.
-# This file holds only genuine PROJECT KNOBS — things routing-policy.yml has no
+# This file holds only genuine PROJECT KNOBS - things routing-policy.yml has no
 # opinion on. Routing rules are deliberately NOT duplicated here: a value in
 # two places is a value that drifts.
 
@@ -19,9 +19,9 @@ version: 1.0.0
 # How strictly Compass enforces. Start in `advisory` to pilot Compass without
 # delivery friction; switch to `enforced` once the team is ready.
 #   advisory : compass check / compass ci report every failure clearly, but
-#              return exit 0 — they DO NOT block. Every report banner says
+#              return exit 0 - they DO NOT block. Every report banner says
 #              "[mode: advisory]" so nobody mistakes it for enforced.
-#   enforced : compass check / compass ci return non-zero on any failure —
+#   enforced : compass check / compass ci return non-zero on any failure -
 #              the gate is real.
 # The default for a project that has not run /compass:init is `enforced`. A
 # project that opts in to `advisory` does so deliberately, and it shows.
@@ -30,7 +30,7 @@ mode: enforced
 project:
   # The name shown in artifact headers and the devlog. In a project that has
   # run `/compass:init`, this is set to the project's own name. The value
-  # below is the FRAMEWORK REPO's own — `/compass:init` copies this file into
+  # below is the FRAMEWORK REPO's own - `/compass:init` copies this file into
   # a project and prompts for the project name; do not commit "Compass
   # (framework)" into your project's `.compass/config.yml`.
   name: "Compass (framework)"
@@ -43,21 +43,21 @@ project:
 
 swarm:
   # The worktree root, relative to the project. Each stream gets a subdir.
-  # The swarm/pair/solo decision and the worktree CAP are routing concerns —
+  # The swarm/pair/solo decision and the worktree CAP are routing concerns -
   # they come from route_shapes.topology and routing_guardrails.caps in
   # governance/routing-policy.yml, not from here.
   worktree_root: "../.compass-worktrees"
 
 artifacts:
   # Where per-task working state lives. This directory IS committed in a real
-  # project — it is the audit trail, not scratch. Holds work/<task-slug>/
+  # project - it is the audit trail, not scratch. Holds work/<task-slug>/
   # (each task's route.md, task.yml, spec.feature.md, …) and the
   # .compass/current-task pointer the CLI uses to resolve the active task.
   work_dir: ".compass/work"
 
 roles:
   # Which role entry points are enabled for this project. All five ship
-  # enabled by default — Compass treats them as full pipeline citizens.
+  # enabled by default - Compass treats them as full pipeline citizens.
   enabled:
     - engineer
     - product-owner

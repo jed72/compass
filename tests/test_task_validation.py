@@ -115,7 +115,7 @@ def test_task_lint_with_explicit_file_path(run_cli, make_task, project):
 
 
 # --- friction (the self-calibration signal) --------------------------------
-# TRC-A1, TRC-F3 — the optional `friction:` block on the task spine.
+# TRC-A1, TRC-F3 - the optional `friction:` block on the task spine.
 
 
 def test_friction_block_validates(run_cli, make_task):

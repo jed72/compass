@@ -2,31 +2,31 @@
 
 Covers all 18 scenarios from spec.feature.md:
 
-Group A — Narrative artifacts ship with required structure
-  TRC-A1 — system-context.md exists with canonical sections
-  TRC-A2 — relations.md documents the call graph
-  TRC-A3 — ownership.md documents boundaries
+Group A - Narrative artifacts ship with required structure
+  TRC-A1 - system-context.md exists with canonical sections
+  TRC-A2 - relations.md documents the call graph
+  TRC-A3 - ownership.md documents boundaries
 
-Group B — ADRs encode P1..P8
-  TRC-B1 — architecture/decisions/ contains exactly six founding ADRs
-  TRC-B2 — ADRs follow the template structure
-  TRC-B3 — README.md indexes the ADRs
-  TRC-B4 — At least one ADR demonstrates substantive alternatives + negative consequences
+Group B - ADRs encode P1..P8
+  TRC-B1 - architecture/decisions/ contains exactly six founding ADRs
+  TRC-B2 - ADRs follow the template structure
+  TRC-B3 - README.md indexes the ADRs
+  TRC-B4 - At least one ADR demonstrates substantive alternatives + negative consequences
 
-Group C — Mechanism integration
-  TRC-C1 — frame_load_architecture returns the new artifacts and ADRs
-  TRC-C2 — SHA-256 is recorded per artifact
-  TRC-C3 — Architect-lens cites Compass's own ADRs on a framework task
+Group C - Mechanism integration
+  TRC-C1 - frame_load_architecture returns the new artifacts and ADRs
+  TRC-C2 - SHA-256 is recorded per artifact
+  TRC-C3 - Architect-lens cites Compass's own ADRs on a framework task
 
-Group D — CLAUDE.md amendment in lockstep
-  TRC-D1 — CLAUDE.md notes Compass itself ships an architecture/
-  TRC-D2 — CLAUDE.md does not claim unbuilt features
+Group D - CLAUDE.md amendment in lockstep
+  TRC-D1 - CLAUDE.md notes Compass itself ships an architecture/
+  TRC-D2 - CLAUDE.md does not claim unbuilt features
 
-Group E — Backward compat + regression
-  TRC-E1 — Existing test suite still passes
-  TRC-E2 — Projects without architecture/ still no-op cleanly
-  TRC-E3 — compass check still passes 10/10
-  TRC-E4 — Lint count does not regress
+Group E - Backward compat + regression
+  TRC-E1 - Existing test suite still passes
+  TRC-E2 - Projects without architecture/ still no-op cleanly
+  TRC-E3 - compass check still passes 10/10
+  TRC-E4 - Lint count does not regress
 """
 from __future__ import annotations
 
@@ -83,7 +83,7 @@ def run_cli(*args: str) -> subprocess.CompletedProcess:
 
 
 # ---------------------------------------------------------------------------
-# Group A — Narrative artifacts
+# Group A - Narrative artifacts
 # ---------------------------------------------------------------------------
 
 
@@ -94,7 +94,7 @@ def test_system_context_exists_with_canonical_sections():
     content = path.read_text(encoding="utf-8")
     # The canonical sections that actually exist in system-context.md as
     # authored (see the file). The Stream-B rewrite of this test originally
-    # expected "## Boundaries" + "## Principles" — neither is in the file.
+    # expected "## Boundaries" + "## Principles" - neither is in the file.
     # Aligned at Land integration of comparison-requirements (TRC-D5 honoured).
     expected = ["## Components", "## Boundary conditions", "## External dependencies"]
     for section in expected:
@@ -126,7 +126,7 @@ def test_ownership_documents_boundaries():
 
 
 # ---------------------------------------------------------------------------
-# Group B — ADRs
+# Group B - ADRs
 # ---------------------------------------------------------------------------
 
 
@@ -159,8 +159,8 @@ def test_adrs_cover_p1_to_p8():
     assert len(numbers) == len(set(numbers)), "ADR numbers must be unique"
 
     # The founding six (001-006) must be contiguous with no gaps.
-    # ADRs beyond 006 are added by tasks in this Expedition (ADR-007 by stream-A,
-    # ADR-008 by stream-B); they may be present or absent depending on integration
+    # ADRs beyond 006 are added by later tasks; they may be present or absent
+    # depending on integration
     # order, so they are not checked for contiguity here.
     founding = sorted(n for n in numbers if n <= 6)
     assert founding == list(range(1, len(founding) + 1)), (
@@ -186,7 +186,7 @@ def test_adrs_cover_p1_to_p8():
 def test_adr_structure():
     """TRC-B2: Every ADR has required frontmatter fields and five sections."""
     adrs = _adr_files()
-    assert adrs, "No ADR files found — test_adrs_cover_p1_to_p8 should catch this first"
+    assert adrs, "No ADR files found - test_adrs_cover_p1_to_p8 should catch this first"
 
     required_fm_fields = {"id", "title", "status", "date", "supersedes", "superseded_by"}
     required_sections = [
@@ -271,7 +271,7 @@ def test_at_least_one_adr_has_substantive_alternatives():
 
 
 # ---------------------------------------------------------------------------
-# Group C — Mechanism integration
+# Group C - Mechanism integration
 # ---------------------------------------------------------------------------
 
 
@@ -329,7 +329,7 @@ def test_architect_lens_cites_own_adrs():
     # Check the one in the current task dir (if present) or derive fresh.
     arch_loaded = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "architecture-loaded.yml"
     if not arch_loaded.is_file():
-        pytest.skip("architecture-loaded.yml not present for self-architecture task — "
+        pytest.skip("architecture-loaded.yml not present for self-architecture task - "
                     "run Frame to generate it")
     data = yaml.safe_load(arch_loaded.read_text(encoding="utf-8"))
     adr_ids = [a["id"] for a in data.get("adrs", [])]
@@ -339,7 +339,7 @@ def test_architect_lens_cites_own_adrs():
 
 
 # ---------------------------------------------------------------------------
-# Group D — CLAUDE.md
+# Group D - CLAUDE.md
 # ---------------------------------------------------------------------------
 
 
@@ -367,13 +367,13 @@ def test_claude_md_does_not_claim_unbuilt_features():
 
 
 # ---------------------------------------------------------------------------
-# Group E — Backward compat + regression
+# Group E - Backward compat + regression
 # ---------------------------------------------------------------------------
 
 
 def test_projects_without_architecture_still_noop():
     """TRC-E2: frame_load_architecture on a project with no architecture/ dir
-    returns an empty record — it does not error."""
+    returns an empty record - it does not error."""
     import types as _types
     import tempfile
 
@@ -405,10 +405,10 @@ def test_policy_lint_passes():
 
 def test_lint_count_does_not_regress():
     """TRC-E4: task lint does not produce more errors than before."""
-    # This test uses the current task.yml — if it lints clean, regression is OK.
+    # This test uses the current task.yml - if it lints clean, regression is OK.
     task_yml = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "task.yml"
     if not task_yml.is_file():
-        pytest.skip("self-architecture task.yml not present — cannot regression-check")
+        pytest.skip("self-architecture task.yml not present - cannot regression-check")
     result = run_cli("task", "lint", "--file", str(task_yml))
     assert result.returncode == 0, (
         f"self-architecture task.yml no longer lints clean:\n{result.stdout}"

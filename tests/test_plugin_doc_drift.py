@@ -7,7 +7,7 @@ assertions over the published doc files.
 
 Why this file exists separate from the rest of tests/: the existing test
 suite defends the CLI's safety contract (see tests/README.md). These tests
-defend a one-off documentation fix. They are still real tests — they run
+defend a one-off documentation fix. They are still real tests - they run
 under `pytest tests/`, they fail when the docs drift, and `compass tdd-red`
 / `compass tdd-green` write typed test-run evidence the verify gates accept.
 """
@@ -22,12 +22,12 @@ def _read(rel):
 
 
 # ---------------------------------------------------------------------------
-# Group A — install-surface accuracy (D1)
+# Group A - install-surface accuracy (D1)
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_readme_source_install_has_path_note():
     """README's source-install paragraph tells the reader how to invoke the
-    compass CLI — by adding bin/ to PATH or via `python3 cli/compass`."""
+    compass CLI - by adding bin/ to PATH or via `python3 cli/compass`."""
     readme = _read("README.md")
 
     # The source-install code block (clone → bash install.sh → pip install).
@@ -54,21 +54,49 @@ def test_trc_a1_readme_source_install_has_path_note():
     )
 
 
+ON_PATH_CLAIM = re.compile(
+    r"(?:puts|adds)\s+the\s+[`']?compass[`']?\s+CLI\s+(?:on|to)\s+your\s+path",
+    re.IGNORECASE,
+)
+
+
+def _on_path_claims_about_install_sh(text):
+    """Occurrences of "puts the compass CLI on your PATH" that are about install.sh.
+
+    The plugin really does put the CLI on PATH, so the sentence is true when its
+    subject is the plugin and false when its subject is install.sh. Matching the
+    phrase alone cannot tell those apart, so this looks at what the sentence is
+    talking about: the 200 characters before the claim.
+    """
+    found = []
+    for m in ON_PATH_CLAIM.finditer(text):
+        preceding = text[max(0, m.start() - 200):m.start()]
+        if re.search(r"install\.sh", preceding) and not re.search(
+            r"\bplugin\b", preceding[preceding.rfind("install.sh"):]
+        ):
+            found.append(text[max(0, m.start() - 120):m.end() + 60])
+    return found
+
+
 def test_trc_a2_quickstart_drops_install_sh_path_claim():
     """quickstart.md §1 must not claim install.sh modifies PATH, and must
     explain how to invoke the CLI after a source install."""
     quickstart = _read("docs/quickstart.md")
 
-    # The misleading phrase from the Spike must be gone.
-    misleading = re.search(
-        r"puts\s+the\s+[`']?compass[`']?\s+CLI\s+on\s+your\s+path",
-        quickstart,
-        re.IGNORECASE,
+    claims = _on_path_claims_about_install_sh(quickstart)
+    assert not claims, (
+        "quickstart.md claims install.sh puts the compass CLI on PATH. It does "
+        "not; only the plugin install does.\nFound:\n" + "\n---\n".join(claims)
     )
-    assert misleading is None, (
-        "quickstart.md still claims install.sh puts the compass CLI on PATH. "
-        f"Found:\n"
-        f"{quickstart[max(0, misleading.start()-60):misleading.end()+60] if misleading else ''}"
+
+    # And the disclaimer must be present, not merely the absence of the claim.
+    assert re.search(
+        r"install\.sh[^.]{0,80}does\s+\*{0,2}not\*{0,2}\s+modify\s+your\s+PATH",
+        quickstart, re.IGNORECASE,
+    ), (
+        "quickstart.md must say outright that install.sh does not modify your "
+        "PATH. Silence leaves a reader to assume it does, which is the "
+        "misreading this test exists to prevent."
     )
 
     # And there must be a positive instruction about CLI invocation.
@@ -85,7 +113,7 @@ def test_trc_a2_quickstart_drops_install_sh_path_claim():
 
 
 # ---------------------------------------------------------------------------
-# Group B — adapter-layer file listings (D2)
+# Group B - adapter-layer file listings (D2)
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_readme_tree_lists_bin_and_plugin_manifest():
@@ -135,7 +163,7 @@ def test_trc_b3_portability_adapter_block_and_mapping_table():
     and the mapping table has a row for the install surface."""
     port = _read("docs/portability.md")
 
-    # The adapter-layer block — the fenced code listing that starts with
+    # The adapter-layer block - the fenced code listing that starts with
     # `commands/` and lists agents/, skills/, hooks/, etc.
     m = re.search(
         r"###\s+The Claude Code adapter layer.*?(?=^###\s|\Z)",
@@ -169,7 +197,7 @@ def test_trc_b3_portability_adapter_block_and_mapping_table():
 
 
 # ---------------------------------------------------------------------------
-# Group C — runtime-neutral path string (D3)
+# Group C - runtime-neutral path string (D3)
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_agents_uses_compass_prefix():
@@ -194,19 +222,16 @@ def test_trc_c1_agents_uses_compass_prefix():
 
 
 # ---------------------------------------------------------------------------
-# Failure-mode coverage — no half-fix (F1)
+# Failure-mode coverage - no half-fix (F1)
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_half_fix_misleading_phrases_removed():
     """No file contains its specific misleading phrase from the Spike's findings."""
     quickstart = _read("docs/quickstart.md")
-    bad_quickstart = re.search(
-        r"puts\s+the\s+[`']?compass[`']?\s+CLI\s+on\s+your\s+path",
-        quickstart,
-        re.IGNORECASE,
-    )
-    assert bad_quickstart is None, (
-        "quickstart.md still contains the install.sh-puts-CLI-on-PATH claim"
+    bad_quickstart = _on_path_claims_about_install_sh(quickstart)
+    assert not bad_quickstart, (
+        "quickstart.md attributes the on-PATH behaviour to install.sh. Only "
+        "the plugin install does that.\nFound:\n" + "\n---\n".join(bad_quickstart)
     )
 
     agents = _read("AGENTS.md")

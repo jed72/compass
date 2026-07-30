@@ -1,6 +1,6 @@
-"""TRC-E1 — evidence-gates frames verify.correctness as acceptance/releasability gate.
-TRC-E2 — evidence-gates frames the tdd-red/tdd-green loop as the commit stage.
-TRC-E3 — Release and Production stages stay out of scope in evidence-gates.
+"""TRC-E1 - evidence-gates frames verify.correctness as acceptance/releasability gate.
+TRC-E2 - evidence-gates frames the tdd-red/tdd-green loop as the commit stage.
+TRC-E3 - Release and Production stages stay out of scope in evidence-gates.
 
 Serves: INT-9
 Spec:

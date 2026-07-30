@@ -18,7 +18,7 @@ This created two problems. First, it was difficult to audit: if the route
 seemed wrong, you could not tell whether the human had misread the terrain or
 whether the routing logic had applied a policy incorrectly. Second, it made
 the mechanism fragile: if you wanted to change the routing policy, you had to
-be careful not to accidentally also change what constituted a "reading" — the
+be careful not to accidentally also change what constituted a "reading" - the
 two concerns were entangled.
 
 The framework needed a design decision: should judgement and mechanism be
@@ -48,9 +48,9 @@ inputs: same output.
 
 | Alternative | Why considered | Why rejected |
 |---|---|---|
-| Co-locate readings and route in a single `framing:` block in `task.yml` | Simpler schema — one block for everything Frame produces | The human's judgement becomes indistinguishable from the computed result; audits cannot determine which changed when a re-frame occurs |
+| Co-locate readings and route in a single `framing:` block in `task.yml` | Simpler schema - one block for everything Frame produces | The human's judgement becomes indistinguishable from the computed result; audits cannot determine which changed when a re-frame occurs |
 | Let the mechanism propose initial readings (pre-filling blast radius, terrain) and have the human confirm | Reduces human effort at Frame | Pre-filled values become anchors; the human loses calibration discipline; the feedback loop that makes the Needle improve over time (via `/compass:calibration`) breaks |
-| Store readings in a separate `readings.yml` file outside `task.yml` | Clean separation at the file level, not just the field level | Creates a two-file coordination problem; `task.yml` is the task spine — splitting it creates surface for inconsistency |
+| Store readings in a separate `readings.yml` file outside `task.yml` | Clean separation at the file level, not just the field level | Creates a two-file coordination problem; `task.yml` is the task spine - splitting it creates surface for inconsistency |
 
 ## Consequences
 
@@ -67,24 +67,24 @@ inputs: same output.
 **Negative:**
 - Every framework task now requires a human to fill in four dimensions before
   any code-changing tool call. This is friction. On small or obvious tasks, it
-  can feel like ceremony. The framework accepts this cost deliberately — the
+  can feel like ceremony. The framework accepts this cost deliberately - the
   calibration signal is worth more than the saved seconds per task.
 - Mechanism-produced state living outside `task.yml.readings` means the schema
   has multiple sections with different write-authorities. New contributors
-  sometimes misplace state into `readings` by accident (see B-Risk 1 in the
-  prior task's architecture-notes.md). The `compass check` validation catches
-  this, but the rule needs to be taught.
+  sometimes misplace state into `readings` by accident, which is why
+  `architecture/ownership.md` states it as a boundary rule. The `compass check`
+  validation catches this, but the rule needs to be taught.
 
 **Neutral / follow-on:**
 - This decision implies that a tool that proposes readings ("I think this is
-  `magnitude: standard` because...") is an advisor, not an automator — the
+  `magnitude: standard` because...") is an advisor, not an automator - the
   human must confirm before the reading is written. This is the Needle's
   design intent; it is not an exception to this ADR.
 
 ## References
 
 - Compass methodology: `docs/methodology.md` §"The one rule that creates every other rule"
-- Prior task's `architecture-notes.md` §2 Inv-1 (Frame is mandatory; readings are sole judgement field)
-- Prior task's `architecture-notes.md` §3 B-Risk 1 (Loading architecture content into task.yml.readings)
+- Invariant Inv-1 (Frame is mandatory; `readings` is the only judgement field), defined in `architecture/decisions/README.md`
+- Boundary rule: no mechanism may write loaded architecture content into `task.yml.readings` (`architecture/ownership.md`)
 - `governance/routing-policy.yml` (the policy the mechanism runs)
 - `tests/fixtures/route-baseline.yml` (the regression fixture for determinism)

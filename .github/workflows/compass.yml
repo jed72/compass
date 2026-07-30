@@ -1,8 +1,8 @@
-# Compass framework repo — its own CI (dogfooding).
+# Compass framework repo - its own CI (dogfooding).
 #
 # This validates the Compass framework repository itself: the repo structure,
 # the governance YAML, and the CLI. It is also the live proof of the reference
-# workflow in ci/github-actions.yml — a project copies that one; this is the
+# workflow in ci/github-actions.yml - a project copies that one; this is the
 # framework keeping its own house in order.
 
 name: Compass (self-check)
@@ -18,7 +18,7 @@ jobs:
     steps:
       # Third-party actions are pinned by SHA, with the human-readable version
       # in a comment so Dependabot can bump them. See docs/security.md on the
-      # supply-chain stance — what the framework asks its consumers to do, the
+      # supply-chain stance - what the framework asks its consumers to do, the
       # framework's own CI does too.
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
@@ -26,8 +26,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install the CLI's dependencies
-        run: pip install pyyaml jsonschema
+      - name: Install the CLI's dependencies and the test runner
+        # pyyaml is the CLI's only hard dependency; jsonschema turns on full
+        # JSON Schema validation in the lint commands. pytest is for the test
+        # suite step below.
+        run: pip install pyyaml jsonschema pytest
 
       - name: Repo structure self-check
         # scripts/validate.sh verifies the directory tree, that commands
@@ -40,6 +43,18 @@ jobs:
 
       - name: Compass gate suite
         # The framework repo has no .compass/work/ tasks, so this is
-        # `compass policy lint` in practice — it proves the shipped governance
+        # `compass policy lint` in practice - it proves the shipped governance
         # YAML is valid and the CLI runs.
         run: python3 cli/compass ci
+
+      - name: Test suite
+        # `compass ci` above checks governance and per-task guardrails; it does
+        # not run the tests. Without this step nothing in tests/ gates a merge,
+        # including the release invariants that cap the guardrail count and the
+        # house-style guards. Plugin autoload is disabled for the same reason
+        # `make test` disables it: third-party pytest plugins sometimes hang on
+        # a clean machine. Runs last because it is the slowest step, so the
+        # cheaper checks above fail first.
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: python3 -m pytest tests/ -q

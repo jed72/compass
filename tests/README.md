@@ -1,7 +1,7 @@
 # Compass CLI test suite
 
 These tests defend the 1.0 safety contract (`docs/safety-contract.md`). They
-shell out to the `compass` CLI in a temp project per test — no shared state,
+shell out to the `compass` CLI in a temp project per test - no shared state,
 no network calls.
 
 ## Run
@@ -21,7 +21,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests/ -q
 `pyyaml` is the CLI's only runtime dependency; `pytest` and `jsonschema`
 enable the suite to run (`pip install pyyaml pytest jsonschema`). The suite
 spawns one CLI subprocess per test; on a healthy machine it completes in a
-few seconds. Each `run_cli` call has a 10-second timeout — long enough for a
+few seconds. Each `run_cli` call has a 10-second timeout - long enough for a
 real run, short enough that a genuinely hung subprocess fails fast rather
 than compounding across 93 tests.
 
@@ -56,28 +56,29 @@ Each test file maps to a section of the safety contract:
 
 | File | Contract guarantee |
 |---|---|
-| `test_route_selection.py` | 1 — deterministic routing; floors and caps fire as documented |
-| `test_spike_conflict.py`  | 4 — exploration cannot silently become delivery |
-| `test_policy_integrity.py`| 2 — a declared guardrail cannot silently become advisory |
+| `test_route_selection.py` | 1 - deterministic routing; floors and caps fire as documented |
+| `test_spike_conflict.py`  | 4 - exploration cannot silently become delivery |
+| `test_policy_integrity.py`| 2 - a declared guardrail cannot silently become advisory |
 | `test_task_validation.py` | versioning + structural validation of `task.yml` |
-| `test_check_guardrails.py`| 3 — typed gate evidence, traceability, backfills |
-|                           | 5 — human approvals for irreversible work |
-| `test_tdd_evidence.py`    | 1 + 3 — tdd-red/green honesty + registry upsert |
-| `test_spike_safety.py`    | 4 — Spike conclusion, no production changes, graduation linkage |
-| `test_ci.py`              | 6 — `compass ci` exit-code aggregation |
-| `test_modes.py`           | 7 — enforced vs advisory adoption mode |
-| `test_calibration.py`     | the Needle's feedback loop — re-frame log and trend signal |
+| `test_check_guardrails.py`| 3 - typed gate evidence, traceability, backfills |
+|                           | 5 - human approvals for irreversible work |
+| `test_tdd_evidence.py`    | 1 + 3 - tdd-red/green honesty + registry upsert |
+| `test_spike_safety.py`    | 4 - Spike conclusion, no production changes, graduation linkage |
+| `test_ci.py`              | 6 - `compass ci` exit-code aggregation |
+| `test_modes.py`           | 7 - enforced vs advisory adoption mode |
+| `test_calibration.py`     | the Needle's feedback loop - re-frame log and trend signal |
+| `test_house_style.py`     | this repository's own writing invariants (strategy S7) - not a safety-contract guarantee |
 
 ## Fixtures
 
 `tests/fixtures/routes/` holds six YAML files declaring (readings, expected)
 pairs that one parameterised test asserts the CLI's `route evaluate --json`
-output matches. To add a new edge case, drop in another YAML — no test code
+output matches. To add a new edge case, drop in another YAML - no test code
 change needed.
 
 ## Hermeticism
 
-Every test gets a fresh temp project from the `project` fixture — a copy of
+Every test gets a fresh temp project from the `project` fixture - a copy of
 the shipped `governance/`, an empty `.compass/work/`, and `.compass/config.yml`
 set to `mode: enforced`. Tests that need a different mode write the config
 file themselves; tests that mutate governance use the `edit_governance`

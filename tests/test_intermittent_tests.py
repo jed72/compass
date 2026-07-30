@@ -1,4 +1,4 @@
-"""Stream A — A1: Intermittent-test integrity.
+"""Stream A - A1: Intermittent-test integrity.
 
 Tests for TRC-A1, TRC-A2, TRC-A3, TRC-A4, TRC-A5, TRC-A6, TRC-A7,
 TRC-FM2, TRC-FM3.
@@ -25,7 +25,7 @@ FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 
 
 # =============================================================================
-# TRC-A6 — strategies.md declares S5 — "Intermittency is failure."
+# TRC-A6 - strategies.md declares S5 - "Intermittency is failure."
 # =============================================================================
 
 class TestS5InStrategiesMd:
@@ -76,7 +76,7 @@ class TestS5InStrategiesMd:
 
 
 # =============================================================================
-# TRC-A1 — tdd-green records attempts:1 on a clean first pass
+# TRC-A1 - tdd-green records attempts:1 on a clean first pass
 # =============================================================================
 
 class TestTddGreenRecordsAttempts:
@@ -147,7 +147,7 @@ class TestTddGreenRecordsAttempts:
 
 
 # =============================================================================
-# TRC-A2 — tdd-green records attempts > 1 and rerun_without_change
+# TRC-A2 - tdd-green records attempts > 1 and rerun_without_change
 #           when no edits intervened
 # =============================================================================
 
@@ -184,7 +184,7 @@ class TestTddGreenRerunDetection:
         )
         assert r.returncode == 0, r
 
-        # Step 2: first tdd-green attempt fails (the test still fails here—
+        # Step 2: first tdd-green attempt fails (the test still fails here-
         # we simulate by running a failing command; CLI will error but still
         # record the failed-attempt state)
         # Actually: tdd-green with a FAILING command just errors out.
@@ -221,7 +221,7 @@ class TestTddGreenRerunDetection:
 
 
 # =============================================================================
-# TRC-A3 — G4 fails when test-run shows rerun-to-green and no quarantine
+# TRC-A3 - G4 fails when test-run shows rerun-to-green and no quarantine
 # =============================================================================
 
 class TestNoTrustedRerunCheck:
@@ -389,7 +389,7 @@ class TestNoTrustedRerunCheck:
             "exit_code": 0,
             "passed": True,
             "attempts": 2,
-            # rerun_without_change absent — incomplete evidence
+            # rerun_without_change absent - incomplete evidence
             "scenario": "SCN-FM3",
         }))
         r = run_cli("check", "--task", "rerun-check-fm3")
@@ -403,7 +403,7 @@ class TestNoTrustedRerunCheck:
 
 
 # =============================================================================
-# TRC-A7 — quarantined test without tracking task fails policy lint
+# TRC-A7 - quarantined test without tracking task fails policy lint
 # =============================================================================
 
 class TestQuarantinePolicyLint:
@@ -475,7 +475,7 @@ class TestQuarantinePolicyLint:
 
 
 # =============================================================================
-# TRC-FM2 — attempts field with a non-positive value fails task lint
+# TRC-FM2 - attempts field with a non-positive value fails task lint
 # =============================================================================
 
 class TestTaskLintAttemptsValidation:
@@ -580,7 +580,7 @@ class TestTaskLintAttemptsValidation:
                     "id": "EV-T-SCN-001",
                     "type": "test-run",
                     "path": "evidence/green.json",
-                    # no attempts field — old evidence
+                    # no attempts field - old evidence
                 }
             ],
         }
@@ -592,7 +592,7 @@ class TestTaskLintAttemptsValidation:
 
 
 # =============================================================================
-# TRC-A1 (supplementary) — guardrails.yml has no-trusted-rerun registered
+# TRC-A1 (supplementary) - guardrails.yml has no-trusted-rerun registered
 # =============================================================================
 
 class TestNoTrustedRerunInGuardrailsYml:

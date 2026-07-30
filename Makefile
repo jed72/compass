@@ -1,7 +1,7 @@
-# Compass — top-level targets.
+# Compass - top-level targets.
 #
 # The canonical command for each thing. The reviewer's v1 concern was that
-# `pytest -q` must run reliably from a clean checkout — so `make test`
+# `pytest -q` must run reliably from a clean checkout - so `make test`
 # disables pytest plugin autoload, which is the most common source of
 # environment-specific hangs.
 
@@ -10,7 +10,7 @@
 help:  ## list targets
 	@grep -E '^[a-z-]+:.*?##' Makefile | awk -F':.*?##' '{printf "  %-12s %s\n", $$1, $$2}'
 
-test:  ## run the CLI test suite (autoload disabled — reliable in clean envs)
+test:  ## run the CLI test suite (autoload disabled - reliable in clean envs)
 	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests/ -q
 
 lint:  ## validate governance YAML

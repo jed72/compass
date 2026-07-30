@@ -9,7 +9,7 @@
 # `expected_topology`, `expected_phases`, and `expected_gates`.
 #
 # If a future task legitimately changes routing, regenerate this fixture in
-# the same PR — the diff is the audit trail.
+# the same PR - the diff is the audit trail.
 
 - name: spike
   readings:

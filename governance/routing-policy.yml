@@ -1,38 +1,38 @@
 # =============================================================================
-# Compass — routing-policy.yml
+# Compass - routing-policy.yml
 # =============================================================================
 # THE MACHINE-READABLE ROUTING POLICY. This file is authoritative for the
 # mechanical parts of routing. `routing-policy.md` explains the why; this file
 # is what the deterministic evaluator (`compass route evaluate`) actually runs.
 #
 # The split that matters: the four-dimension *readings* (blast_radius, terrain,
-# magnitude, intent, role, touches) are JUDGEMENT — the Needle, an LLM or a
+# magnitude, intent, role, touches) are JUDGEMENT - the Needle, an LLM or a
 # human, produces them, and they are not mechanizable, because that judgement
 # IS the adaptivity. This file governs only what happens *after* the readings
 # exist: composing and constraining the route. That part is deterministic and
-# reproducible — same readings + same policy => same route, every time.
+# reproducible - same readings + same policy => same route, every time.
 #
 # Edit this file to tune routing. `compass policy lint` validates it against
 # schemas/routing-policy.schema.json. Loosening a routing guardrail weakens the
-# framework for everyone — see routing-policy.md.
+# framework for everyone - see routing-policy.md.
 # =============================================================================
 
 version: 1.0.0
 
 # -----------------------------------------------------------------------------
-# ROUTING STRATEGIES — soft. They BIAS the candidate route. The evaluator uses
+# ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
 # -----------------------------------------------------------------------------
 routing_strategies:
 
-  # default_shapes — the reference route the Needle leans toward for a reading.
+  # default_shapes - the reference route the Needle leans toward for a reading.
   # Evaluated top to bottom; the first whose `when` matches sets the candidate.
   # `when` keys match against the readings; a list value means "any of".
   default_shapes:
     - id: RS-SHAPE-001
       when: { intent: exploration }
       lean_toward: spike
-      rationale: "Exploration intent — cannot frame for delivery yet."
+      rationale: "Exploration intent - cannot frame for delivery yet."
     - id: RS-SHAPE-002
       when: { urgency: live-defect, magnitude: [atomic, small] }
       lean_toward: hotfix
@@ -44,7 +44,7 @@ routing_strategies:
     - id: RS-SHAPE-004
       when: { magnitude: [large, product] }
       lean_toward: expedition
-      rationale: "Large work — full weight, plausibly parallel."
+      rationale: "Large work - full weight, plausibly parallel."
     - id: RS-SHAPE-005
       when: { magnitude: standard }
       lean_toward: standard
@@ -53,17 +53,17 @@ routing_strategies:
   # Fallback when no default_shape matches.
   default_route: standard
 
-  # biases — free-text tie-breakers the Needle applies during composition.
+  # biases - free-text tie-breakers the Needle applies during composition.
   # Not machine-evaluated; surfaced to the Needle and recorded for audit.
   biases:
-    - "When magnitude is genuinely unclear, estimate up — collapsing an easy
+    - "When magnitude is genuinely unclear, estimate up - collapsing an easy
        phase is cheaper than discovering mid-Build that the route was too light."
     - "A non-engineering role in play usually pulls the route heavier (more
-       artifacts, more assessed strategies) — a bias, not a floor."
+       artifacts, more assessed strategies) - a bias, not a floor."
     - "Prefer the lightest route that still clears every routing guardrail and
        the applicable gates. Ceremony is a cost; spend it where it buys safety."
 
-  # role_defaults — advisory artifacts a role's involvement suggests. The
+  # role_defaults - advisory artifacts a role's involvement suggests. The
   # BLOCKING versions live under routing_guardrails.role_rules.
   role_defaults:
     - id: RS-ROLE-001
@@ -71,7 +71,7 @@ routing_strategies:
       suggest_artifact: ui-contract.md
       rationale: "A new user-facing surface usually wants a UI contract."
 
-  # advisory_strategies — soft strategies the evaluator surfaces (in
+  # advisory_strategies - soft strategies the evaluator surfaces (in
   # `applicable_strategies`) when their `when` matches the readings. They BIAS
   # and are ASSESSED at Verify; they NEVER add a gate, raise the route, or block
   # Land. A strategy, not a guardrail (the full method strategy is S6 in
@@ -80,20 +80,20 @@ routing_strategies:
     - id: RS-ADV-001
       strategy: regression-baseline
       when: { blast_radius: [cross-cutting, critical] }
-      rationale: "Shared/critical surface — capture a green baseline of the
+      rationale: "Shared/critical surface - capture a green baseline of the
         designated existing suite (project.regression_baseline_suite, else
         test_command) BEFORE the change and re-run it AFTER; record both as
         test-run evidence on verify.regression. Soft: assessed as reviewer
         judgement, never gating (S6)."
 
 # -----------------------------------------------------------------------------
-# ROUTING GUARDRAILS — hard. They BOUND the candidate route. The evaluator
+# ROUTING GUARDRAILS - hard. They BOUND the candidate route. The evaluator
 # applies these after composition; they cannot be routed around, and a human
 # cannot override them per-task (changing one means editing this file).
 # -----------------------------------------------------------------------------
 routing_guardrails:
 
-  # floors — a matching reading forces the route to be AT LEAST a given weight,
+  # floors - a matching reading forces the route to be AT LEAST a given weight,
   # and/or forces specific phases/skills back to full weight.
   # Route weight order for force_minimum_route: spike < express < standard
   # < hotfix < expedition. The evaluator raises the candidate to the max.
@@ -135,34 +135,34 @@ routing_guardrails:
       add_gate: verify.fitness
       rationale: "Irreversible-surface tasks have fitness checked before Land."
 
-  # caps — limits on scaling up.
+  # caps - limits on scaling up.
   caps:
     - id: RG-CAP-001
       when: { blast_radius: critical }
       max_worktrees: 1
       rationale: "Coordination risk on critical changes outweighs parallelism."
 
-  # immovable_gates — review gates no route may drop, for any DELIVERY route.
+  # immovable_gates - review gates no route may drop, for any DELIVERY route.
   # These three are "the default guardrails in review form": every delivery
   # route's route_shape already includes them, and stapling them here means a
   # future custom or tuned route still cannot drop them. NOTE what is NOT
   # here: verify.regression is route-scoped (Express, being atomic+trivial,
-  # does not run it — that is Express's whole point), and verify.claims is
+  # does not run it - that is Express's whole point), and verify.claims is
   # role-scoped (added by RG-ROLE-001 when a marketer is in play, and built
-  # into Expedition). Immovable means immovable *everywhere* — keep the set to
+  # into Expedition). Immovable means immovable *everywhere* - keep the set to
   # what genuinely is.
   immovable_gates:
     - id: RG-GATE-001
       gate: verify.correctness
-      rationale: "Protects the user — the work must satisfy its acceptance criteria."
+      rationale: "Protects the user - the work must satisfy its acceptance criteria."
     - id: RG-GATE-002
       gate: verify.governance
-      rationale: "Protects the project's own rules — honours guardrails and strategies."
+      rationale: "Protects the project's own rules - honours guardrails and strategies."
     - id: RG-GATE-003
       gate: verify.traceability
-      rationale: "Protects the audit trail — code -> criterion -> intent stays intact."
+      rationale: "Protects the audit trail - code -> criterion -> intent stays intact."
 
-  # role_rules — a role's involvement that ENFORCES a gate or a phase block.
+  # role_rules - a role's involvement that ENFORCES a gate or a phase block.
   role_rules:
     - id: RG-ROLE-001
       when: { role: product-marketer }
@@ -179,7 +179,7 @@ routing_guardrails:
       rationale: "Built-the-thing-right and built-the-right-thing are different checks."
 
 # -----------------------------------------------------------------------------
-# Reading vocabulary — the legal values the readings may take. The evaluator
+# Reading vocabulary - the legal values the readings may take. The evaluator
 # rejects a reading outside this vocabulary (a misclassification should fail
 # loudly, not route silently).
 # -----------------------------------------------------------------------------
@@ -190,11 +190,11 @@ reading_vocabulary:
   intent: [delivery, exploration]
   urgency: [none, live-defect]
   role: [engineer, product-owner, product-marketer, designer, qa]
-  # `touches` is an open list of domain tags — common ones, not exhaustive:
+  # `touches` is an open list of domain tags - common ones, not exhaustive:
   touches_common: [auth, payments, personal-data, migrations, public-api, infra, ci]
 
 # -----------------------------------------------------------------------------
-# Route shapes — the machine-readable mirror of the five reference routes. The
+# Route shapes - the machine-readable mirror of the five reference routes. The
 # routes/*.md files are the human-readable canonical descriptions; this is what
 # `compass route evaluate` reads to emit the per-phase weight, gate set, and
 # topology once the final route is known. The weight ladder for

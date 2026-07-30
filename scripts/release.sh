@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass — release packaging script
+# Compass - release packaging script
 # =============================================================================
 # Produces a clean tarball of the framework: `dist/compass-<version>.tar.gz`.
 #
 # What it does, in order:
-#   1. Runs the self-check (validate.sh) — refuses to package a broken repo.
-#   2. Runs `compass policy lint` — refuses to package broken governance.
-#   3. Runs the test suite — refuses to package with a red CLI.
+#   1. Runs the self-check (validate.sh) - refuses to package a broken repo.
+#   2. Runs `compass policy lint` - refuses to package broken governance.
+#   3. Runs the test suite - refuses to package with a red CLI.
 #   4. Confirms the worked examples are actually present (the v1 review caught
 #      a packaging miss where examples/README.md shipped without the examples).
 #   5. Builds the tarball, EXCLUDING noise (.DS_Store, __pycache__, *.bak,
@@ -89,34 +89,34 @@ for e in $required_examples; do
   fi
 done
 if [ -n "$missing" ]; then
-  echo "    FAIL — missing example task.yml(s):$missing"
+  echo "    FAIL - missing example task.yml(s):$missing"
   exit 1
 fi
-echo "    PASS — all 5 example task.yml(s) present"
+echo "    PASS - all 5 example task.yml(s) present"
 
 # --- 5. clear stale artifacts and build the tarball -------------------------
 echo "[5] building tarball"
 mkdir -p dist
-# Wipe any previous tarball — the v1 review caught a state where dist/
+# Wipe any previous tarball - the v1 review caught a state where dist/
 # carried both the rc and the final tarball, which is confusing. One
 # artifact per build. (The || true handles read-only filesystems / sandbox
-# locks gracefully — on a real machine this deletes cleanly.)
+# locks gracefully - on a real machine this deletes cleanly.)
 find dist -maxdepth 1 -type f \( -name '*.tar.gz' -o -name '*.zip' \) \
   -exec rm -f {} + 2>/dev/null || true
-# If anything is still hanging around (sandbox-locked), refuse to ship —
+# If anything is still hanging around (sandbox-locked), refuse to ship -
 # we will not publish a dist/ with multiple artifacts.
 STALE="$(find dist -maxdepth 1 -type f \( -name '*.tar.gz' -o -name '*.zip' \) 2>/dev/null || true)"
 if [ -n "$STALE" ]; then
-  echo "release.sh: WARNING — dist/ still contains stale artifact(s):" >&2
+  echo "release.sh: WARNING - dist/ still contains stale artifact(s):" >&2
   echo "$STALE" | sed 's/^/    /' >&2
   echo "    Remove them by hand and re-run \`make release\` so dist/ holds one tarball." >&2
 fi
 OUT="dist/compass-${VERSION}.tar.gz"
 
 # Files that genuinely belong in the release. Tar excludes are listed
-# explicitly — be conservative and visible about what we ship.
+# explicitly - be conservative and visible about what we ship.
 #
-# CRITICAL: patterns with a leading `./` are ROOT-ANCHORED — they match
+# CRITICAL: patterns with a leading `./` are ROOT-ANCHORED - they match
 # only at the top of the archive. Without the `./`, tar matches the pattern
 # ANYWHERE in the path, which is what previously dropped
 # `examples/<x>/.compass/work/<slug>/task.yml` from the release. The repo's
@@ -179,7 +179,7 @@ echo "  top-level entries:"
 tar -tzf "$OUT" | awk -F/ 'NF<=2 && $2!=""' | sort -u | sed 's/^/    /'
 echo ""
 # Materialise the tarball listing once. The verification loops grep against
-# this string rather than re-piping `tar | grep` per check — `tar | grep -q`
+# this string rather than re-piping `tar | grep` per check - `tar | grep -q`
 # under `set -o pipefail` triggers SIGPIPE in tar when grep exits on first
 # match, which makes the pipeline status non-zero even though grep matched.
 # Reading the listing into a variable side-steps that entirely.
@@ -193,10 +193,10 @@ echo "  noise check (must be empty):"
 NOISE="$(printf '%s\n' "$TAR_LIST" | grep -E '\.DS_Store$|__MACOSX|__pycache__|\.pytest_cache|\.bak$|_deltest|pytest-cache-files-' || true)"
 if [ -n "$NOISE" ]; then
   echo "$NOISE" | sed 's/^/    !!  /' >&2
-  echo "release.sh: FAIL — tarball contains noise files (see above). Fix the excludes in scripts/release.sh and rebuild." >&2
+  echo "release.sh: FAIL - tarball contains noise files (see above). Fix the excludes in scripts/release.sh and rebuild." >&2
   exit 1
 fi
-echo "    (clean — none)"
+echo "    (clean - none)"
 
 # --- examples integrity check (HARD FAIL) ----------------------------------
 # The previous tarball stripped `examples/<x>/.compass/work/<slug>/task.yml`
@@ -212,7 +212,7 @@ for e in $required_examples; do
 done
 if [ -n "$missing" ]; then
   echo "    !!  missing example task.yml in tarball:$missing" >&2
-  echo "release.sh: FAIL — examples were not packaged correctly. Check the .compass/work exclude is root-anchored (./.compass/work, not .compass/work)." >&2
+  echo "release.sh: FAIL - examples were not packaged correctly. Check the .compass/work exclude is root-anchored (./.compass/work, not .compass/work)." >&2
   exit 1
 fi
 for e in $required_examples; do

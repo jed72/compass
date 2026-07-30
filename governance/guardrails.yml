@@ -1,5 +1,5 @@
 # =============================================================================
-# Compass — guardrails.yml
+# Compass - guardrails.yml
 # =============================================================================
 # THE MACHINE-READABLE GUARDRAIL DEFINITIONS. This file is authoritative for
 # how guardrails are *checked*. `guardrails.md` explains what each guardrail is
@@ -7,14 +7,14 @@
 # those checks against a task's `task.yml` and `evidence/`.
 #
 # Note the asymmetry, and that it is deliberate: GUARDRAILS get a .yml because
-# they are checkable. STRATEGIES do not — `strategies.md` stays prose-only,
+# they are checkable. STRATEGIES do not - `strategies.md` stays prose-only,
 # because a strategy is *assessed* (the reviewer's judgement), not *checked*.
 # That asymmetry is the guardrail/strategy distinction made physical: if a
 # thing can be given a named, mechanical check, it can be a guardrail; if it
 # can only be judged, it is a strategy.
 #
 # The five default guardrails below ship active. A project may ADD guardrails
-# under `project:` — each needs a named check, or it is a strategy, not a
+# under `project:` - each needs a named check, or it is a strategy, not a
 # guardrail. `compass policy lint` validates this file against
 # schemas/guardrails.schema.json.
 # =============================================================================
@@ -22,9 +22,9 @@
 version: 1.0.0
 
 # -----------------------------------------------------------------------------
-# Named checks — the mechanical checks `compass check` knows how to run. Each
+# Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
-# task.yml and evidence/ — it does not re-run tests (that is tdd-green's job);
+# task.yml and evidence/ - it does not re-run tests (that is tdd-green's job);
 # it verifies the recorded state is coherent and backed by evidence.
 # -----------------------------------------------------------------------------
 checks:
@@ -47,13 +47,13 @@ checks:
   spike-conclusion-present:
     description: "A Spike has a `spike-conclusion` evidence entry with a recorded decision (discard | graduate-to-delivery | defer); graduate-to-delivery links the next task."
   spike-no-production-changes:
-    description: "A Spike's `changed_files` is empty — a spike ships nothing; graduating to delivery is a fresh Frame, not a merge."
+    description: "A Spike's `changed_files` is empty - a spike ships nothing; graduating to delivery is a fresh Frame, not a merge."
   dod-evidence-typed:
     description: >
       Every unchecked DoD box in verification-report.md must carry an inline
       tag: `(evidence: EV-<id>)` referencing a typed evidence registry entry,
       or `(backfill: BF-<id>)` referencing an owed backfill. A bare unchecked
-      box fails. Checked boxes (`- [x]`) pass without a tag — the human took
+      box fails. Checked boxes (`- [x]`) pass without a tag - the human took
       responsibility. Narrative notes (devlog 'USER TO APPLY') never count.
       Cross-task: when another task has a backfill with target_task pointing at
       this task, that backfill must be paid before this task's Land closes.
@@ -63,10 +63,10 @@ checks:
     description: >
       Every test-run evidence entry is checked for rerun integrity. A record
       with rerun_without_change: true must have its test listed in the project
-      quarantine registry (governance/quarantine.yml) with a tracking task — a
+      quarantine registry (governance/quarantine.yml) with a tracking task - a
       rerun-to-green without a quarantine entry is a G4 failure (S5: intermittency
       is failure). A record with attempts > 1 but no rerun_without_change marker
-      is also rejected — incomplete evidence cannot clear G4. Old evidence without
+      is also rejected - incomplete evidence cannot clear G4. Old evidence without
       an attempts field passes trivially (backward compat, TRC-A5). May carry
       attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
       (see strategy S5).
@@ -74,10 +74,10 @@ checks:
     description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, clears by vacuity (no declarations = no fitness functions to check)."
 
 # -----------------------------------------------------------------------------
-# Evidence types — what KINDS of evidence a gate can be cleared with. Without
+# Evidence types - what KINDS of evidence a gate can be cleared with. Without
 # this, `gate-evidence-present` is circular: a gate could be marked `pass`
 # pointing at a weak markdown note and still clear the mechanical check. Typing
-# the evidence makes the *strength* of a gate's backing visible — and lets the
+# the evidence makes the *strength* of a gate's backing visible - and lets the
 # checker demand a real mechanical capture for the gates that need one.
 #
 # Evidence model: task.yml has a top-level `evidence:` REGISTRY of typed
@@ -87,32 +87,32 @@ checks:
 evidence_types:
   test-run:
     description: >
-      A recorded test execution — e.g. evidence/green.json from `compass tdd-green`.
+      A recorded test execution - e.g. evidence/green.json from `compass tdd-green`.
       The strongest: a machine ran it. May carry attempts: <int> and
       rerun_without_change: <bool> to signal rerun integrity (see strategy S5 and
       the no-trusted-rerun check).
   command-output:
-    description: "Captured output of a command — a scanner, a linter, a coverage run, a `compass check` run."
+    description: "Captured output of a command - a scanner, a linter, a coverage run, a `compass check` run."
   manual-review:
-    description: "A recorded reviewer judgement — a code review or governance review captured in a file. Stronger than a generic artifact because it is a named review, not a stray note."
+    description: "A recorded reviewer judgement - a code review or governance review captured in a file. Stronger than a generic artifact because it is a named review, not a stray note."
   human-approval:
-    description: "A recorded human sign-off — for irreversible changes (guardrail G5). Has structured fields: approver, role, decision, timestamp, scope, conditions."
+    description: "A recorded human sign-off - for irreversible changes (guardrail G5). Has structured fields: approver, role, decision, timestamp, scope, conditions."
   security-review:
-    description: "A recorded security review or scan result — for security-sensitive changes."
+    description: "A recorded security review or scan result - for security-sensitive changes."
   migration-plan:
     description: "A recorded plan for a data, schema, or infrastructure migration."
   rollback-plan:
     description: "A recorded plan for reverting a change safely if it goes wrong."
   claim-review:
-    description: "A recorded review of public/user-facing claims against backing scenarios — the marketer's audit trail."
+    description: "A recorded review of public/user-facing claims against backing scenarios - the marketer's audit trail."
   spike-conclusion:
     description: "A recorded close-out of a Spike: what was learned, a decision (discard | graduate-to-delivery | defer), and any link to the next task."
   coherence-check:
-    description: "Output of compass analyze — a structured coherence findings list. Gate-clearing: zero findings. Only this type clears verify.analyze; advisory command-output entries do not."
+    description: "Output of compass analyze - a structured coherence findings list. Gate-clearing: zero findings. Only this type clears verify.analyze; advisory command-output entries do not."
   artifact:
-    description: "A written record without a more specific type — a review note, a verification report. The weakest, by design: honest for judgement-shaped gates, never enough for a mechanical one."
+    description: "A written record without a more specific type - a review note, a verification report. The weakest, by design: honest for judgement-shaped gates, never enough for a mechanical one."
 
-# gate_evidence_requirements — which evidence types each gate will accept. A
+# gate_evidence_requirements - which evidence types each gate will accept. A
 # gate not listed here accepts any type. The point is the constrained ones:
 # you cannot clear `verify.correctness` with a markdown note, because
 # correctness is a mechanical fact and demands a `test-run`.
@@ -123,13 +123,13 @@ gate_evidence_requirements:
   verify.governance: [command-output, manual-review, artifact]
   verify.traceability: [command-output, artifact]
   verify.claims: [claim-review, command-output, artifact]
-  verify.clarity: [manual-review, artifact]       # inherently judgement — and now visibly so
+  verify.clarity: [manual-review, artifact]       # inherently judgement - and now visibly so
   spike.conclude: [spike-conclusion]              # SPECIFIC: a generic artifact will not do
   verify.analyze: [coherence-check]              # SPECIFIC: advisory command-output does NOT clear this gate
   verify.fitness: [test-run, command-output]    # fitness checks: command-output from command-passes, or a test-run
 
 # -----------------------------------------------------------------------------
-# DEFAULT GUARDRAILS — G1–G5. Shipped active. The floor under every route.
+# DEFAULT GUARDRAILS - G1–G5. Shipped active. The floor under every route.
 # -----------------------------------------------------------------------------
 defaults:
 
@@ -163,7 +163,7 @@ defaults:
     statement: >
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
-      reference typed evidence or a filed backfill — narrative notes never clear it.
+      reference typed evidence or a filed backfill - narrative notes never clear it.
     checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun, command-passes]
     checked_at: [verify, land]
 
@@ -180,7 +180,7 @@ defaults:
     checked_at: [land]
 
 # -----------------------------------------------------------------------------
-# SPIKE GUARDRAILS — apply only on a Spike route. A Spike is intentionally
+# SPIKE GUARDRAILS - apply only on a Spike route. A Spike is intentionally
 # free of the delivery guardrails (G1-G5 do not apply), but it is still
 # CONTROLLED: it must conclude, and it must not silently produce production
 # work. `compass check` runs these instead of the defaults on a Spike route.
@@ -199,7 +199,7 @@ spike_guardrails:
   - id: S2
     name: "No production change from a Spike"
     statement: >
-      A Spike ships nothing — its `changed_files` must be empty. Exploration
+      A Spike ships nothing - its `changed_files` must be empty. Exploration
       code lives on a scratch branch; if the finding is acted on, a fresh
       Frame owns the code under a real route's guardrails. This is the safety
       model: a Spike cannot silently become delivery.
@@ -207,24 +207,25 @@ spike_guardrails:
     checked_at: [land]
 
 # -----------------------------------------------------------------------------
-# PROJECT GUARDRAILS — the team adds here. Each MUST reference a named check
+# PROJECT GUARDRAILS - the team adds here. Each MUST reference a named check
 # (add new checks to `checks:` above, or ask the CLI maintainer to add the
-# check logic). A would-be guardrail with no mechanical check is a strategy —
+# check logic). A would-be guardrail with no mechanical check is a strategy -
 # put it in strategies.md instead. Leave this empty rather than padding it.
 # -----------------------------------------------------------------------------
 project: []
-# stream-C (B1 / TRC-C6): only the coverage-floor caveat comment above was added — no new checks or gates.
+# Empty on purpose, not by oversight: the framework ships no project guardrails,
+# so an adopting repo sees no project-level check until it declares one.
 #  - id: Q1
 #    name: "Coverage floor"
 #    statement: "Line coverage does not drop below 80%."
 #    checks: [coverage-floor]          # <- a project-added check
 #    params: { min_line_coverage: 80 }
 #    checked_at: [verify]
-#    # Coverage is a floor, never a target — a high coverage number is a side effect of test discipline, not its goal.
+#    # Coverage is a floor, never a target - a high coverage number is a side effect of test discipline, not its goal.
 
 # -----------------------------------------------------------------------------
 # Cross-cutting: the conflict rule (a guardrail beats a strategy) and the
 # Definition of Ready / Definition of Done checklists are governance too, but
-# they live where they are used — see governance/README.md, the foot of
+# they live where they are used - see governance/README.md, the foot of
 # templates/clarifications.md (DoR) and templates/verification-report.md (DoD).
 # -----------------------------------------------------------------------------

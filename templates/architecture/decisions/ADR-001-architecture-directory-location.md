@@ -50,5 +50,5 @@ migration cost.
 
 ## References
 
-- Clarifications Q1 (architecture-notes.md for this task)
+- The task's `clarifications.md`, where the location of `architecture-notes.md` was settled
 - Plan DD-6 (foundation-first stream ordering)

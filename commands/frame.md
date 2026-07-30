@@ -1,5 +1,5 @@
 ---
-description: Run the Needle — read the terrain and compute the route for this task
+description: Run the Needle - read the terrain and compute the route for this task
 argument-hint: "<task description> [--reframe]"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
@@ -7,42 +7,42 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 # /compass:frame
 
 Frame is the one phase that never skips. The Needle reads four context
-dimensions — that is **judgement** — and then hands them to the CLI, which
+dimensions - that is **judgement** - and then hands them to the CLI, which
 **computes** the route deterministically. You do not pick a process, and you
 do not compose the route in your head: you read the terrain, record the
 readings, and `compass route evaluate` applies `governance/routing-policy.yml`
-to produce the route. This is the determinism boundary — see
+to produce the route. This is the determinism boundary - see
 `docs/methodology.md` §6.
 
 Frame works on day one with **zero project setup**: the shipped default
 guardrails, strategies, and routing policy apply as-is, so `/compass:init` is
 optional and not a prerequisite. If a project has run `/compass:init`, its
-`governance/` extends those defaults — read whichever is in force.
+`governance/` extends those defaults - read whichever is in force.
 
 **Task:** $ARGUMENTS
 
 ## Setup
 
-- Load the `adaptive-routing` skill — it is the procedural companion to
+- Load the `adaptive-routing` skill - it is the procedural companion to
   `routes/router.md`, which is the rubric.
 - Read `governance/routing-policy.md` for the *why*. The machine-readable
   `governance/routing-policy.yml` is what `compass route evaluate` actually
-  runs: the Needle is bound by its **routing guardrails** (hard — floors, caps,
+  runs: the Needle is bound by its **routing guardrails** (hard - floors, caps,
   immovable gates, blocking role rules) and biased by its **routing
-  strategies** (soft — default route shapes, tie-breaking biases). You do not
+  strategies** (soft - default route shapes, tie-breaking biases). You do not
   apply these by hand; the CLI does.
 - Read `.compass/config.yml` for genuine project knobs (test command, swarm
-  worktree root). Routing rules are no longer here — they live in
+  worktree root). Routing rules are no longer here - they live in
   `routing-policy.yml`.
 - For a non-trivial or ambiguous task, invoke the `navigator` agent to read the
   four dimensions.
 - If a `brief.md`, `ui-contract.md`, or `positioning.md` already exists for
-  this task, read it — intent is the *outcome wanted*, not just the literal
+  this task, read it - intent is the *outcome wanted*, not just the literal
   request.
 
 ## `--reframe`
 
-If `--reframe` is passed, this is a mid-task re-score, not a fresh frame —
+If `--reframe` is passed, this is a mid-task re-score, not a fresh frame -
 typically because Build revealed the terrain was misread. Read the existing
 `route.md` and `task.yml`, re-read the four dimensions, update `task.yml`'s
 `readings:` block, then re-run `compass route evaluate --write --reason "..."`
@@ -50,7 +50,7 @@ to recompute the route. **Always pass `--reason`** on a re-frame: when the CLI
 sees the route change, it records the re-frame in `task.yml`'s `reframes:` log,
 and the reason is the calibration signal `compass calibration` reads. Then
 write a **new revision** of `route.md` (keep the prior revision visible). A
-re-frame is a normal event. A route quietly outgrown is the failure — and a
+re-frame is a normal event. A route quietly outgrown is the failure - and a
 re-frame with no recorded reason is a signal thrown away.
 
 Re-framing is also how a **Spike graduates**: the spike's findings become an
@@ -64,44 +64,44 @@ force; if it is still a Spike, leave the marker in place.
    `.compass/work/<task-slug>/`, and write `task.yml` from `templates/task.yml`
    into it. This is the machine-readable spine the CLI reads and writes.
 1a. **Load project architecture if present.** Call
-    `frame_load_architecture(project_root, task_dir)` — the internal CLI helper.
+    `frame_load_architecture(project_root, task_dir)` - the internal CLI helper.
     It scans `architecture/` at the project root (sibling to `governance/`), reads
     any narrative files (`system-context.md`, `relations.md`, `ownership.md`) and
     the optional structured file (`invariants.yml`), collects any `ADR-*.md` files
     from `architecture/decisions/`, and writes the result to
     `.compass/work/<task-slug>/architecture-loaded.yml`.  If `architecture/` does
-    not exist the file is written with empty `artifacts: []` and `adrs: []` — no
+    not exist the file is written with empty `artifacts: []` and `adrs: []` - no
     error (backward compat).  If `invariants.yml` exists but is not valid YAML,
-    Frame fails loudly with the file path and parse error in the message — a
+    Frame fails loudly with the file path and parse error in the message - a
     malformed structured artifact is never silently swallowed.
     `architecture-loaded.yml` is the **downstream agents' input** for all
     architectural context in this task session; see `docs/methodology.md` for the
     contract.
-    **Do not write load state into `task.yml.readings`** — `readings` is the
-    judgement block only (Inv-1; see `architecture-notes.md §2`).
-2. **Read the four dimensions — this is the judgement** — blast radius,
+    **Do not write load state into `task.yml.readings`** - `readings` is the
+    judgement block only (Inv-1, defined in `architecture/decisions/README.md`).
+2. **Read the four dimensions - this is the judgement** - blast radius,
    terrain, magnitude, intent & role, plus `touches:` domain tags. Each gets a
    value and a one-line justification. If a value cannot be justified, ask the
    user rather than guessing. When magnitude is unsure, estimate *up*. Note:
-   **exploration intent** — "I cannot frame this well enough to deliver it
-   yet" — leads toward the **Spike** route, the way live-defect urgency leads
+   **exploration intent** - "I cannot frame this well enough to deliver it
+   yet" - leads toward the **Spike** route, the way live-defect urgency leads
    toward Hotfix. Write these into `task.yml`'s `readings:` block. The readings
-   are the only part of routing that is judgement — everything below is
+   are the only part of routing that is judgement - everything below is
    mechanism.
-3. **Compute the route — this is the mechanism.** Run
+3. **Compute the route - this is the mechanism.** Run
    `compass route evaluate --task <slug> --write`. The CLI applies
    `routing-policy.yml` to the readings: it composes the candidate, applies the
    floors, caps, immovable gates, and blocking role rules, and folds the
    resulting `route`, `phases`, `gates` (status pending), `topology`, and
    `fired_guardrails` back into `task.yml`. You do not compose the route or
-   apply a guardrail by hand — same readings + same policy => same route, every
+   apply a guardrail by hand - same readings + same policy => same route, every
    time. If the readings are a misclassification, the CLI fails loudly; re-read
    the dimension it rejected.
 4. **Write `route.md`** from `templates/route.md` into the task dir, from the
    CLI's output. It must contain: the four readings with justifications; the
    computed route; every routing guardrail the CLI reported as fired (with its
    rationale); the final per-phase weight, gate set, and swarm topology; and
-   **the de-scope ledger** — every phase the CLI marked collapsed or skipped,
+   **the de-scope ledger** - every phase the CLI marked collapsed or skipped,
    each with an explicit "safe to skip because…" line. A phase with no
    justification runs. `route.md` is the human-readable face of what
    `task.yml` records mechanically.
@@ -115,9 +115,9 @@ force; if it is still a Spike, leave the marker in place.
    create this marker on any other route.
 7. **Confirm.** The readings are advisory until confirmed. Present the route,
    invite override of any *reading*, and if a reading changes, re-run
-   `compass route evaluate --write` — never hand-edit the computed route.
+   `compass route evaluate --write` - never hand-edit the computed route.
    Record overrides in `route.md` with who and why. Immovable gates and floors
-   cannot be overridden — a routing guardrail is governance speaking; changing
+   cannot be overridden - a routing guardrail is governance speaking; changing
    one means amending `governance/routing-policy.yml`, not overriding a route.
 
 ## Gate
