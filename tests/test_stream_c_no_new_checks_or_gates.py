@@ -41,6 +41,12 @@ BASELINE_CHECKS = {
     # point at a test that exists, so a named-but-nonexistent test can no longer
     # read as green. Registered under G1; the guardrail count stays at five.
     "declared-tests-resolve",
+    # Added by task phase-2-skills-check-and-cli-split: verifies every scenario
+    # in task.yml was accounted for by the project's BDD runner, reading the
+    # record `compass bdd verify` writes. Registered under G1; the guardrail
+    # count stays at five, and the check no-ops entirely for a project that has
+    # set no project.bdd_runner, which is nearly all of them.
+    "scenarios-are-executable",
 }
 
 # The legitimate set of gate names in gate_evidence_requirements after landing.
