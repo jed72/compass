@@ -731,6 +731,103 @@ def _scenario_documented_in_spec(spec_path, scenario_id):
     return has_when and has_then
 
 
+def _test_id_resolves(test_id, project_root):
+    """Does this declared test id point at something real on disk?
+
+    Returns True (resolves), False (does not), or None (not file-shaped, so
+    this check has no opinion).
+
+    Resolution is by text, not by asking a test runner. Compass ships to
+    projects using pytest, jest, go test and cargo, and a per-runner adapter is
+    far more surface than the problem needs. The trade is that a name appearing
+    only inside a comment would pass; the failure being caught is a name that
+    appears nowhere at all.
+
+    Ids that are not file-shaped are skipped rather than failed. Test ids in the
+    wild are not all file references, and a false positive on a legitimate id
+    teaches people to switch the check off. `verifiable: narrative` remains the
+    sanctioned way to declare a scenario has no automated test.
+    """
+    import re as _re
+    _re_ws = _re.compile(r"\s")
+    tid = (test_id or "").strip()
+    if not tid:
+        return None
+
+    if "::" in tid:
+        file_part, name_part = tid.split("::", 1)
+        name = name_part.split("::")[-1]
+        name = name.split("[", 1)[0].strip()      # drop pytest parametrisation
+    else:
+        file_part, name = tid, None
+        # Only treat it as a path if it looks like one; otherwise no opinion.
+        if "/" not in file_part or "." not in os.path.basename(file_part):
+            return None
+
+    # A path has no whitespace in it. Prose that happens to mention a file -
+    # "grep: governance/strategies.md carries S7" - is a description, not a
+    # reference, and must not be reported as a broken path.
+    file_part = file_part.strip()
+    if not file_part or _re_ws.search(file_part):
+        return None
+
+    path = os.path.join(project_root, file_part.strip())
+    if not os.path.isfile(path):
+        return False
+    if not name:
+        return True
+
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            body = fh.read()
+    except OSError:
+        return False
+    return _re.search(r"\b" + _re.escape(name) + r"\b", body) is not None
+
+
+def _check_declared_tests_resolve(task, task_dir):
+    """G1: a scenario's declared test id must point at a test that exists.
+
+    Without this, `compass check` reports green for a scenario naming a test
+    nobody wrote - G1 and G3 are satisfied by a test being *named*, so the hole
+    is invisible by construction.
+
+    Scoped to tasks that are still `active` AND have already claimed
+    `verify.correctness: pass`. Both conditions matter:
+
+      * Before correctness is claimed, a declared test legitimately does not
+        exist yet - TDD writes the id at Specify and the test at Build.
+      * After a task lands, its spine is a historical record. Tests get renamed
+        afterwards, and re-validating history against a moving codebase produces
+        failures nobody can act on (ADR-006).
+    """
+    if (task.get("status") or "active") != "active":
+        return True, "task is landed - declared test ids are a historical record"
+
+    gates = {g.get("id"): g.get("status") for g in (task.get("gates") or [])}
+    if gates.get("verify.correctness") != "pass":
+        return True, ("correctness not yet claimed - declared tests are still a "
+                      "plan, not a claim")
+
+    project_root = os.path.dirname(find_compass_dir())
+    broken, checked = [], 0
+    for s in (task.get("scenarios") or []):
+        if s.get("verifiable") == "narrative":
+            continue
+        for tid in (s.get("tests") or []):
+            verdict = _test_id_resolves(tid, project_root)
+            if verdict is None:
+                continue
+            checked += 1
+            if not verdict:
+                broken.append(f"{s.get('id', '?')}: {tid}")
+
+    if broken:
+        return False, ("declared test(s) do not resolve to a test on disk: "
+                       + "; ".join(broken))
+    return True, f"all {checked} declared test id(s) resolve"
+
+
 def _check_scenarios_have_tests(task, task_dir):
     scns = task.get("scenarios") or []
     if not scns:
@@ -1439,6 +1536,7 @@ def _check_command_passes(task, task_dir):
 
 CHECK_FNS = {
     "scenarios-have-tests": _check_scenarios_have_tests,
+    "declared-tests-resolve": _check_declared_tests_resolve,
     "suite-passed": _check_suite_passed,
     "changed-code-traces-to-scenario": _check_changed_code_traces,
     "scenario-has-id-and-intent": _check_scenario_has_id_and_intent,
@@ -2614,6 +2712,18 @@ def cmd_friction_capture(args):
         if human["phase"] is None:
             del human["phase"]
         entries.append(human)
+
+    # Merge rather than replace. Derived entries are a pure function of the
+    # task's current state, so they are recomputed and replace the previous
+    # derived set; human notes are observations that cannot be recomputed, so
+    # they accumulate. An earlier version assigned the whole list, which meant a
+    # second run silently discarded every note the first had recorded.
+    existing = task.get("friction") or []
+    kept_human = [e for e in existing if e.get("source") == "human"]
+    new_human = [e for e in entries if e.get("source") == "human"]
+    seen = {e.get("observation") for e in kept_human}
+    kept_human += [e for e in new_human if e.get("observation") not in seen]
+    entries = [e for e in entries if e.get("source") != "human"] + kept_human
 
     if entries:
         task["friction"] = entries

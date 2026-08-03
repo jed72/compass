@@ -37,6 +37,10 @@ BASELINE_CHECKS = {
     # Added alongside the checks above:
     "no-trusted-rerun",   # refuses to clear a test-run that only passed on a rerun
     "command-passes",     # runs a project-declared command and requires exit 0
+    # Added by task record-keeping-integrity: a scenario's declared test id must
+    # point at a test that exists, so a named-but-nonexistent test can no longer
+    # read as green. Registered under G1; the guardrail count stays at five.
+    "declared-tests-resolve",
 }
 
 # The legitimate set of gate names in gate_evidence_requirements after landing.
@@ -138,13 +142,24 @@ def test_no_new_gate_names_added():
 
 
 def test_guardrails_gains_no_mechanism_on_this_branch():
-    """No branch may add mechanism to guardrails.yml: same checks, gates, rules.
+    """A branch may not add mechanism to guardrails.yml *undeclared*.
 
     This compares the parsed structure against main rather than the raw text.
     An earlier version required every added line to be a comment, which meant
     any edit to the prose inside the file - rewording a guardrail statement,
     or the repository-wide punctuation sweep - read as a structural change.
     Prose is editorial and free to change; the mechanism is what must not grow.
+
+    What "grow" means was tightened by task record-keeping-integrity. An earlier
+    version of this test forbade a branch adding any check name at all, which is
+    stricter than the ADR it cites: **ADR-002 caps guardrails at five and
+    explicitly permits new checks** registered as CHECK_FN entries under an
+    existing guardrail. Forbidding those outright would have blocked the growth
+    path the ADR names, so a check added *and declared* in BASELINE_CHECKS above
+    now passes, while an undeclared one still fails. The invariant's purpose is
+    that mechanism growth is deliberate and visible in review, and a declared
+    addition is exactly that. Everything else - gates, evidence types, rules -
+    is still frozen relative to main.
     """
     import yaml
 
@@ -155,14 +170,49 @@ def test_guardrails_gains_no_mechanism_on_this_branch():
     current = yaml.safe_load((REPO_ROOT / GUARDRAILS_YML).read_text(encoding="utf-8"))
     before, after = _mechanism(baseline), _mechanism(current)
 
+    # Checks declared in BASELINE_CHECKS are a sanctioned, reviewed addition;
+    # everything else in the mechanism must match main exactly.
     for field in sorted(before):
-        assert before[field] == after[field], (
+        b, a = before[field], after[field]
+        if field == "check_names":
+            added = set(a) - set(b)
+            assert added <= BASELINE_CHECKS, (
+                f"guardrails.yml gained undeclared check(s): "
+                f"{sorted(added - BASELINE_CHECKS)}.\n"
+                "A new check is new mechanism (ADR-002). Declare it in "
+                "BASELINE_CHECKS above, with a comment naming the change that "
+                "introduces it, so the addition is visible in review."
+            )
+            assert set(b) - set(a) == set(), (
+                f"guardrails.yml removed check(s): {sorted(set(b) - set(a))}. "
+                "Removing a check silently weakens every adopting project."
+            )
+            continue
+        if field == "defaults":
+            # A guardrail may gain a declared check; it may not gain or lose a
+            # guardrail, nor change when it is checked.
+            assert sorted(b) == sorted(a), (
+                f"guardrails.yml changed the guardrail set: {sorted(b)} -> "
+                f"{sorted(a)}. The count is capped at five (ADR-002).")
+            for gid in b:
+                assert b[gid]["checked_at"] == a[gid]["checked_at"], (
+                    f"{gid} changed when it is checked: "
+                    f"{b[gid]['checked_at']} -> {a[gid]['checked_at']}")
+                gained = set(a[gid]["checks"]) - set(b[gid]["checks"])
+                assert gained <= BASELINE_CHECKS, (
+                    f"{gid} gained undeclared check(s): "
+                    f"{sorted(gained - BASELINE_CHECKS)}")
+                assert set(b[gid]["checks"]) - set(a[gid]["checks"]) == set(), (
+                    f"{gid} lost check(s): "
+                    f"{sorted(set(b[gid]['checks']) - set(a[gid]['checks']))}")
+            continue
+        assert b == a, (
             f"guardrails.yml changed mechanism in {field!r} relative to main.\n"
-            f"  on main: {before[field]!r}\n"
-            f"  now:     {after[field]!r}\n"
+            f"  on main: {b!r}\n"
+            f"  now:     {a!r}\n"
             "Guardrails are capped at five and grow by checks and strategies, "
             "not by new rules (ADR-002). Rewording prose is fine; adding a "
-            "check, gate, evidence type, or rule is not."
+            "gate, evidence type, or rule is not."
         )
 
 
