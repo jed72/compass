@@ -50,7 +50,12 @@ def test_trc_d1_constitution_check_skill_deleted():
 # ---------------------------------------------------------------------------
 
 SEARCHED_SUFFIXES = {".md", ".yml", ".yaml", ".json", ".py", ".sh"}
-SKIPPED_DIRS = {".git", "__pycache__", ".compass", "dist", "node_modules"}
+# .compass/, docs/proposals/ and docs/analysis/ are gitignored local working
+# notes, not part of the shipped framework. They record what Compass looked
+# like when they were written - including that this skill was still on disk -
+# and rewriting history to match the present would destroy their value.
+SKIPPED_DIRS = {".git", "__pycache__", ".compass", "dist", "node_modules",
+                "proposals", "analysis"}
 
 
 def _repo_files():
