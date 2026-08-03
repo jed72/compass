@@ -21,6 +21,67 @@
 
 set -euo pipefail
 
+# --- portable archive prefixing ---------------------------------------------
+# Every entry in the tarball is prefixed with `compass-<version>/` so the
+# archive extracts into its own directory rather than over the user's cwd.
+# The two tars spell that operation differently and each rejects the other's
+# flag outright:
+#
+#   GNU tar (Linux, CI)   --transform 's,^\./,compass-<v>/,'
+#   BSD tar (macOS)       -s ',^\./,compass-<v>/,'
+#
+# The script previously hard-coded the GNU form, so on macOS it ran all four
+# pre-flight checks, passed them, and then exited 1 at the packaging step
+# having produced nothing. Detection is on `tar --version` because that is the
+# only thing both tars agree to answer.
+#
+# The pattern anchors on `^\./` rather than `^` because the archive is built
+# from `.`, so entries arrive as `./path`. Anchoring on `^` alone would produce
+# `compass-<v>/./path`.
+tar_prefix_flags() {
+  local version="$1"
+  if tar --version 2>/dev/null | grep -qi 'gnu tar'; then
+    printf '%s\n' "--transform" "s,^\./,compass-${version}/,"
+  else
+    printf '%s\n' "-s" ",^\./,compass-${version}/,"
+  fi
+}
+
+# --- what goes in the tarball -----------------------------------------------
+# The list of paths to package, one per line, each prefixed `./`.
+#
+# This is driven from `git ls-files` rather than from the working tree, which
+# fixes two defects that a working-tree archive could not:
+#
+#   * BSD tar has no `--anchored`, so the `./.compass/work` exclude patterns
+#     this script used to rely on matched at ANY depth and stripped
+#     `examples/<x>/.compass/work/<slug>/task.yml` along with the repo's own
+#     dev state. Selecting paths in shell lets us anchor exactly.
+#   * Anything untracked shipped. A local `.mcp.json` went out in a release
+#     tarball and the noise check reported clean, because an untracked config
+#     file matches no noise pattern. Tracked-only excludes it by construction,
+#     and gitignored dev state (the repo's `.compass/work`) never appears.
+#
+# The remaining excludes are for paths that ARE tracked but are not part of
+# what an adopter installs.
+release_file_list() {
+  git ls-files \
+    | grep -Ev '^\.github/' \
+    | grep -Ev '^\.gitignore$|^\.gitattributes$' \
+    | grep -Ev '^dist/' \
+    | grep -Ev '^commands/roles/' \
+    | grep -Ev '^\.compass/(work|flow)/' \
+    | grep -Ev '^\.compass/current-task$' \
+    | sed 's,^,./,'
+}
+
+# Allow the test suite to source this file for `tar_prefix_flags` and
+# `release_file_list` without running a release. Nothing above this line has
+# side effects.
+if [ "${1:-}" = "--source-only" ]; then
+  return 0 2>/dev/null || exit 0
+fi
+
 # --- locate the repo --------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPASS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -113,56 +174,14 @@ if [ -n "$STALE" ]; then
 fi
 OUT="dist/compass-${VERSION}.tar.gz"
 
-# Files that genuinely belong in the release. Tar excludes are listed
-# explicitly - be conservative and visible about what we ship.
-#
-# CRITICAL: patterns with a leading `./` are ROOT-ANCHORED - they match
-# only at the top of the archive. Without the `./`, tar matches the pattern
-# ANYWHERE in the path, which is what previously dropped
-# `examples/<x>/.compass/work/<slug>/task.yml` from the release. The repo's
-# own .compass/work and the rest of the framework's dev state must be
-# anchored; noise patterns that legitimately should match anywhere
-# (__pycache__, .DS_Store, *.bak) stay un-anchored.
-tar -czf "$OUT" \
-  --exclude='./.git' \
-  --exclude='./.git/*' \
-  --exclude='./.gitignore' \
-  --exclude='./.github' \
-  --exclude='./.github/*' \
-  --exclude='./dist' \
-  --exclude='./dist/*' \
-  --exclude='./build' \
-  --exclude='./.compass/work' \
-  --exclude='./.compass/work/*' \
-  --exclude='./.compass/flow' \
-  --exclude='./.compass/flow/*' \
-  --exclude='./.compass/current-task' \
-  --exclude='./_deltest' \
-  --exclude='./_deltest/*' \
-  --exclude='./commands/roles' \
-  --exclude='./commands/roles/*' \
-  --exclude='./pytest-cache-files-*' \
-  --exclude='./pytest-cache-files-*/*' \
-  --exclude='.DS_Store' \
-  --exclude='__MACOSX' \
-  --exclude='__MACOSX/*' \
-  --exclude='__pycache__' \
-  --exclude='__pycache__/*' \
-  --exclude='*.pyc' \
-  --exclude='*.pyo' \
-  --exclude='.pytest_cache' \
-  --exclude='.pytest_cache/*' \
-  --exclude='.coverage' \
-  --exclude='.mypy_cache' \
-  --exclude='.mypy_cache/*' \
-  --exclude='*.bak' \
-  --exclude='node_modules' \
-  --exclude='*.tar.gz' \
-  --exclude='*.zip' \
-  --exclude='.idea' \
-  --exclude='.vscode' \
-  --transform "s,^,compass-${VERSION}/," \
-  .
+# The exclude patterns that used to live here are gone: the file list is
+# built by release_file_list() above, which anchors exactly and ships only
+# tracked paths. Noise (.DS_Store, __pycache__, *.bak) cannot appear in a
+# tracked-file list, and the noise check below still verifies that.
+TMP_LIST="$(mktemp)"
+trap 'rm -f "$TMP_LIST"' EXIT
+release_file_list > "$TMP_LIST"
+tar -czf "$OUT" $(tar_prefix_flags "${VERSION}") -T "$TMP_LIST"
 
 echo "    wrote $OUT"
 echo ""

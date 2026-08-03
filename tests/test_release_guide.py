@@ -132,3 +132,122 @@ def test_trc_b1_release_guide_does_not_carry_rc1_specific_history():
         f"Those items were resolved before/with the 1.0.0 release; they "
         f"don't belong in a generic release guide."
     )
+
+
+# ---------------------------------------------------------------------------
+# Task release-script-portable-tar, SCN-001
+# ---------------------------------------------------------------------------
+
+def test_release_script_packages_on_this_platform(tmp_path):
+    """The packaging step must work with whichever tar this machine has.
+
+    `scripts/release.sh` prefixed every archive entry with the version
+    directory using GNU tar's `--transform`. macOS ships bsdtar, which spells
+    the same operation `-s` and rejects `--transform` outright, so the script
+    ran all four pre-flight checks, passed them, and then exited 1 having
+    produced nothing.
+
+    This runs the script's own flag-selection helper against a fixture tree and
+    inspects the result with `tar -tzf`, so it exercises the branch matching the
+    tar on the running machine - meaningful on a macOS laptop and on Linux CI
+    rather than passing vacuously on one of them.
+    """
+    import subprocess
+
+    script = ROOT / "scripts" / "release.sh"
+    text = script.read_text()
+
+    # The script must not hard-code the GNU-only spelling.
+    assert '--transform "s,^,compass-' not in text, (
+        "scripts/release.sh still uses GNU tar's --transform unconditionally; "
+        "bsdtar rejects it and the packaging step cannot run on macOS."
+    )
+    assert "tar_prefix_flags" in text, (
+        "scripts/release.sh should select its prefix flag through a named "
+        "helper so this test can exercise the same logic the release uses."
+    )
+
+    # Build a fixture tree and package it using the script's own helper.
+    src = tmp_path / "src"
+    (src / "sub").mkdir(parents=True)
+    (src / "f.txt").write_text("a\n")
+    (src / "sub" / "g.txt").write_text("b\n")
+    out = tmp_path / "out.tar.gz"
+
+    driver = (
+        f'set -eu\n'
+        f'. "{script}" --source-only\n'
+        f'cd "{src}"\n'
+        f'tar -czf "{out}" $(tar_prefix_flags "1.7.0") .\n'
+    )
+    r = subprocess.run(["bash", "-c", driver], capture_output=True, text=True)
+    assert r.returncode == 0, f"packaging failed:\n{r.stdout}\n{r.stderr}"
+
+    listing = subprocess.run(["tar", "-tzf", str(out)],
+                             capture_output=True, text=True, check=True).stdout
+    entries = [e for e in listing.splitlines() if e.strip() not in ("./", ".")]
+    assert entries, "the tarball is empty"
+
+    prefix = "compass-1.7.0/"
+    unprefixed = [e for e in entries if not e.startswith(prefix)]
+    assert not unprefixed, (
+        f"entries not prefixed with {prefix!r}: {unprefixed}")
+
+    escaping = [e for e in entries if e.startswith("/") or ".." in e.split("/")]
+    assert not escaping, f"entries escape the version directory: {escaping}"
+
+
+def _release_file_list():
+    """The list of paths the release script will package, via its own helper."""
+    import subprocess
+
+    script = ROOT / "scripts" / "release.sh"
+    driver = (
+        f'set -eu\n'
+        f'. "{script}" --source-only\n'
+        f'cd "{ROOT}"\n'
+        f'release_file_list\n'
+    )
+    r = subprocess.run(["bash", "-c", driver], capture_output=True, text=True)
+    assert r.returncode == 0, f"release_file_list failed:\n{r.stdout}\n{r.stderr}"
+    return [l.strip() for l in r.stdout.splitlines() if l.strip()]
+
+
+def test_release_file_list_keeps_examples_and_drops_repo_work(tmp_path):
+    """SCN-002. BSD tar has no --anchored, so the script's `./`-prefixed
+    exclude patterns matched at any depth and stripped
+    `examples/*/.compass/work/<slug>/task.yml` along with the repo's own
+    dev state."""
+    paths = _release_file_list()
+
+    own_work = [p for p in paths if p.lstrip("./").startswith(".compass/work")]
+    assert not own_work, (
+        f"the repository's own .compass/work must not ship: {own_work[:5]}")
+
+    example_tasks = [p for p in paths
+                     if "examples/" in p and "/.compass/work/" in p
+                     and p.endswith("task.yml")]
+    assert len(example_tasks) >= 5, (
+        "every worked example must keep its .compass/work/<slug>/task.yml; "
+        f"found {len(example_tasks)}: {example_tasks}")
+
+
+def test_release_file_list_excludes_untracked_files(tmp_path):
+    """SCN-003. The script archived the working tree, so an untracked local
+    file shipped to whoever downloaded the release - and the noise check
+    reported clean, because an untracked config file matches no noise pattern."""
+    import subprocess
+
+    marker = ROOT / "_release_untracked_probe.txt"
+    tracked = subprocess.run(["git", "ls-files", "--error-unmatch", marker.name],
+                             capture_output=True, text=True, cwd=str(ROOT))
+    assert tracked.returncode != 0, "probe file is tracked; choose another name"
+
+    marker.write_text("this file is untracked and must never ship\n")
+    try:
+        paths = _release_file_list()
+    finally:
+        marker.unlink(missing_ok=True)
+
+    leaked = [p for p in paths if marker.name in p]
+    assert not leaked, f"untracked file shipped in the release: {leaked}"
