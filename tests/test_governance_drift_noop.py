@@ -260,3 +260,45 @@ def test_trc_f6_the_framework_should_grow_by_artifacts_and_checks_only():
         "a new top-level CLI verb was added. `compass policy sync` was declined "
         "at Clarify: rewriting the file that defines a project's rules is "
         "destructive and deserves its own Frame.")
+
+
+# ---------------------------------------------------------------------------
+# TRC-F7 - the evidence types the CLI writes are accepted by the task schema
+# ---------------------------------------------------------------------------
+
+def test_trc_f7_evidence_types_agree_across_surfaces():
+    """Two shipped surfaces must declare the same evidence types.
+
+    `compass analyze` writes a `coherence-check` entry, and task.schema.json
+    did not accept it - so a task whose route includes verify.analyze produced
+    evidence its own `compass task lint` rejected. No task here had hit it,
+    because verify.analyze only enters the gate set at critical blast radius or
+    on irreversible surface. The same disease this whole task is about: two
+    governance surfaces disagreeing, with nothing checking.
+    """
+    declared = set(
+        (yaml.safe_load((GOVERNANCE / "guardrails.yml").read_text())
+         .get("evidence_types") or {}))
+    assert declared, "guardrails.yml declares no evidence types"
+
+    schema = json.loads((ROOT / "schemas" / "task.schema.json").read_text())
+
+    def enums(node):
+        if isinstance(node, dict):
+            if "enum" in node and "test-run" in (node["enum"] or []):
+                yield set(node["enum"])
+            for v in node.values():
+                yield from enums(v)
+        elif isinstance(node, list):
+            for v in node:
+                yield from enums(v)
+
+    found = list(enums(schema))
+    assert found, "task.schema.json has no evidence-type enum"
+    for accepted in found:
+        assert accepted == declared, (
+            "governance and the task schema disagree about evidence types.\n"
+            f"  declared in guardrails.yml but not accepted by the schema: "
+            f"{sorted(declared - accepted)}\n"
+            f"  accepted by the schema but not declared: "
+            f"{sorted(accepted - declared)}")
