@@ -126,6 +126,8 @@ the spec is what needs changing.
 
 ## Other runners
 
-The same four steps apply to `cucumber-js`, `behave`, and `godog`; only step
-three differs. `compass bdd extract` emits plain Gherkin with standard `@tags`,
-which every one of them can read and select on.
+`cucumber-js`, `behave` and `godog` each have a worked adapter beside this one,
+and each is run by its own CI job on every push. The same four steps apply to
+all four; only step three, binding the steps, differs. `compass bdd extract`
+emits plain Gherkin with standard `@tags`, which every one of them reads and
+selects on.

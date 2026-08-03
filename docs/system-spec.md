@@ -91,6 +91,13 @@
 - **Source task:** `version-bump-1-0-0`
 - **Landed:** 
 
+### each runner should have a worked project _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `bdd-adapters-and-skill-length`
+- **Landed:** 
+
 ### the entry point should be thin _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -138,6 +145,13 @@
 - **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
 - **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### each adapter should run the extracted feature and pass _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `bdd-adapters-and-skill-length`
 - **Landed:** 
 
 ### the modules should follow the groupings the code already had _(archived)_
@@ -189,6 +203,13 @@
 - **Source task:** `phase-2-skills-check-and-cli-split`
 - **Landed:** 
 
+### every adapter should share the same four documented steps _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `bdd-adapters-and-skill-length`
+- **Landed:** 
+
 ### the package should import cleanly on its own _(archived)_
 
 - **Scenario id:** `TRC-A3`
@@ -236,6 +257,13 @@
 - **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
 - **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the tag selector should know every shipped runner _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source task:** `bdd-adapters-and-skill-length`
 - **Landed:** 
 
 ### Compass ships templates for the architecture artifacts _(archived)_
@@ -294,6 +322,13 @@
 - **Source task:** `executable-bdd-and-richer-plans`
 - **Landed:** 
 
+### every adapter should be exercised by a CI job _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `bdd-adapters-and-skill-length`
+- **Landed:** 
+
 ### the public verb surface should be identical _(archived)_
 
 - **Scenario id:** `TRC-B1`
@@ -341,6 +376,13 @@
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
 - **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### an adapter whose runner is absent should skip loudly, never silently pass _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `bdd-adapters-and-skill-length`
 - **Landed:** 
 
 ### the whole test suite should pass unchanged _(archived)_
@@ -502,6 +544,13 @@
 - **Scenario id:** `TRC-B8`
 - **Intent:** `INT-2`
 - **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the review skill should be within its stated length _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `bdd-adapters-and-skill-length`
 - **Landed:** 
 
 ### frame_load_architecture returns the new artifacts and ADRs _(archived)_

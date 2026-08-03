@@ -340,6 +340,10 @@ def _bdd_tag_selector(runner, command):
         return lambda tag: ["--collect-only", "-q", "-m", tag]
     if "cucumber" in r or "behave" in r:
         return lambda tag: ["--dry-run", "--tags", "@" + tag]
+    if "godog" in r or "godog" in joined:
+        # godog is driven through `go test`, so its flags are passed with the
+        # -godog. prefix rather than as bare arguments.
+        return lambda tag: ["-args", "-godog.tags=@" + tag, "-godog.dry-run"]
     return None
 
 

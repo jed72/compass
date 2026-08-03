@@ -1,0 +1,8 @@
+version: 1.0.0
+mode: enforced
+project:
+  name: "cucumber-js reference adapter"
+  bdd_runner: cucumber-js
+  bdd_features_dir: features
+  bdd_steps_dir: features/step_definitions
+  bdd_run_command: "npx cucumber-js"
