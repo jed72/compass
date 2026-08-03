@@ -2140,21 +2140,78 @@ def _micro_command(args, task_dir):
     return shlex.split(cmd)
 
 
+def _is_pytest_command(cmd):
+    """Does this command invoke pytest? Used for both the coverage flag and the
+    exit-code reading below, since both are pytest-specific."""
+    if not cmd:
+        return False
+    base = os.path.basename(str(cmd[0]))
+    return base.startswith("pytest") or "pytest" in cmd
+
+
+def _pytest_cov_available():
+    """Is pytest-cov actually loadable in the environment that will run pytest?
+
+    `--cov-fail-under` is a pytest-cov flag, not a pytest one. Injecting it
+    where the plugin cannot load makes pytest exit 4 (usage error) without
+    running a single test. Projects legitimately disable plugin autoload -
+    PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 is the standard cure for plugins that hang
+    on init in clean environments - and there the flag is always rejected.
+    """
+    if os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD"):
+        return False
+    try:
+        import importlib.util
+        return importlib.util.find_spec("pytest_cov") is not None
+    except Exception:
+        return False
+
+
 def _neutralise_coverage(cmd):
     """R7: for a recognised pytest micro-run, inject --cov-fail-under=0 so a
     project-wide coverage floor cannot refuse a passing targeted test. The
     micro-run is never the coverage gate - the full suite at Verify is. An
     explicit --cov-fail-under is preserved (the full-suite floor is respected);
-    a non-pytest command is left untouched."""
+    a non-pytest command is left untouched.
+
+    The flag is added only when pytest-cov can actually load. Adding a flag the
+    runner will reject turns a real test run into a usage error, which is a
+    worse failure than the coverage floor this exists to work around.
+    """
     if not cmd:
         return cmd
     if any("--cov-fail-under" in str(c) for c in cmd):
         return cmd
-    base = os.path.basename(str(cmd[0]))
-    is_pytest = base.startswith("pytest") or "pytest" in cmd
-    if is_pytest:
+    if _is_pytest_command(cmd) and _pytest_cov_available():
         return list(cmd) + ["--cov-fail-under=0"]
     return cmd
+
+
+# A non-zero exit does NOT mean "a test failed". A runner exits non-zero for
+# reasons that mean the opposite - no test ran at all. Recording one of those as
+# a red writes the .red marker, which hooks/pre-tool.sh treats as proof that a
+# real failure was observed. A typo would then unlock a code edit.
+#
+# pytest: 1 = tests failed · 2 = interrupted · 3 = internal error
+#         4 = usage error  · 5 = no tests collected
+_NO_TEST_RAN_EXITS = {
+    2: "it was interrupted before finishing (pytest exit 2)",
+    3: "the runner hit an internal error (pytest exit 3)",
+    4: "the runner rejected an argument (pytest exit 4, a usage error)",
+    5: "no test was collected by that path (pytest exit 5)",
+}
+
+
+def _red_rejection_reason(code, command):
+    """Why this exit must not be recorded as a red, or None if it may be.
+
+    Only applied to commands recognisable as pytest, because these codes are
+    pytest's. An unrecognised runner keeps the permissive behaviour: narrowing
+    that would break every project using a runner Compass cannot identify.
+    """
+    if not _is_pytest_command(command):
+        return None
+    return _NO_TEST_RAN_EXITS.get(code)
 
 
 def cmd_tdd_red(args):
@@ -2183,6 +2240,17 @@ def cmd_tdd_red(args):
             "compass tdd-red: the test command PASSED (exit 0) - there is no "
             "red to record. Strategy S2 is red-before-green: write a test that "
             "actually fails first.\n--- output (tail) ---\n" + excerpt
+        )
+    rejection = _red_rejection_reason(code, command)
+    if rejection:
+        raise CompassError(
+            "compass tdd-red: the test command DID NOT RUN - %s. That is not a "
+            "failing test, so there is no red to record.\n"
+            "A .red marker means a real, observed failure is on record; the "
+            "pre-tool hook unlocks code edits on the strength of it. Fix the "
+            "command so the test actually runs, then try again.\n"
+            "  command: %s\n--- output (tail) ---\n%s"
+            % (rejection, " ".join(command), excerpt)
         )
     payload = {
         "command": " ".join(command),

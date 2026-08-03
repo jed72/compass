@@ -4,6 +4,7 @@ real pass)."""
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import sys
 
@@ -253,15 +254,34 @@ def test_output_token_crosscheck_on_known_runner(run_cli, make_task):
 
 def test_coverage_floor_refuses_micro_run_baseline(run_cli, make_task):
     """TRC-R7-1 (regression guard): a recognised pytest micro-run is neutralised
-    - the recorded command carries --cov-fail-under=0 so a project floor cannot
-    refuse a passing targeted test."""
+    so a project coverage floor cannot refuse a passing targeted test.
+
+    Narrowed deliberately: the neutralising flag is injected only where
+    pytest-cov can actually load. `--cov-fail-under` is a pytest-cov flag, not a
+    pytest one, so injecting it into a project that disables plugin autoload
+    made pytest exit 4 - a usage error, with no test run at all - and
+    `compass tdd-red` then recorded that as a failing test. The guarantee this
+    test protects is unharmed by the narrowing: where pytest-cov cannot load
+    there is no coverage floor to refuse anything. See TRC-G1..G3 in
+    .compass/work/executable-bdd-and-richer-plans/spec.feature.md.
+    """
+    import importlib.util
+    cov_loadable = (not os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD")
+                    and importlib.util.find_spec("pytest_cov") is not None)
+
     task_dir = make_task("r7-base", _r2_body())
     (task_dir / ".red").write_text("")
     r = run_cli("tdd-green", "--task", "r7-base", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
     green = json.loads((task_dir / "evidence" / "green.json").read_text())
-    assert "--cov-fail-under=0" in green["command"], r
+
+    if cov_loadable:
+        assert "--cov-fail-under=0" in green["command"], r
+    else:
+        assert "--cov-fail-under" not in green["command"], (
+            "injected a pytest-cov flag where pytest-cov cannot load; the "
+            "runner would reject it and no test would run:\n%r" % r)
 
 
 def test_micro_run_neutralises_coverage_floor(run_cli, make_task):
