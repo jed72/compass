@@ -81,6 +81,68 @@ role-translation lens is how each role reads it. User stories as a format
 are fine upstream of Compass (in a brief, a brief or a Jira ticket) - they
 are not the spec, and they do not replace the scenario.
 
+## The Summary comes before the scenarios
+
+A spec opens with a **Summary** in prose, above the role-guide block, before a
+single Given/When/Then. Three fields:
+
+- **Goal** - one sentence, what this change delivers in user terms.
+- **Approach** - two to three sentences, the shape of the change at the level a
+  lens reviewer would want.
+- **Why now / what changes** - one short paragraph, the visible outcome and what
+  an adjacent role would notice afterwards.
+
+This is strategy **S7** (write for a cold reader) applied to the spec itself. A
+reviewer opening a spec they did not write should be able to say what is being
+built and why before deciding whether to read the scenarios in detail. Without
+it they have to synthesise that picture from the Gherkin - easy for the author,
+progressively harder for everyone else, and the point at which review quietly
+stops happening.
+
+The Summary is **additive**. It does not replace scenarios, and it is not a
+place to restate them. Length scales with the route the same way scenario depth
+does: Express one to two sentences per field, Standard ordinary paragraphs,
+Expedition up to 200 words per field where the work warrants it.
+
+## Self-review before Clarify
+
+When `spec.feature.md` is written, run these four scans over it yourself before
+handing off. **Fix what you find inline** - edit the spec directly. Do not write
+a review artifact, and do not invoke a reviewer agent or subagent for this.
+
+1. **Placeholder scan** - any unfilled `{{...}}` left in the file, including the
+   three Summary fields (Goal, Approach, Why now / what changes). An unfilled
+   Summary is the most common one, because it is written first and easiest to
+   defer.
+2. **Orphan-intent scan** - every `INT-n` in the intent-links table has at least
+   one scenario serving it. An intent with no scenario is a stated outcome
+   nobody agreed to check.
+3. **Untestable-Then scan** - any `Then` phrased as "it works", "is correct",
+   "behaves properly", or "feels right". If it cannot fail, it cannot pass.
+4. **Ambiguous-quantifier scan** - "quickly", "large", "most", "soon" with no
+   number attached. Either attach the number or cut the word.
+
+**This complements Clarify; it does not replace it.** Clarify still runs on
+Standard and heavier routes, and it does things this cannot: it QAs the spec
+against governance, resolves contradictions, and records an ambiguity ledger
+with owners. The self-check is simply what a spec-author owes Clarify - the
+cheap findings fixed by whoever made them, so Clarify's attention goes to the
+questions that actually need a decision.
+
+**On Express, where Clarify is collapsed, this self-check *is* the QA.** Record
+that you ran it, and what it found, in `devlog.md`. A self-check that happened
+only in conversation did not happen (S4).
+
+*Why there is no subagent critic here.* The Superpowers project shipped a
+subagent review loop between spec and plan and then removed it, reporting
+regression testing across five versions and five trials that found identical
+quality scores whether the loop ran or not, at roughly 25 minutes of overhead
+per run. Compass has not repeated that measurement and takes the published
+result at face value. Compass already has
+two review roles that earn their cost: **Clarify**, which QAs the spec against
+governance, and the **reviewer** agent at Verify. A third pass between them
+would double the time without measurably improving the spec.
+
 ## What a scenario is
 
 ```

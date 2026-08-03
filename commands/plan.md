@@ -45,6 +45,29 @@ here* and *executed in Distribute*.
 4. **Write `plan.md`** from `templates/plan.md` (and `distribution-map.md` from
    its template when applicable) into `.compass/work/<task-slug>/`.
 
+## Hand-off
+
+Close Plan by handing the technical approach to a human. This is the last review
+before code is written, and the cheapest point at which to change the design.
+
+> I have written the plan to `.compass/work/<task-slug>/plan.md`
+> (and the distribution map to `distribution-map.md`).
+>
+> It records N design decisions, the governance check against all of
+> `governance/`, and M work units.
+>
+> Worth a read before Build. Specifically, look for:
+> - **Design decisions you would make differently** - each records what was
+>   chosen and what was rejected, so the disagreement should be easy to locate.
+> - **A decision with no alternative considered** - that is usually not a
+>   decision yet.
+> - **Work units that are not as independent as claimed** - optimistic
+>   decomposition surfaces as a collision at integration, not here.
+> - **Anything still unfinished** - `compass plan lint` reports placeholder
+>   phrases, but a plan can be vague without using one.
+>
+> On approval this goes to Distribute, or straight to Build on a solo route.
+
 ## Gate
 
 `plan.md` exists; the governance check passed (paste its result); if a brief

@@ -3909,6 +3909,97 @@ def cmd_policy_lint(args):
     return 0
 
 
+# --- command: plan lint ------------------------------------------------------
+# Scans a plan.md for the phrases that mean the plan is not actually finished.
+# ADVISORY BY DESIGN: it always exits 0 on findings. A hit is a note for the
+# planner to judge, never a gate. The CLI may read a prose artifact to advise;
+# it may not make the structure of a prose artifact a condition of passing.
+
+PLAN_PLACEHOLDER_PHRASES = (
+    "TBD",
+    "TODO",
+    "implement later",
+    "add appropriate error handling",
+)
+
+# A work unit that promises tests. It is only a finding when nothing test-shaped
+# follows it - the promise with nothing behind it is the defect, not the phrase.
+PLAN_TEST_PROMISE = "write tests for the above"
+
+
+def _plan_lint_scannable(text):
+    """Yield (lineno, line) with fenced blocks and blockquotes blanked out.
+
+    Blanked rather than dropped, so reported line numbers still match the file
+    the author is looking at. Quoted text is skipped because every document that
+    explains this check has to quote the phrases it looks for - the skill that
+    documents it, the writing guide, and the plan that specified it. A check
+    that fires on its own documentation gets switched off.
+    """
+    in_fence = False
+    for lineno, line in enumerate(text.splitlines(), 1):
+        stripped = line.lstrip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_fence = not in_fence
+            yield lineno, ""
+            continue
+        if in_fence or stripped.startswith(">"):
+            yield lineno, ""
+            continue
+        yield lineno, line
+
+
+def _plan_lint_findings(text):
+    """Return [(lineno, phrase)] for every placeholder in a plan's prose."""
+    lines = list(_plan_lint_scannable(text))
+    findings = []
+
+    for lineno, line in lines:
+        low = line.lower()
+        for phrase in PLAN_PLACEHOLDER_PHRASES:
+            if phrase.lower() in low:
+                findings.append((lineno, phrase))
+
+        if PLAN_TEST_PROMISE in low:
+            # Kept only if nothing test-shaped follows within a short window.
+            import re as _re
+            following = " ".join(l for n, l in lines if n > lineno)[:600].lower()
+            if not _re.search(r"test_\w+|::|\.py\b|\bit\(|\bdescribe\(", following):
+                findings.append((lineno, PLAN_TEST_PROMISE))
+
+    return sorted(set(findings))
+
+
+def cmd_plan_lint(args):
+    if args.file:
+        path = args.file
+    else:
+        task_dir = resolve_task_dir(args.task)
+        path = os.path.join(task_dir, "plan.md")
+
+    if not os.path.isfile(path):
+        print(f"compass plan lint: ERROR - no such file: {path}")
+        print("  Plan collapses on Express, Hotfix and Spike routes, so a task on "
+              "one of those has no plan.md to lint.")
+        return 2
+
+    with open(path, encoding="utf-8") as fh:
+        findings = _plan_lint_findings(fh.read())
+
+    if not findings:
+        print(f"compass plan lint: PASS - no placeholders found in {path}")
+        return 0
+
+    noun = "placeholder" if len(findings) == 1 else "placeholders"
+    print(f"compass plan lint: {len(findings)} possible {noun} in {path} [advisory]")
+    for lineno, phrase in findings:
+        print(f"  line {lineno}: {phrase}")
+    print("\n  Advisory, not a gate - this exits 0. Assess these as judgement in "
+          "the strategies\n  walk of the governance check, and either fill them in "
+          "or record why they stand.")
+    return 0
+
+
 def cmd_task_lint(args):
     if args.file:
         path = args.file
@@ -4955,6 +5046,14 @@ def build_parser():
     pls = pl.add_subparsers(dest="subcmd", required=True)
     pll = pls.add_parser("lint", help="structurally validate the governance YAML")
     pll.set_defaults(func=cmd_policy_lint)
+
+    ppl = sub.add_parser("plan", help="plan.md tools")
+    ppls = ppl.add_subparsers(dest="subcmd", required=True)
+    ppll = ppls.add_parser(
+        "lint", help="scan a plan.md for placeholder phrases (advisory; always exits 0)")
+    ppll.add_argument("--task", help="task slug (default: current-task pointer)")
+    ppll.add_argument("--file", help="lint a specific plan.md file")
+    ppll.set_defaults(func=cmd_plan_lint)
 
     pt = sub.add_parser("task", help="task manifest tools")
     pts = pt.add_subparsers(dest="subcmd", required=True)

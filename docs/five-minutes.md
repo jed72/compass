@@ -236,6 +236,7 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
+compass plan lint        scan a plan.md for placeholder phrases - advisory
 compass task receipt     render a one-screen receipt for a landed task -
                          readings → route → typed evidence → gate verdicts
 compass gate pass        flip a gate to pass; validates evidence type at write time

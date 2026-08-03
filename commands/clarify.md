@@ -58,6 +58,30 @@ If Clarify reveals the spec is bigger or more ambiguous than the route assumed,
 **stop and re-frame** (`/compass:frame --reframe`) - do not push a Standard
 route through an Expedition-shaped problem.
 
+## Hand-off
+
+Close Clarify by handing the ambiguity ledger to a human. This is the last
+review before work is planned against the spec, so the questions here are about
+decisions, not wording.
+
+> I have written the ambiguity ledger to
+> `.compass/work/<task-slug>/clarifications.md`, and updated `spec.feature.md`
+> where a resolution changed it.
+>
+> N ambiguities were found and resolved. The ones that changed what gets built
+> are: <short list>.
+>
+> Worth a read before Plan. Specifically, look for:
+> - **Decisions you disagree with** - each entry records what was decided and by
+>   whom; a resolution recorded is not the same as a resolution you would make.
+> - **Resolutions that quietly widened scope** - a question answered by adding
+>   work should be visible as such.
+> - **The Definition of Ready** - every box is checked, and each one is meant to
+>   be true rather than ticked.
+>
+> On approval this goes to Plan, which turns the spec into a technical approach
+> and runs the governance check against it.
+
 ## Gate
 
 `clarifications.md` exists; every ambiguity is resolved or owned; the spec

@@ -21,6 +21,37 @@ scenario, concrete Given/When/Then, no implementation detail.
 > **Phase:** Specify · **Last updated:** {{DATE}} · **Owning agent:** spec-author
 > **Terrain:** {{greenfield discovery \| brownfield blueprint-distillation then new scenarios}}
 
+## Summary
+
+<!-- WRITE THIS FIRST, and write it in prose. A reviewer opening a spec they
+     did not write wants to know what is being built and why - not to
+     reverse-engineer it from Gherkin. That synthesis is easy for the author
+     and progressively harder for everyone else, which is where review quietly
+     stops happening. This section is strategy S7 (write for a cold reader)
+     applied to the spec itself.
+
+     Three fields, in this order. Length scales with the route:
+       Express     - one to two sentences per field.
+       Standard    - ordinary paragraphs.
+       Expedition  - up to 200 words per field, where the work warrants it.
+
+     An unfilled field is caught twice: by the spec-author's placeholder scan
+     at the end of Specify, and by the Definition of Ready at the foot of
+     clarifications.md, which will not let an empty Summary reach Plan. -->
+
+**Goal:** {{One sentence - what this change delivers, in user terms. Not the
+implementation, not the ticket title.}}
+
+**Approach:** {{Two to three sentences - the shape of the change, at the level
+a lens reviewer would want. Enough that a reader can predict roughly what the
+scenarios below will cover.}}
+
+**Why now / what changes:** {{One short paragraph - the visible outcome, and
+what a user or an adjacent role would notice afterwards that they do not notice
+today. If nothing observable changes, say so plainly and explain what does.}}
+
+---
+
 ## How each role reads this file
 
 <!-- Do not edit this block - it is the same on every spec. It is here so
