@@ -141,8 +141,12 @@ def test_trc_d4_clarify_command_documents_the_split():
 # ---------------------------------------------------------------------------
 
 def test_trc_f7_skill_count_unchanged_on_net():
-    """One skill in, one out. USP-5 says every new user-facing concept is
-    scrutinised; this makes the arithmetic a checked fact rather than a claim.
+    """One skill in, one out.
+
+    Compass grows by adding artifacts and skills rather than guardrails or
+    routing dimensions (architecture/decisions/ADR-002), and every new
+    user-facing concept is meant to be scrutinised before it lands. This makes
+    the arithmetic a checked fact rather than a claim.
 
     This is a cross-stream assertion: `plan-authoring` arrives with the richer
     plans work and `constitution-check` leaves with this one. It can only be
