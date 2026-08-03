@@ -1,0 +1,28 @@
+# Compass config for the pytest-bdd reference adapter.
+#
+# The four project.bdd_* keys are what wire an extracted .feature file to a
+# real BDD runner. In the shipped framework config they are commented out, so
+# a project that edits nothing has opted into nothing. Here they are live,
+# because opting in is the entire point of this example.
+version: 1.0.0
+mode: enforced
+
+project:
+  name: "pytest-bdd reference adapter"
+  test_command: "pytest tests/"
+
+  # Which runner this project uses. Names this directory.
+  bdd_runner: pytest-bdd
+
+  # Where `compass bdd extract` writes the .feature file. Left unset here on
+  # purpose: the default is the task's own directory, which keeps the spec and
+  # the extracted feature side by side. Set it when your runner insists on a
+  # conventional features/ directory.
+  # bdd_features_dir: features
+
+  # Where the step definitions live. Compass does not read this - it is
+  # recorded so both halves of the wiring are findable from one file.
+  bdd_steps_dir: tests/steps
+
+  # How to run the acceptance suite once the feature is extracted.
+  bdd_run_command: "pytest tests/"
