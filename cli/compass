@@ -879,6 +879,19 @@ def cmd_route_evaluate(args):
     if args.json:
         print(json.dumps(result, indent=2))
     else:
+        # Provenance first. route.md records which guardrails fired and why; it
+        # said nothing about WHICH POLICY produced those answers, so a reader
+        # could not tell a genuinely light route from a stale-governance one.
+        print(f"  policy          : {os.path.join(gov, 'routing-policy.yml')} "
+              f"(v{policy.get('version', 'unknown')})")
+        drift = governance_drift(gov)
+        if drift.drifted:
+            fw = drift.framework_versions.get("routing-policy.yml", "unknown")
+            print(f"  POLICY DRIFT    : this policy is missing {drift.count} "
+                  f"rule(s)/check(s) that framework v{fw} ships - "
+                  f"run `compass policy lint` for the list")
+        elif not drift.comparable:
+            print(f"  policy drift    : not compared ({drift.reason})")
         print(f"  readings        : {json.dumps(readings)}")
         print(f"  candidate route : {result['candidate_route']}  "
               f"<- {result['candidate_via']}")
@@ -1944,6 +1957,32 @@ def cmd_check(args):
     print(f"compass check - task '{os.path.basename(task_dir)}' "
           f"(route: {task.get('route', '?')})")
     print(f"{mode_banner(mode)}\n")
+
+    # A guardrail the project's file OMITS produced no output at all: not
+    # "skipped", nothing. On a task touching auth, against a governance copy
+    # without G5, this printed G1-G4 and returned its normal result. Report the
+    # ones that are absent AND would have applied here - task-scoped on purpose,
+    # because a full inventory printed on every task is a message nobody reads.
+    # `compass policy lint` is where the full inventory lives.
+    declared_ids = {g.get("id") for g in all_guardrails}
+    try:
+        fw_guardrails = load_yaml(
+            os.path.join(FRAMEWORK_ROOT, "governance", "guardrails.yml"))
+        fw_defaults = (fw_guardrails.get("defaults") or []) if isinstance(
+            fw_guardrails, dict) else []
+    except Exception:                                   # noqa: BLE001
+        fw_defaults = []
+    for fg in fw_defaults:
+        fid = fg.get("id")
+        if fid in declared_ids:
+            continue
+        applies = fg.get("applies_when")
+        if applies and not reading_matches(applies, readings):
+            continue          # absent, but would not have applied here anyway
+        print(f"  {fid} {fg.get('name', '')}: ABSENT from this project's "
+              f"governance, and it applies to these readings - the framework "
+              f"defines it but governance/guardrails.yml does not. Run "
+              f"`compass policy lint`.")
 
     for g in all_guardrails:
         gid = g.get("id", "?")
