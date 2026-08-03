@@ -1,0 +1,7 @@
+version: 1.0.0
+mode: enforced
+project:
+  name: "behave reference adapter"
+  bdd_runner: behave
+  bdd_steps_dir: features/steps
+  bdd_run_command: "behave features/"

@@ -103,3 +103,72 @@ jobs:
           python3 -m pytest tests/ -q --collect-only > /tmp/collected.txt
           grep -q "test_" /tmp/collected.txt || {
             echo "No scenarios were collected - pytest-bdd did not load."; exit 1; }
+
+  # An example no job runs is an example nobody can trust. Every directory under
+  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  bdd-adapter-behave:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
+      - name: Install the CLI's dependency and the runner
+        run: pip install pyyaml && pip install behave
+        working-directory: examples/bdd-adapters/behave
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/behave
+        run: python3 ../../../cli/compass bdd extract --task reset-password --out features/reset-password.feature
+
+      - name: Run the extracted scenarios
+        working-directory: examples/bdd-adapters/behave
+        run: behave features/
+
+  # An example no job runs is an example nobody can trust. Every directory under
+  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  bdd-adapter-cucumber-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: '22'
+
+      - name: Install the CLI's dependency and the runner
+        run: pip install pyyaml && npm install --no-audit --no-fund
+        working-directory: examples/bdd-adapters/cucumber-js
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/cucumber-js
+        run: python3 ../../../cli/compass bdd extract --task reset-password --out features/reset-password.feature
+
+      - name: Run the extracted scenarios
+        working-directory: examples/bdd-adapters/cucumber-js
+        run: npx cucumber-js
+
+  # An example no job runs is an example nobody can trust. Every directory under
+  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  bdd-adapter-godog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version: '1.22'
+
+      - name: Install the CLI's dependency and the runner
+        run: pip install pyyaml && go mod download
+        working-directory: examples/bdd-adapters/godog
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/godog
+        run: python3 ../../../cli/compass bdd extract --task reset-password --out features/reset-password.feature
+
+      - name: Run the extracted scenarios
+        working-directory: examples/bdd-adapters/godog
+        run: go test ./...

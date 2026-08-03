@@ -1,0 +1,8 @@
+version: 1.0.0
+mode: enforced
+project:
+  name: "godog reference adapter"
+  bdd_runner: godog
+  bdd_features_dir: features
+  bdd_steps_dir: .
+  bdd_run_command: "go test ./..."
