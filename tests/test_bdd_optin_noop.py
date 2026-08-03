@@ -81,10 +81,15 @@ def test_trc_f5_no_optin_means_no_change():
     # opting in is what the key is for. The narrow claim - that extract itself
     # does not need it - is what this scenario is actually about, so the
     # assertion is now scoped to that function.
-    source = CLI.read_text(encoding="utf-8")
+    # Look wherever the function lives. It moved into cli/compass_pkg/bdd.py
+    # when the CLI was split; an assertion about a function's body should
+    # follow the function rather than pin its old address.
+    candidates = [CLI] + sorted((CLI.parent / "compass_pkg").glob("*.py"))
+    source = next(s for s in (c.read_text(encoding="utf-8") for c in candidates)
+                  if "def cmd_bdd_extract(" in s)
     start = source.index("def cmd_bdd_extract(")
-    end = source.index("\ndef ", start + 1)
-    extract_body = source[start:end]
+    nxt = source.find("\ndef ", start + 1)
+    extract_body = source[start:nxt if nxt != -1 else len(source)]
     assert "bdd_runner" not in extract_body, (
         "cmd_bdd_extract branches on project.bdd_runner; extraction must work "
         "for a project that has declared no runner"

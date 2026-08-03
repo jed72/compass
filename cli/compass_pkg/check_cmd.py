@@ -1,0 +1,337 @@
+#!/usr/bin/env python3
+# =============================================================================
+# compass - the Compass CLI
+# =============================================================================
+# The deterministic half of Compass. The Needle (an LLM or a human) produces
+# the four-dimension *readings* - that is judgement, and judgement is the
+# adaptivity. Everything downstream of the readings is mechanical, and this is
+# where the mechanism lives:
+#
+#   compass route evaluate   Apply governance/routing-policy.yml to a task's
+#                            readings -> the final route, deterministically.
+#                            Same readings + same policy => same route, always.
+#   compass check            Run the governance/guardrails.yml checks against a
+#                            task's task.yml + evidence/. The checkable backbone
+#                            of the Verify gate.
+#   compass tdd-red CMD...    Run a test command, assert it FAILS, record
+#                            evidence/red.json + the .red marker (honestly -
+#                            the marker is only written after a real failure).
+#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            it proves relevance, not just that something broke.
+#   compass tdd-green CMD...  Run a test command, assert it PASSES, record
+#                            evidence/green.json, clear the .red marker.
+#                            --scenario binds the green the same way.
+#   compass policy lint       Structurally validate routing-policy.yml and
+#                            guardrails.yml - including that every guardrail's
+#                            declared check is actually implemented in the CLI.
+#   compass task lint [F]     Structurally validate a task.yml.
+#   compass calibration       The Needle's feedback loop - aggregate the
+#                            re-frame log across all tasks and report whether
+#                            routing is systematically over- or under-sizing.
+#   compass ci               The full mechanical gate suite (policy lint +
+#                            task lint + check for every task) - for CI.
+#
+# DEPENDENCY: PyYAML (`pip install pyyaml`). It is the only dependency; the
+# rest is the Python 3 standard library. If PyYAML is missing the CLI says so
+# clearly and exits.
+#
+# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
+# (walking up from the working directory); if there is none, it falls back to
+# the framework's shipped `governance/` next to this script. That fallback is
+# the "gradient, not threshold" rule in code - the defaults work with zero
+# project setup.
+# =============================================================================
+
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+import tempfile
+
+# --- dependency check --------------------------------------------------------
+try:
+    import yaml
+except ImportError:
+    sys.stderr.write(
+        "compass: PyYAML is required but not installed.\n"
+        "  Install it with:  pip install pyyaml\n"
+        "  (It is the CLI's only dependency.)\n"
+    )
+    sys.exit(3)
+
+
+# Regex to match a DoD checklist item:
+#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
+import re as _re
+
+
+# --- command: rework-scan ---------------------------------------------------
+# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# .compass/work/) and detects add-then-delete patterns within the configured
+# window. Output is Markdown (default) or JSON (--format json). This is a
+# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
+# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
+# Suitable for piping into .compass/flow/rework-<date>.md.
+#
+# Detection modes:
+#   1. Simple add-then-delete: file added by task A, deleted by task B within
+#      window_days.
+#   2. Public-surface churn: the path matches a public_surface_patterns regex
+#      AND the same file is added then deleted.
+#   3. Migration pair: a file matching migration_paths (glob) is added in task
+#      A, and a semantically paired drop migration is added in task B within
+#      window_days.
+#
+# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
+# read-only over the task directory tree; it writes nothing.
+
+import fnmatch
+import re as _re
+from compass_pkg.checks import _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
+from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_task, load_yaml, mode_banner, reading_matches, resolve_task_dir
+
+
+
+CHECK_FNS = {
+    "scenarios-have-tests": _check_scenarios_have_tests,
+    "scenarios-are-executable": _check_scenarios_are_executable,
+    "declared-tests-resolve": _check_declared_tests_resolve,
+    "suite-passed": _check_suite_passed,
+    "changed-code-traces-to-scenario": _check_changed_code_traces,
+    "scenario-has-id-and-intent": _check_scenario_has_id_and_intent,
+    "claim-traces-to-scenario": _check_claim_traces,
+    "gate-evidence-present": _check_gate_evidence,
+    "dod-evidence-typed": _check_dod_evidence_typed,
+    "human-approval-present": _check_human_approval,
+    "backfills-paid": _check_backfills_paid,
+    "spike-conclusion-present": _check_spike_conclusion_present,
+    "spike-no-production-changes": _check_spike_no_production_changes,
+    "coherence-check-passes": _check_coherence_check_passes,
+    "no-trusted-rerun": _check_no_trusted_rerun,
+    "command-passes": _check_command_passes,
+}
+
+# Per-check guidance for structured failure messages. Each entry has the
+# *why it matters* and the *how to fix it* - the bits a check's own detail
+# string usually does not have room for. The check returns the "what failed";
+# this table supplies the rest. A failure with guidance reads like support;
+# a failure without reads like bureaucracy.
+CHECK_GUIDANCE = {
+    "scenarios-have-tests": {
+        "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (guardrail G2). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in spec.feature.md - not by a fabricated test.",
+        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in spec.feature.md - documentation is its acceptance.",
+    },
+    "suite-passed": {
+        "why": "Guardrail G1 (tested before it lands) requires a recorded green test run.",
+        "fix": "Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
+    },
+    "changed-code-traces-to-scenario": {
+        "why": "Compass requires every production change to trace back to a stated acceptance criterion (guardrail G3 traceability).",
+        "fix": "Edit task.yml: under each `changed_files:` entry, list the scenario id(s) that drove the change. Add a new scenario if the behaviour was unspecified.",
+    },
+    "scenario-has-id-and-intent": {
+        "why": "Each scenario needs a stable id and an intent link so claims, tests, and code can reference it.",
+        "fix": "Add `id:` (e.g. SCN-003) and `intent:` (the intent id from brief.md) fields to the scenario in task.yml.",
+    },
+    "claim-traces-to-scenario": {
+        "why": "Public claims must trace to a scenario that backs them (G3) - an unbacked claim is a promise the framework cannot prove.",
+        "fix": "Add a backing `scenario:` field to the claim in task.yml, or remove the claim from `claims:`.",
+    },
+    "gate-evidence-present": {
+        "why": "Guardrail G4 (evidence, not assertion): a gate marked pass must point at registry evidence of the right type. A mechanical gate cannot be cleared with a written note.",
+        "fix": "Add the evidence to the top-level `evidence:` registry with the correct `type:` (see governance/guardrails.yml `gate_evidence_requirements`), then reference its id under the gate's `evidence:` list.",
+    },
+    "human-approval-present": {
+        "why": "Guardrail G5 (a human signs off on the irreversible): this task touches auth, payments, personal data, or migrations and needs a recorded approval.",
+        "fix": "Add a `human-approval` evidence entry to the registry with approver, role, scope, decision=approved, and timestamp. Then reference it from the relevant gate's evidence.",
+    },
+    "backfills-paid": {
+        "why": "Borrowed ceremony - a Hotfix backfill or a de-scoped artifact - must be paid before a task closes. Otherwise the audit trail has a hole.",
+        "fix": "Complete each unpaid backfill (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in task.yml.",
+    },
+    "spike-conclusion-present": {
+        "why": "A Spike without a recorded conclusion is just untracked work - the conclusion is what makes the exploration accountable.",
+        "fix": "Add a `spike-conclusion` evidence entry to the registry with `decision:` (discard | graduate-to-delivery | defer). If graduating, include `next_task:` linking the new delivery task.",
+    },
+    "spike-no-production-changes": {
+        "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh Frame, not a silent merge.",
+        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:frame` to start a new delivery task that owns the code under a real route.",
+    },
+    "dod-evidence-typed": {
+        "why": "Guardrail G4 (evidence, not assertion): the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed backfill - narrative notes in devlog.md do not count.",
+        "fix": (
+            "For each bare unchecked DoD item: (a) add `(evidence: EV-<id>)` "
+            "inline, where EV-<id> is an entry in the task's evidence registry "
+            "with an accepted type; or (b) add `(backfill: BF-<id>)` inline and "
+            "record BF-<id> in task.yml backfills with status: owed; or (c) tick "
+            "the box `[x]` if a human has actually done the work."
+        ),
+    },
+    "coherence-check-passes": {
+        "why": "G4 (evidence, not assertion): verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
+        "fix": "Run `compass analyze` - on a route with verify.analyze it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, route disagreements, or orphan claims first.",
+    },
+}
+
+
+def _print_check_result(check_name, passed, detail, indent="    "):
+    """Print one check's result with structured why/fix on failure."""
+    if passed:
+        print(f"{indent}PASS {check_name}: {detail}")
+        return
+    print(f"{indent}FAIL {check_name}")
+    print(f"{indent}     what: {detail}")
+    g = CHECK_GUIDANCE.get(check_name)
+    if g:
+        print(f"{indent}     why : {g['why']}")
+        print(f"{indent}     fix : {g['fix']}")
+
+
+def cmd_check(args):
+    gov = find_governance()
+    guardrails = load_yaml(os.path.join(gov, "guardrails.yml"))
+    task_dir = resolve_task_dir(args.task)
+    task, _ = load_task(task_dir)
+    readings = task.get("readings") or {}
+    mode = load_mode()
+
+    # Route-aware: a Spike does not need the delivery guardrails (G1-G5 do not
+    # apply - a spike ships nothing), but it IS controlled: it must conclude,
+    # and it must not silently produce production change. `compass check` runs
+    # `spike_guardrails` from guardrails.yml on a Spike route instead of the
+    # delivery defaults.
+    if task.get("route") == "spike":
+        spike_gs = list(guardrails.get("spike_guardrails", []))
+        print(f"compass check - task '{os.path.basename(task_dir)}' (route: spike)")
+        print(f"{mode_banner(mode)}\n")
+        if not spike_gs:
+            print("  WARNING: no `spike_guardrails:` defined in guardrails.yml - a Spike is uncontrolled.")
+            return exit_for_mode(1, mode)
+        failures = 0
+        ran = 0
+        for g in spike_gs:
+            gid = g.get("id", "?")
+            print(f"  {gid} {g.get('name', '')}")
+            for check_name in g.get("checks", []):
+                fn = CHECK_FNS.get(check_name)
+                ran += 1
+                if fn is None:
+                    failures += 1
+                    _print_check_result(check_name, False,
+                        "declared spike guardrail check has NO CLI implementation")
+                    continue
+                try:
+                    passed, detail = fn(task, task_dir)
+                except Exception as exc:
+                    passed, detail = False, f"check errored: {exc}"
+                if not passed:
+                    failures += 1
+                _print_check_result(check_name, passed, detail)
+            print()
+        print("-" * 60)
+        if failures:
+            print(f"compass check: FAIL - {failures} of {ran} Spike check(s) failed.")
+        else:
+            print(f"compass check: PASS - all {ran} Spike check(s) passed. "
+                  "Spike is concluded and contained.")
+        return exit_for_mode(failures, mode)
+
+    all_guardrails = list(guardrails.get("defaults", [])) + list(guardrails.get("project", []))
+    declared_checks = guardrails.get("checks") or {}
+    failures = 0
+    ran = 0
+    print(f"compass check - task '{os.path.basename(task_dir)}' "
+          f"(route: {task.get('route', '?')})")
+    print(f"{mode_banner(mode)}\n")
+
+    # A guardrail the project's file OMITS produced no output at all: not
+    # "skipped", nothing. On a task touching auth, against a governance copy
+    # without G5, this printed G1-G4 and returned its normal result. Report the
+    # ones that are absent AND would have applied here - task-scoped on purpose,
+    # because a full inventory printed on every task is a message nobody reads.
+    # `compass policy lint` is where the full inventory lives.
+    declared_ids = {g.get("id") for g in all_guardrails}
+    try:
+        fw_guardrails = load_yaml(
+            os.path.join(FRAMEWORK_ROOT, "governance", "guardrails.yml"))
+        fw_defaults = (fw_guardrails.get("defaults") or []) if isinstance(
+            fw_guardrails, dict) else []
+    except Exception:                                   # noqa: BLE001
+        fw_defaults = []
+    for fg in fw_defaults:
+        fid = fg.get("id")
+        if fid in declared_ids:
+            continue
+        applies = fg.get("applies_when")
+        if applies and not reading_matches(applies, readings):
+            continue          # absent, but would not have applied here anyway
+        print(f"  {fid} {fg.get('name', '')}: ABSENT from this project's "
+              f"governance, and it applies to these readings - the framework "
+              f"defines it but governance/guardrails.yml does not. Run "
+              f"`compass policy lint`.")
+
+    for g in all_guardrails:
+        gid = g.get("id", "?")
+        applies = g.get("applies_when")
+        if applies and not reading_matches(applies, readings):
+            print(f"  {gid} {g.get('name', '')}: not applicable for these readings - skipped")
+            continue
+        print(f"  {gid} {g.get('name', '')}")
+        for check_name in g.get("checks", []):
+            fn = CHECK_FNS.get(check_name)
+            ran += 1
+            if fn is None:
+                # A declared guardrail check with no implementation is the one
+                # thing that quietly breaks the guardrail/strategy model: the
+                # team believes they have a hard, blocking check, and they do
+                # not. So this FAILS - loudly - rather than warning.
+                failures += 1
+                _print_check_result(check_name, False,
+                    "declared guardrail check has NO CLI implementation - "
+                    "it cannot run, so it is not a guardrail. Implement it "
+                    "in CHECK_FNS, or move the guardrail to strategies.md.")
+                continue
+            try:
+                passed, detail = fn(task, task_dir)
+            except Exception as exc:  # a check should never crash the run
+                passed, detail = False, f"check errored: {exc}"
+
+            # A check may declare `blocking_when:` in guardrails.yml - a
+            # reading-scoped condition, exactly like a guardrail's
+            # `applies_when:`. Below that threshold a finding is reported and
+            # does not fail the run. The condition lives in governance as data;
+            # only its evaluation is here, which is the side of ADR-001's
+            # boundary mechanism belongs on.
+            blocking_when = (declared_checks.get(check_name) or {}).get(
+                "blocking_when")
+            if (not passed and blocking_when
+                    and not reading_matches(blocking_when, readings)):
+                passed = True
+                detail = ("advisory for these readings - %s. It blocks when %s."
+                          % (detail, json.dumps(blocking_when)))
+
+            if not passed:
+                failures += 1
+            _print_check_result(check_name, passed, detail)
+        print()
+
+    # backfills are cross-cutting - always run them
+    ran += 1
+    passed, detail = _check_backfills_paid(task, task_dir)
+    print("  owed backfills")
+    _print_check_result("backfills-paid", passed, detail)
+    print()
+    if not passed:
+        failures += 1
+
+    print("-" * 60)
+    if failures:
+        print(f"compass check: FAIL - {failures} of {ran} check(s) failed.")
+    else:
+        print(f"compass check: PASS - all {ran} check(s) passed.")
+    return exit_for_mode(failures, mode)
