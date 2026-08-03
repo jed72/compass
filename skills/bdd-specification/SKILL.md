@@ -129,6 +129,30 @@ with owners. The self-check is simply what a spec-author owes Clarify - the
 cheap findings fixed by whoever made them, so Clarify's attention goes to the
 questions that actually need a decision.
 
+### The split, stated plainly
+
+The two overlap enough that a reader meeting both wonders which is redundant.
+Neither is. They differ in *who does them*, *what they cost*, and *what kind of
+finding they can produce*.
+
+| | Inline self-review (Specify) | Clarify (its own phase) |
+|---|---|---|
+| **Who** | the spec-author, alone | spec-author plus reviewer; role lenses on Expedition |
+| **Cost** | minutes - four mechanical scans over one file | a phase; requires reading, and often a human decision |
+| **Finds** | placeholder, orphan-intent, untestable-`Then`, ambiguous-quantifier | contradictions between scenarios, gaps across the whole set, governance conflicts, ambiguities that need someone to *choose* |
+| **Output** | edits to `spec.feature.md`, in place | `clarifications.md` - a ledger with a resolution and an owner per entry |
+| **Routes** | every route, including Express | Standard and heavier; collapsed on Express and Hotfix, skipped on Spike |
+
+The dividing line: **the self-review fixes what one person can see and settle
+alone; Clarify resolves what needs a decision.** An unfilled placeholder has
+one correct answer and the author already knows it. "Do these two scenarios
+contradict each other, and which one is wrong?" does not - and pretending
+otherwise is how a spec ships with a fork still in it.
+
+Clarify does not re-run the four scans. If it finds one of them outstanding,
+that means the self-review was skipped: worth saying so, not worth silently
+absorbing.
+
 **On Express, where Clarify is collapsed, this self-check *is* the QA.** Record
 that you ran it, and what it found, in `devlog.md`. A self-check that happened
 only in conversation did not happen (S4).

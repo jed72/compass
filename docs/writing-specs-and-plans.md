@@ -149,6 +149,132 @@ you judge. It cannot catch "similar to U1", which needs a reader.
 
 ---
 
+## A worked plan - every optional section rendered
+
+<!-- Deliberately not "## Example 5". The numbered examples above are
+     weak-then-strong pairs of a single passage; this is one complete artifact
+     rendered end to end, which is a different kind of thing. Keeping it out of
+     that series leaves the pairing convention intact. -->
+
+`templates/plan.md` offers five optional sections beyond Approach, design
+decisions, the governance check, and work units: a **Summary**, an
+**interaction** diagram, a **structure** diagram, **named design patterns**,
+and **the shape of the change** in code. They exist so a reviewer can see a
+design before it is built, which is the cheapest moment to disagree with it.
+
+They are optional individually. `skills/plan-authoring/SKILL.md` carries the
+rule for each; the short version is that Express writes no plan at all,
+Standard uses the one or two that add clarity, and Expedition may use all of
+them. **Delete the ones you do not use** - an empty optional heading reads as
+an omission rather than a decision.
+
+Below is a complete worked example for an imaginary task: adding support for a
+second JWT signing algorithm. Note what it does *not* do - it names two
+patterns, not five, and it shows an interface rather than an implementation.
+
+---
+
+### 0. Summary
+
+**Goal:** Accept tokens signed with HMAC as well as RSA, so partners who
+cannot manage a key pair can still integrate.
+
+**Approach:** Introduce a `TokenValidator` interface with one implementation
+per algorithm, selected by the token header. `AuthService` depends on the
+interface and stops knowing about algorithms at all.
+
+**Why now / what changes:** Two partners are blocked on RSA key management.
+Afterwards an integrator can sign with a shared secret, and adding a third
+algorithm is a new class rather than a new branch in `AuthService`.
+
+### 2. Interaction - sequence diagram
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant A as AuthService
+    participant R as ValidatorRegistry
+    participant V as HS256Validator
+
+    C->>A: request + bearer token
+    A->>R: validator_for(token header alg)
+    R-->>A: HS256Validator
+    A->>V: validate(token)
+    V-->>A: expired
+    A-->>C: 401 token_expired
+    Note over A: no partial session is created
+```
+
+The failure path is the reason this diagram is here: the 401 must be returned
+before any session row is written, and that ordering is not visible in prose.
+
+### 3. Structure - what talks to what
+
+```mermaid
+classDiagram
+    class TokenValidator {
+        <<interface>>
+        +validate(token) Result
+    }
+    class RS256Validator
+    class HS256Validator
+    class AuthService {
+        -registry: ValidatorRegistry
+        +authenticate(request)
+    }
+    TokenValidator <|-- RS256Validator
+    TokenValidator <|-- HS256Validator
+    AuthService --> TokenValidator : depends on
+```
+
+This commits us to algorithm selection happening in one place. It deliberately
+leaves open how a validator is configured; that stays in the existing config
+loader.
+
+### 4. Design patterns invoked
+
+> - **Strategy** (GoF) - `TokenValidator` lets `AuthService` swap signature
+>   algorithms without knowing which is in play. Earns its keep because we
+>   already ship RS256, are adding HS256 now, and EdDSA is on the roadmap:
+>   three variants is where a conditional stops being cheaper than a type.
+> - **Registry** - `ValidatorRegistry` maps an algorithm name to its
+>   validator. Earns its keep because the mapping is data the config already
+>   owns, and putting it in a registry keeps `AuthService` free of a lookup
+>   table that would need a test per entry.
+
+Two patterns, both with a reason. There is no Factory here and no Ports and
+Adapters: naming them would make this plan sound more considered without
+making it clearer, and a reviewer cannot disagree with a bare name.
+
+### 5. The shape of the change
+
+```python
+class TokenValidator(Protocol):
+    def validate(self, token: str) -> Result: ...
+
+class ValidatorRegistry:
+    def validator_for(self, alg: str) -> TokenValidator: ...
+
+class AuthService:
+    def __init__(self, registry: ValidatorRegistry): ...
+    def authenticate(self, request) -> Claims: ...
+```
+
+Push back here if you think `validate` should return claims directly rather
+than a `Result` - that choice decides whether an expired token is an exception
+or a value, and it is easier to change now than after four call sites exist.
+
+---
+
+**On PlantUML.** Both diagrams above are Mermaid, which renders natively in
+GitHub and in every modern IDE viewer. PlantUML is the documented fallback for
+the shapes Mermaid cannot express - component diagrams with lifelines, state
+charts with guards, deployment topology. Reach for it only then: it needs a
+rendering path the reader may not have, so some readers will see source
+instead of a picture.
+
+---
+
 ## What Compass deliberately does not adopt
 
 These are decisions, not omissions. They are written down because an unstated
