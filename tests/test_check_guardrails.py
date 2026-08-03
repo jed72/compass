@@ -188,7 +188,7 @@ def test_check_fails_on_wrong_evidence_type_for_gate(run_cli, make_task):
     assert "gate-evidence-present" in r.stdout, r
 
 
-def test_check_passes_with_correct_evidence_type(run_cli, make_task):
+def test_check_passes_with_correct_evidence_type(run_cli, make_task, project):
     body = _correct_body()
     body["gates"][0] = {
         "id": "verify.correctness", "status": "pass",
@@ -196,6 +196,12 @@ def test_check_passes_with_correct_evidence_type(run_cli, make_task):
     }
     task_dir = make_task("right-type", body)
     _make_green(task_dir)
+    # Once a task claims verify.correctness, `declared-tests-resolve` requires
+    # the test it names to exist - claiming a scenario passes while pointing at
+    # a test nobody wrote is the thing that check was added to catch. The
+    # fixture has to model a task that is genuinely in that state.
+    (project / "tests").mkdir(parents=True, exist_ok=True)
+    (project / "tests" / "test_x.py").write_text("def test_y():\n    assert True\n")
     r = run_cli("check", "--task", "right-type")
     assert r.returncode == 0, r
 

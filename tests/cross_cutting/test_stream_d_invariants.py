@@ -71,6 +71,8 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
     "analyze", "next",            # cross-task-architectural-integrity
     "land-commit",                # framework-field-feedback R5
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
+    "plan",                       # readable-specs-and-flow: `compass plan lint`,
+                                  # the advisory placeholder scan over plan.md
 }
 
 

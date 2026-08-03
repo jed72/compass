@@ -65,6 +65,32 @@ Given/When/Then acceptance criteria, because a spike has no acceptance criteria
 to be (its output is knowledge, not behaviour). Record the question and the
 timebox; the BDD strategy does not apply here. See `routes/spike.md`.
 
+## Hand-off
+
+Close Specify by handing the spec to a human, in these words or close to them.
+The point is to make the review a deliberate moment rather than an implied one -
+a reviewer who is told what to look for finds more than one who is told a file
+is ready.
+
+> I have written the spec to `.compass/work/<task-slug>/spec.feature.md`.
+>
+> It opens with a Summary - Goal, Approach, and Why now / what changes - so you
+> can see what this delivers before reading any scenarios. Below that are N
+> scenarios in M groups, each traced to an intent.
+>
+> Worth a cold read. Specifically, look for:
+> - **Intent fidelity** - do these scenarios deliver the outcome you actually
+>   want, not just the request as literally phrased?
+> - **Untestable Thens** - any outcome that could not be observed from outside.
+> - **Missing failure modes** - what goes wrong here that no scenario covers?
+> - **Ambiguous quantifiers** - "quickly", "large", "most" with no number.
+>
+> On approval this goes to Clarify, which QAs it against governance and resolves
+> any ambiguity into a recorded decision. Nothing is built from it until then.
+
+Fill in the real path, counts, and group names - a prompt that still says
+`<task-slug>` has not been read by the person sending it.
+
 ## Gate
 
 On a delivery route: `spec.feature.md` exists, every scenario is

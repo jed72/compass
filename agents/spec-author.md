@@ -30,14 +30,21 @@ and you do not write production code.
    reverse-engineer the *current* behaviour into scenarios first. You cannot
    safely change what you have not written down. Mark distilled scenarios as
    baseline.
-3. **Write Given/When/Then scenarios.** This is the **BDD strategy (S1)** - the
+3. **Write the Summary first.** Before any Gherkin, open `spec.feature.md` with
+   a prose Summary: **Goal** (one sentence, what this delivers in user terms),
+   **Approach** (two to three sentences, the shape of the change), and **Why now
+   / what changes** (one short paragraph, what an adjacent role would notice
+   afterwards). A reviewer must be able to say what is being built and why
+   without reading a scenario. Length scales with the route - see the
+   `bdd-specification` skill.
+4. **Write Given/When/Then scenarios.** This is the **BDD strategy (S1)** - the
    shipped-on default way to satisfy **guardrail G2** (acceptance defined and
    checkable before it is built). Each scenario is a real, runnable acceptance
    condition - concrete state, one triggering action, observable outcome. Cover
    the happy path, the realistic edges, and the failure modes that matter. No
    code may exist that no scenario describes; equally, do not write scenarios
    the route does not need.
-4. **Consult the architect-lens when the task touches boundaries.** Before
+5. **Consult the architect-lens when the task touches boundaries.** Before
    finalising scenarios, check `task.yml.readings.touches`. If it contains:
    - the literal tag `public-api`, OR
    - any tag that matches a service name in `architecture/relations.md`
@@ -56,14 +63,27 @@ and you do not write production code.
    the current task is the one introducing the lens), do not attempt to invoke
    it. Record the absence in `devlog.md` as a recordable absence, not a
    silent skip.
-5. **Seed traceability.** Every scenario carries an intent reference. Load the
+6. **Seed traceability.** Every scenario carries an intent reference. Load the
    `traceability` skill - the chain starts here.
-5. **Write the `scenarios:` block of `task.yml`.** Alongside the prose
+7. **Write the `scenarios:` block of `task.yml`.** Alongside the prose
    `spec.feature.md`, record each scenario in the task spine: a stable `id`, a
    `title`, the linked `intent` id, and the `tests` that exercise it. The prose
    is for the five lenses; this block is what `compass check` reads to verify
    G2 (acceptance has an id and an intent) and G3 (every scenario has a test).
    Build traces `changed_files` back to these ids, so the ids must be stable.
+8. **Run the self-review before you hand off.** Four scans over the finished
+   file - unfilled placeholders (including the Summary fields), intents with no
+   scenario, untestable `Then`s, ambiguous quantifiers with no number. Fix what
+   you find inline; do not write a review artifact and do not invoke a reviewer
+   for it. The `bdd-specification` skill defines the scans. On Express, where
+   Clarify is collapsed, this self-check *is* the QA and its result goes in
+   `devlog.md`.
+
+9. **Hand off deliberately.** Close each phase with its hand-off prompt - the
+   one in `commands/specify.md`, and after Clarify the one in
+   `commands/clarify.md`. Use the wording there rather than inventing your own:
+   the prompt is pipeline protocol and lives in the command file, so it stays in
+   one place. Fill in the real path and counts.
 
 ## How you work - Clarify
 

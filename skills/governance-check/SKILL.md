@@ -93,6 +93,33 @@ The standard here is different and you must keep it different. A strategy is
   dressed up as evidence. A strategy not followed is a note and a conversation,
   not an automatic stop.
 
+### The no-placeholders check
+
+Before committing `plan.md`, run:
+
+```
+compass plan lint
+```
+
+It reports phrases that mean the plan is not actually finished - `TBD`, `TODO`,
+"implement later", "add appropriate error handling" - and work units that
+promise tests without naming any. These are the most common form of plan failure
+in the wild: not a wrong decision, but a decision quietly deferred to whoever
+builds it, who then makes it alone and unrecorded.
+
+It belongs in this walk because **a reported hit is a note, rather than a
+stop**. The command always exits 0. Assess each hit as judgement: either fill
+the gap in, or record why the placeholder legitimately stands (a genuinely
+deferred decision with a named owner is a plan, an unowned `TBD` is a gap). It
+never blocks Plan on any route, and no floor promotes it to a gate.
+
+Two things it deliberately does not do. It ignores text inside fenced code
+blocks and blockquotes, because every document explaining the check has to quote
+the phrases it looks for. And it does not judge softer patterns - a work unit
+described only as "similar to the one above", or an approach section that
+restates the spec without saying how. Those need reading, which is your job in
+this walk, not the command's.
+
 Two of the default strategies are route-aware: **S1 (BDD)** and **S2 (TDD)**
 are suspended on the Spike route. If you are checking a Spike, do not flag the
 absence of scenarios or red-before-green as a strategy failure - that

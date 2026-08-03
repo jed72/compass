@@ -223,6 +223,8 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
+compass plan lint        scan a plan.md for placeholder phrases (TBD, TODO,
+                         "implement later") - advisory, always exits 0
 compass task receipt     render a one-screen receipt for a landed task:
                          readings → route → typed evidence → gate verdicts
 compass gate pass        flip a gate to pass; validates evidence type at write time
@@ -388,6 +390,10 @@ kit*.
 - [`docs/routing-deep-dive.md`](docs/routing-deep-dive.md) - how the Needle
   actually decides.
 - [`docs/roles-guide.md`](docs/roles-guide.md) - one scenario, seen four ways.
+- [`docs/writing-specs-and-plans.md`](docs/writing-specs-and-plans.md) - S7
+  (write for a cold reader) shown applied to a spec Summary, a design decision,
+  a scenario name, and a plan work unit, with what Compass deliberately does not
+  adopt and why.
 - [`docs/portability.md`](docs/portability.md) - the three layers, and what
   porting Compass to another runtime involves (rewrite the adapter; keep the
   methodology and the kit).

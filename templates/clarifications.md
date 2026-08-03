@@ -78,6 +78,11 @@ resolution → who decided → what it changed.
      If any box is unchecked, Plan does not start. This is the entry gate;
      the Definition of Done in verification-report.md is the exit gate. -->
 
+- [ ] **Summary is filled** - `spec.feature.md` opens with a Summary whose
+      three fields (Goal, Approach, Why now / what changes) are written, not
+      left as template placeholders. This is where the requirement is enforced:
+      the CLI never inspects the spec's prose, so an empty Summary is caught
+      here or not at all.
 - [ ] **Problem traces up** - the spec serves the Problem and Desired outcome
       in `brief.md` (or the Frame request, if no brief). No scenario is
       orphaned from intent.

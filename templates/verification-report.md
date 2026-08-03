@@ -60,17 +60,28 @@ evidence block is an automatic fail.
 <!-- Apply each dimension route.md lists. correctness, governance,
      traceability are ALWAYS on for a delivery route - they are the default
      guardrails in review form. Others per the route: regression, security
-     (scaled or full), clarity, claims. Each gets pass/fail AND evidence. -->
+     (scaled or full), clarity, claims. Each gets pass/fail AND evidence.
 
-| Dimension | Applies on this route? | Result | Evidence |
-|---|---|---|---|
-| correctness | always | {{PASS \| FAIL}} | {{every scenario in §1 passes}} |
-| governance | always | {{PASS \| FAIL}} | {{honours governance/ - guardrails clear with evidence, strategy deviations recorded; cite checks}} |
-| traceability | always | {{PASS \| FAIL}} | {{code→scenario→intent and claim→scenario chains intact}} |
-| regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{nothing previously passing now fails - paste the run}} |
-| security | {{full / scaled / no}} | {{PASS \| FAIL \| n/a}} | {{OWASP-style pass, scaled to blast radius}} |
-| clarity | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{a future reader can follow it}} |
-| claims | {{if role / yes}} | {{PASS \| FAIL \| n/a}} | {{see launch-readiness.md - every claim traces to a passing scenario}} |
+     "Assessed by" records WHO reached the judgement: the `reviewer` agent, a
+     named person, or "author" where the person who did the work also graded
+     it. Be accurate rather than flattering. An author-assessed dimension is
+     weaker evidence than an independently assessed one - the author cannot
+     see what they did not think of, and clarity in particular has no
+     mechanical backstop. This is a record, not a gate: nothing fails because
+     a dimension was self-assessed, but a reader can weigh it, and
+     `compass calibration` can spot a project where one dimension is never
+     independently reviewed. The mechanical checks (`compass check`, the test
+     suite) are unaffected either way - they do not care who ran them. -->
+
+| Dimension | Applies on this route? | Result | Assessed by | Evidence |
+|---|---|---|---|---|
+| correctness | always | {{PASS \| FAIL}} | {{reviewer \| name \| author}} | {{every scenario in §1 passes}} |
+| governance | always | {{PASS \| FAIL}} | {{…}} | {{honours governance/ - guardrails clear with evidence, strategy deviations recorded; cite checks}} |
+| traceability | always | {{PASS \| FAIL}} | {{…}} | {{code→scenario→intent and claim→scenario chains intact}} |
+| regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{nothing previously passing now fails - paste the run}} |
+| security | {{full / scaled / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{OWASP-style pass, scaled to blast radius}} |
+| clarity | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{a future reader can follow it}} |
+| claims | {{if role / yes}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{see launch-readiness.md - every claim traces to a passing scenario}} |
 
 ## 4. Gate decision
 
