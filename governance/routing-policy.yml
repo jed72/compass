@@ -17,8 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 1.0.0
-
+version: 1.3.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.

@@ -4,46 +4,86 @@
   "title": "Compass governance/routing-policy.yml",
   "description": "The machine-readable routing policy. The human-readable companion is routing-policy.reference.yml; routing-policy.md is the prose explanation.",
   "type": "object",
-  "required": ["version", "routing_strategies", "routing_guardrails", "reading_vocabulary", "route_shapes"],
+  "required": [
+    "version",
+    "routing_strategies",
+    "routing_guardrails",
+    "reading_vocabulary",
+    "route_shapes"
+  ],
   "properties": {
-    "version": { "type": "string" },
-
+    "version": {
+      "type": "string"
+    },
     "routing_strategies": {
       "type": "object",
       "description": "The SOFT layer - biases the candidate route.",
-      "required": ["default_shapes", "default_route"],
+      "required": [
+        "default_shapes",
+        "default_route"
+      ],
       "properties": {
         "default_shapes": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "when", "lean_toward", "rationale"],
+            "required": [
+              "id",
+              "when",
+              "lean_toward",
+              "rationale"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "when": { "type": "object" },
-              "lean_toward": { "type": "string" },
-              "rationale": { "type": "string" }
+              "id": {
+                "type": "string"
+              },
+              "when": {
+                "type": "object"
+              },
+              "lean_toward": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
           }
         },
-        "default_route": { "type": "string" },
-        "biases": { "type": "array", "items": { "type": "string" } },
+        "default_route": {
+          "type": "string"
+        },
+        "biases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "role_defaults": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "when"],
+            "required": [
+              "id",
+              "when"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "when": { "type": "object" },
-              "suggest_artifact": { "type": "string" },
-              "rationale": { "type": "string" }
+              "id": {
+                "type": "string"
+              },
+              "when": {
+                "type": "object"
+              },
+              "suggest_artifact": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
           }
         }
       }
     },
-
     "routing_guardrails": {
       "type": "object",
       "description": "The HARD layer - bounds the route.",
@@ -52,16 +92,39 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "when", "rationale"],
+            "required": [
+              "id",
+              "when",
+              "rationale"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "when": { "type": "object" },
-              "force_minimum_route": { "type": "string" },
-              "require_phase": { "type": "string" },
-              "require_skill": { "type": "string" },
-              "never_skip": { "type": "array", "items": { "type": "string" } },
-              "add_gate": { "type": "string" },
-              "rationale": { "type": "string" }
+              "id": {
+                "type": "string"
+              },
+              "when": {
+                "type": "object"
+              },
+              "force_minimum_route": {
+                "type": "string"
+              },
+              "require_phase": {
+                "type": "string"
+              },
+              "require_skill": {
+                "type": "string"
+              },
+              "never_skip": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "add_gate": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
           }
         },
@@ -69,13 +132,27 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "when", "rationale"],
+            "required": [
+              "id",
+              "when",
+              "rationale"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "when": { "type": "object" },
-              "max_worktrees": { "type": "integer" },
-              "forbid_route": { "type": "string" },
-              "rationale": { "type": "string" }
+              "id": {
+                "type": "string"
+              },
+              "when": {
+                "type": "object"
+              },
+              "max_worktrees": {
+                "type": "integer"
+              },
+              "forbid_route": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
           }
         },
@@ -83,11 +160,21 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "gate", "rationale"],
+            "required": [
+              "id",
+              "gate",
+              "rationale"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "gate": { "type": "string" },
-              "rationale": { "type": "string" }
+              "id": {
+                "type": "string"
+              },
+              "gate": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
           }
         },
@@ -95,48 +182,150 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "when", "rationale"],
+            "required": [
+              "id",
+              "when",
+              "rationale"
+            ],
             "properties": {
-              "id": { "type": "string" },
-              "when": { "type": "object" },
-              "require_artifact": { "type": "string" },
-              "gate": { "type": "string" },
-              "block_phase": { "type": "string" },
-              "until": { "type": "string" },
-              "rationale": { "type": "string" }
+              "id": {
+                "type": "string"
+              },
+              "when": {
+                "type": "object"
+              },
+              "require_artifact": {
+                "type": "string"
+              },
+              "gate": {
+                "type": "string"
+              },
+              "block_phase": {
+                "type": "string"
+              },
+              "until": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
             }
+          }
+        },
+        "waived": {
+          "type": "array",
+          "description": "Framework rules this project has deliberately chosen not to adopt. A waiver is a recorded decision, so it names the rule and says why - which is what distinguishes it from drift.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "reason"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The framework rule id being waived, e.g. RG-FLOOR-006."
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Why this project does not adopt it. Required: a waiver with no reason records no decision."
+              }
+            },
+            "additionalProperties": true
           }
         }
       }
     },
-
     "reading_vocabulary": {
       "type": "object",
       "description": "The closed value sets per reading dimension.",
-      "required": ["blast_radius", "terrain", "magnitude", "intent"],
+      "required": [
+        "blast_radius",
+        "terrain",
+        "magnitude",
+        "intent"
+      ],
       "properties": {
-        "blast_radius": { "type": "array", "items": { "type": "string" } },
-        "terrain": { "type": "array", "items": { "type": "string" } },
-        "magnitude": { "type": "array", "items": { "type": "string" } },
-        "intent": { "type": "array", "items": { "type": "string" } },
-        "urgency": { "type": "array", "items": { "type": "string" } },
-        "role": { "type": "array", "items": { "type": "string" } },
-        "touches_common": { "type": "array", "items": { "type": "string" } }
+        "blast_radius": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "terrain": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "magnitude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "intent": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "urgency": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "role": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "touches_common": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
-
     "route_shapes": {
       "type": "object",
       "description": "The machine mirror of the five reference routes.",
-      "required": ["spike", "express", "standard", "hotfix", "expedition"],
+      "required": [
+        "spike",
+        "express",
+        "standard",
+        "hotfix",
+        "expedition"
+      ],
       "additionalProperties": {
         "type": "object",
-        "required": ["weight", "phases", "gates", "topology"],
+        "required": [
+          "weight",
+          "phases",
+          "gates",
+          "topology"
+        ],
         "properties": {
-          "weight": { "type": "integer" },
-          "phases": { "type": "object" },
-          "gates": { "type": "array", "items": { "type": "string" } },
-          "topology": { "type": "string" }
+          "weight": {
+            "type": "integer"
+          },
+          "phases": {
+            "type": "object"
+          },
+          "gates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "topology": {
+            "type": "string"
+          }
         }
       }
     }

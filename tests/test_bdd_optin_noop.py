@@ -15,8 +15,10 @@ Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md
 from __future__ import annotations
 
 import pathlib
+import shutil
 import subprocess
 import sys
+import tempfile
 
 import yaml
 
@@ -42,15 +44,34 @@ def test_trc_f5_no_optin_means_no_change():
             f"would have opted in"
         )
 
-    # 2. the whole mechanical gate suite passes with no bdd key set anywhere
-    result = subprocess.run(
-        [sys.executable, str(CLI), "ci"],
-        cwd=str(ROOT), capture_output=True, text=True, timeout=300,
-    )
-    assert result.returncode == 0, (
-        "compass ci fails on a project that opted into nothing:\n"
-        f"{result.stdout[-3000:]}\n{result.stderr[-2000:]}"
-    )
+    # 2. the mechanical gate suite passes on a project that opted into nothing.
+    #
+    # Run it against a SYNTHETIC project, not this repository. `compass ci`
+    # checks every task under .compass/work/, so running it here would fail
+    # whenever any task is mid-pipeline - which conflates "the BDD keys changed
+    # nothing" (what this scenario is about) with "nobody is working right now".
+    # The first version of this test did exactly that and went red the moment
+    # the next task was framed.
+    proj = pathlib.Path(tempfile.mkdtemp(prefix="compass-optin-"))
+    try:
+        shutil.copytree(ROOT / "governance", proj / "governance")
+        (proj / ".compass" / "work").mkdir(parents=True)
+        shutil.copyfile(ROOT / ".compass" / "config.yml",
+                        proj / ".compass" / "config.yml")
+        result = subprocess.run(
+            [sys.executable, str(CLI), "ci"],
+            cwd=str(proj), capture_output=True, text=True, timeout=300,
+        )
+        assert result.returncode == 0, (
+            "compass ci fails on a project that opted into nothing:\n"
+            f"{result.stdout[-3000:]}\n{result.stderr[-2000:]}"
+        )
+        assert "bdd" not in result.stdout.lower(), (
+            "compass ci mentions BDD on a project that set no bdd_ key:\n"
+            f"{result.stdout[-2000:]}"
+        )
+    finally:
+        shutil.rmtree(proj, ignore_errors=True)
 
     # 3. no command requires a bdd key to be present. `bdd extract` is the one
     #    verb that reads them, and it must work with none of them set.
