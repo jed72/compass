@@ -73,11 +73,21 @@ def test_trc_f5_no_optin_means_no_change():
     finally:
         shutil.rmtree(proj, ignore_errors=True)
 
-    # 3. no command requires a bdd key to be present. `bdd extract` is the one
-    #    verb that reads them, and it must work with none of them set.
-    assert "bdd_runner" not in CLI.read_text(encoding="utf-8"), (
-        "the CLI branches on project.bdd_runner; extraction must not depend "
-        "on a runner being declared"
+    # 3. EXTRACTION must not depend on a runner being declared.
+    #
+    # This was originally a grep for `bdd_runner` across the whole CLI, as a
+    # cheap proxy. That stopped being right once `scenarios-are-executable` and
+    # `compass bdd verify` shipped: both read the key legitimately, because
+    # opting in is what the key is for. The narrow claim - that extract itself
+    # does not need it - is what this scenario is actually about, so the
+    # assertion is now scoped to that function.
+    source = CLI.read_text(encoding="utf-8")
+    start = source.index("def cmd_bdd_extract(")
+    end = source.index("\ndef ", start + 1)
+    extract_body = source[start:end]
+    assert "bdd_runner" not in extract_body, (
+        "cmd_bdd_extract branches on project.bdd_runner; extraction must work "
+        "for a project that has declared no runner"
     )
 
 

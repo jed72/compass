@@ -48,6 +48,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -814,6 +815,110 @@ def _bdd_out_path(args, task_dir, slug):
     return os.path.join(task_dir, "spec.feature")
 
 
+def _bdd_tag_selector(runner, command):
+    """How to ask this runner to select one scenario tag, or None if unknown.
+
+    Every runner Compass targets supports tag selection - that is why
+    `compass bdd extract` writes tags rather than comments (see the extractor's
+    note on the anchor). The flag differs per runner, so this maps the ones we
+    know and returns None for the rest, which downgrades verification to a
+    weaker method rather than guessing wrong.
+    """
+    joined = " ".join(command).lower()
+    r = (runner or "").lower()
+    if "pytest" in r or "pytest" in joined:
+        return lambda tag: ["--collect-only", "-q", "-m", tag]
+    if "cucumber" in r or "behave" in r:
+        return lambda tag: ["--dry-run", "--tags", "@" + tag]
+    return None
+
+
+def cmd_bdd_verify(args):
+    """compass bdd verify -- <run command> - run the BDD suite and record it.
+
+    The producer half of `scenarios-are-executable`. This may depend on the
+    project's BDD runner, because a project only runs it when it has one;
+    `compass check` may not, which is why the two are separate commands.
+
+    It records the spec's content hash alongside the scenario ids the runner
+    reported, so a later check can tell whether the run still describes the
+    spec it claims to verify.
+    """
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_yaml = load_yaml(os.path.join(task_dir, "task.yml")) or {}
+    proj = _read_config(task_dir).get("project") or {}
+    command = list(getattr(args, "command", None) or [])
+    if not command:
+        declared = proj.get("bdd_run_command")
+        if declared:
+            command = shlex.split(declared)
+    if not command:
+        raise CompassError(
+            "compass bdd verify needs a run command, e.g. `compass bdd verify "
+            "-- pytest tests/` (or set project.bdd_run_command in "
+            ".compass/config.yml)")
+
+    code, out, _warnings = _run_test(command)
+
+    # Which scenarios did the runner actually bind?
+    #
+    # Scraping stdout for TRC ids does not work, and finding that out cost a
+    # dogfood run that recorded zero scenarios against a suite that passed
+    # three. The tags `compass bdd extract` writes become *marks* in the
+    # runner - they are selectable, not printed. Nothing in a normal run's
+    # output names them.
+    #
+    # So ask the runner instead, using the tag selection the tags exist for:
+    # collect (do not execute) each tag in turn and see whether anything
+    # matches. Collection is cheap, and this asks the exact question the check
+    # needs - "is this scenario bound to something the runner can run?"
+    scenario_ids = [s.get("id") for s in (task_yaml.get("scenarios") or [])
+                    if isinstance(s, dict) and s.get("id")]
+    seen, method = [], "tag-probe"
+    selector = _bdd_tag_selector(proj.get("bdd_runner") or "", command)
+    if selector:
+        for sid in scenario_ids:
+            probe = list(command) + selector(sid)
+            probe_code, probe_out, _ = _run_test(probe)
+            # exit 5 is pytest's "nothing collected"; a non-empty collection
+            # with exit 0 means the tag bound to at least one test.
+            if probe_code == 0 and "no tests ran" not in probe_out.lower():
+                seen.append(sid)
+    else:
+        # Unknown runner: fall back to scraping, and say so in the record so a
+        # reader knows the result is weaker than a probe.
+        method = "output-scrape"
+        seen = [s for s in scenario_ids if s in out]
+    seen = sorted(set(seen))
+
+    payload = {
+        "command": " ".join(command),
+        "exit_code": code,
+        "passed": code == 0,
+        "timestamp": now_iso(),
+        "spec_sha256": _spec_sha256(task_dir),
+        "scenarios_seen": seen,
+        "runner": proj.get("bdd_runner") or "unknown",
+        "method": method,
+        "log_excerpt": "\n".join(out.splitlines()[-25:]),
+    }
+    ev_dir = os.path.join(task_dir, "evidence")
+    os.makedirs(ev_dir, exist_ok=True)
+    path = os.path.join(ev_dir, "bdd-run.json")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2)
+        fh.write("\n")
+
+    print(f"compass bdd verify: recorded {len(seen)} scenario(s) from the "
+          f"runner (exit {code}).")
+    print(f"  evidence : {path}")
+    if code != 0:
+        print("  note     : the suite did not pass. The record is still "
+              "written - `scenarios-are-executable` reports which scenarios "
+              "were accounted for, and `suite-passed` is what judges green.")
+    return 0
+
+
 def cmd_bdd_extract(args):
     """compass bdd extract - spec.feature.md -> a runnable .feature file."""
     task_dir = resolve_task_dir(getattr(args, "task", None))
@@ -1134,6 +1239,73 @@ def _check_scenarios_have_tests(task, task_dir):
                       f"({documented_narr} documented narrative, exempt from "
                       f"tests-required)")
     return True, f"all {len(scns)} scenario(s) list a test"
+
+
+def _spec_sha256(task_dir):
+    """Hash of the task's spec.feature.md, or None when there is no spec.
+
+    This is what makes a recorded BDD run verifiable later. Comparing the
+    record's timestamp against the spec's mtime would be simpler and wrong:
+    `git checkout` and `git clone` rewrite mtimes, so a fresh CI clone would
+    read every stale record as current - a false green in exactly the place it
+    matters most.
+    """
+    path = os.path.join(task_dir, "spec.feature.md")
+    if not os.path.isfile(path):
+        return None
+    with open(path, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def _check_scenarios_are_executable(task, task_dir):
+    """Every scenario in task.yml was accounted for by the project's BDD runner.
+
+    Reads the record written by `compass bdd verify`; never runs the suite.
+    `compass check` is the fast mechanical gate - it runs in CI, in hooks, and
+    on machines that never installed the project's dev dependencies, so it
+    cannot depend on a BDD runner being present.
+
+    The overwhelmingly common case is a project that has wired no runner at
+    all. That passes, with a reason. A check that penalised projects for not
+    opting in would be worse than no check (ADR-006).
+    """
+    proj = _read_config(task_dir).get("project") or {}
+    runner = (proj.get("bdd_runner") or "").strip()
+    if not runner:
+        return True, ("no BDD runner wired (project.bdd_runner is unset) - "
+                      "nothing to verify; see examples/bdd-adapters/ to opt in")
+
+    scenario_ids = [s.get("id") for s in (task.get("scenarios") or [])
+                    if isinstance(s, dict) and s.get("id")]
+    if not scenario_ids:
+        return True, "no scenarios recorded yet - nothing to verify"
+
+    record_path = os.path.join(task_dir, "evidence", "bdd-run.json")
+    if not os.path.isfile(record_path):
+        return False, (f"project.bdd_runner is '{runner}' but no BDD run is on "
+                       f"record - run `compass bdd verify -- <run command>`")
+    try:
+        with open(record_path, "r", encoding="utf-8") as fh:
+            record = json.load(fh)
+    except Exception as exc:                            # noqa: BLE001
+        return False, f"evidence/bdd-run.json is unreadable ({exc})"
+
+    current = _spec_sha256(task_dir)
+    recorded = record.get("spec_sha256")
+    if current and recorded and current != recorded:
+        return False, ("the recorded BDD run describes a different "
+                       "spec.feature.md than the one on disk - the spec has "
+                       "changed since it ran, so the record is stale. Re-run "
+                       "`compass bdd verify`.")
+
+    seen = set(record.get("scenarios_seen") or [])
+    missing = [sid for sid in scenario_ids if sid not in seen]
+    if missing:
+        return False, ("the BDD runner never accounted for: %s. Each needs a "
+                       "step definition the runner can bind."
+                       % ", ".join(missing))
+    return True, ("all %d scenario(s) accounted for by %s"
+                  % (len(scenario_ids), runner))
 
 
 def _check_suite_passed(task, task_dir):
@@ -1810,6 +1982,7 @@ def _check_command_passes(task, task_dir):
 
 CHECK_FNS = {
     "scenarios-have-tests": _check_scenarios_have_tests,
+    "scenarios-are-executable": _check_scenarios_are_executable,
     "declared-tests-resolve": _check_declared_tests_resolve,
     "suite-passed": _check_suite_passed,
     "changed-code-traces-to-scenario": _check_changed_code_traces,
@@ -1952,6 +2125,7 @@ def cmd_check(args):
         return exit_for_mode(failures, mode)
 
     all_guardrails = list(guardrails.get("defaults", [])) + list(guardrails.get("project", []))
+    declared_checks = guardrails.get("checks") or {}
     failures = 0
     ran = 0
     print(f"compass check - task '{os.path.basename(task_dir)}' "
@@ -2009,6 +2183,21 @@ def cmd_check(args):
                 passed, detail = fn(task, task_dir)
             except Exception as exc:  # a check should never crash the run
                 passed, detail = False, f"check errored: {exc}"
+
+            # A check may declare `blocking_when:` in guardrails.yml - a
+            # reading-scoped condition, exactly like a guardrail's
+            # `applies_when:`. Below that threshold a finding is reported and
+            # does not fail the run. The condition lives in governance as data;
+            # only its evaluation is here, which is the side of ADR-001's
+            # boundary mechanism belongs on.
+            blocking_when = (declared_checks.get(check_name) or {}).get(
+                "blocking_when")
+            if (not passed and blocking_when
+                    and not reading_matches(blocking_when, readings)):
+                passed = True
+                detail = ("advisory for these readings - %s. It blocks when %s."
+                          % (detail, json.dumps(blocking_when)))
+
             if not passed:
                 failures += 1
             _print_check_result(check_name, passed, detail)
@@ -5715,6 +5904,14 @@ def build_parser():
     pbe.add_argument("--task", help="task slug (default: current-task pointer)")
     pbe.add_argument("--out", help="write here instead of the resolved default")
     pbe.set_defaults(func=cmd_bdd_extract)
+
+    pbv = pbs.add_parser(
+        "verify",
+        help="run the project's BDD suite and record which scenarios it reported")
+    pbv.add_argument("--task", help="task slug (default: current-task pointer)")
+    pbv.add_argument("command", nargs=argparse.REMAINDER,
+                     help="the run command, after `--`")
+    pbv.set_defaults(func=cmd_bdd_verify)
 
     pc = sub.add_parser("check", help="run the guardrails.yml checks against a task")
     pc.add_argument("--task", help="task slug (default: current-task pointer)")
