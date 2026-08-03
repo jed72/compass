@@ -8,74 +8,1068 @@
 
 ## Current Behaviour
 
-### a hand-edit to task.yml made by a tool is caught by analyze
+### every published surface should report 1.7.0
 
-- **Scenario id:** `TRC-F5`
+- **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `version-bump-1-7-0`
+- **Landed:** 2026-08-03
 
-### derivation handles two landed tasks with conflicting scenarios deterministically
+### Backward-compat - guardrail count and gate set unchanged by S6
 
-- **Scenario id:** `TRC-F2`
+- **Scenario id:** `TRC-R10-6`
+- **Intent:** `INT-10`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### re-running the capture should not duplicate derived entries
+
+- **Scenario id:** `TRC-B2`
 - **Intent:** `INT-2`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
 
-### next on a task whose route.md is missing reports the missing artifact
+### the template should say what to write in that column
 
-- **Scenario id:** `TRC-F6`
+- **Scenario id:** `TRC-C2`
 - **Intent:** `INT-3`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
 
-### only two new CLI verbs are added across the three candidates
+### every file this task changes should pass house style
 
-- **Scenario id:** `TRC-D2`
+- **Scenario id:** `TRC-F3`
 - **Intent:** `INT-4`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
 
-### the determinism boundary holds - no model call after readings on any code path
+### every file this task adds or changes should pass house style
 
-- **Scenario id:** `TRC-D10`
+- **Scenario id:** `TRC-F4`
 - **Intent:** `INT-5`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
 
-### every new capability functions on a bare repo with no /compass:init
+### The seeded gates block carries each gate's accepted evidence types as a comment
 
-- **Scenario id:** `TRC-D8`
+- **Scenario id:** `TRC-R6-6`
 - **Intent:** `INT-6`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
 
-### the derivation is not the sole source of truth
+### A configured test_micro_command takes precedence when present
 
-- **Scenario id:** `TRC-B8`
+- **Scenario id:** `TRC-R7-5`
 - **Intent:** `INT-7`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
 
-### next returns under the interactive latency target
+### A verified-by guard that does not actually fail is rejected
 
-- **Scenario id:** `TRC-C10`
+- **Scenario id:** `TRC-R8-6`
 - **Intent:** `INT-8`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
 
-### TDD remains a strategy that Spike suspends
+### compass gate pass is the shared R6/R9 command and is schema-valid
 
-- **Scenario id:** `TRC-D7`
+- **Scenario id:** `TRC-R9-7`
 - **Intent:** `INT-9`
-- **Source task:** `comparison-requirements`
-- **Landed:** 2026-05-25
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
 
 ---
 
 ## Archived Behaviour
 
 > These scenarios were superseded by a later-landed scenario with the same intent id.
+
+### Every published version surface reports 1.0.0 _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source task:** `version-bump-1-0-0`
+- **Landed:** 
+
+### the entry point should be thin _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### system-context.md exists with the canonical sections _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Frame loads architecture/ into the task's working context _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### extraction should produce a feature file a BDD runner can read _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the shipped governance should declare a version that has moved _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the skill should state a method, in order _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the modules should follow the groupings the code already had _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### relations.md documents the call graph between framework components _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Frame degrades gracefully when architecture/ is absent _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### extraction should be byte-for-byte deterministic _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### changing governance content without bumping its version should fail _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### three failed fixes should send the engineer back to Frame _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the package should import cleanly on its own _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### ownership.md documents what each component must and must not do _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### compass adr new <slug> creates a numbered ADR file _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### each extracted scenario should carry its traceability id as a tag _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a project behind the framework's governance version should be told _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the skill should be reachable from where the failure happens _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### Compass ships templates for the architecture artifacts _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the extracted Feature should name the task it came from _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### invariants.yml is loaded by mechanism when present _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### extraction should resolve the current task when none is named _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### Frame proceeds normally when invariants.yml is absent _(archived)_
+
+- **Scenario id:** `TRC-A5b`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the new verb should appear in the documented CLI surface _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a configured features directory should override the default location _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the shipped config template should document the new keys _(archived)_
+
+- **Scenario id:** `TRC-A8`
+- **Intent:** `INT-2`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the public verb surface should be identical _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### architecture/decisions/ contains an ADR per principle (clustered or 1:1) _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### /compass:roundtable can convene the architect-lens _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the reference adapter should run an extracted feature end to end _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### missing floors and strategies should be named individually _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### a suggestion should be checked against the code before it is acted on _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the whole test suite should pass unchanged _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### ADRs follow the template structure (frontmatter + 5 sections) _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Spec-author consults the architect-lens for boundary-touching tasks _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the adapter README should show every step of the wire-up _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### missing guardrail checks should be named individually _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-1`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the skill should shape disagreement rather than forbid it _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### loading the CLI by file path should still work _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### architecture/decisions/README.md is a usable index _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Plan flags new service interactions for architect review _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a scenario with no step definition should fail loudly _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a waived rule should read as deliberate, not as drift _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the skill should be short enough to be read at the moment of use _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### every command should still run end to end _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### Architect-lens flags missing architecture/ without blocking _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### At least one ADR demonstrates substantive alternatives + negative consequences _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-3`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### the adapter should be proved by a run, never by a skip _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a waiver without a reason should be refused _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### Architect-lens findings persist on disk _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-2`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### waiving a rule the framework does not ship should be refused _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-2`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### drift should be advisory by default _(archived)_
+
+- **Scenario id:** `TRC-B6`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### a project may opt into failing on drift _(archived)_
+
+- **Scenario id:** `TRC-B7`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the waived block should be declared in the schema _(archived)_
+
+- **Scenario id:** `TRC-B8`
+- **Intent:** `INT-2`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### frame_load_architecture returns the new artifacts and ADRs _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-4`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Stop-hook nudges when scope-bloat phrases appear in devlog _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the plan template should offer the five optional sections _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### route evaluate should report which policy it read _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the check should be registered and implemented _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### SHA-256 is recorded per artifact (deterministic mechanism) _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-4`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Stop-hook stays silent when no scope-bloat is detected _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### each optional section should state its own inclusion rule _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a drifted project's route output should say so _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### a project that has wired no runner should pass with a stated reason _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### Architect-lens cites Compass's own ADRs on a framework task _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-4`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Stop-hook stays silent when a reframe has already been filed _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the existing plan sections should survive unchanged _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the route template should carry a provenance field _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### every scenario bound to a collected step definition should pass _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### Roundtable doc requires reframe on boundary or migration decisions _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the planner's section choice should scale with the route _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a scenario the runner never ran should be named _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### compass calibration surfaces absorbed mis-frames _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a named pattern should require a stated reason _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a stale runner result should not be read as success _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### Flow digest includes calibration's reframe-debt _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the writing guide should carry a worked plan _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-3`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the check should be advisory unless the route promotes it _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-3`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### CLAUDE.md notes Compass itself ships an architecture/ _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-6`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### rework-scan reports nothing when changed_files don't conflict _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the superseded skill should be gone _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a guardrail the project omits should be reported _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### rework-scan detects file added by A and deleted by B _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### CLAUDE.md does not claim unbuilt features _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-6`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### nothing should point at the deleted skill _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a guardrail that genuinely does not apply should still read as skipped _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### rework-scan detects a public-surface symbol added then removed _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the specification skill should state what it leaves to Clarify _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-4`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### rework-scan detects a migration created then dropped _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### the clarify command should state the same split from its side _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-4`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### Flow digest absorbs rework-scan _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### rework-scan detects the canonical add-then-delete pair _(archived)_
+
+- **Scenario id:** `TRC-D6`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### Existing test suite still passes (161+ tests) _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-5`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Unchecked DoD with no evidence and no backfill fails Land _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a created worktree should carry the task's artifacts _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-6`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### Projects without architecture/ still no-op cleanly _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-5`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Unchecked DoD backed by typed evidence passes _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a builder in a seeded worktree should be able to resolve its task _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-6`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### compass check still passes 10/10 _(archived)_
+
+- **Scenario id:** `TRC-E3`
+- **Intent:** `INT-5`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Unchecked DoD enumerated as owed_backfill passes Land but blocks the next sibling _(archived)_
+
+- **Scenario id:** `TRC-E3`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### re-running the swarm should not clobber a builder's work _(archived)_
+
+- **Scenario id:** `TRC-E3`
+- **Intent:** `INT-6`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### Lint count does not regress _(archived)_
+
+- **Scenario id:** `TRC-E4`
+- **Intent:** `INT-5`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### USER TO APPLY devlog notes no longer clear DoD _(archived)_
+
+- **Scenario id:** `TRC-E4`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### human-approval evidence is accepted for human-actionable DoD items _(archived)_
+
+- **Scenario id:** `TRC-E5`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### guardrails.yml registers the new DoD check _(archived)_
+
+- **Scenario id:** `TRC-E6`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a circular import should be impossible by construction _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### Frame remains mandatory, unchanged _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-6`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a spec with no gherkin fences should fail loudly _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a project with current governance should see no drift report _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### a project that opted into nothing should see no change _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-4`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### no function should be renamed, merged or split by this task _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-2`
+- **Source task:** `cli-module-split`
+- **Landed:** 
+
+### The guardrail count is still five _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-6`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a malformed gherkin fence should fail loudly _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a project with no local governance should not be compared to itself _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### adding the check should not change any existing task's result _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-4`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### Adaptive routing is unchanged _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-6`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a title that drifts between the heading and the fence should be caught _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a project ahead of the framework should not be reported as drifted _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the framework should grow by artifacts and checks only _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-4`
+- **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### Flow still advises, never gates _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-6`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### extraction should not modify anything it did not create _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-1`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### an unreadable framework policy should not break the lint _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### Architect-lens does not fork the spec _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-6`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a project that opted into nothing should see no change _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-5`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### drift detection should not change any computed route _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the framework should grow by artifacts and skills only _(archived)_
+
+- **Scenario id:** `TRC-F6`
+- **Intent:** `INT-5`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the framework should grow by artifacts and checks only _(archived)_
+
+- **Scenario id:** `TRC-F6`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the skill count should not grow on net _(archived)_
+
+- **Scenario id:** `TRC-F7`
+- **Intent:** `INT-5`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### the evidence types the CLI writes should be accepted by the task schema _(archived)_
+
+- **Scenario id:** `TRC-F7`
+- **Intent:** `INT-5`
+- **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### Compass ships governance/signals.yml with default patterns _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### a command that fails to run should not be recorded as a red _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-7`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a run that collects no tests should not be recorded as a red _(archived)_
+
+- **Scenario id:** `TRC-G2`
+- **Intent:** `INT-7`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### a genuinely failing test should still be recorded as a red _(archived)_
+
+- **Scenario id:** `TRC-G3`
+- **Intent:** `INT-7`
+- **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### Malformed ADR frontmatter fails Frame loudly _(archived)_
+
+- **Scenario id:** `TRC-X1`
+- **Intent:** `INT-4`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### Malformed invariants.yml fails Frame loudly _(archived)_
+
+- **Scenario id:** `TRC-X1`
+- **Intent:** `INT-1`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### ADRs with status: proposed are loaded but flagged _(archived)_
+
+- **Scenario id:** `TRC-X2`
+- **Intent:** `INT-4`
+- **Source task:** `compass-self-architecture`
+- **Landed:** 
+
+### rework-scan handles a corrupt task.yml gracefully _(archived)_
+
+- **Scenario id:** `TRC-X2`
+- **Intent:** `INT-4`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### Stop-hook regex must not produce false positives on common devlog content _(archived)_
+
+- **Scenario id:** `TRC-X3`
+- **Intent:** `INT-3`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### Typed DoD does not break tasks that have empty DoD _(archived)_
+
+- **Scenario id:** `TRC-X4`
+- **Intent:** `INT-5`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
+
+### Bootstrap - spec-author does not invoke architect-lens that doesn't exist yet _(archived)_
+
+- **Scenario id:** `TRC-X5`
+- **Intent:** `INT-2`
+- **Source task:** `cross-task-architectural-integrity`
+- **Landed:** 
 
 ### coherent artifacts pass cleanly _(archived)_
 
@@ -238,6 +1232,13 @@
 - **Source task:** `comparison-requirements`
 - **Landed:** 2026-05-25
 
+### the derivation is not the sole source of truth _(archived)_
+
+- **Scenario id:** `TRC-B8`
+- **Intent:** `INT-7`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
 ### a hand-edit to the spec is silently overwritten by the next Land _(archived)_
 
 - **Scenario id:** `TRC-B9`
@@ -249,6 +1250,13 @@
 
 - **Scenario id:** `TRC-C1`
 - **Intent:** `INT-3`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
+### next returns under the interactive latency target _(archived)_
+
+- **Scenario id:** `TRC-C10`
+- **Intent:** `INT-8`
 - **Source task:** `comparison-requirements`
 - **Landed:** 2026-05-25
 
@@ -315,6 +1323,20 @@
 - **Source task:** `comparison-requirements`
 - **Landed:** 2026-05-25
 
+### the determinism boundary holds - no model call after readings on any code path _(archived)_
+
+- **Scenario id:** `TRC-D10`
+- **Intent:** `INT-5`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
+### only two new CLI verbs are added across the three candidates _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
 ### no fixed-tier ladder is shipped _(archived)_
 
 - **Scenario id:** `TRC-D3`
@@ -343,6 +1365,20 @@
 - **Source task:** `comparison-requirements`
 - **Landed:** 2026-05-25
 
+### TDD remains a strategy that Spike suspends _(archived)_
+
+- **Scenario id:** `TRC-D7`
+- **Intent:** `INT-9`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
+### every new capability functions on a bare repo with no /compass:init _(archived)_
+
+- **Scenario id:** `TRC-D8`
+- **Intent:** `INT-6`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
 ### route composition stays byte-identical across runs _(archived)_
 
 - **Scenario id:** `TRC-D9`
@@ -354,6 +1390,13 @@
 
 - **Scenario id:** `TRC-F1`
 - **Intent:** `INT-1`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
+### derivation handles two landed tasks with conflicting scenarios deterministically _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-2`
 - **Source task:** `comparison-requirements`
 - **Landed:** 2026-05-25
 
@@ -370,3 +1413,983 @@
 - **Intent:** `INT-1`
 - **Source task:** `comparison-requirements`
 - **Landed:** 2026-05-25
+
+### a hand-edit to task.yml made by a tool is caught by analyze _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-1`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
+### next on a task whose route.md is missing reports the missing artifact _(archived)_
+
+- **Scenario id:** `TRC-F6`
+- **Intent:** `INT-3`
+- **Source task:** `comparison-requirements`
+- **Landed:** 2026-05-25
+
+### a landed Standard task with typed evidence renders the canonical receipt _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### the rendered receipt fits within a single terminal screen _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### the receipt labels each evidence type with its name and type-specific minimal fields _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a pass gate cleared by wrong-typed evidence is rendered as type-mismatch _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-4`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a pass gate with no evidence id is rendered as unsupported _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-4`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a task with a failed gate renders the failure prominently _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-4`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a task with owed backfills is rendered as owing _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-4`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a not-yet-landed task is labeled in-progress, not rendered as a final receipt _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-2`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a schema-1.0 task.yml (pre-status field) renders without error _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-3`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### a missing task slug fails cleanly _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-1`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### rendering the receipt mutates nothing on disk _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-5`
+- **Source task:** `make-receipt-render`
+- **Landed:** 2026-05-26
+
+### an optional friction block validates against the task schema _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### Land derives a friction entry from a recorded reframe _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### Land derives a friction entry from absorbed reframe-debt _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### the author's optional answer is recorded as a human-sourced entry _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### recording no friction is a valid, common Land _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-3`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### recurring friction is grouped by category and proposed change _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### a one-off friction item stays below the recurrence threshold _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-3`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### the friction view emits machine-readable JSON _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### friction capture never blocks Land _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### the friction view is read-only and never auto-tunes governance _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-3`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### a task.yml without a friction block stays valid and behaviour is unchanged _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-4`
+- **Source task:** `friction-loop`
+- **Landed:** 2026-06-04
+
+### scenarios-have-tests flags a narrative scenario as FAIL on the current code (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R1-1`
+- **Intent:** `INT-1`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A documented narrative scenario with no test clears the check _(archived)_
+
+- **Scenario id:** `TRC-R1-2`
+- **Intent:** `INT-1`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A non-narrative scenario with no test still fails scenarios-have-tests _(archived)_
+
+- **Scenario id:** `TRC-R1-3`
+- **Intent:** `INT-1`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A narrative scenario with an empty When/Then body still fails (documented, not anything-goes) _(archived)_
+
+- **Scenario id:** `TRC-R1-4`
+- **Intent:** `INT-1`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A narrative scenario carrying an incidental command is assessed on documentation, not the command _(archived)_
+
+- **Scenario id:** `TRC-R1-5`
+- **Intent:** `INT-1`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### regression-baseline is a named, registered soft strategy (S6) _(archived)_
+
+- **Scenario id:** `TRC-R10-1`
+- **Intent:** `INT-10`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### routing-policy surfaces regression-baseline when touches is shared/critical _(archived)_
+
+- **Scenario id:** `TRC-R10-2`
+- **Intent:** `INT-10`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Verify expects baseline + post-change test-run evidence on a shared-surface task _(archived)_
+
+- **Scenario id:** `TRC-R10-3`
+- **Intent:** `INT-10`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### The Build phase prompts for the baseline capture up front _(archived)_
+
+- **Scenario id:** `TRC-R10-4`
+- **Intent:** `INT-10`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Backward-compat - an absent baseline never blocks Land _(archived)_
+
+- **Scenario id:** `TRC-R10-5`
+- **Intent:** `INT-10`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A failing test piped to tail records a false green today (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R2-1`
+- **Intent:** `INT-2`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### pipefail/argv hardening turns the masked failure into a real red _(archived)_
+
+- **Scenario id:** `TRC-R2-2`
+- **Intent:** `INT-2`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A legitimate non-piped command still records green unchanged _(archived)_
+
+- **Scenario id:** `TRC-R2-3`
+- **Intent:** `INT-2`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### The detect-and-warn heuristic fires on a pager/filter final stage _(archived)_
+
+- **Scenario id:** `TRC-R2-4`
+- **Intent:** `INT-2`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Output-token cross-check catches a green that lacks a pass token _(archived)_
+
+- **Scenario id:** `TRC-R2-5`
+- **Intent:** `INT-2`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A corpus-shaped scenario fails task lint while passing compass check today (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R3-1`
+- **Intent:** `INT-3`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### After the schema fix, the corpus scenario shape passes task lint _(archived)_
+
+- **Scenario id:** `TRC-R3-2`
+- **Intent:** `INT-3`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A plain-string intent still passes task lint after the widening _(archived)_
+
+- **Scenario id:** `TRC-R3-3`
+- **Intent:** `INT-3`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A numeric intent still fails task lint after the widening _(archived)_
+
+- **Scenario id:** `TRC-R3-4`
+- **Intent:** `INT-3`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A list intent with a non-string element still fails task lint _(archived)_
+
+- **Scenario id:** `TRC-R3-5`
+- **Intent:** `INT-3`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Today's grep false-positives on a did-not-fire note and caps to 1 (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R4-1`
+- **Intent:** `INT-4`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Cap read from task.yml gives the correct uncapped value despite the prose _(archived)_
+
+- **Scenario id:** `TRC-R4-2`
+- **Intent:** `INT-4`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A genuinely critical task still caps to 1 _(archived)_
+
+- **Scenario id:** `TRC-R4-3`
+- **Intent:** `INT-4`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Integration/verify streams are not counted as worktrees _(archived)_
+
+- **Scenario id:** `TRC-R4-4`
+- **Intent:** `INT-4`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### task.yml missing the readings block fails loudly, never a silent cap _(archived)_
+
+- **Scenario id:** `TRC-R4-F1`
+- **Intent:** `INT-4`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### An auto-formatter rewrite makes the commit no-op and HEAD does not move (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R5-1`
+- **Intent:** `INT-5`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Pre-commit-clean-then-commit advances HEAD (happy path) _(archived)_
+
+- **Scenario id:** `TRC-R5-2`
+- **Intent:** `INT-5`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A no-op commit is detected, hook fixes re-staged, and the retry advances HEAD _(archived)_
+
+- **Scenario id:** `TRC-R5-3`
+- **Intent:** `INT-5`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### HEAD is always verified to have advanced _(archived)_
+
+- **Scenario id:** `TRC-R5-4`
+- **Intent:** `INT-5`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### HEAD still unmoved after the retry → Land ERRORS loudly _(archived)_
+
+- **Scenario id:** `TRC-R5-F1`
+- **Intent:** `INT-5`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### Nothing-to-commit is distinguished from a stash-rollback no-op _(archived)_
+
+- **Scenario id:** `TRC-R5-F2`
+- **Intent:** `INT-5`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A wrong-type gate-evidence mismatch surfaces only at compass check today (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R6-1`
+- **Intent:** `INT-6`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A task with two wrong-type gates already reports both, as one joined string (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R6-2`
+- **Intent:** `INT-6`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### compass gate pass rejects wrong-type evidence at write time with the accepted-type list _(archived)_
+
+- **Scenario id:** `TRC-R6-3`
+- **Intent:** `INT-6`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### compass gate pass accepts a correct-type evidence and flips the gate to pass _(archived)_
+
+- **Scenario id:** `TRC-R6-4`
+- **Intent:** `INT-6`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### compass check reports ALL gate-evidence mismatches in one enumerated pass _(archived)_
+
+- **Scenario id:** `TRC-R6-5`
+- **Intent:** `INT-6`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A coverage-gated micro-run refuses green today (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R7-1`
+- **Intent:** `INT-7`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### The micro-run neutralises the project coverage floor and records green _(archived)_
+
+- **Scenario id:** `TRC-R7-2`
+- **Intent:** `INT-7`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### The full-suite coverage gate at Verify is unaffected _(archived)_
+
+- **Scenario id:** `TRC-R7-3`
+- **Intent:** `INT-7`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A non-pytest micro-run is left untouched by the coverage logic _(archived)_
+
+- **Scenario id:** `TRC-R7-4`
+- **Intent:** `INT-7`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A wiring change with no unit red is blocked today (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R8-1`
+- **Intent:** `INT-8`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### tdd-red --verified-by typecheck records the guard and allows the edit _(archived)_
+
+- **Scenario id:** `TRC-R8-2`
+- **Intent:** `INT-8`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### The verified-by guard is tied to the scenario's acceptance at Verify _(archived)_
+
+- **Scenario id:** `TRC-R8-3`
+- **Intent:** `INT-8`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A plain tdd-red with no real failure and no --verified-by is still rejected _(archived)_
+
+- **Scenario id:** `TRC-R8-4`
+- **Intent:** `INT-8`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### --verified-by rejects an unrecognised kind _(archived)_
+
+- **Scenario id:** `TRC-R8-5`
+- **Intent:** `INT-8`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### task.yml blocks below readings are hand-authored today (baseline) _(archived)_
+
+- **Scenario id:** `TRC-R9-1`
+- **Intent:** `INT-9`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### compass scenario add writes a well-formed entry that passes task lint _(archived)_
+
+- **Scenario id:** `TRC-R9-2`
+- **Intent:** `INT-9`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### compass changed-file add traces a production file to a scenario _(archived)_
+
+- **Scenario id:** `TRC-R9-3`
+- **Intent:** `INT-9`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### compass evidence add appends a typed registry entry _(archived)_
+
+- **Scenario id:** `TRC-R9-4`
+- **Intent:** `INT-9`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A mutator rejects a duplicate id rather than silently overwriting _(archived)_
+
+- **Scenario id:** `TRC-R9-5`
+- **Intent:** `INT-9`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A mutator rejects malformed input with non-zero exit and no write _(archived)_
+
+- **Scenario id:** `TRC-R9-6`
+- **Intent:** `INT-9`
+- **Source task:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### TRC-A1 _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-A2 _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-A3 _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-B1 _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-B2 _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-B3 _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-B4 _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-C1 _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-C2 _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-C3 _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-C4 _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-C5 _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-F1 _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-F2 _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source task:** `field-feedback-2026-07`
+- **Landed:** 2026-07-27
+
+### TRC-A1 _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `no-compass-refs-in-product-code`
+- **Landed:** 2026-07-27
+
+### TRC-A2 _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `no-compass-refs-in-product-code`
+- **Landed:** 2026-07-27
+
+### TRC-A3 _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `no-compass-refs-in-product-code`
+- **Landed:** 2026-07-27
+
+### TRC-A4 _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source task:** `no-compass-refs-in-product-code`
+- **Landed:** 2026-07-27
+
+### the CI workflow runs the test suite _(archived)_
+
+- **Scenario id:** `SCN-001`
+- **Intent:** `INT-1`
+- **Source task:** `ci-runs-test-suite`
+- **Landed:** 2026-07-29
+
+### the Summary should be the first thing a cold reader meets _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the Summary should carry exactly the three named fields _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### Summary length should scale with the route _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### adding the Summary should leave the scenario machinery untouched _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the spec-author should be told to write the Summary during Specify _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-2`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### a filled Summary should be a condition of leaving Clarify _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-1`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the self-review should list exactly the four scans _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### each scan should say concretely what it looks for _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the self-review should be fixed inline, not re-reviewed _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the self-review should complement Clarify rather than replace it _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### on a collapsed-Clarify route the self-check should be recorded on disk _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the check should name the prohibited phrases _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### an incomplete work unit should be reported _(archived)_
+
+- **Scenario id:** `TRC-C1b`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### an advisory hit should be reported without failing the command _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the skill should tell the planner how to judge what the check reports _(archived)_
+
+- **Scenario id:** `TRC-C2b`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the check result should be recorded as judgement, not as evidence _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the check should not introduce a sixth guardrail _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the check should not fire on prose that quotes it _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the check should stay advisory on every route _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the new subcommand should appear in the documented CLI surface _(archived)_
+
+- **Scenario id:** `TRC-C7`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### Specify should close by inviting a cold-reader review _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the Clarify and Plan hand-offs should be symmetric with Specify's _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-3`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### each hand-off prompt should be written in exactly one file _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the guide should show S7 applied to four kinds of artifact _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-2`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### each worked example should show the weak version beside the improved one _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-2`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the guide should name what Compass deliberately does not adopt _(archived)_
+
+- **Scenario id:** `TRC-E3`
+- **Intent:** `INT-4`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the guide should be reachable from the docs a new reader opens _(archived)_
+
+- **Scenario id:** `TRC-E4`
+- **Intent:** `INT-2`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### specs written before this change should keep passing _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-5`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the self-review should treat the Summary fields as placeholders to scan _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the self-review should record why no subagent critic is used _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-4`
+- **Source task:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
+### the release script packages a tarball on this platform _(archived)_
+
+- **Scenario id:** `SCN-001`
+- **Intent:** `INT-1`
+- **Source task:** `release-script-portable-tar`
+- **Landed:** 2026-08-03
+
+### dev-only state is excluded without stripping the worked examples _(archived)_
+
+- **Scenario id:** `SCN-002`
+- **Intent:** `INT-1`
+- **Source task:** `release-script-portable-tar`
+- **Landed:** 2026-08-03
+
+### untracked local files never ship _(archived)_
+
+- **Scenario id:** `SCN-003`
+- **Intent:** `INT-1`
+- **Source task:** `release-script-portable-tar`
+- **Landed:** 2026-08-03
+
+### a test id whose file does not exist should be reported _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a test id naming a function the file does not contain should be reported _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a test id that resolves should pass _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a narrative scenario should be exempt from the resolution check _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### the check should register under G1 without adding a guardrail _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### policy lint should accept the new check _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a task that has not yet claimed correctness should not be checked _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a landed task should not be re-checked _(archived)_
+
+- **Scenario id:** `TRC-A8`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a second friction note should not destroy the first _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### capturing nothing should still record nothing _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### the review-dimensions table should record who assessed each dimension _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### tasks already on disk should keep passing _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### a task.yml written before this change should still load _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-4`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03

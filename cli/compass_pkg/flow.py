@@ -363,6 +363,22 @@ def derive_system_spec(project_root: str) -> None:
 
     content = "\n".join(lines)
 
+    # ---- 3b. Normalise house style on write ---------------------------------
+    # Scenario titles from landed tasks are copied verbatim, and four historic
+    # ones contain em dashes. docs/system-spec.md is tracked, and this
+    # repository forbids em dashes in tracked files - so a faithful copy
+    # produces a file that fails the repository's own style test.
+    #
+    # The normalisation happens HERE, on the output, and never on the sources.
+    # Those spec.feature.md files are a record of what was specified at the
+    # time; editing them to suit a generator would rewrite history, and would
+    # have to be repeated in every adopter's archive. A generator owns its
+    # output, so it owns its output's style.
+    # \u2014 is the em dash, written as an escape: this file is tracked, and
+    # the style test would otherwise flag the normaliser for containing the
+    # character it exists to remove.
+    content = content.replace("\u2014", " - ").replace("  -  ", " - ")
+
     # ---- 4. Write atomically -----------------------------------------------
     out_dir = os.path.join(project_root, "docs")
     os.makedirs(out_dir, exist_ok=True)
