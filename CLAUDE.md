@@ -154,7 +154,11 @@ state (state is always inferred from artifacts on disk).
   `orchestrator` agent coordinates; `builder` agents do the work, one per
   worktree. Each builder loads `tdd-discipline`.
 - During **Verify**, the `verifier` and `reviewer` agents run; load
-  `evidence-gates`.
+  `evidence-gates`. Load `receiving-code-review` when answering
+  their comments.
+- On an **unexpected test failure** at any point in Build, load
+  `systematic-debugging` - and after three failed fixes, re-frame rather
+  than attempt a fourth.
 - For any role-facing work, load `role-translation` - it is how one spec is
   read through five lenses. The `product-lens`, `marketing-lens`, and
   `architect-lens` agents apply specific role perspectives. The architect-lens

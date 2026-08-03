@@ -164,15 +164,23 @@ def test_trc_f7_skill_count_unchanged_on_net():
     assert "constitution-check" not in present, (
         "constitution-check was not removed")
 
+    # A LIVING allowlist, in the same spirit as EXPECTED_PUBLIC_SUBCOMMANDS: no
+    # skill appears or disappears without a deliberate edit here. It is not a
+    # freeze on the count - a later task may add skills, and two did:
+    # systematic-debugging and receiving-code-review, from
+    # phase-2-skills-check-and-cli-split. What this task asserted, and what
+    # still holds, is that IT added one and removed one.
     expected = {
         "adaptive-routing", "bdd-specification", "blueprint-distillation",
         "compass-runtime", "evidence-gates", "flow-management",
         "governance-check", "plan-authoring", "role-translation",
         "tdd-discipline", "traceability", "worktree-swarm",
+        "receiving-code-review", "systematic-debugging",   # phase-2 task
     }
     assert present == expected, (
-        "the skill set changed by more than the one-in-one-out this task "
-        f"intends.\n  unexpected: {sorted(present - expected)}\n"
+        "the skill set changed without this allowlist being updated.\n"
+        f"  unexpected: {sorted(present - expected)}\n"
         f"  missing   : {sorted(expected - present)}"
     )
-    assert len(present) == 12, f"expected 12 skills, found {len(present)}"
+    assert len(present) == len(expected), (
+        f"expected {len(expected)} skills, found {len(present)}")

@@ -71,3 +71,12 @@ written, and its **Definition of Done** checklist (items 1–5) is fully checked
 that is the exit gate out of Verify. Items 6–7 of that checklist are carried
 into Land. If anything fails, the task does not advance - fix it or send it
 back. Log to `devlog.md`. Next: `/compass:land`.
+
+## Answering the reviewer
+
+Load `receiving-code-review`. Verify every suggestion against the code before
+acting on it: a suggestion that is right about the smell and wrong about the
+cause is the normal case, and implementing it verbatim leaves the smell and adds
+a change nobody needed. Where the reviewer is wrong, push back with technical
+reasoning rather than preference or seniority. Record what you did with each
+comment - a resolved thread with no reply is a decision nobody can audit.
