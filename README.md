@@ -219,6 +219,7 @@ rather than aspirational.
 ```
 compass route evaluate   apply routing-policy.yml to a task's readings → the route
 compass check            run the guardrails.yml checks against task.yml + evidence/
+compass bdd extract     extract a task's spec.feature.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML

@@ -47,8 +47,10 @@ import datetime
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
+import tempfile
 
 # --- dependency check --------------------------------------------------------
 try:
@@ -583,6 +585,265 @@ def evaluate_route(readings, policy):
         "max_worktrees": max_worktrees,
         "applicable_strategies": applicable_strategies,
     }
+
+
+# --- command: bdd extract ----------------------------------------------------
+# Lifts the Gherkin out of a task's spec.feature.md into a plain .feature file a
+# real BDD runner (pytest-bdd, cucumber-js, behave, godog) can execute. This is
+# what turns the scenario-to-test link from a convention an engineer maintains
+# into a fact a runner establishes.
+#
+# The four functions below are deliberately kept as one contiguous, separable
+# block so they can be lifted into their own module later without untangling
+# anything.
+
+# A Compass scenario in spec.feature.md always looks like this:
+#
+#   ### Scenario: <title>
+#   <!-- traceability id: TRC-A1 · serves: INT-1 -->
+#
+#   ```gherkin
+#   Scenario: <title>
+#     Given ...
+#   ```
+#
+# THE ANCHOR IS THE TRACEABILITY COMMENT, NOT THE FENCE. Compass documents
+# contain illustrative Gherkin that is not an acceptance criterion (a proposal
+# showing what a scenario looks like, this very comment block). Extracting every
+# ```gherkin fence would turn those illustrations into scenarios. Requiring the
+# traceability comment means only real, id-carrying scenarios are extracted.
+_TRC_COMMENT_RE = re.compile(
+    r"<!--\s*traceability id:\s*(?P<trc>TRC-[A-Za-z0-9_]+)\b.*?-->", re.S)
+_SCENARIO_HEADING_RE = re.compile(r"^###\s+Scenario:\s*(?P<title>.+?)\s*$")
+_FENCE_OPEN_RE = re.compile(r"^\s*```+\s*gherkin\s*$", re.I)
+_FENCE_CLOSE_RE = re.compile(r"^\s*```+\s*$")
+_GHERKIN_STEP_RE = re.compile(
+    r"^\s*(Given|When|Then|And|But|\*)\s+\S", re.I)
+_GHERKIN_SCENARIO_RE = re.compile(r"^\s*Scenario:\s*(?P<title>.+?)\s*$")
+
+
+class ParsedScenario(object):
+    """One extracted scenario, with enough context to report a good error."""
+
+    __slots__ = ("trc_id", "heading_title", "fence_title", "steps", "line_no")
+
+    def __init__(self, trc_id, heading_title, fence_title, steps, line_no):
+        self.trc_id = trc_id
+        self.heading_title = heading_title
+        self.fence_title = fence_title
+        self.steps = steps
+        self.line_no = line_no
+
+
+def scan_spec_markdown(text):
+    """Parse spec.feature.md into ParsedScenario records, in document order.
+
+    Only a gherkin fence introduced by a `traceability id:` comment is picked
+    up; everything else in the document is prose. Returns [] when the document
+    contains no such fence - the caller decides whether that is an error.
+    """
+    lines = text.splitlines()
+    out = []
+    pending_heading = None       # most recent "### Scenario:" title
+    pending_trc = None           # most recent traceability id
+    pending_line = 0
+
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+
+        m = _SCENARIO_HEADING_RE.match(line)
+        if m:
+            pending_heading = m.group("title")
+            pending_line = i + 1
+            i += 1
+            continue
+
+        m = _TRC_COMMENT_RE.search(line)
+        if m:
+            pending_trc = m.group("trc")
+            i += 1
+            continue
+
+        if _FENCE_OPEN_RE.match(line):
+            body = []
+            i += 1
+            while i < len(lines) and not _FENCE_CLOSE_RE.match(lines[i]):
+                body.append(lines[i])
+                i += 1
+            i += 1                                  # step past the closing fence
+            if pending_trc is None:
+                # An illustration, not a scenario. Deliberately ignored - see
+                # the note on the anchor above.
+                pending_heading = None
+                continue
+            fence_title = None
+            steps = []
+            for b in body:
+                sm = _GHERKIN_SCENARIO_RE.match(b)
+                if sm and fence_title is None:
+                    fence_title = sm.group("title")
+                    continue
+                if b.strip():
+                    steps.append(b.strip())
+            out.append(ParsedScenario(
+                trc_id=pending_trc,
+                heading_title=pending_heading,
+                fence_title=fence_title,
+                steps=steps,
+                line_no=pending_line or i,
+            ))
+            pending_trc = None
+            pending_heading = None
+            continue
+
+        i += 1
+
+    return out
+
+
+def validate_scenarios(scenarios, spec_path):
+    """Return a list of human-readable problems. Empty list means valid.
+
+    Collects rather than raises so a spec with three problems reports the first
+    with its location, instead of failing on whichever one the parser reached.
+    """
+    problems = []
+    if not scenarios:
+        problems.append(
+            "%s contains no Gherkin scenarios. A scenario is a '### Scenario:' "
+            "heading, a '<!-- traceability id: TRC-... -->' comment, and a "
+            "```gherkin fence - the comment is what marks a fence as a real "
+            "scenario rather than an illustration." % spec_path)
+        return problems
+
+    seen = {}
+    for s in scenarios:
+        where = "%s:%d" % (spec_path, s.line_no)
+        if s.fence_title is None:
+            problems.append(
+                "%s: %s - the gherkin fence has no 'Scenario:' line."
+                % (where, s.trc_id))
+            continue
+        if s.heading_title is not None and s.heading_title != s.fence_title:
+            problems.append(
+                "%s: %s - the title drifts between the heading and the fence.\n"
+                "  heading: %s\n  fence  : %s"
+                % (where, s.trc_id, s.heading_title, s.fence_title))
+        if not s.steps:
+            problems.append(
+                "%s: %s - the scenario has no steps." % (where, s.trc_id))
+        else:
+            bad = [st for st in s.steps if not _GHERKIN_STEP_RE.match(st)]
+            if bad:
+                problems.append(
+                    "%s: %s - not valid Gherkin; a step must start with Given, "
+                    "When, Then, And, or But.\n  offending line: %s"
+                    % (where, s.trc_id, bad[0]))
+        if s.trc_id in seen:
+            problems.append(
+                "%s: %s is used twice (also at line %d)."
+                % (where, s.trc_id, seen[s.trc_id]))
+        seen[s.trc_id] = s.line_no
+    return problems
+
+
+def render_feature(slug, scenarios, spec_rel_path):
+    """Render the .feature text. Pure: no clock, no absolute paths, no randomness.
+
+    Determinism is the point - the output is diffable and committable, and
+    `compass bdd extract` run twice over an unchanged spec produces
+    byte-identical bytes.
+    """
+    lines = [
+        "# Derived from %s by `compass bdd extract`." % spec_rel_path,
+        "# Do not hand-edit - your edits are overwritten on the next extract.",
+        "# Edit the source spec instead.",
+        "",
+        "Feature: %s" % slug,
+        "",
+    ]
+    for s in scenarios:
+        lines.append("  @%s" % s.trc_id)
+        lines.append("  Scenario: %s" % s.fence_title)
+        for step in s.steps:
+            lines.append("    %s" % step)
+        lines.append("")
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def atomic_write(path, text):
+    """Write via a temp file in the destination directory, then rename.
+
+    A malformed spec must leave no partial output behind, and a crash mid-write
+    must not corrupt a file a runner may already be reading. Rename within one
+    directory is atomic on POSIX; writing in place is not.
+    """
+    directory = os.path.dirname(os.path.abspath(path)) or "."
+    os.makedirs(directory, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=".compass-bdd-", dir=directory)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+        os.replace(tmp, path)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _bdd_out_path(args, task_dir, slug):
+    """Resolve where the .feature goes: --out, then config, then the task dir.
+
+    The task directory is the zero-config default so the verb works before a
+    project has edited anything (ADR-006); `project.bdd_features_dir` exists for
+    adopters whose runner expects a conventional features/ directory.
+    """
+    explicit = getattr(args, "out", None)
+    if explicit:
+        return explicit
+    proj = _read_config(task_dir).get("project") or {}
+    features_dir = proj.get("bdd_features_dir")
+    if features_dir:
+        root = find_upwards(task_dir, ".compass") or task_dir
+        if not os.path.isabs(features_dir):
+            features_dir = os.path.join(root, features_dir)
+        return os.path.join(features_dir, "%s.feature" % slug)
+    return os.path.join(task_dir, "spec.feature")
+
+
+def cmd_bdd_extract(args):
+    """compass bdd extract - spec.feature.md -> a runnable .feature file."""
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    slug = os.path.basename(os.path.normpath(task_dir))
+    spec_path = os.path.join(task_dir, "spec.feature.md")
+    if not os.path.isfile(spec_path):
+        raise CompassError(
+            "no spec.feature.md for task '%s' - Specify must run first (%s)"
+            % (slug, spec_path))
+
+    with open(spec_path, "r", encoding="utf-8") as fh:
+        text = fh.read()
+
+    scenarios = scan_spec_markdown(text)
+
+    # Validate EVERYTHING before writing ANYTHING. This is what makes a failed
+    # extract leave the filesystem exactly as it was.
+    problems = validate_scenarios(scenarios, os.path.relpath(spec_path, os.getcwd()))
+    if problems:
+        sys.stderr.write("compass bdd extract: %d problem(s) found; nothing written.\n"
+                         % len(problems))
+        for p in problems:
+            sys.stderr.write("  %s\n" % p)
+        return 1
+
+    out_path = _bdd_out_path(args, task_dir, slug)
+    spec_rel = os.path.join(".compass", "work", slug, "spec.feature.md")
+    atomic_write(out_path, render_feature(slug, scenarios, spec_rel))
+    sys.stdout.write("%s\n" % out_path)
+    return 0
 
 
 # --- command: route evaluate -------------------------------------------------
@@ -5090,6 +5351,18 @@ def build_parser():
                           "record this as the reason - it is the calibration signal")
     pre.add_argument("--json", action="store_true", help="emit JSON")
     pre.set_defaults(func=cmd_route_evaluate)
+
+    # `bdd` is a subcommand GROUP, not a flat verb, so later BDD work (a
+    # scenarios-are-executable check) adds `compass bdd <thing>` rather than a
+    # second top-level verb.
+    pb = sub.add_parser("bdd", help="executable-BDD tools")
+    pbs = pb.add_subparsers(dest="subcmd", required=True)
+    pbe = pbs.add_parser(
+        "extract",
+        help="extract a task's spec.feature.md into a runnable .feature file")
+    pbe.add_argument("--task", help="task slug (default: current-task pointer)")
+    pbe.add_argument("--out", help="write here instead of the resolved default")
+    pbe.set_defaults(func=cmd_bdd_extract)
 
     pc = sub.add_parser("check", help="run the guardrails.yml checks against a task")
     pc.add_argument("--task", help="task slug (default: current-task pointer)")

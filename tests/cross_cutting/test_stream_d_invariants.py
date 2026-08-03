@@ -73,6 +73,11 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
     "plan",                       # readable-specs-and-flow: `compass plan lint`,
                                   # the advisory placeholder scan over plan.md
+    "bdd",                        # executable-bdd-and-richer-plans:
+                                  # `compass bdd extract`. A subcommand GROUP,
+                                  # so later BDD work (a scenarios-are-executable
+                                  # check) adds `compass bdd <thing>` rather than
+                                  # another top-level verb.
 }
 
 
