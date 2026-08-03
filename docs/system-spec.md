@@ -126,6 +126,13 @@
 - **Source task:** `governance-drift-detection`
 - **Landed:** 
 
+### a stale derived spec should fail a check _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `living-spec-and-process-impact`
+- **Landed:** 
+
 ### the skill should state a method, in order _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -168,6 +175,13 @@
 - **Source task:** `governance-drift-detection`
 - **Landed:** 
 
+### a current derived spec should pass _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `living-spec-and-process-impact`
+- **Landed:** 
+
 ### three failed fixes should send the engineer back to Frame _(archived)_
 
 - **Scenario id:** `TRC-A2`
@@ -208,6 +222,13 @@
 - **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
 - **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the committed spec should cover every landed task _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `living-spec-and-process-impact`
 - **Landed:** 
 
 ### the skill should be reachable from where the failure happens _(archived)_
@@ -308,6 +329,13 @@
 - **Source task:** `governance-drift-detection`
 - **Landed:** 
 
+### the generator should normalise house style on write _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `living-spec-and-process-impact`
+- **Landed:** 
+
 ### a suggestion should be checked against the code before it is acted on _(archived)_
 
 - **Scenario id:** `TRC-B1`
@@ -348,6 +376,13 @@
 - **Scenario id:** `TRC-B2`
 - **Intent:** `INT-1`
 - **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### the derived file should pass the repository's own style test _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `living-spec-and-process-impact`
 - **Landed:** 
 
 ### the skill should shape disagreement rather than forbid it _(archived)_
@@ -854,6 +889,13 @@
 - **Source task:** `governance-drift-detection`
 - **Landed:** 
 
+### the derivation should stay a derived artifact _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source task:** `living-spec-and-process-impact`
+- **Landed:** 
+
 ### a project that opted into nothing should see no change _(archived)_
 
 - **Scenario id:** `TRC-F1`
@@ -887,6 +929,13 @@
 - **Scenario id:** `TRC-F2`
 - **Intent:** `INT-5`
 - **Source task:** `governance-drift-detection`
+- **Landed:** 
+
+### a project with no landed tasks should not be broken by the check _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source task:** `living-spec-and-process-impact`
 - **Landed:** 
 
 ### adding the check should not change any existing task's result _(archived)_

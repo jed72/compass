@@ -28,6 +28,10 @@ CLI = ROOT / "cli" / "compass"
 SPEC = ROOT / "docs" / "system-spec.md"
 WORK = ROOT / ".compass" / "work"
 
+# Written as an escape, not a literal: this file is tracked, and the house-style
+# test would otherwise flag the test that exists to enforce house style.
+EM_DASH = "\u2014"
+
 
 def _cli_module():
     spec = importlib.util.spec_from_loader(
@@ -123,13 +127,13 @@ def test_trc_b1_the_generator_should_normalise_house_style_on_write():
     try:
         # find a source title that carries an em dash, and prove it survives
         sources = list((tmp / ".compass" / "work").glob("*/spec.feature.md"))
-        with_dash = [p for p in sources if "—" in p.read_text(encoding="utf-8")]
+        with_dash = [p for p in sources if EM_DASH in p.read_text(encoding="utf-8")]
         derived = _derive_into(tmp)
-        assert "—" not in derived, (
+        assert EM_DASH not in derived, (
             "the derived file contains an em dash; the generator must "
             "normalise house style on write")
         for p in with_dash:
-            assert "—" in p.read_text(encoding="utf-8"), (
+            assert EM_DASH in p.read_text(encoding="utf-8"), (
                 f"{p} was edited - the generator must normalise its OUTPUT, "
                 f"never its sources. Those are a record of what was specified "
                 f"at the time.")
@@ -139,7 +143,7 @@ def test_trc_b1_the_generator_should_normalise_house_style_on_write():
 
 def test_trc_b2_the_derived_file_should_pass_the_repositorys_own_style_test():
     text = SPEC.read_text(encoding="utf-8")
-    assert "—" not in text, (
+    assert EM_DASH not in text, (
         "docs/system-spec.md contains an em dash, which tests/test_house_style.py "
         "forbids in tracked files. Generated content may not violate a rule the "
         "repository enforces.")
