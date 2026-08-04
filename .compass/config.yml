@@ -27,6 +27,15 @@ version: 1.0.0
 # project that opts in to `advisory` does so deliberately, and it shows.
 mode: enforced
 
+# --- governance drift -------------------------------------------------------
+# `compass policy lint` compares this project's governance/ against the
+# framework's shipped copy and reports rules and checks the project is missing.
+# It is ADVISORY by default: an adopter should not get a red build merely for
+# being behind. Set `strict` once the drift is cleaned up, and `compass ci`
+# will fail on any that reappears. A deliberate omission belongs under
+# `routing_guardrails.waived:` with a reason, not here.
+governance_drift: advisory
+
 project:
   # The name shown in artifact headers and the devlog. In a project that has
   # run `/compass:init`, this is set to the project's own name. The value

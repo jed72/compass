@@ -131,3 +131,11 @@ you watch the same eight-phase pipeline and the same artifact vocabulary
 stretch and compress around a constant spine. That constancy is the point: a
 person who has read one Compass task can read any other. The *weight* changes;
 the *shape* does not.
+
+## BDD adapters
+
+`bdd-adapters/` holds a worked project per BDD runner - `pytest-bdd`,
+`cucumber-js`, `behave` and `godog`. Each takes the same Compass spec through
+the same four steps (declare the runner, `compass bdd extract`, bind the steps,
+run) and only the binding differs. Each is run by its own CI job, because an
+example no job runs is an example nobody can trust.

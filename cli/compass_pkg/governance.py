@@ -165,8 +165,17 @@ def _dig(data, path):
 
 
 def _rule_ids(data, path):
-    return {r["id"]: r for r in _dig(data, path)
-            if isinstance(r, dict) and r.get("id")}
+    """Rules by id. Ignores anything whose id is not a string.
+
+    A list- or dict-valued id used to raise an unhashable-type TypeError out of
+    `route evaluate`, which calls this with no structural lint in front of it -
+    so a malformed policy killed Frame instead of being reported.
+    """
+    out = {}
+    for r in _dig(data, path):
+        if isinstance(r, dict) and isinstance(r.get("id"), str) and r["id"]:
+            out[r["id"]] = r
+    return out
 
 
 def governance_drift(project_gov, framework_gov=None):
@@ -204,7 +213,8 @@ def governance_drift(project_gov, framework_gov=None):
                 raise CompassError("not a mapping")
         except Exception as exc:                       # noqa: BLE001
             report.comparable = False
-            report.reason = ("could not read the project's %s (%s)" % (name, exc))
+            report.reason = ("could not read the project's %s (%s) - drift "
+                             "cannot be reported until it parses" % (name, exc))
             return report
         loaded[name] = (pr, fw)
         report.project_versions[name] = str(pr.get("version", "unknown"))
@@ -228,6 +238,12 @@ def governance_drift(project_gov, framework_gov=None):
         waived_ids[rid] = reason
 
     known_framework_ids = set()
+    # Check names, evidence types and gate requirements are waivable too - the
+    # missing-check loop below honours a waiver for them, so they must count as
+    # known ids or that path fails as "a rule that does not exist".
+    _fw_guardrails = loaded["guardrails.yml"][1]
+    for group in ("checks", "evidence_types", "gate_evidence_requirements"):
+        known_framework_ids |= set(_fw_guardrails.get(group) or {})
     for fname, path, kind in _DRIFT_RULE_SOURCES:
         pr, fw = loaded[fname]
         fw_ids = _rule_ids(fw, path)
@@ -269,14 +285,22 @@ def _print_drift(report, strict):
         print("  Structural validation above still applies.")
         return False
 
+    waiver_failed = False
     if report.waiver_errors:
+        # A malformed waiver is a CONFIG error, not drift. Drift is advisory
+        # because an adopter should not get a red build for being behind; a
+        # waiver naming a rule that does not exist is something they wrote and
+        # is meaningless, so it fails in either mode. It also falls through, so
+        # a bad waiver cannot hide the drift it was meant to explain away.
         print("\ncompass policy lint: FAIL - the `waived:` block is malformed")
         for e in report.waiver_errors:
             print("  - %s" % e)
-        return True
+        waiver_failed = True
 
     if not report.drifted and not report.waived:
-        return False
+        # `waiver_failed`, not False: a project with a malformed waiver and no
+        # drift still wrote something meaningless, and must not exit 0.
+        return waiver_failed
 
     if report.drifted:
         n_rules, n_checks = len(report.missing_rules), len(report.missing_checks)
@@ -310,7 +334,7 @@ def _print_drift(report, strict):
         for rid, reason in report.waived:
             print("      %-14s %s" % (rid, reason))
 
-    return bool(strict and report.drifted)
+    return waiver_failed or bool(strict and report.drifted)
 
 
 def _drift_is_strict():

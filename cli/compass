@@ -183,6 +183,10 @@ def build_parser():
                           help="the Needle's feedback loop - re-frame patterns "
                                "across all tasks (is routing well-sized?)")
     pcal.add_argument(
+        "--impact", action="store_true",
+        help="process-impact signal: lead time, land frequency, change-fail and "
+             "restore time, attributed to route and gate set (advisory)")
+    pcal.add_argument(
         "--friction",
         action="store_true",
         help="aggregate the per-task `friction:` signal instead of reframes - "

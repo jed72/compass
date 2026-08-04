@@ -318,7 +318,15 @@ def _check_scenarios_are_executable(task, task_dir):
 
     current = _spec_sha256(task_dir)
     recorded = record.get("spec_sha256")
-    if current and recorded and current != recorded:
+    if not current or not recorded:
+        # A record with no spec hash cannot be shown to describe the spec it
+        # claims to verify. Unverifiable is not the same as verified - treating
+        # it as a pass is how a run made before the spec existed stays green
+        # through every later edit.
+        return False, ("the BDD run on record carries no spec hash, so it "
+                       "cannot be shown to match the current spec.feature.md - "
+                       "re-run `compass bdd verify`")
+    if current != recorded:
         return False, ("the recorded BDD run describes a different "
                        "spec.feature.md than the one on disk - the spec has "
                        "changed since it ran, so the record is stale. Re-run "

@@ -116,6 +116,13 @@ claims: []
 #    text: "Export your month-end ledger in seconds"
 #    scenario: SCN-001
 
+# --- repairs (Hotfix routes only) -------------------------------------------
+# The slug of the task this hotfix repairs. `compass calibration --impact` reads
+# it to compute the change-fail signal - which task did we ship that later
+# needed fixing. Optional, and honest about being optional: a hotfix that
+# declares nothing is reported as a coverage gap, never counted as a zero.
+# repairs: the-task-this-fixes
+
 # --- backfills (owed ceremony - e.g. a Hotfix's, or a de-scoped artifact) ---
 # `compass check` fails while any backfill is unpaid. Land refuses to close.
 backfills: []
