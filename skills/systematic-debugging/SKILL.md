@@ -82,7 +82,7 @@ when the behaviour was never actually written down.
 So:
 
 ```
-compass frame --reframe --reason "three fixes failed; the terrain was misread"
+/compass:frame --reframe --reason "three fixes failed; the terrain was misread"
 ```
 
 Re-score the dimensions honestly. If terrain is genuinely unmapped,

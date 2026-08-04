@@ -169,7 +169,16 @@ def cmd_land_commit(args):
             "--- commit output (tail) ---\n" + log
         )
 
-    # Success. Mark the task landed only now that HEAD is confirmed advanced.
+    # Success. Mark the task landed only now that HEAD is confirmed advanced -
+    # AND only if its gates actually cleared.
+    #
+    # Guardrail G1 is "checked at Verify and Land". This used to write
+    # `status: landed` on the strength of git HEAD moving alone, so a task
+    # whose `compass check` failed before the commit was still recorded as
+    # landed afterwards. The status is what `calibration`, the living-spec
+    # derivation and every cross-task report read, so an unverified land
+    # silently entered the record as a clean one.
+    landed_note = ""
     if getattr(args, "task", None):
         try:
             task_dir = resolve_task_dir(args.task)
@@ -177,15 +186,27 @@ def cmd_land_commit(args):
             if os.path.isfile(task_path):
                 task = load_yaml(task_path)
                 if isinstance(task, dict):
-                    task["status"] = "landed"
-                    task["land_timestamp"] = now_iso()
-                    save_task(task, task_path)
+                    unmet = [g.get("id", "?") for g in (task.get("gates") or [])
+                             if isinstance(g, dict) and g.get("status") != "pass"]
+                    if unmet:
+                        landed_note = (
+                            "\n  NOT marked landed: %d gate(s) have not "
+                            "passed (%s).\n  The commit stands - Land is a "
+                            "record, not a rubber stamp. Clear the gates and "
+                            "re-run, or set status by hand if this task "
+                            "genuinely lands unverified."
+                            % (len(unmet), ", ".join(unmet)))
+                    else:
+                        task["status"] = "landed"
+                        task["land_timestamp"] = now_iso()
+                        save_task(task, task_path)
+                        landed_note = "\n  task marked landed."
         except CompassError:
             pass  # status update is best-effort; the commit already succeeded
 
     suffix = " (after one retry)" if retried else ""
     print(f"compass land-commit: committed{suffix}. "
-          f"HEAD {head_before[:8]} -> {head_after[:8]}")
+          f"HEAD {head_before[:8]} -> {head_after[:8]}" + landed_note)
     return 0
 
 

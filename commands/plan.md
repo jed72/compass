@@ -16,6 +16,9 @@ here* and *executed in Distribute*.
   full `plan.md` plus `distribution-map.md` (Expedition).
 - Read `spec.feature.md` and `clarifications.md` - the plan is built on the
   hardened spec.
+- Load the `plan-authoring` skill - how to write the plan itself: what a work
+  unit is, what makes one genuinely independent of another, and the self-review
+  the author owes the reviewer before the plan is handed over.
 - Load the `governance-check` skill.
 - Invoke the `planner` agent - it owns this phase.
 - If a `brief.md` exists, this is where the **intent-fidelity gate** lands: the

@@ -233,6 +233,23 @@ def cmd_check(args):
                     failures += 1
                 _print_check_result(check_name, passed, detail)
             print()
+
+        # Backfills are cross-cutting and a Spike is the route that most often
+        # OWES one - a graduating spike leaves ceremony behind by design. The
+        # spike branch used to return before the shared backfill block below,
+        # so a Spike with an owed backfill reported "concluded and contained"
+        # and the word "backfill" never appeared.
+        ran += 1
+        try:
+            passed, detail = _check_backfills_paid(task, task_dir)
+        except Exception as exc:                        # noqa: BLE001
+            passed, detail = False, f"check errored: {exc}"
+        print("  owed backfills")
+        _print_check_result("backfills-paid", passed, detail)
+        print()
+        if not passed:
+            failures += 1
+
         print("-" * 60)
         if failures:
             print(f"compass check: FAIL - {failures} of {ran} Spike check(s) failed.")
@@ -322,7 +339,13 @@ def cmd_check(args):
 
     # backfills are cross-cutting - always run them
     ran += 1
-    passed, detail = _check_backfills_paid(task, task_dir)
+    try:
+        # Every other check is wrapped - "a check should never crash the run" -
+        # and this one was not, so a `backfills:` list of strings took down
+        # check, receipt, rework-scan, flow --digest and ci with a traceback.
+        passed, detail = _check_backfills_paid(task, task_dir)
+    except Exception as exc:                            # noqa: BLE001
+        passed, detail = False, f"check errored: {exc}"
     print("  owed backfills")
     _print_check_result("backfills-paid", passed, detail)
     print()

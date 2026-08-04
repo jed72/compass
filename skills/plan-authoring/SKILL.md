@@ -81,11 +81,14 @@ write a review artifact and do not invoke a reviewer agent - this is the cheap
 pass the author owes the reviewer, the same shape as the spec-author's
 self-review in `bdd-specification`.
 
-1. **Placeholder scan** - any `{{...}}` left, including in a section you kept
-   but did not fill. Run `compass plan lint`, which also catches "TBD",
-   "TODO", and "add appropriate error handling". It is advisory and always
-   exits 0: a hit is a note, not a block. Judge each one - a deferred decision
-   with a named owner is a plan; an unowned `TBD` is a gap.
+1. **Placeholder scan** - any `{{...}}` template placeholder left, including in
+   a section you kept but did not fill. Read for those yourself: `compass plan
+   lint` does not look for `{{...}}`. What it does catch is the *phrases* that
+   mean a decision was deferred - "TBD", "TODO", "implement later", "add
+   appropriate error handling" - plus a work unit that promises tests without
+   naming any. It is advisory and always exits 0: a hit is a note, not a block.
+   Judge each one - a deferred decision with a named owner is a plan; an unowned
+   `TBD` is a gap.
 2. **Coverage scan** - every scenario group in `spec.feature.md` is covered by
    at least one work unit. An uncovered group means either a missing unit or a
    scenario nobody intends to satisfy, and both are worth knowing now.

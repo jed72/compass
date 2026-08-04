@@ -1,0 +1,62 @@
+"""The worked example in docs/five-minutes.md must match what the CLI does.
+
+This is the onboarding document - the first thing an adopter runs. It carried
+a transcript that had drifted from the code: a reading value (`intent:
+engineering`) that is not in the vocabulary and makes `route evaluate` fail,
+a gate set naming one gate where the policy computes three, and a check count
+from an older version of the check suite.
+
+The point of these tests is that the transcript cannot silently drift again:
+the readings are fed to the real CLI, and the documented route and gate set
+are compared to what it actually returns.
+"""
+import pathlib
+import re
+import subprocess
+import sys
+
+import yaml
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+COMPASS_CLI = ROOT / "cli" / "compass"
+DOC = ROOT / "docs" / "five-minutes.md"
+
+
+def _documented_readings():
+    """The `readings:` block from the worked example's task.yml snippet."""
+    text = DOC.read_text(encoding="utf-8")
+    m = re.search(r"```yaml\n(.*?schema_version.*?readings:.*?)```", text, re.S)
+    assert m, "docs/five-minutes.md must show a task.yml snippet with readings:"
+    parsed = yaml.safe_load(m.group(1))
+    return parsed["readings"]
+
+
+def _evaluate(readings):
+    args = [sys.executable, str(COMPASS_CLI), "route", "evaluate"]
+    for key, value in readings.items():
+        args += ["--reading", f"{key}={value}"]
+    return subprocess.run(args, capture_output=True, text=True, cwd=ROOT, timeout=30)
+
+
+def test_worked_example_readings_are_accepted_by_the_cli():
+    """Every reading value in the doc is in the routing policy's vocabulary."""
+    result = _evaluate(_documented_readings())
+    assert result.returncode == 0, (
+        "docs/five-minutes.md documents readings the CLI rejects:\n"
+        f"{result.stdout}\n{result.stderr}"
+    )
+
+
+def test_worked_example_route_and_gates_match_the_cli():
+    """The documented FINAL ROUTE and gate set are the ones the CLI computes."""
+    out = _evaluate(_documented_readings()).stdout
+    doc = DOC.read_text(encoding="utf-8")
+
+    for label in ("FINAL ROUTE", "gate set"):
+        m = re.search(rf"^\s*{label}\s*:\s*(.+)$", out, re.M)
+        assert m, f"`route evaluate` printed no '{label}' line:\n{out}"
+        actual = m.group(1).strip()
+        assert f"{label}     : {actual}" in doc or f"{label}        : {actual}" in doc, (
+            f"docs/five-minutes.md's transcript does not show the real {label} "
+            f"({actual!r}). Re-run `compass route evaluate` and paste the output."
+        )

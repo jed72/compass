@@ -378,17 +378,27 @@ def cmd_task_lint(args):
     errs = []
     if "task" not in task:
         errs.append("missing `task:` (the task slug)")
+    # Each block below checks the shape before reading it. This command's whole
+    # job is to report a malformed task.yml, so it must not crash on one - a
+    # scenario written as a bare string used to raise AttributeError here, and a
+    # traceback tells the author nothing about what to fix.
     if "readings" not in task:
         errs.append("missing `readings:` - Frame records the four-dimension readings")
+    elif not isinstance(task["readings"], dict):
+        errs.append("`readings:` must be a mapping of dimension -> value")
     else:
         for dim in ("blast_radius", "terrain", "magnitude"):
             if dim not in task["readings"]:
                 errs.append(f"readings is missing required dimension: {dim}")
     for i, s in enumerate(task.get("scenarios") or []):
-        if not s.get("id"):
+        if not isinstance(s, dict):
+            errs.append(f"scenario #{i + 1} must be a mapping with an `id:`, got: {s!r}")
+        elif not s.get("id"):
             errs.append(f"scenario #{i + 1} has no id")
     for cf in task.get("changed_files") or []:
-        if "path" not in cf:
+        if not isinstance(cf, dict):
+            errs.append(f"a changed_files entry must be a mapping with a `path:`: {cf!r}")
+        elif "path" not in cf:
             errs.append(f"a changed_files entry has no `path`: {cf}")
     # TRC-FM2: validate attempts field on test-run evidence entries
     for ev in task.get("evidence") or []:

@@ -622,9 +622,16 @@ def cmd_analyze(args):
     if findings and is_gate_mode:
         print(f"\ncompass analyze: FAIL - {len(findings)} coherence finding(s).")
         return 1
-    else:
-        print(f"\ncompass analyze: PASS - 0 finding(s), coherence checks clean.")
+    if findings:
+        # Advisory mode still found something. The old summary hardcoded
+        # "0 finding(s), coherence checks clean" here, so the command listed
+        # its findings and then denied having any - and the evidence JSON,
+        # which recorded the real count, disagreed with the line a human reads.
+        print(f"\ncompass analyze: PASS (advisory) - {len(findings)} coherence "
+              f"finding(s) reported above; they do not block Land on this route.")
         return 0
+    print("\ncompass analyze: PASS - 0 finding(s), coherence checks clean.")
+    return 0
 
 
 # --- command: ci ------------------------------------------------------------

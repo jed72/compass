@@ -324,9 +324,15 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
                 else:
                     verdict = "[ PASS ]"
         elif gstatus == "pending":
+            # A pending gate is not a clean land. This set neither any_fail nor
+            # any_caveat, so a receipt with every gate PENDING and no evidence
+            # at all still printed "landed cleanly" - and the receipt is the
+            # audit artefact, the thing someone reads instead of re-deriving.
             verdict = "[ PENDING ]"
+            any_caveat = True
         else:
             verdict = f"[ {gstatus.upper()} ]"
+            any_caveat = True
         ev_str = ", ".join(ev_ids) if ev_ids else "(none)"
         lines.append(_receipt_truncate(
             f"  {gid:<26} {verdict:<18} evidence: {ev_str}"))
