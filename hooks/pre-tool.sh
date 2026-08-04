@@ -207,13 +207,47 @@ bash_write_targets() {
         printf '%s\n' "$cmd" | awk '{print $NF}' || true ;;
     esac
 
-    # An inline interpreter script that opens a file for writing - the shape
+    # An inline interpreter script that opens a file FOR WRITING - the shape
     # this whole branch exists for, since `python3 -c` and a `python3 - <<PY`
     # heredoc are the easiest way to edit a file without an Edit tool call.
+    #
+    # Two things this deliberately does NOT do, both reported from the field
+    # within hours of shipping the looser version:
+    #   - `open(path)` with no mode is a READ. Treating it as a write blocked
+    #     read-only verification commands - the hook stopping an author from
+    #     checking their own work, which inverts what it is for.
+    #   - The path must come from the write call itself. Scanning the whole
+    #     command lifted paths out of heredoc bodies, so writing a document
+    #     that merely *named* a migration demanded a failing test for the
+    #     migration. Every artifact that discusses code paths hit this.
+    # A missed write is recoverable; a false block trains people to bypass the
+    # hook, and nothing recovers from that.
+
+    # open(PATH, "w"|"a"|"x"|"r+"|"wb"…) - a mode containing w, a, x or + .
+    printf '%s\n' "$cmd" \
+      | grep -oE "open\([[:space:]]*['\"][^'\"]+['\"][[:space:]]*,[[:space:]]*['\"][^'\"]*[waxWAX+][^'\"]*['\"]" \
+      | sed -E "s/^open\([[:space:]]*['\"]([^'\"]+)['\"].*/\1/" || true
+
+    # pathlib. Covers both `Path(PATH).write_text(...)` and the commoner
+    # two-step form, where the write happens on a variable:
+    #     p = pathlib.Path(PATH)
+    #     p.write_text(...)
+    # So when the command contains a pathlib write at all, every Path(...)
+    # argument in it is a candidate - except one used immediately for a read,
+    # which keeps "read a source file, generate a doc from it" from being
+    # blocked on the file it only read.
     case "$cmd" in
-      *open\(*|*write_text*|*writeFileSync*|*File.write*|*.write\(*)
-        printf '%s\n' "$cmd" | grep -oE '[A-Za-z0-9_./-]+\.[A-Za-z0-9]+' || true ;;
+      *write_text\(*|*write_bytes\(*)
+        printf '%s\n' "$cmd" \
+          | grep -oE "Path\([[:space:]]*['\"][^'\"]+['\"][[:space:]]*\)(\.[a-z_]+)?" \
+          | grep -v "\.read_" \
+          | sed -E "s/^Path\([[:space:]]*['\"]([^'\"]+)['\"].*/\1/" || true ;;
     esac
+
+    # node / ruby equivalents, where the path is the first argument.
+    printf '%s\n' "$cmd" \
+      | grep -oE "(writeFileSync|appendFileSync|File\.write)\([[:space:]]*['\"][^'\"]+['\"]" \
+      | sed -E "s/^[A-Za-z_.]+\([[:space:]]*['\"]([^'\"]+)['\"].*/\1/" || true
   } | grep -vE '^[[:space:]]*$' || true
 }
 
