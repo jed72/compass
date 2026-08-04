@@ -444,7 +444,7 @@ def _load_tdd_state(task_dir, scenario):
         return {}
 
 
-def _save_tdd_state(task_dir, scenario, tree_hash, attempts):
+def _save_tdd_state(task_dir, scenario, tree_hash, attempts, command=None):
     """Persist the per-scenario TDD state in the sidecar file."""
     path = _tdd_state_path(task_dir)
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -456,7 +456,8 @@ def _save_tdd_state(task_dir, scenario, tree_hash, attempts):
         except (OSError, json.JSONDecodeError):
             existing = {}
     key = scenario or ""
-    existing[key] = {"tree_hash": tree_hash, "attempts": attempts}
+    existing[key] = {"tree_hash": tree_hash, "attempts": attempts,
+                     "command": command}
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(existing, fh, indent=2)
 
@@ -505,21 +506,29 @@ def cmd_tdd_green(args):
     prior_hash = prior_state.get("tree_hash")
     prior_attempts = prior_state.get("attempts") or 0
 
+    # The command matters as much as the tree. Running the SAME assertion again
+    # with nothing changed is the flaky-test laundering this flag exists to
+    # catch; running a DIFFERENT one - the narrow suite, then the full suite,
+    # which is what Verify asks for - is a new assertion, not a retry.
+    current_command = " ".join(command)
+    prior_command = prior_state.get("command")
+
     if prior_hash is None:
         # First invocation for this scenario - clean first pass
         attempts = 1
         rerun_without_change = False
-    elif prior_hash == current_hash:
-        # Same tree hash: source did not change since the last green invocation
+    elif prior_hash == current_hash and prior_command == current_command:
+        # Same tree, same command: nothing changed and nothing new was asked
         attempts = prior_attempts + 1
         rerun_without_change = True
     else:
-        # Tree changed: this is a new attempt after real work
+        # Either the tree changed (real work) or the command did (a different
+        # assertion). Both are legitimate progress.
         attempts = prior_attempts + 1
         rerun_without_change = False
 
     # Persist the updated state for the next invocation
-    _save_tdd_state(task_dir, scenario, current_hash, attempts)
+    _save_tdd_state(task_dir, scenario, current_hash, attempts, current_command)
 
     payload = {
         "command": " ".join(command),
