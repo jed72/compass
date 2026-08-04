@@ -92,6 +92,22 @@ Equally important. Honest scope is what makes the promise credible.
   absolutely for your project, the file-editing tools are where the guarantee
   is complete.
 
+- **Shell scripts are not classified as production code.** Separately from the
+  point above - which is about the *command* - the hook decides whether a
+  *file* needs a red by its path and extension: application source (`.py`,
+  `.ts`, `.go`, …), infrastructure (`.tf`, `.sql`, `Dockerfile`), and
+  path-scoped rules for migrations, manifests, and CI workflows. `.sh` is in
+  none of them, so editing a shell script never requires a failing test, with
+  any tool. `Makefile`, `justfile`, and extensionless scripts are the same.
+
+  This applies to Compass's own `hooks/` and `scripts/` as much as to yours.
+  The fix is deliberately deferred rather than defaulted on: adding `.sh` to
+  the list would require a red for every shell edit in every project on
+  upgrade, and the hook has no per-project dial to soften it - `mode: advisory`
+  in `.compass/config.yml` governs `compass check`, not the hook. The intended
+  shape is a project-configurable enforced set, with today's list as the
+  default. See `architecture/decisions/ADR-011-enforced-file-types-are-project-configurable.md`.
+
 - **Compass is not a universal process framework.** The methodology layer is
   general; the kit is concrete. Teams adopt and tune both. There is no claim
   it fits every team or every project unchanged.

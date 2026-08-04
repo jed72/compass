@@ -51,6 +51,7 @@ Rules:
 | [ADR-008](ADR-008-cross-task-derived-artifacts.md) | Cross-task derived artifacts are generated from landed task scenarios at Land time; the derivation is reconstructible, idempotent, and never a source-of-truth | proposed | Inv-5, Inv-6, Inv-8 (living spec, derived at Land, silent overwrite contract) |
 | [ADR-009](ADR-009-fitness-functions-are-project-guardrails.md) | Architectural fitness functions are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; vacuous-clear on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
 | [ADR-010](ADR-010-governance-layers-rather-than-copies.md) | Project governance should layer over framework defaults rather than copy them | proposed | Inv-8 (backward compat - a file with no `extends:` must keep working); supersedes nothing, complements the drift-detection work |
+| [ADR-011](ADR-011-enforced-file-types-are-project-configurable.md) | Which file types require a red should be project-configurable, not a fixed list; shell scripts are unclassified today and the fix is deferred rather than defaulted on | proposed | Inv-8 (backward compat - a project that configures nothing keeps today's behaviour); same floor-plus-opt-in shape as ADR-010 |
 
 ## Principle → ADR mapping
 
