@@ -1,0 +1,114 @@
+"""Every shipped example does what the framework says it does.
+
+`examples/README.md` tells an adopter that `compass check --task <slug>` passes
+inside any example. Three independent reviews found that four of five failed it,
+and that `compass bdd extract` - the release's headline feature - worked on none
+of them. Both had shipped unnoticed because nothing exercised the examples.
+
+That is the gap this file closes. Reference material is the first thing a
+newcomer runs, and an example that fails the guardrail it is demonstrating
+teaches exactly the wrong lesson.
+"""
+from __future__ import annotations
+
+import pathlib
+import shutil
+import subprocess
+import sys
+import tempfile
+
+import pytest
+import yaml
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+CLI = ROOT / "cli" / "compass"
+EXAMPLES = ROOT / "examples"
+
+
+def _route_examples():
+    """Example directories that carry a Compass task (not the BDD adapters)."""
+    out = []
+    for d in sorted(EXAMPLES.iterdir()):
+        if not d.is_dir() or d.name == "bdd-adapters":
+            continue
+        work = d / ".compass" / "work"
+        if not work.is_dir():
+            continue
+        for t in sorted(work.iterdir()):
+            if (t / "task.yml").is_file():
+                out.append((d.name, t.name))
+    return out
+
+
+ROUTE_EXAMPLES = _route_examples()
+
+
+def _sandbox(name):
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="compass-ex-"))
+    shutil.copytree(EXAMPLES / name, tmp / name)
+    return tmp, tmp / name
+
+
+def test_there_are_route_examples_to_check():
+    """Guards the guard: a parametrised test over an empty list passes silently."""
+    assert len(ROUTE_EXAMPLES) >= 4, (
+        f"expected the shipped route walkthroughs, found {ROUTE_EXAMPLES}")
+
+
+@pytest.mark.parametrize("name,slug", ROUTE_EXAMPLES)
+def test_every_example_passes_its_own_check(name, slug):
+    """examples/README.md promises this. It was false for four of five."""
+    tmp, work = _sandbox(name)
+    try:
+        r = subprocess.run([sys.executable, str(CLI), "check", "--task", slug],
+                           cwd=str(work), capture_output=True, text=True,
+                           timeout=120)
+        assert r.returncode == 0, (
+            f"{name}: `compass check --task {slug}` fails, but "
+            f"examples/README.md tells adopters it passes:\n{r.stdout[-1800:]}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+@pytest.mark.parametrize("name,slug", ROUTE_EXAMPLES)
+def test_every_example_spec_extracts(name, slug):
+    """`compass bdd extract` must read the framework's own specs.
+
+    Both id conventions ship - templates/ uses TRC-, examples/ use SCN- - and
+    the extractor accepted only one, so every example failed with 'contains no
+    Gherkin scenarios', which reads as 'your spec is malformed'.
+    """
+    tmp, work = _sandbox(name)
+    try:
+        spec = work / ".compass" / "work" / slug / "spec.feature.md"
+        if not spec.is_file():
+            pytest.skip(f"{name} is a Spike - no spec by design")
+        r = subprocess.run(
+            [sys.executable, str(CLI), "bdd", "extract", "--task", slug],
+            cwd=str(work), capture_output=True, text=True, timeout=60)
+        assert r.returncode == 0, (
+            f"{name}: extract failed on a spec the framework ships:\n"
+            f"{r.stdout}{r.stderr}")
+        out = work / ".compass" / "work" / slug / "spec.feature"
+        assert out.is_file(), f"{name}: no feature file written"
+        n = out.read_text().count("\n  Scenario:")
+        declared = len(
+            (yaml.safe_load((work / ".compass" / "work" / slug / "task.yml")
+                            .read_text()) or {}).get("scenarios") or [])
+        assert n == declared, (
+            f"{name}: extracted {n} scenarios but task.yml declares {declared}")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_every_bdd_adapter_has_a_ci_job():
+    """An example no job runs is an example nobody can trust."""
+    wf = yaml.safe_load(
+        (ROOT / ".github" / "workflows" / "compass.yml").read_text())
+    jobs = yaml.safe_dump(wf.get("jobs") or {})
+    adapters = [d.name for d in (EXAMPLES / "bdd-adapters").iterdir()
+                if d.is_dir()]
+    assert adapters, "no BDD adapters found"
+    for a in adapters:
+        assert f"bdd-adapters/{a}" in jobs, (
+            f"no CI job runs examples/bdd-adapters/{a}")

@@ -123,8 +123,15 @@ from compass_pkg.tdd import _read_config, _run_test
 # showing what a scenario looks like, this very comment block). Extracting every
 # ```gherkin fence would turn those illustrations into scenarios. Requiring the
 # traceability comment means only real, id-carrying scenarios are extracted.
+# Any uppercase-prefixed id, not just TRC-. The framework ships both
+# conventions: templates/spec.feature.md uses TRC-, and every example under
+# examples/ uses SCN-. Hardcoding one meant `bdd extract` failed on all five
+# shipped route examples with "contains no Gherkin scenarios" - which reads as
+# "your spec is malformed" rather than "this tool only accepts one of the two
+# id prefixes we ship".
 _TRC_COMMENT_RE = re.compile(
-    r"<!--\s*traceability id:\s*(?P<trc>TRC-[A-Za-z0-9_]+)\b.*?-->", re.S)
+    r"<!--\s*traceability id:\s*(?P<trc>[A-Z][A-Z0-9]*-[A-Za-z0-9_]+)\b.*?-->",
+    re.S)
 _SCENARIO_HEADING_RE = re.compile(r"^###\s+Scenario:\s*(?P<title>.+?)\s*$")
 _FENCE_OPEN_RE = re.compile(r"^\s*```+\s*gherkin\s*$", re.I)
 _FENCE_CLOSE_RE = re.compile(r"^\s*```+\s*$")
@@ -223,7 +230,7 @@ def validate_scenarios(scenarios, spec_path):
     if not scenarios:
         problems.append(
             "%s contains no Gherkin scenarios. A scenario is a '### Scenario:' "
-            "heading, a '<!-- traceability id: TRC-... -->' comment, and a "
+            "heading, a '<!-- traceability id: SCN-... -->' comment (any uppercase id prefix), and a "
             "```gherkin fence - the comment is what marks a fence as a real "
             "scenario rather than an illustration." % spec_path)
         return problems
@@ -375,10 +382,12 @@ def _bdd_tag_selector(runner, command):
         return lambda tag: ["--collect-only", "-q", "-m", tag]
     if "cucumber" in r or "behave" in r:
         return lambda tag: ["--dry-run", "--tags", "@" + tag]
-    if "godog" in r or "godog" in joined:
-        # godog is driven through `go test`, so its flags are passed with the
-        # -godog. prefix rather than as bare arguments.
-        return lambda tag: ["-args", "-godog.tags=@" + tag, "-godog.dry-run"]
+    # godog deliberately has NO selector. It is driven through `go test`, and
+    # its -godog.* flags exist only if the suite calls BindCommandLineFlags -
+    # which the idiomatic programmatic setup (and the adapter Compass ships)
+    # does not. Probing it returns "flag provided but not defined", so every
+    # tag looks unbound and the check accused a passing suite of having no step
+    # definitions. An honest "could not verify" beats a confident wrong answer.
     return None
 
 
@@ -440,6 +449,11 @@ def cmd_bdd_verify(args):
         # SCN-10 was printed.
         seen = [s for s in scenario_ids
                 if re.search(r"\b%s\b" % re.escape(s), out)]
+        if not seen:
+            # Nothing named at all. We cannot tell "no scenario bound" from
+            # "this runner does not print scenario ids", and reporting the
+            # first when it is the second accuses a passing suite.
+            method = "unverified"
     seen = sorted(set(seen))
 
     payload = {

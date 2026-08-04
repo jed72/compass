@@ -332,6 +332,13 @@ def _check_scenarios_are_executable(task, task_dir):
                        "changed since it ran, so the record is stale. Re-run "
                        "`compass bdd verify`.")
 
+    if record.get("method") == "unverified":
+        return True, ("the BDD run passed, but this runner does not report "
+                      "which scenarios it bound and Compass has no tag selector "
+                      "for it - so the binding is unverified rather than "
+                      "unmet. See examples/bdd-adapters/ for a runner Compass "
+                      "can verify.")
+
     seen = set(record.get("scenarios_seen") or [])
     missing = [sid for sid in scenario_ids if sid not in seen]
     if missing:

@@ -142,6 +142,14 @@ def test_trc_a3_every_adapter_should_share_the_same_four_documented_steps():
             assert phrase in text, f"{name}: README omits {what}"
 
 
+# godog is deliberately excluded. Its -godog.* flags exist only if the suite
+# calls BindCommandLineFlags, which the idiomatic programmatic setup does not -
+# so probing it returns "flag provided but not defined", every tag looks
+# unbound, and the check accused a passing suite of having no step definitions.
+# It reports "unverified" instead, which is the honest answer.
+SELECTOR_RUNNERS = {"pytest-bdd", "behave", "cucumber-js"}
+
+
 def test_trc_a4_the_tag_selector_should_know_every_shipped_runner():
     mod = _bdd_module()
     for name in sorted(EXPECTED):
@@ -149,11 +157,17 @@ def test_trc_a4_the_tag_selector_should_know_every_shipped_runner():
             (ADAPTERS / name / ".compass" / "config.yml").read_text())
         runner = cfg["project"]["bdd_runner"]
         sel = mod._bdd_tag_selector(runner, [])
-        assert sel is not None, (
-            f"{runner} has no tag selector, so `compass bdd verify` falls back "
-            f"to scraping the runner's output - which does not work, and is "
-            f"why the selector exists")
-        assert sel("TRC-A1"), f"{runner}: selector produced no arguments"
+        if name in SELECTOR_RUNNERS:
+            assert sel is not None, (
+                f"{runner} has no tag selector, so `compass bdd verify` falls "
+                f"back to scraping - which cannot tell 'nothing bound' from "
+                f"'this runner does not print ids'")
+            assert sel("TRC-A1"), f"{runner}: selector produced no arguments"
+        else:
+            assert sel is None, (
+                f"{runner} gained a tag selector. If its flags really are "
+                f"bindable now, verify a probe against the shipped adapter "
+                f"before trusting it - the last one accused a passing suite.")
 
 
 # --- group B: the adapters are actually run --------------------------------

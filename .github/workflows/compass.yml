@@ -116,8 +116,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install the CLI's dependency and the runner
-        run: pip install pyyaml && pip install behave
-        working-directory: examples/bdd-adapters/behave
+        run: pip install pyyaml behave
 
       - name: Extract the spec into a runnable feature file
         working-directory: examples/bdd-adapters/behave
@@ -138,9 +137,16 @@ jobs:
         with:
           node-version: '22'
 
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
       - name: Install the CLI's dependency and the runner
-        run: pip install pyyaml && npm install --no-audit --no-fund
+        run: pip install pyyaml
+
+      - name: Install the runner
         working-directory: examples/bdd-adapters/cucumber-js
+        run: npm install --no-audit --no-fund
 
       - name: Extract the spec into a runnable feature file
         working-directory: examples/bdd-adapters/cucumber-js
@@ -161,9 +167,16 @@ jobs:
         with:
           go-version: '1.22'
 
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
       - name: Install the CLI's dependency and the runner
-        run: pip install pyyaml && go mod download
+        run: pip install pyyaml
+
+      - name: Install the runner
         working-directory: examples/bdd-adapters/godog
+        run: go mod download
 
       - name: Extract the spec into a runnable feature file
         working-directory: examples/bdd-adapters/godog

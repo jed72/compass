@@ -21,17 +21,17 @@ scenarios:
   title: a valid token should let the user set a new password
   intent: INT-1
   tests:
-  - tests/steps/test_reset_password_steps.py
+  - features/steps/reset_password_steps.py
 - id: TRC-A2
   title: an expired token should be rejected
   intent: INT-2
   tests:
-  - tests/steps/test_reset_password_steps.py
+  - features/steps/reset_password_steps.py
 - id: TRC-A3
   title: a password below the length floor should be rejected
   intent: INT-2
   tests:
-  - tests/steps/test_reset_password_steps.py
+  - features/steps/reset_password_steps.py
 changed_files: []
 claims: []
 backfills: []

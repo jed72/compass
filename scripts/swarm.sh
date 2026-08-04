@@ -218,8 +218,20 @@ for i in "${!STREAMS[@]}"; do
     if [ -d "$wt_task_dir" ]; then
       echo "      task dir already present - left as-is"
     else
-      mkdir -p "$wt_path/.compass/work"
-      cp -R "$TASK_DIR" "$wt_task_dir"
+      mkdir -p "$wt_task_dir"
+      # Copy the ARTIFACTS a builder needs to work - and nothing that would
+      # hand them credit they did not earn. `.red` is the marker
+      # hooks/pre-tool.sh reads to permit a production-code edit, and it means
+      # "a real failure was observed HERE". Copying it lets a builder edit
+      # production code on a red someone else recorded in another worktree.
+      # `evidence/` is the same argument: a green run belongs to the run that
+      # produced it.
+      for _f in "$TASK_DIR"/*; do
+        case "$(basename "$_f")" in
+          evidence) continue ;;
+          *) cp -R "$_f" "$wt_task_dir/" ;;
+        esac
+      done
       echo "      seeded task dir -> .compass/work/$TASK_SLUG"
     fi
     # The pointer every `compass` call resolves "the current task" through.

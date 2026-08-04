@@ -106,8 +106,25 @@ esac
 
 # Exempt: test files - you have to be able to write the red. Tune these globs
 # to the project's test conventions.
+#
+# Matched against the BASENAME and the project-relative path, never the
+# absolute one. Matching `*test*` against an absolute path also matches every
+# ancestor directory, so a repository living under any path containing "test"
+# or "spec" - /Users/testuser/..., .../latest/... - had red-before-green
+# silently disabled for the entire tree. Enforcement that turns itself off
+# based on where you cloned the repo is worse than no enforcement, because it
+# still reports that it is on.
+REL="$TARGET"
 case "$TARGET" in
-  *test*|*Test*|*spec*|*Spec*|*__tests__*|*.test.*|*.spec.*|*_test.*|*/tests/*) exit 0 ;;
+  "$PROJECT_DIR"/*) REL="${TARGET#"$PROJECT_DIR"/}" ;;
+esac
+BASE="$(basename "$TARGET")"
+case "$BASE" in
+  *test*|*Test*|*spec*|*Spec*|*.test.*|*.spec.*|*_test.*) exit 0 ;;
+esac
+case "$REL" in
+  tests/*|*/tests/*|test/*|*/test/*|spec/*|*/spec/*|\
+  __tests__/*|*/__tests__/*|testdata/*|*/testdata/*) exit 0 ;;
 esac
 
 IS_CODE=0
