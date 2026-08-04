@@ -111,6 +111,27 @@ def _git(args, cwd):
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
 
 
+def _land_scope(task, slug):
+    """The paths a Land commit is allowed to contain.
+
+    A task's own `changed_files` plus its artifact directory. Anything else in
+    the commit belongs to someone else - a concurrent agent's edits, untracked
+    scratch, or the unrelated files a repo-wide formatter just rewrote.
+    """
+    owned = {
+        cf["path"] for cf in (task.get("changed_files") or [])
+        if isinstance(cf, dict) and cf.get("path")
+    }
+    return owned, f".compass/work/{slug}/"
+
+
+def _out_of_scope(staged, owned, artifact_dir):
+    return sorted(
+        p for p in staged
+        if p not in owned and not p.startswith(artifact_dir)
+    )
+
+
 def cmd_land_commit(args):
     import shutil
     cwd = os.getcwd()
@@ -133,7 +154,64 @@ def cmd_land_commit(args):
             "first (e.g. `git add <paths>`), then re-run."
         )
 
+    # The task's declared scope. Everything below re-stages against this rather
+    # than against the whole tree: a Land commit must contain what the task
+    # says it changed, and nothing else. A repo-wide auto-formatter plus a
+    # whole-tree re-stage once took a real index from ~23 task files to 1,574,
+    # including a concurrent agent's uncommitted work.
+    # Best-effort: `land-commit` has always worked in a repo with no task
+    # directory at all, and must keep doing so. Without a task there is no
+    # declared scope to check against - the re-stage below stays scoped either
+    # way.
+    owned, artifact_dir, slug = set(), "\0none", None
+    try:
+        _scope_dir = resolve_task_dir(getattr(args, "task", None))
+        _scope_task, _ = load_task(_scope_dir)
+        slug = os.path.basename(str(_scope_dir).rstrip("/"))
+        owned, artifact_dir = _land_scope(_scope_task, slug)
+    except (CompassError, OSError, KeyError):
+        pass
+
+    staged_now = _git(["diff", "--cached", "--name-only"], cwd).stdout.split()
+
+    # The scope check needs a declared scope. A task with no `changed_files`
+    # has not said what it owns, so there is nothing to check against and
+    # refusing would break every task that does not record them (ADR-006:
+    # a new mechanism no-ops for projects that have not adopted it). The
+    # re-stage below is still scoped in that case - it re-stages what was
+    # staged, never the whole tree.
+    stray = _out_of_scope(staged_now, owned, artifact_dir) if owned else []
+    if stray:
+        raise CompassError(
+            "compass land-commit: refusing to commit - "
+            f"{len(stray)} staged path(s) are outside task '{slug}'s declared "
+            "scope:\n  " + "\n  ".join(stray[:20])
+            + ("\n  ... and %d more" % (len(stray) - 20) if len(stray) > 20 else "")
+            + "\n\nA Land commit contains the task's `changed_files` and its "
+            f"artifact directory ({artifact_dir}). If these paths belong to "
+            "this task, record them first:\n"
+            "  compass changed-file add <path> --scenario <SCN-ID>\n"
+            "Otherwise unstage them (`git restore --staged <path>`) - they may "
+            "belong to another task or another agent working in this tree."
+        )
+
     head_before = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
+
+    def _restage_owned():
+        """Re-stage this task's paths after a hook rewrote them.
+
+        Never `git add -A`. The set is what was already staged for this land,
+        plus the task's declared files and its artifact directory - so a hook
+        that reformats fifty unrelated files cannot smuggle them into the
+        commit, and neither can another agent working in the same tree.
+        """
+        for path in sorted(set(staged_now) | set(files)):
+            _git(["add", "--", path], cwd)
+        for path in sorted(owned):
+            if os.path.exists(os.path.join(cwd, path)):
+                _git(["add", "--", path], cwd)
+        if os.path.isdir(os.path.join(cwd, artifact_dir)):
+            _git(["add", "--", artifact_dir], cwd)
 
     # (a) best-effort clean-first: only if the pre-commit framework is set up.
     if shutil.which("pre-commit") and os.path.isfile(
@@ -142,7 +220,7 @@ def cmd_land_commit(args):
         if names:
             subprocess.run(["pre-commit", "run", "--files", *names],
                            cwd=cwd, capture_output=True, text=True)
-            _git(["add", "-A"], cwd)  # re-stage anything the hooks rewrote
+            _restage_owned()  # re-stage what the hooks rewrote, scoped
 
     # First commit attempt.
     c1 = _git(["commit", "-m", msg], cwd)
@@ -151,8 +229,8 @@ def cmd_land_commit(args):
     retried = False
     if head_after == head_before:
         # (b) the commit no-op'd - a hook likely auto-fixed and aborted. Stage
-        # whatever it rewrote and retry exactly once.
-        _git(["add", "-A"], cwd)
+        # whatever it rewrote and retry exactly once, within the task's scope.
+        _restage_owned()
         retried = True
         if _git(["diff", "--cached", "--quiet"], cwd).returncode != 0:
             _git(["commit", "-m", msg], cwd)
