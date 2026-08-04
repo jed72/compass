@@ -3,5 +3,5 @@
   "private": true,
   "description": "Reference adapter: a Compass spec run by cucumber-js.",
   "scripts": { "test": "cucumber-js" },
-  "devDependencies": { "@cucumber/cucumber": "^11.0.0" }
+  "devDependencies": { "@cucumber/cucumber": "^13.2.1" }
 }
