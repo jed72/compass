@@ -379,8 +379,10 @@ def derive_system_spec(project_root: str) -> None:
     # character it exists to remove.
     # Normalise at the substitution site only. A follow-up global
     # `.replace("  -  ", " - ")` also rewrote titles that never contained an em
-    # dash, and turned an id like SCN\u2014001 into `SCN - 001`.
-    content = re.sub(r"\s*\u2014\s*", " - ", content)
+    # dash at all - that was the corruption, and it is what this replaces.
+    # [ \t] not \s: \s matches newlines, so an em dash at the end of a line
+    # swallowed the break and joined a heading to the bullet list after it.
+    content = re.sub(r"[ \t]*\u2014[ \t]*", " - ", content)
 
     # ---- 4. Write atomically -----------------------------------------------
     out_dir = os.path.join(project_root, "docs")

@@ -332,7 +332,7 @@ _SOME_COLLECTED = re.compile(
     r"\b([1-9]\d*)\s+(scenarios?|tests?)\b|collected ([1-9]\d*) item", re.I)
 
 
-def _probe_collected(out):
+def _probe_collected(out, runner=""):
     """Did the tag actually bind to at least one scenario?
 
     Exit code alone is not enough, and believing it was a real defect: pytest
@@ -345,6 +345,15 @@ def _probe_collected(out):
     require a positive count. Silence is treated as "not collected", because the
     failure that matters here is a false pass.
     """
+    # behave is a special case, and getting it wrong broke a correct project.
+    # Its --dry-run summary ALWAYS opens "0 features passed, 0 failed, ..."
+    # regardless of whether the tag matched, so the generic zero-match below
+    # reads every behave probe as unbound. What distinguishes the two is the
+    # `untested` count: a matched tag leaves scenarios untested (dry run), a
+    # non-matching one leaves them merely skipped.
+    if "behave" in (runner or "").lower():
+        m = re.search(r"(\d+)\s+untested", out)
+        return bool(m and int(m.group(1)) > 0)
     if _ZERO_COLLECTED.search(out):
         return False
     m = _SOME_COLLECTED.search(out)
@@ -420,7 +429,8 @@ def cmd_bdd_verify(args):
         for sid in scenario_ids:
             probe = list(command) + selector(sid)
             probe_code, probe_out, _ = _run_test(probe)
-            if probe_code == 0 and _probe_collected(probe_out):
+            if probe_code == 0 and _probe_collected(
+                    probe_out, proj.get("bdd_runner") or ""):
                 seen.append(sid)
     else:
         # Unknown runner: fall back to scraping, and say so in the record so a

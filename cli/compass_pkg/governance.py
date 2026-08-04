@@ -224,7 +224,11 @@ def governance_drift(project_gov, framework_gov=None):
     rp_project = loaded["routing-policy.yml"][0]
     waived_ids = {}
     for entry in _dig(rp_project, ("routing_guardrails", "waived")):
-        if not isinstance(entry, dict) or not entry.get("id"):
+        # isinstance str, not just truthiness: a list-valued id crashed here
+        # with `unhashable type` when used as a dict key below - the same class
+        # of crash the rule-id reader was already hardened against.
+        if not isinstance(entry, dict) or not isinstance(entry.get("id"), str) \
+                or not entry["id"]:
             report.waiver_errors.append(
                 "a `waived:` entry has no `id` - a waiver names the rule it waives")
             continue

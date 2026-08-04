@@ -79,6 +79,33 @@ def test_trc_b1_a_tag_that_binds_to_no_scenario_should_not_be_recorded_as_seen()
         assert _probe_collected(out) is True, f"{out!r} was not read as bound"
 
 
+def test_trc_b1b_the_probe_should_not_break_behave(tmp_path):
+    """behave's --dry-run ALWAYS opens "0 features passed, 0 failed" whether or
+    not the tag matched, so a generic zero-match reads every behave probe as
+    unbound - which broke a completely correct project.
+
+    This is a regression test for a fix that caused a regression. The generic
+    strings the other test feeds `_probe_collected` could never have caught it;
+    only real runner output does.
+    """
+    sys.path.insert(0, str(ROOT / "cli"))
+    try:
+        from compass_pkg.bdd import _probe_collected
+    finally:
+        sys.path.remove(str(ROOT / "cli"))
+
+    matched = ("0 features passed, 0 failed, 1 skipped\n"
+               "0 scenarios passed, 0 failed, 2 skipped, 1 untested\n")
+    unmatched = ("0 features passed, 0 failed, 1 skipped\n"
+                 "0 scenarios passed, 0 failed, 3 skipped\n")
+    assert _probe_collected(matched, "behave") is True, (
+        "behave reported an untested scenario - the tag bound - and the probe "
+        "read it as unbound")
+    assert _probe_collected(unmatched, "behave") is False, (
+        "behave reported nothing untested - the tag matched nothing - and the "
+        "probe read it as bound")
+
+
 def test_trc_b2_a_record_with_no_spec_hash_should_not_read_as_verified(tmp_path):
     proj = _proj(tmp_path, cfg="version: 1.0.0\nmode: enforced\n"
                                "project:\n  bdd_runner: pytest-bdd\n")
