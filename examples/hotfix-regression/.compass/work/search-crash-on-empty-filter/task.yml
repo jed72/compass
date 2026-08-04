@@ -11,6 +11,12 @@
 schema_version: "1.0"
 task: "search-crash-on-empty-filter"
 created: "2026-05-11"
+# The work this example depicts is complete - every gate passed and the
+# verification report is written - so its spine says so. A landed task's
+# record is history: `compass check` reports a trace whose file has since
+# moved, and does not re-fail it (ADR-006).
+status: landed
+land_timestamp: '2026-08-04T00:00:00Z'
 
 # --- the route -------------------------------------------------------------
 # JUDGEMENT: the Needle's Frame readings, written fast but real. Hotfix is

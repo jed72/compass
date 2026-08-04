@@ -385,6 +385,47 @@ def _check_suite_passed(task, task_dir):
     return True, f"{len(green)} test-run(s) on record, all green{bound}"
 
 
+def _git_out(args, cwd):
+    """Run a git command, returning stdout or "" - never raising."""
+    try:
+        r = subprocess.run(["git", *args], cwd=cwd, capture_output=True,
+                           text=True, timeout=10)
+        return r.stdout if r.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def _path_was_deleted(path, project_root):
+    """Did git record this path being deleted? Then its absence IS the change.
+
+    Removing dead code is legitimate work, and the file it removes is
+    legitimately absent afterwards. Only git can tell that apart from a record
+    that has rotted.
+    """
+    return bool(_git_out(["log", "--diff-filter=D", "--oneline", "-1", "--", path],
+                         project_root).strip())
+
+
+def _renamed_to(path, project_root):
+    """Where git thinks a vanished path moved to, or None.
+
+    A moved file is the common case and the fix is mechanical, so the error
+    hands over the new path rather than starting an investigation.
+
+    Rename records are read from history rather than with `--follow <path>`:
+    `--follow` on a path that no longer exists reports the move as a delete
+    plus an add, which is exactly the distinction being drawn here. The scan is
+    bounded to the most recent rename commits - this is a hint, not an audit.
+    """
+    out = _git_out(["log", "--diff-filter=R", "-M", "--name-status",
+                    "--format=", "-50"], project_root)
+    for line in out.splitlines():
+        parts = line.split("\t")
+        if len(parts) == 3 and parts[0].startswith("R") and parts[1] == path:
+            return parts[2]
+    return None
+
+
 def _check_changed_code_traces(task, task_dir):
     changed = task.get("changed_files") or []
     scn_ids = {s.get("id") for s in (task.get("scenarios") or [])}
@@ -402,7 +443,54 @@ def _check_changed_code_traces(task, task_dir):
                 problems.append(f"{path} -> unknown scenario(s) {', '.join(dangling)}")
     if problems:
         return False, "changed files not traced: " + "; ".join(problems)
-    return True, f"all {len(changed)} changed file(s) trace to a scenario"
+
+    # A trace to a file that is no longer there is not a trace. The mapping
+    # above can be perfect while every path points at nothing - which is how a
+    # task reached all-gates-green with half its recorded paths dead, moved by
+    # an ordinary refactor. A guard that cannot fail is not a guard.
+    #
+    # Scoped the same way as `declared-tests-resolve`, and for the same reasons:
+    #   * A landed task's spine is a historical record. Files move afterwards,
+    #     and re-validating history against a moving codebase produces failures
+    #     nobody can act on (ADR-006) - so it is reported, never failed.
+    #   * Before correctness is claimed the record is still being built.
+    project_root = os.path.dirname(find_compass_dir())
+    missing = []
+    for cf in changed:
+        path = cf.get("path")
+        if not path or os.path.exists(os.path.join(project_root, path)):
+            continue
+        # Rename first: `git log --diff-filter=D -- <path>` reports a rename as
+        # a deletion too, so asking "was it deleted?" first would silently
+        # excuse every moved file - the exact rot this check exists to catch.
+        moved_to = _renamed_to(path, project_root)
+        if moved_to:
+            missing.append(f"{path} (moved to {moved_to}?)")
+            continue
+        if _path_was_deleted(path, project_root):
+            continue          # the deletion WAS the change
+        missing.append(path)
+
+    landed = (task.get("status") or "active") != "active"
+    gates = {g.get("id"): g.get("status") for g in (task.get("gates") or [])}
+    claimed = gates.get("verify.correctness") == "pass"
+
+    if missing and not landed and claimed:
+        return False, (
+            f"{len(missing)} traced path(s) no longer exist: "
+            + "; ".join(missing)
+            + " - update changed_files to the current path, or remove the entry "
+              "if the file was deleted"
+        )
+    if missing:
+        why = "landed - historical record" if landed else "correctness not yet claimed"
+        return True, (
+            f"all {len(changed)} changed file(s) trace to a scenario, but "
+            f"{len(missing)} no longer exist ({'; '.join(missing)}) - reported "
+            f"only, because the task is {why}"
+        )
+    return True, (f"all {len(changed)} changed file(s) trace to a scenario "
+                  f"and are present on disk")
 
 
 def _check_scenario_has_id_and_intent(task, task_dir):

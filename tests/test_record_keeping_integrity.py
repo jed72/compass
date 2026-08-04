@@ -81,6 +81,12 @@ def _real_test_file(project, name="tests/test_real.py", func="test_present"):
     p = project / name
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(f"def {func}():\n    assert True\n")
+    # A task claiming correctness must also have the file it says it changed:
+    # `changed-code-traces-to-scenario` checks the path is still on disk, so a
+    # fixture that models a correct task needs its changed file to exist too.
+    changed = project / "src" / "x.py"
+    changed.parent.mkdir(parents=True, exist_ok=True)
+    changed.write_text("x = 1\n")
     return p
 
 

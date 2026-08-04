@@ -202,6 +202,11 @@ def test_check_passes_with_correct_evidence_type(run_cli, make_task, project):
     # fixture has to model a task that is genuinely in that state.
     (project / "tests").mkdir(parents=True, exist_ok=True)
     (project / "tests" / "test_x.py").write_text("def test_y():\n    assert True\n")
+    # Same reasoning for `changed-code-traces-to-scenario`: a task claiming
+    # correctness over a file that is not on disk is trace rot, so the fixture
+    # must have the file it says it changed.
+    (project / "src").mkdir(parents=True, exist_ok=True)
+    (project / "src" / "x.py").write_text("x = 1\n")
     r = run_cli("check", "--task", "right-type")
     assert r.returncode == 0, r
 

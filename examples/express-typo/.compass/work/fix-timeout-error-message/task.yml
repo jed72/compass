@@ -11,6 +11,12 @@
 schema_version: "1.0"
 task: "fix-timeout-error-message"
 created: "2026-05-04"
+# The work this example depicts is complete - every gate passed and the
+# verification report is written - so its spine says so. A landed task's
+# record is history: `compass check` reports a trace whose file has since
+# moved, and does not re-fail it (ADR-006).
+status: landed
+land_timestamp: '2026-08-04T00:00:00Z'
 
 # --- the route -------------------------------------------------------------
 # JUDGEMENT: the Needle read these during Frame. Small on every axis, on

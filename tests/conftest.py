@@ -94,6 +94,17 @@ def make_task(project: Path):
         path = task_dir / "task.yml"
         with path.open("w", encoding="utf-8") as fh:
             yaml.safe_dump(body, fh, sort_keys=False)
+        # Materialise the files the task says it changed. A task claiming
+        # correctness over a path that is not on disk is trace rot, which
+        # `changed-code-traces-to-scenario` now fails - so a fixture modelling a
+        # well-formed task needs the file to exist. Tests that deliberately
+        # model a missing path create their own task.yml or delete the file.
+        for cf in (body.get("changed_files") or []):
+            if isinstance(cf, dict) and cf.get("path"):
+                f = project / cf["path"]
+                if not f.exists():
+                    f.parent.mkdir(parents=True, exist_ok=True)
+                    f.write_text("# fixture file\n", encoding="utf-8")
         if set_current:
             (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
         return task_dir
