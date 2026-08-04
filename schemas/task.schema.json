@@ -469,6 +469,11 @@
           }
         }
       }
+    },
+    "repairs": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Hotfix routes only: the slug of the task this hotfix repairs. Read by `compass calibration --impact` to compute the change-fail signal. Optional - a hotfix that declares none is reported as a coverage gap rather than silently counted as zero."
     }
   }
 }

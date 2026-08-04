@@ -377,7 +377,10 @@ def derive_system_spec(project_root: str) -> None:
     # \u2014 is the em dash, written as an escape: this file is tracked, and
     # the style test would otherwise flag the normaliser for containing the
     # character it exists to remove.
-    content = content.replace("\u2014", " - ").replace("  -  ", " - ")
+    # Normalise at the substitution site only. A follow-up global
+    # `.replace("  -  ", " - ")` also rewrote titles that never contained an em
+    # dash, and turned an id like SCN\u2014001 into `SCN - 001`.
+    content = re.sub(r"\s*\u2014\s*", " - ", content)
 
     # ---- 4. Write atomically -----------------------------------------------
     out_dir = os.path.join(project_root, "docs")

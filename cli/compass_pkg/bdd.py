@@ -325,6 +325,32 @@ def _bdd_out_path(args, task_dir, slug):
     return os.path.join(task_dir, "spec.feature")
 
 
+_ZERO_COLLECTED = re.compile(
+    r"\b0\s+(scenarios?|tests?|features?|steps?)\b|no tests ran|"
+    r"collected 0 items|0 scenarios \(", re.I)
+_SOME_COLLECTED = re.compile(
+    r"\b([1-9]\d*)\s+(scenarios?|tests?)\b|collected ([1-9]\d*) item", re.I)
+
+
+def _probe_collected(out):
+    """Did the tag actually bind to at least one scenario?
+
+    Exit code alone is not enough, and believing it was a real defect: pytest
+    exits 5 on an empty collection, but **cucumber-js and behave exit 0** when a
+    tag filter matches nothing. A probe that trusted the exit code reported
+    every scenario as bound for two of the four shipped adapters - a check that
+    verified nothing while saying it had.
+
+    So read the count the runner prints. An explicit zero is decisive; otherwise
+    require a positive count. Silence is treated as "not collected", because the
+    failure that matters here is a false pass.
+    """
+    if _ZERO_COLLECTED.search(out):
+        return False
+    m = _SOME_COLLECTED.search(out)
+    return bool(m and any(g and int(g) > 0 for g in m.groups()))
+
+
 def _bdd_tag_selector(runner, command):
     """How to ask this runner to select one scenario tag, or None if unknown.
 
@@ -394,15 +420,16 @@ def cmd_bdd_verify(args):
         for sid in scenario_ids:
             probe = list(command) + selector(sid)
             probe_code, probe_out, _ = _run_test(probe)
-            # exit 5 is pytest's "nothing collected"; a non-empty collection
-            # with exit 0 means the tag bound to at least one test.
-            if probe_code == 0 and "no tests ran" not in probe_out.lower():
+            if probe_code == 0 and _probe_collected(probe_out):
                 seen.append(sid)
     else:
         # Unknown runner: fall back to scraping, and say so in the record so a
         # reader knows the result is weaker than a probe.
         method = "output-scrape"
-        seen = [s for s in scenario_ids if s in out]
+        # Word-boundary match: a bare `in` reports SCN-1 as seen when only
+        # SCN-10 was printed.
+        seen = [s for s in scenario_ids
+                if re.search(r"\b%s\b" % re.escape(s), out)]
     seen = sorted(set(seen))
 
     payload = {

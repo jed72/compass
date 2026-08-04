@@ -21,6 +21,7 @@ import re
 import shutil
 import tempfile
 
+import pytest
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -74,6 +75,8 @@ def _landed_slugs(work):
 def test_trc_a1_a_stale_derived_spec_should_fail_a_check():
     """Simulated by deriving into a sandbox and removing a task's scenarios
     from the committed copy - the comparison must notice."""
+    if not _archive_present():
+        pytest.skip("no task archive in this checkout - see _archive_present()")
     tmp = _sandbox()
     try:
         fresh = _derive_into(tmp)
@@ -87,9 +90,30 @@ def test_trc_a1_a_stale_derived_spec_should_fail_a_check():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def _archive_present():
+    """Is this checkout carrying the task archive the spec is derived FROM?
+
+    `.gitignore` root-anchors `/.compass/work/`, so a fresh clone - which is
+    exactly what CI checks out - has no archive. Deriving there produces an
+    empty spec that can never equal the committed one, and the comparison would
+    fail for a reason that has nothing to do with staleness.
+
+    The guard is therefore: compare only where the sources exist. This is a real
+    limit, not a dodge - it means the currency check runs for a developer and a
+    Land, and cannot run in CI. Stated here rather than hidden, because the
+    first version of this test failed every clean clone.
+    """
+    return WORK.is_dir() and any(
+        (p / "task.yml").is_file() for p in WORK.iterdir() if p.is_dir())
+
+
 def test_trc_a2_a_current_derived_spec_should_pass():
     """THE test. The committed file must equal a fresh derivation, and the
     derivation must be idempotent (ADR-008)."""
+    if not _archive_present():
+        pytest.skip("no .compass/work/ archive in this checkout (it is "
+                    "gitignored), so there is nothing to derive from and "
+                    "nothing to compare - see _archive_present()")
     tmp = _sandbox()
     try:
         first = _derive_into(tmp)

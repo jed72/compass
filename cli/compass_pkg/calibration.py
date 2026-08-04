@@ -485,10 +485,23 @@ def compute_impact(tasks):
             span_days = 0
 
     declared = [(s, d) for s, d in hotfixes if d.get("repairs")]
-    # None, never 0.0, when there is nothing to measure. This is the whole point.
+    delivery_slugs = {s for s, _ in delivery}
+
+    # Count DISTINCT delivery tasks that were repaired - not the number of
+    # hotfixes that named one. Three hotfixes against one task is one failed
+    # task, not three; the earlier formula reported 150%.
+    repaired = sorted({str(d["repairs"]) for _, d in declared
+                       if str(d["repairs"]) in delivery_slugs})
+    unknown_targets = sorted({str(d["repairs"]) for _, d in declared
+                              if str(d["repairs"]) not in delivery_slugs})
+
+    # None, never 0.0, whenever the number would be a lie. That is not only the
+    # "no hotfixes" case: hotfixes that declare no `repairs:` target produce a
+    # 0% that means "nobody said what they were fixing", which reads as perfect
+    # stability. Both are unmeasurable, and both must render as a sentence.
     rate = None
-    if hotfixes and delivery:
-        rate = 100.0 * len(declared) / len(delivery)
+    if declared and delivery:
+        rate = 100.0 * len(repaired) / len(delivery)
 
     restore = [x for x in (_impact_days(d.get("created"), d.get("land_timestamp"))
                            for _, d in hotfixes) if x is not None]
@@ -503,7 +516,8 @@ def compute_impact(tasks):
                            if span_days >= 7 else None),
         "hotfixes": len(hotfixes),
         "hotfixes_declared": len(declared),
-        "repaired": sorted(str(d.get("repairs")) for _, d in declared),
+        "repaired": repaired,
+        "unknown_targets": unknown_targets,
         "change_fail_rate": rate,
         "restore_median": _median(restore),
         "by_route": by_route,
@@ -527,11 +541,21 @@ def render_impact(r):
                % (r["lands_per_week"] if r["lands_per_week"] is not None
                   else "not computable (span under a week)", r["span_days"]))
 
-    if not r["hotfixes"]:
-        # NOT "0%". No hotfix on record means change-fail cannot be measured -
-        # printing a rate here would read as stability and mean silence.
-        out.append("  change-fail   no hotfixes recorded, so change-fail "
-                   "cannot be measured")
+    if r["change_fail_rate"] is None:
+        # NOT "0%". Gate on the RATE, not on hotfix presence: a project with
+        # hotfixes that declare no target is just as unmeasurable, and gating on
+        # presence crashed on a hotfix-only history.
+        if not r["hotfixes"]:
+            why = "no hotfixes recorded"
+        elif not r["hotfixes_declared"]:
+            why = ("%d hotfix(es) recorded, none declaring a `repairs:` target"
+                   % r["hotfixes"])
+        else:
+            why = "no delivery tasks to measure against"
+        out.append("  change-fail   %s, so change-fail cannot be measured" % why)
+        if r["hotfixes"]:
+            out.append("                restore time  median %s day(s) across "
+                       "%d hotfix(es)" % (r["restore_median"], r["hotfixes"]))
     else:
         cov = ("%d of %d hotfix(es) declared a `repairs:` target"
                % (r["hotfixes_declared"], r["hotfixes"]))
@@ -539,6 +563,11 @@ def render_impact(r):
                    "(%s)" % (r["change_fail_rate"], cov))
         if r["repaired"]:
             out.append("                repaired: %s" % ", ".join(r["repaired"]))
+        if r["unknown_targets"]:
+            out.append("                %d `repairs:` target(s) name no landed "
+                       "delivery task and were not counted: %s"
+                       % (len(r["unknown_targets"]),
+                          ", ".join(r["unknown_targets"])))
         out.append("  restore time  median %s day(s) across %d hotfix(es)"
                    % (r["restore_median"], r["hotfixes"]))
 
