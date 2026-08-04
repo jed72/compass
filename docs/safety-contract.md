@@ -69,6 +69,29 @@ Equally important. Honest scope is what makes the promise credible.
   governs how human-and-AI teams shape work; it does not police what AI
   agents do outside its pipeline.
 
+- **Red-before-green enforcement on shell commands is best-effort.**
+  `hooks/pre-tool.sh` intercepts the file-editing tools completely: an `Edit`,
+  `Write`, or `MultiEdit` of a production file cannot proceed without a
+  recorded red. A shell command is a different problem, because what it writes
+  is generally not knowable from the command string - `bash deploy.sh` may
+  rewrite the whole repository and say nothing about it. The hook therefore
+  recognises a fixed set of write shapes and lets everything else through:
+
+  - `>` and `>>` redirects, including the `cat > file <<EOF` heredoc form
+  - `sed -i`, `perl -i`
+  - `tee`, and the destination argument of `cp` and `mv`
+  - `patch -p<n>` and `git apply` (treated as writers with unknowable targets)
+  - an inline interpreter script - `python3 -c`, a `python3 - <<PY` heredoc,
+    `node -e` - that opens a file for writing
+
+  Anything else runs unchecked. A command that writes through a script, a
+  build step, or an interpreter reached via a wrapper is not detected. This
+  fails open on purpose: blocking every unrecognised command would block
+  `make`, `npm test`, and `git commit`, and an enforcement that teams switch
+  off is worth less than a partial one they keep. If red-before-green matters
+  absolutely for your project, the file-editing tools are where the guarantee
+  is complete.
+
 - **Compass is not a universal process framework.** The methodology layer is
   general; the kit is concrete. Teams adopt and tune both. There is no claim
   it fits every team or every project unchanged.
