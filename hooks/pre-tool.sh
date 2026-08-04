@@ -80,72 +80,184 @@ INPUT="$(cat || true)"
 if command -v jq >/dev/null 2>&1; then
   TARGET="$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null || true)"
   TOOL="$(printf '%s' "$INPUT" | jq -r '.tool_name // empty' 2>/dev/null || true)"
+  COMMAND="$(printf '%s' "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null || true)"
 else
   TARGET="$(printf '%s' "$INPUT" | grep -oE '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)"
   TOOL="$(printf '%s' "$INPUT" | grep -oE '"tool_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)"
+  COMMAND="$(printf '%s' "$INPUT" | grep -oE '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)"
 fi
-
-# No file path → nothing to enforce (e.g. a non-file tool). Allow.
-[ -z "${TARGET:-}" ] && exit 0
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 
-# --- classify the target file -----------------------------------------------
+# --- classify a target file -------------------------------------------------
 # A "code file" here means: a production-impacting file whose change must be
 # preceded by a failing test. That is broader than application source - a
 # Terraform file, a SQL migration, a Kubernetes manifest, or a CI workflow can
 # be more dangerous than ordinary code. Test files, docs, and Compass's own
 # artifacts are exempt.
+#
+# This is a function rather than a straight-line sequence because a single
+# tool call can name more than one path: a Bash command may redirect into one
+# file and copy over another. Both branches share this one implementation so
+# the rules cannot drift apart - a path exempt for an Edit is exempt for a
+# shell redirect, by construction.
+#
+# Returns 0 (true) if a change to $1 must be preceded by a failing test.
+is_enforced_path() {
+  local target="$1" rel base is_code=0
 
-# Always exempt: Compass artifacts, docs, lockfiles, the obvious non-code.
-case "$TARGET" in
-  *.compass/*|*/.compass/*) exit 0 ;;
-  *.md|*.markdown|*.txt|*.rst|*.adoc) exit 0 ;;
-  *.lock|*.gitignore|*.gitkeep|*.gitattributes|*.editorconfig) exit 0 ;;
-esac
+  # Always exempt: Compass artifacts, docs, lockfiles, the obvious non-code.
+  case "$target" in
+    *.compass/*|*/.compass/*) return 1 ;;
+    *.md|*.markdown|*.txt|*.rst|*.adoc) return 1 ;;
+    *.lock|*.gitignore|*.gitkeep|*.gitattributes|*.editorconfig) return 1 ;;
+  esac
 
-# Exempt: test files - you have to be able to write the red. Tune these globs
-# to the project's test conventions.
-case "$TARGET" in
-  *test*|*Test*|*spec*|*Spec*|*__tests__*|*.test.*|*.spec.*|*_test.*|*/tests/*) exit 0 ;;
-esac
+  # Exempt: test files - you have to be able to write the red. Tune these globs
+  # to the project's test conventions.
+  #
+  # Matched against the BASENAME and the project-relative path, never the
+  # absolute one. Matching `*test*` against an absolute path also matches every
+  # ancestor directory, so a repository living under any path containing "test"
+  # or "spec" - /Users/testuser/..., .../latest/... - had red-before-green
+  # silently disabled for the entire tree. Enforcement that turns itself off
+  # based on where you cloned the repo is worse than no enforcement, because it
+  # still reports that it is on.
+  rel="$target"
+  case "$target" in
+    "$PROJECT_DIR"/*) rel="${target#"$PROJECT_DIR"/}" ;;
+  esac
+  base="$(basename "$target")"
+  case "$base" in
+    *test*|*Test*|*spec*|*Spec*|*.test.*|*.spec.*|*_test.*) return 1 ;;
+  esac
+  case "$rel" in
+    tests/*|*/tests/*|test/*|*/test/*|spec/*|*/spec/*|\
+    __tests__/*|*/__tests__/*|testdata/*|*/testdata/*) return 1 ;;
+  esac
 
-IS_CODE=0
+  # (a) recognised application source extensions.
+  case "$target" in
+    *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs) is_code=1 ;;
+    *.py|*.rb|*.go|*.rs|*.java|*.kt|*.kts) is_code=1 ;;
+    *.c|*.h|*.cc|*.cpp|*.hpp|*.cs|*.swift|*.m|*.mm) is_code=1 ;;
+    *.php|*.scala|*.ex|*.exs|*.clj|*.elm|*.dart) is_code=1 ;;
+  esac
 
-# (a) recognised application source extensions.
-case "$TARGET" in
-  *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs) IS_CODE=1 ;;
-  *.py|*.rb|*.go|*.rs|*.java|*.kt|*.kts) IS_CODE=1 ;;
-  *.c|*.h|*.cc|*.cpp|*.hpp|*.cs|*.swift|*.m|*.mm) IS_CODE=1 ;;
-  *.php|*.scala|*.ex|*.exs|*.clj|*.elm|*.dart) IS_CODE=1 ;;
-esac
+  # (b) infrastructure / data / pipeline files - production-impacting even though
+  #     they are not "application code". A SQL migration or a Terraform plan
+  #     deserves a failing test (or a tested rollback) as much as a service does.
+  case "$target" in
+    *.tf|*.tfvars|*.hcl) is_code=1 ;;                       # Terraform / HCL
+    *.sql) is_code=1 ;;                                     # SQL incl. migrations
+    Dockerfile|*/Dockerfile|*.dockerfile) is_code=1 ;;      # container images
+  esac
 
-# (b) infrastructure / data / pipeline files - production-impacting even though
-#     they are not "application code". A SQL migration or a Terraform plan
-#     deserves a failing test (or a tested rollback) as much as a service does.
-case "$TARGET" in
-  *.tf|*.tfvars|*.hcl) IS_CODE=1 ;;                       # Terraform / HCL
-  *.sql) IS_CODE=1 ;;                                     # SQL incl. migrations
-  Dockerfile|*/Dockerfile|*.dockerfile) IS_CODE=1 ;;      # container images
-esac
+  # (c) path-scoped: YAML/JSON are exempt by default (config, data) - EXCEPT
+  #     under infrastructure-ish paths, where a yaml IS the production change
+  #     (k8s manifests, Helm charts, CI workflows, migrations, dbt models).
+  #     Note: in a `case` glob, `*` also matches `/`, so `*migrations/*` catches
+  #     both `migrations/x` and `db/migrations/x` - leading `*` with no slash.
+  case "$target" in
+    *migrations/*|*db/migrate/*) is_code=1 ;;
+    *.github/workflows/*|*.gitlab-ci.yml) is_code=1 ;;
+    *k8s/*|*kubernetes/*|*helm/*|*charts/*|*manifests/*|*deploy/*) is_code=1 ;;
+    *terraform/*|*infra/*|*infrastructure/*) is_code=1 ;;
+    *dbt/*|*models/*.sql) is_code=1 ;;
+  esac
 
-# (c) path-scoped: YAML/JSON are exempt by default (config, data) - EXCEPT
-#     under infrastructure-ish paths, where a yaml IS the production change
-#     (k8s manifests, Helm charts, CI workflows, migrations, dbt models).
-#     Note: in a `case` glob, `*` also matches `/`, so `*migrations/*` catches
-#     both `migrations/x` and `db/migrations/x` - leading `*` with no slash.
-case "$TARGET" in
-  *migrations/*|*db/migrate/*) IS_CODE=1 ;;
-  *.github/workflows/*|*.gitlab-ci.yml) IS_CODE=1 ;;
-  *k8s/*|*kubernetes/*|*helm/*|*charts/*|*manifests/*|*deploy/*) IS_CODE=1 ;;
-  *terraform/*|*infra/*|*infrastructure/*) IS_CODE=1 ;;
-  *dbt/*|*models/*.sql) IS_CODE=1 ;;
-esac
+  # Anything still unrecognised is allowed - the enforcer blocks KNOWN
+  # production-impacting files; it does not block the unknown. If a project has
+  # a production-impacting file type that slips through, add it above.
+  [ "$is_code" -eq 1 ]
+}
 
-# Anything still unrecognised is allowed - the enforcer blocks KNOWN
-# production-impacting files; it does not block the unknown. If a project has
-# a production-impacting file type that slips through, add it above.
-[ "$IS_CODE" -eq 0 ] && exit 0
+# --- what a shell command can be known to write ------------------------------
+# A shell command is arbitrary: `bash deploy.sh` may rewrite the whole repo and
+# nothing in the string says so. So detection here recognises a fixed set of
+# write shapes and lets everything else through. That is deliberate - blocking
+# on suspicion would block `make`, `npm test`, and every unrecognised command,
+# and enforcement that people switch off protects nothing. The limit is written
+# down in docs/safety-contract.md rather than left to be discovered.
+#
+# Being generous is safe: every candidate goes through is_enforced_path(),
+# which allows anything it does not recognise as production code. A token that
+# is not a path simply falls through.
+bash_write_targets() {
+  local cmd="$1"
+  {
+    # Redirects into a file: `> f`, `>> f`, `1> f`, and the `cat > f <<EOF`
+    # heredoc form. `2>&1` and `>&2` duplicate a file descriptor rather than
+    # write a file, so `&` is excluded from the target.
+    printf '%s\n' "$cmd" \
+      | grep -oE '[0-9]?>>?[[:space:]]*[^&<>|;()[:space:]]+' \
+      | sed -E 's/^[0-9]?>>?[[:space:]]*//' || true
+
+    # In-place editors and explicit writers: hand over every argument and let
+    # the classifier decide which of them is a production file.
+    case "$cmd" in
+      *"sed -i"*|*"perl -i"*|*"tee "*)
+        printf '%s\n' "$cmd" | tr ' \t' '\n\n' | grep -vE '^-' || true ;;
+    esac
+
+    # Copy and move write to their LAST argument. Only the destination counts -
+    # reading a source file is not a change to it.
+    case "$cmd" in
+      cp\ *|mv\ *|*[\;\&\|]\ *cp\ *|*[\;\&\|]\ *mv\ *)
+        printf '%s\n' "$cmd" | awk '{print $NF}' || true ;;
+    esac
+
+    # An inline interpreter script that opens a file for writing - the shape
+    # this whole branch exists for, since `python3 -c` and a `python3 - <<PY`
+    # heredoc are the easiest way to edit a file without an Edit tool call.
+    case "$cmd" in
+      *open\(*|*write_text*|*writeFileSync*|*File.write*|*.write\(*)
+        printf '%s\n' "$cmd" | grep -oE '[A-Za-z0-9_./-]+\.[A-Za-z0-9]+' || true ;;
+    esac
+  } | grep -vE '^[[:space:]]*$' || true
+}
+
+# --- decide whether this tool call needs a red on record ---------------------
+if [ "${TOOL:-}" = "Bash" ]; then
+  [ -z "${COMMAND:-}" ] && exit 0
+
+  # Cheap pre-filter, before any filesystem work: this hook now runs on every
+  # Bash call in the session, and most of them write nothing.
+  case "$COMMAND" in
+    *">"*|*"sed -i"*|*"perl -i"*|*"tee "*|*cp\ *|*mv\ *|\
+    *patch\ -p*|*"git apply"*|*open\(*|*write_text*|*writeFileSync*|*File.write*) ;;
+    *) exit 0 ;;
+  esac
+
+  DETECTED=""
+
+  # `patch` and `git apply` name their targets inside the diff, not on the
+  # command line. They are known writers with an unknowable target, so they are
+  # treated as enforced - the escape is the same as any other: record the red.
+  case "$COMMAND" in
+    *patch\ -p*|*"git apply"*) DETECTED="(the files named in the patch)" ;;
+  esac
+
+  if [ -z "$DETECTED" ]; then
+    while IFS= read -r candidate; do
+      [ -z "$candidate" ] && continue
+      if is_enforced_path "$candidate"; then
+        DETECTED="$candidate"
+        break
+      fi
+    done <<CANDIDATES
+$(bash_write_targets "$COMMAND")
+CANDIDATES
+  fi
+
+  # Nothing recognisable is written → allow. See docs/safety-contract.md.
+  [ -z "$DETECTED" ] && exit 0
+  TARGET="$DETECTED"
+else
+  # No file path → nothing to enforce (e.g. a non-file tool). Allow.
+  [ -z "${TARGET:-}" ] && exit 0
+  is_enforced_path "$TARGET" || exit 0
+fi
 
 # --- find the current task --------------------------------------------------
 # The current task is named by the .compass/current-task pointer (written by

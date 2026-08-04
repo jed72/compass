@@ -137,12 +137,19 @@ capability, not a role: it advises, it never gates, and it never sets task state
   `navigator` agent.
 - During **Specify/Clarify**, load `bdd-specification`; on brownfield terrain
   also load `blueprint-distillation`. The `spec-author` agent owns this.
-- During **Plan**, load `governance-check`; the `planner` agent owns this.
+- During **Plan**, load `plan-authoring` (how to write the plan - which of the
+  five optional sections earn a place, and how they scale by route) and
+  `governance-check` (how to check the finished plan against `governance/`).
+  The `planner` agent owns this.
 - During **Distribute/Build** on a swarm route, load `worktree-swarm`. The
   `orchestrator` agent coordinates; `builder` agents do the work, one per
   worktree. Each builder loads `tdd-discipline`.
 - During **Verify**, the `verifier` and `reviewer` agents run; load
-  `evidence-gates`.
+  `evidence-gates`. Load `receiving-code-review` when answering
+  their comments.
+- On an **unexpected test failure** at any point in Build, load
+  `systematic-debugging` - and after three failed fixes, re-frame rather
+  than attempt a fourth.
 - For any role-facing work, load `role-translation` - it is how one spec is read
   through five lenses. The `product-lens` and `marketing-lens` agents apply
   specific role perspectives.

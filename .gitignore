@@ -52,3 +52,10 @@ node_modules/
 # Local editor/tool MCP server config. Points at a port on one developer's
 # machine, so it is never shareable.
 /.mcp.json
+
+# BDD reference adapters install their own dependencies; an adopter runs the
+# README's setup step, and CI does the same. Committing them would make the
+# examples heavier than the framework.
+examples/bdd-adapters/*/node_modules/
+examples/bdd-adapters/*/features/*.feature
+examples/bdd-adapters/*/.compass/work/*/spec.feature

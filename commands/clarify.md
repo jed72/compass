@@ -29,6 +29,35 @@ On Standard, Clarify is a light-to-full pass - light, never absent. On
 Expedition it is a full pass with an explicit ambiguity ledger and
 non-engineering role review.
 
+## What Specify already did - and what is left for you
+
+The spec-author ran a four-scan self-review inline at the end of Specify,
+before handing the spec over: a **placeholder** scan, an **orphan**-intent
+scan, an **untestable**-`Then` scan, and an **ambiguous**-quantifier scan.
+Those findings were fixed in place by whoever made them. It runs on every
+route, including Express.
+
+**Clarify does not repeat them.** Re-running four mechanical scans over a file
+someone has just scanned spends a phase to find nothing. If you do hit one
+still outstanding, that means the self-review was skipped - say so, then fix
+it; do not quietly absorb it as your own work.
+
+What is left for you is everything the author could not settle alone:
+
+- **Contradictions** between scenarios that cannot both hold.
+- **Gaps** across the whole set - a stated outcome, or a `brief.md` success
+  signal, with no scenario.
+- **Governance conflicts** - a scenario that crosses a guardrail, or departs
+  from an applicable strategy with no recorded reason.
+- **Ambiguities that need a decision** rather than a correction, each recorded
+  in `clarifications.md` with its resolution and who made it.
+
+The dividing line is who can close the finding. An unfilled placeholder has one
+correct answer and the author already knows it. "Which of these two scenarios
+is wrong?" does not, and that is what a phase with a reviewer in it is for. The
+same split is written from the other side in
+`skills/bdd-specification/SKILL.md`.
+
 ## Setup
 
 - Load `bdd-specification`; the `spec-author` agent owns this continuation.

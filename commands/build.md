@@ -74,6 +74,18 @@ Spike: the only exit that keeps code is *graduating* (re-framing into a real
 route), where G1 - tested before it lands - applies in full. See
 `routes/spike.md`.
 
+## When the failure is unexpected
+
+Load the `systematic-debugging` skill. It is four phases - instrument at the
+boundaries, compare against a working case, test one hypothesis at a time, fix
+through a failing test - and one escape clause that matters here more than the
+phases do:
+
+**After three consecutive fixes that did not hold, stop.** Three failures in a
+row means the model you are debugging against does not match the system, and a
+fourth guess damages code that was not broken. That is a routing signal - see
+the re-frame trigger below.
+
 ## Re-frame trigger
 
 If Build reveals the terrain was misread - a "small" change unspooling into a

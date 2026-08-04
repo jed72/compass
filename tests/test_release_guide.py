@@ -178,7 +178,7 @@ def test_release_script_packages_on_this_platform(tmp_path):
         f'set -eu\n'
         f'. "{script}" --source-only\n'
         f'cd "{src}"\n'
-        f'tar -czf "{out}" $(tar_prefix_flags "1.7.0") .\n'
+        f'tar -czf "{out}" $(tar_prefix_flags "1.8.0") .\n'
     )
     r = subprocess.run(["bash", "-c", driver], capture_output=True, text=True)
     assert r.returncode == 0, f"packaging failed:\n{r.stdout}\n{r.stderr}"
@@ -188,7 +188,7 @@ def test_release_script_packages_on_this_platform(tmp_path):
     entries = [e for e in listing.splitlines() if e.strip() not in ("./", ".")]
     assert entries, "the tarball is empty"
 
-    prefix = "compass-1.7.0/"
+    prefix = "compass-1.8.0/"
     unprefixed = [e for e in entries if not e.startswith(prefix)]
     assert not unprefixed, (
         f"entries not prefixed with {prefix!r}: {unprefixed}")

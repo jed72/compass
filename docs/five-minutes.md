@@ -74,18 +74,17 @@ fix the string. Here is the whole walk.
 ```
 
 The Needle reads the four dimensions - magnitude `atomic`, blast radius
-`trivial`, terrain `brownfield-mapped`, intent `engineering` - and records
+`trivial`, terrain `brownfield-mapped`, intent `delivery` - and records
 them in `.compass/work/fix-jwt-typo/task.yml`:
 
 ```yaml
-schema_version: "1.0"
-slug: fix-jwt-typo
-title: fix typo in the JWT refresh error message
+schema_version: "1.1"
+task: fix-jwt-typo
 readings:
   blast_radius: trivial
   terrain: brownfield-mapped
   magnitude: atomic
-  intent: engineering
+  intent: delivery
   role: engineer
 ```
 
@@ -94,13 +93,14 @@ Then the mechanism takes over. `/compass:frame` shells out to
 routing guardrails, and folds the result back into `task.yml`:
 
 ```
+  policy          : governance/routing-policy.yml (v1.3.0)
   readings        : {"blast_radius": "trivial", "terrain": "brownfield-mapped", ...}
-  candidate route : express
+  candidate route : express  <- RS-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL ROUTE     : express
   routing guardrails fired: none
   topology        : solo
   per-phase weight:
-    frame      : light
+    frame      : full
     specify    : light
     clarify    : collapsed
     plan       : collapsed
@@ -108,8 +108,10 @@ routing guardrails, and folds the result back into `task.yml`:
     build      : full
     verify     : light
     land       : light
-  gate set        : verify.correctness
+  gate set        : verify.correctness, verify.governance, verify.traceability
 ```
+
+Frame is `full` on every route - it is the one phase that never collapses.
 
 `.compass/current-task` now points at `fix-jwt-typo`. `route.md` records
 the readings, the route, and the de-scope reasons.
@@ -168,30 +170,49 @@ $ compass tdd-green --scenario SCN-001 -- pytest tests/auth/test_jwt_refresh.py:
 The verifier runs the scenario as the acceptance test, runs the full
 suite, and then calls the kit:
 
+This is the real output, from the shipped `examples/express-typo/` task -
+run `compass check` in that directory to reproduce it verbatim:
+
 ```
 $ compass check
-compass check - task 'fix-jwt-typo' (route: express)
+compass check - task 'fix-timeout-error-message' (route: express)
 [mode: enforced]
 
   G1 Tested before it lands
-    PASS suite-passed: 1 test-run(s) on record, all green, bound to scenarios ['SCN-001']
-  G2 Acceptance defined before it is built
     PASS scenarios-have-tests: all 1 scenario(s) list a test
+    PASS declared-tests-resolve: all 1 declared test id(s) resolve
+    PASS suite-passed: 1 test-run(s) on record, all green, bound to scenarios ['SCN-001']
+    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario
+    PASS scenarios-are-executable: no BDD runner wired (project.bdd_runner is unset) - nothing to verify; see examples/bdd-adapters/ to opt in
+
+  G2 Acceptance defined before it is built
     PASS scenario-has-id-and-intent: all 1 scenario(s) have an id and a linked intent
+
   G3 Traceability holds
     PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario
+    PASS scenario-has-id-and-intent: all 1 scenario(s) have an id and a linked intent
     PASS claim-traces-to-scenario: no claims recorded (no marketer in play, or none yet)
-  G4 Evidence, not assertion
-    PASS gate-evidence-present: 1/1 pass gate(s), all backed by registry evidence
-  G5 A human signs off on the irreversible
-    G5 ... not applicable for these readings - skipped
 
-compass check: PASS - all 6 check(s) passed.
+  G4 Evidence, not assertion
+    PASS gate-evidence-present: 3/3 pass gate(s), all backed by registry evidence of accepted type
+    PASS dod-evidence-typed: DoD section is empty or absent - nothing to evidence
+    PASS coherence-check-passes: verify.analyze not in gate set - coherence check not required
+    PASS no-trusted-rerun: no trusted-rerun violations
+    PASS command-passes: verify.fitness: 0 project guardrails declared with command-passes; clearing by vacuity (no fitness functions to check - declare project guardrails with `check: command-passes` to add fitness functions)
+
+  G5 A human signs off on the irreversible: not applicable for these readings - skipped
+  owed backfills
+    PASS backfills-paid: no owed backfills
+
+------------------------------------------------------------
+compass check: PASS - all 15 check(s) passed.
 ```
 
-The `verify.correctness` gate's status flips to `pass` with the
-`test-run` evidence id referenced. The verifier writes
-`verification-report.md`, the DoD checklist at the foot is ticked.
+Several checks appear under more than one guardrail - one check can serve
+two guardrails, and the count is of check *runs*, not distinct checks.
+Each of the three gates flips to `pass` with its evidence id referenced.
+The verifier writes `verification-report.md`, and the DoD checklist at the
+foot is ticked.
 
 ### Land
 
@@ -227,11 +248,16 @@ the artifacts alone.
   the exit code." Compass CI does not replace your project CI; they run
   alongside each other.
 
-The CLI surface, for reference:
+The CLI surface, for reference. `compass` is the executable at `cli/compass`
+in the Compass checkout - the examples below write it bare, which assumes
+you have put that directory on your `PATH`. Otherwise call it by path
+(`/path/to/compass/cli/compass check`); the slash commands resolve it for
+themselves either way.
 
 ```
 compass route evaluate   apply routing-policy.yml to a task's readings -> the route
 compass check            run the guardrails.yml checks against task.yml + evidence/
+compass bdd extract     extract a task's spec.feature.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML

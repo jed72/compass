@@ -201,6 +201,46 @@ for i in "${!STREAMS[@]}"; do
     fi
     echo "  $sid: created worktree $wt_path on branch $branch"
   fi
+
+  # --- seed the worktree with the task's artifacts --------------------------
+  # `git worktree add` brings across only what git TRACKS. A project that
+  # commits .compass/work/ gets the task directory for free; one that treats
+  # task state as local - as this framework repo does, see .gitignore - does
+  # not, and its builder lands in a worktree with no spec, no plan, and no
+  # charter. `compass next`, `compass check`, and `compass tdd-red` all fail
+  # there, because resolve_task_dir has no work directory to resolve against.
+  #
+  # NON-DESTRUCTIVE ON PURPOSE. swarm.sh is documented as idempotent, and the
+  # second run is the one where a builder has work to lose - a devlog entry, a
+  # recorded red. An existing task directory is left exactly as it is.
+  if [ "$DRY_RUN" -eq 0 ] && [ -d "$wt_path" ]; then
+    wt_task_dir="$wt_path/.compass/work/$TASK_SLUG"
+    if [ -d "$wt_task_dir" ]; then
+      echo "      task dir already present - left as-is"
+    else
+      mkdir -p "$wt_task_dir"
+      # Copy the ARTIFACTS a builder needs to work - and nothing that would
+      # hand them credit they did not earn. `.red` is the marker
+      # hooks/pre-tool.sh reads to permit a production-code edit, and it means
+      # "a real failure was observed HERE". Copying it lets a builder edit
+      # production code on a red someone else recorded in another worktree.
+      # `evidence/` is the same argument: a green run belongs to the run that
+      # produced it.
+      for _f in "$TASK_DIR"/*; do
+        case "$(basename "$_f")" in
+          evidence) continue ;;
+          *) cp -R "$_f" "$wt_task_dir/" ;;
+        esac
+      done
+      echo "      seeded task dir -> .compass/work/$TASK_SLUG"
+    fi
+    # The pointer every `compass` call resolves "the current task" through.
+    # Written unconditionally: it is one line naming this task, so there is no
+    # builder work in it to lose, and a stale pointer is worse than none.
+    mkdir -p "$wt_path/.compass"
+    printf '%s\n' "$TASK_SLUG" > "$wt_path/.compass/current-task"
+  fi
+
   LAUNCH_PLAN+=("$sid|$branch|$wt_path")
 done
 

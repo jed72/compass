@@ -136,8 +136,21 @@ say ""
 
 # --- 6. scripts and hooks referenced exist and are executable ---------------
 say "6. Script and hook references"
-REFS="$(grep -rohE '(scripts|hooks)/[a-z-]+\.sh' . \
-        --include='*.md' --include='*.json' 2>/dev/null | sort -u || true)"
+# Scan only files git tracks. A bare recursive grep also walks untracked and
+# ignored trees - and the cucumber-js reference adapter's node_modules/ is full
+# of package.json files naming scripts that are not ours, which failed this
+# check (and therefore `make release`) for anyone who ran `npm install` in that
+# example. Fall back to the recursive form outside a git checkout, e.g. inside
+# an unpacked release tarball.
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  REFS="$(git ls-files -z -- '*.md' '*.json' 2>/dev/null \
+          | xargs -0 grep -ohE '(scripts|hooks)/[a-z-]+\.sh' 2>/dev/null \
+          | sort -u || true)"
+else
+  REFS="$(grep -rohE '(scripts|hooks)/[a-z-]+\.sh' . \
+          --include='*.md' --include='*.json' \
+          --exclude-dir=node_modules 2>/dev/null | sort -u || true)"
+fi
 for ref in $REFS; do
   if [ -f "$ref" ]; then
     if [ -x "$ref" ]; then ok "exec $ref  <- referenced, exists, executable"

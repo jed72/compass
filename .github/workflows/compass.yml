@@ -58,3 +58,130 @@ jobs:
         env:
           PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
         run: python3 -m pytest tests/ -q
+
+  # ---------------------------------------------------------------------------
+  # The BDD reference adapter, in its own job and its own environment.
+  #
+  # pytest-bdd is a pytest PLUGIN, and the self-check job above deliberately
+  # runs with PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 - third-party plugins sometimes
+  # hang on init in a clean environment. Under that setting pytest-bdd never
+  # loads, so the adapter test would skip, forever, and a permanently-skipped
+  # test is a green tick over an assertion nobody ran.
+  #
+  # So the adapter gets a job where autoload is ON and pytest-bdd is installed,
+  # while the main suite keeps its three dependencies and its autoload-off
+  # setting. Both properties are asserted by tests/test_bdd_adapter_reference.py.
+  # ---------------------------------------------------------------------------
+  bdd-adapter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.11"
+
+      - name: Install the CLI's dependencies and the BDD runner
+        run: pip install pyyaml pytest pytest-bdd
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/pytest-bdd
+        run: python3 ../../../cli/compass bdd extract --task reset-password
+
+      - name: Run the extracted scenarios
+        # No PYTEST_DISABLE_PLUGIN_AUTOLOAD here, on purpose: pytest-bdd must
+        # load for the scenarios to be collected at all.
+        working-directory: examples/bdd-adapters/pytest-bdd
+        run: python3 -m pytest tests/ -v
+
+      - name: Prove the adapter ran rather than skipped
+        # Belt and braces: if pytest-bdd ever fails to load, collection returns
+        # zero scenarios and pytest exits 5. Catch that here rather than
+        # reading a green tick that means nothing.
+        working-directory: examples/bdd-adapters/pytest-bdd
+        run: |
+          python3 -m pytest tests/ -q --collect-only > /tmp/collected.txt
+          grep -q "test_" /tmp/collected.txt || {
+            echo "No scenarios were collected - pytest-bdd did not load."; exit 1; }
+
+  # An example no job runs is an example nobody can trust. Every directory under
+  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  bdd-adapter-behave:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
+      - name: Install the CLI's dependency and the runner
+        run: pip install pyyaml behave
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/behave
+        run: python3 ../../../cli/compass bdd extract --task reset-password --out features/reset-password.feature
+
+      - name: Run the extracted scenarios
+        working-directory: examples/bdd-adapters/behave
+        run: behave features/
+
+  # An example no job runs is an example nobody can trust. Every directory under
+  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  bdd-adapter-cucumber-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
+      - name: Install the CLI's dependency and the runner
+        run: pip install pyyaml
+
+      - name: Install the runner
+        working-directory: examples/bdd-adapters/cucumber-js
+        run: npm install --no-audit --no-fund
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/cucumber-js
+        run: python3 ../../../cli/compass bdd extract --task reset-password --out features/reset-password.feature
+
+      - name: Run the extracted scenarios
+        working-directory: examples/bdd-adapters/cucumber-js
+        run: npx cucumber-js
+
+  # An example no job runs is an example nobody can trust. Every directory under
+  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  bdd-adapter-godog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed # v5.1.0
+        with:
+          go-version: '1.22'
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+
+      - name: Install the CLI's dependency and the runner
+        run: pip install pyyaml
+
+      - name: Install the runner
+        working-directory: examples/bdd-adapters/godog
+        run: go mod download
+
+      - name: Extract the spec into a runnable feature file
+        working-directory: examples/bdd-adapters/godog
+        run: python3 ../../../cli/compass bdd extract --task reset-password --out features/reset-password.feature
+
+      - name: Run the extracted scenarios
+        working-directory: examples/bdd-adapters/godog
+        run: go test ./...

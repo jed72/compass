@@ -61,6 +61,21 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 ## 3. Routing guardrails that fired
 
+### 3a. Policy provenance
+
+<!-- WHICH POLICY produced this route. `compass route evaluate` prints both
+     lines below - copy them here. Without this, a reader months later cannot
+     tell a genuinely light route from one computed against stale governance,
+     and the audit trail is honest about what happened while blind to what
+     should have. If the CLI reported drift, record it: a route computed
+     against a policy missing framework rules is a route missing gates. -->
+
+- Policy file: {{path to the routing-policy.yml that was read}}
+- Policy version: {{the `version:` that file declares}}
+- Drift: {{"none - the project's policy matches framework vX.Y.Z" - or "N rule(s)/check(s) missing against framework vX.Y.Z; see `compass policy lint`"}}
+
+
+
 <!-- Every floor / cap / immovable_gate / blocking role_rule from
      governance/routing-policy.md that matched. Quote each one's rationale.
      If none fired, say so explicitly - silence is not a record. Routing

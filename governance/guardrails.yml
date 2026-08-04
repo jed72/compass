@@ -19,8 +19,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.0.0
-
+version: 1.4.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -30,6 +29,13 @@ version: 1.0.0
 checks:
   scenarios-have-tests:
     description: "Every scenario in task.yml lists at least one test."
+  scenarios-are-executable:
+    description: "Every scenario in task.yml was accounted for by the project's BDD runner. Reads the record `compass bdd verify` writes; never runs the suite. No-ops when project.bdd_runner is unset."
+    # Reading-scoped, exactly like a guardrail's `applies_when:`.
+    # Below this threshold a finding is reported without failing the
+    # run - most projects have wired no runner, and an advisory
+    # finding is the honest default (ADR-006).
+    blocking_when: { blast_radius: [cross-cutting, critical] }
   declared-tests-resolve:
     description: "Every declared test id points at a test that exists on disk. Fires only once a task has claimed verify.correctness and is still active - before that the test legitimately does not exist yet; after landing the spine is a historical record."
   suite-passed:
@@ -146,7 +152,7 @@ defaults:
     # verify.correctness and is still active - before that the test legitimately
     # does not exist yet, and after landing the spine is a historical record.
     checks: [scenarios-have-tests, declared-tests-resolve, suite-passed,
-             changed-code-traces-to-scenario]
+             changed-code-traces-to-scenario, scenarios-are-executable]
     checked_at: [verify, land]
 
   - id: G2

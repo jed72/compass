@@ -27,6 +27,15 @@ version: 1.0.0
 # project that opts in to `advisory` does so deliberately, and it shows.
 mode: enforced
 
+# --- governance drift -------------------------------------------------------
+# `compass policy lint` compares this project's governance/ against the
+# framework's shipped copy and reports rules and checks the project is missing.
+# It is ADVISORY by default: an adopter should not get a red build merely for
+# being behind. Set `strict` once the drift is cleaned up, and `compass ci`
+# will fail on any that reappears. A deliberate omission belongs under
+# `routing_guardrails.waived:` with a reason, not here.
+governance_drift: advisory
+
 project:
   # The name shown in artifact headers and the devlog. In a project that has
   # run `/compass:init`, this is set to the project's own name. The value
@@ -40,6 +49,38 @@ project:
   # scripts/integrate.sh for combined regression. If unset, the hooks fall
   # back to detecting npm/Make/pytest conventions.
   test_command: ""   # e.g. "npm test", "pytest -q", "go test ./..."
+
+  # --- executable BDD (all optional) ----------------------------------------
+  # `compass bdd extract` lifts the Gherkin out of a task's spec.feature.md
+  # into a plain .feature file, tagged with each scenario's TRC id. It works
+  # with none of the keys below set - it writes the .feature into the task
+  # directory and stops there.
+  #
+  # The keys exist for wiring that output to a real BDD runner, so the
+  # scenario-to-test link becomes a fact the runner establishes rather than a
+  # convention. They ship COMMENTED OUT on purpose: a project that edits
+  # nothing has opted into nothing, and nothing about Compass changes.
+  # See examples/bdd-adapters/ for a worked project per runner.
+  #
+  #   bdd_runner        Which BDD runner this project uses. Names the adapter
+  #                     under examples/bdd-adapters/ that matches your setup.
+  # bdd_runner: pytest-bdd        # pytest-bdd | cucumber-js | behave | godog
+  #
+  #   bdd_features_dir  Where `compass bdd extract` writes the .feature file.
+  #                     Unset, it writes `spec.feature` into the task's own
+  #                     directory. Set it when your runner expects a
+  #                     conventional features/ directory; the file is then
+  #                     written as <dir>/<task-slug>.feature.
+  # bdd_features_dir: features
+  #
+  #   bdd_steps_dir     Where your step definitions live. Compass does not read
+  #                     this; it is recorded so the runner wiring is in one
+  #                     place and a reader can find both halves.
+  # bdd_steps_dir: tests/steps
+  #
+  #   bdd_run_command   How to run the acceptance suite once the .feature is
+  #                     extracted and the steps are bound.
+  # bdd_run_command: pytest tests/
 
 swarm:
   # The worktree root, relative to the project. Each stream gets a subdir.

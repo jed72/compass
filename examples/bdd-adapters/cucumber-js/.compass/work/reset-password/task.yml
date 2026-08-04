@@ -1,0 +1,39 @@
+schema_version: '1.1'
+task: reset-password
+created: '2026-08-03'
+status: active
+readings:
+  blast_radius: contained
+  terrain: greenfield
+  magnitude: small
+  intent: delivery
+  urgency: none
+  role: engineer
+  touches: []
+route: standard
+topology: solo
+fired_guardrails: []
+phases: {}
+evidence: []
+gates: []
+scenarios:
+- id: TRC-A1
+  title: a valid token should let the user set a new password
+  intent: INT-1
+  tests:
+  - features/step_definitions/reset_password.js
+- id: TRC-A2
+  title: an expired token should be rejected
+  intent: INT-2
+  tests:
+  - features/step_definitions/reset_password.js
+- id: TRC-A3
+  title: a password below the length floor should be rejected
+  intent: INT-2
+  tests:
+  - features/step_definitions/reset_password.js
+changed_files: []
+claims: []
+backfills: []
+reframes: []
+friction: []

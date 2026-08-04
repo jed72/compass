@@ -168,3 +168,12 @@ production code so the test becomes easy, not accepting the pain.
   survive? It should.** If swapping a correct reimplementation breaks the test,
   the test was asserting implementation details, not behaviour. Test what the
   contract promises; let the implementation change freely underneath.
+
+## When red does not become green
+
+If a test is failing for a reason you did not predict, stop cycling and load
+`systematic-debugging`. Repeatedly re-running a red test with a different guess
+each time is not the TDD cycle - it is the reflex the cycle exists to replace.
+That skill also carries the escape clause: three consecutive failed fixes means
+the framing was wrong, and the next move is `/compass:frame --reframe`, not a
+fourth attempt.
