@@ -419,7 +419,158 @@ def cmd_friction_capture(args):
     return 0
 
 
+
+# --- process-impact telemetry ------------------------------------------------
+# "Earn the gate": does the ceremony a route buys correlate with shipping faster
+# or breaking less? Computed from task.yml alone - `created` and
+# `land_timestamp` are already in the spine, so no git call is needed and the
+# report is deterministic by construction rather than by discipline.
+#
+# The hard part is not the arithmetic, it is refusing to report what the data
+# cannot support. A project with no hotfixes has a change-fail rate that is
+# UNMEASURABLE, not zero; printing "0%" would read as excellent stability and
+# mean silence.
+
+IMPACT_SAMPLE_FLOOR = 20   # landed tasks before any correlation is reported
+IMPACT_GROUP_FLOOR = 3     # tasks in a route group before that group is shown
+
+
+def _impact_days(created, landed):
+    """Whole days between a task's `created` date and its `land_timestamp`."""
+    if not created or not landed:
+        return None
+    try:
+        c = datetime.date.fromisoformat(str(created)[:10])
+        l = datetime.date.fromisoformat(str(landed)[:10])
+    except ValueError:
+        return None
+    return max((l - c).days, 0)
+
+
+def _median(xs):
+    xs = sorted(xs)
+    if not xs:
+        return None
+    m = len(xs) // 2
+    return float(xs[m]) if len(xs) % 2 else (xs[m - 1] + xs[m]) / 2.0
+
+
+def compute_impact(tasks):
+    """tasks: [(slug, data)]. Returns a dict; pure, no I/O, no clock."""
+    landed = [(s, d) for s, d in tasks if (d or {}).get("status") == "landed"]
+    hotfixes = [(s, d) for s, d in landed if d.get("route") == "hotfix"]
+    delivery = [(s, d) for s, d in landed if d.get("route") != "hotfix"]
+
+    lead, excluded, by_route = [], 0, {}
+    for slug, d in delivery:
+        days = _impact_days(d.get("created"), d.get("land_timestamp"))
+        if days is None:
+            excluded += 1
+            continue
+        lead.append(days)
+        route = d.get("route", "?")
+        g = by_route.setdefault(route, {"n": 0, "lead": [], "gates": set()})
+        g["n"] += 1
+        g["lead"].append(days)
+        g["gates"].add(len(d.get("gates") or []))
+
+    dates = sorted(str(d.get("land_timestamp"))[:10] for _, d in landed
+                   if d.get("land_timestamp"))
+    span_days = 0
+    if len(dates) >= 2:
+        try:
+            span_days = (datetime.date.fromisoformat(dates[-1])
+                         - datetime.date.fromisoformat(dates[0])).days
+        except ValueError:
+            span_days = 0
+
+    declared = [(s, d) for s, d in hotfixes if d.get("repairs")]
+    # None, never 0.0, when there is nothing to measure. This is the whole point.
+    rate = None
+    if hotfixes and delivery:
+        rate = 100.0 * len(declared) / len(delivery)
+
+    restore = [x for x in (_impact_days(d.get("created"), d.get("land_timestamp"))
+                           for _, d in hotfixes) if x is not None]
+
+    return {
+        "n_landed": len(landed),
+        "n_delivery": len(delivery),
+        "lead_median": _median(lead),
+        "lead_excluded": excluded,
+        "span_days": span_days,
+        "lands_per_week": (round(len(landed) / (span_days / 7.0), 2)
+                           if span_days >= 7 else None),
+        "hotfixes": len(hotfixes),
+        "hotfixes_declared": len(declared),
+        "repaired": sorted(str(d.get("repairs")) for _, d in declared),
+        "change_fail_rate": rate,
+        "restore_median": _median(restore),
+        "by_route": by_route,
+        "withheld": (None if len(landed) >= IMPACT_SAMPLE_FLOOR else
+                     "%d landed task(s); %d required"
+                     % (len(landed), IMPACT_SAMPLE_FLOOR)),
+    }
+
+
+def render_impact(r):
+    out = ["compass calibration --impact - process signal (advisory)", ""]
+    if not r["n_landed"]:
+        out.append("  Nothing to measure yet - no landed tasks on record.")
+        return "\n".join(out)
+
+    out.append("  lead time     median %s day(s) over %d task(s)%s"
+               % (r["lead_median"], r["n_delivery"],
+                  "" if not r["lead_excluded"]
+                  else ", %d excluded (missing a timestamp)" % r["lead_excluded"]))
+    out.append("  land freq     %s per week, over a span of %d day(s)"
+               % (r["lands_per_week"] if r["lands_per_week"] is not None
+                  else "not computable (span under a week)", r["span_days"]))
+
+    if not r["hotfixes"]:
+        # NOT "0%". No hotfix on record means change-fail cannot be measured -
+        # printing a rate here would read as stability and mean silence.
+        out.append("  change-fail   no hotfixes recorded, so change-fail "
+                   "cannot be measured")
+    else:
+        cov = ("%d of %d hotfix(es) declared a `repairs:` target"
+               % (r["hotfixes_declared"], r["hotfixes"]))
+        out.append("  change-fail   %.1f%% of delivery tasks were later repaired "
+                   "(%s)" % (r["change_fail_rate"], cov))
+        if r["repaired"]:
+            out.append("                repaired: %s" % ", ".join(r["repaired"]))
+        out.append("  restore time  median %s day(s) across %d hotfix(es)"
+                   % (r["restore_median"], r["hotfixes"]))
+
+    out.append("")
+    out.append("  by route:")
+    for route, g in sorted(r["by_route"].items()):
+        gates = ", ".join(str(x) for x in sorted(g["gates"]))
+        if g["n"] < IMPACT_GROUP_FLOOR:
+            out.append("    %-12s n=%d  (under %d - not summarised)  gates=%s"
+                       % (route, g["n"], IMPACT_GROUP_FLOOR, gates))
+        else:
+            out.append("    %-12s n=%d  lead median %s day(s)  gates=%s"
+                       % (route, g["n"], _median(g["lead"]), gates))
+
+    out.append("")
+    if r["withheld"]:
+        out.append("  CORRELATIONS WITHHELD - %s." % r["withheld"])
+        out.append("  Below that sample any correlation between route, gate count")
+        out.append("  and outcome is noise wearing a number.")
+    else:
+        out.append("  Read the by-route figures as a hypothesis to test, not a")
+        out.append("  verdict. This is single-project observational data: the")
+        out.append("  variables are not controlled, and a heavier route is chosen")
+        out.append("  BECAUSE work looks riskier, so slower lead times on heavy")
+        out.append("  routes may reflect the work rather than the ceremony.")
+    return "\n".join(out)
+
+
 def cmd_calibration(args):
+    if getattr(args, "impact", False):
+        return _cmd_calibration_impact(args)
+
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
     weights = {}
@@ -535,4 +686,23 @@ def cmd_calibration(args):
             print(f"  task    : {d['task']}")
             print(f"  signal  : {d['devlog_line']!r}")
             print()
+    return 0
+
+
+def _cmd_calibration_impact(args):
+    """compass calibration --impact. Advisory: always exits 0, writes nothing."""
+    try:
+        work = os.path.join(find_compass_dir(), "work")
+    except CompassError:
+        work = ".compass/work"
+    tasks = []
+    if os.path.isdir(work):
+        for slug in sorted(os.listdir(work)):
+            path = os.path.join(work, slug, "task.yml")
+            if os.path.isfile(path):
+                try:
+                    tasks.append((slug, load_yaml(path)))
+                except CompassError:
+                    continue
+    print(render_impact(compute_impact(tasks)))
     return 0
