@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### every ban carries a replacement and a context
+### the implementation plan document is reviewable and complete
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
-- **Source task:** `v2-terminology-freeze`
+- **Source task:** `v2-implementation-plan`
 - **Landed:** 2026-08-06
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -145,13 +145,6 @@
 - **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
 - **Source task:** `phase-2-skills-check-and-cli-split`
-- **Landed:** 
-
-### the implementation plan document is reviewable and complete _(archived)_
-
-- **Scenario id:** `TRC-A1`
-- **Intent:** `INT-1`
-- **Source task:** `v2-implementation-plan`
 - **Landed:** 
 
 ### each adapter should run the extracted feature and pass _(archived)_
@@ -2530,6 +2523,13 @@
 ### every term states its meaning _(archived)_
 
 - **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### every ban carries a replacement and a context _(archived)_
+
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
 - **Source task:** `v2-terminology-freeze`
 - **Landed:** 2026-08-06
