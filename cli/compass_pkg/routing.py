@@ -367,17 +367,50 @@ def cmd_route_evaluate(args):
         if task is None:
             raise CompassError("--write needs a task (use --task or run in a "
                                "task; it cannot write with ad-hoc --reading)")
-        # Re-frame detection: the task already had a route, and the newly
-        # computed one differs. This is the Needle's feedback signal - record
-        # it. The reason comes from --reason; if absent, record a placeholder
-        # and warn, so the signal is captured even when the agent forgets.
-        prior_route = task.get("route")
-        reframed = bool(prior_route) and prior_route != result["route"]
+        # Re-frame detection, on the route's CONTENT rather than its name.
+        # Keying on the name discarded real re-frames: a task whose governance
+        # was updated went from 7 gates to 9 under the same route name and
+        # logged nothing, taking its `--reason` with it. Route weight is not the
+        # only thing that matters about a route.
+        prior = {
+            "route": task.get("route"),
+            "phases": task.get("phases"),
+            "topology": task.get("topology"),
+            "gates": sorted(g.get("id") for g in (task.get("gates") or [])
+                            if isinstance(g, dict)),
+            "fired_guardrails": sorted(
+                f.get("id") for f in (task.get("fired_guardrails") or [])
+                if isinstance(f, dict)),
+        }
+        now = {
+            "route": result["route"],
+            "phases": result["phases"],
+            "topology": result.get("topology"),
+            "gates": sorted(result.get("gates") or []),
+            "fired_guardrails": sorted(
+                f.get("id") for f in (result["fired_guardrails"] or [])
+                if isinstance(f, dict)),
+        }
+        # Only fields that were ALREADY recorded can have changed. A task whose
+        # phases or gates were never written is being filled in for the first
+        # time - `--write` after a bare `route:` is materialisation, not a
+        # re-frame, and logging it would put noise into the signal this exists
+        # to sharpen.
+        changed = {k: {"from": prior[k], "to": now[k]}
+                   for k in prior if prior[k] and prior[k] != now[k]}
+        reframed = bool(prior["route"]) and bool(changed)
         if reframed:
             reason = args.reason or "(reason not given - fill this in)"
+            # The kind keeps calibration honest. Logging a governance-driven
+            # weight-up as a plain re-frame would read as the Needle
+            # under-sizing - and it is not: the readings were right, the policy
+            # under them moved. Only `judgement` feeds the re-sizing aggregate.
+            kind = getattr(args, "kind", None) or "judgement"
             task.setdefault("reframes", []).append({
-                "from_route": prior_route,
+                "from_route": prior["route"],
                 "to_route": result["route"],
+                "kind": kind,
+                "changed": changed,
                 "reason": reason,
                 "date": datetime.date.today().isoformat(),
             })
@@ -396,8 +429,14 @@ def cmd_route_evaluate(args):
         save_task(task, task_path)
         _annotate_gate_accepts(task_path)   # R6-6: seed accepted-type comments
         print(f"\n  wrote route, phases, gates -> {task_path}")
+        if not reframed and getattr(args, "reason", None):
+            print("  no route change detected - the --reason was NOT recorded. "
+                  "The route, phases, gates, topology and fired guardrails are "
+                  "all identical to what was already on record.")
         if reframed:
-            print(f"  RE-FRAME recorded: {prior_route} -> {result['route']}")
+            print(f"  RE-FRAME recorded ({task['reframes'][-1]['kind']}): "
+                  f"{prior['route']} -> {result['route']}"
+                  + (f"  [changed: {', '.join(sorted(changed))}]" if changed else ""))
             if not args.reason:
                 sys.stderr.write(
                     "compass: re-frame recorded with no reason. Re-run with "

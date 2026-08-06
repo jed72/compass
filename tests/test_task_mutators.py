@@ -117,6 +117,11 @@ def test_changed_file_add_traces_to_scenario(run_cli, make_task):
 
 def test_evidence_add_appends_typed_entry(run_cli, make_task):
     task_dir = make_task("ev-add", _body_with_gates())
+    # Evidence is a record on disk: `evidence add` checks the file is there, so
+    # a mismatch is caught where it is made rather than two phases later at
+    # `compass check`.
+    (task_dir / "evidence").mkdir(exist_ok=True)
+    (task_dir / "evidence" / "scan.txt").write_text("scan output\n")
     r = run_cli("evidence", "add", "EV-5", "--type", "command-output",
                 "--path", "evidence/scan.txt")
     assert r.returncode == 0, r

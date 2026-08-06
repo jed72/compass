@@ -497,12 +497,21 @@ def _check_scenario_has_id_and_intent(task, task_dir):
     scns = task.get("scenarios") or []
     if not scns:
         return False, "no scenarios in task.yml"
+    ids = {s.get("id") for s in scns if isinstance(s, dict)}
     problems = []
     for i, s in enumerate(scns):
         if not s.get("id"):
             problems.append(f"scenario #{i + 1} has no id")
         if not s.get("intent"):
             problems.append(f"scenario {s.get('id', '#' + str(i + 1))} has no linked intent")
+        # A supersession pointing at nothing records nothing. The whole value of
+        # the link is that a future reader can tell "this baseline failed
+        # because the change landed as intended" from "something broke".
+        for sup in (s.get("superseded_by") or []):
+            if sup not in ids:
+                problems.append(
+                    f"scenario {s.get('id', '?')} is superseded_by "
+                    f"'{sup}', which is not a scenario in this task")
     if problems:
         return False, "; ".join(problems)
     return True, f"all {len(scns)} scenario(s) have an id and a linked intent"

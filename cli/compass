@@ -141,8 +141,14 @@ def build_parser():
     pre.add_argument("--write", action="store_true",
                      help="fold route/phases/gates back into the task's task.yml")
     pre.add_argument("--reason",
-                     help="when --write detects a re-frame (the route changed), "
-                          "record this as the reason - it is the calibration signal")
+                     help="when --write detects a re-frame (the route's content "
+                          "changed), record this as the reason - it is the "
+                          "calibration signal")
+    pre.add_argument("--kind", choices=["judgement", "policy-correction",
+                                        "scope-change"],
+                     help="what kind of re-frame this is (default: judgement). "
+                          "Only judgement feeds calibration's re-sizing signal - "
+                          "a policy correction is not the Needle mis-reading.")
     pre.add_argument("--json", action="store_true", help="emit JSON")
     pre.set_defaults(func=cmd_route_evaluate)
 

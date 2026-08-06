@@ -402,6 +402,33 @@ def cmd_evidence_add(args):
             f"compass evidence add: evidence id '{args.evidence_id}' already "
             f"exists. Use a fresh id."
         )
+    # Validate the file against its declared type HERE, not two phases later.
+    # `evidence add --type test-run --path run.txt` used to be accepted, and
+    # `compass check` then failed with "test-run evidence unreadable" - a
+    # set-then-discover-at-check round trip, out of context and hard to act on.
+    # Only types with a real shape contract are checked; a manual review or an
+    # artifact can be any file.
+    abs_path = args.path if os.path.isabs(args.path) else os.path.join(
+        task_dir, args.path)
+    if not os.path.exists(abs_path):
+        raise CompassError(
+            f"compass evidence add: no file at '{args.path}' (looked in "
+            f"{task_dir}). Evidence is a record on disk - register it after the "
+            f"file exists, or fix the path.")
+    if args.type == "test-run":
+        try:
+            with open(abs_path, encoding="utf-8") as fh:
+                json.load(fh)
+        except (ValueError, OSError):
+            raise CompassError(
+                f"compass evidence add: '{args.path}' is not a run record. "
+                f"`test-run` means the JSON that `compass tdd-green` writes "
+                f"(command, exit_code, passed), because the G1 checks read "
+                f"those fields.\n"
+                f"  For a raw log, use --type command-output.\n"
+                f"  For a real run, record it with `compass tdd-green -- <cmd>` "
+                f"and it registers itself.")
+
     entry = {"id": args.evidence_id, "type": args.type, "path": args.path}
     if getattr(args, "scenario", None):
         entry["scenario"] = args.scenario
