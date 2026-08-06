@@ -147,6 +147,13 @@
 - **Source task:** `phase-2-skills-check-and-cli-split`
 - **Landed:** 
 
+### the implementation plan document is reviewable and complete _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-implementation-plan`
+- **Landed:** 
+
 ### each adapter should run the extracted feature and pass _(archived)_
 
 - **Scenario id:** `TRC-A2`
