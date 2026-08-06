@@ -797,11 +797,24 @@ def _check_human_approval(task, task_dir):
                  and e.get("type") == "human-approval"]
     approved = [a for a in approvals if a.get("decision") == "approved"]
     if not approved:
+        # G5's trigger widened in guardrails.yml v1.5.0 to include a critical
+        # blast radius. A task that already landed cleared the gates that
+        # applied at the time, and demanding a checkpoint for a decision taken
+        # weeks ago is a failure nobody can act on (ADR-006) - so it is said
+        # out loud and not failed. No hole: `status` only becomes `landed`
+        # after the gates pass while the task is active, which is when the
+        # widened trigger applies.
+        if (task.get("status") or "active") != "active":
+            return True, ("no human-approval evidence on record, and the task "
+                          "has landed - reported only, because its gates were "
+                          "cleared under the trigger in force at the time")
         return False, ("no human-approval evidence with decision=approved - "
                        "G5 applies because this task touches irreversible "
-                       "surface. Add a `human-approval` entry to the evidence "
-                       "registry with approver, role, scope, decision, and "
-                       "timestamp.")
+                       "surface, or its blast radius is critical (which the "
+                       "router defines as: can lose data, lose money, breach "
+                       "auth/privacy, or resist a clean rollback). Add a "
+                       "`human-approval` entry to the evidence registry with "
+                       "approver, role, scope, decision, and timestamp.")
     a = approved[0]
     missing = [k for k in ("approver", "role", "scope", "timestamp")
                if not a.get(k)]

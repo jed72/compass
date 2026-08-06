@@ -415,9 +415,21 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
 
 def reading_matches(when, readings):
     """Does a `when:` condition match the readings? List value == any-of.
-    Special key `touches_any`: intersect against the readings' `touches` list."""
+    Special key `touches_any`: intersect against the readings' `touches` list.
+    Special key `any_of`: a list of sub-conditions, matching if ANY matches.
+
+    Keys are otherwise ANDed, so `any_of` alongside another key means "that key
+    AND one of these". `any_of` exists because a rule sometimes has to fire on
+    genuinely alternative conditions - G5 applies to the four irreversible
+    domains OR to a critical blast radius, and expressing that as separate
+    guardrails would split one rule into two that can drift apart.
+    """
     for key, val in (when or {}).items():
-        if key == "touches_any":
+        if key == "any_of":
+            clauses = val if isinstance(val, list) else [val]
+            if not any(reading_matches(c, readings) for c in clauses):
+                return False
+        elif key == "touches_any":
             wanted = val if isinstance(val, list) else [val]
             have = readings.get("touches") or []
             if not any(t in have for t in wanted):

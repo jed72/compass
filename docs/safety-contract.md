@@ -34,7 +34,13 @@ engineering workflows. **When it is in use, it guarantees:**
    changes.** Changes that touch auth, payments, personal data, or migrations
    route to Expedition and demand a structured `human-approval` evidence
    record - approver, role, decision, timestamp, scope, conditions - before
-   Land can complete.
+   Land can complete. **So does any change whose blast radius is `critical`**,
+   which the router defines as one that can lose data, lose money, breach
+   auth or privacy, or resist a clean rollback. That second arm matters
+   because those consequences do not always carry one of the four tags: a
+   backup and restore path, a destructive cleanup job, a retention policy
+   change, or a storage migration written in application code can be exactly
+   what this guarantee is for and touch none of them.
 
 6. **Compass CI validates process integrity. It does not replace project CI.**
    `compass ci` proves routes, evidence, approvals, traceability, and backfills
