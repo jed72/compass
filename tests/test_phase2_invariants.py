@@ -98,6 +98,12 @@ EXPECTED_SUBCOMMANDS = {
     "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
     "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
     "evidence",
+    # `acceptance` (R13) is the one honest path for a change with no natural
+    # behavioural red - config, docs, a behaviour-preserving refactor. It is a
+    # GROUP (`start`, `record`), so later kinds add a subcommand rather than a
+    # verb. Added deliberately: the alternative was leaving authors to fake a
+    # red that greps a file for a string, which is what the field reported.
+    "acceptance",
 }
 EXPECTED_READING_KEYS = {
     "blast_radius", "terrain", "magnitude", "intent", "urgency", "role",

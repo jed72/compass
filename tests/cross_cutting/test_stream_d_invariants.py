@@ -73,6 +73,12 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
     "plan",                       # readable-specs-and-flow: `compass plan lint`,
                                   # the advisory placeholder scan over plan.md
+    "acceptance",                 # honest-acceptance-for-config-and-refactor:
+                                  # `compass acceptance start|record`, the
+                                  # honest signal for a change with no natural
+                                  # behavioural red (field report R13). A
+                                  # GROUP, like `bdd`, so later kinds add
+                                  # `compass acceptance <thing>`.
     "bdd",                        # executable-bdd-and-richer-plans:
                                   # `compass bdd extract`. A subcommand GROUP,
                                   # so later BDD work (a scenarios-are-executable

@@ -267,6 +267,9 @@ compass task receipt     render a one-screen receipt for a landed task -
                          readings → route → typed evidence → gate verdicts
 compass task set-status  record a task as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
+compass acceptance start declare the acceptance for a change with no natural
+                         red - a validator (--kind validation) or a green suite
+                         to preserve (--kind refactor); record closes it
 compass gate pass        flip a gate to pass; validates evidence type at write time
 compass scenario add     append a scenario to task.yml (schema-owning mutator, R9)
 compass changed-file add trace a changed production file to a scenario

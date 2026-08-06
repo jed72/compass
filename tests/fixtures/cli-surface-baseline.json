@@ -140,6 +140,7 @@
     "validate_scenarios"
   ],
   "subcommands": [
+    "acceptance",
     "adr",
     "analyze",
     "backfill",

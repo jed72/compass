@@ -403,6 +403,21 @@ EOF
   fi
 fi
 
+# --- a declared acceptance (config / docs / behaviour-preserving refactor) ---
+# Some legitimate changes have no natural behavioural red - a compose limit, a
+# Prometheus rule, a runbook, a dead-code removal. `compass acceptance start`
+# declares what the acceptance IS before the change (a validator that must pass,
+# or a green suite that must stay green) and writes this marker. Without it,
+# authors satisfied this hook by faking reds that grep a file for a string,
+# which is worse than either alternative.
+#
+# It is a SEPARATE marker on purpose. `.red` means "a real failure was observed
+# here"; overloading it would make the framework's most honest artifact
+# ambiguous. `compass acceptance record` clears this one.
+if [ -f "$TASK_DIR/.acceptance" ]; then
+  exit 0
+fi
+
 # --- the red-before-green check (delivery routes) ---------------------------
 if [ -f "$TASK_DIR/.red" ]; then
   # A failing test is on record for this task. Red came before green. Allow.

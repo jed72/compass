@@ -317,6 +317,7 @@ EXPECTED_SUBCOMMANDS = {
     "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
     "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
     "evidence",
+    "acceptance",   # R13: the acceptance verb group
 }
 
 

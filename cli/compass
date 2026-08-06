@@ -263,6 +263,26 @@ def build_parser():
     ptss.add_argument("--reason", help="why - recorded as parked_reason when parking")
     ptss.set_defaults(func=cmd_task_set_status)
 
+    pacc = sub.add_parser(
+        "acceptance",
+        help="declare and record acceptance for a change with no natural red "
+             "(config, docs, behaviour-preserving refactor)")
+    paccs = pacc.add_subparsers(dest="subcmd", required=True)
+    pas = paccs.add_parser("start", help="declare the acceptance before the change")
+    pas.add_argument("--kind", required=True,
+                     help="validation | refactor")
+    pas.add_argument("--task", help="task slug (default: current-task pointer)")
+    pas.add_argument("command", nargs=argparse.REMAINDER,
+                     help="the validator, or the suite being preserved (after --)")
+    pas.set_defaults(func=cmd_acceptance_start)
+
+    par = paccs.add_parser("record", help="close the acceptance after the change")
+    par.add_argument("--task", help="task slug (default: current-task pointer)")
+    par.add_argument("--scenario", help="scenario id this acceptance is FOR")
+    par.add_argument("command", nargs=argparse.REMAINDER,
+                     help="the command to run (after --)")
+    par.set_defaults(func=cmd_acceptance_record)
+
     padr = sub.add_parser("adr", help="Architecture Decision Record tools")
     padrs = padr.add_subparsers(dest="subcmd", required=True)
     padrn = padrs.add_parser(
