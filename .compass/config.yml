@@ -36,6 +36,25 @@ mode: enforced
 # `routing_guardrails.waived:` with a reason, not here.
 governance_drift: advisory
 
+# --- what counts as production code -----------------------------------------
+# Adds to the built-in set `hooks/pre-tool.sh` enforces (application source,
+# Terraform, SQL, Dockerfiles, CI workflows, k8s/helm/migration paths). Listing
+# a glob here means "a change to this needs a failing test on record first".
+#
+# It only ever ADDS. There is no key that removes framework enforcement -
+# project rules ratchet up, the same way a project guardrail may exceed a floor
+# but never fall short of one.
+#
+# This repository declares its own shell scripts, because `hooks/*.sh` and
+# `scripts/*.sh` ARE the production code here: pre-tool.sh is the enforcement
+# mechanism and release.sh cuts releases, and both were outside the mechanism
+# they implement (ADR-011). A project that declares nothing keeps exactly the
+# built-in behaviour.
+enforcement:
+  code_globs:
+    - "hooks/*.sh"
+    - "scripts/*.sh"
+
 project:
   # The name shown in artifact headers and the devlog. In a project that has
   # run `/compass:init`, this is set to the project's own name. The value

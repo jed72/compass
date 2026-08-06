@@ -103,6 +103,7 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 # shell redirect, by construction.
 #
 # Returns 0 (true) if a change to $1 must be preceded by a failing test.
+MATCHED_RULE=""
 is_enforced_path() {
   local target="$1" rel base is_code=0
 
@@ -166,10 +167,55 @@ is_enforced_path() {
     *dbt/*|*models/*.sql) is_code=1 ;;
   esac
 
+  if [ "$is_code" -eq 1 ]; then
+    MATCHED_RULE="the built-in production-code set"
+    return 0
+  fi
+
+  # (d) the project's own declaration. `.compass/config.yml`:
+  #
+  #     enforcement:
+  #       code_globs: ["*.sh", "packaging/**"]
+  #
+  # This ADDS to the set above. There is deliberately no key that removes
+  # framework enforcement: Compass's model is that project rules ratchet UP - a
+  # project guardrail may exceed a floor, never fall short of one - and a key
+  # that exempted `*.py` would be a disable switch wearing the clothes of
+  # configuration. The first inconvenient red is when someone would reach for
+  # it.
+  #
+  # Why this exists: the guarded surface was folklore. `.github/workflows/ci.yml`
+  # was guarded and `docker-compose.yml` was not, with no visible rule, so an
+  # author could not predict which edit would block and found out mid-change.
+  if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
+    local hit
+    hit="$(python3 - "$PROJECT_DIR/.compass/config.yml" "$rel" <<'PYEOF' 2>/dev/null || true
+import fnmatch, sys
+try:
+    import yaml
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        cfg = yaml.safe_load(fh) or {}
+    globs = ((cfg.get("enforcement") or {}).get("code_globs")) or []
+except Exception:
+    sys.exit(0)                     # unreadable config -> built-in set only
+path = sys.argv[2]
+for g in globs:
+    if fnmatch.fnmatch(path, g) or fnmatch.fnmatch(path, g.rstrip("/") + "/*") \
+            or fnmatch.fnmatch("/" + path, "*/" + g.lstrip("/")):
+        print(g)
+        break
+PYEOF
+)"
+    if [ -n "${hit:-}" ]; then
+      MATCHED_RULE="enforcement.code_globs pattern '$hit' in .compass/config.yml"
+      return 0
+    fi
+  fi
+
   # Anything still unrecognised is allowed - the enforcer blocks KNOWN
   # production-impacting files; it does not block the unknown. If a project has
-  # a production-impacting file type that slips through, add it above.
-  [ "$is_code" -eq 1 ]
+  # a production-impacting file type that slips through, declare it above.
+  return 1
 }
 
 # --- what a shell command can be known to write ------------------------------
@@ -387,6 +433,7 @@ Compass: BLOCKED - route says specify: full, but task.yml has no scenarios.
   that no stated, checkable acceptance criterion describes - and a guardrail
   beats a strategy, so this is checked before the red.
   Edit target: $TARGET  (tool: ${TOOL:-?})
+  Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
   To proceed the Compass way:
     1. Write the scenarios into .compass/work/$TASK_SLUG/spec.feature.md.
@@ -431,6 +478,7 @@ Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
   Strategy S2 (red-before-green) applies on this route, in service of
   guardrail G1 (tested before it lands).
   Edit target: $TARGET  (tool: ${TOOL:-?})
+  Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
   To proceed the Compass way:
     1. Write the failing test for the scenario you are implementing.
