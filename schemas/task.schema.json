@@ -27,9 +27,12 @@
       "type": "string",
       "enum": [
         "active",
-        "landed"
+        "queued",
+        "parked",
+        "landed",
+        "abandoned"
       ],
-      "description": "Optional. Lifecycle status of the task. 'active' (default when absent) means the task is in-flight; 'landed' means the task has completed Land and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3). Tasks with schema_version '1.0' that lack this field are treated as 'active' by the derivation walker (Inv-8 backward compat)."
+      "description": "Optional. Lifecycle status of the task. 'active' (default when absent) means in-flight; 'queued' means recorded as next up but not started; 'parked' means stopped with the phases so far still valid, so it can resume; 'landed' means Land completed and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3); 'abandoned' means it will not resume. Only 'landed' grants derivation eligibility - every other value is ineligible, so a new value can never silently acquire it. Tasks with schema_version '1.0' that lack this field are treated as 'active' (Inv-8 backward compat)."
     },
     "land_timestamp": {
       "type": "string",
@@ -474,6 +477,14 @@
       "type": "string",
       "minLength": 1,
       "description": "Hotfix routes only: the slug of the task this hotfix repairs. Read by `compass calibration --impact` to compute the change-fail signal. Optional - a hotfix that declares none is reported as a coverage gap rather than silently counted as zero."
+    },
+    "parked_reason": {
+      "type": "string",
+      "description": "Optional. Why a parked task was set aside - the thing a reader needs to decide whether to resume it."
+    },
+    "parked_at": {
+      "type": "string",
+      "description": "Optional. ISO-8601 timestamp recording when the task was parked."
     }
   }
 }

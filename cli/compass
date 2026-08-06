@@ -256,6 +256,13 @@ def build_parser():
     ptr.add_argument("--workdir", help="alternate project root (default: cwd)")
     ptr.set_defaults(func=cmd_task_receipt)
 
+    ptss = pts.add_parser("set-status",
+                          help="set a task's lifecycle status (queued|active|parked|landed|abandoned)")
+    ptss.add_argument("status", help="the new status")
+    ptss.add_argument("--task", help="task slug (default: current-task pointer)")
+    ptss.add_argument("--reason", help="why - recorded as parked_reason when parking")
+    ptss.set_defaults(func=cmd_task_set_status)
+
     padr = sub.add_parser("adr", help="Architecture Decision Record tools")
     padrs = padr.add_subparsers(dest="subcmd", required=True)
     padrn = padrs.add_parser(

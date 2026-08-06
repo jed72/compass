@@ -228,6 +228,8 @@ compass plan lint        scan a plan.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
 compass task receipt     render a one-screen receipt for a landed task:
                          readings → route → typed evidence → gate verdicts
+compass task set-status  record a task as queued | active | parked | landed |
+                         abandoned - the mutator for the lifecycle field
 compass gate pass        flip a gate to pass; validates evidence type at write time
 compass scenario add     append a scenario to task.yml
 compass changed-file add trace a changed production file to a scenario

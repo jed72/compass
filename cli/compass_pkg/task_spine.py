@@ -442,3 +442,58 @@ def _annotate_gate_accepts(task_path):
         out.append(line)
     with open(task_path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(out) + "\n")
+
+
+# --- compass task set-status ------------------------------------------------
+# The last routine hand-edit of the spine. Before this, the terminal flip was a
+# scripted `str.replace` on task.yml - reported from the field as brittle and
+# repeated across every Land - and each new status value below would have been
+# set the same way.
+
+TASK_STATUSES = ("active", "queued", "parked", "landed", "abandoned")
+
+
+def cmd_task_set_status(args):
+    status = args.status
+    if status not in TASK_STATUSES:
+        raise CompassError(
+            f"compass task set-status: '{status}' is not a task status. "
+            f"Permitted: {', '.join(TASK_STATUSES)}.\n"
+            "  queued    - recorded as next up, not started\n"
+            "  active    - in flight\n"
+            "  parked    - stopped, phases so far still valid, can resume\n"
+            "  landed    - Land completed; only this grants living-spec eligibility\n"
+            "  abandoned - will not resume"
+        )
+
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task, path = load_task(task_dir)
+
+    # `land-commit` refuses to write `landed` over gates that have not passed.
+    # A second door into the same field must not be an easier one, or the
+    # refusal is advice rather than a rule.
+    if status == "landed":
+        unmet = [g.get("id", "?") for g in (task.get("gates") or [])
+                 if isinstance(g, dict) and g.get("status") != "pass"]
+        if unmet:
+            raise CompassError(
+                f"compass task set-status: refusing to mark '{task.get('task')}' "
+                f"landed - {len(unmet)} gate(s) have not passed "
+                f"({', '.join(unmet)}). Land is a record, not a rubber stamp. "
+                "Clear the gates and re-run."
+            )
+        task["land_timestamp"] = now_iso()
+
+    task["status"] = status
+    reason = getattr(args, "reason", None)
+    if status == "parked":
+        if reason:
+            task["parked_reason"] = reason
+        task["parked_at"] = now_iso()
+    elif reason:
+        task["note"] = reason
+
+    save_task(task, path)
+    detail = f" ({reason})" if reason else ""
+    print(f"compass task set-status: {task.get('task')} -> {status}{detail}.")
+    return 0

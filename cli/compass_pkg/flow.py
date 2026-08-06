@@ -127,17 +127,60 @@ def cmd_flow(args):
         if not slugs:
             print("compass flow: no tasks under work root.")
             return 0
-        print("compass flow - cross-task board (advisory)\n")
+        # Grouped by lifecycle state, because a flat list reported stopped work
+        # as in flight. Parked tasks accumulate while active ones close, so the
+        # single number a planning view must not get wrong drifts further out
+        # the longer the repo lives.
+        groups = {"active": [], "queued": [], "parked": [], "landed": [],
+                  "abandoned": [], "unreadable": []}
         for slug in slugs:
             task_yml = os.path.join(work_root, slug, "task.yml")
-            if os.path.isfile(task_yml):
-                try:
-                    t = load_yaml(task_yml)
-                    route = t.get("route", "?")
-                    status = t.get("status", "in-progress")
-                    print(f"  {slug:<40} route={route:<12} status={status}")
-                except Exception:
-                    print(f"  {slug:<40} (unreadable task.yml)")
+            if not os.path.isfile(task_yml):
+                groups["unreadable"].append((slug, "?", "no task.yml"))
+                continue
+            try:
+                t = load_yaml(task_yml)
+                route = t.get("route", "?")
+                # Absent means active: every task.yml written before the status
+                # field existed omits it (ADR-006).
+                status = t.get("status") or "active"
+                note = t.get("parked_reason", "") if status == "parked" else ""
+                groups.setdefault(status, []).append((slug, route, note))
+            except Exception:                                   # noqa: BLE001
+                groups["unreadable"].append((slug, "?", "unreadable task.yml"))
+
+        print("compass flow - cross-task board (advisory)\n")
+        headings = [
+            ("active", "IN PROGRESS"),
+            ("queued", "NEXT UP"),
+            ("parked", "PARKED - stopped, can resume"),
+            ("landed", "DONE"),
+            ("abandoned", "ABANDONED - will not resume"),
+        ]
+        for key, heading in headings:
+            rows = groups.get(key) or []
+            if not rows:
+                continue
+            print(f"  {heading} ({len(rows)})")
+            for slug, route, note in rows:
+                suffix = f"  - {note}" if note else ""
+                print(f"    {slug:<40} route={route}{suffix}")
+            print()
+        # Never dropped silently: a board that omits part of the work looks
+        # complete when it is not.
+        for key in sorted(set(groups) - {k for k, _ in headings} - {"unreadable"}):
+            rows = groups[key]
+            if rows:
+                print(f"  {key.upper()} ({len(rows)})")
+                for slug, route, _ in rows:
+                    print(f"    {slug:<40} route={route}")
+                print()
+        if groups["unreadable"]:
+            print(f"  UNPLACEABLE ({len(groups['unreadable'])}) - "
+                  f"no readable task.yml, so no state to report")
+            for slug, _, why in groups["unreadable"]:
+                print(f"    {slug:<40} {why}")
+            print()
         return 0
 
     # --digest mode: produce a digest including rework-scan
