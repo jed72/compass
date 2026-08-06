@@ -343,6 +343,66 @@ if [ -f "$TASK_DIR/.spike" ]; then
   exit 0
 fi
 
+# --- guardrail G2: acceptance defined before it is built ---------------------
+# The check below enforces strategy S2 (red before green). S2 serves guardrail
+# G1. Nothing enforced G2 - acceptance stated and checkable BEFORE the code -
+# at the point where it can still be true, so a route asking for a full Specify
+# could go Frame -> Build with no spec at all: every edit allowed, because a red
+# was on record and S2 was satisfied. `compass check` catches it at Verify,
+# after the code exists, which is the ordering G2 exists to prevent.
+#
+# A guardrail beats a strategy, so this runs BEFORE the red check: you cannot
+# write a red for a scenario that does not exist yet.
+#
+# Only `specify: full` triggers it, which routing-policy.yml gives to standard
+# and expedition. Hotfix (reproduce-first) and Spike (collapsed) are exempt by
+# construction, and the .spike early exit above suspends this the same way it
+# suspends S2.
+#
+# If the spine cannot be read - no task.yml, unparseable YAML, no python3, no
+# PyYAML - this stays silent and the prior behaviour applies. A false block on
+# unreadable state is how a hook teaches people to bypass it.
+if [ -f "$TASK_DIR/task.yml" ] && command -v python3 >/dev/null 2>&1; then
+  G2_VERDICT="$(python3 - "$TASK_DIR/task.yml" <<'PYEOF' 2>/dev/null || true
+import sys
+try:
+    import yaml
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        task = yaml.safe_load(fh) or {}
+    if not isinstance(task, dict):
+        raise ValueError
+except Exception:
+    sys.exit(0)
+phases = task.get("phases") or {}
+if isinstance(phases, dict) and phases.get("specify") == "full":
+    if not (task.get("scenarios") or []):
+        print("block")
+PYEOF
+)"
+  if [ "${G2_VERDICT:-}" = "block" ]; then
+    cat >&2 <<EOF
+Compass: BLOCKED - route says specify: full, but task.yml has no scenarios.
+
+  Guardrail G2 (acceptance defined before it is built). No code is written
+  that no stated, checkable acceptance criterion describes - and a guardrail
+  beats a strategy, so this is checked before the red.
+  Edit target: $TARGET  (tool: ${TOOL:-?})
+
+  To proceed the Compass way:
+    1. Write the scenarios into .compass/work/$TASK_SLUG/spec.feature.md.
+    2. Mirror them into task.yml's \`scenarios:\` block - each with an id, a
+       linked intent, and the test(s) that will exercise it:
+         compass scenario add SCN-001 --title "..." --intent INT-1
+    3. Re-try this edit.
+
+  If this is genuinely exploratory work it should be a Spike, where G2 is
+  suspended - re-run /compass:frame. The fix is to state the acceptance or
+  re-frame, not to route around the hook.
+EOF
+    exit 2
+  fi
+fi
+
 # --- the red-before-green check (delivery routes) ---------------------------
 if [ -f "$TASK_DIR/.red" ]; then
   # A failing test is on record for this task. Red came before green. Allow.
