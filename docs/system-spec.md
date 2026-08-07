@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the compass-backfill tolerance is re-tightened
+### the lens ban catches the concept not the agent identifiers
 
-- **Scenario id:** `TRC-8`
+- **Scenario id:** `TRC-4`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-cli-voice`
+- **Source issue:** `v2-skills-prose`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2847,4 +2847,32 @@
 - **Scenario id:** `TRC-7`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### the compass-backfill tolerance is re-tightened _(archived)_
+
+- **Scenario id:** `TRC-8`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### skills is an enforced surface _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-skills-prose`
+- **Landed:** 2026-08-07
+
+### agents is a scanned enforced never-pending surface _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-skills-prose`
+- **Landed:** 2026-08-07
+
+### the worktree-swarm skill carries the stash rule _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-skills-prose`
 - **Landed:** 2026-08-07
