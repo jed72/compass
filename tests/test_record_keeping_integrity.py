@@ -360,8 +360,23 @@ def _pre_existing_task_slugs():
         return []
     current = (ROOT / ".compass" / "current-task")
     in_flight = current.read_text().strip() if current.is_file() else ""
-    return [p.parent.name for p in sorted(work.glob("*/task.yml"))
-            if p.parent.name != in_flight]
+    # Same principle for issues the spine says have not started or will not
+    # finish: 'queued', 'parked', and 'abandoned' work has no green run by
+    # definition, so sweeping it would assert unstarted work is finished.
+    import yaml as _yaml
+    not_startable = {"queued", "parked", "abandoned"}
+    slugs = []
+    for p in sorted(work.glob("*/task.yml")):
+        if p.parent.name == in_flight:
+            continue
+        try:
+            status = (_yaml.safe_load(p.read_text()) or {}).get("status", "active")
+        except Exception:
+            status = "active"
+        if status in not_startable:
+            continue
+        slugs.append(p.parent.name)
+    return slugs
 
 
 def test_trc_f1_existing_tasks_still_pass():

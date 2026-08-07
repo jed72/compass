@@ -16,9 +16,9 @@ evidence block is an automatic fail.
 
 # Verification Report - {{TASK_SLUG}}
 
-> **Phase:** Verify · **Date:** {{DATE}} · **Owning role:** QA
-> **Agents:** verifier, reviewer{{, marketing-lens if claims dimension applies}}
-> **Route (from delivery-approach.md):** {{reference route}} · **Gate count:** {{1 \| 2 \| all}}
+> **Stage:** test & review · **Date:** {{DATE}} · **Owning role:** QA
+> **Agents:** `verifier`, `reviewer`{{, `marketing-lens` if the claims dimension applies}}
+> **Approach (from delivery-approach.md):** {{reference shape}} · **Gate count:** {{1 \| 2 \| all}}
 > **Topology:** {{solo \| pair \| swarm - swarm verifies per-stream then combined}}
 
 ---
@@ -46,7 +46,7 @@ evidence block is an automatic fail.
 {{PASTE THE FULL TEST RUN OUTPUT HERE}}
 ```
 
-**Coverage (against the guardrail floor - G1-related):**
+**Coverage (against the tested-before-ship guardrail's floor):**
 
 ```
 {{PASTE COVERAGE OUTPUT - must meet or exceed the guardrail coverage floor}}
@@ -58,9 +58,10 @@ evidence block is an automatic fail.
 ## 3. Review dimensions
 
 <!-- Apply each dimension delivery-approach.md lists. correctness, governance,
-     traceability are ALWAYS on for a delivery route - they are the default
-     guardrails in review form. Others per the route: regression, security
-     (scaled or full), clarity, claims. Each gets pass/fail AND evidence.
+     traceability are ALWAYS on for delivery work - they are the default
+     guardrails in review form. Others as the approach requires: regression,
+     security (scaled or full), clarity, claims. Each gets pass/fail AND
+     evidence.
 
      "Assessed by" records WHO reached the judgement: the `reviewer` agent, a
      named person, or "author" where the person who did the work also graded
@@ -79,7 +80,7 @@ evidence block is an automatic fail.
 | governance | always | {{PASS \| FAIL}} | {{…}} | {{honours governance/ - guardrails clear with evidence, strategy deviations recorded; cite checks}} |
 | traceability | always | {{PASS \| FAIL}} | {{…}} | {{code→scenario→intent and claim→scenario chains intact}} |
 | regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{nothing previously passing now fails - paste the run}} |
-| security | {{full / scaled / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{OWASP-style pass, scaled to blast radius}} |
+| security | {{full / scaled / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{OWASP-style pass, scaled to the assessed risk}} |
 | clarity | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{a future reader can follow it}} |
 | claims | {{if role / yes}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{see launch-readiness.md - every claim traces to a passing scenario}} |
 
@@ -90,18 +91,18 @@ evidence block is an automatic fail.
 
 | Gate | Required by | Status |
 |---|---|---|
-| verify.correctness | immovable + route | {{GREEN \| RED}} |
-| verify.governance | immovable + route | {{GREEN \| RED}} |
+| verify.correctness | immovable + approach | {{GREEN \| RED}} |
+| verify.governance | immovable + approach | {{GREEN \| RED}} |
 | verify.regression | immovable | {{GREEN \| RED}} |
 | verify.claims | immovable (if marketer in play) | {{GREEN \| RED \| n/a}} |
-| {{verify.traceability / verify.security / verify.clarity …}} | route | {{GREEN \| RED}} |
+| {{verify.traceability / verify.security / verify.clarity …}} | approach | {{GREEN \| RED}} |
 
-**Overall:** {{PASS - advance to Land \| FAIL - task does not advance}}
+**Overall:** {{PASS - advance to ship \| FAIL - the issue does not advance}}
 
-<!-- If FAIL: the task does not advance. Fix it, or QA sends it back to
-     Specify if the scenarios are uncoverable. Record which below. -->
+<!-- If FAIL: the issue does not advance. Fix it, or QA sends it back to
+     the acceptance-criteria stage if the scenarios are uncoverable. -->
 
-**If FAIL - disposition:** {{"fix and re-verify" \| "sent back to Specify: scenarios TRC-… are uncoverable because …"}}
+**If FAIL - disposition:** {{"fix and re-verify" \| "sent back to the acceptance-criteria stage: scenarios TRC-… are uncoverable because …"}}
 
 ---
 
@@ -113,47 +114,56 @@ evidence block is an automatic fail.
 
 ### Definition of Done
 
-<!-- The crisp exit check. The Definition of Ready (requirements-review.md) was the
-     entry gate into Plan; this is the exit gate out of Verify. Items 1–5 are
-     proven here, with evidence above. Items 6–7 are carried into Land - they
-     are listed so the close-out is one continuous checklist, not two.
+<!-- The crisp exit check. The Definition of Ready (requirements-review.md)
+     was the entry gate into design; this is the exit gate out of test &
+     review. Items 1-5 are proven here, with evidence above. Items 6-7 are
+     carried into shipping - listed so the close-out is one continuous
+     checklist, not two.
 
-TYPED DOD - REQUIRED INLINE-TAG SYNTAX (G4: evidence, not assertion):
-  Every unchecked box must carry exactly ONE of these inline tags, or be ticked:
+TYPED DOD - REQUIRED INLINE-TAG SYNTAX (evidence, not assertion - the
+guardrail applies to the checklist itself):
+  Every unchecked box must carry exactly ONE of these inline tags, or be
+  ticked. The tag spellings are machine syntax the checker parses - they
+  rename with the schema, not before:
 
     - [ ] (evidence: EV-<id>) <description>
-        Passes when EV-<id> is in task.yml's evidence registry with an accepted
-        type (test-run, command-output, manual-review, human-approval, artifact,
-        security-review, migration-plan, rollback-plan, claim-review).
+        Passes when EV-<id> is in the spine's evidence registry with an
+        accepted type (test-run, command-output, manual-review,
+        human-approval, artifact, security-review, migration-plan,
+        rollback-plan, claim-review).
 
     - [ ] (backfill: BF-<id>) <description>
-        Passes (defers) when BF-<id> is in task.yml backfills with status: owed.
-        Add target_task: <slug> on the backfill entry to block that task's Land
-        until paid (compass backfill pay --task <source-slug> BF-<id>).
+        Passes (defers) when BF-<id> is in the spine's follow-up ledger
+        (the backfills: list) with status: owed. Add target_task: <slug>
+        on the entry to block that issue's shipping until this one is
+        settled (compass backfill pay --task <source-slug> BF-<id>).
 
     - [x] <description>
-        A human-ticked box passes unconditionally - the human took responsibility.
+        A human-ticked box passes unconditionally - the human took
+        responsibility.
 
     - [ ] <bare description>   ← FAILS compass check (bare unchecked box)
-        Narrative notes in devlog.md do NOT clear a DoD item. G4 applies.
+        Narrative notes in devlog.md do NOT clear a DoD item. Evidence,
+        not assertion.
 
-  Cross-task: if another task has a backfill with target_task pointing at this
-  task and status: owed, compass check at Land fails until that backfill is paid.
+  Cross-issue: if another issue's follow-up ledger has target_task pointing
+  at the issue being shipped, and that entry is still owed, compass check
+  fails at ship time until it is settled.
 -->
 
 - [ ] (evidence: {{EV-id}}) **Every scenario passes** - §1 is all PASS; the
       spec, read as the acceptance suite, is green.
 - [ ] (evidence: {{EV-id}}) **TDD suite green** - §2 shows the full suite
       passing, output pasted.
-- [ ] (evidence: {{EV-id}}) **Coverage meets the guardrail floor (G1-related)**
-      - evidence in §2.
+- [ ] (evidence: {{EV-id}}) **Coverage meets the tested-before-ship
+      guardrail's floor** - evidence in §2.
 - [ ] (evidence: {{EV-id}}) **No lint / format / type errors** - clean,
       evidence pasted.
 - [ ] (evidence: {{EV-id}}) **Traceability intact** - code → scenario → intent
       holds; claim → scenario holds where the marketer is in play.
-- [ ] (backfill: {{BF-id}}) *(carried to Land)* Living docs updated to match
+- [ ] (backfill: {{BF-id}}) *(carried to ship)* Living docs updated to match
       reality.
-- [ ] (backfill: {{BF-id}}) *(carried to Land)* Every owed backfill paid - no
-      unpaid Hotfix backfill, no unbacked marketing claim.
+- [ ] (backfill: {{BF-id}}) *(carried to ship)* Every owed follow-up settled -
+      no unsettled hotfix follow-up, no unbacked marketing claim.
 
-Next phase: **Land** (`/compass:land`) - only on overall PASS.
+Next stage: **ship** (`/compass:land`) - only on overall PASS.

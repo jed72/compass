@@ -4,10 +4,10 @@ Produced by: the Plan phase (`/compass:plan`); owning agent `planner`.
 Lives at:    .compass/work/<task-slug>/design.md
 Role in the pipeline: the technical plan. Records the approach, the design
 decisions as ADR-style notes, the governance check against all of
-governance/, and the independent work units. On Express/Hotfix, Plan
+governance/, and the independent work units. On a quick fix or hotfix, the design stage
 collapses to a one-line note in delivery-approach.md and this file is not written; on
 Spike it collapses to a timebox sketch in delivery-approach.md. On Standard this is a
-real file; on Expedition it is paired with distribution-map.md.
+real file; on initiative-scale work it is paired with distribution-map.md.
 
 The governance check here is run by the `governance-check` skill. How to
 choose and write the sections below is the `plan-authoring` skill.
@@ -20,8 +20,8 @@ one. Each carries its own rule for when it earns a place; follow the rule
 rather than filling every heading. Delete the ones you do not use - an empty
 optional section is worse than an absent one.
 
-Roughly: Express writes no design.md at all; Standard uses the one or two that
-add clarity; Expedition may use all of them, because there the plan IS the
+Roughly: a quick fix writes no design.md at all; a feature uses the one or two that
+add clarity; initiative-scale work may use all of them, because there this file IS the
 design document.
 
 Fill every {{PLACEHOLDER}} in the sections you keep.
@@ -43,8 +43,8 @@ Fill every {{PLACEHOLDER}} in the sections you keep.
 
      Three fields, same shape and same reason as the Summary in
      acceptance-criteria.md: a reader who has learned where to find it in one
-     artifact finds it in the same place in the other. This is strategy S7
-     (write for a cold reader) applied to the plan. -->
+     artifact finds it in the same place in the other. This is the
+     write-for-a-cold-reader strategy applied to the design. -->
 
 **Goal:** {{One sentence - what this change delivers, in user terms.}}
 
@@ -159,8 +159,8 @@ classDiagram
 ## 6. Design decisions (ADR-style)
 
 <!-- One block per real design decision. A decision with no alternative
-     considered is usually not a decision yet. Express has none of these by
-     definition; if you have one, the route was mis-composed - re-frame. -->
+     considered is usually not a decision yet. A quick fix has none of these by
+     definition; if you have one, the approach was mis-sized - re-assess. -->
 
 ### DD-1 - {{DECISION TITLE}}
 
@@ -191,8 +191,8 @@ classDiagram
 
 | Area | Result | Evidence / note |
 |---|---|---|
-| Guardrails (G1–G5 + project) | {{pass \| fail}} | {{e.g. "G2 acceptance criteria stated before Build; G3 traceability chains designed in; coverage targets the guardrail floor"}} |
-| Method strategies (S1–S7 + project) | {{followed \| deviation recorded}} | {{e.g. "S1 BDD + S2 TDD apply; S3 simplest-thing honoured. Any deviation noted with its reason."}} |
+| Guardrails (the five defaults + project) | {{pass \| fail}} | {{e.g. "acceptance criteria stated before implementation; traceability chains designed in; coverage targets the guardrail floor"}} |
+| Method strategies (defaults + project) | {{followed \| deviation recorded}} | {{e.g. "BDD + TDD apply; simplest-thing honoured. Any deviation noted with its reason."}} |
 | Product strategies | {{followed \| deviation recorded \| n/a}} | {{e.g. "plan delivers prd.md's outcome; honours the no-dark-patterns strategy"}} |
 | Voice & positioning strategies | {{followed \| deviation recorded \| n/a}} | {{n/a unless marketer in play; if so, claims traceable}} |
 | Routing policy | {{pass \| fail}} | {{plan does not require skipping anything delivery-approach.md kept; floors honoured}} |
@@ -202,7 +202,7 @@ classDiagram
 ## 8. Work units
 
 <!-- The independent (or shared-surface) units of work. On Standard this is
-     a short list; on Expedition it becomes the input to distribution-map.md.
+     a short list; on initiative-scale work it becomes the input to distribution-map.md.
      Independence = disjoint code AND disjoint scenario groups. -->
 
 | Unit | Scenario group(s) it satisfies | Code surface it touches | Independent of |

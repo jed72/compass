@@ -19,7 +19,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre3
+version: 2.0.0-pre4
 
 terms:
 
@@ -431,15 +431,22 @@ scan:
     - AGENTS.md
   exempt:
     - docs/proposals/      # history stays honest
+    # Machine template: its keys are the live task.yml schema until the
+    # machine-spine slice ships schema 2.0 and renames them, which also
+    # removes this exemption.
+    - templates/task.yml
     - docs/analysis/
     - architecture/decisions/   # ADRs may quote v1 terms
+    # Same rationale one level down: the shipped example decision records
+    # are history in sample form. The example that names a v1 concept in
+    # its title is revisited when that concept's rename slice lands.
+    - templates/architecture/decisions/
     - tests/               # the tests themselves
     - .compass/work/       # task archive
   # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
   # its surface from this list; removed surfaces must stay clean forever.
   # A meta-test asserts this list only ever shrinks.
   pending_surfaces:
-    - templates/
     - commands/
     - skills/
     - cli/compass

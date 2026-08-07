@@ -1,12 +1,14 @@
 <!--
 TEMPLATE: requirements-review.md
-Produced by: the Clarify phase (`/compass:clarify`).
+Produced by: the requirements-review stage (`/compass:clarify` - the
+             command keeps its v1 name until the command-rename slice ships).
 Lives at:    .compass/work/<task-slug>/requirements-review.md
-Role in the pipeline: the ambiguity ledger. Clarify QAs the spec against
-itself and against governance; every ambiguity found, every question
-asked, and every resolution is recorded here. Collapsed on Express when
-the spec is a single Needle-certified-unambiguous scenario (and no routing
-guardrail requires Clarify), and on Hotfix where the reproduction is the
+Role in the pipeline: the ambiguity ledger. The review QAs the criteria
+against themselves and against governance; every ambiguity found, every
+question asked, and every resolution is recorded here. Collapsed on a
+quick fix when the criteria are a single scenario certified unambiguous
+at triage (and no policy rule requires the review), and on a hotfix where
+the reproduction is the
 clarification. Skipped entirely on Spike - the behaviour is the unknown,
 so there is nothing to QA. On Standard+ this file always exists.
 
@@ -70,7 +72,7 @@ resolution → who decided → what it changed.
 
 - [ ] No ambiguity left `open` - every entry is `resolved`.
 - [ ] `acceptance-criteria.md` updated to reflect every resolution.
-- [ ] Non-engineering roles in play have reviewed (Expedition: required at this phase).
+- [ ] Non-engineering roles in play have reviewed (initiative-scale work: required at this stage).
 
 ### Definition of Ready
 

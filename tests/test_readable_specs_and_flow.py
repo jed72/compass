@@ -20,6 +20,8 @@ import subprocess
 import sys
 import pathlib
 
+import yaml
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 SPEC_TEMPLATE = "templates/acceptance-criteria.md"
@@ -107,17 +109,19 @@ def test_trc_a2_summary_has_three_named_fields():
 
 
 def test_trc_a3_summary_length_scales_by_route():
-    """Length guidance is stated per route, so an Express spec does not get an
-    Expedition-sized preamble."""
+    """Length guidance is stated per delivery approach, so a quick fix's
+    criteria do not get an initiative-sized preamble. (The names moved to
+    the v2 vocabulary in the template-prose rename slice; the rule is
+    unchanged.)"""
     body = _section(_read(SPEC_TEMPLATE), "Summary")
     low = body.lower()
 
-    assert "express" in low, "Summary guidance does not mention Express"
-    assert "standard" in low, "Summary guidance does not mention Standard"
-    assert "expedition" in low, "Summary guidance does not mention Expedition"
+    assert "quick fix" in low, "Summary guidance does not mention the quick fix"
+    assert "feature" in low, "Summary guidance does not mention the feature shape"
+    assert "initiative" in low, "Summary guidance does not mention the initiative"
 
     assert re.search(r"one to two sentences|1-2 sentences", low), (
-        "Express length target (one to two sentences per field) not stated"
+        "Quick-fix length target (one to two sentences per field) not stated"
     )
     assert "paragraph" in low, "Standard length target (ordinary paragraphs) not stated"
     assert "200 words" in low, "Expedition length ceiling (200 words per field) not stated"
@@ -533,9 +537,18 @@ def test_trc_f1_pre_existing_specs_still_pass():
     in_flight = current.read_text().strip() if current.is_file() else ""
 
     failures = []
+    not_startable = {"queued", "parked", "abandoned"}
     for path in sorted(work.glob("*/task.yml")):
         slug = path.parent.name
         if slug == in_flight:
+            continue
+        # Unstarted or stopped work has no green run by definition - same
+        # reason the in-flight issue is excluded.
+        try:
+            status = (yaml.safe_load(path.read_text()) or {}).get("status", "active")
+        except Exception:
+            status = "active"
+        if status in not_startable:
             continue
         result = subprocess.run(
             [sys.executable, str(ROOT / "cli" / "compass"), "check", "--task", slug],

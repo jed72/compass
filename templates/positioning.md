@@ -5,7 +5,7 @@ Lives at:    .compass/work/<task-slug>/positioning.md
 Role in the pipeline: the marketer's artifact. The marketer works PARALLEL
 to the spec, not downstream of it. Every claim made here must point at a
 scenario id in acceptance-criteria.md that backs it - that is the claim→scenario
-half of guardrail G3 (traceability holds), and the voice & positioning
+half of the traceability guardrail, and the voice & positioning
 strategies in governance/strategies.md govern how it is said. Unbacked
 claims are resolved at Land via launch-readiness.md; the marketer role_rule
 blocks Land until they are.
@@ -17,7 +17,7 @@ the point.
 
 # Positioning - {{TASK_SLUG}}
 
-> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** marketing-lens
+> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
 > **Governance owner check:** consistent with the voice & positioning strategies in `governance/strategies.md`.
 
 ---
