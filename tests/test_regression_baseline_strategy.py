@@ -13,7 +13,7 @@ import yaml
 def test_s6_registered_in_strategies_md(framework_root):
     """TRC-R10-1: strategies.md registers regression-baseline as a soft S6."""
     text = (framework_root / "governance" / "strategies.md").read_text()
-    assert "S6" in text and "regression-baseline" in text, text[:200]
+    assert "S6" in text and ("regression-baseline" in text or "Regression baseline" in text), text[:200]
     low = text.lower()
     assert "soft" in low or "assessed" in low
     assert "verify.regression" in text

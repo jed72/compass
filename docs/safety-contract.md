@@ -8,10 +8,10 @@ not. Everything else in the framework exists to keep this promise.
 Compass 1.0 is an adaptive spec-driven development kit for AI-assisted
 engineering workflows. **When it is in use, it guarantees:**
 
-1. **A task receives a deterministic route once its readings are known.** The
-   four-dimension readings are judgement (the Needle's); given those readings
+1. **An issue receives a deterministic route once its assessment are known.** The
+   four-dimension assessment are judgement (triage's); given those assessment
    plus `governance/routing-policy.yml`, the route is a pure function - same
-   readings, same policy, same route, every run, on every machine.
+   assessment, same policy, same route, every run, on every machine.
 
 2. **A declared guardrail cannot silently become advisory.** Every guardrail's
    declared check must be implemented in the CLI; both `compass policy lint`
@@ -20,7 +20,7 @@ engineering workflows. **When it is in use, it guarantees:**
 
 3. **Delivery work cannot land without required evidence.** Gate evidence is
    typed, registered, and traceable; `verify.correctness` cannot be cleared
-   with a written note, and an unbacked claim cannot ship. Backfills are
+   with a written note, and an unbacked claim cannot ship. Follow-ups are
    tracked and block Land until paid.
 
 4. **Exploration cannot silently become production delivery.** A Spike is
@@ -32,9 +32,9 @@ engineering workflows. **When it is in use, it guarantees:**
 
 5. **Human approvals are required and recorded for irreversible or high-risk
    changes.** Changes that touch auth, payments, personal data, or migrations
-   route to Expedition and demand a structured `human-approval` evidence
+   route to initiative and demand a structured `human-approval` evidence
    record - approver, role, decision, timestamp, scope, conditions - before
-   Land can complete. **So does any change whose blast radius is `critical`**,
+   Land can complete. **So does any change whose risk is `critical`**,
    which the router defines as one that can lose data, lose money, breach
    auth or privacy, or resist a clean rollback. That second arm matters
    because those consequences do not always carry one of the four tags: a
@@ -43,7 +43,7 @@ engineering workflows. **When it is in use, it guarantees:**
    what this guarantee is for and touch none of them.
 
 6. **Compass CI validates process integrity. It does not replace project CI.**
-   `compass ci` proves routes, evidence, approvals, traceability, and backfills
+   `compass ci` proves routes, evidence, approvals, traceability, and follow-ups
    are coherent and complete. It does **not** re-run your test suite, your
    linter, your security scanner, your build, or your deployment checks -
    those remain your project's responsibility. The two pipelines complement
@@ -62,7 +62,7 @@ Equally important. Honest scope is what makes the promise credible.
 
 - **Compass does not prove software correctness.** It enforces that
   acceptance is stated and tested, that evidence exists and is the right
-  kind, and that the route is the right shape for the task. It does not
+  kind, and that the route is the right shape for the issue. It does not
   reason about whether your code is correct - only your tests and reviewers do
   that.
 
@@ -122,19 +122,19 @@ Equally important. Honest scope is what makes the promise credible.
 
 | Guarantee | How |
 |---|---|
-| 1 (deterministic routing) | `compass approach evaluate` - pure function over readings + policy |
+| 1 (deterministic routing) | `compass approach evaluate` - pure function over assessment + policy |
 | 2 (no silent guardrails) | `compass policy lint` + `compass check` both fail on missing CHECK_FNS implementation |
-| 3 (typed, registered evidence) | `governance/guardrails.yml` declares per-gate accepted types; gates reference entries in the task's evidence registry by id |
-| 4 (Spike safety) | Routing guardrail raises a conflict on unsafe exploration; `compass check` enforces the spike-conclusion + no-production-changed_files invariants on a Spike route |
-| 5 (recorded approvals) | `human-approval` typed evidence with structured fields, validated at Land |
+| 3 (typed, registered evidence) | `governance/guardrails.yml` declares per-gate accepted types; gates reference entries in the issue's evidence registry by id |
+| 4 (Spike safety) | Routing guardrail raises a conflict on unsafe exploration; `compass check` enforces the spike-conclusion + no-production-changed_files invariants on a spike |
+| 5 (recorded approvals) | `human-approval` typed evidence with structured fields, validated at ship time |
 | 6 (CI lane, not CI itself) | `ci/README.md` + the reference workflow run alongside project CI; the docs say so explicitly |
 | 7 (recoverable, gradient) | `docs/install-smoke-test.md`, `docs/five-minutes.md`, structured failure messages, `mode: advisory \| enforced` in `.compass/config.yml` |
 
 ## Versioning and stability
 
 Compass 1.0 declares its policy and schema versions in `governance/*.yml` and
-the task spine (`schema_version`). The CLI will warn - or in `enforced` mode,
-fail - when it meets a task whose schema is not compatible with the running
+the issue spine (`schema_version`). The CLI will warn - or in `enforced` mode,
+fail - when it meets an issue whose schema is not compatible with the running
 CLI. Migration guidance ships with every breaking change.
 
 This contract is the bar for 1.0. Future versions may *add* guarantees; they

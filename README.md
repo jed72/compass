@@ -4,10 +4,10 @@
 
 # Compass - Adaptive Spec-Driven Development
 
-**Read the terrain. Then route.**
+**Assess the work. The policy does the routing.**
 
 Compass is a spec-driven development framework that refuses to treat a typo fix
-and a payments rewrite the same way. It reads the context of each task - how
+and a payments rewrite the same way. It reads the context of each issue - how
 risky, how big, new code or old, who's asking - and computes the right amount
 of process for *that* change. Heavy when it needs to be. Out of the way when it
 doesn't.
@@ -35,18 +35,18 @@ but low-risk.
 
 ## The idea
 
-Compass computes process intensity per task instead of selecting it from a
-menu. Every task starts with **Frame** - a triage step where the **Needle**
+Compass computes process intensity per issue instead of selecting it from a
+menu. Every issue starts with **triage**, where the evaluator
 reads four dimensions:
 
 | Dimension | Question |
 |---|---|
-| **Blast radius** | If this goes wrong, how bad and how wide? |
-| **Terrain** | New code or existing code - and how well is it mapped? |
-| **Magnitude** | How much work is this actually? |
+| **risk** | If this goes wrong, how bad and how wide? |
+| **Familiarity** | New code or existing code - and how well is it mapped? |
+| **Size** | How much work is this actually? |
 | **Intent & role** | Who's invoking, and what outcome are they really after? |
 
-The Needle writes `delivery-approach.md`: what it assessed, the route it chose, the gates
+Triage writes `delivery-approach.md`: what it assessed, the approach it computed, the gates
 that apply, and **exactly what it's skipping and why that's safe**. De-scoping
 is a written, auditable decision, never an accident.
 
@@ -64,25 +64,25 @@ pip install pyyaml      # the CLI's one dependency
 Enabling the plugin namespaces the commands as `/compass:…`, registers the
 hooks, and puts the `compass` CLI on your PATH.
 
-Then start a task. The default guardrails ship active, so the Needle frames it
+Then start an issue. The default guardrails ship active, so triage frames it
 and picks the route with no setup at all:
 
 ```bash
-/compass:frame "Add rate limiting to the public API"
+/compass:triage "Add rate limiting to the public API"
 
 # Walk the pipeline (or let the route auto-advance).
-/compass:specify
-/compass:plan
-/compass:build
+/compass:define
+/compass:design
+/compass:implement
 /compass:verify
-/compass:land
+/compass:ship
 
 # Optional, whenever you have opinions to encode. Not a prerequisite:
 /compass:init   # adopt project guardrails and strategies into governance/
 ```
 
 A product owner would instead start with `/compass:intent`, a marketer with
-`/compass:position`. To see across every task in flight - triage, blockers, the
+`/compass:position`. To see across every issue in flight - triage, blockers, the
 periodic digest - run `/compass:flow`. See
 [`docs/quickstart.md`](docs/quickstart.md).
 
@@ -114,73 +114,74 @@ costs.
 Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land
 ```
 
-On the **Express** route, Clarify, Plan and Distribute collapse to almost
-nothing. On **Expedition**, Plan produces a distribution map and Distribute
+On a **quick fix**, the requirements review, the design stage, and the
+breakdown collapse to almost nothing. On an **initiative**, the design
+stage produces a distribution map and the breakdown
 spins up a swarm of agents across git worktrees. Same vocabulary, different
-weight, so anyone who has run one Compass task can read the artifacts of any
+weight, so anyone who has run one Compass issue can read the artifacts of any
 other.
 
-## The five reference routes
+## The five reference shapes
 
-Routes are *composed* from the dimension readings. These five are starting
-shapes the Needle tunes, not a fixed ladder.
+Approaches are *composed* from the dimension assessment. These five are starting
+shapes triage tunes, not a fixed ladder.
 
 | Route | Typical reading | Shape |
 |---|---|---|
-| **Express** | atomic · contained · mapped | Frame → Specify (1 scenario) → Build → Verify. Still tested before it lands. One gate. |
+| **quick fix** | atomic · contained · mapped | triage → define (1 scenario) → implement → verify. Still tested before it ships. One gate. |
 | **Standard** | standard · contained | Full pipeline, solo or pair. Two gates. |
-| **Expedition** | large · cross-cutting · greenfield | Full weight. Governance check, BDD discovery, distribution map, agent swarm across worktrees. All gates. |
-| **Hotfix** | critical · small · brownfield | Reproduce first: a failing regression test is the spec. Expedited Build, mandatory post-incident backfill. All Verify gates. |
-| **Spike** | intent is exploration | Explore freely: the TDD strategy is suspended, the hook doesn't block. Then graduate (re-frame into a real route) or discard. **Nothing lands from a Spike.** |
+| **initiative** | large · cross-cutting · greenfield | Full weight. Governance check, BDD discovery, distribution map, agent swarm across worktrees. All gates. |
+| **Hotfix** | critical · small · brownfield | Reproduce first: a failing regression test is the spec. Expedited implementation, mandatory post-incident follow-up. All Verify gates. |
+| **Spike** | intent is exploration | Explore freely: the TDD strategy is suspended, the hook doesn't block. Then graduate (re-assess into a real route) or discard. **Nothing ships from a spike.** |
 
 ## Governance - guardrails and strategies
 
 Compass is governed by two kinds of thing, kept deliberately separate:
 
 - **Guardrails** are few, hard, checkable, blocking. The things that must never
-  happen. The Needle adapts ceremony *around* them; it never crosses one.
+  happen. Triage adapts ceremony *around* them; it never crosses one.
 - **Strategies** are many, soft, directional, assessed. How the team tends to
   work. A strategy biases a decision; it doesn't block one.
 
-The framework ships five **default guardrails**: (G1) tested before it lands,
-(G2) acceptance defined before it's built, (G3) traceability holds, (G4)
-evidence not assertion, (G5) a human signs off on the irreversible.
+The framework ships five **default guardrails**: tested before it lands,
+acceptance defined before it's built, traceability holds, evidence not
+assertion, and a human signs off on the irreversible.
 
 The move that keeps Compass from being a sledgehammer: **BDD and TDD are
 default *strategies*, not guardrails.** The hard line is the *outcome* - code
 is tested, acceptance is checkable. Given/When/Then and red-green-refactor are
-the strong, shipped-on *way* to get there, and the Spike route can suspend
+the strong, shipped-on *way* to get there, and a spike can suspend
 them. A one-line typo fix still has to be tested before it lands; it doesn't
 have to perform the full ritual to do so.
 
 Governance is a **gradient, not a threshold**: the defaults ship active, so
-`/compass:init` is optional and `/compass:frame` works on day one. A team
+`/compass:init` is optional and `/compass:triage` works on day one. A team
 *accretes* its own strategies as it forms opinions. See `governance/`.
 
-## Roles are full citizens - one spec, many lenses
+## Roles are full citizens - one spec, many roles
 
 Compass isn't an engineering framework with bolted-on hooks for everyone else.
 The non-engineering roles have their own entry points and artifacts that plug
 into the *same* pipeline. The shared BDD scenario file is what makes it work.
-Every role reads it through their own lens:
+Every role reads it through their own perspective:
 
 | Role | Entry point | Reads the spec for… |
 |---|---|---|
 | Product owner / manager | `/compass:intent` | intent fidelity - do these scenarios deliver the brief? |
 | Product marketer | `/compass:position` | claims - every line of launch copy points at a backing scenario |
-| Designer | `/compass:design` | UI contracts, written as scenarios that flow into Specify |
-| Engineer | `/compass:frame` → pipeline | tests - scenarios become the acceptance suite |
+| Designer | `/compass:wireframe` | UI contracts, written as scenarios that flow into the define stage |
+| Engineer | `/compass:triage` → pipeline | tests - scenarios become the acceptance suite |
 | QA | `/compass:verify` | coverage - which scenarios are exercised, which edges aren't |
 
 The product owner enters *upstream* of the spec. The marketer works *parallel*
 to it. The designer feeds *into* it. Nobody is just a downstream consumer of a
 finished engineering process.
 
-**A lens does not always have an entry point.** The table lists the five
-**entry-point roles**, each of which starts a task with its own `/compass:…`
-command. The framework ships ten agents rather than five, because some lenses
+**A perspective does not always have an entry point.** The table lists the five
+**entry-point roles**, each of which starts an issue with its own `/compass:…`
+command. The framework ships ten agents rather than five, because some roles
 apply *during* the pipeline instead of starting it. The **architect-lens** is
-the clearest example: it reads the project's `architecture/` artifacts at Frame
+the clearest example: it reads the project's `architecture/` artifacts at triage
 and annotates `design.md` at Plan, and is consulted by the spec author and the
 planner rather than invoked directly. See
 [`docs/roles-guide.md`](docs/roles-guide.md).
@@ -190,19 +191,19 @@ planner rather than invoked directly. See
 An adaptive framework owes an answer to the obvious objection: *if the process
 can flex, what stops it flexing to nothing?*
 
-There is a line through Compass. On one side is **judgement**: the Needle
+There is a line through Compass. On one side is **judgement**: triage
 reading the four dimensions. That cannot be mechanized, and that judgement *is*
 the adaptivity. On the other side is **mechanism**: everything that happens
-once the readings exist, which is composing the route, applying the floors and
-caps, and running the guardrail checks. Same readings plus same policy gives
+once the assessment exist, which is composing the route, applying the floors and
+caps, and running the guardrail checks. Same assessment plus same policy gives
 the same route, every time.
 
 Compass puts that mechanism in a CLI so it is *actually* deterministic rather
 than deterministic in principle. Gate evidence in `task.yml` is **typed**, a
 `{type, path}` record rather than a bare path, so a mechanical gate cannot be
 cleared with a written note. And `compass retro` is the framework's own
-feedback loop: it reads the re-frame log across every task and reports whether
-the Needle is systematically over- or under-sizing routes. See
+feedback loop: it reads the re-assess log across every issue and reports whether
+triage is systematically over- or under-sizing routes. See
 [`docs/methodology.md`](docs/methodology.md) §6.
 
 ---
@@ -212,7 +213,7 @@ the Needle is systematically over- or under-sizing routes. See
 ## The compass CLI
 
 The slash commands call the CLI under the hood, so you rarely invoke it
-directly. `/compass:frame` runs `compass approach evaluate`; `/compass:verify`
+directly. `/compass:triage` runs `compass approach evaluate`; `/compass:verify`
 runs `compass check`. It is the part that makes the framework's checks real
 rather than aspirational.
 
@@ -271,18 +272,18 @@ in `architecture/decisions/ADR-009`, which decides that fitness functions
 belong to the project rather than the framework.
 
 **Flaky-test integrity.** A test that reruns to green is the classic way a
-guardrail becomes silently advisory. The `no-trusted-rerun` rule on G4
-(evidence, not assertion) refuses to clear a test run that only passed on a
+guardrail becomes silently advisory. The `no-trusted-rerun` rule under
+evidence-not-assertion refuses to clear a test run that only passed on a
 retry, unless either the root cause is fixed *or* the test is explicitly
-quarantined in `governance/quarantine.yml` with a tracking task. Strategy S5 in
-`governance/strategies.md` has the detail.
+quarantined in `governance/quarantine.yml` with a tracking issue. The
+intermittency rule in `governance/strategies.md` has the detail.
 
 ## Compass CI vs project CI
 
 > Compass CI does not replace your normal project CI. It does not re-run your
 > full test suite unless you explicitly configure your pipeline to do so.
 > Compass checks whether required evidence exists, is valid, and is traceable
-> to the task route. Your application pipeline should still run tests, linting,
+> to the issue route. Your application pipeline should still run tests, linting,
 > type checks, security scans, build validation, and deployment checks.
 
 The two are complementary: project CI proves the *code* is correct, Compass CI
@@ -351,7 +352,7 @@ compass/
 │                      system-context.md, relations.md, ownership.md, and
 │                      ADRs in decisions/. Compass ships its own founding ADRs
 │                      as a worked example; another project drops its own here
-├── routes/            The Needle (router.md) + the 5 reference routes
+├── approaches/        The sizing rubric (rubric.md) + the 5 reference shapes
 ├── schemas/           Executable JSON Schema (.schema.json) for the .yml +
 │                      task.yml, with human-readable .reference.yml companions
 ├── cli/               compass - the deterministic CLI (route evaluate, check,
@@ -375,7 +376,7 @@ compass/
 └── docs/              methodology.md is the canonical design doc - start there
 ```
 
-The methodology layer is `docs/`, `governance/*.md`, `routes/` and
+The methodology layer is `docs/`, `governance/*.md`, `approaches/` and
 `templates/`. The kit layer is `cli/`, `governance/*.yml`, `schemas/` and the
 `task.yml` spine. The Claude Code adapter layer is `commands/`, `agents/`,
 `skills/`, `hooks/` and `CLAUDE.md` - and the commands and agents *call the
@@ -384,20 +385,20 @@ kit*.
 ## Read next
 
 - **[`docs/five-minutes.md`](docs/five-minutes.md)** - the shortest path from
-  "what is this" to "I've shipped a task with it." Start here.
+  "what is this" to "I've shipped an issue with it." Start here.
 - **[`docs/safety-contract.md`](docs/safety-contract.md)** - the seven things
   Compass 1.0 guarantees, and what it explicitly does *not* claim.
 - **[`docs/methodology.md`](docs/methodology.md)** - the canonical design doc.
   Everything else is downstream of it.
-- [`docs/quickstart.md`](docs/quickstart.md) - your first task, per role.
+- [`docs/quickstart.md`](docs/quickstart.md) - your first issue, per role.
 - [`docs/install-smoke-test.md`](docs/install-smoke-test.md) - manual install
   verification checklist.
 - [`docs/security.md`](docs/security.md) - hook surface, dependencies,
   supply-chain stance.
-- [`docs/routing-deep-dive.md`](docs/routing-deep-dive.md) - how the Needle
+- [`docs/routing-deep-dive.md`](docs/routing-deep-dive.md) - how triage
   actually decides.
 - [`docs/roles-guide.md`](docs/roles-guide.md) - one scenario, seen four ways.
-- [`docs/writing-specs-and-plans.md`](docs/writing-specs-and-plans.md) - S7
+- [`docs/writing-specs-and-plans.md`](docs/writing-specs-and-plans.md) - the cold-reader strategy
   (write for a cold reader) shown applied to a spec Summary, a design decision,
   a scenario name, and a plan work unit, with what Compass deliberately does not
   adopt and why.

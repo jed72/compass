@@ -163,12 +163,12 @@ and **the shape of the change** in code. They exist so a reviewer can see a
 design before it is built, which is the cheapest moment to disagree with it.
 
 They are optional individually. `skills/plan-authoring/SKILL.md` carries the
-rule for each; the short version is that Express writes no plan at all,
-Standard uses the one or two that add clarity, and Expedition may use all of
+rule for each; the short version is that quick fix writes no plan at all,
+Standard uses the one or two that add clarity, and initiative may use all of
 them. **Delete the ones you do not use** - an empty optional heading reads as
 an omission rather than a decision.
 
-Below is a complete worked example for an imaginary task: adding support for a
+Below is a complete worked example for an imaginary issue: adding support for a
 second JWT signing algorithm. Note what it does *not* do - it names two
 patterns, not five, and it shows an interface rather than an implementation.
 
@@ -298,7 +298,7 @@ rather than routing them through a critic.
 [outcome]" is refused as a spec format by **ADR-004**. The reason is that a user
 story embeds one role's perspective into the artifact, so each role ends up
 wanting their own version and the versions drift. Compass has one
-`acceptance-criteria.md` that five roles read through five lenses. User stories are
+`acceptance-criteria.md` that five roles read through five roles. User stories are
 fine *upstream* of Compass, in a brief or a ticket; they are not the spec.
 
 **No single-audience declaration.** A common convention is to write "assume the
@@ -308,7 +308,7 @@ spec is read for intent fidelity, for claims, for tests, for coverage, and for U
 behaviour. S7 already assumes zero prior context without having to name someone
 to imagine.
 
-**No bite-sized tasks with exact commands in the plan.** Some frameworks make
+**No bite-sized issues with exact commands in the plan.** Some frameworks make
 the plan a sequence of small steps each with the literal command to run. Compass
 does not, because Build already sequences small units through `compass tdd-red`
 and `compass tdd-green`, and duplicating that in `design.md` inflates the plan

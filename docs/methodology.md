@@ -10,7 +10,7 @@ ever contradicts this document, this document wins.
 
 Spec-driven development frameworks tend to pick a ceremony and apply it to
 everything. A typo fix in a help string goes through the same specify →
-clarify → plan → tasks → implement → review pipeline as a new billing system.
+clarify → plan → issues → implement → review pipeline as a new billing system.
 Two failure modes follow:
 
 - **Ceremony fatigue.** When the process costs more than the change, people
@@ -25,37 +25,37 @@ five or six tiers. That helps, but a ladder is still a one-dimensional answer
 to a multi-dimensional question. "How risky" and "how big" and "is this new
 code or old code" and "who is asking" are different axes. A migration that
 touches one file is small but not safe. A greenfield prototype is large but
-low-risk. A marketing claim and an engineering task enter the same product
+low-risk. A marketing claim and an engineering issue enter the same product
 from completely different doors.
 
-Compass treats process intensity as something to **compute per task**, not
+Compass treats process intensity as something to **compute per issue**, not
 select from a menu.
 
 ---
 
-## 2. The core idea: read the terrain, then route
+## 2. The core idea: read the familiarity, then route
 
-Every Compass task begins with **Frame** - a triage step that reads four
+Every Compass issue begins with **Frame** - a triage step that reads four
 context dimensions and produces a **Route**: a tailored pipeline with the
 right ceremony, the right gates, the right agent topology, and the right
 artifacts for *this* change. The component that does this is the **Needle**.
 
-The four dimensions the Needle reads:
+The four dimensions triage reads:
 
 | Dimension | Question | Range |
 |---|---|---|
-| **Blast radius** | If this goes wrong, how bad and how wide? | trivial · contained · cross-cutting · critical |
-| **Terrain** | Is this new code or existing code, and how well is it mapped? | greenfield · brownfield-mapped · brownfield-unmapped |
+| **risk** | If this goes wrong, how bad and how wide? | trivial · contained · cross-cutting · critical |
+| **Familiarity** | Is this new code or existing code, and how well is it mapped? | greenfield · brownfield-mapped · brownfield-unmapped |
 | **Magnitude** | How much work is this? | atomic · small · standard · large · product |
 | **Intent & role** | Who is invoking, and what outcome are they really after? | engineer · product owner/manager · product marketer · designer · QA |
 
-The Needle does not just classify - it explains. Its output, `delivery-approach.md`, is an
+Triage does not just classify - it explains. Its output, `delivery-approach.md`, is an
 auditable record: here is what I assessed, here is the route I chose, here is
 what ceremony applies, **here is what I am skipping and the explicit reason it
 is safe to skip.** De-scoping is a first-class, written decision, not an
 accident.
 
-Routing is **advisory until confirmed**. The human can override the Needle,
+Routing is **advisory until confirmed**. The human can override triage,
 and a routing guardrail can override the human (changing a routing guardrail
 means amending `governance/routing-policy.md`, not overriding a route). What
 routing is *not* allowed to do is silently cross a guardrail - see §4.
@@ -74,16 +74,16 @@ Frame → Specify → Clarify → Plan → Distribute → Build → Verify → L
 
 | Phase | What happens | What adapts |
 |---|---|---|
-| **Frame** | The Needle reads the four dimensions and writes `delivery-approach.md`. Roles in play are identified. | Always runs. Cost: ~minutes even on the heaviest route. |
+| **Frame** | Triage reads the four dimensions and writes `delivery-approach.md`. Roles in play are identified. | Always runs. Cost: ~minutes even on the heaviest route. |
 | **Specify** | Behaviour is captured as BDD scenarios (Given/When/Then). Greenfield: discovery. Brownfield: *blueprint distillation* - reverse-engineer current behaviour into scenarios before changing it. | One scenario vs. a full feature set. Discovery depth. |
-| **Clarify** | Ambiguities resolved. The spec is QA'd against itself and against governance. | Skipped on Express when the spec is a single unambiguous scenario; skipped on Spike entirely. |
-| **Plan** | Technical plan. Governance check. Independent work units identified; worktree/swarm topology decided. | Collapses to "edit this file" on Express; expands to a distribution map on Expedition. |
-| **Distribute** | Git worktrees created; agent swarm assigned, one stream per independent unit. | Skipped entirely on solo routes. |
-| **Build** | TDD red → green → refactor (the default strategy). Each agent owns its scenarios. | Test surface scales with blast radius; the red-before-green strategy is suspended on Spike. |
+| **Clarify** | Ambiguities resolved. The spec is QA'd against itself and against governance. | Skipped on quick fix when the spec is a single unambiguous scenario; skipped on Spike entirely. |
+| **Plan** | Technical plan. Governance check. Independent work units identified; worktree/swarm topology decided. | Collapses to "edit this file" on quick fix; expands to a distribution map on initiative. |
+| **Distribute** | Git worktrees created; agent swarm assigned, one stream per independent unit. | Skipped entirely on solo work. |
+| **Build** | TDD red → green → refactor (the default strategy). Each agent owns its scenarios. | Test surface scales with risk; the red-before-green strategy is suspended on Spike. |
 | **Verify** | BDD scenarios run as acceptance tests; TDD suite runs; review dimensions applied; gates checked. | Number of review dimensions and gates scales with the route. |
 | **Land** | Worktrees integrated, regression run, living docs updated, any de-scoped artifact backfilled. | Integration is trivial for solo, a coordinated merge for swarms. |
 
-The vocabulary never changes, so a person who has run one Compass task can
+The vocabulary never changes, so a person who has run one Compass issue can
 read the artifacts of any other. The *weight* changes.
 
 Two of the phase transitions carry an explicit checklist gate, so "ready" and
@@ -98,8 +98,8 @@ Clarify collapses, the Definition of Ready is satisfied by construction.
 
 **The Definition of Done is a typed gate, not a narrative.** Every unchecked
 DoD item must carry a typed inline tag pointing at the evidence that would
-clear it - `(evidence: EV-<id>)` referencing an entry in the task's typed
-evidence registry, or `(backfill: BF-<id>)` referencing an owed backfill - or
+clear it - `(evidence: EV-<id>)` referencing an entry in the issue's typed
+evidence registry, or `(backfill: BF-<id>)` referencing an owed follow-up - or
 be ticked `[x]` when a human has actually done the work. Bare unchecked items
 fail `compass check`'s `dod-evidence-typed` rule. This is G4 (evidence, not
 assertion) expressed at the checklist level: a written note in a devlog is
@@ -115,12 +115,12 @@ lets the framework be rigorous *and* adaptive *and* light at the same time.
 
 - **Guardrails** are few, hard, checkable, and blocking. The things that must
   never happen. A guardrail is cleared only with evidence, and a failed
-  guardrail stops the work. The Needle adapts ceremony around guardrails; it
+  guardrail stops the work. Triage adapts ceremony around guardrails; it
   never crosses one.
 - **Strategies** are many, soft, directional, and assessed. How the team tends
   to work and what it prefers. A strategy *biases* a decision - it does not
-  block one. The Needle, a route, or a human can depart from a strategy for a
-  given task; the departure is recorded, not punished.
+  block one. Triage, a route, or a human can depart from a strategy for a
+  given issue; the departure is recorded, not punished.
 
 The full set lives in `governance/`. This section is the why; that directory
 is the what.
@@ -147,14 +147,14 @@ is the *outcome*: code is tested (G1), acceptance is stated and checkable
 shipped-on, strong default *way* to reach that outcome. The distinction has
 teeth: a one-character typo fix still has to satisfy G1 (tested before it
 lands), but it does not have to perform the full red-before-green ritual to do
-so; and the **Spike route** suspends the TDD strategy entirely so exploration
+so; and the **spike** suspends the TDD strategy entirely so exploration
 is not throttled - while G1 still applies to anything a spike graduates into
 production. Old frameworks made the ritual itself non-negotiable; Compass makes
 the *outcome* non-negotiable and the ritual a strong, suspendable default.
 
 **The conflict rule.** A guardrail always beats a strategy. Guardrail-vs-
 guardrail should not happen - if it does, the guardrail set has a bug.
-Strategy-vs-strategy is resolved by context: the Needle picks based on the
+Strategy-vs-strategy is resolved by context: triage picks based on the
 route, or a human picks. This replaces the older idea of a single supreme
 "constitution": there is no supreme document, there is a small hard set that
 wins and a larger soft set that guides.
@@ -183,7 +183,7 @@ detailed in `governance/strategies.md` §6 and operationalised through
 `governance/quarantine.yml` - pairs with G4 (evidence, not assertion): the
 `no-trusted-rerun` rule refuses to clear a test-run when a rerun was needed
 unless the root cause is fixed or the test is explicitly quarantined with a
-tracking task. A test that reruns to green is the classic way a guardrail
+tracking issue. A test that reruns to green is the classic way a guardrail
 becomes silently advisory; the rule closes that drift surface.
 
 *Writing for a cold reader* - strategy S7 - extends persistence over
@@ -198,7 +198,7 @@ the `clarity` dimension, and it fails nothing.
 
 ---
 
-## 5. One spec, many lenses: roles as full citizens
+## 5. One spec, many roles: roles as full citizens
 
 Compass is not an engineering framework with hooks for other people bolted on.
 The four non-engineering roles are full participants with their own entry
@@ -206,7 +206,7 @@ points, their own vocabulary, and their own artifacts that plug into the
 *same* pipeline.
 
 The mechanism that makes this work is the **shared scenario file**. The BDD
-spec is the one artifact every role reads - each through their own lens:
+spec is the one artifact every role reads - each through their own perspective:
 
 - The **product owner / manager** reads it for *intent fidelity*: do these
   scenarios actually deliver the outcome in the brief?
@@ -223,7 +223,7 @@ Role entry points:
 |---|---|---|---|
 | Product owner / manager | `/compass:intent` | `prd.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before Plan. Curates the product strategies in `governance/strategies.md`. |
 | Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Gates Land: no launch claim ships without a passing scenario behind it. Curates the voice & positioning strategies. |
-| Designer | `/compass:design` | `ui-contract.md` | UI contracts are written as scenarios and flow into Specify. |
+| Designer | `/compass:design` | `ui-contract.md` | UI contracts are written as scenarios and flow into the define stage. |
 | Engineer | `/compass:frame` and the pipeline | `delivery-approach.md`, `design.md`, code | Owns Build. Curates the engineering strategies. |
 | QA | participates in `/compass:verify` | `verification-report.md` | Owns the Verify gate. |
 
@@ -240,18 +240,18 @@ A worked example of the same scenario seen four ways lives in
 
 The genuinely novel move in Compass is that governance does not just shape the
 *code* - it shapes the *router*. `governance/routing-policy.md` applies the
-same guardrails-and-strategies split to the Needle itself:
+same guardrails-and-strategies split to triage itself:
 
-- **Routing guardrails** *bound* what the Needle may do. A routing guardrail
+- **Routing guardrails** *bound* what triage may do. A routing guardrail
   can force a route to be at least a certain weight ("anything touching auth
-  or payments is floored to Expedition regardless of magnitude"), cap how far
-  it may scale up ("never swarm a critical-blast-radius change"), or staple on
-  a gate no route may remove. The Needle cannot route around these, and a
-  human cannot override them per-task - changing one means amending the file.
-- **Routing strategies** *bias* what the Needle does by default - the route
-  shapes it reaches for, how it breaks ties ("when magnitude is unclear,
+  or payments is floored to initiative regardless of size"), cap how far
+  it may scale up ("never swarm a critical-risk change"), or staple on
+  a gate no route may remove. Triage cannot route around these, and a
+  human cannot override them per-issue - changing one means amending the file.
+- **Routing strategies** *bias* what triage does by default - the route
+  shapes it reaches for, how it breaks ties ("when size is unclear,
   estimate up"; "prefer the lightest route that still clears the guardrails").
-  The Needle starts here and tunes; a departure is recorded in `delivery-approach.md`.
+  Triage starts here and tunes; a departure is recorded in `delivery-approach.md`.
 
 This is the answer to the obvious objection to any adaptive framework - *"if
 the process can flex, what stops it flexing to nothing?"* The routing
@@ -264,27 +264,27 @@ this file is where Compass buys that integrity back.
 
 There is a line running through Compass, and naming it precisely is what keeps
 "adaptive" from meaning "inconsistent." On one side of the line is
-**judgement**: the Needle reading the four context dimensions - how risky is
+**judgement**: triage reading the four context dimensions - how risky is
 this, how big, new code or old, what outcome is really wanted. That cannot be
 mechanized, and it must not be: that judgement *is* the adaptivity. A framework
 that reduced it to a deterministic classifier would just be a fixed tiered
 ladder wearing a costume.
 
 On the other side of the line is **mechanism**: everything that happens once
-the readings exist. Composing the candidate route, applying the floors and
+the assessment exist. Composing the candidate route, applying the floors and
 caps, stapling the immovable gates, assembling the gate set - that is pure
-function. Same readings plus same policy produce the same route, every time,
+function. Same assessment plus same policy produce the same route, every time,
 for every agent and every human. And the checkable guardrails - is every
 scenario tested, does every changed file trace to a criterion, does every gate
 have evidence - are mechanism too.
 
 Compass puts the mechanism in a CLI (`cli/compass`) so it is *actually*
 deterministic, not deterministic-in-principle: `compass approach evaluate` runs
-`routing-policy.yml` against a task's readings; `compass check` runs the
-`guardrails.yml` checks against the task's `task.yml` and evidence. The Needle
-still produces the readings - judgement stays judgement - but it no longer
+`routing-policy.yml` against an issue's assessment; `compass check` runs the
+`guardrails.yml` checks against the issue's `task.yml` and evidence. Triage
+still produces the assessment - judgement stays judgement - but it no longer
 *also* composes the route in its head, where two agents could reason to two
-different answers. It hands the readings to the mechanism. The machine-readable
+different answers. It hands the assessment to the mechanism. The machine-readable
 files (`routing-policy.yml`, `guardrails.yml`, the `task.yml` spine) exist
 precisely so the mechanism *can* be mechanical. This is the boundary the "kit"
 is built around - see §9.
@@ -296,17 +296,17 @@ to the obvious follow-up: **is the right-sizing any good?** Judgement that is
 never checked against outcomes is just assertion with extra steps. So the
 Needle has a feedback loop.
 
-The mechanism is small. When the terrain reading turns out wrong, the honest
-response is a **re-frame** - re-score the four dimensions mid-task - and every
-re-frame is *recorded*: `compass approach evaluate --write` detects that the route
+The mechanism is small. When the familiarity reading turns out wrong, the honest
+response is a **re-assess** - re-score the four dimensions mid-issue - and every
+re-assess is *recorded*: `compass approach evaluate --write` detects that the route
 changed and appends an entry to `task.yml`'s `reframes` log, with the reason
-(`--reason "..."`). One re-frame is an anecdote. The log across every task is
+(`--reason "..."`). One re-assess is an anecdote. The log across every issue is
 data: `compass retro` aggregates it and reports the pattern - are
-re-frames mostly *up* (the Needle reads magnitude and blast radius low - it is
+re-frames mostly *up* (triage reads size and risk low - it is
 under-sizing) or *down* (it reads risk high - it is over-sizing)? That is the
 framework holding a mirror to its own judgement layer. It does not gate
 anything; it tells the team whether `routing-policy.yml` or the Frame rubric in
-`routes/router.md` needs tuning. The adaptivity is judgement (§6's first half),
+`approaches/rubric.md` needs tuning. The adaptivity is judgement (§6's first half),
 and this is how judgement stays honest over time - measured, not assumed.
 
 ---
@@ -322,22 +322,22 @@ satisfy disjoint scenarios can run in parallel.
 
 Distribute then sets up the topology:
 
-- **Solo** (1 stream) - Express and most Standard routes. No worktree; work
+- **Solo** (1 stream) - quick fix and most Standard routes. No worktree; work
   happens on the current branch. Distribute is a no-op.
 - **Pair** (2–3 streams) - larger Standard routes. One worktree per stream.
-- **Swarm** (4+ streams) - Expedition. One git worktree per stream, one
+- **Swarm** (4+ streams) - initiative. One git worktree per stream, one
   subagent per worktree, plus an **orchestrator** agent that does not write
   feature code - it monitors progress, detects when two streams are about to
-  collide, and owns the integration at Land.
+  collide, and owns the integration at ship time.
 
 Each worktree is an isolated checkout, so a swarm agent can run a full TDD
 cycle - including a failing test suite - without destabilising siblings. The
-orchestrator integrates at Land, runs regression across the combined result,
+orchestrator integrates at ship time, runs regression across the combined result,
 and is the only agent allowed to resolve cross-stream conflicts.
 
-Swarm topology is itself a routed decision: the Needle's magnitude and blast
-radius readings set the default, the distribution map sets the count, and a
-routing guardrail can cap it (e.g. "never swarm a critical-blast-radius change -
+Swarm topology is itself a routed decision: triage's size and blast
+radius assessment set the default, the distribution map sets the count, and a
+routing guardrail can cap it (e.g. "never swarm a critical-risk change -
 the coordination risk outweighs the speed").
 
 Scripts: `scripts/swarm.sh` creates the worktrees and launches agents;
@@ -345,21 +345,21 @@ Scripts: `scripts/swarm.sh` creates the worktrees and launches agents;
 
 ---
 
-## 8. The five reference routes
+## 8. The five reference shapes
 
-Routes are *composed* from the dimension readings, but in practice most tasks
-land near one of five reference shapes. These are starting points the Needle
+Routes are *composed* from the dimension assessment, but in practice most issues
+land near one of five reference shapes. These are starting points triage
 tunes, not a fixed ladder.
 
 | Route | Typical reading | Pipeline shape |
 |---|---|---|
-| **Express** | atomic/small · trivial/contained · brownfield-mapped | Frame → Specify (1 scenario) → Build → Verify. Clarify, Plan, Distribute collapse. Still tested before it lands (G1); the red-before-green TDD strategy still applies. One gate. |
-| **Standard** | standard · contained · either terrain | Full pipeline, solo or pair. Spec is a small feature set. Governance check in Plan. Two gates. |
-| **Expedition** | large/product · cross-cutting · greenfield/unmapped | Full pipeline at full weight. Governance check, full BDD discovery, distribution map, agent swarm across worktrees. All gates. |
-| **Hotfix** | critical · atomic/small · brownfield | Reproduce-first: a failing regression test *is* the spec. Expedited Build, but a mandatory post-incident backfill of `delivery-approach.md` and a real scenario before the task is closed. All Verify gates, no exceptions. |
+| **quick fix** | atomic/small · trivial/contained · brownfield-mapped | Frame → Specify (1 scenario) → Build → Verify. Clarify, Plan, Distribute collapse. Still tested before it lands (G1); the red-before-green TDD strategy still applies. One gate. |
+| **Standard** | standard · contained · either familiarity | Full pipeline, solo or pair. Spec is a small feature set. Governance check in Plan. Two gates. |
+| **initiative** | large/product · cross-cutting · greenfield/unmapped | Full pipeline at full weight. Governance check, full BDD discovery, distribution map, agent swarm across worktrees. All gates. |
+| **Hotfix** | critical · atomic/small · brownfield | Reproduce-first: a failing regression test *is* the spec. Expedited Build, but a mandatory post-incident follow-up of `delivery-approach.md` and a real scenario before the issue is closed. All Verify gates, no exceptions. |
 | **Spike** | intent is exploration - "I cannot frame this well enough yet" | Frame (light) → Explore (TDD strategy suspended; the hook does not block) → Conclude → graduate or discard. **Nothing lands from a Spike** - the only exit that keeps code is graduating, which is re-framing into a real route where the guardrails apply in full. |
 
-Full definitions, including exact gate sets, live in `routes/`. Spike is the
+Full definitions, including exact gate sets, live in `approaches/`. Spike is the
 escape hatch that keeps the lightweight path honest: it exists so exploratory
 work is not forced through a delivery-shaped pipeline, and it is safe because
 its de-scopes are all backed by the same fact - nothing lands from it.
@@ -371,7 +371,7 @@ its de-scopes are all backed by the same fact - nothing lands from it.
 Compass is built in three layers, deliberately separated.
 
 - **The methodology layer** - `docs/`, `governance/` (the `.md` files),
-  `routes/`, `templates/`, and `architecture/` (the project's cross-task
+  `approaches/`, `templates/`, and `architecture/` (the project's cross-issue
   architectural artifacts - `system-context.md`, `relations.md`,
   `ownership.md`, and ADRs in `decisions/`; Compass ships its own as a
   worked example for adopters). Plain markdown. No tool-specific syntax, no
@@ -380,7 +380,7 @@ Compass is built in three layers, deliberately separated.
 
 - **The kit layer** - `cli/compass`, the machine-readable governance files
   (`governance/routing-policy.yml`, `governance/guardrails.yml`), `schemas/`,
-  and the `task.yml` task spine. This is the *mechanism* side of the
+  and the `task.yml` issue spine. This is the *mechanism* side of the
   determinism boundary (§6) made into software: it composes routes, applies
   the routing guardrails, and runs the guardrail checks - deterministically
   and reproducibly. `schemas/` ships executable JSON Schema (draft-07
@@ -416,13 +416,13 @@ contract the adapter layer must satisfy and what each layer guarantees.
 
 ---
 
-## 10. The flow layer: managing across tasks
+## 10. The flow layer: managing across issues
 
-Everything above is *task-centric* - and that is the right default. Each task
+Everything above is *task-centric* - and that is the right default. Each issue
 carries its own route, its own artifacts, its own gates; the pipeline
-guarantees a single task is well-run. But a team runs many tasks at once, and
-the per-task pipeline has a structural blind spot: each task only sees itself.
-Nothing inside a task answers "what is the state of *everything*, and what
+guarantees a single issue is well-run. But a team runs many issues at once, and
+the per-issue pipeline has a structural blind spot: each issue only sees itself.
+Nothing inside an issue answers "what is the state of *everything*, and what
 needs a human first?"
 
 The **flow layer** fills that gap. It is the delivery-management function -
@@ -431,39 +431,39 @@ a **capability**, not a role. Compass deliberately does not add a "delivery
 manager" persona with turf and an inbox; it adds `/compass:flow`, a command
 anyone can run, backed by the `flow-management` skill.
 
-The distinction matters because of how Compass stores state. Task state is not
+The distinction matters because of how Compass stores state. Issue state is not
 a label a manager sets - it is *inferred from the artifacts on disk* (`design.md`
-exists and `verification-report.md` does not ⇒ the task is in Build). So flow
+exists and `verification-report.md` does not ⇒ the issue is in Build). So flow
 management has nothing to "own" and nothing to "move." Its whole job is to read
-the artifacts, notice what the per-task pipeline cannot, and surface the right
-thing first: guardrail violations (a task with no `delivery-approach.md`), routes quietly
-outgrown, stalls, and owed backfills aggregated across every task. It advises;
-it never gates. The gates stay in the per-task pipeline, next to the evidence.
+the artifacts, notice what the per-issue pipeline cannot, and surface the right
+thing first: guardrail violations (an issue with no `delivery-approach.md`), routes quietly
+outgrown, stalls, and owed follow-ups aggregated across every issue. It advises;
+it never gates. The gates stay in the per-issue pipeline, next to the evidence.
 
-`/compass:status` looks *down* into one task. `/compass:flow` looks *across*
+`/compass:status` looks *down* into one issue. `/compass:flow` looks *across*
 all of them. `/compass:flow --digest` writes a dated, append-only digest - the
 artifact a team reviews on a cadence, and a natural fit for a scheduled run.
 
-Flow also carries the framework's **calibration signal**. Every re-frame is
+Flow also carries the framework's **calibration signal**. Every re-assess is
 recorded in `task.yml`'s `reframes` log (§6's feedback loop), and `compass
-calibration` aggregates that log across every task - is the Needle
+calibration` aggregates that log across every issue - is triage
 systematically over- or under-sizing routes? Flow surfaces that read alongside
 the board and folds it into the digest, because "are we right-sizing process?"
-is exactly the cross-task question no single task can answer.
+is exactly the cross-issue question no single issue can answer.
 
 ## 11. Loading project architecture
 
-Every Compass task begins with Frame.  As part of Frame, the CLI's internal
+Every Compass issue begins with Frame.  As part of Frame, the CLI's internal
 `frame_load_architecture` helper scans the project's `architecture/` directory
 (when present) and writes a structured record of what it found to
 `.compass/work/<task>/architecture-loaded.yml`.
 
 **Why a separate file, not a `task.yml` field?**  `task.yml.readings` is the
-*judgement* block - the Needle's assessment of the four dimensions.  Mechanism-
+*judgement* block - triage's assessment of the four dimensions.  Mechanism-
 produced state (what files exist on disk, their hashes) does not belong there.
 `architecture-loaded.yml` is the mechanism's output; `readings` is the human's.
 Keeping them separate preserves the determinism boundary: same inputs to the
-mechanism always produce the same record, independent of the Needle's
+mechanism always produce the same record, independent of triage's
 judgement.
 
 **What the record contains:**
@@ -486,7 +486,7 @@ adrs:
     status: proposed | accepted | superseded
 ```
 
-The `sha256` per artifact lets downstream agents detect mid-task drift: if an
+The `sha256` per artifact lets downstream agents detect mid-issue drift: if an
 architecture file changes after Frame loaded it, the hash will not match, and
 the agent knows to ask Frame to reload.  The `parsed` field for structured
 files means downstream agents do not need to re-read the file from disk.
@@ -500,7 +500,7 @@ without error.  Every existing project that has not yet adopted the
 exists but is not valid YAML, Frame raises an error that names the file and
 the parse error.  A malformed structured artifact is never silently swallowed -
 it would produce incorrect architectural context for every downstream agent in
-this task.
+this issue.
 
 **Downstream agents:** spec-author, planner, and the architect-lens all read
 `architecture-loaded.yml` to get persistent architectural context.  The file
@@ -508,31 +508,31 @@ survives session boundaries and context compaction - which is the core problem
 it solves.  An agent that needs to know whether the project has a stable
 service boundary, who owns a given surface, or which decisions are already
 recorded reads this file, not the raw `architecture/` tree.
-## 12. Cross-task rework
+## 12. Cross-issue rework
 
-Each Compass task owns its own `changed_files` record - a list of paths and
+Each Compass issue owns its own `changed_files` record - a list of paths and
 their actions (`added`, `modified`, `deleted`). These records are the code-half
-of traceability (G3), but they also carry a cross-task signal: if task B deletes
-a file that task A added within a short window, that is rework - task A's effort
+of traceability (G3), but they also carry a cross-issue signal: if issue B deletes
+a file that issue A added within a short window, that is rework - issue A's effort
 was undone before it delivered lasting value.
 
 `compass rework-scan` reads every `task.yml.changed_files` under a configured
 root and detects:
 
-- **Add-then-delete pairs.** File added in task A, deleted by task B within the
+- **Add-then-delete pairs.** File added in issue A, deleted by issue B within the
   configured `window_days` (default 14, from `governance/signals.yml`).
 - **Public-surface churn.** Files matching `rework_scan.public_surface_patterns`
   (API routes, proto symbols, etc.) that follow the add-then-delete pattern.
 - **Migration pairs.** A migration file matching `rework_scan.migration_paths`
-  added by task A, paired with a semantically related drop migration added by
-  task B in the same window.
+  added by issue A, paired with a semantically related drop migration added by
+  issue B in the same window.
 
 **Exit code is always 0.** The scan is a signal, not a gate (Inv-4: Flow
 advises, never gates). Detection of rework does not block delivery. The output
 surfaces in `/compass:flow --digest` as the "Rework scan" section and is
 also written to its own dated artifact at `.compass/flow/rework-<date>.md`
 (an append-only record the team reviews on a cadence to decide whether to
-act - spawning a sibling task, filing an ADR, or accepting the churn as
+act - spawning a sibling issue, filing an ADR, or accepting the churn as
 intentional).
 
 Configuration lives in `governance/signals.yml` and is loaded at runtime;
@@ -542,33 +542,33 @@ patterns are never hardcoded in the CLI. Projects override by editing their own
 
 ## 13. Reframes - feedback signal
 
-A **re-frame** is what happens when the Needle (or a human) re-reads the
-terrain mid-task and concludes that the initial route was wrong. Re-framing is
+A **re-assess** is what happens when triage (or a human) re-reads the
+familiarity mid-issue and concludes that the initial route was wrong. Re-framing is
 normal and expected - it is the mechanism that keeps process proportionate when
 reality turns out to differ from first impressions. What is *not* normal is
-absorbing a scope change silently, without filing the re-frame.
+absorbing a scope change silently, without filing the re-assess.
 
 ### Why absorbed mis-frames matter
 
-When a builder discovers during Build that the task is larger, narrower, or
+When a builder discovers during Build that the issue is larger, narrower, or
 differently shaped than Plan described, and works around it without filing a
-re-frame, two things happen:
+re-assess, two things happen:
 
 1. **The calibration signal is lost.** `compass retro` reads the
-   `reframes:` log across all tasks and reports whether the Needle is
+   `reframes:` log across all issues and reports whether triage is
    systematically over- or under-sizing. An absorbed mis-frame - a real scope
    change that was not recorded - makes calibration less accurate. The pattern
-   repeats; the Needle never learns.
-2. **The audit trail has a gap.** The task's `task.yml` says it was a
-   `standard` task; the devlog says scope ballooned. Anyone reading the history
-   cannot reconstruct why the task took longer than Plan said.
+   repeats; triage never learns.
+2. **The audit trail has a gap.** The issue's `task.yml` says it was a
+   `standard` issue; the devlog says scope ballooned. Anyone reading the history
+   cannot reconstruct why the issue took longer than Plan said.
 
 ### The stop-hook nudge
 
 `hooks/stop.sh` reads `governance/signals.yml`'s `scope_bloat_phrases` list at
-runtime and checks each active task's `devlog.md` against those patterns at
+runtime and checks each active issue's `devlog.md` against those patterns at
 session end. If a scope-bloat phrase appears as a top-level statement in the
-devlog (not nested in quotes or indentation) AND no reframe has been filed
+devlog (not nested in quotes or indentation) AND no reassess has been filed
 after it, the hook emits a nudge to stderr suggesting:
 
 ```
@@ -578,10 +578,10 @@ after it, the hook emits a nudge to stderr suggesting:
 The hook is **non-blocking** - it exits 0 regardless. It nudges; the human
 decides.
 
-### compass retro --reframe-debt
+### compass retro --reassess-debt
 
 `compass retro` includes a **Reframe debt** section in its output when it
-finds tasks that have scope-bloat devlog signals and no corresponding reframe.
+finds issues that have scope-bloat devlog signals and no corresponding reassess.
 These are listed as "absorbed mis-frames, signal lost" - advisory only. The
 command is read-only: it never writes to `task.yml` or any other file (this
 is a hard architectural invariant, not a convention).
@@ -589,26 +589,26 @@ is a hard architectural invariant, not a convention).
 ### The roundtable trigger
 
 Any roundtable outcome that changes a service boundary or migration scope must
-end with a re-frame. See `commands/roundtable.md` §"Reframe trigger" for the
+end with a re-assess. See `commands/roundtable.md` §"Reframe trigger" for the
 exact procedure and example invocation.
 
-### What counts as a filed reframe
+### What counts as a filed reassess
 
-A re-frame is filed when `compass approach evaluate --write --reason "..."` runs
-and the computed route differs from the previously recorded one. This appends
+A re-assess is filed when `compass approach evaluate --write --reason "..."` runs
+and the computed approach differs from the previously recorded one. This appends
 an entry to `task.yml.reframes` with `from_route`, `to_route`, `reason`, and
 `date`. The stop-hook and calibration both check this field to decide whether
 a nudge is appropriate.
 
-**The rule:** if scope grew, file the re-frame. The re-frame is not a failure;
+**The rule:** if scope grew, file the re-assess. The re-assess is not a failure;
 it is the calibration signal working as intended.
 
 ### The friction signal - calibrating the ceremony itself
 
-The `reframes:` log answers "did the Needle mis-*size* the route?" The
+The `reframes:` log answers "did triage mis-*size* the route?" The
 **friction signal** answers a different question on the same axis: "did
-Compass's own ceremony cost more than it returned on this task?" - a phase that
-fought the work, a gate that demanded ceremony the task didn't warrant, a
+Compass's own ceremony cost more than it returned on this issue?" - a phase that
+fought the work, a gate that demanded ceremony the issue didn't warrant, a
 routing default that routed badly, a missing strategy that would have caught a
 defect earlier.
 
@@ -616,14 +616,14 @@ It is captured at **Land**, when the gap between what Frame promised and what
 Build/Verify actually cost is freshest. `compass _friction-capture` (called by
 the Land procedure) assembles a draft `friction:` list in `task.yml` from
 signals the CLI already computes - recorded `reframes` and absorbed
-reframe-debt become `source: derived` entries - and the author may add one
+reassess-debt become `source: derived` entries - and the author may add one
 optional `source: human` line. **Recording nothing is a valid, common
 outcome.** Each entry carries a `category` (over-ceremony, under-ceremony,
 mis-route, missing-strategy, tooling, docs, other) and, for human entries, a
 `proposed_change` describing how the framework could have been configured to
 avoid the friction.
 
-`compass retro --friction` aggregates these across every task, groups
+`compass retro --friction` aggregates these across every issue, groups
 recurring `proposed_change` targets (exact-normalised, never semantic), and
 surfaces only those that recur at or above `signals.yml`'s
 `friction.recurrence_threshold` (default 2) - a one-off is noise, not a trend.
@@ -633,7 +633,7 @@ reads to **draft** a targeted change to `governance/` or the routes.
 Three properties keep this on the right side of every Compass line:
 
 1. **It never gates.** Friction is a strategy-class signal, not a guardrail
-   (ADR-002 keeps the guardrail count at five). A task with no friction record
+   (ADR-002 keeps the guardrail count at five). An issue with no friction record
    Lands exactly as one with. `compass retro --friction` is read-only and
    exits 0 always - like `rework-scan` and `flow`.
 2. **It never auto-tunes.** The loop produces drafts; a human edits governance.
@@ -645,7 +645,7 @@ Three properties keep this on the right side of every Compass line:
 ## 14. Design principles (the short version)
 
 1. **Compute the process, don't select it.** Intensity is a function of the
-   terrain, not a menu choice.
+   familiarity, not a menu choice.
 2. **Adapt the ceremony and the strategy - never the guardrail.** A few hard,
    checkable limits never flex; the form of how you meet them does.
 3. **Outcome is the guardrail; ritual is a strategy.** "Tested before it
@@ -654,11 +654,11 @@ Three properties keep this on the right side of every Compass line:
 4. **Governance is a gradient, not a threshold.** Ship the defaults; accrete
    the rest. There is a valid, complete *light* state - `/compass:init` is
    optional.
-5. **One spec, many lenses.** The scenario file is the shared substrate for
+5. **One spec, many roles.** The scenario file is the shared substrate for
    every role.
 6. **De-scoping is a written decision.** If a route skips something, the
    reason is in `delivery-approach.md`.
-7. **Governance governs the router.** Routing guardrails bound the Needle;
+7. **Governance governs the router.** Routing guardrails bound triage;
    routing strategies bias it. Flexibility is real and bounded.
 8. **Evidence over assertion, persistence over conversation.** Artifacts on
    disk, not claims in chat.

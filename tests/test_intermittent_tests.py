@@ -63,10 +63,10 @@ class TestS5InStrategiesMd:
         strat_path = FRAMEWORK_ROOT / "governance" / "strategies.md"
         text = strat_path.read_text(encoding="utf-8")
         # S5 must come after S4 in the default section
-        s4_pos = text.find("### S4")
-        s5_pos = text.find("### S5")
-        assert s5_pos != -1, "### S5 heading not found in strategies.md"
-        assert s4_pos != -1, "### S4 heading not found in strategies.md"
+        s4_pos = text.find("(`S4`)")
+        s5_pos = text.find("(`S5`)")
+        assert s5_pos != -1, "the S5-tagged heading not found in strategies.md"
+        assert s4_pos != -1, "the S4-tagged heading not found in strategies.md"
         assert s5_pos > s4_pos, "S5 must appear after S4 in strategies.md"
         # S5 must appear before the project strategies section
         project_section_pos = text.find("## Project strategies")

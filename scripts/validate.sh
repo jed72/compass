@@ -25,7 +25,7 @@
 #   4. Every skill referenced anywhere in commands/ exists in skills/.
 #   5. Every template referenced in commands/ exists in templates/.
 #   6. Every script and hook referenced in the repo exists and is executable.
-#   7. The five reference routes exist and the router references them.
+#   7. The five reference shape docs exist and the rubric references them.
 #   8. The kit layer is present: the CLI, the machine-readable governance,
 #      the schemas, and the task.yml template - and `compass policy lint`
 #      passes if python3 and the CLI are runnable.
@@ -59,12 +59,12 @@ say ""
 
 # --- 1. required structure --------------------------------------------------
 say "1. Directory structure and top-level files"
-for d in docs governance routes templates commands \
+for d in docs governance approaches templates commands \
          agents skills hooks scripts .compass; do
   if [ -d "$d" ]; then ok "dir  $d/"; else fail "missing directory: $d/"; fi
 done
 for f in CLAUDE.md AGENTS.md README.md docs/methodology.md \
-         routes/router.md governance/guardrails.md governance/strategies.md \
+         approaches/rubric.md governance/guardrails.md governance/strategies.md \
          governance/routing-policy.md .compass/config.yml; do
   if [ -f "$f" ]; then ok "file $f"; else fail "missing file: $f"; fi
 done
@@ -167,17 +167,17 @@ for f in hooks/pre-tool.sh hooks/post-tool.sh hooks/stop.sh \
 done
 say ""
 
-# --- 7. the five reference routes -------------------------------------------
+# --- 7. the five reference approaches -------------------------------------------
 say "7. Reference routes"
-for r in express standard expedition hotfix spike; do
-  if [ -f "routes/$r.md" ]; then
-    if grep -qiE "(\`|/| )$r\b" routes/router.md 2>/dev/null; then
-      ok "route  $r  <- exists, named in router.md"
+for r in quick-fix feature initiative hotfix spike; do
+  if [ -f "approaches/$r.md" ]; then
+    if grep -qiE "(\`|/| )$r\b" approaches/rubric.md 2>/dev/null; then
+      ok "shape  $r  <- exists, named in rubric.md"
     else
-      ok "route  $r  <- exists (router.md mention not detected - review by eye)"
+      ok "shape  $r  <- exists (rubric.md mention not detected - review by eye)"
     fi
   else
-    fail "missing reference route: routes/$r.md"
+    fail "missing reference shape doc: approaches/$r.md"
   fi
 done
 say ""

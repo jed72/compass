@@ -1,24 +1,24 @@
-# Routing Policy - How the Needle Is Bounded and Biased
+# Routing Policy - How triage Is Bounded and Biased
 
-The Needle (the router - see `routes/router.md`) reads four context dimensions
-during Frame and computes a route. This file governs that computation, using
+Triage (the router - see `approaches/rubric.md`) reads four context dimensions
+at triage and computes a route. This file governs that computation, using
 the same split as the rest of `governance/`:
 
-- **Routing guardrails** - hard. They *bound* what the Needle may do. A
+- **Routing guardrails** - hard. They *bound* what triage may do. A
   routing guardrail can force a route to be at least a certain weight, cap how
   far it may scale up, or staple on a gate that no route may remove. The
-  Needle cannot route around these, and a human cannot override them per-task
+  triage cannot route around these, and a human cannot override them per-issue
   - changing one means amending this file.
-- **Routing strategies** - soft. They *bias* what the Needle does by default -
+- **Routing strategies** - soft. They *bias* what triage does by default -
   the route shapes it reaches for, the way it breaks ties. A routing strategy
-  is the starting point; the Needle (or a human) can depart from it for a
-  given task, and that departure is just recorded in `delivery-approach.md`.
+  is the starting point; triage (or a human) can depart from it for a
+  given issue, and that departure is just recorded in `delivery-approach.md`.
 
 This is the answer to the obvious objection to any adaptive framework - *"if
 the process can flex, what stops it flexing to nothing?"* The routing
 guardrails are what stop it. The flex is real, and it is bounded by this file.
 
-The Needle applies this policy during Frame, after reading the four dimensions
+Triage applies this policy at triage, after reading the four dimensions
 and composing a candidate route, before writing `delivery-approach.md`. Every routing
 guardrail that fires is recorded in `delivery-approach.md` with its rationale - so any
 `delivery-approach.md` shows not just the route, but which bounds were active and why.
@@ -31,27 +31,27 @@ it has the live floors, caps, immovable gates, role rules, and default shapes,
 each with a stable id, and `compass approach evaluate` runs it deterministically.
 The YAML excerpts below are *illustrative*; where this prose and that file
 could be read to differ, the `.yml` wins. The crucial boundary: the
-four-dimension *readings* are judgement (the Needle produces them, and that
+four-dimension *assessment* are judgement (triage produces them, and that
 judgement is the adaptivity); this policy governs only what happens *after* -
-composing and constraining the route from the readings, which is deterministic.
+composing and constraining the route from the assessment, which is deterministic.
 
 ---
 
-## Routing guardrails (hard - they bound the Needle)
+## Routing guardrails (hard - they bound triage)
 
 ### `floors` - a reading forces *at least* a given route
 
 A floor says: "when the context looks like X, the route may not be lighter
-than Y." Floors are how domain risk overrides the raw dimension readings - the
-canonical case is that magnitude reads a one-line auth change as `atomic`, but
-a floor forces it heavier because the blast radius of auth is not a function
+than Y." Floors are how domain risk overrides the raw dimension assessment - the
+canonical case is that size reads a one-line auth change as `atomic`, but
+a floor forces it heavier because the risk of auth is not a function
 of line count.
 
 ### `caps` - limits on scaling up
 
-The mirror of floors. Where a floor stops the Needle going too light, a cap
+The mirror of floors. Where a floor stops triage going too light, a cap
 stops it going too heavy in a way that adds risk. The default cap - critical
-blast radius caps worktrees at 1 - encodes a real tradeoff: a swarm is speed,
+risk caps worktrees at 1 - encodes a real tradeoff: a swarm is speed,
 but it is also coordination risk, and on a critical change the coordination
 risk costs more than the speed saves.
 
@@ -68,33 +68,33 @@ participants, not optional consultees.
 
 The shipped defaults (see `routing-policy.yml` for the live, id-tagged set):
 
-- **floors** - `RG-FLOOR-001` critical blast radius → at least Expedition,
-  never skip clarify/verify/land; `RG-FLOOR-002` brownfield-unmapped terrain →
+- **floors** - `RG-FLOOR-001` critical risk → at least initiative,
+  never skip clarify/verify/land; `RG-FLOOR-002` brownfield-unmapped familiarity →
   Specify runs full-weight with `blueprint-distillation`; `RG-FLOOR-003`
-  touching auth/payments/personal-data/migrations → at least Expedition.
-- **caps** - `RG-CAP-001` critical blast radius caps worktrees at 1.
+  touching auth/payments/personal-data/migrations → at least initiative.
+- **caps** - `RG-CAP-001` critical risk caps worktrees at 1.
 - **immovable_gates** - `RG-GATE-001..004`: `verify.correctness`,
   `verify.governance`, `verify.regression`, `verify.claims`.
 - **role_rules** - `RG-ROLE-001` the product-marketer's involvement blocks Land
   until claims trace to scenarios; `RG-ROLE-002` the product-owner's involvement
   gates Plan on the spec being checked against the brief.
 
-The `verify.governance` immovable gate is what makes guardrail G5 ("a human
+The `verify.governance` immovable gate is what makes guardrail human-sign-off ("a human
 signs off on the irreversible") land in practice - a change that `touches`
-irreversible surface is floored to Expedition, where the human checkpoint is
+irreversible surface is floored to initiative, where the human checkpoint is
 part of the gate set.
 
 ---
 
-## Routing strategies (soft - they bias the Needle)
+## Routing strategies (soft - they bias triage)
 
-These are the Needle's defaults: the route shapes it reaches for, and how it
-breaks ties. The Needle starts here and tunes; a departure is normal and is
+These are triage's defaults: the route shapes it reaches for, and how it
+breaks ties. Triage starts here and tunes; a departure is normal and is
 recorded in `delivery-approach.md`, not punished.
 
 ```yaml
 routing_strategies:
-  # The reference route shapes the Needle composes toward. See routes/.
+  # The reference route shapes triage composes toward. See approaches/.
   default_shapes:
     - reading: { magnitude: [atomic, small], blast_radius: [trivial, contained], terrain: brownfield-mapped }
       lean_toward: express
@@ -135,7 +135,7 @@ policy lint` - against the executable `schemas/routing-policy.schema.json`
 human-readable field-by-field companion is `schemas/routing-policy.reference.yml`.
 In brief:
 
-`when` conditions match against the readings - `blast_radius`, `terrain`,
+`when` conditions match against the assessment - `blast_radius`, `terrain`,
 `magnitude`, `role`, `intent`, `urgency` - or `touches_any` (a domain-tag list:
 `auth`, `payments`, `personal-data`, `migrations`, `public-api`, …). A list
 value means "any of".
@@ -154,7 +154,7 @@ Routing-strategy keys: `lean_toward`, `suggest_artifact`, free-text `biases`.
 
 - **Loosening a routing guardrail weakens the framework for everyone,
   quietly.** It should be deliberate, logged, ideally reviewed - not a
-  convenience edit mid-task. If a guardrail keeps being painful, fix the route
+  convenience edit mid-issue. If a guardrail keeps being painful, fix the route
   that makes it painful; do not remove the guardrail.
 - **Routing strategies are meant to be tuned.** Adjust `default_shapes` and
   `biases` freely as the team learns how its work actually distributes. That

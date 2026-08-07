@@ -16,14 +16,14 @@ test gate but a findings check: *did we answer the question?* It runs none of
 the review dimensions (a spike ships nothing), and its one gate is "the
 question is answered - or explicitly answered with 'inconclusive, here is
 why' - and the finding is written down." If the approach is a spike, follow
-`routes/spike.md`'s conclude step instead of the delivery procedure below.
+`approaches/spike.md`'s conclude step instead of the delivery procedure below.
 The rest of this command is for delivery work.
 
 ## Setup
 
 - Read `delivery-approach.md` for the gate set and which review dimensions
   apply. The dimension set scales with the approach (see the table in the
-  delivery-approach rubric, `routes/router.md`); `correctness`,
+  delivery-approach rubric, `approaches/rubric.md`); `correctness`,
   `governance`, and `traceability` are always on for delivery work - they
   are the default guardrails in review form. The routing policy's
   `immovable_gates` are stapled on regardless.

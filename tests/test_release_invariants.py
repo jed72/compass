@@ -184,9 +184,11 @@ def test_default_method_strategy_set_is_the_known_set():
     updated by hand, in the same commit as the strategy it admits.
     """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
-    # Section markers have the form: ### S<n> - <slug>: <statement>
+    # Section markers carry the machine id as a code-span suffix:
+    # "### <statement> (`S<n>`)" - the id moved out of the prose position
+    # at the docs-prose slice.
     import re
-    ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
+    ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
     expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "

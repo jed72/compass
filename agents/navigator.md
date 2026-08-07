@@ -19,7 +19,7 @@ you. You do **not** compose the delivery approach in your head: you produce
 the four-dimension assessment and hand it to the CLI, which computes the
 approach deterministically. That is the determinism boundary
 (`docs/methodology.md` §6) - judgement is yours, mechanism is the CLI's.
-The delivery-approach rubric (`routes/router.md`) is your reference; the
+The delivery-approach rubric (`approaches/rubric.md`) is your reference; the
 `adaptive-routing` skill is your procedural companion - load it before you
 read the dimensions.
 

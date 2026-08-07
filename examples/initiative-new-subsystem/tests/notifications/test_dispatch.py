@@ -1,4 +1,4 @@
-"""Illustrative tests for the standard-api-change walkthrough.
+"""Illustrative tests for the initiative-new-subsystem walkthrough.
 
 The example exists to show the SHAPE of a Compass task, so these are stubs
 rather than real tests of real code. They are real files with real function
@@ -8,22 +8,14 @@ an example that fails the guardrail it demonstrates teaches the wrong thing.
 """
 
 
-def test_429_includes_retry_after():
+def test_delivery_is_idempotent():
     # Replace with a real assertion in your own project.
     assert True
 
-def test_over_limit_returns_429():
+def test_durable_across_restart():
     # Replace with a real assertion in your own project.
     assert True
 
-def test_per_client_isolation():
-    # Replace with a real assertion in your own project.
-    assert True
-
-def test_under_limit_passes():
-    # Replace with a real assertion in your own project.
-    assert True
-
-def test_window_resets():
+def test_event_creates_notification():
     # Replace with a real assertion in your own project.
     assert True

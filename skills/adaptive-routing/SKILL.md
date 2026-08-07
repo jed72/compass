@@ -5,7 +5,7 @@ description: How to score the four assessment dimensions, how the delivery appro
 
 # Adaptive Routing
 
-This skill is the craft behind `routes/router.md`. The router file is the
+This skill is the craft behind `approaches/rubric.md`. The router file is the
 rubric; this is how you actually use it well.
 
 ## The mental model

@@ -5,7 +5,7 @@
 # Installs the Claude Code adapter layer (commands/, agents/, skills/, hooks/)
 # into the right Claude Code locations and registers the hooks in settings.
 #
-# The methodology layer (docs/, governance/, routes/, templates/) is NOT
+# The methodology layer (docs/, governance/, approaches/, templates/) is NOT
 # installed anywhere - it is read in place from this repo. What this script
 # wires up is only the runtime adapter.
 #
@@ -225,9 +225,12 @@ if [ "$ACTION" = "install" ] && [ "$MODE" = "project" ] && [ -f "$PLUGIN_MANIFES
   uninstall_component skills
   unregister_hooks
   echo ""
-  echo "  Done. Use the Compass plugin path (/plugin install) for this"
-  echo "  project, or run install.sh --project against a directory that is"
-  echo "  NOT itself a plugin source."
+  echo "  Done. For the plugin source itself, run Claude Code with the"
+  echo "  plugin loaded live from this working tree:"
+  echo "      claude --plugin-dir $PROJECT_DIR"
+  echo "  (A project that CONSUMES the plugin uses /plugin install instead.)"
+  echo "  Or run install.sh --project against a directory that is NOT"
+  echo "  itself a plugin source."
   exit 0
 fi
 

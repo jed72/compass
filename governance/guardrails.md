@@ -16,7 +16,7 @@ the project so the team can extend it.
 **This document explains; `guardrails.yml` enforces.** The companion
 `governance/guardrails.yml` is the machine-readable authority for *how each
 guardrail is checked* - it names the mechanical check behind every guardrail,
-and `compass check` runs those checks against a task's `task.yml` and
+and `compass check` runs those checks against an issue's `task.yml` and
 `evidence/`. Where this prose and that file could be read to differ on a
 mechanical detail, `guardrails.yml` wins. The asymmetry is deliberate:
 guardrails get a `.yml` because they are *checkable*; strategies do not,
@@ -31,30 +31,30 @@ These five ship on. They are the floor under every route, including the
 lightest. They are deliberately few - the whole point of a guardrail is that
 there are not many.
 
-### G1 - Tested before it lands
+### Tested before it lands (`G1`)
 
 No code reaches `main` without a passing automated test it traces to. This is
-checked at Verify and again at Land - `verification-report.md` carries the
+checked at Verify and again at ship time - `verification-report.md` carries the
 evidence (the pasted run).
 
-*What this is not:* G1 is not "red before green on every change." Writing the
+*What this is not:* tested-before-ship is not "red before green on every change." Writing the
 failing test first is **TDD**, a default *strategy* (see `strategies.md`) -
-the strong, shipped-on way to satisfy G1. The Spike route can suspend that
-strategy. The Spike route cannot suspend G1: anything a spike graduates into
+the strong, shipped-on way to satisfy tested-before-ship. The spike can suspend that
+strategy. The spike cannot suspend tested-before-ship: anything a spike graduates into
 production must be tested before it lands.
 
-### G2 - Acceptance defined before it is built
+### Acceptance defined before it is built (`G2`)
 
 No code is written that no stated, checkable acceptance criterion describes.
 The criterion exists before the code does, and the same criterion is the
 acceptance check at Verify.
 
-*What this is not:* G2 is not "everything must be a Gherkin scenario."
+*What this is not:* acceptance-before-code is not "everything must be a Gherkin scenario."
 Expressing acceptance as **BDD** Given/When/Then scenarios is a default
-*strategy* - the shipped-on way to satisfy G2, and a strong one. G2 itself is
+*strategy* - the shipped-on way to satisfy acceptance-before-code, and a strong one. acceptance-before-code itself is
 the outcome: acceptance is stated, and it is checkable.
 
-### G3 - Traceability holds
+### Traceability holds (`G3`)
 
 Every change keeps two chains intact, continuously - not reconstructed at the
 end:
@@ -66,7 +66,7 @@ end:
 
 The chains are the audit trail. A broken chain is a failed guardrail.
 
-### G4 - Evidence, not assertion
+### Evidence, not assertion (`G4`)
 
 A guardrail is cleared with artifacts and command output, never with a claim.
 "The tests pass" is the pasted run, not the sentence. "It works" clears
@@ -77,7 +77,7 @@ means.
 labelled as judgement, not dressed as evidence. That honesty is the reason
 guardrails and strategies are separate things.)
 
-### G5 - A human signs off on the irreversible
+### A human signs off on the irreversible (`G5`)
 
 A change that cannot be cleanly undone - that can lose data, move money, or
 breach auth or privacy - gets an explicit human checkpoint before it lands. No
@@ -109,14 +109,14 @@ _(none yet - the shipped default guardrails apply as-is)_
 
 - **Mechanically, by `compass check`.** Each guardrail in `guardrails.yml`
   names the check(s) that clear it; `compass check` runs them against the
-  task's `task.yml` and `evidence/` and reports pass/fail with specifics. This
+  issue's `task.yml` and `evidence/` and reports pass/fail with specifics. This
   is the backbone of the Verify gate's *checkable* dimensions.
 - **Mechanically, by the pre-tool hook**, for the red-before-green strategy in
-  service of G1 - route-aware (it does not block on a Spike). The real G1
-  *outcome* check is `compass check` at Verify and Land.
+  service of tested-before-ship - route-aware (it does not block on a Spike). The real tested-before-ship
+  *outcome* check is `compass check` at verify and at ship time.
 - **By the `verifier` and `reviewer` agents** at Verify, for the parts that
   remain judgement - `verification-report.md` records each with its evidence.
-- **By the Needle**, for routing guardrails - see `routing-policy.md` and
+- **By triage**, for routing guardrails - see `routing-policy.md` and
   `routing-policy.yml`; `compass approach evaluate` applies them deterministically.
 
 A guardrail with no way to produce evidence is not a guardrail yet - it is a
@@ -139,4 +139,4 @@ project guardrail with a new check, add the check's implementation to the CLI
 
 | Date | Change | By |
 |---|---|---|
-| {{DATE}} | Guardrails adopted from the shipped defaults (G1–G5). | {{NAME}} |
+| {{DATE}} | Guardrails adopted from the shipped defaults (the five defaults). | {{NAME}} |

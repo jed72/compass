@@ -163,9 +163,12 @@ def test_guardrail_count_unchanged():
     assert guardrails_yml.is_file(), f"not found: {guardrails_yml}"
 
     # --- guardrails.md: parse the canonical G<N> headings -------------------
-    # The canonical guardrails use H3 headings "### G<N> - <name>".
+    # The canonical guardrails use H3 headings with the machine id as a
+    # code-span suffix: "### <plain name> (`G<N>`)". The id moved out of
+    # the prose position at the docs-prose slice - codes live in config
+    # and code spans, the plain statement leads.
     md_text = guardrails_md.read_text(encoding="utf-8")
-    g_headings = re.findall(r"^###\s+(G\d+)", md_text, re.MULTILINE)
+    g_headings = re.findall(r"^###\s+.*\(`(G\d+)`\)", md_text, re.MULTILINE)
     assert len(g_headings) == 5, (
         f"Expected exactly 5 guardrail headings (G1..G5) in guardrails.md, "
         f"found {len(g_headings)}: {g_headings}. "
@@ -210,7 +213,7 @@ def test_guardrail_ids_in_yml_match_md():
     guardrails_yml = framework_root / "governance" / "guardrails.yml"
 
     md_text = guardrails_md.read_text(encoding="utf-8")
-    g_headings = set(re.findall(r"^###\s+(G\d+)", md_text, re.MULTILINE))
+    g_headings = set(re.findall(r"^###\s+.*\(`(G\d+)`\)", md_text, re.MULTILINE))
 
     yml_data = yaml.safe_load(guardrails_yml.read_text(encoding="utf-8"))
     defaults = yml_data.get("defaults", [])

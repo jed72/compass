@@ -41,9 +41,9 @@ release to a clean, reproducible artifact.
 
 3. **`make test`** - must be green. The full test suite, including:
    - `tests/test_cli_surface_drift.py` (every CLI subcommand documented
-     in the public CLI surface blocks - added in v1.2-era Task B)
+     in the public CLI surface blocks - added in v1.2-era Issue B)
    - `tests/test_v1_2_narrative.py` (every v1.2.0 feature reflected in
-     `AGENTS.md` and methodology - added in v1.2-era Task C)
+     `AGENTS.md` and methodology - added in v1.2-era Issue C)
    - `tests/test_release_invariants.py` (the partial-version-bump guard
      + the `comparison-requirements` ADR-006 backward-compat fixture +
      `signals.yml` shape invariants)
@@ -56,7 +56,7 @@ release to a clean, reproducible artifact.
    updated for a behaviour change - the framework's own G3 (traceability)
    is at risk. Fix the docs to catch up, re-run, then bump.
 
-4. **`make ci`** - must be green. Runs `compass policy lint` + `task
+4. **`make ci`** - must be green. Runs `compass policy lint` + `issue
    lint` + `check` across all tasks under `.compass/work/`. (`make ci`
    is what CI runs; failing it locally means CI will fail.)
 
@@ -73,7 +73,7 @@ release to a clean, reproducible artifact.
    - **Hard-fails** if any of the worked examples under `examples/` is
      missing its `.compass/work/<slug>/task.yml`. This was a real
      packaging bug in early releases: the `.compass/work` exclude was
-     not root-anchored and silently stripped the example task files.
+     not root-anchored and silently stripped the example issue files.
 
 6. **Inspect the tarball.** `tar -tzf dist/compass-<version>.tar.gz | less`
    - eyeballs are still useful even when the script's checks have
