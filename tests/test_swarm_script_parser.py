@@ -48,7 +48,7 @@ def _write_task_artifacts(task_dir: Path, branch_cell: str) -> None:
     so a stub is enough.
     """
     task_dir.mkdir(parents=True, exist_ok=True)
-    (task_dir / "route.md").write_text(
+    (task_dir / "delivery-approach.md").write_text(
         f"# Route - {task_dir.name}\n\nReference route: Standard\n"
     )
     # R4: the worktree cap is read from task.yml (readings.blast_radius +

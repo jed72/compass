@@ -41,12 +41,12 @@ def _project(config=None, *, raw_config=None):
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text("t\n")
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     (task_dir / "task.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": "t", "created": "2026-08-06",
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "standard", "phases": {"specify": "light"},
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "standard", "stages": {"specify": "light"},
         "scenarios": [], "gates": [],
     }, sort_keys=False))
     body = raw_config if raw_config is not None else yaml.safe_dump(

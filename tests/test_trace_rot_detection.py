@@ -44,23 +44,23 @@ def _project(tmp_path, *, changed, status="active", correctness="pass",
     (root / ".compass" / "current-task").write_text("t\n")
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
 
     task = {
         "schema_version": "1.1", "task": "t", "created": "2026-08-04",
         "status": status,
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
-                     "urgency": "none", "role": "engineer", "touches": []},
-        "route": "standard", "topology": "solo", "fired_guardrails": [],
-        "phases": {},
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery",
+                     "urgency": "none", "role": "engineer", "labels": []},
+        "delivery_approach": "standard", "topology": "solo", "policy_rules_fired": [],
+        "stages": {},
         "evidence": [{"id": "EV-1", "type": "test-run", "path": "evidence/green.json"}],
         "gates": [{"id": "verify.correctness", "status": correctness,
                    "evidence": ["EV-1"] if correctness == "pass" else []}],
         "scenarios": [{"id": "SCN-1", "title": "t", "intent": "INT-1",
                        "tests": ["tests/test_thing.py"]}],
         "changed_files": changed,
-        "claims": [], "backfills": [], "reframes": [], "friction": [],
+        "claims": [], "follow_ups": [], "reassessments": [], "friction": [],
     }
     if status == "landed":
         task["land_timestamp"] = "2026-08-04T00:00:00Z"

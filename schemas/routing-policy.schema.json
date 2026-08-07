@@ -8,7 +8,7 @@
     "version",
     "routing_strategies",
     "routing_guardrails",
-    "reading_vocabulary",
+    "assessment_vocabulary",
     "route_shapes"
   ],
   "properties": {
@@ -238,35 +238,35 @@
         }
       }
     },
-    "reading_vocabulary": {
+    "assessment_vocabulary": {
       "type": "object",
       "description": "The closed value sets per reading dimension.",
       "required": [
-        "blast_radius",
-        "terrain",
-        "magnitude",
-        "intent"
+        "risk",
+        "familiarity",
+        "size",
+        "goal"
       ],
       "properties": {
-        "blast_radius": {
+        "risk": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "terrain": {
+        "familiarity": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "magnitude": {
+        "size": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "intent": {
+        "goal": {
           "type": "array",
           "items": {
             "type": "string"
@@ -284,7 +284,7 @@
             "type": "string"
           }
         },
-        "touches_common": {
+        "labels_common": {
           "type": "array",
           "items": {
             "type": "string"
@@ -306,7 +306,7 @@
         "type": "object",
         "required": [
           "weight",
-          "phases",
+          "stages",
           "gates",
           "topology"
         ],
@@ -314,7 +314,7 @@
           "weight": {
             "type": "integer"
           },
-          "phases": {
+          "stages": {
             "type": "object"
           },
           "gates": {

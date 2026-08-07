@@ -132,9 +132,9 @@ guardrail applies to the checklist itself):
         human-approval, artifact, security-review, migration-plan,
         rollback-plan, claim-review).
 
-    - [ ] (backfill: BF-<id>) <description>
+    - [ ] (follow-up: BF-<id>) <description>
         Passes (defers) when BF-<id> is in the spine's follow-up ledger
-        (the backfills: list) with status: owed. Add target_task: <slug>
+        (the follow_ups: list) with status: owed. Add target_task: <slug>
         on the entry to block that issue's shipping until this one is
         settled (compass backfill pay --task <source-slug> BF-<id>).
 
@@ -161,9 +161,9 @@ guardrail applies to the checklist itself):
       evidence pasted.
 - [ ] (evidence: {{EV-id}}) **Traceability intact** - code → scenario → intent
       holds; claim → scenario holds where the marketer is in play.
-- [ ] (backfill: {{BF-id}}) *(carried to ship)* Living docs updated to match
+- [ ] (follow-up: {{BF-id}}) *(carried to ship)* Living docs updated to match
       reality.
-- [ ] (backfill: {{BF-id}}) *(carried to ship)* Every owed follow-up settled -
+- [ ] (follow-up: {{BF-id}}) *(carried to ship)* Every owed follow-up settled -
       no unsettled hotfix follow-up, no unbacked marketing claim.
 
 Next stage: **ship** (`/compass:land`) - only on overall PASS.

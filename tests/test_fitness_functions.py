@@ -41,7 +41,7 @@ def _make_project(
     tmp_path: Path,
     project_guardrails: Optional[List[Dict[str, Any]]] = None,
     task_gates: Optional[List[Dict[str, Any]]] = None,
-    blast_radius: str = "cross-cutting",
+    risk: str = "cross-cutting",
 ) -> tuple[Path, Path]:
     """
     Build a minimal Compass project tree in tmp_path, using the real shipped
@@ -80,13 +80,13 @@ def _make_project(
         "task": "test-task",
         "created": "2026-05-25",
         "status": "active",
-        "readings": {
-            "blast_radius": blast_radius,
-            "terrain": "brownfield-mapped",
-            "magnitude": "standard",
+        "assessment": {
+            "risk": risk,
+            "familiarity": "brownfield-mapped",
+            "size": "standard",
             "intent": "delivery",
         },
-        "route": "standard",
+        "delivery_approach": "standard",
         "scenarios": [
             {
                 "id": "TRC-B1",
@@ -228,16 +228,16 @@ class TestVerifyFitnessAdvisory:
 
         result = _run_cli(
             "route", "evaluate", "--json",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=small",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=small",
             "--reading", "intent=delivery",
             cwd=tmp_path,
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
         data = json.loads(result.stdout)
         assert "verify.fitness" not in data["gates"], (
-            f"verify.fitness should NOT be in gates for contained blast_radius, "
+            f"verify.fitness should NOT be in gates for contained risk, "
             f"got: {data['gates']}"
         )
 
@@ -263,7 +263,7 @@ class TestVerifyFitnessAdvisory:
             tmp_path,
             project_guardrails=project_guardrails,
             task_gates=task_gates,
-            blast_radius="contained",  # no floor fires
+            risk="contained",  # no floor fires
         )
         # command-passes check still runs (it's in G4 defaults),
         # but verify.fitness gate is not in gate set

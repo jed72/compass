@@ -1,19 +1,19 @@
-schema_version: '1.1'
+schema_version: '2.0'
 task: reset-password
 created: '2026-08-03'
 status: active
-readings:
-  blast_radius: contained
-  terrain: greenfield
-  magnitude: small
-  intent: delivery
+assessment:
+  risk: contained
+  familiarity: greenfield
+  size: small
+  goal: delivery
   urgency: none
   role: engineer
-  touches: []
-route: standard
+  labels: []
+delivery_approach: standard
 topology: solo
-fired_guardrails: []
-phases: {}
+policy_rules_fired: []
+stages: {}
 evidence: []
 gates: []
 scenarios:
@@ -34,6 +34,6 @@ scenarios:
   - reset_password_test.go
 changed_files: []
 claims: []
-backfills: []
-reframes: []
+follow_ups: []
+reassessments: []
 friction: []

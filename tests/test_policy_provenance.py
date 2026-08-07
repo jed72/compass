@@ -21,8 +21,8 @@ CLI = ROOT / "cli" / "compass"
 GOVERNANCE = ROOT / "governance"
 ROUTE_TEMPLATE = ROOT / "templates" / "delivery-approach.md"
 
-READINGS = ["--reading", "blast_radius=cross-cutting", "--reading",
-            "terrain=brownfield-mapped", "--reading", "magnitude=standard",
+READINGS = ["--reading", "risk=cross-cutting", "--reading",
+            "familiarity=brownfield-mapped", "--reading", "size=standard",
             "--reading", "intent=delivery", "--reading", "role=engineer"]
 
 

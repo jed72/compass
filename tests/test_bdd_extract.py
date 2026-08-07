@@ -48,7 +48,7 @@ SPEC_HEADER = "# Spec - demo\n\n## Summary\n\n**Goal:** a demo spec.\n\n"
 
 
 def write_spec(task_dir, body: str) -> None:
-    (task_dir / "spec.feature.md").write_text(SPEC_HEADER + body, encoding="utf-8")
+    (task_dir / "acceptance-criteria.md").write_text(SPEC_HEADER + body, encoding="utf-8")
 
 
 def three_scenario_spec() -> str:
@@ -75,9 +75,9 @@ def three_scenario_spec() -> str:
 def demo_task(make_task):
     """A task whose spec.feature.md holds three well-formed scenarios."""
     task_dir = make_task("demo", {
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
-                     "role": "engineer", "touches": []},
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery",
+                     "role": "engineer", "labels": []},
         "scenarios": [
             {"id": "TRC-A1", "title": "the first thing should happen",
              "intent": "INT-1", "tests": ["tests/t.py::a"]},
@@ -173,7 +173,7 @@ def test_trc_a4_feature_names_source_task(demo_task, run_cli):
     # a provenance header naming the source, matching the house convention in
     # docs/system-spec.md ("DERIVED FILE - do not hand-edit")
     head = text.split("Feature:")[0]
-    assert "spec.feature.md" in head, head
+    assert "acceptance-criteria.md" in head, head
     assert re.search(r"do not hand-edit", head, re.I), head
 
 
@@ -221,12 +221,12 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
-    task_dir = make_task("empty", {"readings": {}, "scenarios": []})
+    task_dir = make_task("empty", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, "There is prose here but no scenario at all.\n")
 
     result = run_cli("bdd", "extract", "--task", "empty")
     assert result.returncode != 0, result
-    assert "spec.feature.md" in result.combined, result
+    assert "acceptance-criteria.md" in result.combined, result
     assert not (task_dir / "spec.feature").exists(), "wrote a file on failure"
 
 
@@ -235,7 +235,7 @@ def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
-    task_dir = make_task("bad", {"readings": {}, "scenarios": []})
+    task_dir = make_task("bad", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, (
         scenario_block("TRC-A1", "a good one",
                        "  Given a state\n  When it fires\n  Then it holds")
@@ -260,7 +260,7 @@ def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_f3_title_drift_is_caught(make_task, run_cli):
-    task_dir = make_task("drift", {"readings": {}, "scenarios": []})
+    task_dir = make_task("drift", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, (
         "### Scenario: the heading says this\n"
         "<!-- traceability id: TRC-A1 · serves: INT-1 -->\n\n"
@@ -386,7 +386,7 @@ def test_trc_a8_config_template_documents_bdd_keys(framework_root):
 # ---------------------------------------------------------------------------
 
 def test_illustrative_gherkin_without_a_trc_comment_is_ignored(make_task, run_cli):
-    task_dir = make_task("anchor", {"readings": {}, "scenarios": []})
+    task_dir = make_task("anchor", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, (
         "Here is an illustration of what a scenario looks like:\n\n"
         "```gherkin\n"

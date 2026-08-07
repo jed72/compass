@@ -9,8 +9,8 @@ from __future__ import annotations
 def _body(scenario):
     return {
         "task": "lint", "created": "2026-06-22",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
         "scenarios": [scenario],
     }
 

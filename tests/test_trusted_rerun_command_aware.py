@@ -28,12 +28,12 @@ CLI = ROOT / "cli" / "compass"
 TASK_YML = yaml.safe_dump({
     "schema_version": "1.1", "task": "t", "created": "2026-08-04",
     "status": "active",
-    "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                 "magnitude": "small", "intent": "delivery", "urgency": "none",
-                 "role": "engineer", "touches": []},
-    "route": "standard", "topology": "solo", "fired_guardrails": [],
-    "phases": {}, "evidence": [], "gates": [], "scenarios": [],
-    "changed_files": [], "claims": [], "backfills": [], "reframes": [],
+    "assessment": {"risk": "contained", "familiarity": "greenfield",
+                 "size": "small", "intent": "delivery", "urgency": "none",
+                 "role": "engineer", "labels": []},
+    "delivery_approach": "standard", "topology": "solo", "policy_rules_fired": [],
+    "stages": {}, "evidence": [], "gates": [], "scenarios": [],
+    "changed_files": [], "claims": [], "follow_ups": [], "reassessments": [],
     "friction": [],
 }, sort_keys=False)
 
@@ -46,7 +46,7 @@ def project(tmp_path):
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     (root / ".compass" / "current-task").write_text("t\n")
     (task_dir / "task.yml").write_text(TASK_YML)
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     return root, task_dir
 
 

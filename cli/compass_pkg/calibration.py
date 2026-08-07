@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, find_governance, load_task, load_yaml, resolve_task_dir, save_task
+from compass_pkg.core import CompassError, find_compass_dir, find_governance, load_task, load_yaml, resolve_task_dir, save_task, normalize_spine
 
 
 
@@ -152,7 +152,7 @@ def _find_reframe_debt(tasks, work):
             continue
 
         # Latest reframe date for this task
-        reframes = task.get("reframes") or []
+        reframes = task.get("reassessments") or []
         reframe_dates = sorted(
             r.get("date", "") for r in reframes if r.get("date")
         )
@@ -332,7 +332,7 @@ def derive_friction(slug, task, work):
     aggregator clusters on.
     """
     entries = []
-    for rf in (task.get("reframes") or []):
+    for rf in (task.get("reassessments") or []):
         if not isinstance(rf, dict):
             continue
         fr = rf.get("from_route", "?")
@@ -458,8 +458,8 @@ def _median(xs):
 def compute_impact(tasks):
     """tasks: [(slug, data)]. Returns a dict; pure, no I/O, no clock."""
     landed = [(s, d) for s, d in tasks if (d or {}).get("status") == "landed"]
-    hotfixes = [(s, d) for s, d in landed if d.get("route") == "hotfix"]
-    delivery = [(s, d) for s, d in landed if d.get("route") != "hotfix"]
+    hotfixes = [(s, d) for s, d in landed if d.get("delivery_approach") == "hotfix"]
+    delivery = [(s, d) for s, d in landed if d.get("delivery_approach") != "hotfix"]
 
     lead, excluded, by_route = [], 0, {}
     for slug, d in delivery:
@@ -468,7 +468,7 @@ def compute_impact(tasks):
             excluded += 1
             continue
         lead.append(days)
-        route = d.get("route", "?")
+        route = d.get("delivery_approach", "?")
         g = by_route.setdefault(route, {"n": 0, "lead": [], "gates": set()})
         g["n"] += 1
         g["lead"].append(days)
@@ -616,7 +616,7 @@ def cmd_calibration(args):
             tp = os.path.join(work, d, "task.yml")
             if os.path.isfile(tp):
                 try:
-                    tasks.append((d, load_yaml(tp)))
+                    tasks.append((d, normalize_spine(load_yaml(tp))))
                 except CompassError:
                     pass
 
@@ -632,7 +632,7 @@ def cmd_calibration(args):
 
     dist, no_route = {}, []
     for slug, t in tasks:
-        r = t.get("route")
+        r = t.get("delivery_approach")
         if r:
             dist[r] = dist.get(r, 0) + 1
         else:
@@ -642,7 +642,7 @@ def cmd_calibration(args):
     ups = downs = sideways = 0
     transitions = {}
     for slug, t in tasks:
-        rfs = t.get("reframes") or []
+        rfs = t.get("reassessments") or []
         if rfs:
             reframed_tasks += 1
         for rf in rfs:
@@ -730,7 +730,7 @@ def _cmd_calibration_impact(args):
             path = os.path.join(work, slug, "task.yml")
             if os.path.isfile(path):
                 try:
-                    tasks.append((slug, load_yaml(path)))
+                    tasks.append((slug, normalize_spine(load_yaml(path))))
                 except CompassError:
                     continue
     print(render_impact(compute_impact(tasks)))

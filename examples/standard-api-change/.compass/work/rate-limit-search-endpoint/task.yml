@@ -1,38 +1,19 @@
-# =============================================================================
-# task.yml - rate-limit-search-endpoint  (EXAMPLE: the Standard route)
-# =============================================================================
-# A worked example. This is the full task spine after a finished Standard
-# task: a real feature set of scenarios, every changed file traced, two gates
-# cleared with evidence. Compare it to the Express example - same shape, more
-# of it, because the work earned more of it.
-# =============================================================================
-
-schema_version: "1.0"
-task: "rate-limit-search-endpoint"
-created: "2026-04-21"
-# The work this example depicts is complete - every gate passed and the
-# verification report is written - so its spine says so. A landed task's
-# record is history: `compass check` reports a trace whose file has since
-# moved, and does not re-fail it (ADR-006).
+schema_version: '2.0'
+task: rate-limit-search-endpoint
+created: '2026-04-21'
 status: landed
 land_timestamp: '2026-08-04T00:00:00Z'
-
-# --- the route -------------------------------------------------------------
-# JUDGEMENT: the Needle's Frame readings. Standard magnitude, contained blast
-# radius, mapped terrain - the default working shape. See route.md §1.
-readings:
-  blast_radius: contained
-  terrain: brownfield-mapped
-  magnitude: standard
-  intent: delivery
+assessment:
+  risk: contained
+  familiarity: brownfield-mapped
+  size: standard
+  goal: delivery
   role: engineer
-  touches: []
-
-# MECHANICAL: computed by `compass route evaluate --write`.
-route: standard
+  labels: []
+delivery_approach: standard
 topology: solo-or-pair
-fired_guardrails: []          # no floor, cap, or role rule matched
-phases:
+policy_rules_fired: []
+stages:
   frame: full
   specify: full
   clarify: light
@@ -41,90 +22,84 @@ phases:
   build: full
   verify: full
   land: full
-
-# --- evidence (the registry) -----------------------------------------------
-# Typed, id-tagged. The type is honest about the STRENGTH of the backing:
-# correctness and regression are mechanical (test-run), the scanner output is a
-# captured command (command-output), and the judgement-shaped gates point at
-# the written verification report (artifact).
 evidence:
-  - id: EV-T1
-    type: test-run
-    path: evidence/green.json
-    scenario: SCN-001
-  - id: EV-SEC1
-    type: command-output
-    path: evidence/security-scan.txt
-  - id: EV-V1
-    type: artifact
-    path: verification-report.md
-
-# --- gates -----------------------------------------------------------------
-# Standard's gate set: six review dimensions, cleared at the Verify gate. Each
-# `pass` gate references registry evidence by id; `compass check` verifies the
-# referenced type is one the gate accepts.
+- id: EV-T1
+  type: test-run
+  path: evidence/green.json
+  scenario: SCN-001
+- id: EV-SEC1
+  type: command-output
+  path: evidence/security-scan.txt
+- id: EV-V1
+  type: artifact
+  path: verification-report.md
 gates:
-  - id: verify.correctness
-    status: pass
-    evidence: [EV-T1]
-  - id: verify.governance
-    status: pass
-    evidence: [EV-V1]
-  - id: verify.traceability
-    status: pass
-    evidence: [EV-V1]
-  - id: verify.regression
-    status: pass
-    evidence: [EV-T1]
-  - id: verify.clarity
-    status: pass
-    evidence: [EV-V1]
-  - id: verify.security
-    status: pass
-    evidence: [EV-SEC1]
-
-# --- scenarios (filled by Specify) -----------------------------------------
+- id: verify.correctness
+  status: pass
+  evidence:
+  - EV-T1
+- id: verify.governance
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.traceability
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.regression
+  status: pass
+  evidence:
+  - EV-T1
+- id: verify.clarity
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.security
+  status: pass
+  evidence:
+  - EV-SEC1
 scenarios:
-  - id: SCN-001
-    title: "Requests under the limit pass through unchanged"
-    intent: INT-1
-    tests:
-      - "tests/api/test_rate_limit.py::test_under_limit_passes"
-  - id: SCN-002
-    title: "The request over the limit is rejected with 429"
-    intent: INT-1
-    tests:
-      - "tests/api/test_rate_limit.py::test_over_limit_returns_429"
-  - id: SCN-003
-    title: "A 429 response tells the client when to retry"
-    intent: INT-2
-    tests:
-      - "tests/api/test_rate_limit.py::test_429_includes_retry_after"
-  - id: SCN-004
-    title: "The window resets and the client can call again"
-    intent: INT-1
-    tests:
-      - "tests/api/test_rate_limit.py::test_window_resets"
-  - id: SCN-005
-    title: "Two clients have independent limits"
-    intent: INT-1
-    tests:
-      - "tests/api/test_rate_limit.py::test_per_client_isolation"
-
-# --- changed_files (filled by Build) ---------------------------------------
+- id: SCN-001
+  title: Requests under the limit pass through unchanged
+  intent: INT-1
+  tests:
+  - tests/api/test_rate_limit.py::test_under_limit_passes
+- id: SCN-002
+  title: The request over the limit is rejected with 429
+  intent: INT-1
+  tests:
+  - tests/api/test_rate_limit.py::test_over_limit_returns_429
+- id: SCN-003
+  title: A 429 response tells the client when to retry
+  intent: INT-2
+  tests:
+  - tests/api/test_rate_limit.py::test_429_includes_retry_after
+- id: SCN-004
+  title: The window resets and the client can call again
+  intent: INT-1
+  tests:
+  - tests/api/test_rate_limit.py::test_window_resets
+- id: SCN-005
+  title: Two clients have independent limits
+  intent: INT-1
+  tests:
+  - tests/api/test_rate_limit.py::test_per_client_isolation
 changed_files:
-  - path: "src/api/middleware/rate_limit.py"
-    scenarios: [SCN-001, SCN-002, SCN-003, SCN-004, SCN-005]
-  - path: "src/api/routes/search.py"
-    scenarios: [SCN-001, SCN-002]
-  - path: "src/api/config.py"
-    scenarios: [SCN-002, SCN-004]
-
-# --- claims / backfills ----------------------------------------------------
-# Both empty: no marketer in play, no borrowed ceremony.
+- path: src/api/middleware/rate_limit.py
+  scenarios:
+  - SCN-001
+  - SCN-002
+  - SCN-003
+  - SCN-004
+  - SCN-005
+- path: src/api/routes/search.py
+  scenarios:
+  - SCN-001
+  - SCN-002
+- path: src/api/config.py
+  scenarios:
+  - SCN-002
+  - SCN-004
 claims: []
-backfills: []
-
-# --- reframes --------------------------------------------------------------
-# Empty: the readings composed to Standard at Frame and never changed.
-reframes: []
+follow_ups: []
+reassessments: []

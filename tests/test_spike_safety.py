@@ -13,13 +13,13 @@ def _spike_body():
     return {
         "task": "spike-x",
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "exploration",
         },
-        "route": "spike",
+        "delivery_approach": "spike",
         "evidence": [],
         "changed_files": [],
         "gates": [{"id": "spike.conclude", "status": "pending"}],

@@ -162,9 +162,9 @@ def test_trc_b4_every_command_should_still_run_end_to_end(tmp_path):
     shutil.copytree(ROOT / "governance", proj / "governance")
     (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     for args in (["policy", "lint"],
-                 ["route", "evaluate", "--reading", "blast_radius=contained",
-                  "--reading", "terrain=greenfield", "--reading",
-                  "magnitude=small", "--reading", "intent=delivery",
+                 ["route", "evaluate", "--reading", "risk=contained",
+                  "--reading", "familiarity=greenfield", "--reading",
+                  "size=small", "--reading", "intent=delivery",
                   "--reading", "role=engineer"]):
         r = subprocess.run([sys.executable, str(CLI), *args], cwd=str(proj),
                            capture_output=True, text=True, timeout=60)

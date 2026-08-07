@@ -11,9 +11,9 @@ GHERKIN = "```gherkin"
 def _body(scenario):
     return {
         "task": "narr", "created": "2026-06-22",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "standard",
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "standard",
         "scenarios": [scenario],
         "evidence": [], "gates": [], "changed_files": [],
     }
@@ -32,7 +32,7 @@ def _write_spec(task_dir, scenario_id, *, documented, title="a behaviour"):
         lines += ["  When the documented action happens",
                   "  Then the documented outcome holds"]
     lines += ["```", ""]
-    (task_dir / "spec.feature.md").write_text("\n".join(lines))
+    (task_dir / "acceptance-criteria.md").write_text("\n".join(lines))
 
 
 def _scenarios_line(combined):

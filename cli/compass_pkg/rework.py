@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, FRAMEWORK_ROOT, find_compass_dir, find_upwards, load_task, load_yaml, resolve_task_dir, save_task
+from compass_pkg.core import CompassError, FRAMEWORK_ROOT, find_compass_dir, find_upwards, load_task, load_yaml, resolve_task_dir, save_task, normalize_spine
 
 
 _SIGNALS_ENV_VAR = "COMPASS_SIGNALS_YML"
@@ -222,6 +222,7 @@ def _read_tasks_from_root(root):
                 data = {}
             if not isinstance(data, dict):
                 raise ValueError("top-level value is not a mapping")
+            data = normalize_spine(data)
             tasks.append((entry, data))
         except Exception as exc:
             warnings.append((task_yml, str(exc)))
@@ -429,7 +430,7 @@ def cmd_backfill_pay(args):
     task_dir = resolve_task_dir(args.task)
     task, task_path = load_task(task_dir)
     bf_id = args.backfill_id
-    backfills = task.get("backfills") or []
+    backfills = task.get("follow_ups") or []
     found = None
     for bf in backfills:
         if isinstance(bf, dict) and bf.get("id") == bf_id:
@@ -444,7 +445,7 @@ def cmd_backfill_pay(args):
         print(f"compass backfill pay: backfill '{bf_id}' is already paid.")
         return 0
     found["status"] = "paid"
-    task["backfills"] = backfills
+    task["follow_ups"] = backfills
     save_task(task, task_path)
     target = found.get("target_task")
     target_note = (f" (cross-task debt on '{target}' is now cleared)"

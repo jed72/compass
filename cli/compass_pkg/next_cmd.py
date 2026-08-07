@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import artifact_path, load_yaml, resolve_task_dir
+from compass_pkg.core import artifact_path, load_yaml, resolve_task_dir, normalize_spine
 
 # --- command: next -----------------------------------------------------------
 # TRC-C4 through TRC-C10, TRC-F6
@@ -179,7 +179,7 @@ def _current_phase_from_task(task: dict) -> str | None:
     cp = task.get("current_phase")
     if cp and isinstance(cp, str):
         return cp.strip().lower()
-    phases = task.get("phases") or {}
+    phases = task.get("stages") or {}
     return _next_active_phase(phases)
 
 
@@ -200,14 +200,14 @@ def cmd_next(args):
         )
         return 2
 
-    task = load_yaml(task_path)
+    task = normalize_spine(load_yaml(task_path))
 
     # --- route.md: must exist (TRC-F6) ---
     route_md_path = artifact_path(task_dir, "delivery-approach.md")
     if not os.path.isfile(route_md_path):
         sys.stdout.write(
-            f"route.md is missing from {task_dir}\n"
-            "  Run /compass:frame to produce route.md before using compass next.\n"
+            f"delivery-approach.md is missing from {task_dir}\n"
+            "  Run /compass:frame to produce delivery-approach.md before using compass next.\n"
         )
         return 2
 
@@ -219,7 +219,7 @@ def cmd_next(args):
         return 0
 
     # --- determine next phase and collapsed siblings (TRC-C4, TRC-C5) ---
-    phases = task.get("phases") or {}
+    phases = task.get("stages") or {}
     current_phase = _current_phase_from_task(task)
 
     # The "next phase" is the current_phase (the one in progress, or the

@@ -93,7 +93,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.check_cmd import cmd_check
-from compass_pkg.core import COMPASS_SCHEMA_VERSION, COMPASS_VERSION, CompassError, artifact_path, exit_for_mode, find_compass_dir, load_mode, load_yaml, mode_banner, now_iso, resolve_task_dir, save_task
+from compass_pkg.core import COMPASS_SCHEMA_VERSION, COMPASS_VERSION, CompassError, artifact_path, exit_for_mode, find_compass_dir, load_mode, load_yaml, mode_banner, normalize_spine, now_iso, resolve_task_dir, save_task
 from compass_pkg.governance import cmd_policy_lint
 from compass_pkg.policy import cmd_task_lint
 
@@ -315,7 +315,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
             f"compass analyze cannot run before Frame."
         )
     try:
-        task = load_yaml(task_path)
+        task = normalize_spine(load_yaml(task_path))
     except CompassError:
         raise  # re-raise: parse error propagates to cmd_analyze
 
@@ -348,7 +348,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
 
     # --- 1. Route-aware missing-artifact check ------------------------------
     # Only check for brief.md when Specify is expected to run at full weight.
-    phases = task.get("phases") or {}
+    phases = task.get("stages") or {}
     specify_weight = str(phases.get("specify", "full")).lower()
     if specify_weight in _SPECIFY_FULL_WEIGHTS and not has_brief:
         findings.append({
@@ -535,7 +535,7 @@ def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
     if not os.path.isfile(task_path):
         return
     try:
-        task = load_yaml(task_path)
+        task = normalize_spine(load_yaml(task_path))
     except CompassError:
         return
     if not isinstance(task, dict):

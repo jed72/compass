@@ -70,7 +70,8 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   TASK_DIR="${TASK_DIR%/}"
   SLUG="$(basename "$TASK_DIR")"
 
-  ROUTE="$TASK_DIR/route.md"
+  ROUTE="$TASK_DIR/delivery-approach.md"
+  [ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
   SPEC="$TASK_DIR/spec.feature.md"
   VREPORT="$TASK_DIR/verification-report.md"
   RED_MARKER="$TASK_DIR/.red"
@@ -211,7 +212,8 @@ PYEOF
   latest_reframe_date="$(python3 - "$task_yml" <<'PYEOF'
 import sys, yaml
 task = yaml.safe_load(open(sys.argv[1])) or {}
-dates = [r.get("date","") for r in (task.get("reframes") or []) if r.get("date")]
+entries = (task.get("reassessments") or task.get("reframes") or [])
+dates = [r.get("date","") for r in entries if r.get("date")]
 print(max(dates) if dates else "")
 PYEOF
 )" || latest_reframe_date=""

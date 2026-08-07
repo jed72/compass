@@ -31,13 +31,13 @@ def _base_body(slug, **overrides):
     body = {
         "task": slug,
         "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "standard",
+        "delivery_approach": "standard",
     }
     body.update(overrides)
     return body
@@ -147,5 +147,5 @@ def test_capture_adds_no_backfill_or_gate(run_cli, make_task, project):
 
     task = yaml.safe_load((task_dir / "task.yml").read_text())
     assert task.get("friction"), "expected friction to be recorded"
-    assert not task.get("backfills"), "capture must not add a backfill"
+    assert not task.get("follow_ups"), "capture must not add a backfill"
     assert not task.get("gates"), "capture must not add a gate"

@@ -11,9 +11,9 @@ def _body_with_gates():
     return {
         "task": "mut",
         "created": "2026-06-22",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "standard",
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "standard",
         "scenarios": [{"id": "SCN-1", "intent": "INT-1",
                        "tests": ["tests/test_x.py::test_y"]}],
         "evidence": [

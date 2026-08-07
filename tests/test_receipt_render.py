@@ -18,10 +18,10 @@ import yaml
 
 
 _DEFAULT_READING_JUSTIFICATIONS = {
-    "blast_radius": "fixture blast-radius justification",
-    "terrain": "fixture terrain justification",
-    "magnitude": "fixture magnitude justification",
-    "intent": "fixture intent justification",
+    "risk": "fixture blast-radius justification",
+    "familiarity": "fixture terrain justification",
+    "size": "fixture magnitude justification",
+    "goal": "fixture intent justification",
 }
 
 
@@ -39,10 +39,10 @@ def _make_route_md(slug: str, readings: Dict[str, str], route: str,
 
 | Dimension | Reading | One-line justification |
 |---|---|---|
-| **Blast radius** | {readings['blast_radius']} | {_DEFAULT_READING_JUSTIFICATIONS['blast_radius']} |
-| **Terrain** | {readings['terrain']} | {_DEFAULT_READING_JUSTIFICATIONS['terrain']} |
-| **Magnitude** | {readings['magnitude']} | {_DEFAULT_READING_JUSTIFICATIONS['magnitude']} |
-| **Intent & role** | {readings.get('role', 'engineer')} · {readings['intent']} | {_DEFAULT_READING_JUSTIFICATIONS['intent']} |
+| **Risk** | {readings['risk']} | {_DEFAULT_READING_JUSTIFICATIONS['risk']} |
+| **Familiarity** | {readings['familiarity']} | {_DEFAULT_READING_JUSTIFICATIONS['familiarity']} |
+| **Size** | {readings['size']} | {_DEFAULT_READING_JUSTIFICATIONS['size']} |
+| **Goal & role** | {readings.get('role', 'engineer')} · {readings.get('goal', readings.get('intent'))} | {_DEFAULT_READING_JUSTIFICATIONS['goal']} |
 
 ## 3. Routing guardrails that fired
 
@@ -101,13 +101,13 @@ def _landed_task(project: Path, slug: str = "alpha",
     ]
 
     readings = {
-        "blast_radius": "contained",
-        "terrain": "brownfield-mapped",
-        "magnitude": "standard",
+        "risk": "contained",
+        "familiarity": "brownfield-mapped",
+        "size": "standard",
         "intent": "delivery",
         "urgency": "none",
         "role": "engineer",
-        "touches": ["public-api"],
+        "labels": ["public-api"],
     }
 
     task_body = {
@@ -116,10 +116,10 @@ def _landed_task(project: Path, slug: str = "alpha",
         "created": "2026-05-15",
         "status": "landed",
         "readings": readings,
-        "route": "standard",
+        "delivery_approach": "standard",
         "topology": "solo-or-pair",
-        "fired_guardrails": [],
-        "phases": {
+        "policy_rules_fired": [],
+        "stages": {
             "frame": "full", "specify": "full", "clarify": "light",
             "plan": "full", "distribute": "solo-or-pair", "build": "full",
             "verify": "full", "land": "full",
@@ -131,12 +131,12 @@ def _landed_task(project: Path, slug: str = "alpha",
                        "tests": ["tests/test_x.py::test_y"]}],
         "changed_files": [{"path": "src/foo.py", "scenarios": ["SCN-001"]}],
         "claims": [],
-        "backfills": [],
-        "reframes": [],
+        "follow_ups": [],
+        "reassessments": [],
     }
     (task_dir / "task.yml").write_text(
         yaml.safe_dump(task_body, sort_keys=False), encoding="utf-8")
-    (task_dir / "route.md").write_text(
+    (task_dir / "delivery-approach.md").write_text(
         _make_route_md(slug, readings, "standard"), encoding="utf-8")
     (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
     return task_dir
@@ -209,7 +209,7 @@ def test_canonical_landed_task(run_cli, project):
     # → an evidence id → the verdict.
     assert _section_order(out, [
         "alpha",                              # 1: slug
-        _DEFAULT_READING_JUSTIFICATIONS["blast_radius"],  # 2: justification
+        _DEFAULT_READING_JUSTIFICATIONS["risk"],  # 2: justification
         "standard",                           # 3: route name
         "verify.correctness",                 # 4: a gate
         "EV-001",                             # 5: an evidence id
@@ -285,7 +285,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
     assert "IN PROGRESS" in out, repr(result)
     assert "not yet landed" in out, repr(result)
     # Sections still present
-    assert "Readings" in out
+    assert "Assessment" in out
     assert "Route" in out
     assert "Gates" in out
     # No gate is labeled "landed" - that word should not appear next to a gate
@@ -333,7 +333,7 @@ def test_owed_backfills_surfaced(run_cli, project):
     """TRC-C4: a task with owed backfills is rendered as owing."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "task.yml").read_text())
-    body["backfills"] = [
+    body["follow_ups"] = [
         {"id": "BF-001", "description": "Promote reproduction into a scenario",
          "status": "owed"},
         {"id": "BF-002", "description": "Already paid one",
@@ -496,15 +496,15 @@ def test_schema_1_0_renders(run_cli, project):
         "schema_version": "1.0",
         "task": slug,
         "created": "2026-01-01",
-        "readings": {
-            "blast_radius": "trivial",
-            "terrain": "greenfield",
-            "magnitude": "atomic",
+        "assessment": {
+            "risk": "trivial",
+            "familiarity": "greenfield",
+            "size": "atomic",
             "intent": "delivery",
             "role": "engineer",
-            "touches": [],
+            "labels": [],
         },
-        "route": "express",
+        "delivery_approach": "express",
     }
     (task_dir / "task.yml").write_text(
         yaml.safe_dump(legacy_body, sort_keys=False))

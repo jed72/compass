@@ -14,5 +14,7 @@ Read the spec through the product lens before the Land phase begins.
 Score the blast_radius, the terrain, and the magnitude of the change.
 Domain tags use touches_any and touches_common; note the blast radius too.
 A hotfix owes a backfill before the task closes.
+A checklist line tagged (backfill: BF-9) uses the renamed v1 tag, and the
+spine key backfills: [] no longer exists either.
 Guardrail G1 and strategy S7 are cited by code in prose.
 Intent lives in brief.md; the scenarios live in spec.feature.md.

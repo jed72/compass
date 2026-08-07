@@ -41,7 +41,7 @@ def _project(tmp_path, task=None, slug="t"):
         (root / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     d = root / ".compass" / "work" / slug
     d.mkdir(parents=True, exist_ok=True)
-    (d / "route.md").write_text("# Route\n")
+    (d / "delivery-approach.md").write_text("# Route\n")
     (d / "evidence").mkdir(exist_ok=True)
     (d / "task.yml").write_text(yaml.safe_dump(task or _base(), sort_keys=False))
     (root / ".compass" / "current-task").write_text(slug + "\n")
@@ -51,11 +51,11 @@ def _project(tmp_path, task=None, slug="t"):
 def _base(**over):
     t = {
         "schema_version": "1.1", "task": "t", "created": "2026-08-06",
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
-                     "urgency": "none", "role": "engineer", "touches": []},
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery",
+                     "urgency": "none", "role": "engineer", "labels": []},
         "evidence": [], "gates": [], "scenarios": [], "changed_files": [],
-        "claims": [], "backfills": [], "reframes": [], "friction": [],
+        "claims": [], "follow_ups": [], "reassessments": [], "friction": [],
     }
     t.update(over)
     return t
@@ -77,9 +77,9 @@ def _task(root, slug="t"):
 def _seeded(tmp_path, **readings):
     """A task whose route has already been computed once."""
     root = _project(tmp_path, _base(readings={
-        "blast_radius": "contained", "terrain": "greenfield",
-        "magnitude": "small", "intent": "delivery", "urgency": "none",
-        "role": "engineer", "touches": [], **readings}))
+        "risk": "contained", "familiarity": "greenfield",
+        "size": "small", "intent": "delivery", "urgency": "none",
+        "role": "engineer", "labels": [], **readings}))
     _run(root, "route", "evaluate", "--task", "t", "--write")
     return root
 
@@ -88,19 +88,19 @@ def test_scn_a1_content_change_is_logged(tmp_path):
     """Same route name, materially different route."""
     root = _seeded(tmp_path)
     before = _task(root)
-    assert before["route"] == "standard", before["route"]
+    assert before["delivery_approach"] == "standard", before["delivery_approach"]
 
     # cross-cutting keeps the route name `standard` and takes the gate set from
     # 6 to 7 (RG-FLOOR-006 adds verify.fitness) - R18's exact case. `critical`
     # would also change the route NAME, which the old code already logged, so it
     # would prove nothing.
-    before["readings"]["blast_radius"] = "cross-cutting"
+    before["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(before, sort_keys=False))
     r = _run(root, "route", "evaluate", "--task", "t", "--write",
              "--reason", "risk re-read after discovery")
     after = _task(root)
-    assert after["reframes"], (
+    assert after["reassessments"], (
         f"a re-frame that changed the gate set was not logged:\n{r.stdout}")
 
 
@@ -109,7 +109,7 @@ def test_scn_a2_no_material_change_is_not_logged(tmp_path):
     r = _run(root, "route", "evaluate", "--task", "t", "--write",
              "--reason", "no change expected")
     after = _task(root)
-    assert after["reframes"] == [], (
+    assert after["reassessments"] == [], (
         f"an unchanged re-evaluation was logged as a re-frame:\n{after['reframes']}")
     assert "not recorded" in (r.stdout + r.stderr).lower(), (
         f"a --reason that went nowhere must be said out loud:\n{r.stdout}{r.stderr}")
@@ -118,11 +118,11 @@ def test_scn_a2_no_material_change_is_not_logged(tmp_path):
 def test_scn_a3_entry_records_what_changed(tmp_path):
     root = _seeded(tmp_path)
     t = _task(root)
-    t["readings"]["blast_radius"] = "cross-cutting"
+    t["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(t, sort_keys=False))
     _run(root, "route", "evaluate", "--task", "t", "--write", "--reason", "why")
-    entry = _task(root)["reframes"][-1]
+    entry = _task(root)["reassessments"][-1]
     assert "changed" in entry, entry
     assert "gates" in entry["changed"], entry
     assert entry["changed"]["gates"]["from"] != entry["changed"]["gates"]["to"], entry
@@ -131,21 +131,21 @@ def test_scn_a3_entry_records_what_changed(tmp_path):
 def test_scn_a4_entry_carries_a_kind(tmp_path):
     root = _seeded(tmp_path)
     t = _task(root)
-    t["readings"]["blast_radius"] = "cross-cutting"
+    t["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(t, sort_keys=False))
     _run(root, "route", "evaluate", "--task", "t", "--write",
          "--reason", "policy moved", "--kind", "policy-correction")
-    entry = _task(root)["reframes"][-1]
+    entry = _task(root)["reassessments"][-1]
     assert entry.get("kind") == "policy-correction", entry
 
     # and the default, when nobody says
     t2 = _task(root)
-    t2["readings"]["magnitude"] = "large"
+    t2["assessment"]["size"] = "large"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(t2, sort_keys=False))
     _run(root, "route", "evaluate", "--task", "t", "--write", "--reason", "bigger")
-    assert _task(root)["reframes"][-1].get("kind") == "judgement", _task(root)["reframes"]
+    assert _task(root)["reassessments"][-1].get("kind") == "judgement", _task(root)["reassessments"]
 
 
 def test_scn_a5_calibration_counts_only_judgement(tmp_path):

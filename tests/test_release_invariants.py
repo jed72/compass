@@ -62,23 +62,23 @@ def test_command_passes_is_a_check_under_g4_not_a_new_guardrail():
 def test_routing_dimensions_are_unchanged():
     """The four readings (blast_radius, terrain, magnitude, intent) are unchanged."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
-    vocab = policy["reading_vocabulary"]
-    assert "blast_radius" in vocab
-    assert "terrain" in vocab
-    assert "magnitude" in vocab
-    assert "intent" in vocab
+    vocab = policy["assessment_vocabulary"]
+    assert "risk" in vocab
+    assert "familiarity" in vocab
+    assert "size" in vocab
+    assert "goal" in vocab
     # The supporting keys (urgency, role, touches) are unchanged too
     assert "urgency" in vocab
     assert "role" in vocab
-    assert "touches_common" in vocab
+    assert "labels_common" in vocab
 
 
 def test_no_fifth_routing_dimension_added():
     """No new top-level reading dimension was introduced by the 1.1.0 release."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
-    vocab_keys = set(policy["reading_vocabulary"].keys())
+    vocab_keys = set(policy["assessment_vocabulary"].keys())
     # The legitimate set; if anything beyond this exists, the framework grew a dimension
-    legitimate = {"blast_radius", "terrain", "magnitude", "intent", "urgency", "role", "touches_common"}
+    legitimate = {"risk", "familiarity", "size", "goal", "urgency", "role", "labels_common"}
     extra = vocab_keys - legitimate
     assert not extra, (
         f"reading_vocabulary gained unexpected keys: {extra}. ADR-002 forbids new dimensions."

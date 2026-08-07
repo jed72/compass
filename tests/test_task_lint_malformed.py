@@ -71,4 +71,4 @@ def test_lint_reports_non_mapping_readings_instead_of_crashing(tmp_path):
         f"`task lint` crashed on non-mapping readings:\n{combined}"
     )
     assert result.returncode != 0
-    assert "readings" in combined
+    assert "assessment" in combined

@@ -18,13 +18,13 @@ def _correct_body(write_test_run=True):
     body = {
         "task": "baseline",
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "express",
+        "delivery_approach": "express",
         "scenarios": [
             {"id": "SCN-001", "intent": "INT-1",
              "tests": ["tests/test_x.py::test_y"]},
@@ -38,7 +38,7 @@ def _correct_body(write_test_run=True):
             {"id": "verify.governance", "status": "pending"},
             {"id": "verify.traceability", "status": "pending"},
         ],
-        "backfills": [],
+        "follow_ups": [],
     }
     if write_test_run:
         body["evidence"].append({
@@ -249,8 +249,8 @@ def test_check_fails_on_g5_touched_task_with_no_approval(run_cli, make_task):
     """Touching auth without a human-approval evidence entry => check fails
     on the G5 check."""
     body = _correct_body()
-    body["readings"]["touches"] = ["auth"]
-    body["route"] = "expedition"
+    body["assessment"]["labels"] = ["auth"]
+    body["delivery_approach"] = "expedition"
     task_dir = make_task("g5-no-approval", body)
     _make_green(task_dir)
     r = run_cli("check", "--task", "g5-no-approval")
@@ -262,8 +262,8 @@ def test_check_fails_on_g5_approval_missing_fields(run_cli, make_task):
     """A human-approval entry without the required structured fields must
     fail - partial approvals are worse than missing ones."""
     body = _correct_body()
-    body["readings"]["touches"] = ["auth"]
-    body["route"] = "expedition"
+    body["assessment"]["labels"] = ["auth"]
+    body["delivery_approach"] = "expedition"
     body["evidence"].append({
         "id": "EV-APP", "type": "human-approval",
         "decision": "approved",
@@ -279,8 +279,8 @@ def test_check_fails_on_g5_approval_missing_fields(run_cli, make_task):
 
 def test_check_passes_on_complete_g5_approval(run_cli, make_task):
     body = _correct_body()
-    body["readings"]["touches"] = ["auth"]
-    body["route"] = "expedition"
+    body["assessment"]["labels"] = ["auth"]
+    body["delivery_approach"] = "expedition"
     body["evidence"].append({
         "id": "EV-APP", "type": "human-approval",
         "approver": "ada@example.com",
@@ -303,7 +303,7 @@ def test_check_passes_on_complete_g5_approval(run_cli, make_task):
 
 def test_check_fails_on_unpaid_backfill(run_cli, make_task):
     body = _correct_body()
-    body["backfills"] = [{"id": "BF-1", "description": "promote repro test",
+    body["follow_ups"] = [{"id": "BF-1", "description": "promote repro test",
                            "status": "owed"}]
     task_dir = make_task("owed-bf", body)
     _make_green(task_dir)
@@ -315,7 +315,7 @@ def test_check_fails_on_unpaid_backfill(run_cli, make_task):
 
 def test_check_passes_with_paid_backfill(run_cli, make_task):
     body = _correct_body()
-    body["backfills"] = [{"id": "BF-1", "description": "promote repro test",
+    body["follow_ups"] = [{"id": "BF-1", "description": "promote repro test",
                            "status": "paid"}]
     task_dir = make_task("paid-bf", body)
     _make_green(task_dir)
@@ -348,7 +348,7 @@ def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
     if extra_evidence:
         body["evidence"].extend(extra_evidence)
     if extra_backfills:
-        body["backfills"] = extra_backfills
+        body["follow_ups"] = extra_backfills
     task_dir = make_task(slug, body)
     _make_green(task_dir)
     # Write a verification-report.md that contains a "Definition of Done" section

@@ -46,7 +46,7 @@ def _project(slug: str = "framed", *, route: bool = True, red: bool = False,
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text(slug, encoding="utf-8")
     if route:
-        (task_dir / "route.md").write_text("# Route\n\nroute: standard\n", encoding="utf-8")
+        (task_dir / "delivery-approach.md").write_text("# Route\n\nroute: standard\n", encoding="utf-8")
     if red:
         (task_dir / ".red").write_text("", encoding="utf-8")
     if spike:

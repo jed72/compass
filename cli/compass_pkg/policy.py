@@ -93,7 +93,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.check_cmd import CHECK_FNS
-from compass_pkg.core import CompassError, FRAMEWORK_ROOT, load_task, load_yaml, resolve_task_dir
+from compass_pkg.core import CompassError, FRAMEWORK_ROOT, load_task, load_yaml, normalize_spine, resolve_task_dir
 
 
 
@@ -131,7 +131,7 @@ def _jsonschema_errors(instance, schema_name):
 def _lint_errors_routing_policy(p):
     errs = []
     for top in ("routing_strategies", "routing_guardrails", "route_shapes",
-                "reading_vocabulary"):
+                "assessment_vocabulary"):
         if top not in p:
             errs.append(f"missing top-level key: {top}")
     rg = p.get("routing_guardrails", {})
@@ -370,7 +370,7 @@ def cmd_plan_lint(args):
 def cmd_task_lint(args):
     if args.file:
         path = args.file
-        task = load_yaml(path)
+        task = normalize_spine(load_yaml(path))
     else:
         task_dir = resolve_task_dir(args.task)
         task, path = load_task(task_dir)
@@ -382,14 +382,14 @@ def cmd_task_lint(args):
     # job is to report a malformed task.yml, so it must not crash on one - a
     # scenario written as a bare string used to raise AttributeError here, and a
     # traceback tells the author nothing about what to fix.
-    if "readings" not in task:
-        errs.append("missing `readings:` - Frame records the four-dimension readings")
-    elif not isinstance(task["readings"], dict):
-        errs.append("`readings:` must be a mapping of dimension -> value")
+    if "assessment" not in task:
+        errs.append("missing `assessment:` - triage records the four dimensions")
+    elif not isinstance(task["assessment"], dict):
+        errs.append("`assessment:` must be a mapping of dimension -> value")
     else:
-        for dim in ("blast_radius", "terrain", "magnitude"):
-            if dim not in task["readings"]:
-                errs.append(f"readings is missing required dimension: {dim}")
+        for dim in ("risk", "familiarity", "size"):
+            if dim not in task["assessment"]:
+                errs.append(f"assessment is missing required dimension: {dim}")
     for i, s in enumerate(task.get("scenarios") or []):
         if not isinstance(s, dict):
             errs.append(f"scenario #{i + 1} must be a mapping with an `id:`, got: {s!r}")

@@ -278,9 +278,9 @@ def test_at_least_one_adr_has_substantive_alternatives():
 def test_frame_load_architecture_returns_adrs():
     """TRC-C1: frame_load_architecture returns the ADR list correctly."""
     result = run_cli("route", "evaluate",
-                     "--reading", "blast_radius=contained",
-                     "--reading", "terrain=greenfield",
-                     "--reading", "magnitude=small",
+                     "--reading", "risk=contained",
+                     "--reading", "familiarity=greenfield",
+                     "--reading", "size=small",
                      "--json")
     # We can't call frame_load_architecture directly without a task dir,
     # but we can verify the CLI boots cleanly and the ADR scanner works

@@ -2,13 +2,13 @@
 # delivery, but the candidate is Spike. That is the routing-conflict case
 # and the evaluator MUST refuse (not silently promote).
 name: spike-auth-conflict
-readings:
-  blast_radius: contained
-  terrain: brownfield-mapped
-  magnitude: small
-  intent: exploration
+assessment:
+  risk: contained
+  familiarity: brownfield-mapped
+  size: small
+  goal: exploration
   role: engineer
-  touches: [auth]
+  labels: [auth]
 expected:
   candidate_route: spike
   conflict: true

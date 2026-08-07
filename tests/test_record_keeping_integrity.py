@@ -44,13 +44,13 @@ def _task_claiming_correctness(tests, *, status="active", correctness="pass"):
         "task": "resolve-me",
         "created": "2026-08-03",
         "status": status,
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "express",
+        "delivery_approach": "express",
         "scenarios": [{"id": "SCN-001", "intent": "INT-1", "tests": tests}],
         "changed_files": [{"path": "src/x.py", "scenarios": ["SCN-001"]}],
         "evidence": [{
@@ -63,7 +63,7 @@ def _task_claiming_correctness(tests, *, status="active", correctness="pass"):
             {"id": "verify.governance", "status": "pending"},
             {"id": "verify.traceability", "status": "pending"},
         ],
-        "backfills": [],
+        "follow_ups": [],
     }
     return body
 
@@ -163,7 +163,7 @@ def test_trc_a4_narrative_scenario_exempt(run_cli, make_task, project):
     body["scenarios"][0]["verifiable"] = "narrative"
     task_dir = make_task("resolve-me", body)
     _green(task_dir)
-    spec = task_dir / "spec.feature.md"
+    spec = task_dir / "acceptance-criteria.md"
     spec.write_text(
         "# Spec\n\n### Scenario: a documented playbook\n"
         "<!-- traceability id: SCN-001 -->\n\n"
@@ -233,9 +233,9 @@ def test_trc_a6_policy_lint_accepts_the_check(run_cli):
 def _friction_task(slug, make_task, friction=None):
     body = {
         "task": slug, "created": "2026-08-03", "status": "active",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "express", "scenarios": [], "gates": [], "backfills": [],
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "express", "scenarios": [], "gates": [], "follow_ups": [],
     }
     if friction is not None:
         body["friction"] = friction

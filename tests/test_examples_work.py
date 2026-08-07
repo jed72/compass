@@ -80,7 +80,7 @@ def test_every_example_spec_extracts(name, slug):
     """
     tmp, work = _sandbox(name)
     try:
-        spec = work / ".compass" / "work" / slug / "spec.feature.md"
+        spec = work / ".compass" / "work" / slug / "acceptance-criteria.md"
         if not spec.is_file():
             pytest.skip(f"{name} is a Spike - no spec by design")
         r = subprocess.run(
