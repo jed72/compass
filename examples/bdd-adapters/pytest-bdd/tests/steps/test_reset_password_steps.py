@@ -23,7 +23,7 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "src"))
 from reset_password import PasswordStore, Token  # noqa: E402
 
 FEATURE = (pathlib.Path(__file__).resolve().parents[2]
-           / ".compass" / "work" / "reset-password" / "spec.feature")
+           / ".compass" / "work" / "reset-password" / "acceptance-criteria.feature")
 
 scenarios(str(FEATURE))
 
