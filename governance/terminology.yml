@@ -19,7 +19,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre4
+version: 2.0.0-pre5
 
 terms:
 
@@ -431,10 +431,6 @@ scan:
     - AGENTS.md
   exempt:
     - docs/proposals/      # history stays honest
-    # Machine template: its keys are the live task.yml schema until the
-    # machine-spine slice ships schema 2.0 and renames them, which also
-    # removes this exemption.
-    - templates/task.yml
     - docs/analysis/
     - architecture/decisions/   # ADRs may quote v1 terms
     # Same rationale one level down, narrowly: the shipped SAMPLE decision

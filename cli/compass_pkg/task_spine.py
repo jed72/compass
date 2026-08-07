@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, now_iso, resolve_task_dir, save_task
+from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, now_iso, resolve_task_dir, save_task, normalize_spine
 
 
 
@@ -262,7 +262,7 @@ def cmd_land_commit(args):
             task_dir = resolve_task_dir(args.task)
             task_path = os.path.join(task_dir, "task.yml")
             if os.path.isfile(task_path):
-                task = load_yaml(task_path)
+                task = normalize_spine(load_yaml(task_path))
                 if isinstance(task, dict):
                     unmet = [g.get("id", "?") for g in (task.get("gates") or [])
                              if isinstance(g, dict) and g.get("status") != "pass"]

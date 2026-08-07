@@ -96,10 +96,10 @@ def make_task_dir(root: Path, slug: str, *,
         "created": "2026-05-25",
         "status": status,
         "land_timestamp": land_timestamp,
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "greenfield",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "greenfield",
+            "size": "small",
         },
         "scenarios": scenarios or [],
     }
@@ -108,7 +108,7 @@ def make_task_dir(root: Path, slug: str, *,
     )
 
     if feature_text is not None:
-        (task_dir / "spec.feature.md").write_text(feature_text, encoding="utf-8")
+        (task_dir / "acceptance-criteria.md").write_text(feature_text, encoding="utf-8")
 
     return task_dir
 
@@ -336,17 +336,17 @@ class TestTrcB2:
             "task": "old-task",
             "created": "2026-05-25",
             # NO status field - backward compat
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
             "scenarios": [make_scenario_entry("SCN-OLD", "old behaviour")],
         }
         (task_dir / "task.yml").write_text(
             yaml.safe_dump(task_no_status, sort_keys=False), encoding="utf-8"
         )
-        (task_dir / "spec.feature.md").write_text(
+        (task_dir / "acceptance-criteria.md").write_text(
             make_feature_text("SCN-OLD", "old behaviour"), encoding="utf-8"
         )
 
@@ -679,16 +679,16 @@ class TestTrcB6:
         living spec was introduced."""
         result = run_cli(
             "route", "evaluate",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=greenfield",
-            "--reading", "magnitude=small",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=greenfield",
+            "--reading", "size=small",
             "--json",
             cwd=FRAMEWORK_ROOT,
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
         import json
         data = json.loads(result.stdout)
-        phases = data.get("phases", {})
+        phases = data.get("stages", {})
         # The standard set of phases must be present
         expected_phases = {"frame", "specify", "clarify", "plan", "build", "verify", "land"}
         assert expected_phases.issubset(set(phases.keys())), (
@@ -773,18 +773,18 @@ class TestTrcB11:
             "task": "test-status",
             "created": "2026-05-25",
             "status": "landed",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
             "scenarios": [],
             "changed_files": [],
             "gates": [],
             "evidence": [],
             "claims": [],
-            "backfills": [],
-            "reframes": [],
+            "follow_ups": [],
+            "reassessments": [],
         }
         (task_dir / "task.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"

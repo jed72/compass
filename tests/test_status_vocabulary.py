@@ -36,16 +36,16 @@ NEW_STATUSES = ["queued", "parked", "abandoned"]
 def _task(status=None, *, gates_pass=True, extra=None):
     t = {
         "schema_version": "1.1", "task": "t", "created": "2026-08-06",
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
-                     "urgency": "none", "role": "engineer", "touches": []},
-        "route": "standard", "topology": "solo", "fired_guardrails": [],
-        "phases": {}, "evidence": [],
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery",
+                     "urgency": "none", "role": "engineer", "labels": []},
+        "delivery_approach": "standard", "topology": "solo", "policy_rules_fired": [],
+        "stages": {}, "evidence": [],
         "gates": [{"id": "verify.correctness",
                    "status": "pass" if gates_pass else "pending",
                    "evidence": []}],
-        "scenarios": [], "changed_files": [], "claims": [], "backfills": [],
-        "reframes": [], "friction": [],
+        "scenarios": [], "changed_files": [], "claims": [], "follow_ups": [],
+        "reassessments": [], "friction": [],
     }
     if status:
         t["status"] = status
@@ -62,7 +62,7 @@ def _project(tmp_path, tasks):
     for slug, body in tasks.items():
         d = root / ".compass" / "work" / slug
         d.mkdir(parents=True)
-        (d / "route.md").write_text("# Route\n")
+        (d / "delivery-approach.md").write_text("# Route\n")
         (d / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
     (root / ".compass" / "current-task").write_text(next(iter(tasks)) + "\n")
     return root

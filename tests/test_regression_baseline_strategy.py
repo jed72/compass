@@ -27,8 +27,8 @@ def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task)
     """TRC-R10-2: route evaluate surfaces regression-baseline as applicable for a
     cross-cutting task - without adding or altering a gate."""
     body = {"task": "rb", "created": "2026-06-22",
-            "readings": {"blast_radius": "cross-cutting",
-                         "terrain": "brownfield-mapped", "magnitude": "large",
+            "assessment": {"risk": "cross-cutting",
+                         "familiarity": "brownfield-mapped", "size": "large",
                          "intent": "delivery"}}
     make_task("rb", body)
     r = run_cli("route", "evaluate", "--task", "rb", "--json")
@@ -44,8 +44,8 @@ def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task)
 def test_routing_strategy_absent_on_contained_task(run_cli, make_task):
     """The advisory only fires on shared/critical surface."""
     body = {"task": "rb2", "created": "2026-06-22",
-            "readings": {"blast_radius": "contained",
-                         "terrain": "brownfield-mapped", "magnitude": "small",
+            "assessment": {"risk": "contained",
+                         "familiarity": "brownfield-mapped", "size": "small",
                          "intent": "delivery"}}
     make_task("rb2", body)
     r = run_cli("route", "evaluate", "--task", "rb2", "--json")

@@ -197,7 +197,7 @@ def cmd_check(args):
     guardrails = load_yaml(os.path.join(gov, "guardrails.yml"))
     task_dir = resolve_task_dir(args.task)
     task, _ = load_task(task_dir)
-    readings = task.get("readings") or {}
+    readings = task.get("assessment") or {}
     mode = load_mode()
 
     # Route-aware: a Spike does not need the delivery guardrails (G1-G5 do not
@@ -205,7 +205,7 @@ def cmd_check(args):
     # and it must not silently produce production change. `compass check` runs
     # `spike_guardrails` from guardrails.yml on a Spike route instead of the
     # delivery defaults.
-    if task.get("route") == "spike":
+    if task.get("delivery_approach") == "spike":
         spike_gs = list(guardrails.get("spike_guardrails", []))
         print(f"compass check - task '{os.path.basename(task_dir)}' (route: spike)")
         print(f"{mode_banner(mode)}\n")

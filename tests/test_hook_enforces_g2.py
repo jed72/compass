@@ -39,7 +39,7 @@ def _project(*, specify="full", scenarios=0, red=True, spike=False,
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text("t\n")
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     if red:
         (task_dir / ".red").write_text("")
     if spike:
@@ -49,10 +49,10 @@ def _project(*, specify="full", scenarios=0, red=True, spike=False,
     elif task_yml:
         (task_dir / "task.yml").write_text(yaml.safe_dump({
             "schema_version": "1.1", "task": "t", "created": "2026-08-06",
-            "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                         "magnitude": "small", "intent": "delivery"},
-            "route": "standard",
-            "phases": {"specify": specify},
+            "assessment": {"risk": "contained", "familiarity": "greenfield",
+                         "size": "small", "intent": "delivery"},
+            "delivery_approach": "standard",
+            "stages": {"specify": specify},
             "scenarios": [{"id": f"SCN-{i}", "title": "s", "intent": "INT-1",
                            "tests": ["tests/test_x.py"]}
                           for i in range(1, scenarios + 1)],
@@ -126,7 +126,7 @@ def test_scn_b1_the_message_names_the_guardrail_and_the_remedy():
     project = _project(specify="full", scenarios=0, red=True)
     try:
         err = _run(project).stderr
-        assert "G2" in err and "spec.feature.md" in err, err
+        assert "G2" in err and "acceptance-criteria.md" in err, err
         assert "scenarios" in err, err
         assert "frame" in err.lower(), (
             "a genuinely exploratory task should be told to re-frame - a Spike "

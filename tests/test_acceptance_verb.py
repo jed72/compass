@@ -53,12 +53,12 @@ def _project(slug="t"):
     (root / ".compass" / "current-task").write_text(slug + "\n")
     task_dir = root / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     (task_dir / "task.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": slug, "created": "2026-08-06",
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "standard", "phases": {"specify": "light"},
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "standard", "stages": {"specify": "light"},
         "evidence": [], "gates": [], "scenarios": [], "changed_files": [],
     }, sort_keys=False))
     return root, task_dir
@@ -212,7 +212,7 @@ def test_scn_c2_marker_is_per_task():
         _run(root, "acceptance", "start", "--kind", "validation", "--", *PASS_CMD)
         other = root / ".compass" / "work" / "two"
         other.mkdir(parents=True)
-        (other / "route.md").write_text("# Route\n")
+        (other / "delivery-approach.md").write_text("# Route\n")
         (root / ".compass" / "current-task").write_text("two\n")
         assert _hook(root).returncode == 2, (
             "one task's acceptance permitted an edit under another task")

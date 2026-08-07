@@ -25,10 +25,10 @@ DOC = ROOT / "docs" / "five-minutes.md"
 def _documented_readings():
     """The `readings:` block from the worked example's task.yml snippet."""
     text = DOC.read_text(encoding="utf-8")
-    m = re.search(r"```yaml\n(.*?schema_version.*?readings:.*?)```", text, re.S)
-    assert m, "docs/five-minutes.md must show a task.yml snippet with readings:"
+    m = re.search(r"```yaml\n(.*?schema_version.*?assessment:.*?)```", text, re.S)
+    assert m, "docs/five-minutes.md must show a task.yml snippet with assessment:"
     parsed = yaml.safe_load(m.group(1))
-    return parsed["readings"]
+    return parsed["assessment"]
 
 
 def _evaluate(readings):

@@ -29,9 +29,9 @@ import json
 
 
 TASK_BODY = {
-    "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                 "magnitude": "small", "intent": "delivery",
-                 "role": "engineer", "touches": []},
+    "assessment": {"risk": "contained", "familiarity": "greenfield",
+                 "size": "small", "intent": "delivery",
+                 "role": "engineer", "labels": []},
     "scenarios": [],
 }
 

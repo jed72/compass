@@ -374,9 +374,11 @@ fi
 
 TASK_SLUG="$(basename "$TASK_DIR")"
 
-# A route.md must exist - code work without a computed route is route laundering.
-if [ ! -f "$TASK_DIR/route.md" ]; then
-  echo "Compass: task '$TASK_SLUG' has no route.md - Frame did not complete. Run /compass:frame." >&2
+# The delivery-approach record must exist - code work without a computed
+# approach is process laundering. Both filename generations are accepted:
+# the archive predating the artifact rename still says route.md.
+if [ ! -f "$TASK_DIR/delivery-approach.md" ] && [ ! -f "$TASK_DIR/route.md" ]; then
+  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:frame." >&2
   exit 2
 fi
 
@@ -419,7 +421,7 @@ try:
         raise ValueError
 except Exception:
     sys.exit(0)
-phases = task.get("phases") or {}
+phases = task.get("stages") or task.get("phases") or {}
 if isinstance(phases, dict) and phases.get("specify") == "full":
     if not (task.get("scenarios") or []):
         print("block")
@@ -427,7 +429,7 @@ PYEOF
 )"
   if [ "${G2_VERDICT:-}" = "block" ]; then
     cat >&2 <<EOF
-Compass: BLOCKED - route says specify: full, but task.yml has no scenarios.
+Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no scenarios.
 
   Guardrail G2 (acceptance defined before it is built). No code is written
   that no stated, checkable acceptance criterion describes - and a guardrail
@@ -436,7 +438,7 @@ Compass: BLOCKED - route says specify: full, but task.yml has no scenarios.
   Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
   To proceed the Compass way:
-    1. Write the scenarios into .compass/work/$TASK_SLUG/spec.feature.md.
+    1. Write the scenarios into .compass/work/$TASK_SLUG/acceptance-criteria.md.
     2. Mirror them into task.yml's \`scenarios:\` block - each with an id, a
        linked intent, and the test(s) that will exercise it:
          compass scenario add SCN-001 --title "..." --intent INT-1

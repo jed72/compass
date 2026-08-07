@@ -98,7 +98,7 @@ SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # rea
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
 COMPASS_VERSION = "1.8.1"    # the CLI's own version
-COMPASS_SCHEMA_VERSION = "1.0"    # the task.yml schema this CLI understands
+COMPASS_SCHEMA_VERSION = "2.0"    # the task.yml schema this CLI writes
 COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
 
 
@@ -248,17 +248,63 @@ def load_task(task_dir):
     if sv:
         try:
             major = str(sv).split(".")[0]
-            mine = COMPASS_SCHEMA_VERSION.split(".")[0]
         except Exception:
             major = None
-            mine = COMPASS_SCHEMA_VERSION
-        if major is not None and major != mine:
+        if major is not None and major not in ("1", "2"):
             raise CompassError(
                 f"{path}: schema_version is '{sv}', but this CLI handles "
-                f"'{COMPASS_SCHEMA_VERSION}'. Update Compass to a matching "
-                f"major version, or migrate the task.yml."
+                f"'{COMPASS_SCHEMA_VERSION}' (and reads 1.x by key "
+                f"normalisation). Update Compass, or migrate the task.yml."
             )
-    return task, path
+    return normalize_spine(task), path
+
+
+# The 1.x -> 2.0 spine key map. Read-side only: every loader normalises to
+# the v2 canonical keys, so the rest of the CLI speaks one vocabulary and an
+# un-migrated 1.x spine (an adopter tree mid-upgrade, or the migration tool
+# reading its own input) keeps working. Writers always emit 2.0.
+SPINE_KEY_MAP = {
+    "readings": "assessment",
+    "route": "delivery_approach",
+    "phases": "stages",
+    "fired_guardrails": "policy_rules_fired",
+    "backfills": "follow_ups",
+    "reframes": "reassessments",
+}
+ASSESSMENT_KEY_MAP = {
+    "blast_radius": "risk",
+    "terrain": "familiarity",
+    "magnitude": "size",
+    "intent": "goal",
+    "touches": "labels",
+}
+
+
+def normalize_spine(task):
+    """Return the spine with v2 canonical keys, whatever generation it was
+    written in. A v2 key present alongside its v1 twin wins; the v1 key is
+    dropped either way. Idempotent on a v2 spine."""
+    if not isinstance(task, dict):
+        return task
+    out = {}
+    for k, v in task.items():
+        k2 = SPINE_KEY_MAP.get(k, k)
+        if k2 in out and k in SPINE_KEY_MAP:
+            continue
+        out[k2] = v
+    a = out.get("assessment")
+    if isinstance(a, dict):
+        a2 = {}
+        for k, v in a.items():
+            k2 = ASSESSMENT_KEY_MAP.get(k, k)
+            if k2 in a2 and k in ASSESSMENT_KEY_MAP:
+                continue
+            a2[k2] = v
+        out["assessment"] = a2
+    # The on-disk schema_version is preserved: readers must be able to say
+    # honestly what generation a spine was written in (the receipt reports
+    # legacy spines). Writers stamp the current version when they save.
+    return out
 
 
 def save_task(task, path):
@@ -413,57 +459,49 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
 
 # --- the route evaluator (the deterministic core) ---------------------------
 
-def reading_matches(when, readings):
-    """Does a `when:` condition match the readings? List value == any-of.
-    Special key `touches_any`: intersect against the readings' `touches` list.
+# when-condition dimension keys: a project policy written against the v1
+# names keeps matching until it migrates.
+_WHEN_KEY_MAP = {
+    "blast_radius": "risk", "terrain": "familiarity",
+    "magnitude": "size", "intent": "goal", "touches": "labels",
+    "touches_any": "labels_any", "touches_common": "labels_common",
+}
+
+
+def reading_matches(when, assessment):
+    """Does a `when:` condition match the assessment? List value == any-of.
+    Special key `labels_any`: intersect against the assessment's `labels`.
     Special key `any_of`: a list of sub-conditions, matching if ANY matches.
 
-    Keys are otherwise ANDed, so `any_of` alongside another key means "that key
-    AND one of these". `any_of` exists because a rule sometimes has to fire on
-    genuinely alternative conditions - G5 applies to the four irreversible
-    domains OR to a critical blast radius, and expressing that as separate
-    guardrails would split one rule into two that can drift apart.
+    Keys are otherwise ANDed, so `any_of` alongside another key means "that
+    key AND one of these". `any_of` exists because a rule sometimes has to
+    fire on genuinely alternative conditions - the human-sign-off guardrail
+    applies to the four irreversible domains OR to critical risk, and
+    expressing that as separate rules would split one rule into two that can
+    drift apart.
     """
     for key, val in (when or {}).items():
+        key = _WHEN_KEY_MAP.get(key, key)
         if key == "any_of":
             clauses = val if isinstance(val, list) else [val]
-            if not any(reading_matches(c, readings) for c in clauses):
+            if not any(reading_matches(c, assessment) for c in clauses):
                 return False
-        elif key == "touches_any":
+        elif key == "labels_any":
             wanted = val if isinstance(val, list) else [val]
-            have = readings.get("touches") or []
+            have = assessment.get("labels") or []
             if not any(t in have for t in wanted):
                 return False
         else:
             allowed = val if isinstance(val, list) else [val]
-            if readings.get(key) not in allowed:
+            if assessment.get(key) not in allowed:
                 return False
     return True
 
 
-# --- per-issue artifact names (v2, with v1 fallback) -------------------------
-# The v2 rename gave the per-issue artifacts industry names; the work archive
-# keeps its v1 filenames until the machine-spine slice migrates it. Every
-# reader resolves through here: the v2 name wins, the v1 name is accepted,
-# and an absent artifact is reported by its v2 name so new issues write v2
-# files. The migrator consumes this same map when it renames an archive.
-ARTIFACT_FALLBACKS = {
-    "prd.md": "brief.md",
-    "acceptance-criteria.md": "spec.feature.md",
-    "delivery-approach.md": "route.md",
-    "requirements-review.md": "clarifications.md",
-    "design.md": "plan.md",
-}
-
-
+# --- per-issue artifact names ------------------------------------------------
+# The archive speaks the v2 filenames; the v1 fallback this function once
+# carried retired when the repository's own archive migrated. The old-name
+# map lives in compass_pkg.migrate, which is what reads un-migrated trees.
 def artifact_path(task_dir, name):
-    """The on-disk path of a per-issue artifact, tolerant of both naming
-    generations. `name` is the v2 filename; unknown names pass through
-    unchanged so callers can resolve never-renamed artifacts the same way."""
-    new_path = os.path.join(task_dir, name)
-    old_name = ARTIFACT_FALLBACKS.get(name)
-    if old_name and not os.path.exists(new_path):
-        old_path = os.path.join(task_dir, old_name)
-        if os.path.exists(old_path):
-            return old_path
-    return new_path
+    """The on-disk path of a per-issue artifact, by its v2 filename."""
+    return os.path.join(task_dir, name)

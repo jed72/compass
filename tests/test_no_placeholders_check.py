@@ -23,7 +23,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 COMPASS_CLI = ROOT / "cli" / "compass"
 
 
-def _plan_lint(tmp_path, body, name="plan.md"):
+def _plan_lint(tmp_path, body, name="design.md"):
     """Write `body` to a temp plan and run `compass plan lint --file` on it."""
     plan = tmp_path / name
     plan.write_text(body)

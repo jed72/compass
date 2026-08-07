@@ -53,7 +53,7 @@ def _make_compass_project(root: Path, slug: str, *, with_route_md: bool) -> Path
 
     # Optionally create route.md
     if with_route_md:
-        (task_dir / "route.md").write_text(
+        (task_dir / "delivery-approach.md").write_text(
             "# Route\n\nroute: express\n", encoding="utf-8"
         )
 
@@ -131,8 +131,8 @@ def test_blocks_without_frame():
             f"stdout: {result.stdout}\nstderr: {result.stderr}"
         )
         # Block message must name route.md
-        assert "route.md" in result.stderr, (
-            f"Expected 'route.md' in stderr.\nstderr: {result.stderr}"
+        assert "delivery-approach.md" in result.stderr, (
+            f"Expected 'delivery-approach.md' in stderr.\nstderr: {result.stderr}"
         )
     finally:
         shutil.rmtree(str(project), ignore_errors=True)

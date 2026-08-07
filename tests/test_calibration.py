@@ -30,27 +30,27 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
     body = {
         "task": "rf-task",
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
-            "touches": [],
+            "labels": [],
         },
-        "route": "express",   # the recorded route the next eval will diff against
+        "delivery_approach": "express",   # the recorded route the next eval will diff against
     }
     task_dir = make_task("rf-task", body)
     # mutate the readings (touches=auth) so the next evaluate computes expedition
-    body["readings"]["touches"] = ["auth"]
+    body["assessment"]["labels"] = ["auth"]
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     r = run_cli("route", "evaluate", "--task", "rf-task", "--write",
                 "--reason", "discovered the change touches auth")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
-    assert task["route"] == "expedition"
-    assert task["reframes"], "expected a reframes entry"
-    rf = task["reframes"][-1]
+    assert task["delivery_approach"] == "expedition"
+    assert task["reassessments"], "expected a reframes entry"
+    rf = task["reassessments"][-1]
     assert rf["from_route"] == "express"
     assert rf["to_route"] == "expedition"
     assert "auth" in rf["reason"]
@@ -64,20 +64,20 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
     body = {
         "task": "no-rf",
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "express",
+        "delivery_approach": "express",
     }
     task_dir = make_task("no-rf", body)
     r = run_cli("route", "evaluate", "--task", "no-rf", "--write")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
-    assert task["route"] == "express"
-    assert not task.get("reframes"), f"expected no reframes, got: {task.get('reframes')}"
+    assert task["delivery_approach"] == "express"
+    assert not task.get("reassessments"), f"expected no reframes, got: {task.get('reframes')}"
 
 
 def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
@@ -87,14 +87,14 @@ def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
     body = {
         "task": "rf-noreason",
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
-            "touches": ["auth"],
+            "labels": ["auth"],
         },
-        "route": "express",
+        "delivery_approach": "express",
     }
     task_dir = make_task("rf-noreason", body)
     r = run_cli("route", "evaluate", "--task", "rf-noreason", "--write")
@@ -112,14 +112,14 @@ def _task_with_reframes(slug, transitions, base_route="standard"):
     return {
         "task": slug,
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
         "route": base_route,
-        "reframes": [
+        "reassessments": [
             {"from_route": fr, "to_route": to, "reason": "x",
              "date": "2026-05-15"}
             for fr, to in transitions
@@ -202,13 +202,13 @@ def test_reframe_debt_section(run_cli, make_task, project):
     task_dir = make_task("reframe-debt-task", {
         "task": "reframe-debt-task",
         "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
         },
-        "route": "standard",
-        "reframes": [],
+        "delivery_approach": "standard",
+        "reassessments": [],
     })
     (task_dir / "devlog.md").write_text(
         "2026-05-20: more files than Plan estimated - had to extend the scope\n"
@@ -247,13 +247,13 @@ def test_reframe_debt_empty_when_no_bloat(run_cli, make_task, project):
     make_task("clean-no-bloat", {
         "task": "clean-no-bloat",
         "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
         },
-        "route": "standard",
-        "reframes": [],
+        "delivery_approach": "standard",
+        "reassessments": [],
     })
 
     r = run_cli("calibration")
@@ -278,13 +278,13 @@ def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project)
     task_dir = make_task("reframed-ok", {
         "task": "reframed-ok",
         "created": "2026-05-19",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
         },
-        "route": "expedition",
-        "reframes": [
+        "delivery_approach": "expedition",
+        "reassessments": [
             {
                 "from_route": "standard",
                 "to_route": "expedition",
@@ -318,10 +318,10 @@ def _task_with_friction(slug, friction, base_route="standard"):
     return {
         "task": slug,
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
         "route": base_route,
@@ -339,7 +339,7 @@ def _friction(proposed_change, category="over-ceremony", source="human"):
     }
 
 
-PC_CLARIFY = "routing-policy.yml: lower Clarify weight for magnitude=small."
+PC_CLARIFY = "routing-policy.yml: lower Clarify weight for size=small."
 
 
 def test_friction_groups_recurring_by_category_and_target(run_cli, make_task):
@@ -486,13 +486,13 @@ def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
     task_dir = make_task("immutable-task", {
         "task": "immutable-task",
         "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
         },
-        "route": "standard",
-        "reframes": [],
+        "delivery_approach": "standard",
+        "reassessments": [],
     })
     (task_dir / "devlog.md").write_text(
         "more files than Plan estimated\n"

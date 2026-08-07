@@ -79,12 +79,12 @@ def test_trc_f3_a_project_ahead_of_the_framework_should_not_be_reported_as_drift
     d = yaml.safe_load(rp.read_text())
     d["routing_guardrails"]["floors"].append({
         "id": "PROJ-FLOOR-001",
-        "when": {"blast_radius": "critical"},
+        "when": {"risk": "critical"},
         "force_minimum_route": "expedition",
         "rationale": "a rule this project added for itself",
     })
     d["routing_guardrails"]["caps"].append({
-        "id": "PROJ-CAP-001", "when": {"blast_radius": "critical"},
+        "id": "PROJ-CAP-001", "when": {"risk": "critical"},
         "max_worktrees": 2, "rationale": "local coordination limit",
     })
     rp.write_text(yaml.safe_dump(d, sort_keys=False))
@@ -147,7 +147,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
 
     for path in fixtures:
         fx = yaml.safe_load(path.read_text())
-        readings = fx.get("readings") or {}
+        readings = fx.get("assessment") or fx.get("readings") or {}
         args = []
         for key, value in readings.items():
             if isinstance(value, list):
@@ -180,7 +180,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
         checked = 0
         if "route" in expect:
             checked += 1
-            assert got["route"] == expect["route"], (
+            assert got["delivery_approach"] == expect["delivery_approach"], (
                 f"{path.name}: route changed to {got['route']}, expected "
                 f"{expect['route']}")
         if "candidate_route" in expect:
@@ -194,7 +194,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
                 f"{path.name}: topology changed to {got['topology']}")
         if "fired_guardrail_ids" in expect:
             checked += 1
-            fired = [g["id"] for g in got.get("fired_guardrails", [])]
+            fired = [g["id"] for g in got.get("policy_rules_fired", [])]
             wanted_ids = expect["fired_guardrail_ids"]
             if isinstance(wanted_ids, str):
                 wanted_ids = [wanted_ids]

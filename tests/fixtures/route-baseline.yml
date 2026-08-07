@@ -12,13 +12,13 @@
 # the same PR - the diff is the audit trail.
 
 - name: spike
-  readings:
-    blast_radius: trivial
-    terrain: greenfield
-    magnitude: atomic
-    intent: exploration
+  assessment:
+    risk: trivial
+    familiarity: greenfield
+    size: atomic
+    goal: exploration
     role: engineer
-    touches: []
+    labels: []
   expected_route: spike
   expected_topology: solo
   expected_phases:
@@ -34,13 +34,13 @@
     - spike.conclude
 
 - name: express
-  readings:
-    blast_radius: trivial
-    terrain: brownfield-mapped
-    magnitude: atomic
-    intent: delivery
+  assessment:
+    risk: trivial
+    familiarity: brownfield-mapped
+    size: atomic
+    goal: delivery
     role: engineer
-    touches: []
+    labels: []
   expected_route: express
   expected_topology: solo
   expected_phases:
@@ -58,13 +58,13 @@
     - verify.traceability
 
 - name: standard
-  readings:
-    blast_radius: contained
-    terrain: brownfield-mapped
-    magnitude: standard
-    intent: delivery
+  assessment:
+    risk: contained
+    familiarity: brownfield-mapped
+    size: standard
+    goal: delivery
     role: engineer
-    touches: []
+    labels: []
   expected_route: standard
   expected_topology: solo-or-pair
   expected_phases:
@@ -85,14 +85,14 @@
     - verify.security
 
 - name: hotfix
-  readings:
-    blast_radius: contained
-    terrain: brownfield-mapped
-    magnitude: small
-    intent: delivery
+  assessment:
+    risk: contained
+    familiarity: brownfield-mapped
+    size: small
+    goal: delivery
     urgency: live-defect
     role: engineer
-    touches: []
+    labels: []
   expected_route: hotfix
   expected_topology: solo
   expected_phases:
@@ -112,13 +112,13 @@
     - verify.security
 
 - name: expedition
-  readings:
-    blast_radius: cross-cutting
-    terrain: brownfield-mapped
-    magnitude: large
-    intent: delivery
+  assessment:
+    risk: cross-cutting
+    familiarity: brownfield-mapped
+    size: large
+    goal: delivery
     role: engineer
-    touches: []
+    labels: []
   expected_route: expedition
   expected_topology: swarm
   expected_phases:

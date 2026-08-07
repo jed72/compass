@@ -109,8 +109,8 @@ EXPECTED_GATE_IDS = {
 }
 
 EXPECTED_READING_KEYS = {
-    "blast_radius", "terrain", "magnitude", "intent", "urgency", "role",
-    "touches_common",
+    "risk", "familiarity", "size", "goal", "urgency", "role",
+    "labels_common",
 }
 
 
@@ -130,7 +130,7 @@ def test_trc_f6_no_new_guardrail_gate_or_dimension():
     )
 
     # the four reading dimensions plus urgency, role, touches - no fifth
-    vocab = set(policy["reading_vocabulary"].keys())
+    vocab = set(policy["assessment_vocabulary"].keys())
     assert vocab == EXPECTED_READING_KEYS, (
         f"the reading vocabulary changed.\n  unexpected: "
         f"{sorted(vocab - EXPECTED_READING_KEYS)}\n"

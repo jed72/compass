@@ -5,8 +5,8 @@
 # mechanical parts of routing. `routing-policy.md` explains the why; this file
 # is what the deterministic evaluator (`compass route evaluate`) actually runs.
 #
-# The split that matters: the four-dimension *readings* (blast_radius, terrain,
-# magnitude, intent, role, touches) are JUDGEMENT - the Needle, an LLM or a
+# The split that matters: the four-dimension *readings* (risk, familiarity,
+# size, intent, role, touches) are JUDGEMENT - the Needle, an LLM or a
 # human, produces them, and they are not mechanizable, because that judgement
 # IS the adaptivity. This file governs only what happens *after* the readings
 # exist: composing and constraining the route. That part is deterministic and
@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 1.3.1
+version: 2.0.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -29,23 +29,23 @@ routing_strategies:
   # `when` keys match against the readings; a list value means "any of".
   default_shapes:
     - id: RS-SHAPE-001
-      when: { intent: exploration }
+      when: { goal: exploration }
       lean_toward: spike
       rationale: "Exploration intent - cannot frame for delivery yet."
     - id: RS-SHAPE-002
-      when: { urgency: live-defect, magnitude: [atomic, small] }
+      when: { urgency: live-defect, size: [atomic, small] }
       lean_toward: hotfix
       rationale: "A live defect, small enough to reproduce-and-fix fast."
     - id: RS-SHAPE-003
-      when: { magnitude: [atomic, small], blast_radius: [trivial, contained], terrain: brownfield-mapped }
+      when: { size: [atomic, small], risk: [trivial, contained], familiarity: brownfield-mapped }
       lean_toward: express
       rationale: "Small on every axis, on mapped ground."
     - id: RS-SHAPE-004
-      when: { magnitude: [large, product] }
+      when: { size: [large, product] }
       lean_toward: expedition
       rationale: "Large work - full weight, plausibly parallel."
     - id: RS-SHAPE-005
-      when: { magnitude: standard }
+      when: { size: standard }
       lean_toward: standard
       rationale: "The default working shape."
 
@@ -55,7 +55,7 @@ routing_strategies:
   # biases - free-text tie-breakers the Needle applies during composition.
   # Not machine-evaluated; surfaced to the Needle and recorded for audit.
   biases:
-    - "When magnitude is genuinely unclear, estimate up - collapsing an easy
+    - "When size is genuinely unclear, estimate up - collapsing an easy
        phase is cheaper than discovering mid-Build that the route was too light."
     - "A non-engineering role in play usually pulls the route heavier (more
        artifacts, more assessed strategies) - a bias, not a floor."
@@ -78,7 +78,7 @@ routing_strategies:
   advisory_strategies:
     - id: RS-ADV-001
       strategy: regression-baseline
-      when: { blast_radius: [cross-cutting, critical] }
+      when: { risk: [cross-cutting, critical] }
       rationale: "Shared/critical surface - capture a green baseline of the
         designated existing suite (project.regression_baseline_suite, else
         test_command) BEFORE the change and re-run it AFTER; record both as
@@ -98,46 +98,46 @@ routing_guardrails:
   # < hotfix < expedition. The evaluator raises the candidate to the max.
   floors:
     - id: RG-FLOOR-001
-      when: { blast_radius: critical }
+      when: { risk: critical }
       force_minimum_route: expedition
       never_skip: [clarify, verify, land]
       rationale: "Critical changes coordinate, or they break things quietly."
 
     - id: RG-FLOOR-002
-      when: { terrain: brownfield-unmapped }
+      when: { familiarity: brownfield-unmapped }
       require_phase: specify
       require_skill: blueprint-distillation
       rationale: "You cannot safely change behaviour you have not first written down."
 
     - id: RG-FLOOR-003
-      when: { touches_any: [auth, payments, personal-data, migrations] }
+      when: { labels_any: [auth, payments, personal-data, migrations] }
       force_minimum_route: expedition
-      rationale: "Domain risk overrides magnitude. A one-line auth change is not small."
+      rationale: "Domain risk overrides size. A one-line auth change is not small."
 
     - id: RG-FLOOR-004
-      when: { blast_radius: critical }
+      when: { risk: critical }
       add_gate: verify.analyze
       rationale: "Cross-artifact coherence checked before high-care work lands."
 
     - id: RG-FLOOR-005
-      when: { touches_any: [auth, payments, personal-data, migrations] }
+      when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.analyze
       rationale: "Irreversible-surface tasks have coherence checked before Land."
 
     - id: RG-FLOOR-006
-      when: { blast_radius: [cross-cutting, critical] }
+      when: { risk: [cross-cutting, critical] }
       add_gate: verify.fitness
       rationale: "Architectural fitness checked before cross-cutting or critical changes land."
 
     - id: RG-FLOOR-007
-      when: { touches_any: [auth, payments, personal-data, migrations] }
+      when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.fitness
       rationale: "Irreversible-surface tasks have fitness checked before Land."
 
   # caps - limits on scaling up.
   caps:
     - id: RG-CAP-001
-      when: { blast_radius: critical }
+      when: { risk: critical }
       max_worktrees: 1
       rationale: "Coordination risk on critical changes outweighs parallelism."
 
@@ -182,15 +182,15 @@ routing_guardrails:
 # rejects a reading outside this vocabulary (a misclassification should fail
 # loudly, not route silently).
 # -----------------------------------------------------------------------------
-reading_vocabulary:
-  blast_radius: [trivial, contained, cross-cutting, critical]
-  terrain: [greenfield, brownfield-mapped, brownfield-unmapped]
-  magnitude: [atomic, small, standard, large, product]
-  intent: [delivery, exploration]
+assessment_vocabulary:
+  risk: [trivial, contained, cross-cutting, critical]
+  familiarity: [greenfield, brownfield-mapped, brownfield-unmapped]
+  size: [atomic, small, standard, large, product]
+  goal: [delivery, exploration]
   urgency: [none, live-defect]
   role: [engineer, product-owner, product-marketer, designer, qa]
-  # `touches` is an open list of domain tags - common ones, not exhaustive:
-  touches_common: [auth, payments, personal-data, migrations, public-api, infra, ci]
+  # `labels` is an open list of domain tags - common ones, not exhaustive:
+  labels_common: [auth, payments, personal-data, migrations, public-api, infra, ci]
 
 # -----------------------------------------------------------------------------
 # Route shapes - the machine-readable mirror of the five reference routes. The
@@ -203,26 +203,26 @@ reading_vocabulary:
 route_shapes:
   spike:
     weight: 0
-    phases: { frame: light, specify: collapsed, clarify: skipped, plan: collapsed, distribute: skipped, build: explore, verify: conclude, land: graduate-or-discard }
+    stages: { frame: light, specify: collapsed, clarify: skipped, plan: collapsed, distribute: skipped, build: explore, verify: conclude, land: graduate-or-discard }
     gates: [spike.conclude]
     topology: solo
   express:
     weight: 1
-    phases: { frame: full, specify: light, clarify: collapsed, plan: collapsed, distribute: skipped, build: full, verify: light, land: light }
+    stages: { frame: full, specify: light, clarify: collapsed, plan: collapsed, distribute: skipped, build: full, verify: light, land: light }
     gates: [verify.correctness, verify.governance, verify.traceability]
     topology: solo
   standard:
     weight: 2
-    phases: { frame: full, specify: full, clarify: light, plan: full, distribute: solo-or-pair, build: full, verify: full, land: full }
+    stages: { frame: full, specify: full, clarify: light, plan: full, distribute: solo-or-pair, build: full, verify: full, land: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.clarity, verify.security]
     topology: solo-or-pair
   hotfix:
     weight: 3
-    phases: { frame: light, specify: reproduce-first, clarify: collapsed, plan: collapsed, distribute: skipped, build: expedited, verify: full, land: full-plus-backfill }
+    stages: { frame: light, specify: reproduce-first, clarify: collapsed, plan: collapsed, distribute: skipped, build: expedited, verify: full, land: full-plus-backfill }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security]
     topology: solo
   expedition:
     weight: 4
-    phases: { frame: full, specify: full, clarify: full, plan: full, distribute: swarm, build: full, verify: full, land: full }
+    stages: { frame: full, specify: full, clarify: full, plan: full, distribute: swarm, build: full, verify: full, land: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security, verify.clarity, verify.claims]
     topology: swarm

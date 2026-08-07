@@ -109,7 +109,7 @@ def make_project(tmp_path, *, stale=False, waived=None, extra_floor=False,
         rp = yaml.safe_load(rp_path.read_text())
         rp["routing_guardrails"]["floors"].append({
             "id": "PROJ-FLOOR-001",
-            "when": {"blast_radius": "critical"},
+            "when": {"risk": "critical"},
             "force_minimum_route": "expedition",
             "rationale": "a rule this project added for itself",
         })

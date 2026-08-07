@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
+from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
 from compass_pkg.governance import governance_drift
 from compass_pkg.task_spine import _annotate_gate_accepts
 
@@ -101,14 +101,19 @@ from compass_pkg.task_spine import _annotate_gate_accepts
 def evaluate_route(readings, policy):
     """Pure function: readings + policy -> the final route and everything that
     shaped it. This is the deterministic heart of Compass."""
-    vocab = policy.get("reading_vocabulary", {})
+    _vk = {"blast_radius": "risk", "terrain": "familiarity",
+           "magnitude": "size", "intent": "goal",
+           "touches_common": "labels_common"}
+    vocab = {_vk.get(k, k): v
+             for k, v in (policy.get("assessment_vocabulary")
+                          or policy.get("reading_vocabulary") or {}).items()}
     shapes = policy.get("route_shapes", {})
     strategies = policy.get("routing_strategies", {})
     guardrails = policy.get("routing_guardrails", {})
 
     # --- validate the readings: a misclassification fails loudly -------------
     errors = []
-    for dim in ("blast_radius", "terrain", "magnitude"):
+    for dim in ("risk", "familiarity", "size"):
         if dim not in readings:
             errors.append(f"missing required reading: {dim}")
         elif dim in vocab and readings[dim] not in vocab[dim]:
@@ -116,7 +121,7 @@ def evaluate_route(readings, policy):
                 f"reading {dim}={readings[dim]!r} is not in the vocabulary "
                 f"{vocab[dim]}"
             )
-    for dim in ("intent", "urgency", "role"):
+    for dim in ("goal", "urgency", "role"):
         if dim in readings and dim in vocab and readings[dim] not in vocab[dim]:
             errors.append(
                 f"reading {dim}={readings[dim]!r} is not in the vocabulary "
@@ -236,7 +241,7 @@ def evaluate_route(readings, policy):
     shape = shapes.get(final)
     if not shape:
         raise CompassError(f"route '{final}' has no entry in route_shapes")
-    phases = dict(shape.get("phases", {}))
+    phases = dict(shape.get("stages") or shape.get("phases") or {})
     for p in (never_skip | required_phases):
         if phases.get(p) in ("collapsed", "skipped", "light"):
             phases[p] = "full"
@@ -274,9 +279,9 @@ def evaluate_route(readings, policy):
     return {
         "candidate_route": candidate,
         "candidate_via": candidate_via,
-        "route": final,
-        "fired_guardrails": fired,
-        "phases": phases,
+        "delivery_approach": final,
+        "policy_rules_fired": fired,
+        "stages": phases,
         "gates": gates,
         "topology": topology,
         "required_artifacts": required_artifacts,
@@ -301,14 +306,15 @@ def cmd_route_evaluate(args):
             if "=" not in pair:
                 raise CompassError(f"--reading expects key=value, got: {pair}")
             k, v = pair.split("=", 1)
-            if k == "touches":
+            k = ASSESSMENT_KEY_MAP.get(k, k)
+            if k == "labels":
                 readings[k] = [t.strip() for t in v.split(",") if t.strip()]
             else:
                 readings[k] = v.strip()
     else:
         task_dir = resolve_task_dir(args.task)
         task, task_path = load_task(task_dir)
-        readings = task.get("readings")
+        readings = task.get("assessment")
         if not readings:
             raise CompassError(
                 f"{task_path} has no `readings:` block - Frame records the "
@@ -336,10 +342,10 @@ def cmd_route_evaluate(args):
         print(f"  readings        : {json.dumps(readings)}")
         print(f"  candidate route : {result['candidate_route']}  "
               f"<- {result['candidate_via']}")
-        print(f"  FINAL ROUTE     : {result['route']}")
-        if result["fired_guardrails"]:
+        print(f"  FINAL ROUTE     : {result['delivery_approach']}")
+        if result["policy_rules_fired"]:
             print("  routing guardrails fired:")
-            for f in result["fired_guardrails"]:
+            for f in result["policy_rules_fired"]:
                 print(f"    [{f['id']}] {f['kind']}: {f['rationale']}")
                 for c in f["changed"]:
                     print(f"        - {c}")
@@ -347,7 +353,7 @@ def cmd_route_evaluate(args):
             print("  routing guardrails fired: none")
         print(f"  topology        : {result['topology']}")
         print("  per-phase weight:")
-        for p, w in result["phases"].items():
+        for p, w in result["stages"].items():
             print(f"    {p:<11}: {w}")
         print(f"  gate set        : {', '.join(result['gates'])}")
         if result["required_artifacts"]:
@@ -373,22 +379,22 @@ def cmd_route_evaluate(args):
         # logged nothing, taking its `--reason` with it. Route weight is not the
         # only thing that matters about a route.
         prior = {
-            "route": task.get("route"),
-            "phases": task.get("phases"),
+            "route": task.get("delivery_approach"),
+            "phases": task.get("stages"),
             "topology": task.get("topology"),
             "gates": sorted(g.get("id") for g in (task.get("gates") or [])
                             if isinstance(g, dict)),
             "fired_guardrails": sorted(
-                f.get("id") for f in (task.get("fired_guardrails") or [])
+                f.get("id") for f in (task.get("policy_rules_fired") or [])
                 if isinstance(f, dict)),
         }
         now = {
-            "route": result["route"],
-            "phases": result["phases"],
+            "route": result["delivery_approach"],
+            "phases": result["stages"],
             "topology": result.get("topology"),
             "gates": sorted(result.get("gates") or []),
             "fired_guardrails": sorted(
-                f.get("id") for f in (result["fired_guardrails"] or [])
+                f.get("id") for f in (result["policy_rules_fired"] or [])
                 if isinstance(f, dict)),
         }
         # Only fields that were ALREADY recorded can have changed. A task whose
@@ -406,17 +412,18 @@ def cmd_route_evaluate(args):
             # under-sizing - and it is not: the readings were right, the policy
             # under them moved. Only `judgement` feeds the re-sizing aggregate.
             kind = getattr(args, "kind", None) or "judgement"
-            task.setdefault("reframes", []).append({
+            task.setdefault("reassessments", []).append({
                 "from_route": prior["route"],
-                "to_route": result["route"],
+                "to_route": result["delivery_approach"],
                 "kind": kind,
                 "changed": changed,
                 "reason": reason,
                 "date": datetime.date.today().isoformat(),
             })
-        task["route"] = result["route"]
-        task["fired_guardrails"] = result["fired_guardrails"]
-        task["phases"] = result["phases"]
+        task["schema_version"] = "2.0"
+        task["delivery_approach"] = result["delivery_approach"]
+        task["policy_rules_fired"] = result["policy_rules_fired"]
+        task["stages"] = result["stages"]
         # seed the gate list (status pending) without clobbering existing state
         existing = {g.get("id"): g for g in task.get("gates", []) if isinstance(g, dict)}
         task["gates"] = [
@@ -434,8 +441,8 @@ def cmd_route_evaluate(args):
                   "The route, phases, gates, topology and fired guardrails are "
                   "all identical to what was already on record.")
         if reframed:
-            print(f"  RE-FRAME recorded ({task['reframes'][-1]['kind']}): "
-                  f"{prior['route']} -> {result['route']}"
+            print(f"  RE-FRAME recorded ({task['reassessments'][-1]['kind']}): "
+                  f"{prior['route']} -> {result['delivery_approach']}"
                   + (f"  [changed: {', '.join(sorted(changed))}]" if changed else ""))
             if not args.reason:
                 sys.stderr.write(

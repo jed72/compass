@@ -109,18 +109,18 @@ class TestStatusLandedWrite:
             "created": "2026-05-25",
             "status": "landed",
             "land_timestamp": "2026-05-25T10:00:00+00:00",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
             "scenarios": [],
             "changed_files": [],
             "gates": [],
             "evidence": [],
             "claims": [],
-            "backfills": [],
-            "reframes": [],
+            "follow_ups": [],
+            "reassessments": [],
         }
         (task_dir / "task.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
@@ -160,18 +160,18 @@ class TestStatusLandedWrite:
             "task": "test-active",
             "created": "2026-05-25",
             "status": "active",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
             "scenarios": [],
             "changed_files": [],
             "gates": [],
             "evidence": [],
             "claims": [],
-            "backfills": [],
-            "reframes": [],
+            "follow_ups": [],
+            "reassessments": [],
         }
         (task_dir / "task.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
@@ -216,10 +216,10 @@ class TestStatusLandedWrite:
             "task": "test-bad-status",
             "created": "2026-05-25",
             "status": "invalid-status",  # not in enum [active, landed]
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
         }
         (task_dir / "task.yml").write_text(

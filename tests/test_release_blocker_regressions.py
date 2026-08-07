@@ -43,14 +43,14 @@ def _task_yml(slug: str, *, gates: list, status: str = "active", **extra) -> str
         "task": slug,
         "created": "2026-08-04",
         "status": status,
-        "readings": {
-            "blast_radius": "contained", "terrain": "greenfield",
-            "magnitude": "small", "intent": "delivery", "urgency": "none",
-            "role": "engineer", "touches": [],
+        "assessment": {
+            "risk": "contained", "familiarity": "greenfield",
+            "size": "small", "intent": "delivery", "urgency": "none",
+            "role": "engineer", "labels": [],
         },
-        "route": "standard", "topology": "solo", "fired_guardrails": [],
-        "phases": {}, "evidence": [], "gates": gates, "scenarios": [],
-        "changed_files": [], "claims": [], "backfills": [], "reframes": [],
+        "delivery_approach": "standard", "topology": "solo", "policy_rules_fired": [],
+        "stages": {}, "evidence": [], "gates": gates, "scenarios": [],
+        "changed_files": [], "claims": [], "follow_ups": [], "reassessments": [],
         "friction": [],
     }
     task.update(extra)
@@ -147,8 +147,8 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     (task_dir / "task.yml").write_text(
         _task_yml("t", gates=[], phases={"specify": "full"})
     )
-    (task_dir / "route.md").write_text("# Route - t\n")
-    (task_dir / "spec.feature.md").write_text("# Spec - t\n\n## Summary\n\n**Goal:** x\n")
+    (task_dir / "delivery-approach.md").write_text("# Route - t\n")
+    (task_dir / "acceptance-criteria.md").write_text("# Spec - t\n\n## Summary\n\n**Goal:** x\n")
 
     result = _compass(project, "analyze", "--task", "t")
     reported = [l for l in result.stdout.splitlines() if "findings:" in l]
@@ -227,7 +227,7 @@ def test_hook_still_enforces_inside_a_repo_whose_path_contains_test(tmp_path):
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text("t\n")
-    (task_dir / "route.md").write_text("# Route\n")   # framed, but no .red
+    (task_dir / "delivery-approach.md").write_text("# Route\n")   # framed, but no .red
 
     payload = json.dumps({
         "tool_name": "Edit",
@@ -263,7 +263,7 @@ def test_spike_route_still_reports_an_owed_backfill(project):
                     "description": "Promote the probe into a real scenario",
                     "status": "owed"}],
     ))
-    (task_dir / "route.md").write_text("# Route - t\n\nroute: spike\n")
+    (task_dir / "delivery-approach.md").write_text("# Route - t\n\nroute: spike\n")
     (task_dir / ".spike").write_text("")
 
     result = _compass(project, "check", "--task", "t")
@@ -301,7 +301,7 @@ def test_swarm_does_not_seed_evidence_or_the_red_marker(tmp_path):
     (compass / "config.yml").write_text(
         f"version: 1.0.0\nmode: enforced\nswarm:\n  worktree_root: \"{tmp_path / 'wt'}\"\n")
     (task_dir / "task.yml").write_text(seeding.TASK_YML)
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     (task_dir / "distribution-map.md").write_text(seeding.MAP)
     (compass / "current-task").write_text(slug + "\n")
 
@@ -329,6 +329,6 @@ def test_swarm_does_not_seed_evidence_or_the_red_marker(tmp_path):
         assert not (wt_task / "evidence").exists(), (
             f"{wt_task} inherited evidence/ from another worktree"
         )
-        assert (wt_task / "route.md").exists(), (
+        assert (wt_task / "delivery-approach.md").exists(), (
             f"{wt_task} was not seeded at all - the assertions above are vacuous"
         )

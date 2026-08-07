@@ -40,7 +40,7 @@ def _project(*, red: bool = False) -> Path:
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text("t\n", encoding="utf-8")
-    (task_dir / "route.md").write_text("# Route\n", encoding="utf-8")
+    (task_dir / "delivery-approach.md").write_text("# Route\n", encoding="utf-8")
     if red:
         (task_dir / ".red").write_text("", encoding="utf-8")
     return root

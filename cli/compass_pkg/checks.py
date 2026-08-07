@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml
+from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml, normalize_spine
 from compass_pkg.tdd import _read_config
 
 
@@ -633,7 +633,7 @@ def _parse_dod_lines(task_dir):
 
 _DOD_ITEM_RE = _re.compile(r"^\s*-\s+\[([ xX])\]\s*(.*)")
 _EVIDENCE_TAG_RE = _re.compile(r"\(evidence:\s*(EV-[^\)]+)\)")
-_BACKFILL_TAG_RE = _re.compile(r"\(backfill:\s*(BF-[^\)]+)\)")
+_BACKFILL_TAG_RE = _re.compile(r"\((?:follow-up|backfill):\s*(BF-[^\)]+)\)")
 
 # Evidence types accepted for DoD evidence (all types that represent real,
 # typed evidence - not the catch-all `artifact` which is the weakest).
@@ -676,7 +676,7 @@ def _check_dod_evidence_typed(task, task_dir):
     }
     backfills = {
         b.get("id"): b
-        for b in (task.get("backfills") or [])
+        for b in (task.get("follow_ups") or [])
         if isinstance(b, dict) and b.get("id")
     }
 
@@ -703,7 +703,7 @@ def _check_dod_evidence_typed(task, task_dir):
             desc = rest.strip() or raw.strip()
             problems.append(
                 f"bare unchecked DoD item (no evidence or backfill tag): "
-                f"'{desc}' - add (evidence: EV-<id>) or (backfill: BF-<id>) "
+                f"'{desc}' - add (evidence: EV-<id>) or (follow-up: BF-<id>) "
                 f"inline tag, or tick the box if done. G4: evidence, not "
                 f"assertion."
             )
@@ -776,12 +776,12 @@ def _check_inbound_backfills(task_dir, this_slug):
             with open(tp, "r", encoding="utf-8") as fh:
                 try:
                     import yaml as _yaml
-                    sibling_task = _yaml.safe_load(fh) or {}
+                    sibling_task = normalize_spine(_yaml.safe_load(fh) or {})
                 except Exception:
                     continue
         except OSError:
             continue
-        for bf in (sibling_task.get("backfills") or []):
+        for bf in (sibling_task.get("follow_ups") or []):
             if not isinstance(bf, dict):
                 continue
             if (bf.get("target_task") == this_slug
@@ -837,7 +837,7 @@ def _check_human_approval(task, task_dir):
 
 
 def _check_backfills_paid(task, task_dir):
-    bfs = task.get("backfills") or []
+    bfs = task.get("follow_ups") or []
     unpaid = [b.get("id", "?") for b in bfs if b.get("status") != "paid"]
     if unpaid:
         return False, f"unpaid backfill(s): {', '.join(unpaid)}"

@@ -7,7 +7,7 @@
   "required": [
     "task",
     "created",
-    "readings"
+    "assessment"
   ],
   "additionalProperties": false,
   "properties": {
@@ -38,17 +38,17 @@
       "type": "string",
       "description": "Optional. ISO 8601 timestamp of when the task was Landed. Written by scripts/integrate.sh alongside status: landed. Used as the primary sort key for the living spec derivation order (ADR-008 \u00a73)."
     },
-    "readings": {
+    "assessment": {
       "type": "object",
       "description": "The four-dimension judgement readings the Needle produces at Frame.",
       "required": [
-        "blast_radius",
-        "terrain",
-        "magnitude"
+        "risk",
+        "familiarity",
+        "size"
       ],
       "additionalProperties": false,
       "properties": {
-        "blast_radius": {
+        "risk": {
           "enum": [
             "trivial",
             "contained",
@@ -56,26 +56,20 @@
             "critical"
           ]
         },
-        "terrain": {
+        "familiarity": {
           "enum": [
             "greenfield",
             "brownfield-mapped",
             "brownfield-unmapped"
           ]
         },
-        "magnitude": {
+        "size": {
           "enum": [
             "atomic",
             "small",
             "standard",
             "large",
             "product"
-          ]
-        },
-        "intent": {
-          "enum": [
-            "delivery",
-            "exploration"
           ]
         },
         "urgency": {
@@ -93,15 +87,21 @@
             "qa"
           ]
         },
-        "touches": {
+        "labels": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        },
+        "goal": {
+          "enum": [
+            "delivery",
+            "exploration"
+          ]
         }
       }
     },
-    "route": {
+    "delivery_approach": {
       "type": [
         "string",
         "null"
@@ -114,7 +114,7 @@
         "null"
       ]
     },
-    "fired_guardrails": {
+    "policy_rules_fired": {
       "type": "array",
       "items": {
         "type": "object",
@@ -137,7 +137,7 @@
         }
       }
     },
-    "phases": {
+    "stages": {
       "type": "object",
       "description": "phase name -> weight string; filled by route evaluate."
     },
@@ -361,7 +361,7 @@
         }
       }
     },
-    "backfills": {
+    "follow_ups": {
       "type": "array",
       "description": "Owed ceremony (e.g. a Hotfix's). `compass check` fails while any is unpaid.",
       "items": {
@@ -399,7 +399,7 @@
         }
       }
     },
-    "reframes": {
+    "reassessments": {
       "type": "array",
       "description": "Append-only log of re-frames (compass route evaluate --reframe). Feeds the Needle's calibration signal.",
       "items": {

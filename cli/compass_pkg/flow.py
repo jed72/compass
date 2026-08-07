@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, load_yaml
+from compass_pkg.core import CompassError, find_compass_dir, load_yaml, normalize_spine
 from compass_pkg.rework import cmd_rework_scan
 
 
@@ -139,7 +139,7 @@ def cmd_flow(args):
                 groups["unreadable"].append((slug, "?", "no task.yml"))
                 continue
             try:
-                t = load_yaml(task_yml)
+                t = normalize_spine(load_yaml(task_yml))
                 route = t.get("route", "?")
                 # Absent means active: every task.yml written before the status
                 # field existed omits it (ADR-006).
@@ -220,7 +220,7 @@ def cmd_flow(args):
                     tasks.append((d, data))
                 except CompassError:
                     pass
-    total_reframes = sum(len(t.get("reframes") or []) for _, t in tasks)
+    total_reframes = sum(len(t.get("reassessments") or []) for _, t in tasks)
     if total_reframes == 0:
         print(f"No re-frames recorded across {len(tasks)} task(s). "
               f"Either routing is well-calibrated, or there is not enough history yet.\n")
@@ -288,7 +288,7 @@ def derive_system_spec(project_root: str) -> None:
                 continue
             try:
                 with open(yml_path, encoding="utf-8") as fh:
-                    task = yaml.safe_load(fh) or {}
+                    task = normalize_spine(yaml.safe_load(fh) or {})
             except yaml.YAMLError:
                 continue
             if not isinstance(task, dict):

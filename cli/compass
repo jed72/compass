@@ -443,6 +443,14 @@ def build_parser():
     )
     p_derive.set_defaults(func=cmd_derive_system_spec)
 
+    # Private entry point for the archive migration core the user-facing
+    # migrate verb will wrap in its own slice. Hidden like its siblings.
+    p_marc = sub.add_parser("_migrate-archive", help=argparse.SUPPRESS)
+    p_marc.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
+    p_marc.add_argument("roots", nargs="*", help=argparse.SUPPRESS)
+    from compass_pkg.migrate import cmd_migrate_archive as _cmd_marc
+    p_marc.set_defaults(func=_cmd_marc)
+
     # Private entry point for the Land friction-capture step (DD-3). Hidden the
     # same way as _derive-system-spec; called by commands/land.md, not a public
     # verb (PRD Goal 4 - deepen, don't widen the surface).

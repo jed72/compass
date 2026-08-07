@@ -21,13 +21,13 @@ The receipt for a clean landed Standard task. This output is **the actual receip
 Receipt - receipt-task (landed)
 ================================================================================
 
-Readings
---------
-  blast radius    contained               the canonical fixture blast-radius justification
-  terrain         brownfield-mapped       the canonical fixture terrain justification
-  magnitude       standard                the canonical fixture magnitude justification
-  intent          delivery (engineer)     the canonical fixture intent justification
-  touches         public-api
+Assessment
+----------
+  risk            contained               the canonical fixture blast-radius justification
+  familiarity     brownfield-mapped       the canonical fixture terrain justification
+  size            standard                the canonical fixture magnitude justification
+  goal            delivery (engineer)     the canonical fixture intent justification
+  labels          public-api
 
 Route
 -----

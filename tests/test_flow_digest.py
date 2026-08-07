@@ -48,13 +48,13 @@ def write_task_yml(directory: Path, slug: str, changed_files: list,
     directory.mkdir(parents=True, exist_ok=True)
     data = {
         "slug": slug,
-        "route": "standard",
+        "delivery_approach": "standard",
         "status": "landed",
         "created": created,
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "standard",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "standard",
             "intent": "delivery",
             "role": "engineer",
         },
@@ -116,29 +116,29 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     # --- Given: set up multiple tasks with varying reframe states -----------
     # Task with no reframes - calibration should report but not modify.
     make_task("alpha-task", {
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "standard",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "standard",
             "intent": "delivery",
         },
-        "route": "standard",
+        "delivery_approach": "standard",
         "scenarios": [{"id": "SCN-001", "intent": "INT-1", "tests": ["tests/t.py::t"]}],
-        "reframes": [],
+        "reassessments": [],
         "changed_files": [],
     }, set_current=False)
 
     # Task with a reframe - calibration should count it but not modify.
     make_task("beta-task", {
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "standard",
+        "delivery_approach": "standard",
         "scenarios": [{"id": "SCN-002", "intent": "INT-1", "tests": ["tests/t.py::t"]}],
-        "reframes": [
+        "reassessments": [
             {"from_route": "express", "to_route": "standard",
              "reason": "needed more ceremony", "date": "2026-05-23"},
         ],
@@ -178,14 +178,14 @@ def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
     compass_work = project / ".compass" / "work"
 
     make_task("gamma-task", {
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "standard",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "standard",
             "intent": "delivery",
         },
-        "route": "standard",
-        "reframes": [],
+        "delivery_approach": "standard",
+        "reassessments": [],
         "changed_files": [],
     }, set_current=False)
 
@@ -266,13 +266,13 @@ def test_includes_reframe_debt(tmp_path):
     task_body = {
         "task": slug,
         "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
         },
-        "route": "standard",
-        "reframes": [],
+        "delivery_approach": "standard",
+        "reassessments": [],
     }
     with (task_dir / "task.yml").open("w") as fh:
         yaml.safe_dump(task_body, fh, sort_keys=False)

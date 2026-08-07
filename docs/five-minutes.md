@@ -78,13 +78,13 @@ The Needle reads the four dimensions - magnitude `atomic`, blast radius
 them in `.compass/work/fix-jwt-typo/task.yml`:
 
 ```yaml
-schema_version: "1.1"
+schema_version: "2.0"
 task: fix-jwt-typo
-readings:
-  blast_radius: trivial
-  terrain: brownfield-mapped
-  magnitude: atomic
-  intent: delivery
+assessment:
+  risk: trivial
+  familiarity: brownfield-mapped
+  size: atomic
+  goal: delivery
   role: engineer
 ```
 
@@ -93,8 +93,8 @@ Then the mechanism takes over. `/compass:frame` shells out to
 routing guardrails, and folds the result back into `task.yml`:
 
 ```
-  policy          : governance/routing-policy.yml (v1.3.0)
-  readings        : {"blast_radius": "trivial", "terrain": "brownfield-mapped", ...}
+  policy          : governance/routing-policy.yml (v2.0.0)
+  readings        : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
   candidate route : express  <- RS-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL ROUTE     : express
   routing guardrails fired: none

@@ -120,7 +120,7 @@ def test_trc_b2_a_record_with_no_spec_hash_should_not_read_as_verified(tmp_path)
                                 .replace("scenarios: []",
                                          "scenarios:\n- {id: TRC-A1, title: x, "
                                          "intent: INT-1, tests: ['t.py::a']}"))
-    (d / "spec.feature.md").write_text("# spec\n")
+    (d / "acceptance-criteria.md").write_text("# spec\n")
     (d / "evidence").mkdir()
     (d / "evidence" / "bdd-run.json").write_text(json.dumps(
         {"scenarios_seen": ["TRC-A1"], "spec_sha256": None}))
@@ -194,13 +194,13 @@ def test_trc_d1_a_malformed_rule_id_should_not_crash_the_router(tmp_path):
     rp = proj / "governance" / "routing-policy.yml"
     d = yaml.safe_load(rp.read_text())
     d["routing_guardrails"]["floors"].append(
-        {"id": ["a", "b"], "when": {"blast_radius": "critical"},
+        {"id": ["a", "b"], "when": {"risk": "critical"},
          "rationale": "malformed on purpose"})
     rp.write_text(yaml.safe_dump(d, sort_keys=False))
     r = subprocess.run(
         [sys.executable, str(CLI), "route", "evaluate",
-         "--reading", "blast_radius=contained", "--reading", "terrain=greenfield",
-         "--reading", "magnitude=small", "--reading", "intent=delivery",
+         "--reading", "risk=contained", "--reading", "familiarity=greenfield",
+         "--reading", "size=small", "--reading", "intent=delivery",
          "--reading", "role=engineer"],
         cwd=str(proj), capture_output=True, text=True, timeout=60)
     assert "Traceback" not in r.stderr, (

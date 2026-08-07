@@ -79,7 +79,7 @@ def make_task(project: Path):
     """Return a callable that materialises a task directory with a task.yml.
 
     Usage:
-        task_dir = make_task("my-slug", {"readings": {...}, ...})
+        task_dir = make_task("my-slug", {"assessment": {...}, ...})
         # task_dir == project/.compass/work/my-slug
         # .compass/current-task is set to "my-slug"
     """

@@ -137,13 +137,13 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\btouches?_(?:any|common)\b"),
         re.compile(r"\btouches:\s"),
     ],
-    # The v1 word for owed follow-up work, in prose. Three machine forms
-    # stay legal until the machine-spine slice renames the schema and the
-    # tag syntax, whose slice re-tightens this pattern: the typed DoD tag
-    # "(backfill: BF-...)", the CLI verb "compass backfill", and the spine
-    # key reference "backfills:".
+    # The v1 word for owed follow-up work. The DoD tag and the spine key
+    # renamed with schema 2.0 ("(follow-up:" and "follow_ups:"), so their
+    # v1 spellings are banned like any prose use; only the CLI verb
+    # "compass backfill" stays tolerated until the CLI-voice slice renames
+    # the verbs and re-tightens this last form.
     "backfill": [
-        re.compile(r"(?<!\()(?<!compass )\bbackfills?\b(?!:)", re.IGNORECASE),
+        re.compile(r"(?<!compass )\bbackfills?\b", re.IGNORECASE),
     ],
     # The v1 work-item noun in human-facing prose. Machine-state forms
     # stay legal during the transition: task.yml, current-task, --task,
@@ -253,6 +253,16 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
             if fenced:
                 continue
             units.append((lineno, INLINE_CODE_RE.sub(" ", line)))
+        return units
+    if path.suffix in (".yml", ".yaml"):
+        # The YAML analogue of the markdown rule: in a machine file only the
+        # comments are prose - keys and values are the live schema. Backticked
+        # names inside a comment are code, as in markdown.
+        units = []
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if "#" in line:
+                comment = line.split("#", 1)[1]
+                units.append((lineno, INLINE_CODE_RE.sub(" ", comment)))
         return units
     return list(enumerate(text.splitlines(), 1))
 

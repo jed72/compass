@@ -86,13 +86,13 @@ class TestTddGreenRecordsAttempts:
         body = {
             "task": "attempts-test",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [
                 {"id": "SCN-001", "intent": "INT-1", "tests": []},
             ],
@@ -122,13 +122,13 @@ class TestTddGreenRecordsAttempts:
         body = {
             "task": "attempts-unbound",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [],
             "evidence": [],
         }
@@ -162,13 +162,13 @@ class TestTddGreenRerunDetection:
         body = {
             "task": "rerun-test",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [
                 {"id": "SCN-001", "intent": "INT-1", "tests": []},
             ],
@@ -231,13 +231,13 @@ class TestNoTrustedRerunCheck:
         return {
             "task": "rerun-check",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [
                 {"id": "SCN-001", "intent": "INT-1", "tests": ["tests/t.py::t"]},
             ],
@@ -486,10 +486,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -516,10 +516,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint-neg",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -542,10 +542,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint-ok",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -569,10 +569,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint-absent",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [

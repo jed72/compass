@@ -42,42 +42,34 @@ def test_templates_carry_the_v2_names():
     assert not leftover, f"templates still carrying v1 names: {sorted(leftover)}"
 
 
-def test_artifact_path_prefers_v2_and_accepts_v1(tmp_path):
-    """TRC-A2: the resolver returns the v2-named file when present, falls
-    back to the v1 name (the un-migrated archive), and names absent
-    artifacts by their v2 name so new issues write v2 files."""
+def test_artifact_path_resolves_v2_names_only(tmp_path):
+    """TRC-A2 (as amended by the machine-spine slice): the runtime resolver
+    speaks v2 filenames only - the v1 fallback it carried during the
+    transition retired when the archive migrated, and the old-name map
+    lives in the migration module."""
     from compass_pkg import core
 
-    for v2_name, v1_name in V2_TO_V1.items():
-        kind_dir = tmp_path / v2_name.replace(".md", "")
-        kind_dir.mkdir()
-        # Absent: resolve to the v2 name, so writers create v2 files.
-        assert Path(core.artifact_path(str(kind_dir), v2_name)).name == v2_name
-        # v1 only (an un-migrated issue directory): resolve to the v1 file.
-        (kind_dir / v1_name).write_text("v1")
-        assert Path(core.artifact_path(str(kind_dir), v2_name)).name == v1_name
-        # Both present: the v2 file wins.
-        (kind_dir / v2_name).write_text("v2")
-        assert Path(core.artifact_path(str(kind_dir), v2_name)).name == v2_name
+    d = tmp_path / "issue"
+    d.mkdir()
+    (d / "brief.md").write_text("v1")
+    (d / "prd.md").write_text("v2")
+    resolved = Path(core.artifact_path(str(d), "prd.md"))
+    assert resolved.name == "prd.md" and resolved.read_text() == "v2"
 
 
-def test_readers_resolve_v1_and_v2_issue_directories(tmp_path):
-    """TRC-A3: the acceptance-criteria reader (the derivation's and the
-    checks' shared entry) finds the file in both an un-migrated issue
-    directory and a v2-named one."""
-    from compass_pkg import core
+def test_migration_renames_a_v1_issue_directory(tmp_path):
+    """TRC-A3 (as amended by the machine-spine slice): an un-migrated issue
+    directory becomes resolvable by migrating it - the migration module
+    owns the v1 filename map the runtime no longer consults."""
+    from compass_pkg import core, migrate
 
     old_dir = tmp_path / "old-issue"
     old_dir.mkdir()
     (old_dir / "spec.feature.md").write_text("# old spec")
-    new_dir = tmp_path / "new-issue"
-    new_dir.mkdir()
-    (new_dir / "acceptance-criteria.md").write_text("# new criteria")
-
-    old = core.artifact_path(str(old_dir), "acceptance-criteria.md")
-    new = core.artifact_path(str(new_dir), "acceptance-criteria.md")
-    assert Path(old).read_text() == "# old spec"
-    assert Path(new).read_text() == "# new criteria"
+    notes = migrate.migrate_issue_dir(str(old_dir))
+    assert any("spec.feature.md" in n for n in notes)
+    resolved = Path(core.artifact_path(str(old_dir), "acceptance-criteria.md"))
+    assert resolved.read_text() == "# old spec"
 
 
 def test_bdd_extraction_output_is_named_for_acceptance_criteria():

@@ -51,7 +51,7 @@ def _make_task(project: Path, slug: str, *,
     task_dir.mkdir(parents=True, exist_ok=True)
 
     # route.md - minimal so the hook can see it
-    (task_dir / "route.md").write_text(
+    (task_dir / "delivery-approach.md").write_text(
         f"# Route - {slug}\n\n> **Reference route:** {route}\n"
     )
 
@@ -63,10 +63,10 @@ def _make_task(project: Path, slug: str, *,
     body: dict = {
         "task": slug,
         "created": "2026-05-20",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
         },
         "route": route,
         "reframes": reframes or [],

@@ -128,10 +128,10 @@ def test_trc_d3_no_tier_ladder_in_routing_policy():
         )
     # Reading vocabulary keys are unchanged (the four dimensions + urgency + role)
     policy = yaml.safe_load(text)
-    vocab = policy.get("reading_vocabulary", {})
-    expected_dims = {"blast_radius", "terrain", "magnitude", "intent", "urgency", "role"}
+    vocab = policy.get("assessment_vocabulary", {})
+    expected_dims = {"risk", "familiarity", "size", "goal", "urgency", "role"}
     assert expected_dims.issubset(set(vocab.keys())), (
-        f"reading_vocabulary must contain {expected_dims}; got {set(vocab.keys())}"
+        f"assessment_vocabulary must contain {expected_dims}; got {set(vocab.keys())}"
     )
 
 
@@ -164,7 +164,7 @@ def test_trc_d4_no_new_agent_persona_no_new_role():
     policy = yaml.safe_load(
         (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
     )
-    actual_roles = set(policy["reading_vocabulary"]["role"])
+    actual_roles = set(policy["assessment_vocabulary"]["role"])
     assert actual_roles == EXPECTED_ROLES, (
         f"the role enum must remain {EXPECTED_ROLES}; got {actual_roles}"
     )
@@ -182,7 +182,7 @@ def test_trc_d5_pipeline_phases_flex_by_route():
         (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
     )
     shapes = policy["route_shapes"]
-    phase_maps = {name: shape["phases"] for name, shape in shapes.items()}
+    phase_maps = {name: shape["stages"] for name, shape in shapes.items()}
     # All five shapes present
     assert {"spike", "express", "standard", "hotfix", "expedition"} == set(phase_maps.keys())
     # At least two shapes must have distinct phase maps
@@ -277,9 +277,9 @@ def test_trc_d9_route_evaluate_deterministic(tmp_path):
     # own routing-policy.yml (no project overrides - work in tmp_path).
     cmd = [
         sys.executable, str(CLI), "route", "evaluate",
-        "--reading", "blast_radius=contained",
-        "--reading", "terrain=brownfield-mapped",
-        "--reading", "magnitude=small",
+        "--reading", "risk=contained",
+        "--reading", "familiarity=brownfield-mapped",
+        "--reading", "size=small",
         "--reading", "intent=delivery",
         "--reading", "role=engineer",
         "--json",
@@ -289,8 +289,8 @@ def test_trc_d9_route_evaluate_deterministic(tmp_path):
     # The route + phases + gates blocks must match byte-for-byte
     j1 = json.loads(out1.stdout)
     j2 = json.loads(out2.stdout)
-    assert j1.get("route") == j2.get("route")
-    assert j1.get("phases") == j2.get("phases")
+    assert j1.get("delivery_approach") == j2.get("delivery_approach")
+    assert j1.get("stages") == j2.get("stages")
     assert j1.get("gates") == j2.get("gates")
 
 

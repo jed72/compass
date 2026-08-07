@@ -50,7 +50,7 @@ def _project(tmp_path, *, blast="critical", touches=None, approval=False,
     (root / ".compass" / "current-task").write_text("t\n")
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     (task_dir / "evidence").mkdir()
     (task_dir / "evidence" / "green.json").write_text(
         '{"command": "pytest", "exit_code": 0, "passed": true}')
@@ -65,18 +65,18 @@ def _project(tmp_path, *, blast="critical", touches=None, approval=False,
     task = {
         "schema_version": "1.1", "task": "t", "created": "2026-08-06",
         "status": status,
-        "readings": {"blast_radius": blast, "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
+        "assessment": {"risk": blast, "familiarity": "greenfield",
+                     "size": "small", "goal": "delivery",
                      "urgency": "none", "role": "engineer",
-                     "touches": touches or []},
-        "route": "standard", "topology": "solo", "fired_guardrails": [],
-        "phases": {}, "evidence": evidence,
+                     "labels": touches or []},
+        "delivery_approach": "standard", "topology": "solo", "policy_rules_fired": [],
+        "stages": {}, "evidence": evidence,
         "gates": [{"id": "verify.correctness", "status": "pass",
                    "evidence": ["EV-1"]}],
         "scenarios": [{"id": "SCN-1", "title": "t", "intent": "INT-1",
                        "tests": ["tests/test_thing.py"]}],
         "changed_files": [{"path": "src/x.py", "scenarios": ["SCN-1"]}],
-        "claims": [], "backfills": [], "reframes": [], "friction": [],
+        "claims": [], "follow_ups": [], "reassessments": [], "friction": [],
     }
     if status == "landed":
         task["land_timestamp"] = "2026-08-06T00:00:00Z"
@@ -137,25 +137,25 @@ def test_scn_a4_neither_condition_still_skips_g5(tmp_path):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("readings,expected", [
-    ({"blast_radius": "critical", "touches": []}, True),
-    ({"blast_radius": "contained", "touches": ["payments"]}, True),
-    ({"blast_radius": "contained", "touches": ["ci"]}, False),
+    ({"risk": "critical", "labels": []}, True),
+    ({"risk": "contained", "labels": ["payments"]}, True),
+    ({"risk": "contained", "labels": ["ci"]}, False),
 ])
 def test_scn_b1_b2_any_of_is_an_or(readings, expected):
     sys.path.insert(0, str(ROOT / "cli"))
     from compass_pkg.core import reading_matches
     when = {"any_of": [{"touches_any": ["auth", "payments"]},
-                       {"blast_radius": "critical"}]}
+                       {"risk": "critical"}]}
     assert reading_matches(when, readings) is expected
 
 
 def test_scn_b3_any_of_composes_with_siblings_as_an_and():
     sys.path.insert(0, str(ROOT / "cli"))
     from compass_pkg.core import reading_matches
-    when = {"any_of": [{"blast_radius": "critical"}], "intent": "delivery"}
-    assert reading_matches(when, {"blast_radius": "critical",
-                                  "intent": "delivery"}) is True
-    assert reading_matches(when, {"blast_radius": "critical",
+    when = {"any_of": [{"risk": "critical"}], "goal": "delivery"}
+    assert reading_matches(when, {"risk": "critical",
+                                  "goal": "delivery"}) is True
+    assert reading_matches(when, {"risk": "critical",
                                   "intent": "exploration"}) is False
 
 
