@@ -70,7 +70,7 @@ project:
   test_command: ""   # e.g. "npm test", "pytest -q", "go test ./..."
 
   # --- executable BDD (all optional) ----------------------------------------
-  # `compass bdd extract` lifts the Gherkin out of a task's spec.feature.md
+  # `compass bdd extract` lifts the Gherkin out of a task's acceptance-criteria.md
   # into a plain .feature file, tagged with each scenario's TRC id. It works
   # with none of the keys below set - it writes the .feature into the task
   # directory and stops there.
@@ -86,7 +86,7 @@ project:
   # bdd_runner: pytest-bdd        # pytest-bdd | cucumber-js | behave | godog
   #
   #   bdd_features_dir  Where `compass bdd extract` writes the .feature file.
-  #                     Unset, it writes `spec.feature` into the task's own
+  #                     Unset, it writes `acceptance-criteria.feature` into the task's own
   #                     directory. Set it when your runner expects a
   #                     conventional features/ directory; the file is then
   #                     written as <dir>/<task-slug>.feature.
@@ -111,7 +111,7 @@ swarm:
 artifacts:
   # Where per-task working state lives. This directory IS committed in a real
   # project - it is the audit trail, not scratch. Holds work/<task-slug>/
-  # (each task's route.md, task.yml, spec.feature.md, …) and the
+  # (each task's delivery-approach.md, task.yml, acceptance-criteria.md, …) and the
   # .compass/current-task pointer the CLI uses to resolve the active task.
   work_dir: ".compass/work"
 

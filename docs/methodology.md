@@ -49,7 +49,7 @@ The four dimensions the Needle reads:
 | **Magnitude** | How much work is this? | atomic · small · standard · large · product |
 | **Intent & role** | Who is invoking, and what outcome are they really after? | engineer · product owner/manager · product marketer · designer · QA |
 
-The Needle does not just classify - it explains. Its output, `route.md`, is an
+The Needle does not just classify - it explains. Its output, `delivery-approach.md`, is an
 auditable record: here is what I assessed, here is the route I chose, here is
 what ceremony applies, **here is what I am skipping and the explicit reason it
 is safe to skip.** De-scoping is a first-class, written decision, not an
@@ -74,7 +74,7 @@ Frame → Specify → Clarify → Plan → Distribute → Build → Verify → L
 
 | Phase | What happens | What adapts |
 |---|---|---|
-| **Frame** | The Needle reads the four dimensions and writes `route.md`. Roles in play are identified. | Always runs. Cost: ~minutes even on the heaviest route. |
+| **Frame** | The Needle reads the four dimensions and writes `delivery-approach.md`. Roles in play are identified. | Always runs. Cost: ~minutes even on the heaviest route. |
 | **Specify** | Behaviour is captured as BDD scenarios (Given/When/Then). Greenfield: discovery. Brownfield: *blueprint distillation* - reverse-engineer current behaviour into scenarios before changing it. | One scenario vs. a full feature set. Discovery depth. |
 | **Clarify** | Ambiguities resolved. The spec is QA'd against itself and against governance. | Skipped on Express when the spec is a single unambiguous scenario; skipped on Spike entirely. |
 | **Plan** | Technical plan. Governance check. Independent work units identified; worktree/swarm topology decided. | Collapses to "edit this file" on Express; expands to a distribution map on Expedition. |
@@ -93,7 +93,7 @@ Given/When/Then, traceability ids are assigned, no open ambiguities, the route
 still fits. **Verify → Land** is guarded by a **Definition of Done** - every
 scenario passes, the suite is green, coverage meets the guardrail floor, no
 lint errors, traceability intact. The checklists live at the foot of
-`clarifications.md` and `verification-report.md` respectively; on routes where
+`requirements-review.md` and `verification-report.md` respectively; on routes where
 Clarify collapses, the Definition of Ready is satisfied by construction.
 
 **The Definition of Done is a typed gate, not a narrative.** Every unchecked
@@ -221,10 +221,10 @@ Role entry points:
 
 | Role | Entry point | Primary artifact | Where they gate |
 |---|---|---|---|
-| Product owner / manager | `/compass:intent` | `brief.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before Plan. Curates the product strategies in `governance/strategies.md`. |
+| Product owner / manager | `/compass:intent` | `prd.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before Plan. Curates the product strategies in `governance/strategies.md`. |
 | Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Gates Land: no launch claim ships without a passing scenario behind it. Curates the voice & positioning strategies. |
 | Designer | `/compass:design` | `ui-contract.md` | UI contracts are written as scenarios and flow into Specify. |
-| Engineer | `/compass:frame` and the pipeline | `route.md`, `plan.md`, code | Owns Build. Curates the engineering strategies. |
+| Engineer | `/compass:frame` and the pipeline | `delivery-approach.md`, `design.md`, code | Owns Build. Curates the engineering strategies. |
 | QA | participates in `/compass:verify` | `verification-report.md` | Owns the Verify gate. |
 
 The product owner enters *upstream* of the spec; the marketer works *parallel*
@@ -251,11 +251,11 @@ same guardrails-and-strategies split to the Needle itself:
 - **Routing strategies** *bias* what the Needle does by default - the route
   shapes it reaches for, how it breaks ties ("when magnitude is unclear,
   estimate up"; "prefer the lightest route that still clears the guardrails").
-  The Needle starts here and tunes; a departure is recorded in `route.md`.
+  The Needle starts here and tunes; a departure is recorded in `delivery-approach.md`.
 
 This is the answer to the obvious objection to any adaptive framework - *"if
 the process can flex, what stops it flexing to nothing?"* The routing
-guardrails are what stop it. The flex is real and bounded, and any `route.md`
+guardrails are what stop it. The flex is real and bounded, and any `delivery-approach.md`
 shows not just the route chosen but which routing guardrails fired and why. An
 adaptive framework gives up the simple integrity story of a fixed pipeline;
 this file is where Compass buys that integrity back.
@@ -356,7 +356,7 @@ tunes, not a fixed ladder.
 | **Express** | atomic/small · trivial/contained · brownfield-mapped | Frame → Specify (1 scenario) → Build → Verify. Clarify, Plan, Distribute collapse. Still tested before it lands (G1); the red-before-green TDD strategy still applies. One gate. |
 | **Standard** | standard · contained · either terrain | Full pipeline, solo or pair. Spec is a small feature set. Governance check in Plan. Two gates. |
 | **Expedition** | large/product · cross-cutting · greenfield/unmapped | Full pipeline at full weight. Governance check, full BDD discovery, distribution map, agent swarm across worktrees. All gates. |
-| **Hotfix** | critical · atomic/small · brownfield | Reproduce-first: a failing regression test *is* the spec. Expedited Build, but a mandatory post-incident backfill of `route.md` and a real scenario before the task is closed. All Verify gates, no exceptions. |
+| **Hotfix** | critical · atomic/small · brownfield | Reproduce-first: a failing regression test *is* the spec. Expedited Build, but a mandatory post-incident backfill of `delivery-approach.md` and a real scenario before the task is closed. All Verify gates, no exceptions. |
 | **Spike** | intent is exploration - "I cannot frame this well enough yet" | Frame (light) → Explore (TDD strategy suspended; the hook does not block) → Conclude → graduate or discard. **Nothing lands from a Spike** - the only exit that keeps code is graduating, which is re-framing into a real route where the guardrails apply in full. |
 
 Full definitions, including exact gate sets, live in `routes/`. Spike is the
@@ -432,11 +432,11 @@ manager" persona with turf and an inbox; it adds `/compass:flow`, a command
 anyone can run, backed by the `flow-management` skill.
 
 The distinction matters because of how Compass stores state. Task state is not
-a label a manager sets - it is *inferred from the artifacts on disk* (`plan.md`
+a label a manager sets - it is *inferred from the artifacts on disk* (`design.md`
 exists and `verification-report.md` does not ⇒ the task is in Build). So flow
 management has nothing to "own" and nothing to "move." Its whole job is to read
 the artifacts, notice what the per-task pipeline cannot, and surface the right
-thing first: guardrail violations (a task with no `route.md`), routes quietly
+thing first: guardrail violations (a task with no `delivery-approach.md`), routes quietly
 outgrown, stalls, and owed backfills aggregated across every task. It advises;
 it never gates. The gates stay in the per-task pipeline, next to the evidence.
 
@@ -657,7 +657,7 @@ Three properties keep this on the right side of every Compass line:
 5. **One spec, many lenses.** The scenario file is the shared substrate for
    every role.
 6. **De-scoping is a written decision.** If a route skips something, the
-   reason is in `route.md`.
+   reason is in `delivery-approach.md`.
 7. **Governance governs the router.** Routing guardrails bound the Needle;
    routing strategies bias it. Flexibility is real and bounded.
 8. **Evidence over assertion, persistence over conversation.** Artifacts on

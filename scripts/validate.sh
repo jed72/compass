@@ -72,7 +72,8 @@ say ""
 
 # --- 2. expected artifact templates -----------------------------------------
 say "2. Artifact templates"
-for t in route brief spec.feature clarifications plan distribution-map \
+for t in delivery-approach prd bug-report incident acceptance-criteria \
+         requirements-review design distribution-map \
          positioning launch-readiness ui-contract verification-report devlog; do
   if [ -f "templates/$t.md" ]; then ok "template $t.md"; else fail "missing template: templates/$t.md"; fi
 done

@@ -12,16 +12,16 @@ the same split as the rest of `governance/`:
 - **Routing strategies** - soft. They *bias* what the Needle does by default -
   the route shapes it reaches for, the way it breaks ties. A routing strategy
   is the starting point; the Needle (or a human) can depart from it for a
-  given task, and that departure is just recorded in `route.md`.
+  given task, and that departure is just recorded in `delivery-approach.md`.
 
 This is the answer to the obvious objection to any adaptive framework - *"if
 the process can flex, what stops it flexing to nothing?"* The routing
 guardrails are what stop it. The flex is real, and it is bounded by this file.
 
 The Needle applies this policy during Frame, after reading the four dimensions
-and composing a candidate route, before writing `route.md`. Every routing
-guardrail that fires is recorded in `route.md` with its rationale - so any
-`route.md` shows not just the route, but which bounds were active and why.
+and composing a candidate route, before writing `delivery-approach.md`. Every routing
+guardrail that fires is recorded in `delivery-approach.md` with its rationale - so any
+`delivery-approach.md` shows not just the route, but which bounds were active and why.
 
 > **Version:** 0.2.0 · **Last amended:** {{DATE}}
 
@@ -90,7 +90,7 @@ part of the gate set.
 
 These are the Needle's defaults: the route shapes it reaches for, and how it
 breaks ties. The Needle starts here and tunes; a departure is normal and is
-recorded in `route.md`, not punished.
+recorded in `delivery-approach.md`, not punished.
 
 ```yaml
 routing_strategies:
@@ -143,7 +143,7 @@ value means "any of".
 Routing-guardrail keys: `force_minimum_route`, `require_phase`,
 `require_skill`, `never_skip`, `max_worktrees`, `forbid_route`,
 `block_phase` + `until`, `require_artifact`, `gate`. Every guardrail carries a
-stable `id` (e.g. `RG-FLOOR-001`) so `route.md` can name exactly which one
+stable `id` (e.g. `RG-FLOOR-001`) so `delivery-approach.md` can name exactly which one
 fired.
 
 Routing-strategy keys: `lean_toward`, `suggest_artifact`, free-text `biases`.

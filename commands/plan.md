@@ -11,17 +11,17 @@ here* and *executed in Distribute*.
 
 ## Setup
 
-- Read `route.md`. The Plan weight tells you the shape: a one-line "edit which
-  file(s)" note (Express - no `plan.md`), a real `plan.md` (Standard), or a
-  full `plan.md` plus `distribution-map.md` (Expedition).
-- Read `spec.feature.md` and `clarifications.md` - the plan is built on the
+- Read `delivery-approach.md`. The Plan weight tells you the shape: a one-line "edit which
+  file(s)" note (Express - no `design.md`), a real `design.md` (Standard), or a
+  full `design.md` plus `distribution-map.md` (Expedition).
+- Read `acceptance-criteria.md` and `requirements-review.md` - the plan is built on the
   hardened spec.
 - Load the `plan-authoring` skill - how to write the plan itself: what a work
   unit is, what makes one genuinely independent of another, and the self-review
   the author owes the reviewer before the plan is handed over.
 - Load the `governance-check` skill.
 - Invoke the `planner` agent - it owns this phase.
-- If a `brief.md` exists, this is where the **intent-fidelity gate** lands: the
+- If a `prd.md` exists, this is where the **intent-fidelity gate** lands: the
   spec must be checked against the brief before Plan completes. Invoke
   `product-lens` to run it.
 
@@ -38,14 +38,14 @@ here* and *executed in Distribute*.
    the plan, never waive the guardrail. A plan that departs from a strategy may
    pass, but the departure is recorded.
 3. **Distribution map** (when the work splits into independent units). Read the
-   scenario groups from `spec.feature.md`; units that touch disjoint code and
+   scenario groups from `acceptance-criteria.md`; units that touch disjoint code and
    satisfy disjoint scenarios can run in parallel. On Standard a short list of
    2–3 units is enough; on Expedition write the full `distribution-map.md` from
    its template - even if a cap forces it solo, the map records what *could*
    have been parallel and why it wasn't. Stream count comes from the map;
    topology thresholds from `.compass/config.yml`; a routing guardrail can
    cap the count.
-4. **Write `plan.md`** from `templates/plan.md` (and `distribution-map.md` from
+4. **Write `design.md`** from `templates/design.md` (and `distribution-map.md` from
    its template when applicable) into `.compass/work/<task-slug>/`.
 
 ## Hand-off
@@ -53,7 +53,7 @@ here* and *executed in Distribute*.
 Close Plan by handing the technical approach to a human. This is the last review
 before code is written, and the cheapest point at which to change the design.
 
-> I have written the plan to `.compass/work/<task-slug>/plan.md`
+> I have written the plan to `.compass/work/<task-slug>/design.md`
 > (and the distribution map to `distribution-map.md`).
 >
 > It records N design decisions, the governance check against all of
@@ -73,7 +73,7 @@ before code is written, and the cheapest point at which to change the design.
 
 ## Gate
 
-`plan.md` exists; the governance check passed (paste its result); if a brief
+`design.md` exists; the governance check passed (paste its result); if a brief
 exists, the intent-fidelity gate passed; if the work is parallelisable, a
 distribution map exists. Log to `devlog.md`. Next: `/compass:distribute` (or
 straight to `/compass:build` on a solo route).

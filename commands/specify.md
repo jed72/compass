@@ -12,19 +12,19 @@ can.
 
 ## Setup
 
-- Read `route.md`. The Specify weight there tells you how deep to go: one
+- Read `delivery-approach.md`. The Specify weight there tells you how deep to go: one
   scenario (Express), a small feature set (Standard), full BDD discovery
   (Expedition), or - on a **Spike** - collapsed into *the question* (what do we
   need to learn, and what would a useful answer look like), not acceptance
   criteria for code. Honour it.
 - Load the `bdd-specification` skill.
-- If `route.md` reads terrain as `brownfield-unmapped`, also load
+- If `delivery-approach.md` reads terrain as `brownfield-unmapped`, also load
   `blueprint-distillation` - reverse-engineer the *current* behaviour into
   scenarios **before** writing the scenarios for the change. A routing
   guardrail forces this; you cannot safely change what you have not first
   described.
 - Invoke the `spec-author` agent - it owns this phase.
-- Read any upstream role artifacts for this task: `brief.md` (the outcome to
+- Read any upstream role artifacts for this task: `prd.md` (the outcome to
   hit), `ui-contract.md` (designer scenarios that flow in here), `positioning.md`
   (claims that will need backing scenarios).
 
@@ -42,7 +42,7 @@ can.
    touch disjoint surface - this grouping seeds the distribution map in Plan.
 4. **Maintain traceability** - load `traceability`; each scenario traces to an
    intent (the brief, the request, the defect).
-5. **Write `spec.feature.md`** from `templates/spec.feature.md` into
+5. **Write `acceptance-criteria.md`** from `templates/acceptance-criteria.md` into
    `.compass/work/<task-slug>/` - the prose spec every role reads.
 6. **Write the `scenarios:` block of `task.yml`** - the machine-readable index
    of the prose spec. Each scenario gets a stable `id`, a `title`, a linked
@@ -55,7 +55,7 @@ can.
 On a Hotfix route, Specify is **reproduce-first**: the spec is a failing
 regression test that reproduces the defect - simultaneously the BDD scenario
 and the TDD red. Write that test now; the proper scenario is promoted into
-`spec.feature.md` during the Land backfill.
+`acceptance-criteria.md` during the Land backfill.
 
 ## Spike note
 
@@ -72,7 +72,7 @@ The point is to make the review a deliberate moment rather than an implied one -
 a reviewer who is told what to look for finds more than one who is told a file
 is ready.
 
-> I have written the spec to `.compass/work/<task-slug>/spec.feature.md`.
+> I have written the spec to `.compass/work/<task-slug>/acceptance-criteria.md`.
 >
 > It opens with a Summary - Goal, Approach, and Why now / what changes - so you
 > can see what this delivers before reading any scenarios. Below that are N
@@ -93,10 +93,10 @@ Fill in the real path, counts, and group names - a prompt that still says
 
 ## Gate
 
-On a delivery route: `spec.feature.md` exists, every scenario is
+On a delivery route: `acceptance-criteria.md` exists, every scenario is
 Given/When/Then, every scenario traces to an intent, no described behaviour is
 missing a scenario, and `task.yml`'s `scenarios:` block mirrors it - each with
 an id, a linked intent, and at least one test. On a Spike: the question and
 timebox are recorded. Log to `devlog.md`. Next: `/compass:clarify` (or straight
-to `/compass:plan` if `route.md` collapsed Clarify - and Clarify is skipped
+to `/compass:plan` if `delivery-approach.md` collapsed Clarify - and Clarify is skipped
 entirely on Spike).

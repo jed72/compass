@@ -36,7 +36,7 @@ optional and not a prerequisite. If a project has run `/compass:init`, its
   `routing-policy.yml`.
 - For a non-trivial or ambiguous task, invoke the `navigator` agent to read the
   four dimensions.
-- If a `brief.md`, `ui-contract.md`, or `positioning.md` already exists for
+- If a `prd.md`, `ui-contract.md`, or `positioning.md` already exists for
   this task, read it - intent is the *outcome wanted*, not just the literal
   request.
 
@@ -44,12 +44,12 @@ optional and not a prerequisite. If a project has run `/compass:init`, its
 
 If `--reframe` is passed, this is a mid-task re-score, not a fresh frame -
 typically because Build revealed the terrain was misread. Read the existing
-`route.md` and `task.yml`, re-read the four dimensions, update `task.yml`'s
+`delivery-approach.md` and `task.yml`, re-read the four dimensions, update `task.yml`'s
 `readings:` block, then re-run `compass route evaluate --write --reason "..."`
 to recompute the route. **Always pass `--reason`** on a re-frame: when the CLI
 sees the route change, it records the re-frame in `task.yml`'s `reframes:` log,
 and the reason is the calibration signal `compass calibration` reads. Then
-write a **new revision** of `route.md` (keep the prior revision visible). A
+write a **new revision** of `delivery-approach.md` (keep the prior revision visible). A
 re-frame is a normal event. A route quietly outgrown is the failure - and a
 re-frame with no recorded reason is a signal thrown away.
 
@@ -97,13 +97,13 @@ force; if it is still a Spike, leave the marker in place.
    apply a guardrail by hand - same readings + same policy => same route, every
    time. If the readings are a misclassification, the CLI fails loudly; re-read
    the dimension it rejected.
-4. **Write `route.md`** from `templates/route.md` into the task dir, from the
+4. **Write `delivery-approach.md`** from `templates/delivery-approach.md` into the task dir, from the
    CLI's output. It must contain: the four readings with justifications; the
    computed route; every routing guardrail the CLI reported as fired (with its
    rationale); the final per-phase weight, gate set, and swarm topology; and
    **the de-scope ledger** - every phase the CLI marked collapsed or skipped,
    each with an explicit "safe to skip because…" line. A phase with no
-   justification runs. `route.md` is the human-readable face of what
+   justification runs. `delivery-approach.md` is the human-readable face of what
    `task.yml` records mechanically.
 5. **Write the `.compass/current-task` pointer.** Write the task slug into
    `.compass/current-task` so every later `compass` call resolves to this task
@@ -116,14 +116,14 @@ force; if it is still a Spike, leave the marker in place.
 7. **Confirm.** The readings are advisory until confirmed. Present the route,
    invite override of any *reading*, and if a reading changes, re-run
    `compass route evaluate --write` - never hand-edit the computed route.
-   Record overrides in `route.md` with who and why. Immovable gates and floors
+   Record overrides in `delivery-approach.md` with who and why. Immovable gates and floors
    cannot be overridden - a routing guardrail is governance speaking; changing
    one means amending `governance/routing-policy.yml`, not overriding a route.
 
 ## Gate
 
 `task.yml` exists with a `readings:` block and a CLI-computed `route`/`phases`/
-`gates`; `route.md` exists, every dimension has a justification, and every
+`gates`; `delivery-approach.md` exists, every dimension has a justification, and every
 skipped phase has a written reason; `.compass/current-task` points at the slug.
 On a Spike route, the `.compass/work/<task-slug>/.spike` marker exists. Then
 start a `devlog.md` entry and proceed to `/compass:specify`.

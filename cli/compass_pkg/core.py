@@ -439,3 +439,31 @@ def reading_matches(when, readings):
             if readings.get(key) not in allowed:
                 return False
     return True
+
+
+# --- per-issue artifact names (v2, with v1 fallback) -------------------------
+# The v2 rename gave the per-issue artifacts industry names; the work archive
+# keeps its v1 filenames until the machine-spine slice migrates it. Every
+# reader resolves through here: the v2 name wins, the v1 name is accepted,
+# and an absent artifact is reported by its v2 name so new issues write v2
+# files. The migrator consumes this same map when it renames an archive.
+ARTIFACT_FALLBACKS = {
+    "prd.md": "brief.md",
+    "acceptance-criteria.md": "spec.feature.md",
+    "delivery-approach.md": "route.md",
+    "requirements-review.md": "clarifications.md",
+    "design.md": "plan.md",
+}
+
+
+def artifact_path(task_dir, name):
+    """The on-disk path of a per-issue artifact, tolerant of both naming
+    generations. `name` is the v2 filename; unknown names pass through
+    unchanged so callers can resolve never-renamed artifacts the same way."""
+    new_path = os.path.join(task_dir, name)
+    old_name = ARTIFACT_FALLBACKS.get(name)
+    if old_name and not os.path.exists(new_path):
+        old_path = os.path.join(task_dir, old_name)
+        if os.path.exists(old_path):
+            return old_path
+    return new_path

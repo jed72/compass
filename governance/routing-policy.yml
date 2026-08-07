@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 1.3.0
+version: 1.3.1
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -172,9 +172,9 @@ routing_guardrails:
       rationale: "A launch claim with no backing scenario must not ship."
     - id: RG-ROLE-002
       when: { role: product-owner }
-      require_artifact: brief.md
+      require_artifact: prd.md
       block_phase: plan
-      until: "the spec has been checked against brief.md for intent fidelity"
+      until: "the spec has been checked against prd.md for intent fidelity"
       rationale: "Built-the-thing-right and built-the-right-thing are different checks."
 
 # -----------------------------------------------------------------------------

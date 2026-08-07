@@ -29,12 +29,12 @@ dated digest file (see below).
 ## Procedure
 
 1. **Enumerate.** List every task directory under `.compass/work/`. For each,
-   read `route.md`, `task.yml` (the machine-readable spine), and whichever phase
+   read `delivery-approach.md`, `task.yml` (the machine-readable spine), and whichever phase
    artifacts exist. To report a task's *mechanical* gate status you may run
    `compass check --task <slug>` - it is read-only and changes nothing.
 
 2. **Triage each task.** Apply the `flow-management` triage heuristics:
-   - **No `route.md`** → a guardrail violation (work started without Frame).
+   - **No `delivery-approach.md`** → a guardrail violation (work started without Frame).
      Surface this above everything else.
    - **Stalled** → an in-progress phase with no `devlog.md` movement for longer
      than the route's expected cadence. Flag it and name the likely blocker.

@@ -19,7 +19,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.5.0
+version: 1.5.1
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -250,5 +250,5 @@ project: []
 # Cross-cutting: the conflict rule (a guardrail beats a strategy) and the
 # Definition of Ready / Definition of Done checklists are governance too, but
 # they live where they are used - see governance/README.md, the foot of
-# templates/clarifications.md (DoR) and templates/verification-report.md (DoD).
+# templates/requirements-review.md (DoR) and templates/verification-report.md (DoD).
 # -----------------------------------------------------------------------------

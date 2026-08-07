@@ -88,7 +88,7 @@ Expected outcomes:
 
 - A new task directory appears: `.compass/work/test-installation/` (the
   slug is derived from the title).
-- That directory contains `route.md` and `task.yml`. `task.yml` has a
+- That directory contains `delivery-approach.md` and `task.yml`. `task.yml` has a
   `readings:` block, a `route:` field, a `phases:` map, a `gates:` list,
   and `schema_version: "1.0"`.
 - `.compass/current-task` exists at the project root and contains the

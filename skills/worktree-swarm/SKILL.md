@@ -40,7 +40,7 @@ and both must hold:
 
 1. **Disjoint code.** The streams touch non-overlapping files and interfaces.
 2. **Disjoint scenarios.** The streams satisfy non-overlapping scenario groups
-   from `spec.feature.md`.
+   from `acceptance-criteria.md`.
 
 Independence is *determined*, not guessed - you derive it from the scenario
 file and the technical plan. The scenario grouping done at Specify

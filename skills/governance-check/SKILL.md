@@ -95,7 +95,7 @@ The standard here is different and you must keep it different. A strategy is
 
 ### The no-placeholders check
 
-Before committing `plan.md`, run:
+Before committing `design.md`, run:
 
 ```
 compass plan lint
@@ -135,20 +135,20 @@ Confirm the plan is consistent with `routing-policy.md`:
   reflected in the plan's gate set and artifact list? A plan that quietly
   assumes a lighter route than the routing guardrails allow fails here.
 - **Routing strategies** - did the route follow the default shapes and biases,
-  or is a departure recorded in `route.md`? A recorded departure is fine; a
+  or is a departure recorded in `delivery-approach.md`? A recorded departure is fine; a
   silent one is the flag.
 
 ## How to run the check (Plan phase)
 
 1. Read the current `governance/` files; confirm each version.
-2. Walk 1 - guardrails - against `plan.md` and the spec it builds on. Record
+2. Walk 1 - guardrails - against `design.md` and the spec it builds on. Record
    per guardrail: **clears** (with evidence or the plan element that produces
    it) or **fails** (with the specific guardrail).
 3. Walk 2 - strategies - against the same. Record per strategy as **judgement**:
    followed, or departed-and-recorded, or departed-silently (flag it).
 4. Walk 3 - routing policy - confirm the plan's assumed route is within the
    routing guardrails and consistent with the routing strategies.
-5. Write all three results into `plan.md`, with the guardrail findings and the
+5. Write all three results into `design.md`, with the guardrail findings and the
    strategy assessment **visibly separate** - evidence on one side, judgement
    on the other.
 6. A failed guardrail **stops the plan** - revise or re-frame. A strategy

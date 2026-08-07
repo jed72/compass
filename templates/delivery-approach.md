@@ -1,7 +1,7 @@
 <!--
-TEMPLATE: route.md
+TEMPLATE: delivery-approach.md
 Produced by: Frame phase / the Needle (`/compass:frame`).
-Lives at:    .compass/work/<task-slug>/route.md
+Lives at:    .compass/work/<task-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records what the Needle
              assessed, the route it computed, every routing guardrail that
              fired, and - first-class - what was skipped and why it is safe.
@@ -99,7 +99,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 | Frame | Full | Always. This document is the output. |
 | Specify | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (Spike)}} | {{discovery vs. blueprint-distillation; how deep}} |
 | Clarify | {{collapsed \| light pass \| full pass \| skipped (Spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
-| Plan | {{one-line edit note \| real plan.md \| plan.md + distribution-map.md \| timebox sketch (Spike)}} | {{design decisions expected; governance check scope}} |
+| Plan | {{one-line edit note \| real design.md \| design.md + distribution-map.md \| timebox sketch (Spike)}} | {{design decisions expected; governance check scope}} |
 | Distribute | {{skipped (solo) \| pair \| swarm}} | {{stream count comes from the distribution map}} |
 | Build | {{test surface target}} | {{scaled to blast radius - see tdd-discipline}} |
 | Verify | {{gate count}} | {{which review dimensions - section 4b}} |
@@ -150,7 +150,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
      Spike owes nothing - it lands nothing; its exit is graduate or discard,
      not a backfill. -->
 
-- [ ] {{e.g. "Hotfix backfill: route.md completed properly, reproduction test promoted to a real scenario in spec.feature.md, root-cause line in devlog.md."}}
+- [ ] {{e.g. "Hotfix backfill: delivery-approach.md completed properly, reproduction test promoted to a real scenario in acceptance-criteria.md, root-cause line in devlog.md."}}
 - [ ] {{e.g. "none owed"}}
 
 ---

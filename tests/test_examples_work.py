@@ -89,7 +89,7 @@ def test_every_example_spec_extracts(name, slug):
         assert r.returncode == 0, (
             f"{name}: extract failed on a spec the framework ships:\n"
             f"{r.stdout}{r.stderr}")
-        out = work / ".compass" / "work" / slug / "spec.feature"
+        out = work / ".compass" / "work" / slug / "acceptance-criteria.feature"
         assert out.is_file(), f"{name}: no feature file written"
         n = out.read_text().count("\n  Scenario:")
         declared = len(

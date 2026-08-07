@@ -35,7 +35,7 @@ shell out to `compass route evaluate` (the kit-layer CLI) rather than
 reimplement the composition, so that the same assessment plus the same policy
 yield the same approach on every runtime. The runtime records the assessment
 in the issue spine (`task.yml`), runs the evaluator, and writes the
-human-readable approach record (`route.md`). The approach is computed from
+human-readable approach record (`delivery-approach.md`). The approach is computed from
 context, not chosen from a menu. Genuinely exploratory work is not exempt
 from triage - it composes a **spike**.
 
@@ -160,5 +160,5 @@ snapshot of which cross-issue architectural state was loaded) and
 design, *not* a parallel spec); a `.compass/current-task` pointer so the CLI
 and any hooks resolve the current issue unambiguously. A different session,
 agent, or runtime must be able to resume an issue by reading the approach
-record (`route.md`), the spine, and the artifacts - nothing essential lives
+record (`delivery-approach.md`), the spine, and the artifacts - nothing essential lives
 only in context.

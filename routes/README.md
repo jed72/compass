@@ -7,7 +7,7 @@ swarm. Routes are *composed* by the Needle from the four context dimensions
 
 The five files here are **reference routes**: the common shapes that
 composition lands near. The Needle names the nearest reference route in
-`route.md` so everyone shares vocabulary, then records any per-phase deviation
+`delivery-approach.md` so everyone shares vocabulary, then records any per-phase deviation
 from it. "Standard, but Verify adds the security dimension" is a normal,
 expected output.
 

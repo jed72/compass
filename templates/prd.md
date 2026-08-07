@@ -1,9 +1,9 @@
 <!--
-TEMPLATE: brief.md
+TEMPLATE: prd.md
 Produced by: the product owner / manager via `/compass:intent`.
-Lives at:    .compass/work/<task-slug>/brief.md
+Lives at:    .compass/work/<task-slug>/prd.md
 Role in the pipeline: the intent artifact. It sits UPSTREAM of the spec -
-the BDD scenarios in spec.feature.md are checked back against this brief
+the BDD scenarios in acceptance-criteria.md are checked back against this brief
 for intent fidelity before Plan (the product-owner role_rule in
 governance/routing-policy.md). The Needle reads it during Frame: intent is
 the outcome wanted, not just the literal request.
@@ -38,8 +38,8 @@ engineering's - do not pre-solve the problem here.
 ## Success signals
 
 <!-- How will we know the outcome was actually achieved? Each signal should
-     be observable. These seed the success metrics in plan.md and the
-     acceptance lens on spec.feature.md. -->
+     be observable. These seed the success metrics in design.md and the
+     acceptance lens on acceptance-criteria.md. -->
 
 - {{SIGNAL 1 - e.g. "Finance pulls month-end numbers without filing a data request."}}
 - {{SIGNAL 2}}
@@ -101,6 +101,6 @@ team accepts should be visible here, not discovered later.}}
 <!-- The product-owner role_rule blocks Plan until the spec is checked
      against this brief. Record the check here. -->
 
-- [ ] Every success signal above maps to at least one scenario in `spec.feature.md`.
+- [ ] Every success signal above maps to at least one scenario in `acceptance-criteria.md`.
 - [ ] No scenario contradicts a constraint, pursues a non-goal, or runs against a product strategy.
 - [ ] Checked by: {{NAME}} on {{DATE}}.

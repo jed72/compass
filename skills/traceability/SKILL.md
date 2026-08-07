@@ -24,7 +24,7 @@ and that is a Verify no-pass.
 ### code → scenario → intent
 
 - **code → scenario.** Every unit of production code traces up to a scenario in
-  `spec.feature.md` that motivates it. Not one-to-one - a scenario may need
+  `acceptance-criteria.md` that motivates it. Not one-to-one - a scenario may need
   several units, a unit may serve several scenarios - but *onto*: no code
   without at least one scenario above it. Guardrail G2 forbids code no stated
   acceptance criterion describes; this link is how that is observable.

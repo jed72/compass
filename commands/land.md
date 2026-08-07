@@ -11,7 +11,7 @@ backfill is an open task - Land refuses to close it.
 
 ## Setup
 
-- Read `route.md` for the topology and the list of owed backfills.
+- Read `delivery-approach.md` for the topology and the list of owed backfills.
 - Read `verification-report.md` - Land does not run on unverified work.
 
 ## Spike note
@@ -46,11 +46,11 @@ for delivery routes; on a Spike, follow the graduate-or-discard step in
    product-marketer role is in play), draft the release notes here too -
    pulled from `positioning.md`, so every line in the notes is already a
    scenario-backed claim. `marketing-lens` owns their wording.
-4. **Resolve owed backfills.** Check `route.md`'s de-scope ledger, `task.yml`'s
+4. **Resolve owed backfills.** Check `delivery-approach.md`'s de-scope ledger, `task.yml`'s
    `backfills:` and `claims:` lists, and the route's standing obligations:
-   - **Hotfix backfill** (mandatory): `route.md` completed properly (not the
+   - **Hotfix backfill** (mandatory): `delivery-approach.md` completed properly (not the
      urgent stub); the reproduction test promoted into a real Given/When/Then
-     scenario in `spec.feature.md` *and* `task.yml`'s `scenarios:`, traceable to
+     scenario in `acceptance-criteria.md` *and* `task.yml`'s `scenarios:`, traceable to
      the defect; a root-cause line in the `devlog.md`. Mark the matching
      `task.yml` `backfills:` entry `paid` - `compass check`'s `backfills-paid`
      check fails Land while any is unpaid.

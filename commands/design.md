@@ -25,7 +25,7 @@ downstream consumer of it.
 - Read `governance/` - any accessibility or UX floor is either a project
   guardrail (`guardrails.md`) or a strategy (`strategies.md`); the contract
   must honour the guardrails and respect the strategies.
-- Read `brief.md` if one exists - the interaction serves the outcome.
+- Read `prd.md` if one exists - the interaction serves the outcome.
 
 ## Procedure
 
@@ -43,7 +43,7 @@ downstream consumer of it.
 ## How this connects to the pipeline
 
 `ui-contract.md` is an input to **Specify**. When `spec-author` runs, it folds
-the UI contract scenarios into `spec.feature.md` - they become acceptance
+the UI contract scenarios into `acceptance-criteria.md` - they become acceptance
 checks and seed the TDD cycle like any other scenario. Because the contract is
 already Given/When/Then, nothing is lost in translation.
 

@@ -10,14 +10,14 @@ and assigns the agent swarm.
 
 ## First: is Distribute in play?
 
-Read `route.md`. Distribute is **skipped on solo routes** - Express, Hotfix,
+Read `delivery-approach.md`. Distribute is **skipped on solo routes** - Express, Hotfix,
 Spike, and most Standard routes work on the current branch with no worktree. If
-`route.md` says solo, stop: confirm the de-scope reason, and point the user to
+`delivery-approach.md` says solo, stop: confirm the de-scope reason, and point the user to
 `/compass:build`. Distribute is a no-op there, not a phase to invent.
 
 It runs when the distribution map shows genuinely independent units. The
 pair/swarm boundaries are framework constants (methodology §7); the topology
-and the worktree cap come from `route.md` - which the CLI computed from
+and the worktree cap come from `delivery-approach.md` - which the CLI computed from
 `governance/routing-policy.yml` (`route_shapes.topology`, the
 `routing_guardrails.caps`):
 - **pair** (2–3 streams) - larger Standard routes. One worktree per stream, one
@@ -36,7 +36,7 @@ and the worktree cap come from `route.md` - which the CLI computed from
 ## Procedure
 
 1. **Verify the count.** Cross-check the map's stream count against the
-   topology and any routing-guardrail `cap` recorded in `route.md` (the CLI
+   topology and any routing-guardrail `cap` recorded in `delivery-approach.md` (the CLI
    computed both from `routing-policy.yml`). Note: `critical` blast radius caps
    worktrees at 1 - an Expedition can be heavy *and* solo. If the cap and the
    map disagree, the cap wins; record it as cap-driven.

@@ -18,9 +18,9 @@ TDD. You do not write the spec, the plan, or the route.
 
 ## How you work
 
-1. **Read your charter** - `route.md` for the test-surface target and the route
-   in play, `plan.md` for the technical approach, and your scenario group from
-   `spec.feature.md`. On a swarm, your charter also names your worktree; confirm
+1. **Read your charter** - `delivery-approach.md` for the test-surface target and the route
+   in play, `design.md` for the technical approach, and your scenario group from
+   `acceptance-criteria.md`. On a swarm, your charter also names your worktree; confirm
    you are in it.
 2. **Red.** For the next scenario, write the failing test first, then run
    `compass tdd-red -- <failing test command>` - this is the **TDD strategy

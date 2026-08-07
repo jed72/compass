@@ -1,7 +1,7 @@
 # The Needle - Routing Logic
 
 The Needle is the component that runs during **Frame**. It reads four context
-dimensions, applies `governance/routing-policy.md`, and writes `route.md`. This
+dimensions, applies `governance/routing-policy.md`, and writes `delivery-approach.md`. This
 file is its rubric. The `adaptive-routing` skill is the procedural companion;
 this is the reference.
 
@@ -58,7 +58,7 @@ that turned out easy than to discover mid-Build that the route was too light.
 | Value | Entry point | What it changes |
 |---|---|---|
 | `engineer` | `/compass:frame` | Standard pipeline ownership. |
-| `product-owner` | `/compass:intent` | Adds `brief.md` upstream of the spec; inserts the intent-fidelity gate before Plan. |
+| `product-owner` | `/compass:intent` | Adds `prd.md` upstream of the spec; inserts the intent-fidelity gate before Plan. |
 | `product-marketer` | `/compass:position` | Adds `positioning.md` / `launch-readiness.md`; blocks Land on the claims gate. |
 | `designer` | `/compass:design` | Adds `ui-contract.md`; UI contracts enter Specify as scenarios. |
 | `qa` | joins at `/compass:verify` | Owns the Verify gate; can send a task back to Specify if scenarios are uncoverable. |
@@ -104,7 +104,7 @@ Concretely, the Needle decides, per phase:
 
 Most compositions land near one of the five reference routes
 (`express`, `standard`, `expedition`, `hotfix`, `spike`). The Needle names the
-nearest reference route in `route.md` for shared vocabulary, then lists any
+nearest reference route in `delivery-approach.md` for shared vocabulary, then lists any
 phase-level deviations from it. A route that is "Standard, but Verify also runs
 the security dimension because blast radius is cross-cutting" is a perfectly
 normal output - that is the framework working as designed.
@@ -140,15 +140,15 @@ now bounded by the **routing guardrails** in `governance/routing-policy.md`:
 4. **blocking role_rules** add required artifacts and phase blocks.
 
 Every routing guardrail that fires is recorded. The Needle never applies a
-constraint silently - if Express became Expedition, `route.md` says which floor
+constraint silently - if Express became Expedition, `delivery-approach.md` says which floor
 did it and quotes the floor's rationale.
 
 ---
 
-## Step 4 - Write `route.md` and confirm
+## Step 4 - Write `delivery-approach.md` and confirm
 
-The Needle writes `.compass/work/<task-slug>/route.md` from
-`templates/route.md`. It contains:
+The Needle writes `.compass/work/<task-slug>/delivery-approach.md` from
+`templates/delivery-approach.md`. It contains:
 
 - the four dimension readings, each with its one-line justification;
 - the composed candidate route;
@@ -160,7 +160,7 @@ The Needle writes `.compass/work/<task-slug>/route.md` from
   phase runs.
 
 Routing is **advisory until confirmed**. The human can override any reading or
-the final route - overrides are recorded in `route.md` too, with who and why.
+the final route - overrides are recorded in `delivery-approach.md` too, with who and why.
 What cannot be overridden: an `immovable_gate`, or a `floor` (a routing
 guardrail is governance speaking; changing it means amending
 `governance/routing-policy.md`, not overriding a route).
@@ -172,6 +172,6 @@ guardrail is governance speaking; changing it means amending
 If Build reveals the terrain was misread - the "small" change is unspooling
 into a multi-module refactor - the correct move is to **stop and re-frame**,
 not to push on with a route you no longer believe. `/compass:frame --reframe`
-re-scores the dimensions, writes a new `route.md` revision, and records what
+re-scores the dimensions, writes a new `delivery-approach.md` revision, and records what
 changed and why. A re-frame is a normal event, not a failure. A route quietly
 outgrown is the failure.

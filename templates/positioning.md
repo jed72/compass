@@ -4,7 +4,7 @@ Produced by: the product marketer via `/compass:position`.
 Lives at:    .compass/work/<task-slug>/positioning.md
 Role in the pipeline: the marketer's artifact. The marketer works PARALLEL
 to the spec, not downstream of it. Every claim made here must point at a
-scenario id in spec.feature.md that backs it - that is the claim→scenario
+scenario id in acceptance-criteria.md that backs it - that is the claim→scenario
 half of guardrail G3 (traceability holds), and the voice & positioning
 strategies in governance/strategies.md govern how it is said. Unbacked
 claims are resolved at Land via launch-readiness.md; the marketer role_rule
@@ -25,7 +25,7 @@ the point.
 ## Audience
 
 <!-- Who is this for? Be specific - the segment, their context, what they
-     are trying to do. Cross-check against brief.md's primary user. -->
+     are trying to do. Cross-check against prd.md's primary user. -->
 
 {{AUDIENCE}}
 
@@ -36,7 +36,7 @@ the point.
 
 {{VALUE PROP}}
 
-- **Backing scenario:** {{TRC-id from spec.feature.md - or BLANK (debt)}}
+- **Backing scenario:** {{TRC-id from acceptance-criteria.md - or BLANK (debt)}}
 
 ## Press release (working-backwards)
 
@@ -56,7 +56,7 @@ the point.
 headline benefit}}.
 
 {{PROBLEM PARAGRAPH - the pain this removes, in the user's terms. Cross-check
-against brief.md's Problem.}}
+against prd.md's Problem.}}
 
 {{SOLUTION PARAGRAPH - how it works, at the altitude a user cares about. Not
 the implementation.}}
@@ -91,7 +91,7 @@ the implementation.}}
 - **Q: {{does it work with …}}** - A: {{answer}}
 - **Q: {{the obvious edge case}}** - A: {{answer}}
 
-**Internal FAQs** (these mirror brief.md's Internal FAQ - keep them consistent)
+**Internal FAQs** (these mirror prd.md's Internal FAQ - keep them consistent)
 
 - **Q: Why ship this now?** - A: {{strategic / timing rationale}}
 - **Q: What is in v1 vs later?** - A: {{the cut}}
@@ -104,7 +104,7 @@ the implementation.}}
      may overstate. Checked against the voice & positioning strategies in
      governance/strategies.md. -->
 
-- {{e.g. "We say 'CSV export for finance', not 'full reporting suite' - word-discipline strategy; the suite is a non-goal in brief.md."}}
+- {{e.g. "We say 'CSV export for finance', not 'full reporting suite' - word-discipline strategy; the suite is a non-goal in prd.md."}}
 
 ---
 

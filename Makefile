@@ -25,6 +25,13 @@ ci:  ## the full mechanical gate suite (policy lint + task lint + check across a
 release:  ## build a clean release tarball into dist/
 	bash scripts/release.sh
 
+adapter-check:  ## run the pytest-bdd adapter exactly as CI does (cleans derived files first)
+	git clean -fdX examples/
+	cd examples/bdd-adapters/pytest-bdd && \
+	  python3 ../../../cli/compass bdd extract --task reset-password && \
+	  python3 -m pytest tests/ -q
+	@echo "adapter-check: PASS (from a clean tree, as CI sees it)"
+
 clean:  ## remove build / pytest / cache noise (leaves `.compass/work/` alone)
 	find . -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
 	find . -name '*.pyc' -delete 2>/dev/null || true

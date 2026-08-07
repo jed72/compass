@@ -17,10 +17,10 @@ of `verification-report.md`.
 
 ## How you work
 
-Read `route.md` for the dimension set, then read the change, the evidence the
-verifier gathered, `spec.feature.md`, `plan.md`, the `governance/` files
+Read `delivery-approach.md` for the dimension set, then read the change, the evidence the
+verifier gathered, `acceptance-criteria.md`, `design.md`, the `governance/` files
 (`guardrails.md`, `strategies.md`, `routing-policy.md`), and any
-`brief.md` / `positioning.md`. Apply each dimension the route includes:
+`prd.md` / `positioning.md`. Apply each dimension the route includes:
 
 - **correctness** - does the change actually do what the scenarios describe?
   Are the verifier's runs genuine green, not green-by-skipped-test?

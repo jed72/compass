@@ -7,7 +7,7 @@ Lives at:    .compass/work/<task-slug>/verification-report.md
 Role in the pipeline: the Verify output. Proves the work with EVIDENCE -
 pasted command output and artifacts, never assertion. "It works" is not a
 gate-passing statement on any route. The route's gate set and review
-dimensions come from route.md; the `immovable_gates` from
+dimensions come from delivery-approach.md; the `immovable_gates` from
 governance/routing-policy.md are stapled on regardless.
 
 Fill every {{PLACEHOLDER}}. Every pass needs evidence attached - an empty
@@ -18,14 +18,14 @@ evidence block is an automatic fail.
 
 > **Phase:** Verify · **Date:** {{DATE}} · **Owning role:** QA
 > **Agents:** verifier, reviewer{{, marketing-lens if claims dimension applies}}
-> **Route (from route.md):** {{reference route}} · **Gate count:** {{1 \| 2 \| all}}
+> **Route (from delivery-approach.md):** {{reference route}} · **Gate count:** {{1 \| 2 \| all}}
 > **Topology:** {{solo \| pair \| swarm - swarm verifies per-stream then combined}}
 
 ---
 
 ## 1. Scenario acceptance results
 
-<!-- Every scenario in spec.feature.md run as an acceptance check - the same
+<!-- Every scenario in acceptance-criteria.md run as an acceptance check - the same
      artifact the spec was, read now at verification time. -->
 
 | Scenario id | Title | Result | Evidence (where the run is pasted below) |
@@ -57,7 +57,7 @@ evidence block is an automatic fail.
 
 ## 3. Review dimensions
 
-<!-- Apply each dimension route.md lists. correctness, governance,
+<!-- Apply each dimension delivery-approach.md lists. correctness, governance,
      traceability are ALWAYS on for a delivery route - they are the default
      guardrails in review form. Others per the route: regression, security
      (scaled or full), clarity, claims. Each gets pass/fail AND evidence.
@@ -85,7 +85,7 @@ evidence block is an automatic fail.
 
 ## 4. Gate decision
 
-<!-- A gate passes only with evidence. List every gate in route.md's set
+<!-- A gate passes only with evidence. List every gate in delivery-approach.md's set
      PLUS every immovable gate from governance/routing-policy.md. -->
 
 | Gate | Required by | Status |
@@ -108,12 +108,12 @@ evidence block is an automatic fail.
 ## Gate
 
 - [ ] Every required review dimension passed with evidence attached.
-- [ ] Every gate in `route.md` and every immovable gate is GREEN.
+- [ ] Every gate in `delivery-approach.md` and every immovable gate is GREEN.
 - [ ] This report is complete - no empty evidence blocks.
 
 ### Definition of Done
 
-<!-- The crisp exit check. The Definition of Ready (clarifications.md) was the
+<!-- The crisp exit check. The Definition of Ready (requirements-review.md) was the
      entry gate into Plan; this is the exit gate out of Verify. Items 1–5 are
      proven here, with evidence above. Items 6–7 are carried into Land - they
      are listed so the close-out is one continuous checklist, not two.

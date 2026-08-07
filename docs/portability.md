@@ -24,8 +24,8 @@ docs/            methodology.md (canonical), quickstart, routing-deep-dive,
 governance/      README.md, guardrails.md, strategies.md, routing-policy.md
 routes/          router.md, README.md,
                  express/standard/expedition/hotfix/spike.md
-templates/       route.md, task.yml, brief.md, spec.feature.md,
-                 clarifications.md, plan.md, distribution-map.md,
+templates/       delivery-approach.md, task.yml, prd.md, acceptance-criteria.md,
+                 requirements-review.md, design.md, distribution-map.md,
                  positioning.md, launch-readiness.md, ui-contract.md,
                  verification-report.md, devlog.md
 ```
@@ -161,7 +161,7 @@ produce it. *Composing* the route from those readings is mechanism, and the
 adapter should shell out to `compass route evaluate` rather than reimplement
 it: the CLI applies `governance/routing-policy.yml` and records the route,
 phases, and gates into `task.yml`. The runtime records the readings (in
-`task.yml`) and writes the human-readable `route.md`. The route is *computed*
+`task.yml`) and writes the human-readable `delivery-approach.md`. The route is *computed*
 from context, not chosen from a menu, and - because the composition is the
 kit's pure function - the same readings produce the same route on every
 runtime. The only work exempt from Frame is conversation - answering,
@@ -170,14 +170,14 @@ already have run for the current task.
 
 The reference adapter enforces this two ways: `CLAUDE.md` states "Never skip
 Frame" as the one rule that creates every other rule, and `pre-tool.sh` blocks
-a code edit when no `route.md` exists for the current task. A port must achieve
+a code edit when no `delivery-approach.md` exists for the current task. A port must achieve
 the same outcome - mechanically if it can, procedurally if it cannot.
 
 ### 2. Walk the eight-phase pipeline
 
 `Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land`. The
 adapter must make each phase an invocable unit - a command, a mode, a routine,
-whatever the runtime offers - run in order. The route in `route.md` says which
+whatever the runtime offers - run in order. The route in `delivery-approach.md` says which
 phases are full-weight, which collapse, and which are skipped, and always says
 *why* a phase is skipped. The adapter must honour that: not silently re-skip a
 phase the route kept, not silently re-add one it skipped. After each phase, the
@@ -226,7 +226,7 @@ enforce G1" is not - that is crossing a guardrail.
 
 Engineer, product owner / manager, product marketer, designer, QA. Each needs
 a distinct entry point - a session-start mode the runtime can express - and
-each has artifacts that plug into the same pipeline (`brief.md`,
+each has artifacts that plug into the same pipeline (`prd.md`,
 `positioning.md`, `launch-readiness.md`, `ui-contract.md`,
 `verification-report.md`). The BDD scenario file is the shared substrate read
 through five lenses; the adapter must not reduce it to an engineering-only
@@ -283,15 +283,15 @@ One requirement cuts across all five: **all task state is files, not
 conversation.** `governance/` at the project root - the `.md` files
 (`guardrails.md`, `strategies.md`, `routing-policy.md`) and the kit-layer
 `.yml` files the CLI runs (`routing-policy.yml`, `guardrails.yml`); per-task
-artifacts in a `.compass/work/<task-slug>/` directory holding `route.md`,
-`task.yml` (the machine-readable task spine), `brief.md`, `spec.feature.md`,
-`clarifications.md`, `plan.md`, `distribution-map.md`, `positioning.md`,
+artifacts in a `.compass/work/<task-slug>/` directory holding `delivery-approach.md`,
+`task.yml` (the machine-readable task spine), `prd.md`, `acceptance-criteria.md`,
+`requirements-review.md`, `design.md`, `distribution-map.md`, `positioning.md`,
 `launch-readiness.md`, `ui-contract.md`, `verification-report.md`, an
 `evidence/` directory (the CLI's red/green and gate records), an append-only
 `devlog.md`, and - on a Spike route - a `.spike` marker file; plus a
 `.compass/current-task` pointer the CLI and hooks resolve "the current task"
 through. A different session, a different agent, or a different runtime must be
-able to resume a task by reading `route.md`, `task.yml`, and the artifacts -
+able to resume a task by reading `delivery-approach.md`, `task.yml`, and the artifacts -
 nothing essential may live only in context. This is what makes the framework
 portable *across sessions* in the first place; portability across runtimes is
 the same property extended.
@@ -319,7 +319,7 @@ The entire methodology layer *and* the entire kit layer:
 - `routes/` - `router.md` is the routing rubric regardless of runtime; the
   five reference route files describe pipeline *shapes*, not runtime calls.
 - `templates/` - every artifact template is plain markdown, including
-  `task.yml`, the machine-readable task spine. `route.md`, `spec.feature.md`,
+  `task.yml`, the machine-readable task spine. `delivery-approach.md`, `acceptance-criteria.md`,
   and the rest are written the same way by any runtime.
 - `cli/`, `schemas/`, and `ci/` - the kit layer. `cli/compass` is a plain
   Python+PyYAML CLI with no Claude Code dependency; the new adapter *calls* it
@@ -349,7 +349,7 @@ The adapter layer, against the contract above:
 - **`agents/`** → the new runtime's notion of distinct agent contexts. The
   ten agents and their boundaries (the navigator owns Frame and only Frame;
   the orchestrator writes no feature code; a builder never touches a sibling
-  worktree; the architect-lens reads `architecture/` and annotates `plan.md`
+  worktree; the architect-lens reads `architecture/` and annotates `design.md`
   via `architecture-notes.md`, never writing feature code) are methodology;
   the wrapper is runtime.
 - **`skills/`** → loadable procedural-knowledge modules in whatever form the
@@ -389,7 +389,7 @@ The adapter layer, against the contract above:
 ### The test of a correct port
 
 A port is correct when a task framed under the new runtime produces the same
-`route.md`, the same `task.yml`, the same artifacts in the same
+`delivery-approach.md`, the same `task.yml`, the same artifacts in the same
 `.compass/work/<task-slug>/` layout, and obeys the same guardrails - such that
 a Claude Code session could `/compass:resume` a task the other runtime
 started, and vice versa. The methodology layer is the shared *contract*; the

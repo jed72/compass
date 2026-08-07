@@ -1,12 +1,12 @@
 <!--
-TEMPLATE: plan.md
+TEMPLATE: design.md
 Produced by: the Plan phase (`/compass:plan`); owning agent `planner`.
-Lives at:    .compass/work/<task-slug>/plan.md
+Lives at:    .compass/work/<task-slug>/design.md
 Role in the pipeline: the technical plan. Records the approach, the design
 decisions as ADR-style notes, the governance check against all of
 governance/, and the independent work units. On Express/Hotfix, Plan
-collapses to a one-line note in route.md and this file is not written; on
-Spike it collapses to a timebox sketch in route.md. On Standard this is a
+collapses to a one-line note in delivery-approach.md and this file is not written; on
+Spike it collapses to a timebox sketch in delivery-approach.md. On Standard this is a
 real file; on Expedition it is paired with distribution-map.md.
 
 The governance check here is run by the `governance-check` skill. How to
@@ -20,7 +20,7 @@ one. Each carries its own rule for when it earns a place; follow the rule
 rather than filling every heading. Delete the ones you do not use - an empty
 optional section is worse than an absent one.
 
-Roughly: Express writes no plan.md at all; Standard uses the one or two that
+Roughly: Express writes no design.md at all; Standard uses the one or two that
 add clarity; Expedition may use all of them, because there the plan IS the
 design document.
 
@@ -30,7 +30,7 @@ Fill every {{PLACEHOLDER}} in the sections you keep.
 # Plan - {{TASK_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Owning agent:** planner
-> **Plan weight (from route.md):** {{real plan.md \| plan.md + distribution-map.md}}
+> **Plan weight (from delivery-approach.md):** {{real design.md \| design.md + distribution-map.md}}
 
 ---
 
@@ -42,7 +42,7 @@ Fill every {{PLACEHOLDER}} in the sections you keep.
      summary - restating three paragraphs in three paragraphs helps nobody.
 
      Three fields, same shape and same reason as the Summary in
-     spec.feature.md: a reader who has learned where to find it in one
+     acceptance-criteria.md: a reader who has learned where to find it in one
      artifact finds it in the same place in the other. This is strategy S7
      (write for a cold reader) applied to the plan. -->
 
@@ -60,7 +60,7 @@ does.}}
 ## 1. Approach
 
 <!-- The technical approach in a few paragraphs. How the scenarios in
-     spec.feature.md get satisfied. What changes, where, in what order. -->
+     acceptance-criteria.md get satisfied. What changes, where, in what order. -->
 
 {{APPROACH}}
 
@@ -193,9 +193,9 @@ classDiagram
 |---|---|---|
 | Guardrails (G1–G5 + project) | {{pass \| fail}} | {{e.g. "G2 acceptance criteria stated before Build; G3 traceability chains designed in; coverage targets the guardrail floor"}} |
 | Method strategies (S1–S7 + project) | {{followed \| deviation recorded}} | {{e.g. "S1 BDD + S2 TDD apply; S3 simplest-thing honoured. Any deviation noted with its reason."}} |
-| Product strategies | {{followed \| deviation recorded \| n/a}} | {{e.g. "plan delivers brief.md's outcome; honours the no-dark-patterns strategy"}} |
+| Product strategies | {{followed \| deviation recorded \| n/a}} | {{e.g. "plan delivers prd.md's outcome; honours the no-dark-patterns strategy"}} |
 | Voice & positioning strategies | {{followed \| deviation recorded \| n/a}} | {{n/a unless marketer in play; if so, claims traceable}} |
-| Routing policy | {{pass \| fail}} | {{plan does not require skipping anything route.md kept; floors honoured}} |
+| Routing policy | {{pass \| fail}} | {{plan does not require skipping anything delivery-approach.md kept; floors honoured}} |
 
 ---
 
@@ -216,7 +216,7 @@ classDiagram
 
 ## Gate
 
-- [ ] Every scenario in `spec.feature.md` is covered by a work unit.
+- [ ] Every scenario in `acceptance-criteria.md` is covered by a work unit.
 - [ ] Governance check passes - every guardrail clears with evidence; any strategy deviation is recorded (above).
 - [ ] If parallel work is possible, `distribution-map.md` is written next.
 

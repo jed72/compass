@@ -146,7 +146,7 @@ class TestTrcB10:
 
     def test_derived_file_header_present(self, tmp_path):
         """After derivation, the first non-empty line identifies the file as
-        DERIVED and names .compass/work/<task>/spec.feature.md as the
+        DERIVED and names .compass/work/<task>/acceptance-criteria.md as the
         source-of-truth to edit instead."""
         derive = _import_derive()
 
@@ -170,8 +170,8 @@ class TestTrcB10:
         assert "DERIVED" in first_line.upper(), (
             f"First non-empty line does not identify file as DERIVED: {first_line!r}"
         )
-        assert "spec.feature.md" in first_line, (
-            f"First line does not name spec.feature.md: {first_line!r}"
+        assert "acceptance-criteria.md" in first_line, (
+            f"First line does not name acceptance-criteria.md: {first_line!r}"
         )
 
     def test_derived_header_instructs_not_to_hand_edit(self, tmp_path):

@@ -22,7 +22,7 @@ launch's worth of work.
 | Frame | Full, plus explicit `touches:` tagging - Expedition is where domain floors most often fire. |
 | Specify | **Full BDD discovery.** Greenfield: scenario discovery from the brief. Brownfield: `blueprint-distillation` of current behaviour *then* the new scenarios. Scenarios are grouped by independence - this grouping seeds the distribution map. |
 | Clarify | **Full pass.** Self-QA, governance QA, and an explicit ambiguity ledger. Non-engineering roles review here. |
-| Plan | **Full `plan.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work streams. |
+| Plan | **Full `design.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work streams. |
 | Distribute | **Swarm.** `scripts/swarm.sh` creates one git worktree per stream; one `builder` agent per worktree; one `orchestrator` agent that writes no feature code. |
 | Build | Full TDD inside each worktree, in parallel. The orchestrator watches for streams converging on shared surface and intervenes before they collide. |
 | Verify | **All gates, all dimensions.** Per-stream verification, then combined verification after integration. |
@@ -38,7 +38,7 @@ per worktree.
 ## Swarm topology
 
 Swarm: 4+ streams, capped by the routing-guardrail `caps` in
-`governance/routing-policy.yml` (recorded in `route.md` by the CLI). Note the
+`governance/routing-policy.yml` (recorded in `delivery-approach.md` by the CLI). Note the
 standing cap - **`critical` blast radius caps worktrees at 1** even on
 Expedition, because coordination risk on a critical change outweighs the
 parallelism. An Expedition can therefore be heavy *and* solo; that is

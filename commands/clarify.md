@@ -6,15 +6,15 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 # /compass:clarify
 
 Clarify hardens the spec before any plan is built on it. It resolves
-ambiguities and QAs `spec.feature.md` against itself and against `governance/` -
+ambiguities and QAs `acceptance-criteria.md` against itself and against `governance/` -
 the guardrails and strategies.
 
 ## First: is Clarify in play?
 
-Read `route.md`. Clarify is **collapsed on Express** (the single scenario was
+Read `delivery-approach.md`. Clarify is **collapsed on Express** (the single scenario was
 certified unambiguous at Specify), **collapsed on Hotfix** (the reproduction
 *is* the clarification), and **skipped on Spike** (there is nothing to QA - the
-behaviour is the unknown). If `route.md` collapsed or skipped it, stop - say
+behaviour is the unknown). If `delivery-approach.md` collapsed or skipped it, stop - say
 so, confirm the de-scope reason still holds, and point the user to
 `/compass:plan`. Do not re-add a phase the route skipped, and do not skip one
 it kept.
@@ -45,12 +45,12 @@ it; do not quietly absorb it as your own work.
 What is left for you is everything the author could not settle alone:
 
 - **Contradictions** between scenarios that cannot both hold.
-- **Gaps** across the whole set - a stated outcome, or a `brief.md` success
+- **Gaps** across the whole set - a stated outcome, or a `prd.md` success
   signal, with no scenario.
 - **Governance conflicts** - a scenario that crosses a guardrail, or departs
   from an applicable strategy with no recorded reason.
 - **Ambiguities that need a decision** rather than a correction, each recorded
-  in `clarifications.md` with its resolution and who made it.
+  in `requirements-review.md` with its resolution and who made it.
 
 The dividing line is who can close the finding. An unfilled placeholder has one
 correct answer and the author already knows it. "Which of these two scenarios
@@ -64,7 +64,7 @@ same split is written from the other side in
 - Read `governance/` - the spec is QA'd against the guardrails and the
   applicable strategies here.
 - If a non-engineering role is in play, this is where they review: invoke
-  `product-lens` (intent fidelity against `brief.md`) and/or `marketing-lens`
+  `product-lens` (intent fidelity against `prd.md`) and/or `marketing-lens`
   (every planned claim has a candidate scenario).
 
 ## Procedure
@@ -75,10 +75,10 @@ same split is written from the other side in
    acceptance defined and checkable, G3 - traceability) and respect the
    applicable strategies, including the voice strategies where claims are
    involved?
-3. **Resolve.** For each ambiguity, either resolve it (update `spec.feature.md`)
+3. **Resolve.** For each ambiguity, either resolve it (update `acceptance-criteria.md`)
    or record it as an open question with an owner. An unresolved ambiguity is
    not allowed to silently pass into Plan.
-4. **Write `clarifications.md`** from `templates/clarifications.md`: the
+4. **Write `requirements-review.md`** from `templates/requirements-review.md`: the
    ambiguity ledger, each entry resolved or assigned.
 
 ## Re-frame trigger
@@ -94,7 +94,7 @@ review before work is planned against the spec, so the questions here are about
 decisions, not wording.
 
 > I have written the ambiguity ledger to
-> `.compass/work/<task-slug>/clarifications.md`, and updated `spec.feature.md`
+> `.compass/work/<task-slug>/requirements-review.md`, and updated `acceptance-criteria.md`
 > where a resolution changed it.
 >
 > N ambiguities were found and resolved. The ones that changed what gets built
@@ -113,8 +113,8 @@ decisions, not wording.
 
 ## Gate
 
-`clarifications.md` exists; every ambiguity is resolved or owned; the spec
+`requirements-review.md` exists; every ambiguity is resolved or owned; the spec
 passes governance QA; and the **Definition of Ready** checklist at the foot
-of `clarifications.md` is fully checked - that is the entry gate into Plan, and
+of `requirements-review.md` is fully checked - that is the entry gate into Plan, and
 an unchecked box stops Plan from starting. Log to `devlog.md`. Next:
 `/compass:plan`.

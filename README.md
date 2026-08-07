@@ -46,7 +46,7 @@ reads four dimensions:
 | **Magnitude** | How much work is this actually? |
 | **Intent & role** | Who's invoking, and what outcome are they really after? |
 
-The Needle writes `route.md`: what it assessed, the route it chose, the gates
+The Needle writes `delivery-approach.md`: what it assessed, the route it chose, the gates
 that apply, and **exactly what it's skipping and why that's safe**. De-scoping
 is a written, auditable decision, never an accident.
 
@@ -181,7 +181,7 @@ finished engineering process.
 command. The framework ships ten agents rather than five, because some lenses
 apply *during* the pipeline instead of starting it. The **architect-lens** is
 the clearest example: it reads the project's `architecture/` artifacts at Frame
-and annotates `plan.md` at Plan, and is consulted by the spec author and the
+and annotates `design.md` at Plan, and is consulted by the spec author and the
 planner rather than invoked directly. See
 [`docs/roles-guide.md`](docs/roles-guide.md).
 
@@ -219,12 +219,12 @@ rather than aspirational.
 ```
 compass route evaluate   apply routing-policy.yml to a task's readings → the route
 compass check            run the guardrails.yml checks against task.yml + evidence/
-compass bdd extract     extract a task's spec.feature.md into a runnable .feature
+compass bdd extract     extract a task's acceptance-criteria.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
-compass plan lint        scan a plan.md for placeholder phrases (TBD, TODO,
+compass plan lint        scan a design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
 compass task receipt     render a one-screen receipt for a landed task:
                          readings → route → typed evidence → gate verdicts

@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, find_governance, load_yaml
+from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml
 from compass_pkg.tdd import _read_config
 
 
@@ -237,7 +237,7 @@ def _check_scenarios_have_tests(task, task_dir):
     scns = task.get("scenarios") or []
     if not scns:
         return False, "no scenarios in task.yml"
-    spec_path = os.path.join(task_dir, "spec.feature.md")
+    spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     missing_test, undocumented, documented_narr = [], [], 0
     for s in scns:
         sid = s.get("id", "?")
@@ -276,7 +276,7 @@ def _spec_sha256(task_dir):
     read every stale record as current - a false green in exactly the place it
     matters most.
     """
-    path = os.path.join(task_dir, "spec.feature.md")
+    path = artifact_path(task_dir, "acceptance-criteria.md")
     if not os.path.isfile(path):
         return None
     with open(path, "rb") as fh:

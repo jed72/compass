@@ -19,7 +19,7 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
 GOVERNANCE = ROOT / "governance"
-ROUTE_TEMPLATE = ROOT / "templates" / "route.md"
+ROUTE_TEMPLATE = ROOT / "templates" / "delivery-approach.md"
 
 READINGS = ["--reading", "blast_radius=cross-cutting", "--reading",
             "terrain=brownfield-mapped", "--reading", "magnitude=standard",
@@ -86,7 +86,7 @@ def test_trc_c2_a_drifted_projects_route_output_should_say_so(tmp_path):
 def test_trc_c3_the_route_template_should_carry_a_provenance_field():
     text = ROUTE_TEMPLATE.read_text(encoding="utf-8")
     assert re.search(r"provenance", text, re.I), (
-        "templates/route.md has no provenance field, so the audit trail cannot "
+        "templates/delivery-approach.md has no provenance field, so the audit trail cannot "
         "record which policy produced the route")
     section = text[text.lower().index("provenance"):][:1200]
     assert "routing-policy.yml" in section, (

@@ -20,7 +20,7 @@ relationship straight.
   make it so.
 
 In Compass the BDD spec is not documentation that precedes the tests - it *is*
-the tests, read at a different time. `spec.feature.md` is written once at
+the tests, read at a different time. `acceptance-criteria.md` is written once at
 Specify and run as the acceptance check at Verify. It is also the one artifact
 five roles read (see `role-translation`). Write it knowing all of that.
 
@@ -74,7 +74,7 @@ consistently - the spec is the contract between all five roles.
 refused as a per-role spec format in Compass - see **ADR-004 (one spec, many
 lenses)**. The rationale: a user story format embeds a single role's
 perspective into the spec, which means one role's spec and another role's
-spec diverge. Compass uses one `spec.feature.md` that all five roles read
+spec diverge. Compass uses one `acceptance-criteria.md` that all five roles read
 through their own lens (see `role-translation`), not five separate
 role-scoped artifacts. The BDD scenario *is* the shared artifact; the
 role-translation lens is how each role reads it. User stories as a format
@@ -106,7 +106,7 @@ Expedition up to 200 words per field where the work warrants it.
 
 ## Self-review before Clarify
 
-When `spec.feature.md` is written, run these four scans over it yourself before
+When `acceptance-criteria.md` is written, run these four scans over it yourself before
 handing off. **Fix what you find inline** - edit the spec directly. Do not write
 a review artifact, and do not invoke a reviewer agent or subagent for this.
 
@@ -140,7 +140,7 @@ finding they can produce*.
 | **Who** | the spec-author, alone | spec-author plus reviewer; role lenses on Expedition |
 | **Cost** | minutes - four mechanical scans over one file | a phase; requires reading, and often a human decision |
 | **Finds** | placeholder, orphan-intent, untestable-`Then`, ambiguous-quantifier | contradictions between scenarios, gaps across the whole set, governance conflicts, ambiguities that need someone to *choose* |
-| **Output** | edits to `spec.feature.md`, in place | `clarifications.md` - a ledger with a resolution and an owner per entry |
+| **Output** | edits to `acceptance-criteria.md`, in place | `requirements-review.md` - a ledger with a resolution and an owner per entry |
 | **Routes** | every route, including Express | Standard and heavier; collapsed on Express and Hotfix, skipped on Spike |
 
 The dividing line: **the self-review fixes what one person can see and settle
@@ -246,7 +246,7 @@ Walk it for:
   must-fix; a strategy departure is a note and a conversation.
 
 Record each ambiguity, its resolution, and who resolved it in
-`clarifications.md`. Clarify may be *light* on Standard; it may be *collapsed*
+`requirements-review.md`. Clarify may be *light* on Standard; it may be *collapsed*
 on Express only because the one scenario was certified unambiguous; it is
 *skipped* on Spike because the unknown is the point; it is never simply
 *absent* where the route or a routing guardrail calls for it.

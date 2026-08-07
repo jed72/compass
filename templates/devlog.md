@@ -7,7 +7,7 @@ Lives at:    .compass/work/<task-slug>/devlog.md
 Role in the pipeline: the append-only running log. Persistence over
 conversation - if it isn't on disk, it didn't happen. A later session, or
 a different agent, reconstructs the task's history from this file plus
-route.md.
+delivery-approach.md.
 
 APPEND-ONLY. Never edit or delete a past entry. Newest entries go at the
 bottom. One entry per phase transition or notable event. Keep each entry
@@ -24,7 +24,7 @@ short - what happened, evidence pointer, what's next.
 ## {{YYYY-MM-DD HH:MM}} - Frame
 
 - **Event:** Needle ran; route computed.
-- **Route:** {{reference route - Express/Standard/Expedition/Hotfix/Spike}} - see `route.md` revision {{N}}.
+- **Route:** {{reference route - Express/Standard/Expedition/Hotfix/Spike}} - see `delivery-approach.md` revision {{N}}.
 - **Readings:** blast radius {{…}}, terrain {{…}}, magnitude {{…}}, intent & role {{…}}.
 - **Routing guardrails fired:** {{list - or "none"}}.
 - **Owed backfills:** {{list - or "none" (a Spike owes none)}}.
@@ -33,7 +33,7 @@ short - what happened, evidence pointer, what's next.
 ## {{YYYY-MM-DD HH:MM}} - Specify
 
 - **Event:** {{scenarios authored \| brownfield behaviour distilled then new scenarios authored}}.
-- **Artifact:** `spec.feature.md` - {{N}} scenarios in {{M}} groups.
+- **Artifact:** `acceptance-criteria.md` - {{N}} scenarios in {{M}} groups.
 - **Next:** {{Clarify \| Plan if Clarify collapsed}}.
 
 ## {{YYYY-MM-DD HH:MM}} - {{Clarify | Plan | Distribute | Build | Verify}}

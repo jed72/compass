@@ -90,10 +90,10 @@ and no Compass vocabulary leaks into it beyond task names.
 
 Here the internals *are* the point. Report:
 
-- **Route** - from `route.md` / `task.yml`: the nearest reference route, the
+- **Route** - from `delivery-approach.md` / `task.yml`: the nearest reference route, the
   four dimension readings, and any routing guardrail that fired.
-- **Phase** - inferred from which artifacts exist: `route.md` -> Frame done;
-  `spec.feature.md` -> Specify; `clarifications.md` -> Clarify; `plan.md` ->
+- **Phase** - inferred from which artifacts exist: `delivery-approach.md` -> Frame done;
+  `acceptance-criteria.md` -> Specify; `requirements-review.md` -> Clarify; `design.md` ->
   Plan; `distribution-map.md` -> Distribute; `verification-report.md` -> Verify.
   Cross-check the route's de-scope ledger so a *collapsed* phase is not reported
   as *missing*.
@@ -102,7 +102,7 @@ Here the internals *are* the point. Report:
   **Say when a check passes vacuously.** "no changed_files recorded yet" and
   "0/N pass gates" are green lines that assert nothing; reading them as progress
   is how a task lands untraced.
-- **Owed backfills** - scan `route.md`'s de-scope ledger and the route's
+- **Owed backfills** - scan `delivery-approach.md`'s de-scope ledger and the route's
   standing obligations. Flag loudly:
   - an unpaid **Hotfix backfill** (route stub not completed, reproduction test
     not promoted to a scenario, no root-cause devlog line);
@@ -112,6 +112,6 @@ Here the internals *are* the point. Report:
 
 ## Note
 
-If `route.md` is missing for a directory under `work/`, that task was started
+If `delivery-approach.md` is missing for a directory under `work/`, that task was started
 without Frame - flag it as a guardrail violation, not merely an incomplete task.
 On the board, that belongs in BLOCKED.

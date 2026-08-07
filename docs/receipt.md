@@ -10,7 +10,7 @@ This is Compass's two differentiators made demonstrable in plain text - **per-ta
 compass task receipt --task <slug>
 ```
 
-Optionally `--workdir <path>` to point the receipt at a project rooted somewhere other than the current working directory. The command is **read-only**: it parses `task.yml`, `route.md`, `evidence/`, and `governance/guardrails.yml`, prints the receipt to stdout, and mutates nothing on disk.
+Optionally `--workdir <path>` to point the receipt at a project rooted somewhere other than the current working directory. The command is **read-only**: it parses `task.yml`, `delivery-approach.md`, `evidence/`, and `governance/guardrails.yml`, prints the receipt to stdout, and mutates nothing on disk.
 
 ## Example
 
