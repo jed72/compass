@@ -39,7 +39,7 @@ engineering's - do not pre-solve the problem here.
 
 <!-- How will we know the outcome was actually achieved? Each signal should
      be observable. These seed the success metrics in design.md and the
-     acceptance lens on acceptance-criteria.md. -->
+     acceptance perspective on acceptance-criteria.md. -->
 
 - {{SIGNAL 1 - e.g. "Finance pulls month-end numbers without filing a data request."}}
 - {{SIGNAL 2}}
@@ -56,7 +56,7 @@ engineering's - do not pre-solve the problem here.
 ## Non-goals
 
 <!-- Explicitly out of scope. Naming non-goals is what stops scope creep and
-     what lets the Needle size magnitude honestly. "We are NOT building a
+     what lets triage size the work honestly. "We are NOT building a
      full reporting suite." -->
 
 - {{NON-GOAL 1}}
@@ -67,7 +67,7 @@ engineering's - do not pre-solve the problem here.
 <!-- The questions a sharp colleague would ask before agreeing to build this.
      Adapted from the Amazon working-backwards PRFAQ. Answer them honestly -
      a weak answer here is cheaper to find now than in Build. The Needle reads
-     "why now" for urgency and "what could make this fail" for blast radius. -->
+     "why now" for urgency and "what could make this fail" for risk. -->
 
 **Why now?**
 {{Why is this worth doing this cycle and not next? What changed, or what
@@ -75,7 +75,7 @@ breaks if it waits?}}
 
 **What is in v1, and what is explicitly later?**
 {{The MVP cut. Sharper than the non-goals list - non-goals are never; this is
-the v1/later line. Feeds the Needle's magnitude reading.}}
+the v1/later line. Feeds triage's size assessment.}}
 
 **How will we know it worked?**
 {{Restate the success signals above as the one or two that actually decide

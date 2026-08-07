@@ -1,14 +1,14 @@
 # Ownership
 
-<!-- HOW FRAME USES THIS FILE
-     Frame reads this file and includes it in architecture-loaded.yml as a
-     narrative artifact.  The architect-lens uses ownership information to
+<!-- HOW TRIAGE USES THIS FILE
+     Triage reads this file and includes it in architecture-loaded.yml as a
+     narrative artifact.  The `architect-lens` agent uses ownership data to
      flag when a proposed change crosses team boundaries - a common source of
      undetected coupling and rework.
 
      Keep this file current.  Stale ownership is worse than no ownership file:
-     the lens will flag risks against the wrong team, creating noise and eroding
-     trust in the mechanism.
+     the agent will flag risks against the wrong team, creating noise and
+     eroding trust in the mechanism.
 -->
 
 ## Service / module ownership table
@@ -31,7 +31,7 @@
 ## Cross-team dependencies
 
 <!-- Enumerate dependencies where the caller is owned by a different team
-     than the callee.  These are highest-priority for the architect-lens. -->
+     than the callee.  These are highest-priority for the `architect-lens` agent. -->
 
 | Caller (team) | Callee (team) | Contract | Review required |
 |---|---|---|---|

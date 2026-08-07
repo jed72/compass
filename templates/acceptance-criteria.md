@@ -1,16 +1,19 @@
 <!--
 TEMPLATE: acceptance-criteria.md
-Produced by: the Specify phase (`/compass:specify`); refined in Clarify.
+Produced by: the acceptance-criteria stage (`/compass:specify` - the
+             command keeps its v1 name until the command-rename slice
+             ships); refined at requirements review.
 Lives at:    .compass/work/<task-slug>/acceptance-criteria.md
-Role in the pipeline: THE shared artifact. One spec, many lenses. This is
-the single file every role reads - each through their own lens - and it is
-read twice: as the specification (Specify) and as the acceptance check
-(Verify). It satisfies guardrail G2 (acceptance defined before it is built)
-via the BDD strategy (S1): no code may exist that no scenario here describes.
+Role in the pipeline: THE shared artifact - one set of acceptance
+criteria, read by every role through its own perspective - and it is read
+twice: as the specification (when defined) and as the acceptance check (at
+test & review). It satisfies the acceptance-before-build guardrail via the
+BDD strategy: no code may exist that no scenario here describes.
 
 Scenarios are grouped by independence - that grouping seeds the
-distribution map in Plan. Every scenario carries a traceability id and a
-link back to the intent it serves - that is guardrail G3 (traceability holds).
+distribution map at design time. Every scenario carries a traceability id
+and a link back to the intent it serves - that is the traceability
+guardrail at work.
 
 Fill every {{PLACEHOLDER}}. Keep the Gherkin clean: one behaviour per
 scenario, concrete Given/When/Then, no implementation detail.
@@ -19,7 +22,7 @@ scenario, concrete Given/When/Then, no implementation detail.
 # Spec - {{TASK_SLUG}}
 
 > **Phase:** Specify · **Last updated:** {{DATE}} · **Owning agent:** spec-author
-> **Terrain:** {{greenfield discovery \| brownfield blueprint-distillation then new scenarios}}
+> **Familiarity:** {{greenfield discovery \| existing behaviour distilled first, then new scenarios}}
 
 ## Summary
 
@@ -27,23 +30,24 @@ scenario, concrete Given/When/Then, no implementation detail.
      did not write wants to know what is being built and why - not to
      reverse-engineer it from Gherkin. That synthesis is easy for the author
      and progressively harder for everyone else, which is where review quietly
-     stops happening. This section is strategy S7 (write for a cold reader)
-     applied to the spec itself.
+     stops happening. This section is the write-for-a-cold-reader strategy
+     applied to the criteria themselves.
 
-     Three fields, in this order. Length scales with the route:
-       Express     - one to two sentences per field.
-       Standard    - ordinary paragraphs.
-       Expedition  - up to 200 words per field, where the work warrants it.
+     Three fields, in this order. Length scales with the delivery approach:
+       quick fix   - one to two sentences per field.
+       feature     - ordinary paragraphs.
+       initiative  - up to 200 words per field, where the work warrants it.
 
-     An unfilled field is caught twice: by the spec-author's placeholder scan
-     at the end of Specify, and by the Definition of Ready at the foot of
-     requirements-review.md, which will not let an empty Summary reach Plan. -->
+     An unfilled field is caught twice: by the author's placeholder scan
+     when the criteria are finished, and by the Definition of Ready at the
+     foot of requirements-review.md, which will not let an empty Summary
+     reach design. -->
 
 **Goal:** {{One sentence - what this change delivers, in user terms. Not the
 implementation, not the ticket title.}}
 
 **Approach:** {{Two to three sentences - the shape of the change, at the level
-a lens reviewer would want. Enough that a reader can predict roughly what the
+a role reviewer would want. Enough that a reader can predict roughly what the
 scenarios below will cover.}}
 
 **Why now / what changes:** {{One short paragraph - the visible outcome, and
@@ -72,7 +76,7 @@ today. If nothing observable changes, say so plainly and explain what does.}}
 
 | Intent id | Source | Statement |
 |---|---|---|
-| INT-1 | {{prd.md desired outcome \| ui-contract.md \| the task description}} | {{one line}} |
+| INT-1 | {{prd.md desired outcome \| ui-contract.md \| the issue description}} | {{one line}} |
 | INT-2 | {{…}} | {{…}} |
 
 ---
@@ -126,9 +130,9 @@ Scenario: {{scenario title}}
 
 ## Failure-mode scenarios
 
-<!-- The failure modes that matter, per the route's test-surface target.
-     Express: the obvious edges only. Standard+: the failure modes that
-     matter. Critical blast radius: adversarial and boundary inputs too. -->
+<!-- The failure modes that matter, per the approach's test-surface target.
+     Quick fix: the obvious edges only. Feature and up: the failure modes
+     that matter. Critical risk: adversarial and boundary inputs too. -->
 
 ### Scenario: {{FAILURE MODE TITLE}}
 <!-- traceability id: TRC-F1 · serves: INT-1 -->

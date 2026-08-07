@@ -7,12 +7,12 @@ supersedes: ''
 superseded_by: ''
 ---
 
-<!-- HOW FRAME AND THE ARCHITECT-LENS USE THIS FILE
-     Frame scans architecture/decisions/ADR-*.md and includes a summary of
-     each ADR (id, title, status) in architecture-loaded.yml.  The architect-
-     lens reads these summaries to know which decisions are already recorded,
-     so it can cite them in architecture-notes.md rather than re-litigating
-     closed decisions.
+<!-- HOW TRIAGE AND THE ARCHITECT PERSPECTIVE USE THIS FILE
+     Triage scans architecture/decisions/ADR-*.md and includes a summary of
+     each record (id, title, status) in architecture-loaded.yml.  The
+     `architect-lens` agent reads these summaries to know which decisions
+     are already recorded, so it can cite them in architecture-notes.md
+     rather than re-litigating closed decisions.
 
      Use `compass adr new <slug>` to create a new ADR from this template -
      it assigns the next sequential number and registers the file in README.md.

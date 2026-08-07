@@ -47,7 +47,7 @@ shape the spec uses - so the handoff into Specify is mechanical.
      unbroken across the handoff. -->
 
 ### Scenario: {{INTERACTION TITLE}}
-<!-- traceability id: TRC-UI1 · serves: {{INT-id from prd.md, or the task}} -->
+<!-- traceability id: TRC-UI1 · serves: {{INT-id from prd.md, or the issue}} -->
 
 ```gherkin
 Scenario: {{scenario title}}

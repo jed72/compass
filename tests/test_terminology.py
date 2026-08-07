@@ -137,9 +137,13 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\btouches?_(?:any|common)\b"),
         re.compile(r"\btouches:\s"),
     ],
-    # The v1 word for owed follow-up work. All uses.
+    # The v1 word for owed follow-up work, in prose. Three machine forms
+    # stay legal until the machine-spine slice renames the schema and the
+    # tag syntax, whose slice re-tightens this pattern: the typed DoD tag
+    # "(backfill: BF-...)", the CLI verb "compass backfill", and the spine
+    # key reference "backfills:".
     "backfill": [
-        re.compile(r"\bbackfills?\b", re.IGNORECASE),
+        re.compile(r"(?<!\()(?<!compass )\bbackfills?\b(?!:)", re.IGNORECASE),
     ],
     # The v1 work-item noun in human-facing prose. Machine-state forms
     # stay legal during the transition: task.yml, current-task, --task,
@@ -174,7 +178,6 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
 # surface from the vocabulary file AND from here in the same diff, which is
 # what makes the shrink visible in review.
 PENDING_BASELINE: frozenset[str] = frozenset({
-    "templates/",
     "commands/",
     "skills/",
     "cli/compass",

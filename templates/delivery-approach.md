@@ -1,182 +1,179 @@
 <!--
 TEMPLATE: delivery-approach.md
-Produced by: Frame phase / the Needle (`/compass:frame`).
+Produced by: triage (`/compass:frame` - the command keeps its v1 name until
+             the command-rename slice ships).
 Lives at:    .compass/work/<task-slug>/delivery-approach.md
-Authority:   This is the audit centrepiece. It records what the Needle
-             assessed, the route it computed, every routing guardrail that
+Authority:   This is the audit centrepiece. It records the assessment, the
+             delivery approach the policy computed, every policy rule that
              fired, and - first-class - what was skipped and why it is safe.
-             Rubric: routes/router.md. Policy: governance/routing-policy.md
-             (routing guardrails + routing strategies).
+             Rubric: the delivery-approach reference docs. Policy:
+             governance/routing-policy.md (hard rules + soft biases).
 
-On a Spike route, the Needle also writes a `.spike` marker file in the task
+On a spike, triage also writes a `.spike` marker file in the issue
 directory so the pre-tool hook knows to suspend the TDD strategy.
 
-Fill every {{PLACEHOLDER}}. A dimension with no justification is not a
-reading - ask the human instead. A phase with no "safe to skip because…"
+Fill every {{PLACEHOLDER}}. A dimension with no justification is not an
+assessment - ask the human instead. A stage with no "safe to skip because…"
 line is not skippable - it runs.
 -->
 
-# Route - {{TASK_SLUG}}
+# Delivery approach - {{TASK_SLUG}}
 
-> **Task:** {{ONE-LINE TASK DESCRIPTION AS INVOKED}}
-> **Framed:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first frame; bump on `--reframe`)
-> **Reference route:** {{Express | Standard | Expedition | Hotfix | Spike}}
+> **Issue:** {{ONE-LINE DESCRIPTION AS INVOKED}}
+> **Triaged:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first triage; bump on `--reframe`)
+> **Reference shape:** {{quick fix | feature | initiative | hotfix | spike}}
 
-<!-- On a `--reframe`, keep the prior revision below this line under a
-     "## Superseded - revision <N-1>" heading so the history stays visible. -->
+<!-- On a re-assessment (`--reframe`), keep the prior revision below this
+     line under a "## Superseded - revision <N-1>" heading so the history
+     stays visible. -->
 
 ---
 
-## 1. The four dimension readings
+## 1. The assessment
 
-<!-- Each reading is a value from routes/router.md plus a one-line
+<!-- Each dimension gets a value from the reference docs plus a one-line
      justification. No justification → ask, do not guess. -->
 
-| Dimension | Reading | One-line justification |
+| Dimension | Value | One-line justification |
 |---|---|---|
-| **Blast radius** | {{trivial \| contained \| cross-cutting \| critical}} | {{Why this value. Consequence, not effort.}} |
-| **Terrain** | {{greenfield \| brownfield-mapped \| brownfield-unmapped}} | {{Why this value. Is current behaviour written down?}} |
-| **Magnitude** | {{atomic \| small \| standard \| large \| product}} | {{Why this value. When unsure, estimate up.}} |
-| **Intent & role** | {{engineer \| product-owner \| product-marketer \| designer \| qa}} | {{Who invoked, and the outcome actually wanted - read the brief if one exists.}} |
+| **Risk** | {{trivial \| contained \| cross-cutting \| critical}} | {{Why this value. Consequence, not effort.}} |
+| **Familiarity** | {{greenfield \| brownfield-mapped \| brownfield-unmapped}} | {{Why this value. Is current behaviour written down?}} |
+| **Size** | {{atomic \| small \| standard \| large \| product}} | {{Why this value. When unsure, estimate up.}} |
+| **Goal & role** | {{engineer \| product-owner \| product-marketer \| designer \| qa}} | {{Who invoked, and the outcome actually wanted - read the PRD or intake if one exists.}} |
 
-**Domain tags (`touches:`):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
-<!-- These tags are what the routing guardrails (floors) key on. Be honest -
-     a one-line auth change still touches auth. -->
-
----
-
-## 2. The composed candidate route
-
-<!-- The route assembled from the dimension contributions, biased by the
-     routing strategies, BEFORE the routing guardrails are applied. Name the
-     reference route for shared vocabulary, then list deviations. -->
-
-Candidate route: **{{reference route name}}**, with these deviations from its reference shape:
-
-- {{e.g. "Verify also runs the `security` dimension because blast radius is cross-cutting." - or "none"}}
-
-Candidate review dimensions: {{correctness, governance, traceability, … per the table in routes/router.md}}
+**Labels (the spine's `touches:` field):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
+<!-- These are what the policy's hard floors key on. Be honest - a one-line
+     auth change still carries the auth label. -->
 
 ---
 
-## 3. Routing guardrails that fired
+## 2. The composed candidate
+
+<!-- The delivery approach assembled from the assessment, biased by the
+     policy's soft defaults, BEFORE the hard rules are applied. Name the
+     reference shape for shared vocabulary, then list deviations. -->
+
+Candidate: **{{reference shape}}**, with these deviations from its reference form:
+
+- {{e.g. "Test & review also runs the security dimension because the risk is cross-cutting." - or "none"}}
+
+Candidate review dimensions: {{correctness, governance, traceability, … per the reference docs}}
+
+---
+
+## 3. Policy rules that fired
 
 ### 3a. Policy provenance
 
-<!-- WHICH POLICY produced this route. `compass route evaluate` prints both
-     lines below - copy them here. Without this, a reader months later cannot
-     tell a genuinely light route from one computed against stale governance,
-     and the audit trail is honest about what happened while blind to what
-     should have. If the CLI reported drift, record it: a route computed
-     against a policy missing framework rules is a route missing gates. -->
+<!-- WHICH POLICY produced this approach. `compass route evaluate` prints
+     both lines below - copy them here. Without this, a reader months later
+     cannot tell a genuinely light approach from one computed against stale
+     governance. If the CLI reported drift, record it: an approach computed
+     against a policy missing framework rules is an approach missing
+     gates. -->
 
 - Policy file: {{path to the routing-policy.yml that was read}}
 - Policy version: {{the `version:` that file declares}}
 - Drift: {{"none - the project's policy matches framework vX.Y.Z" - or "N rule(s)/check(s) missing against framework vX.Y.Z; see `compass policy lint`"}}
 
-
-
-<!-- Every floor / cap / immovable_gate / blocking role_rule from
+<!-- Every floor / cap / immovable gate / blocking role rule from
      governance/routing-policy.md that matched. Quote each one's rationale.
-     If none fired, say so explicitly - silence is not a record. Routing
-     strategies that biased the composition can be noted here too, but the
-     guardrails are what this section must capture. -->
+     If none fired, say so explicitly - silence is not a record. -->
 
 | Rule type | Rule | What it changed | Rationale (quoted from the policy) |
 |---|---|---|---|
-| {{floor \| cap \| immovable_gate \| role_rule}} | {{e.g. `touches: [auth]`}} | {{e.g. "Candidate Express raised to Expedition."}} | {{"…"}} |
+| {{floor \| cap \| immovable_gate \| role_rule}} | {{e.g. the auth label}} | {{e.g. "Candidate quick fix raised to initiative-scale ceremony."}} | {{"…"}} |
 
-<!-- If nothing fired: "No routing guardrail fired. Candidate route stands." -->
+<!-- If nothing fired: "No hard policy rule fired. The candidate stands." -->
 
 ---
 
-## 4. The final route
+## 4. The final delivery approach
 
-### 4a. Per-phase weight
+### 4a. Per-stage weight
 
-| Phase | Weight | Notes |
+| Stage | Weight | Notes |
 |---|---|---|
-| Frame | Full | Always. This document is the output. |
-| Specify | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (Spike)}} | {{discovery vs. blueprint-distillation; how deep}} |
-| Clarify | {{collapsed \| light pass \| full pass \| skipped (Spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
-| Plan | {{one-line edit note \| real design.md \| design.md + distribution-map.md \| timebox sketch (Spike)}} | {{design decisions expected; governance check scope}} |
-| Distribute | {{skipped (solo) \| pair \| swarm}} | {{stream count comes from the distribution map}} |
-| Build | {{test surface target}} | {{scaled to blast radius - see tdd-discipline}} |
-| Verify | {{gate count}} | {{which review dimensions - section 4b}} |
-| Land | {{trivial commit \| coordinated merge}} | {{which backfills are owed - section 6}} |
+| Triage | Full | Always. This document is the output. |
+| Define acceptance criteria | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. distilling existing behaviour first; how deep}} |
+| Requirements review | {{collapsed \| light pass \| full pass \| skipped (spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
+| Design | {{one-line edit note \| real design.md \| design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
+| Break down the work | {{skipped (solo) \| pair \| swarm}} | {{stream count comes from the distribution map}} |
+| Implement | {{test surface target}} | {{scaled to risk - see the TDD skill}} |
+| Test & review | {{gate count}} | {{which review dimensions - section 4b}} |
+| Ship | {{trivial commit \| coordinated merge}} | {{which follow-ups are owed - section 6}} |
 
 ### 4b. Gate set
 
-- Number of gates: {{1 \| 2 \| all \| 1 Conclude gate (Spike)}}
-- Review dimensions applied: {{list - correctness, governance, traceability are always on for a delivery route; Spike runs none of these}}
+- Number of gates: {{1 \| 2 \| all \| 1 conclude gate (spike)}}
+- Review dimensions applied: {{list - correctness, governance, traceability are always on for delivery work; a spike runs none of these}}
 - Immovable gates stapled on (from routing-policy.md): {{verify.correctness, verify.governance, verify.regression, verify.claims, …}}
 
 ### 4c. Swarm topology
 
-- Topology: {{solo \| pair (2–3 streams) \| swarm (4+ streams)}}
+- Topology: {{solo \| pair (2-3 streams) \| swarm (4+ streams)}}
 - Stream count: {{N - from distribution-map.md, or "n/a (solo)"}}
 - Worktree root: {{from .compass/config.yml `swarm.worktree_root`, default ../.compass-worktrees}}
-- Cap in effect: {{e.g. "critical blast radius → max_worktrees: 1" - from a routing-guardrail cap in routing-policy.yml - or "none"}}
+- Cap in effect: {{e.g. "critical risk → max_worktrees: 1" - from a hard cap in routing-policy.yml - or "none"}}
 - Orchestrator agent: {{yes (swarm) \| no - lead builder integrates (pair) \| n/a (solo)}}
 
 ---
 
 ## 5. The de-scope ledger
 
-<!-- THE AUDIT CENTREPIECE. Every phase or check that is collapsed or
-     skipped, each with an explicit "safe to skip because…" line. A phase
-     with no justification CANNOT be skipped - it runs. On Expedition this
-     table is empty by definition; cap-driven reductions go in section 4c,
-     not here. On Spike the standing justification for every row is the same:
-     nothing lands from a Spike (see routes/spike.md). -->
+<!-- THE AUDIT CENTREPIECE. Every stage or check that is collapsed or
+     skipped, each with an explicit "safe to skip because…" line. A stage
+     with no justification CANNOT be skipped - it runs. On initiative-scale
+     work this table is empty by definition; cap-driven reductions go in
+     section 4c, not here. On a spike the standing justification for every
+     row is the same: nothing ships from a spike. -->
 
-| Phase / check | Action | Safe to skip / collapse because… |
+| Stage / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| {{e.g. Clarify}} | {{collapsed \| skipped}} | {{e.g. "The spec is a single scenario the Needle certified unambiguous - nothing to clarify."}} |
-| {{e.g. Plan}} | {{collapsed to one-liner}} | {{e.g. "atomic magnitude on mapped terrain - no design decision; the plan is 'edit src/foo.ts'."}} |
-| {{e.g. Distribute}} | {{skipped}} | {{e.g. "One stream of work - parallelism would be pure overhead."}} |
+| {{e.g. Requirements review}} | {{collapsed \| skipped}} | {{e.g. "The acceptance criteria are a single scenario certified unambiguous at triage - nothing to review."}} |
+| {{e.g. Design}} | {{collapsed to one-liner}} | {{e.g. "atomic size on familiar ground - no design decision; the design is 'edit src/foo.ts'."}} |
+| {{e.g. Break down the work}} | {{skipped}} | {{e.g. "One stream of work - parallelism would be pure overhead."}} |
 
-**One-line edit note (Express/Hotfix collapsed Plan only):** {{which file(s) to edit, or root-cause note}}
+**One-line edit note (quick fix / hotfix collapsed design only):** {{which file(s) to edit, or root-cause note}}
 
-**Spike question + timebox (Spike collapsed Specify/Plan only):** {{the question to answer, and the timebox}}
+**Spike question + timebox (spike collapsed stages only):** {{the question to answer, and the timebox}}
 
 ---
 
-## 6. Owed backfills
+## 6. Owed follow-ups
 
-<!-- Ceremony borrowed from the front of the pipeline that must be paid
-     back at Land before the task can close. Hotfix always owes a backfill;
-     other routes owe whatever the de-scope ledger marked for backfill. A
-     Spike owes nothing - it lands nothing; its exit is graduate or discard,
-     not a backfill. -->
+<!-- Ceremony borrowed from the front of the pipeline that must be settled
+     at ship time before the issue can close. A hotfix always owes one;
+     other work owes whatever the de-scope ledger marked. A spike owes
+     nothing - it ships nothing; its exit is graduate or discard. -->
 
-- [ ] {{e.g. "Hotfix backfill: delivery-approach.md completed properly, reproduction test promoted to a real scenario in acceptance-criteria.md, root-cause line in devlog.md."}}
+- [ ] {{e.g. "Hotfix follow-up: this record completed properly, reproduction test promoted to a real scenario in acceptance-criteria.md, root-cause line in devlog.md."}}
 - [ ] {{e.g. "none owed"}}
 
 ---
 
 ## 7. Human overrides
 
-<!-- Routing is advisory until confirmed. Any reading or the final route may
-     be overridden by a human - recorded here with who and why. What CANNOT
-     be overridden: an immovable_gate, or a floor (a routing guardrail is
-     governance speaking; changing it means amending
-     governance/routing-policy.md, not overriding a route). -->
+<!-- The computed approach is advisory until confirmed. Any assessment value
+     or the final approach may be overridden by a human - recorded here with
+     who and why. What CANNOT be overridden: an immovable gate, or a floor
+     (a hard policy rule is governance speaking; changing it means amending
+     governance/routing-policy.md, not overriding one issue's approach). -->
 
 | What was overridden | From → To | Who | Why |
 |---|---|---|---|
-| {{e.g. "Magnitude reading"}} | {{standard → small}} | {{name}} | {{reason}} |
+| {{e.g. "Size"}} | {{standard → small}} | {{name}} | {{reason}} |
 
-<!-- If none: "No human overrides. Route confirmed as composed." -->
+<!-- If none: "No human overrides. Approach confirmed as composed." -->
 
 ---
 
 ## 8. Confirmation
 
-- [ ] Route presented to the invoker and confirmed (or overridden - see §7).
+- [ ] Approach presented to the invoker and confirmed (or overridden - see §7).
 - [ ] Every dimension in §1 has a justification.
-- [ ] Every skipped/collapsed phase in §5 has a "safe to skip because…" line.
-- [ ] On a Spike route: the `.spike` marker file is written to the task directory.
-- [ ] `devlog.md` opened with the Frame entry.
+- [ ] Every skipped/collapsed stage in §5 has a "safe to skip because…" line.
+- [ ] On a spike: the `.spike` marker file is written to the issue directory.
+- [ ] `devlog.md` opened with the triage entry.
 
-Next phase: **Specify** (`/compass:specify`) - or **Explore** on a Spike route.
+Next stage: **define acceptance criteria** (`/compass:specify`) - or explore, on a spike.

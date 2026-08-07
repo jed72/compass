@@ -12,6 +12,9 @@ The `<task-slug>` directory stays machine state during the transition.
 Please specify the format, clarify your intent, and distribute the load evenly.
 Planes land safely when checklists hold, and boats land their catch.
 The change touches the parser but nothing else.
+Machine forms of the follow-up ledger stay legal until the schema renames:
+a typed tag like (backfill: BF-001) on a checklist line, the spine key
+backfills: [], and settling one with compass backfill pay BF-001.
 Machine identifiers keep their real names while the rename is in flight, so
 code-quoted references stay legal: run `/compass:frame` or
 `compass route evaluate`, open `route.md`, `brief.md`, or `spec.feature.md`,
