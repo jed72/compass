@@ -29,8 +29,10 @@ AGENTS = {
     "orchestrator": REPO_ROOT / "agents" / "orchestrator.md",
 }
 
-# The exact paragraph that DD-6 requires (from plan.md §DD-6)
-DD6_HEADING = "**Trigger Frame on intent, not just the literal command.**"
+# The exact paragraph that DD-6 requires (from plan.md §DD-6). The wording
+# moved to the frozen v2 vocabulary in the session-instructions rename
+# slice; the rule it pins is unchanged.
+DD6_HEADING = "**Trigger triage on intent, not just the literal command.**"
 DD6_CONTENT = (
     "When the user describes intent to build, change, or fix code"
     " - even if they do not type `/compass:frame` - "
@@ -38,7 +40,7 @@ DD6_CONTENT = (
 )
 
 # The existing paragraph that must remain untouched (additive-only check)
-EXISTING_PARAGRAPH = "**Never skip Frame.**"
+EXISTING_PARAGRAPH = "**Never skip triage.**"
 
 # The phrase that must NOT appear as a re-frame trigger when a task is already
 # active (TRC-F3 guard: invisible triggering must not re-frame an active task)
@@ -113,7 +115,7 @@ class TestCLAUDEMdNoReframe:
         """TRC-F3 - CLAUDE.md must not instruct re-running Frame on an active task."""
         content = CLAUDE_MD.read_text(encoding="utf-8").lower()
         # Check around the intent-trigger paragraph specifically
-        trigger_idx = content.find("trigger frame on intent")
+        trigger_idx = content.find("trigger triage on intent")
         if trigger_idx == -1:
             # If paragraph not yet there, the test for its presence will catch it
             return

@@ -12,3 +12,18 @@ The `<task-slug>` directory stays machine state during the transition.
 Please specify the format, clarify your intent, and distribute the load evenly.
 Planes land safely when checklists hold, and boats land their catch.
 The change touches the parser but nothing else.
+Machine identifiers keep their real names while the rename is in flight, so
+code-quoted references stay legal: run `/compass:frame` or
+`compass route evaluate`, open `route.md`, `brief.md`, or `spec.feature.md`,
+settle what is owed with `compass backfill pay`, and read the `readings:`
+block or the `touches:` list in the issue spine.
+
+```yaml
+# A fenced block is machine content: these live v1 keys must not be flagged.
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  magnitude: small
+route: express
+backfills: []
+```

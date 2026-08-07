@@ -130,10 +130,11 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"(?<!order of )(?<!orders of )\bmagnitude\b", re.IGNORECASE),
     ],
     # The v1 domain-tag mechanism. Ordinary "touches" (the verb) stays
-    # legal; the underscored keys and the key-in-prose form do not.
+    # legal; the underscored keys and the bare key-in-prose form do not.
+    # (A backticked `touches:` is a machine identifier and never reaches
+    # these patterns - markdown code spans are stripped before scanning.)
     "touches": [
         re.compile(r"\btouches?_(?:any|common)\b"),
-        re.compile(r"`touches:`"),
         re.compile(r"\btouches:\s"),
     ],
     # The v1 word for owed follow-up work. All uses.
@@ -209,13 +210,21 @@ def _read(path: Path) -> str | None:
         return None
 
 
+INLINE_CODE_RE = re.compile(r"`[^`]+`")
+
+
 def _scan_units(path: Path) -> list[tuple[int, str]]:
     """The (line number, text) pairs the scanner checks for one file.
 
-    Almost every surface is scanned line by line. `cli/compass` is the
-    exception: its surface is what a user reads, so only its Python string
-    literals are scanned - identifiers and comments are the code's own
-    business during the transition.
+    Two surfaces get less than full text, for the same reason: the scan
+    measures what a surface *teaches*, not what the machinery is currently
+    named. `cli/compass` contributes only its Python string literals. In
+    markdown, fenced code blocks and inline code spans are machine
+    identifiers - a backticked `/compass:frame` names a command that really
+    is still called that during the transition - so markdown contributes
+    prose only. The rename slices tighten this by making the old names
+    disappear from the machinery itself; until then, prose must be clean v2
+    vocabulary and live v1 names appear only as code.
     """
     text = _read(path)
     if text is None:
@@ -230,6 +239,17 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
             if isinstance(node, ast.Constant) and isinstance(node.value, str):
                 for offset, line in enumerate(node.value.splitlines()):
                     units.append((node.lineno + offset, line))
+        return units
+    if path.suffix == ".md":
+        units = []
+        fenced = False
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if line.lstrip().startswith("```"):
+                fenced = not fenced
+                continue
+            if fenced:
+                continue
+            units.append((lineno, INLINE_CODE_RE.sub(" ", line)))
         return units
     return list(enumerate(text.splitlines(), 1))
 

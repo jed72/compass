@@ -19,7 +19,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre2
+version: 2.0.0-pre3
 
 terms:
 
@@ -422,6 +422,13 @@ scan:
     - docs/methodology.md
     - governance/          # prose files
     - .claude-plugin/      # manifests - first prose an adopter reads
+    # Session-facing instruction files, added clean (never pending): these
+    # teach every agent session the register it must write, so they are
+    # enforced from the day they were rewritten. In markdown surfaces the
+    # scan reads prose only - fenced blocks and inline code spans are
+    # machine identifiers, exempt while their referents keep v1 names.
+    - CLAUDE.md
+    - AGENTS.md
   exempt:
     - docs/proposals/      # history stays honest
     - docs/analysis/
