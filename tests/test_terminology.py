@@ -178,14 +178,12 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
 # surface from the vocabulary file AND from here in the same diff, which is
 # what makes the shrink visible in review.
 PENDING_BASELINE: frozenset[str] = frozenset({
-    "commands/",
     "skills/",
     "cli/compass",
     "README.md",
     "docs/five-minutes.md",
     "docs/methodology.md",
     "governance/",
-    ".claude-plugin/",
 })
 
 

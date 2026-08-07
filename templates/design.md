@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: design.md
-Produced by: the Plan phase (`/compass:plan`); owning agent `planner`.
+Produced by: the design stage (`/compass:design`); owning agent `planner`.
 Lives at:    .compass/work/<task-slug>/design.md
 Role in the pipeline: the technical plan. Records the approach, the design
 decisions as ADR-style notes, the governance check against all of
@@ -220,4 +220,4 @@ classDiagram
 - [ ] Governance check passes - every guardrail clears with evidence; any strategy deviation is recorded (above).
 - [ ] If parallel work is possible, `distribution-map.md` is written next.
 
-Next phase: **Distribute** (`/compass:distribute`) - or straight to **Build** if the route is solo.
+Next stage: **break down the work** (`/compass:breakdown`) - or straight to **implement** on solo work.

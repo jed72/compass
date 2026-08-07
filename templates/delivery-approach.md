@@ -1,7 +1,6 @@
 <!--
 TEMPLATE: delivery-approach.md
-Produced by: triage (`/compass:frame` - the command keeps its v1 name until
-             the command-rename slice ships).
+Produced by: triage (`/compass:triage`).
 Lives at:    .compass/work/<task-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records the assessment, the
              delivery approach the policy computed, every policy rule that
@@ -176,4 +175,4 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 - [ ] On a spike: the `.spike` marker file is written to the issue directory.
 - [ ] `devlog.md` opened with the triage entry.
 
-Next stage: **define acceptance criteria** (`/compass:specify`) - or explore, on a spike.
+Next stage: **define acceptance criteria** (`/compass:define`) - or explore, on a spike.

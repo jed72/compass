@@ -12,14 +12,18 @@
 #            which still await their rename slice (pending_surfaces)
 #
 # Naming rule: if a term is not in common use across the industry, it does
-# not ship.
+# not ship. Recorded reading (maintainer ruling, 2026-08-07, from the
+# command-rename review): the rule's intent is anti-jargon, not grammatical
+# purity - an industry-standard noun like "breakdown" (work breakdown
+# structure) satisfies it; an invented coinage does not. The rule governs
+# renamed commands; established, unbanned names keep theirs.
 #
 # This vocabulary is frozen. Changing it carries the same ceremony as a
 # decision record; the house test pins each ban to tuned patterns and pins
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre5
+version: 2.0.0-pre6
 
 terms:
 
@@ -361,7 +365,7 @@ terms:
 banned:
   - term: "Frame / the Needle"
     replacement: triage
-    context: "As phase/agent name and command (/compass:frame). 'frame' as an ordinary verb is fine."
+    context: "As phase/agent name and command. The command is /compass:triage; /compass:frame is a redirect stub for one major version. 'frame' as an ordinary verb is fine."
   - term: "reading / readings"
     replacement: assessment
     context: "As the four-dimension judgement. Ordinary uses of the word are fine."
@@ -376,7 +380,7 @@ banned:
     context: "Route name."
   - term: "Specify / Clarify / Distribute / Land"
     replacement: "define acceptance criteria / requirements review / break down the work / ship"
-    context: "As phase names and commands. Capitalised/heading/command usage only; ordinary verbs fine."
+    context: "As phase names and commands. The commands are /compass:define, /compass:refine, /compass:breakdown, /compass:ship (and Plan's stage command is /compass:design, Build's is /compass:implement); the retired names are redirect stubs for one major version. Capitalised/heading/command usage only; ordinary verbs fine."
   - term: "lens"
     replacement: role
     context: "As the role-perspective concept."
@@ -448,11 +452,9 @@ scan:
   # its surface from this list; removed surfaces must stay clean forever.
   # A meta-test asserts this list only ever shrinks.
   pending_surfaces:
-    - commands/
     - skills/
     - cli/compass
     - README.md
     - docs/five-minutes.md
     - docs/methodology.md
     - governance/
-    - .claude-plugin/

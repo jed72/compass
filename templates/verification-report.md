@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: verification-report.md
-Produced by: the Verify phase (`/compass:verify`); owning role QA, agents
+Produced by: the test & review stage (`/compass:verify`); owning role QA, agents
              `verifier` (runs the suites) and `reviewer` (applies the
              review dimensions).
 Lives at:    .compass/work/<task-slug>/verification-report.md
@@ -166,4 +166,4 @@ guardrail applies to the checklist itself):
 - [ ] (follow-up: {{BF-id}}) *(carried to ship)* Every owed follow-up settled -
       no unsettled hotfix follow-up, no unbacked marketing claim.
 
-Next stage: **ship** (`/compass:land`) - only on overall PASS.
+Next stage: **ship** (`/compass:ship`) - only on overall PASS.

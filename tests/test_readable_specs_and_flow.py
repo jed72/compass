@@ -344,17 +344,17 @@ def test_trc_c6_no_gate_or_floor_added():
 HANDOFF_HEADING = "## Hand-off"
 
 HANDOFF_PHASES = {
-    "commands/specify.md": "acceptance-criteria.md",
-    "commands/clarify.md": "requirements-review.md",
-    "commands/plan.md": "design.md",
+    "commands/define.md": "acceptance-criteria.md",
+    "commands/refine.md": "requirements-review.md",
+    "commands/design.md": "design.md",
 }
 
 
 def test_trc_d1_specify_handoff_prompt():
     """Specify closes by inviting a cold-reader review: what was written, what
     to look for, and what happens on approval."""
-    text = _read("commands/specify.md")
-    assert HANDOFF_HEADING in text, "commands/specify.md has no Hand-off section"
+    text = _read("commands/define.md")
+    assert HANDOFF_HEADING in text, "commands/define.md has no Hand-off section"
 
     flat = _flat(_section(text, "Hand-off"))
 
@@ -365,7 +365,7 @@ def test_trc_d1_specify_handoff_prompt():
             f"The Specify hand-off does not ask the reviewer to check '{look_for}'"
         )
 
-    assert "clarify" in flat, (
+    assert "refine" in flat, (
         "The Specify hand-off does not say what happens next once the reviewer approves"
     )
 

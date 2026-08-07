@@ -160,7 +160,7 @@ CHECK_GUIDANCE = {
     },
     "spike-no-production-changes": {
         "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh Frame, not a silent merge.",
-        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:frame` to start a new delivery task that owns the code under a real route.",
+        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:triage` to start a new delivery task that owns the code under a real route.",
     },
     "dod-evidence-typed": {
         "why": "Guardrail G4 (evidence, not assertion): the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed backfill - narrative notes in devlog.md do not count.",

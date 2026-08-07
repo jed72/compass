@@ -116,7 +116,7 @@ def test_nudge_on_bloat(tmp_path):
     assert "reframe" in result.stderr.lower(), (
         "Expected a reframe nudge in stderr, got:\n" + result.stderr
     )
-    assert "/compass:frame --reframe" in result.stderr, (
+    assert "/compass:triage --reframe" in result.stderr, (
         "Expected the exact reframe command in stderr"
     )
 

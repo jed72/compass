@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: distribution-map.md
-Produced by: the Plan phase (`/compass:plan`) on pair/swarm-capable routes;
-             consumed by Distribute (`/compass:distribute`) and the
+Produced by: the design stage (`/compass:design`) on pair/swarm-capable work;
+             consumed by breakdown (`/compass:breakdown`) and the
              `orchestrator` agent.
 Lives at:    .compass/work/<task-slug>/distribution-map.md
 Role in the pipeline: the record of what could run in parallel and why.
@@ -83,4 +83,4 @@ Fill every {{PLACEHOLDER}}.
 - [ ] Every "independent" verdict in §2 passed both tests (disjoint code AND scenarios).
 - [ ] Final stream count respects every cap in §5.
 
-Next phase: **Distribute** (`/compass:distribute`) - runs `scripts/swarm.sh` with this map.
+Next stage: **break down the work** (`/compass:breakdown`) - runs `scripts/swarm.sh` with this map.

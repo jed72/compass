@@ -65,7 +65,7 @@ def test_verify_expects_baseline_and_postrun_as_judgement(framework_root):
 
 def test_build_prompts_baseline_before_change(framework_root):
     """TRC-R10-4: the Build command prompts to capture the baseline up front."""
-    text = (framework_root / "commands" / "build.md").read_text().lower()
+    text = (framework_root / "commands" / "implement.md").read_text().lower()
     assert "baseline" in text
     assert "regression-baseline" in text or "regression baseline" in text
 
