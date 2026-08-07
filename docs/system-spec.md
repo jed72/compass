@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the v2 PRD exists in the v2 register with all required sections
+### the compass-runtime skill carries the stage-to-command mapping in the v2 register
 
-- **Scenario id:** `TRC-A1`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
-- **Source task:** `v2-prd-and-freeze-adr`
+- **Source task:** `v2-session-instructions`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -22,11 +22,11 @@
 - **Source task:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the vocabulary freeze is recorded as an accepted, indexed decision record
+### code-quoted machine identifiers stay legal on scanned markdown
 
-- **Scenario id:** `TRC-A2`
+- **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
-- **Source task:** `v2-prd-and-freeze-adr`
+- **Source task:** `v2-session-instructions`
 - **Landed:** 2026-08-07
 
 ### an exempt path is never scanned
@@ -2602,4 +2602,32 @@
 - **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
 - **Source task:** `v2-terminology-dangling-refs`
+- **Landed:** 2026-08-07
+
+### the v2 PRD exists in the v2 register with all required sections _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-prd-and-freeze-adr`
+- **Landed:** 2026-08-07
+
+### the vocabulary freeze is recorded as an accepted, indexed decision record _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-2`
+- **Source task:** `v2-prd-and-freeze-adr`
+- **Landed:** 2026-08-07
+
+### CLAUDE.md is clean v2 register and operationally exact _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-session-instructions`
+- **Landed:** 2026-08-07
+
+### AGENTS.md is clean v2 register with the adapter contract intact _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-session-instructions`
 - **Landed:** 2026-08-07
