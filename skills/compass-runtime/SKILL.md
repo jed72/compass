@@ -48,7 +48,7 @@ optional - shipped governance defaults apply with zero setup.
 artifacts, run the triage command. Triage reads the four assessment
 dimensions - risk, familiarity, size, and goal - that is judgement, and the
 judgement is yours - and records them in the issue spine (`task.yml`). It
-then hands them to the **mechanism**: `compass route evaluate --write`
+then hands them to the **mechanism**: `compass approach evaluate --write`
 applies `governance/routing-policy.yml` deterministically and folds the
 computed delivery approach, its stages and gates, back into the spine. You
 also write the human-readable approach record (`delivery-approach.md`). You do not
@@ -61,9 +61,9 @@ active issue. The hooks and the CLI rely on it: `compass check`,
 that pointer, so keep it pointing at the issue you are actually working.
 
 When the assessment turns out to have been misread, re-assess through the
-same mechanism: `/compass:triage --reframe` re-runs the evaluator, detects
+same mechanism: `/compass:triage --reassess` re-runs the evaluator, detects
 that the approach changed, and records the change in the spine's `reframes:`
-log - pass `--reason "..."` so the entry says *why*. `compass calibration`
+log - pass `--reason "..."` so the entry says *why*. `compass retro`
 aggregates that log across issues and reports whether triage is
 systematically over- or under-sizing the process - the retrospective signal.
 Re-assessing is a normal event; an unrecorded one is a lost signal.

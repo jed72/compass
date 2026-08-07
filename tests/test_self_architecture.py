@@ -277,7 +277,7 @@ def test_at_least_one_adr_has_substantive_alternatives():
 
 def test_frame_load_architecture_returns_adrs():
     """TRC-C1: frame_load_architecture returns the ADR list correctly."""
-    result = run_cli("route", "evaluate",
+    result = run_cli("approach", "evaluate",
                      "--reading", "risk=contained",
                      "--reading", "familiarity=greenfield",
                      "--reading", "size=small",
@@ -409,7 +409,7 @@ def test_lint_count_does_not_regress():
     task_yml = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "task.yml"
     if not task_yml.is_file():
         pytest.skip("self-architecture task.yml not present - cannot regression-check")
-    result = run_cli("task", "lint", "--file", str(task_yml))
+    result = run_cli("issue", "lint", "--file", str(task_yml))
     assert result.returncode == 0, (
         f"self-architecture task.yml no longer lints clean:\n{result.stdout}"
     )

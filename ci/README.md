@@ -6,7 +6,7 @@ the work. The whole integration is:
 > **Run `compass ci`. Honour the exit code.**
 
 `compass ci` is the full mechanical gate suite - it runs `compass policy lint`,
-then `compass task lint` and `compass check` for every task under
+then `compass issue lint` and `compass check` for every task under
 `.compass/work/`, and exits non-zero if anything fails. That is the one command
 a CI job needs; everything else is just the platform's way of running it.
 

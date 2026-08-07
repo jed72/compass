@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre6
+version: 2.0.0-pre7
 
 terms:
 
@@ -238,10 +238,21 @@ terms:
   follow-up:
     means: >
       Work owed after an expedited ship (the hotfix's promoted scenario, the
-      optional postmortem). Tracked; must be paid before the issue fully
-      closes.
-    not: "v1 called this a 'backfill'."
+      optional postmortem). Tracked with a state pair: outstanding (not yet
+      discharged) and resolved. An issue with an outstanding follow-up does
+      not fully close; `compass follow-up resolve` discharges one.
+    not: "v1 called this a 'backfill', with states 'owed' and 'paid'."
     related: [hotfix, backlog]
+
+  receipt:
+    means: >
+      The per-issue proof summary rendered from the spine and the evidence
+      registry: the assessment, the delivery approach, the gates and what
+      cleared them - one screen, shareable as-is.
+    not: >
+      Evidence - evidence is the typed records that clear gates; the
+      receipt is the read-only summary that cites them.
+    related: [evidence, quality-gate]
 
   # --- Workflow ---------------------------------------------------------------
   workflow-state:
@@ -398,7 +409,7 @@ banned:
     context: "As the domain-tag mechanism (touches_any, touches_common)."
   - term: "backfill"
     replacement: follow-up
-    context: "All uses."
+    context: "All uses. The CLI verb renamed with the CLI-voice slice (compass follow-up resolve); no tolerated spelling remains."
   - term: "task"
     replacement: issue
     context: "In human-facing prose only; machine state files exempt during transition."
@@ -421,6 +432,9 @@ scan:
     - commands/
     - skills/
     - cli/compass          # user-facing string literals only
+    - cli/compass_pkg/     # widened at the CLI-voice slice: the user-facing
+                           # strings live in the package since the module
+                           # split; same string-literals-only rule
     - README.md
     - docs/five-minutes.md
     - docs/methodology.md
@@ -435,6 +449,10 @@ scan:
     - AGENTS.md
   exempt:
     - docs/proposals/      # history stays honest
+    - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
+                           # pointers and the migrate tool must name v1
+                           # spellings; they live here so the enforced CLI
+                           # never carries one in a string literal
     - docs/analysis/
     - architecture/decisions/   # ADRs may quote v1 terms
     # Same rationale one level down, narrowly: the shipped SAMPLE decision
@@ -453,7 +471,6 @@ scan:
   # A meta-test asserts this list only ever shrinks.
   pending_surfaces:
     - skills/
-    - cli/compass
     - README.md
     - docs/five-minutes.md
     - docs/methodology.md

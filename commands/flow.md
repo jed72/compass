@@ -42,7 +42,7 @@ dated digest file (see below).
      longer than the approach's expected cadence. Flag it and name the
      likely blocker.
    - **Approach outgrown** -> signs in the devlog that the issue no longer
-     fits its delivery approach. Recommend `/compass:triage --reframe`.
+     fits its delivery approach. Recommend `/compass:triage --reassess`.
    - **Healthy** -> progressing in line with its approach.
 
 3. **Build the board.** Group every issue by pipeline stage: triaged ·
@@ -59,7 +59,7 @@ dated digest file (see below).
    hotfix follow-up, every unbacked marketing claim, every de-scoped
    artifact still owed, across all issues.
 
-6. **Read the retrospective signal.** Run `compass calibration` - it reads
+6. **Read the retrospective signal.** Run `compass retro` - it reads
    the `reassessments:` log across every issue and reports whether triage
    is systematically over- or under-sizing the process (a run of "up"
    re-assessments means triage keeps reading work lighter than it is).

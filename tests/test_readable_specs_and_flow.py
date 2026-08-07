@@ -7,7 +7,7 @@ Why these are regex assertions over markdown rather than unit tests: the
 "production" change for most of this task is the text of shipped templates,
 skills, agents and commands. That is the same situation
 tests/test_plugin_doc_drift.py is in, and these follow its approach. The
-executable half of the task (the `compass plan lint` subcommand) is tested
+executable half of the task (the `compass design lint` subcommand) is tested
 separately in tests/test_no_placeholders_check.py, where real unit tests are
 possible.
 
@@ -261,7 +261,7 @@ def test_trc_c2b_skill_names_command_and_note():
     """The planner has to know what to run, and what a hit means."""
     flat = _flat(_read(GOVERNANCE_SKILL))
 
-    assert "compass plan lint" in flat, (
+    assert "compass design lint" in flat, (
         "The governance-check skill does not name the command the planner runs"
     )
     assert re.search(r"note,? (rather than|not) a (stop|block)", flat), (
@@ -277,7 +277,7 @@ def test_trc_c3_check_sits_in_strategies_walk():
 
     i_strategies = text.find("## Walk 2 - the strategies")
     i_routing = text.find("## Walk 3 - the routing policy")
-    i_check = text.lower().find("compass plan lint")
+    i_check = text.lower().find("compass design lint")
 
     assert i_strategies >= 0 and i_routing >= 0, "The governance walks were renamed"
     assert i_check >= 0, "The no-placeholders check is not in the skill at all"

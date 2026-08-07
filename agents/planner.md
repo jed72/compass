@@ -67,7 +67,7 @@ the feature code.
    it. **The `critical` blast radius cap pins worktrees at 1** - an Expedition
    can be heavy and solo, and that is intentional. Record the topology decision
    and its constraints in `distribution-map.md`.
-6. **Run `compass plan lint` before you commit the plan.** It reports phrases
+6. **Run `compass design lint` before you commit the plan.** It reports phrases
    that mean the plan is not finished - `TBD`, `TODO`, "implement later", "add
    appropriate error handling" - and work units that promise tests without
    naming any. It is advisory and always exits 0: assess each hit as judgement

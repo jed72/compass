@@ -92,7 +92,7 @@ def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
                      "size": "small", "intent": "delivery"},
     }
     task_dir = make_task("ge-seed", body)
-    r = run_cli("route", "evaluate", "--task", "ge-seed", "--write")
+    r = run_cli("approach", "evaluate", "--task", "ge-seed", "--write")
     assert r.returncode == 0, r
     text = (task_dir / "task.yml").read_text()
     assert "accepts:" in text, r

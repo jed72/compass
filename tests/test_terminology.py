@@ -138,12 +138,13 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\btouches:\s"),
     ],
     # The v1 word for owed follow-up work. The DoD tag and the spine key
-    # renamed with schema 2.0 ("(follow-up:" and "follow_ups:"), so their
-    # v1 spellings are banned like any prose use; only the CLI verb
-    # "compass backfill" stays tolerated until the CLI-voice slice renames
-    # the verbs and re-tightens this last form.
+    # renamed with schema 2.0 ("(follow-up:" and "follow_ups:"); the CLI
+    # verb renamed with the CLI-voice slice (`compass follow-up resolve`),
+    # which re-tightened this ban to its final form - no tolerated
+    # spelling remains. Ordinary "backfilled" (the plain verb, past tense)
+    # stays legal.
     "backfill": [
-        re.compile(r"(?<!compass )\bbackfills?\b", re.IGNORECASE),
+        re.compile(r"\bbackfills?\b", re.IGNORECASE),
     ],
     # The v1 work-item noun in human-facing prose. Machine-state forms
     # stay legal during the transition: task.yml, current-task, --task,
@@ -179,7 +180,6 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
 # what makes the shrink visible in review.
 PENDING_BASELINE: frozenset[str] = frozenset({
     "skills/",
-    "cli/compass",
     "README.md",
     "docs/five-minutes.md",
     "docs/methodology.md",
@@ -230,14 +230,35 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
     text = _read(path)
     if text is None:
         return []
-    if path == REPO_ROOT / "cli" / "compass":
+    if path == REPO_ROOT / "cli" / "compass" or path.suffix == ".py":
+        # Python surfaces contribute USER-FACING string literals only.
+        # Tightened when the surface widened to cli/compass_pkg/ at the
+        # CLI-voice slice, with two deliberate exclusions:
+        #   - docstrings: they teach the developer reading the source, not
+        #     the user at the terminal; the scan measures what the CLI
+        #     *says*, and a docstring is never printed.
+        #   - literals with no whitespace: a single token is a machine
+        #     identifier (a spine key, a filename, a flag), not prose.
+        # Before this, cli/compass was pending and the scan never ran
+        # against it, so no enforcement is loosened by the exclusions.
         try:
             tree = ast.parse(text)
         except SyntaxError:
             return list(enumerate(text.splitlines(), 1))
+        docstrings: set[int] = set()
+        for node in ast.walk(tree):
+            body = getattr(node, "body", None)
+            if (isinstance(node, (ast.Module, ast.FunctionDef,
+                                  ast.AsyncFunctionDef, ast.ClassDef))
+                    and body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                docstrings.add(id(body[0].value))
         units = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                if id(node) in docstrings or " " not in node.value:
+                    continue
                 for offset, line in enumerate(node.value.splitlines()):
                     units.append((node.lineno + offset, line))
         return units

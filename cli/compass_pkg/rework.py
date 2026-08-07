@@ -192,7 +192,7 @@ def _is_drop_migration(path_b, path_a):
 
 
 def _parse_created_date(task_data, slug):
-    """Parse the task creation date. Returns a datetime.date or None."""
+    """Parse the issue creation date. Returns a datetime.date or None."""
     raw = task_data.get("created")
     if not raw:
         return None
@@ -231,7 +231,7 @@ def _read_tasks_from_root(root):
 
 
 def cmd_rework_scan(args):
-    """Cross-task rework scanner. Exit code: 0 always (signal not gate).
+    """Cross-issue rework scanner. Exit code: 0 always (signal not gate).
 
     Only exits non-zero if the scan itself errors (e.g. --root not found).
     """
@@ -386,10 +386,10 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
     n = len(instances)
     print("## Rework scan")
     print("")
-    print(f"Scanned {len(tasks)} task(s) under `{root}` "
+    print(f"Scanned {len(tasks)} issue(s) under `{root}` "
           f"(window: {window_days} days).")
     if skipped:
-        print(f"Skipped {len(skipped)} task(s) due to parse errors "
+        print(f"Skipped {len(skipped)} issue(s) due to parse errors "
               f"(see stderr for details).")
     print("")
     if n == 0:
@@ -397,7 +397,7 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
               "within the window.")
         return
     print(f"**{n} rework instance(s) detected** - these are informational "
-          f"signals; no task state has been modified.")
+          f"signals; no issue state has been modified.")
     print("")
     for i, inst in enumerate(instances, 1):
         kind = inst["kind"]
@@ -426,30 +426,33 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
 # path in this stream, because Flow/calibration are read-only advisors.
 
 def cmd_backfill_pay(args):
-    """Flip the named backfill to status: paid in the given task's task.yml."""
+    """Flip the named follow-up to status: resolved in the issue's
+    task.yml. (Internal name unchanged - the public verb is
+    `compass follow-up resolve`.)"""
     task_dir = resolve_task_dir(args.task)
     task, task_path = load_task(task_dir)
     bf_id = args.backfill_id
-    backfills = task.get("follow_ups") or []
+    follow_ups = task.get("follow_ups") or []
     found = None
-    for bf in backfills:
+    for bf in follow_ups:
         if isinstance(bf, dict) and bf.get("id") == bf_id:
             found = bf
             break
     if not found:
         raise CompassError(
-            f"backfill '{bf_id}' not found in task '{args.task}'. "
-            f"Available backfills: {[b.get('id') for b in backfills if isinstance(b, dict)]}"
+            f"follow-up '{bf_id}' not found in issue '{args.task}'. "
+            f"Available follow-ups: "
+            f"{[b.get('id') for b in follow_ups if isinstance(b, dict)]}"
         )
-    if found.get("status") == "paid":
-        print(f"compass backfill pay: backfill '{bf_id}' is already paid.")
+    if found.get("status") == "resolved":
+        print(f"compass follow-up resolve: '{bf_id}' is already resolved.")
         return 0
-    found["status"] = "paid"
-    task["follow_ups"] = backfills
+    found["status"] = "resolved"
+    task["follow_ups"] = follow_ups
     save_task(task, task_path)
     target = found.get("target_task")
-    target_note = (f" (cross-task debt on '{target}' is now cleared)"
+    target_note = (f" (cross-issue debt on '{target}' is now cleared)"
                    if target else "")
-    print(f"compass backfill pay: backfill '{bf_id}' in task '{args.task}' "
-          f"marked paid{target_note}.")
+    print(f"compass follow-up resolve: '{bf_id}' in issue '{args.task}' "
+          f"marked resolved{target_note}.")
     return 0

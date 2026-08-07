@@ -44,7 +44,7 @@ def _project(tmp_path, stale=False):
 
 def _evaluate(proj):
     return subprocess.run(
-        [sys.executable, str(CLI), "route", "evaluate", *READINGS],
+        [sys.executable, str(CLI), "approach", "evaluate", *READINGS],
         cwd=str(proj), capture_output=True, text=True, timeout=60,
     )
 

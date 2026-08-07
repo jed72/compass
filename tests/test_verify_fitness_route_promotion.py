@@ -58,7 +58,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         in the gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=cross-cutting",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=standard",
@@ -78,7 +78,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         """route evaluate on risk=critical includes verify.fitness."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=critical",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=large",
@@ -93,7 +93,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         """When cross-cutting fires RG-FLOOR-006, it appears in fired_guardrails."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=cross-cutting",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=standard",
@@ -111,7 +111,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         """risk=contained does NOT promote verify.fitness."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=contained",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=small",
@@ -139,7 +139,7 @@ class TestVerifyFitnessPromotionTouches:
         """touches: [<domain>] causes verify.fitness to be added to gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=contained",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=small",
@@ -160,7 +160,7 @@ class TestVerifyFitnessPromotionTouches:
         """When touches fires RG-FLOOR-007, it appears in fired_guardrails."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=contained",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=small",
@@ -179,7 +179,7 @@ class TestVerifyFitnessPromotionTouches:
         """A non-irreversible domain does not promote verify.fitness."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=contained",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=small",

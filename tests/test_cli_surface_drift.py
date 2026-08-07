@@ -48,9 +48,9 @@ def _cli_block_in(file_path):
     """
     text = (ROOT / file_path).read_text()
     # Find the fenced block that contains the anchor line.
-    pattern = r"```(?:[a-z]*)?\n((?:[^\n`]*\n)*?[^\n]*compass route evaluate[^\n]*\n(?:[^\n`]*\n)*?)```"
+    pattern = r"```(?:[a-z]*)?\n((?:[^\n`]*\n)*?[^\n]*compass approach evaluate[^\n]*\n(?:[^\n`]*\n)*?)```"
     m = re.search(pattern, text)
-    assert m, f"CLI block (containing 'compass route evaluate') not found in {file_path}"
+    assert m, f"CLI block (containing 'compass approach evaluate') not found in {file_path}"
     return m.group(1)
 
 
@@ -98,22 +98,23 @@ def _sub_verbs(parent):
 
 
 def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
-    """README.md and docs/five-minutes.md CLI blocks name every `compass task`
-    sub-verb (lint, receipt, ...). The earlier tests cover top-level verbs; this
-    one covers the sub-verbs under `task` so a new one cannot ship undocumented
-    behind a top-level no-op (e.g. `compass task receipt` adding to existing
-    `compass task lint`).
+    """README.md and docs/five-minutes.md CLI blocks name every `compass
+    issue` sub-verb (lint, receipt, ...) - the group was `task` before the
+    CLI-voice slice renamed it. The earlier tests cover top-level verbs;
+    this one covers the sub-verbs under `issue` so a new one cannot ship
+    undocumented behind a top-level no-op (e.g. `compass issue receipt`
+    adding to existing `compass issue lint`).
     """
-    sub_verbs = _sub_verbs("task")
+    sub_verbs = _sub_verbs("issue")
     for doc_file in ("README.md", "docs/five-minutes.md"):
         block = _cli_block_in(doc_file)
         missing = sorted(
             v for v in sub_verbs
-            if not re.search(rf"(?<![\w-])compass task {re.escape(v)}(?![\w-])", block)
+            if not re.search(rf"(?<![\w-])compass issue {re.escape(v)}(?![\w-])", block)
         )
         assert not missing, (
-            f"{doc_file} CLI block does not name {['compass task ' + v for v in missing]}. "
-            f"`compass task --help` declares: {sorted(sub_verbs)}.\n\n"
+            f"{doc_file} CLI block does not name {['compass issue ' + v for v in missing]}. "
+            f"`compass issue --help` declares: {sorted(sub_verbs)}.\n\n"
             f"Block content:\n{block}"
         )
 
@@ -125,7 +126,9 @@ def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
 def _new_cross_task_commands():
     """The six commands that ship between fb092c0 and v1.2.0 - must appear in
     the runtime-neutral adapter contracts."""
-    return ["compass analyze", "compass rework-scan", "compass backfill",
+    # "compass backfill" became "compass follow-up" at the CLI-voice slice;
+    # the contract must name the live verb.
+    return ["compass analyze", "compass rework-scan", "compass follow-up",
             "compass flow", "compass next", "compass adr"]
 
 

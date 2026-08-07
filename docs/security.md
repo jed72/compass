@@ -50,7 +50,7 @@ For organisational use:
 
 The CLI's only **hard** dependency is **PyYAML** (`pip install pyyaml`).
 **`jsonschema` is optional** - it turns on full JSON Schema validation
-in `compass policy lint` and `compass task lint`; the built-in linter
+in `compass policy lint` and `compass issue lint`; the built-in linter
 runs without it.
 
 Both are widely-used PyPI packages; audit them the way you audit any

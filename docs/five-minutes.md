@@ -18,7 +18,7 @@ Claude Code, is `/plugin marketplace add jed72/compass` then
    triages it on four dimensions - blast radius, terrain, magnitude, intent
    & role. That part is judgement; you produce the readings.
 2. **It routes by risk and uncertainty.** Given the readings,
-   `compass route evaluate` applies `governance/routing-policy.yml` and
+   `compass approach evaluate` applies `governance/routing-policy.yml` and
    computes the route deterministically - same readings, same route, every
    time. You don't pick a process from a menu.
 3. **It creates only the artifacts that route needs.** Express collapses
@@ -89,17 +89,17 @@ assessment:
 ```
 
 Then the mechanism takes over. `/compass:frame` shells out to
-`compass route evaluate --write`, which composes the route, applies the
+`compass approach evaluate --write`, which composes the route, applies the
 routing guardrails, and folds the result back into `task.yml`:
 
 ```
   policy          : governance/routing-policy.yml (v2.0.0)
-  readings        : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
-  candidate route : express  <- RS-SHAPE-003 (Small on every axis, on mapped ground.)
-  FINAL ROUTE     : express
-  routing guardrails fired: none
+  assessment      : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
+  candidate shape : quick fix  <- RS-SHAPE-003 (Small on every axis, on mapped ground.)
+  FINAL APPROACH  : quick fix
+  policy rules fired: none
   topology        : solo
-  per-phase weight:
+  per-stage weight:
     frame      : full
     specify    : light
     clarify    : collapsed
@@ -255,17 +255,17 @@ you have put that directory on your `PATH`. Otherwise call it by path
 themselves either way.
 
 ```
-compass route evaluate   apply routing-policy.yml to a task's readings -> the route
+compass approach evaluate   apply routing-policy.yml to a task's readings -> the route
 compass check            run the guardrails.yml checks against task.yml + evidence/
 compass bdd extract     extract a task's acceptance-criteria.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
-compass task lint        structurally validate a task.yml
-compass plan lint        scan a design.md for placeholder phrases - advisory
-compass task receipt     render a one-screen receipt for a landed task -
+compass issue lint        structurally validate a task.yml
+compass design lint        scan a design.md for placeholder phrases - advisory
+compass issue receipt     render a one-screen receipt for a landed task -
                          readings → route → typed evidence → gate verdicts
-compass task set-status  record a task as queued | active | parked | landed |
+compass issue set-status  record a task as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
 compass acceptance start declare the acceptance for a change with no natural
                          red - a validator (--kind validation) or a green suite
@@ -280,14 +280,15 @@ compass adr new          create a new numbered ADR in architecture/decisions/
 compass rework-scan      scan tasks for rework patterns (uses signals.yml)
 compass flow [--digest]  cross-task flow view; --digest writes a dated digest
 compass next             surface the next action on the current task
-compass backfill pay     mark a backfill as paid in a task's task.yml
-compass land-commit -m   commit staged artifacts robustly; verifies HEAD advanced
-compass calibration      aggregate the re-frame log - is routing well-sized?
+compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
+compass ship-commit -m   commit staged artifacts robustly; verifies HEAD advanced
+compass retro      aggregate the re-frame log - is routing well-sized?
+compass terminology      render the v2 vocabulary - one term or the whole glossary
 compass ci               the full mechanical gate suite, for CI
 ```
 
 The slash commands call the CLI under the hood - `/compass:frame` runs
-`compass route evaluate`, `/compass:verify` runs `compass check`, the
+`compass approach evaluate`, `/compass:verify` runs `compass check`, the
 build procedure runs `compass tdd-red`/`tdd-green` - so you rarely invoke
 it directly. But it is the part that makes the framework's checks real
 rather than aspirational; see `docs/methodology.md` §6.

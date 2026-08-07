@@ -1,6 +1,6 @@
-"""Acceptance tests for `compass plan lint` (task readable-specs-and-flow).
+"""Acceptance tests for `compass design lint` (task readable-specs-and-flow).
 
-`compass plan lint` scans a plan.md for placeholder phrases that mean the plan
+`compass design lint` scans a plan.md for placeholder phrases that mean the plan
 is not actually finished - "TBD", "TODO", "implement later", "add appropriate
 error handling" - and for work units that promise tests without containing any.
 
@@ -24,11 +24,11 @@ COMPASS_CLI = ROOT / "cli" / "compass"
 
 
 def _plan_lint(tmp_path, body, name="design.md"):
-    """Write `body` to a temp plan and run `compass plan lint --file` on it."""
+    """Write `body` to a temp plan and run `compass design lint --file` on it."""
     plan = tmp_path / name
     plan.write_text(body)
     result = subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "plan", "lint", "--file", str(plan)],
+        [sys.executable, str(COMPASS_CLI), "design", "lint", "--file", str(plan)],
         capture_output=True, text=True, timeout=30,
     )
     return result
@@ -133,7 +133,7 @@ def test_trc_c2_hit_reported_with_exit_zero(tmp_path):
 
     assert "TODO" in (result.stdout + result.stderr), "The hit was not reported"
     assert result.returncode == 0, (
-        "compass plan lint must exit 0 even with hits - it is advisory, never a "
+        "compass design lint must exit 0 even with hits - it is advisory, never a "
         f"gate (DD-2). Got exit {result.returncode}."
     )
 
@@ -142,7 +142,7 @@ def test_trc_c2_missing_file_is_an_error_not_a_silent_pass(tmp_path):
     """Advisory means "does not block on findings", not "never fails". Being
     pointed at a file that is not there is a usage error and must be visible."""
     result = subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "plan", "lint",
+        [sys.executable, str(COMPASS_CLI), "design", "lint",
          "--file", str(tmp_path / "nope.md")],
         capture_output=True, text=True, timeout=30,
     )
@@ -212,10 +212,10 @@ def test_plan_lint_is_clean_on_this_tasks_own_plan():
     if not plan.exists():          # the task directory is not shipped to adopters
         return
     result = subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "plan", "lint", "--file", str(plan)],
+        [sys.executable, str(COMPASS_CLI), "design", "lint", "--file", str(plan)],
         capture_output=True, text=True, timeout=30,
     )
     assert result.returncode == 0
     assert "line " not in result.stdout, (
-        f"compass plan lint reports placeholders in its own plan:\n{result.stdout}"
+        f"compass design lint reports placeholders in its own plan:\n{result.stdout}"
     )

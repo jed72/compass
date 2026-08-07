@@ -675,10 +675,10 @@ class TestTrcB6:
     unchanged by introducing the living spec capability."""
 
     def test_phase_set_unchanged(self, tmp_path):
-        """compass route evaluate still returns the same phases as before the
+        """compass approach evaluate still returns the same phases as before the
         living spec was introduced."""
         result = run_cli(
-            "route", "evaluate",
+            "approach", "evaluate",
             "--reading", "risk=contained",
             "--reading", "familiarity=greenfield",
             "--reading", "size=small",
@@ -798,7 +798,7 @@ class TestTrcB11:
         for name in ("routing-policy.yml", "guardrails.yml"):
             shutil.copyfile(gov_src / name, gov_dst / name)
 
-        result = run_cli("task", "lint", "--task", "test-status", cwd=str(tmp_path))
+        result = run_cli("issue", "lint", "--task", "test-status", cwd=str(tmp_path))
         assert result.returncode == 0, (
             f"task.yml with status: landed should lint clean: {result.stdout}\n{result.stderr}"
         )

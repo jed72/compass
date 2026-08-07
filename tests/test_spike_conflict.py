@@ -27,7 +27,7 @@ def _readings_to_args(d):
 def test_spike_conflict_on_g5_domains(run_cli, domain):
     """Spike + a touch on auth/payments/personal-data/migrations => routing
     conflict (exit non-zero, message says so)."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "contained",
                                     "familiarity": "brownfield-mapped",
                                     "size": "small",
@@ -44,7 +44,7 @@ def test_spike_conflict_on_g5_domains(run_cli, domain):
 def test_spike_conflict_on_critical_blast_radius(run_cli):
     """Spike + critical blast radius => the critical-floor would push the
     route to expedition. That is exactly the unsafe-promotion case."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "critical",
                                     "familiarity": "brownfield-mapped",
                                     "size": "small",
@@ -56,7 +56,7 @@ def test_spike_conflict_on_critical_blast_radius(run_cli):
 def test_safe_exploration_still_routes_to_spike(run_cli):
     """Exploration on safe surface still routes to Spike - the safety
     mechanism does not over-fire."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "contained",
                                     "familiarity": "brownfield-mapped",
                                     "size": "small",
@@ -70,7 +70,7 @@ def test_safe_exploration_still_routes_to_spike(run_cli):
 
 def test_spike_conflict_message_actionable(run_cli):
     """The conflict message must tell the user what to do next - re-frame."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "contained",
                                     "familiarity": "brownfield-mapped",
                                     "size": "small",

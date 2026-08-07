@@ -156,7 +156,7 @@ def run_cli(cli_path: Path, project: Path):
     """Return a callable that invokes the compass CLI inside `project`.
 
     Usage:
-        result = run_cli("route", "evaluate", "--task", "slug", "--json")
+        result = run_cli("approach", "evaluate", "--task", "slug", "--json")
         assert result.returncode == 0
         data = json.loads(result.stdout)
     """

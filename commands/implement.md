@@ -30,7 +30,7 @@ into real delivery work.
   to builder.
 - **Capture the regression baseline first (a shipped strategy).** If
   `delivery-approach.md` assesses risk as cross-cutting or critical - or
-  `compass route evaluate` surfaced `regression-baseline` under the
+  `compass approach evaluate` surfaced `regression-baseline` under the
   advisory strategies - run the designated existing suite
   (`project.regression_baseline_suite`, else `project.test_command`)
   **green now, before editing shared code**, and record it as `test-run`
@@ -94,7 +94,7 @@ signal - see the reassessment trigger below.
 
 If implementation reveals the assessment was misread - a "small" change
 unspooling into a multi-module refactor - **stop and re-assess**
-(`/compass:triage --reframe`). Pushing on with a delivery approach you no
+(`/compass:triage --reassess`). Pushing on with a delivery approach you no
 longer believe is the failure mode.
 
 ## Gate

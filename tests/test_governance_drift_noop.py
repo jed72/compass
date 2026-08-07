@@ -156,7 +156,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
                 continue
             args += ["--reading", f"{key}={value}"]
         result = subprocess.run(
-            [sys.executable, str(CLI), "route", "evaluate", *args, "--json"],
+            [sys.executable, str(CLI), "approach", "evaluate", *args, "--json"],
             cwd=str(ROOT), capture_output=True, text=True, timeout=60,
         )
         expect = fx.get("expected") or {}
@@ -225,11 +225,14 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
 # ---------------------------------------------------------------------------
 
 EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
+# The CLI-voice slice renamed the banned-word verbs (route -> approach,
+# plan -> design, task -> issue, backfill -> follow-up) and added
+# terminology; the set below is the surface after that deliberate move.
 EXPECTED_SUBCOMMANDS = {
-    "route", "bdd", "check", "analyze", "calibration", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
-    "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
-    "evidence",
+    "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
+    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
+    "evidence", "terminology",
     # `acceptance` (R13) is the one honest path for a change with no natural
     # behavioural red - config, docs, a behaviour-preserving refactor. It is a
     # GROUP (`start`, `record`), so later kinds add a subcommand rather than a
@@ -277,7 +280,7 @@ def test_trc_f7_evidence_types_agree_across_surfaces():
 
     `compass analyze` writes a `coherence-check` entry, and task.schema.json
     did not accept it - so a task whose route includes verify.analyze produced
-    evidence its own `compass task lint` rejected. No task here had hit it,
+    evidence its own `compass issue lint` rejected. No task here had hit it,
     because verify.analyze only enters the gate set at critical blast radius or
     on irreversible surface. The same disease this whole task is about: two
     governance surfaces disagreeing, with nothing checking.

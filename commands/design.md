@@ -74,7 +74,7 @@ the design.
 >   decision yet.
 > - **Work units that are not as independent as claimed** - optimistic
 >   decomposition surfaces as a collision at integration, not here.
-> - **Anything still unfinished** - `compass plan lint` reports placeholder
+> - **Anything still unfinished** - `compass design lint` reports placeholder
 >   phrases, but a design can be vague without using one.
 >
 > On approval this goes to breakdown, or straight to implementation on solo

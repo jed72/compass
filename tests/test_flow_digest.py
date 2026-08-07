@@ -103,7 +103,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     """TRC-F4: Flow still advises, never gates.
 
     Given multiple tasks exist in .compass/work/
-    When compass calibration runs (the primary advisory/reporting command)
+    When compass retro runs (the primary advisory/reporting command)
     Then no task.yml under .compass/work/ is modified (byte-identical after)
     And no task is automatically reframed, downgraded, or blocked.
 
@@ -150,10 +150,10 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     assert before, "No task.yml found before calibration - test setup failed"
 
     # --- When: run the advisory command -------------------------------------
-    r = run_cli("calibration")
+    r = run_cli("retro")
     # calibration always exits 0 (it is advisory, not a gate)
     assert r.returncode == 0, (
-        f"compass calibration should exit 0 (advisory). Got {r.returncode}.\n"
+        f"compass retro should exit 0 (advisory). Got {r.returncode}.\n"
         f"stdout: {r.stdout}\nstderr: {r.stderr}"
     )
 
@@ -161,7 +161,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     after = _snapshot_task_ymls(compass_work)
 
     assert before == after, (
-        "Advisory command 'compass calibration' mutated task.yml files - "
+        "Advisory command 'compass retro' mutated task.yml files - "
         "this violates Inv-4 (Flow advises, never gates). "
         "Changed files:\n" + "\n".join(
             f"  {k}: before={before[k][:8]}... after={after[k][:8]}..."
@@ -194,13 +194,13 @@ def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
 
     before_files = _all_files_in(compass_work)
 
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
 
     after_files = _all_files_in(compass_work)
     new_files = after_files - before_files
     assert not new_files, (
-        "compass calibration created new files under .compass/work/ - "
+        "compass retro created new files under .compass/work/ - "
         "advisory output must go to stdout or .compass/flow/, not work/.\n"
         f"New files: {sorted(new_files)}"
     )
@@ -283,7 +283,7 @@ def test_includes_reframe_debt(tmp_path):
 
     env = dict(os.environ)
     result = subprocess.run(
-        [sys.executable, str(CLI_PATH), "calibration"],
+        [sys.executable, str(CLI_PATH), "retro"],
         cwd=str(tmp_path),
         capture_output=True,
         text=True,

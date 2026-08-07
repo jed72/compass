@@ -124,7 +124,7 @@ def _load_scope_bloat_phrases():
 def _find_reframe_debt(tasks, work):
     """Return a list of absorbed mis-frame records.
 
-    For each task, scan its devlog.md for scope_bloat_phrases.  A task
+    For each issue, scan its devlog.md for scope_bloat_phrases.  An issue
     qualifies as 'reframe debt' when:
       - at least one scope-bloat phrase appears as the start of a devlog line
         (column-0 anchor - same rule as the stop-hook, for consistency), AND
@@ -222,12 +222,12 @@ def _load_friction_threshold():
 
 
 def _aggregate_friction(tasks, threshold):
-    """Aggregate the `friction:` lists across tasks into recurring clusters.
+    """Aggregate the `friction:` lists across issues into recurring clusters.
 
     Grouping is by case/whitespace-normalised `proposed_change` (clarifications
     Q2 - exact-normalised, never semantic: the aggregator is mechanism, so it
     must be reproducible, ADR-001). A cluster is `recurring` when it is proposed
-    by at least `threshold` distinct tasks. Pure function; reads nothing, writes
+    by at least `threshold` distinct issues. Pure function; reads nothing, writes
     nothing.
     """
     import re as _re
@@ -288,8 +288,8 @@ def _cmd_calibration_friction(args, tasks):
         print(json.dumps(agg, indent=2))
         return 0
 
-    print(f"compass calibration --friction - {agg['tasks_with_friction']} "
-          f"task(s) with recorded friction\n")
+    print(f"compass retro --friction - {agg['tasks_with_friction']} "
+          f"issue(s) with recorded friction\n")
     if agg["tasks_with_friction"] == 0:
         print("No friction recorded - nothing to aggregate. Either Compass is "
               "staying out of the way, or\nthere is not enough history yet.")
@@ -299,16 +299,16 @@ def _cmd_calibration_friction(args, tasks):
     for cat, n in agg["by_category"].items():
         print(f"  {cat:<16}: {n}")
     print()
-    print(f"Recurring friction (>= {threshold} tasks) - candidate framework "
+    print(f"Recurring friction (>= {threshold} issues) - candidate framework "
           f"changes:")
     if agg["recurring"]:
         for c in agg["recurring"]:
             cats = ", ".join(c["categories"])
             print(f"  [{cats}] {c['proposed_change']}")
-            print(f"      {c['count']} tasks: {', '.join(c['tasks'])}")
+            print(f"      {c['count']} issues: {', '.join(c['tasks'])}")
     else:
         print("  (none yet - no proposed change has recurred across enough "
-              "tasks)")
+              "issues)")
     if agg["below_threshold"]:
         print()
         print(f"Below threshold (not yet a trend): "
@@ -321,7 +321,7 @@ def _cmd_calibration_friction(args, tasks):
 
 
 def derive_friction(slug, task, work):
-    """Assemble the `source: derived` friction entries for one task from signals
+    """Assemble the `source: derived` friction entries for one issue from signals
     the CLI already computes - recorded reframes and absorbed reframe-debt.
 
     A reframe is a Frame that mis-read the terrain; reframe-debt is a mis-frame
@@ -360,10 +360,10 @@ def derive_friction(slug, task, work):
 
 def cmd_friction_capture(args):
     """Private entry point for `compass _friction-capture --internal`, called by
-    the Land procedure. Assembles the task's `friction:` list from derived
-    signals plus an optional human note and writes it into the task spine.
+    the Land procedure. Assembles the issue's `friction:` list from derived
+    signals plus an optional human note and writes it into the issue spine.
 
-    It writes ONLY the friction section - never a backfill or a gate. Friction
+    It writes ONLY the friction section - never a follow-up or a gate. Friction
     is a strategy-class signal and must never become something that blocks Land
     (ADR-002). The derivation is mechanism; the `--note` is the only
     judgement input, supplied human-side (ADR-001).
@@ -436,7 +436,7 @@ IMPACT_GROUP_FLOOR = 3     # tasks in a route group before that group is shown
 
 
 def _impact_days(created, landed):
-    """Whole days between a task's `created` date and its `land_timestamp`."""
+    """Whole days between an issue's `created` date and its `land_timestamp`."""
     if not created or not landed:
         return None
     try:
@@ -456,7 +456,7 @@ def _median(xs):
 
 
 def compute_impact(tasks):
-    """tasks: [(slug, data)]. Returns a dict; pure, no I/O, no clock."""
+    """issues: [(slug, data)]. Returns a dict; pure, no I/O, no clock."""
     landed = [(s, d) for s, d in tasks if (d or {}).get("status") == "landed"]
     hotfixes = [(s, d) for s, d in landed if d.get("delivery_approach") == "hotfix"]
     delivery = [(s, d) for s, d in landed if d.get("delivery_approach") != "hotfix"]
@@ -522,18 +522,18 @@ def compute_impact(tasks):
         "restore_median": _median(restore),
         "by_route": by_route,
         "withheld": (None if len(landed) >= IMPACT_SAMPLE_FLOOR else
-                     "%d landed task(s); %d required"
+                     "%d landed issue(s); %d required"
                      % (len(landed), IMPACT_SAMPLE_FLOOR)),
     }
 
 
 def render_impact(r):
-    out = ["compass calibration --impact - process signal (advisory)", ""]
+    out = ["compass retro --impact - process signal (advisory)", ""]
     if not r["n_landed"]:
-        out.append("  Nothing to measure yet - no landed tasks on record.")
+        out.append("  Nothing to measure yet - no landed issues on record.")
         return "\n".join(out)
 
-    out.append("  lead time     median %s day(s) over %d task(s)%s"
+    out.append("  lead time     median %s day(s) over %d issue(s)%s"
                % (r["lead_median"], r["n_delivery"],
                   "" if not r["lead_excluded"]
                   else ", %d excluded (missing a timestamp)" % r["lead_excluded"]))
@@ -551,7 +551,7 @@ def render_impact(r):
             why = ("%d hotfix(es) recorded, none declaring a `repairs:` target"
                    % r["hotfixes"])
         else:
-            why = "no delivery tasks to measure against"
+            why = "no delivery issues to measure against"
         out.append("  change-fail   %s, so change-fail cannot be measured" % why)
         if r["hotfixes"]:
             out.append("                restore time  median %s day(s) across "
@@ -559,13 +559,13 @@ def render_impact(r):
     else:
         cov = ("%d of %d hotfix(es) declared a `repairs:` target"
                % (r["hotfixes_declared"], r["hotfixes"]))
-        out.append("  change-fail   %.1f%% of delivery tasks were later repaired "
+        out.append("  change-fail   %.1f%% of delivery issues were later repaired "
                    "(%s)" % (r["change_fail_rate"], cov))
         if r["repaired"]:
             out.append("                repaired: %s" % ", ".join(r["repaired"]))
         if r["unknown_targets"]:
             out.append("                %d `repairs:` target(s) name no landed "
-                       "delivery task and were not counted: %s"
+                       "delivery issue and were not counted: %s"
                        % (len(r["unknown_targets"]),
                           ", ".join(r["unknown_targets"])))
         out.append("  restore time  median %s day(s) across %d hotfix(es)"
@@ -626,7 +626,7 @@ def cmd_calibration(args):
         return _cmd_calibration_friction(args, tasks)
 
     if not tasks:
-        print("compass calibration: no tasks under .compass/work/ yet - "
+        print("compass retro: no issues under .compass/work/ yet - "
               "nothing to calibrate against.")
         return 0
 
@@ -657,7 +657,7 @@ def cmd_calibration(args):
             else:
                 sideways += 1
 
-    print(f"compass calibration - {len(tasks)} task(s) under .compass/work/\n")
+    print(f"compass retro - {len(tasks)} issue(s) under .compass/work/\n")
     print("Route distribution:")
     for r in sorted(dist, key=lambda x: weights.get(x, 99)):
         print(f"  {r:<12}: {dist[r]}")
@@ -667,7 +667,7 @@ def cmd_calibration(args):
     print()
     pct = round(100 * reframed_tasks / len(tasks))
     print("Re-framing:")
-    print(f"  tasks that re-framed : {reframed_tasks} of {len(tasks)} ({pct}%)")
+    print(f"  issues that re-framed : {reframed_tasks} of {len(tasks)} ({pct}%)")
     print(f"  total re-frames      : {total}")
     if total:
         print("  direction:")
@@ -682,12 +682,12 @@ def cmd_calibration(args):
     print("Signal:")
     if total == 0:
         print("  No re-frames recorded - either routing is well-calibrated, or")
-        print("  there is not enough history yet. Revisit after more tasks.")
+        print("  there is not enough history yet. Revisit after more issues.")
     elif ups >= 2 and ups > downs * 2:
         print(f"  {ups} up-reframes vs {downs} down - a lean toward UNDER-sizing.")
-        print("  The Needle is reading magnitude or blast radius low. Tune")
-        print("  routing-policy.yml `default_shapes`, or sharpen the Frame")
-        print("  rubric in routes/router.md.")
+        print("  Triage is reading size or risk low. Tune routing-policy.yml")
+        print("  `default_shapes`, or sharpen the sizing rubric in the")
+        print("  delivery-approach reference docs.")
     elif downs >= 2 and downs > ups * 2:
         print(f"  {downs} down-reframes vs {ups} up - a lean toward OVER-sizing.")
         print("  The Needle is reading risk high; the routes may be heavier")
@@ -706,13 +706,13 @@ def cmd_calibration(args):
     if debts:
         print()
         print("Reframe debt - absorbed mis-frames, signal lost:")
-        print("  Each entry below is a task where a scope-bloat signal was")
+        print("  Each entry below is an issue where a scope-bloat signal was")
         print("  detected in devlog.md but no reframe was filed afterwards.")
         print("  These are missed calibration signals. File a reframe retroactively")
-        print("  with: /compass:triage --reframe --reason \"<why scope grew>\"")
+        print("  with: /compass:triage --reassess --reason \"<why scope grew>\"")
         print()
         for d in debts:
-            print(f"  task    : {d['task']}")
+            print(f"  issue    : {d['task']}")
             print(f"  signal  : {d['devlog_line']!r}")
             print()
     return 0

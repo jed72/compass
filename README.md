@@ -200,7 +200,7 @@ the same route, every time.
 Compass puts that mechanism in a CLI so it is *actually* deterministic rather
 than deterministic in principle. Gate evidence in `task.yml` is **typed**, a
 `{type, path}` record rather than a bare path, so a mechanical gate cannot be
-cleared with a written note. And `compass calibration` is the framework's own
+cleared with a written note. And `compass retro` is the framework's own
 feedback loop: it reads the re-frame log across every task and reports whether
 the Needle is systematically over- or under-sizing routes. See
 [`docs/methodology.md`](docs/methodology.md) §6.
@@ -212,23 +212,23 @@ the Needle is systematically over- or under-sizing routes. See
 ## The compass CLI
 
 The slash commands call the CLI under the hood, so you rarely invoke it
-directly. `/compass:frame` runs `compass route evaluate`; `/compass:verify`
+directly. `/compass:frame` runs `compass approach evaluate`; `/compass:verify`
 runs `compass check`. It is the part that makes the framework's checks real
 rather than aspirational.
 
 ```
-compass route evaluate   apply routing-policy.yml to a task's readings → the route
+compass approach evaluate   apply routing-policy.yml to a task's readings → the route
 compass check            run the guardrails.yml checks against task.yml + evidence/
 compass bdd extract     extract a task's acceptance-criteria.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
-compass task lint        structurally validate a task.yml
-compass plan lint        scan a design.md for placeholder phrases (TBD, TODO,
+compass issue lint        structurally validate a task.yml
+compass design lint        scan a design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
-compass task receipt     render a one-screen receipt for a landed task:
+compass issue receipt     render a one-screen receipt for a landed task:
                          readings → route → typed evidence → gate verdicts
-compass task set-status  record a task as queued | active | parked | landed |
+compass issue set-status  record a task as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
 compass acceptance start declare the acceptance for a change with no natural
                          red - a validator (--kind validation) or a green suite
@@ -245,10 +245,11 @@ compass rework-scan      scan tasks for rework patterns (window from signals.yml
 compass flow [--digest]  cross-task flow view; --digest writes a dated digest
                          with the rework-scan section and calibration signal
 compass next             surface the next action on the current task
-compass backfill pay     mark a backfill as paid in a task's task.yml
-compass land-commit -m   commit staged artifacts robustly: survives auto-fixing
+compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
+compass ship-commit -m   commit staged artifacts robustly: survives auto-fixing
                          pre-commit hooks and verifies HEAD advanced
-compass calibration      aggregate the re-frame log - is routing well-sized?
+compass retro      aggregate the re-frame log - is routing well-sized?
+compass terminology      render the v2 vocabulary - one term or the whole glossary
 compass ci               the full mechanical gate suite, for CI - honour the exit code
 ```
 

@@ -1,0 +1,52 @@
+# =============================================================================
+# The v1-to-v2 migration map - DATA, deliberately exempt from the
+# vocabulary scan (scan.exempt in governance/terminology.yml).
+#
+# Why this file exists: the retired-verb pointers and (in its own slice)
+# the `compass migrate` tool must both name v1 spellings - inside a CLI
+# whose string literals are scanned for exactly those spellings. The
+# mapping lives here as data so the enforced code never carries a banned
+# name in a literal. Established at the CLI-voice slice, before the first
+# pointer landed, so the exemption never has to be retrofitted.
+# =============================================================================
+
+# Retired verb groups -> their replacement group. A bare `compass <verb>`
+# hitting one of these exits 2 with a one-line stderr pointer.
+verbs:
+  route: approach
+  backfill: follow-up
+  calibration: retro
+  land-commit: ship-commit
+  task: issue
+  plan: design
+
+# Retired verb+subverb pairs -> the exact replacement invocation, so the
+# pointer can name the full new spelling.
+subverbs:
+  route evaluate: approach evaluate
+  backfill pay: follow-up resolve
+  task lint: issue lint
+  task receipt: issue receipt
+  task set-status: issue set-status
+  plan lint: design lint
+
+# Flag renames (old spelling tolerated for one major version).
+flags:
+  --task: --issue
+  --reading: --assessment
+
+# Spine value renames. Read-side: the normaliser maps them on load.
+# Write-side: the migrate tool (its own slice) rewrites them on disk.
+values:
+  follow_up_status:
+    owed: outstanding
+    paid: resolved
+
+# Machine shape values -> the v2 change-type names the display layer
+# prints. The spine keeps the machine value; the terminal never shows it.
+shape_display:
+  express: quick fix
+  standard: feature
+  expedition: initiative
+  hotfix: hotfix
+  spike: spike

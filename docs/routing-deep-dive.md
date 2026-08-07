@@ -465,10 +465,10 @@ honest response is not to push on with a route you no longer believe.
 normal event, not a failure. *A route quietly outgrown is the failure.*
 
 A re-frame is also *recorded as data*. `/compass:frame --reframe` re-runs
-`compass route evaluate --write`, which detects that the route changed and
+`compass approach evaluate --write`, which detects that the route changed and
 appends an entry to `task.yml`'s `reframes` log - `from_route`, `to_route`, the
 date, and the `--reason`. One entry is an anecdote; the log across every task
-is the framework's feedback signal. `compass calibration` reads it and reports
+is the framework's feedback signal. `compass retro` reads it and reports
 the pattern: are re-frames mostly *up* (the Needle is under-sizing) or *down*
 (over-sizing)? The triggers below are the individual events; calibration is how
 the framework notices when they add up to a systematic mis-read of the terrain -

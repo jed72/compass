@@ -363,7 +363,7 @@
     },
     "follow_ups": {
       "type": "array",
-      "description": "Owed ceremony (e.g. a Hotfix's). `compass check` fails while any is unpaid.",
+      "description": "Outstanding ceremony (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated spine still lints - readers normalise them.",
       "items": {
         "type": "object",
         "required": [
@@ -380,17 +380,19 @@
           },
           "status": {
             "enum": [
+              "outstanding",
+              "resolved",
               "owed",
               "paid"
             ]
           },
           "target_task": {
             "type": "string",
-            "description": "Cross-task backfill: the task whose Land is blocked until this is paid."
+            "description": "Cross-issue follow-up: the issue whose ship is blocked until this is resolved."
           },
           "paid_at": {
             "type": "string",
-            "description": "Optional audit field: when the backfill was paid."
+            "description": "Optional audit field: when the follow-up was resolved."
           },
           "paid_note": {
             "type": "string",

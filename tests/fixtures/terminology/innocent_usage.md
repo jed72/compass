@@ -13,7 +13,7 @@ Please specify the format, clarify your intent, and distribute the load evenly.
 Planes land safely when checklists hold, and boats land their catch.
 The change touches the parser but nothing else.
 One machine form of the follow-up ledger stays legal until the CLI verbs
-rename: settling an owed entry with compass backfill pay BF-001.
+rename: the data team backfilled last month's metrics overnight.
 Machine identifiers keep their real names while the rename is in flight, so
 code-quoted references stay legal: run `/compass:frame` or
 `compass route evaluate`, open `route.md`, `brief.md`, or `spec.feature.md`,

@@ -101,7 +101,7 @@ from compass_pkg.tdd import _read_config
 
 def _scenario_documented_in_spec(spec_path, scenario_id):
     """R1: a `verifiable: narrative` scenario is 'documented' when its gherkin
-    block in spec.feature.md has a non-empty When AND Then. The When/Then is
+    block in acceptance-criteria.md has a non-empty When AND Then. The When/Then is
     documentation-as-acceptance and lives only in the spec (it has no structured
     home to duplicate), so reading it is reading the artifact - NOT the R4
     prose-grep-for-a-machine-fact anti-pattern."""
@@ -197,17 +197,17 @@ def _check_declared_tests_resolve(task, task_dir):
     nobody wrote - G1 and G3 are satisfied by a test being *named*, so the hole
     is invisible by construction.
 
-    Scoped to tasks that are still `active` AND have already claimed
+    Scoped to issues that are still `active` AND have already claimed
     `verify.correctness: pass`. Both conditions matter:
 
       * Before correctness is claimed, a declared test legitimately does not
         exist yet - TDD writes the id at Specify and the test at Build.
-      * After a task lands, its spine is a historical record. Tests get renamed
+      * After an issue lands, its spine is a historical record. Tests get renamed
         afterwards, and re-validating history against a moving codebase produces
         failures nobody can act on (ADR-006).
     """
     if (task.get("status") or "active") != "active":
-        return True, "task is landed - declared test ids are a historical record"
+        return True, "issue is landed - declared test ids are a historical record"
 
     gates = {g.get("id"): g.get("status") for g in (task.get("gates") or [])}
     if gates.get("verify.correctness") != "pass":
@@ -257,7 +257,7 @@ def _check_scenarios_have_tests(task, task_dir):
     if undocumented:
         problems.append(
             f"narrative scenario(s) not documented (empty When/Then in "
-            f"spec.feature.md): {', '.join(undocumented)}")
+            f"acceptance-criteria.md): {', '.join(undocumented)}")
     if problems:
         return False, "; ".join(problems)
     if documented_narr:
@@ -268,7 +268,7 @@ def _check_scenarios_have_tests(task, task_dir):
 
 
 def _spec_sha256(task_dir):
-    """Hash of the task's spec.feature.md, or None when there is no spec.
+    """Hash of the issue's acceptance-criteria.md, or None when there is no spec.
 
     This is what makes a recorded BDD run verifiable later. Comparing the
     record's timestamp against the spec's mtime would be simpler and wrong:
@@ -324,11 +324,11 @@ def _check_scenarios_are_executable(task, task_dir):
         # it as a pass is how a run made before the spec existed stays green
         # through every later edit.
         return False, ("the BDD run on record carries no spec hash, so it "
-                       "cannot be shown to match the current spec.feature.md - "
+                       "cannot be shown to match the current acceptance-criteria.md - "
                        "re-run `compass bdd verify`")
     if current != recorded:
         return False, ("the recorded BDD run describes a different "
-                       "spec.feature.md than the one on disk - the spec has "
+                       "acceptance-criteria.md than the one on disk - the spec has "
                        "changed since it ran, so the record is stale. Re-run "
                        "`compass bdd verify`.")
 
@@ -487,7 +487,7 @@ def _check_changed_code_traces(task, task_dir):
         return True, (
             f"all {len(changed)} changed file(s) trace to a scenario, but "
             f"{len(missing)} no longer exist ({'; '.join(missing)}) - reported "
-            f"only, because the task is {why}"
+            f"only, because the issue is {why}"
         )
     return True, (f"all {len(changed)} changed file(s) trace to a scenario "
                   f"and are present on disk")
@@ -511,7 +511,7 @@ def _check_scenario_has_id_and_intent(task, task_dir):
             if sup not in ids:
                 problems.append(
                     f"scenario {s.get('id', '?')} is superseded_by "
-                    f"'{sup}', which is not a scenario in this task")
+                    f"'{sup}', which is not a scenario in this issue")
     if problems:
         return False, "; ".join(problems)
     return True, f"all {len(scns)} scenario(s) have an id and a linked intent"
@@ -574,7 +574,7 @@ def _check_gate_evidence(task, task_dir):
             entry = registry.get(ev_id)
             if not entry:
                 problems.append(f"{gid} references evidence id '{ev_id}' which "
-                                f"is not in the task's evidence registry")
+                                f"is not in the issue's evidence registry")
                 continue
             etype = entry.get("type")
             epath = entry.get("path")
@@ -658,13 +658,13 @@ def _check_dod_evidence_typed(task, task_dir):
     - `- [x] ...`                  → passes (human ticked it)
     - `- [ ] (evidence: EV-id) ...` → passes if EV-id is in the evidence
                                        registry with an accepted type
-    - `- [ ] (backfill: BF-id) ...` → passes if BF-id is in task.yml
-                                       backfills with status: owed
+    - `- [ ] (follow-up: BF-id) ...` → passes if BF-id is in task.yml
+                                       follow_ups with status: outstanding
     - `- [ ] <bare description>`   → FAILS (evidence, not assertion - G4)
 
-    Cross-task half (TRC-E3): scan sibling task.yml files for backfills with
-    target_task equal to this task's slug and status: owed - any such entry
-    blocks this task's Land.
+    Cross-issue half (TRC-E3): scan sibling task.yml files for follow-ups with
+    target_task equal to this issue's slug and status: outstanding - any such entry
+    blocks this issue's Land.
     """
     dod_lines = _parse_dod_lines(task_dir)
 
@@ -702,9 +702,9 @@ def _check_dod_evidence_typed(task, task_dir):
             # Bare unchecked - fails G4 (evidence, not assertion)
             desc = rest.strip() or raw.strip()
             problems.append(
-                f"bare unchecked DoD item (no evidence or backfill tag): "
+                f"bare unchecked DoD item (no evidence or follow-up tag): "
                 f"'{desc}' - add (evidence: EV-<id>) or (follow-up: BF-<id>) "
-                f"inline tag, or tick the box if done. G4: evidence, not "
+                f"inline tag, or tick the box if done. Evidence, not "
                 f"assertion."
             )
             continue
@@ -730,19 +730,20 @@ def _check_dod_evidence_typed(task, task_dir):
             bf_entry = backfills.get(bf_id)
             if not bf_entry:
                 problems.append(
-                    f"DoD item references backfill id '{bf_id}' which is not "
-                    f"in task.yml backfills"
+                    f"DoD item references follow-up id '{bf_id}' which is not "
+                    f"in task.yml follow-ups"
                 )
-            elif bf_entry.get("status") not in ("owed", "paid"):
+            elif bf_entry.get("status") not in ("outstanding", "resolved"):
                 problems.append(
-                    f"backfill '{bf_id}' has unrecognised status "
-                    f"'{bf_entry.get('status')}' (must be 'owed' or 'paid')"
+                    f"follow-up '{bf_id}' has unrecognised status "
+                    f"'{bf_entry.get('status')}' (must be 'outstanding' "
+                    "or 'resolved')"
                 )
-            # status: owed or paid both pass here; paying is a separate
-            # concern tracked by _check_backfills_paid
+            # outstanding and resolved both pass here; resolving is a
+            # separate concern tracked by _check_backfills_paid
 
     # Cross-task check (TRC-E3): scan sibling tasks for backfills that
-    # target this task and are still owed. Use the directory name as the slug
+    # target this issue and are still outstanding. Use the directory name as the slug
     # (authoritative) in preference to task.get("task") which may be a
     # template placeholder; the directory name is always the true slug.
     this_slug = os.path.basename(task_dir) or task.get("task") or ""
@@ -758,8 +759,9 @@ def _check_dod_evidence_typed(task, task_dir):
 
 
 def _check_inbound_backfills(task_dir, this_slug):
-    """Scan sibling task directories for backfills with target_task == this_slug
-    and status: owed. Each such entry is a blocking cross-task debt."""
+    """Scan sibling issue directories for follow-ups with target_task == this_slug
+    and status: outstanding. Each such entry is a blocking cross-issue
+    debt."""
     problems = []
     # task_dir is .compass/work/<slug>/; sibling dirs are alongside it
     work_dir = os.path.dirname(task_dir)
@@ -785,12 +787,12 @@ def _check_inbound_backfills(task_dir, this_slug):
             if not isinstance(bf, dict):
                 continue
             if (bf.get("target_task") == this_slug
-                    and bf.get("status") == "owed"):
+                    and bf.get("status") == "outstanding"):
                 src_slug = sibling_task.get("task") or entry
                 problems.append(
-                    f"cross-task block: task '{src_slug}' has backfill "
-                    f"'{bf.get('id', '?')}' (status: owed) targeting this "
-                    f"task - pay it with `compass backfill pay --task "
+                    f"cross-issue block: issue '{src_slug}' has follow-up "
+                    f"'{bf.get('id', '?')}' (status: outstanding) targeting this "
+                    f"issue - pay it with `compass follow-up pay --task "
                     f"{src_slug} {bf.get('id', '?')}` before Land"
                 )
     return problems
@@ -814,12 +816,13 @@ def _check_human_approval(task, task_dir):
         # after the gates pass while the task is active, which is when the
         # widened trigger applies.
         if (task.get("status") or "active") != "active":
-            return True, ("no human-approval evidence on record, and the task "
+            return True, ("no human-approval evidence on record, and the issue "
                           "has landed - reported only, because its gates were "
                           "cleared under the trigger in force at the time")
         return False, ("no human-approval evidence with decision=approved - "
-                       "G5 applies because this task touches irreversible "
-                       "surface, or its blast radius is critical (which the "
+                       "the human-sign-off guardrail applies because this issue "
+                       "touches irreversible surface, or its risk is critical "
+                       "(which the "
                        "router defines as: can lose data, lose money, breach "
                        "auth/privacy, or resist a clean rollback). Add a "
                        "`human-approval` entry to the evidence registry with "
@@ -838,10 +841,11 @@ def _check_human_approval(task, task_dir):
 
 def _check_backfills_paid(task, task_dir):
     bfs = task.get("follow_ups") or []
-    unpaid = [b.get("id", "?") for b in bfs if b.get("status") != "paid"]
+    unpaid = [b.get("id", "?") for b in bfs if b.get("status") != "resolved"]
     if unpaid:
-        return False, f"unpaid backfill(s): {', '.join(unpaid)}"
-    return True, "no owed backfills" if not bfs else f"all {len(bfs)} backfill(s) paid"
+        return False, f"outstanding follow-up(s): {', '.join(unpaid)}"
+    return True, ("no outstanding follow-ups" if not bfs
+                  else f"all {len(bfs)} follow-up(s) resolved")
 
 
 def _check_spike_conclusion_present(task, task_dir):
@@ -862,7 +866,7 @@ def _check_spike_conclusion_present(task, task_dir):
     if decision == "graduate-to-delivery" and not c.get("next_task"):
         return False, (f"spike-conclusion {c.get('id', '?')} graduates to "
                        f"delivery, but `next_task:` is empty - link the new "
-                       f"task (e.g. .compass/work/<new-slug>/). Graduation is "
+                       f"issue (e.g. .compass/work/<new-slug>/). Graduation is "
                        f"a fresh Frame, not a merge.")
     nt = f" -> {c['next_task']}" if c.get("next_task") else ""
     return True, f"spike close-out on record: {decision}{nt}"
@@ -960,7 +964,7 @@ def _check_no_trusted_rerun(task, task_dir):
         if isinstance(attempts, int) and attempts > 1 and rerun_flag is None:
             problems.append(
                 f"evidence {ev_id}: attempts={attempts} but rerun_without_change "
-                f"marker is absent - incomplete evidence cannot clear G4. "
+                f"marker is absent - incomplete evidence clears nothing. "
                 f"Either add the marker (with evidence that no source change "
                 f"intervened) or quarantine the test in governance/quarantine.yml "
                 f"with a tracking_task (TRC-FM3)"
@@ -981,7 +985,7 @@ def _check_no_trusted_rerun(task, task_dir):
                     f"evidence {ev_id}: test '{test_id}' ran {attempts} time(s) "
                     f"and passed without a source change (rerun_without_change:true) "
                     f"but is not in governance/quarantine.yml - a rerun-to-green is "
-                    f"the loss of the most useful signal (S5). Fix the root cause "
+                    f"the loss of the most useful signal. Fix the root cause "
                     f"or add the test to governance/quarantine.yml with a "
                     f"tracking_task (TRC-A3)"
                 )
@@ -1002,8 +1006,8 @@ def _check_no_trusted_rerun(task, task_dir):
 def _check_coherence_check_passes(task, task_dir):
     """G4 extension (ADR-007 / DD-2): verify.analyze requires a coherence-check
     evidence entry with zero findings. Only runs when verify.analyze is in the
-    task's gate set. If the gate is absent, this check trivially passes (the
-    task is not subject to the coherence-check requirement)."""
+    issue's gate set. If the gate is absent, this check trivially passes (the
+    issue is not subject to the coherence-check requirement)."""
     gates = task.get("gates") or []
     gate_ids = [g.get("id") for g in gates if isinstance(g, dict)]
     if "verify.analyze" not in gate_ids:

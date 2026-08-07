@@ -56,14 +56,14 @@ The kit layer is the *mechanism* side of the determinism boundary
 *readings* are judgement and stay judgement; everything downstream - composing
 the route, applying the floors and caps, stapling the immovable gates, running
 the guardrail checks - is pure function, and this layer is that function.
-`compass route evaluate` applies `routing-policy.yml` to a task's readings;
+`compass approach evaluate` applies `routing-policy.yml` to a task's readings;
 `compass check` runs the `guardrails.yml` checks against `task.yml` and
 `evidence/` (gate evidence is *typed* - a `{type, path}` record - so a
 mechanical gate cannot be cleared with a written note); `compass tdd-red` /
 `tdd-green` run a test and write the evidence records; `compass policy lint` /
 `task lint` validate the YAML against the executable JSON Schema in `schemas/`
 when the optional `jsonschema` library is present, and against the built-in
-linter always; `compass ci` aggregates the lot for CI; `compass calibration`
+linter always; `compass ci` aggregates the lot for CI; `compass retro`
 reads the re-frame log across all tasks and reports whether routing is
 well-sized. Same readings + same policy => the same route, every time, on every
 runtime.
@@ -102,7 +102,7 @@ scripts/         install.sh, swarm.sh, integrate.sh, validate.sh
 
 This is the methodology and kit layers expressed in one runtime's vocabulary.
 Slash commands invoke the phases - and *call the kit* for the deterministic
-parts: `/compass:frame` runs `compass route evaluate`, `/compass:verify` runs
+parts: `/compass:frame` runs `compass approach evaluate`, `/compass:verify` runs
 `compass check`, the `builder` agent runs `compass tdd-red` / `tdd-green`.
 Subagents are the swarm and the role lenses. Skills carry the procedural
 knowledge a phase needs. Hooks enforce the guardrails mechanically where they
@@ -158,7 +158,7 @@ Before a task modifies code, specs, or product artifacts, the runtime must run
 the Needle: read the four context dimensions (blast radius, terrain,
 magnitude, intent & role) - that part is judgement, and the runtime must
 produce it. *Composing* the route from those readings is mechanism, and the
-adapter should shell out to `compass route evaluate` rather than reimplement
+adapter should shell out to `compass approach evaluate` rather than reimplement
 it: the CLI applies `governance/routing-policy.yml` and records the route,
 phases, and gates into `task.yml`. The runtime records the readings (in
 `task.yml`) and writes the human-readable `delivery-approach.md`. The route is *computed*
@@ -252,7 +252,7 @@ into the runtime's surfaces rather than reimplementing them. `compass ci` runs
 the full mechanical gate suite - `policy lint`, then `task lint` and `check`
 for every task - and aggregates exit codes; the CI integration is "run
 `compass ci`, honour the exit code" (`ci/README.md` is the contract, and
-`ci/github-actions.yml` the reference workflow). `compass calibration`
+`ci/github-actions.yml` the reference workflow). `compass retro`
 aggregates the `reframes` log across all tasks and reports whether the Needle
 is systematically over- or under-sizing routes - the framework's own feedback
 loop, a natural fit for the runtime's cross-task / flow surface. Neither gates;
@@ -265,10 +265,10 @@ both are mechanism the adapter calls.
 | Methodology / kit concept | Adapter must map it to… | Reference (Claude Code) |
 |---|---|---|
 | The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
-| The Needle | A triage routine that produces the *readings*, then calls the kit to compose the route | `/compass:frame` + the `navigator` agent + the `adaptive-routing` skill, calling `compass route evaluate` |
-| The kit-layer CLI | A shell-out from the adapter - never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence - orphaned scenarios, route disagreements, orphan claims) |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-task view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration`, `compass rework-scan`, and `compass flow --digest` together |
-| Per-task next-step + backfill | The adapter wires `compass next` (surface the next action on the current task) and `compass backfill pay` (mark an owed backfill as paid) into its task-resumption and Land flows | `/compass:status` and `/compass:land` invoke them |
+| The Needle | A triage routine that produces the *readings*, then calls the kit to compose the route | `/compass:frame` + the `navigator` agent + the `adaptive-routing` skill, calling `compass approach evaluate` |
+| The kit-layer CLI | A shell-out from the adapter - never a reimplementation | `commands`/`agents` invoke `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence - orphaned scenarios, route disagreements, orphan claims) |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-task view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass retro`, `compass rework-scan`, and `compass flow --digest` together |
+| Per-task next-step + follow-up | The adapter wires `compass next` (surface the next action on the current task) and `compass follow-up resolve` (mark an outstanding follow-up resolved) into its task-resumption and Land flows | `/compass:status` and `/compass:ship` invoke them |
 | ADR creation | `compass adr new` (creates a numbered ADR file under `architecture/decisions/`) - the adapter exposes this in whatever shape its agents use for recording architectural decisions | `architect-lens` agent invokes it |
 | Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens, architect-lens) | Distinct agent contexts or personas. The 10th - architect-lens - reads the project's `architecture/` artifacts and writes `architecture-notes.md`; consulted by spec-author and planner | `agents/*.md` |
 | Skills | Loadable procedural-knowledge modules | `skills/*/SKILL.md` |
@@ -324,7 +324,7 @@ The entire methodology layer *and* the entire kit layer:
 - `cli/`, `schemas/`, and `ci/` - the kit layer. `cli/compass` is a plain
   Python+PyYAML CLI with no Claude Code dependency; the new adapter *calls* it
   for route composition, guardrail checks, CI (`compass ci`), and the re-frame
-  feedback loop (`compass calibration`). `schemas/` holds the executable JSON
+  feedback loop (`compass retro`). `schemas/` holds the executable JSON
   Schema the lint commands validate against; `ci/` holds the CI integration
   contract. You do not rewrite any of it - and if you find yourself wanting to,
   that is the strongest possible sign something has leaked across the boundary.
@@ -343,7 +343,7 @@ The adapter layer, against the contract above:
   `routes/router.md` exactly"). You are re-expressing known procedures in a
   new command syntax, not redesigning them - and where a procedure has a
   deterministic step, it *calls the kit*: the new Frame command shells out to
-  `compass route evaluate`, the new Verify command to `compass check`, the new
+  `compass approach evaluate`, the new Verify command to `compass check`, the new
   Build procedure to `compass tdd-red` / `tdd-green`. Re-expressing the
   procedure does not mean re-implementing the mechanism it invokes.
 - **`agents/`** → the new runtime's notion of distinct agent contexts. The

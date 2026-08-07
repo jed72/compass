@@ -104,7 +104,7 @@ case: a new emission silently broke a live solve; a pre-change demo baseline
 surfaced it immediately). The designated suite is a project knob
 (`project.regression_baseline_suite` in `.compass/config.yml`; falls back to
 `project.test_command`). Build prompts for the baseline **up front**, not as an
-afterthought; `compass route evaluate` surfaces it under
+afterthought; `compass approach evaluate` surfaces it under
 `applicable_strategies` when the readings match (`RS-ADV-001`).
 
 It adds **no guardrail and no new gate**, and it **does not block Land** when

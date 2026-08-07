@@ -1,6 +1,6 @@
 ---
 description: Assess the work - risk, familiarity, size, goal - and compute the delivery approach
-argument-hint: "<issue description> [--reframe]"
+argument-hint: "<issue description> [--reassess]"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
@@ -10,7 +10,7 @@ Triage is the one stage that never skips. It reads the four assessment
 dimensions - that is **judgement** - and then hands them to the CLI, which
 **computes** the delivery approach deterministically. You do not pick a
 process, and you do not compose the approach in your head: you assess the
-work, record the assessment, and `compass route evaluate` applies
+work, record the assessment, and `compass approach evaluate` applies
 `governance/routing-policy.yml` to produce the approach. This is the
 determinism boundary - see `docs/methodology.md` §6.
 
@@ -26,7 +26,7 @@ optional and not a prerequisite. If a project has run `/compass:init`, its
 - Load the `adaptive-routing` skill - it is the procedural companion to the
   delivery-approach rubric (`routes/router.md`).
 - Read `governance/routing-policy.md` for the *why*. The machine-readable
-  `governance/routing-policy.yml` is what `compass route evaluate` actually
+  `governance/routing-policy.yml` is what `compass approach evaluate` actually
   runs: triage is bound by its **policy floors, caps, immovable gates, and
   blocking role rules** (hard) and biased by its **default shapes and
   tie-breaking biases** (soft). You do not apply these by hand; the CLI does.
@@ -39,16 +39,19 @@ optional and not a prerequisite. If a project has run `/compass:init`, its
   this issue, read it - intent is the *outcome wanted*, not just the literal
   request.
 
-## `--reframe`
+## `--reassess`
 
-If `--reframe` is passed, this is a mid-flight re-assessment, not a fresh
+(The retired spelling `--reframe` is accepted for one major version and
+means the same thing.)
+
+If `--reassess` is passed, this is a mid-flight re-assessment, not a fresh
 triage - typically because implementation revealed the assessment was
 misread. Read the existing `delivery-approach.md` and `task.yml`, re-read the
 four dimensions, update the spine's `assessment:` block, then re-run
-`compass route evaluate --write --reason "..."` to recompute the approach.
+`compass approach evaluate --write --reason "..."` to recompute the approach.
 **Always pass `--reason`** on a re-assessment: when the CLI sees the approach
 change, it records the event in the spine's `reassessments:` log, and the
-reason is the signal `compass calibration` reads. Then write a **new
+reason is the signal `compass retro` reads. Then write a **new
 revision** of `delivery-approach.md` (keep the prior revision visible). A
 re-assessment is a normal event. An approach quietly outgrown is the
 failure - and a re-assessment with no recorded reason is a signal thrown
@@ -90,7 +93,7 @@ force; if it is still a spike, leave the marker in place.
    is the only part of the computation that is judgement - everything below
    is mechanism.
 3. **Compute the delivery approach - this is the mechanism.** Run
-   `compass route evaluate --task <slug> --write`. The CLI applies
+   `compass approach evaluate --task <slug> --write`. The CLI applies
    `routing-policy.yml` to the assessment: it composes the candidate shape,
    applies the floors, caps, immovable gates, and blocking role rules, and
    folds the resulting `delivery_approach`, `stages`, `gates` (status
@@ -118,7 +121,7 @@ force; if it is still a spike, leave the marker in place.
    create this marker on any other approach.
 7. **Confirm.** The assessment is advisory until confirmed. Present the
    approach, invite override of any *dimension*, and if a dimension changes,
-   re-run `compass route evaluate --write` - never hand-edit the computed
+   re-run `compass approach evaluate --write` - never hand-edit the computed
    approach. Record overrides in `delivery-approach.md` with who and why.
    Immovable gates and floors cannot be overridden - a policy floor is
    governance speaking; changing one means amending

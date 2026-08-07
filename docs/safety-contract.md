@@ -122,7 +122,7 @@ Equally important. Honest scope is what makes the promise credible.
 
 | Guarantee | How |
 |---|---|
-| 1 (deterministic routing) | `compass route evaluate` - pure function over readings + policy |
+| 1 (deterministic routing) | `compass approach evaluate` - pure function over readings + policy |
 | 2 (no silent guardrails) | `compass policy lint` + `compass check` both fail on missing CHECK_FNS implementation |
 | 3 (typed, registered evidence) | `governance/guardrails.yml` declares per-gate accepted types; gates reference entries in the task's evidence registry by id |
 | 4 (Spike safety) | Routing guardrail raises a conflict on unsafe exploration; `compass check` enforces the spike-conclusion + no-production-changed_files invariants on a Spike route |
