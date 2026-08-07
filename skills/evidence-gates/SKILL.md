@@ -84,7 +84,7 @@ the acceptance suite. That is the definition of releasable within Compass.
 safety-contract guarantee 6: Compass is not a deployment pipeline. It has no
 concept of staging environments, progressive rollout, smoke tests in
 production, or canary evaluation. Those are deployment concerns; Compass ends
-at Land. The standing version of the falsification principle (the evidence-not-assertion guardrail)
+at ship time. The standing version of the falsification principle (the evidence-not-assertion guardrail)
 is what Compass contributes: *evidence, not assertion* - the same principle
 that drives continuous delivery discipline, but scoped to the development and
 verification pipeline.
@@ -129,7 +129,7 @@ distinct *is* the check:
 intent, and claim → scenario? A break is a no-pass. See the `traceability` skill.
 
 **regression** - Does the evidence show nothing previously passing now fails?
-On a swarm, this is per-stream at the checkpoint gates and *combined* at Land -
+On a swarm, this is per-stream at the checkpoint gates and *combined* at ship time -
 per-stream green does not imply integrated green.
 
 **security** - Full on initiative and Hotfix, scaled to risk on

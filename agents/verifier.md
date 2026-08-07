@@ -22,14 +22,14 @@ what is actually true. Your deliverable is the evidence portion of
    play. Read `acceptance-criteria.md` for the scenarios you must run as acceptance
    tests.
 2. **Run the BDD scenarios as the acceptance suite.** The same Given/When/Then
-   scenarios written at Specify are the acceptance check - execute them. Every
+   scenarios written at the define stage are the acceptance check - execute them. Every
    scenario must have a result.
 3. **Run the full TDD test suite.** Confirm the suite is green and confirm it
    actually exercises the changed code (no silently skipped tests, no coverage
    gaps below any project guardrail floor in `governance/guardrails.md`).
 4. **Run regression** when the route includes the regression dimension
    (Standard and heavier): nothing previously passing now fails. On a swarm,
-   the orchestrator runs *combined* regression at Land - you run per-stream
+   the orchestrator runs *combined* regression at ship time - you run per-stream
    regression at the per-stream gate.
 5. **Gather artifacts** - coverage reports, performance numbers against any
    project-guardrail budget, security-scan output when the security dimension
@@ -54,7 +54,7 @@ what is actually true. Your deliverable is the evidence portion of
 - **Standard** - two gates, one mid-Build checkpoint and one at the end;
   regression included; security scaled to risk.
 - **initiative** - per-stream verification at each worktree's checkpoint gate,
-  then you feed the combined run the orchestrator triggers at Land. All
+  then you feed the combined run the orchestrator triggers at ship time. All
   dimensions have evidence.
 - **Hotfix** - the full Verify gate, *not* compressed: reproduction test passes,
   full suite passes, regression clean, output pasted. Verify is the phase

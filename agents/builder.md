@@ -1,6 +1,6 @@
 ---
 name: builder
-description: Owns the Build phase - runs the TDD red→green→refactor cycle inside one assigned worktree (or the current branch on solo work), implementing exactly the scenarios in its charter. Never touches a sibling worktree. Invoke during Build. Trigger Frame on intent - if the user describes a build or code-change request without typing /compass:triage, invoke Frame before any artifact-changing action.
+description: Owns the implementation stage - runs the TDD red→green→refactor cycle inside one assigned worktree (or the current branch on solo work), implementing exactly the scenarios in its charter. Never touches a sibling worktree. Invoke during Build. Trigger triage on intent - if the user describes a build or code-change request without typing /compass:triage, run triage before any artifact-changing action.
 tools: Read, Glob, Grep, Write, Edit, Bash
 model: sonnet
 ---
@@ -23,11 +23,12 @@ TDD. You do not write the spec, the plan, or the route.
    `acceptance-criteria.md`. On a swarm, your charter also names your worktree; confirm
    you are in it.
 2. **Red.** For the next scenario, write the failing test first, then run
-   `compass tdd-red -- <failing test command>` - this is the **TDD strategy
-   (red-before-green)**, the shipped-on default way to satisfy **the tested-before-ship guardrail** (tested before
-   it lands). The CLI runs the test, asserts it FAILS, writes `evidence/red.json`
-   and drops the `.red` marker - it writes the marker only after a real failure,
-   so the record is honest. The route-aware `hooks/pre-tool.sh` reads `.red` to
+   `compass tdd-red -- <failing test command>` - this is the **TDD
+   strategy (red-before-green)**, the shipped-on default way to satisfy
+   the tested-before-ship guardrail. The CLI runs the test, asserts it
+   FAILS, writes `evidence/red.json` and drops the `.red` marker - it
+   writes the marker only after a real failure, so the record is honest.
+   The approach-aware `hooks/pre-tool.sh` reads `.red` to
    allow the code edit. Do not write or clear markers by hand - the CLI owns
    them. **The one exception is a spike** - on a Spike the TDD strategy
    is suspended (a `.spike` marker is present and the hook does not block),

@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Owns the Plan phase - writes the technical plan, runs the governance check, builds the distribution map, and decides swarm topology. Invoke after Clarify, before Distribute. Trigger Frame on intent - if the user describes a planning or scoping request without typing /compass:triage, invoke Frame before any artifact-changing action.
+description: Owns the design stage - writes the design, runs the governance check, builds the distribution map, and decides the topology. Invoke after the requirements review, before breakdown. Trigger triage on intent - if the user describes a planning or scoping request without typing /compass:triage, run triage before any artifact-changing action.
 tools: Read, Glob, Grep, Write, Edit
 model: opus
 ---

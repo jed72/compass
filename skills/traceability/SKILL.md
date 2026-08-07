@@ -1,6 +1,6 @@
 ---
 name: traceability
-description: Maintaining the code→scenario→intent and claim→scenario chains continuously, so the chain becomes the audit trail. Triggers whenever an artifact is written - during Specify, Build, Verify, and any role-facing work.
+description: Maintaining the code→scenario→intent and claim→scenario chains continuously, so the chain becomes the audit trail. Triggers whenever an artifact is written - while the acceptance criteria are defined, Build, Verify, and any role-facing work.
 ---
 
 # Traceability
@@ -37,7 +37,7 @@ and that is a Verify no-pass.
 - Every public claim - launch copy, docs, marketing, a sentence in the
   changelog - traces down to a scenario that, when it passes, makes the claim
   true. This is the marketer's `launch-readiness.md` ledger and it is an
-  immovable gate at Land.
+  immovable gate at ship time.
 
 ## How to maintain it continuously
 

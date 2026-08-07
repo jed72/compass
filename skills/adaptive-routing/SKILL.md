@@ -1,6 +1,6 @@
 ---
 name: adaptive-routing
-description: How to score the four context dimensions, compose and constrain a route, and keep an honest de-scope ledger. Triggers during Frame, whenever triage runs, and whenever an issue is re-framed mid-flight.
+description: How to score the four assessment dimensions, how the delivery approach is composed and constrained, and how to keep an honest de-scope ledger. Triggers whenever triage runs, and whenever an issue is re-assessed mid-flight.
 ---
 
 # Adaptive Routing
@@ -155,8 +155,9 @@ skips earns a row in the de-scope ledger, and each row needs an explicit
 
 ### Anti-patterns
 
-- **Route laundering** - composing a route lighter than the familiarity warrants to
-  "just get the change in." `delivery-approach.md` makes this visible; do not do it.
+- **Laundering** - an approach lighter than the assessment warrants, to
+  "just get the change in." `delivery-approach.md` makes this visible; do
+  not do it.
 - **Justification theatre** - a ledger row whose reason is "to save time."
   Time is not a safety argument. The reason must be about why the skip is
   *safe*, not why it is *convenient*.

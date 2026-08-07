@@ -7,7 +7,7 @@ to the spec, not downstream of it. Every claim made here must point at a
 scenario id in acceptance-criteria.md that backs it - that is the claim→scenario
 half of the traceability guardrail, and the voice & positioning
 strategies in governance/strategies.md govern how it is said. Unbacked
-claims are resolved at Land via launch-readiness.md; the marketer role_rule
+claims are resolved at ship time via launch-readiness.md; the marketer role_rule
 blocks Land until they are.
 
 Fill every {{PLACEHOLDER}}. Leave the "backing scenario" slot blank if no
@@ -71,11 +71,11 @@ the implementation.}}
 ## Messaging - claims and their backing scenarios
 
 <!-- Each message is a public claim. Each claim gets a backing scenario
-     slot. The launch-readiness.md gate at Land checks this whole table. -->
+     slot. The launch-readiness.md gate at ship time checks this whole table. -->
 
 | # | Claim (as it would appear publicly) | Backing scenario id | Verified? |
 |---|---|---|---|
-| C1 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ] - filled at Land}} |
+| C1 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ] - filled at ship time}} |
 | C2 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ]}} |
 | C3 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ]}} |
 
@@ -110,5 +110,5 @@ the implementation.}}
 
 ## Handoff
 
-This file feeds `launch-readiness.md` at Land. No claim above ships until
+This file feeds `launch-readiness.md` at ship time. No claim above ships until
 its backing-scenario slot is filled and that scenario passes at Verify.

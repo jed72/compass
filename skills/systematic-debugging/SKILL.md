@@ -76,7 +76,7 @@ the bug" and becomes "why do I keep being wrong about this".
 
 In Compass terms that is a **routing** signal, not just a debugging one. An issue
 whose fixes keep failing is usually an issue whose risk, familiarity or
-size was misread at Frame - most often familiarity scored `brownfield-mapped`
+size was misread at triage - most often familiarity scored `brownfield-mapped`
 when the behaviour was never actually written down.
 
 So:

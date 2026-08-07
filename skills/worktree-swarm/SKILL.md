@@ -1,6 +1,6 @@
 ---
 name: worktree-swarm
-description: Git worktree mechanics, decomposing work into independent streams, the orchestrator/builder protocol, integration discipline, and the critical-risk worktree cap. Triggers during Plan (decomposition) and Distribute/Build/Land on swarm and pair routes.
+description: Git worktree mechanics, decomposing work into independent streams, the orchestrator/builder protocol, integration discipline, and the critical-risk worktree cap. Triggers at the design stage (decomposition) and through breakdown, implementation, and shipping on swarm and pair topologies.
 ---
 
 # Worktree Swarm
@@ -43,7 +43,7 @@ and both must hold:
    from `acceptance-criteria.md`.
 
 Independence is *determined*, not guessed - you derive it from the scenario
-file and the technical plan. The scenario grouping done at Specify
+file and the technical plan. The scenario grouping done at the define stage
 (initiative's "group scenarios by independence") is the seed; the distribution
 map is where you confirm it against the plan.
 

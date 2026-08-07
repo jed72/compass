@@ -176,7 +176,7 @@ def test_trc_a6_dor_requires_filled_summary():
 # Group B - the spec-author's inline self-review
 # ---------------------------------------------------------------------------
 
-SELF_REVIEW_HEADING = "Self-review before Clarify"
+SELF_REVIEW_HEADING = "Self-review before the requirements review"
 
 
 def _self_review():
@@ -233,10 +233,13 @@ def test_trc_b4_self_review_complements_clarify():
     """The self-check adds to Clarify; it does not stand in for it."""
     low = _self_review().lower()
 
-    assert "clarify still runs" in low, (
-        "The self-review does not state that Clarify still runs on Standard and above"
+    assert "review still runs" in low, (
+        "The self-review does not state that the requirements review still "
+        "runs on feature approaches and above"
     )
-    assert "standard" in low, "The self-review does not name the routes Clarify still runs on"
+    assert "feature" in low, (
+        "The self-review does not name the approaches the requirements "
+        "review still runs on")
 
 
 def test_trc_b5_express_self_check_recorded_in_devlog():
@@ -588,7 +591,9 @@ def test_trc_f3_rationale_for_no_subagent_loop():
     assert re.search(r"25\s*(minutes|min)", low), (
         "The measured overhead of a subagent review loop is not recorded"
     )
-    assert "clarify" in low, "The rationale does not name Clarify as the existing review"
+    assert "requirements review" in low, (
+        "The rationale does not name the requirements review as the "
+        "existing review")
     assert "reviewer" in low, (
         "The rationale does not name the reviewer agent at Verify as the existing review"
     )

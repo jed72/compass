@@ -1,14 +1,15 @@
 ---
 name: bdd-specification
-description: How to write Given/When/Then scenarios that double as the acceptance suite - scenario granularity, the qualities of a runnable scenario, and how depth scales by route. Triggers during Specify and Clarify.
+description: How to write Given/When/Then scenarios that double as the acceptance suite - scenario granularity, the qualities of a runnable scenario, and how depth scales with the delivery approach. Triggers while the acceptance criteria are defined and refined.
 ---
 
 # BDD Specification
 
-**BDD is the BDD strategy** - expressing acceptance criteria as Given/When/Then
-scenarios. It is the strong, shipped-on default *way* to satisfy **guardrail
-acceptance-before-code**: *acceptance defined before it is built - stated, and checkable*. Keep that
-relationship straight.
+**BDD is a strategy, not a guardrail** - expressing acceptance criteria
+as Given/When/Then scenarios. It is the strong, shipped-on default way to
+satisfy the **acceptance-before-code guardrail**: *acceptance defined
+before it is built - stated, and checkable*. Keep that relationship
+straight.
 
 - **Acceptance-before-code is the guardrail** - hard, checkable. No code is written that no stated,
   checkable acceptance criterion describes. The outcome - acceptance is stated
@@ -21,7 +22,7 @@ relationship straight.
 
 In Compass the BDD spec is not documentation that precedes the tests - it *is*
 the tests, read at a different time. `acceptance-criteria.md` is written once at
-Specify and run as the acceptance check at Verify. It is also the one artifact
+the define stage and run as the acceptance check at verify. It is also the one artifact
 five roles read (see `role-translation`). Write it knowing all of that.
 
 ## Example-first refinement chain
@@ -104,7 +105,7 @@ place to restate them. Length scales with the route the same way scenario depth
 does: quick-fix one to two sentences per field, Standard ordinary paragraphs,
 initiative up to 200 words per field where the work warrants it.
 
-## Self-review before Clarify
+## Self-review before the requirements review
 
 When `acceptance-criteria.md` is written, run these four scans over it yourself before
 handing off. **Fix what you find inline** - edit the spec directly. Do not write
@@ -122,12 +123,13 @@ a review artifact, and do not invoke a reviewer agent or subagent for this.
 4. **Ambiguous-quantifier scan** - "quickly", "large", "most", "soon" with no
    number attached. Either attach the number or cut the word.
 
-**This complements Clarify; it does not replace it.** Clarify still runs on
-Standard and heavier routes, and it does things this cannot: it QAs the spec
-against governance, resolves contradictions, and records an ambiguity ledger
-with owners. The self-check is simply what a spec-author owes Clarify - the
-cheap findings fixed by whoever made them, so Clarify's attention goes to the
-questions that actually need a decision.
+**This complements the requirements review; it does not replace it.**
+The review still runs on feature and heavier approaches, and it does
+things this cannot: it QAs the spec against governance, resolves
+contradictions, and records an ambiguity ledger with owners. The
+self-check is simply what a spec-author owes the reviewer - the cheap
+findings fixed by whoever made them, so the review's attention goes to
+the questions that actually need a decision.
 
 ### The split, stated plainly
 
@@ -135,25 +137,26 @@ The two overlap enough that a reader meeting both wonders which is redundant.
 Neither is. They differ in *who does them*, *what they cost*, and *what kind of
 finding they can produce*.
 
-| | Inline self-review (Specify) | Clarify (its own phase) |
+| | Inline self-review (define stage) | Requirements review (its own stage) |
 |---|---|---|
-| **Who** | the spec-author, alone | spec-author plus reviewer; role roles on initiative |
-| **Cost** | minutes - four mechanical scans over one file | a phase; requires reading, and often a human decision |
+| **Who** | the spec-author, alone | spec-author plus reviewer; every role on an initiative |
+| **Cost** | minutes - four mechanical scans over one file | a stage; requires reading, and often a human decision |
 | **Finds** | placeholder, orphan-intent, untestable-`Then`, ambiguous-quantifier | contradictions between scenarios, gaps across the whole set, governance conflicts, ambiguities that need someone to *choose* |
 | **Output** | edits to `acceptance-criteria.md`, in place | `requirements-review.md` - a ledger with a resolution and an owner per entry |
-| **Routes** | every route, including quick-fix | Standard and heavier; collapsed on quick-fix and Hotfix, skipped on Spike |
+| **Approaches** | every approach, including the quick fix | feature and heavier; collapsed on quick fixes and hotfixes, skipped on spikes |
 
-The dividing line: **the self-review fixes what one person can see and settle
-alone; Clarify resolves what needs a decision.** An unfilled placeholder has
+The dividing line: **the self-review fixes what one person can see and
+settle alone; the requirements review resolves what needs a decision.** An unfilled placeholder has
 one correct answer and the author already knows it. "Do these two scenarios
 contradict each other, and which one is wrong?" does not - and pretending
 otherwise is how a spec ships with a fork still in it.
 
-Clarify does not re-run the four scans. If it finds one of them outstanding,
-that means the self-review was skipped: worth saying so, not worth silently
-absorbing.
+The review does not re-run the four scans. If it finds one of them still
+open, that means the self-review was skipped: worth saying so, not worth
+silently absorbing.
 
-**On quick-fix, where Clarify is collapsed, this self-check *is* the QA.** Record
+**On a quick fix, where the review is collapsed, this self-check *is*
+the QA.** Record
 that you ran it, and what it found, in `devlog.md`. A self-check that happened
 only in conversation did not happen (persistence over conversation).
 
@@ -163,9 +166,10 @@ regression testing across five versions and five trials that found identical
 quality scores whether the loop ran or not, at roughly 25 minutes of overhead
 per run. Compass has not repeated that measurement and takes the published
 result at face value. Compass already has
-two review roles that earn their cost: **Clarify**, which QAs the spec against
-governance, and the **reviewer** agent at Verify. A third pass between them
-would double the time without measurably improving the spec.
+two review points that earn their cost: **the requirements review**, which
+QAs the spec against governance, and the **reviewer** agent at verify. A
+third pass between them would double the time without measurably
+improving the spec.
 
 ## What a scenario is
 
@@ -206,34 +210,39 @@ assert it automatically - those are the same bar.
   feature is a set of scenarios; a line of code traces *up* to a scenario but is
   not one-to-one with it.
 
-## How depth scales by route
+## How depth scales with the delivery approach
 
-The vocabulary never changes. The depth does - and the route tells you how much.
+The vocabulary never changes. The depth does - and the approach tells you
+how much.
 
-- **quick-fix** - exactly one scenario. The happy path of the new behaviour, no
-  more. If you cannot capture it in one unambiguous scenario, the route was
-  mis-composed: it is not quick-fix. Say so and send it back to Frame.
-- **Standard** - a small feature set: the happy path, the realistic edges, and
-  the failure modes that actually matter. Not every conceivable edge - the ones
-  with real consequence.
-- **initiative** - full discovery. Work the brief and the problem space for the
-  whole behaviour set. Then **group the scenarios by independence** - disjoint
+- **Quick fix** - exactly one scenario. The happy path of the new
+  behaviour, no more. If you cannot capture it in one unambiguous
+  scenario, the assessment was misread: it is not a quick fix. Say so and
+  send it back to triage.
+- **Feature** - a small scenario set: the happy path, the realistic edges,
+  and the failure modes that actually matter. Not every conceivable edge -
+  the ones with real consequence.
+- **Initiative** - full discovery. Work the PRD and the problem space for
+  the whole behaviour set. Then **group the scenarios by independence** - disjoint
   code, disjoint scenarios - because that grouping is what seeds the
   distribution map the Planner builds.
-- **Hotfix** - the scenario *is* a failing regression test that reproduces the
-  defect. It is written reproduce-first, before any fix, and it is
-  simultaneously the BDD scenario and the TDD red. At Land it gets promoted into
-  a properly-formed Given/When/Then scenario as part of the mandatory follow-up.
+- **Hotfix** - the scenario *is* a failing regression test that
+  reproduces the defect. It is written reproduce-first, before any fix,
+  and it is simultaneously the BDD scenario and the TDD red. At ship time
+  it gets promoted into a properly-formed Given/When/Then scenario as
+  part of the mandatory follow-up.
 - **Spike** - the BDD strategy does **not** run. A spike has no acceptance
-  criteria - its output is knowledge, not behaviour - so Specify collapses to
-  the *question* ("what do we need to learn, and what would a useful answer look
-  like?") and Clarify is skipped. You write no scenario file on a Spike. If the
-  spike graduates, real scenarios are written when it re-frames into a delivery
-  route, where acceptance-before-code applies in full.
+  criteria - its output is knowledge, not behaviour - so the define stage
+  collapses to the *question* ("what do we need to learn, and what would
+  a useful answer look like?") and the requirements review is skipped.
+  You write no scenario file on a spike. If the spike graduates, real
+  scenarios are written when it re-assesses into a delivery approach,
+  where acceptance-before-code applies in full.
 
 ## The requirements review - QA the spec against itself and against governance
 
-Clarify is where the spec is verified *as a spec*, before anyone builds from it.
+The requirements review is where the spec is verified *as a spec*, before
+anyone builds from it.
 Walk it for:
 
 - **Contradictions** - two scenarios that cannot both hold.

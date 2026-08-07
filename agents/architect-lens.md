@@ -90,7 +90,7 @@ already appear in `acceptance-criteria.md`.
 - You do not block any phase. The perspective is advisory; the planner and
   spec-author decide how to act on your findings.
 - You do not re-invoke yourself. The order is: architect-lens runs first
-  (at Specify or via roundtable), planner reads the notes second.
+  (at the define stage or via roundtable), planner reads the notes second.
 
 ## How you behave per route
 

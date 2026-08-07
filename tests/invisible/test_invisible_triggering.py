@@ -52,7 +52,8 @@ RE_FRAME_TRIGGER_PHRASES = [
 ]
 
 # Supporting sentence that must appear in each agent description
-AGENT_TRIGGER_SENTENCE = "Trigger Frame on intent"
+# The sentence follows the command rename: triage, not Frame.
+AGENT_TRIGGER_SENTENCE = "Trigger triage on intent"
 
 
 class TestCLAUDEMdInvisibleTriggering:

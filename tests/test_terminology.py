@@ -73,6 +73,11 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bFrame\s*(?:→|->)"),
         re.compile(r"(?:→|->)\s*Frame\b"),
         re.compile(r"^#+\s+Frame\b"),
+        # Tuned at the skills-prose review: the capitalised stage name
+        # after a preposition ("during Frame,") is stage-name usage the
+        # suffix forms above miss; lowercase "frame the problem" stays
+        # legal.
+        re.compile(r"\b(?:during|at|before|after|since|until)\s+Frame\b"),
     ],
     # The four-dimension judgement. The plural is the v1 term of art;
     # singular "reading" (the ordinary gerund) stays legal.
@@ -91,6 +96,10 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
             r"\b(?:computed|reference|delivery|solo|swarm|"
             r"Express|Standard|Expedition|Hotfix|Spike)\s+routes?\b"
         ),
+        # Tuned at the skills-prose review: "compute the route" is the
+        # process-noun sense (the thing computed is the delivery
+        # approach); "computed a route home" stays legal.
+        re.compile(r"\bcomputes?\s+the\s+route\b"),
     ],
     # The v1 name for a quick fix. Capitalised only: "express delivery"
     # stays legal.
@@ -110,6 +119,12 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"(?:→|->)\s*(?:Specify|Clarify|Distribute|Land)\b"),
         re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\s*(?:→|->)"),
         re.compile(r"^#+\s+(?:Specify|Clarify|Distribute|Land)\b"),
+        # Tuned at the skills-prose review: the capitalised stage name
+        # after a preposition or conjunction ("at Land", "and Land",
+        # "during Specify") is stage-name usage the suffix forms miss;
+        # lowercase ordinary verbs ("planes land") stay legal.
+        re.compile(r"\b(?:during|at|before|after|since|until|and|into)\s+"
+                   r"(?:Specify|Clarify|Distribute|Land)\b"),
     ],
     # The role-perspective concept, in any casing. Tuned at the
     # skills-prose slice: a hyphen-preceded "lens" is an agent identifier

@@ -10,7 +10,7 @@ consumer. Accessibility commitments here are checked against the
 accessibility strategy in governance/strategies.md.
 
 Fill every {{PLACEHOLDER}}. Write behaviour as scenarios - the same Gherkin
-shape the spec uses - so the handoff into Specify is mechanical.
+shape the spec uses - so the handoff into the define stage is mechanical.
 -->
 
 # UI Contract - {{TASK_SLUG}}

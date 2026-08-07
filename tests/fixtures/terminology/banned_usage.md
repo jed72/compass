@@ -20,3 +20,5 @@ Settle it with compass backfill pay before shipping - the verb
 renamed too.
 Guardrail G1 and strategy S7 are cited by code in prose.
 Intent lives in brief.md; the scenarios live in spec.feature.md.
+The dimensions were scored during Frame, checked at verify and Land, and
+the evaluator computes the route from them.

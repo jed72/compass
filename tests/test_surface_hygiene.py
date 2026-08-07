@@ -105,9 +105,13 @@ def test_trc_d3_bdd_skill_documents_the_split():
         )
 
     # it must say what Clarify does that the self-review does not
-    assert re.search(r"clarify (still )?(does|runs|resolves|hunts)", text), (
-        "the skill never says what work Clarify does that the inline "
-        "self-review does not"
+    # "Clarify" became "the requirements review" with the skills-prose
+    # slice; the required statement is the same, in the v2 words.
+    assert re.search(
+        r"(?:requirements )?review (?:still )?(?:does|runs|resolves|hunts)",
+        text), (
+        "the skill never says what work the requirements review does that "
+        "the inline self-review does not"
     )
     # and which routes run each
     assert "express" in text and re.search(r"standard", text), (
