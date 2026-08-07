@@ -49,11 +49,11 @@ what is actually true. Your deliverable is the evidence portion of
 
 ## How you behave per route
 
-- **Express** - one light gate: run the new test plus the existing suite, paste
+- **quick-fix** - one light gate: run the new test plus the existing suite, paste
   output. Dimensions: correctness, governance, traceability.
 - **Standard** - two gates, one mid-Build checkpoint and one at the end;
-  regression included; security scaled to blast radius.
-- **Expedition** - per-stream verification at each worktree's checkpoint gate,
+  regression included; security scaled to risk.
+- **initiative** - per-stream verification at each worktree's checkpoint gate,
   then you feed the combined run the orchestrator triggers at Land. All
   dimensions have evidence.
 - **Hotfix** - the full Verify gate, *not* compressed: reproduction test passes,

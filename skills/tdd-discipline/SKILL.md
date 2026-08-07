@@ -1,28 +1,28 @@
 ---
 name: tdd-discipline
-description: The red→green→refactor cycle as Compass runs it - TDD as strategy S2 satisfying guardrail G1, how test surface scales with blast radius, what "the failing test first" means, route-awareness (suspended on Spike), and working under the pre-tool hook. Triggers during Build, on every delivery route.
+description: The red→green→refactor cycle as Compass runs it - TDD as the TDD strategy satisfying the tested-before-ship guardrail, how test surface scales with risk, what "the failing test first" means, route-awareness (suspended on Spike), and working under the pre-tool hook. Triggers during Build, on every delivery approach.
 ---
 
 # TDD Discipline
 
-**TDD is strategy S2** - the red-green-refactor discipline. It is the strong,
-shipped-on default *way* to satisfy **guardrail G1**: *tested before it lands*.
+**TDD is the TDD strategy** - the red-green-refactor discipline. It is the strong,
+shipped-on default *way* to satisfy **the tested-before-ship guardrail**: *tested before it lands*.
 Keep that relationship straight, because it is the whole point.
 
-- **G1 is the guardrail** - hard, checkable, universal. No code reaches `main`
-  without a passing automated test it traces to. G1 is checked at Verify and
+- **Tested-before-ship is the guardrail** - hard, checkable, universal. No code reaches `main`
+  without a passing automated test it traces to. It is checked at verify and
   Land, with evidence. It never adapts and it has no exception.
 - **TDD is the strategy** - red-before-green. It is strong and shipped-on, the
   default on every *delivery* route. But it is a strategy, which means it has
   exactly one suspension: the **Spike** route turns it off (see below). The
-  *outcome* (G1) is non-negotiable; the *ritual* (red-first) is the default
+  *outcome* (the tested change) is non-negotiable; the *ritual* (red-first) is the default
   method, suspendable in one defined place.
 
 This is the distinction that keeps Compass from being a sledgehammer. A
-one-character typo fix still has to satisfy G1 - it must be tested before it
+one-character typo fix still has to satisfy the guardrail - it must be tested before it
 lands - but a route may decide it does not need the full red-before-green ritual
 to get there. What the route adapts is how much *surface* the tests cover, and
-on Spike, whether the ritual runs at all. What no delivery route adapts is G1.
+on a spike, whether the ritual runs at all. What no delivery approach adapts is the outcome.
 
 ## Route-awareness: suspended on Spike
 
@@ -33,13 +33,13 @@ gain.
 
 This is safe because of the hard rule under it: **nothing lands from a Spike.**
 A spike's code reaches production only by *graduating* - re-framing into a real
-delivery route - and at that point G1 applies in full: graduated code is tested
+delivery approach - and at that point tested-before-ship applies in full: graduated code is tested
 before it lands, usually rewritten under TDD, sometimes kept and retro-tested.
 The strategy is suspended; the guardrail is only *deferred to graduation*, never
 skipped.
 
-On every other route - Express, Standard, Expedition, Hotfix - the TDD strategy
-applies. Red comes first. It is on Express, it is on Hotfix at 3am.
+On every other route - quick-fix, Standard, initiative, Hotfix - the TDD strategy
+applies. Red comes first. It is on quick-fix, it is on Hotfix at 3am.
 
 ## The cycle
 
@@ -64,8 +64,8 @@ the step was too big.
 - The test exists and fails *before* the production code that satisfies it is
   written. Not after. Not "alongside."
 - It fails because the behaviour is absent - not because it is malformed.
-- It is derived from a scenario in `acceptance-criteria.md`. The TDD strategy (S2) and
-  the BDD strategy (S1) are not two systems: the BDD scenario is the
+- It is derived from a scenario in `acceptance-criteria.md`. The TDD strategy (red-before-green) and
+  the BDD strategy are not two systems: the BDD scenario is the
   acceptance-level test and seeds the unit-level TDD cycle. The chain is
   scenario → test → code.
 - One red at a time. A wall of failing tests written up front is not TDD; it is
@@ -76,14 +76,14 @@ the step was too big.
 
 `hooks/pre-tool.sh` enforces the red-before-green strategy mechanically: it will
 **block a code edit that has no corresponding failing test.** It is the TDD
-strategy made physical, in service of guardrail G1. It is also **route-aware**:
+strategy made physical, in service of the tested-before-ship guardrail. It is also **route-aware**:
 it reads a `.compass/work/<task>/.spike` marker file and does **not** block on a
-Spike route, because the TDD strategy is suspended there.
+spike, because the TDD strategy is suspended there.
 
-- If the hook blocks you on a delivery route, the correct response is to go
+- If the hook blocks you on a delivery approach, the correct response is to go
   write the failing test, not to find a path past the hook.
 - Disabling, bypassing, or tricking the hook on a route where it applies is
-  breaking the TDD strategy - and on a delivery route that is how G1 gets
+  breaking the TDD strategy - and on delivery work that is how the guardrail gets
   quietly broken. There is no deadline and no convenience that licenses it.
 - The hook checks for a *failing* test, so the natural workflow already
   satisfies it: write the red, see it fail, then edit the code.
@@ -130,20 +130,20 @@ compass acceptance record -- <the same command>
 
 It writes its own `.acceptance` marker, which the hook honours. `.red` keeps
 meaning exactly one thing - a real failure was observed here - and the recorded
-acceptance counts as the task's run, so there is nothing left to gain by faking
+acceptance counts as the issue's run, so there is nothing left to gain by faking
 a red.
 
 This is not an escape hatch for ordinary code. A change that *does* have a
 natural behavioural red still owes one; reaching for `acceptance` because the
 red is inconvenient is the same bypass as any other.
 
-## How test surface scales with blast radius
+## How test surface scales with risk
 
 This is the dimension the route *does* adapt. "More surface" means more of the
 behaviour's space is pinned by tests - more edges, more failure modes, more
 adversarial inputs - not "tests at all," which is constant.
 
-- **`trivial` blast radius** - the scenario and its obvious edges. Express
+- **`trivial` risk** - the scenario and its obvious edges. quick-fix
   territory.
 - **`contained`** - the scenario, its realistic edges, the failure modes that
   matter. Standard territory.
@@ -154,10 +154,10 @@ adversarial inputs - not "tests at all," which is constant.
   project coverage or security guardrail floor requires.
 
 A route may never go *below* a project coverage-floor guardrail in
-`governance/guardrails.md`. It may require *more* for higher blast radius; it
+`governance/guardrails.md`. It may require *more* for higher risk; it
 may never require less.
 
-## Working inside a worktree (swarm routes)
+## Working inside a worktree (swarm topologies)
 
 On a swarm you run the full cycle - including a red, failing suite - inside
 your own git worktree. That isolation is the point: your red does not

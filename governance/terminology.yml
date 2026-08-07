@@ -447,6 +447,9 @@ scan:
     # machine identifiers, exempt while their referents keep v1 names.
     - CLAUDE.md
     - AGENTS.md
+    - agents/            # the ten agent definitions - added clean at the
+                         # skills-prose slice, never pending, same shape as
+                         # the root instruction files
   exempt:
     - docs/proposals/      # history stays honest
     - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
@@ -470,7 +473,6 @@ scan:
   # its surface from this list; removed surfaces must stay clean forever.
   # A meta-test asserts this list only ever shrinks.
   pending_surfaces:
-    - skills/
     - README.md
     - docs/five-minutes.md
     - docs/methodology.md

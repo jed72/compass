@@ -244,7 +244,7 @@ def test_trc_b5_express_self_check_recorded_in_devlog():
     not into the conversation (S4)."""
     low = _self_review().lower()
 
-    assert "express" in low, "The self-review says nothing about Express"
+    assert "quick-fix" in low or "quick fix" in low, ("The self-review says nothing about the quick fix")
     assert "devlog.md" in low, (
         "The self-review does not require recording the Express self-check in devlog.md"
     )

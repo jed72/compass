@@ -33,12 +33,12 @@ next author fills it in to be safe.
 
 ## Scaling by route
 
-- **Express** - none of them. Express writes no `design.md` at all; the plan is
+- **quick-fix** - none of them. quick-fix writes no `design.md` at all; the plan is
   a one-line edit note in `delivery-approach.md`.
-- **Standard** - the ones that add clarity. Typically one diagram, and one of
-  the other three. Reaching for all five on a Standard route is a sign the
+- **feature** - the ones that add clarity. Typically one diagram, and one of
+  the other three. Reaching for all five on a feature approach is a sign the
   route was under-read, not a sign of thoroughness.
-- **Expedition** - all of them, freely, where the work warrants it. Here the
+- **initiative** - all of them, freely, where the work warrants it. Here the
   plan *is* the design document, and a reviewer is expected to spend real time
   in it.
 

@@ -1,12 +1,12 @@
 ---
 name: blueprint-distillation
-description: How to reverse-engineer existing behaviour into BDD scenarios before changing it, on brownfield terrain. Triggers during Specify whenever terrain is brownfield-unmapped (a routing guardrail floor) and is good practice on any brownfield work.
+description: How to reverse-engineer existing behaviour into BDD scenarios before changing it, on brownfield familiarity. Triggers during Specify whenever familiarity is brownfield-unmapped (a routing guardrail floor) and is good practice on any brownfield work.
 ---
 
 # Blueprint Distillation
 
 The rule behind this skill is simple: **you cannot safely change behaviour you
-have not first written down.** On `brownfield-unmapped` terrain the routing
+have not first written down.** On `brownfield-unmapped` familiarity the routing
 policy makes this a routing guardrail floor - distillation runs before any new
 scenario, before any change. This skill is how you do it well.
 
@@ -25,7 +25,7 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
 ## The procedure
 
 1. **Bound the surface.** You are not distilling the whole system - only the
-   behaviour the upcoming change will touch, plus its immediate blast radius.
+   behaviour the upcoming change will touch, plus its immediate risk.
    Use the route's `touches:` tags and the plan's intended change site to draw
    the boundary. Distilling too wide wastes the route; too narrow misses the
    regression you are about to cause.
@@ -75,7 +75,7 @@ surprise you at Verify or in production.
 - **Distilling the ideal.** Writing scenarios for what the code should do and
   calling it distillation. Now you have no regression net and a spec that lies
   about the present.
-- **Boiling the ocean.** Distilling far beyond the change's blast radius. The
+- **Boiling the ocean.** Distilling far beyond the change's risk. The
   route did not budget for it and it delays the actual work.
 - **Skipping it because "I understand this code."** Understanding it is not the
   bar - *it being written down* is the bar. The floor is about the artifact, not

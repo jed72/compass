@@ -29,3 +29,4 @@ readings:
 route: express
 backfills: []
 ```
+When a PRD exists, invoke the product-lens agent by its machine name.

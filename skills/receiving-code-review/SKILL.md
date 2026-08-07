@@ -28,7 +28,7 @@ today without it. If the answer is nothing, it belongs in a Frame, not a review
 thread. Say so and offer to file it.
 
 **Say what you did.** Per comment: changed it, or did not and why. A resolved
-thread with no reply is a decision nobody can audit - and under G4, a change
+thread with no reply is a decision nobody can audit - and under evidence-not-assertion, a change
 with no recorded reason is an assertion. A good reply is short: *"Checked -
 `validate()` runs before the cache write, so that race cannot happen here. It
 can on the batch path, which your comment led me to; fixed there."*
