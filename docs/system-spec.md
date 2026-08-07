@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### every published surface should report 1.7.0
+### the v2 PRD exists in the v2 register with all required sections
 
-- **Scenario id:** `TRC-1`
+- **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
-- **Source task:** `version-bump-1-7-0`
-- **Landed:** 2026-08-03
+- **Source task:** `v2-prd-and-freeze-adr`
+- **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -22,19 +22,19 @@
 - **Source task:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### re-running the capture should not duplicate derived entries
+### the vocabulary freeze is recorded as an accepted, indexed decision record
 
-- **Scenario id:** `TRC-B2`
+- **Scenario id:** `TRC-A2`
 - **Intent:** `INT-2`
-- **Source task:** `record-keeping-integrity`
-- **Landed:** 2026-08-03
+- **Source task:** `v2-prd-and-freeze-adr`
+- **Landed:** 2026-08-07
 
-### the template should say what to write in that column
+### an exempt path is never scanned
 
-- **Scenario id:** `TRC-C2`
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-3`
-- **Source task:** `record-keeping-integrity`
-- **Landed:** 2026-08-03
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
 
 ### every file this task changes should pass house style
 
@@ -2464,6 +2464,13 @@
 - **Source task:** `record-keeping-integrity`
 - **Landed:** 2026-08-03
 
+### re-running the capture should not duplicate derived entries _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
 ### capturing nothing should still record nothing _(archived)_
 
 - **Scenario id:** `TRC-B3`
@@ -2474,6 +2481,13 @@
 ### the review-dimensions table should record who assessed each dimension _(archived)_
 
 - **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
+### the template should say what to write in that column _(archived)_
+
+- **Scenario id:** `TRC-C2`
 - **Intent:** `INT-3`
 - **Source task:** `record-keeping-integrity`
 - **Landed:** 2026-08-03
@@ -2491,3 +2505,101 @@
 - **Intent:** `INT-4`
 - **Source task:** `record-keeping-integrity`
 - **Landed:** 2026-08-03
+
+### every published surface should report 1.7.0 _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source task:** `version-bump-1-7-0`
+- **Landed:** 2026-08-03
+
+### the vocabulary file parses and carries its three sections _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### every term states its meaning _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### every ban carries a replacement and a context _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### the scan config declares its three lists _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-3`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### a banned usage in a fixture is flagged _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### an innocent usage of the same words is not flagged _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### a pending surface may still carry banned terms _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### a surface removed from pending must be clean _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### the pending list only ever shrinks _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### the repository scan is green on day one _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### a pending entry that names no real surface is rejected _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### the implementation plan document is reviewable and complete _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-implementation-plan`
+- **Landed:** 2026-08-06
+
+### every related term is defined _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-terminology-dangling-refs`
+- **Landed:** 2026-08-07

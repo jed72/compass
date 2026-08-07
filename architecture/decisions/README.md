@@ -52,6 +52,7 @@ Rules:
 | [ADR-009](ADR-009-fitness-functions-are-project-guardrails.md) | Architectural fitness functions are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; vacuous-clear on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
 | [ADR-010](ADR-010-governance-layers-rather-than-copies.md) | Project governance should layer over framework defaults rather than copy them | proposed | Inv-8 (backward compat - a file with no `extends:` must keep working); supersedes nothing, complements the drift-detection work |
 | [ADR-011](ADR-011-enforced-file-types-are-project-configurable.md) | Which file types require a red is project-configurable via enforcement.code_globs, adding to the built-in set; a project may add but never remove | accepted | Inv-8 (backward compat - a project that configures nothing keeps today's behaviour); same floor-plus-opt-in shape as ADR-010 |
+| [ADR-012](ADR-012-the-v2-vocabulary-freeze.md) | The v2 vocabulary is frozen - industry words only, enforced by the build; post-freeze changes carry decision-record ceremony | accepted | governance/terminology.yml + tests/test_terminology.py (the ratchet); ADR-006 (break paid once behind a major version) |
 
 ## Principle → ADR mapping
 
