@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the compass-runtime skill carries the stage-to-command mapping in the v2 register
+### the archive sweeps exclude issues the spine says have not started
 
 - **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
-- **Source task:** `v2-session-instructions`
+- **Source task:** `v2-template-prose`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2665,4 +2665,25 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source task:** `v2-session-instructions`
+- **Landed:** 2026-08-07
+
+### the compass-runtime skill carries the stage-to-command mapping in the v2 register _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `v2-session-instructions`
+- **Landed:** 2026-08-07
+
+### the templates speak the v2 register and templates/ is enforced, never pending again _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-template-prose`
+- **Landed:** 2026-08-07
+
+### the follow-up ban tolerates its live machine forms (tag, CLI verb, spine key) _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-template-prose`
 - **Landed:** 2026-08-07
