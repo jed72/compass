@@ -26,7 +26,9 @@ a v3 rename is not available for years. So the v2 vocabulary is not a style
 preference to drift around; it has to be frozen, and the freeze has to be
 mechanical.
 
-The mechanism landed first (commit 681766c on the v2 branch, 2026-08-06):
+The mechanism landed first (2026-08-06; it reached `origin/v2` inside the
+squash commit 2d45d84, and the issue's full evidence trail lives in the
+repository's work archive under `v2-terminology-freeze`):
 
 - `governance/terminology.yml` - every v2 term with its exact meaning, the
   banned v1 vocabulary, and the scan config naming the user-facing surfaces.
@@ -115,8 +117,10 @@ changing it carries decision-record ceremony.**
   protects; its version history is the freeze's amendment log.
 - `tests/test_terminology.py` and `tests/fixtures/terminology/` - the
   enforcement: patterns, fixtures, and the shrink-only ratchet.
-- Commit 681766c (v2 branch) - the freeze landing, with its issue's full
-  evidence trail under the framework's own governance.
+- The `v2-terminology-freeze` issue in the repository's work archive - the
+  freeze landing's full evidence trail under the framework's own
+  governance (its original per-slice commits were squashed into 2d45d84
+  when the branch first reached `origin/v2`).
 - **ADR-002** (the framework grows by adding artifacts, not rules) - the
   freeze adds no guardrail; it is enforced as house invariants of this
   repository, the same class as the writing-style tests.
