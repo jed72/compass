@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the policy keys speak v2
+### an issue with only delivery-approach.md passes the pre-tool hook
 
-- **Scenario id:** `TRC-A7`
+- **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
-- **Source task:** `v2-machine-spine`
+- **Source task:** `retire-route-md-alias`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2735,4 +2735,18 @@
 - **Scenario id:** `TRC-A5`
 - **Intent:** `INT-2`
 - **Source task:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### the policy keys speak v2 _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-1`
+- **Source task:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### the archive sweep has no in-flight exemption _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source task:** `retire-route-md-alias`
 - **Landed:** 2026-08-07

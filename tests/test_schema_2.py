@@ -126,17 +126,11 @@ def test_the_archive_carries_v2_artifact_names():
     plan.md remains in any work dir."""
     old_names = {"route.md", "spec.feature.md", "brief.md",
                  "clarifications.md", "plan.md", "spec.feature"}
-    # The in-flight issue is excluded: until the locally installed plugin
-    # refreshes past this rename, its enforcement hook still requires a
-    # route.md, so the active issue carries that name as an alias of
-    # delivery-approach.md. Landed issues never need the alias.
-    current = (REPO_ROOT / ".compass" / "current-task")
-    in_flight = current.read_text().strip() if current.is_file() else ""
     stale = []
     for pattern in [".compass/work/*", "examples/*/.compass/work/*",
                     "examples/bdd-adapters/*/.compass/work/*"]:
         for d in REPO_ROOT.glob(pattern):
-            if not d.is_dir() or d.name == in_flight:
+            if not d.is_dir():
                 continue
             for f in d.iterdir():
                 if f.name in old_names:
