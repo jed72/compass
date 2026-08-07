@@ -19,7 +19,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre1
+version: 2.0.0-pre2
 
 terms:
 
@@ -65,6 +65,13 @@ terms:
     related: [issue, ship]
 
   # --- Issue types (what triage assigns) ------------------------------------
+  issue-type:
+    means: >
+      The classification triage assigns to an issue: quick fix, bug fix,
+      hotfix, feature, or spike. Together with labels it determines the
+      delivery approach - which artifacts exist and which gates apply.
+    github: Issue type
+    related: [issue, triage, delivery-approach, label]
   quick-fix:
     means: >
       A small, low-risk change on familiar ground. Produces a test and a PR
@@ -105,6 +112,13 @@ terms:
       are welcome inside it as a format; acceptance criteria are derived
       from them.
     related: [initiative, first-slice, requirements-review]
+  first-slice:
+    means: >
+      The 80/20 cut recorded in a PRD: the slice of an initiative that
+      ships first because it delivers most of the value, with what
+      deliberately waits stated beside it. Design and work breakdown
+      follow the first slice, not the whole PRD.
+    related: [prd, slice, initiative]
   bug-report:
     means: >
       The intake for a bug fix: observed behaviour, expected behaviour,
@@ -199,6 +213,13 @@ terms:
       satisfied for a quick fix.
     also: DoR
     related: [quality-gate, workflow-state]
+  requirements-review:
+    means: >
+      The review pass that hardens requirements before design or build:
+      ambiguities resolved into recorded decisions, contradictions and
+      gaps closed, the PRD reviewed where one exists. Satisfying it is
+      what makes an issue ready. v1 called this "Clarify".
+    related: [prd, definition-of-ready, acceptance-criteria]
   definition-of-done:
     means: >
       The gate before shipping: acceptance criteria pass, applicable

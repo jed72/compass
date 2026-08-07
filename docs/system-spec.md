@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### the implementation plan document is reviewable and complete
+### every related term is defined
 
 - **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
-- **Source task:** `v2-implementation-plan`
-- **Landed:** 2026-08-06
+- **Source task:** `v2-terminology-dangling-refs`
+- **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -2581,4 +2581,11 @@
 - **Scenario id:** `TRC-F1`
 - **Intent:** `INT-3`
 - **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### the implementation plan document is reviewable and complete _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-implementation-plan`
 - **Landed:** 2026-08-06

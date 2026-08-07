@@ -370,6 +370,24 @@ def test_scan_config_declares_its_three_lists():
     assert scan["surfaces"], "scan.surfaces must not be empty"
 
 
+def test_every_related_term_is_defined():
+    """TRC-A1 (v2-terminology-dangling-refs): a `related:` reference to a
+    term the file never defines is a dangling pointer in the glossary - the
+    reader clicks through to nothing. Every referenced term must have its
+    own entry."""
+    terms = _terminology()["terms"]
+    dangling = sorted({
+        ref
+        for entry in terms.values() if isinstance(entry, dict)
+        for ref in (entry.get("related") or [])
+        if ref not in terms
+    })
+    assert not dangling, (
+        f"related: lists reference terms with no entry: {dangling}. "
+        "Define each one under terms: or drop the reference."
+    )
+
+
 def test_pending_entry_must_name_a_scanned_surface():
     """TRC-F1: a pending entry outside the surface list would never burn
     down - nothing would ever scan it, so nothing would ever demand its
