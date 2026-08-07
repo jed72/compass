@@ -20,14 +20,14 @@ to a passing scenario; the claims gate blocks Land until it does.
   positioning strategies there; voice, claims discipline, and the honesty
   policy come from them. Read `governance/guardrails.md` too - G3 keeps every
   public claim traced to a backing criterion.
-- Read `spec.feature.md` if it exists - claims point at scenarios.
+- Read `acceptance-criteria.md` if it exists - claims point at scenarios.
 - Invoke the `marketing-lens` agent.
 
 ## Procedure
 
 1. **Write positioning.** From `templates/positioning.md`: the audience, the
    core message, and the claim set. For **every claim**, name the scenario in
-   `spec.feature.md` that backs it. A claim with no backing scenario is not yet
+   `acceptance-criteria.md` that backs it. A claim with no backing scenario is not yet
    a claim - it is either a scenario that needs writing (raise it with
    `spec-author` at Specify) or a claim that must be dropped.
 2. **Write launch readiness.** From `templates/launch-readiness.md`: the

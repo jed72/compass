@@ -25,7 +25,7 @@ Claude Code, is `/plugin marketplace add jed72/compass` then
    Clarify, Plan, and Distribute to nothing. Expedition expands them.
    Spike skips most of the pipeline because it ships nothing. The route
    tells the pipeline what to skip and *why it is safe to skip it* - and
-   the reason is written down in `route.md`.
+   the reason is written down in `delivery-approach.md`.
 4. **It requires typed, traceable evidence before delivery work lands.**
    "The tests pass" is not the sentence - it is the run, recorded as a
    `test-run` evidence entry the CLI can read. Gates accept specific
@@ -52,7 +52,7 @@ in practice.
   Distribution map, agent swarm across worktrees, all gates.
 - **Hotfix** - critical and small, brownfield. Reproduce-first: a failing
   regression test *is* the spec. Expedited Build, mandatory backfill of
-  `route.md` and a real scenario before close.
+  `delivery-approach.md` and a real scenario before close.
 - **Spike** - exploration. TDD strategy suspended, hook does not block.
   **Nothing lands from a Spike**; the only exit that keeps code is
   graduating (re-framing into a real route).
@@ -113,7 +113,7 @@ routing guardrails, and folds the result back into `task.yml`:
 
 Frame is `full` on every route - it is the one phase that never collapses.
 
-`.compass/current-task` now points at `fix-jwt-typo`. `route.md` records
+`.compass/current-task` now points at `fix-jwt-typo`. `delivery-approach.md` records
 the readings, the route, and the de-scope reasons.
 
 ### Specify
@@ -222,7 +222,7 @@ foot is ticked.
 
 Solo route, no swarm. The commit lands on the current branch, regression
 runs, the de-scope ledger has nothing owed, the task closes. Total
-artifacts on disk: `route.md`, `task.yml`, `spec.feature.md`, `evidence/`,
+artifacts on disk: `delivery-approach.md`, `task.yml`, `acceptance-criteria.md`, `evidence/`,
 `verification-report.md`, `devlog.md`. Anyone can pick the task up from
 the artifacts alone.
 
@@ -257,12 +257,12 @@ themselves either way.
 ```
 compass route evaluate   apply routing-policy.yml to a task's readings -> the route
 compass check            run the guardrails.yml checks against task.yml + evidence/
-compass bdd extract     extract a task's spec.feature.md into a runnable .feature
+compass bdd extract     extract a task's acceptance-criteria.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass task lint        structurally validate a task.yml
-compass plan lint        scan a plan.md for placeholder phrases - advisory
+compass plan lint        scan a design.md for placeholder phrases - advisory
 compass task receipt     render a one-screen receipt for a landed task -
                          readings → route → typed evidence → gate verdicts
 compass task set-status  record a task as queued | active | parked | landed |

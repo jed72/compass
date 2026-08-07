@@ -19,7 +19,7 @@ next person can act on it without asking you a question.
 
 ## Example 1 - a spec Summary
 
-Every `spec.feature.md` opens with a Summary: **Goal**, **Approach**, and **Why
+Every `acceptance-criteria.md` opens with a Summary: **Goal**, **Approach**, and **Why
 now / what changes**. It is the first thing a reviewer reads and often the only
 thing they read closely.
 
@@ -52,7 +52,7 @@ the better one could only describe this change.
 
 ## Example 2 - a design decision
 
-Design decisions live in `plan.md` under `## 2. Design decisions`, ADR-style. A
+Design decisions live in `design.md` under `## 2. Design decisions`, ADR-style. A
 decision with no alternative considered is usually not a decision yet - it is a
 preference that has not been tested.
 
@@ -116,7 +116,7 @@ spec can be scanned without opening a single scenario body.
 
 ## Example 4 - a plan work unit
 
-Work units in `plan.md` are what Build actually executes. A unit that reads
+Work units in `design.md` are what Build actually executes. A unit that reads
 clearly to the planner and vaguely to the builder is the most expensive kind of
 plan defect, because the ambiguity is discovered after the work starts.
 
@@ -156,7 +156,7 @@ you judge. It cannot catch "similar to U1", which needs a reader.
      rendered end to end, which is a different kind of thing. Keeping it out of
      that series leaves the pairing convention intact. -->
 
-`templates/plan.md` offers five optional sections beyond Approach, design
+`templates/design.md` offers five optional sections beyond Approach, design
 decisions, the governance check, and work units: a **Summary**, an
 **interaction** diagram, a **structure** diagram, **named design patterns**,
 and **the shape of the change** in code. They exist so a reviewer can see a
@@ -298,7 +298,7 @@ rather than routing them through a critic.
 [outcome]" is refused as a spec format by **ADR-004**. The reason is that a user
 story embeds one role's perspective into the artifact, so each role ends up
 wanting their own version and the versions drift. Compass has one
-`spec.feature.md` that five roles read through five lenses. User stories are
+`acceptance-criteria.md` that five roles read through five lenses. User stories are
 fine *upstream* of Compass, in a brief or a ticket; they are not the spec.
 
 **No single-audience declaration.** A common convention is to write "assume the
@@ -311,7 +311,7 @@ to imagine.
 **No bite-sized tasks with exact commands in the plan.** Some frameworks make
 the plan a sequence of small steps each with the literal command to run. Compass
 does not, because Build already sequences small units through `compass tdd-red`
-and `compass tdd-green`, and duplicating that in `plan.md` inflates the plan
+and `compass tdd-green`, and duplicating that in `design.md` inflates the plan
 while making it stale the moment the code moves. The useful part of that idea -
 that a plan should contain no unfinished promises - is kept, as `compass plan
 lint`.

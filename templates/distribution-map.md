@@ -17,14 +17,14 @@ Fill every {{PLACEHOLDER}}.
 
 # Distribution Map - {{TASK_SLUG}}
 
-> **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** plan.md §4, spec.feature.md
+> **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** design.md §4, acceptance-criteria.md
 > **Consumed by:** Distribute, `scripts/swarm.sh`, the `orchestrator` agent
 
 ---
 
 ## 1. Work units
 
-| Unit | From plan.md | Scenario group(s) | Code surface |
+| Unit | From design.md | Scenario group(s) | Code surface |
 |---|---|---|---|
 | U1 | {{plan §4 U1}} | {{group A}} | {{files / modules}} |
 | U2 | {{plan §4 U2}} | {{group B}} | {{…}} |
@@ -47,7 +47,7 @@ Fill every {{PLACEHOLDER}}.
 ## 3. Scenario-group → stream mapping
 
 <!-- One stream per independent unit. Each stream owns a disjoint set of
-     scenarios from spec.feature.md. -->
+     scenarios from acceptance-criteria.md. -->
 
 | Stream | Owns work unit(s) | Owns scenario ids | Branch name |
 |---|---|---|---|
@@ -65,12 +65,12 @@ Fill every {{PLACEHOLDER}}.
 
 <!-- Topology is a routed decision. The worktree cap comes from the
      routing-guardrail `caps` in governance/routing-policy.yml, recorded in
-     route.md by the CLI. THE STANDING CAP: critical blast radius pins
+     delivery-approach.md by the CLI. THE STANDING CAP: critical blast radius pins
      max_worktrees to 1 - an Expedition can be heavy AND solo. If the cap
      and the proposed count disagree, the cap wins; record it as
      cap-driven, not as a de-scope. -->
 
-- Routing-guardrail cap from `route.md`: {{e.g. "critical blast radius → max_worktrees: 1" - or "none"}}
+- Routing-guardrail cap from `delivery-approach.md`: {{e.g. "critical blast radius → max_worktrees: 1" - or "none"}}
 - **Final stream count after caps:** {{N}}
 - If capped below the proposed count: {{which units were folded/sequenced as a result, and the new branch plan}}
 
@@ -78,7 +78,7 @@ Fill every {{PLACEHOLDER}}.
 
 ## Gate
 
-- [ ] Every scenario in `spec.feature.md` is owned by exactly one stream.
+- [ ] Every scenario in `acceptance-criteria.md` is owned by exactly one stream.
 - [ ] Every "independent" verdict in §2 passed both tests (disjoint code AND scenarios).
 - [ ] Final stream count respects every cap in §5.
 

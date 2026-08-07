@@ -25,7 +25,7 @@ import re
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PLAN_TEMPLATE = ROOT / "templates" / "plan.md"
+PLAN_TEMPLATE = ROOT / "templates" / "design.md"
 PLAN_SKILL = ROOT / "skills" / "plan-authoring" / "SKILL.md"
 WRITING_GUIDE = ROOT / "docs" / "writing-specs-and-plans.md"
 

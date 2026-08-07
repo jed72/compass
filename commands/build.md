@@ -14,10 +14,10 @@ delivery - but G1 still applies to anything a Spike *graduates* into a real rout
 
 ## Setup
 
-- Read `route.md` for the test-surface target (scaled to blast radius) and the
+- Read `delivery-approach.md` for the test-surface target (scaled to blast radius) and the
   topology.
-- Read `spec.feature.md` - scenarios become the acceptance suite and seed the
-  TDD cycle. Read `plan.md` for the approach.
+- Read `acceptance-criteria.md` - scenarios become the acceptance suite and seed the
+  TDD cycle. Read `design.md` for the approach.
 - Load the `tdd-discipline` skill.
 - Invoke the `builder` agent - **one per worktree** on a pair or swarm route,
   each owning its scenario set from the distribution map. On a solo route, one
@@ -26,7 +26,7 @@ delivery - but G1 still applies to anything a Spike *graduates* into a real rout
   streams are converging on shared surface and intervenes *before* they
   collide. Cross-stream changes go through the orchestrator, never builder to
   builder.
-- **Capture the regression baseline first (strategy S6).** If `route.md` reads
+- **Capture the regression baseline first (strategy S6).** If `delivery-approach.md` reads
   `blast_radius` cross-cutting or critical - or `compass route evaluate`
   surfaced `regression-baseline` under `applicable_strategies` - run the
   designated existing suite (`project.regression_baseline_suite`, else

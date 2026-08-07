@@ -22,8 +22,8 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-SPEC_TEMPLATE = "templates/spec.feature.md"
-CLARIFICATIONS_TEMPLATE = "templates/clarifications.md"
+SPEC_TEMPLATE = "templates/acceptance-criteria.md"
+CLARIFICATIONS_TEMPLATE = "templates/requirements-review.md"
 BDD_SKILL = "skills/bdd-specification/SKILL.md"
 SPEC_AUTHOR = "agents/spec-author.md"
 
@@ -340,9 +340,9 @@ def test_trc_c6_no_gate_or_floor_added():
 HANDOFF_HEADING = "## Hand-off"
 
 HANDOFF_PHASES = {
-    "commands/specify.md": "spec.feature.md",
-    "commands/clarify.md": "clarifications.md",
-    "commands/plan.md": "plan.md",
+    "commands/specify.md": "acceptance-criteria.md",
+    "commands/clarify.md": "requirements-review.md",
+    "commands/plan.md": "design.md",
 }
 
 
@@ -354,7 +354,7 @@ def test_trc_d1_specify_handoff_prompt():
 
     flat = _flat(_section(text, "Hand-off"))
 
-    assert "spec.feature.md" in flat, "The hand-off does not name the artifact written"
+    assert "acceptance-criteria.md" in flat, "The hand-off does not name the artifact written"
 
     for look_for in ("intent fidelity", "untestable", "failure mode", "ambiguous"):
         assert look_for in flat, (

@@ -108,6 +108,6 @@ def test_bdd_spec_shared_artifact_stays_bdd():
     """The spec.feature.md artifact must remain the shared BDD artifact."""
     text = _read_skill()
     text_lower = text.lower()
-    assert "spec.feature.md" in text_lower, (
-        "bdd-specification must confirm spec.feature.md stays as the shared BDD artifact."
+    assert "acceptance-criteria.md" in text_lower, (
+        "bdd-specification must confirm acceptance-criteria.md stays as the shared BDD artifact."
     )

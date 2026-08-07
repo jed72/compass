@@ -24,10 +24,10 @@ place the mapping lives.
 
 | Stage (v2 name) | Current command | Artifact it writes |
 |---|---|---|
-| Triage | `/compass:frame` | `route.md` (the delivery-approach record) + the spine's assessment |
-| Define acceptance criteria | `/compass:specify` | `spec.feature.md` |
-| Requirements review | `/compass:clarify` | `clarifications.md` (ends with the Definition of Ready) |
-| Design | `/compass:plan` | `plan.md` (+ `distribution-map.md` on parallel work) |
+| Triage | `/compass:frame` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
+| Define acceptance criteria | `/compass:specify` | `acceptance-criteria.md` |
+| Requirements review | `/compass:clarify` | `requirements-review.md` (ends with the Definition of Ready) |
+| Design | `/compass:plan` | `design.md` (+ `distribution-map.md` on parallel work) |
 | Break down the work | `/compass:distribute` | worktrees + stream charters |
 | Implement | `/compass:build` | code + `evidence/red.json` / `evidence/green.json` |
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
@@ -49,7 +49,7 @@ judgement is yours - and records them in the issue spine (`task.yml`). It
 then hands them to the **mechanism**: `compass route evaluate --write`
 applies `governance/routing-policy.yml` deterministically and folds the
 computed delivery approach, its stages and gates, back into the spine. You
-also write the human-readable approach record (`route.md`). You do not
+also write the human-readable approach record (`delivery-approach.md`). You do not
 choose a process, and you do not compose the approach in your head - you
 assess the work, the CLI computes the approach.
 
@@ -137,7 +137,7 @@ passes, writes `evidence/green.json`, and clears the marker. The marker is
 only ever written after a real failure - that honesty is the point.
 
 Two stage transitions carry an explicit checklist gate. Requirements review
-ends with the **Definition of Ready** (the foot of `clarifications.md`); on
+ends with the **Definition of Ready** (the foot of `requirements-review.md`); on
 approaches where that review collapses (quick fix, hotfix, spike), it is
 satisfied by construction. Before shipping comes the **Definition of Done**
 (the foot of `verification-report.md`). Treat an unchecked box as a closed
@@ -192,13 +192,13 @@ the approach is solo, there is no worktree - work on the current branch.
 ├── current-task                One-line pointer to the active issue
 ├── work/
 │   └── <task-slug>/            One directory per issue
-│       ├── route.md             The delivery-approach record (prose)
+│       ├── delivery-approach.md             The delivery-approach record (prose)
 │       ├── task.yml             The machine-readable issue spine
-│       ├── brief.md             Intake (if a product owner was involved)
+│       ├── prd.md             Intake (if a product owner was involved)
 │       ├── ui-contract.md       Designer contracts (if a designer was involved)
-│       ├── spec.feature.md      Acceptance criteria - the shared artifact
-│       ├── clarifications.md    (ends with the Definition of Ready gate)
-│       ├── plan.md              The design
+│       ├── acceptance-criteria.md      Acceptance criteria - the shared artifact
+│       ├── requirements-review.md    (ends with the Definition of Ready gate)
+│       ├── design.md              The design
 │       ├── distribution-map.md  Swarm topology (initiative-scale work)
 │       ├── positioning.md       Marketer messaging (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)
@@ -217,7 +217,7 @@ defaults apply as-is.
 
 ## When you are unsure
 
-Re-read the delivery-approach record (`route.md`). It was written at triage
+Re-read the delivery-approach record (`delivery-approach.md`). It was written at triage
 precisely so a later session - or a different agent - can pick up the issue
 without re-deriving the process. If it does not answer the question, triage
 under-sized the process; say so and re-assess rather than improvise.

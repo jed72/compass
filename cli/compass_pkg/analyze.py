@@ -93,7 +93,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.check_cmd import cmd_check
-from compass_pkg.core import COMPASS_SCHEMA_VERSION, COMPASS_VERSION, CompassError, exit_for_mode, find_compass_dir, load_mode, load_yaml, mode_banner, now_iso, resolve_task_dir, save_task
+from compass_pkg.core import COMPASS_SCHEMA_VERSION, COMPASS_VERSION, CompassError, artifact_path, exit_for_mode, find_compass_dir, load_mode, load_yaml, mode_banner, now_iso, resolve_task_dir, save_task
 from compass_pkg.governance import cmd_policy_lint
 from compass_pkg.policy import cmd_task_lint
 
@@ -327,9 +327,9 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     has_analyze_gate = "verify.analyze" in gate_ids
 
     # --- No artifacts to analyze (Inv-8) ------------------------------------
-    brief_path = os.path.join(task_dir, "brief.md")
-    spec_path = os.path.join(task_dir, "spec.feature.md")
-    route_md_path = os.path.join(task_dir, "route.md")
+    brief_path = artifact_path(task_dir, "prd.md")
+    spec_path = artifact_path(task_dir, "acceptance-criteria.md")
+    route_md_path = artifact_path(task_dir, "delivery-approach.md")
     positioning_path = os.path.join(task_dir, "positioning.md")
 
     has_brief = os.path.isfile(brief_path)

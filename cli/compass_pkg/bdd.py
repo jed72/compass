@@ -93,7 +93,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.checks import _spec_sha256
-from compass_pkg.core import CompassError, find_upwards, load_yaml, now_iso, resolve_task_dir
+from compass_pkg.core import CompassError, artifact_path, find_upwards, load_yaml, now_iso, resolve_task_dir
 from compass_pkg.tdd import _read_config, _run_test
 
 
@@ -312,6 +312,15 @@ def atomic_write(path, text):
         raise
 
 
+def default_extract_path(task_dir):
+    """The zero-config output path for an extracted runnable feature file.
+
+    Named for what it holds - the issue's acceptance criteria - and written
+    into the issue directory so the verb works before a project has
+    configured anything."""
+    return os.path.join(task_dir, "acceptance-criteria.feature")
+
+
 def _bdd_out_path(args, task_dir, slug):
     """Resolve where the .feature goes: --out, then config, then the task dir.
 
@@ -329,7 +338,7 @@ def _bdd_out_path(args, task_dir, slug):
         if not os.path.isabs(features_dir):
             features_dir = os.path.join(root, features_dir)
         return os.path.join(features_dir, "%s.feature" % slug)
-    return os.path.join(task_dir, "spec.feature")
+    return default_extract_path(task_dir)
 
 
 _ZERO_COLLECTED = re.compile(
@@ -488,10 +497,10 @@ def cmd_bdd_extract(args):
     """compass bdd extract - spec.feature.md -> a runnable .feature file."""
     task_dir = resolve_task_dir(getattr(args, "task", None))
     slug = os.path.basename(os.path.normpath(task_dir))
-    spec_path = os.path.join(task_dir, "spec.feature.md")
+    spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     if not os.path.isfile(spec_path):
         raise CompassError(
-            "no spec.feature.md for task '%s' - Specify must run first (%s)"
+            "no acceptance criteria for issue '%s' - define them first (%s)"
             % (slug, spec_path))
 
     with open(spec_path, "r", encoding="utf-8") as fh:
@@ -510,7 +519,7 @@ def cmd_bdd_extract(args):
         return 1
 
     out_path = _bdd_out_path(args, task_dir, slug)
-    spec_rel = os.path.join(".compass", "work", slug, "spec.feature.md")
+    spec_rel = os.path.join(".compass", "work", slug, os.path.basename(spec_path))
     atomic_write(out_path, render_feature(slug, scenarios, spec_rel))
     sys.stdout.write("%s\n" % out_path)
     return 0

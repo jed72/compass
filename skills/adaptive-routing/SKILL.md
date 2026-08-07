@@ -56,7 +56,7 @@ treat an un-extended `governance/` as a missing prerequisite.
   is plausibly parallelisable.
 
 **Intent & role** - *the actual outcome, not the literal request.*
-- Read `brief.md` if it exists. "Add a CSV export" under a brief that says "let
+- Read `prd.md` if it exists. "Add a CSV export" under a brief that says "let
   finance self-serve" may need filters, scheduling, and permissions - the
   literal request under-describes the intent.
 - A non-engineering role in play almost always pulls the route up: it adds
@@ -77,7 +77,7 @@ Go phase by phase, not route by route:
 - **Specify** - scenario count and discovery depth; distillation if brownfield.
 - **Clarify** - full / light / collapsed. Collapsed is permitted *only* when the
   spec is a single unambiguous scenario *and* no routing guardrail requires Clarify.
-- **Plan** - one-liner / real `plan.md` / plan + distribution map.
+- **Plan** - one-liner / real `design.md` / plan + distribution map.
 - **Distribute** - solo / pair / swarm, stream count from the distribution map.
 - **Build** - test-surface target, scaled to blast radius.
 - **Verify** - which review dimensions, how many gates (see the router's
@@ -93,7 +93,7 @@ candidate - `default_shapes` says which reference shape a reading leans toward,
 and the tie-breaking `biases` settle the close calls ("when magnitude is
 unclear, estimate up"; "prefer the lightest route that still clears the routing
 guardrails"). A routing strategy is a starting point, not a verdict: depart from
-one when the task warrants, and record the departure in `route.md`.
+one when the task warrants, and record the departure in `delivery-approach.md`.
 
 ## Composing the Spike route
 
@@ -125,8 +125,8 @@ After composing - the candidate already biased by the routing strategies - run
 it through the **routing guardrails** in `governance/routing-policy.md` in this
 order: **floors** raise it, **caps** limit it, **immovable_gates** are stapled
 on, blocking **role_rules** add artifacts and phase blocks. Record every routing
-guardrail that fires *and quote its rationale* in `route.md`. Never apply a
-constraint silently - a reader of `route.md` must see which bounds were active.
+guardrail that fires *and quote its rationale* in `delivery-approach.md`. Never apply a
+constraint silently - a reader of `delivery-approach.md` must see which bounds were active.
 
 The split is the whole point: routing strategies *bias* what the Needle reaches
 for, routing guardrails *bound* what it is allowed to do. A human can override a
@@ -156,12 +156,12 @@ skips earns a row in the de-scope ledger, and each row needs an explicit
 ### Anti-patterns
 
 - **Route laundering** - composing a route lighter than the terrain warrants to
-  "just get the change in." `route.md` makes this visible; do not do it.
+  "just get the change in." `delivery-approach.md` makes this visible; do not do it.
 - **Justification theatre** - a ledger row whose reason is "to save time."
   Time is not a safety argument. The reason must be about why the skip is
   *safe*, not why it is *convenient*.
 - **Silent constraint** - applying a floor or omitting an immovable gate without
-  a line in `route.md`.
+  a line in `delivery-approach.md`.
 
 ## When to re-frame
 
@@ -172,6 +172,6 @@ Re-framing mid-task is a normal event, not a failure. Trigger it when:
 - Clarify finds the spec is bigger or more ambiguous than the route assumed.
 - A `touches:` tag surfaces late (you discover the change reaches auth).
 
-Run `/compass:frame --reframe`: re-score the dimensions, write a new `route.md`
+Run `/compass:frame --reframe`: re-score the dimensions, write a new `delivery-approach.md`
 revision, record what changed and why. A route quietly outgrown is the failure;
 a route honestly re-framed is the system working.

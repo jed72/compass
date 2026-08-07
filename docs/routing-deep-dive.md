@@ -3,7 +3,7 @@
 `routes/router.md` is the Needle's rubric: the four dimensions, the scoring
 tables, the four-step procedure. This document is the rubric *in motion*. It
 takes a handful of realistic tasks and walks each one through scoring,
-composition, routing-guardrail constraint, and the final `route.md` - so that
+composition, routing-guardrail constraint, and the final `delivery-approach.md` - so that
 the claim "Compass computes the process per task" stops being an assertion and
 becomes something you can watch happen.
 
@@ -25,7 +25,7 @@ Every task, every time, the Needle runs the same four steps:
    caps limit it, immovable gates are stapled on, blocking role rules add
    artifacts and blocks. Every guardrail that fires is recorded with its
    rationale.
-4. **Write `route.md` and confirm** - including the de-scope ledger, where
+4. **Write `delivery-approach.md` and confirm** - including the de-scope ledger, where
    every collapsed or skipped phase carries an explicit "safe to skip
    because…" line.
 
@@ -74,9 +74,9 @@ the full Expedition treatment.* Not because the change is large - it is
 atomic - but because the blast radius of the auth module is not a function of
 line count. A floor is domain knowledge overriding the raw dimension readings.
 
-### Final `route.md`
+### Final `delivery-approach.md`
 
-The route is Expedition. The routing-guardrails section of `route.md` records:
+The route is Expedition. The routing-guardrails section of `delivery-approach.md` records:
 
 > **floor** · `touches: [auth]` · Candidate route Express was raised to
 > Expedition · *"Domain risk overrides magnitude. A one-line auth change is
@@ -117,7 +117,7 @@ floor list (`auth`, `payments`, `personal-data`, `migrations`, `public-api`).
 
 Standard magnitude, contained blast radius, mapped terrain. The candidate is
 **Standard**, plainly: a small feature set of scenarios, a light-to-full
-Clarify pass, a real `plan.md` with the design decisions recorded, solo or
+Clarify pass, a real `design.md` with the design decisions recorded, solo or
 pair topology, two gates at Verify. No deviation from the reference shape is
 warranted - blast radius is only `contained`, so `security` stays scaled
 rather than full and `clarity` and `regression` are on as Standard always has
@@ -131,7 +131,7 @@ No floor matches - no domain tag on the floor list, blast radius is not
 `verify.claims`) are stapled on; `verify.claims` is `n/a` here because no
 marketer is in play. No `role_rules` fire - only an engineer.
 
-### Final `route.md`
+### Final `delivery-approach.md`
 
 The routing-guardrails section reads, in full:
 
@@ -191,7 +191,7 @@ Two floors fire, and they reinforce each other:
 Then a **cap** fires - and this is the subtle part. `when: { blast_radius:
 critical }` → `max_worktrees: 1`. So this is an Expedition route that is
 *capped to a single worktree*. It is heavy - full BDD discovery, full Clarify,
-a full `plan.md`, every gate - and **solo**. That is not a contradiction. The
+a full `design.md`, every gate - and **solo**. That is not a contradiction. The
 cap encodes a real tradeoff: parallelism is speed, but a swarm has
 coordination risk, and on a critical change the coordination risk costs more
 than the speed saves.
@@ -201,7 +201,7 @@ reversible or come with a written, tested rollback) is checked during Plan by
 `governance-check` - the route does not waive it. (If the team has hardened
 that into a project guardrail, it is checked as a guardrail and blocks.)
 
-### Final `route.md`
+### Final `delivery-approach.md`
 
 Expedition, single worktree. The routing-guardrails section records both
 floors and the cap, each with its rationale. The topology section (§4c of the
@@ -242,7 +242,7 @@ would add a floor; assume here it does not.
 is the textbook **Expedition** case, and it composes there with no help from
 the routing guardrails. Full BDD discovery from the brief; scenarios grouped by
 independence - email delivery, in-app delivery, webhook delivery, preferences,
-the delivery log are plausibly disjoint surfaces; a full `plan.md` plus a real
+the delivery log are plausibly disjoint surfaces; a full `design.md` plus a real
 `distribution-map.md`; a swarm across git worktrees, one `builder` per stream,
 an `orchestrator` that writes no feature code; all gates, all dimensions, plus
 a per-worktree mid-route checkpoint.
@@ -260,12 +260,12 @@ solo* (critical blast radius, capped); Case 4 is *heavy and parallel*
 (cross-cutting blast radius, uncapped). Same Expedition reference route,
 genuinely different topology - because the dimensions read differently.
 
-### Final `route.md`
+### Final `delivery-approach.md`
 
 Expedition at full weight, swarm topology, empty de-scope ledger (Expedition's
 ledger is empty by definition - it is what the other routes are measured
 against). If a designer and product owner did join, their `role_rules` would
-fire: `brief.md` required and the intent-fidelity gate before Plan; the
+fire: `prd.md` required and the intent-fidelity gate before Plan; the
 designer's `ui-contract.md` flowing into Specify as scenarios. Each would be
 recorded in the routing-guardrails section.
 
@@ -293,7 +293,7 @@ the magnitude / blast-radius / terrain composition.
 
 A live defect with user impact happening *now*, small magnitude, critical
 blast radius - the Needle composes toward **Hotfix**. The shape: Frame is fast
-but real (`route.md` is written even under time pressure - the audit trail
+but real (`delivery-approach.md` is written even under time pressure - the audit trail
 starts here); Specify is **reproduce-first** (the spec *is* a failing
 regression test that reproduces the 500 - simultaneously the BDD scenario and
 the TDD red); Clarify collapsed (the reproduction *is* the clarification);
@@ -318,13 +318,13 @@ The methodology's own guard applies here: a fix that turns out to be
 Expedition, put someone in incident command, use the swarm if it helps. The
 Needle scores magnitude precisely so that distinction holds.
 
-### Final `route.md`
+### Final `delivery-approach.md`
 
-Hotfix. The §6 "Owed backfills" section of `route.md` carries an unchecked
+Hotfix. The §6 "Owed backfills" section of `delivery-approach.md` carries an unchecked
 item - the mandatory backfill - and the task is not closeable until it is
-paid: `route.md` completed properly (not just the urgent stub), the
+paid: `delivery-approach.md` completed properly (not just the urgent stub), the
 reproduction test promoted into a real Given/When/Then scenario in
-`spec.feature.md` traceable to the defect, and a root-cause line in the
+`acceptance-criteria.md` traceable to the defect, and a root-cause line in the
 `devlog.md`. `/compass:status` flags the unpaid backfill; `/compass:land`
 refuses to close the task; the `stop.sh` hook makes it loud at session end.
 Borrowed ceremony is a debt with a due date, and the due date is "before the
@@ -355,7 +355,7 @@ intent.
 
 Exploration intent composes toward **Spike**, the way live-defect urgency
 composes toward Hotfix - the routing strategy `reading: { intent: exploration }
-→ lean_toward: spike` is the bias. Frame is light but real: `route.md` records
+→ lean_toward: spike` is the bias. Frame is light but real: `delivery-approach.md` records
 the **question** ("what is dropping ~2% of jobs under load?") and a **timebox**.
 Specify collapses to that question. Clarify is skipped - there is nothing to QA
 against, the behaviour is the unknown. Plan collapses to a timebox and an
@@ -373,7 +373,7 @@ could only be answered by touching `auth`, `payments`, `personal-data`, or
 an Expedition with a discovery-heavy Specify. Here the investigation stays
 clear of irreversible surface, so Spike stands. Nothing is floored.
 
-### Final `route.md` - and the exit
+### Final `delivery-approach.md` - and the exit
 
 Spike. Verify becomes **Conclude**: not a test gate, a findings check - *was
 the question answered?* The one gate is "the question is answered (or
@@ -385,7 +385,7 @@ written down." Land becomes **Graduate or Discard**:
   the real fix. That re-frame is a normal route - Standard, probably - and
   guardrails G1–G3 apply to the fix in full. Any diagnostic code carried over
   is now subject to that route's guardrails; in practice most is rewritten
-  under TDD. The spike's `route.md` records "graduated → task `<slug>`".
+  under TDD. The spike's `delivery-approach.md` records "graduated → task `<slug>`".
 - **Discard** - the spike concluded "this is environmental, not our code" or
   "inconclusive within the timebox." The finding goes in `devlog.md`, any
   follow-up is filed, and the spike closes. A discarded spike with a clear
@@ -416,12 +416,12 @@ correctly.
 
 ### "Add a CSV export" - product owner, "let finance self-serve"
 
-Same three words, but a `brief.md` sits behind them, and the brief's outcome
+Same three words, but a `prd.md` sits behind them, and the brief's outcome
 is "let finance self-serve their month-end numbers." The Needle reads intent
 as the *actual outcome wanted*, not the literal request - and "self-serve"
 implies filters that match what finance actually needs, perhaps scheduling,
 perhaps permissions. Magnitude is no longer `small`; it is `standard` or
-larger. The `product-owner` role rule fires: `brief.md` required, the
+larger. The `product-owner` role rule fires: `prd.md` required, the
 intent-fidelity gate before Plan. Composes to **Standard or heavier**, with a
 gate that checks the export scenarios actually deliver "self-serve" and not
 just "a button that produces a file." Same words, a genuinely bigger route -
@@ -435,7 +435,7 @@ not matter: the routing guardrail (floor) `when: { touches: [payments,
 personal-data] }` → `force_minimum_route: expedition` fires. Composes to
 **Expedition** - full
 discovery (what exactly is in this export? what must *not* be?), full Clarify,
-a `plan.md` with the data-handling decisions recorded, every gate, `security`
+a `design.md` with the data-handling decisions recorded, every gate, `security`
 full. A "small" feature, the full treatment, because of what it touches.
 
 ### "Add a CSV export" - product marketer, a launch feature
@@ -460,7 +460,7 @@ Routing happens at Frame, but the terrain reading can turn out wrong, and the
 honest response is not to push on with a route you no longer believe.
 
 `/compass:frame --reframe` re-scores the four dimensions mid-task, writes a
-**new revision** of `route.md` (the prior revision is kept visible under a
+**new revision** of `delivery-approach.md` (the prior revision is kept visible under a
 "Superseded" heading), and records what changed and why. A re-frame is a
 normal event, not a failure. *A route quietly outgrown is the failure.*
 
@@ -491,14 +491,14 @@ The triggers are concrete:
   expand scope; if the decision touches the route, the roundtable's own gate
   says to follow it with a re-frame.
 
-The re-framed `route.md` is the contract again - the next session reads the
+The re-framed `delivery-approach.md` is the contract again - the next session reads the
 latest revision and knows exactly where the task stands.
 
 ---
 
 ## What the routing system is really for
 
-Every case above ends in a `route.md` that a human can read and a later
+Every case above ends in a `delivery-approach.md` that a human can read and a later
 session can resume from. That is the deliverable. The Needle does not just
 classify the task - it explains the classification, records every guardrail
 that fired, and writes down every skip with the reason it is safe. The

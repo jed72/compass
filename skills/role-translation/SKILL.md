@@ -1,6 +1,6 @@
 ---
 name: role-translation
-description: The "one spec, many lenses" mechanism - how the same spec.feature.md is read by the PM (intent), the marketer (claims), the engineer (tests), QA (coverage), and the designer (contracts). Triggers on any role-facing work and whenever a non-engineering role enters the pipeline.
+description: The "one spec, many lenses" mechanism - how the same acceptance-criteria.md is read by the PM (intent), the marketer (claims), the engineer (tests), QA (coverage), and the designer (contracts). Triggers on any role-facing work and whenever a non-engineering role enters the pipeline.
 ---
 
 # Role Translation
@@ -8,7 +8,7 @@ description: The "one spec, many lenses" mechanism - how the same spec.feature.m
 Compass is not an engineering framework with hooks bolted on for other people.
 The four non-engineering roles are full pipeline citizens. The mechanism that
 makes that real - instead of aspirational - is the **shared scenario file**.
-`spec.feature.md` is the one artifact every role reads, each through their own
+`acceptance-criteria.md` is the one artifact every role reads, each through their own
 lens. This skill is how each lens works and how they stay coherent.
 
 ## Why one shared artifact
@@ -23,11 +23,11 @@ substrate; the lenses are how each role uses it.
 ## The five lenses
 
 ### Product owner / manager - the **intent** lens
-Reads each scenario asking: *does this deliver the outcome in `brief.md`?*
+Reads each scenario asking: *does this deliver the outcome in `prd.md`?*
 - Walks every success signal in the brief and finds the scenario that delivers
   it. A signal with no scenario is a gap; a scenario that solves the literal
   request but misses the outcome is drift.
-- Enters *upstream* of the spec - `brief.md` exists before the scenarios - and
+- Enters *upstream* of the spec - `prd.md` exists before the scenarios - and
   gates Plan: per the routing policy's blocking `role_rules`, the spec must be
   checked against the brief before Plan starts. Applied by the `product-lens`
   agent.
@@ -77,7 +77,7 @@ moments for it:
 - **At Clarify**, the non-engineering roles review the spec together. This is
   where intent-lens, claims-lens, and contracts-lens disagreements surface
   while the spec is still cheap to change. An ambiguity one lens sees is logged
-  in `clarifications.md` with its resolution.
+  in `requirements-review.md` with its resolution.
 - **At the gates**, the lenses become review dimensions - `claims` is the
   marketer's lens as a Verify dimension; the intent check is the PM's lens as a
   pre-Plan gate.
@@ -88,7 +88,7 @@ moments for it:
   human, often at `/compass:roundtable` - each non-engineering role curates its
   own strategies (product, voice & positioning) but none of them outranks a
   guardrail. A conflict that governance does not resolve is a
-  `clarifications.md` entry and, if needed, a re-frame.
+  `requirements-review.md` entry and, if needed, a re-frame.
 
 ## How a non-engineering role enters the pipeline
 
@@ -96,14 +96,14 @@ A role is not a consultation; it is an entry point that *changes the route*.
 When `/compass:intent`, `/compass:position`, or `/compass:design` opens a
 session - or `/compass:roundtable` convenes several - the Needle reads the role
 as the fourth dimension. A non-engineering role almost always pulls the route
-heavier: it adds artifacts (`brief.md`, `positioning.md`, `ui-contract.md`) and
+heavier: it adds artifacts (`prd.md`, `positioning.md`, `ui-contract.md`) and
 gates (the intent check, the claims gate). That weight is the framework working
 as designed, not overhead to trim.
 
 ## Anti-patterns
 
 - **The shadow spec** - a role keeping its own private requirements doc instead
-  of reading and contributing to `spec.feature.md`. The moment there are two
+  of reading and contributing to `acceptance-criteria.md`. The moment there are two
   specs, there is no spec.
 - **The downstream consultee** - treating the PM, marketer, or designer as a
   reviewer of finished engineering work. They are *in* the pipeline: the PM

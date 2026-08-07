@@ -64,7 +64,7 @@ the step was too big.
 - The test exists and fails *before* the production code that satisfies it is
   written. Not after. Not "alongside."
 - It fails because the behaviour is absent - not because it is malformed.
-- It is derived from a scenario in `spec.feature.md`. The TDD strategy (S2) and
+- It is derived from a scenario in `acceptance-criteria.md`. The TDD strategy (S2) and
   the BDD strategy (S1) are not two systems: the BDD scenario is the
   acceptance-level test and seeds the unit-level TDD cycle. The chain is
   scenario → test → code.

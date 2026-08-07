@@ -34,7 +34,7 @@ judgement is yours - and records them in the issue spine (`task.yml`, under
 them to the **mechanism**: the command runs `compass route evaluate --write`,
 which applies `governance/routing-policy.yml` deterministically and folds the
 computed delivery approach - its stages and its gates - back into the spine.
-You also write the human-readable record of the approach (`route.md`). You do
+You also write the human-readable record of the approach (`delivery-approach.md`). You do
 not choose a process, and you do not compose the delivery approach in your
 head - you assess the work, the CLI computes the approach.
 
@@ -147,7 +147,7 @@ passes, writes `evidence/green.json`, and clears the marker. The marker is
 only ever written after a real failure - that honesty is the point.
 
 Two stage transitions carry an explicit checklist gate. Requirements review
-ends with the **Definition of Ready** (the foot of `clarifications.md`); on
+ends with the **Definition of Ready** (the foot of `requirements-review.md`); on
 delivery approaches where that review collapses (quick fix, hotfix, spike),
 it is satisfied by construction. Before shipping comes the **Definition of
 Done** (the foot of `verification-report.md`); its unchecked items carry
@@ -215,13 +215,13 @@ the approach is solo, there is no worktree - work on the current branch.
 ├── current-task                One-line pointer to the active issue
 ├── work/
 │   └── <task-slug>/            One directory per issue
-│       ├── route.md             The delivery-approach record (prose)
+│       ├── delivery-approach.md             The delivery-approach record (prose)
 │       ├── task.yml             The machine-readable issue spine
-│       ├── brief.md             Intake (if a product owner was involved)
+│       ├── prd.md             Intake (if a product owner was involved)
 │       ├── ui-contract.md       Designer contracts (if a designer was involved)
-│       ├── spec.feature.md      Acceptance criteria - the shared artifact
-│       ├── clarifications.md    (ends with the Definition of Ready gate)
-│       ├── plan.md              The design
+│       ├── acceptance-criteria.md      Acceptance criteria - the shared artifact
+│       ├── requirements-review.md    (ends with the Definition of Ready gate)
+│       ├── design.md              The design
 │       ├── distribution-map.md  Swarm topology (initiative-scale work)
 │       ├── positioning.md       Marketer messaging (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)
@@ -250,7 +250,7 @@ as a worked example for adopters. Triage loads it (when present) into
 
 ## When you are unsure
 
-Re-read the delivery-approach record (`route.md`). It was written at triage
+Re-read the delivery-approach record (`delivery-approach.md`). It was written at triage
 precisely so that a later session - or a different agent - can pick up the
 issue without re-deriving the process. If it does not answer the question,
 triage under-sized the process; say so and re-assess rather than improvise.

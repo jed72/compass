@@ -20,7 +20,7 @@ how to handle a blocker, and how to write the digest.
 The builder-style approach modelled delivery as a persona agent with turf - it
 "owned" the board, "assigned" work, "moved" issues between columns. Compass
 deliberately does not. Task state is not a label someone sets; it is *inferred
-from the artifacts on disk*. A task is in Build because `plan.md` exists and
+from the artifacts on disk*. A task is in Build because `design.md` exists and
 `verification-report.md` does not - not because someone moved a card. So flow
 management has nothing to *own* and nothing to *move*. Its entire job is to
 read the artifacts, notice what the per-task pipeline structurally cannot
@@ -41,7 +41,7 @@ is a cross-task question, and this is the command that answers it.
 Run these against every task directory under `.compass/work/`. Order of
 severity, worst first:
 
-1. **No `route.md`** - a guardrail violation. Work was started without Frame.
+1. **No `delivery-approach.md`** - a guardrail violation. Work was started without Frame.
    This outranks everything; a task with no computed route is unaccountable.
    The fix is to run Frame retroactively and reconcile.
 

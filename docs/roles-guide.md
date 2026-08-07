@@ -7,7 +7,7 @@ own entry points, their own vocabulary, and their own artifacts that plug into
 the *same* pipeline.
 
 The mechanism that makes that real instead of aspirational is one file:
-`spec.feature.md`, the shared scenario file. Every role reads it - each
+`acceptance-criteria.md`, the shared scenario file. Every role reads it - each
 through their own lens. This document is about that mechanism. The centrepiece
 is a single concrete scenario, read four different ways. Then: what each role
 owns, where they enter, where they gate, and why the non-engineering roles are
@@ -31,7 +31,7 @@ spec.
 
 ## The centrepiece: one scenario, four lenses
 
-Here is a single scenario from a `spec.feature.md` for a saved-export feature -
+Here is a single scenario from a `acceptance-criteria.md` for a saved-export feature -
 the kind of file `/compass:specify` produces. We will read this exact
 scenario four ways.
 
@@ -49,7 +49,7 @@ Scenario: Finance exports the month-end ledger
 <!-- traceability id: TRC-A1 · serves: INT-1 -->
 ```
 
-`INT-1`, in the spec's intent links, traces to `brief.md`: *"Finance pulls
+`INT-1`, in the spec's intent links, traces to `prd.md`: *"Finance pulls
 month-end numbers without filing a data request."*
 
 One scenario. Four readings.
@@ -57,7 +57,7 @@ One scenario. Four readings.
 ### The product owner reads it for intent fidelity
 
 The product owner's governing question: **does this scenario deliver the
-outcome in `brief.md`?**
+outcome in `prd.md`?**
 
 The brief's outcome is "finance self-serves their month-end numbers." So the
 product owner walks the scenario against that. The permission gate
@@ -145,7 +145,7 @@ Scenario: The export control communicates progress
   And the control cannot be triggered a second time until it completes
 ```
 
-That is a Given/When/Then like any other, and it *flows into* `spec.feature.md`
+That is a Given/When/Then like any other, and it *flows into* `acceptance-criteria.md`
 at Specify - it becomes an acceptance check and seeds the TDD cycle exactly
 like the engineer-facing scenarios. The designer feeds the shared file rather
 than consuming a finished one.
@@ -153,7 +153,7 @@ than consuming a finished one.
 ### The architect-lens reads it against the project's architecture
 
 The sixth lens is the architect's, and like the designer's it is slightly
-different: the architect-lens reads `spec.feature.md` *and* the project's
+different: the architect-lens reads `acceptance-criteria.md` *and* the project's
 cross-task architectural artifacts under `architecture/`. Its governing
 question: **does this scenario respect the system's invariants - the
 boundaries in `relations.md`, the ownership rules in `ownership.md`, the
@@ -171,7 +171,7 @@ kind of failure mode the lens exists to catch.
 
 The architect-lens does **not** write a parallel spec. The scenario file is
 still the shared substrate; the lens's output is `architecture-notes.md` in
-the task directory - annotations *on* `plan.md`, pointing at the relevant
+the task directory - annotations *on* `design.md`, pointing at the relevant
 ADR or relation each annotation defends:
 
 ```markdown
@@ -221,18 +221,18 @@ The five roles, what they own, and how they wire into the pipeline:
 
 | Role | Entry point | Primary artifacts | Where they gate | Strategies curated in `governance/strategies.md` |
 |---|---|---|---|---|
-| Product owner / manager | `/compass:intent` | `brief.md` | Intent-fidelity check before Plan | Product strategies |
+| Product owner / manager | `/compass:intent` | `prd.md` | Intent-fidelity check before Plan | Product strategies |
 | Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Claims gate at Land | Voice & positioning strategies |
 | Designer | `/compass:design` | `ui-contract.md` | UI contracts flow into Specify as scenarios | (contributes the accessibility strategy) |
-| Engineer | `/compass:frame` and the pipeline | `route.md`, `plan.md`, code | Owns Build; Verify's mechanical half | Engineering strategies |
+| Engineer | `/compass:frame` and the pipeline | `delivery-approach.md`, `design.md`, code | Owns Build; Verify's mechanical half | Engineering strategies |
 | QA | joins at `/compass:verify` | `verification-report.md` | Owns the Verify gate | (guards the guardrails at Verify) |
 
 ### Product owner / manager - `/compass:intent`
 
-Enters **upstream of the spec**. `brief.md` exists before the scenarios do -
+Enters **upstream of the spec**. `prd.md` exists before the scenarios do -
 problem, desired outcome, success signals, constraints, non-goals. The Needle
 reads it at Frame: intent is the *actual outcome wanted*, not the literal
-request. The `product-owner` role rule adds `brief.md` as a required artifact
+request. The `product-owner` role rule adds `prd.md` as a required artifact
 and inserts the **intent-fidelity gate before Plan** - the spec must be checked
 against the brief before Plan starts. The `product-lens` agent applies this
 lens, at Clarify and at the pre-Plan gate. The product owner curates the
@@ -260,7 +260,7 @@ covers the empty state, the loading state, the error state, and the
 accessibility expectations - not just the happy path - and must honour the
 accessibility strategy in `governance/strategies.md` (and any project guardrail
 the team has hardened from it). When `spec-author` runs Specify, it folds the
-UI contract scenarios into `spec.feature.md`; because they are already
+UI contract scenarios into `acceptance-criteria.md`; because they are already
 Given/When/Then, nothing is lost in translation.
 
 ### Engineer - `/compass:frame` and the pipeline
@@ -294,7 +294,7 @@ delivery manager, a project manager, a scrum master - someone who runs the
 not the role.
 
 The reason is structural. The other five roles each own a *lens on the work* -
-a way of reading `spec.feature.md` that produces something the build needs.
+a way of reading `acceptance-criteria.md` that produces something the build needs.
 Delivery management is not a lens; it is a *view across tasks*. Modelling it as
 a role would mean a persona with turf and an inbox, "owning" the board and
 "moving" work through it - and Compass has nothing for that persona to own,
@@ -354,7 +354,7 @@ Different readings of one document still have to be reconciled, and the
 pipeline has specific moments for it. At **Clarify**, the non-engineering roles
 review the spec together - this is where intent-lens, claims-lens, and
 contracts-lens disagreements surface while the spec is still cheap to change;
-an ambiguity one lens sees is logged in `clarifications.md` with its
+an ambiguity one lens sees is logged in `requirements-review.md` with its
 resolution. At **the gates**, the lenses become review dimensions.
 
 When a choice genuinely sits *across* roles - a scope cut that affects a
@@ -364,7 +364,7 @@ tradeoffs explicit, and records the decision in `devlog.md`. Each lens speaks
 in its own vocabulary; none speaks for another. When two lenses genuinely
 conflict, governance arbitrates by the conflict rule: a guardrail always beats
 a strategy, and strategy-vs-strategy is resolved by route context or a human.
-A conflict governance does not resolve becomes a `clarifications.md` entry and,
+A conflict governance does not resolve becomes a `requirements-review.md` entry and,
 if it changes scope or route, a re-frame.
 
 ---
@@ -374,7 +374,7 @@ if it changes scope or route, a re-frame.
 The role model fails in recognisable ways. Watch for these:
 
 - **The shadow spec** - a role keeping its own private requirements document
-  instead of reading and contributing to `spec.feature.md`. The moment there
+  instead of reading and contributing to `acceptance-criteria.md`. The moment there
   are two specs, there is no spec.
 - **The downstream consultee** - treating the product owner, marketer, or
   designer as a reviewer of finished engineering work. They are *in* the

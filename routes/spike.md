@@ -41,10 +41,10 @@ means re-framing into a real route, where guardrails G1–G3 apply in full.
 
 | Phase | Weight on Spike |
 |---|---|
-| Frame | Light but real. `route.md` is written - even a spike is accountable. It records the **question** and the **timebox**. |
+| Frame | Light but real. `delivery-approach.md` is written - even a spike is accountable. It records the **question** and the **timebox**. |
 | Specify | **Collapsed** into the question. The spike's spec is "what do we need to learn, and what would a useful answer look like?" - not acceptance criteria for code. |
 | Clarify | **Skipped.** There is nothing to QA the spec against - the behaviour is the unknown, and discovering it is the point. |
-| Plan | **Collapsed** to a timebox and an approach sketch in `route.md`. |
+| Plan | **Collapsed** to a timebox and an approach sketch in `delivery-approach.md`. |
 | Distribute | **Skipped.** Solo. |
 | Build | **= Explore.** Write code freely to answer the question. TDD strategy suspended; the hook does not block. Code here is assumed throwaway. |
 | Verify | **= Conclude.** Not a test gate - a findings check: *did we answer the question?* The output is a written conclusion, not a passing suite. |
@@ -78,14 +78,14 @@ The de-scopes are safe because the route has no delivery output to protect.
 When a spike answers its question and the team wants to act on it:
 
 1. **Re-frame.** Run `/compass:frame` afresh for the real delivery work. The
-   spike's `route.md`, conclusion, and any reference code are inputs to that
+   spike's `delivery-approach.md`, conclusion, and any reference code are inputs to that
    Frame - often very good inputs, because the terrain is now mapped.
 2. **The new route owns the code.** Any code carried over from the spike is
    now subject to that route's guardrails - G1 (tested before it lands), G2
    (acceptance defined), G3 (traceability). In practice most spike code is
    rewritten under TDD; some is kept and retro-tested. Either way it meets the
    guardrails before it lands.
-3. **The spike closes.** Its `route.md` records "graduated → task `<slug>`".
+3. **The spike closes.** Its `delivery-approach.md` records "graduated → task `<slug>`".
 
 Graduation *is* re-framing. There is no path from spike code to `main` that
 skips a real route - that is the whole safety model.

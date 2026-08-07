@@ -99,7 +99,7 @@ def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
     result = run_cli("bdd", "extract", "--task", "demo")
     assert result.returncode == 0, result
 
-    out = demo_task / "spec.feature"
+    out = demo_task / "acceptance-criteria.feature"
     assert out.is_file(), f"no spec.feature written to the task dir: {result}"
 
     text = out.read_text(encoding="utf-8")
@@ -122,10 +122,10 @@ def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
 
 def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    first = (demo_task / "spec.feature").read_bytes()
+    first = (demo_task / "acceptance-criteria.feature").read_bytes()
 
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    second = (demo_task / "spec.feature").read_bytes()
+    second = (demo_task / "acceptance-criteria.feature").read_bytes()
 
     assert hashlib.sha256(first).hexdigest() == hashlib.sha256(second).hexdigest(), (
         "two runs over an unchanged spec produced different bytes"
@@ -145,7 +145,7 @@ def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
 
 def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    text = (demo_task / "spec.feature").read_text(encoding="utf-8")
+    text = (demo_task / "acceptance-criteria.feature").read_text(encoding="utf-8")
 
     assert "@TRC-A1" in text
     # the tag sits on its own line immediately above its Scenario
@@ -165,7 +165,7 @@ def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
 
 def test_trc_a4_feature_names_source_task(demo_task, run_cli):
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    text = (demo_task / "spec.feature").read_text(encoding="utf-8")
+    text = (demo_task / "acceptance-criteria.feature").read_text(encoding="utf-8")
 
     features = re.findall(r"^Feature: (.+)$", text, re.M)
     assert features == ["demo"], features
@@ -186,9 +186,9 @@ def test_trc_a5_resolves_current_task_pointer(demo_task, run_cli, project):
 
     result = run_cli("bdd", "extract")          # no --task
     assert result.returncode == 0, result
-    assert (demo_task / "spec.feature").is_file()
+    assert (demo_task / "acceptance-criteria.feature").is_file()
     # it reports where it wrote
-    assert "spec.feature" in result.stdout, result
+    assert "acceptance-criteria.feature" in result.stdout, result
 
 
 # ---------------------------------------------------------------------------
@@ -206,14 +206,14 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
     assert (project / "features" / "demo.feature").is_file(), (
         "configured bdd_features_dir was not honoured"
     )
-    assert not (demo_task / "spec.feature").exists(), (
+    assert not (demo_task / "acceptance-criteria.feature").exists(), (
         "wrote to the default location as well as the configured one"
     )
 
     # and with no key set, the default applies
     cfg.write_text("version: 1.0.0\nmode: enforced\n", encoding="utf-8")
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    assert (demo_task / "spec.feature").is_file()
+    assert (demo_task / "acceptance-criteria.feature").is_file()
 
 
 # ---------------------------------------------------------------------------
@@ -293,7 +293,7 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 
     after = {p: _digest(p) for p in sorted(demo_task.rglob("*")) if p.is_file()}
     created = set(after) - set(before)
-    assert created == {demo_task / "spec.feature"}, created
+    assert created == {demo_task / "acceptance-criteria.feature"}, created
 
     for path, digest in before.items():
         assert after[path] == digest, f"{path.name} was modified by extract"
@@ -398,7 +398,7 @@ def test_illustrative_gherkin_without_a_trc_comment_is_ignored(make_task, run_cl
     ))
 
     assert run_cli("bdd", "extract", "--task", "anchor").returncode == 0
-    text = (task_dir / "spec.feature").read_text(encoding="utf-8")
+    text = (task_dir / "acceptance-criteria.feature").read_text(encoding="utf-8")
     assert text.count("Scenario:") == 1, text
     assert "only an example in prose" not in text, text
     assert "the real one" in text

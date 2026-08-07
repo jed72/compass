@@ -136,11 +136,11 @@ def test_architect_lens_reads_task_artifacts():
     a lens OVER the spec, not an author of the spec.
     """
     content = agent_file("architect-lens.md").read_text(encoding="utf-8")
-    assert "spec.feature.md" in content, (
-        "architect-lens.md does not instruct reading spec.feature.md"
+    assert "acceptance-criteria.md" in content, (
+        "architect-lens.md does not instruct reading acceptance-criteria.md"
     )
-    assert "plan.md" in content, (
-        "architect-lens.md does not instruct reading plan.md"
+    assert "design.md" in content, (
+        "architect-lens.md does not instruct reading design.md"
     )
 
 

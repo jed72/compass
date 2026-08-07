@@ -11,7 +11,7 @@ route. QA owns this gate.
 
 ## On a Spike route
 
-Read `route.md`. On a **Spike**, Verify is **Conclude** - not a test gate but
+Read `delivery-approach.md`. On a **Spike**, Verify is **Conclude** - not a test gate but
 a findings check: *did we answer the question?* It runs none of the review
 dimensions (a spike ships nothing), and its one gate is "the question is
 answered - or explicitly answered with 'inconclusive, here is why' - and the
@@ -21,7 +21,7 @@ command is for delivery routes.
 
 ## Setup
 
-- Read `route.md` for the gate set and which review dimensions apply. The
+- Read `delivery-approach.md` for the gate set and which review dimensions apply. The
   dimension set scales with the route (see the table in `routes/router.md`);
   `correctness`, `governance`, and `traceability` are always on for a delivery
   route - they are the default guardrails in review form. The routing policy's
@@ -36,7 +36,7 @@ command is for delivery routes.
 
 ## Procedure
 
-1. **Scenarios as acceptance tests.** Run every scenario in `spec.feature.md`
+1. **Scenarios as acceptance tests.** Run every scenario in `acceptance-criteria.md`
    as an acceptance check. They are the same artifact the spec was - read now
    at verification time.
 2. **TDD suite.** Run the full test suite. Paste the output.
@@ -47,7 +47,7 @@ command is for delivery routes.
    and so on. It exits non-zero on any failure. The `reviewer` agent still does
    the *judgement* dimensions (clarity, security depth, governance-as-assessed)
    - `compass check` is the checkable backbone, not the whole gate.
-4. **Review dimensions.** Apply each dimension `route.md` lists -
+4. **Review dimensions.** Apply each dimension `delivery-approach.md` lists -
    `correctness`, `governance`, `traceability`, and as the route requires
    `regression`, `security` (scaled or full), `clarity`, `claims`. The
    `governance` dimension checks the work against `governance/`: the guardrails

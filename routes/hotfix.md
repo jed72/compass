@@ -20,10 +20,10 @@ dimensions - they shape the backfill - but urgency is what selects the shape.
 
 | Phase | Weight on Hotfix |
 |---|---|
-| Frame | Fast but real. `route.md` is written - even under time pressure, the audit trail starts here. |
+| Frame | Fast but real. `delivery-approach.md` is written - even under time pressure, the audit trail starts here. |
 | Specify | **Reproduce-first.** The spec *is* a failing regression test that reproduces the defect. Writing that test is non-negotiable and comes before any fix - it is simultaneously the BDD scenario and the TDD red. |
 | Clarify | Collapsed - the reproduction *is* the clarification. The bug is unambiguous once it reproduces. |
-| Plan | Collapsed to a one-line root-cause note in `route.md`. (Root cause, not symptom - a hotfix that treats the symptom owes a follow-up Expedition.) |
+| Plan | Collapsed to a one-line root-cause note in `delivery-approach.md`. (Root cause, not symptom - a hotfix that treats the symptom owes a follow-up Expedition.) |
 | Distribute | Skipped. Solo. Speed and a single clear owner beat parallelism here. |
 | Build | Expedited TDD: the reproduction test is already red; make it green with the smallest correct change; refactor only if the refactor itself is low-risk. |
 | Verify | **All Verify gates, no exceptions.** This is the phase Hotfix does *not* compress. The reproduction test passes, the full suite passes, regression is clean, output is pasted. |
@@ -45,10 +45,10 @@ Solo. No worktree.
 Hotfix borrows speed from the front of the pipeline and **pays it back at the
 end**. Before the task closes, Land requires:
 
-1. **`route.md` completed** - the dimension readings and root-cause note,
+1. **`delivery-approach.md` completed** - the dimension readings and root-cause note,
    filled in properly, not just the urgent stub.
 2. **A real scenario** - the reproduction test is promoted into a proper
-   Given/When/Then scenario in `spec.feature.md`, traceable to the defect.
+   Given/When/Then scenario in `acceptance-criteria.md`, traceable to the defect.
 3. **A root-cause line in the devlog** - what allowed this defect to exist,
    and whether a follow-up task is owed (e.g. "the missing scenario that would
    have caught this is now filed as task #…").

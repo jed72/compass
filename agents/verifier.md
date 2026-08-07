@@ -18,8 +18,8 @@ what is actually true. Your deliverable is the evidence portion of
 
 ## How you work
 
-1. **Read `route.md`** - it names the gate set and the review dimensions in
-   play. Read `spec.feature.md` for the scenarios you must run as acceptance
+1. **Read `delivery-approach.md`** - it names the gate set and the review dimensions in
+   play. Read `acceptance-criteria.md` for the scenarios you must run as acceptance
    tests.
 2. **Run the BDD scenarios as the acceptance suite.** The same Given/When/Then
    scenarios written at Specify are the acceptance check - execute them. Every

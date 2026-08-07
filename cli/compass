@@ -159,7 +159,7 @@ def build_parser():
     pbs = pb.add_subparsers(dest="subcmd", required=True)
     pbe = pbs.add_parser(
         "extract",
-        help="extract a task's spec.feature.md into a runnable .feature file")
+        help="extract a task's acceptance-criteria.md into a runnable .feature file")
     pbe.add_argument("--task", help="task slug (default: current-task pointer)")
     pbe.add_argument("--out", help="write here instead of the resolved default")
     pbe.set_defaults(func=cmd_bdd_extract)
@@ -242,12 +242,12 @@ def build_parser():
     pll = pls.add_parser("lint", help="structurally validate the governance YAML")
     pll.set_defaults(func=cmd_policy_lint)
 
-    ppl = sub.add_parser("plan", help="plan.md tools")
+    ppl = sub.add_parser("plan", help="design.md tools")
     ppls = ppl.add_subparsers(dest="subcmd", required=True)
     ppll = ppls.add_parser(
-        "lint", help="scan a plan.md for placeholder phrases (advisory; always exits 0)")
+        "lint", help="scan a design.md for placeholder phrases (advisory; always exits 0)")
     ppll.add_argument("--task", help="task slug (default: current-task pointer)")
-    ppll.add_argument("--file", help="lint a specific plan.md file")
+    ppll.add_argument("--file", help="lint a specific design.md file")
     ppll.set_defaults(func=cmd_plan_lint)
 
     pt = sub.add_parser("task", help="task manifest tools")

@@ -135,7 +135,7 @@ caps, assembling the gate set - and folds `route`, `phases`, and `gates` back
 into `task.yml`. For this task it lands on **Standard, with the `security`
 review dimension turned on because blast radius is cross-cutting**; no routing
 guardrail forces a heavier route. The Needle then writes the human-readable
-`route.md` alongside it. Same readings + same policy would produce this exact
+`delivery-approach.md` alongside it. Same readings + same policy would produce this exact
 route on any machine - the route is no longer something an agent composes in
 its head. `/compass:frame` also drops a `.compass/current-task` pointer so the
 CLI and the hooks know which task is live.
@@ -143,12 +143,12 @@ CLI and the hooks know which task is live.
 It then **presents the route and waits**. Routing is advisory until confirmed.
 You read the four readings, you read the de-scope ledger - Standard collapses
 nothing major, so the ledger is short - and you confirm, or you override a
-reading and the override is recorded in `route.md` with your name and reason.
+reading and the override is recorded in `delivery-approach.md` with your name and reason.
 
 What the gate feels like: it is not a wall. It is the Needle showing its work
 and asking you to agree the terrain was read correctly. Confirming takes a
 moment. The point is that the process for this task is now *written down* -
-any later session can read `route.md` and know exactly what shape the pipeline
+any later session can read `delivery-approach.md` and know exactly what shape the pipeline
 takes.
 
 ### Specify
@@ -157,8 +157,8 @@ takes.
 /compass:specify
 ```
 
-The `spec-author` agent reads `route.md`, sees "small feature set," and writes
-`spec.feature.md` - Given/When/Then scenarios for the rate limiter: the happy
+The `spec-author` agent reads `delivery-approach.md`, sees "small feature set," and writes
+`acceptance-criteria.md` - Given/When/Then scenarios for the rate limiter: the happy
 path (a client under the limit is served), the realistic edges (a client at
 exactly the limit; the limit window rolling over), the failure modes that
 matter (a client over the limit gets a clean 429, not a dropped connection).
@@ -177,7 +177,7 @@ your acceptance suite and seed your TDD cycle.
 On Standard, Clarify is a light-to-full pass - never skipped. The `spec-author`
 QAs the spec against itself (is "the limit" defined? per-client or global? what
 about unauthenticated traffic?) and against governance. Each ambiguity is
-resolved into `spec.feature.md` or recorded in `clarifications.md` with an
+resolved into `acceptance-criteria.md` or recorded in `requirements-review.md` with an
 owner. An unresolved ambiguity is not allowed to pass silently into Plan.
 
 ### Plan
@@ -186,7 +186,7 @@ owner. An unresolved ambiguity is not allowed to pass silently into Plan.
 /compass:plan
 ```
 
-The `planner` agent writes a real `plan.md`: the technical approach, each
+The `planner` agent writes a real `design.md`: the technical approach, each
 design decision recorded ADR-style (token bucket vs. sliding window - what was
 chosen, what was rejected, why), and a governance check run against all of
 `governance/` - guardrails, strategies, and the routing policy. The work here
@@ -268,7 +268,7 @@ the spec, with intent.
 ```
 
 The `product-lens` agent adopts the product owner's vocabulary - outcomes and
-users, not files and functions - and writes `brief.md`: the **problem**
+users, not files and functions - and writes `prd.md`: the **problem**
 (finance cannot self-serve; every month-end is a data request and a wait), the
 **outcome** (finance gets their numbers directly), the **success signals**
 (finance pulls month-end numbers without filing a request; the data team's
@@ -288,16 +288,16 @@ depending on the brief behind it.
 /compass:frame "CSV export for finance month-end numbers"
 ```
 
-The Needle reads `brief.md` as part of the intent & role dimension - intent is
+The Needle reads `prd.md` as part of the intent & role dimension - intent is
 the *actual outcome wanted*, not the literal request. The `product-owner`
-reading does two things to the route: it adds `brief.md` as a required
+reading does two things to the route: it adds `prd.md` as a required
 artifact, and it inserts the **intent-fidelity gate** before Plan. The route
 comes out heavier than a bare engineering "add an export" would - that extra
 weight is the framework working, not overhead.
 
 ### Specify and Clarify
 
-`/compass:specify` writes `spec.feature.md` against the brief - every success
+`/compass:specify` writes `acceptance-criteria.md` against the brief - every success
 signal in the brief should have a scenario that delivers it. At
 `/compass:clarify`, the `product-lens` agent reviews: it walks every success
 signal and finds the scenario behind it, flagging **drift** (a scenario that
@@ -312,7 +312,7 @@ decision).
 ```
 
 Per the routing policy's `role_rules`, when a product owner is in play the
-spec **must be checked against `brief.md` before Plan completes**. The
+spec **must be checked against `prd.md` before Plan completes**. The
 `product-lens` agent runs that check. If the spec drifts from the brief -
 well-formed scenarios that nonetheless miss the outcome - Plan does not
 proceed; the spec goes back. Well-formed and faithful are different tests, and
@@ -339,10 +339,10 @@ of a finished engineering process.
 The `marketing-lens` agent adopts the marketer's vocabulary - claims, voice,
 audience - reads the voice & positioning strategies in
 `governance/strategies.md` (the ones the marketer curates), reads
-`spec.feature.md` if it exists yet, and writes two artifacts:
+`acceptance-criteria.md` if it exists yet, and writes two artifacts:
 
 - **`positioning.md`** - the audience, the value proposition, and the claim
-  set. For **every claim**, it names the scenario in `spec.feature.md` that
+  set. For **every claim**, it names the scenario in `acceptance-criteria.md` that
   backs it. A claim with no backing scenario is not yet a claim: it is either
   a scenario that needs writing (raised with `spec-author` at Specify) or a
   claim that has to be cut. The template leaves the backing-scenario slot
@@ -374,7 +374,7 @@ Some work is not a known change - it is a question. Root-causing a mysterious
 defect, evaluating whether an approach is even viable, learning an unfamiliar
 API. You cannot state acceptance criteria for it because the behaviour is the
 unknown. That is not an exemption from Frame; it is the **Spike** route. Frame
-still runs (`route.md` records the question and a timebox), but Specify
+still runs (`delivery-approach.md` records the question and a timebox), but Specify
 collapses to the question, Clarify is skipped, and Build becomes Explore - the
 TDD strategy is suspended and the hook does not block, because red-before-green
 is the wrong discipline for code you are writing to learn something and may

@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, find_upwards, load_yaml
+from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_upwards, load_yaml
 
 
 
@@ -412,7 +412,7 @@ def cmd_task_receipt(args):
         return 1
     task = load_yaml(os.path.join(task_dir, "task.yml")) or {}
     route_readings = _receipt_parse_route_md_readings(
-        os.path.join(task_dir, "route.md"))
+        artifact_path(task_dir, "delivery-approach.md"))
     gate_requirements = _receipt_gate_requirements(project_root)
     print(_receipt_render(task, slug, route_readings, gate_requirements))
     return 0

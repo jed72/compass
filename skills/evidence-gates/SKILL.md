@@ -148,7 +148,7 @@ with no red rows.
 
 ## Passing a gate - the procedure
 
-1. Read `route.md` for the gate set and the dimensions in play.
+1. Read `delivery-approach.md` for the gate set and the dimensions in play.
 2. Verifier: run everything the dimensions require, paste raw output into
    `verification-report.md`, flag every gap.
 3. Reviewer: walk each dimension's checklist against the evidence and the

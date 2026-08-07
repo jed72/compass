@@ -18,7 +18,7 @@ user's experience, a priority conflict between intent and effort.
 - Load `role-translation` - the whole point of a roundtable is one question
   read through several lenses without flattening any of them.
 - Read the relevant task artifacts so the discussion is grounded in what is
-  actually on disk: `route.md`, `brief.md`, `spec.feature.md`, `plan.md`,
+  actually on disk: `delivery-approach.md`, `prd.md`, `acceptance-criteria.md`, `design.md`,
   `positioning.md`, `ui-contract.md` - whichever bear on the question.
 - Read `governance/` - a roundtable cannot decide its way past a guardrail.
   Strategy-vs-strategy tension is exactly what a roundtable *is* for; a
@@ -31,7 +31,7 @@ convened by name:
 
 | Agent | Invocation | Auto-trigger condition |
 |---|---|---|
-| `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`brief.md` exists) |
+| `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`prd.md` exists) |
 | `marketing-lens` | `/compass:roundtable marketing-lens` | When a marketer is in play (`positioning.md` exists) |
 | `architect-lens` | `/compass:roundtable architect-lens` | When `task.yml.readings.touches` contains `public-api`, a service name from `architecture/relations.md`, or a `lens_trigger_tag` from `architecture/invariants.yml` |
 | `planner` | `/compass:roundtable planner` | On request |
@@ -91,8 +91,8 @@ Examples of outcomes that require a re-frame:
 - The roundtable decides to extend a planned migration to cover an adjacent
   service that was not in the original scope.
 - A boundary call moves a module from one service to another, adding files
-  that were not in `plan.md`.
-- A scope cut removes a deliverable that was in `spec.feature.md`.
+  that were not in `design.md`.
+- A scope cut removes a deliverable that was in `acceptance-criteria.md`.
 
 In all these cases, file the re-frame immediately after the roundtable
 decision is recorded in `devlog.md`. The re-frame is the calibration signal

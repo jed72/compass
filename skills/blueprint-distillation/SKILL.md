@@ -14,7 +14,7 @@ scenario, before any change. This skill is how you do it well.
 
 A set of Given/When/Then scenarios that describe what the code **currently
 does** - not what it should do, not what the ticket wants, what it *does today*.
-These go into `spec.feature.md` marked as baseline scenarios. They become:
+These go into `acceptance-criteria.md` marked as baseline scenarios. They become:
 
 - the regression safety net - the thing the Verifier runs to prove you did not
   break what was working;
@@ -45,13 +45,13 @@ These go into `spec.feature.md` marked as baseline scenarios. They become:
    outcome. Mark them baseline.
 6. **Flag the surprises.** Distillation almost always uncovers behaviour nobody
    knew about - undocumented edge cases, latent bugs, dead branches. Record each
-   in `clarifications.md`: is it load-bearing behaviour to preserve, or a bug to
+   in `requirements-review.md`: is it load-bearing behaviour to preserve, or a bug to
    fix as part of this change? That decision is made deliberately, not by
    accident of what the new code happens to do.
 
 ## Distilled vs. desired - keep them separate
 
-The most important discipline here. `spec.feature.md` will end up holding two
+The most important discipline here. `acceptance-criteria.md` will end up holding two
 kinds of scenario:
 
 - **Baseline** - what the code does now. The regression net.
