@@ -5,7 +5,7 @@
 # =============================================================================
 # task.yml is the structured counterpart to the prose artifacts
 # (delivery-approach.md, acceptance-criteria.md, design.md, …). The prose is
-# for humans; this is for the CLI. `compass route evaluate` reads
+# for humans; this is for the CLI. `compass approach evaluate` reads
 # `assessment` and writes `delivery_approach`/`stages`/`gates`;
 # `compass check` reads the rest and verifies the guardrail checks.
 #
@@ -13,7 +13,7 @@
 # its section as a by-product of doing the stage - triage writes the
 # assessment, the acceptance stage adds scenarios, implementation adds
 # changed_files, and so on. On a quick fix this file stays tiny.
-# `compass task lint` checks it is well-formed.
+# `compass issue lint` checks it is well-formed.
 # =============================================================================
 
 schema_version: "2.0"     # the spine schema this file follows
@@ -30,7 +30,7 @@ status: active            # lifecycle: active (in-flight) | queued (next up,
 # --- the delivery approach ---------------------------------------------------
 # `assessment` is JUDGEMENT - triage (an LLM or a human) produces it.
 # Everything below `assessment` is MECHANICAL - the evaluator
-# (`compass route evaluate --write`) computes it deterministically from
+# (`compass approach evaluate --write`) computes it deterministically from
 # `assessment` + routing-policy.yml.
 assessment:
   risk: "{{trivial | contained | cross-cutting | critical}}"
@@ -105,7 +105,7 @@ claims: []
 #    scenario: TRC-001
 
 # --- repairs (hotfixes only) -------------------------------------------------
-# The slug of the issue this hotfix repairs. `compass calibration --impact`
+# The slug of the issue this hotfix repairs. `compass retro --impact`
 # reads it to compute the change-fail signal - which issue did we ship that
 # later needed fixing. Optional, and honest about being optional: a hotfix
 # that declares nothing is reported as a coverage gap, never counted as a
@@ -121,9 +121,9 @@ follow_ups: []
 #    status: "{{owed | paid}}"
 
 # --- reassessments (triage's feedback signal) --------------------------------
-# Append-only. `compass route evaluate --write` adds an entry here whenever
+# Append-only. `compass approach evaluate --write` adds an entry here whenever
 # it computes a delivery approach that differs from the one already recorded
-# - i.e. a re-assessment. `compass calibration` aggregates these across all
+# - i.e. a re-assessment. `compass retro` aggregates these across all
 # issues: a pattern of "up" re-assessments means triage is systematically
 # under-sizing and the routing policy (or the triage rubric) needs tuning. A
 # re-assessment is a normal event; an unexamined pattern of them is the
@@ -137,7 +137,7 @@ reassessments: []
 # --- friction (the framework's self-calibration signal) ---------------------
 # Optional. Written at ship time. Records where Compass's own ceremony cost
 # more than it returned; soft, advisory; it never gates shipping. Assembled
-# by `compass _friction-capture` and aggregated by `compass calibration
+# by `compass _friction-capture` and aggregated by `compass retro
 # --friction`.
 friction: []
 #  - phase: plan

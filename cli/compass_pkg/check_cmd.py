@@ -123,58 +123,58 @@ CHECK_FNS = {
 # a failure without reads like bureaucracy.
 CHECK_GUIDANCE = {
     "scenarios-have-tests": {
-        "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (guardrail G2). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in spec.feature.md - not by a fabricated test.",
-        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in spec.feature.md - documentation is its acceptance.",
+        "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (the acceptance-before-code guardrail). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in acceptance-criteria.md - not by a fabricated test.",
+        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in acceptance-criteria.md - documentation is its acceptance.",
     },
     "suite-passed": {
-        "why": "Guardrail G1 (tested before it lands) requires a recorded green test run.",
+        "why": "The tested-before-ship guardrail requires a recorded green test run.",
         "fix": "Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
     },
     "changed-code-traces-to-scenario": {
-        "why": "Compass requires every production change to trace back to a stated acceptance criterion (guardrail G3 traceability).",
+        "why": "Compass requires every production change to trace back to a stated acceptance criterion (the traceability guardrail).",
         "fix": "Edit task.yml: under each `changed_files:` entry, list the scenario id(s) that drove the change. Add a new scenario if the behaviour was unspecified.",
     },
     "scenario-has-id-and-intent": {
         "why": "Each scenario needs a stable id and an intent link so claims, tests, and code can reference it.",
-        "fix": "Add `id:` (e.g. SCN-003) and `intent:` (the intent id from brief.md) fields to the scenario in task.yml.",
+        "fix": "Add `id:` (e.g. SCN-003) and `intent:` (the intent id from prd.md) fields to the scenario in task.yml.",
     },
     "claim-traces-to-scenario": {
-        "why": "Public claims must trace to a scenario that backs them (G3) - an unbacked claim is a promise the framework cannot prove.",
+        "why": "Public claims must trace to a scenario that backs them (traceability) - an unbacked claim is a promise the framework cannot prove.",
         "fix": "Add a backing `scenario:` field to the claim in task.yml, or remove the claim from `claims:`.",
     },
     "gate-evidence-present": {
-        "why": "Guardrail G4 (evidence, not assertion): a gate marked pass must point at registry evidence of the right type. A mechanical gate cannot be cleared with a written note.",
+        "why": "The evidence-not-assertion guardrail: a gate marked pass must point at registry evidence of the right type. A mechanical gate cannot be cleared with a written note.",
         "fix": "Add the evidence to the top-level `evidence:` registry with the correct `type:` (see governance/guardrails.yml `gate_evidence_requirements`), then reference its id under the gate's `evidence:` list.",
     },
     "human-approval-present": {
-        "why": "Guardrail G5 (a human signs off on the irreversible): this task touches auth, payments, personal data, or migrations and needs a recorded approval.",
+        "why": "The human-sign-off guardrail (a human signs off on the irreversible): this issue touches auth, payments, personal data, or migrations and needs a recorded approval.",
         "fix": "Add a `human-approval` evidence entry to the registry with approver, role, scope, decision=approved, and timestamp. Then reference it from the relevant gate's evidence.",
     },
     "backfills-paid": {
-        "why": "Borrowed ceremony - a Hotfix backfill or a de-scoped artifact - must be paid before a task closes. Otherwise the audit trail has a hole.",
-        "fix": "Complete each unpaid backfill (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in task.yml.",
+        "why": "Borrowed ceremony - a Hotfix follow-up or a de-scoped artifact - must be paid before an issue closes. Otherwise the audit trail has a hole.",
+        "fix": "Complete each unpaid follow-up (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in task.yml.",
     },
     "spike-conclusion-present": {
         "why": "A Spike without a recorded conclusion is just untracked work - the conclusion is what makes the exploration accountable.",
-        "fix": "Add a `spike-conclusion` evidence entry to the registry with `decision:` (discard | graduate-to-delivery | defer). If graduating, include `next_task:` linking the new delivery task.",
+        "fix": "Add a `spike-conclusion` evidence entry to the registry with `decision:` (discard | graduate-to-delivery | defer). If graduating, include `next_task:` linking the new delivery issue.",
     },
     "spike-no-production-changes": {
         "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh Frame, not a silent merge.",
-        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:triage` to start a new delivery task that owns the code under a real route.",
+        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:triage` to start a new delivery issue that owns the code under a real route.",
     },
     "dod-evidence-typed": {
-        "why": "Guardrail G4 (evidence, not assertion): the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed backfill - narrative notes in devlog.md do not count.",
+        "why": "The evidence-not-assertion guardrail: the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed follow-up - narrative notes in devlog.md do not count.",
         "fix": (
             "For each bare unchecked DoD item: (a) add `(evidence: EV-<id>)` "
-            "inline, where EV-<id> is an entry in the task's evidence registry "
-            "with an accepted type; or (b) add `(backfill: BF-<id>)` inline and "
-            "record BF-<id> in task.yml backfills with status: owed; or (c) tick "
+            "inline, where EV-<id> is an entry in the issue's evidence registry "
+            "with an accepted type; or (b) add `(follow-up: BF-<id>)` inline and "
+            "record BF-<id> in task.yml follow-ups with status: owed; or (c) tick "
             "the box `[x]` if a human has actually done the work."
         ),
     },
     "coherence-check-passes": {
-        "why": "G4 (evidence, not assertion): verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
-        "fix": "Run `compass analyze` - on a route with verify.analyze it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, route disagreements, or orphan claims first.",
+        "why": "Evidence, not assertion: verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
+        "fix": "Run `compass analyze` - when verify.analyze is in the gate set it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, approach disagreements, or orphan claims first.",
     },
 }
 
@@ -207,7 +207,7 @@ def cmd_check(args):
     # delivery defaults.
     if task.get("delivery_approach") == "spike":
         spike_gs = list(guardrails.get("spike_guardrails", []))
-        print(f"compass check - task '{os.path.basename(task_dir)}' (route: spike)")
+        print(f"compass check - issue '{os.path.basename(task_dir)}' (route: spike)")
         print(f"{mode_banner(mode)}\n")
         if not spike_gs:
             print("  WARNING: no `spike_guardrails:` defined in guardrails.yml - a Spike is uncontrolled.")
@@ -244,7 +244,7 @@ def cmd_check(args):
             passed, detail = _check_backfills_paid(task, task_dir)
         except Exception as exc:                        # noqa: BLE001
             passed, detail = False, f"check errored: {exc}"
-        print("  owed backfills")
+        print("  owed follow-ups")
         _print_check_result("backfills-paid", passed, detail)
         print()
         if not passed:
@@ -262,7 +262,7 @@ def cmd_check(args):
     declared_checks = guardrails.get("checks") or {}
     failures = 0
     ran = 0
-    print(f"compass check - task '{os.path.basename(task_dir)}' "
+    print(f"compass check - issue '{os.path.basename(task_dir)}' "
           f"(route: {task.get('route', '?')})")
     print(f"{mode_banner(mode)}\n")
 
@@ -288,7 +288,7 @@ def cmd_check(args):
         if applies and not reading_matches(applies, readings):
             continue          # absent, but would not have applied here anyway
         print(f"  {fid} {fg.get('name', '')}: ABSENT from this project's "
-              f"governance, and it applies to these readings - the framework "
+              f"governance, and it applies to this assessment - the framework "
               f"defines it but governance/guardrails.yml does not. Run "
               f"`compass policy lint`.")
 
@@ -296,7 +296,7 @@ def cmd_check(args):
         gid = g.get("id", "?")
         applies = g.get("applies_when")
         if applies and not reading_matches(applies, readings):
-            print(f"  {gid} {g.get('name', '')}: not applicable for these readings - skipped")
+            print(f"  {gid} {g.get('name', '')}: not applicable for this assessment - skipped")
             continue
         print(f"  {gid} {g.get('name', '')}")
         for check_name in g.get("checks", []):
@@ -329,7 +329,7 @@ def cmd_check(args):
             if (not passed and blocking_when
                     and not reading_matches(blocking_when, readings)):
                 passed = True
-                detail = ("advisory for these readings - %s. It blocks when %s."
+                detail = ("advisory for this assessment - %s. It blocks when %s."
                           % (detail, json.dumps(blocking_when)))
 
             if not passed:
@@ -346,7 +346,7 @@ def cmd_check(args):
         passed, detail = _check_backfills_paid(task, task_dir)
     except Exception as exc:                            # noqa: BLE001
         passed, detail = False, f"check errored: {exc}"
-    print("  owed backfills")
+    print("  owed follow-ups")
     _print_check_result("backfills-paid", passed, detail)
     print()
     if not passed:

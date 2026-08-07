@@ -157,7 +157,7 @@ _PHASE_NAME_MAP = {
 
 
 def _parse_intent_ids_from_brief(brief_path: str) -> set:
-    """Extract intent ids from brief.md.
+    """Extract intent ids from prd.md.
 
     Scans for lines matching:
       <!-- intent: INT-xxx --> (explicit traceability comment)
@@ -183,7 +183,7 @@ def _parse_intent_ids_from_brief(brief_path: str) -> set:
 
 
 def _parse_scenario_intents_from_spec(spec_path: str) -> dict:
-    """Extract {scenario_id: intent_id} from spec.feature.md traceability comments.
+    """Extract {scenario_id: intent_id} from acceptance-criteria.md traceability comments.
 
     Looks for lines like:
       <!-- traceability id: SCN-001 · serves: INT-1 -->
@@ -241,7 +241,7 @@ def _parse_claimed_scenario_ids_from_spec(spec_path: str) -> set:
 
 
 def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
-    """Extract {phase_name_lower: weight} from a route.md file.
+    """Extract {phase_name_lower: weight} from a delivery-approach.md file.
 
     Looks for a Markdown table with Phase | Weight columns.
     Also handles the per-phase weight section.
@@ -274,7 +274,7 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
 
 
 def _parse_route_from_route_md(route_md_path: str) -> str | None:
-    """Extract the reference route name from route.md.
+    """Extract the reference route name from delivery-approach.md.
 
     Looks for: **Reference route:** Express  (or similar)
     Returns the route string (lowercase) or None.
@@ -290,7 +290,7 @@ def _parse_route_from_route_md(route_md_path: str) -> str | None:
 
 
 def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
-    """Analyze a task's artifacts for coherence and return a report dict.
+    """Analyze an issue's artifacts for coherence and return a report dict.
 
     The report dict has:
       findings: list of {type, subject, detail} dicts
@@ -298,13 +298,13 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
       mode: 'gate' | 'advisory'
       has_verify_analyze_gate: bool
 
-    This function is strictly read-only over all task artifacts (Inv-1 / Inv-4).
+    This function is strictly read-only over all issue artifacts (Inv-1 / Inv-4).
     It never writes to task.yml or any other file; the caller (cmd_analyze)
     writes the evidence record.
 
     Finding types (Inv-7):
-      orphaned-intent    - scenario links to an intent not in brief.md
-      route-disagreement - route.md phase weight differs from task.yml phases
+      orphaned-intent    - scenario links to an intent not in prd.md
+      route-disagreement - delivery-approach.md phase weight differs from task.yml phases
       orphan-claim       - positioning.md claim has no backing scenario
       missing-artifact   - a required artifact is absent (route-aware)
     """
@@ -353,9 +353,9 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     if specify_weight in _SPECIFY_FULL_WEIGHTS and not has_brief:
         findings.append({
             "type": "missing-artifact",
-            "subject": "brief.md",
+            "subject": "prd.md",
             "detail": (
-                f"brief.md is absent but Specify phase is '{specify_weight}' - "
+                f"prd.md is absent but the define stage is '{specify_weight}' - "
                 f"a full-weight Specify requires a brief."
             ),
         })
@@ -378,7 +378,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                     "subject": scn_id,
                     "detail": (
                         f"scenario '{scn_id}' links to intent '{intent_id}' which "
-                        f"does not appear in brief.md (declared intents: "
+                        f"does not appear in prd.md (declared intents: "
                         f"{sorted(declared_intents)})"
                     ),
                 })
@@ -397,9 +397,9 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                             "type": "orphaned-intent",
                             "subject": scn_id,
                             "detail": (
-                                f"spec.feature.md: scenario '{scn_id}' links to "
+                                f"acceptance-criteria.md: scenario '{scn_id}' links to "
                                 f"intent '{intent_id}' which does not appear in "
-                                f"brief.md (declared intents: {sorted(declared_intents)})"
+                                f"prd.md (declared intents: {sorted(declared_intents)})"
                             ),
                         })
 
@@ -417,7 +417,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                         "type": "route-disagreement",
                         "subject": phase.title(),
                         "detail": (
-                            f"route.md says '{phase}' is '{md_weight}' but "
+                            f"delivery-approach.md says '{phase}' is '{md_weight}' but "
                             f"task.yml says '{task_weight}'"
                         ),
                     })
@@ -561,7 +561,7 @@ def cmd_analyze(args):
       0 - zero coherence findings (or advisory mode regardless of findings,
           or Inv-8 bare-repo path)
       1 - one or more coherence findings AND verify.analyze gate is present
-      2 - input error (malformed task.yml, task not framed, etc.)
+      2 - input error (malformed task.yml, issue not framed, etc.)
     """
     task_dir = resolve_task_dir(getattr(args, "task", None))
     project_root = os.path.dirname(os.path.dirname(task_dir))  # .compass/work/<slug>/../../
@@ -580,13 +580,13 @@ def cmd_analyze(args):
 
     # Inv-8: no artifacts → exit 0 with informational message
     if no_artifacts:
-        print(f"compass analyze: no artifacts to analyze for task '{task_slug}'.")
-        print("  (no brief.md and no spec.feature.md found - bare-repo path)")
+        print(f"compass analyze: no artifacts to analyze for issue '{task_slug}'.")
+        print("  (no prd.md and no acceptance-criteria.md found - bare-repo path)")
         return 0
 
     # Print the report
     mode_str = "gate-clearing" if is_gate_mode else "advisory"
-    print(f"compass analyze - task '{task_slug}' (mode: {mode_str})")
+    print(f"compass analyze - issue '{task_slug}' (mode: {mode_str})")
     if is_gate_mode:
         print("  verify.analyze gate is in the route's gate set.")
     else:
@@ -663,9 +663,9 @@ def cmd_ci(args):
         pass
 
     if not slugs:
-        print("\n  no tasks under .compass/work/ - governance policy only.")
+        print("\n  no issues under .compass/work/ - governance policy only.")
     for slug in slugs:
-        print(f"\n[task] {slug}")
+        print(f"\n[issue] {slug}")
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
         print()
@@ -681,6 +681,6 @@ def cmd_ci(args):
     if failures:
         print(f"compass ci: FAIL - {failures} check group(s) failed.")
     else:
-        print("compass ci: PASS - governance valid; every task lints clean and "
+        print("compass ci: PASS - governance valid; every issue lints clean and "
               "checks green.")
     return exit_for_mode(failures, mode)

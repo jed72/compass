@@ -28,7 +28,7 @@ guardrail that fires is recorded in `delivery-approach.md` with its rationale - 
 **This document explains; `routing-policy.yml` enforces.** The companion
 `governance/routing-policy.yml` is the machine-readable, authoritative policy -
 it has the live floors, caps, immovable gates, role rules, and default shapes,
-each with a stable id, and `compass route evaluate` runs it deterministically.
+each with a stable id, and `compass approach evaluate` runs it deterministically.
 The YAML excerpts below are *illustrative*; where this prose and that file
 could be read to differ, the `.yml` wins. The crucial boundary: the
 four-dimension *readings* are judgement (the Needle produces them, and that

@@ -31,7 +31,7 @@ or product artifacts, run triage: read the four assessment dimensions - risk,
 familiarity, size, and goal - that is judgement, and judgement is the
 adaptivity, so the runtime must produce it. Composing the delivery approach
 *from* that assessment is mechanism, not judgement: a portable runtime should
-shell out to `compass route evaluate` (the kit-layer CLI) rather than
+shell out to `compass approach evaluate` (the kit-layer CLI) rather than
 reimplement the composition, so that the same assessment plus the same policy
 yield the same approach on every runtime. The runtime records the assessment
 in the issue spine (`task.yml`), runs the evaluator, and writes the
@@ -119,7 +119,7 @@ commands round out the contract, and a portable runtime should call them
 rather than reinvent them. `compass ci` runs the full mechanical gate suite
 (`policy lint` + `task lint` + `check` for every issue) and aggregates exit
 codes - the CI integration is "run `compass ci`, honour the exit code" (see
-`ci/README.md`). `compass calibration` aggregates the `reframes` log across
+`ci/README.md`). `compass retro` aggregates the `reframes` log across
 issues and reports whether triage is systematically over- or under-sizing
 the process - the framework's own retrospective signal. The adapter wires
 these into the runtime's CI and reporting surfaces; it does not re-derive
@@ -130,14 +130,14 @@ them.
 | Methodology concept | Adapter must map it to… |
 |---|---|
 | The eight stages | Invocable commands or equivalent |
-| Triage | A routine that produces the assessment, then *calls the kit* (`compass route evaluate`) to compose the delivery approach |
-| The kit-layer CLI | A shell-out, not a reimplementation - the adapter runs `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the retrospective signal), `compass rework-scan` (cross-issue rework signal), and `compass flow` (cross-issue view; `--digest` writes a dated digest combining rework-scan and calibration) |
+| Triage | A routine that produces the assessment, then *calls the kit* (`compass approach evaluate`) to compose the delivery approach |
+| The kit-layer CLI | A shell-out, not a reimplementation - the adapter runs `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the retrospective signal), `compass rework-scan` (cross-issue rework signal), and `compass flow` (cross-issue view; `--digest` writes a dated digest combining rework-scan and calibration) |
 | Subagents (`navigator`, `spec-author`, `planner`, `orchestrator`, `builder`, `verifier`, `reviewer`, `product-lens`, `marketing-lens`, `architect-lens`) | Distinct agent contexts or personas. The 10th - `architect-lens` - applies the architect perspective (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, decision records) at triage and annotates the design via `architecture-notes.md`. Consulted by `spec-author` and `planner`; never writes feature code |
 | Skills | Loadable procedural-knowledge modules |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise |
 | Role entry points | Distinct session-start modes |
-| Per-issue next-step + follow-up management | The adapter wires `compass next` (surface the next action on the current issue) and `compass backfill pay` (mark an owed follow-up as settled) into its issue-resumption and shipping flows |
+| Per-issue next-step + follow-up management | The adapter wires `compass next` (surface the next action on the current issue) and `compass follow-up resolve` (mark an owed follow-up as settled) into its issue-resumption and shipping flows |
 | Decision-record creation | `compass adr new` (creates a numbered decision record under `architecture/decisions/`) - the adapter exposes this in whatever shape its agents use for recording architectural decisions |
 
 The kit layer (`cli/compass`, `governance/*.yml`, `schemas/`, `task.yml`) is

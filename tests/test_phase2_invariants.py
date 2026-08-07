@@ -93,11 +93,14 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
 
 
 EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
+# The CLI-voice slice renamed the banned-word verbs (route -> approach,
+# plan -> design, task -> issue, backfill -> follow-up) and added
+# terminology; the set below is the surface after that deliberate move.
 EXPECTED_SUBCOMMANDS = {
-    "route", "bdd", "check", "analyze", "calibration", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
-    "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
-    "evidence",
+    "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
+    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
+    "evidence", "terminology",
     # `acceptance` (R13) is the one honest path for a change with no natural
     # behavioural red - config, docs, a behaviour-preserving refactor. It is a
     # GROUP (`start`, `record`), so later kinds add a subcommand rather than a

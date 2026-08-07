@@ -1,6 +1,6 @@
 """Route selection: the deterministic core.
 
-These tests prove that `compass route evaluate` is a pure function: given
+These tests prove that `compass approach evaluate` is a pure function: given
 readings + the shipped routing-policy.yml, it produces the documented route,
 fires the documented floors/caps, and selects the documented topology.
 
@@ -33,7 +33,7 @@ def _reading_args(readings: dict) -> list[str]:
 
 def test_express_route_for_small_mapped_change(run_cli):
     """RS-SHAPE-003: small + contained + mapped == express."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "small",
@@ -46,7 +46,7 @@ def test_express_route_for_small_mapped_change(run_cli):
 
 def test_standard_route_for_default_shape(run_cli):
     """RS-SHAPE-005: size=standard == standard."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "standard",
@@ -58,7 +58,7 @@ def test_standard_route_for_default_shape(run_cli):
 
 def test_expedition_route_for_large_magnitude(run_cli):
     """RS-SHAPE-004: size=large == expedition."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "large",
@@ -71,7 +71,7 @@ def test_expedition_route_for_large_magnitude(run_cli):
 
 def test_hotfix_route_for_live_defect(run_cli):
     """RS-SHAPE-002: urgency=live-defect + small magnitude == hotfix."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "small",
@@ -84,7 +84,7 @@ def test_hotfix_route_for_live_defect(run_cli):
 
 def test_spike_route_for_exploration_intent(run_cli):
     """RS-SHAPE-001: intent=exploration on safe surface == spike."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "small",
@@ -100,7 +100,7 @@ def test_spike_route_for_exploration_intent(run_cli):
 
 def test_floor_critical_blast_radius_forces_expedition(run_cli):
     """RG-FLOOR-001: risk=critical forces at least expedition."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "critical",
                                 "familiarity": "brownfield-mapped",
                                 "size": "small",
@@ -117,7 +117,7 @@ def test_floor_critical_blast_radius_forces_expedition(run_cli):
 @pytest.mark.parametrize("domain", ["auth", "payments", "personal-data", "migrations"])
 def test_floor_g5_domains_force_expedition(run_cli, domain):
     """RG-FLOOR-003: touching any G5 domain forces at least expedition."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "small",
@@ -135,7 +135,7 @@ def test_floor_g5_domains_force_expedition(run_cli, domain):
 def test_floor_brownfield_unmapped_requires_specify(run_cli):
     """RG-FLOOR-002: brownfield-unmapped forces Specify phase to full and
     requires blueprint-distillation skill."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-unmapped",
                                 "size": "small",
@@ -153,7 +153,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
 
 def test_cap_critical_caps_worktrees_to_one(run_cli):
     """RG-CAP-001: critical blast radius => max_worktrees=1, topology forced solo."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "critical",
                                 "familiarity": "brownfield-mapped",
                                 "size": "large",
@@ -173,7 +173,7 @@ def test_cap_critical_caps_worktrees_to_one(run_cli):
 def test_candidate_and_final_route_both_recorded(run_cli):
     """The JSON output records both the composed candidate and the final
     route - the floor's effect must be visible, not hidden."""
-    r = run_cli("route", "evaluate", "--json",
+    r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
                                 "size": "small",
@@ -194,7 +194,7 @@ def test_existing_combinations_unchanged(run_cli):
 
     Loads tests/fixtures/route-baseline.yml (captured at HEAD fb092c0 before
     the cross-task-architectural-integrity work started) and asserts that for
-    each reading combination, `compass route evaluate --json` still produces:
+    each reading combination, `compass approach evaluate --json` still produces:
       - the same route name (expected_route)
       - the same topology (expected_topology)
       - the same per-phase weights (expected_phases)
@@ -224,11 +224,11 @@ def test_existing_combinations_unchanged(run_cli):
         expected_phases = entry["expected_phases"]
         expected_gates = set(entry["expected_gates"])
 
-        r = run_cli("route", "evaluate", "--json", *_reading_args(readings))
+        r = run_cli("approach", "evaluate", "--json", *_reading_args(readings))
 
         if r.returncode != 0:
             failures.append(
-                f"[{name}] compass route evaluate failed (exit {r.returncode}):\n"
+                f"[{name}] compass approach evaluate failed (exit {r.returncode}):\n"
                 f"  stderr: {r.stderr}"
             )
             continue
@@ -278,7 +278,7 @@ def test_route_fixture(run_cli, fixture):
     """One row per YAML in tests/fixtures/routes/. Each declares readings +
     expected route/floors/conflict; the CLI's --json output must match."""
     args = _reading_args(fixture["assessment"])
-    r = run_cli("route", "evaluate", "--json", *args)
+    r = run_cli("approach", "evaluate", "--json", *args)
     expected = fixture["expected"]
     if expected.get("conflict"):
         assert r.returncode != 0, f"expected a conflict, got success:\n{r}"

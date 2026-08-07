@@ -1,8 +1,8 @@
 """Every `compass <subcommand>` shown in the docs must be a real subcommand.
 
-Two skills told the reader to run `compass frame --reframe`. There is no
+Two skills told the reader to run `compass frame --reassess`. There is no
 `frame` subcommand - re-framing is the slash command `/compass:frame
---reframe`. The instruction was followed-shaped and unrunnable, which is worse
+--reassess`. The instruction was followed-shaped and unrunnable, which is worse
 than no instruction: the reader tries it, gets an argparse error, and loses
 confidence in the rest of the page.
 

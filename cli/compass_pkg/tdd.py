@@ -198,7 +198,7 @@ def _write_evidence(task_dir, name, payload):
 def _resolve_scenario(task_dir, scenario):
     """Validate a --scenario binding. A red/green that proves a test ran is
     weaker than one bound to the scenario it is evidence FOR - relevance, not
-    just failure. If the task has a scenarios block, the id must be in it."""
+    just failure. If the issue has a scenarios block, the id must be in it."""
     if not scenario:
         return None
     try:
@@ -208,7 +208,7 @@ def _resolve_scenario(task_dir, scenario):
     ids = {s.get("id") for s in (task.get("scenarios") or []) if isinstance(s, dict)}
     if ids and scenario not in ids:
         raise CompassError(
-            f"--scenario '{scenario}' is not a scenario id in this task's "
+            f"--scenario '{scenario}' is not a scenario id in this issue's "
             f"task.yml (scenarios: {sorted(ids)}). Bind to a real scenario, or "
             f"add it to task.yml first."
         )
@@ -342,7 +342,7 @@ def cmd_tdd_red(args):
     if code == 0:
         raise CompassError(
             "compass tdd-red: the test command PASSED (exit 0) - there is no "
-            "red to record. Strategy S2 is red-before-green: write a test that "
+            "red to record. The TDD strategy is red-before-green: write a test that "
             "actually fails first.\n--- output (tail) ---\n" + excerpt
         )
     rejection = _red_rejection_reason(code, command)
@@ -715,7 +715,7 @@ def cmd_acceptance_record(args):
     if not state:
         raise CompassError(
             "compass acceptance record: no acceptance was declared for this "
-            "task. Run `compass acceptance start --kind validation|refactor -- "
+            "issue. Run `compass acceptance start --kind validation|refactor -- "
             "<command>` first - the kind of acceptance is stated before the "
             "change, not chosen afterwards to fit what happened.")
 

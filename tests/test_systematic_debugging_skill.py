@@ -1,6 +1,6 @@
 """The systematic-debugging skill (task phase-2-skills-check-and-cli-split).
 
-Compass has always had `--reframe` for when the terrain was misread. It has
+Compass has always had `--reassess` for when the terrain was misread. It has
 never said how to *notice*. This skill supplies the signal: three consecutive
 failed fixes means the framing is wrong, not that a fourth fix is needed.
 
@@ -69,7 +69,7 @@ def test_trc_a2_three_failed_fixes_should_send_the_engineer_back_to_frame():
     assert re.search(r"fram|architect|route", window, re.I), (
         "the escape clause does not point at the framing as the suspect")
     assert re.search(r"--?reframe", body), (
-        "the skill never names `compass frame --reframe` as the mechanism - "
+        "the skill never names `compass frame --reassess` as the mechanism - "
         "without it the escape clause is advice with no next step")
 
 

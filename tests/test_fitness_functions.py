@@ -227,7 +227,7 @@ class TestVerifyFitnessAdvisory:
         (tmp_path / ".compass").mkdir(exist_ok=True)
 
         result = _run_cli(
-            "route", "evaluate", "--json",
+            "approach", "evaluate", "--json",
             "--reading", "risk=contained",
             "--reading", "familiarity=brownfield-mapped",
             "--reading", "size=small",

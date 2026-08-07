@@ -70,7 +70,7 @@ evidence block is an automatic fail.
      see what they did not think of, and clarity in particular has no
      mechanical backstop. This is a record, not a gate: nothing fails because
      a dimension was self-assessed, but a reader can weigh it, and
-     `compass calibration` can spot a project where one dimension is never
+     `compass retro` can spot a project where one dimension is never
      independently reviewed. The mechanical checks (`compass check`, the test
      suite) are unaffected either way - they do not care who ran them. -->
 
@@ -136,7 +136,7 @@ guardrail applies to the checklist itself):
         Passes (defers) when BF-<id> is in the spine's follow-up ledger
         (the follow_ups: list) with status: owed. Add target_task: <slug>
         on the entry to block that issue's shipping until this one is
-        settled (compass backfill pay --task <source-slug> BF-<id>).
+        settled (compass follow-up resolve --issue <source-slug> BF-<id>).
 
     - [x] <description>
         A human-ticked box passes unconditionally - the human took

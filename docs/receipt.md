@@ -1,4 +1,4 @@
-# The receipt - `compass task receipt`
+# The receipt - `compass issue receipt`
 
 The receipt is **one screen** that shows a task's enforcement story end to end: the four-dimension readings the Needle judged, the route the policy computed, the gates the task cleared, and the typed evidence each gate cleared with. It is a *view* over the task's recorded state - a render of what's on disk, not a re-run of the checks. Reading the receipt is reading the audit trail.
 
@@ -7,7 +7,7 @@ This is Compass's two differentiators made demonstrable in plain text - **per-ta
 ## Invoking
 
 ```
-compass task receipt --task <slug>
+compass issue receipt --task <slug>
 ```
 
 Optionally `--workdir <path>` to point the receipt at a project rooted somewhere other than the current working directory. The command is **read-only**: it parses `task.yml`, `delivery-approach.md`, `evidence/`, and `governance/guardrails.yml`, prints the receipt to stdout, and mutates nothing on disk.
@@ -29,9 +29,9 @@ Assessment
   goal            delivery (engineer)     the canonical fixture intent justification
   labels          public-api
 
-Route
------
-  standard  (topology: solo-or-pair)
+Approach
+--------
+  feature  (topology: solo-or-pair)
   routing guardrails fired: none
 
 Gates

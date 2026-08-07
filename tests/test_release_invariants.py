@@ -233,11 +233,11 @@ def test_comparison_requirements_task_still_lints_clean():
         f"this pre-v1.1.0-shape task.yml; constructing it is the v1-2-era fix."
     )
     result = subprocess.run(
-        [sys.executable, "cli/compass", "task", "lint", "--file", str(fixture)],
+        [sys.executable, "cli/compass", "issue", "lint", "--file", str(fixture)],
         capture_output=True, text=True, cwd=str(REPO_ROOT),
     )
     assert result.returncode == 0, (
-        f"compass task lint must still pass on the pre-existing comparison-requirements task "
+        f"compass issue lint must still pass on the pre-existing comparison-requirements task "
         f"after 1.1.0 lands. stdout: {result.stdout}\nstderr: {result.stderr}"
     )
 

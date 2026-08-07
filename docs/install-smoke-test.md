@@ -65,7 +65,7 @@ pip install jsonschema           # optional but recommended
 
 PyYAML is the CLI's only hard dependency. Without it, `compass` prints a
 clear message and exits with code 3. `jsonschema` turns on full JSON
-Schema validation in `compass policy lint` and `compass task lint`; the
+Schema validation in `compass policy lint` and `compass issue lint`; the
 built-in linter still runs without it.
 
 To confirm:

@@ -19,10 +19,10 @@ line is not skippable - it runs.
 # Delivery approach - {{TASK_SLUG}}
 
 > **Issue:** {{ONE-LINE DESCRIPTION AS INVOKED}}
-> **Triaged:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first triage; bump on `--reframe`)
+> **Triaged:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first triage; bump on `--reassess`)
 > **Reference shape:** {{quick fix | feature | initiative | hotfix | spike}}
 
-<!-- On a re-assessment (`--reframe`), keep the prior revision below this
+<!-- On a re-assessment (`--reassess`), keep the prior revision below this
      line under a "## Superseded - revision <N-1>" heading so the history
      stays visible. -->
 
@@ -64,7 +64,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 ### 3a. Policy provenance
 
-<!-- WHICH POLICY produced this approach. `compass route evaluate` prints
+<!-- WHICH POLICY produced this approach. `compass approach evaluate` prints
      both lines below - copy them here. Without this, a reader months later
      cannot tell a genuinely light approach from one computed against stale
      governance. If the CLI reported drift, record it: an approach computed

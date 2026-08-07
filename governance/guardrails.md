@@ -117,7 +117,7 @@ _(none yet - the shipped default guardrails apply as-is)_
 - **By the `verifier` and `reviewer` agents** at Verify, for the parts that
   remain judgement - `verification-report.md` records each with its evidence.
 - **By the Needle**, for routing guardrails - see `routing-policy.md` and
-  `routing-policy.yml`; `compass route evaluate` applies them deterministically.
+  `routing-policy.yml`; `compass approach evaluate` applies them deterministically.
 
 A guardrail with no way to produce evidence is not a guardrail yet - it is a
 strategy that has not been made checkable. Concretely: if you cannot give it a

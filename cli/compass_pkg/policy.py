@@ -159,7 +159,7 @@ def _lint_errors_routing_policy(p):
     shapes = p.get("route_shapes", {})
     for name in ("spike", "express", "standard", "hotfix", "expedition"):
         if name not in shapes:
-            errs.append(f"route_shapes missing reference route: {name}")
+            errs.append(f"route_shapes is missing the shape named by default_shapes: {name}")
         elif "weight" not in shapes[name]:
             errs.append(f"route_shape '{name}' has no `weight`")
     return errs
@@ -240,7 +240,7 @@ def _lint_errors_quarantine(gov_dir):
     Returns a list of error strings. An absent quarantine.yml is not an error
     (zero-setup default, ADR-006). Required fields per entry: test,
     tracking_task, reason, added. An entry without tracking_task is malformed
-    (TRC-A7 - a quarantine without a tracking task is a graveyard).
+    (TRC-A7 - a quarantine without a tracking issue is a graveyard).
     """
     path = os.path.join(gov_dir, "quarantine.yml")
     if not os.path.isfile(path):
@@ -346,8 +346,9 @@ def cmd_plan_lint(args):
 
     if not os.path.isfile(path):
         print(f"compass plan lint: ERROR - no such file: {path}")
-        print("  Plan collapses on Express, Hotfix and Spike routes, so a task on "
-              "one of those has no plan.md to lint.")
+        print("  The design stage collapses on quick-fix, hotfix and spike "
+              "approaches, so an issue on one of those has no design.md to "
+              "lint.")
         return 2
 
     with open(path, encoding="utf-8") as fh:
@@ -377,7 +378,7 @@ def cmd_task_lint(args):
     # built-in structural lint (always runs)
     errs = []
     if "task" not in task:
-        errs.append("missing `task:` (the task slug)")
+        errs.append("missing `issue:` (the issue slug)")
     # Each block below checks the shape before reading it. This command's whole
     # job is to report a malformed task.yml, so it must not crash on one - a
     # scenario written as a bare string used to raise AttributeError here, and a
@@ -418,10 +419,10 @@ def cmd_task_lint(args):
     if je:
         errs += je
     if errs:
-        print(f"compass task lint: FAIL - {path}")
+        print(f"compass issue lint: FAIL - {path}")
         for e in errs:
             print(f"  - {e}")
         return 1
-    print(f"compass task lint: PASS - {path} is structurally valid."
+    print(f"compass issue lint: PASS - {path} is structurally valid."
           + ("\n" + _schema_note(schema_ran) if not schema_ran else ""))
     return 0

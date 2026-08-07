@@ -590,7 +590,7 @@ def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
     (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
 
     # Run route evaluate --write to apply the policy (including new floors)
-    result = run_cli("route", "evaluate", "--write")
+    result = run_cli("approach", "evaluate", "--write")
     assert result.returncode == 0, f"route evaluate --write failed:\n{result}"
 
     # Load the updated task.yml

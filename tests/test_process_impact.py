@@ -1,6 +1,6 @@
 """Process-impact telemetry (task process-impact-telemetry).
 
-`compass calibration --impact` reports lead time, land frequency, change-fail
+`compass retro --impact` reports lead time, land frequency, change-fail
 signal and restore time, attributed to route shape and gate set.
 
 The substance is not the arithmetic. This repository has 20 landed tasks and
@@ -76,7 +76,7 @@ def make_project(tmp_path, tasks):
 
 
 def run(proj, *args):
-    return subprocess.run([sys.executable, str(CLI), "calibration", *args],
+    return subprocess.run([sys.executable, str(CLI), "retro", *args],
                           cwd=str(proj), capture_output=True, text=True, timeout=90)
 
 

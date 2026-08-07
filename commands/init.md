@@ -34,7 +34,7 @@ it is exempt from triage.
    files at the project root: the prose `guardrails.md`, `strategies.md`,
    `routing-policy.md`, `README.md`, **and the machine-readable
    `guardrails.yml` and `routing-policy.yml`** - the latter two are what
-   the `compass` CLI runs (`compass route evaluate`, `compass check`,
+   the `compass` CLI runs (`compass approach evaluate`, `compass check`,
    `compass policy lint`). These arrive with their defaults already active
    and in force - they are not empty templates. The `cli/` and `schemas/`
    directories ship with the framework and are not copied per-project; the

@@ -502,7 +502,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint")
+        r = run_cli("issue", "lint", "--task", "attempts-lint")
         assert r.returncode != 0, (
             "task lint must fail when test-run evidence has attempts:0"
         )
@@ -532,7 +532,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-neg", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint-neg")
+        r = run_cli("issue", "lint", "--task", "attempts-lint-neg")
         assert r.returncode != 0, (
             "task lint must fail when test-run evidence has negative attempts"
         )
@@ -558,7 +558,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-ok", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint-ok")
+        r = run_cli("issue", "lint", "--task", "attempts-lint-ok")
         assert r.returncode == 0, (
             f"task lint must pass when test-run evidence has attempts:1: {r}"
         )
@@ -585,7 +585,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-absent", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint-absent")
+        r = run_cli("issue", "lint", "--task", "attempts-lint-absent")
         assert r.returncode == 0, (
             f"task lint must pass on old evidence without attempts field: {r}"
         )

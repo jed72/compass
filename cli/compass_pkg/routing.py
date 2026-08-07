@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
+from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, display_shape, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
 from compass_pkg.governance import governance_drift
 from compass_pkg.task_spine import _annotate_gate_accepts
 
@@ -128,7 +128,7 @@ def evaluate_route(readings, policy):
                 f"{vocab[dim]}"
             )
     if errors:
-        raise CompassError("invalid readings:\n  - " + "\n  - ".join(errors))
+        raise CompassError("invalid assessment:\n  - " + "\n  - ".join(errors))
 
     # --- 1. compose the candidate (routing strategies bias this) -------------
     candidate = strategies.get("default_route", "standard")
@@ -188,8 +188,9 @@ def evaluate_route(readings, policy):
             f"  Intent is 'exploration' (a Spike candidate), but routing "
             f"guardrail(s) {floor_ids} would force at least '{final}'.\n"
             f"  A Spike ships nothing and must not touch production-critical "
-            f"surface - that is its whole safety model (routes/spike.md).\n"
-            f"  Re-frame: either scope a narrower discovery task that does not "
+            f"surface - that is its whole safety model (see the spike "
+            f"reference doc).\n"
+            f"  Re-frame: either scope a narrower discovery issue that does not "
             f"touch the risky surface, or set intent=delivery and accept the "
             f"'{final}' route deliberately. The point is that this is a choice "
             f"a human makes, not one the router makes silently."
@@ -232,9 +233,9 @@ def evaluate_route(readings, policy):
 
     if final in forbidden:
         raise CompassError(
-            f"routing conflict: the composed route '{final}' is forbidden by a "
-            f"cap for these readings. Re-frame - the readings and the policy "
-            f"disagree, and that needs a human."
+            f"routing conflict: the composed approach '{final}' is forbidden by "
+            f"a cap for this assessment. Re-assess - the assessment and the "
+            f"policy disagree, and that needs a human."
         )
 
     # --- 5. assemble the final shape ----------------------------------------
@@ -317,8 +318,8 @@ def cmd_route_evaluate(args):
         readings = task.get("assessment")
         if not readings:
             raise CompassError(
-                f"{task_path} has no `readings:` block - Frame records the "
-                f"four-dimension readings there before the route is evaluated."
+                f"{task_path} has no assessment block - triage records the "
+                f"four dimensions there before the approach is evaluated."
             )
 
     result = evaluate_route(readings, policy)
@@ -339,20 +340,20 @@ def cmd_route_evaluate(args):
                   f"run `compass policy lint` for the list")
         elif not drift.comparable:
             print(f"  policy drift    : not compared ({drift.reason})")
-        print(f"  readings        : {json.dumps(readings)}")
-        print(f"  candidate route : {result['candidate_route']}  "
+        print(f"  assessment      : {json.dumps(readings)}")
+        print(f"  candidate shape : {display_shape(result['candidate_route'])}  "
               f"<- {result['candidate_via']}")
-        print(f"  FINAL ROUTE     : {result['delivery_approach']}")
+        print(f"  FINAL APPROACH  : {display_shape(result['delivery_approach'])}")
         if result["policy_rules_fired"]:
-            print("  routing guardrails fired:")
+            print("  policy rules fired:")
             for f in result["policy_rules_fired"]:
                 print(f"    [{f['id']}] {f['kind']}: {f['rationale']}")
                 for c in f["changed"]:
                     print(f"        - {c}")
         else:
-            print("  routing guardrails fired: none")
+            print("  policy rules fired: none")
         print(f"  topology        : {result['topology']}")
-        print("  per-phase weight:")
+        print("  per-stage weight:")
         for p, w in result["stages"].items():
             print(f"    {p:<11}: {w}")
         print(f"  gate set        : {', '.join(result['gates'])}")
@@ -371,8 +372,8 @@ def cmd_route_evaluate(args):
     # --write: fold the result back into task.yml
     if args.write:
         if task is None:
-            raise CompassError("--write needs a task (use --task or run in a "
-                               "task; it cannot write with ad-hoc --reading)")
+            raise CompassError("--write needs an issue (use --task or run in a "
+                               "issue; it cannot write with ad-hoc --reading)")
         # Re-frame detection, on the route's CONTENT rather than its name.
         # Keying on the name discarded real re-frames: a task whose governance
         # was updated went from 7 gates to 9 under the same route name and

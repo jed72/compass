@@ -1,4 +1,4 @@
-"""`compass land-commit` must commit only what the task owns (field report R11).
+"""`compass ship-commit` must commit only what the task owns (field report R11).
 
 `land-commit` survives auto-fixing pre-commit hooks by re-staging what the hook
 rewrote and retrying. The re-stage was `git add -A`, which stages the whole
@@ -90,7 +90,7 @@ def _install_autofixing_hook(repo):
 
 def _land(repo, *extra):
     return subprocess.run(
-        [sys.executable, str(CLI), "land-commit", "-m", "land it",
+        [sys.executable, str(CLI), "ship-commit", "-m", "land it",
          "--task", SLUG, *extra],
         cwd=str(repo), capture_output=True, text=True, timeout=60,
     )

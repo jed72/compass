@@ -75,7 +75,7 @@ met for the current issue.
    question, who was at the table, the options, the tradeoffs, the
    decision, and the rationale. If the decision changes scope or the
    delivery approach, that is a trigger to re-assess
-   (`/compass:triage --reframe`) - say so.
+   (`/compass:triage --reassess`) - say so.
 
 ## Reassessment trigger
 
@@ -87,7 +87,7 @@ that happens, a re-assessment is not optional.
 must end with a re-assessment:**
 
 ```
-/compass:triage --reframe --reason "<roundtable id> - <what changed and why>"
+/compass:triage --reassess --reason "<roundtable id> - <what changed and why>"
 ```
 
 Examples of outcomes that require a re-assessment:
@@ -100,7 +100,7 @@ Examples of outcomes that require a re-assessment:
 
 In all these cases, file the re-assessment immediately after the roundtable
 decision is recorded in `devlog.md`. The re-assessment is the signal that
-`compass calibration` reads - absorbing a mis-assessment silently loses the
+`compass retro` reads - absorbing a mis-assessment silently loses the
 signal.
 
 ## Gate

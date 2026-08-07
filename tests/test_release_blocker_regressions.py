@@ -14,8 +14,8 @@ Covered:
   SCN-03  scripts/swarm.sh must not copy evidence/ or .red into a worktree
   SCN-08  the CI workflow must install Python before running a Python tool
   SCN-10  a Spike route must still report an owed backfill
-  SCN-11  `compass land-commit` must refuse to mark landed over unpassed gates
-  SCN-12  `compass task receipt` must not print "landed cleanly" over pending gates
+  SCN-11  `compass ship-commit` must refuse to mark landed over unpassed gates
+  SCN-12  `compass issue receipt` must not print "landed cleanly" over pending gates
   SCN-13  `compass analyze` must not report 0 findings after listing findings
 """
 from __future__ import annotations
@@ -94,7 +94,7 @@ def test_receipt_does_not_report_a_clean_land_over_pending_gates(project):
         _task_yml("t", gates=PENDING_GATES, status="landed",
                   land_timestamp="2026-08-04T00:00:00Z")
     )
-    result = _compass(project, "task", "receipt", "--task", "t")
+    result = _compass(project, "issue", "receipt", "--task", "t")
     verdict = [l for l in result.stdout.splitlines() if "Verdict:" in l]
     assert verdict, f"no verdict line in the receipt:\n{result.stdout}"
     assert "cleanly" not in verdict[0], (
@@ -123,7 +123,7 @@ def test_land_commit_refuses_to_mark_landed_with_unpassed_gates(project):
     subprocess.run(["git", "-C", str(project), "add", "src.py"], check=True,
                    capture_output=True, text=True)
 
-    result = _compass(project, "land-commit", "-m", "land it", "--task", "t")
+    result = _compass(project, "ship-commit", "-m", "land it", "--task", "t")
     written = yaml.safe_load(task_path.read_text())
     assert written.get("status") != "landed", (
         "land-commit marked a task landed with two pending gates:\n"

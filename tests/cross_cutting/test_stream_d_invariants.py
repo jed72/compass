@@ -63,16 +63,22 @@ def test_trc_d1_mental_model_bullets_unchanged():
 # and the task-spine mutators; each addition updates this set on purpose.
 # Leading-underscore subcommands stay private and excluded from --help (DD-4).
 # ---------------------------------------------------------------------------
+# The known set moved with the CLI-voice slice: the banned-word verbs
+# renamed (route -> approach, task -> issue, backfill -> follow-up,
+# calibration -> retro, plan -> design, land-commit -> ship-commit) and
+# terminology was added. The assertion's premise is unchanged - the
+# surface equals the known set, and deliberate changes update it here.
 EXPECTED_PUBLIC_SUBCOMMANDS = {
-    "route", "check", "calibration", "ci",
+    "approach", "check", "retro", "ci",
     "tdd-red", "tdd-green",
-    "policy", "task", "adr",
-    "rework-scan", "flow", "backfill",
+    "policy", "issue", "adr",
+    "rework-scan", "flow", "follow-up",
+    "terminology",                # the CLI-voice slice: the glossary verb
     "analyze", "next",            # cross-task-architectural-integrity
-    "land-commit",                # framework-field-feedback R5
+    "ship-commit",                # framework-field-feedback R5
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
-    "plan",                       # readable-specs-and-flow: `compass plan lint`,
-                                  # the advisory placeholder scan over plan.md
+    "design",                     # readable-specs-and-flow: `compass design lint`,
+                                  # the advisory placeholder scan over design.md
     "acceptance",                 # honest-acceptance-for-config-and-refactor:
                                   # `compass acceptance start|record`, the
                                   # honest signal for a change with no natural
@@ -267,16 +273,16 @@ def test_trc_d8_bare_repo_zero_setup(tmp_path):
 
 # ---------------------------------------------------------------------------
 # TRC-D9 - route composition stays byte-identical across runs
-# Source-of-truth: `compass route evaluate --json` for a fixed reading set
+# Source-of-truth: `compass approach evaluate --json` for a fixed reading set
 # returns byte-identical output across runs (NFR-DET-001).
 # ---------------------------------------------------------------------------
 def test_trc_d9_route_evaluate_deterministic(tmp_path):
-    """TRC-D9 - `compass route evaluate` is byte-identical for the same
+    """TRC-D9 - `compass approach evaluate` is byte-identical for the same
     readings + the same routing policy."""
     # Run route evaluate twice with the same readings against the framework's
     # own routing-policy.yml (no project overrides - work in tmp_path).
     cmd = [
-        sys.executable, str(CLI), "route", "evaluate",
+        sys.executable, str(CLI), "approach", "evaluate",
         "--reading", "risk=contained",
         "--reading", "familiarity=brownfield-mapped",
         "--reading", "size=small",

@@ -98,7 +98,7 @@ The standard here is different and you must keep it different. A strategy is
 Before committing `design.md`, run:
 
 ```
-compass plan lint
+compass design lint
 ```
 
 It reports phrases that mean the plan is not actually finished - `TBD`, `TODO`,

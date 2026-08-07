@@ -5,7 +5,7 @@ route NAME changed. Two re-frames on one task, days apart, both with an explicit
 reason, left `reframes: []`: one adopted a newer governance policy and took the
 task from 7 gates to 9; the other split scope, moving magnitude large ->
 standard. The second is a textbook re-frame - the readings themselves changed -
-and it was invisible. `compass calibration` aggregates `reframes:` to detect the
+and it was invisible. `compass retro` aggregates `reframes:` to detect the
 Needle systematically mis-sizing routes, so the signal was under-counted.
 
 R15 - `evidence add --type test-run --path run.txt` was accepted, and `check`
@@ -80,7 +80,7 @@ def _seeded(tmp_path, **readings):
         "risk": "contained", "familiarity": "greenfield",
         "size": "small", "intent": "delivery", "urgency": "none",
         "role": "engineer", "labels": [], **readings}))
-    _run(root, "route", "evaluate", "--task", "t", "--write")
+    _run(root, "approach", "evaluate", "--task", "t", "--write")
     return root
 
 
@@ -97,7 +97,7 @@ def test_scn_a1_content_change_is_logged(tmp_path):
     before["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(before, sort_keys=False))
-    r = _run(root, "route", "evaluate", "--task", "t", "--write",
+    r = _run(root, "approach", "evaluate", "--task", "t", "--write",
              "--reason", "risk re-read after discovery")
     after = _task(root)
     assert after["reassessments"], (
@@ -106,7 +106,7 @@ def test_scn_a1_content_change_is_logged(tmp_path):
 
 def test_scn_a2_no_material_change_is_not_logged(tmp_path):
     root = _seeded(tmp_path)
-    r = _run(root, "route", "evaluate", "--task", "t", "--write",
+    r = _run(root, "approach", "evaluate", "--task", "t", "--write",
              "--reason", "no change expected")
     after = _task(root)
     assert after["reassessments"] == [], (
@@ -121,7 +121,7 @@ def test_scn_a3_entry_records_what_changed(tmp_path):
     t["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(t, sort_keys=False))
-    _run(root, "route", "evaluate", "--task", "t", "--write", "--reason", "why")
+    _run(root, "approach", "evaluate", "--task", "t", "--write", "--reason", "why")
     entry = _task(root)["reassessments"][-1]
     assert "changed" in entry, entry
     assert "gates" in entry["changed"], entry
@@ -134,7 +134,7 @@ def test_scn_a4_entry_carries_a_kind(tmp_path):
     t["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(t, sort_keys=False))
-    _run(root, "route", "evaluate", "--task", "t", "--write",
+    _run(root, "approach", "evaluate", "--task", "t", "--write",
          "--reason", "policy moved", "--kind", "policy-correction")
     entry = _task(root)["reassessments"][-1]
     assert entry.get("kind") == "policy-correction", entry
@@ -144,7 +144,7 @@ def test_scn_a4_entry_carries_a_kind(tmp_path):
     t2["assessment"]["size"] = "large"
     (root / ".compass" / "work" / "t" / "task.yml").write_text(
         yaml.safe_dump(t2, sort_keys=False))
-    _run(root, "route", "evaluate", "--task", "t", "--write", "--reason", "bigger")
+    _run(root, "approach", "evaluate", "--task", "t", "--write", "--reason", "bigger")
     assert _task(root)["reassessments"][-1].get("kind") == "judgement", _task(root)["reassessments"]
 
 
@@ -159,7 +159,7 @@ def test_scn_a5_calibration_counts_only_judgement(tmp_path):
          "date": "2026-08-02"},
     ]
     root = _project(tmp_path, _base(route="expedition", reframes=reframes))
-    r = _run(root, "calibration")
+    r = _run(root, "retro")
     out = r.stdout + r.stderr
     assert "policy-correction" in out or "1" in out, out
     assert "2 re-frame" not in out, (
@@ -219,7 +219,7 @@ def test_scn_c1_superseded_by_validates(tmp_path):
          "tests": ["tests/test_x.py"]},
     ]
     root = _project(tmp_path, _base(scenarios=scenarios))
-    r = _run(root, "task", "lint", "--task", "t")
+    r = _run(root, "issue", "lint", "--task", "t")
     assert r.returncode == 0, (
         f"the schema still forbids what blueprint-distillation requires:\n"
         f"{r.stdout}{r.stderr}")
@@ -249,5 +249,5 @@ def test_scn_f1_existing_task_files_unchanged(tmp_path):
         {"from_route": "express", "to_route": "standard",
          "reason": "magnitude under-read", "date": "2026-07-01"}])
     root = _project(tmp_path, old)
-    assert _run(root, "task", "lint", "--task", "t").returncode == 0
-    assert _run(root, "calibration").returncode == 0
+    assert _run(root, "issue", "lint", "--task", "t").returncode == 0
+    assert _run(root, "retro").returncode == 0

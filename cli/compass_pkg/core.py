@@ -191,7 +191,7 @@ def exit_for_mode(failures, mode):
 
 
 def resolve_task_dir(slug=None):
-    """Resolve a task's working directory.
+    """Resolve an issue's working directory.
 
     Priority: explicit slug > .compass/current-task pointer > most recently
     modified dir under .compass/work/ (with a warning - ambiguous).
@@ -201,7 +201,7 @@ def resolve_task_dir(slug=None):
     if slug:
         d = os.path.join(work, slug)
         if not os.path.isdir(d):
-            raise CompassError(f"no task directory for slug '{slug}' under {work}")
+            raise CompassError(f"no issue directory for slug '{slug}' under {work}")
         return d
     pointer = os.path.join(compass_dir, "current-task")
     if os.path.isfile(pointer):
@@ -213,21 +213,21 @@ def resolve_task_dir(slug=None):
                 return d
             sys.stderr.write(
                 f"compass: .compass/current-task points at '{s}' but that "
-                f"task directory does not exist - ignoring.\n"
+                f"issue directory does not exist - ignoring.\n"
             )
     # fallback: most recently modified - warn, because this is the fragile path
     if not os.path.isdir(work):
-        raise CompassError(f"no tasks found: {work} does not exist")
+        raise CompassError(f"no issues found: {work} does not exist")
     candidates = [
         os.path.join(work, d) for d in os.listdir(work)
         if os.path.isdir(os.path.join(work, d))
     ]
     if not candidates:
-        raise CompassError(f"no task directories under {work}")
+        raise CompassError(f"no issue directories under {work}")
     if len(candidates) > 1:
         sys.stderr.write(
             "compass: no --task slug and no .compass/current-task pointer - "
-            "falling back to the most recently modified task directory. This "
+            "falling back to the most recently modified issue directory. This "
             "is ambiguous; write .compass/current-task to be sure.\n"
         )
     return max(candidates, key=os.path.getmtime)
@@ -238,7 +238,7 @@ def load_task(task_dir):
     if not os.path.isfile(path):
         raise CompassError(
             f"no task.yml in {task_dir} - has Frame run? task.yml is the "
-            f"machine-readable task spine."
+            f"machine-readable issue spine."
         )
     task = load_yaml(path)
     # schema_version compatibility: a major mismatch is unsafe to silently run
@@ -301,10 +301,37 @@ def normalize_spine(task):
                 continue
             a2[k2] = v
         out["assessment"] = a2
+    # Follow-up states renamed with the CLI-voice slice: 1.x spines carry
+    # owed/paid; readers see outstanding/resolved. Value map, mirroring the
+    # key map above; the migrate tool rewrites them on disk in its slice.
+    fups = out.get("follow_ups")
+    if isinstance(fups, list):
+        for f in fups:
+            if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
+                f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
     # The on-disk schema_version is preserved: readers must be able to say
     # honestly what generation a spine was written in (the receipt reports
     # legacy spines). Writers stamp the current version when they save.
     return out
+
+
+# 1.x follow-up states -> their v2 spellings, applied read-side by
+# normalize_spine above.
+FOLLOW_UP_STATUS_MAP = {"owed": "outstanding", "paid": "resolved"}
+
+# Machine delivery-approach values -> the v2 change-type names the display
+# layer prints. The spine keeps the machine value; the terminal never
+# shows it (the receipt is the most shareable screen Compass produces).
+SHAPE_DISPLAY = {
+    "express": "quick fix",
+    "standard": "feature",
+    "expedition": "initiative",
+}
+
+
+def display_shape(value):
+    """The v2 change-type name for a machine delivery-approach value."""
+    return SHAPE_DISPLAY.get(str(value or ""), str(value or ""))
 
 
 def save_task(task, path):

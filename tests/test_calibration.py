@@ -1,8 +1,8 @@
-"""Re-frame recording + `compass calibration`.
+"""Re-frame recording + `compass retro`.
 
-When `compass route evaluate --write` computes a route that differs from
+When `compass approach evaluate --write` computes a route that differs from
 the one already recorded in task.yml, the diff is logged under
-`reframes:`. `compass calibration` aggregates these across every task and
+`reframes:`. `compass retro` aggregates these across every task and
 classifies the trend as up (Needle under-sizing) or down (over-sizing).
 """
 from __future__ import annotations
@@ -44,7 +44,7 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
     body["assessment"]["labels"] = ["auth"]
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    r = run_cli("route", "evaluate", "--task", "rf-task", "--write",
+    r = run_cli("approach", "evaluate", "--task", "rf-task", "--write",
                 "--reason", "discovered the change touches auth")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
@@ -73,7 +73,7 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
         "delivery_approach": "express",
     }
     task_dir = make_task("no-rf", body)
-    r = run_cli("route", "evaluate", "--task", "no-rf", "--write")
+    r = run_cli("approach", "evaluate", "--task", "no-rf", "--write")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
     assert task["delivery_approach"] == "express"
@@ -97,7 +97,7 @@ def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
         "delivery_approach": "express",
     }
     task_dir = make_task("rf-noreason", body)
-    r = run_cli("route", "evaluate", "--task", "rf-noreason", "--write")
+    r = run_cli("approach", "evaluate", "--task", "rf-noreason", "--write")
     assert r.returncode == 0, r
     combined = r.stdout + r.stderr
     # the CLI should mention the missing reason on stderr
@@ -128,9 +128,9 @@ def _task_with_reframes(slug, transitions, base_route="standard"):
 
 
 def test_calibration_no_tasks(run_cli):
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
-    assert "no tasks" in r.stdout.lower(), r
+    assert "no issues" in r.stdout.lower(), r
 
 
 def test_calibration_aggregates_up_reframes(run_cli, make_task):
@@ -142,7 +142,7 @@ def test_calibration_aggregates_up_reframes(run_cli, make_task):
         "t2", [("standard", "expedition")], base_route="expedition"))
     make_task("t3", _task_with_reframes(
         "t3", [("express", "standard")], base_route="standard"))
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
     assert "UNDER-sizing" in r.stdout, r
 
@@ -155,7 +155,7 @@ def test_calibration_aggregates_down_reframes(run_cli, make_task):
         "t2", [("expedition", "standard")], base_route="standard"))
     make_task("t3", _task_with_reframes(
         "t3", [("standard", "express")], base_route="express"))
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
     assert "OVER-sizing" in r.stdout, r
 
@@ -166,7 +166,7 @@ def test_calibration_balanced(run_cli, make_task):
         "t1", [("express", "standard")], base_route="standard"))
     make_task("t2", _task_with_reframes(
         "t2", [("expedition", "standard")], base_route="standard"))
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
     out = r.stdout
     # neither verdict should be selected when ups == downs == 1
@@ -180,7 +180,7 @@ def test_calibration_balanced(run_cli, make_task):
 
 
 def test_reframe_debt_section(run_cli, make_task, project):
-    """TRC-C5: compass calibration surfaces absorbed mis-frames.
+    """TRC-C5: compass retro surfaces absorbed mis-frames.
 
     A task with scope-bloat devlog phrases and an empty reframes list is
     reported in a 'reframe debt' section, with the matched devlog signal
@@ -214,7 +214,7 @@ def test_reframe_debt_section(run_cli, make_task, project):
         "2026-05-20: more files than Plan estimated - had to extend the scope\n"
     )
 
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
 
     out = r.stdout.lower()
@@ -256,7 +256,7 @@ def test_reframe_debt_empty_when_no_bloat(run_cli, make_task, project):
         "reassessments": [],
     })
 
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
     # No reframe-debt section when devlog has no scope-bloat phrases
     assert "reframe debt" not in r.stdout.lower(), (
@@ -297,7 +297,7 @@ def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project)
         "2026-05-19: more files than Plan estimated\n"
     )
 
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
     # The task had a bloat phrase BUT a reframe was filed after - no debt
     # (If the section is absent entirely, or the task is not in it, pass.)
@@ -348,7 +348,7 @@ def test_friction_groups_recurring_by_category_and_target(run_cli, make_task):
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
     make_task("ft3", _task_with_friction("ft3", [_friction(PC_CLARIFY)]))
-    r = run_cli("calibration", "--friction")
+    r = run_cli("retro", "--friction")
     assert r.returncode == 0, r
     out = r.stdout
     assert "over-ceremony" in out, r          # grouped by category
@@ -364,14 +364,14 @@ def test_friction_one_off_below_threshold(run_cli, make_task):
     # plus an unrelated recurring pair so the report is non-empty
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
     make_task("ft3", _task_with_friction("ft3", [_friction(PC_CLARIFY)]))
-    r = run_cli("calibration", "--friction")
+    r = run_cli("retro", "--friction")
     assert r.returncode == 0, r
     # The recurring cluster is surfaced…
     assert PC_CLARIFY in r.stdout, r
     # …but the one-off must NOT be reported as a recurring/trend item.
     # We assert it does not appear in a "recurring" context: simplest robust
     # check - the JSON view classifies it below threshold.
-    rj = run_cli("calibration", "--friction", "--format", "json")
+    rj = run_cli("retro", "--friction", "--format", "json")
     assert rj.returncode == 0, rj
     import json as _json
     data = _json.loads(rj.stdout)
@@ -385,7 +385,7 @@ def test_friction_json_format(run_cli, make_task):
     the grouped, threshold-filtered clusters with contributing task slugs."""
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
-    r = run_cli("calibration", "--friction", "--format", "json")
+    r = run_cli("retro", "--friction", "--format", "json")
     assert r.returncode == 0, r
     import json as _json
     data = _json.loads(r.stdout)          # must be valid JSON
@@ -415,7 +415,7 @@ def test_friction_view_writes_nothing(run_cli, make_task, project):
     gov_before = _tree_sha(project / "governance")
     task_before = hashlib.sha256(task_yml.read_bytes()).hexdigest()
 
-    r = run_cli("calibration", "--friction")
+    r = run_cli("retro", "--friction")
     assert r.returncode == 0, r
 
     assert _tree_sha(project / "governance") == gov_before, (
@@ -451,10 +451,10 @@ def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
         {"phase": "build", "category": "tooling",
          "observation": "the devlog auto-log is noisy", "source": "human"},
     ]))
-    r = run_cli("calibration", "--friction")
+    r = run_cli("retro", "--friction")
     assert r.returncode == 0, r
     out = r.stdout
-    assert "1 task" in out, r
+    assert "1 issue" in out, r
     assert "No friction recorded" not in out, (
         "recorded-but-unclusterable friction must not read as 'No friction "
         f"recorded':\n{out}")
@@ -462,11 +462,11 @@ def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
 
 
 def test_calibration_without_friction_unchanged(run_cli, make_task):
-    """TRC-F3: plain `compass calibration` (no --friction) ignores friction
+    """TRC-F3: plain `compass retro` (no --friction) ignores friction
     entirely - its output never mentions friction. The no-op guarantee."""
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
     assert "friction" not in r.stdout.lower(), (
         "TRC-F3 violated: plain calibration leaked friction into its output.")
@@ -501,7 +501,7 @@ def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
     task_yml = task_dir / "task.yml"
     sha_before = hashlib.sha256(task_yml.read_bytes()).hexdigest()
 
-    r = run_cli("calibration")
+    r = run_cli("retro")
     assert r.returncode == 0, r
 
     sha_after = hashlib.sha256(task_yml.read_bytes()).hexdigest()

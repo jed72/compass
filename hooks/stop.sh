@@ -277,9 +277,9 @@ PYEOF
       done
       echo ""
       echo "  If the scope grew during Build, file a reframe now:"
-      echo "    /compass:triage --reframe --reason \"<what changed and why>\""
+      echo "    /compass:triage --reassess --reason \"<what changed and why>\""
       echo ""
-      echo "  This preserves the calibration signal (compass calibration)."
+      echo "  This preserves the calibration signal (compass retro)."
       echo "  The nudge is non-blocking - the session ends regardless."
       echo "================================================================"
       echo ""

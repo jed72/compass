@@ -312,11 +312,16 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 # The full subcommand set after this task. Frozen deliberately: the point of
 # TRC-A6 is that this task adds exactly one verb, so a second one appearing here
 # should require editing this list and noticing.
+# The v2 verb surface after the CLI-voice slice renamed the banned-word
+# verbs (approach evaluate, follow-up resolve, retro, design lint, the
+# issue group, ship-commit) and added terminology. The premise of the
+# assertion below is unchanged - the surface equals the known set - but
+# the known set deliberately moved with that slice.
 EXPECTED_SUBCOMMANDS = {
-    "route", "bdd", "check", "analyze", "calibration", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
-    "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
-    "evidence",
+    "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
+    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
+    "evidence", "terminology",
     "acceptance",   # R13: the acceptance verb group
 }
 

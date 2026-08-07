@@ -85,7 +85,7 @@ is for. The same split is written from the other side in
 ## Reassessment trigger
 
 If the review reveals the spec is bigger or more ambiguous than the
-assessment assumed, **stop and re-assess** (`/compass:triage --reframe`) - do
+assessment assumed, **stop and re-assess** (`/compass:triage --reassess`) - do
 not push a feature-shaped process through an initiative-shaped problem.
 
 ## Hand-off

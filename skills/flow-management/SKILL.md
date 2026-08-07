@@ -30,7 +30,7 @@ human first.
 ## The flow toolkit
 
 Flow management reads artifacts; it also has one CLI command of its own.
-`compass calibration` aggregates the `reframes` log across every task and
+`compass retro` aggregates the `reframes` log across every task and
 reports whether the Needle is systematically over- or under-sizing routes - the
 framework's own feedback loop. It is read-only and never gates. Run it as part
 of triage and fold its signal into the digest: "are we right-sizing process?"
@@ -107,7 +107,7 @@ the natural fit). Keep it short enough to read in two minutes.
 - {{task-slug}} - {{unpaid Hotfix backfill | unbacked claim | de-scoped artifact}}
 
 ## Calibration
-- {{`compass calibration` signal - re-frame rate, lean toward over- or
+- {{`compass retro` signal - re-frame rate, lean toward over- or
   under-sizing, or "balanced" - or "not enough history yet"}}
 
 ## Next up

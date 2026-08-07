@@ -27,7 +27,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
 ## Procedure
 
 1. **Integrate.** Solo topology: commit on the current branch with
-   `compass land-commit -m "<message>"` - it is robust to auto-fixing
+   `compass ship-commit -m "<message>"` - it is robust to auto-fixing
    pre-commit hooks (which otherwise silently no-op the commit and leave
    HEAD unmoved), retries once after re-staging the hooks' fixes, and
    **errors if HEAD did not advance** so shipping can never falsely believe
@@ -81,7 +81,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
      `task.yml`'s `follow_ups:` with `status: owed`. The follow-up can
      carry an optional `target_task: <slug>` field; when set, the named
      issue's ship check fails until this entry is paid
-     (`compass backfill pay --task <slug> <BF-id>` - the CLI verb renames
+     (`compass follow-up resolve --task <slug> <BF-id>` - the CLI verb renames
      with the CLI-voice slice).
    - `- [x] <description>` - a human-ticked box passes unconditionally.
    - `- [ ] <bare description>` - **fails**. Narrative notes in `devlog.md`
@@ -103,7 +103,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    --note-category <over-ceremony|tooling|...> --note-phase <stage>`.
    **Recording nothing is a valid, common outcome.** This step never blocks
    shipping: it runs after the gate, writes only the `friction:` section
-   (no follow-up, no gate), and `compass calibration --friction` later
+   (no follow-up, no gate), and `compass retro --friction` later
    aggregates it across issues as advice, never as a gate (Flow advises
    but never gates).
 7. **Final devlog entry.** One entry: what shipped, how it was verified,

@@ -1,7 +1,7 @@
 """Roundtable doc - Reassessment trigger section.
 
 TRC-C4: commands/roundtable.md contains a "Reassessment trigger" section that
-documents the requirement to run /compass:triage --reframe after boundary
+documents the requirement to run /compass:triage --reassess after boundary
 or migration decisions.
 """
 from __future__ import annotations
@@ -30,9 +30,9 @@ def test_reframe_trigger_documented():
     )
 
     # Must show the concrete command
-    assert "/compass:triage --reframe" in text, (
+    assert "/compass:triage --reassess" in text, (
         "The Reassessment trigger section must show the example invocation: "
-        "/compass:triage --reframe --reason \"...\""
+        "/compass:triage --reassess --reason \"...\""
     )
 
     # Must include --reason flag in the example

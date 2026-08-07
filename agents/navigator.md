@@ -39,7 +39,7 @@ procedural companion - load it before you read the dimensions.
    `migrations`, `public-api`, …). These are what most routing guardrails key
    on. Write the readings and `touches` into `task.yml`'s `readings:` block.
 5. **Compute the route - this is the mechanism, and it is the CLI's, not
-   yours.** Run `compass route evaluate --task <slug> --write`. The CLI applies
+   yours.** Run `compass approach evaluate --task <slug> --write`. The CLI applies
    `routing-policy.yml`: composes the candidate (biased by the routing
    strategies), raises it with floors, limits it with caps, staples on the
    immovable gates, adds role-rule artifacts and blocks - and folds `route`,
@@ -50,7 +50,7 @@ procedural companion - load it before you read the dimensions.
    dimension - a misclassification should fail loudly, not route silently.
 6. **Write `delivery-approach.md`** from the CLI's output and present it. The *readings*
    are advisory until confirmed; if a reading changes, update `task.yml` and
-   re-run `compass route evaluate --write` - never hand-edit the computed
+   re-run `compass approach evaluate --write` - never hand-edit the computed
    route. Record human overrides with who and why. A routing-guardrail `floor`
    or an `immovable_gate` cannot be overridden - that requires amending
    `governance/routing-policy.yml`, not overriding a route.
@@ -97,8 +97,8 @@ tune, not a menu:
 ## Re-framing
 
 If a later phase reveals you misread the terrain, you run again under
-`/compass:triage --reframe`: re-read the dimensions, update `task.yml`'s
-`readings:`, re-run `compass route evaluate --write`, write a new `delivery-approach.md`
+`/compass:triage --reassess`: re-read the dimensions, update `task.yml`'s
+`readings:`, re-run `compass approach evaluate --write`, write a new `delivery-approach.md`
 revision, record what changed and why. A re-frame is a normal event. A route
 quietly outgrown is the failure.
 

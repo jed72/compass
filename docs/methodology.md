@@ -279,7 +279,7 @@ scenario tested, does every changed file trace to a criterion, does every gate
 have evidence - are mechanism too.
 
 Compass puts the mechanism in a CLI (`cli/compass`) so it is *actually*
-deterministic, not deterministic-in-principle: `compass route evaluate` runs
+deterministic, not deterministic-in-principle: `compass approach evaluate` runs
 `routing-policy.yml` against a task's readings; `compass check` runs the
 `guardrails.yml` checks against the task's `task.yml` and evidence. The Needle
 still produces the readings - judgement stays judgement - but it no longer
@@ -298,10 +298,10 @@ Needle has a feedback loop.
 
 The mechanism is small. When the terrain reading turns out wrong, the honest
 response is a **re-frame** - re-score the four dimensions mid-task - and every
-re-frame is *recorded*: `compass route evaluate --write` detects that the route
+re-frame is *recorded*: `compass approach evaluate --write` detects that the route
 changed and appends an entry to `task.yml`'s `reframes` log, with the reason
 (`--reason "..."`). One re-frame is an anecdote. The log across every task is
-data: `compass calibration` aggregates it and reports the pattern - are
+data: `compass retro` aggregates it and reports the pattern - are
 re-frames mostly *up* (the Needle reads magnitude and blast radius low - it is
 under-sizing) or *down* (it reads risk high - it is over-sizing)? That is the
 framework holding a mirror to its own judgement layer. It does not gate
@@ -385,7 +385,7 @@ Compass is built in three layers, deliberately separated.
   the routing guardrails, and runs the guardrail checks - deterministically
   and reproducibly. `schemas/` ships executable JSON Schema (draft-07
   `*.schema.json`, with human-readable `*.reference.yml` companions), which
-  `compass policy lint` and `compass task lint` validate against when the
+  `compass policy lint` and `compass issue lint` validate against when the
   optional `jsonschema` library is installed - the built-in linter is the
   no-dependency floor and always runs. Gate evidence in `task.yml` is *typed* -
   a `{type, path}` record, not a bare path - so the checks can refuse to clear
@@ -402,7 +402,7 @@ Compass is built in three layers, deliberately separated.
   commands invoke phases, subagents are the swarm, skills carry the
   procedural knowledge, hooks enforce the guardrails and the
   red-before-green strategy, and the commands and agents *call the kit* -
-  `/compass:frame` runs `compass route evaluate`, `/compass:verify` runs
+  `/compass:frame` runs `compass approach evaluate`, `/compass:verify` runs
   `compass check`. `bin/compass` and `.claude-plugin/` are the
   runtime-specific install wiring; another runtime's adapter would replace
   them with its own equivalent (a shell PATH addition, a different plugin
@@ -554,7 +554,7 @@ When a builder discovers during Build that the task is larger, narrower, or
 differently shaped than Plan described, and works around it without filing a
 re-frame, two things happen:
 
-1. **The calibration signal is lost.** `compass calibration` reads the
+1. **The calibration signal is lost.** `compass retro` reads the
    `reframes:` log across all tasks and reports whether the Needle is
    systematically over- or under-sizing. An absorbed mis-frame - a real scope
    change that was not recorded - makes calibration less accurate. The pattern
@@ -578,9 +578,9 @@ after it, the hook emits a nudge to stderr suggesting:
 The hook is **non-blocking** - it exits 0 regardless. It nudges; the human
 decides.
 
-### compass calibration --reframe-debt
+### compass retro --reframe-debt
 
-`compass calibration` includes a **Reframe debt** section in its output when it
+`compass retro` includes a **Reframe debt** section in its output when it
 finds tasks that have scope-bloat devlog signals and no corresponding reframe.
 These are listed as "absorbed mis-frames, signal lost" - advisory only. The
 command is read-only: it never writes to `task.yml` or any other file (this
@@ -594,7 +594,7 @@ exact procedure and example invocation.
 
 ### What counts as a filed reframe
 
-A re-frame is filed when `compass route evaluate --write --reason "..."` runs
+A re-frame is filed when `compass approach evaluate --write --reason "..."` runs
 and the computed route differs from the previously recorded one. This appends
 an entry to `task.yml.reframes` with `from_route`, `to_route`, `reason`, and
 `date`. The stop-hook and calibration both check this field to decide whether
@@ -623,7 +623,7 @@ mis-route, missing-strategy, tooling, docs, other) and, for human entries, a
 `proposed_change` describing how the framework could have been configured to
 avoid the friction.
 
-`compass calibration --friction` aggregates these across every task, groups
+`compass retro --friction` aggregates these across every task, groups
 recurring `proposed_change` targets (exact-normalised, never semantic), and
 surfaces only those that recur at or above `signals.yml`'s
 `friction.recurrence_threshold` (default 2) - a one-off is noise, not a trend.
@@ -634,7 +634,7 @@ Three properties keep this on the right side of every Compass line:
 
 1. **It never gates.** Friction is a strategy-class signal, not a guardrail
    (ADR-002 keeps the guardrail count at five). A task with no friction record
-   Lands exactly as one with. `compass calibration --friction` is read-only and
+   Lands exactly as one with. `compass retro --friction` is read-only and
    exits 0 always - like `rework-scan` and `flow`.
 2. **It never auto-tunes.** The loop produces drafts; a human edits governance.
    Telemetry advises, judgement stays human-side (ADR-001, the determinism

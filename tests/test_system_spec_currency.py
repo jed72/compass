@@ -134,7 +134,8 @@ def test_trc_a3_the_committed_spec_should_cover_every_landed_task():
     if not landed:
         return
     text = SPEC.read_text(encoding="utf-8")
-    named = set(re.findall(r"Source task:\*\* `([a-z0-9-]+)`", text))
+    # The derived line says "Source issue:" since the CLI-voice slice.
+    named = set(re.findall(r"Source issue:\*\* `([a-z0-9-]+)`", text))
     missing = sorted(landed - named)
     assert not missing, (
         f"{len(missing)} landed task(s) contribute no scenarios to the living "

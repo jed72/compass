@@ -50,7 +50,7 @@ links and never clobbers a file Compass did not create. `--global` makes the
 instead of symlinks if you prefer. The CLI's only *hard* dependency is PyYAML -
 if it is missing, `compass` says so and exits; `jsonschema` is optional and
 turns on full JSON Schema validation in `compass policy lint` and
-`compass task lint` (without it the built-in linter still runs - see
+`compass issue lint` (without it the built-in linter still runs - see
 `schemas/README.md`).
 
 Unlike the plugin, `install.sh` does **not** modify your PATH. If you want to
@@ -129,7 +129,7 @@ something every API consumer touches), terrain `brownfield-mapped`, role
 `engineer`. It tags `touches: [public-api]`.
 
 Then the mechanism takes over. `/compass:frame` shells out to
-`compass route evaluate --write`, which applies `governance/routing-policy.yml`
+`compass approach evaluate --write`, which applies `governance/routing-policy.yml`
 deterministically - composing the candidate route, applying the floors and
 caps, assembling the gate set - and folds `route`, `phases`, and `gates` back
 into `task.yml`. For this task it lands on **Standard, with the `security`

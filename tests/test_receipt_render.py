@@ -160,7 +160,7 @@ def test_missing_task_clean_error(run_cli, project):
     """TRC-D3: a missing task slug fails cleanly.
 
     Given no directory exists at .compass/work/nonesuch/
-    When `compass task receipt --task nonesuch` is run
+    When `compass issue receipt --task nonesuch` is run
     Then a one-line error is written to stderr naming the missing task
       and the expected directory
     And nothing is written to stdout
@@ -168,7 +168,7 @@ def test_missing_task_clean_error(run_cli, project):
     """
     assert not (project / ".compass" / "work" / "nonesuch").exists()
 
-    result = run_cli("task", "receipt", "--task", "nonesuch")
+    result = run_cli("issue", "receipt", "--task", "nonesuch")
 
     assert result.returncode != 0, repr(result)
     assert result.stdout.strip() == "", repr(result)
@@ -185,7 +185,7 @@ def test_canonical_landed_task(run_cli, project):
 
     Given a task "alpha" exists with status=landed, 6 gates pass with evidence,
       and a multi-type evidence registry
-    When `compass task receipt --task alpha` is run
+    When `compass issue receipt --task alpha` is run
     Then the receipt is printed to stdout in this order:
       (1) task slug + landed status
       (2) the four readings, each with its one-line justification
@@ -201,7 +201,7 @@ def test_canonical_landed_task(run_cli, project):
                         "security-review"],
     )
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
 
     assert result.returncode == 0, repr(result)
     out = result.stdout
@@ -227,7 +227,7 @@ def test_receipt_fits_one_screen(run_cli, project):
 
     Given a landed Standard task "alpha" with 6 gates and a multi-type evidence
       registry
-    When `compass task receipt --task alpha` is run
+    When `compass issue receipt --task alpha` is run
     Then the receipt output is at most 50 lines
     And no single line exceeds 100 columns
     """
@@ -236,7 +236,7 @@ def test_receipt_fits_one_screen(run_cli, project):
         "security-review", "spike-conclusion",
     ])
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
 
     lines = result.stdout.splitlines()
@@ -269,7 +269,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
     """TRC-D1: a not-yet-landed task is labeled in-progress, not a final receipt.
 
     Given a task "alpha" with status=active and at least one gate pending
-    When `compass task receipt --task alpha` is run
+    When `compass issue receipt --task alpha` is run
     Then the receipt's header explicitly reads "IN PROGRESS - not yet landed"
     And the receipt still renders the readings, the route, and the gates' state
     And no gate's verdict is rendered as "landed"
@@ -277,7 +277,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
     """
     _active_task(project, slug="alpha")
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
     out = result.stdout
 
@@ -286,7 +286,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
     assert "not yet landed" in out, repr(result)
     # Sections still present
     assert "Assessment" in out
-    assert "Route" in out
+    assert "Approach" in out
     assert "Gates" in out
     # No gate is labeled "landed" - that word should not appear next to a gate
     # verdict marker (we use [ PASS ]/[ FAIL ]/[ PENDING ]).
@@ -311,7 +311,7 @@ def test_failed_gate_prominent(run_cli, project):
             g["status"] = "fail"
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
     out = result.stdout
 
@@ -341,19 +341,20 @@ def test_owed_backfills_surfaced(run_cli, project):
     ]
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
     out = result.stdout
 
-    # A backfills section exists and surfaces the owed one with id+description.
-    assert "Backfill" in out or "backfill" in out, (
-        f"receipt should include a backfills section\n--- stdout ---\n{out}"
+    # A follow-ups section exists and surfaces the outstanding one with
+    # id+description. (v1 wording moved with the CLI-voice slice.)
+    assert "Follow-up" in out or "follow-up" in out, (
+        f"receipt should include a follow-ups section\n--- stdout ---\n{out}"
     )
     assert "BF-001" in out, repr(result)
     assert "Promote reproduction" in out, repr(result)
     # Overall verdict mentions the count.
     assert "landed with caveats" in out, repr(result)
-    assert "1 backfill" in out, repr(result)
+    assert "1 follow-up" in out, repr(result)
 
 
 # --- TRC-B1 -----------------------------------------------------------------
@@ -395,7 +396,7 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
         g["evidence"] = ["EV-X"]
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
 
     out = result.stdout
@@ -437,7 +438,7 @@ def test_wrong_typed_evidence_flagged(run_cli, project):
                              "status": "pass", "evidence": ["EV-Z"]})
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
     out = result.stdout
 
@@ -464,7 +465,7 @@ def test_unsupported_pass_flagged(run_cli, project):
             g["evidence"] = []  # the bare-pass-no-evidence case
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
     out = result.stdout
 
@@ -510,7 +511,7 @@ def test_schema_1_0_renders(run_cli, project):
         yaml.safe_dump(legacy_body, sort_keys=False))
     # No route.md, no evidence/, no gates - the absent-data path.
 
-    result = run_cli("task", "receipt", "--task", slug)
+    result = run_cli("issue", "receipt", "--task", slug)
     assert result.returncode == 0, repr(result)
     out = result.stdout
 
@@ -520,7 +521,7 @@ def test_schema_1_0_renders(run_cli, project):
     )
     # Readings + route are still rendered.
     assert "trivial" in out  # blast_radius value
-    assert "express" in out  # route name
+    assert "quick fix" in out  # the shape, shown by its v2 display name
     # Absent data is labelled - somewhere in the receipt, "not recorded" or
     # "no evidence recorded" surfaces honestly rather than crashing.
     assert "not recorded" in out or "no evidence recorded" in out, (
@@ -554,7 +555,7 @@ def test_receipt_is_read_only(run_cli, project):
     # or other side-effects landing elsewhere.
     before = _file_tree_sha(project)
 
-    result = run_cli("task", "receipt", "--task", "alpha")
+    result = run_cli("issue", "receipt", "--task", "alpha")
     assert result.returncode == 0, repr(result)
 
     after = _file_tree_sha(project)
@@ -587,7 +588,7 @@ def test_docs_example_matches_actual_output(framework_root, cli_path):
 
     proc = _subprocess.run(
         [
-            "python3", str(cli_path), "task", "receipt",
+            "python3", str(cli_path), "issue", "receipt",
             "--task", "receipt-task",
             "--workdir", str(fixture_root),
         ],

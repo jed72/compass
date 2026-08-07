@@ -154,7 +154,7 @@ class ParsedScenario(object):
 
 
 def scan_spec_markdown(text):
-    """Parse spec.feature.md into ParsedScenario records, in document order.
+    """Parse acceptance-criteria.md into ParsedScenario records, in document order.
 
     Only a gherkin fence introduced by a `traceability id:` comment is picked
     up; everything else in the document is prose. Returns [] when the document
@@ -322,9 +322,9 @@ def default_extract_path(task_dir):
 
 
 def _bdd_out_path(args, task_dir, slug):
-    """Resolve where the .feature goes: --out, then config, then the task dir.
+    """Resolve where the .feature goes: --out, then config, then the issue dir.
 
-    The task directory is the zero-config default so the verb works before a
+    The issue directory is the zero-config default so the verb works before a
     project has edited anything (ADR-006); `project.bdd_features_dir` exists for
     adopters whose runner expects a conventional features/ directory.
     """
@@ -494,7 +494,7 @@ def cmd_bdd_verify(args):
 
 
 def cmd_bdd_extract(args):
-    """compass bdd extract - spec.feature.md -> a runnable .feature file."""
+    """compass bdd extract - acceptance-criteria.md -> a runnable .feature file."""
     task_dir = resolve_task_dir(getattr(args, "task", None))
     slug = os.path.basename(os.path.normpath(task_dir))
     spec_path = artifact_path(task_dir, "acceptance-criteria.md")
