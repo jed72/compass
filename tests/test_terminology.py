@@ -73,6 +73,11 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bFrame\s*(?:→|->)"),
         re.compile(r"(?:→|->)\s*Frame\b"),
         re.compile(r"^#+\s+Frame\b"),
+        # Tuned at the skills-prose review: the capitalised stage name
+        # after a preposition ("during Frame,") is stage-name usage the
+        # suffix forms above miss; lowercase "frame the problem" stays
+        # legal.
+        re.compile(r"\b(?:during|at|before|after|since|until)\s+Frame\b"),
     ],
     # The four-dimension judgement. The plural is the v1 term of art;
     # singular "reading" (the ordinary gerund) stays legal.
@@ -91,6 +96,10 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
             r"\b(?:computed|reference|delivery|solo|swarm|"
             r"Express|Standard|Expedition|Hotfix|Spike)\s+routes?\b"
         ),
+        # Tuned at the skills-prose review: "compute the route" is the
+        # process-noun sense (the thing computed is the delivery
+        # approach); "computed a route home" stays legal.
+        re.compile(r"\bcomputes?\s+the\s+route\b"),
     ],
     # The v1 name for a quick fix. Capitalised only: "express delivery"
     # stays legal.
@@ -110,11 +119,20 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"(?:→|->)\s*(?:Specify|Clarify|Distribute|Land)\b"),
         re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\s*(?:→|->)"),
         re.compile(r"^#+\s+(?:Specify|Clarify|Distribute|Land)\b"),
+        # Tuned at the skills-prose review: the capitalised stage name
+        # after a preposition or conjunction ("at Land", "and Land",
+        # "during Specify") is stage-name usage the suffix forms miss;
+        # lowercase ordinary verbs ("planes land") stay legal.
+        re.compile(r"\b(?:during|at|before|after|since|until|and|into)\s+"
+                   r"(?:Specify|Clarify|Distribute|Land)\b"),
     ],
-    # The role-perspective concept, in any casing, including the v1 agent
-    # names (product-lens, architect-lens, marketing-lens).
+    # The role-perspective concept, in any casing. Tuned at the
+    # skills-prose slice: a hyphen-preceded "lens" is an agent identifier
+    # (product-lens, architect-lens, marketing-lens) - machine vocabulary
+    # that keeps its spelling until an agent-rename decision - and is no
+    # longer flagged. The concept word alone still is.
     "lens": [
-        re.compile(r"\blens(?:es)?\b", re.IGNORECASE),
+        re.compile(r"(?<!-)\blens(?:es)?\b", re.IGNORECASE),
     ],
     # The v1 risk dimension, prose or key form.
     "blast radius": [
@@ -179,7 +197,6 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
 # surface from the vocabulary file AND from here in the same diff, which is
 # what makes the shrink visible in review.
 PENDING_BASELINE: frozenset[str] = frozenset({
-    "skills/",
     "README.md",
     "docs/five-minutes.md",
     "docs/methodology.md",

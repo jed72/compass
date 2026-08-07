@@ -5,7 +5,7 @@ description: What counts as evidence versus assertion, how guardrails are cleare
 
 # Evidence Gates
 
-"Evidence, not assertion" is **guardrail G4**. A guardrail is cleared with
+"Evidence, not assertion" is **the evidence-not-assertion guardrail**. A guardrail is cleared with
 artifacts and command output - never with a claim. "The tests pass" is not a
 gate-passing statement in any route; the *paste of the test run* is. This skill
 covers what counts as evidence, the checklists for each review dimension, and -
@@ -15,7 +15,7 @@ just as important - the line between what is *checked* and what is *assessed*.
 
 This is the distinction the whole gate model rests on. The two kinds of
 governance are verified two different ways, and conflating them is the failure
-mode G4 exists to prevent.
+mode the evidence-not-assertion guardrail exists to prevent.
 
 - **Guardrails are *checkable*.** They are cleared with evidence - a test ran, a
   scan passed, a human approved, the artifact exists. A guardrail clears or it
@@ -69,22 +69,22 @@ two of those stages and explicitly stays out of the rest.
 fast." `compass tdd-red` records a failing test; `compass tdd-green` records a
 passing suite. These are fast, isolated, developer-feedback cycles. Evidence
 here is `test-run`; it is the closest feedback loop in the pipeline. The
-pre-tool hook enforces the ordering (strategy S2); guardrail G4 enforces
+pre-tool hook enforces the ordering (the TDD strategy); the evidence-not-assertion guardrail enforces
 that the evidence is real, not asserted.
 
 **The acceptance/releasability stage** is `verify.correctness` - "anything
 that defines releasable." This is the gate that says *yes, this behaviour is
-what was specified* (G2 in evidence form) and *yes, the tests pass* (G1 in
+what was specified* (acceptance-before-code in evidence form) and *yes, the tests pass* (tested-before-ship in
 evidence form). `verify.correctness` accepts only `test-run` evidence - not
-assertions, not opinions, not coverage numbers. A task that clears
-`verify.correctness` is a task whose acceptance criteria were met by running
+assertions, not opinions, not coverage numbers. An issue that clears
+`verify.correctness` is an issue whose acceptance criteria were met by running
 the acceptance suite. That is the definition of releasable within Compass.
 
 **Release and Production stages** are out of scope for Compass - see
 safety-contract guarantee 6: Compass is not a deployment pipeline. It has no
 concept of staging environments, progressive rollout, smoke tests in
 production, or canary evaluation. Those are deployment concerns; Compass ends
-at Land. The standing version of the falsification principle (guardrail G4)
+at ship time. The standing version of the falsification principle (the evidence-not-assertion guardrail)
 is what Compass contributes: *evidence, not assertion* - the same principle
 that drives continuous delivery discipline, but scoped to the development and
 verification pipeline.
@@ -104,7 +104,7 @@ Verifier's artifacts in hand.
 ## The review-dimension checklists
 
 Which dimensions apply is set by the route (see the table in `routes/router.md`).
-`correctness`, `governance`, `traceability` are on every delivery route - the
+`correctness`, `governance`, `traceability` are on every delivery approach - the
 default guardrails in review form. The route and routing policy can add; they
 can never remove those or an `immovable_gate`. (Spike runs none of these - it
 ships nothing, so it has only its own Conclude gate.)
@@ -116,7 +116,7 @@ the new behaviour, not just run near it?
 **governance** - Two distinct checks under one dimension, and keeping them
 distinct *is* the check:
 - *Guardrails (checked with evidence).* Does the change clear every applicable
-  guardrail - G1–G5 and any project guardrails? Each is cleared with the
+  guardrail - the five shipped defaults and any project guardrails? Each is cleared with the
   verifier's artifacts, never a claim. A failed guardrail is a no-pass; a
   guardrail beats any strategy. See the `governance-check` skill.
 - *Strategies (assessed as judgement).* Did the work follow the applicable
@@ -129,17 +129,17 @@ distinct *is* the check:
 intent, and claim → scenario? A break is a no-pass. See the `traceability` skill.
 
 **regression** - Does the evidence show nothing previously passing now fails?
-On a swarm, this is per-stream at the checkpoint gates and *combined* at Land -
+On a swarm, this is per-stream at the checkpoint gates and *combined* at ship time -
 per-stream green does not imply integrated green.
 
-**security** - Full on Expedition and Hotfix, scaled to blast radius on
-Standard, off on Express unless a `touches:` tag stapled it on. OWASP floor;
+**security** - Full on initiative and Hotfix, scaled to risk on
+Standard, off on quick-fix unless a `touches:` tag stapled it on. OWASP floor;
 dependency-CVE scan where a project security guardrail requires it; evidence is
 scan output, not "looks fine."
 
 **clarity** - Is the code and are its tests legible to the next person - names,
-structure, no surprising control flow? Off on Express; deferred to the
-mandatory backfill on Hotfix.
+structure, no surprising control flow? Off on quick-fix; deferred to the
+mandatory follow-up on Hotfix.
 
 **claims** - When the product-marketer role is in play (and `verify.claims` is
 an immovable gate, so it is always at least live for the marketer): does every
@@ -154,7 +154,7 @@ with no red rows.
 3. Reviewer: walk each dimension's checklist against the evidence and the
    change. Record per-dimension **pass** or **no-pass with the specific reason**.
 4. The gate passes only if every applicable dimension passes. One no-pass sends
-   the work back - to Build, or to a re-frame. A gate is not "mostly passed."
+   the work back - to Build, or to a re-assess. A gate is not "mostly passed."
 
 ## Architectural fitness functions and the verify.fitness gate
 
@@ -165,7 +165,7 @@ direction", "no cyclic imports in the domain layer"). Adopters declare each
 fitness function as a project guardrail in `governance/guardrails.yml` with
 `check: command-passes` and a `params.command:` that exits 0 on pass. The gate
 is advisory by default and promoted to blocking by routing floors `RG-FLOOR-006`
-(blast_radius ∈ {cross-cutting, critical}) and `RG-FLOOR-007` (touches ∈
+(risk ∈ {cross-cutting, critical}) and `RG-FLOOR-007` (touches ∈
 irreversible domains) - following the same promotion pattern as `verify.analyze`
 (ADR-007). When no project guardrails declare `command-passes`, the gate clears
 by vacuity: a project that has not yet declared any fitness functions sees no
@@ -188,7 +188,7 @@ One important caveat: **coverage is a floor, never a target**. A high coverage
 number is a side effect of test discipline, not its goal. Chasing a coverage
 metric - writing tests specifically to hit a number - produces tests that
 cover lines without asserting anything useful.
-The real goal is the design-feedback loop (strategy S2: "Listen to your
+The real goal is the design-feedback loop (the TDD strategy: "Listen to your
 tests"). Treat the floor as a safety net that catches a serious regression in
 test discipline; treat the design-feedback loop as the thing that builds
 quality in.
@@ -196,7 +196,7 @@ quality in.
 ## Anti-patterns
 
 - **The assertion gate** - "all green, looks good" with nothing pasted. The most
-  common way guardrail G4 is quietly broken.
+  common way the evidence-not-assertion guardrail is quietly broken.
 - **The dressed-up strategy** - presenting a strategy assessment ("this follows
   our engineering strategies") as if it were an evidence-backed guardrail
   clearance. It is judgement; label it as judgement.

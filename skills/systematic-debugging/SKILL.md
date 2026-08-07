@@ -74,9 +74,9 @@ against does not match the system - and continuing to make changes against a
 wrong model damages code that was not broken. The question stops being "what is
 the bug" and becomes "why do I keep being wrong about this".
 
-In Compass terms that is a **routing** signal, not just a debugging one. A task
-whose fixes keep failing is usually a task whose blast radius, terrain or
-magnitude was misread at Frame - most often terrain scored `brownfield-mapped`
+In Compass terms that is a **routing** signal, not just a debugging one. An issue
+whose fixes keep failing is usually an issue whose risk, familiarity or
+size was misread at triage - most often familiarity scored `brownfield-mapped`
 when the behaviour was never actually written down.
 
 So:
@@ -85,9 +85,9 @@ So:
 /compass:frame --reframe --reason "three fixes failed; the terrain was misread"
 ```
 
-Re-score the dimensions honestly. If terrain is genuinely unmapped,
+Re-score the dimensions honestly. If familiarity is genuinely unmapped,
 `RG-FLOOR-002` will force `blueprint-distillation`, and writing the current
-behaviour down is very often the thing that ends the bug hunt. A re-frame here
+behaviour down is very often the thing that ends the bug hunt. A re-assess here
 is the system working; a fourth guess is not.
 
 ## Anti-patterns
@@ -100,5 +100,5 @@ is the system working; a fourth guess is not.
 - **The silent fourth fix.** Attempting one more after three failures because
   this one *feels* right. Feeling right is what the previous three felt like.
 - **Fixing the symptom.** Making the test pass without understanding why it
-  failed. On a Hotfix route this is an explicit, recorded backfill; anywhere
+  failed. On a hotfix this is an explicit, recorded follow-up; anywhere
   else it is a bug you have hidden rather than removed.

@@ -141,18 +141,18 @@ def test_trc_c4_selection_rules_scale_by_route():
     )
     text = PLAN_SKILL.read_text(encoding="utf-8")
 
-    express = _route_rule(text, "Express")
+    express = _route_rule(text, "quick-fix")
     assert re.search(r"\b(none|no)\b", express, re.I), (
-        f"the skill does not say an Express plan uses none of them: {express!r}")
+        f"the skill does not say a quick-fix plan uses none of them: {express!r}")
 
-    standard = _route_rule(text, "Standard")
+    standard = _route_rule(text, "feature")
     assert re.search(r"\b(clarity|clarify|helps?|add)\b", standard, re.I), (
-        f"the skill does not say a Standard plan uses the ones that help: "
+        f"the skill does not say a feature plan uses the ones that help: "
         f"{standard!r}")
 
-    expedition = _route_rule(text, "Expedition")
+    expedition = _route_rule(text, "initiative")
     assert re.search(r"\b(all|freely|every)\b", expedition, re.I), (
-        f"the skill does not say an Expedition plan may use all of them: "
+        f"the skill does not say an initiative plan may use all of them: "
         f"{expedition!r}")
 
 

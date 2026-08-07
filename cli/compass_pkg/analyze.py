@@ -311,8 +311,8 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
         raise CompassError(
-            f"no task.yml in {task_dir} - has Frame run? "
-            f"compass analyze cannot run before Frame."
+            f"no task.yml in {task_dir} - has triage run? "
+            f"compass analyze cannot run before it."
         )
     try:
         task = normalize_spine(load_yaml(task_path))

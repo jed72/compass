@@ -554,7 +554,7 @@ def cmd_adr_new(args):
     if os.path.exists(full_path):
         raise CompassError(
             f"{full_path} already exists. If you are in a concurrent worktree, "
-            f"this is expected - rename one side at Land."
+            f"this is expected - rename one side when the streams integrate."
         )
 
     title_words = slug.replace("-", " ").title()
@@ -583,6 +583,7 @@ def cmd_adr_new(args):
 
     print(f"compass adr new: created {full_path}")
     print(f"  registered in {readme_path}")
-    print("  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) - "
-          "if another worktree creates ADRs in parallel, renumber at Land.")
+    print("  NOTE: concurrent worktree numbering caveat - if another "
+          "worktree creates ADRs in parallel, renumber when the streams "
+          "integrate.")
     return 0

@@ -101,7 +101,10 @@ def test_evidence_gates_release_production_out_of_scope():
 def test_evidence_gates_cites_g4_for_falsification():
     """Must cite G4 (falsification principle) as the standing version of the idea inside Compass."""
     text = _read_skill()
-    assert "G4" in text, (
-        "evidence-gates must cite G4 as the standing falsification principle. "
-        "The skill already references G4; this test confirms it's in the E2/E3 context."
+    # The G4 code retired with the skills-prose slice; the same principle
+    # is cited by its plain name. The premise is unchanged - the skill must
+    # name the standing falsification principle in the E2/E3 context.
+    assert "evidence-not-assertion" in text or "Evidence, not assertion" in text, (
+        "evidence-gates must cite the evidence-not-assertion guardrail as "
+        "the standing falsification principle in the E2/E3 context."
     )

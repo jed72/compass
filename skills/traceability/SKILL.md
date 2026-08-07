@@ -1,11 +1,11 @@
 ---
 name: traceability
-description: Maintaining the code→scenario→intent and claim→scenario chains continuously, so the chain becomes the audit trail. Triggers whenever an artifact is written - during Specify, Build, Verify, and any role-facing work.
+description: Maintaining the code→scenario→intent and claim→scenario chains continuously, so the chain becomes the audit trail. Triggers whenever an artifact is written - while the acceptance criteria are defined, Build, Verify, and any role-facing work.
 ---
 
 # Traceability
 
-Traceability is **guardrail G3**. Two chains, maintained on every route,
+Traceability is **the traceability guardrail**. Two chains, maintained on every route,
 updated *as you go* - not reconstructed at the end:
 
 ```
@@ -26,7 +26,7 @@ and that is a Verify no-pass.
 - **code → scenario.** Every unit of production code traces up to a scenario in
   `acceptance-criteria.md` that motivates it. Not one-to-one - a scenario may need
   several units, a unit may serve several scenarios - but *onto*: no code
-  without at least one scenario above it. Guardrail G2 forbids code no stated
+  without at least one scenario above it. The acceptance-before-code guardrail forbids code no stated
   acceptance criterion describes; this link is how that is observable.
 - **scenario → intent.** Every scenario traces up to an intent - the brief
   success signal, the ticket, the product outcome it serves. A scenario with no
@@ -37,7 +37,7 @@ and that is a Verify no-pass.
 - Every public claim - launch copy, docs, marketing, a sentence in the
   changelog - traces down to a scenario that, when it passes, makes the claim
   true. This is the marketer's `launch-readiness.md` ledger and it is an
-  immovable gate at Land.
+  immovable gate at ship time.
 
 ## How to maintain it continuously
 
@@ -51,12 +51,12 @@ at the end is a chain that was guessed.
   is written* - a comment, a test name, a commit message convention, whatever
   the project uses. The link is made at the moment the code is made, when the
   reason is still in your head. Recovering it later is archaeology.
-- **Alongside Specify/Land** - the Marketing Lens adds a `claim → scenario` row
+- **Alongside Specify/Land** - the Marketing Perspective adds a `claim → scenario` row
   to `launch-readiness.md` as each claim is drafted. A claim with no row is not
   yet a shippable claim.
 - **At Verify** - the Reviewer runs `traceability` as a review dimension: walk
-  the chains, find the breaks. It is on every delivery route because it is
-  guardrail G3 in review form.
+  the chains, find the breaks. It is on every delivery approach because it is
+  the traceability guardrail in review form.
 
 ## What a break looks like - and what to do
 
@@ -88,12 +88,12 @@ reconstructing anything:
   and every claim that traces to it.
 
 That is why it is maintained continuously and on every route, including
-Express and Hotfix. The audit trail is not a document you write; it is a
+quick-fix and Hotfix. The audit trail is not a document you write; it is a
 property the chain *has* - but only if every link was made when the work was.
 
 ## Anti-patterns
 
-- **End-of-task reconstruction** - building the chain at Verify from memory.
+- **End-of-issue reconstruction** - building the chain at Verify from memory.
   You are guessing, and the guesses look exactly like real links.
 - **The decorative reference** - a scenario tag that points vaguely at a feature
   rather than precisely at a scenario. Precision is what makes the walk work.
@@ -101,5 +101,5 @@ property the chain *has* - but only if every link was made when the work was.
   traces to the defect; the promoted scenario traces to an intent. The chain
   holds at 3am.
 - **Claims that outrun scenarios** - drafting launch copy for behaviour the spec
-  does not yet describe and intending to "backfill the scenario." The scenario
+  does not yet describe and intending to "follow-up the scenario." The scenario
   comes first, or the claim is not real.

@@ -42,20 +42,20 @@ shipped defaults and any project guardrails.
 
 The five default guardrails:
 
-- **G1 - Tested before it lands.** Is the work shaped so that nothing reaches
+- **Tested before it lands.** Is the work shaped so that nothing reaches
   `main` without a passing automated test it traces to? At Plan, this means the
   plan introduces work test-first (the TDD strategy is how) and the test
   surface is planned. At Verify, it is cleared with the pasted run.
-- **G2 - Acceptance defined before it is built.** Does every piece of planned
+- **Acceptance defined before it is built.** Does every piece of planned
   code trace to a stated, checkable acceptance criterion that exists *before*
   the code? The BDD strategy (Given/When/Then scenarios) is the default way to
-  satisfy this; G2 itself is the outcome - acceptance is stated and checkable.
-- **G3 - Traceability holds.** Are both chains planned for and intact -
+  satisfy this; the guardrail itself is the outcome - acceptance is stated and checkable.
+- **Traceability holds.** Are both chains planned for and intact -
   code → acceptance criterion → intent, and public claim → backing criterion?
-- **G4 - Evidence, not assertion.** This one is *about* the others: a guardrail
+- **Evidence, not assertion.** This one is *about* the others: a guardrail
   is cleared with artifacts and command output, never a claim. When you record
   a guardrail result, the proof is the artifact.
-- **G5 - A human signs off on the irreversible.** Does anything that can lose
+- **A human signs off on the irreversible.** Does anything that can lose
   data, move money, or breach auth or privacy have an explicit human checkpoint
   before it lands? Check the plan routes such work to where the checkpoint
   happens.
@@ -69,21 +69,21 @@ only ratchet up: a plan may exceed a floor, never fall short of one.
 verifier's artifacts. Either way: "looks fine" is not a result. For each
 guardrail, record **clears** (with the evidence, or the plan element that will
 produce it) or **fails** (with the specific guardrail and how it is crossed). A
-plan that crosses a guardrail does not proceed - it is revised, or the task
+plan that crosses a guardrail does not proceed - it is revised, or the issue
 re-frames. There is nothing to waive a guardrail *for*; a guardrail beats every
 strategy and every convenience.
 
 ## Walk 2 - the strategies (soft, assessed)
 
 Walk the same plan, spec, or change against the applicable strategies - the
-shipped default method strategies (including **S1 BDD** and **S2 TDD**) and any
+shipped default method strategies (including **BDD** and **TDD**) and any
 project strategies (product, engineering, voice & positioning).
 
 The standard here is different and you must keep it different. A strategy is
 **assessed**, not cleared:
 
 - Did the work follow the strategy? This is honest judgement - is this the
-  simplest thing that works (S3), does it follow the team's engineering
+  simplest thing that works (the simplest thing that works), does it follow the team's engineering
   strategies, does the copy fit the voice strategies.
 - Where it departed from a strategy, **is the departure recorded?** A recorded
   departure is the system working, not a failure. An *unrecorded* departure is
@@ -120,8 +120,8 @@ described only as "similar to the one above", or an approach section that
 restates the spec without saying how. Those need reading, which is your job in
 this walk, not the command's.
 
-Two of the default strategies are route-aware: **S1 (BDD)** and **S2 (TDD)**
-are suspended on the Spike route. If you are checking a Spike, do not flag the
+Two of the default strategies are approach-aware: **BDD** and **TDD**
+are suspended on a spike. If you are checking a Spike, do not flag the
 absence of scenarios or red-before-green as a strategy failure - that
 suspension is the route working as designed.
 
@@ -131,7 +131,7 @@ Confirm the plan is consistent with `routing-policy.md`:
 
 - **Routing guardrails** - did every floor that should have fired, fire? Is the
   route the plan assumes consistent with the caps (e.g. the worktree cap on
-  critical blast radius)? Are the `immovable_gates` and blocking `role_rules`
+  critical risk)? Are the `immovable_gates` and blocking `role_rules`
   reflected in the plan's gate set and artifact list? A plan that quietly
   assumes a lighter route than the routing guardrails allow fails here.
 - **Routing strategies** - did the route follow the default shapes and biases,
@@ -151,12 +151,12 @@ Confirm the plan is consistent with `routing-policy.md`:
 5. Write all three results into `design.md`, with the guardrail findings and the
    strategy assessment **visibly separate** - evidence on one side, judgement
    on the other.
-6. A failed guardrail **stops the plan** - revise or re-frame. A strategy
+6. A failed guardrail **stops the plan** - revise or re-assess. A strategy
    departure does **not** stop the plan; record it and, if it matters, raise it.
    That asymmetry is the whole point of the split.
 7. If a guardrail itself seems wrong, that is an amendment conversation (change
    `guardrails.md`, bump the version, log it) - never a quiet override
-   mid-task. If a strategy keeps getting overridden the same way, that is a
+   mid-issue. If a strategy keeps getting overridden the same way, that is a
    curation signal - fix the strategy or write down the thing overriding it.
 
 ## Anti-patterns

@@ -5,7 +5,7 @@ Lives at:    .compass/work/<task-slug>/prd.md
 Role in the pipeline: the intent artifact. It sits UPSTREAM of the spec -
 the BDD scenarios in acceptance-criteria.md are checked back against this brief
 for intent fidelity before Plan (the product-owner role_rule in
-governance/routing-policy.md). The Needle reads it during Frame: intent is
+governance/routing-policy.md). The Needle reads it at triage: intent is
 the outcome wanted, not just the literal request.
 
 Fill every {{PLACEHOLDER}}. Keep it in the product owner's language, not
