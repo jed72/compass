@@ -147,6 +147,13 @@
 - **Source task:** `phase-2-skills-check-and-cli-split`
 - **Landed:** 
 
+### the template set carries the v2 names plus the two new intake templates _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-artifact-renames`
+- **Landed:** 
+
 ### each adapter should run the extracted feature and pass _(archived)_
 
 - **Scenario id:** `TRC-A2`
@@ -201,6 +208,13 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source task:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the resolver prefers v2 names and accepts v1 _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-artifact-renames`
 - **Landed:** 
 
 ### every adapter should share the same four documented steps _(archived)_
@@ -259,6 +273,13 @@
 - **Source task:** `phase-2-skills-check-and-cli-split`
 - **Landed:** 
 
+### readers resolve both naming generations of issue directories _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `v2-artifact-renames`
+- **Landed:** 
+
 ### the tag selector should know every shipped runner _(archived)_
 
 - **Scenario id:** `TRC-A4`
@@ -280,6 +301,13 @@
 - **Source task:** `executable-bdd-and-richer-plans`
 - **Landed:** 
 
+### extracted runnable Gherkin is named acceptance-criteria.feature _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source task:** `v2-artifact-renames`
+- **Landed:** 
+
 ### invariants.yml is loaded by mechanism when present _(archived)_
 
 - **Scenario id:** `TRC-A5`
@@ -292,6 +320,13 @@
 - **Scenario id:** `TRC-A5`
 - **Intent:** `INT-1`
 - **Source task:** `executable-bdd-and-richer-plans`
+- **Landed:** 
+
+### repository validation knows the v2 template inventory _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source task:** `v2-artifact-renames`
 - **Landed:** 
 
 ### Frame proceeds normally when invariants.yml is absent _(archived)_
