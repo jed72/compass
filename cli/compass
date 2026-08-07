@@ -137,9 +137,9 @@ def build_parser():
     pre = prs.add_parser(
         "evaluate",
         help="apply routing-policy.yml to an issue's assessment")
-    pre.add_argument("--issue", "--task", dest="task",
+    pre.add_argument("--issue", "--task", dest="task", metavar="SLUG",
                      help="issue slug (default: current-task pointer)")
-    pre.add_argument("--assessment", "--reading", dest="reading",
+    pre.add_argument("--assessment", "--reading", dest="reading", metavar="KEY=VALUE",
                      action="append",
                      help="ad-hoc assessment key=value (repeatable; "
                           "labels=a,b,c)")
@@ -167,20 +167,20 @@ def build_parser():
     pbe = pbs.add_parser(
         "extract",
         help="extract an issue's acceptance-criteria.md into a runnable .feature file")
-    pbe.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pbe.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pbe.add_argument("--out", help="write here instead of the resolved default")
     pbe.set_defaults(func=cmd_bdd_extract)
 
     pbv = pbs.add_parser(
         "verify",
         help="run the project's BDD suite and record which scenarios it reported")
-    pbv.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pbv.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pbv.add_argument("command", nargs=argparse.REMAINDER,
                      help="the run command, after `--`")
     pbv.set_defaults(func=cmd_bdd_verify)
 
     pc = sub.add_parser("check", help="run the guardrails.yml checks against an issue")
-    pc.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pc.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pc.set_defaults(func=cmd_check)
 
     pan = sub.add_parser(
@@ -189,7 +189,7 @@ def build_parser():
              "disagreements, and orphan claims (advisory or gate-clearing "
              "depending on whether verify.analyze is in the issue's gate set)",
     )
-    pan.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pan.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pan.set_defaults(func=cmd_analyze)
 
     pcal = sub.add_parser("retro",
@@ -221,7 +221,7 @@ def build_parser():
     pci.set_defaults(func=cmd_ci)
 
     prd = sub.add_parser("tdd-red", help="run a test, assert it FAILS, record the red")
-    prd.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    prd.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     prd.add_argument("--scenario", help="scenario id this red is evidence FOR "
                      "(e.g. SCN-001) - binds the failure to a scenario, so it "
                      "proves relevance, not just that something failed")
@@ -234,7 +234,7 @@ def build_parser():
     prd.set_defaults(func=cmd_tdd_red)
 
     pg = sub.add_parser("tdd-green", help="run a test, assert it PASSES, record the green")
-    pg.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pg.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pg.add_argument("--scenario", help="scenario id this green is evidence FOR "
                     "(e.g. SCN-001)")
     pg.add_argument("--verified-by", dest="verified_by",
@@ -254,26 +254,26 @@ def build_parser():
     ppls = ppl.add_subparsers(dest="subcmd", required=True)
     ppll = ppls.add_parser(
         "lint", help="scan a design.md for placeholder phrases (advisory; always exits 0)")
-    ppll.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    ppll.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     ppll.add_argument("--file", help="lint a specific design.md file")
     ppll.set_defaults(func=cmd_plan_lint)
 
     pt = sub.add_parser("issue", help="issue spine tools")
     pts = pt.add_subparsers(dest="subcmd", required=True)
     ptl = pts.add_parser("lint", help="structurally validate a task.yml")
-    ptl.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    ptl.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     ptl.add_argument("--file", help="lint a specific task.yml file")
     ptl.set_defaults(func=cmd_task_lint)
 
     ptr = pts.add_parser("receipt", help="render a one-screen receipt for an issue")
-    ptr.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    ptr.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     ptr.add_argument("--workdir", help="alternate project root (default: cwd)")
     ptr.set_defaults(func=cmd_task_receipt)
 
     ptss = pts.add_parser("set-status",
                           help="set an issue's lifecycle status (queued|active|parked|landed|abandoned)")
     ptss.add_argument("status", help="the new status")
-    ptss.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    ptss.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     ptss.add_argument("--reason", help="why - recorded as parked_reason when parking")
     ptss.set_defaults(func=cmd_task_set_status)
 
@@ -285,13 +285,13 @@ def build_parser():
     pas = paccs.add_parser("start", help="declare the acceptance before the change")
     pas.add_argument("--kind", required=True,
                      help="validation | refactor")
-    pas.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pas.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pas.add_argument("command", nargs=argparse.REMAINDER,
                      help="the validator, or the suite being preserved (after --)")
     pas.set_defaults(func=cmd_acceptance_start)
 
     par = paccs.add_parser("record", help="close the acceptance after the change")
-    par.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    par.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     par.add_argument("--scenario", help="scenario id this acceptance is FOR")
     par.add_argument("command", nargs=argparse.REMAINDER,
                      help="the command to run (after --)")
@@ -359,7 +359,7 @@ def build_parser():
         "next",
         help="what comes next on this issue's route? (read-only; one line)",
     )
-    pnx.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pnx.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pnx.set_defaults(func=cmd_next)
 
     pbf = sub.add_parser(
@@ -372,7 +372,7 @@ def build_parser():
         help="mark a follow-up resolved in an issue's task.yml"
     )
     pbfp.add_argument(
-        "--issue", "--task", dest="task", required=True,
+        "--issue", "--task", dest="task", metavar="SLUG", required=True,
         help="issue slug whose follow-up is being resolved"
     )
     pbfp.add_argument(
@@ -389,7 +389,7 @@ def build_parser():
              "hooks and verifies HEAD advanced.",
     )
     plc.add_argument("-m", "--message", required=True, help="commit message")
-    plc.add_argument("--issue", "--task", dest="task", help="issue slug to mark landed on a verified commit")
+    plc.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug to mark landed on a verified commit")
     plc.add_argument("files", nargs="*",
                      help="optional paths to stage before committing")
     plc.set_defaults(func=cmd_land_commit)
@@ -400,7 +400,7 @@ def build_parser():
     pgp = pgs.add_parser(
         "pass", help="mark a gate pass, validating evidence type at write time")
     pgp.add_argument("gate_id", help="gate id (e.g. verify.correctness)")
-    pgp.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pgp.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pgp.add_argument("--evidence", action="append",
                      help="evidence id backing this gate (repeatable)")
     pgp.set_defaults(func=cmd_gate_pass)
@@ -409,7 +409,7 @@ def build_parser():
     pscs = pscn.add_subparsers(dest="subcmd", required=True)
     psca = pscs.add_parser("add", help="append a scenario to task.yml")
     psca.add_argument("scenario_id", help="scenario id (e.g. SCN-001)")
-    psca.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    psca.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     psca.add_argument("--title", help="scenario title")
     psca.add_argument("--intent", required=True, help="linked intent id")
     psca.add_argument("--test", action="append",
@@ -420,7 +420,7 @@ def build_parser():
     pcfs = pcf.add_subparsers(dest="subcmd", required=True)
     pcfa = pcfs.add_parser("add", help="trace a changed production file to a scenario")
     pcfa.add_argument("path", help="production file path")
-    pcfa.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    pcfa.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pcfa.add_argument("--scenario", required=True, help="scenario id it traces to")
     pcfa.set_defaults(func=cmd_changed_file_add)
 
@@ -428,7 +428,7 @@ def build_parser():
     pevs = pev.add_subparsers(dest="subcmd", required=True)
     peva = pevs.add_parser("add", help="append a typed evidence entry")
     peva.add_argument("evidence_id", help="evidence id (e.g. EV-5)")
-    peva.add_argument("--issue", "--task", dest="task", help="issue slug (default: current-task pointer)")
+    peva.add_argument("--issue", "--task", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     peva.add_argument("--type", required=True, help="evidence type (see guardrails.yml)")
     peva.add_argument("--path", required=True, help="path to the evidence file")
     peva.add_argument("--scenario", help="scenario this evidence is for (optional)")
@@ -474,7 +474,7 @@ def build_parser():
     # verb (PRD Goal 4 - deepen, don't widen the surface).
     p_fric = sub.add_parser("_friction-capture", help=argparse.SUPPRESS)
     p_fric.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
-    p_fric.add_argument("--issue", "--task", dest="task", help=argparse.SUPPRESS)
+    p_fric.add_argument("--issue", "--task", dest="task", metavar="SLUG", help=argparse.SUPPRESS)
     p_fric.add_argument("--note", help=argparse.SUPPRESS)
     p_fric.add_argument("--note-category", dest="note_category",
                         help=argparse.SUPPRESS)

@@ -127,6 +127,15 @@ def test_the_issue_flag_with_task_tolerated(tmp_path):
         + r_task.stderr[-200:])
     r = _run(root, "check", "--help")
     assert "--issue" in r.stdout, "check --help does not document --issue"
+    # The metavar speaks v2 too: "--issue TASK" would teach the banned word
+    # from the help screen itself (maintainer amendment on the 5b review).
+    assert re.search(r"--issue\s+SLUG", r.stdout), (
+        "the --issue flag's metavar is not SLUG:\n" + r.stdout)
+    assert not re.search(r"\bTASK\b", r.stdout), (
+        "help output still prints the v1 metavar TASK:\n" + r.stdout)
+    r = _run(root, "approach", "evaluate", "--help")
+    assert not re.search(r"\bREADING\b|\bTASK\b", r.stdout), (
+        "evaluate --help still prints a v1 metavar:\n" + r.stdout)
 
 
 def test_follow_up_states_outstanding_resolved_with_1x_readable(tmp_path):
