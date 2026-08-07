@@ -709,7 +709,7 @@ def cmd_calibration(args):
         print("  Each entry below is a task where a scope-bloat signal was")
         print("  detected in devlog.md but no reframe was filed afterwards.")
         print("  These are missed calibration signals. File a reframe retroactively")
-        print("  with: /compass:frame --reframe --reason \"<why scope grew>\"")
+        print("  with: /compass:triage --reframe --reason \"<why scope grew>\"")
         print()
         for d in debts:
             print(f"  task    : {d['task']}")

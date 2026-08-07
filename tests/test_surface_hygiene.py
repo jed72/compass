@@ -24,7 +24,7 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 BDD_SKILL = SKILLS / "bdd-specification" / "SKILL.md"
-CLARIFY_CMD = ROOT / "commands" / "clarify.md"
+CLARIFY_CMD = ROOT / "commands" / "refine.md"
 
 # The four scans the spec-author runs inline at the end of Specify.
 FOUR_SCANS = ["placeholder", "orphan", "untestable", "ambiguous"]
@@ -124,19 +124,19 @@ def test_trc_d4_clarify_command_documents_the_split():
     text = CLARIFY_CMD.read_text(encoding="utf-8").lower()
 
     assert "self-review" in text or "self review" in text, (
-        "commands/clarify.md never mentions the inline self-review the "
+        "commands/refine.md never mentions the inline self-review the "
         "spec-author has already run, so Clarify looks like it starts from "
         "nothing"
     )
     assert re.search(r"(does not repeat|not repeat|already (been )?run|already "
                      r"covered|no need to re-?run)", text), (
-        "commands/clarify.md does not say that Clarify does not repeat the "
+        "commands/refine.md does not say that Clarify does not repeat the "
         "inline scans"
     )
     # it names the same four scans the skill names
     for scan in FOUR_SCANS:
         assert scan in text, (
-            f"commands/clarify.md does not name the {scan!r} scan; the two "
+            f"commands/refine.md does not name the {scan!r} scan; the two "
             f"descriptions of the split must agree"
         )
 

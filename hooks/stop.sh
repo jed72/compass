@@ -81,7 +81,7 @@ for TASK_DIR in "$WORK_DIR"/*/; do
     # A work dir with no route.md and no other artifacts may just be an empty
     # scaffold; but if anything else is in it, work started without Frame.
     if [ -n "$(ls -A "$TASK_DIR" 2>/dev/null)" ]; then
-      WARNINGS+=("[$SLUG] route.md is MISSING but the task has artifacts - work started without Frame. Run /compass:frame.")
+      WARNINGS+=("[$SLUG] route.md is MISSING but the task has artifacts - work started without Frame. Run /compass:triage.")
     fi
     continue
   fi
@@ -277,7 +277,7 @@ PYEOF
       done
       echo ""
       echo "  If the scope grew during Build, file a reframe now:"
-      echo "    /compass:frame --reframe --reason \"<what changed and why>\""
+      echo "    /compass:triage --reframe --reason \"<what changed and why>\""
       echo ""
       echo "  This preserves the calibration signal (compass calibration)."
       echo "  The nudge is non-blocking - the session ends regardless."

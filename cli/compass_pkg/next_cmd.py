@@ -196,7 +196,7 @@ def cmd_next(args):
     if not os.path.isfile(task_path):
         sys.stdout.write(
             "Frame has not run for this task - task.yml is missing.\n"
-            f"  Run /compass:frame to start the task at: {task_dir}\n"
+            f"  Run /compass:triage to start the task at: {task_dir}\n"
         )
         return 2
 
@@ -207,7 +207,7 @@ def cmd_next(args):
     if not os.path.isfile(route_md_path):
         sys.stdout.write(
             f"delivery-approach.md is missing from {task_dir}\n"
-            "  Run /compass:frame to produce delivery-approach.md before using compass next.\n"
+            "  Run /compass:triage to produce delivery-approach.md before using compass next.\n"
         )
         return 2
 

@@ -97,7 +97,7 @@ tune, not a menu:
 ## Re-framing
 
 If a later phase reveals you misread the terrain, you run again under
-`/compass:frame --reframe`: re-read the dimensions, update `task.yml`'s
+`/compass:triage --reframe`: re-read the dimensions, update `task.yml`'s
 `readings:`, re-run `compass route evaluate --write`, write a new `delivery-approach.md`
 revision, record what changed and why. A re-frame is a normal event. A route
 quietly outgrown is the failure.

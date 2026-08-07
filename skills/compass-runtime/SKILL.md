@@ -16,29 +16,31 @@ the mental model and a worked example, and `docs/safety-contract.md` for the
 seven things Compass guarantees (and what it explicitly does not claim).
 
 This skill speaks the frozen v2 vocabulary (`governance/terminology.yml`).
-The commands, artifact filenames, and machine keys keep their v1 names until
-their rename slices ship; the table below is the bridge, and it is the one
-place the mapping lives.
+The commands, artifact filenames, and machine keys now carry their v2
+names; the CLI's own verbs keep their v1 names until their rename slice
+ships. The table below is the stage-to-command map, and it is the one place
+the mapping lives. Each retired command name remains as a redirect stub for
+one major version.
 
-## The stages and their current commands
+## The stages and their commands
 
-| Stage (v2 name) | Current command | Artifact it writes |
+| Stage (v2 name) | Command | Artifact it writes |
 |---|---|---|
-| Triage | `/compass:frame` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
-| Define acceptance criteria | `/compass:specify` | `acceptance-criteria.md` |
-| Requirements review | `/compass:clarify` | `requirements-review.md` (ends with the Definition of Ready) |
-| Design | `/compass:plan` | `design.md` (+ `distribution-map.md` on parallel work) |
-| Break down the work | `/compass:distribute` | worktrees + stream charters |
-| Implement | `/compass:build` | code + `evidence/red.json` / `evidence/green.json` |
+| Triage | `/compass:triage` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
+| Define acceptance criteria | `/compass:define` | `acceptance-criteria.md` |
+| Requirements review | `/compass:refine` | `requirements-review.md` (ends with the Definition of Ready) |
+| Design | `/compass:design` | `design.md` (+ `distribution-map.md` on parallel work) |
+| Break down the work | `/compass:breakdown` | worktrees + stream charters |
+| Implement | `/compass:implement` | code + `evidence/red.json` / `evidence/green.json` |
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
-| Ship | `/compass:land` | the integration commit + settled follow-ups |
+| Ship | `/compass:ship` | the integration commit + settled follow-ups |
 
 Cross-issue: `/compass:status` (one issue or a flat list), `/compass:flow`
 (the managed cross-issue view - advisory, never gating). Role entry points:
 `/compass:intent` (product owner), `/compass:position` (marketer),
-`/compass:design` (designer), `/compass:roundtable` (multi-role decisions).
-Setup: `/compass:init` is optional - shipped governance defaults apply with
-zero setup.
+`/compass:wireframe` (designer - produces the UI contract),
+`/compass:roundtable` (multi-role decisions). Setup: `/compass:init` is
+optional - shipped governance defaults apply with zero setup.
 
 ## The one rule that creates every other rule
 
@@ -59,7 +61,7 @@ active issue. The hooks and the CLI rely on it: `compass check`,
 that pointer, so keep it pointing at the issue you are actually working.
 
 When the assessment turns out to have been misread, re-assess through the
-same mechanism: `/compass:frame --reframe` re-runs the evaluator, detects
+same mechanism: `/compass:triage --reframe` re-runs the evaluator, detects
 that the approach changed, and records the change in the spine's `reframes:`
 log - pass `--reason "..."` so the entry says *why*. `compass calibration`
 aggregates that log across issues and reports whether triage is

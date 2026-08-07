@@ -1,8 +1,7 @@
 <!--
 TEMPLATE: acceptance-criteria.md
-Produced by: the acceptance-criteria stage (`/compass:specify` - the
-             command keeps its v1 name until the command-rename slice
-             ships); refined at requirements review.
+Produced by: the acceptance-criteria stage (`/compass:define`); refined
+             at requirements review (`/compass:refine`).
 Lives at:    .compass/work/<task-slug>/acceptance-criteria.md
 Role in the pipeline: THE shared artifact - one set of acceptance
 criteria, read by every role through its own perspective - and it is read

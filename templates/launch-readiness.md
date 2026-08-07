@@ -63,4 +63,4 @@ full stop - Land refuses to close on it.
 **Decided by:** {{NAME}} on {{DATE}}.
 
 <!-- If NO-GO, the issue stays open. `/compass:status` keeps flagging the
-     unbacked claim; the ship command (`/compass:land`) refuses to close. -->
+     unbacked claim; the ship command (`/compass:ship`) refuses to close. -->

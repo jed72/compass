@@ -39,7 +39,7 @@
 #     3. `compass tdd-green -- <test command>` confirms green, writes
 #        evidence/green.json, and clears .red - the hand-off to Verify.
 #   .compass/work/<task-slug>/.spike  "this task is on a Spike route - the TDD
-#                                      strategy is suspended". /compass:frame
+#                                      strategy is suspended". /compass:triage
 #                                      writes this when it composes a Spike.
 #   Markers are deliberately plain files so they are inspectable and auditable;
 #   the evidence/*.json records next to them are the audit trail.
@@ -341,14 +341,14 @@ fi
 
 # --- find the current task --------------------------------------------------
 # The current task is named by the .compass/current-task pointer (written by
-# /compass:frame and /compass:resume). The pointer is what makes this reliable
+# /compass:triage and /compass:resume). The pointer is what makes this reliable
 # when more than one task is in flight - "most recently modified directory" is
 # only the fallback, and it is ambiguous, so it warns. If there is no task at
 # all, Frame has not run - CLAUDE.md's one rule is "Never skip Frame".
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:frame before changing code." >&2
+  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:triage before changing code." >&2
   exit 2
 fi
 
@@ -378,12 +378,12 @@ TASK_SLUG="$(basename "$TASK_DIR")"
 # approach is process laundering. Both filename generations are accepted:
 # the archive predating the artifact rename still says route.md.
 if [ ! -f "$TASK_DIR/delivery-approach.md" ] && [ ! -f "$TASK_DIR/route.md" ]; then
-  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:frame." >&2
+  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:triage." >&2
   exit 2
 fi
 
 # --- route-aware: the TDD strategy is suspended on a Spike route -------------
-# /compass:frame writes a .spike marker when it composes a Spike route. On a
+# /compass:triage writes a .spike marker when it composes a Spike route. On a
 # Spike, exploration is not throttled - the red-before-green strategy is
 # suspended. Guardrail G1 is NOT suspended: nothing lands from a Spike without
 # graduating into a real route, where this hook applies in full.
@@ -445,7 +445,7 @@ Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no
     3. Re-try this edit.
 
   If this is genuinely exploratory work it should be a Spike, where G2 is
-  suspended - re-run /compass:frame. The fix is to state the acceptance or
+  suspended - re-run /compass:triage. The fix is to state the acceptance or
   re-frame, not to route around the hook.
 EOF
     exit 2
@@ -495,7 +495,7 @@ Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
   evidence/green.json, and clears the .red marker - the hand-off to Verify.
 
   If this is genuinely exploratory work, it should be a Spike route - re-run
-  /compass:frame. The fix is to write the test or re-frame, not to route
+  /compass:triage. The fix is to write the test or re-frame, not to route
   around the hook.
 EOF
 exit 2

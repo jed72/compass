@@ -1,7 +1,6 @@
 <!--
 TEMPLATE: requirements-review.md
-Produced by: the requirements-review stage (`/compass:clarify` - the
-             command keeps its v1 name until the command-rename slice ships).
+Produced by: the requirements-review stage (`/compass:refine`).
 Lives at:    .compass/work/<task-slug>/requirements-review.md
 Role in the pipeline: the ambiguity ledger. The review QAs the criteria
 against themselves and against governance; every ambiguity found, every
@@ -98,4 +97,4 @@ resolution → who decided → what it changed.
 - [ ] **Route still fits** - nothing found in Clarify makes `delivery-approach.md` wrong;
       if it does, re-frame before Plan.
 
-Next phase: **Plan** (`/compass:plan`).
+Next stage: **design** (`/compass:design`).

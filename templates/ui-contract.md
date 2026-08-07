@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: ui-contract.md
-Produced by: the designer via `/compass:design`.
+Produced by: the designer via `/compass:wireframe`.
 Lives at:    .compass/work/<task-slug>/ui-contract.md
 Role in the pipeline: the designer's artifact. The designer feeds INTO
 Specify - UI behaviour here is authored as Given/When/Then scenarios so it
@@ -86,4 +86,4 @@ Scenario: {{scenario title}}
 - [ ] Accessibility commitments meet or exceed the accessibility strategy in `governance/strategies.md`.
 - [ ] These scenarios are copied into `acceptance-criteria.md` under a UI scenario group.
 
-Next: the scenarios flow into **Specify** (`/compass:specify`).
+Next: the scenarios flow into the acceptance criteria (`/compass:define`).

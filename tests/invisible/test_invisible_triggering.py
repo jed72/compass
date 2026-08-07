@@ -11,7 +11,7 @@ These are static content-assertion tests. Invisible triggering is prompt-only
 
 Manual-verification note (TRC-C1 / TRC-C3 behaviour at runtime):
   These tests verify the static content that produces the agent behaviour.
-  The runtime behaviour (agent actually calling /compass:frame on natural-
+  The runtime behaviour (agent actually calling /compass:triage on natural-
   language intent) requires a live agent session; that is recorded as
   manual-review evidence in task.yml (EV-MANUAL-C1, EV-MANUAL-C3).
 """
@@ -35,8 +35,8 @@ AGENTS = {
 DD6_HEADING = "**Trigger triage on intent, not just the literal command.**"
 DD6_CONTENT = (
     "When the user describes intent to build, change, or fix code"
-    " - even if they do not type `/compass:frame` - "
-    "invoke `/compass:frame` before any artifact-changing tool call."
+    " - even if they do not type `/compass:triage` - "
+    "invoke `/compass:triage` before any artifact-changing tool call."
 )
 
 # The existing paragraph that must remain untouched (additive-only check)
@@ -45,10 +45,10 @@ EXISTING_PARAGRAPH = "**Never skip triage.**"
 # The phrase that must NOT appear as a re-frame trigger when a task is already
 # active (TRC-F3 guard: invisible triggering must not re-frame an active task)
 RE_FRAME_TRIGGER_PHRASES = [
-    "re-run /compass:frame",
+    "re-run /compass:triage",
     "re-frame the task",
-    "run /compass:frame again",
-    "invoke /compass:frame again",
+    "run /compass:triage again",
+    "invoke /compass:triage again",
 ]
 
 # Supporting sentence that must appear in each agent description
