@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### an issue with only delivery-approach.md passes the pre-tool hook
+### the ruling conditions hold
 
-- **Scenario id:** `TRC-2`
+- **Scenario id:** `TRC-6`
 - **Intent:** `INT-1`
-- **Source task:** `retire-route-md-alias`
+- **Source task:** `v2-command-renames`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2749,4 +2749,46 @@
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source task:** `retire-route-md-alias`
+- **Landed:** 2026-08-07
+
+### an issue with only delivery-approach.md passes the pre-tool hook _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source task:** `retire-route-md-alias`
+- **Landed:** 2026-08-07
+
+### the command set carries the v2 names _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-command-renames`
+- **Landed:** 2026-08-07
+
+### each renamed v1 command is a redirect stub _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-command-renames`
+- **Landed:** 2026-08-07
+
+### the vocabulary carries the command names and a version bump _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source task:** `v2-command-renames`
+- **Landed:** 2026-08-07
+
+### commands and the plugin manifests are enforced surfaces _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source task:** `v2-command-renames`
+- **Landed:** 2026-08-07
+
+### no live instruction surface points at a dead command name _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source task:** `v2-command-renames`
 - **Landed:** 2026-08-07
