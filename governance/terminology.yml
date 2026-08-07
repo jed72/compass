@@ -437,10 +437,15 @@ scan:
     - templates/task.yml
     - docs/analysis/
     - architecture/decisions/   # ADRs may quote v1 terms
-    # Same rationale one level down: the shipped example decision records
-    # are history in sample form. The example that names a v1 concept in
-    # its title is revisited when that concept's rename slice lands.
-    - templates/architecture/decisions/
+    # Same rationale one level down, narrowly: the shipped SAMPLE decision
+    # records (ADR-001..005) are history in sample form, and the README is
+    # exempt only because its index names those sample files - its prose is
+    # kept clean regardless. The blank form (ADR-template.md) is NOT exempt:
+    # future decision records are written from it, so it is enforced. The
+    # sample whose title names a v1 concept is revisited when that
+    # concept's rename slice lands.
+    - templates/architecture/decisions/ADR-0
+    - templates/architecture/decisions/README.md
     - tests/               # the tests themselves
     - .compass/work/       # task archive
   # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
