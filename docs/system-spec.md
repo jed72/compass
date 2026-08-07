@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### every related term is defined
+### the v2 PRD exists in the v2 register with all required sections
 
 - **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
-- **Source task:** `v2-terminology-dangling-refs`
+- **Source task:** `v2-prd-and-freeze-adr`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -22,12 +22,12 @@
 - **Source task:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### an innocent usage of the same words is not flagged
+### the vocabulary freeze is recorded as an accepted, indexed decision record
 
-- **Scenario id:** `TRC-B2`
+- **Scenario id:** `TRC-A2`
 - **Intent:** `INT-2`
-- **Source task:** `v2-terminology-freeze`
-- **Landed:** 2026-08-06
+- **Source task:** `v2-prd-and-freeze-adr`
+- **Landed:** 2026-08-07
 
 ### an exempt path is never scanned
 
@@ -2548,6 +2548,13 @@
 - **Source task:** `v2-terminology-freeze`
 - **Landed:** 2026-08-06
 
+### an innocent usage of the same words is not flagged _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source task:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
 ### a pending surface may still carry banned terms _(archived)_
 
 - **Scenario id:** `TRC-C1`
@@ -2589,3 +2596,10 @@
 - **Intent:** `INT-1`
 - **Source task:** `v2-implementation-plan`
 - **Landed:** 2026-08-06
+
+### every related term is defined _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-terminology-dangling-refs`
+- **Landed:** 2026-08-07
