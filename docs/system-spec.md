@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the archive sweeps exclude issues the spine says have not started
+### the policy keys speak v2
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-A7`
 - **Intent:** `INT-1`
-- **Source task:** `v2-template-prose`
+- **Source task:** `v2-machine-spine`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -22,11 +22,11 @@
 - **Source task:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### code-quoted machine identifiers stay legal on scanned markdown
+### the spine template speaks v2 and is scanned
 
-- **Scenario id:** `TRC-B1`
+- **Scenario id:** `TRC-A6`
 - **Intent:** `INT-2`
-- **Source task:** `v2-session-instructions`
+- **Source task:** `v2-machine-spine`
 - **Landed:** 2026-08-07
 
 ### an exempt path is never scanned
@@ -2674,6 +2674,13 @@
 - **Source task:** `v2-session-instructions`
 - **Landed:** 2026-08-07
 
+### code-quoted machine identifiers stay legal on scanned markdown _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source task:** `v2-session-instructions`
+- **Landed:** 2026-08-07
+
 ### the templates speak the v2 register and templates/ is enforced, never pending again _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -2686,4 +2693,46 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source task:** `v2-template-prose`
+- **Landed:** 2026-08-07
+
+### the archive sweeps exclude issues the spine says have not started _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source task:** `v2-template-prose`
+- **Landed:** 2026-08-07
+
+### the evaluator writes a v2 spine _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source task:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### a 1.x spine is still readable by normalisation _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source task:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### the repository archive speaks schema 2.0 _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-2`
+- **Source task:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### the archive carries v2 artifact names _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-2`
+- **Source task:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### the artifact-name fallback is retired _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-2`
+- **Source task:** `v2-machine-spine`
 - **Landed:** 2026-08-07
