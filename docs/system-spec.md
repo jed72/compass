@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the ruling conditions hold
+### the compass-backfill tolerance is re-tightened
 
-- **Scenario id:** `TRC-6`
+- **Scenario id:** `TRC-8`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-command-renames`
+- **Source issue:** `v2-cli-voice`
 - **Landed:** 2026-08-07
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2791,4 +2791,60 @@
 - **Scenario id:** `TRC-5`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-command-renames`
+- **Landed:** 2026-08-07
+
+### the ruling conditions hold _(archived)_
+
+- **Scenario id:** `TRC-6`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-command-renames`
+- **Landed:** 2026-08-07
+
+### the v2 verbs exist and work _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### a retired verb fails loudly and legibly _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### the --issue flag with --task tolerated _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### follow-up states are outstanding and resolved with 1.x readable _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### CLI output speaks v2 change-type names and the receipt shows overrides _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### the vocabulary carries receipt, the amended follow-up, and a bump _(archived)_
+
+- **Scenario id:** `TRC-6`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
+- **Landed:** 2026-08-07
+
+### the cli surface is enforced and widened _(archived)_
+
+- **Scenario id:** `TRC-7`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-cli-voice`
 - **Landed:** 2026-08-07
