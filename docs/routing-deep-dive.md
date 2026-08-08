@@ -48,7 +48,7 @@ What follows is six cases. Read them in order; they build on each other.
 |---|---|---|
 | risk | `trivial` | The wrong outcome is a misspelled word in an error string - cosmetic, instantly obvious, instantly reversible. No data, no money, no auth *behaviour* touched. |
 | Familiarity | `brownfield-mapped` | Existing code; the error path is trivially readable. |
-| Magnitude | `atomic` | One file, one string, no design decision, well under thirty minutes. |
+| Size | `atomic` | One file, one string, no design decision, well under thirty minutes. |
 | Intent & role | `engineer` | Standard pipeline ownership; no brief, no other role. |
 
 Triage also assigns domain tags. The change is *in* the JWT module, so it
@@ -59,7 +59,8 @@ lives, not how scary it looks.
 
 Atomic size, trivial risk, mapped familiarity, engineer role. This is
 the textbook quick fix case. The candidate route is **quick fix**: one scenario,
-Clarify collapsed, Plan collapsed to a one-liner, Distribute skipped, full TDD
+The requirements review collapsed, design collapsed to a one-liner,
+breakdown skipped, full TDD
 on a tiny surface, one light gate at Verify.
 
 ### Constrain
@@ -107,7 +108,7 @@ purpose.
 |---|---|---|
 | risk | `contained` | A broken saved-view is annoying and bounded to the dashboard; recoverable, no data loss, no other surface affected. |
 | Familiarity | `brownfield-mapped` | The dashboard's filter behaviour is already captured in scenarios. |
-| Magnitude | `standard` | Several files - a persistence layer, the filter serialisation, the UI - and one or two design decisions, 1–3 days. |
+| Size | `standard` | Several files - a persistence layer, the filter serialisation, the UI - and one or two design decisions, 1–3 days. |
 | Intent & role | `engineer` | No brief; an engineer is implementing a well-understood feature. |
 
 Domain tags: `touches: [persistence]` perhaps, but nothing on the policy's
@@ -159,11 +160,11 @@ and Standard should feel like the default working shape, not a ceremony.
 |---|---|---|
 | risk | `critical` | A wrong migration can corrupt stored payment tokens - data loss, money, and a path that does not cleanly roll back. |
 | Familiarity | `brownfield-mapped` | The token storage and read path are mapped. |
-| Magnitude | `small` | Honestly: one column, one follow-up script, one read-path change. 1–3 files, a known pattern. |
+| Size | `small` | Honestly: one column, one follow-up script, one read-path change. 1–3 files, a known pattern. |
 | Intent & role | `engineer` | An engineer running a contained migration. |
 
 This is the case the methodology opens with: *a migration that touches one
-file is small but not safe.* Magnitude and risk are different axes, and
+file is small but not safe.* Size and risk are different axes, and
 here they point in opposite directions. Triage scores them honestly -
 size `small`, risk `critical` - and does not let one launder the
 other. Domain tags: `touches: [payments, migrations]` - two tags, both on the
@@ -229,7 +230,7 @@ map is the record of *what could have been parallel and why it wasn't* - here,
 |---|---|---|
 | risk | `cross-cutting` | Notifications touch many features; a delivery failure degrades something many users see. Recovery needs coordination, but it is not data-loss or money - not `critical`. |
 | Familiarity | `greenfield` | Net-new code; no existing behaviour to preserve. |
-| Magnitude | `product` | A new subsystem - three delivery channels, a preferences model, a delivery log. 2+ weeks, many independent work streams. |
+| Size | `product` | A new subsystem - three delivery channels, a preferences model, a delivery log. 2+ weeks, many independent work streams. |
 | Intent & role | `engineer` | An engineering lead, though a designer and a product owner may well join (preferences are a user-facing surface; the subsystem serves a stated outcome). |
 
 Domain tags: possibly `touches: [personal-data]` if the preferences or
@@ -286,18 +287,18 @@ the size / risk / familiarity composition.
 |---|---|---|
 | risk | `critical` | Checkout is down for a class of carts - lost revenue, happening live. |
 | Familiarity | `brownfield-mapped` | The checkout and discount paths are mapped. |
-| Magnitude | `small` | The defect is bounded; the fix is expected to be 1–3 files once the cause is found. |
+| Size | `small` | The defect is bounded; the fix is expected to be 1–3 files once the cause is found. |
 | Intent & role | `engineer`, often paired with `qa` | An engineer fixing a live defect, QA verifying. |
 
 ### Compose
 
 A live defect with user impact happening *now*, small size, critical
-risk - triage composes toward **Hotfix**. The shape: Frame is fast
+risk - triage composes toward a **hotfix**. The shape: triage is fast
 but real (`delivery-approach.md` is written even under time pressure - the audit trail
-starts here); Specify is **reproduce-first** (the spec *is* a failing
+starts here); the define stage is **reproduce-first** (the spec *is* a failing
 regression test that reproduces the 500 - simultaneously the BDD scenario and
-the TDD red); Clarify collapsed (the reproduction *is* the clarification);
-Plan collapsed to a one-line root-cause note; Distribute skipped; Build
+the TDD red); the requirements review collapsed (the reproduction *is* the clarification);
+design collapsed to a one-line root-cause note; breakdown skipped; impld
 expedited; Verify **at full weight, not compressed**; Land ships the fix and
 then requires the mandatory follow-up.
 
@@ -306,7 +307,7 @@ then requires the mandatory follow-up.
 The `blast_radius: critical` floor's `force_minimum_route: expedition` would
 seem to apply - but Hotfix's gate set is *already* at full Verify weight, and
 `never_skip: [clarify, verify, land]` is honoured by Hotfix's structure
-(Clarify is collapsed *into* the reproduction, not skipped; Verify and Land
+(the review is collapsed *into* the reproduction, not skipped; verify and ship
 run full). Hotfix is the route that compresses the phases *before* Verify and
 never Verify itself, which is exactly what the critical floor's rationale -
 "critical changes coordinate or they break things quietly" - is protecting.
@@ -316,7 +317,7 @@ anyway.
 The methodology's own guard applies here: a fix that turns out to be
 `standard`+ in size is *not* a Hotfix - it is an incident. Route it
 initiative, put someone in incident command, use the swarm if it helps. The
-Needle scores size precisely so that distinction holds.
+Triage scores size precisely so that distinction holds.
 
 ### Final `delivery-approach.md`
 
@@ -348,7 +349,7 @@ intent.
 |---|---|---|
 | risk | `contained` | The investigation itself touches nothing irreversible - reading logs, adding instrumentation behind a flag, reproducing in a sandbox. |
 | Familiarity | `brownfield-unmapped` | The queue's behaviour under load is exactly what is *not* written down. |
-| Magnitude | `small` | The investigation is timeboxed; the eventual fix is unknown and not in scope here. |
+| Size | `small` | The investigation is timeboxed; the eventual fix is unknown and not in scope here. |
 | Intent & role | `exploration` (engineer) | "I need to understand this before I can frame it" - not a delivery request. |
 
 ### Compose
@@ -357,9 +358,10 @@ Exploration intent composes toward **Spike**, the way live-defect urgency
 composes toward Hotfix - the routing strategy `reading: { intent: exploration }
 → lean_toward: spike` is the bias. Frame is light but real: `delivery-approach.md` records
 the **question** ("what is dropping ~2% of jobs under load?") and a **timebox**.
-Specify collapses to that question. Clarify is skipped - there is nothing to QA
+The define stage collapses to that question. The requirements review is
+skipped - there is nothing to QA
 against, the behaviour is the unknown. Plan collapses to a timebox and an
-approach sketch. Build becomes **Explore**: the engineer instruments and
+approach sketch. Implementation becomes **exploration**: the engineer instruments and
 reproduces freely, and the **TDD strategy is suspended** - the pre-tool hook is
 route-aware and does not block, because red-before-green is the wrong
 discipline for throwaway diagnostic code. Triage also writes a `.spike`
@@ -370,7 +372,7 @@ marker file in the issue directory so the hook knows.
 The routing guardrails still apply - and one matters here. If the question
 could only be answered by touching `auth`, `payments`, `personal-data`, or
 `migrations`, the floor would fire and this would *not* be a Spike; it would be
-an initiative with a discovery-heavy Specify. Here the investigation stays
+an initiative with discovery-heavy acceptance criteria. Here the investigation stays
 clear of irreversible surface, so Spike stands. Nothing is floored.
 
 ### Final `delivery-approach.md` - and the exit
@@ -383,7 +385,7 @@ written down." Land becomes **Graduate or Discard**:
 - **Graduate** - the spike found the cause (say, a connection-pool exhaustion
   under a specific retry storm). The finding feeds a fresh `/compass:frame` for
   the real fix. That re-assess is a normal route - Standard, probably - and
-  guardrails G1–G3 apply to the fix in full. Any diagnostic code carried over
+  the tested-before-ship, acceptance-before-code, and traceability guardrails apply to the fix in full. Any diagnostic code carried over
   is now subject to that route's guardrails; in practice most is rewritten
   under TDD. The spike's `delivery-approach.md` records "graduated → issue `<slug>`".
 - **Discard** - the spike concluded "this is environmental, not our code" or
@@ -392,7 +394,7 @@ written down." Land becomes **Graduate or Discard**:
   answer succeeded.
 
 Nothing landed from the Spike itself. That is the whole safety model: the
-de-scopes (Clarify skipped, TDD strategy suspended) are safe *because* there is
+de-scopes (the review skipped, the TDD strategy suspended) are safe *because* there is
 no delivery output to protect - the only path from spike code to `main` runs
 through a real route. See `approaches/spike.md`.
 
@@ -407,10 +409,10 @@ changes everything. This is the clearest demonstration that Compass routes the
 
 ### "Add a CSV export" - engineer, internal admin tool
 
-Magnitude `small`, risk `contained` (an admin tool, bounded), familiarity
+Size `small`, risk `contained` (an admin tool, bounded), familiarity
 `brownfield-mapped`, role `engineer`, no domain tags. Composes to **quick fix**:
 one scenario ("given a filtered table, when the user exports, then a CSV with
-those rows downloads"), Clarify collapsed, Plan a one-liner, full TDD on a
+those rows downloads"), the review collapsed, design a one-liner, full TDD on a
 small surface, one gate. Done in an afternoon. Triage stays out of the way -
 correctly.
 
@@ -420,7 +422,7 @@ Same three words, but a `prd.md` sits behind them, and the brief's outcome
 is "let finance self-serve their month-end numbers." Triage reads intent
 as the *actual outcome wanted*, not the literal request - and "self-serve"
 implies filters that match what finance actually needs, perhaps scheduling,
-perhaps permissions. Magnitude is no longer `small`; it is `standard` or
+perhaps permissions. Size is no longer `small`; it is `standard` or
 larger. The `product-owner` role rule fires: `prd.md` required, the
 intent-fidelity gate before Plan. Composes to **Standard or heavier**, with a
 gate that checks the export scenarios actually deliver "self-serve" and not
@@ -430,9 +432,9 @@ because the intent under them is bigger.
 ### "Add a CSV export" - engineer, export of the payments ledger
 
 Same three words again, but the table is the payments ledger. Triage tags
-`touches: [payments, personal-data]`. Magnitude might still be `small`. It does
-not matter: the routing guardrail (floor) `when: { touches: [payments,
-personal-data] }` → `force_minimum_route: expedition` fires. Composes to
+`labels: [payments, personal-data]`. Size might still be `small`. It does
+not matter: the policy floor `when: { labels: [payments,
+personal-data] }` fires and forces the initiative shape. Composes to
 **initiative** - full
 discovery (what exactly is in this export? what must *not* be?), full Clarify,
 a `design.md` with the data-handling decisions recorded, every gate, `security`
@@ -476,13 +478,13 @@ see `docs/methodology.md` §6.
 
 The triggers are concrete:
 
-- **Build reveals under-read size.** A "small" change is unspooling into a
+- **Implementation reveals under-read size.** A "small" change is unspooling into a
   multi-module refactor. The `builder` agent stops and flags it; the Navigator
   re-scores. This is why the routing skill says, when size is genuinely
   unclear, estimate *up* - collapsing a phase that turned out easy is cheap;
-  discovering mid-Build that the route was too light is expensive.
-- **Clarify finds the spec is bigger than the route assumed.** More scenarios,
-  more ambiguity than a feature approach's Clarify pass can absorb. Do not push a
+  discovering mid-implementation that the approach was too light is expensive.
+- **The requirements review finds the spec is bigger than the approach assumed.** More scenarios,
+  more ambiguity than a feature approach's review pass can absorb. Do not push a
   feature approach through an initiative-shaped problem.
 - **A `touches:` tag surfaces late.** You discover mid-Build that the change
   reaches auth after all. Re-assess, the floor fires, the route is raised - and

@@ -25,16 +25,14 @@ def _scan_cfg() -> dict:
 
 
 def test_the_ratchet_reaches_zero():
-    """TRC-1, amended at the recorded split boundary: the first half of
-    the docs-prose slice takes the ratchet to ONE surface - the doctrine
-    document, docs/methodology.md - and the second half takes it to zero.
-    The original zero assertion moves there with it."""
+    """TRC-1, restored to its original form by the second half of the
+    docs-prose slice: pending_surfaces is empty and the committed
+    baseline with it - every user-facing surface is enforced, forever."""
     from test_terminology import PENDING_BASELINE
-    assert _scan_cfg()["pending_surfaces"] == ["docs/methodology.md"], (
-        "pending_surfaces should hold exactly the doctrine document until "
-        "the second half of the docs-prose slice lands")
-    assert PENDING_BASELINE == frozenset({"docs/methodology.md"}), (
-        "the committed baseline should hold exactly the doctrine document")
+    assert _scan_cfg()["pending_surfaces"] == [], (
+        "pending_surfaces is not empty - the ratchet has not reached zero")
+    assert PENDING_BASELINE == frozenset(), (
+        "the committed baseline still tolerates a surface")
 
 
 def test_reference_docs_carry_v2_names():
@@ -80,13 +78,13 @@ def test_examples_carry_v2_names():
 
 
 def test_remaining_docs_are_enforced():
-    """TRC-4, amended at the recorded split boundary: the three docs that
-    arrived clean after the sweep enter enforced now; quickstart,
-    portability, and routing-deep-dive join in the second half with the
-    doctrine document."""
+    """TRC-4, restored to its full form by the second half: all six
+    remaining docs are scanned surfaces, and the doctrine document is
+    enforced with them."""
     scan = _scan_cfg()
     for f in ("docs/roles-guide.md", "docs/safety-contract.md",
-              "docs/security.md"):
+              "docs/security.md", "docs/quickstart.md",
+              "docs/portability.md", "docs/routing-deep-dive.md"):
         assert f in scan["surfaces"], f"{f} is not a scanned surface"
     assert any(e.startswith("docs/system-spec") for e in scan["exempt"]), (
         "docs/system-spec.md must stay exempt - it is derived at ship time")

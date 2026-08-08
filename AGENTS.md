@@ -63,7 +63,7 @@ collapse, and which are skipped - and why. Each stage emits its artifact
    - **Evidence, not assertion:** guardrails clear with command output, not
      claims. The Definition of Done is itself a typed gate - every unchecked
      item must reference typed inline evidence as `(evidence: EV-<id>)` or a
-     filed follow-up as `(backfill: BF-<id>)`, or be ticked `[x]` if a human
+     filed follow-up as `(follow-up: BF-<id>)`, or be ticked `[x]` if a human
      has actually done the work. Bare unchecked items fail `compass check`'s
      `dod-evidence-typed` rule. An adapter that emits Definition of Done
      output is responsible for emitting it in this form.

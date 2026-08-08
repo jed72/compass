@@ -70,8 +70,8 @@ whose commands call the kit underneath. `docs/methodology.md` §9 and
 One thing to know going in: the `pre-tool.sh` hook enforces the red-before-green
 TDD strategy. Once Compass is installed, an attempt to edit a recognised code
 file with no failing test on record for the current issue is **blocked** - exit
-code 2, edit denied. That is not a bug to work around; it is the S2 strategy in
-service of guardrail G1 (tested before it lands), made physical. The hook is
+code 2, edit denied. That is not a bug to work around; it is the the strategy strategy in
+service of the tested-before-ship guardrail (tested before it lands), made physical. The hook is
 route-aware: on a **Spike** route the TDD strategy is suspended and the hook
 does not block. The rest of this document is, in part, how to work with the
 hook rather than against it.
@@ -115,7 +115,7 @@ as-is. Init is accretion, not a gate.
 You are an engineer. An issue: add rate limiting to the public API. You start
 where every engineer starts - at triage.
 
-### Frame
+### Triage
 
 ```
 /compass:frame "Add rate limiting to the public API"
@@ -151,7 +151,7 @@ moment. The point is that the process for this issue is now *written down* -
 any later session can read `delivery-approach.md` and know exactly what shape the pipeline
 takes.
 
-### Specify
+### Define the acceptance criteria
 
 ```
 /compass:specify
@@ -168,7 +168,7 @@ This file is the one every role would read if they were involved - but on a
 solo engineering issue, you are reading it for tests. The scenarios here become
 your acceptance suite and seed your TDD cycle.
 
-### Clarify
+### The requirements review
 
 ```
 /compass:clarify
@@ -180,7 +180,7 @@ about unauthenticated traffic?) and against governance. Each ambiguity is
 resolved into `acceptance-criteria.md` or recorded in `requirements-review.md` with an
 owner. An unresolved ambiguity is not allowed to pass silently into Plan.
 
-### Plan
+### Design
 
 ```
 /compass:plan
@@ -194,7 +194,7 @@ is one or two streams, not four, so the distribution map is a short list, not a
 full `distribution-map.md`. The gate: the governance check passed - every
 guardrail cleared with evidence - and you paste its result.
 
-### Build
+### Implement
 
 ```
 /compass:build
@@ -240,7 +240,7 @@ mechanical gate cannot be cleared with a written note. `compass check` fails an
 empty or wrongly-typed evidence block automatically. If anything fails, the
 issue does not advance - you fix it, or it goes back.
 
-### Land
+### Ship
 
 ```
 /compass:land
@@ -282,7 +282,7 @@ solution. The brief states the outcome, and the difference matters - see the
 routing deep dive for how the same literal request routes differently
 depending on the brief behind it.
 
-### Frame - now with a brief
+### Triage - now with a PRD
 
 ```
 /compass:frame "CSV export for finance month-end numbers"
@@ -295,7 +295,7 @@ artifact, and it inserts the **intent-fidelity gate** before Plan. The route
 comes out heavier than a bare engineering "add an export" would - that extra
 weight is the framework working, not overhead.
 
-### Specify and Clarify
+### Define the acceptance criteria, then refine them
 
 `/compass:specify` writes `acceptance-criteria.md` against the brief - every success
 signal in the brief should have a scenario that delivers it. At
@@ -318,7 +318,8 @@ well-formed scenarios that nonetheless miss the outcome - Plan does not
 proceed; the spec goes back. Well-formed and faithful are different tests, and
 this gate is where the difference is enforced.
 
-From here the pipeline continues as the route specifies - Build, Verify, Land -
+From here the pipeline continues as the approach specifies - implement,
+verify, Land -
 with the engineer carrying it. The product owner's involvement did not bolt a
 review onto the end; it changed the route from the start and put a gate before
 Plan.
@@ -361,7 +362,7 @@ removes it.
 So the marketer's gate is felt at the very end. At `/compass:land`, the
 `marketing-lens` agent walks `launch-readiness.md`. Every row must be green: a
 claim, a backing scenario, that scenario passing at Verify. A red row - a
-claim whose scenario is missing, failing, or skipped - and Land refuses to
+claim whose scenario is missing, failing, or skipped - and ship refuses to
 close the issue. The marketer's only moves at that point are to soften the
 claim, cut it, or file the missing scenario. What cannot happen is a launch
 claim shipping on a scenario that does not back it.
@@ -373,9 +374,11 @@ claim shipping on a scenario that does not back it.
 Some work is not a known change - it is a question. Root-causing a mysterious
 defect, evaluating whether an approach is even viable, learning an unfamiliar
 API. You cannot state acceptance criteria for it because the behaviour is the
-unknown. That is not an exemption from Frame; it is the **Spike** route. Frame
-still runs (`delivery-approach.md` records the question and a timebox), but Specify
-collapses to the question, Clarify is skipped, and Build becomes Explore - the
+unknown. That is not an exemption from triage; it is the **spike**.
+Triage still runs (`delivery-approach.md` records the question and a
+timebox), but the define stage collapses to the question, the
+requirements review is skipped, and implementation becomes exploration -
+the
 TDD strategy is suspended and the hook does not block, because red-before-green
 is the wrong discipline for code you are writing to learn something and may
 throw away. The catch that keeps it honest: **nothing lands from a Spike**. The
@@ -385,7 +388,7 @@ the guardrails apply in full - or discarding it with the finding recorded. See
 
 ## Where to go next
 
-- **`docs/routing-deep-dive.md`** - how triage actually composes a route,
+- **`docs/routing-deep-dive.md`** - how triage actually composes an approach,
   with worked examples, including the same literal request routing four
   different ways, and a spike worked through end to end.
 - **`docs/roles-guide.md`** - one concrete scenario read through all five
@@ -404,7 +407,8 @@ is the view across all of them - triage, blockers, and a periodic digest;
 Two more CLI commands work across the whole board. `compass ci` runs the full
 mechanical gate suite - `policy lint`, then `task lint` and `check` for every
 issue - and exits non-zero if anything fails; wiring Compass into CI is just
-"run `compass ci`, honour the exit code" (see `ci/README.md`). And `compass
-calibration` reads the re-assess log across every issue and reports whether the
-Needle is systematically over- or under-sizing routes - the framework's own
-feedback loop, the way you find out if the routing policy needs tuning.
+"run `compass ci`, honour the exit code" (see `ci/README.md`). And
+`compass retro` reads the re-assessment log across every issue and
+reports whether triage is systematically over- or under-sizing the
+process - the framework's own feedback loop, the way you find out if the
+routing policy needs tuning.

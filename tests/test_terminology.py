@@ -200,12 +200,10 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
 # live list can drop entries but never gain one. A rename slice removes its
 # surface from the vocabulary file AND from here in the same diff, which is
 # what makes the shrink visible in review.
-# One surface left: the doctrine document, split to the second half of
-# the docs-prose slice at a recorded green boundary. The ratchet reaches
-# zero when that half lands; the shrink-only meta-test holds every exit.
-PENDING_BASELINE: frozenset[str] = frozenset({
-    "docs/methodology.md",
-})
+# EMPTY since the second half of the docs-prose slice: the ratchet
+# reached zero, and the shrink-only meta-test holds it there - a surface
+# can never re-enter.
+PENDING_BASELINE: frozenset[str] = frozenset()
 
 
 # ---------------------------------------------------------------------------
