@@ -1,0 +1,493 @@
+# =============================================================================
+# Compass v2 - the frozen vocabulary
+# =============================================================================
+# The single source of truth for what every v2 word means. The planned
+# `compass terminology [term]` command renders these entries;
+# tests/test_terminology.py enforces the bans and the ratchet.
+#
+# Three sections:
+#   terms:   every v2 term, its exact framework meaning, and disambiguations
+#   banned:  v1 vocabulary that must not appear on user-facing surfaces
+#   scan:    which surfaces the house test checks, which are exempt, and
+#            which still await their rename slice (pending_surfaces)
+#
+# Naming rule: if a term is not in common use across the industry, it does
+# not ship. Recorded reading (maintainer ruling, 2026-08-07, from the
+# command-rename review): the rule's intent is anti-jargon, not grammatical
+# purity - an industry-standard noun like "breakdown" (work breakdown
+# structure) satisfies it; an invented coinage does not. The rule governs
+# renamed commands; established, unbanned names keep theirs.
+#
+# This vocabulary is frozen. Changing it carries the same ceremony as a
+# decision record; the house test pins each ban to tuned patterns and pins
+# pending_surfaces to a shrink-only baseline.
+# =============================================================================
+
+version: 2.0.0-pre7
+
+terms:
+
+  # --- Work hierarchy (GitHub-aligned) --------------------------------------
+  initiative:
+    means: >
+      A body of work significant enough to need a PRD, delivered across
+      multiple milestones. Owns the PRD, the design, the first-slice (80/20)
+      decision, and the rollout strategy.
+    github: Project
+    not: "An epic - that word is dropped; one word per concept."
+    related: [milestone, prd, slice]
+  milestone:
+    means: >
+      A shippable checkpoint within an initiative: a coherent bundle of
+      delivered issues with a review point. Every milestone leaves the
+      system releasable.
+    github: Milestone
+    related: [initiative, issue]
+  issue:
+    means: >
+      The atomic tracked unit of work: one triaged piece of work, one
+      delivery approach, shipping as one PR or a small PR series. Carries a
+      type, labels, and a workflow state.
+    github: Issue
+    not: "A 'task' - that word survives only as machine state, never prose."
+    related: [sub-issue, issue-type, label, workflow-state]
+  sub-issue:
+    means: >
+      The breakdown unit within an issue or initiative. A slice is tracked
+      as a sub-issue.
+    github: Sub-issue
+    related: [issue, slice]
+  slice:
+    means: >
+      An independently shippable vertical cut of a feature or initiative,
+      with its own acceptance criteria and its own PR. The bar: every slice
+      leaves the system releasable.
+    related: [sub-issue, milestone]
+  pr:
+    means: The unit of landing code. Small, trunk-based PRs preferred.
+    github: Pull request
+    related: [issue, ship]
+
+  # --- Issue types (what triage assigns) ------------------------------------
+  issue-type:
+    means: >
+      The classification triage assigns to an issue: quick fix, bug fix,
+      hotfix, feature, or spike. Together with labels it determines the
+      delivery approach - which artifacts exist and which gates apply.
+    github: Issue type
+    related: [issue, triage, delivery-approach, label]
+  quick-fix:
+    means: >
+      A small, low-risk change on familiar ground. Produces a test and a PR
+      - nothing else exists for it.
+    related: [issue-type]
+  bug-fix:
+    means: >
+      A defect in existing behaviour, not live-urgent. Starts from a bug
+      report; the failing reproduction test is written before the fix.
+    related: [bug-report, issue-type]
+  hotfix:
+    means: >
+      A live-incident fix, expedited: reproduce, fix, ship, then pay the
+      follow-up (promote the reproduction into proper acceptance criteria;
+      optional postmortem).
+    related: [incident, follow-up, postmortem]
+  feature:
+    means: >
+      A self-contained change with its own acceptance criteria that does not
+      warrant a full PRD. Unqualified "feature" always means this issue
+      type.
+    not: "A feature file (the Gherkin artifact) - always say 'feature file'."
+    related: [issue-type, feature-file]
+  spike:
+    means: >
+      Time-boxed exploration whose output is knowledge, not shipped code.
+      Records the question, the timebox, and a conclusion: discard, graduate
+      (a fresh issue owns any real work), or defer. Nothing ships from a
+      spike.
+    related: [issue-type]
+
+  # --- Intake artifacts -----------------------------------------------------
+  prd:
+    means: >
+      Product requirements document: problem, users, goals, non-goals,
+      success metrics, constraints, open questions, and the first slice (the
+      80/20 cut). Iterated through review before design begins. User stories
+      are welcome inside it as a format; acceptance criteria are derived
+      from them.
+    related: [initiative, first-slice, requirements-review]
+  first-slice:
+    means: >
+      The 80/20 cut recorded in a PRD: the slice of an initiative that
+      ships first because it delivers most of the value, with what
+      deliberately waits stated beside it. Design and work breakdown
+      follow the first slice, not the whole PRD.
+    related: [prd, slice, initiative]
+  bug-report:
+    means: >
+      The intake for a bug fix: observed behaviour, expected behaviour,
+      reproduction steps.
+    related: [bug-fix]
+  incident:
+    means: >
+      The intake that triggers a hotfix: what broke in production, impact,
+      severity. SRE sense of the word.
+    related: [hotfix, postmortem]
+
+  # --- BDD (the triad, first-class) -----------------------------------------
+  feature-file:
+    means: >
+      A Gherkin file grouping the scenarios for one capability (the
+      `Feature:` keyword). The extraction target for executable acceptance
+      criteria.
+    not: "The feature issue type - unqualified 'feature' means the issue type."
+    related: [scenario, step, acceptance-criteria]
+  scenario:
+    means: >
+      The atomic unit of acceptance: one behaviour, one Given/When/Then,
+      one executable test. Everything traces to scenarios.
+    related: [feature-file, step, acceptance-criteria]
+  step:
+    means: >
+      A single Given/When/Then line, bound to a step definition in the
+      project's codebase.
+    related: [scenario]
+  acceptance-criteria:
+    means: >
+      The collective term: the set of scenarios for an issue. Executable
+      where a BDD runner is configured.
+    related: [scenario, definition-of-done]
+
+  # --- Design artifacts ------------------------------------------------------
+  design-doc:
+    means: >
+      The high-level design (HLD): approach, system context, components,
+      interfaces, data model, cross-cutting concerns - with sequence
+      diagrams, named design patterns, and illustrative code where they add
+      clarity.
+    also: HLD
+    related: [lld, adr, operability]
+  lld:
+    means: >
+      Low-level design: optional per-component detail on initiative-scale
+      work only. Empty is a valid state.
+    related: [design-doc]
+  adr:
+    means: >
+      Architecture decision record: one real decision, the alternatives
+      considered, the consequences. Only written when there was a decision.
+    related: [design-doc]
+
+  # --- Process & gates --------------------------------------------------------
+  triage:
+    means: >
+      Sizing up incoming work: risk, size, familiarity, urgency - producing
+      an issue type, labels, and a delivery approach. The human judgement
+      step; everything after it is mechanism.
+    related: [delivery-approach, label, issue-type]
+  delivery-approach:
+    means: >
+      The chosen shape for an issue: which artifacts exist, which gates
+      apply, solo or parallel. Deterministic - same triage plus same policy
+      always gives the same approach.
+    related: [triage, quality-gate]
+  guardrail:
+    means: >
+      A hard rule cleared with evidence; a failed guardrail stops the work.
+      Few by design. Plain statement of the five: every change lands with a
+      passing test that covers it; acceptance criteria exist before the code
+      is written; every change traces to a stated reason; claims need
+      evidence; a human signs off on the irreversible.
+    related: [strategy, quality-gate, evidence]
+  strategy:
+    means: >
+      A strong default you can step off with a recorded reason. Assessed by
+      a reviewer, never mechanically blocking. TDD and BDD are strategies;
+      the outcomes they serve are guardrails.
+    related: [guardrail]
+  quality-gate:
+    means: >
+      A check that must pass before an issue moves state. Which gates apply
+      depends on the issue type and labels.
+    related: [workflow-state, definition-of-ready, definition-of-done]
+  definition-of-ready:
+    means: >
+      The gate between requirements and design/build: acceptance criteria
+      exist, ambiguities resolved, PRD reviewed where one exists. Trivially
+      satisfied for a quick fix.
+    also: DoR
+    related: [quality-gate, workflow-state]
+  requirements-review:
+    means: >
+      The review pass that hardens requirements before design or build:
+      ambiguities resolved into recorded decisions, contradictions and
+      gaps closed, the PRD reviewed where one exists. Satisfying it is
+      what makes an issue ready. v1 called this "Clarify".
+    related: [prd, definition-of-ready, acceptance-criteria]
+  definition-of-done:
+    means: >
+      The gate before shipping: acceptance criteria pass, applicable
+      guardrails clear, every box backed by evidence.
+    also: DoD
+    related: [quality-gate, evidence]
+  evidence:
+    means: >
+      A recorded, typed artifact that clears a gate: a test run, a review, a
+      sign-off. A claim without evidence clears nothing.
+    related: [guardrail, definition-of-done]
+  follow-up:
+    means: >
+      Work owed after an expedited ship (the hotfix's promoted scenario, the
+      optional postmortem). Tracked with a state pair: outstanding (not yet
+      discharged) and resolved. An issue with an outstanding follow-up does
+      not fully close; `compass follow-up resolve` discharges one.
+    not: "v1 called this a 'backfill', with states 'owed' and 'paid'."
+    related: [hotfix, backlog]
+
+  receipt:
+    means: >
+      The per-issue proof summary rendered from the spine and the evidence
+      registry: the assessment, the delivery approach, the gates and what
+      cleared them - one screen, shareable as-is.
+    not: >
+      Evidence - evidence is the typed records that clear gates; the
+      receipt is the read-only summary that cites them.
+    related: [evidence, quality-gate]
+
+  # --- Workflow ---------------------------------------------------------------
+  workflow-state:
+    means: >
+      The fixed semantic lifecycle Compass owns: backlog, ready,
+      in-progress, in-review, done. Gates attach to the transitions;
+      transitions are earned (evidence), not dragged. Board columns are a
+      user-defined projection - every custom column maps to exactly one
+      state.
+    related: [quality-gate, board-column, blocked]
+  board-column:
+    means: >
+      A user-defined view column (Design, UAT, Staging...). Maps to exactly
+      one workflow state so gates keep firing regardless of board shape.
+    github: Project column / status field
+    related: [workflow-state]
+  blocked:
+    means: >
+      A flag, not a state - an issue is blocked while in-progress or
+      in-review. Carries a reason.
+    related: [workflow-state]
+  backlog:
+    means: >
+      Two senses, both standard: the workflow state an issue starts in, and
+      the list of deferred slices and follow-ups. Context disambiguates,
+      as it does on every real team.
+    related: [workflow-state, follow-up]
+
+  # --- Labels ------------------------------------------------------------------
+  label:
+    means: >
+      A plain-word tag on an issue carrying classification and risk surface.
+      Local-first (strings in the issue file); synced 1:1 with GitHub labels
+      when connected. Labels never track workflow state.
+    github: Label
+    related: [label-rule, issue]
+  label-rule:
+    means: >
+      The deterministic consequence of a label, declared in policy:
+      security/payments/personal-data/migration require a security review;
+      user-facing requires a rollout plan; breaking-change requires human
+      sign-off; ops-surface requires the operability section. Triage
+      suggests labels, the human confirms; the rules then apply
+      mechanically.
+    related: [label, quality-gate]
+
+  # --- Ship & operate ------------------------------------------------------------
+  ship:
+    means: >
+      Merging and releasing the change: the PR lands, follow-ups are
+      recorded, the derived system spec accretes. v1 called this "Land".
+    related: [pr, rollout-plan]
+  rollout-plan:
+    means: >
+      How the change reaches users safely: feature flags, canary or
+      incremental rollout, and the rollback plan. Required by label rule on
+      user-facing work; always present on initiatives.
+    related: [feature-flag, canary, rollback-plan]
+  feature-flag:
+    means: A runtime switch decoupling deploy from release.
+    related: [rollout-plan]
+  canary:
+    means: Releasing to a small slice of traffic/users first, watching SLIs.
+    related: [rollout-plan, sli]
+  rollback-plan:
+    means: The recorded way back if the change misbehaves in production.
+    related: [rollout-plan]
+  operability:
+    means: >
+      The design section answering "what tells us this works in
+      production?": the SLIs/SLOs the change affects, the alerts that watch
+      them, runbook updates where the ops surface changes. Required by the
+      ops-surface label rule; always present on initiatives.
+    related: [sli, slo, runbook]
+
+  # --- SRE ---------------------------------------------------------------------
+  sli:
+    means: >
+      Service level indicator - a measured signal of service health
+      (latency, error rate, availability).
+    related: [slo, operability]
+  slo:
+    means: >
+      Service level objective - the target an SLI must meet. Implies an
+      error budget.
+    related: [sli, error-budget]
+  error-budget:
+    means: >
+      The unreliability an SLO allows. Paces rollout speed on initiatives:
+      budget spent means slow down.
+    related: [slo, rollout-plan]
+  postmortem:
+    means: >
+      Blameless incident review - an optional follow-up artifact on a
+      hotfix.
+    related: [incident, follow-up]
+  runbook:
+    means: >
+      Operational how-to for the service. Updated as an initiative-scale
+      output when the ops surface changes.
+    related: [operability]
+  dora-metrics:
+    means: >
+      Lead time, deployment frequency, change failure rate, MTTR - what the
+      process-impact telemetry measures to ask whether the process itself
+      pays off.
+    related: [retrospective-signal]
+  retrospective-signal:
+    means: >
+      Compass's cross-issue self-check: is triage consistently over- or
+      under-sizing the process? Advisory, surfaced in retro language. v1
+      called this "calibration".
+    related: [dora-metrics, triage]
+
+# =============================================================================
+# BANNED v1 VOCABULARY - the house test scans user-facing surfaces for these.
+# Each ban is pattern plus context, never a bare word: the context note here
+# is the intent, and the tuned, executable patterns live in
+# tests/test_terminology.py beside the fixtures that prove them.
+# =============================================================================
+banned:
+  - term: "Frame / the Needle"
+    replacement: triage
+    context: "As phase/agent name and command. The command is /compass:triage; /compass:frame is a redirect stub for one major version. 'frame' as an ordinary verb is fine."
+  - term: "reading / readings"
+    replacement: assessment
+    context: "As the four-dimension judgement. Ordinary uses of the word are fine."
+  - term: "route"
+    replacement: delivery approach
+    context: "As the computed process shape (route.md, route evaluate)."
+  - term: "Express"
+    replacement: quick fix
+    context: "Route name."
+  - term: "Expedition"
+    replacement: initiative
+    context: "Route name."
+  - term: "Specify / Clarify / Distribute / Land"
+    replacement: "define acceptance criteria / requirements review / break down the work / ship"
+    context: "As phase names and commands. The commands are /compass:define, /compass:refine, /compass:breakdown, /compass:ship (and Plan's stage command is /compass:design, Build's is /compass:implement); the retired names are redirect stubs for one major version. Capitalised/heading/command usage only; ordinary verbs fine."
+  - term: "lens"
+    replacement: role
+    context: "As the role-perspective concept."
+  - term: "blast radius"
+    replacement: risk
+    context: "As the assessment dimension (blast_radius key and prose)."
+  - term: "terrain"
+    replacement: familiarity
+    context: "As the assessment dimension."
+  - term: "magnitude"
+    replacement: size
+    context: "As the assessment dimension."
+  - term: "touches"
+    replacement: labels
+    context: "As the domain-tag mechanism (touches_any, touches_common)."
+  - term: "backfill"
+    replacement: follow-up
+    context: "All uses. The CLI verb renamed with the CLI-voice slice (compass follow-up resolve); no tolerated spelling remains."
+  - term: "task"
+    replacement: issue
+    context: "In human-facing prose only; machine state files exempt during transition."
+  - term: "G1..G5 / S1..S7 codes"
+    replacement: "the plain statement of the rule"
+    context: "In human-facing output. Codes may live in governance config."
+  - term: "brief.md"
+    replacement: prd.md
+    context: "Filename and references."
+  - term: "spec.feature.md"
+    replacement: "acceptance criteria (feature file)"
+    context: "Filename and references."
+
+# =============================================================================
+# SCAN CONFIG - what tests/test_terminology.py checks.
+# =============================================================================
+scan:
+  surfaces:
+    - templates/
+    - commands/
+    - skills/
+    - cli/compass          # user-facing string literals only
+    - cli/compass_pkg/     # widened at the CLI-voice slice: the user-facing
+                           # strings live in the package since the module
+                           # split; same string-literals-only rule
+    - README.md
+    - docs/five-minutes.md
+    - governance/          # prose files
+    - .claude-plugin/      # manifests - first prose an adopter reads
+    # Session-facing instruction files, added clean (never pending): these
+    # teach every agent session the register it must write, so they are
+    # enforced from the day they were rewritten. In markdown surfaces the
+    # scan reads prose only - fenced blocks and inline code spans are
+    # machine identifiers, exempt while their referents keep v1 names.
+    - CLAUDE.md
+    - AGENTS.md
+    - agents/            # the ten agent definitions - added clean at the
+                         # skills-prose slice, never pending, same shape as
+                         # the root instruction files
+    # Added at the docs-prose slice, the one that emptied the pending
+    # list: the delivery-approach reference docs and the remaining docs
+    # prose, clean on arrival. docs/system-spec.md stays exempt below -
+    # it is derived at ship time and hand-editing it is forbidden.
+    - approaches/
+    - docs/roles-guide.md
+    - docs/safety-contract.md
+    - docs/security.md
+    - docs/methodology.md
+    - docs/quickstart.md
+    - docs/portability.md
+    - docs/routing-deep-dive.md
+    - docs/desired-state.md  # graduated from proposals at the 2.0.0
+                              # release - an adopter surface, no longer
+                              # exempt history
+  exempt:
+    - docs/proposals/      # history stays honest
+    - docs/system-spec.md  # derived at ship time; hand-editing forbidden
+    - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
+                           # pointers and the migrate tool must name v1
+                           # spellings; they live here so the enforced CLI
+                           # never carries one in a string literal
+    - docs/analysis/
+    - architecture/decisions/   # ADRs may quote v1 terms
+    # Same rationale one level down, narrowly: the shipped SAMPLE decision
+    # records (ADR-001..005) are history in sample form, and the README is
+    # exempt only because its index names those sample files - its prose is
+    # kept clean regardless. The blank form (ADR-template.md) is NOT exempt:
+    # future decision records are written from it, so it is enforced. The
+    # sample whose title names a v1 concept is revisited when that
+    # concept's rename slice lands.
+    - templates/architecture/decisions/ADR-0
+    - templates/architecture/decisions/README.md
+    - tests/               # the tests themselves
+    - .compass/work/       # task archive
+  # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
+  # its surface from this list; removed surfaces must stay clean forever.
+  # A meta-test asserts this list only ever shrinks.
+  # EMPTY since the second half of the docs-prose slice - the ratchet
+  # reached zero. Every scanned surface is enforced, forever; this list
+  # never grows again.
+  pending_surfaces: []

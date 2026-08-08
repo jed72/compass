@@ -95,9 +95,9 @@ def seeded_project(tmp_path):
 
     task_dir = compass / "work" / SLUG
     (task_dir / "task.yml").write_text(TASK_YML)
-    (task_dir / "route.md").write_text("# Route - seed-demo\n")
+    (task_dir / "delivery-approach.md").write_text("# Route - seed-demo\n")
     (task_dir / "distribution-map.md").write_text(MAP)
-    (task_dir / "spec.feature.md").write_text("# Spec - seed-demo\n")
+    (task_dir / "acceptance-criteria.md").write_text("# Spec - seed-demo\n")
     (task_dir / "devlog.md").write_text("# Devlog - seed-demo\n")
     (compass / "current-task").write_text(SLUG + "\n")
 
@@ -132,7 +132,7 @@ def test_trc_e1_worktree_carries_task_dir(seeded_project):
             f"{stream}: the worktree has no task directory - a builder there "
             f"has no spec, no plan and no charter"
         )
-        for artifact in ("task.yml", "route.md", "spec.feature.md",
+        for artifact in ("task.yml", "delivery-approach.md", "acceptance-criteria.md",
                          "distribution-map.md"):
             assert (task_dir / artifact).is_file(), (
                 f"{stream}: {artifact} did not come across")

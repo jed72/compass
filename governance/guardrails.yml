@@ -19,7 +19,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.4.0
+version: 1.5.1
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -186,10 +186,20 @@ defaults:
       A change that can lose data, move money, or breach auth or privacy gets
       an explicit human checkpoint before it lands.
     checks: [human-approval-present]
-    # Only applies when the task touches irreversible surface. The routing
-    # policy floors such tasks to Expedition so the checkpoint has a home.
+    # Fires on either arm, because the statement above names CONSEQUENCES while
+    # a tag list names domains, and those are not the same set. A change that
+    # can lose data - a backup/restore path, a destructive cleanup job, a
+    # retention policy, a storage migration written in application code - may
+    # carry none of the four tags and still be exactly what this guardrail is
+    # for. `critical` is defined in the router rubric as "can this lose data,
+    # lose money, breach auth/privacy, or resist a clean rollback": the same
+    # four consequences. The definitions already agreed; only the trigger did
+    # not. The routing policy floors both arms heavily, so the checkpoint has a
+    # home either way.
     applies_when:
-      touches_any: [auth, payments, personal-data, migrations]
+      any_of:
+        - touches_any: [auth, payments, personal-data, migrations]
+        - blast_radius: critical
     checked_at: [land]
 
 # -----------------------------------------------------------------------------
@@ -240,5 +250,5 @@ project: []
 # Cross-cutting: the conflict rule (a guardrail beats a strategy) and the
 # Definition of Ready / Definition of Done checklists are governance too, but
 # they live where they are used - see governance/README.md, the foot of
-# templates/clarifications.md (DoR) and templates/verification-report.md (DoD).
+# templates/requirements-review.md (DoR) and templates/verification-report.md (DoD).
 # -----------------------------------------------------------------------------

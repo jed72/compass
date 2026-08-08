@@ -79,12 +79,12 @@ def test_trc_f3_a_project_ahead_of_the_framework_should_not_be_reported_as_drift
     d = yaml.safe_load(rp.read_text())
     d["routing_guardrails"]["floors"].append({
         "id": "PROJ-FLOOR-001",
-        "when": {"blast_radius": "critical"},
+        "when": {"risk": "critical"},
         "force_minimum_route": "expedition",
         "rationale": "a rule this project added for itself",
     })
     d["routing_guardrails"]["caps"].append({
-        "id": "PROJ-CAP-001", "when": {"blast_radius": "critical"},
+        "id": "PROJ-CAP-001", "when": {"risk": "critical"},
         "max_worktrees": 2, "rationale": "local coordination limit",
     })
     rp.write_text(yaml.safe_dump(d, sort_keys=False))
@@ -147,7 +147,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
 
     for path in fixtures:
         fx = yaml.safe_load(path.read_text())
-        readings = fx.get("readings") or {}
+        readings = fx.get("assessment") or fx.get("readings") or {}
         args = []
         for key, value in readings.items():
             if isinstance(value, list):
@@ -156,7 +156,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
                 continue
             args += ["--reading", f"{key}={value}"]
         result = subprocess.run(
-            [sys.executable, str(CLI), "route", "evaluate", *args, "--json"],
+            [sys.executable, str(CLI), "approach", "evaluate", *args, "--json"],
             cwd=str(ROOT), capture_output=True, text=True, timeout=60,
         )
         expect = fx.get("expected") or {}
@@ -180,7 +180,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
         checked = 0
         if "route" in expect:
             checked += 1
-            assert got["route"] == expect["route"], (
+            assert got["delivery_approach"] == expect["delivery_approach"], (
                 f"{path.name}: route changed to {got['route']}, expected "
                 f"{expect['route']}")
         if "candidate_route" in expect:
@@ -194,7 +194,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
                 f"{path.name}: topology changed to {got['topology']}")
         if "fired_guardrail_ids" in expect:
             checked += 1
-            fired = [g["id"] for g in got.get("fired_guardrails", [])]
+            fired = [g["id"] for g in got.get("policy_rules_fired", [])]
             wanted_ids = expect["fired_guardrail_ids"]
             if isinstance(wanted_ids, str):
                 wanted_ids = [wanted_ids]
@@ -225,11 +225,21 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
 # ---------------------------------------------------------------------------
 
 EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
+# The CLI-voice slice renamed the banned-word verbs (route -> approach,
+# plan -> design, task -> issue, backfill -> follow-up) and added
+# terminology; the set below is the surface after that deliberate move.
 EXPECTED_SUBCOMMANDS = {
-    "route", "bdd", "check", "analyze", "calibration", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
-    "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
-    "evidence",
+    "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
+    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
+    "evidence", "terminology",
+    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
+    # `acceptance` (R13) is the one honest path for a change with no natural
+    # behavioural red - config, docs, a behaviour-preserving refactor. It is a
+    # GROUP (`start`, `record`), so later kinds add a subcommand rather than a
+    # verb. Added deliberately: the alternative was leaving authors to fake a
+    # red that greps a file for a string, which is what the field reported.
+    "acceptance",
 }
 
 
@@ -271,7 +281,7 @@ def test_trc_f7_evidence_types_agree_across_surfaces():
 
     `compass analyze` writes a `coherence-check` entry, and task.schema.json
     did not accept it - so a task whose route includes verify.analyze produced
-    evidence its own `compass task lint` rejected. No task here had hit it,
+    evidence its own `compass issue lint` rejected. No task here had hit it,
     because verify.analyze only enters the gate set at critical blast radius or
     on irreversible surface. The same disease this whole task is about: two
     governance surfaces disagreeing, with nothing checking.

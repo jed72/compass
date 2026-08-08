@@ -22,10 +22,10 @@ consequence of that split worked out in full.
 docs/            methodology.md (canonical), quickstart, routing-deep-dive,
                  roles-guide, this file
 governance/      README.md, guardrails.md, strategies.md, routing-policy.md
-routes/          router.md, README.md,
+approaches/      rubric.md, README.md,
                  express/standard/expedition/hotfix/spike.md
-templates/       route.md, task.yml, brief.md, spec.feature.md,
-                 clarifications.md, plan.md, distribution-map.md,
+templates/       delivery-approach.md, task.yml, prd.md, acceptance-criteria.md,
+                 requirements-review.md, design.md, distribution-map.md,
                  positioning.md, launch-readiness.md, ui-contract.md,
                  verification-report.md, devlog.md
 ```
@@ -52,20 +52,20 @@ templates/       task.yml - the machine-readable task spine
 ```
 
 The kit layer is the *mechanism* side of the determinism boundary
-(`docs/methodology.md` §6) made into software. The Needle's four-dimension
-*readings* are judgement and stay judgement; everything downstream - composing
+(`docs/methodology.md` §6) made into software. Triage's four-dimension
+*assessment* are judgement and stay judgement; everything downstream - composing
 the route, applying the floors and caps, stapling the immovable gates, running
 the guardrail checks - is pure function, and this layer is that function.
-`compass route evaluate` applies `routing-policy.yml` to a task's readings;
+`compass approach evaluate` applies `routing-policy.yml` to an issue's assessment;
 `compass check` runs the `guardrails.yml` checks against `task.yml` and
 `evidence/` (gate evidence is *typed* - a `{type, path}` record - so a
 mechanical gate cannot be cleared with a written note); `compass tdd-red` /
 `tdd-green` run a test and write the evidence records; `compass policy lint` /
 `task lint` validate the YAML against the executable JSON Schema in `schemas/`
 when the optional `jsonschema` library is present, and against the built-in
-linter always; `compass ci` aggregates the lot for CI; `compass calibration`
-reads the re-frame log across all tasks and reports whether routing is
-well-sized. Same readings + same policy => the same route, every time, on every
+linter always; `compass ci` aggregates the lot for CI; `compass retro`
+reads the re-assess log across all issues and reports whether routing is
+well-sized. Same assessment + same policy => the same route, every time, on every
 runtime.
 
 This layer is tool-agnostic - its only hard dependency is Python 3 and PyYAML
@@ -102,14 +102,14 @@ scripts/         install.sh, swarm.sh, integrate.sh, validate.sh
 
 This is the methodology and kit layers expressed in one runtime's vocabulary.
 Slash commands invoke the phases - and *call the kit* for the deterministic
-parts: `/compass:frame` runs `compass route evaluate`, `/compass:verify` runs
+parts: `/compass:frame` runs `compass approach evaluate`, `/compass:verify` runs
 `compass check`, the `builder` agent runs `compass tdd-red` / `tdd-green`.
-Subagents are the swarm and the role lenses. Skills carry the procedural
+Subagents are the swarm and the role roles. Skills carry the procedural
 knowledge a phase needs. Hooks enforce the guardrails mechanically where they
 can - `pre-tool.sh` enforces the red-before-green TDD strategy in service of
-guardrail G1 (and is route-aware: it does not block on a Spike); `post-tool.sh`
+the tested-before-ship guardrail (and is route-aware: it does not block on a Spike); `post-tool.sh`
 appends to the devlog and clears the red marker; `stop.sh` makes a
-half-finished task loud at session end. `CLAUDE.md` is the runtime expression
+half-finished issue loud at session end. `CLAUDE.md` is the runtime expression
 of `docs/methodology.md` - and where the two ever appear to conflict, the
 methodology doc wins.
 
@@ -152,62 +152,62 @@ guardrail checks and "doing them locally" - has shipped a fork wearing
 Compass's name. The five requirements below are how an adapter holds up its
 end of the contract.
 
-### 1. Frame before changing anything
+### 1. Triage before changing anything
 
-Before a task modifies code, specs, or product artifacts, the runtime must run
-the Needle: read the four context dimensions (blast radius, terrain,
-magnitude, intent & role) - that part is judgement, and the runtime must
-produce it. *Composing* the route from those readings is mechanism, and the
-adapter should shell out to `compass route evaluate` rather than reimplement
+Before an issue modifies code, specs, or product artifacts, the runtime must run
+triage: read the four context dimensions (risk, familiarity,
+size, intent & role) - that part is judgement, and the runtime must
+produce it. *Composing* the route from those assessment is mechanism, and the
+adapter should shell out to `compass approach evaluate` rather than reimplement
 it: the CLI applies `governance/routing-policy.yml` and records the route,
-phases, and gates into `task.yml`. The runtime records the readings (in
-`task.yml`) and writes the human-readable `route.md`. The route is *computed*
+phases, and gates into `task.yml`. The runtime records the assessment (in
+`task.yml`) and writes the human-readable `delivery-approach.md`. The route is *computed*
 from context, not chosen from a menu, and - because the composition is the
-kit's pure function - the same readings produce the same route on every
-runtime. The only work exempt from Frame is conversation - answering,
-explaining, exploring. The moment an operation would change a file, Frame must
-already have run for the current task.
+kit's pure function - the same assessment produce the same route on every
+runtime. The only work exempt from triage is conversation - answering,
+explaining, exploring. The moment an operation would change a file, triage must
+already have run for the current issue.
 
 The reference adapter enforces this two ways: `CLAUDE.md` states "Never skip
 Frame" as the one rule that creates every other rule, and `pre-tool.sh` blocks
-a code edit when no `route.md` exists for the current task. A port must achieve
+a code edit when no `delivery-approach.md` exists for the current issue. A port must achieve
 the same outcome - mechanically if it can, procedurally if it cannot.
 
 ### 2. Walk the eight-phase pipeline
 
 `Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land`. The
 adapter must make each phase an invocable unit - a command, a mode, a routine,
-whatever the runtime offers - run in order. The route in `route.md` says which
+whatever the runtime offers - run in order. The route in `delivery-approach.md` says which
 phases are full-weight, which collapse, and which are skipped, and always says
 *why* a phase is skipped. The adapter must honour that: not silently re-skip a
 phase the route kept, not silently re-add one it skipped. After each phase, the
-adapter writes that phase's artifact to the task's working directory using the
+adapter writes that phase's artifact to the issue's working directory using the
 matching template from `templates/`.
 
 ### 3. Enforce the guardrails - five defaults, never adapted
 
-- **G1 - Tested before it lands** - no code reaches `main` without a passing
+- **Tested before it lands** - no code reaches `main` without a passing
   automated test it traces to.
-- **G2 - Acceptance defined before it is built** - no code is written that no
+- **Acceptance defined before it is built** - no code is written that no
   stated, checkable acceptance criterion describes.
-- **G3 - Traceability holds** - code → acceptance criterion → intent, and
+- **Traceability holds** - code → acceptance criterion → intent, and
   public claim → backing criterion.
-- **G4 - Evidence, not assertion** - guardrails clear with command output and
+- **Evidence, not assertion** - guardrails clear with command output and
   artifacts, not claims.
-- **G5 - A human signs off on the irreversible** - data loss, money, auth,
+- **A human signs off on the irreversible** - data loss, money, auth,
   privacy get an explicit human checkpoint.
 
 The guardrail *checks* are mechanism, and the kit layer already implements
 them: `compass check` runs the `governance/guardrails.yml` checks against the
-task's `task.yml` and `evidence/`. The adapter's job is to *call* `compass
-check` at Verify and Land - not to write its own scenario-has-a-test or
+issue's `task.yml` and `evidence/`. The adapter's job is to *call* `compass
+check` at verify and at ship time - not to write its own scenario-has-a-test or
 gate-has-evidence logic. Re-deriving the checks is exactly the drift the kit
 layer exists to prevent.
 
 BDD (Given/When/Then) and TDD (red-green-refactor) are the shipped default
-*strategies* - the strong, on-by-default way to satisfy G2 and G1 - not
+*strategies* - the strong, on-by-default way to satisfy acceptance-before-code and tested-before-ship - not
 guardrails themselves. The hard line is the outcome; the form is a suspendable
-strategy (the Spike route suspends TDD). The adapter must enforce the
+strategy (a spike suspends TDD). The adapter must enforce the
 red-before-green strategy **mechanically if the runtime can** - the reference
 adapter uses `pre-tool.sh` as a `PreToolUse` hook with a `.red` marker
 convention, and makes it route-aware so it does not block on a Spike. The
@@ -218,28 +218,29 @@ its hook to that marker; it does not need to reproduce the test-running and
 evidence-writing. If the runtime has no hook mechanism, the adapter must
 enforce the strategy *procedurally* - but it still calls `compass tdd-red` /
 `tdd-green` for the records, and refuses to proceed without a failing test on
-record. The real G1 check is at Verify and Land, with evidence. "We could not
+record. The real tested-before-ship check is at verify and at ship time, with evidence. "We could not
 enforce it mechanically" is an acceptable adapter limitation; "so we did not
-enforce G1" is not - that is crossing a guardrail.
+enforce tested-before-ship" is not - that is crossing a guardrail.
 
 ### 4. Support five roles as full citizens
 
 Engineer, product owner / manager, product marketer, designer, QA. Each needs
 a distinct entry point - a session-start mode the runtime can express - and
-each has artifacts that plug into the same pipeline (`brief.md`,
+each has artifacts that plug into the same pipeline (`prd.md`,
 `positioning.md`, `launch-readiness.md`, `ui-contract.md`,
 `verification-report.md`). The BDD scenario file is the shared substrate read
-through five lenses; the adapter must not reduce it to an engineering-only
+through five roles; the adapter must not reduce it to an engineering-only
 artifact. The role rules in `governance/routing-policy.md` - the intent-fidelity
 gate, the claims gate - must be enforced, because an unenforced role is a
 decorative one.
 
 ### 5. Support solo / pair / swarm topologies
 
-On larger routes, Plan produces a distribution map and Distribute parallelises
+On larger approaches, the design stage produces a distribution map and
+the breakdown parallelises
 across isolated workspaces - git worktrees in the reference implementation,
 one agent per stream, with a coordinating orchestrator that owns integration
-at Land. A runtime without worktrees must provide *equivalent isolation* - a
+at ship time. A runtime without worktrees must provide *equivalent isolation* - a
 mechanism where one stream can run a full red→green cycle, including a failing
 suite, without destabilising siblings. If it genuinely cannot, the adapter
 must cap itself at solo/pair and say so. It must not pretend to swarm without
@@ -250,12 +251,12 @@ the isolation that makes a swarm safe.
 Two kit commands operate across the whole board, and the adapter wires them
 into the runtime's surfaces rather than reimplementing them. `compass ci` runs
 the full mechanical gate suite - `policy lint`, then `task lint` and `check`
-for every task - and aggregates exit codes; the CI integration is "run
+for every issue - and aggregates exit codes; the CI integration is "run
 `compass ci`, honour the exit code" (`ci/README.md` is the contract, and
-`ci/github-actions.yml` the reference workflow). `compass calibration`
-aggregates the `reframes` log across all tasks and reports whether the Needle
+`ci/github-actions.yml` the reference workflow). `compass retro`
+aggregates the `reframes` log across all issues and reports whether triage
 is systematically over- or under-sizing routes - the framework's own feedback
-loop, a natural fit for the runtime's cross-task / flow surface. Neither gates;
+loop, a natural fit for the runtime's cross-issue / flow surface. Neither gates;
 both are mechanism the adapter calls.
 
 ### The mapping table
@@ -265,10 +266,10 @@ both are mechanism the adapter calls.
 | Methodology / kit concept | Adapter must map it to… | Reference (Claude Code) |
 |---|---|---|
 | The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
-| The Needle | A triage routine that produces the *readings*, then calls the kit to compose the route | `/compass:frame` + the `navigator` agent + the `adaptive-routing` skill, calling `compass route evaluate` |
-| The kit-layer CLI | A shell-out from the adapter - never a reimplementation | `commands`/`agents` invoke `compass route evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence - orphaned scenarios, route disagreements, orphan claims) |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass calibration` (the re-frame feedback loop), `compass rework-scan` (cross-task rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-task view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass calibration`, `compass rework-scan`, and `compass flow --digest` together |
-| Per-task next-step + backfill | The adapter wires `compass next` (surface the next action on the current task) and `compass backfill pay` (mark an owed backfill as paid) into its task-resumption and Land flows | `/compass:status` and `/compass:land` invoke them |
+| Triage | A triage routine that produces the *assessment*, then calls the kit to compose the approach | `/compass:triage` + the `navigator` agent + the `adaptive-routing` skill, calling `compass approach evaluate` |
+| The kit-layer CLI | A shell-out from the adapter - never a reimplementation | `commands`/`agents` invoke `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence - orphaned scenarios, route disagreements, orphan claims) |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the re-assess feedback loop), `compass rework-scan` (cross-issue rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-issue view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass retro`, `compass rework-scan`, and `compass flow --digest` together |
+| Per-issue next-step + follow-up | The adapter wires `compass next` (surface the next action on the current issue) and `compass follow-up resolve` (mark an outstanding follow-up resolved) into its task-resumption and ship flows | `/compass:status` and `/compass:ship` invoke them |
 | ADR creation | `compass adr new` (creates a numbered ADR file under `architecture/decisions/`) - the adapter exposes this in whatever shape its agents use for recording architectural decisions | `architect-lens` agent invokes it |
 | Subagents (navigator, spec-author, planner, orchestrator, builder, verifier, reviewer, product-lens, marketing-lens, architect-lens) | Distinct agent contexts or personas. The 10th - architect-lens - reads the project's `architecture/` artifacts and writes `architecture-notes.md`; consulted by spec-author and planner | `agents/*.md` |
 | Skills | Loadable procedural-knowledge modules | `skills/*/SKILL.md` |
@@ -279,19 +280,19 @@ both are mechanism the adapter calls.
 
 ### State on disk - the non-negotiable substrate
 
-One requirement cuts across all five: **all task state is files, not
+One requirement cuts across all five: **all issue state is files, not
 conversation.** `governance/` at the project root - the `.md` files
 (`guardrails.md`, `strategies.md`, `routing-policy.md`) and the kit-layer
-`.yml` files the CLI runs (`routing-policy.yml`, `guardrails.yml`); per-task
-artifacts in a `.compass/work/<task-slug>/` directory holding `route.md`,
-`task.yml` (the machine-readable task spine), `brief.md`, `spec.feature.md`,
-`clarifications.md`, `plan.md`, `distribution-map.md`, `positioning.md`,
+`.yml` files the CLI runs (`routing-policy.yml`, `guardrails.yml`); per-issue
+artifacts in a `.compass/work/<task-slug>/` directory holding `delivery-approach.md`,
+`task.yml` (the machine-readable issue spine), `prd.md`, `acceptance-criteria.md`,
+`requirements-review.md`, `design.md`, `distribution-map.md`, `positioning.md`,
 `launch-readiness.md`, `ui-contract.md`, `verification-report.md`, an
 `evidence/` directory (the CLI's red/green and gate records), an append-only
-`devlog.md`, and - on a Spike route - a `.spike` marker file; plus a
-`.compass/current-task` pointer the CLI and hooks resolve "the current task"
+`devlog.md`, and - on a spike - a `.spike` marker file; plus a
+`.compass/current-task` pointer the CLI and hooks resolve "the current issue"
 through. A different session, a different agent, or a different runtime must be
-able to resume a task by reading `route.md`, `task.yml`, and the artifacts -
+able to resume an issue by reading `delivery-approach.md`, `task.yml`, and the artifacts -
 nothing essential may live only in context. This is what makes the framework
 portable *across sessions* in the first place; portability across runtimes is
 the same property extended.
@@ -313,18 +314,18 @@ The entire methodology layer *and* the entire kit layer:
   section, but the conceptual docs are unchanged.)
 - `governance/` - `guardrails.md`, `strategies.md`, and `routing-policy.md` are
   pure methodology; `routing-policy.yml` and `guardrails.yml` are the kit
-  layer's machine-readable governance. The new runtime's Needle reads the prose
+  layer's machine-readable governance. The new runtime's triage reads the prose
   exactly as Claude Code's does, and the new adapter runs the YAML through the
   same CLI.
-- `routes/` - `router.md` is the routing rubric regardless of runtime; the
-  five reference route files describe pipeline *shapes*, not runtime calls.
+- `approaches/` - `router.md` is the routing rubric regardless of runtime; the
+  five reference shape files describe pipeline *shapes*, not runtime calls.
 - `templates/` - every artifact template is plain markdown, including
-  `task.yml`, the machine-readable task spine. `route.md`, `spec.feature.md`,
+  `task.yml`, the machine-readable issue spine. `delivery-approach.md`, `acceptance-criteria.md`,
   and the rest are written the same way by any runtime.
 - `cli/`, `schemas/`, and `ci/` - the kit layer. `cli/compass` is a plain
   Python+PyYAML CLI with no Claude Code dependency; the new adapter *calls* it
-  for route composition, guardrail checks, CI (`compass ci`), and the re-frame
-  feedback loop (`compass calibration`). `schemas/` holds the executable JSON
+  for route composition, guardrail checks, CI (`compass ci`), and the re-assess
+  feedback loop (`compass retro`). `schemas/` holds the executable JSON
   Schema the lint commands validate against; `ci/` holds the CI integration
   contract. You do not rewrite any of it - and if you find yourself wanting to,
   that is the strongest possible sign something has leaked across the boundary.
@@ -340,16 +341,16 @@ The adapter layer, against the contract above:
 - **`commands/`** → the new runtime's equivalent of invocable phase units. The
   *content* of each - what `/compass:frame` does, the procedure it follows -
   is dictated by the methodology layer (`frame.md`'s procedure "follows
-  `routes/router.md` exactly"). You are re-expressing known procedures in a
+  `approaches/rubric.md` exactly"). You are re-expressing known procedures in a
   new command syntax, not redesigning them - and where a procedure has a
-  deterministic step, it *calls the kit*: the new Frame command shells out to
-  `compass route evaluate`, the new Verify command to `compass check`, the new
+  deterministic step, it *calls the kit*: the new triage command shells out to
+  `compass approach evaluate`, the new Verify command to `compass check`, the new
   Build procedure to `compass tdd-red` / `tdd-green`. Re-expressing the
   procedure does not mean re-implementing the mechanism it invokes.
 - **`agents/`** → the new runtime's notion of distinct agent contexts. The
-  ten agents and their boundaries (the navigator owns Frame and only Frame;
+  ten agents and their boundaries (the navigator owns triage and only triage;
   the orchestrator writes no feature code; a builder never touches a sibling
-  worktree; the architect-lens reads `architecture/` and annotates `plan.md`
+  worktree; the architect-lens reads `architecture/` and annotates `design.md`
   via `architecture-notes.md`, never writing feature code) are methodology;
   the wrapper is runtime.
 - **`skills/`** → loadable procedural-knowledge modules in whatever form the
@@ -364,7 +365,7 @@ The adapter layer, against the contract above:
   hooks must move guardrail enforcement into the procedural layer - the
   red-before-green TDD-strategy check becomes a mandatory step in the build
   command that refuses to proceed without a recorded red (and is suspended on a
-  Spike route), the devlog append becomes an explicit instruction, the
+  spike), the devlog append becomes an explicit instruction, the
   session-end warning becomes a `/compass:status`-style check the runtime is
   told to run. Note that even here the kit does the heavy lifting: the recorded
   red is `compass tdd-red`'s `.red` marker and `evidence/red.json`, and the
@@ -388,10 +389,10 @@ The adapter layer, against the contract above:
 
 ### The test of a correct port
 
-A port is correct when a task framed under the new runtime produces the same
-`route.md`, the same `task.yml`, the same artifacts in the same
+A port is correct when an issue framed under the new runtime produces the same
+`delivery-approach.md`, the same `task.yml`, the same artifacts in the same
 `.compass/work/<task-slug>/` layout, and obeys the same guardrails - such that
-a Claude Code session could `/compass:resume` a task the other runtime
+a Claude Code session could `/compass:resume` an issue the other runtime
 started, and vice versa. The methodology layer is the shared *contract*; the
 kit layer is the shared *mechanism* - and because both adapters call the same
 kit rather than each implementing route composition and guardrail checking
@@ -406,7 +407,7 @@ design could offer, and it is why the kit was split out as its own layer.
 Adaptive frameworks have a credibility problem and a longevity problem.
 Compass answers the credibility problem two ways: the routing policy bounds the
 flex with routing guardrails the team owns, and the kit layer makes the
-bounded parts *mechanically* deterministic - same readings, same route, every
+bounded parts *mechanically* deterministic - same assessment, same route, every
 runtime. It answers the longevity problem here: by keeping both the framework
 itself (the methodology layer) and its mechanism (the kit layer) free of any
 one runtime's syntax, so that when the runtime landscape shifts - and it will -

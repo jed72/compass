@@ -10,9 +10,9 @@ def _body(gates, evidence):
     return {
         "task": "ge",
         "created": "2026-06-22",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "standard",
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "standard",
         "scenarios": [{"id": "SCN-1", "intent": "INT-1",
                        "tests": ["tests/test_x.py::test_y"]}],
         "evidence": evidence,
@@ -88,11 +88,11 @@ def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
     evidence types."""
     body = {
         "task": "ge-seed", "created": "2026-06-22",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
     }
     task_dir = make_task("ge-seed", body)
-    r = run_cli("route", "evaluate", "--task", "ge-seed", "--write")
+    r = run_cli("approach", "evaluate", "--task", "ge-seed", "--write")
     assert r.returncode == 0, r
     text = (task_dir / "task.yml").read_text()
     assert "accepts:" in text, r

@@ -22,7 +22,7 @@ run without reading each other, merged by a human).
 The architect-lens runs first; the planner reads and cites.
 
 Order of operations:
-1. Architect-lens runs at Specify (auto-triggered) or via
+1. Architect-lens runs at the define stage (auto-triggered) or via
    `/compass:roundtable architect-lens`.  It writes `architecture-notes.md`.
 2. Planner runs at Plan.  It reads `architecture-notes.md` and writes
    `plan.md §2` DDs that either cite an existing ADR, name a candidate ADR

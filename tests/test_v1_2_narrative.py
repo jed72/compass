@@ -99,16 +99,20 @@ def test_trc_a5_typed_dod_tags_documented_in_both_agents_and_methodology():
     """Both AGENTS.md and methodology.md document the typed inline DoD-tag mechanism."""
     agents = _read("AGENTS.md")
     method = _read("docs/methodology.md")
-    # The typed tags look like `(evidence: EV-<id>)` and `(backfill: BF-<id>)`.
+    # The typed tags look like `(evidence: EV-<id>)` and
+    # `(follow-up: BF-<id>)` - the second renamed with schema 2.0; the
+    # checker still reads the v1 spelling from old archives.
     # We require both files to mention the typed-tag form.
     def _has_typed_tag(text):
-        return ("evidence: EV-" in text and "backfill: BF-" in text) or (
-            "(evidence: EV-" in text and "(backfill: BF-" in text
+        return ("evidence: EV-" in text
+                and ("follow-up: BF-" in text or "backfill: BF-" in text)) or (
+            "(evidence: EV-" in text
+            and ("(follow-up: BF-" in text or "(backfill: BF-" in text)
         )
 
     assert _has_typed_tag(agents), (
         "AGENTS.md does not document the typed inline DoD tags "
-        "`(evidence: EV-<id>)` / `(backfill: BF-<id>)` mechanism."
+        "`(evidence: EV-<id>)` / `(follow-up: BF-<id>)` mechanism."
     )
     assert _has_typed_tag(method), (
         "docs/methodology.md does not document the typed inline DoD tags "

@@ -63,10 +63,10 @@ class TestS5InStrategiesMd:
         strat_path = FRAMEWORK_ROOT / "governance" / "strategies.md"
         text = strat_path.read_text(encoding="utf-8")
         # S5 must come after S4 in the default section
-        s4_pos = text.find("### S4")
-        s5_pos = text.find("### S5")
-        assert s5_pos != -1, "### S5 heading not found in strategies.md"
-        assert s4_pos != -1, "### S4 heading not found in strategies.md"
+        s4_pos = text.find("(`S4`)")
+        s5_pos = text.find("(`S5`)")
+        assert s5_pos != -1, "the S5-tagged heading not found in strategies.md"
+        assert s4_pos != -1, "the S4-tagged heading not found in strategies.md"
         assert s5_pos > s4_pos, "S5 must appear after S4 in strategies.md"
         # S5 must appear before the project strategies section
         project_section_pos = text.find("## Project strategies")
@@ -86,13 +86,13 @@ class TestTddGreenRecordsAttempts:
         body = {
             "task": "attempts-test",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [
                 {"id": "SCN-001", "intent": "INT-1", "tests": []},
             ],
@@ -122,13 +122,13 @@ class TestTddGreenRecordsAttempts:
         body = {
             "task": "attempts-unbound",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [],
             "evidence": [],
         }
@@ -162,13 +162,13 @@ class TestTddGreenRerunDetection:
         body = {
             "task": "rerun-test",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [
                 {"id": "SCN-001", "intent": "INT-1", "tests": []},
             ],
@@ -231,13 +231,13 @@ class TestNoTrustedRerunCheck:
         return {
             "task": "rerun-check",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
-            "route": "express",
+            "delivery_approach": "express",
             "scenarios": [
                 {"id": "SCN-001", "intent": "INT-1", "tests": ["tests/t.py::t"]},
             ],
@@ -486,10 +486,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -502,7 +502,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint")
+        r = run_cli("issue", "lint", "--task", "attempts-lint")
         assert r.returncode != 0, (
             "task lint must fail when test-run evidence has attempts:0"
         )
@@ -516,10 +516,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint-neg",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -532,7 +532,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-neg", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint-neg")
+        r = run_cli("issue", "lint", "--task", "attempts-lint-neg")
         assert r.returncode != 0, (
             "task lint must fail when test-run evidence has negative attempts"
         )
@@ -542,10 +542,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint-ok",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -558,7 +558,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-ok", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint-ok")
+        r = run_cli("issue", "lint", "--task", "attempts-lint-ok")
         assert r.returncode == 0, (
             f"task lint must pass when test-run evidence has attempts:1: {r}"
         )
@@ -569,10 +569,10 @@ class TestTaskLintAttemptsValidation:
         body = {
             "task": "attempts-lint-absent",
             "created": "2026-05-25",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "brownfield-mapped",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "brownfield-mapped",
+                "size": "small",
                 "intent": "delivery",
             },
             "evidence": [
@@ -585,7 +585,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-absent", body)
-        r = run_cli("task", "lint", "--task", "attempts-lint-absent")
+        r = run_cli("issue", "lint", "--task", "attempts-lint-absent")
         assert r.returncode == 0, (
             f"task lint must pass on old evidence without attempts field: {r}"
         )

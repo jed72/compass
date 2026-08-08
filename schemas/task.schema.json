@@ -7,7 +7,7 @@
   "required": [
     "task",
     "created",
-    "readings"
+    "assessment"
   ],
   "additionalProperties": false,
   "properties": {
@@ -27,25 +27,28 @@
       "type": "string",
       "enum": [
         "active",
-        "landed"
+        "queued",
+        "parked",
+        "landed",
+        "abandoned"
       ],
-      "description": "Optional. Lifecycle status of the task. 'active' (default when absent) means the task is in-flight; 'landed' means the task has completed Land and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3). Tasks with schema_version '1.0' that lack this field are treated as 'active' by the derivation walker (Inv-8 backward compat)."
+      "description": "Optional. Lifecycle status of the task. 'active' (default when absent) means in-flight; 'queued' means recorded as next up but not started; 'parked' means stopped with the phases so far still valid, so it can resume; 'landed' means Land completed and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3); 'abandoned' means it will not resume. Only 'landed' grants derivation eligibility - every other value is ineligible, so a new value can never silently acquire it. Tasks with schema_version '1.0' that lack this field are treated as 'active' (Inv-8 backward compat)."
     },
     "land_timestamp": {
       "type": "string",
       "description": "Optional. ISO 8601 timestamp of when the task was Landed. Written by scripts/integrate.sh alongside status: landed. Used as the primary sort key for the living spec derivation order (ADR-008 \u00a73)."
     },
-    "readings": {
+    "assessment": {
       "type": "object",
       "description": "The four-dimension judgement readings the Needle produces at Frame.",
       "required": [
-        "blast_radius",
-        "terrain",
-        "magnitude"
+        "risk",
+        "familiarity",
+        "size"
       ],
       "additionalProperties": false,
       "properties": {
-        "blast_radius": {
+        "risk": {
           "enum": [
             "trivial",
             "contained",
@@ -53,26 +56,20 @@
             "critical"
           ]
         },
-        "terrain": {
+        "familiarity": {
           "enum": [
             "greenfield",
             "brownfield-mapped",
             "brownfield-unmapped"
           ]
         },
-        "magnitude": {
+        "size": {
           "enum": [
             "atomic",
             "small",
             "standard",
             "large",
             "product"
-          ]
-        },
-        "intent": {
-          "enum": [
-            "delivery",
-            "exploration"
           ]
         },
         "urgency": {
@@ -90,15 +87,21 @@
             "qa"
           ]
         },
-        "touches": {
+        "labels": {
           "type": "array",
           "items": {
             "type": "string"
           }
+        },
+        "goal": {
+          "enum": [
+            "delivery",
+            "exploration"
+          ]
         }
       }
     },
-    "route": {
+    "delivery_approach": {
       "type": [
         "string",
         "null"
@@ -111,7 +114,7 @@
         "null"
       ]
     },
-    "fired_guardrails": {
+    "policy_rules_fired": {
       "type": "array",
       "items": {
         "type": "object",
@@ -134,7 +137,7 @@
         }
       }
     },
-    "phases": {
+    "stages": {
       "type": "object",
       "description": "phase name -> weight string; filled by route evaluate."
     },
@@ -299,6 +302,13 @@
             "items": {
               "type": "string"
             }
+          },
+          "superseded_by": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional. Scenario id(s) that replace this one. blueprint-distillation names silent supersession as an anti-pattern: a target scenario replacing a distilled baseline is a recorded decision, not a silent overwrite. Without the link a reader cannot tell a baseline that failed because the change landed as intended from one that failed because something broke."
           }
         }
       }
@@ -351,9 +361,9 @@
         }
       }
     },
-    "backfills": {
+    "follow_ups": {
       "type": "array",
-      "description": "Owed ceremony (e.g. a Hotfix's). `compass check` fails while any is unpaid.",
+      "description": "Outstanding ceremony (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated spine still lints - readers normalise them.",
       "items": {
         "type": "object",
         "required": [
@@ -370,17 +380,19 @@
           },
           "status": {
             "enum": [
+              "outstanding",
+              "resolved",
               "owed",
               "paid"
             ]
           },
           "target_task": {
             "type": "string",
-            "description": "Cross-task backfill: the task whose Land is blocked until this is paid."
+            "description": "Cross-issue follow-up: the issue whose ship is blocked until this is resolved."
           },
           "paid_at": {
             "type": "string",
-            "description": "Optional audit field: when the backfill was paid."
+            "description": "Optional audit field: when the follow-up was resolved."
           },
           "paid_note": {
             "type": "string",
@@ -389,7 +401,7 @@
         }
       }
     },
-    "reframes": {
+    "reassessments": {
       "type": "array",
       "description": "Append-only log of re-frames (compass route evaluate --reframe). Feeds the Needle's calibration signal.",
       "items": {
@@ -474,6 +486,14 @@
       "type": "string",
       "minLength": 1,
       "description": "Hotfix routes only: the slug of the task this hotfix repairs. Read by `compass calibration --impact` to compute the change-fail signal. Optional - a hotfix that declares none is reported as a coverage gap rather than silently counted as zero."
+    },
+    "parked_reason": {
+      "type": "string",
+      "description": "Optional. Why a parked task was set aside - the thing a reader needs to decide whether to resume it."
+    },
+    "parked_at": {
+      "type": "string",
+      "description": "Optional. ISO-8601 timestamp recording when the task was parked."
     }
   }
 }

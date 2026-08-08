@@ -20,60 +20,61 @@ section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
 These ship on. They are how Compass satisfies the guardrails by default -
 strong, shipped-on, and you would need a deliberate, recorded reason to
-deviate. They are still *strategies*: the Spike route can suspend the first
+deviate. They are still *strategies*: a spike can suspend the first
 two, and a project can refine any of them.
 
-### S1 - BDD: behaviour as Given/When/Then
+### BDD: behaviour as Given/When/Then (`S1`)
 
 Acceptance criteria are expressed as Given/When/Then scenarios, and those same
 scenarios are the acceptance check at Verify. This is the shipped-on way to
-satisfy **guardrail G2** ("acceptance defined before it is built"). The
+satisfy **the acceptance-before-code guardrail** ("acceptance defined before it is built"). The
 scenario file is also the shared artifact every role reads - see
 `docs/roles-guide.md`.
 
-*Why a strategy and not a guardrail:* G2 - that acceptance is *stated and
+*Why a strategy and not a guardrail:* acceptance-before-code - that acceptance is *stated and
 checkable* - is the hard line. Given/When/Then is the *form*. The form is
 strong and shipped-on; a context where it genuinely does not fit is a strategy
 deviation, not a framework violation.
 
-### S2 - TDD: red, green, refactor
+### TDD: red, green, refactor (`S2`)
 
 Code is built by writing the failing test first, watching it fail for the
 right reason, writing the minimal code to pass, then refactoring. This is the
-shipped-on way to satisfy **guardrail G1** ("tested before it lands"). The
+shipped-on way to satisfy **the tested-before-ship guardrail**. The
 pre-tool hook enforces red-before-green by default.
 
 TDD serves **two purposes**, not one. The first is governance: red-before-green
-is the mechanism that makes G1 checkable - it ensures there is a test, and that
+is the mechanism that makes tested-before-ship checkable - it ensures there is a test, and that
 the test was there first. The second is **design feedback**: a hard-to-write
 test is the design speaking. TDD is less about testing and more about good
 design. A test that is painful to set up, or that needs elaborate mocking to
 run, is not a test problem - it is a design problem. The red-green-refactor
 loop is the design-feedback loop: listen to the test, and reshape the design.
 
-*Why a strategy and not a guardrail:* G1 - that code is *tested before it
-lands* - is the hard line, checked at Verify and Land. Red-before-green is the
+*Why a strategy and not a guardrail:* tested-before-ship - that code is *tested before it
+lands* - is the hard line, checked at verify and at ship time.
+Red-before-green is the
 *discipline* that gets you there reliably. It is the strong default on every
 route except **Spike**, where it is suspended so exploration is not throttled.
-A one-character typo fix still satisfies G1; it does not need to perform the
+A one-character typo fix still satisfies tested-before-ship; it does not need to perform the
 full ritual to do so. This is the distinction that keeps Compass from being a
 sledgehammer on small changes.
 
-### S3 - Simplest thing that satisfies the guardrail
+### Simplest thing that satisfies the guardrail (`S3`)
 
 Prefer the simplest change that clears the guardrails and the route's gates.
 Not the cleverest, not the most general, not the most future-proof - the
 simplest that is actually correct. Complexity is added in response to a
 demonstrated need, not in anticipation of one.
 
-### S4 - Persistence over conversation
+### Persistence over conversation (`S4`)
 
 Decisions, specs, routes, and rationale live in files (`.compass/work/<task>/`,
 `governance/`, `docs/`), not only in a chat transcript. A later session - or a
 different agent - should be able to resume from disk. If it is not written
 down, it did not happen.
 
-### S5 - Intermittency is failure.
+### Intermittency is failure (`S5`).
 
 A test that fails then passes without an intervening source change is not a
 clean green - it is the loss of the most useful signal a test suite produces.
@@ -81,16 +82,16 @@ A rerun-to-green hides a real failure behind timing, environment state, or
 shared mutable setup. It is never trusted as a pass.
 
 When a test reruns to green: either fix the root cause or quarantine the test
-in `governance/quarantine.yml` with a tracking task. Silence is not evidence
-(guardrail G4). The `no-trusted-rerun` check attached to G4 reads the
+in `governance/quarantine.yml` with a tracking issue. Silence is not evidence
+(the evidence-not-assertion guardrail). The `no-trusted-rerun` check attached to evidence-not-assertion reads the
 `attempts` and `rerun_without_change` fields from evidence records and refuses
 to clear silently when a rerun is unaccounted for.
 
-*Cross-reference: G4 (evidence, not assertion). See also `governance/quarantine.yml`.*
+*Cross-reference: evidence-not-assertion (evidence, not assertion). See also `governance/quarantine.yml`.*
 
 ---
 
-### S6 - regression-baseline: green before, re-run after, on shared surface
+### Regression baseline: green before, re-run after, on shared surface (`S6`)
 
 **Soft, assessed - not a guardrail.** When a change touches shared or critical
 surface (`blast_radius` cross-cutting or critical), the highest-value evidence
@@ -98,26 +99,26 @@ is a *baseline*: run a designated existing end-to-end / regression suite green
 **before** the change, keep the change additive / guarded, and re-run it
 **after**. Record both as `test-run` evidence on `verify.regression`.
 
-This is G1's spirit applied to the *non-regression of untouched behaviour* - it
+This is tested-before-ship's spirit applied to the *non-regression of untouched behaviour* - it
 catches a high-consequence break in code you did not mean to change (the field
 case: a new emission silently broke a live solve; a pre-change demo baseline
 surfaced it immediately). The designated suite is a project knob
 (`project.regression_baseline_suite` in `.compass/config.yml`; falls back to
 `project.test_command`). Build prompts for the baseline **up front**, not as an
-afterthought; `compass route evaluate` surfaces it under
-`applicable_strategies` when the readings match (`RS-ADV-001`).
+afterthought; `compass approach evaluate` surfaces it under
+`applicable_strategies` when the assessment match (`RS-ADV-001`).
 
 It adds **no guardrail and no new gate**, and it **does not block Land** when
 absent - it reuses the existing `verify.regression` gate and is assessed as
 reviewer judgement (a strategy note), never a mechanical failure. The framework
 grows by adding artifacts, not rules (ADR-002, ADR-006).
 
-*Cross-reference: G1 (tested before it lands), applied to non-regression;
+*Cross-reference: tested-before-ship (tested before it lands), applied to non-regression;
 `verify.regression`; `routing-policy.yml` `advisory_strategies` RS-ADV-001.*
 
 ---
 
-### S7 - cold reader: write so a stranger can follow it without asking
+### Cold reader: write so a stranger can follow it without asking (`S7`)
 
 **Soft, assessed - not a guardrail.** Assume the reader has zero prior context.
 They were not in the conversation, they have not read the review, and they
@@ -125,8 +126,8 @@ cannot ask a follow-up question. Every artifact Compass produces - a brief, a
 scenario, a route, a plan, a devlog entry, a code comment, a commit message, a
 pull-request body - is written to stand on its own.
 
-This is S4 (persistence over conversation) carried one step further. S4 says
-put it on disk. S7 says put enough on disk that the next reader does not need
+This is persistence over conversation (persistence over conversation) carried one step further. persistence over conversation says
+put it on disk. the cold-reader strategy says put enough on disk that the next reader does not need
 the conversation you had while writing it.
 
 **Context before detail.** Say what the thing is and why it matters before you
@@ -156,7 +157,7 @@ would produce a rule you could satisfy while still writing badly. The
 `reviewer` agent assesses this at Verify under the `clarity` review dimension;
 nothing here fails `compass check`.
 
-*Cross-reference: S4 (persistence over conversation), which this extends; G3
+*Cross-reference: persistence over conversation (persistence over conversation), which this extends; traceability
 (traceability) - a reference the reader cannot resolve is not traceability.
 Assessed under the `clarity` review dimension; restated at the point of use in
 `commands/land.md` (commit messages).*
@@ -193,13 +194,13 @@ Assessed under the `clarity` review dimension; restated at the point of use in
 
 ### Voice and writing strategies
 
-**House style, this repository.** Compass's own prose follows S7, plus two
+**House style, this repository.** Compass's own prose follows the cold-reader strategy, plus two
 conventions this repository holds itself to.
 
 - **No em dashes.** Where an em dash would go, write a plain hyphen with spaces
   around it. En dashes stay: they do real work in ranges like `G1-G5` and
   `2-3 streams`.
-- **No agent co-author trailer**, which is S7's fourth rule stated as the thing
+- **No agent co-author trailer**, which is the cold-reader strategy's fourth rule stated as the thing
   this repository enforces on itself rather than merely prefers.
 
 Both are checked by `tests/test_house_style.py`, and both are still strategies
@@ -214,14 +215,14 @@ guardrail (ADR-002).
 **If you are adopting Compass:** the two rules above are a worked example of
 the shape a project strategy takes, not something you inherit. `/compass:init`
 copies this file wholesale, so delete this block if your team writes
-differently. S7 above it is the part that ships on.
+differently. the cold-reader strategy above it is the part that ships on.
 
 ---
 
 ## How strategies are used
 
-- **The Needle** reads routing strategies (`routing-policy.md`) to pick a
-  default route shape during Frame.
+- **Triage** reads routing strategies (`routing-policy.md`) to pick a
+  default route shape at triage.
 - **The `reviewer` agent** assesses, at Verify, whether the work followed the
   applicable strategies - and reports that as *judgement*, clearly distinct
   from the evidence-backed guardrail checks. A strategy not followed is a note

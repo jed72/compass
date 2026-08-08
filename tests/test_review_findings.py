@@ -55,7 +55,7 @@ friction: []
 
 
 def _impact(proj):
-    return subprocess.run([sys.executable, str(CLI), "calibration", "--impact"],
+    return subprocess.run([sys.executable, str(CLI), "retro", "--impact"],
                           cwd=str(proj), capture_output=True, text=True, timeout=90)
 
 
@@ -120,7 +120,7 @@ def test_trc_b2_a_record_with_no_spec_hash_should_not_read_as_verified(tmp_path)
                                 .replace("scenarios: []",
                                          "scenarios:\n- {id: TRC-A1, title: x, "
                                          "intent: INT-1, tests: ['t.py::a']}"))
-    (d / "spec.feature.md").write_text("# spec\n")
+    (d / "acceptance-criteria.md").write_text("# spec\n")
     (d / "evidence").mkdir()
     (d / "evidence" / "bdd-run.json").write_text(json.dumps(
         {"scenarios_seen": ["TRC-A1"], "spec_sha256": None}))
@@ -176,13 +176,13 @@ def test_trc_c4_the_repairs_key_should_be_accepted_by_the_task_schema(tmp_path):
     schema = json.loads((ROOT / "schemas" / "task.schema.json").read_text())
     assert "repairs" in schema["properties"], (
         "task.schema.json is additionalProperties:false and does not declare "
-        "`repairs`, so declaring it breaks compass task lint - which makes the "
+        "`repairs`, so declaring it breaks compass issue lint - which makes the "
         "change-fail metric unusable")
     assert "repairs:" in (ROOT / "templates" / "task.yml").read_text(), (
         "the key is not documented in the shipped task template")
     proj = _proj(tmp_path, [
         ("h1", _task("h1", "hotfix", "2026-01-04T00:00:00Z", "repairs: d1\n"))])
-    r = subprocess.run([sys.executable, str(CLI), "task", "lint", "--task", "h1"],
+    r = subprocess.run([sys.executable, str(CLI), "issue", "lint", "--task", "h1"],
                        cwd=str(proj), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"a task declaring repairs fails lint:\n{r.stdout}"
 
@@ -194,18 +194,18 @@ def test_trc_d1_a_malformed_rule_id_should_not_crash_the_router(tmp_path):
     rp = proj / "governance" / "routing-policy.yml"
     d = yaml.safe_load(rp.read_text())
     d["routing_guardrails"]["floors"].append(
-        {"id": ["a", "b"], "when": {"blast_radius": "critical"},
+        {"id": ["a", "b"], "when": {"risk": "critical"},
          "rationale": "malformed on purpose"})
     rp.write_text(yaml.safe_dump(d, sort_keys=False))
     r = subprocess.run(
-        [sys.executable, str(CLI), "route", "evaluate",
-         "--reading", "blast_radius=contained", "--reading", "terrain=greenfield",
-         "--reading", "magnitude=small", "--reading", "intent=delivery",
+        [sys.executable, str(CLI), "approach", "evaluate",
+         "--reading", "risk=contained", "--reading", "familiarity=greenfield",
+         "--reading", "size=small", "--reading", "intent=delivery",
          "--reading", "role=engineer"],
         cwd=str(proj), capture_output=True, text=True, timeout=60)
     assert "Traceback" not in r.stderr, (
         f"a malformed rule id crashed the router:\n{r.stderr[-800:]}")
-    assert "FINAL ROUTE" in r.stdout, f"the route was not computed:\n{r.stdout}"
+    assert "FINAL APPROACH" in r.stdout, f"the approach was not computed:\n{r.stdout}"
 
 
 def test_trc_d2_waiving_a_framework_check_by_name_should_be_accepted(tmp_path):

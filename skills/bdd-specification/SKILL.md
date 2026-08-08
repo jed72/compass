@@ -1,18 +1,19 @@
 ---
 name: bdd-specification
-description: How to write Given/When/Then scenarios that double as the acceptance suite - scenario granularity, the qualities of a runnable scenario, and how depth scales by route. Triggers during Specify and Clarify.
+description: How to write Given/When/Then scenarios that double as the acceptance suite - scenario granularity, the qualities of a runnable scenario, and how depth scales with the delivery approach. Triggers while the acceptance criteria are defined and refined.
 ---
 
 # BDD Specification
 
-**BDD is strategy S1** - expressing acceptance criteria as Given/When/Then
-scenarios. It is the strong, shipped-on default *way* to satisfy **guardrail
-G2**: *acceptance defined before it is built - stated, and checkable*. Keep that
-relationship straight.
+**BDD is a strategy, not a guardrail** - expressing acceptance criteria
+as Given/When/Then scenarios. It is the strong, shipped-on default way to
+satisfy the **acceptance-before-code guardrail**: *acceptance defined
+before it is built - stated, and checkable*. Keep that relationship
+straight.
 
-- **G2 is the guardrail** - hard, checkable. No code is written that no stated,
+- **Acceptance-before-code is the guardrail** - hard, checkable. No code is written that no stated,
   checkable acceptance criterion describes. The outcome - acceptance is stated
-  and it is checkable - is non-negotiable on every delivery route.
+  and it is checkable - is non-negotiable on every delivery approach.
 - **BDD is the strategy** - Given/When/Then is the *form*. It is strong and
   shipped-on, but it is a strategy: a context where the form genuinely does not
   fit is a recorded strategy deviation, not a framework violation. The hard
@@ -20,8 +21,8 @@ relationship straight.
   make it so.
 
 In Compass the BDD spec is not documentation that precedes the tests - it *is*
-the tests, read at a different time. `spec.feature.md` is written once at
-Specify and run as the acceptance check at Verify. It is also the one artifact
+the tests, read at a different time. `acceptance-criteria.md` is written once at
+the define stage and run as the acceptance check at verify. It is also the one artifact
 five roles read (see `role-translation`). Write it knowing all of that.
 
 ## Example-first refinement chain
@@ -50,7 +51,7 @@ criteria → at least one executable specification each**.
 
 4. **Write at least one executable specification per criterion.** The
    criterion becomes a Given/When/Then scenario. A criterion with no
-   runnable scenario is a wish that never became a check - and guardrail G2
+   runnable scenario is a wish that never became a check - and the acceptance-before-code guardrail
    refuses that: acceptance must be *stated and checkable*. One runnable
    scenario per criterion is the minimum; multiple scenarios cover the edges.
 
@@ -72,12 +73,12 @@ consistently - the spec is the contract between all five roles.
 
 **User stories** ("As a [role], I want [feature], so that [outcome]") are
 refused as a per-role spec format in Compass - see **ADR-004 (one spec, many
-lenses)**. The rationale: a user story format embeds a single role's
+roles)**. The rationale: a user story format embeds a single role's
 perspective into the spec, which means one role's spec and another role's
-spec diverge. Compass uses one `spec.feature.md` that all five roles read
-through their own lens (see `role-translation`), not five separate
+spec diverge. Compass uses one `acceptance-criteria.md` that all five roles read
+through their own perspective (see `role-translation`), not five separate
 role-scoped artifacts. The BDD scenario *is* the shared artifact; the
-role-translation lens is how each role reads it. User stories as a format
+role-translation perspective is how each role reads it. User stories as a format
 are fine upstream of Compass (in a brief, a brief or a Jira ticket) - they
 are not the spec, and they do not replace the scenario.
 
@@ -88,11 +89,11 @@ single Given/When/Then. Three fields:
 
 - **Goal** - one sentence, what this change delivers in user terms.
 - **Approach** - two to three sentences, the shape of the change at the level a
-  lens reviewer would want.
+  perspective reviewer would want.
 - **Why now / what changes** - one short paragraph, the visible outcome and what
   an adjacent role would notice afterwards.
 
-This is strategy **S7** (write for a cold reader) applied to the spec itself. A
+This is the **cold-reader** strategy (write for a cold reader) applied to the spec itself. A
 reviewer opening a spec they did not write should be able to say what is being
 built and why before deciding whether to read the scenarios in detail. Without
 it they have to synthesise that picture from the Gherkin - easy for the author,
@@ -101,12 +102,12 @@ stops happening.
 
 The Summary is **additive**. It does not replace scenarios, and it is not a
 place to restate them. Length scales with the route the same way scenario depth
-does: Express one to two sentences per field, Standard ordinary paragraphs,
-Expedition up to 200 words per field where the work warrants it.
+does: quick-fix one to two sentences per field, Standard ordinary paragraphs,
+initiative up to 200 words per field where the work warrants it.
 
-## Self-review before Clarify
+## Self-review before the requirements review
 
-When `spec.feature.md` is written, run these four scans over it yourself before
+When `acceptance-criteria.md` is written, run these four scans over it yourself before
 handing off. **Fix what you find inline** - edit the spec directly. Do not write
 a review artifact, and do not invoke a reviewer agent or subagent for this.
 
@@ -122,12 +123,13 @@ a review artifact, and do not invoke a reviewer agent or subagent for this.
 4. **Ambiguous-quantifier scan** - "quickly", "large", "most", "soon" with no
    number attached. Either attach the number or cut the word.
 
-**This complements Clarify; it does not replace it.** Clarify still runs on
-Standard and heavier routes, and it does things this cannot: it QAs the spec
-against governance, resolves contradictions, and records an ambiguity ledger
-with owners. The self-check is simply what a spec-author owes Clarify - the
-cheap findings fixed by whoever made them, so Clarify's attention goes to the
-questions that actually need a decision.
+**This complements the requirements review; it does not replace it.**
+The review still runs on feature and heavier approaches, and it does
+things this cannot: it QAs the spec against governance, resolves
+contradictions, and records an ambiguity ledger with owners. The
+self-check is simply what a spec-author owes the reviewer - the cheap
+findings fixed by whoever made them, so the review's attention goes to
+the questions that actually need a decision.
 
 ### The split, stated plainly
 
@@ -135,27 +137,28 @@ The two overlap enough that a reader meeting both wonders which is redundant.
 Neither is. They differ in *who does them*, *what they cost*, and *what kind of
 finding they can produce*.
 
-| | Inline self-review (Specify) | Clarify (its own phase) |
+| | Inline self-review (define stage) | Requirements review (its own stage) |
 |---|---|---|
-| **Who** | the spec-author, alone | spec-author plus reviewer; role lenses on Expedition |
-| **Cost** | minutes - four mechanical scans over one file | a phase; requires reading, and often a human decision |
+| **Who** | the spec-author, alone | spec-author plus reviewer; every role on an initiative |
+| **Cost** | minutes - four mechanical scans over one file | a stage; requires reading, and often a human decision |
 | **Finds** | placeholder, orphan-intent, untestable-`Then`, ambiguous-quantifier | contradictions between scenarios, gaps across the whole set, governance conflicts, ambiguities that need someone to *choose* |
-| **Output** | edits to `spec.feature.md`, in place | `clarifications.md` - a ledger with a resolution and an owner per entry |
-| **Routes** | every route, including Express | Standard and heavier; collapsed on Express and Hotfix, skipped on Spike |
+| **Output** | edits to `acceptance-criteria.md`, in place | `requirements-review.md` - a ledger with a resolution and an owner per entry |
+| **Approaches** | every approach, including the quick fix | feature and heavier; collapsed on quick fixes and hotfixes, skipped on spikes |
 
-The dividing line: **the self-review fixes what one person can see and settle
-alone; Clarify resolves what needs a decision.** An unfilled placeholder has
+The dividing line: **the self-review fixes what one person can see and
+settle alone; the requirements review resolves what needs a decision.** An unfilled placeholder has
 one correct answer and the author already knows it. "Do these two scenarios
 contradict each other, and which one is wrong?" does not - and pretending
 otherwise is how a spec ships with a fork still in it.
 
-Clarify does not re-run the four scans. If it finds one of them outstanding,
-that means the self-review was skipped: worth saying so, not worth silently
-absorbing.
+The review does not re-run the four scans. If it finds one of them still
+open, that means the self-review was skipped: worth saying so, not worth
+silently absorbing.
 
-**On Express, where Clarify is collapsed, this self-check *is* the QA.** Record
+**On a quick fix, where the review is collapsed, this self-check *is*
+the QA.** Record
 that you ran it, and what it found, in `devlog.md`. A self-check that happened
-only in conversation did not happen (S4).
+only in conversation did not happen (persistence over conversation).
 
 *Why there is no subagent critic here.* The Superpowers project shipped a
 subagent review loop between spec and plan and then removed it, reporting
@@ -163,9 +166,10 @@ regression testing across five versions and five trials that found identical
 quality scores whether the loop ran or not, at roughly 25 minutes of overhead
 per run. Compass has not repeated that measurement and takes the published
 result at face value. Compass already has
-two review roles that earn their cost: **Clarify**, which QAs the spec against
-governance, and the **reviewer** agent at Verify. A third pass between them
-would double the time without measurably improving the spec.
+two review points that earn their cost: **the requirements review**, which
+QAs the spec against governance, and the **reviewer** agent at verify. A
+third pass between them would double the time without measurably
+improving the spec.
 
 ## What a scenario is
 
@@ -206,34 +210,39 @@ assert it automatically - those are the same bar.
   feature is a set of scenarios; a line of code traces *up* to a scenario but is
   not one-to-one with it.
 
-## How depth scales by route
+## How depth scales with the delivery approach
 
-The vocabulary never changes. The depth does - and the route tells you how much.
+The vocabulary never changes. The depth does - and the approach tells you
+how much.
 
-- **Express** - exactly one scenario. The happy path of the new behaviour, no
-  more. If you cannot capture it in one unambiguous scenario, the route was
-  mis-composed: it is not Express. Say so and send it back to Frame.
-- **Standard** - a small feature set: the happy path, the realistic edges, and
-  the failure modes that actually matter. Not every conceivable edge - the ones
-  with real consequence.
-- **Expedition** - full discovery. Work the brief and the problem space for the
-  whole behaviour set. Then **group the scenarios by independence** - disjoint
+- **Quick fix** - exactly one scenario. The happy path of the new
+  behaviour, no more. If you cannot capture it in one unambiguous
+  scenario, the assessment was misread: it is not a quick fix. Say so and
+  send it back to triage.
+- **Feature** - a small scenario set: the happy path, the realistic edges,
+  and the failure modes that actually matter. Not every conceivable edge -
+  the ones with real consequence.
+- **Initiative** - full discovery. Work the PRD and the problem space for
+  the whole behaviour set. Then **group the scenarios by independence** - disjoint
   code, disjoint scenarios - because that grouping is what seeds the
   distribution map the Planner builds.
-- **Hotfix** - the scenario *is* a failing regression test that reproduces the
-  defect. It is written reproduce-first, before any fix, and it is
-  simultaneously the BDD scenario and the TDD red. At Land it gets promoted into
-  a properly-formed Given/When/Then scenario as part of the mandatory backfill.
+- **Hotfix** - the scenario *is* a failing regression test that
+  reproduces the defect. It is written reproduce-first, before any fix,
+  and it is simultaneously the BDD scenario and the TDD red. At ship time
+  it gets promoted into a properly-formed Given/When/Then scenario as
+  part of the mandatory follow-up.
 - **Spike** - the BDD strategy does **not** run. A spike has no acceptance
-  criteria - its output is knowledge, not behaviour - so Specify collapses to
-  the *question* ("what do we need to learn, and what would a useful answer look
-  like?") and Clarify is skipped. You write no scenario file on a Spike. If the
-  spike graduates, real scenarios are written when it re-frames into a delivery
-  route, where G2 applies in full.
+  criteria - its output is knowledge, not behaviour - so the define stage
+  collapses to the *question* ("what do we need to learn, and what would
+  a useful answer look like?") and the requirements review is skipped.
+  You write no scenario file on a spike. If the spike graduates, real
+  scenarios are written when it re-assesses into a delivery approach,
+  where acceptance-before-code applies in full.
 
-## Clarify - QA the spec against itself and against governance
+## The requirements review - QA the spec against itself and against governance
 
-Clarify is where the spec is verified *as a spec*, before anyone builds from it.
+The requirements review is where the spec is verified *as a spec*, before
+anyone builds from it.
 Walk it for:
 
 - **Contradictions** - two scenarios that cannot both hold.
@@ -246,8 +255,8 @@ Walk it for:
   must-fix; a strategy departure is a note and a conversation.
 
 Record each ambiguity, its resolution, and who resolved it in
-`clarifications.md`. Clarify may be *light* on Standard; it may be *collapsed*
-on Express only because the one scenario was certified unambiguous; it is
+`requirements-review.md`. Clarify may be *light* on Standard; it may be *collapsed*
+on quick-fix only because the one scenario was certified unambiguous; it is
 *skipped* on Spike because the unknown is the point; it is never simply
 *absent* where the route or a routing guardrail calls for it.
 
@@ -259,7 +268,7 @@ on Express only because the one scenario was certified unambiguous; it is
 - **The unfalsifiable Then** - "Then the user has a good experience." If it
   cannot fail, it cannot pass; it is not a scenario.
 - **The orphan-creating spec** - leaving real behaviour with no scenario.
-  Guardrail G2 forbids code that no stated acceptance criterion describes; the
+  The acceptance-before-code guardrail forbids code that no stated acceptance criterion describes; the
   spec is where you prevent the orphan, not Verify.
 - **The novel** - a scenario with five `Given` lines and three `When` lines.
   Split it.

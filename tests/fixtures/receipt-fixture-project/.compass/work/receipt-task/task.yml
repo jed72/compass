@@ -1,19 +1,20 @@
-schema_version: "1.1"
+schema_version: '2.0'
 task: receipt-task
-created: "2026-05-26"
+created: '2026-05-26'
 status: landed
-readings:
-  blast_radius: contained
-  terrain: brownfield-mapped
-  magnitude: standard
-  intent: delivery
+assessment:
+  risk: contained
+  familiarity: brownfield-mapped
+  size: standard
+  goal: delivery
   urgency: none
   role: engineer
-  touches: [public-api]
-route: standard
+  labels:
+  - public-api
+delivery_approach: standard
 topology: solo-or-pair
-fired_guardrails: []
-phases:
+policy_rules_fired: []
+stages:
   frame: full
   specify: full
   clarify: light
@@ -37,31 +38,38 @@ evidence:
 gates:
 - id: verify.correctness
   status: pass
-  evidence: [EV-001]
+  evidence:
+  - EV-001
 - id: verify.governance
   status: pass
-  evidence: [EV-002]
+  evidence:
+  - EV-002
 - id: verify.traceability
   status: pass
-  evidence: [EV-002]
+  evidence:
+  - EV-002
 - id: verify.regression
   status: pass
-  evidence: [EV-001]
+  evidence:
+  - EV-001
 - id: verify.clarity
   status: pass
-  evidence: [EV-003]
+  evidence:
+  - EV-003
 - id: verify.security
   status: pass
-  evidence: [EV-002]
+  evidence:
+  - EV-002
 scenarios:
 - id: SCN-001
-  title: "the fixture scenario"
+  title: the fixture scenario
   intent: INT-1
   tests:
-  - "tests/test_demo.py::test_demo"
+  - tests/test_demo.py::test_demo
 changed_files:
 - path: src/demo.py
-  scenarios: [SCN-001]
+  scenarios:
+  - SCN-001
 claims: []
-backfills: []
-reframes: []
+follow_ups: []
+reassessments: []

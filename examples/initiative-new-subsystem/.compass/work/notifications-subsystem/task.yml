@@ -1,0 +1,151 @@
+schema_version: '2.0'
+task: notifications-subsystem
+created: '2026-03-02'
+status: landed
+land_timestamp: '2026-08-04T00:00:00Z'
+assessment:
+  risk: contained
+  familiarity: greenfield
+  size: standard
+  goal: delivery
+  role: product-owner
+  labels:
+  - migrations
+delivery_approach: expedition
+topology: swarm
+policy_rules_fired:
+- id: RG-FLOOR-003
+  kind: floor
+  rationale: Domain risk overrides magnitude. A one-line auth change is not small.
+  changed:
+  - route raised standard -> expedition
+- id: RG-ROLE-002
+  kind: role_rule
+  rationale: Built-the-thing-right and built-the-right-thing are different checks.
+  changed:
+  - artifact 'brief.md' required
+  - 'phase ''plan'' blocked until: the spec has been checked against brief.md for
+    intent fidelity'
+stages:
+  frame: full
+  specify: full
+  clarify: full
+  plan: full
+  distribute: swarm
+  build: full
+  verify: full
+  land: full
+evidence:
+- id: EV-T1
+  type: test-run
+  path: evidence/green.json
+  scenario: SCN-001
+- id: EV-SEC1
+  type: command-output
+  path: evidence/security-scan.txt
+- id: EV-V1
+  type: artifact
+  path: verification-report.md
+- id: EV-A1
+  type: human-approval
+  path: evidence/approval-migration-0042.json
+  scope: migrations/0042_notifications.sql - additive notifications schema; irreversible
+    forward migration on production.
+  approver: l.haddad@example.com
+  role: engineering-lead
+  decision: approved
+  timestamp: '2026-03-13T16:20:00+00:00'
+  conditions:
+  - Rollback plan (0042_notifications.down.sql) included in the PR.
+  - Migration run in staging first; production cutover only after a clean staging
+    dry-run.
+  - Migration is purely additive - no change to any existing table.
+gates:
+- id: verify.correctness
+  status: pass
+  evidence:
+  - EV-T1
+- id: verify.governance
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.traceability
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.regression
+  status: pass
+  evidence:
+  - EV-T1
+- id: verify.security
+  status: pass
+  evidence:
+  - EV-SEC1
+- id: verify.clarity
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.claims
+  status: pass
+  evidence:
+  - EV-V1
+scenarios:
+- id: SCN-001
+  title: An in-app event produces a notification for the target user
+  intent: INT-1
+  tests:
+  - tests/notifications/test_dispatch.py::test_event_creates_notification
+- id: SCN-002
+  title: A notification is delivered once, even if the event is retried
+  intent: INT-1
+  tests:
+  - tests/notifications/test_dispatch.py::test_delivery_is_idempotent
+- id: SCN-003
+  title: Notifications survive a worker restart
+  intent: INT-2
+  tests:
+  - tests/notifications/test_dispatch.py::test_durable_across_restart
+- id: SCN-004
+  title: A user mutes a category and stops receiving that category
+  intent: INT-3
+  tests:
+  - tests/notifications/test_preferences.py::test_mute_category
+- id: SCN-005
+  title: A user with no saved preferences gets the safe defaults
+  intent: INT-3
+  tests:
+  - tests/notifications/test_preferences.py::test_default_preferences
+- id: SCN-006
+  title: A muted category does not suppress a security notification
+  intent: INT-3
+  tests:
+  - tests/notifications/test_preferences.py::test_security_overrides_mute
+changed_files:
+- path: migrations/0042_notifications.sql
+  scenarios:
+  - SCN-001
+  - SCN-002
+  - SCN-003
+  - SCN-004
+- path: src/notifications/dispatch.py
+  scenarios:
+  - SCN-001
+  - SCN-002
+  - SCN-003
+- path: src/notifications/store.py
+  scenarios:
+  - SCN-002
+  - SCN-003
+- path: src/notifications/preferences.py
+  scenarios:
+  - SCN-004
+  - SCN-005
+  - SCN-006
+- path: src/notifications/api.py
+  scenarios:
+  - SCN-001
+  - SCN-004
+  - SCN-005
+claims: []
+follow_ups: []
+reassessments: []

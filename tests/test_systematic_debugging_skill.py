@@ -1,6 +1,6 @@
 """The systematic-debugging skill (task phase-2-skills-check-and-cli-split).
 
-Compass has always had `--reframe` for when the terrain was misread. It has
+Compass has always had `--reassess` for when the terrain was misread. It has
 never said how to *notice*. This skill supplies the signal: three consecutive
 failed fixes means the framing is wrong, not that a fourth fix is needed.
 
@@ -69,7 +69,7 @@ def test_trc_a2_three_failed_fixes_should_send_the_engineer_back_to_frame():
     assert re.search(r"fram|architect|route", window, re.I), (
         "the escape clause does not point at the framing as the suspect")
     assert re.search(r"--?reframe", body), (
-        "the skill never names `compass frame --reframe` as the mechanism - "
+        "the skill never names `compass frame --reassess` as the mechanism - "
         "without it the escape clause is advice with no next step")
 
 
@@ -82,11 +82,11 @@ def test_trc_a3_the_skill_should_be_reachable_from_where_the_failure_happens():
         "nothing tells a reader when to load it")
 
     # and the Build guidance points at it, because that is where a test goes red
-    pointers = [ROOT / "commands" / "build.md",
+    pointers = [ROOT / "commands" / "implement.md",
                 ROOT / "skills" / "tdd-discipline" / "SKILL.md"]
     naming = [p for p in pointers
               if "systematic-debugging" in p.read_text(encoding="utf-8")]
     assert naming, (
-        "neither commands/build.md nor skills/tdd-discipline names "
+        "neither commands/implement.md nor skills/tdd-discipline names "
         "systematic-debugging. A skill nobody is told to load at the moment of "
         "failure is a file, not a method.")

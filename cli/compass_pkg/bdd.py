@@ -93,7 +93,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.checks import _spec_sha256
-from compass_pkg.core import CompassError, find_upwards, load_yaml, now_iso, resolve_task_dir
+from compass_pkg.core import CompassError, artifact_path, find_upwards, load_yaml, now_iso, resolve_task_dir, normalize_spine
 from compass_pkg.tdd import _read_config, _run_test
 
 
@@ -154,7 +154,7 @@ class ParsedScenario(object):
 
 
 def scan_spec_markdown(text):
-    """Parse spec.feature.md into ParsedScenario records, in document order.
+    """Parse acceptance-criteria.md into ParsedScenario records, in document order.
 
     Only a gherkin fence introduced by a `traceability id:` comment is picked
     up; everything else in the document is prose. Returns [] when the document
@@ -312,10 +312,19 @@ def atomic_write(path, text):
         raise
 
 
-def _bdd_out_path(args, task_dir, slug):
-    """Resolve where the .feature goes: --out, then config, then the task dir.
+def default_extract_path(task_dir):
+    """The zero-config output path for an extracted runnable feature file.
 
-    The task directory is the zero-config default so the verb works before a
+    Named for what it holds - the issue's acceptance criteria - and written
+    into the issue directory so the verb works before a project has
+    configured anything."""
+    return os.path.join(task_dir, "acceptance-criteria.feature")
+
+
+def _bdd_out_path(args, task_dir, slug):
+    """Resolve where the .feature goes: --out, then config, then the issue dir.
+
+    The issue directory is the zero-config default so the verb works before a
     project has edited anything (ADR-006); `project.bdd_features_dir` exists for
     adopters whose runner expects a conventional features/ directory.
     """
@@ -329,7 +338,7 @@ def _bdd_out_path(args, task_dir, slug):
         if not os.path.isabs(features_dir):
             features_dir = os.path.join(root, features_dir)
         return os.path.join(features_dir, "%s.feature" % slug)
-    return os.path.join(task_dir, "spec.feature")
+    return default_extract_path(task_dir)
 
 
 _ZERO_COLLECTED = re.compile(
@@ -403,7 +412,7 @@ def cmd_bdd_verify(args):
     spec it claims to verify.
     """
     task_dir = resolve_task_dir(getattr(args, "task", None))
-    task_yaml = load_yaml(os.path.join(task_dir, "task.yml")) or {}
+    task_yaml = normalize_spine(load_yaml(os.path.join(task_dir, "task.yml")) or {})
     proj = _read_config(task_dir).get("project") or {}
     command = list(getattr(args, "command", None) or [])
     if not command:
@@ -485,13 +494,13 @@ def cmd_bdd_verify(args):
 
 
 def cmd_bdd_extract(args):
-    """compass bdd extract - spec.feature.md -> a runnable .feature file."""
+    """compass bdd extract - acceptance-criteria.md -> a runnable .feature file."""
     task_dir = resolve_task_dir(getattr(args, "task", None))
     slug = os.path.basename(os.path.normpath(task_dir))
-    spec_path = os.path.join(task_dir, "spec.feature.md")
+    spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     if not os.path.isfile(spec_path):
         raise CompassError(
-            "no spec.feature.md for task '%s' - Specify must run first (%s)"
+            "no acceptance criteria for issue '%s' - define them first (%s)"
             % (slug, spec_path))
 
     with open(spec_path, "r", encoding="utf-8") as fh:
@@ -510,7 +519,7 @@ def cmd_bdd_extract(args):
         return 1
 
     out_path = _bdd_out_path(args, task_dir, slug)
-    spec_rel = os.path.join(".compass", "work", slug, "spec.feature.md")
+    spec_rel = os.path.join(".compass", "work", slug, os.path.basename(spec_path))
     atomic_write(out_path, render_feature(slug, scenarios, spec_rel))
     sys.stdout.write("%s\n" % out_path)
     return 0

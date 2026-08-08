@@ -13,7 +13,7 @@ import yaml
 def test_s6_registered_in_strategies_md(framework_root):
     """TRC-R10-1: strategies.md registers regression-baseline as a soft S6."""
     text = (framework_root / "governance" / "strategies.md").read_text()
-    assert "S6" in text and "regression-baseline" in text, text[:200]
+    assert "S6" in text and ("regression-baseline" in text or "Regression baseline" in text), text[:200]
     low = text.lower()
     assert "soft" in low or "assessed" in low
     assert "verify.regression" in text
@@ -27,11 +27,11 @@ def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task)
     """TRC-R10-2: route evaluate surfaces regression-baseline as applicable for a
     cross-cutting task - without adding or altering a gate."""
     body = {"task": "rb", "created": "2026-06-22",
-            "readings": {"blast_radius": "cross-cutting",
-                         "terrain": "brownfield-mapped", "magnitude": "large",
+            "assessment": {"risk": "cross-cutting",
+                         "familiarity": "brownfield-mapped", "size": "large",
                          "intent": "delivery"}}
     make_task("rb", body)
-    r = run_cli("route", "evaluate", "--task", "rb", "--json")
+    r = run_cli("approach", "evaluate", "--task", "rb", "--json")
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     applicable = " ".join(str(s) for s in data.get("applicable_strategies", []))
@@ -44,11 +44,11 @@ def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task)
 def test_routing_strategy_absent_on_contained_task(run_cli, make_task):
     """The advisory only fires on shared/critical surface."""
     body = {"task": "rb2", "created": "2026-06-22",
-            "readings": {"blast_radius": "contained",
-                         "terrain": "brownfield-mapped", "magnitude": "small",
+            "assessment": {"risk": "contained",
+                         "familiarity": "brownfield-mapped", "size": "small",
                          "intent": "delivery"}}
     make_task("rb2", body)
-    r = run_cli("route", "evaluate", "--task", "rb2", "--json")
+    r = run_cli("approach", "evaluate", "--task", "rb2", "--json")
     data = json.loads(r.stdout)
     applicable = " ".join(str(s) for s in data.get("applicable_strategies", []))
     assert "regression-baseline" not in applicable, data
@@ -65,7 +65,7 @@ def test_verify_expects_baseline_and_postrun_as_judgement(framework_root):
 
 def test_build_prompts_baseline_before_change(framework_root):
     """TRC-R10-4: the Build command prompts to capture the baseline up front."""
-    text = (framework_root / "commands" / "build.md").read_text().lower()
+    text = (framework_root / "commands" / "implement.md").read_text().lower()
     assert "baseline" in text
     assert "regression-baseline" in text or "regression baseline" in text
 

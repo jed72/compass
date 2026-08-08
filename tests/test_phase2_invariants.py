@@ -62,7 +62,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     spikes = set()
     for slug in slugs:
         data = yaml.safe_load((work / slug / "task.yml").read_text()) or {}
-        if data.get("route") == "spike":
+        if data.get("delivery_approach") == "spike":
             spikes.add(slug)
     slugs = [s for s in slugs if s not in spikes]
 
@@ -93,15 +93,25 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
 
 
 EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
+# The CLI-voice slice renamed the banned-word verbs (route -> approach,
+# plan -> design, task -> issue, backfill -> follow-up) and added
+# terminology; the set below is the surface after that deliberate move.
 EXPECTED_SUBCOMMANDS = {
-    "route", "bdd", "check", "analyze", "calibration", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
-    "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
-    "evidence",
+    "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
+    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
+    "evidence", "terminology",
+    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
+    # `acceptance` (R13) is the one honest path for a change with no natural
+    # behavioural red - config, docs, a behaviour-preserving refactor. It is a
+    # GROUP (`start`, `record`), so later kinds add a subcommand rather than a
+    # verb. Added deliberately: the alternative was leaving authors to fake a
+    # red that greps a file for a string, which is what the field reported.
+    "acceptance",
 }
 EXPECTED_READING_KEYS = {
-    "blast_radius", "terrain", "magnitude", "intent", "urgency", "role",
-    "touches_common",
+    "risk", "familiarity", "size", "goal", "urgency", "role",
+    "labels_common",
 }
 
 
@@ -113,7 +123,7 @@ def test_trc_f3_the_framework_should_grow_by_artifacts_and_checks_only():
         f"the guardrail id set changed: {sorted(ids ^ EXPECTED_GUARDRAIL_IDS)}")
 
     policy = yaml.safe_load((GOVERNANCE / "routing-policy.yml").read_text())
-    assert set(policy["reading_vocabulary"]) == EXPECTED_READING_KEYS, (
+    assert set(policy["assessment_vocabulary"]) == EXPECTED_READING_KEYS, (
         "the reading vocabulary changed")
 
     gates = set()

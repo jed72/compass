@@ -54,14 +54,14 @@ class TestVerifyFitnessPromotionBlastRadius:
     cross-cutting or critical."""
 
     def test_cross_cutting_blast_radius_adds_verify_fitness(self, tmp_path):
-        """route evaluate on blast_radius=cross-cutting includes verify.fitness
+        """route evaluate on risk=cross-cutting includes verify.fitness
         in the gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=cross-cutting",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=standard",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=cross-cutting",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=standard",
             "--reading", "intent=delivery",
             cwd=project_root,
         )
@@ -75,13 +75,13 @@ class TestVerifyFitnessPromotionBlastRadius:
         )
 
     def test_critical_blast_radius_adds_verify_fitness(self, tmp_path):
-        """route evaluate on blast_radius=critical includes verify.fitness."""
+        """route evaluate on risk=critical includes verify.fitness."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=critical",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=large",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=critical",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=large",
             "--reading", "intent=delivery",
             cwd=project_root,
         )
@@ -93,28 +93,28 @@ class TestVerifyFitnessPromotionBlastRadius:
         """When cross-cutting fires RG-FLOOR-006, it appears in fired_guardrails."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=cross-cutting",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=standard",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=cross-cutting",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=standard",
             "--reading", "intent=delivery",
             cwd=project_root,
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)
-        floor_ids = [f["id"] for f in data.get("fired_guardrails", [])]
+        floor_ids = [f["id"] for f in data.get("policy_rules_fired", [])]
         assert "RG-FLOOR-006" in floor_ids, (
             f"Expected RG-FLOOR-006 in fired_guardrails, got: {floor_ids}"
         )
 
     def test_contained_blast_radius_does_not_add_verify_fitness(self, tmp_path):
-        """blast_radius=contained does NOT promote verify.fitness."""
+        """risk=contained does NOT promote verify.fitness."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=small",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=small",
             "--reading", "intent=delivery",
             cwd=project_root,
         )
@@ -139,10 +139,10 @@ class TestVerifyFitnessPromotionTouches:
         """touches: [<domain>] causes verify.fitness to be added to gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=small",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=small",
             "--reading", "intent=delivery",
             "--reading", f"touches={domain}",
             cwd=project_root,
@@ -160,17 +160,17 @@ class TestVerifyFitnessPromotionTouches:
         """When touches fires RG-FLOOR-007, it appears in fired_guardrails."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=small",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=small",
             "--reading", "intent=delivery",
             "--reading", "touches=auth",
             cwd=project_root,
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)
-        floor_ids = [f["id"] for f in data.get("fired_guardrails", [])]
+        floor_ids = [f["id"] for f in data.get("policy_rules_fired", [])]
         assert "RG-FLOOR-007" in floor_ids, (
             f"Expected RG-FLOOR-007 in fired_guardrails, got: {floor_ids}"
         )
@@ -179,10 +179,10 @@ class TestVerifyFitnessPromotionTouches:
         """A non-irreversible domain does not promote verify.fitness."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
-            "route", "evaluate", "--json",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=brownfield-mapped",
-            "--reading", "magnitude=small",
+            "approach", "evaluate", "--json",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=brownfield-mapped",
+            "--reading", "size=small",
             "--reading", "intent=delivery",
             "--reading", "touches=public-api",
             cwd=project_root,

@@ -97,8 +97,8 @@ import re as _re
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # realpath: resolve symlinks
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
-COMPASS_VERSION = "1.8.1"    # the CLI's own version
-COMPASS_SCHEMA_VERSION = "1.0"    # the task.yml schema this CLI understands
+COMPASS_VERSION = "2.0.0"    # the CLI's own version
+COMPASS_SCHEMA_VERSION = "2.0"    # the task.yml schema this CLI writes
 COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
 
 
@@ -191,7 +191,7 @@ def exit_for_mode(failures, mode):
 
 
 def resolve_task_dir(slug=None):
-    """Resolve a task's working directory.
+    """Resolve an issue's working directory.
 
     Priority: explicit slug > .compass/current-task pointer > most recently
     modified dir under .compass/work/ (with a warning - ambiguous).
@@ -201,7 +201,7 @@ def resolve_task_dir(slug=None):
     if slug:
         d = os.path.join(work, slug)
         if not os.path.isdir(d):
-            raise CompassError(f"no task directory for slug '{slug}' under {work}")
+            raise CompassError(f"no issue directory for slug '{slug}' under {work}")
         return d
     pointer = os.path.join(compass_dir, "current-task")
     if os.path.isfile(pointer):
@@ -213,21 +213,21 @@ def resolve_task_dir(slug=None):
                 return d
             sys.stderr.write(
                 f"compass: .compass/current-task points at '{s}' but that "
-                f"task directory does not exist - ignoring.\n"
+                f"issue directory does not exist - ignoring.\n"
             )
     # fallback: most recently modified - warn, because this is the fragile path
     if not os.path.isdir(work):
-        raise CompassError(f"no tasks found: {work} does not exist")
+        raise CompassError(f"no issues found: {work} does not exist")
     candidates = [
         os.path.join(work, d) for d in os.listdir(work)
         if os.path.isdir(os.path.join(work, d))
     ]
     if not candidates:
-        raise CompassError(f"no task directories under {work}")
+        raise CompassError(f"no issue directories under {work}")
     if len(candidates) > 1:
         sys.stderr.write(
             "compass: no --task slug and no .compass/current-task pointer - "
-            "falling back to the most recently modified task directory. This "
+            "falling back to the most recently modified issue directory. This "
             "is ambiguous; write .compass/current-task to be sure.\n"
         )
     return max(candidates, key=os.path.getmtime)
@@ -238,7 +238,7 @@ def load_task(task_dir):
     if not os.path.isfile(path):
         raise CompassError(
             f"no task.yml in {task_dir} - has Frame run? task.yml is the "
-            f"machine-readable task spine."
+            f"machine-readable issue spine."
         )
     task = load_yaml(path)
     # schema_version compatibility: a major mismatch is unsafe to silently run
@@ -248,17 +248,109 @@ def load_task(task_dir):
     if sv:
         try:
             major = str(sv).split(".")[0]
-            mine = COMPASS_SCHEMA_VERSION.split(".")[0]
         except Exception:
             major = None
-            mine = COMPASS_SCHEMA_VERSION
-        if major is not None and major != mine:
+        if major is not None and major not in ("1", "2"):
             raise CompassError(
                 f"{path}: schema_version is '{sv}', but this CLI handles "
-                f"'{COMPASS_SCHEMA_VERSION}'. Update Compass to a matching "
-                f"major version, or migrate the task.yml."
+                f"'{COMPASS_SCHEMA_VERSION}' (and reads 1.x by key "
+                f"normalisation). Update Compass, or migrate the task.yml."
             )
-    return task, path
+    return normalize_spine(task), path
+
+
+# The 1.x -> 2.0 spine key map. Read-side only: every loader normalises to
+# the v2 canonical keys, so the rest of the CLI speaks one vocabulary and an
+# un-migrated 1.x spine (an adopter tree mid-upgrade, or the migration tool
+# reading its own input) keeps working. Writers always emit 2.0.
+SPINE_KEY_MAP = {
+    "readings": "assessment",
+    "route": "delivery_approach",
+    "phases": "stages",
+    "fired_guardrails": "policy_rules_fired",
+    "backfills": "follow_ups",
+    "reframes": "reassessments",
+}
+ASSESSMENT_KEY_MAP = {
+    "blast_radius": "risk",
+    "terrain": "familiarity",
+    "magnitude": "size",
+    "intent": "goal",
+    "touches": "labels",
+}
+
+
+def normalize_spine(task):
+    """Return the spine with v2 canonical keys, whatever generation it was
+    written in. A v2 key present alongside its v1 twin wins; the v1 key is
+    dropped either way. Idempotent on a v2 spine."""
+    if not isinstance(task, dict):
+        return task
+    out = {}
+    for k, v in task.items():
+        k2 = SPINE_KEY_MAP.get(k, k)
+        if k2 in out and k in SPINE_KEY_MAP:
+            continue
+        out[k2] = v
+    a = out.get("assessment")
+    if isinstance(a, dict):
+        a2 = {}
+        for k, v in a.items():
+            k2 = ASSESSMENT_KEY_MAP.get(k, k)
+            if k2 in a2 and k in ASSESSMENT_KEY_MAP:
+                continue
+            a2[k2] = v
+        out["assessment"] = a2
+    # Follow-up states renamed with the CLI-voice slice: 1.x spines carry
+    # owed/paid; readers see outstanding/resolved. Value map, mirroring the
+    # key map above; the migrate tool rewrites them on disk in its slice.
+    if out.get("delivery_approach") in SHAPE_VALUE_MAP:
+        out["delivery_approach"] = SHAPE_VALUE_MAP[out["delivery_approach"]]
+    fups = out.get("follow_ups")
+    if isinstance(fups, list):
+        for f in fups:
+            if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
+                f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
+    # The on-disk schema_version is preserved: readers must be able to say
+    # honestly what generation a spine was written in (the receipt reports
+    # legacy spines). Writers stamp the current version when they save.
+    return out
+
+
+# 1.x follow-up states -> their v2 spellings, applied read-side by
+# normalize_spine above.
+FOLLOW_UP_STATUS_MAP = {"owed": "outstanding", "paid": "resolved"}
+
+# 1.x shape values -> the v2 change-type values (machine spelling,
+# hyphenated). Read-side via normalize_spine; the evaluator
+# canonicalises its own writes through the same map; the migrator
+# persists it.
+SHAPE_VALUE_MAP = {
+    "express": "quick-fix",
+    "standard": "feature",
+    "expedition": "initiative",
+}
+
+
+def canonical_shape(value):
+    # The v2 machine spelling for a delivery-approach value.
+    return SHAPE_VALUE_MAP.get(str(value or ""), value)
+
+# Machine delivery-approach values -> the v2 change-type names the display
+# layer prints. The spine keeps the machine value; the terminal never
+# shows it (the receipt is the most shareable screen Compass produces).
+SHAPE_DISPLAY = {
+    "express": "quick fix",
+    "standard": "feature",
+    "expedition": "initiative",
+    # the v2 machine spelling renders without the hyphen
+    "quick-fix": "quick fix",
+}
+
+
+def display_shape(value):
+    """The v2 change-type name for a machine delivery-approach value."""
+    return SHAPE_DISPLAY.get(str(value or ""), str(value or ""))
 
 
 def save_task(task, path):
@@ -413,17 +505,49 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
 
 # --- the route evaluator (the deterministic core) ---------------------------
 
-def reading_matches(when, readings):
-    """Does a `when:` condition match the readings? List value == any-of.
-    Special key `touches_any`: intersect against the readings' `touches` list."""
+# when-condition dimension keys: a project policy written against the v1
+# names keeps matching until it migrates.
+_WHEN_KEY_MAP = {
+    "blast_radius": "risk", "terrain": "familiarity",
+    "magnitude": "size", "intent": "goal", "touches": "labels",
+    "touches_any": "labels_any", "touches_common": "labels_common",
+}
+
+
+def reading_matches(when, assessment):
+    """Does a `when:` condition match the assessment? List value == any-of.
+    Special key `labels_any`: intersect against the assessment's `labels`.
+    Special key `any_of`: a list of sub-conditions, matching if ANY matches.
+
+    Keys are otherwise ANDed, so `any_of` alongside another key means "that
+    key AND one of these". `any_of` exists because a rule sometimes has to
+    fire on genuinely alternative conditions - the human-sign-off guardrail
+    applies to the four irreversible domains OR to critical risk, and
+    expressing that as separate rules would split one rule into two that can
+    drift apart.
+    """
     for key, val in (when or {}).items():
-        if key == "touches_any":
+        key = _WHEN_KEY_MAP.get(key, key)
+        if key == "any_of":
+            clauses = val if isinstance(val, list) else [val]
+            if not any(reading_matches(c, assessment) for c in clauses):
+                return False
+        elif key == "labels_any":
             wanted = val if isinstance(val, list) else [val]
-            have = readings.get("touches") or []
+            have = assessment.get("labels") or []
             if not any(t in have for t in wanted):
                 return False
         else:
             allowed = val if isinstance(val, list) else [val]
-            if readings.get(key) not in allowed:
+            if assessment.get(key) not in allowed:
                 return False
     return True
+
+
+# --- per-issue artifact names ------------------------------------------------
+# The archive speaks the v2 filenames; the v1 fallback this function once
+# carried retired when the repository's own archive migrated. The old-name
+# map lives in compass_pkg.migrate, which is what reads un-migrated trees.
+def artifact_path(task_dir, name):
+    """The on-disk path of a per-issue artifact, by its v2 filename."""
+    return os.path.join(task_dir, name)

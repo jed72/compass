@@ -4,10 +4,10 @@ Produced by: the product marketer via `/compass:position`.
 Lives at:    .compass/work/<task-slug>/positioning.md
 Role in the pipeline: the marketer's artifact. The marketer works PARALLEL
 to the spec, not downstream of it. Every claim made here must point at a
-scenario id in spec.feature.md that backs it - that is the claim→scenario
-half of guardrail G3 (traceability holds), and the voice & positioning
+scenario id in acceptance-criteria.md that backs it - that is the claim→scenario
+half of the traceability guardrail, and the voice & positioning
 strategies in governance/strategies.md govern how it is said. Unbacked
-claims are resolved at Land via launch-readiness.md; the marketer role_rule
+claims are resolved at ship time via launch-readiness.md; the marketer role_rule
 blocks Land until they are.
 
 Fill every {{PLACEHOLDER}}. Leave the "backing scenario" slot blank if no
@@ -17,7 +17,7 @@ the point.
 
 # Positioning - {{TASK_SLUG}}
 
-> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** marketing-lens
+> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
 > **Governance owner check:** consistent with the voice & positioning strategies in `governance/strategies.md`.
 
 ---
@@ -25,7 +25,7 @@ the point.
 ## Audience
 
 <!-- Who is this for? Be specific - the segment, their context, what they
-     are trying to do. Cross-check against brief.md's primary user. -->
+     are trying to do. Cross-check against prd.md's primary user. -->
 
 {{AUDIENCE}}
 
@@ -36,7 +36,7 @@ the point.
 
 {{VALUE PROP}}
 
-- **Backing scenario:** {{TRC-id from spec.feature.md - or BLANK (debt)}}
+- **Backing scenario:** {{TRC-id from acceptance-criteria.md - or BLANK (debt)}}
 
 ## Press release (working-backwards)
 
@@ -56,7 +56,7 @@ the point.
 headline benefit}}.
 
 {{PROBLEM PARAGRAPH - the pain this removes, in the user's terms. Cross-check
-against brief.md's Problem.}}
+against prd.md's Problem.}}
 
 {{SOLUTION PARAGRAPH - how it works, at the altitude a user cares about. Not
 the implementation.}}
@@ -71,11 +71,11 @@ the implementation.}}
 ## Messaging - claims and their backing scenarios
 
 <!-- Each message is a public claim. Each claim gets a backing scenario
-     slot. The launch-readiness.md gate at Land checks this whole table. -->
+     slot. The launch-readiness.md gate at ship time checks this whole table. -->
 
 | # | Claim (as it would appear publicly) | Backing scenario id | Verified? |
 |---|---|---|---|
-| C1 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ] - filled at Land}} |
+| C1 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ] - filled at ship time}} |
 | C2 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ]}} |
 | C3 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ]}} |
 
@@ -91,7 +91,7 @@ the implementation.}}
 - **Q: {{does it work with …}}** - A: {{answer}}
 - **Q: {{the obvious edge case}}** - A: {{answer}}
 
-**Internal FAQs** (these mirror brief.md's Internal FAQ - keep them consistent)
+**Internal FAQs** (these mirror prd.md's Internal FAQ - keep them consistent)
 
 - **Q: Why ship this now?** - A: {{strategic / timing rationale}}
 - **Q: What is in v1 vs later?** - A: {{the cut}}
@@ -104,11 +104,11 @@ the implementation.}}
      may overstate. Checked against the voice & positioning strategies in
      governance/strategies.md. -->
 
-- {{e.g. "We say 'CSV export for finance', not 'full reporting suite' - word-discipline strategy; the suite is a non-goal in brief.md."}}
+- {{e.g. "We say 'CSV export for finance', not 'full reporting suite' - word-discipline strategy; the suite is a non-goal in prd.md."}}
 
 ---
 
 ## Handoff
 
-This file feeds `launch-readiness.md` at Land. No claim above ships until
+This file feeds `launch-readiness.md` at ship time. No claim above ships until
 its backing-scenario slot is filled and that scenario passes at Verify.

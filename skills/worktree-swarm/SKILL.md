@@ -1,6 +1,6 @@
 ---
 name: worktree-swarm
-description: Git worktree mechanics, decomposing work into independent streams, the orchestrator/builder protocol, integration discipline, and the critical-blast-radius worktree cap. Triggers during Plan (decomposition) and Distribute/Build/Land on swarm and pair routes.
+description: Git worktree mechanics, decomposing work into independent streams, the orchestrator/builder protocol, integration discipline, and the critical-risk worktree cap. Triggers at the design stage (decomposition) and through breakdown, implementation, and shipping on swarm and pair topologies.
 ---
 
 # Worktree Swarm
@@ -18,17 +18,17 @@ without the parallelism costing more than it saves.
 | **Pair** | 2–3 | One worktree per stream; one `builder` each; no dedicated orchestrator. | The lead builder. |
 | **Swarm** | 4+ | One worktree per stream; one `builder` each; plus one `orchestrator`. | The orchestrator. |
 
-The Needle's magnitude and blast-radius readings set the default topology; the
+Triage's size and risk assessment set the default topology; the
 distribution map sets the stream count; `.compass/config.yml` thresholds and the
 routing-guardrail caps bound it.
 
-## The critical-blast-radius cap
+## The critical-risk cap
 
-The standing cap: **`critical` blast radius pins `max_worktrees` to 1.** A
-critical change runs solo even on Expedition. This is deliberate - a swarm buys
+The standing cap: **`critical` risk pins `max_worktrees` to 1.** A
+critical change runs solo even on initiative. This is deliberate - a swarm buys
 speed but carries coordination risk, and on a critical change the coordination
-risk costs more than the speed saves. An Expedition that is heavy *and* solo is
-not a contradiction; it is the cap working. The Expedition still writes a
+risk costs more than the speed saves. An initiative that is heavy *and* solo is
+not a contradiction; it is the cap working. The initiative still writes a
 `distribution-map.md` - it is the record of what could have been parallel and
 why it wasn't.
 
@@ -40,11 +40,11 @@ and both must hold:
 
 1. **Disjoint code.** The streams touch non-overlapping files and interfaces.
 2. **Disjoint scenarios.** The streams satisfy non-overlapping scenario groups
-   from `spec.feature.md`.
+   from `acceptance-criteria.md`.
 
 Independence is *determined*, not guessed - you derive it from the scenario
-file and the technical plan. The scenario grouping done at Specify
-(Expedition's "group scenarios by independence") is the seed; the distribution
+file and the technical plan. The scenario grouping done at the define stage
+(initiative's "group scenarios by independence") is the seed; the distribution
 map is where you confirm it against the plan.
 
 Practical decomposition heuristics:
@@ -87,7 +87,7 @@ detection, and integration:
   files, shared interfaces, a scenario whose implementation reaches outside its
   group.
 - Intervenes *before* a collision: re-sequences streams, re-cuts a boundary, or
-  escalates to a re-frame if the distribution map was wrong.
+  escalates to a re-assess if the distribution map was wrong.
 - Is the **only** agent permitted to make a cross-stream change.
 
 **A builder** owns its stream and nothing else:
@@ -106,11 +106,23 @@ detection, and integration:
    coordinated order (foundations first, dependents after).
 3. The orchestrator resolves any merge conflicts - no one else may.
 4. **Run combined regression across the integrated result.** This is
-   non-negotiable on Expedition. Per-stream green does not imply integrated
+   non-negotiable on initiative. Per-stream green does not imply integrated
    green; proving the combination is the entire reason the orchestrator owns
    Land. Paste the output.
-5. Resolve every owed backfill, update living docs, write the integration
+5. Resolve every owed follow-up, update living docs, write the integration
    devlog entry.
+
+## Never stash across a worktree hop
+
+Never stash in one worktree and pop in another - and never stash at all
+inside a temporary worktree. A stash lives in the shared repository, but
+the working state it captures belongs to one checkout: a stash popped
+inside a temporary worktree that is then removed
+destroys the stashed work along with the worktree. Learned the hard way during a CI fix - the
+change survived only because it had been committed elsewhere first. If
+work must move between worktrees, commit it (a WIP commit on the
+stream's branch is fine and can be amended); the branch is durable, the
+stash is not.
 
 ## Anti-patterns
 

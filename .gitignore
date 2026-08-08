@@ -59,3 +59,4 @@ node_modules/
 examples/bdd-adapters/*/node_modules/
 examples/bdd-adapters/*/features/*.feature
 examples/bdd-adapters/*/.compass/work/*/spec.feature
+examples/bdd-adapters/*/.compass/work/*/acceptance-criteria.feature

@@ -1,6 +1,6 @@
 ---
 name: plan-authoring
-description: How to write a plan.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code), scaling them by route, and the self-review before hand-off. Triggers during Plan.
+description: How to write a design.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code), scaling them by route, and the self-review before hand-off. Triggers during Plan.
 ---
 
 # Plan Authoring
@@ -15,7 +15,7 @@ cheapest moment to change it. Everything below serves that.
 
 ## The five optional sections
 
-`templates/plan.md` offers five sections beyond the ones every plan has. They
+`templates/design.md` offers five sections beyond the ones every plan has. They
 are optional individually, and the judgement about which to use is the craft
 this skill teaches.
 
@@ -33,12 +33,12 @@ next author fills it in to be safe.
 
 ## Scaling by route
 
-- **Express** - none of them. Express writes no `plan.md` at all; the plan is
-  a one-line edit note in `route.md`.
-- **Standard** - the ones that add clarity. Typically one diagram, and one of
-  the other three. Reaching for all five on a Standard route is a sign the
+- **quick-fix** - none of them. quick-fix writes no `design.md` at all; the plan is
+  a one-line edit note in `delivery-approach.md`.
+- **feature** - the ones that add clarity. Typically one diagram, and one of
+  the other three. Reaching for all five on a feature approach is a sign the
   route was under-read, not a sign of thoroughness.
-- **Expedition** - all of them, freely, where the work warrants it. Here the
+- **initiative** - all of them, freely, where the work warrants it. Here the
   plan *is* the design document, and a reviewer is expected to spend real time
   in it.
 
@@ -89,7 +89,7 @@ self-review in `bdd-specification`.
    naming any. It is advisory and always exits 0: a hit is a note, not a block.
    Judge each one - a deferred decision with a named owner is a plan; an unowned
    `TBD` is a gap.
-2. **Coverage scan** - every scenario group in `spec.feature.md` is covered by
+2. **Coverage scan** - every scenario group in `acceptance-criteria.md` is covered by
    at least one work unit. An uncovered group means either a missing unit or a
    scenario nobody intends to satisfy, and both are worth knowing now.
 3. **Pattern-name check** - every pattern named in section 4 is actually

@@ -93,7 +93,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.check_cmd import CHECK_FNS
-from compass_pkg.core import CompassError, FRAMEWORK_ROOT, load_task, load_yaml, resolve_task_dir
+from compass_pkg.core import CompassError, FRAMEWORK_ROOT, load_task, load_yaml, normalize_spine, resolve_task_dir
 
 
 
@@ -131,7 +131,7 @@ def _jsonschema_errors(instance, schema_name):
 def _lint_errors_routing_policy(p):
     errs = []
     for top in ("routing_strategies", "routing_guardrails", "route_shapes",
-                "reading_vocabulary"):
+                "assessment_vocabulary"):
         if top not in p:
             errs.append(f"missing top-level key: {top}")
     rg = p.get("routing_guardrails", {})
@@ -159,7 +159,7 @@ def _lint_errors_routing_policy(p):
     shapes = p.get("route_shapes", {})
     for name in ("spike", "express", "standard", "hotfix", "expedition"):
         if name not in shapes:
-            errs.append(f"route_shapes missing reference route: {name}")
+            errs.append(f"route_shapes is missing the shape named by default_shapes: {name}")
         elif "weight" not in shapes[name]:
             errs.append(f"route_shape '{name}' has no `weight`")
     return errs
@@ -240,7 +240,7 @@ def _lint_errors_quarantine(gov_dir):
     Returns a list of error strings. An absent quarantine.yml is not an error
     (zero-setup default, ADR-006). Required fields per entry: test,
     tracking_task, reason, added. An entry without tracking_task is malformed
-    (TRC-A7 - a quarantine without a tracking task is a graveyard).
+    (TRC-A7 - a quarantine without a tracking issue is a graveyard).
     """
     path = os.path.join(gov_dir, "quarantine.yml")
     if not os.path.isfile(path):
@@ -346,8 +346,9 @@ def cmd_plan_lint(args):
 
     if not os.path.isfile(path):
         print(f"compass plan lint: ERROR - no such file: {path}")
-        print("  Plan collapses on Express, Hotfix and Spike routes, so a task on "
-              "one of those has no plan.md to lint.")
+        print("  The design stage collapses on quick-fix, hotfix and spike "
+              "approaches, so an issue on one of those has no design.md to "
+              "lint.")
         return 2
 
     with open(path, encoding="utf-8") as fh:
@@ -370,26 +371,26 @@ def cmd_plan_lint(args):
 def cmd_task_lint(args):
     if args.file:
         path = args.file
-        task = load_yaml(path)
+        task = normalize_spine(load_yaml(path))
     else:
         task_dir = resolve_task_dir(args.task)
         task, path = load_task(task_dir)
     # built-in structural lint (always runs)
     errs = []
     if "task" not in task:
-        errs.append("missing `task:` (the task slug)")
+        errs.append("missing `issue:` (the issue slug)")
     # Each block below checks the shape before reading it. This command's whole
     # job is to report a malformed task.yml, so it must not crash on one - a
     # scenario written as a bare string used to raise AttributeError here, and a
     # traceback tells the author nothing about what to fix.
-    if "readings" not in task:
-        errs.append("missing `readings:` - Frame records the four-dimension readings")
-    elif not isinstance(task["readings"], dict):
-        errs.append("`readings:` must be a mapping of dimension -> value")
+    if "assessment" not in task:
+        errs.append("missing `assessment:` - triage records the four dimensions")
+    elif not isinstance(task["assessment"], dict):
+        errs.append("`assessment:` must be a mapping of dimension -> value")
     else:
-        for dim in ("blast_radius", "terrain", "magnitude"):
-            if dim not in task["readings"]:
-                errs.append(f"readings is missing required dimension: {dim}")
+        for dim in ("risk", "familiarity", "size"):
+            if dim not in task["assessment"]:
+                errs.append(f"assessment is missing required dimension: {dim}")
     for i, s in enumerate(task.get("scenarios") or []):
         if not isinstance(s, dict):
             errs.append(f"scenario #{i + 1} must be a mapping with an `id:`, got: {s!r}")
@@ -418,10 +419,10 @@ def cmd_task_lint(args):
     if je:
         errs += je
     if errs:
-        print(f"compass task lint: FAIL - {path}")
+        print(f"compass issue lint: FAIL - {path}")
         for e in errs:
             print(f"  - {e}")
         return 1
-    print(f"compass task lint: PASS - {path} is structurally valid."
+    print(f"compass issue lint: PASS - {path} is structurally valid."
           + ("\n" + _schema_note(schema_ran) if not schema_ran else ""))
     return 0

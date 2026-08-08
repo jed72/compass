@@ -1,13 +1,14 @@
 # Service Relations
 
-<!-- HOW FRAME USES THIS FILE
-     Frame reads this file and includes it in architecture-loaded.yml as a
-     narrative artifact.  The architect-lens reads it to determine which
-     `touches:` tags in task.yml.readings map to known service names, so it
-     knows when to fire automatically at Specify time (see TRC-B2).
+<!-- HOW TRIAGE USES THIS FILE
+     Triage reads this file and includes it in architecture-loaded.yml as a
+     narrative artifact.  The `architect-lens` agent reads it to determine
+     which labels in the issue spine map to known service names, so it
+     knows when to fire automatically as acceptance criteria are defined
+     (see TRC-B2).
 
-     Format: keep service names consistent with the tags you use in
-     task.yml.readings.touches so the lens can match them.
+     Format: keep service names consistent with the labels you use in the
+     spine (the `touches:` field) so the agent can match them.
 -->
 
 ## Service map

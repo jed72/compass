@@ -1,7 +1,7 @@
 ---
 id: ADR-011
 title: Which file types require a red should be project-configurable, not a fixed list
-status: proposed
+status: accepted
 date: 2026-08-04
 supersedes: ''
 superseded_by: ''
@@ -30,8 +30,27 @@ correctly; the *path* was classified as not-production.
 
 ## Decision
 
-**Deferred to a future version, and deliberately not fixed by adding `.sh` to
-the extension list.**
+**Accepted and implemented 2026-08-06.** The enforced set is now project
+configuration - `enforcement.code_globs` in `.compass/config.yml`, added to the
+framework's built-in set - and this repository declares `hooks/*.sh` and
+`scripts/*.sh`, closing the gap where its own enforcement scripts were outside
+the mechanism they implement.
+
+Two things the implementation settled that this ADR had left open:
+
+1. **A project may only add.** There is no key that removes framework
+   enforcement. Compass's model is that project rules ratchet up - a project
+   guardrail may exceed a floor, never fall short of one - and an exemption key
+   would be a disable switch wearing the clothes of configuration.
+2. **Every block names the rule that matched**, built-in or project-declared.
+   That is the other half of the reported problem: the surface was not just
+   narrow, it was invisible, and an author could not predict which edit would
+   block until one did.
+
+The original reasoning for not simply adding `.sh` to the default follows, and
+still holds - it is why this shape was chosen over the one-line version.
+
+**Not fixed by adding `.sh` to the extension list.**
 
 Adding one line is technically sufficient for this repository - all eight
 shipped scripts already have test coverage. It is the wrong default for

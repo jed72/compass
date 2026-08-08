@@ -1,6 +1,6 @@
 """Process-impact telemetry (task process-impact-telemetry).
 
-`compass calibration --impact` reports lead time, land frequency, change-fail
+`compass retro --impact` reports lead time, land frequency, change-fail
 signal and restore time, attributed to route shape and gate set.
 
 The substance is not the arithmetic. This repository has 20 landed tasks and
@@ -76,7 +76,7 @@ def make_project(tmp_path, tasks):
 
 
 def run(proj, *args):
-    return subprocess.run([sys.executable, str(CLI), "calibration", *args],
+    return subprocess.run([sys.executable, str(CLI), "retro", *args],
                           cwd=str(proj), capture_output=True, text=True, timeout=90)
 
 
@@ -120,7 +120,9 @@ def test_trc_a4_restore_time_should_be_the_hotfixs_own_frame_to_land(tmp_path):
 def test_trc_b1_every_metric_should_be_attributed_to_route_shape_and_gate_set(tmp_path):
     tasks = STD + [("e1", "2026-01-01", "2026-01-02T00:00:00Z", "express", 3, None)]
     out = run(make_project(tmp_path, tasks), "--impact").stdout.lower()
-    assert "standard" in out and "express" in out, (
+    # the by-route breakdown speaks the v2 machine spellings since the
+    # migrator rename
+    assert "feature" in out and "quick-fix" in out, (
         f"metrics are not broken down by route:\n{out}")
     assert "gate" in out, f"the gate set is not reported per group:\n{out}"
 

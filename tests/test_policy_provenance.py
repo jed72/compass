@@ -19,10 +19,10 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
 GOVERNANCE = ROOT / "governance"
-ROUTE_TEMPLATE = ROOT / "templates" / "route.md"
+ROUTE_TEMPLATE = ROOT / "templates" / "delivery-approach.md"
 
-READINGS = ["--reading", "blast_radius=cross-cutting", "--reading",
-            "terrain=brownfield-mapped", "--reading", "magnitude=standard",
+READINGS = ["--reading", "risk=cross-cutting", "--reading",
+            "familiarity=brownfield-mapped", "--reading", "size=standard",
             "--reading", "intent=delivery", "--reading", "role=engineer"]
 
 
@@ -44,7 +44,7 @@ def _project(tmp_path, stale=False):
 
 def _evaluate(proj):
     return subprocess.run(
-        [sys.executable, str(CLI), "route", "evaluate", *READINGS],
+        [sys.executable, str(CLI), "approach", "evaluate", *READINGS],
         cwd=str(proj), capture_output=True, text=True, timeout=60,
     )
 
@@ -86,7 +86,7 @@ def test_trc_c2_a_drifted_projects_route_output_should_say_so(tmp_path):
 def test_trc_c3_the_route_template_should_carry_a_provenance_field():
     text = ROUTE_TEMPLATE.read_text(encoding="utf-8")
     assert re.search(r"provenance", text, re.I), (
-        "templates/route.md has no provenance field, so the audit trail cannot "
+        "templates/delivery-approach.md has no provenance field, so the audit trail cannot "
         "record which policy produced the route")
     section = text[text.lower().index("provenance"):][:1200]
     assert "routing-policy.yml" in section, (

@@ -7,7 +7,7 @@ Why these are regex assertions over markdown rather than unit tests: the
 "production" change for most of this task is the text of shipped templates,
 skills, agents and commands. That is the same situation
 tests/test_plugin_doc_drift.py is in, and these follow its approach. The
-executable half of the task (the `compass plan lint` subcommand) is tested
+executable half of the task (the `compass design lint` subcommand) is tested
 separately in tests/test_no_placeholders_check.py, where real unit tests are
 possible.
 
@@ -20,10 +20,12 @@ import subprocess
 import sys
 import pathlib
 
+import yaml
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-SPEC_TEMPLATE = "templates/spec.feature.md"
-CLARIFICATIONS_TEMPLATE = "templates/clarifications.md"
+SPEC_TEMPLATE = "templates/acceptance-criteria.md"
+CLARIFICATIONS_TEMPLATE = "templates/requirements-review.md"
 BDD_SKILL = "skills/bdd-specification/SKILL.md"
 SPEC_AUTHOR = "agents/spec-author.md"
 
@@ -107,17 +109,19 @@ def test_trc_a2_summary_has_three_named_fields():
 
 
 def test_trc_a3_summary_length_scales_by_route():
-    """Length guidance is stated per route, so an Express spec does not get an
-    Expedition-sized preamble."""
+    """Length guidance is stated per delivery approach, so a quick fix's
+    criteria do not get an initiative-sized preamble. (The names moved to
+    the v2 vocabulary in the template-prose rename slice; the rule is
+    unchanged.)"""
     body = _section(_read(SPEC_TEMPLATE), "Summary")
     low = body.lower()
 
-    assert "express" in low, "Summary guidance does not mention Express"
-    assert "standard" in low, "Summary guidance does not mention Standard"
-    assert "expedition" in low, "Summary guidance does not mention Expedition"
+    assert "quick fix" in low, "Summary guidance does not mention the quick fix"
+    assert "feature" in low, "Summary guidance does not mention the feature shape"
+    assert "initiative" in low, "Summary guidance does not mention the initiative"
 
     assert re.search(r"one to two sentences|1-2 sentences", low), (
-        "Express length target (one to two sentences per field) not stated"
+        "Quick-fix length target (one to two sentences per field) not stated"
     )
     assert "paragraph" in low, "Standard length target (ordinary paragraphs) not stated"
     assert "200 words" in low, "Expedition length ceiling (200 words per field) not stated"
@@ -172,7 +176,7 @@ def test_trc_a6_dor_requires_filled_summary():
 # Group B - the spec-author's inline self-review
 # ---------------------------------------------------------------------------
 
-SELF_REVIEW_HEADING = "Self-review before Clarify"
+SELF_REVIEW_HEADING = "Self-review before the requirements review"
 
 
 def _self_review():
@@ -229,10 +233,13 @@ def test_trc_b4_self_review_complements_clarify():
     """The self-check adds to Clarify; it does not stand in for it."""
     low = _self_review().lower()
 
-    assert "clarify still runs" in low, (
-        "The self-review does not state that Clarify still runs on Standard and above"
+    assert "review still runs" in low, (
+        "The self-review does not state that the requirements review still "
+        "runs on feature approaches and above"
     )
-    assert "standard" in low, "The self-review does not name the routes Clarify still runs on"
+    assert "feature" in low, (
+        "The self-review does not name the approaches the requirements "
+        "review still runs on")
 
 
 def test_trc_b5_express_self_check_recorded_in_devlog():
@@ -240,7 +247,7 @@ def test_trc_b5_express_self_check_recorded_in_devlog():
     not into the conversation (S4)."""
     low = _self_review().lower()
 
-    assert "express" in low, "The self-review says nothing about Express"
+    assert "quick-fix" in low or "quick fix" in low, ("The self-review says nothing about the quick fix")
     assert "devlog.md" in low, (
         "The self-review does not require recording the Express self-check in devlog.md"
     )
@@ -257,7 +264,7 @@ def test_trc_c2b_skill_names_command_and_note():
     """The planner has to know what to run, and what a hit means."""
     flat = _flat(_read(GOVERNANCE_SKILL))
 
-    assert "compass plan lint" in flat, (
+    assert "compass design lint" in flat, (
         "The governance-check skill does not name the command the planner runs"
     )
     assert re.search(r"note,? (rather than|not) a (stop|block)", flat), (
@@ -273,7 +280,7 @@ def test_trc_c3_check_sits_in_strategies_walk():
 
     i_strategies = text.find("## Walk 2 - the strategies")
     i_routing = text.find("## Walk 3 - the routing policy")
-    i_check = text.lower().find("compass plan lint")
+    i_check = text.lower().find("compass design lint")
 
     assert i_strategies >= 0 and i_routing >= 0, "The governance walks were renamed"
     assert i_check >= 0, "The no-placeholders check is not in the skill at all"
@@ -340,28 +347,28 @@ def test_trc_c6_no_gate_or_floor_added():
 HANDOFF_HEADING = "## Hand-off"
 
 HANDOFF_PHASES = {
-    "commands/specify.md": "spec.feature.md",
-    "commands/clarify.md": "clarifications.md",
-    "commands/plan.md": "plan.md",
+    "commands/define.md": "acceptance-criteria.md",
+    "commands/refine.md": "requirements-review.md",
+    "commands/design.md": "design.md",
 }
 
 
 def test_trc_d1_specify_handoff_prompt():
     """Specify closes by inviting a cold-reader review: what was written, what
     to look for, and what happens on approval."""
-    text = _read("commands/specify.md")
-    assert HANDOFF_HEADING in text, "commands/specify.md has no Hand-off section"
+    text = _read("commands/define.md")
+    assert HANDOFF_HEADING in text, "commands/define.md has no Hand-off section"
 
     flat = _flat(_section(text, "Hand-off"))
 
-    assert "spec.feature.md" in flat, "The hand-off does not name the artifact written"
+    assert "acceptance-criteria.md" in flat, "The hand-off does not name the artifact written"
 
     for look_for in ("intent fidelity", "untestable", "failure mode", "ambiguous"):
         assert look_for in flat, (
             f"The Specify hand-off does not ask the reviewer to check '{look_for}'"
         )
 
-    assert "clarify" in flat, (
+    assert "refine" in flat, (
         "The Specify hand-off does not say what happens next once the reviewer approves"
     )
 
@@ -533,9 +540,18 @@ def test_trc_f1_pre_existing_specs_still_pass():
     in_flight = current.read_text().strip() if current.is_file() else ""
 
     failures = []
+    not_startable = {"queued", "parked", "abandoned"}
     for path in sorted(work.glob("*/task.yml")):
         slug = path.parent.name
         if slug == in_flight:
+            continue
+        # Unstarted or stopped work has no green run by definition - same
+        # reason the in-flight issue is excluded.
+        try:
+            status = (yaml.safe_load(path.read_text()) or {}).get("status", "active")
+        except Exception:
+            status = "active"
+        if status in not_startable:
             continue
         result = subprocess.run(
             [sys.executable, str(ROOT / "cli" / "compass"), "check", "--task", slug],
@@ -575,7 +591,9 @@ def test_trc_f3_rationale_for_no_subagent_loop():
     assert re.search(r"25\s*(minutes|min)", low), (
         "The measured overhead of a subagent review loop is not recorded"
     )
-    assert "clarify" in low, "The rationale does not name Clarify as the existing review"
+    assert "requirements review" in low, (
+        "The rationale does not name the requirements review as the "
+        "existing review")
     assert "reviewer" in low, (
         "The rationale does not name the reviewer agent at Verify as the existing review"
     )

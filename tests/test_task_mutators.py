@@ -11,9 +11,9 @@ def _body_with_gates():
     return {
         "task": "mut",
         "created": "2026-06-22",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "standard",
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "standard",
         "scenarios": [{"id": "SCN-1", "intent": "INT-1",
                        "tests": ["tests/test_x.py::test_y"]}],
         "evidence": [
@@ -80,7 +80,7 @@ def test_gate_pass_mutation_lints_clean(run_cli, make_task):
     _mk_evfile(task_dir, "evidence/green.json")
     r = run_cli("gate", "pass", "verify.correctness", "--evidence", "EV-T")
     assert r.returncode == 0, r
-    lint = run_cli("task", "lint", "--task", "gp-lint")
+    lint = run_cli("issue", "lint", "--task", "gp-lint")
     assert lint.returncode == 0, lint
 
 
@@ -102,7 +102,7 @@ def test_scenario_add_appends_lint_clean_entry(run_cli, make_task):
     scn = next(s for s in task["scenarios"] if s["id"] == "SCN-2")
     assert scn["title"] == "Export ledger" and scn["intent"] == "INT-1"
     assert scn["tests"] == ["tests/test_x.py::test_z"], r
-    lint = run_cli("task", "lint", "--task", "sc-add")
+    lint = run_cli("issue", "lint", "--task", "sc-add")
     assert lint.returncode == 0, lint
 
 
@@ -117,6 +117,11 @@ def test_changed_file_add_traces_to_scenario(run_cli, make_task):
 
 def test_evidence_add_appends_typed_entry(run_cli, make_task):
     task_dir = make_task("ev-add", _body_with_gates())
+    # Evidence is a record on disk: `evidence add` checks the file is there, so
+    # a mismatch is caught where it is made rather than two phases later at
+    # `compass check`.
+    (task_dir / "evidence").mkdir(exist_ok=True)
+    (task_dir / "evidence" / "scan.txt").write_text("scan output\n")
     r = run_cli("evidence", "add", "EV-5", "--type", "command-output",
                 "--path", "evidence/scan.txt")
     assert r.returncode == 0, r

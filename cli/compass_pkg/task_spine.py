@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, now_iso, resolve_task_dir, save_task
+from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, now_iso, resolve_task_dir, save_task, normalize_spine
 
 
 
@@ -114,7 +114,7 @@ def _git(args, cwd):
 def _land_scope(task, slug):
     """The paths a Land commit is allowed to contain.
 
-    A task's own `changed_files` plus its artifact directory. Anything else in
+    An issue's own `changed_files` plus its artifact directory. Anything else in
     the commit belongs to someone else - a concurrent agent's edits, untracked
     scratch, or the unrelated files a repo-wide formatter just rewrote.
     """
@@ -184,24 +184,24 @@ def cmd_land_commit(args):
     if stray:
         raise CompassError(
             "compass land-commit: refusing to commit - "
-            f"{len(stray)} staged path(s) are outside task '{slug}'s declared "
+            f"{len(stray)} staged path(s) are outside issue '{slug}'s declared "
             "scope:\n  " + "\n  ".join(stray[:20])
             + ("\n  ... and %d more" % (len(stray) - 20) if len(stray) > 20 else "")
-            + "\n\nA Land commit contains the task's `changed_files` and its "
+            + "\n\nA Land commit contains the issue's `changed_files` and its "
             f"artifact directory ({artifact_dir}). If these paths belong to "
-            "this task, record them first:\n"
+            "this issue, record them first:\n"
             "  compass changed-file add <path> --scenario <SCN-ID>\n"
             "Otherwise unstage them (`git restore --staged <path>`) - they may "
-            "belong to another task or another agent working in this tree."
+            "belong to another issue or another agent working in this tree."
         )
 
     head_before = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
 
     def _restage_owned():
-        """Re-stage this task's paths after a hook rewrote them.
+        """Re-stage this issue's paths after a hook rewrote them.
 
         Never `git add -A`. The set is what was already staged for this land,
-        plus the task's declared files and its artifact directory - so a hook
+        plus the issue's declared files and its artifact directory - so a hook
         that reformats fifty unrelated files cannot smuggle them into the
         commit, and neither can another agent working in the same tree.
         """
@@ -262,7 +262,7 @@ def cmd_land_commit(args):
             task_dir = resolve_task_dir(args.task)
             task_path = os.path.join(task_dir, "task.yml")
             if os.path.isfile(task_path):
-                task = load_yaml(task_path)
+                task = normalize_spine(load_yaml(task_path))
                 if isinstance(task, dict):
                     unmet = [g.get("id", "?") for g in (task.get("gates") or [])
                              if isinstance(g, dict) and g.get("status") != "pass"]
@@ -271,14 +271,14 @@ def cmd_land_commit(args):
                             "\n  NOT marked landed: %d gate(s) have not "
                             "passed (%s).\n  The commit stands - Land is a "
                             "record, not a rubber stamp. Clear the gates and "
-                            "re-run, or set status by hand if this task "
+                            "re-run, or set status by hand if this issue "
                             "genuinely lands unverified."
                             % (len(unmet), ", ".join(unmet)))
                     else:
                         task["status"] = "landed"
                         task["land_timestamp"] = now_iso()
                         save_task(task, task_path)
-                        landed_note = "\n  task marked landed."
+                        landed_note = "\n  issue marked landed."
         except CompassError:
             pass  # status update is best-effort; the commit already succeeded
 
@@ -315,7 +315,7 @@ def cmd_gate_pass(args):
                  if isinstance(g, dict) and g.get("id") == args.gate_id), None)
     if gate is None:
         raise CompassError(
-            f"compass gate pass: '{args.gate_id}' is not a gate in this task "
+            f"compass gate pass: '{args.gate_id}' is not a gate in this issue "
             f"({[g.get('id') for g in gates]}). Has the route been evaluated?"
         )
     ev_ids = args.evidence or []
@@ -330,7 +330,7 @@ def cmd_gate_pass(args):
         entry = registry.get(eid)
         if not entry:
             raise CompassError(
-                f"compass gate pass: evidence id '{eid}' is not in the task's "
+                f"compass gate pass: evidence id '{eid}' is not in the issue's "
                 f"evidence registry ({sorted(registry)}). Record it first with "
                 f"`compass evidence add` (or `compass tdd-green` for a test-run)."
             )
@@ -402,6 +402,34 @@ def cmd_evidence_add(args):
             f"compass evidence add: evidence id '{args.evidence_id}' already "
             f"exists. Use a fresh id."
         )
+    # Validate the file against its declared type HERE, not two phases later.
+    # `evidence add --type test-run --path run.txt` used to be accepted, and
+    # `compass check` then failed with "test-run evidence unreadable" - a
+    # set-then-discover-at-check round trip, out of context and hard to act on.
+    # Only types with a real shape contract are checked; a manual review or an
+    # artifact can be any file.
+    abs_path = args.path if os.path.isabs(args.path) else os.path.join(
+        task_dir, args.path)
+    if not os.path.exists(abs_path):
+        raise CompassError(
+            f"compass evidence add: no file at '{args.path}' (looked in "
+            f"{task_dir}). Evidence is a record on disk - register it after the "
+            f"file exists, or fix the path.")
+    if args.type == "test-run":
+        try:
+            with open(abs_path, encoding="utf-8") as fh:
+                json.load(fh)
+        except (ValueError, OSError):
+            raise CompassError(
+                f"compass evidence add: '{args.path}' is not a run record. "
+                f"`test-run` means the JSON that `compass tdd-green` writes "
+                f"(command, exit_code, passed), because the tested-before-ship "
+                f"checks read "
+                f"those fields.\n"
+                f"  For a raw log, use --type command-output.\n"
+                f"  For a real run, record it with `compass tdd-green -- <cmd>` "
+                f"and it registers itself.")
+
     entry = {"id": args.evidence_id, "type": args.type, "path": args.path}
     if getattr(args, "scenario", None):
         entry["scenario"] = args.scenario
@@ -442,3 +470,58 @@ def _annotate_gate_accepts(task_path):
         out.append(line)
     with open(task_path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(out) + "\n")
+
+
+# --- compass task set-status ------------------------------------------------
+# The last routine hand-edit of the spine. Before this, the terminal flip was a
+# scripted `str.replace` on task.yml - reported from the field as brittle and
+# repeated across every Land - and each new status value below would have been
+# set the same way.
+
+TASK_STATUSES = ("active", "queued", "parked", "landed", "abandoned")
+
+
+def cmd_task_set_status(args):
+    status = args.status
+    if status not in TASK_STATUSES:
+        raise CompassError(
+            f"compass issue set-status: '{status}' is not an issue status. "
+            f"Permitted: {', '.join(TASK_STATUSES)}.\n"
+            "  queued    - recorded as next up, not started\n"
+            "  active    - in flight\n"
+            "  parked    - stopped, phases so far still valid, can resume\n"
+            "  landed    - Land completed; only this grants living-spec eligibility\n"
+            "  abandoned - will not resume"
+        )
+
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task, path = load_task(task_dir)
+
+    # `land-commit` refuses to write `landed` over gates that have not passed.
+    # A second door into the same field must not be an easier one, or the
+    # refusal is advice rather than a rule.
+    if status == "landed":
+        unmet = [g.get("id", "?") for g in (task.get("gates") or [])
+                 if isinstance(g, dict) and g.get("status") != "pass"]
+        if unmet:
+            raise CompassError(
+                f"compass issue set-status: refusing to mark '{task.get('issue')}' "
+                f"landed - {len(unmet)} gate(s) have not passed "
+                f"({', '.join(unmet)}). Land is a record, not a rubber stamp. "
+                "Clear the gates and re-run."
+            )
+        task["land_timestamp"] = now_iso()
+
+    task["status"] = status
+    reason = getattr(args, "reason", None)
+    if status == "parked":
+        if reason:
+            task["parked_reason"] = reason
+        task["parked_at"] = now_iso()
+    elif reason:
+        task["note"] = reason
+
+    save_task(task, path)
+    detail = f" ({reason})" if reason else ""
+    print(f"compass issue set-status: {task.get('issue')} -> {status}{detail}.")
+    return 0

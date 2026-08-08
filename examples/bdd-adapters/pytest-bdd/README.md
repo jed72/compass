@@ -35,7 +35,7 @@ compass bdd extract --task reset-password
 ```
 
 This reads `.compass/work/reset-password/spec.feature.md` and writes
-`.compass/work/reset-password/spec.feature`:
+`.compass/work/reset-password/acceptance-criteria.feature`:
 
 ```gherkin
 # Derived from .compass/work/reset-password/spec.feature.md by `compass bdd extract`.
@@ -69,7 +69,7 @@ pip install pytest-bdd
 ```python
 from pytest_bdd import scenarios, given, when, then, parsers
 
-scenarios(".compass/work/reset-password/spec.feature")
+scenarios(".compass/work/reset-password/acceptance-criteria.feature")
 
 @given(parsers.parse("a password reset token issued {hours:d} hours ago"),
        target_fixture="token")

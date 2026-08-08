@@ -198,7 +198,7 @@ def _write_evidence(task_dir, name, payload):
 def _resolve_scenario(task_dir, scenario):
     """Validate a --scenario binding. A red/green that proves a test ran is
     weaker than one bound to the scenario it is evidence FOR - relevance, not
-    just failure. If the task has a scenarios block, the id must be in it."""
+    just failure. If the issue has a scenarios block, the id must be in it."""
     if not scenario:
         return None
     try:
@@ -208,7 +208,7 @@ def _resolve_scenario(task_dir, scenario):
     ids = {s.get("id") for s in (task.get("scenarios") or []) if isinstance(s, dict)}
     if ids and scenario not in ids:
         raise CompassError(
-            f"--scenario '{scenario}' is not a scenario id in this task's "
+            f"--scenario '{scenario}' is not a scenario id in this issue's "
             f"task.yml (scenarios: {sorted(ids)}). Bind to a real scenario, or "
             f"add it to task.yml first."
         )
@@ -342,7 +342,7 @@ def cmd_tdd_red(args):
     if code == 0:
         raise CompassError(
             "compass tdd-red: the test command PASSED (exit 0) - there is no "
-            "red to record. Strategy S2 is red-before-green: write a test that "
+            "red to record. The TDD strategy is red-before-green: write a test that "
             "actually fails first.\n--- output (tail) ---\n" + excerpt
         )
     rejection = _red_rejection_reason(code, command)
@@ -608,3 +608,177 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
         reg.append(entry)
     task["evidence"] = reg
     save_task(task, task_path)
+
+
+# --- compass acceptance -----------------------------------------------------
+# R13: config, docs and behaviour-preserving refactors have no natural
+# behavioural red - the whole point of a refactor is that behaviour does not
+# change. Authors satisfied the hook with reds like
+#     tdd-red --verified-by regression -- '! grep -q "_ = is_unique" solver.py'
+# which asserts a string's presence in a file: the "test the implementation, not
+# the behaviour" smell tdd-discipline warns against. The sanction made that
+# allowed; it never made it right. This gives those changes a real signal.
+#
+# Two kinds, because the honest evidence differs:
+#   validation - a validator command (`docker compose config`, `promtool check
+#                rules`, `terraform validate`, a schema parse) must pass after
+#                the change. There may be no meaningful "before" - a new rules
+#                file has none - so no baseline is required.
+#   refactor   - a passing command must STILL pass, across a source tree that
+#                demonstrably changed. Behaviour preservation is the contract,
+#                so the baseline is required and green-then-green with an
+#                unchanged tree is refused: that is two runs, not a refactor.
+#
+# It writes `.acceptance`, never `.red`. `.red` means "a real failure was
+# observed here" and is the framework's most honest artifact; overloading it
+# would make it ambiguous.
+
+_ACCEPTANCE_KINDS = ("validation", "refactor")
+
+
+def _acceptance_marker(task_dir):
+    return os.path.join(task_dir, ".acceptance")
+
+
+def _acceptance_state(task_dir):
+    path = os.path.join(task_dir, "evidence", "acceptance-baseline.json")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh) or {}
+    except (OSError, ValueError):
+        return {}
+
+
+def cmd_acceptance_start(args):
+    kind = args.kind
+    if kind not in _ACCEPTANCE_KINDS:
+        raise CompassError(
+            f"compass acceptance start: '{kind}' is not an acceptance kind. "
+            f"Allowed: {', '.join(_ACCEPTANCE_KINDS)}.\n"
+            "  validation - a validator must pass after the change (config, "
+            "manifests, schemas, docs that carry a checkable contract)\n"
+            "  refactor   - a passing command must still pass afterwards, "
+            "across a changed tree (behaviour preservation)"
+        )
+
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    command = list(args.command or [])
+    if not command:
+        raise CompassError(
+            "compass acceptance start: give the command after `--` - the "
+            "validator to run, or the suite whose green you are preserving.")
+
+    project_root = find_upwards(task_dir, ".compass") or task_dir
+    payload = {
+        "kind": kind,
+        "command": " ".join(command),
+        "declared_at": now_iso(),
+        "tree_hash": _source_tree_hash(project_root),
+    }
+
+    if kind == "refactor":
+        # The baseline IS the contract. Without a passing command to begin with
+        # there is nothing to preserve, so this refuses rather than recording a
+        # meaningless "before".
+        code, out, _ = _run_test(_neutralise_coverage(command))
+        excerpt = out[-2000:]
+        if code != 0:
+            raise CompassError(
+                f"compass acceptance start: the baseline command FAILED "
+                f"(exit {code}), so there is no passing behaviour to preserve. "
+                f"A refactor acceptance means 'this was green and still is'.\n"
+                f"--- output (tail) ---\n{excerpt}")
+        payload["baseline"] = {"passed": True, "exit_code": code,
+                               "log_excerpt": excerpt}
+
+    _write_evidence(task_dir, "acceptance-baseline", payload)
+    with open(_acceptance_marker(task_dir), "w", encoding="utf-8") as fh:
+        fh.write(kind + "\n")
+
+    print(f"compass acceptance start: {kind} acceptance declared.")
+    if kind == "refactor":
+        print("  baseline : PASSING - the same command must pass again after "
+              "the change")
+    else:
+        print("  validator: " + payload["command"])
+    print(f"  marker   : {_acceptance_marker(task_dir)}  (the pre-tool hook "
+          f"will now allow edits; `.red` is untouched and still means a real "
+          f"failure was observed)")
+    return 0
+
+
+def cmd_acceptance_record(args):
+    task_dir = resolve_task_dir(getattr(args, "task", None))
+    state = _acceptance_state(task_dir)
+    if not state:
+        raise CompassError(
+            "compass acceptance record: no acceptance was declared for this "
+            "issue. Run `compass acceptance start --kind validation|refactor -- "
+            "<command>` first - the kind of acceptance is stated before the "
+            "change, not chosen afterwards to fit what happened.")
+
+    kind = state.get("kind")
+    command = list(args.command or []) or state.get("command", "").split()
+    if not command:
+        raise CompassError("compass acceptance record: give the command after `--`.")
+
+    if kind == "refactor" and " ".join(command) != state.get("command"):
+        raise CompassError(
+            f"compass acceptance record: this refactor was baselined on\n"
+            f"  {state.get('command')}\n"
+            f"but you ran\n  {' '.join(command)}\n"
+            "A different command proves nothing about the baseline. Run the "
+            "same one, or re-declare the acceptance.")
+
+    project_root = find_upwards(task_dir, ".compass") or task_dir
+    if kind == "refactor":
+        if _source_tree_hash(project_root) == state.get("tree_hash"):
+            raise CompassError(
+                "compass acceptance record: the source tree has not changed "
+                "since the baseline. Green then green with nothing changed in "
+                "between is two runs, not a refactor - there is no behaviour "
+                "preservation to record.")
+
+    code, out, warnings = _run_test(_neutralise_coverage(command))
+    excerpt = out[-2000:]
+    if code != 0:
+        raise CompassError(
+            f"compass acceptance record: the command FAILED (exit {code}) - "
+            f"the acceptance is NOT recorded and the marker stays in place.\n"
+            f"--- output (tail) ---\n{excerpt}")
+
+    payload = {
+        "kind": kind,
+        "command": " ".join(command),
+        "exit_code": code,
+        "passed": True,
+        "timestamp": now_iso(),
+        "log_excerpt": excerpt,
+        "scenario": getattr(args, "scenario", None),
+    }
+    if kind == "refactor":
+        payload["baseline"] = state.get("baseline", {})
+        payload["baseline"]["command"] = state.get("command")
+
+    _write_evidence(task_dir, "acceptance", payload)
+    # Registered as `test-run` so the existing G1 checks accept it: the point of
+    # this verb is to remove the incentive to fake a red, which it only does if
+    # the result counts.
+    _upsert_test_run_evidence(task_dir, getattr(args, "scenario", None),
+                              "evidence/acceptance.json")
+    marker = _acceptance_marker(task_dir)
+    if os.path.exists(marker):
+        os.remove(marker)
+
+    print(f"compass acceptance record: {kind} acceptance recorded (exit {code}).")
+    for w in warnings:
+        print(f"  warning  : {w}")
+    if kind == "refactor":
+        print("  contract : the baselined command was green before the change "
+              "and is green after, across a changed tree")
+    print(f"  evidence : {os.path.join(task_dir, 'evidence', 'acceptance.json')}")
+    print("  registry : task.yml `evidence:` updated with the test-run entry")
+    print("  marker   : .acceptance cleared")
+    return 0

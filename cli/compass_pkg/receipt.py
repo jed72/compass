@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, find_upwards, load_yaml
+from compass_pkg.core import CompassError, artifact_path, display_shape, find_compass_dir, find_upwards, load_yaml, normalize_spine
 
 
 
@@ -104,7 +104,7 @@ from compass_pkg.core import CompassError, find_compass_dir, find_upwards, load_
 # Clustered here next to cmd_task_lint so Move 5C can relocate as one block.
 
 def _receipt_resolve_task_dir(args):
-    """Resolve a task dir for the receipt, honouring --workdir if present.
+    """Resolve an issue dir for the receipt, honouring --workdir if present.
 
     Returns (task_dir, slug, project_root). Raises CompassError with a
     receipt-specific message that names both the slug and the expected
@@ -125,12 +125,12 @@ def _receipt_resolve_task_dir(args):
                 slug = fh.read().strip()
     if not slug:
         raise CompassError(
-            "compass task receipt: no --task and no .compass/current-task pointer"
+            "compass issue receipt: no --task and no .compass/current-task pointer"
         )
     task_dir = os.path.join(compass_dir, "work", slug)
     if not os.path.isdir(task_dir):
         raise CompassError(
-            f"compass task receipt: task '{slug}' not found at "
+            f"compass issue receipt: issue '{slug}' not found at "
             f".compass/work/{slug} (looked under {task_dir})"
         )
     return task_dir, slug, project_root
@@ -158,7 +158,7 @@ def _receipt_gate_requirements(project_root):
 
 
 def _receipt_parse_route_md_readings(route_md_path):
-    """Parse the four-readings table out of a route.md file.
+    """Parse the four-readings table out of a delivery-approach.md file.
 
     Returns {key: (value, justification)} for the four dimensions; absent
     rows are simply not in the dict. If the file is missing or unparseable,
@@ -169,18 +169,22 @@ def _receipt_parse_route_md_readings(route_md_path):
         return {}
     text = open(route_md_path, "r", encoding="utf-8").read()
     out = {}
-    for dim_label, key in [
-        ("Blast radius", "blast_radius"),
-        ("Terrain", "terrain"),
-        ("Magnitude", "magnitude"),
-        ("Intent & role", "intent"),
+    for dim_labels, key in [
+        (("Risk", "Blast" + " radius"), "risk"),  # v1 label built from
+        # parts: the scan reads whole string literals, and this one exists
+        # only to read old archives
+        (("Familiarity", "Terrain"), "familiarity"),
+        (("Size", "Magnitude"), "size"),
+        (("Goal & role", "Intent & role"), "goal"),
     ]:
+      for dim_label in dim_labels:
         m = _re.search(
             rf"\|\s*\*\*{_re.escape(dim_label)}\*\*\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|",
             text,
         )
         if m:
             out[key] = (m.group(1).strip(), m.group(2).strip())
+            break
     return out
 
 
@@ -207,8 +211,33 @@ def _receipt_truncate(text, width=_RECEIPT_LINE_CAP):
     return text[:width - 3] + "..."
 
 
-def _receipt_render(task, slug, route_readings, gate_requirements=None):
-    """Render the one-screen receipt for a task. Returns a string.
+def _receipt_parse_topology_override(approach_path):
+    """Find a recorded topology override in the delivery-approach record.
+
+    An override lives in the record as a table row whose first cell is
+    "Topology" and whose from-to cell reads like "swarm -> solo" (either
+    arrow spelling). Returns the overridden-to value, or None. Tolerant by
+    design - the record is prose, and a receipt that cannot parse it
+    simply shows the computed topology.
+    """
+    import re as _re
+    if not approach_path or not os.path.isfile(approach_path):
+        return None
+    for line in open(approach_path, "r", encoding="utf-8").read().splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if len(cells) >= 2 and cells[0].lower() == "topology":
+            m = _re.search(r"(?:->|\u2192)\s*([a-z][a-z-]*)", cells[1])
+            if m:
+                return m.group(1)
+    return None
+
+
+def _receipt_render(task, slug, route_readings, gate_requirements=None,
+                    topology_override=None):
+    """Render the one-screen receipt for an issue. Returns a string.
 
     Sections (TRC-A1 order):
       1. header  - slug + landed/in-progress status
@@ -220,9 +249,10 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
     """
     lines = []
     schema_version = str(task.get("schema_version") or "")
-    # 1.x is the current schema; anything else (or absent) is legacy. ADR-006:
+    # 2.0 is the current schema; anything else (or absent) is legacy - 1.x
+    # spines are readable by normalisation but reported as legacy. ADR-006:
     # render meaningfully on pre-feature task.ymls, do not crash.
-    is_legacy = not schema_version.startswith("1.1")
+    is_legacy = not schema_version.startswith("2.")
     # status: in 1.0 there is no status field - those tasks are treated as
     # active by the rest of the CLI, and the receipt does the same. Honesty:
     # a legacy task with no status cannot be reported as cleanly landed.
@@ -243,18 +273,18 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
     lines.append("")
 
     # 2. readings + justifications
-    lines.append("Readings")
-    lines.append("--------")
-    readings = task.get("readings") or {}
+    lines.append("Assessment")
+    lines.append("----------")
+    readings = task.get("assessment") or {}
     for label, key in [
-        ("blast radius", "blast_radius"),
-        ("terrain", "terrain"),
-        ("magnitude", "magnitude"),
-        ("intent", "intent"),
+        ("risk", "risk"),
+        ("familiarity", "familiarity"),
+        ("size", "size"),
+        ("goal", "goal"),
     ]:
-        if key == "intent":
+        if key == "goal":
             role = readings.get("role") or "engineer"
-            intent_v = readings.get("intent") or "(not recorded)"
+            intent_v = readings.get("goal") or "(not recorded)"
             value = f"{intent_v} ({role})"
         else:
             value = str(readings.get(key) or "(not recorded)")
@@ -263,20 +293,25 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
             justification = route_readings[key][1]
         lines.append(_receipt_truncate(
             f"  {label:<14}  {value:<22}  {justification}"))
-    touches = readings.get("touches") or []
+    touches = readings.get("labels") or []
     if touches:
         lines.append(_receipt_truncate(
-            f"  {'touches':<14}  {', '.join(touches)}"))
+            f"  {'labels':<14}  {', '.join(touches)}"))
     lines.append("")
 
-    # 3. route + fired routing guardrails
-    lines.append("Route")
-    lines.append("-----")
-    route_name = task.get("route") or "(not recorded)"
+    # 3. the delivery approach + fired policy rules
+    lines.append("Approach")
+    lines.append("--------")
+    route_name = task.get("delivery_approach")
+    shape_shown = display_shape(route_name) if route_name else "(not recorded)"
     topology = task.get("topology") or ""
+    topology_shown = topology
+    if topology_override and topology_override != topology:
+        topology_shown = (f"{topology} (overridden: {topology_override} - "
+                          "see the delivery approach)")
     lines.append(_receipt_truncate(
-        f"  {route_name}  (topology: {topology})"))
-    fired = task.get("fired_guardrails") or []
+        f"  {shape_shown}  (topology: {topology_shown})"))
+    fired = task.get("policy_rules_fired") or task.get("fired_guardrails") or []
     if fired:
         lines.append("  routing guardrails fired:")
         for g in fired:
@@ -369,32 +404,34 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None):
                 lines.append(_receipt_truncate(f"            {extra_pairs}"))
     lines.append("")
 
-    # 5b. backfills (rendered only when any exist)
-    backfills = task.get("backfills") or []
+    # 5b. follow-ups (rendered only when any exist)
+    backfills = task.get("follow_ups") or []
     if backfills:
-        lines.append("Backfills")
-        lines.append("---------")
+        lines.append("Follow-ups")
+        lines.append("----------")
         for b in backfills:
             if not isinstance(b, dict):
                 continue
             bid = b.get("id", "?")
             bstatus = b.get("status", "?")
             bdesc = b.get("description", "")
-            marker = "[ OWED ]" if bstatus == "owed" else "[ paid ]"
+            marker = ("[ OUTSTANDING ]" if bstatus == "outstanding"
+                      else "[ resolved ]")
             lines.append(_receipt_truncate(
-                f"  {bid:<8}  {marker:<10} {bdesc}"))
+                f"  {bid:<8}  {marker:<15} {bdesc}"))
         lines.append("")
 
     # 6. overall verdict
     lines.append(_RECEIPT_RULE)
     n_owed = sum(1 for b in backfills if isinstance(b, dict)
-                 and b.get("status") == "owed")
+                 and b.get("status") == "outstanding")
     if not is_landed:
         verdict_line = "Verdict: not yet landed"
     elif any_fail:
         verdict_line = "Verdict: FAILED - does not satisfy its own gates"
     elif n_owed:
-        verdict_line = f"Verdict: landed with caveats - {n_owed} backfill(s) owed"
+        verdict_line = (f"Verdict: landed with caveats - "
+                        f"{n_owed} follow-up(s) outstanding")
     elif any_caveat:
         verdict_line = "Verdict: landed with caveats"
     else:
@@ -410,11 +447,12 @@ def cmd_task_receipt(args):
     except CompassError as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
-    task = load_yaml(os.path.join(task_dir, "task.yml")) or {}
-    route_readings = _receipt_parse_route_md_readings(
-        os.path.join(task_dir, "route.md"))
+    task = normalize_spine(load_yaml(os.path.join(task_dir, "task.yml")) or {})
+    approach_path = artifact_path(task_dir, "delivery-approach.md")
+    route_readings = _receipt_parse_route_md_readings(approach_path)
     gate_requirements = _receipt_gate_requirements(project_root)
-    print(_receipt_render(task, slug, route_readings, gate_requirements))
+    print(_receipt_render(task, slug, route_readings, gate_requirements,
+                          _receipt_parse_topology_override(approach_path)))
     return 0
 
 
@@ -516,7 +554,7 @@ def cmd_adr_new(args):
     if os.path.exists(full_path):
         raise CompassError(
             f"{full_path} already exists. If you are in a concurrent worktree, "
-            f"this is expected - rename one side at Land."
+            f"this is expected - rename one side when the streams integrate."
         )
 
     title_words = slug.replace("-", " ").title()
@@ -545,6 +583,7 @@ def cmd_adr_new(args):
 
     print(f"compass adr new: created {full_path}")
     print(f"  registered in {readme_path}")
-    print("  NOTE: concurrent worktree numbering caveat (see DD-8 in plan.md) - "
-          "if another worktree creates ADRs in parallel, renumber at Land.")
+    print("  NOTE: concurrent worktree numbering caveat - if another "
+          "worktree creates ADRs in parallel, renumber when the streams "
+          "integrate.")
     return 0

@@ -23,30 +23,30 @@ import yaml
 # ---------------------------------------------------------------------------
 
 _MINIMAL_READINGS = {
-    "blast_radius": "contained",
-    "terrain": "brownfield-mapped",
-    "magnitude": "small",
+    "risk": "contained",
+    "familiarity": "brownfield-mapped",
+    "size": "small",
     "intent": "delivery",
     "role": "engineer",
-    "touches": [],
+    "labels": [],
 }
 
 _CRITICAL_READINGS = {
-    "blast_radius": "critical",
-    "terrain": "brownfield-mapped",
-    "magnitude": "large",
+    "risk": "critical",
+    "familiarity": "brownfield-mapped",
+    "size": "large",
     "intent": "delivery",
     "role": "engineer",
-    "touches": [],
+    "labels": [],
 }
 
 _AUTH_READINGS = {
-    "blast_radius": "contained",
-    "terrain": "brownfield-mapped",
-    "magnitude": "small",
+    "risk": "contained",
+    "familiarity": "brownfield-mapped",
+    "size": "small",
     "intent": "delivery",
     "role": "engineer",
-    "touches": ["auth"],
+    "labels": ["auth"],
 }
 
 
@@ -62,8 +62,8 @@ def _minimal_task(slug: str, readings: Dict | None = None) -> Dict[str, Any]:
         "task": slug,
         "created": "2026-05-25",
         "readings": readings or dict(_MINIMAL_READINGS),
-        "route": "express",
-        "phases": {
+        "delivery_approach": "express",
+        "stages": {
             "frame": "full",
             "specify": "light",
             "clarify": "collapsed",
@@ -82,8 +82,8 @@ def _minimal_task(slug: str, readings: Dict | None = None) -> Dict[str, Any]:
         "evidence": [],
         "changed_files": [],
         "claims": [],
-        "backfills": [],
-        "fired_guardrails": [],
+        "follow_ups": [],
+        "policy_rules_fired": [],
         "topology": "solo",
     }
 
@@ -94,7 +94,7 @@ def _write_brief(task_dir: Path, intents: list[str]) -> None:
     for intent_id in intents:
         lines.append(f"<!-- intent: {intent_id} -->\n")
         lines.append(f"- {intent_id}: some intent statement\n")
-    (task_dir / "brief.md").write_text("".join(lines), encoding="utf-8")
+    (task_dir / "prd.md").write_text("".join(lines), encoding="utf-8")
 
 
 def _write_spec(task_dir: Path, scenarios: list[dict]) -> None:
@@ -105,7 +105,7 @@ def _write_spec(task_dir: Path, scenarios: list[dict]) -> None:
         intent_id = scn.get("intent", "INT-1")
         lines.append(f"### Scenario: {scn.get('title', scn_id)}\n")
         lines.append(f"<!-- traceability id: {scn_id} · serves: {intent_id} -->\n\n")
-    (task_dir / "spec.feature.md").write_text("".join(lines), encoding="utf-8")
+    (task_dir / "acceptance-criteria.md").write_text("".join(lines), encoding="utf-8")
 
 
 def _write_route_md(task_dir: Path, route: str, phases: dict | None = None) -> None:
@@ -121,7 +121,7 @@ def _write_route_md(task_dir: Path, route: str, phases: dict | None = None) -> N
     lines.append("| Phase | Weight |\n|---|---|\n")
     for phase, weight in phases.items():
         lines.append(f"| {phase} | {weight} |\n")
-    (task_dir / "route.md").write_text("".join(lines), encoding="utf-8")
+    (task_dir / "delivery-approach.md").write_text("".join(lines), encoding="utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -202,7 +202,7 @@ def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
 
     body = _minimal_task(slug)
     # task.yml says clarify: collapsed
-    body["phases"]["clarify"] = "collapsed"
+    body["stages"]["clarify"] = "collapsed"
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     # Gate mode so findings → non-zero
     body["gates"] = [
@@ -378,7 +378,7 @@ def test_trc_a7_advisory_mode_does_not_block(project: Path, run_cli):
     body = _minimal_task(slug)
     # Insert an orphan scenario (INT-MISSING not in brief)
     body["scenarios"] = [{"id": "SCN-orphan", "intent": "INT-MISSING", "title": "x", "tests": []}]
-    # Route has NO verify.analyze gate (blast_radius=contained, no auth)
+    # Route has NO verify.analyze gate (risk=contained, no auth)
     body["gates"] = [
         {"id": "verify.correctness", "status": "pending", "evidence": []},
         {"id": "verify.governance", "status": "pending", "evidence": []},
@@ -419,8 +419,8 @@ def test_trc_a8_gate_mode_blocks_on_findings(project: Path, run_cli):
     task_dir.mkdir(parents=True, exist_ok=True)
 
     body = _minimal_task(slug)
-    body["readings"] = dict(_CRITICAL_READINGS)
-    body["route"] = "expedition"
+    body["assessment"] = dict(_CRITICAL_READINGS)
+    body["delivery_approach"] = "expedition"
     body["scenarios"] = [{"id": "SCN-orphan", "intent": "INT-MISSING", "title": "x", "tests": []}]
     # Route HAS verify.analyze gate
     body["gates"] = [
@@ -496,8 +496,8 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
 
     # Hotfix route - brief.md is legitimately absent (reproduce-first, no Specify)
     body = _minimal_task(slug)
-    body["route"] = "hotfix"
-    body["phases"] = {
+    body["delivery_approach"] = "hotfix"
+    body["stages"] = {
         "frame": "light",
         "specify": "reproduce-first",
         "clarify": "collapsed",
@@ -524,7 +524,7 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     result = run_cli("analyze")
     combined = result.stdout + result.stderr
     # No "missing brief" or "missing-artifact" finding about brief.md
-    assert "brief.md" not in combined or "missing" not in combined.lower(), \
+    assert "prd.md" not in combined or "missing" not in combined.lower(), \
         f"Hotfix route must not flag missing brief.md:\n{result}"
     # Should not flag orphaned scenarios either (spec links INT-1 but no brief - that's OK on hotfix)
     # The key assertion: no route-disagreement finding (route.md and task.yml agree on hotfix)
@@ -579,8 +579,8 @@ def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
     task_dir.mkdir(parents=True, exist_ok=True)
 
     body = _minimal_task(slug)
-    body["readings"] = dict(_AUTH_READINGS)  # touches: [auth]
-    body["route"] = "expedition"
+    body["assessment"] = dict(_AUTH_READINGS)  # touches: [auth]
+    body["delivery_approach"] = "expedition"
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     _write_task(task_dir, body)
     _write_brief(task_dir, ["INT-1"])
@@ -590,7 +590,7 @@ def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
     (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
 
     # Run route evaluate --write to apply the policy (including new floors)
-    result = run_cli("route", "evaluate", "--write")
+    result = run_cli("approach", "evaluate", "--write")
     assert result.returncode == 0, f"route evaluate --write failed:\n{result}"
 
     # Load the updated task.yml
@@ -603,7 +603,7 @@ def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
         f"Expected verify.analyze in gates after route evaluate on auth task:\n{gate_ids}"
 
     # And check the fired_guardrails contains a reference to the floor
-    fired = updated.get("fired_guardrails", [])
+    fired = updated.get("policy_rules_fired", [])
     fired_ids = [f.get("id") for f in fired]
     assert any("FLOOR-00" in (fid or "") for fid in fired_ids), \
         f"Expected a floor to fire in fired_guardrails:\n{fired_ids}"
@@ -715,8 +715,8 @@ def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     # Hand-edit: task.yml says 'expedition' phases but route.md says 'express' phases.
     # That constitutes a route disagreement (a tool hand-edited the route field).
-    body["route"] = "expedition"
-    body["phases"] = {
+    body["delivery_approach"] = "expedition"
+    body["stages"] = {
         "frame": "full", "specify": "full", "clarify": "full",
         "plan": "full", "distribute": "swarm", "build": "full",
         "verify": "full", "land": "full",

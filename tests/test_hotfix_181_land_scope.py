@@ -1,4 +1,4 @@
-"""`compass land-commit` must commit only what the task owns (field report R11).
+"""`compass ship-commit` must commit only what the task owns (field report R11).
 
 `land-commit` survives auto-fixing pre-commit hooks by re-staging what the hook
 rewrote and retrying. The re-stage was `git add -A`, which stages the whole
@@ -46,17 +46,17 @@ def repo(tmp_path):
     task_dir = r / ".compass" / "work" / SLUG
     task_dir.mkdir(parents=True)
     (r / ".compass" / "current-task").write_text(SLUG + "\n")
-    (task_dir / "route.md").write_text("# Route\n")
+    (task_dir / "delivery-approach.md").write_text("# Route\n")
     (task_dir / "task.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": SLUG, "created": "2026-08-04",
         "status": "active",
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
-                     "urgency": "none", "role": "engineer", "touches": []},
-        "route": "standard", "topology": "solo", "fired_guardrails": [],
-        "phases": {}, "evidence": [], "gates": [], "scenarios": [],
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery",
+                     "urgency": "none", "role": "engineer", "labels": []},
+        "delivery_approach": "standard", "topology": "solo", "policy_rules_fired": [],
+        "stages": {}, "evidence": [], "gates": [], "scenarios": [],
         "changed_files": [{"path": "src/owned.py", "scenarios": ["SCN-1"]}],
-        "claims": [], "backfills": [], "reframes": [], "friction": [],
+        "claims": [], "follow_ups": [], "reassessments": [], "friction": [],
     }, sort_keys=False))
 
     (r / "src" / "owned.py").write_text("x = 1\n")
@@ -90,7 +90,7 @@ def _install_autofixing_hook(repo):
 
 def _land(repo, *extra):
     return subprocess.run(
-        [sys.executable, str(CLI), "land-commit", "-m", "land it",
+        [sys.executable, str(CLI), "ship-commit", "-m", "land it",
          "--task", SLUG, *extra],
         cwd=str(repo), capture_output=True, text=True, timeout=60,
     )

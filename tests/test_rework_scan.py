@@ -50,13 +50,13 @@ def write_task_yml(directory: Path, slug: str, changed_files: list[dict],
     directory.mkdir(parents=True, exist_ok=True)
     data = {
         "slug": slug,
-        "route": "standard",
+        "delivery_approach": "standard",
         "status": "landed",
         "created": created,
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "standard",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "standard",
             "intent": "delivery",
             "role": "engineer",
         },

@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: launch-readiness.md
-Produced by: the product marketer via `/compass:position`; completed at Land.
+Produced by: the product marketer via `/compass:position`; completed at ship time.
 Lives at:    .compass/work/<task-slug>/launch-readiness.md
 Role in the pipeline: the marketer's GATE artifact. The routing-policy
 role_rule for `product-marketer` requires this file and blocks Land until
@@ -15,7 +15,7 @@ full stop - Land refuses to close on it.
 
 # Launch Readiness - {{TASK_SLUG}}
 
-> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** marketing-lens
+> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
 > **Reads from:** positioning.md (the claims), verification-report.md (the scenario results)
 > **Gates:** Land - per the routing-policy.md role_rule and the `verify.claims` immovable gate.
 
@@ -41,7 +41,7 @@ full stop - Land refuses to close on it.
 ### Not verified - may NOT ship
 <!-- A claim lands here if: it has no backing scenario, or its scenario
      failed/was not run. Each one is either cut from the launch copy, or
-     the task does not Land. -->
+     the issue does not ship. -->
 - {{claim # - reason: no backing scenario / scenario TRC-id failed at Verify}}
 
 ## Voice & positioning check
@@ -58,9 +58,9 @@ full stop - Land refuses to close on it.
 
 **Decision:** {{GO \| NO-GO}}
 
-**Rationale:** {{e.g. "All three claims trace to passing scenarios; cleared." - or "C2 has no backing scenario; either cut C2 from launch copy or the task does not Land."}}
+**Rationale:** {{e.g. "All three claims trace to passing scenarios; cleared." - or "C2 has no backing scenario; either cut C2 from launch copy or the issue does not ship."}}
 
 **Decided by:** {{NAME}} on {{DATE}}.
 
-<!-- If NO-GO, the task stays open. /compass:status keeps flagging the
-     unbacked claim; /compass:land refuses to close. -->
+<!-- If NO-GO, the issue stays open. `/compass:status` keeps flagging the
+     unbacked claim; the ship command (`/compass:ship`) refuses to close. -->

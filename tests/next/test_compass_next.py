@@ -79,7 +79,7 @@ def make_task(project: Path, slug: str, task_body: dict,
     with task_path.open("w") as fh:
         yaml.safe_dump(task_body, fh, sort_keys=False)
     if route_md is not None:
-        (task_dir / "route.md").write_text(route_md, encoding="utf-8")
+        (task_dir / "delivery-approach.md").write_text(route_md, encoding="utf-8")
     (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
     return task_dir
 
@@ -124,14 +124,14 @@ STANDARD_TASK = {
     "schema_version": "1.0",
     "task": "test-task",
     "created": "2026-05-25",
-    "route": "standard",
-    "readings": {
-        "blast_radius": "contained",
-        "terrain": "greenfield",
-        "magnitude": "small",
+    "delivery_approach": "standard",
+    "assessment": {
+        "risk": "contained",
+        "familiarity": "greenfield",
+        "size": "small",
         "intent": "delivery",
     },
-    "phases": {
+    "stages": {
         "frame": "full",
         "specify": "full",
         "clarify": "full",
@@ -150,8 +150,8 @@ STANDARD_TASK = {
     "scenarios": [],
     "changed_files": [],
     "claims": [],
-    "backfills": [],
-    "reframes": [],
+    "follow_ups": [],
+    "reassessments": [],
 }
 
 
@@ -165,7 +165,7 @@ class TestNextReportsPhaseAndGate:
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
         # Specify completed: mark it so next phase is Clarify
-        task_body["phases"] = dict(STANDARD_TASK["phases"])
+        task_body["stages"] = dict(STANDARD_TASK["stages"])
         # phases with "current" indicated by task progression field
         # We express progress via a `current_phase` field that `next` reads.
         task_body["current_phase"] = "clarify"
@@ -214,14 +214,14 @@ class TestNextShowsCollapsedPhases:
             "schema_version": "1.0",
             "task": "express-task",
             "created": "2026-05-25",
-            "route": "express",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "delivery_approach": "express",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
                 "intent": "delivery",
             },
-            "phases": {
+            "stages": {
                 "frame": "full",
                 "specify": "light",
                 "clarify": "collapsed",
@@ -239,8 +239,8 @@ class TestNextShowsCollapsedPhases:
             "scenarios": [],
             "changed_files": [],
             "claims": [],
-            "backfills": [],
-            "reframes": [],
+            "follow_ups": [],
+            "reassessments": [],
         }
         make_task(project, "express-task", task_body, EXPRESS_ROUTE_MD)
 
@@ -257,14 +257,14 @@ class TestNextShowsCollapsedPhases:
             "schema_version": "1.0",
             "task": "express-task",
             "created": "2026-05-25",
-            "route": "express",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "delivery_approach": "express",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
                 "intent": "delivery",
             },
-            "phases": {
+            "stages": {
                 "frame": "full",
                 "specify": "light",
                 "clarify": "collapsed",
@@ -282,8 +282,8 @@ class TestNextShowsCollapsedPhases:
             "scenarios": [],
             "changed_files": [],
             "claims": [],
-            "backfills": [],
-            "reframes": [],
+            "follow_ups": [],
+            "reassessments": [],
         }
         make_task(project, "express-task", task_body, EXPRESS_ROUTE_MD)
 
@@ -420,8 +420,8 @@ class TestNextDerivesFromTaskYmlOnly:
         # Copy only task.yml and route.md
         shutil.copyfile(task_dir / "task.yml",
                         scratch_compass / "work" / "test-task" / "task.yml")
-        shutil.copyfile(task_dir / "route.md",
-                        scratch_compass / "work" / "test-task" / "route.md")
+        shutil.copyfile(task_dir / "delivery-approach.md",
+                        scratch_compass / "work" / "test-task" / "delivery-approach.md")
         (scratch_compass / "config.yml").write_text(
             "version: 1.0.0\nmode: enforced\n"
         )
@@ -530,7 +530,7 @@ class TestNextMissingRouteMd:
         result = run_next(project)
         assert result.returncode != 0
         combined = result.stdout + result.stderr
-        assert "route.md" in combined, (
+        assert "delivery-approach.md" in combined, (
             "compass next must name route.md as the missing artifact. "
             f"Got: {combined!r}"
         )

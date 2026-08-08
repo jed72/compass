@@ -70,7 +70,8 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   TASK_DIR="${TASK_DIR%/}"
   SLUG="$(basename "$TASK_DIR")"
 
-  ROUTE="$TASK_DIR/route.md"
+  ROUTE="$TASK_DIR/delivery-approach.md"
+  [ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
   SPEC="$TASK_DIR/spec.feature.md"
   VREPORT="$TASK_DIR/verification-report.md"
   RED_MARKER="$TASK_DIR/.red"
@@ -80,7 +81,7 @@ for TASK_DIR in "$WORK_DIR"/*/; do
     # A work dir with no route.md and no other artifacts may just be an empty
     # scaffold; but if anything else is in it, work started without Frame.
     if [ -n "$(ls -A "$TASK_DIR" 2>/dev/null)" ]; then
-      WARNINGS+=("[$SLUG] route.md is MISSING but the task has artifacts - work started without Frame. Run /compass:frame.")
+      WARNINGS+=("[$SLUG] route.md is MISSING but the task has artifacts - work started without Frame. Run /compass:triage.")
     fi
     continue
   fi
@@ -211,7 +212,8 @@ PYEOF
   latest_reframe_date="$(python3 - "$task_yml" <<'PYEOF'
 import sys, yaml
 task = yaml.safe_load(open(sys.argv[1])) or {}
-dates = [r.get("date","") for r in (task.get("reframes") or []) if r.get("date")]
+entries = (task.get("reassessments") or task.get("reframes") or [])
+dates = [r.get("date","") for r in entries if r.get("date")]
 print(max(dates) if dates else "")
 PYEOF
 )" || latest_reframe_date=""
@@ -275,9 +277,9 @@ PYEOF
       done
       echo ""
       echo "  If the scope grew during Build, file a reframe now:"
-      echo "    /compass:frame --reframe --reason \"<what changed and why>\""
+      echo "    /compass:triage --reassess --reason \"<what changed and why>\""
       echo ""
-      echo "  This preserves the calibration signal (compass calibration)."
+      echo "  This preserves the calibration signal (compass retro)."
       echo "  The nudge is non-blocking - the session ends regardless."
       echo "================================================================"
       echo ""

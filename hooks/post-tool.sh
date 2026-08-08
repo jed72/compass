@@ -16,7 +16,7 @@
 #   evidence-backed one. This hook stays out of that.
 #
 # THE CURRENT TASK
-#   Named by the .compass/current-task pointer (written by /compass:frame and
+#   Named by the .compass/current-task pointer (written by /compass:triage and
 #   /compass:resume); most-recently-modified is only the fallback.
 #
 # WIRING  (.claude/settings.json)

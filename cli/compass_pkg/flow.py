@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, load_yaml
+from compass_pkg.core import CompassError, find_compass_dir, load_yaml, normalize_spine
 from compass_pkg.rework import cmd_rework_scan
 
 
@@ -120,24 +120,67 @@ def cmd_flow(args):
     if not do_digest:
         # Live board mode: minimal - list tasks and their routes
         if not os.path.isdir(work_root):
-            print("compass flow: no tasks found - work root does not exist.")
+            print("compass flow: no issues found - work root does not exist.")
             return 0
         slugs = [d for d in sorted(os.listdir(work_root))
                  if os.path.isdir(os.path.join(work_root, d))]
         if not slugs:
-            print("compass flow: no tasks under work root.")
+            print("compass flow: no issues under work root.")
             return 0
-        print("compass flow - cross-task board (advisory)\n")
+        # Grouped by lifecycle state, because a flat list reported stopped work
+        # as in flight. Parked tasks accumulate while active ones close, so the
+        # single number a planning view must not get wrong drifts further out
+        # the longer the repo lives.
+        groups = {"active": [], "queued": [], "parked": [], "landed": [],
+                  "abandoned": [], "unreadable": []}
         for slug in slugs:
             task_yml = os.path.join(work_root, slug, "task.yml")
-            if os.path.isfile(task_yml):
-                try:
-                    t = load_yaml(task_yml)
-                    route = t.get("route", "?")
-                    status = t.get("status", "in-progress")
-                    print(f"  {slug:<40} route={route:<12} status={status}")
-                except Exception:
-                    print(f"  {slug:<40} (unreadable task.yml)")
+            if not os.path.isfile(task_yml):
+                groups["unreadable"].append((slug, "?", "no task.yml"))
+                continue
+            try:
+                t = normalize_spine(load_yaml(task_yml))
+                route = t.get("route", "?")
+                # Absent means active: every task.yml written before the status
+                # field existed omits it (ADR-006).
+                status = t.get("status") or "active"
+                note = t.get("parked_reason", "") if status == "parked" else ""
+                groups.setdefault(status, []).append((slug, route, note))
+            except Exception:                                   # noqa: BLE001
+                groups["unreadable"].append((slug, "?", "unreadable task.yml"))
+
+        print("compass flow - cross-issue board (advisory)\n")
+        headings = [
+            ("active", "IN PROGRESS"),
+            ("queued", "NEXT UP"),
+            ("parked", "PARKED - stopped, can resume"),
+            ("landed", "DONE"),
+            ("abandoned", "ABANDONED - will not resume"),
+        ]
+        for key, heading in headings:
+            rows = groups.get(key) or []
+            if not rows:
+                continue
+            print(f"  {heading} ({len(rows)})")
+            for slug, route, note in rows:
+                suffix = f"  - {note}" if note else ""
+                print(f"    {slug:<40} route={route}{suffix}")
+            print()
+        # Never dropped silently: a board that omits part of the work looks
+        # complete when it is not.
+        for key in sorted(set(groups) - {k for k, _ in headings} - {"unreadable"}):
+            rows = groups[key]
+            if rows:
+                print(f"  {key.upper()} ({len(rows)})")
+                for slug, route, _ in rows:
+                    print(f"    {slug:<40} route={route}")
+                print()
+        if groups["unreadable"]:
+            print(f"  UNPLACEABLE ({len(groups['unreadable'])}) - "
+                  f"no readable task.yml, so no state to report")
+            for slug, _, why in groups["unreadable"]:
+                print(f"    {slug:<40} {why}")
+            print()
         return 0
 
     # --digest mode: produce a digest including rework-scan
@@ -146,7 +189,7 @@ def cmd_flow(args):
 
     today = datetime.date.today().isoformat()
     print(f"# Flow digest - {today}\n")
-    print("> Advisory only. This digest does not modify any task state (Inv-4).\n")
+    print("> Advisory only. This digest does not modify any issue state (Inv-4).\n")
 
     # --- Rework scan section (TRC-D5) ---
     # Capture rework-scan output by invoking the scan logic directly
@@ -177,13 +220,13 @@ def cmd_flow(args):
                     tasks.append((d, data))
                 except CompassError:
                     pass
-    total_reframes = sum(len(t.get("reframes") or []) for _, t in tasks)
+    total_reframes = sum(len(t.get("reassessments") or []) for _, t in tasks)
     if total_reframes == 0:
-        print(f"No re-frames recorded across {len(tasks)} task(s). "
-              f"Either routing is well-calibrated, or there is not enough history yet.\n")
+        print(f"No re-assessments recorded across {len(tasks)} issue(s). "
+              f"Either the sizing is well-calibrated, or there is not enough history yet.\n")
     else:
-        print(f"{total_reframes} re-frame(s) recorded across {len(tasks)} task(s). "
-              f"Run `compass calibration` for the full breakdown.\n")
+        print(f"{total_reframes} re-assessment(s) recorded across {len(tasks)} issue(s). "
+              f"Run `compass retro` for the full breakdown.\n")
 
     return 0
 
@@ -211,7 +254,7 @@ def cmd_flow(args):
 
 _DERIVED_HEADER = (
     "<!-- DERIVED FILE - do not hand-edit; "
-    "edit .compass/work/<task>/spec.feature.md -->"
+    "edit .compass/work/<task>/acceptance-criteria.md -->"
 )
 
 
@@ -245,7 +288,7 @@ def derive_system_spec(project_root: str) -> None:
                 continue
             try:
                 with open(yml_path, encoding="utf-8") as fh:
-                    task = yaml.safe_load(fh) or {}
+                    task = normalize_spine(yaml.safe_load(fh) or {})
             except yaml.YAMLError:
                 continue
             if not isinstance(task, dict):
@@ -257,7 +300,7 @@ def derive_system_spec(project_root: str) -> None:
             landed.append({
                 "slug": slug,
                 "task_dir": task_dir,
-                "task": task,
+                "issue": task,
                 "land_timestamp": str(land_ts) if land_ts else "",
             })
 
@@ -271,7 +314,7 @@ def derive_system_spec(project_root: str) -> None:
 
     for item in landed:
         slug = item["slug"]
-        task = item["task"]
+        task = item["issue"]
         task_dir = item["task_dir"]
         land_ts = item["land_timestamp"]
         # Parse a date string from land_timestamp for display
@@ -306,10 +349,10 @@ def derive_system_spec(project_root: str) -> None:
         "",
         "# System Specification (derived)",
         "",
-        "> This file is automatically generated at Land from the "
-        "`.compass/work/<task>/spec.feature.md` files of all landed tasks.",
+        "> This file is automatically generated at ship time from the "
+        "`.compass/work/<task>/acceptance-criteria.md` files of all landed issues.",
         "> **Do not hand-edit** - edits are silently overwritten on the next Land.",
-        "> Edit the source: `.compass/work/<task>/spec.feature.md`.",
+        "> Edit the source: `.compass/work/<task>/acceptance-criteria.md`.",
         "",
     ]
 
@@ -326,7 +369,7 @@ def derive_system_spec(project_root: str) -> None:
                 "",
                 f"- **Scenario id:** `{entry['scn_id']}`",
                 f"- **Intent:** `{entry['intent']}`",
-                f"- **Source task:** `{entry['slug']}`",
+                f"- **Source issue:** `{entry['slug']}`",
                 f"- **Landed:** {entry['land_date']}",
                 "",
             ]
@@ -356,7 +399,7 @@ def derive_system_spec(project_root: str) -> None:
                 "",
                 f"- **Scenario id:** `{entry['scn_id']}`",
                 f"- **Intent:** `{entry['intent']}`",
-                f"- **Source task:** `{entry['slug']}`",
+                f"- **Source issue:** `{entry['slug']}`",
                 f"- **Landed:** {entry['land_date']}",
                 "",
             ]
@@ -370,7 +413,7 @@ def derive_system_spec(project_root: str) -> None:
     # produces a file that fails the repository's own style test.
     #
     # The normalisation happens HERE, on the output, and never on the sources.
-    # Those spec.feature.md files are a record of what was specified at the
+    # Those acceptance-criteria.md files are a record of what was specified at the
     # time; editing them to suit a generator would rewrite history, and would
     # have to be repeated in every adopter's archive. A generator owns its
     # output, so it owns its output's style.

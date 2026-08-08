@@ -52,12 +52,13 @@ done
 
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"
-ROUTE="$TASK_DIR/route.md"
+ROUTE="$TASK_DIR/delivery-approach.md"
+[ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
 TASK_YML="$TASK_DIR/task.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
 [ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for task '$TASK_SLUG' - Plan must produce it first." >&2; exit 1; }
-[ -f "$ROUTE" ] || { echo "swarm.sh: no route.md for task '$TASK_SLUG' - Frame must run first." >&2; exit 1; }
+[ -f "$ROUTE" ] || { echo "swarm.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
 [ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for task '$TASK_SLUG' - the worktree cap is read from structured readings, not route.md prose. Run Frame." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
@@ -94,10 +95,11 @@ except Exception as e:
     print("ERR:" + str(e)); sys.exit(0)
 if not isinstance(d, dict):
     print("ERR:task.yml is not a mapping"); sys.exit(0)
-br = (d.get("readings") or {}).get("blast_radius")
+assessment = d.get("assessment") or d.get("readings") or {}
+br = assessment.get("risk") or assessment.get("blast_radius")
 if not br:
-    print("ERR:no readings.blast_radius in task.yml"); sys.exit(0)
-fired = d.get("fired_guardrails") or []
+    print("ERR:no assessment.risk in task.yml"); sys.exit(0)
+fired = d.get("policy_rules_fired") or d.get("fired_guardrails") or []
 capped = (br == "critical") or any(
     isinstance(f, dict) and f.get("id") == "RG-CAP-001" for f in fired)
 print("OK:" + ("1" if capped else "0"))

@@ -36,6 +36,25 @@ mode: enforced
 # `routing_guardrails.waived:` with a reason, not here.
 governance_drift: advisory
 
+# --- what counts as production code -----------------------------------------
+# Adds to the built-in set `hooks/pre-tool.sh` enforces (application source,
+# Terraform, SQL, Dockerfiles, CI workflows, k8s/helm/migration paths). Listing
+# a glob here means "a change to this needs a failing test on record first".
+#
+# It only ever ADDS. There is no key that removes framework enforcement -
+# project rules ratchet up, the same way a project guardrail may exceed a floor
+# but never fall short of one.
+#
+# This repository declares its own shell scripts, because `hooks/*.sh` and
+# `scripts/*.sh` ARE the production code here: pre-tool.sh is the enforcement
+# mechanism and release.sh cuts releases, and both were outside the mechanism
+# they implement (ADR-011). A project that declares nothing keeps exactly the
+# built-in behaviour.
+enforcement:
+  code_globs:
+    - "hooks/*.sh"
+    - "scripts/*.sh"
+
 project:
   # The name shown in artifact headers and the devlog. In a project that has
   # run `/compass:init`, this is set to the project's own name. The value
@@ -51,7 +70,7 @@ project:
   test_command: ""   # e.g. "npm test", "pytest -q", "go test ./..."
 
   # --- executable BDD (all optional) ----------------------------------------
-  # `compass bdd extract` lifts the Gherkin out of a task's spec.feature.md
+  # `compass bdd extract` lifts the Gherkin out of a task's acceptance-criteria.md
   # into a plain .feature file, tagged with each scenario's TRC id. It works
   # with none of the keys below set - it writes the .feature into the task
   # directory and stops there.
@@ -67,7 +86,7 @@ project:
   # bdd_runner: pytest-bdd        # pytest-bdd | cucumber-js | behave | godog
   #
   #   bdd_features_dir  Where `compass bdd extract` writes the .feature file.
-  #                     Unset, it writes `spec.feature` into the task's own
+  #                     Unset, it writes `acceptance-criteria.feature` into the task's own
   #                     directory. Set it when your runner expects a
   #                     conventional features/ directory; the file is then
   #                     written as <dir>/<task-slug>.feature.
@@ -92,7 +111,7 @@ swarm:
 artifacts:
   # Where per-task working state lives. This directory IS committed in a real
   # project - it is the audit trail, not scratch. Holds work/<task-slug>/
-  # (each task's route.md, task.yml, spec.feature.md, …) and the
+  # (each task's delivery-approach.md, task.yml, acceptance-criteria.md, …) and the
   # .compass/current-task pointer the CLI uses to resolve the active task.
   work_dir: ".compass/work"
 

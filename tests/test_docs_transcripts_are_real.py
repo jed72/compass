@@ -25,14 +25,14 @@ DOC = ROOT / "docs" / "five-minutes.md"
 def _documented_readings():
     """The `readings:` block from the worked example's task.yml snippet."""
     text = DOC.read_text(encoding="utf-8")
-    m = re.search(r"```yaml\n(.*?schema_version.*?readings:.*?)```", text, re.S)
-    assert m, "docs/five-minutes.md must show a task.yml snippet with readings:"
+    m = re.search(r"```yaml\n(.*?schema_version.*?assessment:.*?)```", text, re.S)
+    assert m, "docs/five-minutes.md must show a task.yml snippet with assessment:"
     parsed = yaml.safe_load(m.group(1))
-    return parsed["readings"]
+    return parsed["assessment"]
 
 
 def _evaluate(readings):
-    args = [sys.executable, str(COMPASS_CLI), "route", "evaluate"]
+    args = [sys.executable, str(COMPASS_CLI), "approach", "evaluate"]
     for key, value in readings.items():
         args += ["--reading", f"{key}={value}"]
     return subprocess.run(args, capture_output=True, text=True, cwd=ROOT, timeout=30)
@@ -52,11 +52,12 @@ def test_worked_example_route_and_gates_match_the_cli():
     out = _evaluate(_documented_readings()).stdout
     doc = DOC.read_text(encoding="utf-8")
 
-    for label in ("FINAL ROUTE", "gate set"):
+    # "FINAL ROUTE" became "FINAL APPROACH" with the CLI-voice slice.
+    for label in ("FINAL APPROACH", "gate set"):
         m = re.search(rf"^\s*{label}\s*:\s*(.+)$", out, re.M)
-        assert m, f"`route evaluate` printed no '{label}' line:\n{out}"
+        assert m, f"the evaluator printed no '{label}' line:\n{out}"
         actual = m.group(1).strip()
-        assert f"{label}     : {actual}" in doc or f"{label}        : {actual}" in doc, (
+        assert re.search(rf"{re.escape(label)}\s*:\s*{re.escape(actual)}", doc), (
             f"docs/five-minutes.md's transcript does not show the real {label} "
-            f"({actual!r}). Re-run `compass route evaluate` and paste the output."
+            f"({actual!r}). Re-run `compass approach evaluate` and paste the output."
         )

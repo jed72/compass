@@ -1,37 +1,20 @@
-# =============================================================================
-# task.yml - search-crash-on-empty-filter  (EXAMPLE: the Hotfix route)
-# =============================================================================
-# A worked example. This is the task spine after a finished Hotfix: the
-# reproduction test IS the spec (SCN-001), the Build was expedited, and the
-# mandatory backfill is recorded in `backfills:` - and PAID. `compass check`
-# fails a Hotfix while any backfill is `owed`; this one is closed because
-# every backfill below reads `paid`.
-# =============================================================================
-
-schema_version: "1.0"
-task: "search-crash-on-empty-filter"
-created: "2026-05-11"
-
-# --- the route -------------------------------------------------------------
-# JUDGEMENT: the Needle's Frame readings, written fast but real. Hotfix is
-# selected by URGENCY, not by the magnitude/blast composition - see route.md.
-readings:
-  blast_radius: cross-cutting
-  terrain: brownfield-mapped
-  magnitude: small
-  intent: delivery
+schema_version: '2.0'
+task: search-crash-on-empty-filter
+created: '2026-05-11'
+status: landed
+land_timestamp: '2026-08-04T00:00:00Z'
+assessment:
+  risk: cross-cutting
+  familiarity: brownfield-mapped
+  size: small
+  goal: delivery
   urgency: live-defect
   role: engineer
-  touches: []
-
-# MECHANICAL: computed by `compass route evaluate --write`. urgency:live-defect
-# + small magnitude -> RS-SHAPE-002 -> hotfix. (Note: had blast_radius been
-# `critical`, RG-FLOOR-001 would have raised this to expedition - a critical
-# defect is an incident, not a hotfix. cross-cutting is the hotfix band.)
-route: hotfix
+  labels: []
+delivery_approach: hotfix
 topology: solo
-fired_guardrails: []
-phases:
+policy_rules_fired: []
+stages:
   frame: light
   specify: reproduce-first
   clarify: collapsed
@@ -40,79 +23,60 @@ phases:
   build: expedited
   verify: full
   land: full-plus-backfill
-
-# --- evidence (the registry) -----------------------------------------------
-# Typed, id-tagged. Urgency does NOT soften the strength of the evidence -
-# correctness and regression still demand the recorded test run (test-run),
-# security still demands the captured scan (command-output). A Hotfix borrows
-# speed from the front of the pipeline, never from the strength of its evidence.
 evidence:
-  - id: EV-T1
-    type: test-run
-    path: evidence/green.json
-    scenario: SCN-001
-  - id: EV-SEC1
-    type: command-output
-    path: evidence/security-scan.txt
-  - id: EV-V1
-    type: artifact
-    path: verification-report.md
-
-# --- gates -----------------------------------------------------------------
-# Hotfix's gate set: full Verify, no exceptions. Hotfix compresses the phases
-# BEFORE Verify, never Verify itself. `clarity` is deferred to the backfill.
+- id: EV-T1
+  type: test-run
+  path: evidence/green.json
+  scenario: SCN-001
+- id: EV-SEC1
+  type: command-output
+  path: evidence/security-scan.txt
+- id: EV-V1
+  type: artifact
+  path: verification-report.md
 gates:
-  - id: verify.correctness
-    status: pass
-    evidence: [EV-T1]
-  - id: verify.governance
-    status: pass
-    evidence: [EV-V1]
-  - id: verify.traceability
-    status: pass
-    evidence: [EV-V1]
-  - id: verify.regression
-    status: pass
-    evidence: [EV-T1]
-  - id: verify.security
-    status: pass
-    evidence: [EV-SEC1]
-
-# --- scenarios (filled by Specify = reproduce-first) -----------------------
-# On Hotfix the failing regression test IS the scenario. SCN-001 was written
-# RED first (evidence/red.json) - it reproduced the crash before any fix.
-# It was promoted into a proper Given/When/Then in spec.feature.md as the
-# backfill (BF-001 below).
+- id: verify.correctness
+  status: pass
+  evidence:
+  - EV-T1
+- id: verify.governance
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.traceability
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.regression
+  status: pass
+  evidence:
+  - EV-T1
+- id: verify.security
+  status: pass
+  evidence:
+  - EV-SEC1
 scenarios:
-  - id: SCN-001
-    title: "Search with an empty filter object returns results, does not crash"
-    intent: INT-1
-    tests:
-      - "tests/api/test_search.py::test_empty_filter_object_does_not_crash"
-
-# --- changed_files (filled by Build) ---------------------------------------
+- id: SCN-001
+  title: Search with an empty filter object returns results, does not crash
+  intent: INT-1
+  tests:
+  - tests/api/test_search.py::test_empty_filter_object_does_not_crash
 changed_files:
-  - path: "src/api/search/filter_compiler.py"
-    scenarios: [SCN-001]
-
-# --- claims ----------------------------------------------------------------
+- path: src/api/search/filter_compiler.py
+  scenarios:
+  - SCN-001
 claims: []
-
-# --- backfills (Hotfix's defining obligation) ------------------------------
-# Hotfix borrows ceremony from the front of the pipeline and pays it back at
-# Land. The task does NOT close while any of these is `owed`. All `paid` here
-# - that is what makes this a CLOSED task and not an open one.
-backfills:
-  - id: BF-001
-    description: "Promote the reproduction test into a proper Given/When/Then scenario in spec.feature.md, traceable to the defect."
-    status: paid
-  - id: BF-002
-    description: "Complete route.md properly - the four dimension readings and the root-cause note, not just the urgent stub."
-    status: paid
-  - id: BF-003
-    description: "Root-cause line in devlog.md, plus the follow-up task for the missing-scenario class of gap."
-    status: paid
-
-# --- reframes --------------------------------------------------------------
-# Empty: urgency selected Hotfix at Frame and the route held - no re-frame.
-reframes: []
+follow_ups:
+- id: BF-001
+  description: Promote the reproduction test into a proper Given/When/Then scenario
+    in spec.feature.md, traceable to the defect.
+  status: paid
+- id: BF-002
+  description: Complete route.md properly - the four dimension readings and the root-cause
+    note, not just the urgent stub.
+  status: paid
+- id: BF-003
+  description: Root-cause line in devlog.md, plus the follow-up task for the missing-scenario
+    class of gap.
+  status: paid
+reassessments: []

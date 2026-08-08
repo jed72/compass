@@ -16,7 +16,7 @@ import pathlib
 import re
 
 FEATURE = (pathlib.Path(__file__).resolve().parent
-           / ".compass" / "work" / "reset-password" / "spec.feature")
+           / ".compass" / "work" / "reset-password" / "acceptance-criteria.feature")
 
 
 def pytest_configure(config):

@@ -1,0 +1,58 @@
+schema_version: '2.0'
+task: fix-timeout-error-message
+created: '2026-05-04'
+status: landed
+land_timestamp: '2026-08-04T00:00:00Z'
+assessment:
+  risk: trivial
+  familiarity: brownfield-mapped
+  size: small
+  goal: delivery
+  role: engineer
+  labels: []
+delivery_approach: express
+topology: solo
+policy_rules_fired: []
+stages:
+  frame: full
+  specify: light
+  clarify: collapsed
+  plan: collapsed
+  distribute: skipped
+  build: full
+  verify: light
+  land: light
+evidence:
+- id: EV-001
+  type: test-run
+  path: evidence/green.json
+  scenario: SCN-001
+- id: EV-V1
+  type: artifact
+  path: verification-note.md
+gates:
+- id: verify.correctness
+  status: pass
+  evidence:
+  - EV-001
+- id: verify.governance
+  status: pass
+  evidence:
+  - EV-V1
+- id: verify.traceability
+  status: pass
+  evidence:
+  - EV-V1
+scenarios:
+- id: SCN-001
+  title: Upload timeout reports the real cause and the real limit
+  intent: INT-1
+  tests:
+  - tests/api/test_upload_errors.py::test_timeout_message_names_size_limit
+changed_files:
+- path: src/api/upload.py
+  scenarios:
+  - SCN-001
+claims: []
+follow_ups: []
+reassessments: []

@@ -63,16 +63,29 @@ def test_trc_d1_mental_model_bullets_unchanged():
 # and the task-spine mutators; each addition updates this set on purpose.
 # Leading-underscore subcommands stay private and excluded from --help (DD-4).
 # ---------------------------------------------------------------------------
+# The known set moved with the CLI-voice slice: the banned-word verbs
+# renamed (route -> approach, task -> issue, backfill -> follow-up,
+# calibration -> retro, plan -> design, land-commit -> ship-commit) and
+# terminology was added. The assertion's premise is unchanged - the
+# surface equals the known set, and deliberate changes update it here.
 EXPECTED_PUBLIC_SUBCOMMANDS = {
-    "route", "check", "calibration", "ci",
+    "approach", "check", "retro", "ci",
     "tdd-red", "tdd-green",
-    "policy", "task", "adr",
-    "rework-scan", "flow", "backfill",
+    "policy", "issue", "adr",
+    "rework-scan", "flow", "follow-up",
+    "terminology",                # the CLI-voice slice: the glossary verb
+    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
     "analyze", "next",            # cross-task-architectural-integrity
-    "land-commit",                # framework-field-feedback R5
+    "ship-commit",                # framework-field-feedback R5
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
-    "plan",                       # readable-specs-and-flow: `compass plan lint`,
-                                  # the advisory placeholder scan over plan.md
+    "design",                     # readable-specs-and-flow: `compass design lint`,
+                                  # the advisory placeholder scan over design.md
+    "acceptance",                 # honest-acceptance-for-config-and-refactor:
+                                  # `compass acceptance start|record`, the
+                                  # honest signal for a change with no natural
+                                  # behavioural red (field report R13). A
+                                  # GROUP, like `bdd`, so later kinds add
+                                  # `compass acceptance <thing>`.
     "bdd",                        # executable-bdd-and-richer-plans:
                                   # `compass bdd extract`. A subcommand GROUP,
                                   # so later BDD work (a scenarios-are-executable
@@ -122,10 +135,10 @@ def test_trc_d3_no_tier_ladder_in_routing_policy():
         )
     # Reading vocabulary keys are unchanged (the four dimensions + urgency + role)
     policy = yaml.safe_load(text)
-    vocab = policy.get("reading_vocabulary", {})
-    expected_dims = {"blast_radius", "terrain", "magnitude", "intent", "urgency", "role"}
+    vocab = policy.get("assessment_vocabulary", {})
+    expected_dims = {"risk", "familiarity", "size", "goal", "urgency", "role"}
     assert expected_dims.issubset(set(vocab.keys())), (
-        f"reading_vocabulary must contain {expected_dims}; got {set(vocab.keys())}"
+        f"assessment_vocabulary must contain {expected_dims}; got {set(vocab.keys())}"
     )
 
 
@@ -158,7 +171,7 @@ def test_trc_d4_no_new_agent_persona_no_new_role():
     policy = yaml.safe_load(
         (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
     )
-    actual_roles = set(policy["reading_vocabulary"]["role"])
+    actual_roles = set(policy["assessment_vocabulary"]["role"])
     assert actual_roles == EXPECTED_ROLES, (
         f"the role enum must remain {EXPECTED_ROLES}; got {actual_roles}"
     )
@@ -176,7 +189,7 @@ def test_trc_d5_pipeline_phases_flex_by_route():
         (ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8")
     )
     shapes = policy["route_shapes"]
-    phase_maps = {name: shape["phases"] for name, shape in shapes.items()}
+    phase_maps = {name: shape["stages"] for name, shape in shapes.items()}
     # All five shapes present
     assert {"spike", "express", "standard", "hotfix", "expedition"} == set(phase_maps.keys())
     # At least two shapes must have distinct phase maps
@@ -261,19 +274,19 @@ def test_trc_d8_bare_repo_zero_setup(tmp_path):
 
 # ---------------------------------------------------------------------------
 # TRC-D9 - route composition stays byte-identical across runs
-# Source-of-truth: `compass route evaluate --json` for a fixed reading set
+# Source-of-truth: `compass approach evaluate --json` for a fixed reading set
 # returns byte-identical output across runs (NFR-DET-001).
 # ---------------------------------------------------------------------------
 def test_trc_d9_route_evaluate_deterministic(tmp_path):
-    """TRC-D9 - `compass route evaluate` is byte-identical for the same
+    """TRC-D9 - `compass approach evaluate` is byte-identical for the same
     readings + the same routing policy."""
     # Run route evaluate twice with the same readings against the framework's
     # own routing-policy.yml (no project overrides - work in tmp_path).
     cmd = [
-        sys.executable, str(CLI), "route", "evaluate",
-        "--reading", "blast_radius=contained",
-        "--reading", "terrain=brownfield-mapped",
-        "--reading", "magnitude=small",
+        sys.executable, str(CLI), "approach", "evaluate",
+        "--reading", "risk=contained",
+        "--reading", "familiarity=brownfield-mapped",
+        "--reading", "size=small",
         "--reading", "intent=delivery",
         "--reading", "role=engineer",
         "--json",
@@ -283,8 +296,8 @@ def test_trc_d9_route_evaluate_deterministic(tmp_path):
     # The route + phases + gates blocks must match byte-for-byte
     j1 = json.loads(out1.stdout)
     j2 = json.loads(out2.stdout)
-    assert j1.get("route") == j2.get("route")
-    assert j1.get("phases") == j2.get("phases")
+    assert j1.get("delivery_approach") == j2.get("delivery_approach")
+    assert j1.get("stages") == j2.get("stages")
     assert j1.get("gates") == j2.get("gates")
 
 

@@ -96,10 +96,10 @@ def make_task_dir(root: Path, slug: str, *,
         "created": "2026-05-25",
         "status": status,
         "land_timestamp": land_timestamp,
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "greenfield",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "greenfield",
+            "size": "small",
         },
         "scenarios": scenarios or [],
     }
@@ -108,7 +108,7 @@ def make_task_dir(root: Path, slug: str, *,
     )
 
     if feature_text is not None:
-        (task_dir / "spec.feature.md").write_text(feature_text, encoding="utf-8")
+        (task_dir / "acceptance-criteria.md").write_text(feature_text, encoding="utf-8")
 
     return task_dir
 
@@ -146,7 +146,7 @@ class TestTrcB10:
 
     def test_derived_file_header_present(self, tmp_path):
         """After derivation, the first non-empty line identifies the file as
-        DERIVED and names .compass/work/<task>/spec.feature.md as the
+        DERIVED and names .compass/work/<task>/acceptance-criteria.md as the
         source-of-truth to edit instead."""
         derive = _import_derive()
 
@@ -170,8 +170,8 @@ class TestTrcB10:
         assert "DERIVED" in first_line.upper(), (
             f"First non-empty line does not identify file as DERIVED: {first_line!r}"
         )
-        assert "spec.feature.md" in first_line, (
-            f"First line does not name spec.feature.md: {first_line!r}"
+        assert "acceptance-criteria.md" in first_line, (
+            f"First line does not name acceptance-criteria.md: {first_line!r}"
         )
 
     def test_derived_header_instructs_not_to_hand_edit(self, tmp_path):
@@ -336,17 +336,17 @@ class TestTrcB2:
             "task": "old-task",
             "created": "2026-05-25",
             # NO status field - backward compat
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
             "scenarios": [make_scenario_entry("SCN-OLD", "old behaviour")],
         }
         (task_dir / "task.yml").write_text(
             yaml.safe_dump(task_no_status, sort_keys=False), encoding="utf-8"
         )
-        (task_dir / "spec.feature.md").write_text(
+        (task_dir / "acceptance-criteria.md").write_text(
             make_feature_text("SCN-OLD", "old behaviour"), encoding="utf-8"
         )
 
@@ -675,20 +675,20 @@ class TestTrcB6:
     unchanged by introducing the living spec capability."""
 
     def test_phase_set_unchanged(self, tmp_path):
-        """compass route evaluate still returns the same phases as before the
+        """compass approach evaluate still returns the same phases as before the
         living spec was introduced."""
         result = run_cli(
-            "route", "evaluate",
-            "--reading", "blast_radius=contained",
-            "--reading", "terrain=greenfield",
-            "--reading", "magnitude=small",
+            "approach", "evaluate",
+            "--reading", "risk=contained",
+            "--reading", "familiarity=greenfield",
+            "--reading", "size=small",
             "--json",
             cwd=FRAMEWORK_ROOT,
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
         import json
         data = json.loads(result.stdout)
-        phases = data.get("phases", {})
+        phases = data.get("stages", {})
         # The standard set of phases must be present
         expected_phases = {"frame", "specify", "clarify", "plan", "build", "verify", "land"}
         assert expected_phases.issubset(set(phases.keys())), (
@@ -773,18 +773,18 @@ class TestTrcB11:
             "task": "test-status",
             "created": "2026-05-25",
             "status": "landed",
-            "readings": {
-                "blast_radius": "contained",
-                "terrain": "greenfield",
-                "magnitude": "small",
+            "assessment": {
+                "risk": "contained",
+                "familiarity": "greenfield",
+                "size": "small",
             },
             "scenarios": [],
             "changed_files": [],
             "gates": [],
             "evidence": [],
             "claims": [],
-            "backfills": [],
-            "reframes": [],
+            "follow_ups": [],
+            "reassessments": [],
         }
         (task_dir / "task.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
@@ -798,7 +798,7 @@ class TestTrcB11:
         for name in ("routing-policy.yml", "guardrails.yml"):
             shutil.copyfile(gov_src / name, gov_dst / name)
 
-        result = run_cli("task", "lint", "--task", "test-status", cwd=str(tmp_path))
+        result = run_cli("issue", "lint", "--task", "test-status", cwd=str(tmp_path))
         assert result.returncode == 0, (
             f"task.yml with status: landed should lint clean: {result.stdout}\n{result.stderr}"
         )

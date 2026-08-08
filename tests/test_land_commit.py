@@ -1,4 +1,4 @@
-"""compass land-commit (R5): the Land commit step must survive auto-fixing
+"""compass ship-commit (R5): the Land commit step must survive auto-fixing
 pre-commit hooks and never silently believe a land that didn't move HEAD.
 
 The defect: an auto-fixing pre-commit hook (ruff format/--fix) rewrites a
@@ -80,7 +80,7 @@ def test_clean_then_commit_advances_head(run_cli, tmp_path):
     (repo / "file.txt").write_text("NEEDS_FIX\n")
     _git(repo, "add", "-A")
     h0 = _head(repo)
-    r = run_cli("land-commit", "-m", "land it", cwd=repo)
+    r = run_cli("ship-commit", "-m", "land it", cwd=repo)
     assert r.returncode == 0, r
     assert _head(repo) != h0, r
 
@@ -95,7 +95,7 @@ def test_noop_detected_retry_advances_head(run_cli, tmp_path):
     (repo / "file.txt").write_text("NEEDS_FIX\n")
     _git(repo, "add", "-A")
     h0 = _head(repo)
-    r = run_cli("land-commit", "-m", "land it", cwd=repo)
+    r = run_cli("ship-commit", "-m", "land it", cwd=repo)
     assert r.returncode == 0, r
     assert _head(repo) != h0, r
     assert "retry" in (r.stdout + r.stderr).lower(), r
@@ -110,7 +110,7 @@ def test_head_advance_always_verified(run_cli, tmp_path):
     (repo / "file.txt").write_text("clean change\n")
     _git(repo, "add", "-A")
     h0 = _head(repo)
-    r = run_cli("land-commit", "-m", "clean land", cwd=repo)
+    r = run_cli("ship-commit", "-m", "clean land", cwd=repo)
     assert r.returncode == 0, r
     h1 = _head(repo)
     assert h1 != h0, r
@@ -132,7 +132,7 @@ def test_persistent_noop_errors_loudly(run_cli, tmp_path):
     (repo / "file.txt").write_text("NEEDS_FIX\n")
     _git(repo, "add", "-A")
     h0 = _head(repo)
-    r = run_cli("land-commit", "-m", "land it", "--task", "slug", cwd=repo)
+    r = run_cli("ship-commit", "-m", "land it", "--task", "slug", cwd=repo)
     assert r.returncode != 0, r
     assert _head(repo) == h0, r
     combined = (r.stdout + r.stderr).lower()
@@ -147,7 +147,7 @@ def test_empty_staging_is_explicit_error(run_cli, tmp_path):
     repo.mkdir()
     _init_repo(repo)
     h0 = _head(repo)
-    r = run_cli("land-commit", "-m", "nothing", cwd=repo)
+    r = run_cli("ship-commit", "-m", "nothing", cwd=repo)
     assert r.returncode != 0, r
     assert "nothing staged" in (r.stdout + r.stderr).lower(), r
     assert _head(repo) == h0, r

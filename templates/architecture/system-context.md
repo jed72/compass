@@ -1,9 +1,9 @@
 # System Context
 
-<!-- HOW FRAME USES THIS FILE
-     Frame reads this file at the start of every task and includes it (with
+<!-- HOW TRIAGE USES THIS FILE
+     Triage reads this file at the start of every issue and includes it (with
      its SHA-256 fingerprint) in .compass/work/<task>/architecture-loaded.yml.
-     Downstream agents - spec-author, planner, and the architect-lens - read
+     Downstream agents - `spec-author`, `planner`, and `architect-lens` - read
      architecture-loaded.yml to get persistent architectural context that
      survives session boundaries and context compaction.
 
@@ -33,7 +33,7 @@
 ## Non-goals
 
 <!-- What this system explicitly does NOT do.  Non-goals are important:
-     they prevent scope creep and help the architect-lens flag when a
+     they prevent scope creep and help the `architect-lens` agent flag when a
      proposed change would cross the stated boundary. -->
 
 ## Quality attributes

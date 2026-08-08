@@ -1,55 +1,88 @@
 ---
-description: Designer entry point - write the UI contract as scenarios that flow into Specify
-argument-hint: "<surface or interaction being designed>"
+description: Write the design, run the governance check, and map the distribution
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
 # /compass:design
 
-The designer entry point. UI contracts in Compass are not mockup annotations -
-they are **scenarios**, written Given/When/Then, that flow *into* Specify as
-first-class spec input. The designer feeds the shared spec; they are not a
-downstream consumer of it.
+Design turns the spec into a technical approach, checks it against
+governance, and - on larger work - decides the parallel topology.
+Parallelism is *decided here* and *executed at breakdown*.
 
-**Surface:** $ARGUMENTS
+(The designer's role entry point, which previously used this name, is
+`/compass:wireframe` - it produces the UI contract, upstream of the
+acceptance criteria. This command is the engineering design stage.)
 
 ## Setup
 
-- Adopt the designer's vocabulary - surfaces, states, interactions, the user's
-  path through them.
-- Load `role-translation` - the UI contract is the interaction lens on the
-  shared spec.
-- Load `bdd-specification` - the contract is written in the same
-  Given/When/Then form as the rest of the spec, so it composes cleanly when it
-  reaches Specify.
-- Read `governance/` - any accessibility or UX floor is either a project
-  guardrail (`guardrails.md`) or a strategy (`strategies.md`); the contract
-  must honour the guardrails and respect the strategies.
-- Read `brief.md` if one exists - the interaction serves the outcome.
+- Read `delivery-approach.md`. Its weight for this stage tells you the
+  shape: a one-line "edit which file(s)" note (quick fix - no `design.md`), a
+  real `design.md` (feature), or a full `design.md` plus
+  `distribution-map.md` (initiative).
+- Read `acceptance-criteria.md` and `requirements-review.md` - the design is
+  built on the hardened spec.
+- Load the `plan-authoring` skill - how to write the design itself: what a
+  work unit is, what makes one genuinely independent of another, and the
+  self-review the author owes the reviewer before the design is handed over.
+- Load the `governance-check` skill.
+- Invoke the `planner` agent - it owns this stage.
+- If a `prd.md` exists, this is where the **intent-fidelity gate** lands: the
+  spec must be checked against the PRD before the design completes. Invoke
+  `product-lens` to run it.
 
 ## Procedure
 
-1. **Write the UI contract as scenarios.** From `templates/ui-contract.md`,
-   capture each interaction as Given/When/Then: the state the user is in, the
-   action they take, the observable result. Cover the empty state, the loading
-   state, the error state, and the accessibility expectations - not just the
-   happy path.
-2. **Honour the guardrails.** Every contract scenario must be consistent with
-   the guardrails in `governance/guardrails.md` (e.g. a project accessibility
-   floor). A contract that cannot meet a guardrail is a tension to name now,
-   not later.
-3. **Write `ui-contract.md`** into `.compass/work/<task-slug>/`.
+1. **Technical approach.** State the design. Record each design decision as
+   an ADR-style note - what was chosen, what was rejected, why.
+2. **Governance check.** Run `governance-check` against `governance/` - the
+   guardrails (hard, blocking) and the applicable engineering strategies
+   (soft, assessed). Read the machine-readable governance the CLI runs
+   against: `guardrails.yml`, `strategies.md`, `routing-policy.yml`.
+   `compass policy lint` structurally validates the governance YAML - run it
+   if the project has tuned `governance/`. A design that crosses a guardrail
+   does not pass - revise the design, never waive the guardrail. A design
+   that departs from a strategy may pass, but the departure is recorded.
+3. **Distribution map** (when the work splits into independent units). Read
+   the scenario groups from `acceptance-criteria.md`; units that touch
+   disjoint code and satisfy disjoint scenarios can run in parallel. On a
+   feature a short list of 2-3 units is enough; on an initiative write the
+   full `distribution-map.md` from its template - even if a cap forces it
+   solo, the map records what *could* have been parallel and why it wasn't.
+   Stream count comes from the map; topology thresholds from
+   `.compass/config.yml`; a policy cap can bound the count.
+4. **Write `design.md`** from `templates/design.md` (and
+   `distribution-map.md` from its template when applicable) into
+   `.compass/work/<task-slug>/`.
 
-## How this connects to the pipeline
+## Hand-off
 
-`ui-contract.md` is an input to **Specify**. When `spec-author` runs, it folds
-the UI contract scenarios into `spec.feature.md` - they become acceptance
-checks and seed the TDD cycle like any other scenario. Because the contract is
-already Given/When/Then, nothing is lost in translation.
+Close the design by handing the technical approach to a human. This is the
+last review before code is written, and the cheapest point at which to change
+the design.
+
+> I have written the design to `.compass/work/<task-slug>/design.md`
+> (and the distribution map to `distribution-map.md`).
+>
+> It records N design decisions, the governance check against all of
+> `governance/`, and M work units.
+>
+> Worth a read before implementation. Specifically, look for:
+> - **Design decisions you would make differently** - each records what was
+>   chosen and what was rejected, so the disagreement should be easy to
+>   locate.
+> - **A decision with no alternative considered** - that is usually not a
+>   decision yet.
+> - **Work units that are not as independent as claimed** - optimistic
+>   decomposition surfaces as a collision at integration, not here.
+> - **Anything still unfinished** - `compass design lint` reports placeholder
+>   phrases, but a design can be vague without using one.
+>
+> On approval this goes to breakdown, or straight to implementation on solo
+> work.
 
 ## Gate
 
-`ui-contract.md` exists; every interaction is a Given/When/Then scenario
-including the non-happy states; it is consistent with the guardrails in
-`governance/`. Next: `/compass:frame` to route the work, then
-`/compass:specify` will absorb the contract.
+`design.md` exists; the governance check passed (paste its result); if a PRD
+exists, the intent-fidelity gate passed; if the work is parallelisable, a
+distribution map exists. Log to `devlog.md`. Next: `/compass:breakdown` (or
+straight to `/compass:implement` on solo work).

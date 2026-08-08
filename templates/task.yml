@@ -1,81 +1,73 @@
 # =============================================================================
-# TEMPLATE: task.yml  -  the machine-readable task spine
-# Produced by: /compass:frame (creates it), then every later phase fills its
-#              part. Lives at: .compass/work/<task-slug>/task.yml
+# TEMPLATE: task.yml  -  the machine-readable issue spine
+# Produced by: triage (creates it), then every later stage fills its part.
+#              Lives at: .compass/work/<task-slug>/task.yml
 # =============================================================================
-# task.yml is the structured counterpart to the prose artifacts (route.md,
-# spec.feature.md, plan.md, …). The prose is for humans; this is for the CLI.
-# `compass route evaluate` reads `readings` and writes `route`/`phases`/`gates`;
+# task.yml is the structured counterpart to the prose artifacts
+# (delivery-approach.md, acceptance-criteria.md, design.md, …). The prose is
+# for humans; this is for the CLI. `compass approach evaluate` reads
+# `assessment` and writes `delivery_approach`/`stages`/`gates`;
 # `compass check` reads the rest and verifies the guardrail checks.
 #
-# It is NOT extra ceremony you hand-author. Each phase's command/agent fills
-# its section as a by-product of doing the phase - Frame writes the readings,
-# Specify adds scenarios, Build adds changed_files, and so on. On an Express
-# task this file stays tiny. `compass task lint` checks it is well-formed.
+# It is NOT extra ceremony you hand-author. Each stage's command/agent fills
+# its section as a by-product of doing the stage - triage writes the
+# assessment, the acceptance stage adds scenarios, implementation adds
+# changed_files, and so on. On a quick fix this file stays tiny.
+# `compass issue lint` checks it is well-formed.
 # =============================================================================
 
-schema_version: "1.1"     # the Compass task.yml schema this file follows
-                          # '1.1': added optional `status` (active|landed) and
-                          #         `land_timestamp` fields (ADR-008, DD-3).
-                          # '1.0' task.ymls are still valid and are treated as
-                          #         status: active by the derivation walker.
+schema_version: "2.0"     # the spine schema this file follows
+                          # '2.0': the v2 vocabulary keys (assessment, labels,
+                          #         delivery_approach, stages, follow_ups,
+                          #         reassessments). 1.x spines are read by key
+                          #         normalisation until migrated.
 task: "{{TASK_SLUG}}"
 created: "{{DATE}}"
-status: active            # lifecycle: active (in-flight) | landed (complete)
+status: active            # lifecycle: active (in-flight) | queued (next up,
+                          # not started) | parked (stopped, resumable) |
+                          # landed (complete) | abandoned (will not resume)
 
-# --- the route -------------------------------------------------------------
-# `readings` is JUDGEMENT - the Needle (an LLM or a human) produces it during
-# Frame. Everything below `readings` is MECHANICAL - `compass route evaluate
-# --write` computes it deterministically from `readings` + routing-policy.yml.
-readings:
-  blast_radius: "{{trivial | contained | cross-cutting | critical}}"
-  terrain: "{{greenfield | brownfield-mapped | brownfield-unmapped}}"
-  magnitude: "{{atomic | small | standard | large | product}}"
-  intent: "{{delivery | exploration}}"
+# --- the delivery approach ---------------------------------------------------
+# `assessment` is JUDGEMENT - triage (an LLM or a human) produces it.
+# Everything below `assessment` is MECHANICAL - the evaluator
+# (`compass approach evaluate --write`) computes it deterministically from
+# `assessment` + routing-policy.yml.
+assessment:
+  risk: "{{trivial | contained | cross-cutting | critical}}"
+  familiarity: "{{greenfield | brownfield-mapped | brownfield-unmapped}}"
+  size: "{{atomic | small | standard | large | product}}"
+  goal: "{{delivery | exploration}}"
   urgency: "{{none | live-defect}}"          # optional; omit if none
   role: "{{engineer | product-owner | product-marketer | designer | qa}}"
-  touches: []                                # domain tags: [auth, payments, …]
+  labels: []                                 # domain labels: [auth, payments, …]
 
-route: null                  # filled by `compass route evaluate --write`
-topology: null               # filled by route evaluate
-fired_guardrails: []          # filled by route evaluate - [{id, kind, rationale, changed}]
-phases: {}                   # filled by route evaluate - {frame: full, specify: light, …}
+delivery_approach: null      # filled by the evaluator (--write)
+topology: null               # filled by the evaluator
+policy_rules_fired: []       # filled by the evaluator - [{id, kind, rationale, changed}]
+stages: {}                   # filled by the evaluator - {frame: full, specify: light, …}
 
 # --- evidence (the registry) -----------------------------------------------
-# A typed, id-tagged registry of every piece of evidence this task has. Built
-# incrementally: `compass tdd-green --scenario SCN-... -- <cmd>` appends a
-# `test-run` entry; reviews and approvals are added by their phase/agent.
+# A typed, id-tagged registry of every piece of evidence this issue has.
+# Built incrementally: `compass tdd-green --scenario TRC-... -- <cmd>` appends
+# a `test-run` entry; reviews and approvals are added by their stage/agent.
 # Gates below reference these entries by id - multiple gates can share one
-# piece of evidence, and `compass check` verifies the *type* each gate accepts.
-# Types declared in governance/guardrails.yml: test-run, command-output,
-# manual-review, human-approval, security-review, migration-plan,
-# rollback-plan, claim-review, spike-conclusion, artifact.
+# piece of evidence, and `compass check` verifies the *type* each gate
+# accepts. Types declared in governance/guardrails.yml.
 evidence: []
 #  - id: EV-001
 #    type: test-run
 #    path: evidence/green.json
-#    scenario: SCN-001
-#  - id: EV-A1
-#    type: human-approval
-#    path: evidence/approval-auth-change.json
-#    scope: "DB migration for account deletion events"
-#    approver: "name@example.com"
-#    role: "engineering-lead"
-#    decision: approved          # pending | approved | rejected
-#    timestamp: "2026-05-15T09:30:00Z"
-#    conditions:
-#      - "Rollback plan in PR"
-#      - "Run in staging first"
+#    scenario: TRC-001
 
 # --- gates -----------------------------------------------------------------
-# Seeded by route evaluate (status: pending). Each phase updates the gates it
-# clears. `compass check` verifies every `pass` gate references evidence in the
-# registry above, of a type that gate accepts (see governance/guardrails.yml
-# gate_evidence_requirements). On `route evaluate --write` each seeded gate is
-# annotated with a `# accepts: [...]` comment naming the evidence types it will
-# accept - so the author knows the accepted types up front, not by trial at
-# `compass check`. Flip a gate with `compass gate pass <id> --evidence <ids>`,
-# which validates the type at write time and rejects a mismatch.
+# Seeded by the evaluator (status: pending). Each stage updates the gates it
+# clears. `compass check` verifies every `pass` gate references evidence in
+# the registry above, of a type that gate accepts. Flip a gate with
+# `compass gate pass <id> --evidence <ids>`, which validates the type at
+# write time and rejects a mismatch.
+# On `--write` each seeded gate is annotated with an `# accepts: [...]`
+# comment naming the evidence types it will accept - so the author knows the
+# accepted types up front, not by trial at `compass check`.
 #   accepts (from guardrails.yml gate_evidence_requirements):
 #     verify.correctness -> [test-run]
 #     verify.regression  -> [test-run]
@@ -85,76 +77,72 @@ gates: []
 #  - id: verify.correctness
 #    # accepts: ['test-run']
 #    status: pending          # pending | pass | fail
-#    evidence: []             # when status is `pass`, list of evidence ids
-#                             # from the registry above:
-#                             #   evidence: [EV-001]
-#                             # multiple ids allowed; at least one must be of a
-#                             # type this gate accepts.
+#    evidence: []             # evidence ids from the registry above
 
-# --- scenarios (filled by Specify) -----------------------------------------
-# The machine-readable index of spec.feature.md. Each scenario gets a stable
-# id, a linked intent id, and the test(s) that exercise it.
+# --- scenarios (filled when acceptance criteria are defined) ----------------
+# The machine-readable index of acceptance-criteria.md. Each scenario gets a
+# stable id, a linked intent id, and the test(s) that exercise it.
 scenarios: []
-#  - id: SCN-001
+#  - id: TRC-001
 #    title: "Finance exports the month-end ledger"
-#    intent: INT-1            # traces to brief.md / the Frame request
+#    intent: INT-1            # traces to prd.md / the triage request
 #    tests:
 #      - "tests/api/test_ledger_export.py::test_excludes_drafts"
 
-# --- changed_files (filled by Build) ---------------------------------------
-# Every production file the task changes, each traced to >=1 scenario id.
-# This is the code -> criterion half of guardrail G3.
+# --- changed_files (filled during implementation) ---------------------------
+# Every production file the issue changes, each traced to >=1 scenario id.
+# This is the code -> criterion half of the traceability guardrail.
 changed_files: []
 #  - path: "src/api/ledger_export.py"
-#    scenarios: [SCN-001]
+#    scenarios: [TRC-001]
 
-# --- claims (filled by Position - only if a marketer is in play) -----------
+# --- claims (filled by positioning - only if a marketer is in play) ---------
 # Every public/marketing claim, each traced to a backing scenario id.
-# This is the claim -> criterion half of guardrail G3.
+# This is the claim -> criterion half of the traceability guardrail.
 claims: []
 #  - id: CLM-001
 #    text: "Export your month-end ledger in seconds"
-#    scenario: SCN-001
+#    scenario: TRC-001
 
-# --- repairs (Hotfix routes only) -------------------------------------------
-# The slug of the task this hotfix repairs. `compass calibration --impact` reads
-# it to compute the change-fail signal - which task did we ship that later
-# needed fixing. Optional, and honest about being optional: a hotfix that
-# declares nothing is reported as a coverage gap, never counted as a zero.
-# repairs: the-task-this-fixes
+# --- repairs (hotfixes only) -------------------------------------------------
+# The slug of the issue this hotfix repairs. `compass retro --impact`
+# reads it to compute the change-fail signal - which issue did we ship that
+# later needed fixing. Optional, and honest about being optional: a hotfix
+# that declares nothing is reported as a coverage gap, never counted as a
+# zero.
+# repairs: the-issue-this-fixes
 
-# --- backfills (owed ceremony - e.g. a Hotfix's, or a de-scoped artifact) ---
-# `compass check` fails while any backfill is unpaid. Land refuses to close.
-backfills: []
+# --- follow_ups (owed ceremony - e.g. a hotfix's, or a de-scoped artifact) --
+# `compass check` fails while any follow-up is owed. Shipping refuses to
+# close the issue.
+follow_ups: []
 #  - id: BF-001
 #    description: "Promote the reproduction test into a real scenario"
 #    status: "{{owed | paid}}"
 
-# --- reframes (the Needle's feedback signal) -------------------------------
-# Append-only. `compass route evaluate --write` adds an entry here whenever it
-# computes a route that differs from the one already recorded - i.e. a
-# re-frame. `compass calibration` aggregates these across all tasks: a pattern
-# of "up" re-frames means the Needle is systematically under-sizing and the
-# routing policy (or the Frame rubric) needs tuning. A re-frame is a normal
-# event; an unexamined pattern of them is the failure.
-reframes: []
+# --- reassessments (triage's feedback signal) --------------------------------
+# Append-only. `compass approach evaluate --write` adds an entry here whenever
+# it computes a delivery approach that differs from the one already recorded
+# - i.e. a re-assessment. `compass retro` aggregates these across all
+# issues: a pattern of "up" re-assessments means triage is systematically
+# under-sizing and the routing policy (or the triage rubric) needs tuning. A
+# re-assessment is a normal event; an unexamined pattern of them is the
+# failure.
+reassessments: []
 #  - from_route: express
 #    to_route: standard
-#    reason: "Build revealed the change spanned three modules, not one."
+#    reason: "Implementation revealed the change spanned three modules, not one."
 #    date: "{{ISO date}}"
 
-# --- friction (the framework's self-calibration signal) --------------------
-# Optional. Written at Land. Records where Compass's own ceremony cost more
-# than it returned between Frame and Land, and how the framework could have
-# been configured to avoid it. A strategy-class signal - soft, advisory; it
-# never gates Land. Absent on tasks that hit no friction; the loop
-# no-ops cleanly for projects that never write it (ADR-006). Assembled at Land
-# by `compass _friction-capture` and aggregated by `compass calibration
+# --- friction (the framework's self-calibration signal) ---------------------
+# Optional. Written at ship time. Records where Compass's own ceremony cost
+# more than it returned; soft, advisory; it never gates shipping. Assembled
+# by `compass _friction-capture` and aggregated by `compass retro
 # --friction`.
 friction: []
-#  - phase: plan                 # frame|specify|clarify|plan|distribute|build|verify|land
+#  - phase: plan
 #    category: over-ceremony     # over-ceremony | under-ceremony | mis-route |
 #                                # missing-strategy | tooling | docs | other
-#    observation: "Standard route's full Clarify added a gate the change didn't need."
-#    proposed_change: "routing-policy.yml: lower Clarify weight for magnitude=small."
+#    observation: "The full requirements review added a gate the change didn't need."
+#    proposed_change: "routing-policy.yml: lower the review weight for size=small."
 #    source: derived             # derived (auto) | human (author-supplied)

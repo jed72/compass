@@ -1,22 +1,22 @@
 <!--
 TEMPLATE: ui-contract.md
-Produced by: the designer via `/compass:design`.
+Produced by: the designer via `/compass:wireframe`.
 Lives at:    .compass/work/<task-slug>/ui-contract.md
 Role in the pipeline: the designer's artifact. The designer feeds INTO
 Specify - UI behaviour here is authored as Given/When/Then scenarios so it
-flows directly into spec.feature.md as scenarios, not as a separate track.
+flows directly into acceptance-criteria.md as scenarios, not as a separate track.
 That is how the designer is a full pipeline citizen and not a downstream
 consumer. Accessibility commitments here are checked against the
 accessibility strategy in governance/strategies.md.
 
 Fill every {{PLACEHOLDER}}. Write behaviour as scenarios - the same Gherkin
-shape the spec uses - so the handoff into Specify is mechanical.
+shape the spec uses - so the handoff into the define stage is mechanical.
 -->
 
 # UI Contract - {{TASK_SLUG}}
 
 > **Author:** {{DESIGNER NAME}} · **Date:** {{DATE}}
-> **Feeds into:** spec.feature.md (the scenarios below become spec scenarios)
+> **Feeds into:** acceptance-criteria.md (the scenarios below become spec scenarios)
 > **Governance check:** accessibility commitments honour the accessibility strategy in `governance/strategies.md`.
 
 ---
@@ -43,11 +43,11 @@ shape the spec uses - so the handoff into Specify is mechanical.
 ## Interaction scenarios
 
 <!-- Behaviour as Given/When/Then. These are written to be lifted straight
-     into spec.feature.md - give each a traceability id now so the chain is
+     into acceptance-criteria.md - give each a traceability id now so the chain is
      unbroken across the handoff. -->
 
 ### Scenario: {{INTERACTION TITLE}}
-<!-- traceability id: TRC-UI1 · serves: {{INT-id from brief.md, or the task}} -->
+<!-- traceability id: TRC-UI1 · serves: {{INT-id from prd.md, or the issue}} -->
 
 ```gherkin
 Scenario: {{scenario title}}
@@ -84,6 +84,6 @@ Scenario: {{scenario title}}
 
 - [ ] Every interaction scenario above has a traceability id and an intent link.
 - [ ] Accessibility commitments meet or exceed the accessibility strategy in `governance/strategies.md`.
-- [ ] These scenarios are copied into `spec.feature.md` under a UI scenario group.
+- [ ] These scenarios are copied into `acceptance-criteria.md` under a UI scenario group.
 
-Next: the scenarios flow into **Specify** (`/compass:specify`).
+Next: the scenarios flow into the acceptance criteria (`/compass:define`).

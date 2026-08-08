@@ -80,7 +80,7 @@ def test_every_example_spec_extracts(name, slug):
     """
     tmp, work = _sandbox(name)
     try:
-        spec = work / ".compass" / "work" / slug / "spec.feature.md"
+        spec = work / ".compass" / "work" / slug / "acceptance-criteria.md"
         if not spec.is_file():
             pytest.skip(f"{name} is a Spike - no spec by design")
         r = subprocess.run(
@@ -89,7 +89,7 @@ def test_every_example_spec_extracts(name, slug):
         assert r.returncode == 0, (
             f"{name}: extract failed on a spec the framework ships:\n"
             f"{r.stdout}{r.stderr}")
-        out = work / ".compass" / "work" / slug / "spec.feature"
+        out = work / ".compass" / "work" / slug / "acceptance-criteria.feature"
         assert out.is_file(), f"{name}: no feature file written"
         n = out.read_text().count("\n  Scenario:")
         declared = len(

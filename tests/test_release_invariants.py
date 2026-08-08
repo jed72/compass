@@ -62,23 +62,23 @@ def test_command_passes_is_a_check_under_g4_not_a_new_guardrail():
 def test_routing_dimensions_are_unchanged():
     """The four readings (blast_radius, terrain, magnitude, intent) are unchanged."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
-    vocab = policy["reading_vocabulary"]
-    assert "blast_radius" in vocab
-    assert "terrain" in vocab
-    assert "magnitude" in vocab
-    assert "intent" in vocab
+    vocab = policy["assessment_vocabulary"]
+    assert "risk" in vocab
+    assert "familiarity" in vocab
+    assert "size" in vocab
+    assert "goal" in vocab
     # The supporting keys (urgency, role, touches) are unchanged too
     assert "urgency" in vocab
     assert "role" in vocab
-    assert "touches_common" in vocab
+    assert "labels_common" in vocab
 
 
 def test_no_fifth_routing_dimension_added():
     """No new top-level reading dimension was introduced by the 1.1.0 release."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
-    vocab_keys = set(policy["reading_vocabulary"].keys())
+    vocab_keys = set(policy["assessment_vocabulary"].keys())
     # The legitimate set; if anything beyond this exists, the framework grew a dimension
-    legitimate = {"blast_radius", "terrain", "magnitude", "intent", "urgency", "role", "touches_common"}
+    legitimate = {"risk", "familiarity", "size", "goal", "urgency", "role", "labels_common"}
     extra = vocab_keys - legitimate
     assert not extra, (
         f"reading_vocabulary gained unexpected keys: {extra}. ADR-002 forbids new dimensions."
@@ -184,9 +184,11 @@ def test_default_method_strategy_set_is_the_known_set():
     updated by hand, in the same commit as the strategy it admits.
     """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
-    # Section markers have the form: ### S<n> - <slug>: <statement>
+    # Section markers carry the machine id as a code-span suffix:
+    # "### <statement> (`S<n>`)" - the id moved out of the prose position
+    # at the docs-prose slice.
     import re
-    ids = set(re.findall(r"^### (S\d+)", text, flags=re.MULTILINE))
+    ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
     expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "
@@ -233,11 +235,11 @@ def test_comparison_requirements_task_still_lints_clean():
         f"this pre-v1.1.0-shape task.yml; constructing it is the v1-2-era fix."
     )
     result = subprocess.run(
-        [sys.executable, "cli/compass", "task", "lint", "--file", str(fixture)],
+        [sys.executable, "cli/compass", "issue", "lint", "--file", str(fixture)],
         capture_output=True, text=True, cwd=str(REPO_ROOT),
     )
     assert result.returncode == 0, (
-        f"compass task lint must still pass on the pre-existing comparison-requirements task "
+        f"compass issue lint must still pass on the pre-existing comparison-requirements task "
         f"after 1.1.0 lands. stdout: {result.stdout}\nstderr: {result.stderr}"
     )
 

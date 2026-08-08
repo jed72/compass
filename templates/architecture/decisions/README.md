@@ -10,8 +10,8 @@ choice made, the alternatives considered, and the consequences.
 Architectural decisions tend to be made once and then forgotten.  Six months
 later, a new team member asks "why do we do it this way?" and no one remembers.
 ADRs make the *why* a first-class, searchable artifact.  They also give the
-architect-lens a corpus to cite rather than re-litigating decisions that were
-already made deliberately.
+`architect-lens` agent a corpus to cite rather than re-litigating decisions
+that were already made deliberately.
 
 ## Numbering
 

@@ -1,4 +1,4 @@
-"""`compass task lint` must report a malformed task.yml, not crash on it.
+"""`compass issue lint` must report a malformed task.yml, not crash on it.
 
 The command exists to tell an author what is wrong with their task.yml. When a
 scenario or a changed_files entry was written as a bare string instead of a
@@ -40,7 +40,7 @@ def _project(tmp_path, task_yml):
 
 def _lint(cwd):
     return subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "task", "lint", "--task", "t"],
+        [sys.executable, str(COMPASS_CLI), "issue", "lint", "--task", "t"],
         capture_output=True, text=True, cwd=cwd, timeout=30,
     )
 
@@ -71,4 +71,4 @@ def test_lint_reports_non_mapping_readings_instead_of_crashing(tmp_path):
         f"`task lint` crashed on non-mapping readings:\n{combined}"
     )
     assert result.returncode != 0
-    assert "readings" in combined
+    assert "assessment" in combined

@@ -238,12 +238,12 @@ def test_house_style_is_documented():
     """The mechanical rules above have a written home.
 
     A check whose reason is not written down gets deleted by the first person
-    it inconveniences. S7 is that reason, and `commands/land.md` is where the
+    it inconveniences. S7 is that reason, and `commands/ship.md` is where the
     trailer rule has to be visible, because Land is the one point in the
     pipeline where a commit message is authored.
     """
     strategies = (REPO_ROOT / "governance/strategies.md").read_text(encoding="utf-8")
-    assert "### S7" in strategies, (
+    assert "(`S7`)" in strategies, (
         "governance/strategies.md must declare strategy S7 (write for a cold "
         "reader). It is what tests/test_house_style.py enforces the mechanical "
         "half of."
@@ -253,9 +253,9 @@ def test_house_style_is_documented():
         "test_no_agent_coauthor_trailer_in_tracked_files enforces."
     )
 
-    land = (REPO_ROOT / "commands/land.md").read_text(encoding="utf-8")
+    land = (REPO_ROOT / "commands/ship.md").read_text(encoding="utf-8")
     assert "Co-Authored-By" in land, (
-        "commands/land.md must restate the trailer rule beside `compass "
+        "commands/ship.md must restate the trailer rule beside `compass "
         "land-commit`. Land authors the commit message, so the rule has to be "
         "at the point of use to take effect."
     )

@@ -48,7 +48,7 @@ SPEC_HEADER = "# Spec - demo\n\n## Summary\n\n**Goal:** a demo spec.\n\n"
 
 
 def write_spec(task_dir, body: str) -> None:
-    (task_dir / "spec.feature.md").write_text(SPEC_HEADER + body, encoding="utf-8")
+    (task_dir / "acceptance-criteria.md").write_text(SPEC_HEADER + body, encoding="utf-8")
 
 
 def three_scenario_spec() -> str:
@@ -75,9 +75,9 @@ def three_scenario_spec() -> str:
 def demo_task(make_task):
     """A task whose spec.feature.md holds three well-formed scenarios."""
     task_dir = make_task("demo", {
-        "readings": {"blast_radius": "contained", "terrain": "greenfield",
-                     "magnitude": "small", "intent": "delivery",
-                     "role": "engineer", "touches": []},
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                     "size": "small", "intent": "delivery",
+                     "role": "engineer", "labels": []},
         "scenarios": [
             {"id": "TRC-A1", "title": "the first thing should happen",
              "intent": "INT-1", "tests": ["tests/t.py::a"]},
@@ -99,7 +99,7 @@ def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
     result = run_cli("bdd", "extract", "--task", "demo")
     assert result.returncode == 0, result
 
-    out = demo_task / "spec.feature"
+    out = demo_task / "acceptance-criteria.feature"
     assert out.is_file(), f"no spec.feature written to the task dir: {result}"
 
     text = out.read_text(encoding="utf-8")
@@ -122,10 +122,10 @@ def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
 
 def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    first = (demo_task / "spec.feature").read_bytes()
+    first = (demo_task / "acceptance-criteria.feature").read_bytes()
 
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    second = (demo_task / "spec.feature").read_bytes()
+    second = (demo_task / "acceptance-criteria.feature").read_bytes()
 
     assert hashlib.sha256(first).hexdigest() == hashlib.sha256(second).hexdigest(), (
         "two runs over an unchanged spec produced different bytes"
@@ -145,7 +145,7 @@ def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
 
 def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    text = (demo_task / "spec.feature").read_text(encoding="utf-8")
+    text = (demo_task / "acceptance-criteria.feature").read_text(encoding="utf-8")
 
     assert "@TRC-A1" in text
     # the tag sits on its own line immediately above its Scenario
@@ -165,7 +165,7 @@ def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
 
 def test_trc_a4_feature_names_source_task(demo_task, run_cli):
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    text = (demo_task / "spec.feature").read_text(encoding="utf-8")
+    text = (demo_task / "acceptance-criteria.feature").read_text(encoding="utf-8")
 
     features = re.findall(r"^Feature: (.+)$", text, re.M)
     assert features == ["demo"], features
@@ -173,7 +173,7 @@ def test_trc_a4_feature_names_source_task(demo_task, run_cli):
     # a provenance header naming the source, matching the house convention in
     # docs/system-spec.md ("DERIVED FILE - do not hand-edit")
     head = text.split("Feature:")[0]
-    assert "spec.feature.md" in head, head
+    assert "acceptance-criteria.md" in head, head
     assert re.search(r"do not hand-edit", head, re.I), head
 
 
@@ -186,9 +186,9 @@ def test_trc_a5_resolves_current_task_pointer(demo_task, run_cli, project):
 
     result = run_cli("bdd", "extract")          # no --task
     assert result.returncode == 0, result
-    assert (demo_task / "spec.feature").is_file()
+    assert (demo_task / "acceptance-criteria.feature").is_file()
     # it reports where it wrote
-    assert "spec.feature" in result.stdout, result
+    assert "acceptance-criteria.feature" in result.stdout, result
 
 
 # ---------------------------------------------------------------------------
@@ -206,14 +206,14 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
     assert (project / "features" / "demo.feature").is_file(), (
         "configured bdd_features_dir was not honoured"
     )
-    assert not (demo_task / "spec.feature").exists(), (
+    assert not (demo_task / "acceptance-criteria.feature").exists(), (
         "wrote to the default location as well as the configured one"
     )
 
     # and with no key set, the default applies
     cfg.write_text("version: 1.0.0\nmode: enforced\n", encoding="utf-8")
     assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
-    assert (demo_task / "spec.feature").is_file()
+    assert (demo_task / "acceptance-criteria.feature").is_file()
 
 
 # ---------------------------------------------------------------------------
@@ -221,12 +221,12 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
-    task_dir = make_task("empty", {"readings": {}, "scenarios": []})
+    task_dir = make_task("empty", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, "There is prose here but no scenario at all.\n")
 
     result = run_cli("bdd", "extract", "--task", "empty")
     assert result.returncode != 0, result
-    assert "spec.feature.md" in result.combined, result
+    assert "acceptance-criteria.md" in result.combined, result
     assert not (task_dir / "spec.feature").exists(), "wrote a file on failure"
 
 
@@ -235,7 +235,7 @@ def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
-    task_dir = make_task("bad", {"readings": {}, "scenarios": []})
+    task_dir = make_task("bad", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, (
         scenario_block("TRC-A1", "a good one",
                        "  Given a state\n  When it fires\n  Then it holds")
@@ -260,7 +260,7 @@ def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_f3_title_drift_is_caught(make_task, run_cli):
-    task_dir = make_task("drift", {"readings": {}, "scenarios": []})
+    task_dir = make_task("drift", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, (
         "### Scenario: the heading says this\n"
         "<!-- traceability id: TRC-A1 · serves: INT-1 -->\n\n"
@@ -293,7 +293,7 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 
     after = {p: _digest(p) for p in sorted(demo_task.rglob("*")) if p.is_file()}
     created = set(after) - set(before)
-    assert created == {demo_task / "spec.feature"}, created
+    assert created == {demo_task / "acceptance-criteria.feature"}, created
 
     for path, digest in before.items():
         assert after[path] == digest, f"{path.name} was modified by extract"
@@ -312,11 +312,18 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 # The full subcommand set after this task. Frozen deliberately: the point of
 # TRC-A6 is that this task adds exactly one verb, so a second one appearing here
 # should require editing this list and noticing.
+# The v2 verb surface after the CLI-voice slice renamed the banned-word
+# verbs (approach evaluate, follow-up resolve, retro, design lint, the
+# issue group, ship-commit) and added terminology. The premise of the
+# assertion below is unchanged - the surface equals the known set - but
+# the known set deliberately moved with that slice.
 EXPECTED_SUBCOMMANDS = {
-    "route", "bdd", "check", "analyze", "calibration", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "task", "adr", "rework-scan", "flow",
-    "next", "backfill", "land-commit", "gate", "scenario", "changed-file",
-    "evidence",
+    "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
+    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
+    "evidence", "terminology",
+    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
+    "acceptance",   # R13: the acceptance verb group
 }
 
 
@@ -385,7 +392,7 @@ def test_trc_a8_config_template_documents_bdd_keys(framework_root):
 # ---------------------------------------------------------------------------
 
 def test_illustrative_gherkin_without_a_trc_comment_is_ignored(make_task, run_cli):
-    task_dir = make_task("anchor", {"readings": {}, "scenarios": []})
+    task_dir = make_task("anchor", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, (
         "Here is an illustration of what a scenario looks like:\n\n"
         "```gherkin\n"
@@ -397,7 +404,7 @@ def test_illustrative_gherkin_without_a_trc_comment_is_ignored(make_task, run_cl
     ))
 
     assert run_cli("bdd", "extract", "--task", "anchor").returncode == 0
-    text = (task_dir / "spec.feature").read_text(encoding="utf-8")
+    text = (task_dir / "acceptance-criteria.feature").read_text(encoding="utf-8")
     assert text.count("Scenario:") == 1, text
     assert "only an example in prose" not in text, text
     assert "the real one" in text

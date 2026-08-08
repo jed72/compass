@@ -39,7 +39,7 @@
 #     3. `compass tdd-green -- <test command>` confirms green, writes
 #        evidence/green.json, and clears .red - the hand-off to Verify.
 #   .compass/work/<task-slug>/.spike  "this task is on a Spike route - the TDD
-#                                      strategy is suspended". /compass:frame
+#                                      strategy is suspended". /compass:triage
 #                                      writes this when it composes a Spike.
 #   Markers are deliberately plain files so they are inspectable and auditable;
 #   the evidence/*.json records next to them are the audit trail.
@@ -103,6 +103,7 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 # shell redirect, by construction.
 #
 # Returns 0 (true) if a change to $1 must be preceded by a failing test.
+MATCHED_RULE=""
 is_enforced_path() {
   local target="$1" rel base is_code=0
 
@@ -166,10 +167,55 @@ is_enforced_path() {
     *dbt/*|*models/*.sql) is_code=1 ;;
   esac
 
+  if [ "$is_code" -eq 1 ]; then
+    MATCHED_RULE="the built-in production-code set"
+    return 0
+  fi
+
+  # (d) the project's own declaration. `.compass/config.yml`:
+  #
+  #     enforcement:
+  #       code_globs: ["*.sh", "packaging/**"]
+  #
+  # This ADDS to the set above. There is deliberately no key that removes
+  # framework enforcement: Compass's model is that project rules ratchet UP - a
+  # project guardrail may exceed a floor, never fall short of one - and a key
+  # that exempted `*.py` would be a disable switch wearing the clothes of
+  # configuration. The first inconvenient red is when someone would reach for
+  # it.
+  #
+  # Why this exists: the guarded surface was folklore. `.github/workflows/ci.yml`
+  # was guarded and `docker-compose.yml` was not, with no visible rule, so an
+  # author could not predict which edit would block and found out mid-change.
+  if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
+    local hit
+    hit="$(python3 - "$PROJECT_DIR/.compass/config.yml" "$rel" <<'PYEOF' 2>/dev/null || true
+import fnmatch, sys
+try:
+    import yaml
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        cfg = yaml.safe_load(fh) or {}
+    globs = ((cfg.get("enforcement") or {}).get("code_globs")) or []
+except Exception:
+    sys.exit(0)                     # unreadable config -> built-in set only
+path = sys.argv[2]
+for g in globs:
+    if fnmatch.fnmatch(path, g) or fnmatch.fnmatch(path, g.rstrip("/") + "/*") \
+            or fnmatch.fnmatch("/" + path, "*/" + g.lstrip("/")):
+        print(g)
+        break
+PYEOF
+)"
+    if [ -n "${hit:-}" ]; then
+      MATCHED_RULE="enforcement.code_globs pattern '$hit' in .compass/config.yml"
+      return 0
+    fi
+  fi
+
   # Anything still unrecognised is allowed - the enforcer blocks KNOWN
   # production-impacting files; it does not block the unknown. If a project has
-  # a production-impacting file type that slips through, add it above.
-  [ "$is_code" -eq 1 ]
+  # a production-impacting file type that slips through, declare it above.
+  return 1
 }
 
 # --- what a shell command can be known to write ------------------------------
@@ -295,14 +341,14 @@ fi
 
 # --- find the current task --------------------------------------------------
 # The current task is named by the .compass/current-task pointer (written by
-# /compass:frame and /compass:resume). The pointer is what makes this reliable
+# /compass:triage and /compass:resume). The pointer is what makes this reliable
 # when more than one task is in flight - "most recently modified directory" is
 # only the fallback, and it is ambiguous, so it warns. If there is no task at
 # all, Frame has not run - CLAUDE.md's one rule is "Never skip Frame".
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:frame before changing code." >&2
+  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:triage before changing code." >&2
   exit 2
 fi
 
@@ -328,18 +374,96 @@ fi
 
 TASK_SLUG="$(basename "$TASK_DIR")"
 
-# A route.md must exist - code work without a computed route is route laundering.
-if [ ! -f "$TASK_DIR/route.md" ]; then
-  echo "Compass: task '$TASK_SLUG' has no route.md - Frame did not complete. Run /compass:frame." >&2
+# The delivery-approach record must exist - code work without a computed
+# approach is process laundering. Both filename generations are accepted:
+# the archive predating the artifact rename still says route.md.
+if [ ! -f "$TASK_DIR/delivery-approach.md" ] && [ ! -f "$TASK_DIR/route.md" ]; then
+  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:triage." >&2
   exit 2
 fi
 
 # --- route-aware: the TDD strategy is suspended on a Spike route -------------
-# /compass:frame writes a .spike marker when it composes a Spike route. On a
+# /compass:triage writes a .spike marker when it composes a Spike route. On a
 # Spike, exploration is not throttled - the red-before-green strategy is
 # suspended. Guardrail G1 is NOT suspended: nothing lands from a Spike without
 # graduating into a real route, where this hook applies in full.
 if [ -f "$TASK_DIR/.spike" ]; then
+  exit 0
+fi
+
+# --- guardrail G2: acceptance defined before it is built ---------------------
+# The check below enforces strategy S2 (red before green). S2 serves guardrail
+# G1. Nothing enforced G2 - acceptance stated and checkable BEFORE the code -
+# at the point where it can still be true, so a route asking for a full Specify
+# could go Frame -> Build with no spec at all: every edit allowed, because a red
+# was on record and S2 was satisfied. `compass check` catches it at Verify,
+# after the code exists, which is the ordering G2 exists to prevent.
+#
+# A guardrail beats a strategy, so this runs BEFORE the red check: you cannot
+# write a red for a scenario that does not exist yet.
+#
+# Only `specify: full` triggers it, which routing-policy.yml gives to standard
+# and expedition. Hotfix (reproduce-first) and Spike (collapsed) are exempt by
+# construction, and the .spike early exit above suspends this the same way it
+# suspends S2.
+#
+# If the spine cannot be read - no task.yml, unparseable YAML, no python3, no
+# PyYAML - this stays silent and the prior behaviour applies. A false block on
+# unreadable state is how a hook teaches people to bypass it.
+if [ -f "$TASK_DIR/task.yml" ] && command -v python3 >/dev/null 2>&1; then
+  G2_VERDICT="$(python3 - "$TASK_DIR/task.yml" <<'PYEOF' 2>/dev/null || true
+import sys
+try:
+    import yaml
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        task = yaml.safe_load(fh) or {}
+    if not isinstance(task, dict):
+        raise ValueError
+except Exception:
+    sys.exit(0)
+phases = task.get("stages") or task.get("phases") or {}
+if isinstance(phases, dict) and phases.get("specify") == "full":
+    if not (task.get("scenarios") or []):
+        print("block")
+PYEOF
+)"
+  if [ "${G2_VERDICT:-}" = "block" ]; then
+    cat >&2 <<EOF
+Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no scenarios.
+
+  Guardrail G2 (acceptance defined before it is built). No code is written
+  that no stated, checkable acceptance criterion describes - and a guardrail
+  beats a strategy, so this is checked before the red.
+  Edit target: $TARGET  (tool: ${TOOL:-?})
+  Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
+
+  To proceed the Compass way:
+    1. Write the scenarios into .compass/work/$TASK_SLUG/acceptance-criteria.md.
+    2. Mirror them into task.yml's \`scenarios:\` block - each with an id, a
+       linked intent, and the test(s) that will exercise it:
+         compass scenario add SCN-001 --title "..." --intent INT-1
+    3. Re-try this edit.
+
+  If this is genuinely exploratory work it should be a Spike, where G2 is
+  suspended - re-run /compass:triage. The fix is to state the acceptance or
+  re-frame, not to route around the hook.
+EOF
+    exit 2
+  fi
+fi
+
+# --- a declared acceptance (config / docs / behaviour-preserving refactor) ---
+# Some legitimate changes have no natural behavioural red - a compose limit, a
+# Prometheus rule, a runbook, a dead-code removal. `compass acceptance start`
+# declares what the acceptance IS before the change (a validator that must pass,
+# or a green suite that must stay green) and writes this marker. Without it,
+# authors satisfied this hook by faking reds that grep a file for a string,
+# which is worse than either alternative.
+#
+# It is a SEPARATE marker on purpose. `.red` means "a real failure was observed
+# here"; overloading it would make the framework's most honest artifact
+# ambiguous. `compass acceptance record` clears this one.
+if [ -f "$TASK_DIR/.acceptance" ]; then
   exit 0
 fi
 
@@ -356,6 +480,7 @@ Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
   Strategy S2 (red-before-green) applies on this route, in service of
   guardrail G1 (tested before it lands).
   Edit target: $TARGET  (tool: ${TOOL:-?})
+  Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
   To proceed the Compass way:
     1. Write the failing test for the scenario you are implementing.
@@ -370,7 +495,7 @@ Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
   evidence/green.json, and clears the .red marker - the hand-off to Verify.
 
   If this is genuinely exploratory work, it should be a Spike route - re-run
-  /compass:frame. The fix is to write the test or re-frame, not to route
+  /compass:triage. The fix is to write the test or re-frame, not to route
   around the hook.
 EOF
 exit 2

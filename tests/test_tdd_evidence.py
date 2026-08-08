@@ -18,13 +18,13 @@ def _baseline_body():
     return {
         "task": "tdd-task",
         "created": "2026-05-15",
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "express",
+        "delivery_approach": "express",
         "scenarios": [
             {"id": "SCN-001", "intent": "INT-1",
              "tests": ["tests/test_x.py::test_y"]},

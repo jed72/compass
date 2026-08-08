@@ -44,13 +44,13 @@ def _task_claiming_correctness(tests, *, status="active", correctness="pass"):
         "task": "resolve-me",
         "created": "2026-08-03",
         "status": status,
-        "readings": {
-            "blast_radius": "contained",
-            "terrain": "brownfield-mapped",
-            "magnitude": "small",
+        "assessment": {
+            "risk": "contained",
+            "familiarity": "brownfield-mapped",
+            "size": "small",
             "intent": "delivery",
         },
-        "route": "express",
+        "delivery_approach": "express",
         "scenarios": [{"id": "SCN-001", "intent": "INT-1", "tests": tests}],
         "changed_files": [{"path": "src/x.py", "scenarios": ["SCN-001"]}],
         "evidence": [{
@@ -63,7 +63,7 @@ def _task_claiming_correctness(tests, *, status="active", correctness="pass"):
             {"id": "verify.governance", "status": "pending"},
             {"id": "verify.traceability", "status": "pending"},
         ],
-        "backfills": [],
+        "follow_ups": [],
     }
     return body
 
@@ -81,6 +81,12 @@ def _real_test_file(project, name="tests/test_real.py", func="test_present"):
     p = project / name
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(f"def {func}():\n    assert True\n")
+    # A task claiming correctness must also have the file it says it changed:
+    # `changed-code-traces-to-scenario` checks the path is still on disk, so a
+    # fixture that models a correct task needs its changed file to exist too.
+    changed = project / "src" / "x.py"
+    changed.parent.mkdir(parents=True, exist_ok=True)
+    changed.write_text("x = 1\n")
     return p
 
 
@@ -157,7 +163,7 @@ def test_trc_a4_narrative_scenario_exempt(run_cli, make_task, project):
     body["scenarios"][0]["verifiable"] = "narrative"
     task_dir = make_task("resolve-me", body)
     _green(task_dir)
-    spec = task_dir / "spec.feature.md"
+    spec = task_dir / "acceptance-criteria.md"
     spec.write_text(
         "# Spec\n\n### Scenario: a documented playbook\n"
         "<!-- traceability id: SCN-001 -->\n\n"
@@ -227,9 +233,9 @@ def test_trc_a6_policy_lint_accepts_the_check(run_cli):
 def _friction_task(slug, make_task, friction=None):
     body = {
         "task": slug, "created": "2026-08-03", "status": "active",
-        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
-                     "magnitude": "small", "intent": "delivery"},
-        "route": "express", "scenarios": [], "gates": [], "backfills": [],
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "delivery_approach": "express", "scenarios": [], "gates": [], "follow_ups": [],
     }
     if friction is not None:
         body["friction"] = friction
@@ -354,8 +360,23 @@ def _pre_existing_task_slugs():
         return []
     current = (ROOT / ".compass" / "current-task")
     in_flight = current.read_text().strip() if current.is_file() else ""
-    return [p.parent.name for p in sorted(work.glob("*/task.yml"))
-            if p.parent.name != in_flight]
+    # Same principle for issues the spine says have not started or will not
+    # finish: 'queued', 'parked', and 'abandoned' work has no green run by
+    # definition, so sweeping it would assert unstarted work is finished.
+    import yaml as _yaml
+    not_startable = {"queued", "parked", "abandoned"}
+    slugs = []
+    for p in sorted(work.glob("*/task.yml")):
+        if p.parent.name == in_flight:
+            continue
+        try:
+            status = (_yaml.safe_load(p.read_text()) or {}).get("status", "active")
+        except Exception:
+            status = "active"
+        if status in not_startable:
+            continue
+        slugs.append(p.parent.name)
+    return slugs
 
 
 def test_trc_f1_existing_tasks_still_pass():

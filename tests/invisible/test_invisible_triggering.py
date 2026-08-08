@@ -11,7 +11,7 @@ These are static content-assertion tests. Invisible triggering is prompt-only
 
 Manual-verification note (TRC-C1 / TRC-C3 behaviour at runtime):
   These tests verify the static content that produces the agent behaviour.
-  The runtime behaviour (agent actually calling /compass:frame on natural-
+  The runtime behaviour (agent actually calling /compass:triage on natural-
   language intent) requires a live agent session; that is recorded as
   manual-review evidence in task.yml (EV-MANUAL-C1, EV-MANUAL-C3).
 """
@@ -29,28 +29,31 @@ AGENTS = {
     "orchestrator": REPO_ROOT / "agents" / "orchestrator.md",
 }
 
-# The exact paragraph that DD-6 requires (from plan.md §DD-6)
-DD6_HEADING = "**Trigger Frame on intent, not just the literal command.**"
+# The exact paragraph that DD-6 requires (from plan.md §DD-6). The wording
+# moved to the frozen v2 vocabulary in the session-instructions rename
+# slice; the rule it pins is unchanged.
+DD6_HEADING = "**Trigger triage on intent, not just the literal command.**"
 DD6_CONTENT = (
     "When the user describes intent to build, change, or fix code"
-    " - even if they do not type `/compass:frame` - "
-    "invoke `/compass:frame` before any artifact-changing tool call."
+    " - even if they do not type `/compass:triage` - "
+    "invoke `/compass:triage` before any artifact-changing tool call."
 )
 
 # The existing paragraph that must remain untouched (additive-only check)
-EXISTING_PARAGRAPH = "**Never skip Frame.**"
+EXISTING_PARAGRAPH = "**Never skip triage.**"
 
 # The phrase that must NOT appear as a re-frame trigger when a task is already
 # active (TRC-F3 guard: invisible triggering must not re-frame an active task)
 RE_FRAME_TRIGGER_PHRASES = [
-    "re-run /compass:frame",
+    "re-run /compass:triage",
     "re-frame the task",
-    "run /compass:frame again",
-    "invoke /compass:frame again",
+    "run /compass:triage again",
+    "invoke /compass:triage again",
 ]
 
 # Supporting sentence that must appear in each agent description
-AGENT_TRIGGER_SENTENCE = "Trigger Frame on intent"
+# The sentence follows the command rename: triage, not Frame.
+AGENT_TRIGGER_SENTENCE = "Trigger triage on intent"
 
 
 class TestCLAUDEMdInvisibleTriggering:
@@ -113,7 +116,7 @@ class TestCLAUDEMdNoReframe:
         """TRC-F3 - CLAUDE.md must not instruct re-running Frame on an active task."""
         content = CLAUDE_MD.read_text(encoding="utf-8").lower()
         # Check around the intent-trigger paragraph specifically
-        trigger_idx = content.find("trigger frame on intent")
+        trigger_idx = content.find("trigger triage on intent")
         if trigger_idx == -1:
             # If paragraph not yet there, the test for its presence will catch it
             return

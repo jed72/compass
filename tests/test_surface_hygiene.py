@@ -24,7 +24,7 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "skills"
 BDD_SKILL = SKILLS / "bdd-specification" / "SKILL.md"
-CLARIFY_CMD = ROOT / "commands" / "clarify.md"
+CLARIFY_CMD = ROOT / "commands" / "refine.md"
 
 # The four scans the spec-author runs inline at the end of Specify.
 FOUR_SCANS = ["placeholder", "orphan", "untestable", "ambiguous"]
@@ -77,7 +77,7 @@ def test_trc_d2_no_references_to_deleted_skill():
     offenders = []
     for path in _repo_files():
         # This file necessarily names the string it hunts for, the same way
-        # `compass plan lint` has to exempt the documents that explain it.
+        # `compass design lint` has to exempt the documents that explain it.
         if path.resolve() == pathlib.Path(__file__).resolve():
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
@@ -105,9 +105,13 @@ def test_trc_d3_bdd_skill_documents_the_split():
         )
 
     # it must say what Clarify does that the self-review does not
-    assert re.search(r"clarify (still )?(does|runs|resolves|hunts)", text), (
-        "the skill never says what work Clarify does that the inline "
-        "self-review does not"
+    # "Clarify" became "the requirements review" with the skills-prose
+    # slice; the required statement is the same, in the v2 words.
+    assert re.search(
+        r"(?:requirements )?review (?:still )?(?:does|runs|resolves|hunts)",
+        text), (
+        "the skill never says what work the requirements review does that "
+        "the inline self-review does not"
     )
     # and which routes run each
     assert "express" in text and re.search(r"standard", text), (
@@ -124,19 +128,19 @@ def test_trc_d4_clarify_command_documents_the_split():
     text = CLARIFY_CMD.read_text(encoding="utf-8").lower()
 
     assert "self-review" in text or "self review" in text, (
-        "commands/clarify.md never mentions the inline self-review the "
+        "commands/refine.md never mentions the inline self-review the "
         "spec-author has already run, so Clarify looks like it starts from "
         "nothing"
     )
     assert re.search(r"(does not repeat|not repeat|already (been )?run|already "
                      r"covered|no need to re-?run)", text), (
-        "commands/clarify.md does not say that Clarify does not repeat the "
+        "commands/refine.md does not say that Clarify does not repeat the "
         "inline scans"
     )
     # it names the same four scans the skill names
     for scan in FOUR_SCANS:
         assert scan in text, (
-            f"commands/clarify.md does not name the {scan!r} scan; the two "
+            f"commands/refine.md does not name the {scan!r} scan; the two "
             f"descriptions of the split must agree"
         )
 

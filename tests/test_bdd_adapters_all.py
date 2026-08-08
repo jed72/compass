@@ -90,7 +90,7 @@ def test_trc_a1_each_runner_should_have_a_worked_project():
         assert (cfg.get("project") or {}).get("bdd_runner"), (
             f"{name}: config declares no bdd_runner")
         assert (d / ".compass" / "work" / "reset-password"
-                / "spec.feature.md").is_file(), f"{name}: no spec"
+                / "acceptance-criteria.md").is_file(), f"{name}: no spec"
 
 
 @pytest.mark.parametrize("name", sorted(EXPECTED))
