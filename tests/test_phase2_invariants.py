@@ -101,6 +101,7 @@ EXPECTED_SUBCOMMANDS = {
     "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
+    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
     # `acceptance` (R13) is the one honest path for a change with no natural
     # behavioural red - config, docs, a behaviour-preserving refactor. It is a
     # GROUP (`start`, `record`), so later kinds add a subcommand rather than a

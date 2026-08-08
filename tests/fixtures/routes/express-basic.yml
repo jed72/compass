@@ -9,8 +9,8 @@ assessment:
   role: engineer
   labels: []
 expected:
-  candidate_route: express
-  delivery_approach: express
+  candidate_route: quick-fix
+  delivery_approach: quick-fix
   fired_guardrail_ids: []
   conflict: false
   topology: solo

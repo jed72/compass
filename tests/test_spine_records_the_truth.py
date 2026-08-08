@@ -88,7 +88,7 @@ def test_scn_a1_content_change_is_logged(tmp_path):
     """Same route name, materially different route."""
     root = _seeded(tmp_path)
     before = _task(root)
-    assert before["delivery_approach"] == "standard", before["delivery_approach"]
+    assert before["delivery_approach"] == "feature", before["delivery_approach"]
 
     # cross-cutting keeps the route name `standard` and takes the gate set from
     # 6 to 7 (RG-FLOOR-006 adds verify.fitness) - R18's exact case. `critical`

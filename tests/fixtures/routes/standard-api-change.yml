@@ -8,8 +8,8 @@ assessment:
   role: engineer
   labels: []
 expected:
-  candidate_route: standard
-  delivery_approach: standard
+  candidate_route: feature
+  delivery_approach: feature
   fired_guardrail_ids: []
   conflict: false
   topology: solo-or-pair

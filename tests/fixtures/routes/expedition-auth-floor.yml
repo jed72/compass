@@ -10,8 +10,8 @@ assessment:
   role: engineer
   labels: [auth]
 expected:
-  candidate_route: express
-  delivery_approach: expedition
+  candidate_route: quick-fix
+  delivery_approach: initiative
   fired_guardrail_ids: [RG-FLOOR-003]
   conflict: false
   topology: swarm

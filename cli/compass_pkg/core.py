@@ -304,6 +304,8 @@ def normalize_spine(task):
     # Follow-up states renamed with the CLI-voice slice: 1.x spines carry
     # owed/paid; readers see outstanding/resolved. Value map, mirroring the
     # key map above; the migrate tool rewrites them on disk in its slice.
+    if out.get("delivery_approach") in SHAPE_VALUE_MAP:
+        out["delivery_approach"] = SHAPE_VALUE_MAP[out["delivery_approach"]]
     fups = out.get("follow_ups")
     if isinstance(fups, list):
         for f in fups:
@@ -319,6 +321,21 @@ def normalize_spine(task):
 # normalize_spine above.
 FOLLOW_UP_STATUS_MAP = {"owed": "outstanding", "paid": "resolved"}
 
+# 1.x shape values -> the v2 change-type values (machine spelling,
+# hyphenated). Read-side via normalize_spine; the evaluator
+# canonicalises its own writes through the same map; the migrator
+# persists it.
+SHAPE_VALUE_MAP = {
+    "express": "quick-fix",
+    "standard": "feature",
+    "expedition": "initiative",
+}
+
+
+def canonical_shape(value):
+    # The v2 machine spelling for a delivery-approach value.
+    return SHAPE_VALUE_MAP.get(str(value or ""), value)
+
 # Machine delivery-approach values -> the v2 change-type names the display
 # layer prints. The spine keeps the machine value; the terminal never
 # shows it (the receipt is the most shareable screen Compass produces).
@@ -326,6 +343,8 @@ SHAPE_DISPLAY = {
     "express": "quick fix",
     "standard": "feature",
     "expedition": "initiative",
+    # the v2 machine spelling renders without the hyphen
+    "quick-fix": "quick fix",
 }
 
 

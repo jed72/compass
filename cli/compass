@@ -434,6 +434,17 @@ def build_parser():
     peva.add_argument("--scenario", help="scenario this evidence is for (optional)")
     peva.set_defaults(func=cmd_evidence_add)
 
+    pmig = sub.add_parser(
+        "migrate",
+        help="migrate a 1.x issue tree to schema 2.0 - dry-run by default, "
+             "--apply to execute, idempotent (wraps the core this "
+             "repository's own archive migration proved)")
+    pmig.add_argument("root", nargs="?",
+                      help="the work root to examine (default: .compass/work)")
+    pmig.add_argument("--apply", action="store_true",
+                      help="execute the changes the dry run reports")
+    pmig.set_defaults(func=cmd_migrate)
+
     pterm = sub.add_parser(
         "terminology",
         help="render the v2 vocabulary - one term, or the whole glossary "

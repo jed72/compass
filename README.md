@@ -251,6 +251,7 @@ compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly: survives auto-fixing
                          pre-commit hooks and verifies HEAD advanced
 compass retro      aggregate the re-assessment log - is the sizing right?
+compass migrate          migrate a 1.x issue tree to schema 2.0 (dry-run; --apply)
 compass terminology      render the v2 vocabulary - one term or the whole glossary
 compass ci               the full mechanical gate suite, for CI - honour the exit code
 ```

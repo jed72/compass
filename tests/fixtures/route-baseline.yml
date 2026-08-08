@@ -1,3 +1,10 @@
+# NOTE (slice 8 review fix, 2026-08-08): the expected_route values
+# below moved from the v1 shape names to the v2 change-type
+# spellings (express->quick-fix, standard->feature,
+# expedition->initiative). The COMPOSITION is unchanged - same
+# assessment, same topology, same stages, same gates - only the
+# machine spelling of the shape value renamed, deliberately, with
+# the migrator. This is not the drift this fixture guards against.
 # Captured at 2026-05-23T19:45:58Z by `compass route evaluate --json`
 # against the routing-policy.yml at HEAD fb092c0 (main, prior to
 # cross-task-architectural-integrity work).
@@ -41,7 +48,7 @@
     goal: delivery
     role: engineer
     labels: []
-  expected_route: express
+  expected_route: quick-fix
   expected_topology: solo
   expected_phases:
     frame: full
@@ -65,7 +72,7 @@
     goal: delivery
     role: engineer
     labels: []
-  expected_route: standard
+  expected_route: feature
   expected_topology: solo-or-pair
   expected_phases:
     frame: full
@@ -119,7 +126,7 @@
     goal: delivery
     role: engineer
     labels: []
-  expected_route: expedition
+  expected_route: initiative
   expected_topology: swarm
   expected_phases:
     frame: full

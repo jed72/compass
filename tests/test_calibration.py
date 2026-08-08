@@ -48,11 +48,11 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
                 "--reason", "discovered the change touches auth")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
-    assert task["delivery_approach"] == "expedition"
+    assert task["delivery_approach"] == "initiative"
     assert task["reassessments"], "expected a reframes entry"
     rf = task["reassessments"][-1]
-    assert rf["from_route"] == "express"
-    assert rf["to_route"] == "expedition"
+    assert rf["from_route"] == "quick-fix"
+    assert rf["to_route"] == "initiative"
     assert "auth" in rf["reason"]
 
 
@@ -76,7 +76,7 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
     r = run_cli("approach", "evaluate", "--task", "no-rf", "--write")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
-    assert task["delivery_approach"] == "express"
+    assert task["delivery_approach"] == "quick-fix"
     assert not task.get("reassessments"), f"expected no reframes, got: {task.get('reframes')}"
 
 
