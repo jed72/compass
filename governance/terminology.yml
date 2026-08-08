@@ -437,7 +437,6 @@ scan:
                            # split; same string-literals-only rule
     - README.md
     - docs/five-minutes.md
-    - docs/methodology.md
     - governance/          # prose files
     - .claude-plugin/      # manifests - first prose an adopter reads
     # Session-facing instruction files, added clean (never pending): these
@@ -458,6 +457,10 @@ scan:
     - docs/roles-guide.md
     - docs/safety-contract.md
     - docs/security.md
+    - docs/methodology.md
+    - docs/quickstart.md
+    - docs/portability.md
+    - docs/routing-deep-dive.md
   exempt:
     - docs/proposals/      # history stays honest
     - docs/system-spec.md  # derived at ship time; hand-editing forbidden
@@ -481,9 +484,7 @@ scan:
   # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
   # its surface from this list; removed surfaces must stay clean forever.
   # A meta-test asserts this list only ever shrinks.
-  # One entry left: the doctrine document, split to the second half of
-  # the docs-prose slice at a recorded green boundary (with quickstart,
-  # portability, and routing-deep-dive joining the surfaces there). The
-  # ratchet reaches zero when that half lands.
-  pending_surfaces:
-    - docs/methodology.md
+  # EMPTY since the second half of the docs-prose slice - the ratchet
+  # reached zero. Every scanned surface is enforced, forever; this list
+  # never grows again.
+  pending_surfaces: []
