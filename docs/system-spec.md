@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### the lens ban catches the concept not the agent identifiers
+### the install refusal points at the plugin-dir path
 
-- **Scenario id:** `TRC-4`
+- **Scenario id:** `TRC-5`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-skills-prose`
-- **Landed:** 2026-08-07
+- **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -2876,3 +2876,38 @@
 - **Intent:** `INT-1`
 - **Source issue:** `v2-skills-prose`
 - **Landed:** 2026-08-07
+
+### the lens ban catches the concept not the agent identifiers _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-skills-prose`
+- **Landed:** 2026-08-07
+
+### the ratchet reaches zero _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
+
+### the delivery-approach reference docs carry v2 names _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
+
+### the worked examples carry v2 change-type names _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
+
+### the remaining docs are enforced surfaces _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
