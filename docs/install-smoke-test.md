@@ -123,7 +123,7 @@ python3 $COMPASS_HOME/cli/compass --version
 Expected output:
 
 ```
-compass 1.8.1 (task schema 1.0)
+compass 2.0.0 (task schema 1.0)
 ```
 
 The schema version is what the CLI will accept in a `task.yml`. A

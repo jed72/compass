@@ -461,6 +461,9 @@ scan:
     - docs/quickstart.md
     - docs/portability.md
     - docs/routing-deep-dive.md
+    - docs/desired-state.md  # graduated from proposals at the 2.0.0
+                              # release - an adopter surface, no longer
+                              # exempt history
   exempt:
     - docs/proposals/      # history stays honest
     - docs/system-spec.md  # derived at ship time; hand-editing forbidden

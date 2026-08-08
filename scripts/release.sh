@@ -139,7 +139,7 @@ fi
 
 # --- 4. examples present ----------------------------------------------------
 echo "[4] worked examples are actually present"
-required_examples="express-typo standard-api-change hotfix-regression expedition-new-subsystem spike-technical-unknown"
+required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
 for e in $required_examples; do
   if [ ! -f "examples/$e/.compass/work"/*/task.yml ] 2>/dev/null; then
@@ -222,7 +222,7 @@ echo "    (clean - none)"
 # because the .compass/work exclude was not root-anchored. Verify directly:
 # every example must have its task.yml in the tarball.
 echo "  examples integrity (every example must have its task.yml):"
-required_examples="express-typo standard-api-change hotfix-regression expedition-new-subsystem spike-technical-unknown"
+required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
 for e in $required_examples; do
   if ! printf '%s\n' "$TAR_LIST" | grep -q "examples/$e/\.compass/work/.*/task\.yml"; then
