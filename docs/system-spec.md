@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the install refusal points at the plugin-dir path
+### the four deferred docs are enforced and clean
 
-- **Scenario id:** `TRC-5`
+- **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-docs-prose`
+- **Source issue:** `v2-docs-prose-2`
 - **Landed:** 2026-08-08
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2910,4 +2910,18 @@
 - **Scenario id:** `TRC-4`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
+
+### the install refusal points at the plugin-dir path _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose`
+- **Landed:** 2026-08-08
+
+### the ratchet reaches zero _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose-2`
 - **Landed:** 2026-08-08
