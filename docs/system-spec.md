@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the four deferred docs are enforced and clean
+### the mapping lives in the exempt data file
 
-- **Scenario id:** `TRC-2`
+- **Scenario id:** `TRC-4`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-docs-prose-2`
+- **Source issue:** `v2-migrate`
 - **Landed:** 2026-08-08
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2924,4 +2924,32 @@
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-docs-prose-2`
+- **Landed:** 2026-08-08
+
+### the four deferred docs are enforced and clean _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-docs-prose-2`
+- **Landed:** 2026-08-08
+
+### dry run reports and writes nothing _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-migrate`
+- **Landed:** 2026-08-08
+
+### apply migrates a v1 tree to v2 _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-migrate`
+- **Landed:** 2026-08-08
+
+### a second apply is a no-op _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-migrate`
 - **Landed:** 2026-08-08
