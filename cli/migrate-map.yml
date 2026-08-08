@@ -41,6 +41,10 @@ values:
   follow_up_status:
     owed: outstanding
     paid: resolved
+  delivery_approach:
+    express: quick-fix
+    standard: feature
+    expedition: initiative
 
 # Machine shape values -> the v2 change-type names the display layer
 # prints. The spine keeps the machine value; the terminal never shows it.

@@ -92,7 +92,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, display_shape, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
+from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
 from compass_pkg.governance import governance_drift
 from compass_pkg.task_spine import _annotate_gate_accepts
 
@@ -278,9 +278,9 @@ def evaluate_route(readings, policy):
             })
 
     return {
-        "candidate_route": candidate,
+        "candidate_route": canonical_shape(candidate),
         "candidate_via": candidate_via,
-        "delivery_approach": final,
+        "delivery_approach": canonical_shape(final),
         "policy_rules_fired": fired,
         "stages": phases,
         "gates": gates,

@@ -89,7 +89,8 @@ def cmd_migrate(args):
               "already speaks schema 2.0.")
         return 0
     verb = "migrated" if apply_mode else "would change"
-    print(f"compass migrate: {len(changed)} issue directorie(s) {verb} "
+    noun = "issue directory" if len(changed) == 1 else "issue directories"
+    print(f"compass migrate: {len(changed)} {noun} {verb} "
           f"under {root}:")
     for slug, notes in changed.items():
         print(f"  {slug}")
@@ -124,7 +125,7 @@ def migrate_issue_dir(task_dir):
             with open(spine, "w", encoding="utf-8") as fh:
                 yaml.safe_dump(migrated, fh, sort_keys=False,
                                default_flow_style=False, allow_unicode=True)
-            notes.append("spine keys -> schema 2.0")
+            notes.append("spine keys and values -> schema 2.0")
     return notes
 
 

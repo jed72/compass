@@ -114,3 +114,42 @@ def test_mapping_lives_in_the_exempt_data_file():
     from compass_pkg import migrate
     assert migrate.artifact_name_map() == artifacts, (
         "the migration module does not consume the data file's map")
+
+
+def test_apply_migrates_the_shape_value(tmp_path):
+    """Review fix on the slice-8 PR: a migrated spine must speak the v2
+    change-type value, not the v1 shape name - all five cases, with
+    hotfix and spike keeping their spelling. The normalizer and the
+    receipt's display layer agree with the migrated output."""
+    cases = {"express": "quick-fix", "standard": "feature",
+             "expedition": "initiative", "hotfix": "hotfix",
+             "spike": "spike"}
+    root = tmp_path / "proj"
+    for i, (v1, v2) in enumerate(cases.items()):
+        d = root / ".compass" / "work" / f"t{i}"
+        d.mkdir(parents=True)
+        spine = dict(V1_SPINE); spine["task"] = f"t{i}"; spine["route"] = v1
+        (d / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+    r = _run(root, "migrate", "--apply")
+    assert r.returncode == 0, r.stderr[-400:]
+    for i, (v1, v2) in enumerate(cases.items()):
+        spine = yaml.safe_load(
+            (root / ".compass" / "work" / f"t{i}" / "task.yml").read_text())
+        assert spine["delivery_approach"] == v2, (
+            f"{v1} migrated to {spine['delivery_approach']!r}, wanted {v2!r}")
+    sys.path.insert(0, str(REPO_ROOT / "cli"))
+    from compass_pkg.core import display_shape, normalize_spine
+    assert display_shape("quick-fix") == "quick fix", (
+        "the receipt would print the machine hyphen for a migrated value")
+    norm = normalize_spine({"route": "expedition"})
+    assert norm["delivery_approach"] == "initiative", (
+        "the normalizer does not agree with the migrated value")
+
+
+def test_report_pluralises_properly(tmp_path):
+    """Review fix: '1 issue directorie(s)' is not a sentence."""
+    root = _v1_project(tmp_path)
+    r = _run(root, "migrate")
+    assert "directorie(s)" not in r.stdout, r.stdout
+    assert "1 issue directory" in r.stdout, (
+        "the singular case does not read as prose:\n" + r.stdout)

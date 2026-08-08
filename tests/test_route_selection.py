@@ -40,8 +40,8 @@ def test_express_route_for_small_mapped_change(run_cli):
                                 "intent": "delivery"}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["delivery_approach"] == "express"
-    assert data["candidate_route"] == "express"
+    assert data["delivery_approach"] == "quick-fix"
+    assert data["candidate_route"] == "quick-fix"
 
 
 def test_standard_route_for_default_shape(run_cli):
@@ -53,7 +53,7 @@ def test_standard_route_for_default_shape(run_cli):
                                 "intent": "delivery"}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["delivery_approach"] == "standard"
+    assert data["delivery_approach"] == "feature"
 
 
 def test_expedition_route_for_large_magnitude(run_cli):
@@ -65,7 +65,7 @@ def test_expedition_route_for_large_magnitude(run_cli):
                                 "intent": "delivery"}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["delivery_approach"] == "expedition"
+    assert data["delivery_approach"] == "initiative"
     assert data["topology"] == "swarm"
 
 
@@ -107,7 +107,7 @@ def test_floor_critical_blast_radius_forces_expedition(run_cli):
                                 "intent": "delivery"}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["delivery_approach"] == "expedition"
+    assert data["delivery_approach"] == "initiative"
     fired = [f["id"] for f in data["policy_rules_fired"]]
     assert "RG-FLOOR-001" in fired
     # candidate was lighter; the floor raised it
@@ -125,7 +125,7 @@ def test_floor_g5_domains_force_expedition(run_cli, domain):
                                 "labels": [domain]}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["delivery_approach"] == "expedition", (
+    assert data["delivery_approach"] == "initiative", (
         f"touching {domain!r} should force expedition, got {data['delivery_approach']!r}"
     )
     fired = [f["id"] for f in data["policy_rules_fired"]]
@@ -160,7 +160,7 @@ def test_cap_critical_caps_worktrees_to_one(run_cli):
                                 "intent": "delivery"}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["delivery_approach"] == "expedition"   # floor pushed it
+    assert data["delivery_approach"] == "initiative"   # floor pushed it
     assert data["max_worktrees"] == 1
     assert "solo" in data["topology"]
     fired_ids = [f["id"] for f in data["policy_rules_fired"]]
@@ -181,8 +181,8 @@ def test_candidate_and_final_route_both_recorded(run_cli):
                                 "labels": ["auth"]}))
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
-    assert data["candidate_route"] == "express"
-    assert data["delivery_approach"] == "expedition"
+    assert data["candidate_route"] == "quick-fix"
+    assert data["delivery_approach"] == "initiative"
     assert data["candidate_via"], "candidate_via must say WHY the candidate was picked"
 
 
