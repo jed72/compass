@@ -1,4 +1,4 @@
-# Route - Spike
+# Delivery approach - Spike
 
 > You do not understand the problem well enough to frame it properly yet.
 > Explore freely, learn, then graduate or discard. Nothing ships from here.
@@ -87,7 +87,7 @@ When a spike answers its question and the team wants to act on it:
    guardrails before it lands.
 3. **The spike closes.** Its `delivery-approach.md` records "graduated → issue `<slug>`".
 
-Graduation *is* re-framing. There is no path from spike code to `main` that
+Graduation *is* re-assessment. There is no path from spike code to `main` that
 skips a real route - that is the whole safety model.
 
 ## Discard - the honourable other ending
@@ -101,7 +101,7 @@ conclusion, which is just untracked work.
 ## Spike may NOT
 
 - **Land production code.** The only exit that keeps code is graduation, which
-  is re-framing. If you find yourself wanting to merge a spike branch to
+  is re-assessing. If you find yourself wanting to merge a spike branch to
   `main`, stop - that is a re-assess, not a merge.
 - **Touch anything irreversible.** No auth, payments, personal data, or
   migrations - the routing guardrails floor those to initiative regardless of

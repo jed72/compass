@@ -22,3 +22,5 @@ Guardrail G1 and strategy S7 are cited by code in prose.
 Intent lives in brief.md; the scenarios live in spec.feature.md.
 The dimensions were scored during Frame, checked at verify and Land, and
 the evaluator computes the route from them.
+Triage never composes the route by hand; composing a route by eye is
+the defect.

@@ -102,3 +102,35 @@ def test_install_refusal_points_at_plugin_dir():
         "claude --plugin-dir")
     assert "/plugin install" not in text.split("plugin source detected")[1].split("exit 0")[0] or "claude --plugin-dir" in text.split("plugin source detected")[1].split("exit 0")[0], (
         "the refusal block still sends the plugin source to /plugin install")
+
+
+RETIRED_CLI = __import__("re").compile(
+    r"compass (?:route|backfill|calibration|land-commit)\b"
+    r"|compass task (?:lint|receipt|set-status)"
+    r"|compass plan lint")
+
+
+def test_no_live_doc_teaches_a_retired_cli_spelling():
+    """Extension from the docs-prose review: code spans are scan-exempt,
+    so a retired CLI verb inside backticks or a fenced example survives
+    the vocabulary scan and only reading catches it. This sweep reads
+    everything - a cleaned surface never teaches a spelling whose only
+    life is a redirect pointer."""
+    surfaces = [REPO_ROOT / "CLAUDE.md", REPO_ROOT / "AGENTS.md",
+                REPO_ROOT / "README.md", REPO_ROOT / "examples" / "README.md"]
+    for pat in ("commands/*.md", "skills/*/SKILL.md", "agents/*.md",
+                "templates/**/*.md", "docs/*.md", "governance/*.md",
+                "approaches/*.md"):
+        surfaces += sorted(REPO_ROOT.glob(pat))
+    hits = []
+    for path in surfaces:
+        if not path.is_file() or path.name == "system-spec.md":
+            continue
+        for lineno, line in enumerate(
+                path.read_text(encoding="utf-8").splitlines(), 1):
+            if RETIRED_CLI.search(line):
+                rel = path.relative_to(REPO_ROOT)
+                hits.append(f"{rel}:{lineno}: {line.strip()[:70]}")
+    assert not hits, (
+        "live surfaces teach retired CLI spellings:\n  "
+        + "\n  ".join(hits[:15]))

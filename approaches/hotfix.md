@@ -1,4 +1,4 @@
-# Route - Hotfix
+# Delivery approach - Hotfix
 
 > Something is broken in production now. Reproduce first, fix fast, follow-up
 > properly. The clock is real - the default guardrails still aren't negotiable.

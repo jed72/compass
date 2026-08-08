@@ -32,7 +32,7 @@ Claude Code, is `/plugin marketplace add jed72/compass` then
    `test-run` evidence entry the CLI can read. Gates accept specific
    evidence types; a written note will not clear a mechanical gate.
 5. **It checks the issue spine in CI.** `compass ci` runs `policy lint`,
-   `task lint`, and `check` for every issue under `.compass/work/`. It does
+   `issue lint`, and `check` for every issue under `.compass/work/`. It does
    not re-run your test suite - it verifies that the *issue state is
    coherent and backed by evidence*. Your project's own CI still runs
    tests, lints, builds, deploys.
@@ -45,18 +45,20 @@ in practice.
 
 ## The five reference shapes, one line each
 
-- **quick fix** - atomic, contained, mapped. triage → define (1 scenario) →
-  Build → Verify. One gate. Still tested before it lands.
-- **Standard** - standard size, contained risk. The full pipeline,
+- **Quick fix** - atomic, contained, mapped. triage → define (1 scenario) →
+  implement → verify. One gate. Still tested before it ships.
+- **Feature** - standard size, contained risk. The full pipeline,
   solo or pair. Two gates.
-- **initiative** - large or cross-cutting, often greenfield. Full weight.
+- **Initiative** - large or cross-cutting, often greenfield. Full weight.
   Distribution map, agent swarm across worktrees, all gates.
 - **Hotfix** - critical and small, brownfield. Reproduce-first: a failing
-  regression test *is* the spec. Expedited implementation, mandatory follow-up of
-  `delivery-approach.md` and a real scenario before close.
+  regression test *is* the spec. Implementation is expedited, and two
+  things are owed before the issue closes: the approach record completed
+  properly (not the urgent stub), and the reproduction test promoted into
+  a real Given/When/Then scenario.
 - **Spike** - exploration. TDD strategy suspended, hook does not block.
   **Nothing ships from a spike**; the only exit that keeps code is
-  graduating (re-framing into a real route).
+  graduating - re-triaging into a real delivery approach.
 
 Approaches are *composed* from assessment, not chosen from a menu - these five
 are starting shapes triage tunes. See `docs/methodology.md` §8.
@@ -90,7 +92,7 @@ assessment:
 ```
 
 Then the mechanism takes over. `/compass:triage` shells out to
-`compass approach evaluate --write`, which composes the route, applies the
+`compass approach evaluate --write`, which composes the delivery approach, applies the
 routing guardrails, and folds the result back into `task.yml`:
 
 ```
@@ -283,7 +285,7 @@ compass flow [--digest]  cross-task flow view; --digest writes a dated digest
 compass next             surface the next action on the current task
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly; verifies HEAD advanced
-compass retro      aggregate the re-frame log - is routing well-sized?
+compass retro      aggregate the re-assessment log - is the sizing right?
 compass terminology      render the v2 vocabulary - one term or the whole glossary
 compass ci               the full mechanical gate suite, for CI
 ```

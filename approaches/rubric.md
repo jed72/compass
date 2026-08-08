@@ -1,4 +1,4 @@
-# Triage - Routing Logic
+# Triage - the sizing rubric
 
 Triage is the component that runs at the start of every issue. It reads four assessment
 dimensions, applies `governance/routing-policy.md`, and writes `delivery-approach.md`. This

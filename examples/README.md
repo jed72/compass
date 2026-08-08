@@ -13,9 +13,9 @@ Each example is self-contained and verifiable. From inside any example's issue
 directory:
 
 ```
-compass task lint --file task.yml          # the spine is well-formed
-compass route evaluate --task <slug>        # the readings compose to the claimed route
-compass check --task <slug>                 # the guardrail checks pass (see the Spike note)
+compass issue lint --file task.yml         # the spine is well-formed
+compass approach evaluate --issue <slug>   # the assessment composes to the claimed shape
+compass check --issue <slug>                 # the guardrail checks pass (see the Spike note)
 ```
 
 ---
@@ -115,7 +115,7 @@ decision; if `graduate-to-delivery`, `next_task` is set) and **S2**
 (`changed_files` is empty - a Spike ships nothing). Both *run and pass* for
 this example; the run reports `compass check: PASS - all 2 Spike check(s)
 passed`. The delivery guardrails are not bypassed, they are *deferred to
-graduation*: if the finding is acted on, a fresh Frame re-frames it into a
+graduation*: if the finding is acted on, a fresh triage re-assesses it into a
 real route where the delivery checks apply in full to any code that is kept.
 
 **One-line lesson:** exploration is not forced through a delivery-shaped

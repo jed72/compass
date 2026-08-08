@@ -1,4 +1,4 @@
-# Routes
+# Delivery approaches
 
 A **route** is the computed shape of the pipeline for one issue: how heavy each
 of the eight phases is, which gates apply, and whether work runs solo or as a

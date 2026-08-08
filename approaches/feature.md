@@ -1,8 +1,8 @@
-# Route - Standard
+# Delivery approach - Feature
 
 > The default working shape. Full pipeline at moderate weight, solo or pair.
 
-## Triage composes toward Standard when
+## Triage composes toward a feature approach when
 
 - size is `standard` (several files, 1–3 days, one or two design
   decisions), **and**
@@ -18,7 +18,7 @@ choices in it.
 
 ## Per-phase weight
 
-| Phase | Weight on Standard |
+| Stage | Weight on a feature approach |
 |---|---|
 | Frame | Full. `delivery-approach.md` written. |
 | Specify | A small **feature set** of scenarios - happy path, the realistic edges, the failure modes that matter. Brownfield-unmapped: distil current behaviour into scenarios first. |
@@ -41,14 +41,15 @@ Solo by default. Pair (2–3 worktrees, one `builder` agent each, no dedicated
 orchestrator - the lead builder integrates) when the distribution map shows
 genuinely independent units and the size justifies the setup cost.
 
-## De-scope ledger - what Standard collapses or skips, and why it is safe
+## De-scope ledger - what a feature approach collapses or skips, and why it is safe
 
 | Item | Action | Standing justification |
 |---|---|---|
 | Dedicated orchestrator agent | skipped | At ≤3 streams the integration is small enough for the lead builder; a separate orchestrator is overhead. |
 | Full distribution map | reduced to a short list | Independence among 2–3 units is verifiable by reading; the full mapping ceremony is for swarm-scale work. |
 
-If Clarify finds the spec is bigger or more ambiguous than Standard assumed,
+If the requirements review finds the spec is bigger or more ambiguous
+than the feature approach assumed,
 re-assess - do not push a feature approach through an initiative-shaped problem.
 
 ## Standard may NOT

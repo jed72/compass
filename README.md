@@ -111,7 +111,7 @@ Every route runs the same eight phases. What changes is how much each one
 costs.
 
 ```
-Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land
+triage → define → refine → design → breakdown → implement → verify → ship
 ```
 
 On a **quick fix**, the requirements review, the design stage, and the
@@ -129,7 +129,7 @@ shapes triage tunes, not a fixed ladder.
 | Route | Typical reading | Shape |
 |---|---|---|
 | **quick fix** | atomic · contained · mapped | triage → define (1 scenario) → implement → verify. Still tested before it ships. One gate. |
-| **Standard** | standard · contained | Full pipeline, solo or pair. Two gates. |
+| **feature** | standard · contained | Full pipeline, solo or pair. Two gates. |
 | **initiative** | large · cross-cutting · greenfield | Full weight. Governance check, BDD discovery, distribution map, agent swarm across worktrees. All gates. |
 | **Hotfix** | critical · small · brownfield | Reproduce first: a failing regression test is the spec. Expedited implementation, mandatory post-incident follow-up. All Verify gates. |
 | **Spike** | intent is exploration | Explore freely: the TDD strategy is suspended, the hook doesn't block. Then graduate (re-assess into a real route) or discard. **Nothing ships from a spike.** |
@@ -194,8 +194,9 @@ can flex, what stops it flexing to nothing?*
 There is a line through Compass. On one side is **judgement**: triage
 reading the four dimensions. That cannot be mechanized, and that judgement *is*
 the adaptivity. On the other side is **mechanism**: everything that happens
-once the assessment exist, which is composing the route, applying the floors and
-caps, and running the guardrail checks. Same assessment plus same policy gives
+once the assessment exists: composing the delivery approach, applying the
+floors and caps, and running the guardrail checks. Same assessment plus
+same policy gives
 the same route, every time.
 
 Compass puts that mechanism in a CLI so it is *actually* deterministic rather
@@ -249,7 +250,7 @@ compass next             surface the next action on the current task
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly: survives auto-fixing
                          pre-commit hooks and verifies HEAD advanced
-compass retro      aggregate the re-frame log - is routing well-sized?
+compass retro      aggregate the re-assessment log - is the sizing right?
 compass terminology      render the v2 vocabulary - one term or the whole glossary
 compass ci               the full mechanical gate suite, for CI - honour the exit code
 ```

@@ -1,4 +1,4 @@
-# Route - initiative
+# Delivery approach - Initiative
 
 > Big, cross-cutting, or greenfield. Full weight, every gate, agent swarm
 > across worktrees.

@@ -1,7 +1,8 @@
 # Routing Policy - How triage Is Bounded and Biased
 
-Triage (the router - see `approaches/rubric.md`) reads four context dimensions
-at triage and computes a route. This file governs that computation, using
+Triage (see `approaches/rubric.md` for the sizing rubric) reads the four
+assessment dimensions and computes the delivery approach. This file
+governs that computation, using
 the same split as the rest of `governance/`:
 
 - **Routing guardrails** - hard. They *bound* what triage may do. A
