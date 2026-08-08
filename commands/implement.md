@@ -76,7 +76,7 @@ strategy is suspended and the pre-tool hook does not block - you write code
 freely to answer the question, and that code is assumed throwaway. Nothing
 ships from a spike: the only exit that keeps code is *graduating*
 (re-assessing into real delivery work), where the tested-before-ship
-guardrail applies in full. See `routes/spike.md`.
+guardrail applies in full. See `approaches/spike.md`.
 
 ## When the failure is unexpected
 

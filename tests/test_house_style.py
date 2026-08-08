@@ -243,7 +243,7 @@ def test_house_style_is_documented():
     pipeline where a commit message is authored.
     """
     strategies = (REPO_ROOT / "governance/strategies.md").read_text(encoding="utf-8")
-    assert "### S7" in strategies, (
+    assert "(`S7`)" in strategies, (
         "governance/strategies.md must declare strategy S7 (write for a cold "
         "reader). It is what tests/test_house_style.py enforces the mechanical "
         "half of."

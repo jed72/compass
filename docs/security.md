@@ -16,10 +16,10 @@ call (Edit/Write/MultiEdit, and session end), inside your shell, with
 your user's permissions. Read them before you install:
 
 - `hooks/pre-tool.sh` - enforces the red-before-green TDD strategy by
-  inspecting the current task's `.red` marker and `.spike` marker. It is
+  inspecting the current issue's `.red` marker and `.spike` marker. It is
   the one that can *block* an edit.
-- `hooks/post-tool.sh` - appends to the task devlog and clears markers.
-- `hooks/stop.sh` - warns at session end if a task is half-finished.
+- `hooks/post-tool.sh` - appends to the issue devlog and clears markers.
+- `hooks/stop.sh` - warns at session end if an issue is half-finished.
 
 They are deliberately short and do not call out to the network. The
 correct review posture is: open each one, read it top to bottom, and
@@ -93,7 +93,7 @@ Compass is built so that the surface a malicious change could hide in
 is small:
 
 - The **methodology layer** is plain markdown - `docs/`,
-  `governance/*.md`, `routes/`, `templates/`. It cannot execute
+  `governance/*.md`, `approaches/`, `templates/`. It cannot execute
   anything.
 - The **kit layer** is a single Python file (`cli/compass`) plus
   declarative YAML and JSON Schema in `governance/`, `schemas/`. Easy
@@ -111,7 +111,7 @@ mirror to a trusted location, review the diff before bumping.
 
 ## A note on the `.compass/` directory
 
-`.compass/work/` is the task audit trail and is **committed to your
+`.compass/work/` is the issue audit trail and is **committed to your
 repo**, not scratch. That is deliberate - it is the evidence that
 guardrails were cleared and that work was framed before it ran. The
 test-run records, the human-approval entries, the devlog entries: they

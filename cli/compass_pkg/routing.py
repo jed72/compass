@@ -178,7 +178,7 @@ def evaluate_route(readings, policy):
     # If the candidate was a Spike and a routing floor would force it onto a
     # delivery route, that is NOT "Spike raised to Expedition" - it is "this is
     # not a Spike." A Spike ships nothing and must not touch production-critical
-    # surface (routes/spike.md). Auto-promoting it would quietly change the
+    # surface (approaches/spike.md). Auto-promoting it would quietly change the
     # *meaning* of the work from "explore" to "deliver." The honest answer is a
     # re-frame, so the evaluator stops and says so.
     if candidate == "spike" and final != "spike":

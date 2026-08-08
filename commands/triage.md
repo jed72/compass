@@ -24,7 +24,7 @@ optional and not a prerequisite. If a project has run `/compass:init`, its
 ## Setup
 
 - Load the `adaptive-routing` skill - it is the procedural companion to the
-  delivery-approach rubric (`routes/router.md`).
+  delivery-approach rubric (`approaches/rubric.md`).
 - Read `governance/routing-policy.md` for the *why*. The machine-readable
   `governance/routing-policy.yml` is what `compass approach evaluate` actually
   runs: triage is bound by its **policy floors, caps, immovable gates, and

@@ -32,3 +32,4 @@ backfills: []
 When a PRD exists, invoke the product-lens agent by its machine name.
 We frame the problem before we start; planes land when the tower clears
 them, and the driver computed a route home without any of this.
+The navigation app composed a scenic detour, not that this matters here.

@@ -194,7 +194,7 @@ assessment_vocabulary:
 
 # -----------------------------------------------------------------------------
 # Route shapes - the machine-readable mirror of the five reference routes. The
-# routes/*.md files are the human-readable canonical descriptions; this is what
+# approaches/*.md files are the human-readable canonical descriptions; this is what
 # `compass route evaluate` reads to emit the per-phase weight, gate set, and
 # topology once the final route is known. The weight ladder for
 # force_minimum_route (spike < express < standard < hotfix < expedition) is the

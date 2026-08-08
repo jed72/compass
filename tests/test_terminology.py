@@ -96,10 +96,14 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
             r"\b(?:computed|reference|delivery|solo|swarm|"
             r"Express|Standard|Expedition|Hotfix|Spike)\s+routes?\b"
         ),
-        # Tuned at the skills-prose review: "compute the route" is the
-        # process-noun sense (the thing computed is the delivery
-        # approach); "computed a route home" stays legal.
-        re.compile(r"\bcomputes?\s+the\s+route\b"),
+        # Tuned at the skills-prose review, widened at the docs-prose
+        # review: the compose/compute verb family on the process noun
+        # (the thing composed or computed is the delivery approach);
+        # "computed a route home" stays legal.
+        # Present and progressive forms with either article; past tense
+        # only with "the" - "computed a route home" is ordinary English.
+        re.compile(r"\b(?:comput|compos)(?:es?|ing)\s+(?:the|a)\s+route\b"
+                   r"|\b(?:computed|composed)\s+the\s+route\b"),
     ],
     # The v1 name for a quick fix. Capitalised only: "express delivery"
     # stays legal.
@@ -196,11 +200,11 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
 # live list can drop entries but never gain one. A rename slice removes its
 # surface from the vocabulary file AND from here in the same diff, which is
 # what makes the shrink visible in review.
+# One surface left: the doctrine document, split to the second half of
+# the docs-prose slice at a recorded green boundary. The ratchet reaches
+# zero when that half lands; the shrink-only meta-test holds every exit.
 PENDING_BASELINE: frozenset[str] = frozenset({
-    "README.md",
-    "docs/five-minutes.md",
     "docs/methodology.md",
-    "governance/",
 })
 
 

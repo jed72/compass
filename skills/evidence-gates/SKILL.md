@@ -103,7 +103,7 @@ Verifier's artifacts in hand.
 
 ## The review-dimension checklists
 
-Which dimensions apply is set by the route (see the table in `routes/router.md`).
+Which dimensions apply is set by the route (see the table in `approaches/rubric.md`).
 `correctness`, `governance`, `traceability` are on every delivery approach - the
 default guardrails in review form. The route and routing policy can add; they
 can never remove those or an `immovable_gate`. (Spike runs none of these - it

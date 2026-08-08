@@ -1,6 +1,6 @@
 # Compass in five minutes
 
-The shortest path from "what is this" to "I've shipped a task with it." This
+The shortest path from "what is this" to "I've shipped an issue with it." This
 page is just enough to get going. Read `docs/methodology.md` afterwards for the
 design, and `docs/safety-contract.md` for what Compass 1.0 does and does not
 promise.
@@ -14,15 +14,16 @@ Claude Code, is `/plugin marketplace add jed72/compass` then
 
 ## The mental model in five points
 
-1. **Compass reads the task.** Before you change a file, `/compass:frame`
-   triages it on four dimensions - blast radius, terrain, magnitude, intent
-   & role. That part is judgement; you produce the readings.
-2. **It routes by risk and uncertainty.** Given the readings,
+1. **Compass reads the issue.** Before you change a file, `/compass:triage`
+   triages it on four dimensions - risk, familiarity, size, intent
+   & role. That part is judgement; you produce the assessment.
+2. **It routes by risk and uncertainty.** Given the assessment,
    `compass approach evaluate` applies `governance/routing-policy.yml` and
-   computes the route deterministically - same readings, same route, every
+   computes the delivery approach deterministically - same assessment, same route, every
    time. You don't pick a process from a menu.
-3. **It creates only the artifacts that route needs.** Express collapses
-   Clarify, Plan, and Distribute to nothing. Expedition expands them.
+3. **It creates only the artifacts that route needs.** quick fix collapses
+   the requirements review, the design stage, and the breakdown to
+   nothing. An initiative expands them.
    Spike skips most of the pipeline because it ships nothing. The route
    tells the pipeline what to skip and *why it is safe to skip it* - and
    the reason is written down in `delivery-approach.md`.
@@ -30,9 +31,9 @@ Claude Code, is `/plugin marketplace add jed72/compass` then
    "The tests pass" is not the sentence - it is the run, recorded as a
    `test-run` evidence entry the CLI can read. Gates accept specific
    evidence types; a written note will not clear a mechanical gate.
-5. **It checks the task spine in CI.** `compass ci` runs `policy lint`,
-   `task lint`, and `check` for every task under `.compass/work/`. It does
-   not re-run your test suite - it verifies that the *task state is
+5. **It checks the issue spine in CI.** `compass ci` runs `policy lint`,
+   `issue lint`, and `check` for every issue under `.compass/work/`. It does
+   not re-run your test suite - it verifies that the *issue state is
    coherent and backed by evidence*. Your project's own CI still runs
    tests, lints, builds, deploys.
 
@@ -42,39 +43,41 @@ in practice.
 
 ---
 
-## The five reference routes, one line each
+## The five reference shapes, one line each
 
-- **Express** - atomic, contained, mapped. Frame → Specify (1 scenario) →
-  Build → Verify. One gate. Still tested before it lands.
-- **Standard** - standard size, contained blast radius. The full pipeline,
+- **Quick fix** - atomic, contained, mapped. triage → define (1 scenario) →
+  implement → verify. One gate. Still tested before it ships.
+- **Feature** - standard size, contained risk. The full pipeline,
   solo or pair. Two gates.
-- **Expedition** - large or cross-cutting, often greenfield. Full weight.
+- **Initiative** - large or cross-cutting, often greenfield. Full weight.
   Distribution map, agent swarm across worktrees, all gates.
 - **Hotfix** - critical and small, brownfield. Reproduce-first: a failing
-  regression test *is* the spec. Expedited Build, mandatory backfill of
-  `delivery-approach.md` and a real scenario before close.
+  regression test *is* the spec. Implementation is expedited, and two
+  things are owed before the issue closes: the approach record completed
+  properly (not the urgent stub), and the reproduction test promoted into
+  a real Given/When/Then scenario.
 - **Spike** - exploration. TDD strategy suspended, hook does not block.
-  **Nothing lands from a Spike**; the only exit that keeps code is
-  graduating (re-framing into a real route).
+  **Nothing ships from a spike**; the only exit that keeps code is
+  graduating - re-triaging into a real delivery approach.
 
-Routes are *composed* from readings, not chosen from a menu - these five
-are starting shapes the Needle tunes. See `docs/methodology.md` §8.
+Approaches are *composed* from assessment, not chosen from a menu - these five
+are starting shapes triage tunes. See `docs/methodology.md` §8.
 
 ---
 
-## A worked example - fix a typo on Express
+## A worked example - fix a typo on quick fix
 
 You notice the JWT refresh error message has a typo: "invald token". You
 fix the string. Here is the whole walk.
 
-### Frame
+### Triage
 
 ```
-/compass:frame "fix typo in the JWT refresh error message"
+/compass:triage "fix typo in the JWT refresh error message"
 ```
 
-The Needle reads the four dimensions - magnitude `atomic`, blast radius
-`trivial`, terrain `brownfield-mapped`, intent `delivery` - and records
+Triage reads the four dimensions - size `atomic`, risk
+`trivial`, familiarity `brownfield-mapped`, intent `delivery` - and records
 them in `.compass/work/fix-jwt-typo/task.yml`:
 
 ```yaml
@@ -88,8 +91,8 @@ assessment:
   role: engineer
 ```
 
-Then the mechanism takes over. `/compass:frame` shells out to
-`compass approach evaluate --write`, which composes the route, applies the
+Then the mechanism takes over. `/compass:triage` shells out to
+`compass approach evaluate --write`, which composes the delivery approach, applies the
 routing guardrails, and folds the result back into `task.yml`:
 
 ```
@@ -114,12 +117,12 @@ routing guardrails, and folds the result back into `task.yml`:
 Frame is `full` on every route - it is the one phase that never collapses.
 
 `.compass/current-task` now points at `fix-jwt-typo`. `delivery-approach.md` records
-the readings, the route, and the de-scope reasons.
+the assessment, the route, and the de-scope reasons.
 
-### Specify
+### Define the acceptance criteria
 
 ```
-/compass:specify
+/compass:define
 ```
 
 One scenario is enough:
@@ -170,7 +173,7 @@ $ compass tdd-green --scenario SCN-001 -- pytest tests/auth/test_jwt_refresh.py:
 The verifier runs the scenario as the acceptance test, runs the full
 suite, and then calls the kit:
 
-This is the real output, from the shipped `examples/express-typo/` task -
+This is the real output, from the shipped `examples/quick-fix-typo/` issue -
 run `compass check` in that directory to reproduce it verbatim:
 
 ```
@@ -214,16 +217,16 @@ Each of the three gates flips to `pass` with its evidence id referenced.
 The verifier writes `verification-report.md`, and the DoD checklist at the
 foot is ticked.
 
-### Land
+### Ship
 
 ```
-/compass:land
+/compass:ship
 ```
 
 Solo route, no swarm. The commit lands on the current branch, regression
-runs, the de-scope ledger has nothing owed, the task closes. Total
+runs, the de-scope ledger has nothing owed, the issue closes. Total
 artifacts on disk: `delivery-approach.md`, `task.yml`, `acceptance-criteria.md`, `evidence/`,
-`verification-report.md`, `devlog.md`. Anyone can pick the task up from
+`verification-report.md`, `devlog.md`. Anyone can pick the issue up from
 the artifacts alone.
 
 ---
@@ -282,12 +285,12 @@ compass flow [--digest]  cross-task flow view; --digest writes a dated digest
 compass next             surface the next action on the current task
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly; verifies HEAD advanced
-compass retro      aggregate the re-frame log - is routing well-sized?
+compass retro      aggregate the re-assessment log - is the sizing right?
 compass terminology      render the v2 vocabulary - one term or the whole glossary
 compass ci               the full mechanical gate suite, for CI
 ```
 
-The slash commands call the CLI under the hood - `/compass:frame` runs
+The slash commands call the CLI under the hood - `/compass:triage` runs
 `compass approach evaluate`, `/compass:verify` runs `compass check`, the
 build procedure runs `compass tdd-red`/`tdd-green` - so you rarely invoke
 it directly. But it is the part that makes the framework's checks real

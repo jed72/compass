@@ -20,13 +20,13 @@ def _read_s2_section() -> str:
     in_s2 = False
     s2_lines = []
     for line in lines:
-        if line.strip().startswith("### S2"):
+        if line.strip().startswith("### ") and "(`S2`)" in line:
             in_s2 = True
             s2_lines.append(line)
             continue
         if in_s2:
             # Stop at next strategy heading (### S3 etc) or section heading
-            if line.startswith("### S") and not line.startswith("### S2"):
+            if line.startswith("### ") and "(`S2`)" not in line:
                 break
             if line.startswith("## ") or line.startswith("# "):
                 break
@@ -37,8 +37,11 @@ def _read_s2_section() -> str:
 def test_s2_names_governance_role():
     """S2 must mention satisfying guardrail G1 - the governance role."""
     s2 = _read_s2_section()
-    assert "G1" in s2, (
-        "S2 section in strategies.md must mention G1 (the governance/guardrail role). "
+    # The code became the plain guardrail name at the docs-prose slice;
+    # the required statement is the same.
+    assert "G1" in s2 or "tested-before-ship" in s2, (
+        "S2 section in strategies.md must name the tested-before-ship "
+        "guardrail (the governance role). "
         f"Found S2 section:\n{s2}"
     )
 

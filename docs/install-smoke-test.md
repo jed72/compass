@@ -75,7 +75,7 @@ python3 -c "import yaml; print(yaml.__version__)"
 python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
 ```
 
-## 3. Frame a test task in Claude Code
+## 3. Frame a test issue in Claude Code
 
 Open Claude Code in a directory you do not mind getting a `.compass/`
 folder in (a scratch repo is ideal). Type:
@@ -86,7 +86,7 @@ folder in (a scratch repo is ideal). Type:
 
 Expected outcomes:
 
-- A new task directory appears: `.compass/work/test-installation/` (the
+- A new issue directory appears: `.compass/work/test-installation/` (the
   slug is derived from the title).
 - That directory contains `delivery-approach.md` and `task.yml`. `task.yml` has a
   `readings:` block, a `route:` field, a `phases:` map, a `gates:` list,
@@ -130,13 +130,13 @@ The schema version is what the CLI will accept in a `task.yml`. A
 `task.yml` with a different *major* schema version makes
 `compass check` fail closed.
 
-## 6. Run the task-level check on the test task
+## 6. Run the task-level check on the test issue
 
 ```bash
 python3 $COMPASS_HOME/cli/compass check --task test-installation
 ```
 
-The check runs against an early-task state - Frame has run but Specify,
+The check runs against an early-issue state - Frame has run but Specify,
 Build, and Verify have not. The check will report what is missing
 honestly. Expected output shape:
 
@@ -153,7 +153,7 @@ compass check - task 'test-installation' (route: express)
 compass check: FAIL - N of M check(s) failed.
 ```
 
-That is the correct early-task state: the gates have not been cleared
+That is the correct early-issue state: the gates have not been cleared
 yet because no work has been done. The structured `what / why / fix`
 blocks are how the CLI guides you to the next move. If `compass check`
 *errors* - a traceback, "could not find governance/", "no .compass/
@@ -177,7 +177,7 @@ Uninstalling...
 Compass adapter layer removed. The methodology layer in /path/to/compass is untouched.
 ```
 
-The methodology and kit layers (`docs/`, `governance/`, `routes/`,
+The methodology and kit layers (`docs/`, `governance/`, `approaches/`,
 `templates/`, `cli/`, `schemas/`) are unchanged - only the adapter
 wiring is removed.
 
@@ -230,10 +230,10 @@ correct CLI location (see `ci/README.md`).
 
 **The hook blocks an edit unexpectedly.** That is the red-before-green
 TDD strategy working - it means you tried to edit production code with
-no failing test recorded for the current task. The fix is always:
+no failing test recorded for the current issue. The fix is always:
 write the test first, then `compass tdd-red -- <test cmd>`, then edit.
-On a Spike route the hook does not block; if you want to suspend the
-strategy for genuinely exploratory work, frame the task as a Spike.
+On a spike the hook does not block; if you want to suspend the
+strategy for genuinely exploratory work, frame the issue as a Spike.
 
 If a step here fails in a way the docs do not anticipate, the failure
 itself is signal - open an issue with the exact command, expected
