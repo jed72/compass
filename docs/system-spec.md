@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the mapping lives in the exempt data file
+### desired-state graduates and is enforced
 
-- **Scenario id:** `TRC-4`
+- **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-migrate`
+- **Source issue:** `v2-release`
 - **Landed:** 2026-08-08
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -2952,4 +2952,18 @@
 - **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-migrate`
+- **Landed:** 2026-08-08
+
+### the mapping lives in the exempt data file _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-migrate`
+- **Landed:** 2026-08-08
+
+### the version is 2.0.0 in every guarded location _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-release`
 - **Landed:** 2026-08-08
