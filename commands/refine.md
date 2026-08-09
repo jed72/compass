@@ -113,6 +113,12 @@ about decisions, not wording.
 > On approval this goes to the design stage, which turns the spec into a
 > technical approach and runs the governance check against it.
 
+## Voice
+
+The ambiguity ledger is read by the person who has to decide, not filled
+into a form. Say what was unclear, the call, and why - never a bare
+label-and-status row. See `skills/compass-runtime/writing-voice.md`.
+
 ## Gate
 
 `requirements-review.md` exists; every ambiguity is resolved or owned; the

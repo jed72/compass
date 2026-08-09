@@ -146,6 +146,17 @@ only thing the adapter owes the kit is a `.compass/current-task` pointer (or
 an explicit `--task` slug) so the CLI can resolve which issue it is acting
 on.
 
+## Writing voice
+
+Every artifact a runtime writes is prose someone reads later, and prose that
+narrates the pipeline instead of communicating a decision teaches nothing.
+`skills/compass-runtime/writing-voice.md` states the rule in one line,
+carries real before/after pairs harvested from this project's own archive,
+and names the tells that mark the narrating kind. A runtime's session-facing
+output - devlog entries, requirements reviews, replies to the person driving
+it - should read the way that reference asks: what happened, what is
+needed, never which stage is running.
+
 ## State on disk
 
 All issue state is files, not conversation. `governance/` at the project

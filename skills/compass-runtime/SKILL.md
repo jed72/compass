@@ -217,6 +217,14 @@ files and the `.yml` files the CLI runs - not under `.compass/`. If
 `/compass:init` has not been run, the framework's shipped `governance/`
 defaults apply as-is.
 
+## Writing voice
+
+Before writing a devlog entry, a requirements review, or anything else this
+skill produces, read `skills/compass-runtime/writing-voice.md` - the
+principle, real before/after pairs from this project's own archive, and the
+tells that mark session prose narrating the pipeline instead of
+communicating a decision.
+
 ## When you are unsure
 
 Re-read the delivery-approach record (`delivery-approach.md`). It was written at triage

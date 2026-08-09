@@ -127,6 +127,12 @@ force; if it is still a spike, leave the marker in place.
    governance speaking; changing one means amending
    `governance/routing-policy.yml`, not overriding one issue's approach.
 
+## Voice
+
+Triage output is read by a person deciding what happens next, not narrated
+to them. State the assessment and the approach - never which stage you are
+entering. See `skills/compass-runtime/writing-voice.md`.
+
 ## Gate
 
 `task.yml` exists with an `assessment:` block and a CLI-computed
