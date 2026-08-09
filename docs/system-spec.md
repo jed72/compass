@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### desired-state graduates and is enforced
+### every file this issue writes should clear house style and the frozen vocabulary
 
-- **Scenario id:** `TRC-2`
+- **Scenario id:** `TRC-F4`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-release`
-- **Landed:** 2026-08-08
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -22,12 +22,12 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the spine template speaks v2 and is scanned
+### nothing about how Compass behaves should change
 
-- **Scenario id:** `TRC-A6`
+- **Scenario id:** `TRC-F3`
 - **Intent:** `INT-2`
-- **Source issue:** `v2-machine-spine`
-- **Landed:** 2026-08-07
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
 
 ### an exempt path is never scanned
 
@@ -2737,6 +2737,13 @@
 - **Source issue:** `v2-machine-spine`
 - **Landed:** 2026-08-07
 
+### the spine template speaks v2 and is scanned _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-2`
+- **Source issue:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
 ### the policy keys speak v2 _(archived)_
 
 - **Scenario id:** `TRC-A7`
@@ -2967,3 +2974,115 @@
 - **Intent:** `INT-1`
 - **Source issue:** `v2-release`
 - **Landed:** 2026-08-08
+
+### desired-state graduates and is enforced _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-release`
+- **Landed:** 2026-08-08
+
+### the reference should live under an existing skill and open with the principle _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### every before/after pair should be a real passage from the work archive _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the tells list should name all nine tells and say which a string can find _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### no rewritten passage should still carry a tell _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the root instruction files should carry a short voice paragraph _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the three talkiest stages should each point at the reference _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the tells should live in one place, so a later edit cannot leave a stale copy _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a real requirements review from the archive should become the canonical worked example _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the original should stay readable beside the rewrite _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the requirements-review template should show a decision recorded in a human voice _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the clarity dimension should name the tells as judgement, not as a rule _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the tell check should name the file and line of each hit _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a clean set of artifacts should get a stated result, not silence _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a tell that is found should block nothing _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the exhibits should not be read as defects _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
