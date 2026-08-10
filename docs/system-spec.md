@@ -154,6 +154,13 @@
 - **Source issue:** `v2-artifact-renames`
 - **Landed:** 
 
+### the strategy records permanence and the calibration sample _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
+- **Landed:** 
+
 ### each adapter should run the extracted feature and pass _(archived)_
 
 - **Scenario id:** `TRC-A2`
@@ -215,6 +222,13 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-artifact-renames`
+- **Landed:** 
+
+### the strategy states its own test and its own failure mode _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
 - **Landed:** 
 
 ### every adapter should share the same four documented steps _(archived)_
@@ -411,6 +425,13 @@
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
 - **Source issue:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the reviewer's clarity dimension finds the audition without knowing it exists _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
 - **Landed:** 
 
 ### an adapter whose runner is absent should skip loudly, never silently pass _(archived)_
@@ -985,6 +1006,13 @@
 - **Scenario id:** `TRC-F1`
 - **Intent:** `INT-4`
 - **Source issue:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### no new mechanism is introduced _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
 - **Landed:** 
 
 ### no function should be renamed, merged or split by this task _(archived)_

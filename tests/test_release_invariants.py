@@ -162,7 +162,9 @@ def test_no_project_guardrails_declared_in_framework_repo():
 #         - 1 evidence-record field: attempts (+rerun_without_change paired)
 #         - 1 signal category: design_smell
 #   1.5.0 - 1 strategy id: S6 (regression-baseline, from field feedback)
-#   next  - 1 strategy id: S7 (cold-reader prose)
+#   2.0.0 - 1 strategy id: S7 (cold-reader prose)
+#   next  - 1 strategy id: S8 (voice audition, standing - specialises S7 with
+#           a named calibration sample; issue voice-audition-standing)
 # Anything outside that set means scope crept.
 #
 # Why adding a strategy does not breach the budget. ADR-002 bounds growth in
@@ -179,9 +181,11 @@ def test_default_method_strategy_set_is_the_known_set():
     """strategies.md declares exactly the known default method strategies.
 
     Each id was added deliberately: S5 (intermittency) in 1.1.0, S6
-    (regression-baseline) from field feedback, S7 (cold-reader prose). Adding a
-    strategy is allowed and cheap, but it must be a decision - so this list is
-    updated by hand, in the same commit as the strategy it admits.
+    (regression-baseline) from field feedback, S7 (cold-reader prose), S8
+    (voice audition, standing - specialises S7 with a named calibration
+    sample). Adding a strategy is allowed and cheap, but it must be a
+    decision - so this list is updated by hand, in the same commit as the
+    strategy it admits.
     """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
     # Section markers carry the machine id as a code-span suffix:
@@ -189,7 +193,7 @@ def test_default_method_strategy_set_is_the_known_set():
     # at the docs-prose slice.
     import re
     ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "
         f"{sorted(expected)}. If you added a strategy on purpose, add its id "
