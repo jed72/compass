@@ -66,6 +66,12 @@ The rest of this command is for delivery work.
    `templates/verification-report.md`: each dimension, each gate, the
    evidence, pass/fail.
 
+## Voice
+
+A verification report is evidence a person reads, not a status board. Say
+what passed and what it means - never that the issue is "ready for the next
+command." See `skills/compass-runtime/writing-voice.md`.
+
 ## Gate
 
 `compass check` passes (paste its output - that is the mechanical half);

@@ -249,6 +249,18 @@ as a worked example for adopters. Triage loads it (when present) into
 `architecture-loaded.yml` in the issue directory; projects without
 `architecture/` continue to work.
 
+## Writing voice
+
+A session narrates the framework when it announces the stage it is entering
+or the step it is about to take - you can already see the pipeline; naming
+it tells you nothing. Communicate the decision instead: what you found, what
+you need, what changed. `skills/compass-runtime/writing-voice.md` carries
+the principle in one line, real before/after pairs pulled from this
+project's own archive, and the tells to watch for. Read it before you write
+a devlog entry, a requirements review, or a line of dialogue with the person
+you are working with - and before you say anything out loud in this
+conversation.
+
 ## When you are unsure
 
 Re-read the delivery-approach record (`delivery-approach.md`). It was written at triage

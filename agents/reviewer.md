@@ -45,7 +45,11 @@ verifier gathered, `acceptance-criteria.md`, `design.md`, the `governance/` file
   a reader with no prior context follow the artifacts this issue produced? Flag
   any dangling reference ("Option 2", "Finding 3", "per the review"), any issue
   or pull-request link with no statement of what it actually is, and any commit
-  or pull-request body carrying an agent co-author trailer. Cold-reader writing is a strategy,
+  or pull-request body carrying an agent co-author trailer. This is also where the writing-voice
+  tells named in `skills/compass-runtime/writing-voice.md` are judged: does the
+  prose communicate a decision, or does it narrate the pipeline? Run
+  `scripts/voice-tells.py` over the issue's artifacts for the three tells a
+  fixed string can find; read the rest yourself. Cold-reader writing is a strategy,
   so this is a note and a conversation, never an automatic gate failure.
 - **claims** - when the product-marketer role is in play: does every public
   claim trace to a passing scenario? This is an immovable gate; coordinate with

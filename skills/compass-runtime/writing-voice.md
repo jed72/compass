@@ -1,0 +1,170 @@
+# Writing voice
+
+**communicate the decision, do not perform the process - say what happened and what is needed, never announce which stage you are in**
+
+That is the whole rule. A session narrates the framework when it says "I will
+now proceed to the requirements review stage" - the human can already see the
+pipeline; naming the stage tells them nothing they did not know. It
+communicates a decision when it says what changed and what it needs next. The
+difference is not vocabulary - both sentences can use exactly the same v2
+terms - it is whether the sentence performs a process or reports on one.
+
+**The calibration sample.** Before writing anything in this register, read the
+"Never stash across a worktree hop" section of
+`skills/worktree-swarm/SKILL.md`. It tells a real incident - a stash popped
+inside a temporary worktree destroyed work when the worktree was removed - in
+plain sentences, with no stage name announced and no field left to do the
+talking. That is the voice every surface below is asking for.
+
+## Before and after, from the real archive
+
+Every "before" below is a verbatim quote from a file under `.compass/work/`,
+cited by path. Nothing here is invented - invented examples teach the person
+who wrote them, and nobody else. The bar every "after" had to clear: read it aloud - would you say this sentence to a colleague at your desk?
+
+### Pair 1 - a stage announcement reads like a log line
+
+Source: `.compass/work/cross-task-architectural-integrity/devlog.md`
+
+Before:
+
+> **Status:** Distribute complete. Ready for `/compass:build`.
+
+After:
+
+> All six worktrees are set up on the foundation commit. The builders can start.
+
+What changed: says what actually exists (six worktrees, on a named commit) instead of a status word and the name of the next command.
+
+### Pair 2 - a status line drops the two facts that matter
+
+Source: `.compass/work/cross-task-architectural-integrity/devlog.md`
+
+Before:
+
+> **Status:** Build phase green across all 6 streams. Local evidence (red.json + green.json per scenario) lives in each worktree's spine. Ready for `/compass:verify`.
+
+After:
+
+> All six streams are green, and each one has its red and green evidence saved. Time to pull them together and check the whole thing.
+
+What changed: keeps the two facts a reader actually needs (all green, evidence saved) and turns the next step into something a person would say, not a command name to queue behind.
+
+### Pair 3 - "ready for the next command" is not news
+
+Source: `.compass/work/swarm-script-strips-markdown/devlog.md`
+
+Before:
+
+> **Status:** Verify PASS. Ready for `/compass:land`.
+
+After:
+
+> It passed review. This is ready to ship.
+
+What changed: tells the reader the thing they actually want to know - that it is safe to release - instead of a status word and a queue ticket for the next command.
+
+### Pair 4 - a bare command name is not a sentence
+
+Source: `.compass/work/compass-self-architecture/devlog.md`
+
+Before:
+
+> **Invoked:** `/compass:clarify` (Standard, light pass).
+
+After:
+
+> Ran the requirements review as a light pass, since this was Standard-sized work.
+
+What changed: says why the pass was light in the same breath as what ran, instead of a bare command name with its parameters trailing in parentheses like a log line.
+
+### Pair 5 - a field label does the talking
+
+Source: `.compass/work/compass-self-architecture/devlog.md`
+
+Before:
+
+> **Status:** Land complete on local; PR open awaiting CI + merge.
+
+After:
+
+> It's merged locally; the PR is open, waiting on CI.
+
+What changed: says the two things a person actually wants to know - merged, and what is still pending - instead of a status word plus a semicolon-joined checklist.
+
+### Pair 6 - "resolved" is a checkbox, not a decision
+
+Source: `.compass/work/friction-loop/requirements-review.md`
+
+Before:
+
+> **Status:** resolved
+
+After:
+
+> We settled on two - it's the smallest honest pattern at this scale, and it lines up with calibration's own threshold.
+
+What changed: gives the actual number and the reasoning behind it, not a word confirming a form field got filled in.
+
+### Pair 7 - the "Decided by" field that hides the decision
+
+Source: `.compass/work/make-receipt-render/requirements-review.md`
+
+Before:
+
+> **Decided by:** James (engineer) via Clarify reasoning recorded here; defaults if not overridden.
+
+After:
+
+> James decided this one; nobody pushed back.
+
+What changed: says who decided and whether it was contested, in a sentence, without losing either fact.
+
+### Pair 8 - a label-and-value row instead of a next step
+
+Source: `.compass/work/make-receipt-render/requirements-review.md`
+
+Before:
+
+> **Spec change:** **Required**
+
+After:
+
+> The scenarios need updating to match.
+
+What changed: tells the reader directly that action follows, instead of a label-and-value row answering a question nobody asked out loud.
+
+## The tells
+
+Nine habits mark this narration. Three of them a fixed string can find -
+`scripts/voice-tells.py` greps those three over the current issue's
+artifacts, advisory only. The other six need a reader; no string reliably
+tells them apart from an honest sentence that happens to share a word. This
+is the one place this list lives - every other surface that names a tell
+links back here, or names only the three the check greps.
+
+1. **"I will now proceed"** - **findable**. The check greps this exact
+   string.
+2. **"successfully" suffixed to a completed verb** - **judgement**. Look for
+   a report of a thing already done ("added successfully", "ran
+   successfully") standing in for what actually changed.
+3. **"the X stage" used as dialogue** - **judgement**. Look for a pipeline
+   stage name doing the work of a sentence - "ready for the verify stage"
+   reports to a dashboard, not to a person.
+4. **"accordingly"** - **judgement**. It has honest uses in conditional prose;
+   a repository-wide search turned up exactly one hit, a sentence nobody
+   would touch, so it stays a reader's call rather than a grep that would
+   cry wolf on its first real use.
+5. **"utilize"** - **findable**. The check greps this exact string; "use"
+   always beats it.
+6. **"Upon completion"** - **findable**. The check greps this exact string.
+7. **headings inside conversation** - **judgement**. Look for a markdown
+   heading doing what a sentence should - a reply that writes "## Summary"
+   instead of just summarising.
+8. **restating the request before answering it** - **judgement**. Look for a
+   paragraph that repeats what was asked before it answers it - the person
+   already knows what they asked.
+9. **status-report framing of something the person just watched happen** -
+   **judgement**. Look for a bare status word or field ("Status: PASS")
+   standing in for the sentence a person would actually say about what
+   happened - most of the pairs above are exactly this tell.
