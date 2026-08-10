@@ -328,18 +328,24 @@ def derive_system_spec(project_root: str) -> None:
             intent = scn.get("intent", "")
             if not intent:
                 intent = scn_id  # fall back to id if no intent
-            entry = {
-                "slug": slug,
-                "scn_id": scn_id,
-                "scn_title": scn_title,
-                "intent": intent,
-                "land_timestamp": land_ts,
-                "land_date": land_date,
-            }
-            if intent in current:
-                # Supersession: the current winner is archived
-                archived.append(current[intent])
-            current[intent] = entry
+            # A scenario may serve more than one intent, and the spine schema
+            # accepts either a string or a list of them. It answers for each
+            # id separately: keying on the whole list instead would invent a
+            # composite intent that supersedes neither of the real ones.
+            intents = intent if isinstance(intent, list) else [intent]
+            for one_intent in intents:
+                entry = {
+                    "slug": slug,
+                    "scn_id": scn_id,
+                    "scn_title": scn_title,
+                    "intent": one_intent,
+                    "land_timestamp": land_ts,
+                    "land_date": land_date,
+                }
+                if one_intent in current:
+                    # Supersession: the current winner is archived
+                    archived.append(current[one_intent])
+                current[one_intent] = entry
 
     # ---- 3. Compose the derived spec text ----------------------------------
     lines = [
