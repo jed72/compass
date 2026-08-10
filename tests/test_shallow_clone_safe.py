@@ -30,38 +30,50 @@ SHA_PINNED = [
 
 @pytest.fixture(scope="module")
 def shallow_clone(tmp_path_factory):
-    """A depth-1 clone of the current branch - the shape CI checks out.
+    """A depth-one checkout of the current commit - the shape CI works in.
 
-    Fails rather than skips if the clone cannot be made: a test that quietly
-    stops proving the thing it exists to prove is how this defect reached CI
-    in the first place.
+    Built by init-and-fetch rather than `git clone -b <branch>`, because a
+    pull-request checkout is a detached HEAD: there is no branch name to ask
+    for, and `rev-parse --abbrev-ref HEAD` answers the literal string "HEAD".
+    Fetching the commit sidesteps branch names altogether.
+
+    Fails rather than skips if the shallow checkout cannot be built: a test
+    that quietly stops proving the thing it exists to prove is how the defect
+    it guards reached CI in the first place.
     """
     dest = tmp_path_factory.mktemp("shallow") / "repo"
-    branch = subprocess.run(
-        ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+    dest.mkdir()
+
+    def run(*args, **kw):
+        return subprocess.run(args, cwd=str(kw.pop("cwd", dest)),
+                              capture_output=True, text=True, **kw)
+
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
         cwd=REPO_ROOT, capture_output=True, text=True, check=True,
     ).stdout.strip()
-    result = subprocess.run(
-        ["git", "clone", "--depth", "1", "-b", branch,
-         f"file://{REPO_ROOT}", str(dest)],
-        capture_output=True, text=True,
+
+    init = run("git", "init", "-q")
+    assert init.returncode == 0, f"git init failed:\n{init.stderr}"
+    fetch = run("git", "fetch", "--depth", "1", "-q", f"file://{REPO_ROOT}", head)
+    assert fetch.returncode == 0, (
+        f"could not fetch {head[:8]} at depth 1, so the shallow-history claim "
+        f"is unproven:\n{fetch.stderr}"
     )
-    assert result.returncode == 0, (
-        f"could not build a shallow clone, so the shallow-clone claim is "
-        f"unproven:\n{result.stderr}"
-    )
-    # Precondition: it really is shallow. A full clone here would make every
+    checkout = run("git", "checkout", "-q", "FETCH_HEAD")
+    assert checkout.returncode == 0, f"checkout failed:\n{checkout.stderr}"
+
+    # Precondition: the history really is absent. A full one would make every
     # assertion below vacuous.
     assert (dest / ".git" / "shallow").exists(), (
-        "the clone is not shallow - nothing below proves anything"
+        "the checkout is not shallow - nothing below proves anything"
     )
 
-    # Overlay the working tree's tests over the clone's committed ones. The
-    # clone can only carry what is committed, so without this the test would
-    # report on the last commit rather than on the code in front of us - it
-    # could never go green before the fix was committed, which is the wrong
-    # way round. The shallow *history* is what matters here, not the
-    # committed test bodies.
+    # Overlay the working tree's tests over the fetched ones. The fetch can
+    # only carry committed state, so without this the test would report on the
+    # last commit rather than on the code in front of us - it could never go
+    # green before the fix was committed, which is the wrong way round. The
+    # shallow *history* is what matters here, not the committed test bodies.
     for src in (REPO_ROOT / "tests").glob("*.py"):
         shutil.copyfile(src, dest / "tests" / src.name)
     return dest
