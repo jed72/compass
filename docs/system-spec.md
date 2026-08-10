@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the single-intent form is unchanged
+### the pinned assertions run where the history is absent
 
-- **Scenario id:** `TRC-2`
+- **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
-- **Source issue:** `derive-spec-multi-intent`
+- **Source issue:** `tests-survive-shallow-clone`
 - **Landed:** 2026-08-10
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3314,6 +3314,13 @@
 ### a scenario that serves two intents answers for both _(archived)_
 
 - **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `derive-spec-multi-intent`
+- **Landed:** 2026-08-10
+
+### the single-intent form is unchanged _(archived)_
+
+- **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
 - **Source issue:** `derive-spec-multi-intent`
 - **Landed:** 2026-08-10
