@@ -50,7 +50,9 @@ verifier gathered, `acceptance-criteria.md`, `design.md`, the `governance/` file
   prose communicate a decision, or does it narrate the pipeline? Run
   `scripts/voice-tells.py` over the issue's artifacts for the three tells a
   fixed string can find; read the rest yourself. Cold-reader writing is a strategy,
-  so this is a note and a conversation, never an automatic gate failure.
+  so this is a note and a conversation, never an automatic gate failure. This
+  audition is standing, not scoped to any one cycle - `governance/strategies.md`
+  `S8` names the calibration sample it is read against.
 - **claims** - when the product-marketer role is in play: does every public
   claim trace to a passing scenario? This is an immovable gate; coordinate with
   `marketing-lens`.

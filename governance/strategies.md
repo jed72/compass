@@ -164,6 +164,46 @@ Assessed under the `clarity` review dimension; restated at the point of use in
 
 ---
 
+### Voice audition: read against a calibration sample (`S8`)
+
+**Soft, assessed - not a guardrail.** Any change that writes prose a future
+session will read or imitate - a skill, a command doc, a governance strategy,
+a template's worked example, a devlog entry - is read against a calibration
+sample before it ships: the worked-example rewrite in
+`skills/compass-runtime/writing-voice-worked-example.md`, paired with the
+"Never stash across a worktree hop" section of
+`skills/worktree-swarm/SKILL.md`. One shows a formal artifact rewritten into
+the register this strategy asks for; the other is a real incident told the
+way a colleague would tell it. Together they are the standing sample - not a
+one-off exhibit for the cycle that wrote them.
+
+This audition does not lapse when that cycle ends. It applies to any future
+slice that writes prose, not only the one that introduced it, and a reviewer
+does not need to be reminded to run it - the pointer lives at the review
+dimension itself (see below).
+
+The test, stated the same way `writing-voice.md` states it: read it aloud -
+would you say this sentence to a colleague at your desk? An "after" that only
+shortens form-speak while dropping the facts the "before" carried has not
+passed the audition and fails it - keeping the facts is the harder half and
+the part that matters; shortening alone is easy and proves nothing.
+
+*Why a strategy and not a guardrail:* whether a sentence sounds human is
+judgement, not a fixed string. No mechanical check reliably tells a faithful
+rewrite from one that quietly dropped a fact, and a check that tried and got
+it wrong on its first real use would be worse than no check at all - the
+findable/judgement split in `writing-voice.md`'s own tells list exists for
+exactly that reason: three tells a grep can find safely, six that need a
+reader. The `reviewer` agent assesses this at Verify under the `clarity`
+review dimension.
+
+*Cross-reference: cold reader (`S7`), which this specialises with a named
+calibration sample; `skills/compass-runtime/writing-voice.md` for the full
+tells list and the worked before/after pairs; assessed under the `clarity`
+review dimension in `agents/reviewer.md` and `skills/evidence-gates/SKILL.md`.*
+
+---
+
 ## Project strategies
 
 <!-- Add strategies specific to this project here. Add freely - strategies are

@@ -143,6 +143,8 @@ mandatory follow-up on Hotfix. This is also where the writing-voice tells
 named in `skills/compass-runtime/writing-voice.md` are judged - does the
 artifact communicate a decision, or does it narrate the pipeline? Run
 `scripts/voice-tells.py` over the issue's artifacts for the three tells a fixed string can find; a hit is a note and a conversation, never an automatic gate failure.
+This audition is standing, not scoped to any one cycle - `governance/strategies.md`
+`S8` names the calibration sample it is read against.
 
 **claims** - When the product-marketer role is in play (and `verify.claims` is
 an immovable gate, so it is always at least live for the marketer): does every
