@@ -38,11 +38,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install the Compass CLI's dependencies
-        # pyyaml is the only hard dependency; jsonschema enables full JSON
-        # Schema validation (the CLI works without it, on its built-in linter).
-        run: pip install pyyaml jsonschema
-
       - name: Compass mechanical gate suite
         # `compass ci` exits non-zero if governance is invalid, a task.yml is
         # off-schema, or any task's guardrail checks fail. That exit code is

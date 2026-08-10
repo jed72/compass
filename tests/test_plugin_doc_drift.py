@@ -30,9 +30,13 @@ def test_trc_a1_readme_source_install_has_path_note():
     compass CLI - by adding bin/ to PATH or via `python3 cli/compass`."""
     readme = _read("README.md")
 
-    # The source-install code block (clone → bash install.sh → pip install).
+    # The source-install code block (clone -> bash install.sh). The block used
+    # to end at `pip install pyyaml`; that line is gone now that PyYAML
+    # travels inside the plugin (zero-friction-install, TRC-D1/TRC-D5) - the
+    # block's real end is the install script invocation, which survives.
     m = re.search(
-        r"git clone https://github\.com/jed72/compass\.git.*?pip install pyyaml",
+        r"git clone https://github\.com/jed72/compass\.git.*?"
+        r"bash scripts/install\.sh --global",
         readme,
         re.DOTALL,
     )

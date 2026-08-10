@@ -18,8 +18,10 @@ which expands to:
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest tests/ -q
 ```
 
-`pyyaml` is the CLI's only runtime dependency; `pytest` and `jsonschema`
-enable the suite to run (`pip install pyyaml pytest jsonschema`). The suite
+PyYAML, the CLI's one runtime dependency, travels inside the plugin
+(`cli/vendor/yaml/`) and `tests/conftest.py` resolves it the same way the CLI
+does - nothing to install there. `pytest` and `jsonschema` are test tooling
+and enable the suite to run (`pip install pytest jsonschema`). The suite
 spawns one CLI subprocess per test; on a healthy machine it completes in a
 few seconds. Each `run_cli` call has a 10-second timeout - long enough for a
 real run, short enough that a genuinely hung subprocess fails fast rather

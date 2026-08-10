@@ -42,27 +42,55 @@ For organisational use:
   mirror) and pin to *that*, so a takeover of the upstream cannot
   silently update what your team runs.
 - **Review the diff between SHAs** before bumping the pin. Compass is
-  small enough that this is realistic - the methodology layer is plain
-  markdown, the kit layer is a single Python file, the adapter layer is
-  bash and markdown.
+  small enough that this is realistic, in two parts: for Compass's own
+  code, diff `cli/compass`, `cli/compass_pkg/`, `governance/`, and
+  `schemas/` between the two SHAs, as before - the methodology layer is
+  plain markdown, the kit layer is Compass's own Python plus one vendored
+  third-party package, the adapter layer is bash and markdown. For the
+  vendored tree, do not diff it between SHAs - it should not change except
+  on a deliberate version bump. Reproduce it and compare against upstream
+  instead - the full, runnable command is in `THIRD-PARTY-NOTICES.md` at the
+  repository root, under "PyYAML" (download the pinned sdist, verify its
+  hash, extract it, diff its `lib/yaml/` against `cli/vendor/yaml/`). It is
+  an auditor's command, run once when you want to verify the vendored copy -
+  it is not an install step, and nothing in Compass runs it for you.
 
 ## CLI dependencies
 
-The CLI's only **hard** dependency is **PyYAML** (`pip install pyyaml`).
-**`jsonschema` is optional** - it turns on full JSON Schema validation
-in `compass policy lint` and `compass issue lint`; the built-in linter
-runs without it.
+**Nothing is installed onto your Python path.** The CLI's only **hard**
+dependency is **PyYAML**, and it travels inside the plugin - a pinned,
+unmodified copy at `cli/vendor/yaml/`, declared in
+`THIRD-PARTY-NOTICES.md` (version, upstream URL, sha256, licence). It is
+only ever added to `sys.path` inside Compass's own processes
+(`cli/compass_pkg/__init__.py` is the one place that happens), never to
+your environment's site-packages. There is no `setup.py`, no `pip
+install compass-cli`, no package that arrives in your site-packages as
+a side effect of installing Compass - **if a Compass install puts a
+package into your site-packages, that is the bug.**
 
-Both are widely-used PyPI packages; audit them the way you audit any
-other dependency you pull into a sensitive environment - pin versions,
-verify hashes if your policy requires it, and prefer your
-organisation's PyPI mirror over the public one.
+**`jsonschema` is optional and not bundled.** It turns on full JSON
+Schema validation in `compass policy lint` and `compass issue lint`;
+the built-in linter runs without it. If you want it, `pip install
+jsonschema` yourself - that one remains a genuine install, on your own
+terms.
 
-The CLI itself is one file: `cli/compass`. It is Python 3 standard
-library plus those two imports. There is no `setup.py`, no `pip
-install compass-cli`, no third package that arrives in the install - if
-something else shows up on your path after a Compass install, that is
-the bug.
+Audit the vendored PyYAML the way you audit any dependency you pull
+into a sensitive environment - pin the version (already done: see
+`THIRD-PARTY-NOTICES.md`), verify the hash if your policy requires it
+(the sha256 is recorded there too), and reproduce it from upstream
+yourself using the commands above rather than trusting the tree as
+shipped, if that is your posture.
+
+**The precedence cost, stated plainly.** Compass's own processes always
+use the bundled PyYAML, at position 0 on `sys.path` - ahead of anything
+else on the machine, deliberately and unconditionally, so the same
+version runs everywhere Compass runs. If you have pinned or patched
+your own system PyYAML for a reason of your own, following the advice
+above, that choice is shadowed *inside Compass's own invocations*. It
+is not shadowed anywhere else: this is process-scoped, so your other
+tooling and your system PyYAML itself are untouched. The version
+Compass is running is never a guess - `compass --version` prints it,
+alongside where it resolved from.
 
 ## Project guardrails go through PR review
 
@@ -95,9 +123,13 @@ is small:
 - The **methodology layer** is plain markdown - `docs/`,
   `governance/*.md`, `approaches/`, `templates/`. It cannot execute
   anything.
-- The **kit layer** is a single Python file (`cli/compass`) plus
-  declarative YAML and JSON Schema in `governance/`, `schemas/`. Easy
-  to diff, easy to audit.
+- The **kit layer** is Compass's own Python (`cli/compass`,
+  `cli/compass_pkg/`) plus declarative YAML and JSON Schema in
+  `governance/`, `schemas/`, plus one vendored, pinned, unmodified
+  third-party package (PyYAML, at `cli/vendor/yaml/` - see "CLI
+  dependencies" above). Compass's own code is easy to diff, easy to
+  audit, the same way it always was; the vendored tree is reproduced
+  from upstream and hash-verified instead of diffed between releases.
 - The **Claude Code adapter layer** - `commands/`, `agents/`,
   `skills/`, `hooks/`, `CLAUDE.md` - is markdown and bash. The
   executable parts are the three hook scripts and the install script;

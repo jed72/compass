@@ -29,6 +29,25 @@ import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
+
+
+def _range_is_readable(*revs) -> bool:
+    """Are these commits in this checkout?
+
+    False on a shallow clone, where the objects were never fetched. Used to
+    skip a historical-range assertion rather than let a missing object read
+    as a code defect.
+    """
+    for rev in revs:
+        probe = subprocess.run(
+            ["git", "cat-file", "-e", f"{rev}^{{commit}}"],
+            cwd=REPO_ROOT, capture_output=True, text=True,
+        )
+        if probe.returncode != 0:
+            return False
+    return True
+
+
 STRATEGIES = REPO_ROOT / "governance" / "strategies.md"
 REVIEWER = REPO_ROOT / "agents" / "reviewer.md"
 EVIDENCE_GATES = REPO_ROOT / "skills" / "evidence-gates" / "SKILL.md"
@@ -193,15 +212,26 @@ def test_trc_b1_reviewer_and_evidence_gates_point_at_the_strategy_not_repeat_it(
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_new_gate_guardrail_cli_verb_or_vocabulary():
+    # Scoped to this issue's own committed range (4fb4cb5..6ecbbfd), not the
+    # working tree against a moving HEAD - see test_human_voice.py's twin of
+    # this check for why: a later issue legitimately touching cli/ (bundling
+    # PyYAML) must not trip a check that is really about this issue's own,
+    # already-landed commits.
     untouched = ["governance/guardrails.yml", "governance/terminology.yml", "cli/"]
-    diff = subprocess.run(
-        ["git", "diff", "--stat", "HEAD", "--", *untouched],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=True,
-    )
-    assert diff.stdout.strip() == "", (
-        f"this issue must not touch guardrails.yml, terminology.yml, or "
-        f"cli/:\n{diff.stdout}"
-    )
+    # A pinned range is only immutable if the history is present. CI checks
+    # out a shallow clone, where these objects are absent and git exits 128,
+    # so ask first rather than letting a missing object read as a failure.
+    # The content assertions below need no history and run everywhere; they
+    # are what carries this claim when the range cannot be read.
+    if _range_is_readable("4fb4cb5", "6ecbbfd"):
+        diff = subprocess.run(
+            ["git", "diff", "--stat", "4fb4cb5", "6ecbbfd", "--", *untouched],
+            cwd=REPO_ROOT, capture_output=True, text=True, check=True,
+        )
+        assert diff.stdout.strip() == "", (
+            f"this issue must not touch guardrails.yml, terminology.yml, or "
+            f"cli/:\n{diff.stdout}"
+        )
 
     import yaml
     guardrails = yaml.safe_load(

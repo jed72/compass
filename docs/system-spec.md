@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### every file this issue writes should clear house style and the frozen vocabulary
+### the pinned assertions run where the history is absent
 
-- **Scenario id:** `TRC-F4`
+- **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
-- **Source issue:** `human-voice`
-- **Landed:** 2026-08-09
+- **Source issue:** `tests-survive-shallow-clone`
+- **Landed:** 2026-08-10
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -22,26 +22,26 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### nothing about how Compass behaves should change
+### jsonschema stays optional and unchanged
 
-- **Scenario id:** `TRC-F3`
+- **Scenario id:** `TRC-F5`
 - **Intent:** `INT-2`
-- **Source issue:** `human-voice`
-- **Landed:** 2026-08-09
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
-### an exempt path is never scanned
+### no document claims Compass has no dependencies
 
-- **Scenario id:** `TRC-F2`
+- **Scenario id:** `TRC-D6`
 - **Intent:** `INT-3`
-- **Source issue:** `v2-terminology-freeze`
-- **Landed:** 2026-08-06
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
-### every file this task changes should pass house style
+### the decision is recorded with the alternative it beat
 
-- **Scenario id:** `TRC-F3`
+- **Scenario id:** `TRC-E1`
 - **Intent:** `INT-4`
-- **Source issue:** `record-keeping-integrity`
-- **Landed:** 2026-08-03
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
 ### every file this task adds or changes should pass house style
 
@@ -50,12 +50,12 @@
 - **Source issue:** `readable-specs-and-flow`
 - **Landed:** 2026-08-03
 
-### The seeded gates block carries each gate's accepted evidence types as a comment
+### recording acceptance for a second scenario does not destroy the first one's evidence
 
-- **Scenario id:** `TRC-R6-6`
+- **Scenario id:** `TRC-F7`
 - **Intent:** `INT-6`
-- **Source issue:** `framework-field-feedback`
-- **Landed:** 2026-06-23
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
 ### A configured test_micro_command takes precedence when present
 
@@ -1995,6 +1995,13 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
+### The seeded gates block carries each gate's accepted evidence types as a comment _(archived)_
+
+- **Scenario id:** `TRC-R6-6`
+- **Intent:** `INT-6`
+- **Source issue:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
 ### A coverage-gated micro-run refuses green today (baseline) _(archived)_
 
 - **Scenario id:** `TRC-R7-1`
@@ -2569,6 +2576,13 @@
 - **Source issue:** `record-keeping-integrity`
 - **Landed:** 2026-08-03
 
+### every file this task changes should pass house style _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-4`
+- **Source issue:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
 ### every published surface should report 1.7.0 _(archived)_
 
 - **Scenario id:** `TRC-1`
@@ -2649,6 +2663,13 @@
 ### a pending entry that names no real surface is rejected _(archived)_
 
 - **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source issue:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### an exempt path is never scanned _(archived)_
+
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-3`
 - **Source issue:** `v2-terminology-freeze`
 - **Landed:** 2026-08-06
@@ -3114,3 +3135,192 @@
 - **Intent:** `INT-1`
 - **Source issue:** `human-voice`
 - **Landed:** 2026-08-09
+
+### nothing about how Compass behaves should change _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### every file this issue writes should clear house style and the frozen vocabulary _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a first triage completes with no Python package installed _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### no CLI verb exits on a missing dependency _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the acceptance-before-code hook check runs instead of failing open _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the acceptance-before-code hook check runs instead of failing open _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### integration records the landing rather than warning it could not _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### integration records the landing rather than warning it could not _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the session-end signal scan runs rather than returning empty _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the repository check runs the policy lint rather than skipping it _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### preparing a swarm reads the cap rather than refusing _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### preparing a swarm reads the cap rather than refusing _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### nothing shipped tells a user or an adopter to install PyYAML _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the copyable CI workflow runs with no dependency step _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the copyable CI workflow runs with no dependency step _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the install smoke test asserts the zero-install path _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the install smoke test asserts the zero-install path _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### no test requires the removed instruction to still exist _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### no document claims Compass has no dependencies _(archived)_
+
+- **Scenario id:** `TRC-D6`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### an issue already in flight continues unchanged across the upgrade _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the distributed plugin actually contains the bundled copy _(archived)_
+
+- **Scenario id:** `TRC-F6`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the bundled copy is the one used, whatever the machine has _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the bundled copy is the one used, whatever the machine has _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the shipped version is the documented version _(archived)_
+
+- **Scenario id:** `TRC-G2`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the bundled library carries its licence and its attribution _(archived)_
+
+- **Scenario id:** `TRC-G3`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### a scenario that serves two intents answers for both _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `derive-spec-multi-intent`
+- **Landed:** 2026-08-10
+
+### the single-intent form is unchanged _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `derive-spec-multi-intent`
+- **Landed:** 2026-08-10

@@ -31,9 +31,10 @@
 #   compass ci               The full mechanical gate suite (policy lint +
 #                            task lint + check for every task) - for CI.
 #
-# DEPENDENCY: PyYAML (`pip install pyyaml`). It is the only dependency; the
-# rest is the Python 3 standard library. If PyYAML is missing the CLI says so
-# clearly and exits.
+# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
+# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# the only third-party code Compass ships; everything else is the Python 3
+# standard library.
 #
 # GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
 # (walking up from the working directory); if there is none, it falls back to
@@ -54,15 +55,12 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-try:
-    import yaml
-except ImportError:
-    sys.stderr.write(
-        "compass: PyYAML is required but not installed.\n"
-        "  Install it with:  pip install pyyaml\n"
-        "  (It is the CLI's only dependency.)\n"
-    )
-    sys.exit(3)
+# compass_pkg/__init__.py already verified the bundled copy resolves - or
+# exited 3 with a clear message naming the absolute path it checked - before
+# this module's own code ever runs (DD-2 of zero-friction-install). By the
+# time this line runs, `yaml` is already imported and cached, so this is
+# never anything but a normal import.
+import yaml
 
 
 # Regex to match a DoD checklist item:
@@ -762,12 +760,22 @@ def cmd_acceptance_record(args):
         payload["baseline"] = state.get("baseline", {})
         payload["baseline"]["command"] = state.get("command")
 
-    _write_evidence(task_dir, "acceptance", payload)
+    ev_path = _write_evidence(task_dir, "acceptance", payload)
+    scenario = getattr(args, "scenario", None)
+    # If scenario-bound, also write a scenario-specific copy - the same
+    # reason `compass tdd-green` writes both `green.json` and
+    # `green-<scenario>.json`. Without this, a second scenario's `acceptance
+    # record` silently overwrote the first's real evidence at the one fixed
+    # path, even though the registry still named both scenarios against it.
+    rel_path = "evidence/acceptance.json"
+    if scenario:
+        scn_name = "acceptance-" + scenario.replace("/", "_")
+        ev_path = _write_evidence(task_dir, scn_name, payload)
+        rel_path = f"evidence/{scn_name}.json"
     # Registered as `test-run` so the existing G1 checks accept it: the point of
     # this verb is to remove the incentive to fake a red, which it only does if
     # the result counts.
-    _upsert_test_run_evidence(task_dir, getattr(args, "scenario", None),
-                              "evidence/acceptance.json")
+    _upsert_test_run_evidence(task_dir, scenario, rel_path)
     marker = _acceptance_marker(task_dir)
     if os.path.exists(marker):
         os.remove(marker)
@@ -778,7 +786,7 @@ def cmd_acceptance_record(args):
     if kind == "refactor":
         print("  contract : the baselined command was green before the change "
               "and is green after, across a changed tree")
-    print(f"  evidence : {os.path.join(task_dir, 'evidence', 'acceptance.json')}")
+    print(f"  evidence : {ev_path}")
     print("  registry : task.yml `evidence:` updated with the test-run entry")
     print("  marker   : .acceptance cleared")
     return 0

@@ -248,3 +248,46 @@ def test_scn_f2_tdd_discipline_names_the_verb():
     assert "compass acceptance" in text, (
         "tdd-discipline does not mention the acceptance verb, so an author with "
         "a config or refactor change will still reach for a grep-shaped red")
+
+
+# ---------------------------------------------------------------------------
+# Group G - two scenarios' acceptance records must not collide
+#
+# Found while recording TRC-F4 and TRC-F5's characterisation acceptances for
+# zero-friction-install: `compass acceptance record --scenario ...` always
+# wrote the SAME fixed file, evidence/acceptance.json, regardless of
+# --scenario. A second scenario's record silently overwrote the first's real
+# evidence, even though task.yml's registry still listed both scenarios as
+# bound to that one (now wrong-for-one-of-them) file. `compass tdd-green`
+# already avoids exactly this by writing a scenario-specific copy alongside
+# the generic one; `compass acceptance record` did not.
+# ---------------------------------------------------------------------------
+
+def test_scn_g1_two_scenarios_recorded_in_sequence_do_not_overwrite_each_other():
+    root, task_dir = _project()
+    try:
+        _run(root, "acceptance", "start", "--kind", "refactor", "--", *PASS_CMD)
+        (root / "src" / "app.py").write_text("x = 2  # first change\n")
+        r1 = _run(root, "acceptance", "record", "--scenario", "TRC-ONE", "--", *PASS_CMD)
+        assert r1.returncode == 0, r1.stdout + r1.stderr
+
+        _run(root, "acceptance", "start", "--kind", "refactor", "--", *PASS_CMD)
+        (root / "src" / "app.py").write_text("x = 3  # second change\n")
+        r2 = _run(root, "acceptance", "record", "--scenario", "TRC-TWO", "--", *PASS_CMD)
+        assert r2.returncode == 0, r2.stdout + r2.stderr
+
+        task = yaml.safe_load((task_dir / "task.yml").read_text())
+        by_scenario = {e.get("scenario"): e.get("path")
+                       for e in (task.get("evidence") or [])
+                       if e.get("type") == "test-run"}
+        assert by_scenario.get("TRC-ONE") and by_scenario.get("TRC-TWO"), by_scenario
+        assert by_scenario["TRC-ONE"] != by_scenario["TRC-TWO"], (
+            "both scenarios are registered against the same evidence file - "
+            "the second record overwrote the first's real evidence")
+
+        one = json.loads((task_dir / by_scenario["TRC-ONE"]).read_text())
+        two = json.loads((task_dir / by_scenario["TRC-TWO"]).read_text())
+        assert one["scenario"] == "TRC-ONE", one
+        assert two["scenario"] == "TRC-TWO", two
+    finally:
+        shutil.rmtree(root, ignore_errors=True)

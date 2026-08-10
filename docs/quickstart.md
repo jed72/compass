@@ -23,7 +23,6 @@ There are two ways in. Pick one.
 # In Claude Code:
 /plugin marketplace add jed72/compass
 /plugin install compass@compass
-pip install pyyaml      # the CLI's one dependency
 ```
 
 Enabling the plugin namespaces the commands as `/compass:…`, registers the
@@ -36,7 +35,6 @@ picked up live:
 ```bash
 git clone https://github.com/jed72/compass.git
 cd compass
-pip install pyyaml                    # the CLI's one hard dependency
 pip install jsonschema                # optional - turns on full JSON Schema lint
 bash scripts/install.sh --global      # or: bash scripts/install.sh  (project-local)
 ```
@@ -47,9 +45,10 @@ files) and registers the three hooks - `pre-tool.sh`, `post-tool.sh`,
 `stop.sh` - in `settings.json`. It is idempotent: re-running refreshes the
 links and never clobbers a file Compass did not create. `--global` makes the
 `/compass:*` commands available in every project; `--copy` installs copies
-instead of symlinks if you prefer. The CLI's only *hard* dependency is PyYAML -
-if it is missing, `compass` says so and exits; `jsonschema` is optional and
-turns on full JSON Schema validation in `compass policy lint` and
+instead of symlinks if you prefer. Compass needs Python 3. The YAML parser it
+uses travels inside the plugin, so there is nothing to install; `jsonschema`
+is a separate, genuinely optional library Compass does not bundle - install
+it yourself for full JSON Schema validation in `compass policy lint` and
 `compass issue lint` (without it the built-in linter still runs - see
 `schemas/README.md`).
 

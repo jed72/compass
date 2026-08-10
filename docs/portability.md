@@ -68,13 +68,19 @@ reads the re-assess log across all issues and reports whether routing is
 well-sized. Same assessment + same policy => the same route, every time, on every
 runtime.
 
-This layer is tool-agnostic - its only hard dependency is Python 3 and PyYAML
-(`jsonschema` is optional), and nothing in it knows what Claude Code is - but
-unlike the methodology layer it is *executable*. A port does not rewrite it
-either. It *calls* it. That is the distinction that matters for porting: the
+This layer is tool-agnostic - its only hard dependency is Python 3, and
+nothing in it knows what Claude Code is. The YAML parser it needs travels
+with it, vendored and pinned at `cli/vendor/yaml/` (`jsonschema` is a
+separate, optional library Compass does not bundle). Unlike the
+methodology layer it is *executable*. A port does not rewrite it either.
+It *calls* it. That is the distinction that matters for porting: the
 kit is the part a new runtime should shell out to rather than reimplement, so
 that route composition and guardrail checking are provably identical across
-runtimes instead of two independent re-derivations that might drift.
+runtimes instead of two independent re-derivations that might drift. If a
+port must embed Python that itself parses YAML - rather than shelling out to
+the kit CLI for the parsed result - it should go through the kit's bundled-
+path resolution (`cli/compass_pkg/__init__.py`) rather than importing `yaml`
+directly, for the same reason the kit's own shell surfaces do.
 
 ### The Claude Code adapter layer - runtime-specific
 

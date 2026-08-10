@@ -26,9 +26,10 @@ the two could be read to differ, the `.schema.json` wins.
    the linter exists to close - see `governance/guardrails.md`.
 2. **JSON Schema validation - runs when `jsonschema` is installed.** Fuller
    structural coverage (required keys, enums, nested shapes) against the
-   `.schema.json` files. `jsonschema` is an *optional* dependency; PyYAML
-   stays the CLI's only hard one. If `jsonschema` is absent, the lint commands
-   say so and run on the built-in linter alone.
+   `.schema.json` files. `jsonschema` is an *optional* dependency Compass does
+   not bundle; PyYAML, the CLI's one hard dependency, travels inside the
+   plugin (`cli/vendor/yaml/`) instead. If `jsonschema` is absent, the lint
+   commands say so and run on the built-in linter alone.
 
 So: `pip install jsonschema` for the full check; the CLI is still useful and
 honest without it.

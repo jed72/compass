@@ -28,6 +28,7 @@ from pathlib import Path
 
 import pytest
 
+
 REPO_ROOT = Path(__file__).parent.parent
 REFERENCE = REPO_ROOT / "skills" / "compass-runtime" / "writing-voice.md"
 WORKED_EXAMPLE = (
@@ -35,6 +36,24 @@ WORKED_EXAMPLE = (
 )
 ORIGINAL = REPO_ROOT / ".compass" / "work" / "make-receipt-render" / "requirements-review.md"
 ORIGINAL_CITE = ".compass/work/make-receipt-render/requirements-review.md"
+
+
+def _range_is_readable(*revs) -> bool:
+    """Are these commits in this checkout?
+
+    False on a shallow clone, where the objects were never fetched. Used to
+    skip a historical-range assertion rather than let a missing object read
+    as a code defect.
+    """
+    for rev in revs:
+        probe = subprocess.run(
+            ["git", "cat-file", "-e", f"{rev}^{{commit}}"],
+            cwd=REPO_ROOT, capture_output=True, text=True,
+        )
+        if probe.returncode != 0:
+            return False
+    return True
+
 
 PRINCIPLE = (
     "communicate the decision, do not perform the process - say what "
@@ -565,15 +584,28 @@ def test_trc_f3_no_new_guardrail_gate_check_or_cli_verb():
     # tests/test_cli_surface_drift.py are the standing nets for the same
     # invariant on every other change; this asserts the stronger claim that
     # this issue specifically never opened these files.
+    #
+    # Scoped to this issue's own committed range (519300b..1f00637), not the
+    # working tree against a moving HEAD: a later issue legitimately touching
+    # cli/ (zero-friction-install bundles PyYAML there) would otherwise trip
+    # this human-voice-specific assertion on someone else's uncommitted work.
+    # The historical range is immutable, so the guarantee this test makes -
+    # human-voice itself never touched these paths - is unchanged.
     untouched = ["governance/guardrails.yml", "governance/terminology.yml", "cli/"]
-    diff = subprocess.run(
-        ["git", "diff", "--stat", "HEAD", "--", *untouched],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=True,
-    )
-    assert diff.stdout.strip() == "", (
-        f"this issue must not touch guardrails.yml, terminology.yml, or "
-        f"cli/:\n{diff.stdout}"
-    )
+    # A pinned range is only immutable if the history is present. CI checks
+    # out a shallow clone, where these objects are absent and git exits 128,
+    # so ask first rather than letting a missing object read as a failure.
+    # The content assertions below need no history and run everywhere; they
+    # are what carries this claim when the range cannot be read.
+    if _range_is_readable("519300b", "1f00637"):
+        diff = subprocess.run(
+            ["git", "diff", "--stat", "519300b", "1f00637", "--", *untouched],
+            cwd=REPO_ROOT, capture_output=True, text=True, check=True,
+        )
+        assert diff.stdout.strip() == "", (
+            f"this issue must not touch guardrails.yml, terminology.yml, or "
+            f"cli/:\n{diff.stdout}"
+        )
 
     # The guardrail count is still five - a direct read, not just "we did
     # not touch the file" (defence in depth against a future edit to this
