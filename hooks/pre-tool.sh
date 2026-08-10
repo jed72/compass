@@ -72,6 +72,12 @@
 
 set -euo pipefail
 
+# shellcheck source=../scripts/lib/compass-python.sh
+# The one shared mechanism (DD-2): compass_python() below reaches the bundled
+# PyYAML the same way cli/compass does, rather than this hook inventing its
+# own answer to "where is the vendored copy".
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-python.sh"
+
 # --- read the tool call from stdin ------------------------------------------
 INPUT="$(cat || true)"
 
@@ -189,8 +195,9 @@ is_enforced_path() {
   # author could not predict which edit would block and found out mid-change.
   if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
     local hit
-    hit="$(python3 - "$PROJECT_DIR/.compass/config.yml" "$rel" <<'PYEOF' 2>/dev/null || true
+    hit="$(compass_python - "$PROJECT_DIR/.compass/config.yml" "$rel" <<'PYEOF' 2>/dev/null || true
 import fnmatch, sys
+import compass_pkg
 try:
     import yaml
     with open(sys.argv[1], encoding="utf-8") as fh:
@@ -411,8 +418,9 @@ fi
 # PyYAML - this stays silent and the prior behaviour applies. A false block on
 # unreadable state is how a hook teaches people to bypass it.
 if [ -f "$TASK_DIR/task.yml" ] && command -v python3 >/dev/null 2>&1; then
-  G2_VERDICT="$(python3 - "$TASK_DIR/task.yml" <<'PYEOF' 2>/dev/null || true
+  G2_VERDICT="$(compass_python - "$TASK_DIR/task.yml" <<'PYEOF' 2>/dev/null || true
 import sys
+import compass_pkg
 try:
     import yaml
     with open(sys.argv[1], encoding="utf-8") as fh:

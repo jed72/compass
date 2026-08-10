@@ -45,6 +45,9 @@
 
 set -euo pipefail
 
+# shellcheck source=../scripts/lib/compass-python.sh
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-python.sh"
+
 cat >/dev/null || true   # drain stdin; we do not need it
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
@@ -198,8 +201,10 @@ _nudge_scope_bloat() {
   # required by the CLI for PyYAML). Python is guaranteed present if the
   # Compass CLI has ever run.
   local phrases
-  phrases="$(python3 - "$signals" <<'PYEOF'
-import sys, yaml
+  phrases="$(compass_python - "$signals" <<'PYEOF'
+import sys
+import compass_pkg
+import yaml
 sig = yaml.safe_load(open(sys.argv[1]))
 phrases = sig.get("scope_bloat_phrases") or []
 for p in phrases:
@@ -209,8 +214,10 @@ PYEOF
 
   # Extract the latest reframe date from task.yml (if any).
   local latest_reframe_date
-  latest_reframe_date="$(python3 - "$task_yml" <<'PYEOF'
-import sys, yaml
+  latest_reframe_date="$(compass_python - "$task_yml" <<'PYEOF'
+import sys
+import compass_pkg
+import yaml
 task = yaml.safe_load(open(sys.argv[1])) or {}
 entries = (task.get("reassessments") or task.get("reframes") or [])
 dates = [r.get("date","") for r in entries if r.get("date")]

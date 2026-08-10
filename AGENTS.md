@@ -14,8 +14,9 @@ Compass is built in three layers. The **methodology layer** - `docs/`,
 - *is* the framework, in plain markdown. The **kit layer** - `cli/compass`,
 `governance/*.yml`, `schemas/` (executable JSON Schema, draft-07, validated
 against when the optional `jsonschema` library is installed), the `task.yml`
-issue spine - is the deterministic mechanism: a plain CLI whose only hard
-dependency is PyYAML, **not** runtime-specific. The **adapter layer** wires
+issue spine - is the deterministic mechanism: a plain CLI that bundles the
+one third-party library it needs (PyYAML, at `cli/vendor/yaml/` - see
+`THIRD-PARTY-NOTICES.md`), **not** runtime-specific. The **adapter layer** wires
 both into one runtime. Porting Compass means satisfying the contract below by
 rewriting *only the adapter layer* - the methodology and kit layers are
 already runtime-neutral, and a portable adapter should *shell out to the

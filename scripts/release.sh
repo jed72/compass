@@ -75,6 +75,24 @@ release_file_list() {
     | sed 's,^,./,'
 }
 
+# --- is the vendored PyYAML copy actually in a built tarball? (TRC-F6) ------
+# Factored out of the packaging steps below so the test suite can drive this
+# specific check red-to-green against a fake tarball listing, without running
+# a full `make release` (build + lint + test + tar) just to exercise one
+# `grep`. Prints the vendored paths missing from `$1` (a tarball's file
+# listing, one path per line) for version `$2`; empty output means nothing
+# is missing.
+vendor_integrity_missing() {
+  local tar_list="$1" version="$2"
+  local f missing=""
+  for f in "cli/vendor/yaml/__init__.py" "cli/vendor/LICENSE-PyYAML" "THIRD-PARTY-NOTICES.md"; do
+    if ! printf '%s\n' "$tar_list" | grep -qF "compass-${version}/$f"; then
+      missing="$missing $f"
+    fi
+  done
+  printf '%s' "$missing"
+}
+
 # Allow the test suite to source this file for `tar_prefix_flags` and
 # `release_file_list` without running a release. Nothing above this line has
 # side effects.
@@ -238,6 +256,22 @@ for e in $required_examples; do
   tf="$(printf '%s\n' "$TAR_LIST" | grep "examples/$e/\.compass/work/.*/task\.yml" | head -1)"
   echo "    OK $tf"
 done
+
+# --- vendored PyYAML integrity check (HARD FAIL) ----------------------------
+# The whole point of bundling is that a machine with only python3 can run
+# Compass. A tarball missing the vendored copy or its licence turns every
+# install back into the exact "PyYAML required" error this issue removes -
+# and this repository has shipped a tarball missing files it contained
+# before (the examples check above exists for the same reason). Same class
+# of check, same hard fail.
+echo "  vendored PyYAML integrity (bundle + licence must be in the tarball):"
+vendor_missing="$(vendor_integrity_missing "$TAR_LIST" "$VERSION")"
+if [ -n "$vendor_missing" ]; then
+  echo "    !!  missing from tarball:$vendor_missing" >&2
+  echo "release.sh: FAIL - the vendored PyYAML copy or its licence did not ship. A machine with only python3 could not run this release." >&2
+  exit 1
+fi
+echo "    OK cli/vendor/yaml/, cli/vendor/LICENSE-PyYAML, THIRD-PARTY-NOTICES.md"
 
 echo ""
 echo "Done. Inspect the tarball before uploading:"

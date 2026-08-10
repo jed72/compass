@@ -36,6 +36,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPASS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_DIR="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null || pwd)"
 
+# shellcheck source=lib/compass-python.sh
+source "$SCRIPT_DIR/lib/compass-python.sh"
+
 # --- args -------------------------------------------------------------------
 TASK_SLUG=""
 DRY_RUN=0
@@ -86,8 +89,9 @@ esac
 # The standing cap (RG-CAP-001): critical blast radius => max_worktrees 1. We read
 # it from readings.blast_radius and fired_guardrails. Absent readings is a hard
 # error - never a silent cap, never a fall back to prose.
-CAP_INFO="$(python3 - "$TASK_YML" <<'PY'
+CAP_INFO="$(compass_python - "$TASK_YML" <<'PY'
 import sys
+import compass_pkg
 try:
     import yaml
     d = yaml.safe_load(open(sys.argv[1]))

@@ -565,9 +565,16 @@ def test_trc_f3_no_new_guardrail_gate_check_or_cli_verb():
     # tests/test_cli_surface_drift.py are the standing nets for the same
     # invariant on every other change; this asserts the stronger claim that
     # this issue specifically never opened these files.
+    #
+    # Scoped to this issue's own committed range (519300b..1f00637), not the
+    # working tree against a moving HEAD: a later issue legitimately touching
+    # cli/ (zero-friction-install bundles PyYAML there) would otherwise trip
+    # this human-voice-specific assertion on someone else's uncommitted work.
+    # The historical range is immutable, so the guarantee this test makes -
+    # human-voice itself never touched these paths - is unchanged.
     untouched = ["governance/guardrails.yml", "governance/terminology.yml", "cli/"]
     diff = subprocess.run(
-        ["git", "diff", "--stat", "HEAD", "--", *untouched],
+        ["git", "diff", "--stat", "519300b", "1f00637", "--", *untouched],
         cwd=REPO_ROOT, capture_output=True, text=True, check=True,
     )
     assert diff.stdout.strip() == "", (

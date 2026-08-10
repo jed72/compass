@@ -193,9 +193,14 @@ def test_trc_b1_reviewer_and_evidence_gates_point_at_the_strategy_not_repeat_it(
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_new_gate_guardrail_cli_verb_or_vocabulary():
+    # Scoped to this issue's own committed range (4fb4cb5..6ecbbfd), not the
+    # working tree against a moving HEAD - see test_human_voice.py's twin of
+    # this check for why: a later issue legitimately touching cli/ (bundling
+    # PyYAML) must not trip a check that is really about this issue's own,
+    # already-landed commits.
     untouched = ["governance/guardrails.yml", "governance/terminology.yml", "cli/"]
     diff = subprocess.run(
-        ["git", "diff", "--stat", "HEAD", "--", *untouched],
+        ["git", "diff", "--stat", "4fb4cb5", "6ecbbfd", "--", *untouched],
         cwd=REPO_ROOT, capture_output=True, text=True, check=True,
     )
     assert diff.stdout.strip() == "", (

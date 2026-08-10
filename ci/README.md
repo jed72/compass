@@ -79,7 +79,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install pyyaml jsonschema
       - run: python3 "$COMPASS_CLI" ci
 ```
 
@@ -105,13 +104,14 @@ Adoption is a gradient - see guarantee 7 of `docs/safety-contract.md`.
 
 ## Any other CI
 
-The pattern ports unchanged - it is three lines on any platform:
+The pattern ports unchanged - it is two lines on any platform:
 
 ```sh
-pip install pyyaml jsonschema
 python3 path/to/compass ci
 # the job fails if compass ci exits non-zero
 ```
+
+PyYAML travels inside the plugin, so there is no install step. If you want full JSON Schema validation in the lint commands, `pip install jsonschema` is a genuinely optional extra - the built-in linter runs without it.
 
 GitLab CI, CircleCI, Buildkite, a git pre-push hook - all the same. There is
 no Compass-specific CI plugin to install, and there never needs to be: the kit

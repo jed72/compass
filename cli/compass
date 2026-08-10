@@ -10,6 +10,12 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Runs compass_pkg/__init__.py, which puts the bundled PyYAML at
+# sys.path[0] - before the `import yaml` below, so it is the copy this
+# process resolves rather than whatever the machine happens to have (or not
+# have). This is the ONE place that side effect is triggered for this entry
+# point; see cli/compass_pkg/__init__.py for where the path itself is written.
+import compass_pkg  # noqa: E402,F401
 
 # =============================================================================
 # compass - the Compass CLI
@@ -43,9 +49,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 #   compass ci               The full mechanical gate suite (policy lint +
 #                            task lint + check for every task) - for CI.
 #
-# DEPENDENCY: PyYAML (`pip install pyyaml`). It is the only dependency; the
-# rest is the Python 3 standard library. If PyYAML is missing the CLI says so
-# clearly and exits.
+# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
+# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# the only third-party code Compass ships; everything else is the Python 3
+# standard library.
 #
 # GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
 # (walking up from the working directory); if there is none, it falls back to
@@ -66,15 +73,11 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-try:
-    import yaml
-except ImportError:
-    sys.stderr.write(
-        "compass: PyYAML is required but not installed.\n"
-        "  Install it with:  pip install pyyaml\n"
-        "  (It is the CLI's only dependency.)\n"
-    )
-    sys.exit(3)
+# `import compass_pkg` above already verified the bundled copy resolves - or
+# exited 3 with a clear message naming the absolute path it checked - before
+# this line ever runs. By now `yaml` is already imported and cached, so this
+# is never anything but a normal import.
+import yaml
 
 
 # Regex to match a DoD checklist item:
@@ -117,6 +120,18 @@ assert COMPASS_VERSION == _core.COMPASS_VERSION, (
     "cli/compass and compass_pkg/core.py disagree about the version")
 
 
+def _pyyaml_resolution_line():
+    """One line for `--version`: which PyYAML this process is actually
+    running, and where it came from. This is how a reader checks TRC-G1's
+    claim for themselves - "the bundled copy wins" is a sentence until
+    someone can ask the running CLI which one it picked (Q11's "how does a
+    user find out which version they have")."""
+    try:
+        return f"PyYAML {yaml.__version__} at {os.path.abspath(yaml.__file__)}"
+    except Exception:
+        return "PyYAML: unresolved"
+
+
 
 # --- argparse ----------------------------------------------------------------
 
@@ -129,7 +144,8 @@ def build_parser():
     )
     p.add_argument("--version", action="version",
                    version=f"compass {COMPASS_VERSION} "
-                           f"(issue schema {COMPASS_SCHEMA_VERSION})")
+                           f"(issue schema {COMPASS_SCHEMA_VERSION})\n"
+                           f"{_pyyaml_resolution_line()}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     pr = sub.add_parser("approach", help="delivery-approach tools")

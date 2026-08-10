@@ -56,22 +56,32 @@ registration should be visible in `~/.claude/settings.json` - three
 entries naming `pre-tool.sh`, `post-tool.sh`, and `stop.sh` under
 `$COMPASS_HOME/hooks/`.
 
-## 2. Install the CLI's Python dependencies
+## 2. Confirm the CLI needs nothing installed
+
+The CLI's one hard dependency, PyYAML, travels inside the plugin
+(`cli/vendor/yaml/`) - there is nothing to install. Prove it on an
+interpreter that cannot see a single third-party package:
 
 ```bash
-pip install pyyaml               # required
-pip install jsonschema           # optional but recommended
+python3 -m venv --without-pip /tmp/bare-check
+/tmp/bare-check/bin/python3 $COMPASS_HOME/cli/compass --version
 ```
 
-PyYAML is the CLI's only hard dependency. Without it, `compass` prints a
-clear message and exits with code 3. `jsonschema` turns on full JSON
-Schema validation in `compass policy lint` and `compass issue lint`; the
-built-in linter still runs without it.
+Expected output (two lines - the second names the bundled PyYAML and where
+it resolved from):
 
-To confirm:
+```
+compass 2.0.0 (issue schema 2.0)
+PyYAML 6.0.2 at /path/to/compass/cli/vendor/yaml/__init__.py
+```
+
+`jsonschema` is a separate, genuinely optional library Compass does not
+bundle - install it yourself if you want full JSON Schema validation in
+`compass policy lint` and `compass issue lint`; the built-in linter still
+runs without it:
 
 ```bash
-python3 -c "import yaml; print(yaml.__version__)"
+pip install jsonschema           # optional
 python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
 ```
 
@@ -195,10 +205,6 @@ in place and does not duplicate the hook entries in `settings.json`
 ---
 
 ## Common gotchas
-
-**PyYAML missing.** `compass: PyYAML is required but not installed.` The
-CLI exits 3. Fix: `pip install pyyaml`. This is the only hard
-dependency; without it nothing else runs.
 
 **Claude Code's `~/.claude` does not exist yet.** `install.sh` creates
 it. If you have never run Claude Code on the machine, the installer

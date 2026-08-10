@@ -46,6 +46,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPASS_HOME="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_DIR="$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null || pwd)"
 
+# shellcheck source=lib/compass-python.sh
+source "$SCRIPT_DIR/lib/compass-python.sh"
+
 # --- args -------------------------------------------------------------------
 TASK_SLUG=""
 CLEAN=1
@@ -196,7 +199,14 @@ echo "Writing status: landed to task.yml and deriving living system spec..."
 
 TASK_YML="$TASK_DIR/task.yml"
 if [ -f "$TASK_YML" ]; then
-  python3 - <<PYEOF
+  # Parenthesised into its own subshell: compass_python execs python3 in
+  # place of whatever calls it, and this call - unlike the ones above that
+  # already sit inside `$(...)` - is a plain statement, not a captured
+  # substitution. Without the subshell, exec would replace integrate.sh
+  # itself and nothing after this block (worktree cleanup, the final
+  # summary) would ever run.
+  ( compass_python - <<PYEOF
+import compass_pkg
 import yaml, datetime, sys
 path = "$TASK_YML"
 try:
@@ -212,6 +222,7 @@ try:
 except Exception as exc:
     print(f"WARNING: could not write status: landed to {path}: {exc}", file=sys.stderr)
 PYEOF
+  )
 else
   echo "  WARNING: no task.yml found at $TASK_YML - skipping status write."
 fi
