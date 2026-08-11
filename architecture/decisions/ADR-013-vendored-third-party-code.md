@@ -11,10 +11,11 @@ superseded_by: ''
 
 Reaching a completed first triage required a machine to already have PyYAML
 installed - the CLI's one hard dependency, and the only step of the
-quickstart that could fail. It failed on the machine of someone who had
-known Compass for ninety seconds, and it failed silently in one place worse
-than an error: on a machine that never had PyYAML, `hooks/pre-tool.sh`'s
-acceptance-before-code check raised on the missing import, the hook exited
+quickstart that could fail. It is the step a newcomer meets first, before
+they have any reason to persist through it, and it fails silently in one
+place worse than an error: on a machine that never had PyYAML,
+`hooks/pre-tool.sh`'s acceptance-before-code check raised on the missing
+import, the hook exited
 silently, and the edit was allowed - a guardrail that looked like it was
 enforcing G2 was not enforcing anything at all.
 
