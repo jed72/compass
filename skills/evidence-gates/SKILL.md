@@ -123,7 +123,10 @@ distinct *is* the check:
   default and project strategies - and where it departed, is the departure
   recorded? This is honestly the reviewer's opinion; record it *as* judgement,
   clearly separated from the guardrail evidence. A strategy not followed is a
-  note, not an automatic gate failure.
+  note, not an automatic gate failure. On a sweep, rename, or cleanup that
+  touches many files, this includes whether verification came from a fresh
+  agent rather than the implementer - `governance/strategies.md` `S9` names
+  the practice.
 
 **traceability** - Are both chains intact and current - code → scenario →
 intent, and claim → scenario? A break is a no-pass. See the `traceability` skill.

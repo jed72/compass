@@ -204,6 +204,37 @@ review dimension in `agents/reviewer.md` and `skills/evidence-gates/SKILL.md`.*
 
 ---
 
+### Fresh eyes on a sweep: verification by someone who did not make the change (`S9`)
+
+**Soft, assessed - not a guardrail.** Any sweep, rename, or cleanup that
+touches many files is verified by a fresh agent - one that has not seen the
+change. Given only the stated goal, that agent greps the codebase
+independently and reports the residuals it finds, each with file and line.
+It does not read the implementer's summary, and it does not trust it: the
+summary is not the thing checked against, and it plays no part in the check.
+
+The author of a sweep checks their own work against a mental list of what
+they changed, not against the goal - so exactly the files they forgot are the
+files they will not think to look for. The failure is invisible from the
+inside: a summary written by the sweeper reads clean while residuals sit in
+the tree. This repository has the evidence twice over - two cleanups here
+leaked, and in both cases the agent that made the change reported it
+complete. This is about who verifies, not about trying harder.
+
+*Why a strategy and not a guardrail:* nothing in `compass check` can confirm
+that the agent running a verification grep is actually the one who did not
+write the change - agent identity and prior context are not properties a
+mechanical check can inspect, and a check that tried would end up trusting
+the same self-report this practice exists to distrust. The `reviewer` agent
+assesses this at Verify under the `governance` dimension, as a strategy
+followed or departed from - never as a gate.
+
+*Cross-reference: voice audition (`S8`) - both are about who judges, not
+about trying harder. See `commands/verify.md` and
+`skills/evidence-gates/SKILL.md` for the pointer at the point of use.*
+
+---
+
 ## Project strategies
 
 <!-- Add strategies specific to this project here. Add freely - strategies are
