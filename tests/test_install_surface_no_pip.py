@@ -78,6 +78,17 @@ _SELF_REFERENTIAL_FILES = {
     # instruction to anyone.
     "tests/test_zero_install_cli.py",
     "tests/test_release_packaging.py",
+    # The case study's subject IS the retired instruction. It quotes
+    # `pip install pyyaml` to say what the quickstart used to tell people,
+    # and the word "stdlib-only" to correct a premise the repository never
+    # actually claimed. Both are history being reported, not an instruction
+    # being given. `tests/test_public_copy_claims.py` guards the other
+    # direction - that the file keeps stating the correction rather than
+    # drifting into the claim.
+    "docs/case-study-compass-rebuilt-itself.md",
+    # Guards the case study's exemption above, so it necessarily quotes the
+    # same two phrases as the needles it looks for.
+    "tests/test_public_copy_claims.py",
 }
 
 
