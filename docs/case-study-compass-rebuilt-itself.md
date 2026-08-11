@@ -40,7 +40,7 @@ advance, on foresight; the third, 7a/7b, was decided mid-session, at a
 green boundary reached partway through the work. Two of the eleven PRs
 came back changes-requested, on record in this repository's own
 devlogs and evidence files rather than a GitHub review thread. PR #31
-rewrote twelve skills and ten agent files; review found the scanner green while the
+rewrote thirteen skills and ten agent files; review found the scanner green while the
 prose still read stiff - tautologies like "TDD is the TDD strategy" -
 and it went back for a hand-polish pass. PR #32, the docs slice, came
 back a second time because part of its read-aloud pass had been left
@@ -52,8 +52,8 @@ The rewrite closed in fifteen of a sixteen-session budget, re-baselined
 out loud at session twelve when the original twelve-session estimate
 proved wrong, rather than quietly pushed through. It landed as
 `7071672` on `main`, tagged `v2.0.0`, via pull request #35. The release
-commit's own message calls it "the industry's words, the same
-behaviour."
+commit inside it, `5a4da2d`, calls the whole thing "the industry's
+words, the same behaviour."
 
 ## The migrator: sixteen checks passed, and a sign-off earned the hard way
 
@@ -137,8 +137,9 @@ A reviewer caught it by reading file sizes, confirmed by counting
 characters in the raw pytest output and re-running the suite
 independently: 957 characters, 951 dots, 6 skips, 0 failures, matching
 exactly. That's "evidence, not assertion" - one of Compass's five hard
-guardrails - failing on its own terms, caught by the process it
-prescribes. It's filed as `tdd-green-unbound-record`, promoted by the
+guardrails - failing on its own terms. The automated half missed it
+entirely; the human review dimension the same guardrail prescribes is
+what caught it. It's filed as `tdd-green-unbound-record`, promoted by the
 maintainer to head the next cycle: stamp identity on an evidence record
 when it's written, check that identity when a gate cites it, instead of
 trusting a shared file path to mean what it says.
