@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### no new mechanism is introduced
+### the guard catches the defect it was written for
 
-- **Scenario id:** `TRC-F1`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
-- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Source issue:** `adr-013-context-tense`
 - **Landed:** 2026-08-11
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3351,4 +3351,25 @@
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-1`
 - **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### no new mechanism is introduced _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### no public file claims an outside user _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
+- **Landed:** 2026-08-11
+
+### no public file attaches a duration to a user _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
 - **Landed:** 2026-08-11
