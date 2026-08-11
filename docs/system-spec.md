@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### the pinned assertions run where the history is absent
+### no new mechanism is introduced
 
-- **Scenario id:** `TRC-1`
+- **Scenario id:** `TRC-F1`
 - **Intent:** `INT-1`
-- **Source issue:** `tests-survive-shallow-clone`
-- **Landed:** 2026-08-10
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -3324,3 +3324,31 @@
 - **Intent:** `INT-1`
 - **Source issue:** `derive-spec-multi-intent`
 - **Landed:** 2026-08-10
+
+### the pinned assertions run where the history is absent _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-survive-shallow-clone`
+- **Landed:** 2026-08-10
+
+### the strategy states the trigger, the staffing rule, and the method _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### the strategy states the prohibition, the evidence, and carries the file's own conventions _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### the verify stage guidance points at the strategy without repeating it _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
