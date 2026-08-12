@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### the guard catches the defect it was written for
+### the entry carries the ADR-013 worked example and warns the nearest document is often a summary
 
-- **Scenario id:** `TRC-3`
+- **Scenario id:** `TRC-C2`
 - **Intent:** `INT-1`
-- **Source issue:** `adr-013-context-tense`
-- **Landed:** 2026-08-11
+- **Source issue:** `s9-primary-record`
+- **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -3373,3 +3373,17 @@
 - **Intent:** `INT-1`
 - **Source issue:** `adr-013-context-tense`
 - **Landed:** 2026-08-11
+
+### the guard catches the defect it was written for _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
+- **Landed:** 2026-08-11
+
+### the entry states the primary-record rule and defines what a primary record is _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `s9-primary-record`
+- **Landed:** 2026-08-12
