@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### no constant nothing reads
+### a well-formed not-yet-started issue still does not fail
 
-- **Scenario id:** `TRC-3`
+- **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
-- **Source issue:** `version-guard-covers-all`
+- **Source issue:** `ci-lints-every-issue`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -22,12 +22,12 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### jsonschema stays optional and unchanged
+### the summary reports what was and was not checked
 
-- **Scenario id:** `TRC-F5`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-2`
-- **Source issue:** `zero-friction-install`
-- **Landed:** 2026-08-10
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
 
 ### no document claims Compass has no dependencies
 
@@ -3304,6 +3304,13 @@
 - **Source issue:** `zero-friction-install`
 - **Landed:** 2026-08-10
 
+### jsonschema stays optional and unchanged _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
 ### the distributed plugin actually contains the bundled copy _(archived)_
 
 - **Scenario id:** `TRC-F6`
@@ -3533,4 +3540,18 @@
 - **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
 - **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### no constant nothing reads _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### a malformed spine fails the sweep whatever its status _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-lints-every-issue`
 - **Landed:** 2026-08-12
