@@ -18,13 +18,23 @@
 #   import compass_pkg   # side effect: puts cli/vendor at sys.path[0]
 #   import yaml
 #
-# `exec` replaces the current shell with python3 rather than forking a child -
-# safe here because every caller invokes compass_python inside a command
-# substitution `$(...)`, which is already its own subshell.
+# This forks python3 rather than `exec`-ing it. An earlier version used `exec`
+# to save a fork, reasoning that every caller sat inside a command
+# substitution and so already had its own subshell. That was wrong twice. One
+# caller was a plain statement that needed its own `( ... )` wrapper to
+# survive. And `exec` destroys the shell holding the caller's error guard, so
+# a reader that could not start took the calling script down with it - which
+# switched `hooks/pre-tool.sh` off, silently, on any install where the
+# vendored copy was missing. A fork per YAML read does not cost that.
+#
+# EXIT STATUS 3 means the vendored PyYAML could not be resolved and the reader
+# never ran, with the reason on stderr. Callers must tell that apart from a
+# reader that ran and found nothing: one is a broken install and should be
+# said out loud, the other is the ordinary absence of state.
 # =============================================================================
 
 compass_python() {
   local root
   root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-  PYTHONPATH="$root/cli${PYTHONPATH:+:$PYTHONPATH}" exec python3 "$@"
+  PYTHONPATH="$root/cli${PYTHONPATH:+:$PYTHONPATH}" python3 "$@"
 }

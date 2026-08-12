@@ -84,11 +84,39 @@
 
 > These scenarios were superseded by a later-landed scenario with the same intent id.
 
+### the hook blocks an edit it cannot check _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
+- **Landed:** 
+
 ### Every published version surface reports 1.0.0 _(archived)_
 
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source issue:** `version-bump-1-0-0`
+- **Landed:** 
+
+### the hook says why it could not check _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-2`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
+- **Landed:** 
+
+### control: the hook still blocks when it can read the spine _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
+- **Landed:** 
+
+### the guarded-surface decision fails closed too _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
 - **Landed:** 
 
 ### each runner should have a worked project _(archived)_
