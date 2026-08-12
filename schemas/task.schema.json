@@ -424,6 +424,19 @@
           },
           "date": {
             "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "judgement",
+              "policy-correction",
+              "scope-change"
+            ],
+            "description": "What kind of re-assessment this was. Only 'judgement' feeds compass retro's re-sizing signal - a policy correction or a scope change is not triage having misread the work."
+          },
+          "changed": {
+            "type": "object",
+            "description": "What the recomputation actually moved - route, phases, gates, topology - each as a from/to pair. Written by the evaluator as the audit detail behind the reason."
           }
         }
       }
