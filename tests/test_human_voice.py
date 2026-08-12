@@ -15,9 +15,28 @@ asserts what the prose surfaces carry (TRC-A1..A4, B1..B3, C1..C3, D1, F3);
 
 Criteria: .compass/work/human-voice/acceptance-criteria.md
 Design:   .compass/work/human-voice/design.md (DD-4 names what each function
-          asserts; DD-7 is why the archive-dependent half of TRC-A2 and
-          TRC-C2 skips loudly rather than silently when `.compass/work/` is
-          absent, as it is in CI - that directory is gitignored).
+          asserts; DD-7 recorded the original reason the archive-dependent
+          half of TRC-A2 and TRC-C2 skipped rather than failed when
+          `.compass/work/` is absent, as it always is in continuous
+          integration - that directory is gitignored).
+
+          DD-7's skip has since been superseded by issue
+          archive-quote-verification: a plain skip meant a fabricated or
+          altered quote passed the build every time continuous integration
+          ran it, since it never had the archive to check against. Both
+          TRC-A2 and TRC-C2 now call `scripts/verify-archive-quotes.py`'s
+          `verify()`, which checks a quote's live text against a committed
+          hash manifest (`skills/compass-runtime/archive-quote-manifest.json`)
+          in every environment, and additionally against the real archive
+          file wherever it is present. A skip only remains for the case
+          that check leaves genuinely unverified: the hash still matches,
+          but there is no file here to compare it against directly - and
+          that skip now names, by id, exactly which spans it means.
+          See `tests/test_archive_quote_manifest.py` for how that check
+          itself is proven to fail on a fabricated quote in an archive-less
+          environment - hermetically, with a synthetic reference, manifest,
+          and archive root, rather than by chance of what this machine
+          happens to have checked out.
 """
 from __future__ import annotations
 
@@ -36,6 +55,42 @@ WORKED_EXAMPLE = (
 )
 ORIGINAL = REPO_ROOT / ".compass" / "work" / "make-receipt-render" / "requirements-review.md"
 ORIGINAL_CITE = ".compass/work/make-receipt-render/requirements-review.md"
+
+
+def _load_quote_verification_module():
+    """`scripts/verify-archive-quotes.py`, loaded by path - it has a hyphen
+    in its file name, so it cannot be `import`ed as an ordinary package."""
+    script_path = REPO_ROOT / "scripts" / "verify-archive-quotes.py"
+    spec = importlib.util.spec_from_file_location(
+        "verify_archive_quotes_script", script_path
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _assert_quotes_verified(span_ids, label):
+    """Run the shared archive-quote check (issue archive-quote-verification)
+    against the real repository, scoped to `span_ids`. A hash mismatch or an
+    archive-present mismatch is a hard failure - it never reads as a pass.
+    The only case that still skips is every span in scope matching its
+    manifest hash with no real file here to check it against directly, and
+    that skip names every such span so it is never mistaken for silence."""
+    module = _load_quote_verification_module()
+    failures, unverified = module.verify(archive_root=REPO_ROOT, span_ids=span_ids)
+    assert not failures, (
+        f"{label}: archive quote verification failed:\n" + "\n".join(failures)
+    )
+    if unverified:
+        pytest.skip(
+            f"{label}: the archive is not present on this machine "
+            f"(.compass/work/ is gitignored, as it always is in continuous "
+            f"integration) - could not check {len(unverified)} span(s) "
+            f"directly against the real file: {', '.join(unverified)}. "
+            f"The hash manifest already confirmed each is unchanged since "
+            f"it was last checked against the real file - see "
+            f"skills/compass-runtime/archive-quote-manifest.json."
+        )
 
 
 def _range_is_readable(*revs) -> bool:
@@ -138,32 +193,14 @@ _KINDS = {
 }
 
 
-def _pair_blocks(text: str) -> list[str]:
-    parts = re.split(r"(?m)^### Pair \d+.*$", text)
-    return [p for p in parts[1:]]  # parts[0] is the prose before Pair 1
-
-
-def _parse_pair(block: str) -> dict:
-    def _unquote(quoted: str) -> str:
-        lines = []
-        for line in quoted.strip("\n").splitlines():
-            lines.append(line[2:] if line.startswith("> ") else line)
-        return "\n".join(lines)
-
-    source_m = re.search(r"Source:\s*`([^`]+)`", block)
-    before_m = re.search(r"Before:\s*\n+((?:> .*\n?)+)", block)
-    after_m = re.search(r"After:\s*\n+((?:> .*\n?)+)", block)
-    what_m = re.search(r"What changed:\s*(.+)", block)
-    return {
-        "source": source_m.group(1) if source_m else None,
-        "before": _unquote(before_m.group(1)) if before_m else None,
-        "after": _unquote(after_m.group(1)) if after_m else None,
-        "what_changed": what_m.group(1).strip() if what_m else None,
-    }
-
-
 def _pairs() -> list[dict]:
-    return [_parse_pair(b) for b in _pair_blocks(_reference_text())]
+    """Every '### Pair N' block, parsed by `scripts/verify-archive-quotes.py`
+    (issue archive-quote-verification) rather than a second copy of the same
+    regex here - the parser that decides what gets hashed and the parser
+    this file's other assertions read must never be able to disagree about
+    what a pair's Source: and Before: lines say."""
+    module = _load_quote_verification_module()
+    return module.parse_pairs(_reference_text())
 
 
 def test_trc_a2_every_pair_quotes_a_real_archive_passage():
@@ -189,22 +226,17 @@ def test_trc_a2_every_pair_quotes_a_real_archive_passage():
     )
 
     # The verbatim half needs the real archive, which is gitignored and
-    # therefore absent in CI and in a fresh clone (DD-7). Everything above
-    # this line runs everywhere; only the comparison below skips, and it
-    # skips loudly, naming the missing file, never as the test's first
-    # statement.
-    for pair in pairs:
-        cited = REPO_ROOT / pair["source"]
-        if not cited.is_file():
-            pytest.skip(
-                f"archive file missing (expected in CI - .compass/work/ is "
-                f"gitignored): {pair['source']}"
-            )
-        cited_text = cited.read_text(encoding="utf-8")
-        assert pair["before"] in cited_text, (
-            f"the 'before' quote for {pair['source']} is not a verbatim "
-            f"substring of that file"
-        )
+    # therefore absent in continuous integration and in a fresh clone
+    # (issue archive-quote-verification). Everything above this line runs
+    # everywhere. Below it, every pair's quote is checked against a
+    # committed hash manifest in every environment - a changed hash is a
+    # hard failure, archive or no archive - and, wherever the archive is
+    # also present, directly against the real file too. The only case that
+    # still skips is a hash match with nothing here to compare it against
+    # directly, and that skip names every such pair by id.
+    _assert_quotes_verified(
+        [p["id"] for p in pairs], "TRC-A2 (writing-voice.md pairs)"
+    )
 
 
 # The nine tells, exactly as TRC-A3 names them. The three findable ones are
@@ -386,18 +418,15 @@ def test_trc_c2_the_rewritten_original_is_unmodified_and_cited():
         "the rewrite must say where the original lives"
     )
 
-    if not ORIGINAL.is_file():
-        pytest.skip(
-            f"archive file missing (expected in CI - .compass/work/ is "
-            f"gitignored): {ORIGINAL_CITE}"
-        )
-    original_text = ORIGINAL.read_text(encoding="utf-8")
-    assert original_text.splitlines()[0].startswith("# Clarifications"), (
-        "the original must still carry its own opening heading, unrewritten"
-    )
-    assert "**Decided by:** James (engineer) via Clarify reasoning" in original_text, (
-        "the original's own 'Decided by' line must still be there, "
-        "unrewritten - the rewrite lives in a different file entirely"
+    # As with TRC-A2 above: checked against a committed hash manifest in
+    # every environment (issue archive-quote-verification), and directly
+    # against the real file wherever the archive is present. A hash
+    # mismatch or a direct mismatch is a hard failure, never a skip; the
+    # only remaining skip is a hash match with no file here to check it
+    # against, named by id.
+    module = _load_quote_verification_module()
+    _assert_quotes_verified(
+        module.WORKED_EXAMPLE_SPAN_IDS, "TRC-C2 (worked-example original)"
     )
 
 
