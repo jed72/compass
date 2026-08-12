@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### a well-formed not-yet-started issue still does not fail
+### a well-formed span still verifies
 
-- **Scenario id:** `TRC-2`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
-- **Source issue:** `ci-lints-every-issue`
+- **Source issue:** `quote-verifier-rejects-unparsed`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3554,4 +3554,25 @@
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
+### a well-formed not-yet-started issue still does not fail _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
+### an unparsed span is a failure _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### update refuses to record an unparsed span _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
 - **Landed:** 2026-08-12
