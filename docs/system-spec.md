@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### no constant nothing reads
+### the id set admits the new strategy deliberately
 
 - **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
-- **Source issue:** `version-guard-covers-all`
+- **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -22,12 +22,12 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### jsonschema stays optional and unchanged
+### the summary reports what was and was not checked
 
-- **Scenario id:** `TRC-F5`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-2`
-- **Source issue:** `zero-friction-install`
-- **Landed:** 2026-08-10
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
 
 ### no document claims Compass has no dependencies
 
@@ -3304,6 +3304,13 @@
 - **Source issue:** `zero-friction-install`
 - **Landed:** 2026-08-10
 
+### jsonschema stays optional and unchanged _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
 ### the distributed plugin actually contains the bundled copy _(archived)_
 
 - **Scenario id:** `TRC-F6`
@@ -3533,4 +3540,95 @@
 - **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
 - **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### no constant nothing reads _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### a malformed spine fails the sweep whatever its status _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
+### a well-formed not-yet-started issue still does not fail _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
+### an unparsed span is a failure _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### update refuses to record an unparsed span _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### a well-formed span still verifies _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### the version guard compares every location it names _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the validate guard fails when the lint is skipped _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the tell-scope guard fails when nothing was found _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the reference-location guard fails on a new skill directory _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the header scan proves how many modules it read _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the strategy states the method and the reason _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
+- **Landed:** 2026-08-12
+
+### the verify guidance points at the strategy _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12

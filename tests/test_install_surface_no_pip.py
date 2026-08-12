@@ -239,14 +239,34 @@ def test_no_document_claims_compass_is_stdlib_only():
         if p.name not in ("__init__.py", "_all.py")
     )
     header_problems = []
+    checked = []
+    unmarked = []
     for rel in cli_files:
         text = _read_text(rel)
         if "DEPENDENCY: PyYAML" not in text:
+            # Self-exempting: a module that stops carrying the marker used to
+            # leave this check silently, so coverage could drain away without
+            # a red. Collect them and assert on the set instead.
+            unmarked.append(rel)
             continue
+        checked.append(rel)
         if "bundled" not in text.lower():
             header_problems.append(rel)
         if _PIP_INSTALL_PYYAML_RE.search(text):
             header_problems.append(rel)
+
+    # The antidote: prove the scan actually read what it claims to cover.
+    # `migrate.py` and `terminology_cmd.py` carry no dependency header today
+    # and are named here deliberately, so a THIRD module quietly losing its
+    # header fails rather than shrinking the check.
+    assert set(unmarked) <= {"cli/compass_pkg/migrate.py",
+                             "cli/compass_pkg/terminology_cmd.py"}, (
+        "these CLI files no longer carry a dependency header, so this scan "
+        "silently stopped covering them:\n  " + "\n  ".join(sorted(unmarked))
+    )
+    assert len(checked) >= len(cli_files) - 2, (
+        f"the scan read only {len(checked)} of {len(cli_files)} CLI files"
+    )
     assert not header_problems, (
         "these CLI files still describe PyYAML as something to install "
         "rather than something bundled:\n  " + "\n  ".join(header_problems)

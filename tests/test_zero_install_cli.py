@@ -331,7 +331,24 @@ def test_validate_runs_the_policy_lint_without_a_system_pyyaml(bare_interpreter)
     assert "PyYAML not installed" not in combined, combined
     for phrase in _FORBIDDEN_PHRASES:
         assert phrase not in combined.lower(), combined
-    assert "compass policy lint" in combined, combined
+
+    # `validate.sh` prints the phrase "compass policy lint" on all three of
+    # its paths - PASS, "reported a problem", and "skipped". Asserting the
+    # phrase therefore passed even when the lint had been skipped entirely,
+    # which is the one outcome this test exists to rule out. Anchor on the
+    # success branch, and check the exit code the earlier version never read.
+    assert "compass policy lint  <- PASS" in combined, (
+        f"the policy lint did not run and pass on a bare interpreter - the "
+        f"phrase alone is printed on the skip path too:\n{combined}"
+    )
+    assert "skip compass policy lint" not in combined, (
+        f"validate.sh skipped the policy lint rather than running it:\n"
+        f"{combined}"
+    )
+    assert result.returncode == 0, (
+        f"validate.sh exited {result.returncode} on a bare interpreter:\n"
+        f"{combined}"
+    )
 
 
 # ---------------------------------------------------------------------------

@@ -666,6 +666,8 @@ def cmd_ci(args):
           f"(compass {COMPASS_VERSION}, schema {COMPASS_SCHEMA_VERSION})")
     print(f"{mode_banner(mode)}\n")
     failures = 0
+    checked = 0
+    skipped = 0
 
     print("[1] governance policy")
     if cmd_policy_lint(types.SimpleNamespace()):
@@ -684,25 +686,34 @@ def cmd_ci(args):
         print("\n  no issues under .compass/work/ - governance policy only.")
     for slug in slugs:
         print(f"\n[issue] {slug}")
-        # An issue that has not started has no acceptance criteria yet, and
-        # correctly so - the framework asks for work to be triaged early, and
-        # failing the sweep for complying teaches people to stop. It is still
-        # named here, with its state, because not failing is not the same as
-        # hiding: an issue that vanished from the output would be worse than
-        # one that failed.
-        status = _issue_status(slug)
-        if status in _NOT_IN_FLIGHT:
-            print(f"  skipped - status is '{status}', so the acceptance "
-                  f"criteria and evidence a check looks for do not exist yet.")
-            continue
+        # The lint runs for every issue, whatever its stage. It validates the
+        # spine's own structure - schema version, required keys, vocabulary -
+        # and a malformed spine is malformed whether or not the work has
+        # started. Skipping it once let a spine the linter rejects outright
+        # sit in a repository while the sweep reported everything clean.
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
+
+        # The gate checks are different. An issue that has not started has no
+        # acceptance criteria and no evidence, correctly so - the framework
+        # asks for work to be triaged early, and failing the sweep for
+        # complying teaches people to stop. Skip those, name the issue, and
+        # say why: an issue that vanished from the output would be worse than
+        # one that failed, because nobody would know it was there.
+        status = _issue_status(slug)
+        if status in _NOT_IN_FLIGHT:
+            print(f"  gate checks skipped - status is '{status}', so the "
+                  f"acceptance criteria and evidence a check looks for do "
+                  f"not exist yet. The spine itself was still linted.")
+            skipped += 1
+            continue
         print()
         # cmd_check honours the mode itself - but to know whether it had real
         # failures (regardless of mode's effect on its exit), check ran already
         # and we capture exit. For ci aggregation in advisory mode we still
         # want to honour mode at the top level, so call cmd_check and let it
         # return; failures captured here mean "this group had problems."
+        checked += 1
         if cmd_check(types.SimpleNamespace(task=slug)):
             failures += 1
 
@@ -710,6 +721,13 @@ def cmd_ci(args):
     if failures:
         print(f"compass ci: FAIL - {failures} check group(s) failed.")
     else:
-        print("compass ci: PASS - governance valid; every issue lints clean and "
-              "checks green.")
+        # Say what was actually done rather than making a blanket claim. The
+        # summary is the line a CI reader reads; when it said "every issue"
+        # while the run had skipped some, the skip lines further up were the
+        # part nobody scrolled back for.
+        counted = f"{checked} issue(s) fully checked"
+        if skipped:
+            counted += f", {skipped} lint-only (not in flight)"
+        print(f"compass ci: PASS - governance valid; every spine lints clean; "
+              f"{counted}.")
     return exit_for_mode(failures, mode)

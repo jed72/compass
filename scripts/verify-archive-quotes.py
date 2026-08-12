@@ -241,7 +241,20 @@ def verify(
             )
             continue
 
-        computed = sha256_text(span["quoted"] or "")
+        # A span whose quoted block did not parse has no text to verify.
+        # Coercing it to "" made the hash the hash of nothing and the
+        # substring check vacuously true, so an unreadable quote reported
+        # clean - in the one script whose job is proving quotes are real.
+        if not span.get("quoted"):
+            failures.append(
+                f"{span['id']}: the reference's Before: block did not parse, "
+                f"so there is no quoted text to verify. A blockquote line "
+                f"must begin '> '. Fix the reference; a quote that cannot be "
+                f"read is not a quote that is fine."
+            )
+            continue
+
+        computed = sha256_text(span["quoted"])
         if computed != entry.get("sha256"):
             failures.append(
                 f"{span['id']}: the quoted text no longer matches the "
@@ -259,7 +272,7 @@ def verify(
             continue
 
         archive_text = cited.read_text(encoding="utf-8")
-        if not _matches_archive(span["mode"], span["quoted"] or "", archive_text):
+        if not _matches_archive(span["mode"], span["quoted"], archive_text):
             failures.append(
                 f"{span['id']}: the quoted text is not present in "
                 f"{span['source']} as cited - the manifest hash matched, "
@@ -292,6 +305,23 @@ def update_manifest(
     entries = []
     problems = []
     for span in spans:
+        # Same rule as verify(): a span that did not parse has no text to
+        # record a hash for. Coercing it to "" wrote sha256("") into the
+        # manifest against a file the quote was never matched in, which is
+        # precisely the hand-edit this manifest exists to rule out.
+        if not span.get("quoted"):
+            problems.append(
+                f"{span['id']}: the reference's Before: block did not parse, "
+                f"so there is nothing to record a hash for. A blockquote "
+                f"line must begin '> '."
+            )
+            continue
+        if not span.get("source"):
+            problems.append(
+                f"{span['id']}: the reference names no Source: path, so "
+                f"there is no file to verify the quote against."
+            )
+            continue
         cited = archive_root / span["source"]
         if not cited.is_file():
             problems.append(f"{span['id']}: archive file not found: {span['source']}")
@@ -307,7 +337,7 @@ def update_manifest(
         entries.append({
             "id": span["id"],
             "source": span["source"],
-            "sha256": sha256_text(span["quoted"] or ""),
+            "sha256": sha256_text(span["quoted"]),
         })
 
     if problems:
