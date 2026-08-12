@@ -190,3 +190,11 @@ team's experience to point to - only one project, its maintainer, and a
 framework tested, so far, against exactly one thing: itself. That's a
 real result and a narrow one, and the honesty about which is which is
 the only thing worth asking a reader to trust.
+
+So the useful thing now is people running it on something real and
+saying where it fights them - that is the one result this repository
+cannot produce on its own, and it is worth more than another clean
+internal run. The gap in this record is filed too: the check that would
+verify a quoted archive passage cannot fail while the archive stays
+private, and closing it is the next piece of work rather than a caveat
+left standing.
