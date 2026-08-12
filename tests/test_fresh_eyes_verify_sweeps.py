@@ -194,6 +194,87 @@ def test_trc_b1_verify_guidance_points_at_the_strategy_not_repeat_it():
 
 
 # ---------------------------------------------------------------------------
+# TRC-C1 - the amendment states the primary-record rule and defines what a
+# primary record is (issue s9-primary-record)
+# ---------------------------------------------------------------------------
+
+def test_trc_c1_strategy_states_primary_record_rule_and_definition():
+    entry = _strategy_entry()
+    assert entry, "TRC-A1 must land before this scenario can"
+    flat = _flat(entry)
+    flat_lower = flat.lower()
+
+    # The rule: verify against the primary record, not the nearest mention.
+    assert "primary record" in flat_lower, (
+        "the strategy must name 'primary record' as the thing verified against"
+    )
+    assert "nearest document" in flat_lower, (
+        "the strategy must contrast the primary record with the nearest "
+        "document that mentions the claim"
+    )
+
+    # The definition: what makes a record "primary" for a given claim.
+    assert "would be wrong if the claim were false" in flat_lower, (
+        "the strategy must define a primary record as the artifact that "
+        "would be wrong if the claim were false"
+    )
+
+    # The named examples: a PR's file list, a commit, the code.
+    assert "pull request" in flat_lower and "file list" in flat_lower, (
+        "the strategy must name a pull request's file list as the primary "
+        "record for what a change touched"
+    )
+    assert "commit" in flat_lower, (
+        "the strategy must name a commit as the primary record for what a "
+        "commit says"
+    )
+    assert "the code for what the code does" in flat_lower, (
+        "the strategy must name the code as the primary record for what "
+        "the code does"
+    )
+
+
+# ---------------------------------------------------------------------------
+# TRC-C2 - the amendment carries the ADR-013 worked example and warns that
+# the nearest document is often a summary (issue s9-primary-record)
+# ---------------------------------------------------------------------------
+
+def test_trc_c2_strategy_carries_adr_013_worked_example_and_summary_caution():
+    entry = _strategy_entry()
+    assert entry, "TRC-A1 must land before this scenario can"
+    flat = _flat(entry)
+    flat_lower = flat.lower()
+
+    # The caution: the nearest document is often a summary of the fact,
+    # one step removed from the thing itself.
+    assert "often a summary" in flat_lower, (
+        "the strategy must say the nearest document that mentions a fact "
+        "is often a summary of it"
+    )
+
+    # The worked example: ADR-013's Context, checked against design.md
+    # (the nearest document) rather than a primary record that does not
+    # exist because the claimed event never happened.
+    assert "adr-013" in flat_lower, (
+        "the strategy must name ADR-013 as the worked example"
+    )
+    assert "timing figure" in flat_lower, (
+        "the strategy must say ADR-013's Context carried a timing figure - "
+        "concrete about what was wrong, without reproducing the exact "
+        "flagged phrase tests/test_public_copy_claims.py scans public copy "
+        "for, which this file is not exempt from"
+    )
+    assert "design.md" in flat_lower, (
+        "the strategy must name design.md as the nearest document ADR-013 "
+        "was checked against"
+    )
+    assert "did not happen" in flat_lower, (
+        "the strategy must say the claimed event did not happen, which is "
+        "why no primary record for it exists"
+    )
+
+
+# ---------------------------------------------------------------------------
 # TRC-F1 - no new mechanism (no natural red - see acceptance-criteria.md's
 # note; recorded via `compass acceptance start` / `record`)
 # ---------------------------------------------------------------------------

@@ -221,6 +221,22 @@ the tree. This repository has the evidence twice over - two cleanups here
 leaked, and in both cases the agent that made the change reported it
 complete. This is about who verifies, not about trying harder.
 
+Verify against the primary record for the claim being made, not the nearest
+document that mentions it. The primary record is the artifact that would be
+wrong if the claim were false: a pull request's own file list for what a
+change touched, a commit for what a commit says, the code for what the code
+does. The nearest document that mentions a fact is often a summary of it,
+one step removed, and a summary can be checked in good faith while the claim
+it summarises has already changed meaning. ADR-013's Context once described
+an install failure in the past tense, with a specific timing figure
+attached - reading as a report of a real outside user, which this
+repository has never had. It was verified against `design.md`, the document
+it was lifted from, which put the same point in the present tense as a
+description of what any newcomer meets - not against the primary record for
+whether this happened to a real person, which does not exist, because it did
+not happen. Fresh eyes stop helping the moment fresh eyes reach for the same
+document the claim was drawn from.
+
 *Why a strategy and not a guardrail:* nothing in `compass check` can confirm
 that the agent running a verification grep is actually the one who did not
 write the change - agent identity and prior context are not properties a
