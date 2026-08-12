@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### a well-formed span still verifies
+### the header scan proves how many modules it read
 
-- **Scenario id:** `TRC-3`
+- **Scenario id:** `TRC-5`
 - **Intent:** `INT-1`
-- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Source issue:** `tests-that-can-fail`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3575,4 +3575,39 @@
 - **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
 - **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### a well-formed span still verifies _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### the version guard compares every location it names _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the validate guard fails when the lint is skipped _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the tell-scope guard fails when nothing was found _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the reference-location guard fails on a new skill directory _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
 - **Landed:** 2026-08-12
