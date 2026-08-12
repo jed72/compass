@@ -165,6 +165,8 @@ def test_no_project_guardrails_declared_in_framework_repo():
 #   2.0.0 - 1 strategy id: S7 (cold-reader prose)
 #   next  - 1 strategy id: S8 (voice audition, standing - specialises S7 with
 #           a named calibration sample; issue voice-audition-standing)
+#         - 1 strategy id: S10 (mutation proof - a guard is accepted on a
+#           demonstrated failure, not a passing test; added at 2.1.0)
 #         - 1 strategy id: S9 (fresh eyes on a sweep - a fresh agent, not the
 #           implementer, verifies a sweep, rename, or cleanup; issue
 #           fresh-eyes-verify-sweeps)
@@ -197,7 +199,7 @@ def test_default_method_strategy_set_is_the_known_set():
     # at the docs-prose slice.
     import re
     ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "
         f"{sorted(expected)}. If you added a strategy on purpose, add its id "

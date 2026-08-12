@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the header scan proves how many modules it read
+### the id set admits the new strategy deliberately
 
-- **Scenario id:** `TRC-5`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
-- **Source issue:** `tests-that-can-fail`
+- **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3610,4 +3610,25 @@
 - **Scenario id:** `TRC-4`
 - **Intent:** `INT-1`
 - **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the header scan proves how many modules it read _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the strategy states the method and the reason _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
+- **Landed:** 2026-08-12
+
+### the verify guidance points at the strategy _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12

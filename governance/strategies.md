@@ -249,6 +249,39 @@ followed or departed from - never as a gate.
 about trying harder. See `commands/verify.md` and
 `skills/evidence-gates/SKILL.md` for the pointer at the point of use.*
 
+
+### Mutation proof: a guard is accepted on a failure, not on a pass (`S10`)
+
+**Soft, assessed - not a guardrail.** A check, guard or assertion is accepted
+when it has been shown to fail. Break the thing it guards, watch it go red,
+restore, watch it go green, and record the result where the change is
+reviewed. A passing test proves the guard runs; it does not prove the guard
+is connected to the thing it names, and the gap between those two is where
+this repository has repeatedly lost coverage without noticing.
+
+Four of the five guards corrected in 2.1.0 had passing tests throughout. The
+one that settles the argument was written specifically to close this class:
+it compared nothing at all at the single location it existed for, because a
+filter dropped every candidate line, and setting both version banners to a
+wrong value left it green. No amount of reading found that. Breaking it did,
+in seconds.
+
+The recorded result matters as much as the act. A reviewer cannot tell a
+guard that was mutation-proved from one that was not, so the table - what was
+broken, what failed, what passed on restore - travels with the change.
+
+*Why a strategy and not a guardrail:* nothing mechanical can tell whether an
+author actually broke the subject, and a check that demanded proof would be
+satisfied by a pasted table as easily as by a real one - trusting the same
+self-report the practice exists to replace. The `reviewer` agent assesses it
+at Verify under the `correctness` dimension, and a guard offered without one
+is a conversation, never an automatic gate failure.
+
+*Cross-reference: fresh eyes on a sweep (`S9`) - both answer "who or what
+establishes that this is true", where S9 answers who and this answers how.
+See `commands/verify.md` and `skills/evidence-gates/SKILL.md` for the pointer
+at the point of use.*
+
 ---
 
 ## Project strategies

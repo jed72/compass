@@ -125,7 +125,7 @@ distinct *is* the check:
   clearly separated from the guardrail evidence. A strategy not followed is a
   note, not an automatic gate failure. On a sweep, rename, or cleanup that
   touches many files, this includes whether verification came from a fresh
-  agent rather than the implementer - `governance/strategies.md` `S9` names
+  agent rather than the implementer - `governance/strategies.md` `S9` names A new or changed guard is accepted on a demonstrated failure, not a passing test - see `governance/strategies.md` `S10`.
   the practice.
 
 **traceability** - Are both chains intact and current - code → scenario →
