@@ -7,7 +7,8 @@ promise.
 
 To run the commands below you need Compass installed. The quickest way, inside
 Claude Code, is `/plugin marketplace add jed72/compass` then
-`/plugin install compass@compass`, followed by `pip install pyyaml`.
+`/plugin install compass@compass`. Compass needs Python 3; the YAML parser it
+uses travels inside the plugin, so there is nothing else to install.
 `docs/quickstart.md` §1 covers that and the install-from-source alternative.
 
 ---

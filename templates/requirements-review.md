@@ -67,6 +67,26 @@ resolution → who decided → what it changed.
 
 ---
 
+## Worked example
+
+A decision recorded in the target register, not as a label stack - see
+`skills/compass-runtime/writing-voice-worked-example.md` for a full
+requirements review rewritten this way. One entry, in the same continuous
+prose every entry above should aim for:
+
+> The receipt's line cap was unclear - a defensible default, or something a
+> project should be able to configure? James kept it fixed at fifty lines, a
+> hundred columns wide: a standard terminal shows that much without
+> scrolling, and a receipt that cannot fit needs a less verbose renderer, not
+> a knob.
+
+That one paragraph carries what was unclear, the call, whose call it was,
+and what the call rests on - the same four things each `{{PLACEHOLDER}}`
+entry above owes, said as a colleague would say them rather than filled into
+a form.
+
+---
+
 ## Gate
 
 - [ ] No ambiguity left `open` - every entry is `resolved`.

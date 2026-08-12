@@ -32,6 +32,9 @@ The rest of this command is for delivery work.
   (applies the review dimensions).
 - If the product-marketer role is in play, the `claims` dimension applies -
   `marketing-lens` reviews here too.
+- If this issue is itself a sweep, rename, or cleanup touching many files,
+  verify it the way `governance/strategies.md` `S9` describes: a fresh agent A guard offered as part of the change is accepted on a demonstrated failure rather than a passing test - `governance/strategies.md` `S10` states the method.
+  that has not seen the change, not its author.
 - QA owns this gate and can send the issue back to the define stage if
   scenarios are uncoverable.
 
@@ -65,6 +68,12 @@ The rest of this command is for delivery work.
 6. **Write `verification-report.md`** from
    `templates/verification-report.md`: each dimension, each gate, the
    evidence, pass/fail.
+
+## Voice
+
+A verification report is evidence a person reads, not a status board. Say
+what passed and what it means - never that the issue is "ready for the next
+command." See `skills/compass-runtime/writing-voice.md`.
 
 ## Gate
 

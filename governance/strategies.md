@@ -164,6 +164,126 @@ Assessed under the `clarity` review dimension; restated at the point of use in
 
 ---
 
+### Voice audition: read against a calibration sample (`S8`)
+
+**Soft, assessed - not a guardrail.** Any change that writes prose a future
+session will read or imitate - a skill, a command doc, a governance strategy,
+a template's worked example, a devlog entry - is read against a calibration
+sample before it ships: the worked-example rewrite in
+`skills/compass-runtime/writing-voice-worked-example.md`, paired with the
+"Never stash across a worktree hop" section of
+`skills/worktree-swarm/SKILL.md`. One shows a formal artifact rewritten into
+the register this strategy asks for; the other is a real incident told the
+way a colleague would tell it. Together they are the standing sample - not a
+one-off exhibit for the cycle that wrote them.
+
+This audition does not lapse when that cycle ends. It applies to any future
+slice that writes prose, not only the one that introduced it, and a reviewer
+does not need to be reminded to run it - the pointer lives at the review
+dimension itself (see below).
+
+The test, stated the same way `writing-voice.md` states it: read it aloud -
+would you say this sentence to a colleague at your desk? An "after" that only
+shortens form-speak while dropping the facts the "before" carried has not
+passed the audition and fails it - keeping the facts is the harder half and
+the part that matters; shortening alone is easy and proves nothing.
+
+*Why a strategy and not a guardrail:* whether a sentence sounds human is
+judgement, not a fixed string. No mechanical check reliably tells a faithful
+rewrite from one that quietly dropped a fact, and a check that tried and got
+it wrong on its first real use would be worse than no check at all - the
+findable/judgement split in `writing-voice.md`'s own tells list exists for
+exactly that reason: three tells a grep can find safely, six that need a
+reader. The `reviewer` agent assesses this at Verify under the `clarity`
+review dimension.
+
+*Cross-reference: cold reader (`S7`), which this specialises with a named
+calibration sample; `skills/compass-runtime/writing-voice.md` for the full
+tells list and the worked before/after pairs; assessed under the `clarity`
+review dimension in `agents/reviewer.md` and `skills/evidence-gates/SKILL.md`.*
+
+---
+
+### Fresh eyes on a sweep: verification by someone who did not make the change (`S9`)
+
+**Soft, assessed - not a guardrail.** Any sweep, rename, or cleanup that
+touches many files is verified by a fresh agent - one that has not seen the
+change. Given only the stated goal, that agent greps the codebase
+independently and reports the residuals it finds, each with file and line.
+It does not read the implementer's summary, and it does not trust it: the
+summary is not the thing checked against, and it plays no part in the check.
+
+The author of a sweep checks their own work against a mental list of what
+they changed, not against the goal - so exactly the files they forgot are the
+files they will not think to look for. The failure is invisible from the
+inside: a summary written by the sweeper reads clean while residuals sit in
+the tree. This repository has the evidence twice over - two cleanups here
+leaked, and in both cases the agent that made the change reported it
+complete. This is about who verifies, not about trying harder.
+
+Verify against the primary record for the claim being made, not the nearest
+document that mentions it. The primary record is the artifact that would be
+wrong if the claim were false: a pull request's own file list for what a
+change touched, a commit for what a commit says, the code for what the code
+does. The nearest document that mentions a fact is often a summary of it,
+one step removed, and a summary can be checked in good faith while the claim
+it summarises has already changed meaning. ADR-013's Context once described
+an install failure in the past tense, with a specific timing figure
+attached - reading as a report of a real outside user, which this
+repository has never had. It was verified against `design.md`, the document
+it was lifted from, which put the same point in the present tense as a
+description of what any newcomer meets - not against the primary record for
+whether this happened to a real person, which does not exist, because it did
+not happen. Fresh eyes stop helping the moment fresh eyes reach for the same
+document the claim was drawn from.
+
+*Why a strategy and not a guardrail:* nothing in `compass check` can confirm
+that the agent running a verification grep is actually the one who did not
+write the change - agent identity and prior context are not properties a
+mechanical check can inspect, and a check that tried would end up trusting
+the same self-report this practice exists to distrust. The `reviewer` agent
+assesses this at Verify under the `governance` dimension, as a strategy
+followed or departed from - never as a gate.
+
+*Cross-reference: voice audition (`S8`) - both are about who judges, not
+about trying harder. See `commands/verify.md` and
+`skills/evidence-gates/SKILL.md` for the pointer at the point of use.*
+
+
+### Mutation proof: a guard is accepted on a failure, not on a pass (`S10`)
+
+**Soft, assessed - not a guardrail.** A check, guard or assertion is accepted
+when it has been shown to fail. Break the thing it guards, watch it go red,
+restore, watch it go green, and record the result where the change is
+reviewed. A passing test proves the guard runs; it does not prove the guard
+is connected to the thing it names, and the gap between those two is where
+this repository has repeatedly lost coverage without noticing.
+
+Four of the five guards corrected in 2.1.0 had passing tests throughout. The
+one that settles the argument was written specifically to close this class:
+it compared nothing at all at the single location it existed for, because a
+filter dropped every candidate line, and setting both version banners to a
+wrong value left it green. No amount of reading found that. Breaking it did,
+in seconds.
+
+The recorded result matters as much as the act. A reviewer cannot tell a
+guard that was mutation-proved from one that was not, so the table - what was
+broken, what failed, what passed on restore - travels with the change.
+
+*Why a strategy and not a guardrail:* nothing mechanical can tell whether an
+author actually broke the subject, and a check that demanded proof would be
+satisfied by a pasted table as easily as by a real one - trusting the same
+self-report the practice exists to replace. The `reviewer` agent assesses it
+at Verify under the `correctness` dimension, and a guard offered without one
+is a conversation, never an automatic gate failure.
+
+*Cross-reference: fresh eyes on a sweep (`S9`) - both answer "who or what
+establishes that this is true", where S9 answers who and this answers how.
+See `commands/verify.md` and `skills/evidence-gates/SKILL.md` for the pointer
+at the point of use.*
+
+---
+
 ## Project strategies
 
 <!-- Add strategies specific to this project here. Add freely - strategies are

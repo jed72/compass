@@ -14,8 +14,9 @@ Compass is built in three layers. The **methodology layer** - `docs/`,
 - *is* the framework, in plain markdown. The **kit layer** - `cli/compass`,
 `governance/*.yml`, `schemas/` (executable JSON Schema, draft-07, validated
 against when the optional `jsonschema` library is installed), the `task.yml`
-issue spine - is the deterministic mechanism: a plain CLI whose only hard
-dependency is PyYAML, **not** runtime-specific. The **adapter layer** wires
+issue spine - is the deterministic mechanism: a plain CLI that bundles the
+one third-party library it needs (PyYAML, at `cli/vendor/yaml/` - see
+`THIRD-PARTY-NOTICES.md`), **not** runtime-specific. The **adapter layer** wires
 both into one runtime. Porting Compass means satisfying the contract below by
 rewriting *only the adapter layer* - the methodology and kit layers are
 already runtime-neutral, and a portable adapter should *shell out to the
@@ -145,6 +146,17 @@ itself runtime-neutral - an adapter does not rewrite it, it invokes it. The
 only thing the adapter owes the kit is a `.compass/current-task` pointer (or
 an explicit `--task` slug) so the CLI can resolve which issue it is acting
 on.
+
+## Writing voice
+
+Every artifact a runtime writes is prose someone reads later, and prose that
+narrates the pipeline instead of communicating a decision teaches nothing.
+`skills/compass-runtime/writing-voice.md` states the rule in one line,
+carries real before/after pairs harvested from this project's own archive,
+and names the tells that mark the narrating kind. A runtime's session-facing
+output - devlog entries, requirements reviews, replies to the person driving
+it - should read the way that reference asks: what happened, what is
+needed, never which stage is running.
 
 ## State on disk
 

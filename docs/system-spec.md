@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### the mapping lives in the exempt data file
+### the id set admits the new strategy deliberately
 
-- **Scenario id:** `TRC-4`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
-- **Source issue:** `v2-migrate`
-- **Landed:** 2026-08-08
+- **Source issue:** `mutation-proof-standing`
+- **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -22,26 +22,26 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the spine template speaks v2 and is scanned
+### the summary reports what was and was not checked
 
-- **Scenario id:** `TRC-A6`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-2`
-- **Source issue:** `v2-machine-spine`
-- **Landed:** 2026-08-07
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
 
-### an exempt path is never scanned
+### no document claims Compass has no dependencies
 
-- **Scenario id:** `TRC-F2`
+- **Scenario id:** `TRC-D6`
 - **Intent:** `INT-3`
-- **Source issue:** `v2-terminology-freeze`
-- **Landed:** 2026-08-06
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
-### every file this task changes should pass house style
+### the decision is recorded with the alternative it beat
 
-- **Scenario id:** `TRC-F3`
+- **Scenario id:** `TRC-E1`
 - **Intent:** `INT-4`
-- **Source issue:** `record-keeping-integrity`
-- **Landed:** 2026-08-03
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
 ### every file this task adds or changes should pass house style
 
@@ -50,12 +50,12 @@
 - **Source issue:** `readable-specs-and-flow`
 - **Landed:** 2026-08-03
 
-### The seeded gates block carries each gate's accepted evidence types as a comment
+### recording acceptance for a second scenario does not destroy the first one's evidence
 
-- **Scenario id:** `TRC-R6-6`
+- **Scenario id:** `TRC-F7`
 - **Intent:** `INT-6`
-- **Source issue:** `framework-field-feedback`
-- **Landed:** 2026-06-23
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
 
 ### A configured test_micro_command takes precedence when present
 
@@ -84,11 +84,39 @@
 
 > These scenarios were superseded by a later-landed scenario with the same intent id.
 
+### the hook blocks an edit it cannot check _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
+- **Landed:** 
+
 ### Every published version surface reports 1.0.0 _(archived)_
 
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source issue:** `version-bump-1-0-0`
+- **Landed:** 
+
+### the hook says why it could not check _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-2`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
+- **Landed:** 
+
+### control: the hook still blocks when it can read the spine _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
+- **Landed:** 
+
+### the guarded-surface decision fails closed too _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-fails-open-on-broken-vendor`
 - **Landed:** 
 
 ### each runner should have a worked project _(archived)_
@@ -154,6 +182,13 @@
 - **Source issue:** `v2-artifact-renames`
 - **Landed:** 
 
+### the strategy records permanence and the calibration sample _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
+- **Landed:** 
+
 ### each adapter should run the extracted feature and pass _(archived)_
 
 - **Scenario id:** `TRC-A2`
@@ -215,6 +250,13 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source issue:** `v2-artifact-renames`
+- **Landed:** 
+
+### the strategy states its own test and its own failure mode _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
 - **Landed:** 
 
 ### every adapter should share the same four documented steps _(archived)_
@@ -411,6 +453,13 @@
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
 - **Source issue:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### the reviewer's clarity dimension finds the audition without knowing it exists _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
 - **Landed:** 
 
 ### an adapter whose runner is absent should skip loudly, never silently pass _(archived)_
@@ -985,6 +1034,13 @@
 - **Scenario id:** `TRC-F1`
 - **Intent:** `INT-4`
 - **Source issue:** `phase-2-skills-check-and-cli-split`
+- **Landed:** 
+
+### no new mechanism is introduced _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `voice-audition-standing`
 - **Landed:** 
 
 ### no function should be renamed, merged or split by this task _(archived)_
@@ -1967,6 +2023,13 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
+### The seeded gates block carries each gate's accepted evidence types as a comment _(archived)_
+
+- **Scenario id:** `TRC-R6-6`
+- **Intent:** `INT-6`
+- **Source issue:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
 ### A coverage-gated micro-run refuses green today (baseline) _(archived)_
 
 - **Scenario id:** `TRC-R7-1`
@@ -2541,6 +2604,13 @@
 - **Source issue:** `record-keeping-integrity`
 - **Landed:** 2026-08-03
 
+### every file this task changes should pass house style _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-4`
+- **Source issue:** `record-keeping-integrity`
+- **Landed:** 2026-08-03
+
 ### every published surface should report 1.7.0 _(archived)_
 
 - **Scenario id:** `TRC-1`
@@ -2621,6 +2691,13 @@
 ### a pending entry that names no real surface is rejected _(archived)_
 
 - **Scenario id:** `TRC-F1`
+- **Intent:** `INT-3`
+- **Source issue:** `v2-terminology-freeze`
+- **Landed:** 2026-08-06
+
+### an exempt path is never scanned _(archived)_
+
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-3`
 - **Source issue:** `v2-terminology-freeze`
 - **Landed:** 2026-08-06
@@ -2733,6 +2810,13 @@
 ### the artifact-name fallback is retired _(archived)_
 
 - **Scenario id:** `TRC-A5`
+- **Intent:** `INT-2`
+- **Source issue:** `v2-machine-spine`
+- **Landed:** 2026-08-07
+
+### the spine template speaks v2 and is scanned _(archived)_
+
+- **Scenario id:** `TRC-A6`
 - **Intent:** `INT-2`
 - **Source issue:** `v2-machine-spine`
 - **Landed:** 2026-08-07
@@ -2953,3 +3037,598 @@
 - **Intent:** `INT-1`
 - **Source issue:** `v2-migrate`
 - **Landed:** 2026-08-08
+
+### the mapping lives in the exempt data file _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-migrate`
+- **Landed:** 2026-08-08
+
+### the version is 2.0.0 in every guarded location _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-release`
+- **Landed:** 2026-08-08
+
+### desired-state graduates and is enforced _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `v2-release`
+- **Landed:** 2026-08-08
+
+### the reference should live under an existing skill and open with the principle _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### every before/after pair should be a real passage from the work archive _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the tells list should name all nine tells and say which a string can find _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### no rewritten passage should still carry a tell _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the root instruction files should carry a short voice paragraph _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the three talkiest stages should each point at the reference _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the tells should live in one place, so a later edit cannot leave a stale copy _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a real requirements review from the archive should become the canonical worked example _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the original should stay readable beside the rewrite _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the requirements-review template should show a decision recorded in a human voice _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the clarity dimension should name the tells as judgement, not as a rule _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the tell check should name the file and line of each hit _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a clean set of artifacts should get a stated result, not silence _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a tell that is found should block nothing _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### the exhibits should not be read as defects _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### nothing about how Compass behaves should change _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-2`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### every file this issue writes should clear house style and the frozen vocabulary _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-1`
+- **Source issue:** `human-voice`
+- **Landed:** 2026-08-09
+
+### a first triage completes with no Python package installed _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### no CLI verb exits on a missing dependency _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the acceptance-before-code hook check runs instead of failing open _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the acceptance-before-code hook check runs instead of failing open _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### integration records the landing rather than warning it could not _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### integration records the landing rather than warning it could not _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the session-end signal scan runs rather than returning empty _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the repository check runs the policy lint rather than skipping it _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### preparing a swarm reads the cap rather than refusing _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### preparing a swarm reads the cap rather than refusing _(archived)_
+
+- **Scenario id:** `TRC-A7`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### nothing shipped tells a user or an adopter to install PyYAML _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the copyable CI workflow runs with no dependency step _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the copyable CI workflow runs with no dependency step _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the install smoke test asserts the zero-install path _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the install smoke test asserts the zero-install path _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### no test requires the removed instruction to still exist _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### no document claims Compass has no dependencies _(archived)_
+
+- **Scenario id:** `TRC-D6`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### an issue already in flight continues unchanged across the upgrade _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### jsonschema stays optional and unchanged _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the distributed plugin actually contains the bundled copy _(archived)_
+
+- **Scenario id:** `TRC-F6`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the bundled copy is the one used, whatever the machine has _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-1`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the bundled copy is the one used, whatever the machine has _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-2`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the shipped version is the documented version _(archived)_
+
+- **Scenario id:** `TRC-G2`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the bundled library carries its licence and its attribution _(archived)_
+
+- **Scenario id:** `TRC-G3`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### a scenario that serves two intents answers for both _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `derive-spec-multi-intent`
+- **Landed:** 2026-08-10
+
+### the single-intent form is unchanged _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `derive-spec-multi-intent`
+- **Landed:** 2026-08-10
+
+### the pinned assertions run where the history is absent _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-survive-shallow-clone`
+- **Landed:** 2026-08-10
+
+### the strategy states the trigger, the staffing rule, and the method _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### the strategy states the prohibition, the evidence, and carries the file's own conventions _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### the verify stage guidance points at the strategy without repeating it _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### no new mechanism is introduced _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `fresh-eyes-verify-sweeps`
+- **Landed:** 2026-08-11
+
+### no public file claims an outside user _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
+- **Landed:** 2026-08-11
+
+### no public file attaches a duration to a user _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
+- **Landed:** 2026-08-11
+
+### the guard catches the defect it was written for _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
+- **Landed:** 2026-08-11
+
+### the entry states the primary-record rule and defines what a primary record is _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `s9-primary-record`
+- **Landed:** 2026-08-12
+
+### the entry carries the ADR-013 worked example and warns the nearest document is often a summary _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-1`
+- **Source issue:** `s9-primary-record`
+- **Landed:** 2026-08-12
+
+### a fabricated quote fails even without the archive _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### an unaltered quote is accepted, and the report names what went unverified _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### a genuine quote passes by direct verification _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### a mismatched quote fails, not skips, when the archive is present _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### the regeneration path refuses an unverified hash _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### a not-yet-started issue does not fail the sweep _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `sweep-respects-queued`
+- **Landed:** 2026-08-12
+
+### the sweep still names what it did not check _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `sweep-respects-queued`
+- **Landed:** 2026-08-12
+
+### an in-flight issue is still checked _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `sweep-respects-queued`
+- **Landed:** 2026-08-12
+
+### a recorded re-assessment lints clean _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-schema-reassessment-keys`
+- **Landed:** 2026-08-12
+
+### the keys are declared, not merely tolerated _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-schema-reassessment-keys`
+- **Landed:** 2026-08-12
+
+### every documented banner matches what the CLI prints _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-version-drift`
+- **Landed:** 2026-08-12
+
+### the banner uses current vocabulary _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-version-drift`
+- **Landed:** 2026-08-12
+
+### the document describes v2 behaviour _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-speaks-v2`
+- **Landed:** 2026-08-12
+
+### the document is scanned for the frozen vocabulary _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-speaks-v2`
+- **Landed:** 2026-08-12
+
+### every published location reports the declared version _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### the guard has a case for every published location _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### no constant nothing reads _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### a malformed spine fails the sweep whatever its status _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
+### a well-formed not-yet-started issue still does not fail _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
+### an unparsed span is a failure _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### update refuses to record an unparsed span _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### a well-formed span still verifies _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `quote-verifier-rejects-unparsed`
+- **Landed:** 2026-08-12
+
+### the version guard compares every location it names _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the validate guard fails when the lint is skipped _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the tell-scope guard fails when nothing was found _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the reference-location guard fails on a new skill directory _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the header scan proves how many modules it read _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `tests-that-can-fail`
+- **Landed:** 2026-08-12
+
+### the strategy states the method and the reason _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
+- **Landed:** 2026-08-12
+
+### the verify guidance points at the strategy _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
+- **Landed:** 2026-08-12

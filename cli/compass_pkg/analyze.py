@@ -31,9 +31,10 @@
 #   compass ci               The full mechanical gate suite (policy lint +
 #                            task lint + check for every task) - for CI.
 #
-# DEPENDENCY: PyYAML (`pip install pyyaml`). It is the only dependency; the
-# rest is the Python 3 standard library. If PyYAML is missing the CLI says so
-# clearly and exits.
+# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
+# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# the only third-party code Compass ships; everything else is the Python 3
+# standard library.
 #
 # GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
 # (walking up from the working directory); if there is none, it falls back to
@@ -54,15 +55,12 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-try:
-    import yaml
-except ImportError:
-    sys.stderr.write(
-        "compass: PyYAML is required but not installed.\n"
-        "  Install it with:  pip install pyyaml\n"
-        "  (It is the CLI's only dependency.)\n"
-    )
-    sys.exit(3)
+# compass_pkg/__init__.py already verified the bundled copy resolves - or
+# exited 3 with a clear message naming the absolute path it checked - before
+# this module's own code ever runs (DD-2 of zero-friction-install). By the
+# time this line runs, `yaml` is already imported and cached, so this is
+# never anything but a normal import.
+import yaml
 
 
 # Regex to match a DoD checklist item:
@@ -641,6 +639,26 @@ def cmd_analyze(args):
 # CI integration is genuinely this small: run `compass ci`, honour the exit
 # code. See ci/README.md.
 
+# Lifecycle states meaning "not in flight". An issue in one of these has no
+# acceptance criteria yet, by design, so the gate checks have nothing to read.
+_NOT_IN_FLIGHT = ("queued", "parked", "abandoned")
+
+
+def _issue_status(slug):
+    """The issue's lifecycle status, or '' if it cannot be read.
+
+    An unreadable spine is not treated as not-in-flight: it falls through to
+    the checks, which report the problem properly rather than skipping it.
+    """
+    try:
+        spine = load_yaml(os.path.join(resolve_task_dir(slug), "task.yml"))
+    except Exception:
+        return ""
+    if not isinstance(spine, dict):
+        return ""
+    return (spine.get("status") or "").strip()
+
+
 def cmd_ci(args):
     import types
     mode = load_mode()
@@ -648,6 +666,8 @@ def cmd_ci(args):
           f"(compass {COMPASS_VERSION}, schema {COMPASS_SCHEMA_VERSION})")
     print(f"{mode_banner(mode)}\n")
     failures = 0
+    checked = 0
+    skipped = 0
 
     print("[1] governance policy")
     if cmd_policy_lint(types.SimpleNamespace()):
@@ -666,14 +686,34 @@ def cmd_ci(args):
         print("\n  no issues under .compass/work/ - governance policy only.")
     for slug in slugs:
         print(f"\n[issue] {slug}")
+        # The lint runs for every issue, whatever its stage. It validates the
+        # spine's own structure - schema version, required keys, vocabulary -
+        # and a malformed spine is malformed whether or not the work has
+        # started. Skipping it once let a spine the linter rejects outright
+        # sit in a repository while the sweep reported everything clean.
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
+
+        # The gate checks are different. An issue that has not started has no
+        # acceptance criteria and no evidence, correctly so - the framework
+        # asks for work to be triaged early, and failing the sweep for
+        # complying teaches people to stop. Skip those, name the issue, and
+        # say why: an issue that vanished from the output would be worse than
+        # one that failed, because nobody would know it was there.
+        status = _issue_status(slug)
+        if status in _NOT_IN_FLIGHT:
+            print(f"  gate checks skipped - status is '{status}', so the "
+                  f"acceptance criteria and evidence a check looks for do "
+                  f"not exist yet. The spine itself was still linted.")
+            skipped += 1
+            continue
         print()
         # cmd_check honours the mode itself - but to know whether it had real
         # failures (regardless of mode's effect on its exit), check ran already
         # and we capture exit. For ci aggregation in advisory mode we still
         # want to honour mode at the top level, so call cmd_check and let it
         # return; failures captured here mean "this group had problems."
+        checked += 1
         if cmd_check(types.SimpleNamespace(task=slug)):
             failures += 1
 
@@ -681,6 +721,13 @@ def cmd_ci(args):
     if failures:
         print(f"compass ci: FAIL - {failures} check group(s) failed.")
     else:
-        print("compass ci: PASS - governance valid; every issue lints clean and "
-              "checks green.")
+        # Say what was actually done rather than making a blanket claim. The
+        # summary is the line a CI reader reads; when it said "every issue"
+        # while the run had skipped some, the skip lines further up were the
+        # part nobody scrolled back for.
+        counted = f"{checked} issue(s) fully checked"
+        if skipped:
+            counted += f", {skipped} lint-only (not in flight)"
+        print(f"compass ci: PASS - governance valid; every spine lints clean; "
+              f"{counted}.")
     return exit_for_mode(failures, mode)

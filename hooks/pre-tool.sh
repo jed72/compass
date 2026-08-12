@@ -72,6 +72,12 @@
 
 set -euo pipefail
 
+# shellcheck source=../scripts/lib/compass-python.sh
+# The one shared mechanism (DD-2): compass_python() below reaches the bundled
+# PyYAML the same way cli/compass does, rather than this hook inventing its
+# own answer to "where is the vendored copy".
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-python.sh"
+
 # --- read the tool call from stdin ------------------------------------------
 INPUT="$(cat || true)"
 
@@ -188,9 +194,17 @@ is_enforced_path() {
   # was guarded and `docker-compose.yml` was not, with no visible rule, so an
   # author could not predict which edit would block and found out mid-change.
   if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
-    local hit
-    hit="$(python3 - "$PROJECT_DIR/.compass/config.yml" "$rel" <<'PYEOF' 2>/dev/null || true
+    local hit glob_status glob_err
+    # Same two-failures-look-alike problem as the spine read below. A reader
+    # that ran and matched nothing means the path is not project-guarded. A
+    # reader that could not start means we do not know whether it is - and
+    # answering "not guarded" to a question we could not ask is how a broken
+    # install quietly stops guarding the very scripts that broke it.
+    glob_err="$(mktemp)"
+    set +e
+    hit="$(compass_python - "$PROJECT_DIR/.compass/config.yml" "$rel" 2>"$glob_err" <<'PYEOF'
 import fnmatch, sys
+import compass_pkg
 try:
     import yaml
     with open(sys.argv[1], encoding="utf-8") as fh:
@@ -206,6 +220,17 @@ for g in globs:
         break
 PYEOF
 )"
+    glob_status=$?
+    set -e
+    if [ "$glob_status" -eq 3 ]; then
+      # Treat the path as guarded. The spine read that follows will refuse
+      # with the install's own diagnostics, so the person gets one clear
+      # message rather than a silent pass here and a puzzle later.
+      MATCHED_RULE="unknown - the project's declared paths could not be read ($(head -1 "$glob_err"))"
+      rm -f "$glob_err"
+      return 0
+    fi
+    rm -f "$glob_err"
     if [ -n "${hit:-}" ]; then
       MATCHED_RULE="enforcement.code_globs pattern '$hit' in .compass/config.yml"
       return 0
@@ -411,8 +436,16 @@ fi
 # PyYAML - this stays silent and the prior behaviour applies. A false block on
 # unreadable state is how a hook teaches people to bypass it.
 if [ -f "$TASK_DIR/task.yml" ] && command -v python3 >/dev/null 2>&1; then
-  G2_VERDICT="$(python3 - "$TASK_DIR/task.yml" <<'PYEOF' 2>/dev/null || true
+  # Two failures look alike from here and must not be treated alike. A reader
+  # that RAN and found nothing is ordinary - stay quiet, as below. A reader
+  # that could not START means the install is broken, and a guardrail that
+  # cannot read its own state must refuse rather than wave the edit through.
+  # compass_python exits 3 for exactly that, with the reason on stderr.
+  G2_ERR="$(mktemp)"
+  set +e
+  G2_VERDICT="$(compass_python - "$TASK_DIR/task.yml" 2>"$G2_ERR" <<'PYEOF'
 import sys
+import compass_pkg
 try:
     import yaml
     with open(sys.argv[1], encoding="utf-8") as fh:
@@ -427,6 +460,25 @@ if isinstance(phases, dict) and phases.get("specify") == "full":
         print("block")
 PYEOF
 )"
+  G2_STATUS=$?
+  set -e
+  if [ "$G2_STATUS" -eq 3 ]; then
+    cat >&2 <<EOF
+Compass: BLOCKED - the enforcement check could not run.
+
+$(cat "$G2_ERR")
+  This hook cannot read the issue spine, so it cannot tell whether the
+  acceptance criteria exist. It refuses rather than allowing an edit it was
+  unable to check - a guardrail that cannot read its own state must fail
+  closed, or it is not a guardrail.
+  Edit target: $TARGET  (tool: ${TOOL:-?})
+
+  Fix the install and re-try. Nothing about this issue is wrong.
+EOF
+    rm -f "$G2_ERR"
+    exit 2
+  fi
+  rm -f "$G2_ERR"
   if [ "${G2_VERDICT:-}" = "block" ]; then
     cat >&2 <<EOF
 Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no scenarios.

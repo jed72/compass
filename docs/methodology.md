@@ -409,8 +409,10 @@ Compass is built in three layers, deliberately separated.
   optional `jsonschema` library is installed - the built-in linter is the
   no-dependency floor and always runs. Gate evidence in `task.yml` is *typed* -
   a `{type, path}` record, not a bare path - so the checks can refuse to clear
-  a mechanical gate with a written note. It depends only on Python 3 and PyYAML
-  (`jsonschema` is optional); it is **not** Claude-Code-specific, and it is the
+  a mechanical gate with a written note. It depends only on Python 3 - the
+  YAML parser it needs travels inside the plugin, vendored and pinned at
+  `cli/vendor/yaml/` (`jsonschema` is a separate, optional library Compass
+  does not bundle); it is **not** Claude-Code-specific, and it is the
   part that makes the framework's checks real rather than aspirational.
 
 - **The Claude Code adapter layer** - `commands/`, `agents/`, `skills/`,

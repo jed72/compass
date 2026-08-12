@@ -123,7 +123,10 @@ distinct *is* the check:
   default and project strategies - and where it departed, is the departure
   recorded? This is honestly the reviewer's opinion; record it *as* judgement,
   clearly separated from the guardrail evidence. A strategy not followed is a
-  note, not an automatic gate failure.
+  note, not an automatic gate failure. On a sweep, rename, or cleanup that
+  touches many files, this includes whether verification came from a fresh
+  agent rather than the implementer - `governance/strategies.md` `S9` names A new or changed guard is accepted on a demonstrated failure, not a passing test - see `governance/strategies.md` `S10`.
+  the practice.
 
 **traceability** - Are both chains intact and current - code → scenario →
 intent, and claim → scenario? A break is a no-pass. See the `traceability` skill.
@@ -139,7 +142,12 @@ scan output, not "looks fine."
 
 **clarity** - Is the code and are its tests legible to the next person - names,
 structure, no surprising control flow? Off on quick-fix; deferred to the
-mandatory follow-up on Hotfix.
+mandatory follow-up on Hotfix. This is also where the writing-voice tells
+named in `skills/compass-runtime/writing-voice.md` are judged - does the
+artifact communicate a decision, or does it narrate the pipeline? Run
+`scripts/voice-tells.py` over the issue's artifacts for the three tells a fixed string can find; a hit is a note and a conversation, never an automatic gate failure.
+This audition is standing, not scoped to any one cycle - `governance/strategies.md`
+`S8` names the calibration sample it is read against.
 
 **claims** - When the product-marketer role is in play (and `verify.claims` is
 an immovable gate, so it is always at least live for the marketer): does every

@@ -168,12 +168,20 @@ def test_trc_b2_portability_mapping_table_names_new_cross_task_kit_calls():
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_install_smoke_test_shows_current_version():
-    """install-smoke-test.md's expected `compass --version` output matches the VERSION file."""
+    """install-smoke-test.md's expected `compass --version` output matches the VERSION file.
+
+    The anchor deliberately does not name the words after the version. It
+    used to search for `(task schema`, the retired v1 spelling, which meant
+    it validated a stale line for the whole of v2 while the correct line
+    sixty lines above went unchecked. Whether the banner's wording is right
+    is `tests/test_smoke_test_version_matches_cli.py`'s job, and it settles
+    that against the CLI rather than against a phrase written down here.
+    """
     version = (ROOT / "VERSION").read_text().strip()
     smoke_test = (ROOT / "docs" / "install-smoke-test.md").read_text()
-    expected = f"compass {version} (task schema"
+    expected = f"compass {version} ("
     assert expected in smoke_test, (
         f"docs/install-smoke-test.md does not show the current version. "
-        f"VERSION file says '{version}'; expected to find a line containing "
-        f"'compass {version} (task schema' in the smoke-test doc."
+        f"VERSION file says '{version}'; expected to find a line starting "
+        f"'compass {version} (' in the smoke-test doc."
     )

@@ -58,7 +58,6 @@ The fastest path is the plugin marketplace. No clone, no install script:
 # In Claude Code:
 /plugin marketplace add jed72/compass
 /plugin install compass@compass
-pip install pyyaml      # the CLI's one dependency
 ```
 
 Enabling the plugin namespaces the commands as `/compass:…`, registers the
@@ -95,7 +94,6 @@ symlink, so edits to your clone are picked up live:
 ```bash
 git clone https://github.com/jed72/compass.git
 cd compass && bash scripts/install.sh --global
-pip install pyyaml
 ```
 
 Unlike the plugin, this does **not** modify your PATH. To make `compass`
@@ -256,8 +254,11 @@ compass terminology      render the v2 vocabulary - one term or the whole glossa
 compass ci               the full mechanical gate suite, for CI - honour the exit code
 ```
 
-Its only hard dependency is PyYAML. `jsonschema` is optional and turns on full
-JSON Schema validation in the lint commands.
+Compass needs Python 3. The YAML parser it uses travels inside the plugin
+(`cli/vendor/yaml/`, pinned in `THIRD-PARTY-NOTICES.md`), so there is nothing
+to install. `jsonschema` is a separate, genuinely optional library Compass
+does not bundle - install it yourself for full JSON Schema validation in the
+lint commands; the built-in linter runs without it either way.
 
 ## Fitness functions and flaky-test integrity
 
@@ -324,7 +325,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install pyyaml jsonschema
       - run: python3 "$COMPASS_CLI" ci
 ```
 
@@ -341,9 +341,9 @@ ready.
 
 Compass is built in **three layers**. The methodology layer *is* the framework,
 in plain markdown. The kit layer is the deterministic mechanism: a plain CLI
-with PyYAML as its one dependency, not Claude-Code-specific. The adapter layer
-wires both into Claude Code. See [`docs/methodology.md`](docs/methodology.md)
-§9.
+that bundles the one third-party library it needs (PyYAML), not
+Claude-Code-specific. The adapter layer wires both into Claude Code. See
+[`docs/methodology.md`](docs/methodology.md) §9.
 
 ```
 compass/

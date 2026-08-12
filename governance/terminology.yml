@@ -464,6 +464,11 @@ scan:
     - docs/desired-state.md  # graduated from proposals at the 2.0.0
                               # release - an adopter surface, no longer
                               # exempt history
+    # Added at the 2.1.0 release. It was never on this list, so the ratchet
+    # that reached zero pending surfaces was never reading it - and it went
+    # on describing v1 commands and v1 spine keys for the whole of v2. Zero
+    # pending means the listed surfaces came clean, not the repository.
+    - docs/install-smoke-test.md
   exempt:
     - docs/proposals/      # history stays honest
     - docs/system-spec.md  # derived at ship time; hand-editing forbidden

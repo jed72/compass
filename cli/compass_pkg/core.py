@@ -31,9 +31,10 @@
 #   compass ci               The full mechanical gate suite (policy lint +
 #                            task lint + check for every task) - for CI.
 #
-# DEPENDENCY: PyYAML (`pip install pyyaml`). It is the only dependency; the
-# rest is the Python 3 standard library. If PyYAML is missing the CLI says so
-# clearly and exits.
+# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
+# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# the only third-party code Compass ships; everything else is the Python 3
+# standard library.
 #
 # GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
 # (walking up from the working directory); if there is none, it falls back to
@@ -54,15 +55,12 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-try:
-    import yaml
-except ImportError:
-    sys.stderr.write(
-        "compass: PyYAML is required but not installed.\n"
-        "  Install it with:  pip install pyyaml\n"
-        "  (It is the CLI's only dependency.)\n"
-    )
-    sys.exit(3)
+# compass_pkg/__init__.py already verified the bundled copy resolves - or
+# exited 3 with a clear message naming the absolute path it checked - before
+# this module's own code ever runs (DD-2 of zero-friction-install). By the
+# time this line runs, `yaml` is already imported and cached, so this is
+# never anything but a normal import.
+import yaml
 
 
 # Regex to match a DoD checklist item:
@@ -97,7 +95,7 @@ import re as _re
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # realpath: resolve symlinks
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
-COMPASS_VERSION = "2.0.0"    # the CLI's own version
+COMPASS_VERSION = "2.1.0"    # the CLI's own version
 COMPASS_SCHEMA_VERSION = "2.0"    # the task.yml schema this CLI writes
 COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
 

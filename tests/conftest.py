@@ -15,13 +15,21 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import pytest
-import yaml
-
 
 # --- locate the CLI and the framework root ----------------------------------
 # tests/ lives at the framework root, so the CLI is next to it.
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 CLI_PATH = FRAMEWORK_ROOT / "cli" / "compass"
+
+# The suite resolves YAML through the same mechanism every other entry point
+# does, rather than whatever happens to be on this machine: put cli/ on
+# sys.path and import compass_pkg before importing yaml, so the bundled copy
+# at cli/vendor/yaml/ wins here too (DD-2). With this in place, the whole
+# existing suite running green against the bundled parser IS the parity
+# evidence for bundling - there is no separate parity proof to write.
+sys.path.insert(0, str(FRAMEWORK_ROOT / "cli"))
+import compass_pkg  # noqa: E402  (side effect: puts cli/vendor at sys.path[0])
+import yaml  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -213,6 +221,104 @@ def edit_governance(project: Path):
 
 
 # --- fixture file loader (used by test_route_selection) ---------------------
+
+
+# --- the bare-interpreter harness (DD-6) ------------------------------------
+# Shared by every TRC-A test (tests/test_zero_install_cli.py) and by TRC-F6
+# (tests/test_release_packaging.py, which proves first triage from an
+# unpacked release tarball on this same kind of interpreter). One place to
+# build it and prove it is genuinely bare, per DD-6: "python3 -S" is an
+# approximation of absence and this class of test must not accept one.
+
+
+class BareInterpreter:
+    """A Python interpreter that has been proven - not assumed - unable to
+    import PyYAML from anywhere on its own path."""
+
+    def __init__(self, python_path: Path, mode: str):
+        self.python_path = python_path
+        self.mode = mode
+
+    def env(self, extra: Optional[Dict[str, str]] = None) -> Dict[str, str]:
+        env = dict(os.environ)
+        env.pop("PYTHONPATH", None)
+        env["PATH"] = f"{self.python_path.parent}{os.pathsep}{env.get('PATH', '')}"
+        if extra:
+            env.update(extra)
+        return env
+
+
+def _write_bare_fallback_wrapper(wrapper_dir: Path) -> Path:
+    """Write a `python3` shim at `wrapper_dir/python3` that always execs the
+    real interpreter with `-S -s` (skip site-packages, skip user site).
+    Split out from `_build_bare_interpreter` so its isolation can be proven
+    directly, independent of whether `venv` happens to be available on the
+    machine running the test."""
+    wrapper_dir.mkdir(parents=True, exist_ok=True)
+    wrapper = wrapper_dir / "python3"
+    wrapper.write_text(
+        "#!/bin/sh\n"
+        f'exec "{sys.executable}" -S -s "$@"\n',
+        encoding="utf-8",
+    )
+    wrapper.chmod(0o755)
+    return wrapper
+
+
+def _build_bare_interpreter(base_dir: Path) -> BareInterpreter:
+    """Build a genuinely empty interpreter and PROVE it is empty before
+    handing it back. If the precondition does not hold, this FAILS - it never
+    skips its way to a vacuous green (DD-6)."""
+    venv_dir = base_dir / "bare-venv"
+    result = subprocess.run(
+        [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],
+        capture_output=True, text=True, timeout=30,
+    )
+    if result.returncode == 0:
+        python_path = venv_dir / "bin" / "python3"
+        if not python_path.exists():
+            python_path = venv_dir / "Scripts" / "python.exe"
+        mode = "python3 -m venv --without-pip"
+    else:
+        # Fallback mode, per DD-6: some distributions package venv
+        # separately. A BareInterpreter is not just the precondition check
+        # below - TRC-A3 to TRC-A7 exercise the shell surfaces by prepending
+        # `python_path.parent` to PATH and letting hooks/*.sh and scripts/*.sh
+        # find a bare `python3` themselves. Handing back plain
+        # sys.executable here would make the precondition true (checked with
+        # -S -s applied by hand, once) while every later invocation - a
+        # shell script calling bare `python3` - ran the ordinary interpreter
+        # with site-packages intact, proving nothing while looking like it
+        # proved something. A tiny wrapper script named `python3`, placed
+        # first on PATH, is what makes -S -s apply to every consumer, not
+        # only this function's own check. (-E is deliberately not part of
+        # this: it would also block the PYTHONPATH the CLI's own resolver
+        # legitimately relies on - see cli/compass_pkg/__init__.py - so
+        # bareness comes from -S -s plus a caller-controlled PYTHONPATH,
+        # exactly as env() below already provides for the venv mode too.)
+        python_path = _write_bare_fallback_wrapper(base_dir / "bare-fallback-bin")
+        mode = "python3 -S -s via a PATH wrapper (scrubbed-site fallback)"
+
+    precondition_env = dict(os.environ)
+    precondition_env.pop("PYTHONPATH", None)
+    precondition = subprocess.run(
+        [str(python_path), "-c", "import yaml"], capture_output=True, text=True,
+        env=precondition_env, timeout=15,
+    )
+    assert precondition.returncode != 0, (
+        f"the 'bare' interpreter (mode: {mode}) can import yaml - it is not "
+        f"bare, so nothing proven against it proves anything:\n"
+        f"{precondition.stdout}{precondition.stderr}"
+    )
+    assert "ModuleNotFoundError" in precondition.stderr, precondition.stderr
+    print(f"[TRC-A bare-interpreter harness] mode = {mode}")
+    return BareInterpreter(python_path, mode)
+
+
+@pytest.fixture(scope="session")
+def bare_interpreter(tmp_path_factory) -> BareInterpreter:
+    base = tmp_path_factory.mktemp("bare-interpreter")
+    return _build_bare_interpreter(base)
 
 
 FIXTURES_DIR = Path(__file__).resolve().parent / "fixtures"

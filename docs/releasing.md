@@ -13,22 +13,31 @@ release to a clean, reproducible artifact.
 
 ## The release procedure
 
-1. **Bump the version** in every location that carries it. There are six:
+1. **Bump the version** in every location that carries it. There are seven:
 
    | Location | Guarded by |
    |---|---|
    | `VERSION` (root) | `tests/test_version_consistency.py` |
    | `COMPASS_VERSION` in `cli/compass` | `tests/test_version_consistency.py` |
+   | `COMPASS_VERSION` in `cli/compass_pkg/core.py` | `tests/test_version_consistency.py`, and `cli/compass` asserts equality with it at import time |
    | `.claude-plugin/plugin.json` `$.version` | `tests/test_version_consistency.py` |
    | `.claude-plugin/marketplace.json` `$.metadata.version` | `tests/test_version_consistency.py` |
    | `.claude-plugin/marketplace.json` `$.plugins[0].version` | `tests/test_version_consistency.py` |
-   | The expected `compass --version` output in `docs/install-smoke-test.md` | `tests/test_cli_surface_drift.py` |
+   | The expected `compass --version` output in `docs/install-smoke-test.md` | `tests/test_version_consistency.py` and `tests/test_cli_surface_drift.py` |
 
-   Then update `EXPECTED_VERSION` in `tests/test_version_consistency.py`
-   and add the version you are leaving behind to its `OLD_VERSIONS` set.
+   This table said six for two releases while there were seven, and the
+   missing row was the one no manifest carries. Do not trust the count
+   here alone: `tests/test_version_guard_covers_every_location.py` derives
+   the set from the files themselves and fails if the guard has no case for
+   one of them, precisely so a stale table cannot let a partial bump
+   through.
+
+   Then update `EXPECTED_VERSION` in `tests/test_version_consistency.py`.
    That constant is hardcoded on purpose: reading it from `VERSION` would
    make the guard self-maintaining but blind to a release where nothing
-   was bumped at all.
+   was bumped at all. (There used to be an `OLD_VERSIONS` set to extend
+   here too. Nothing read it, and a missing comma had silently corrupted
+   it, so it was removed rather than repaired.)
 
    A partial bump ships a plugin whose manifest disagrees with the CLI it
    installs, so do not skip running the suite after this step. The last

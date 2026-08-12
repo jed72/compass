@@ -31,8 +31,10 @@
 #      passes if python3 and the CLI are runnable.
 #
 # This script is deliberately dependency-free (pure bash + coreutils + grep).
-# The optional `compass policy lint` step needs python3 + PyYAML; it is skipped
-# cleanly, not failed, when those are absent.
+# The `compass policy lint` step needs only python3 - PyYAML travels inside
+# the plugin (cli/vendor/yaml/), so there is nothing left to be absent. If
+# `compass policy lint` fails, that is a real lint failure and this script
+# reports it as one; it no longer guesses at a missing package.
 # =============================================================================
 
 set -euo pipefail
@@ -211,18 +213,16 @@ fi
 # 8d. the task manifest template
 if [ -f "templates/task.yml" ]; then ok "file templates/task.yml"
 else fail "missing task manifest template: templates/task.yml"; fi
-# 8e. optional: run `compass policy lint` if python3 and the CLI are runnable
+# 8e. run `compass policy lint` if python3 and the CLI are runnable. PyYAML
+# is bundled inside the plugin (cli/vendor/yaml/), so there is no longer a
+# "missing dependency" branch to distinguish from a real failure - a lint
+# failure is a lint failure (TRC-A6).
 if command -v python3 >/dev/null 2>&1 && [ -x "cli/compass" ]; then
   if LINT_OUT="$(python3 cli/compass policy lint 2>&1)"; then
     ok "compass policy lint  <- PASS"
   else
-    # a non-zero exit may be a real failure OR a missing PyYAML - distinguish
-    if printf '%s' "$LINT_OUT" | grep -qi "PyYAML"; then
-      say "  skip compass policy lint  <- PyYAML not installed (pip install pyyaml); skipped, not failed"
-    else
-      fail "compass policy lint reported a problem:"
-      printf '%s\n' "$LINT_OUT" | sed 's/^/         /' >&2
-    fi
+    fail "compass policy lint reported a problem:"
+    printf '%s\n' "$LINT_OUT" | sed 's/^/         /' >&2
   fi
 else
   say "  skip compass policy lint  <- python3 or cli/compass not runnable; skipped"

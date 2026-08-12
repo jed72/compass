@@ -56,32 +56,42 @@ registration should be visible in `~/.claude/settings.json` - three
 entries naming `pre-tool.sh`, `post-tool.sh`, and `stop.sh` under
 `$COMPASS_HOME/hooks/`.
 
-## 2. Install the CLI's Python dependencies
+## 2. Confirm the CLI needs nothing installed
+
+The CLI's one hard dependency, PyYAML, travels inside the plugin
+(`cli/vendor/yaml/`) - there is nothing to install. Prove it on an
+interpreter that cannot see a single third-party package:
 
 ```bash
-pip install pyyaml               # required
-pip install jsonschema           # optional but recommended
+python3 -m venv --without-pip /tmp/bare-check
+/tmp/bare-check/bin/python3 $COMPASS_HOME/cli/compass --version
 ```
 
-PyYAML is the CLI's only hard dependency. Without it, `compass` prints a
-clear message and exits with code 3. `jsonschema` turns on full JSON
-Schema validation in `compass policy lint` and `compass issue lint`; the
-built-in linter still runs without it.
+Expected output (two lines - the second names the bundled PyYAML and where
+it resolved from):
 
-To confirm:
+```
+compass 2.1.0 (issue schema 2.0)
+PyYAML 6.0.2 at /path/to/compass/cli/vendor/yaml/__init__.py
+```
+
+`jsonschema` is a separate, genuinely optional library Compass does not
+bundle - install it yourself if you want full JSON Schema validation in
+`compass policy lint` and `compass issue lint`; the built-in linter still
+runs without it:
 
 ```bash
-python3 -c "import yaml; print(yaml.__version__)"
+pip install jsonschema           # optional
 python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
 ```
 
-## 3. Frame a test issue in Claude Code
+## 3. Triage a test issue in Claude Code
 
 Open Claude Code in a directory you do not mind getting a `.compass/`
 folder in (a scratch repo is ideal). Type:
 
 ```
-/compass:frame "test installation"
+/compass:triage "test installation"
 ```
 
 Expected outcomes:
@@ -89,12 +99,12 @@ Expected outcomes:
 - A new issue directory appears: `.compass/work/test-installation/` (the
   slug is derived from the title).
 - That directory contains `delivery-approach.md` and `task.yml`. `task.yml` has a
-  `readings:` block, a `route:` field, a `phases:` map, a `gates:` list,
-  and `schema_version: "1.0"`.
+  `assessment:` block, a `delivery_approach:` field, a `stages:` map, a
+  `gates:` list, and `schema_version: "2.0"`.
 - `.compass/current-task` exists at the project root and contains the
   one-line slug `test-installation`.
 
-If `/compass:frame` is unknown to Claude Code, the adapter layer is not
+If `/compass:triage` is unknown to Claude Code, the adapter layer is not
 on the Claude Code config path - re-check step 1.
 
 ## 4. Validate the governance YAML
@@ -123,7 +133,7 @@ python3 $COMPASS_HOME/cli/compass --version
 Expected output:
 
 ```
-compass 2.0.0 (task schema 1.0)
+compass 2.1.0 (issue schema 2.0)
 ```
 
 The schema version is what the CLI will accept in a `task.yml`. A
@@ -133,21 +143,21 @@ The schema version is what the CLI will accept in a `task.yml`. A
 ## 6. Run the task-level check on the test issue
 
 ```bash
-python3 $COMPASS_HOME/cli/compass check --task test-installation
+python3 $COMPASS_HOME/cli/compass check --issue test-installation
 ```
 
-The check runs against an early-issue state - Frame has run but Specify,
-Build, and Verify have not. The check will report what is missing
+The check runs against an early-issue state - triage has run, but the
+acceptance criteria, the implementation and the review have not. The check will report what is missing
 honestly. Expected output shape:
 
 ```
-compass check - task 'test-installation' (route: express)
+compass check - issue 'test-installation' (approach: quick-fix)
 [mode: enforced]
 
   G1 Tested before it lands
     FAIL suite-passed
          what: no test-run evidence in the registry - run `compass tdd-green` to record a passing suite
-         why : Guardrail G1 (tested before it lands) requires a recorded green test run.
+         why : The tested-before-ship guardrail requires a recorded green test run.
          fix : Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` ...
   ...
 compass check: FAIL - N of M check(s) failed.
@@ -195,10 +205,6 @@ in place and does not duplicate the hook entries in `settings.json`
 ---
 
 ## Common gotchas
-
-**PyYAML missing.** `compass: PyYAML is required but not installed.` The
-CLI exits 3. Fix: `pip install pyyaml`. This is the only hard
-dependency; without it nothing else runs.
 
 **Claude Code's `~/.claude` does not exist yet.** `install.sh` creates
 it. If you have never run Claude Code on the machine, the installer
