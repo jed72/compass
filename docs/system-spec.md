@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the regeneration path refuses an unverified hash
+### the document is scanned for the frozen vocabulary
 
-- **Scenario id:** `TRC-5`
+- **Scenario id:** `TRC-2`
 - **Intent:** `INT-1`
-- **Source issue:** `archive-quote-verification`
+- **Source issue:** `smoke-test-speaks-v2`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3421,4 +3421,67 @@
 - **Scenario id:** `TRC-4`
 - **Intent:** `INT-1`
 - **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### the regeneration path refuses an unverified hash _(archived)_
+
+- **Scenario id:** `TRC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### a not-yet-started issue does not fail the sweep _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `sweep-respects-queued`
+- **Landed:** 2026-08-12
+
+### the sweep still names what it did not check _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `sweep-respects-queued`
+- **Landed:** 2026-08-12
+
+### an in-flight issue is still checked _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `sweep-respects-queued`
+- **Landed:** 2026-08-12
+
+### a recorded re-assessment lints clean _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-schema-reassessment-keys`
+- **Landed:** 2026-08-12
+
+### the keys are declared, not merely tolerated _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-schema-reassessment-keys`
+- **Landed:** 2026-08-12
+
+### every documented banner matches what the CLI prints _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-version-drift`
+- **Landed:** 2026-08-12
+
+### the banner uses current vocabulary _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-version-drift`
+- **Landed:** 2026-08-12
+
+### the document describes v2 behaviour _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-speaks-v2`
 - **Landed:** 2026-08-12
