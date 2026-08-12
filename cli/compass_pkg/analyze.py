@@ -639,6 +639,26 @@ def cmd_analyze(args):
 # CI integration is genuinely this small: run `compass ci`, honour the exit
 # code. See ci/README.md.
 
+# Lifecycle states meaning "not in flight". An issue in one of these has no
+# acceptance criteria yet, by design, so the gate checks have nothing to read.
+_NOT_IN_FLIGHT = ("queued", "parked", "abandoned")
+
+
+def _issue_status(slug):
+    """The issue's lifecycle status, or '' if it cannot be read.
+
+    An unreadable spine is not treated as not-in-flight: it falls through to
+    the checks, which report the problem properly rather than skipping it.
+    """
+    try:
+        spine = load_yaml(os.path.join(resolve_task_dir(slug), "task.yml"))
+    except Exception:
+        return ""
+    if not isinstance(spine, dict):
+        return ""
+    return (spine.get("status") or "").strip()
+
+
 def cmd_ci(args):
     import types
     mode = load_mode()
@@ -664,6 +684,17 @@ def cmd_ci(args):
         print("\n  no issues under .compass/work/ - governance policy only.")
     for slug in slugs:
         print(f"\n[issue] {slug}")
+        # An issue that has not started has no acceptance criteria yet, and
+        # correctly so - the framework asks for work to be triaged early, and
+        # failing the sweep for complying teaches people to stop. It is still
+        # named here, with its state, because not failing is not the same as
+        # hiding: an issue that vanished from the output would be worse than
+        # one that failed.
+        status = _issue_status(slug)
+        if status in _NOT_IN_FLIGHT:
+            print(f"  skipped - status is '{status}', so the acceptance "
+                  f"criteria and evidence a check looks for do not exist yet.")
+            continue
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
         print()
