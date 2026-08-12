@@ -71,7 +71,7 @@ Expected output (two lines - the second names the bundled PyYAML and where
 it resolved from):
 
 ```
-compass 2.0.0 (issue schema 2.0)
+compass 2.1.0 (issue schema 2.0)
 PyYAML 6.0.2 at /path/to/compass/cli/vendor/yaml/__init__.py
 ```
 
@@ -85,13 +85,13 @@ pip install jsonschema           # optional
 python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
 ```
 
-## 3. Frame a test issue in Claude Code
+## 3. Triage a test issue in Claude Code
 
 Open Claude Code in a directory you do not mind getting a `.compass/`
 folder in (a scratch repo is ideal). Type:
 
 ```
-/compass:frame "test installation"
+/compass:triage "test installation"
 ```
 
 Expected outcomes:
@@ -99,12 +99,12 @@ Expected outcomes:
 - A new issue directory appears: `.compass/work/test-installation/` (the
   slug is derived from the title).
 - That directory contains `delivery-approach.md` and `task.yml`. `task.yml` has a
-  `readings:` block, a `route:` field, a `phases:` map, a `gates:` list,
-  and `schema_version: "1.0"`.
+  `assessment:` block, a `delivery_approach:` field, a `stages:` map, a
+  `gates:` list, and `schema_version: "2.0"`.
 - `.compass/current-task` exists at the project root and contains the
   one-line slug `test-installation`.
 
-If `/compass:frame` is unknown to Claude Code, the adapter layer is not
+If `/compass:triage` is unknown to Claude Code, the adapter layer is not
 on the Claude Code config path - re-check step 1.
 
 ## 4. Validate the governance YAML
@@ -133,7 +133,7 @@ python3 $COMPASS_HOME/cli/compass --version
 Expected output:
 
 ```
-compass 2.0.0 (task schema 1.0)
+compass 2.1.0 (issue schema 2.0)
 ```
 
 The schema version is what the CLI will accept in a `task.yml`. A
@@ -143,21 +143,21 @@ The schema version is what the CLI will accept in a `task.yml`. A
 ## 6. Run the task-level check on the test issue
 
 ```bash
-python3 $COMPASS_HOME/cli/compass check --task test-installation
+python3 $COMPASS_HOME/cli/compass check --issue test-installation
 ```
 
-The check runs against an early-issue state - Frame has run but Specify,
-Build, and Verify have not. The check will report what is missing
+The check runs against an early-issue state - triage has run, but the
+acceptance criteria, the implementation and the review have not. The check will report what is missing
 honestly. Expected output shape:
 
 ```
-compass check - task 'test-installation' (route: express)
+compass check - issue 'test-installation' (approach: quick-fix)
 [mode: enforced]
 
   G1 Tested before it lands
     FAIL suite-passed
          what: no test-run evidence in the registry - run `compass tdd-green` to record a passing suite
-         why : Guardrail G1 (tested before it lands) requires a recorded green test run.
+         why : The tested-before-ship guardrail requires a recorded green test run.
          fix : Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` ...
   ...
 compass check: FAIL - N of M check(s) failed.
