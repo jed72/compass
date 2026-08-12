@@ -34,6 +34,18 @@ instructions, the machine spine, the migrator, and the release itself)
 did work the ratchet doesn't see but the rewrite needed anyway. The
 list reached zero at slice 7b, merged as `b6017b0` in pull request #33.
 
+The nine were the surfaces on the list, and the list was not the whole
+repository. Cutting the 2.1.0 release turned up a tenth document that
+had never been on it: the install smoke test, still telling a new user
+to run a v1 command and expect v1 fields, a full major version after
+the rename. The scanner had reported clean because it had never been
+pointed at the file. It is on the list now, and the version guard that
+should have caught the same document's stale output was searching for
+the retired spelling, so it had been confirming the wrong line all
+along. Both were found by a person reading, not by the mechanism -
+which is the same thing this piece keeps describing, arriving one more
+time.
+
 Eleven pull requests carried the nine slices to the tag - three were
 split into two sessions each (3a/3b, 5a/5b, 7a/7b). Two were decided in
 advance, on foresight; the third, 7a/7b, was decided mid-session, at a
