@@ -110,6 +110,20 @@ def _range_is_readable(*revs) -> bool:
     return True
 
 
+# The skill directories that existed before the human-voice issue. Written
+# down rather than derived, so the check holds on a shallow clone where the
+# pre-issue revision is not fetched - and so moving the reference into a new
+# skill fails here even when git history is unavailable.
+_PRE_ISSUE_SKILLS = {
+    "skills/adaptive-routing", "skills/bdd-specification",
+    "skills/blueprint-distillation", "skills/compass-runtime",
+    "skills/evidence-gates", "skills/flow-management",
+    "skills/governance-check", "skills/plan-authoring",
+    "skills/receiving-code-review", "skills/role-translation",
+    "skills/systematic-debugging", "skills/tdd-discipline",
+    "skills/traceability", "skills/worktree-swarm",
+}
+
 PRINCIPLE = (
     "communicate the decision, do not perform the process - say what "
     "happened and what is needed, never announce which stage you are in"
@@ -151,18 +165,39 @@ def test_trc_a1_the_reference_lives_under_an_existing_skill_and_opens_with_the_p
     # change: compare the skill directories on HEAD (before this issue
     # touched anything) with the skill directories on disk now. Equal sets
     # means no new skill directory was invented to hold the reference.
-    head = subprocess.run(
-        ["git", "ls-tree", "-d", "--name-only", "HEAD", "skills/"],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=True,
-    )
-    head_dirs = {d for d in head.stdout.split() if d}
+    # Compared against the revision BEFORE this issue, not HEAD. Once the
+    # work is committed, HEAD is the post-change tree and the two sides are
+    # equal by construction - so the assertion could only fail on an
+    # uncommitted new directory, never in CI or on a merged branch. 519300b
+    # is the commit the human-voice work started from; if it is not in this
+    # checkout (a shallow clone) the range check below is skipped and the
+    # direct assertion still holds.
+    pre_issue = "519300b"
+    if not _range_is_readable(pre_issue):
+        head_dirs = None
+    else:
+        head = subprocess.run(
+            ["git", "ls-tree", "-d", "--name-only", pre_issue, "skills/"],
+            cwd=REPO_ROOT, capture_output=True, text=True, check=True,
+        )
+        head_dirs = {d for d in head.stdout.split() if d}
     current_dirs = {
         f"skills/{p.name}" for p in (REPO_ROOT / "skills").iterdir()
         if p.is_dir()
     }
-    assert current_dirs == head_dirs, (
-        "no new directory under skills/ - the reference has to live inside "
-        "a skill that predates this issue, not a fresh one"
+    if head_dirs is not None:
+        assert current_dirs == head_dirs, (
+            "a skill directory exists that did not exist before this issue - "
+            "the reference has to live inside a skill that predates it, not "
+            "a fresh one"
+        )
+    # Holds with or without git history: the reference's own parent directory
+    # must be one that predates the issue. This is the assertion that fails
+    # if the file is moved into a new skill, which the HEAD comparison could
+    # not do once the work was committed.
+    assert f"skills/{REFERENCE.parent.name}" in _PRE_ISSUE_SKILLS, (
+        f"the reference lives in skills/{REFERENCE.parent.name}, which is "
+        f"not one of the skills that predate this issue"
     )
     assert "skills/compass-runtime" in current_dirs
 

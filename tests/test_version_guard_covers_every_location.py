@@ -54,21 +54,42 @@ def test_trc_1_every_published_location_reports_the_declared_version():
     """
     version = _declared_version()
     stale = []
+    compared = {rel: 0 for rel in PUBLISHED_LOCATIONS}
     for rel in PUBLISHED_LOCATIONS:
         text = (ROOT / rel).read_text(encoding="utf-8")
         for m in re.finditer(r"\b\d+\.\d+\.\d+\b", text):
             found = m.group(0)
-            # Third-party and schema versions are not Compass's version.
-            line = text[text.rfind("\n", 0, m.start()) + 1:
-                        text.find("\n", m.end())]
-            if any(w in line for w in ("PyYAML", "schema", "python", "6.0.2")):
+            # Skip versions that belong to something else. This filter used
+            # to look at the whole LINE, which silently swallowed the one
+            # location this test exists for: the smoke test's banner reads
+            # "compass 2.1.0 (issue schema 2.0)", the line contains "schema",
+            # and so every match on it was dropped. Setting both banners to
+            # 9.9.9 left the test green. Match the neighbouring token
+            # instead, so only a genuinely foreign version is skipped.
+            before = text[max(0, m.start() - 24):m.start()]
+            after = text[m.end():m.end() + 12]
+            if "PyYAML" in before or "python" in before.lower():
                 continue
+            if "schema" in before[-9:] or after.startswith(")"):
+                # "issue schema 2.0" and the ")" that closes it: the schema
+                # version, not the CLI's.
+                if "schema" in before[-9:]:
+                    continue
+            compared[rel] += 1
             if found != version:
                 lineno = text.count("\n", 0, m.start()) + 1
                 stale.append(f"{rel}:{lineno}: {found} (declared: {version})")
     assert not stale, (
         "a published surface carries a version that is not the declared "
         "one - a partial bump:\n  " + "\n  ".join(stale)
+    )
+    # The antidote to this test's own former defect: a filter that drops
+    # every candidate leaves a guard that cannot fail. Prove each location
+    # still had something left to compare.
+    silent = sorted(rel for rel, n in compared.items() if n == 0)
+    assert not silent, (
+        "these locations yielded no version comparison at all, so a wrong "
+        "version in them would pass unnoticed:\n  " + "\n  ".join(silent)
     )
 
 

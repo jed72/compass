@@ -149,7 +149,20 @@ def test_trc_f2_the_reference_and_the_archive_originals_are_not_hits(tmp_path):
 
     result = _run_script([], cwd=project)
     assert result.returncode == 0
-    assert "issue-a" in result.stdout
+
+    # The clean-path banner names the directory it scanned, and that path
+    # contains "issue-a" - so asserting "issue-a" appears was satisfied by a
+    # run that found nothing at all. Empty tells, a broken needle, or no
+    # hits would all have left this green. Anchor on the hit itself first.
+    assert "clean" not in result.stdout.lower(), (
+        f"the scanner found nothing, so the scope assertions below would "
+        f"pass on the 'no findable tell' banner rather than on a hit:\n"
+        f"{result.stdout}"
+    )
+    assert str(issue_dir / "devlog.md") in result.stdout, (
+        f"the run did not report the tell planted in the current issue:\n"
+        f"{result.stdout}"
+    )
     assert "issue-b" not in result.stdout
     assert str(reference_dir) not in result.stdout
 
