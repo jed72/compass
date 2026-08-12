@@ -8,12 +8,12 @@
 
 ## Current Behaviour
 
-### the guard catches the defect it was written for
+### the regeneration path refuses an unverified hash
 
-- **Scenario id:** `TRC-3`
+- **Scenario id:** `TRC-5`
 - **Intent:** `INT-1`
-- **Source issue:** `adr-013-context-tense`
-- **Landed:** 2026-08-11
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -3373,3 +3373,52 @@
 - **Intent:** `INT-1`
 - **Source issue:** `adr-013-context-tense`
 - **Landed:** 2026-08-11
+
+### the guard catches the defect it was written for _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `adr-013-context-tense`
+- **Landed:** 2026-08-11
+
+### the entry states the primary-record rule and defines what a primary record is _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `s9-primary-record`
+- **Landed:** 2026-08-12
+
+### the entry carries the ADR-013 worked example and warns the nearest document is often a summary _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-1`
+- **Source issue:** `s9-primary-record`
+- **Landed:** 2026-08-12
+
+### a fabricated quote fails even without the archive _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### an unaltered quote is accepted, and the report names what went unverified _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### a genuine quote passes by direct verification _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12
+
+### a mismatched quote fails, not skips, when the archive is present _(archived)_
+
+- **Scenario id:** `TRC-4`
+- **Intent:** `INT-1`
+- **Source issue:** `archive-quote-verification`
+- **Landed:** 2026-08-12

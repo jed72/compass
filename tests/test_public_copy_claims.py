@@ -152,3 +152,30 @@ def test_the_case_study_states_the_correction_rather_than_the_claim():
         "because it corrects the stdlib-only premise. If it no longer "
         "states that correction, the exemption is unearned"
     )
+
+
+def test_the_case_study_says_what_a_reader_can_and_cannot_check():
+    """It points at receipts, so it must be honest about which ones open.
+
+    `.compass/work/`, `docs/proposals/` and `docs/analysis/` are all
+    gitignored, so most of what the article draws on is not in a clone. An
+    article arguing "here are the receipts" that does not say which receipts
+    a reader can actually open is asking for the trust it claims to replace.
+    """
+    if not CASE_STUDY.is_file():
+        return
+
+    flat = " ".join(CASE_STUDY.read_text(encoding="utf-8").split())
+
+    assert "gitignored" in flat, (
+        "the article must name the fact that some of what it cites is not "
+        "in a clone"
+    )
+    for public in ("THIRD-PARTY-NOTICES.md", "governance/terminology.yml"):
+        assert public in flat, (
+            f"the article should name {public} among the things a reader "
+            f"can open, so the disclosure is a boundary rather than a shrug"
+        )
+    assert ".compass/work/" in flat, (
+        "the article must name the archive it cannot show"
+    )
