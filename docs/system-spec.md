@@ -8,11 +8,11 @@
 
 ## Current Behaviour
 
-### the document is scanned for the frozen vocabulary
+### no constant nothing reads
 
-- **Scenario id:** `TRC-2`
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
-- **Source issue:** `smoke-test-speaks-v2`
+- **Source issue:** `version-guard-covers-all`
 - **Landed:** 2026-08-12
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -3484,4 +3484,25 @@
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source issue:** `smoke-test-speaks-v2`
+- **Landed:** 2026-08-12
+
+### the document is scanned for the frozen vocabulary _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `smoke-test-speaks-v2`
+- **Landed:** 2026-08-12
+
+### every published location reports the declared version _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
+- **Landed:** 2026-08-12
+
+### the guard has a case for every published location _(archived)_
+
+- **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-covers-all`
 - **Landed:** 2026-08-12
