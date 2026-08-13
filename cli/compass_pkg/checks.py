@@ -185,7 +185,46 @@ def _test_id_resolves(test_id, project_root):
             body = fh.read()
     except OSError:
         return False
-    return _re.search(r"\b" + _re.escape(name) + r"\b", body) is not None
+    return _name_appears(name, body)
+
+
+def _name_appears(name, body):
+    """Is this test name written in this file?
+
+    Two id shapes have to work, and the original handled only the first.
+
+    A flat id names the test directly. A NESTED id - jest's
+    `outer > inner > the test` - names a path through describe blocks, and
+    only its final segment is the test's own name. The chain as a whole is
+    never written anywhere, so searching for it verbatim could not succeed on
+    any correctly-declared id.
+
+    Word boundaries are applied only on an end where they can be satisfied.
+    `\\b` after a name ending in `@`, `)` or `.` requires a word character
+    next, so such ids were unresolvable whatever was on disk. Dropping the
+    boundaries entirely would be the opposite error - `test_plain` would match
+    `test_plain_name`, letting a truncated or misspelled id pass - so each end
+    keeps its boundary when that end is a word character.
+    """
+    import re as _re
+
+    candidates = [name]
+    if ">" in name:
+        candidates.append(name.rsplit(">", 1)[-1])
+
+    for candidate in candidates:
+        candidate = candidate.strip()
+        if not candidate:
+            continue
+        pattern = ""
+        if candidate[0].isalnum() or candidate[0] == "_":
+            pattern += r"(?<!\w)"
+        pattern += _re.escape(candidate)
+        if candidate[-1].isalnum() or candidate[-1] == "_":
+            pattern += r"(?!\w)"
+        if _re.search(pattern, body):
+            return True
+    return False
 
 
 def _check_declared_tests_resolve(task, task_dir):

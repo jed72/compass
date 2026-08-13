@@ -138,7 +138,10 @@ def cmd_flow(args):
                 continue
             try:
                 t = normalize_spine(load_yaml(task_yml))
-                route = t.get("route", "?")
+                # The live spine key. This read `route`, retired by the
+                # v2 rename, so every row on the board printed the
+                # placeholder instead of the computed approach.
+                route = t.get("delivery_approach", "?")
                 # Absent means active: every task.yml written before the status
                 # field existed omits it (ADR-006).
                 status = t.get("status") or "active"
@@ -162,7 +165,7 @@ def cmd_flow(args):
             print(f"  {heading} ({len(rows)})")
             for slug, route, note in rows:
                 suffix = f"  - {note}" if note else ""
-                print(f"    {slug:<40} route={route}{suffix}")
+                print(f"    {slug:<40} approach={route}{suffix}")
             print()
         # Never dropped silently: a board that omits part of the work looks
         # complete when it is not.
@@ -171,7 +174,7 @@ def cmd_flow(args):
             if rows:
                 print(f"  {key.upper()} ({len(rows)})")
                 for slug, route, _ in rows:
-                    print(f"    {slug:<40} route={route}")
+                    print(f"    {slug:<40} approach={route}")
                 print()
         if groups["unreadable"]:
             print(f"  UNPLACEABLE ({len(groups['unreadable'])}) - "

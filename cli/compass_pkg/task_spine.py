@@ -109,12 +109,25 @@ def _git(args, cwd):
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
 
 
+# Files Compass writes itself that live outside any issue's directory. They
+# belong in the commit that ships the issue they describe, but no author
+# declares them as `changed_files` - the framework wrote them.
+#
+# A NAMED SET, deliberately not a `.compass/` prefix. A prefix would re-admit
+# a sibling issue's artifacts, or a concurrent agent's in-progress work in the
+# same tree, which is precisely the collision this scope check exists to stop.
+FRAMEWORK_OWNED_PATHS = frozenset({
+    ".compass/current-task",
+})
+
+
 def _land_scope(task, slug):
     """The paths a Land commit is allowed to contain.
 
-    An issue's own `changed_files` plus its artifact directory. Anything else in
-    the commit belongs to someone else - a concurrent agent's edits, untracked
-    scratch, or the unrelated files a repo-wide formatter just rewrote.
+    An issue's own `changed_files`, its artifact directory, and the framework's
+    own bookkeeping files above. Anything else in the commit belongs to someone
+    else - a concurrent agent's edits, untracked scratch, or the unrelated
+    files a repo-wide formatter just rewrote.
     """
     owned = {
         cf["path"] for cf in (task.get("changed_files") or [])
@@ -126,7 +139,9 @@ def _land_scope(task, slug):
 def _out_of_scope(staged, owned, artifact_dir):
     return sorted(
         p for p in staged
-        if p not in owned and not p.startswith(artifact_dir)
+        if p not in owned
+        and p not in FRAMEWORK_OWNED_PATHS
+        and not p.startswith(artifact_dir)
     )
 
 
