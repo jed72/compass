@@ -14,9 +14,9 @@ A suggestion right about the smell and wrong about the cause is the normal
 case - implementing it verbatim leaves the smell and adds a change nobody
 needed.
 
-**"You're absolutely right", before checking, is the failure this prevents.** It
-feels cooperative. It converts the reviewer's guess into your commit, and
-removes the second opinion review was supposed to provide.
+**"You're absolutely right", before checking, is the failure this prevents.**
+It converts the reviewer's guess into your commit, removing the second opinion
+review existed to give.
 
 **Push back with technical reasoning when the reviewer is wrong.** Show the case
 their suggestion breaks, the constraint it misses, or the measurement that
@@ -24,14 +24,18 @@ contradicts it - not preference, not seniority, not how long the current version
 took. If you cannot produce a technical reason, they are probably right.
 
 **Treat "implement this properly" as a question about scope.** Ask what breaks
-today without it. If the answer is nothing, it belongs in a Frame, not a review
-thread. Say so and offer to file it.
+today without it. If the answer is nothing, it is a separate issue, not a
+review thread.
+
+**Read the label first** (`S12`). Issue, suggestion, nitpick, question or
+praise tells you what blocks the merge before you read the argument. If it is
+missing, ask rather than guess.
 
 **Say what you did.** Per comment: changed it, or did not and why. A resolved
-thread with no reply is a decision nobody can audit - and under evidence-not-assertion, a change
-with no recorded reason is an assertion. A good reply is short: *"Checked -
+thread with no reply is a decision nobody can audit, and a change with no
+recorded reason is an assertion. Keep the reply short: *"Checked -
 `validate()` runs before the cache write, so that race cannot happen here. It
-can on the batch path, which your comment led me to; fixed there."*
+can on the batch path; fixed there."*
 
 ## Anti-patterns
 

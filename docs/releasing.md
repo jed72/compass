@@ -13,6 +13,21 @@ release to a clean, reproducible artifact.
 
 ## The release procedure
 
+**Compass follows semantic versioning.** The number describes the
+compatibility promise, not the size of the change:
+
+- **major** - something a caller could call stops working. Removing a command,
+  a verb, a flag spelling or a spine key is a major bump however small the
+  diff, and however few people it affects. 3.0.0 removed the retired command
+  and flag spellings; "no adopters yet" was the reason it was cheap, not a
+  reason to call it minor.
+- **minor** - new capability, nothing removed.
+- **patch** - a fix that changes no interface.
+
+ADR-006 is the other half of this: backward compatibility is non-negotiable
+*within* a major, so a new mechanism no-ops on projects that have not adopted
+it, and a break is paid once, at a major, with the reason recorded.
+
 1. **Bump the version** in every location that carries it. There are seven:
 
    | Location | Guarded by |

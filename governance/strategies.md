@@ -120,15 +120,24 @@ grows by adding artifacts, not rules (ADR-002, ADR-006).
 
 ### Cold reader: write so a stranger can follow it without asking (`S7`)
 
-**Soft, assessed - not a guardrail.** Assume the reader has zero prior context.
-They were not in the conversation, they have not read the review, and they
-cannot ask a follow-up question. Every artifact Compass produces - a brief, a
-scenario, a route, a plan, a devlog entry, a code comment, a commit message, a
-pull-request body - is written to stand on its own.
+**Soft, assessed - not a guardrail.** Assume the reader has zero prior
+context. They were not in the conversation, they have not read the review, and
+they cannot ask a follow-up question.
 
-This is persistence over conversation (persistence over conversation) carried one step further. persistence over conversation says
-put it on disk. the cold-reader strategy says put enough on disk that the next reader does not need
-the conversation you had while writing it.
+**The surfaces this governs**, stated plainly because the coverage was
+invisible until someone went looking for it and did not find it:
+
+- **Artifacts** - the intake, the acceptance criteria, the delivery-approach
+  record, the design, the devlog, the verification report.
+- **Code comments.**
+- **Commit messages.**
+- **Pull-request bodies and review comments.**
+
+Anything on that list is written to stand on its own.
+
+This is persistence over conversation carried one step further. Persistence
+over conversation says put it on disk. The cold reader says put enough on disk
+that the next reader does not need the conversation you had while writing it.
 
 **Context before detail.** Say what the thing is and why it matters before you
 say how it works. A reader who does not yet know why should not have to reach
@@ -282,6 +291,40 @@ establishes that this is true", where S9 answers who and this answers how.
 See `commands/verify.md` and `skills/evidence-gates/SKILL.md` for the pointer
 at the point of use.*
 
+### Conventional comments: label a review comment before you write it (`S12`)
+
+**Soft, assessed - not a guardrail.** A review comment opens with a plain-word
+label naming what kind of comment it is:
+
+- **issue** - this is wrong and blocks the merge.
+- **suggestion** - a change worth making, and the author may decline it.
+- **nitpick** - taste; explicitly not blocking.
+- **question** - the reviewer does not know yet and is asking.
+- **praise** - worth saying out loud, and worth keeping in the record.
+
+The label goes first, so a reader can tell a blocking comment from a
+non-blocking one without reading to the end of the thread.
+
+The cost of not doing it is paid by the author, not the reviewer. "This will
+crash on an empty list" and "I would have named this differently" look
+identical in a list of twelve comments, and the author has to reconstruct the
+reviewer's intent for each before deciding what actually stops the merge. That
+reconstruction is guesswork, it happens under time pressure, and it is exactly
+the thing the reviewer knew for certain and did not write down.
+
+A label is not a substitute for the comment. **issue** still has to say what
+breaks; the label tells the author how urgently to read it.
+
+*Why a strategy and not a guardrail:* nothing mechanical can judge whether a
+comment was labelled *correctly* - a blocking defect filed as a nitpick passes
+any check that looks for a word at the front, and it fails worse than no label
+would. The `reviewer` agent applies it and the author answering the review
+assesses it, which is where the judgement belongs.
+
+*Cross-reference: the cold reader (`S7`) - both are about the reader's cost
+rather than the writer's convenience. See `agents/reviewer.md` and
+`skills/receiving-code-review/SKILL.md` for the pointer at the point of use.*
+
 ### Measure before arguing: settle a disagreement with the number (`S11`)
 
 **Soft, assessed - not a guardrail.** When a recommendation and an
@@ -363,8 +406,13 @@ conventions this repository holds itself to.
   `2-3 streams`.
 - **No agent co-author trailer**, which is the cold-reader strategy's fourth rule stated as the thing
   this repository enforces on itself rather than merely prefers.
+- **Conventional commits.** A commit subject opens with a type and an optional
+  scope - `fix(hooks): ...`, `docs: ...` - so a log is skimmable and a release
+  can be assembled from it. This is *format*; `S7` already governs commit
+  **substance**, and substance is the part that ships to adopters. A team with
+  a different convention loses nothing by keeping theirs.
 
-Both are checked by `tests/test_house_style.py`, and both are still strategies
+The first two are checked by `tests/test_house_style.py`, and all three are strategies
 rather than guardrails. What separates them is *what the check protects*. The
 checks in `guardrails.yml` run against an adopting project's `task.yml` and
 `evidence/`, and can block a Land. `tests/test_house_style.py` is one of this
@@ -373,10 +421,12 @@ never runs in an adopting project and never touches a gate. A style rule is a
 preference held consistently, not a must-never, so it does not become a sixth
 guardrail (ADR-002).
 
-**If you are adopting Compass:** the two rules above are a worked example of
-the shape a project strategy takes, not something you inherit. `/compass:init`
-copies this file wholesale, so delete this block if your team writes
-differently. the cold-reader strategy above it is the part that ships on.
+**If you are adopting Compass:** the rules above are a worked example of the
+shape a project strategy takes, not something you inherit. `/compass:init`
+copies this file wholesale, so **delete this block if your team writes
+differently.** The cold reader (`S7`) above it is the part that ships on, and
+it governs what a commit message must *say*; how you format the subject line
+is yours.
 
 ---
 
