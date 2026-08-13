@@ -8,6 +8,13 @@
 
 ## Current Behaviour
 
+### the parser still reads the retired tag
+
+- **Scenario id:** `GL-E2`
+- **Intent:** `DOC-DRIFT`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
 ### the guard can fail on each new surface
 
 - **Scenario id:** `SS-4`
@@ -84,6 +91,20 @@
 - **Intent:** `INT-9`
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
+
+### traceability, intent and navigator are defined
+
+- **Scenario id:** `GL-A1`
+- **Intent:** `MISSING-TERMS`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### compass terminology renders a code
+
+- **Scenario id:** `GL-C3`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
 
 ### the new guard can fail
 
@@ -195,6 +216,13 @@
 - **Scenario id:** `RCD-G3`
 - **Intent:** `SWEEP`
 - **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the archive keeps the id that fired
+
+- **Scenario id:** `GL-D3`
+- **Intent:** `WRONG-PREFIX`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
 - **Landed:** 2026-08-13
 
 ---
@@ -3911,4 +3939,53 @@
 - **Scenario id:** `SS-3`
 - **Intent:** `GAP-1`
 - **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
+### every id prefix in use is defined _(archived)_
+
+- **Scenario id:** `GL-B1`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the guard fails on an undefined prefix _(archived)_
+
+- **Scenario id:** `GL-B2`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the glossary page is derived, not hand-written _(archived)_
+
+- **Scenario id:** `GL-C1`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### drift between source and page fails the build _(archived)_
+
+- **Scenario id:** `GL-C2`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### routing ids are RP- and kinds are distinct _(archived)_
+
+- **Scenario id:** `GL-D1`
+- **Intent:** `WRONG-PREFIX`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the evaluator is unchanged by the rename _(archived)_
+
+- **Scenario id:** `GL-D2`
+- **Intent:** `WRONG-PREFIX`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the follow-up surfaces match the schema _(archived)_
+
+- **Scenario id:** `GL-E1`
+- **Intent:** `DOC-DRIFT`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
 - **Landed:** 2026-08-13
