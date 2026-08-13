@@ -99,6 +99,41 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
+### the identifier check can fail
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-F0`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### the spine keys and the computed approach are unchanged
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-F1`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### neither receipt branch calls a routing rule a guardrail
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-F2`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### a real pass is not miscounted as vacuous
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-F5`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### a shared policy-rule effect is printed once
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-F8`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
 ### traceability, intent and navigator are defined
 
 - **Scenario id:** `GL-A1`
@@ -4856,4 +4891,46 @@
 - **Scenario id:** `SW-3`
 - **Intent:** `HYGIENE`
 - **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
+### the identifier-expansion rule is stated where agent speech is governed _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-F0`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### the receipt prints a scenario's title beside its id _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-F0`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### a printed identifier is never truncated _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-F0`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### the approach evaluator prints no retired vocabulary name _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-F1`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### the printed-output scan can fail _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-F1`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
+- **Landed:** 2026-08-13
+
+### compass check counts vacuous clearances apart from verified ones _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-F5`
+- **Source issue:** `identifiers-and-vocabulary-in-printed-output`
 - **Landed:** 2026-08-13
