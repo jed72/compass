@@ -79,7 +79,7 @@ hook rather than against it.
 
 There is no required setup step between installing Compass and running your
 first issue. The **five default guardrails** and the **default method
-strategies** ship active with the framework, so `/compass:frame` works against
+strategies** ship active with the framework, so `/compass:triage` works against
 the shipped `governance/` defaults on day one. Governance is a *gradient, not a
 threshold*: "the shipped defaults and nothing project-specific yet" is a valid,
 complete governance state - see `governance/README.md`.
@@ -117,7 +117,7 @@ where every engineer starts - at triage.
 ### Triage
 
 ```
-/compass:frame "Add rate limiting to the public API"
+/compass:triage "Add rate limiting to the public API"
 ```
 
 Triage reads four dimensions - that part is judgement - and records them
@@ -127,7 +127,7 @@ decisions), risk `cross-cutting` (a misconfigured limiter degrades
 something every API consumer touches), familiarity `brownfield-mapped`, role
 `engineer`. It tags `touches: [public-api]`.
 
-Then the mechanism takes over. `/compass:frame` shells out to
+Then the mechanism takes over. `/compass:triage` shells out to
 `compass approach evaluate --write`, which applies `governance/routing-policy.yml`
 deterministically - composing the candidate route, applying the floors and
 caps, assembling the gate set - and folds `route`, `phases`, and `gates` back
@@ -136,7 +136,7 @@ review dimension turned on because risk is cross-cutting**; no routing
 guardrail forces a heavier route. Triage then writes the human-readable
 `delivery-approach.md` alongside it. Same assessment + same policy would produce this exact
 route on any machine - the route is no longer something an agent composes in
-its head. `/compass:frame` also drops a `.compass/current-task` pointer so the
+its head. `/compass:triage` also drops a `.compass/current-task` pointer so the
 CLI and the hooks know which issue is live.
 
 It then **presents the route and waits**. Routing is advisory until confirmed.
@@ -153,7 +153,7 @@ takes.
 ### Define the acceptance criteria
 
 ```
-/compass:specify
+/compass:define
 ```
 
 The `spec-author` agent reads `delivery-approach.md`, sees "small feature set," and writes
@@ -170,7 +170,7 @@ your acceptance suite and seed your TDD cycle.
 ### The requirements review
 
 ```
-/compass:clarify
+/compass:refine
 ```
 
 On Standard, Clarify is a light-to-full pass - never skipped. The `spec-author`
@@ -182,7 +182,7 @@ owner. An unresolved ambiguity is not allowed to pass silently into Plan.
 ### Design
 
 ```
-/compass:plan
+/compass:design
 ```
 
 The `planner` agent writes a real `design.md`: the technical approach, each
@@ -196,7 +196,7 @@ guardrail cleared with evidence - and you paste its result.
 ### Implement
 
 ```
-/compass:build
+/compass:implement
 ```
 
 This is where the hook earns its keep. The `builder` agent works one scenario
@@ -242,7 +242,7 @@ issue does not advance - you fix it, or it goes back.
 ### Ship
 
 ```
-/compass:land
+/compass:ship
 ```
 
 Solo route, so Land commits on the current branch, runs regression across the
@@ -284,7 +284,7 @@ depending on the brief behind it.
 ### Triage - now with a PRD
 
 ```
-/compass:frame "CSV export for finance month-end numbers"
+/compass:triage "CSV export for finance month-end numbers"
 ```
 
 Triage reads `prd.md` as part of the intent & role dimension - intent is
@@ -296,9 +296,9 @@ weight is the framework working, not overhead.
 
 ### Define the acceptance criteria, then refine them
 
-`/compass:specify` writes `acceptance-criteria.md` against the brief - every success
+`/compass:define` writes `acceptance-criteria.md` against the brief - every success
 signal in the brief should have a scenario that delivers it. At
-`/compass:clarify`, the `product-lens` agent reviews: it walks every success
+`/compass:refine`, the `product-lens` agent reviews: it walks every success
 signal and finds the scenario behind it, flagging **drift** (a scenario that
 solves the literal request but misses the outcome), **gaps** (a signal with no
 scenario), and **scope creep** (scenarios beyond the brief with no recorded
@@ -307,7 +307,7 @@ decision).
 ### The intent-fidelity gate at Plan
 
 ```
-/compass:plan
+/compass:design
 ```
 
 Per the routing policy's `role_rules`, when a product owner is in play the
@@ -358,7 +358,7 @@ per the `role_rules` - **blocks Land until every claim in `positioning.md`
 traces to a passing scenario**. `verify.claims` is an immovable gate; no route
 removes it.
 
-So the marketer's gate is felt at the very end. At `/compass:land`, the
+So the marketer's gate is felt at the very end. At `/compass:ship`, the
 `marketing-lens` agent walks `launch-readiness.md`. Every row must be green: a
 claim, a backing scenario, that scenario passing at Verify. A red row - a
 claim whose scenario is missing, failing, or skipped - and ship refuses to

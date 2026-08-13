@@ -104,4 +104,4 @@ project line coverage                85%   (floor: 80% - met)
 - [x] *(carried to Land)* Living docs updated to match reality - a new "Notifications" page in the architecture docs; the event-producer contract documented.
 - [x] *(carried to Land)* Every owed backfill paid - none owed (Expedition's de-scope ledger is empty). G5 sign-off on the migration is on record in `task.yml` `approvals:`.
 
-Next phase: **Land** (`/compass:land`) - orchestrated merge, then close.
+Next phase: **Land** (`/compass:ship`) - orchestrated merge, then close.

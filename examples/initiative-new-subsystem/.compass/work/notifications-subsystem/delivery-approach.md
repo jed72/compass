@@ -133,4 +133,4 @@ would have stayed Expedition regardless. That is the floor doing its job.)
 - [x] Not a Spike route - no `.spike` marker needed.
 - [x] `devlog.md` opened with the Frame entry.
 
-Next phase: **Specify** (`/compass:specify`) - full BDD discovery from `brief.md`.
+Next phase: **Specify** (`/compass:define`) - full BDD discovery from `brief.md`.

@@ -72,7 +72,7 @@ The guardrails that *could* have fired and did not, both worth recording:
 | Distribute | Skipped | Solo. One person, one question. |
 | Build | = **Explore** | Write rendering code freely to answer the question. **TDD strategy (S2) suspended** - the pre-tool hook is route-aware and does not block edits here. Code is assumed throwaway. |
 | Verify | = **Conclude** | Not a test gate - a findings check: did we answer the question? Output is a written conclusion (in `devlog.md`), not a passing suite. |
-| Land | = **Graduate or Discard** | Never "merge to main." Either the findings feed a fresh `/compass:frame` for real delivery work, or the spike is discarded with its learnings recorded. |
+| Land | = **Graduate or Discard** | Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
 
 ### 4b. Gate set
 
@@ -151,4 +151,4 @@ No human overrides. Route confirmed as composed.
 - [x] On a Spike route: the `.spike` marker file is written to the task directory.
 - [x] `devlog.md` opened with the Frame entry.
 
-Next phase: **Explore** (`/compass:build` on a Spike route).
+Next phase: **Explore** (`/compass:implement` on a Spike route).

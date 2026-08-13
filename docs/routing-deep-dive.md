@@ -326,7 +326,7 @@ item - the mandatory follow-up - and the issue is not closeable until it is
 paid: `delivery-approach.md` completed properly (not just the urgent stub), the
 reproduction test promoted into a real Given/When/Then scenario in
 `acceptance-criteria.md` traceable to the defect, and a root-cause line in the
-`devlog.md`. `/compass:status` flags the unpaid follow-up; `/compass:land`
+`devlog.md`. `/compass:status` flags the unpaid follow-up; `/compass:ship`
 refuses to close the issue; the `stop.sh` hook makes it loud at session end.
 Borrowed ceremony is a debt with a due date, and the due date is "before the
 issue closes."
@@ -383,7 +383,7 @@ explicitly answered with 'inconclusive - here is why'), and the finding is
 written down." Land becomes **Graduate or Discard**:
 
 - **Graduate** - the spike found the cause (say, a connection-pool exhaustion
-  under a specific retry storm). The finding feeds a fresh `/compass:frame` for
+  under a specific retry storm). The finding feeds a fresh `/compass:triage` for
   the real fix. That re-assess is a normal route - Standard, probably - and
   the tested-before-ship, acceptance-before-code, and traceability guardrails apply to the fix in full. Any diagnostic code carried over
   is now subject to that route's guardrails; in practice most is rewritten
@@ -461,12 +461,12 @@ Compass routes the familiarity.
 Routing happens at triage, but the familiarity reading can turn out wrong, and the
 honest response is not to push on with a route you no longer believe.
 
-`/compass:frame --reframe` re-scores the four dimensions mid-issue, writes a
+`/compass:triage --reframe` re-scores the four dimensions mid-issue, writes a
 **new revision** of `delivery-approach.md` (the prior revision is kept visible under a
 "Superseded" heading), and records what changed and why. A re-assess is a
 normal event, not a failure. *A route quietly outgrown is the failure.*
 
-A re-assess is also *recorded as data*. `/compass:frame --reframe` re-runs
+A re-assess is also *recorded as data*. `/compass:triage --reframe` re-runs
 `compass approach evaluate --write`, which detects that the route changed and
 appends an entry to `task.yml`'s `reframes` log - `from_route`, `to_route`, the
 date, and the `--reason`. One entry is an anecdote; the log across every issue

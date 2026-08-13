@@ -89,4 +89,4 @@ project line coverage                87%   (floor: 80% - met)
 - [x] *(carried to Land)* Living docs updated to match reality - the API reference's `/search` entry now documents the limit and the 429.
 - [x] *(carried to Land)* Every owed backfill paid - none owed on a Standard route.
 
-Next phase: **Land** (`/compass:land`).
+Next phase: **Land** (`/compass:ship`).

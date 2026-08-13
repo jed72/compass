@@ -132,4 +132,4 @@ No human overrides. Route confirmed as composed.
 - [x] Not a Spike route - no `.spike` marker needed.
 - [x] `devlog.md` opened with the Frame entry.
 
-Next phase: **Specify** (reproduce-first) - `/compass:specify`.
+Next phase: **Specify** (reproduce-first) - `/compass:define`.

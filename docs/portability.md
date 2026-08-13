@@ -108,7 +108,7 @@ scripts/         install.sh, swarm.sh, integrate.sh, validate.sh
 
 This is the methodology and kit layers expressed in one runtime's vocabulary.
 Slash commands invoke the phases - and *call the kit* for the deterministic
-parts: `/compass:frame` runs `compass approach evaluate`, `/compass:verify` runs
+parts: `/compass:triage` runs `compass approach evaluate`, `/compass:verify` runs
 `compass check`, the `builder` agent runs `compass tdd-red` / `tdd-green`.
 Subagents are the swarm and the role roles. Skills carry the procedural
 knowledge a phase needs. Hooks enforce the guardrails mechanically where they
@@ -345,7 +345,7 @@ leak, do not edit the methodology or the kit.
 The adapter layer, against the contract above:
 
 - **`commands/`** → the new runtime's equivalent of invocable phase units. The
-  *content* of each - what `/compass:frame` does, the procedure it follows -
+  *content* of each - what `/compass:triage` does, the procedure it follows -
   is dictated by the methodology layer (`frame.md`'s procedure "follows
   `approaches/rubric.md` exactly"). You are re-expressing known procedures in a
   new command syntax, not redesigning them - and where a procedure has a

@@ -47,7 +47,7 @@ severity, worst first:
 
 2. **Route outgrown** - the devlog shows the issue drifting past its route
    (a "Standard" issue that has sprouted a fourth work stream; an "quick-fix"
-   issue still open after days). The fix is `/compass:frame --reframe`, not
+   issue still open after days). The fix is `/compass:triage --reframe`, not
    pushing on. A route quietly outgrown is the failure mode Compass exists to
    prevent - flow management is where it gets caught when the issue itself
    missed it.

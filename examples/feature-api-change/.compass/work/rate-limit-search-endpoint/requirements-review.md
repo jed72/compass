@@ -83,4 +83,4 @@
 - [x] **Route still fits** - nothing in Clarify changed the magnitude or blast
       radius reading. Standard still fits; no re-frame needed.
 
-Next phase: **Plan** (`/compass:plan`).
+Next phase: **Plan** (`/compass:design`).

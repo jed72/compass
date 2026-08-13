@@ -102,4 +102,4 @@
 - [x] **Route still fits** - nothing in Clarify changed a reading. Expedition
       still fits; the `migrations` tag (and so RG-FLOOR-003) still holds.
 
-Next phase: **Plan** (`/compass:plan`) - unblocked: RG-ROLE-002's intent-fidelity check passed (`brief.md` foot, 2026-03-06).
+Next phase: **Plan** (`/compass:design`) - unblocked: RG-ROLE-002's intent-fidelity check passed (`brief.md` foot, 2026-03-06).

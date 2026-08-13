@@ -68,4 +68,4 @@ landed by the orchestrator before the streams start.
 - [x] Every "independent" verdict in §2 passed both tests - U1 ↔ U2 are disjoint in scenarios and near-disjoint in code, with the bounded overlap assigned to the orchestrator, not ignored.
 - [x] Final stream count respects every cap in §5 - 2 ≤ 6, no routing cap in play.
 
-Next phase: **Distribute** (`/compass:distribute`) - runs `scripts/swarm.sh` with this map.
+Next phase: **Distribute** (`/compass:breakdown`) - runs `scripts/swarm.sh` with this map.

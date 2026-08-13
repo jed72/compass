@@ -106,4 +106,4 @@ written.
 - [x] Governance check passes - every guardrail clears with evidence; G5's Land sign-off is routed in; no strategy deviation to record.
 - [x] Parallel work is possible - `distribution-map.md` written next.
 
-Next phase: **Distribute** (`/compass:distribute`) - runs `scripts/swarm.sh` with the distribution map.
+Next phase: **Distribute** (`/compass:breakdown`) - runs `scripts/swarm.sh` with the distribution map.

@@ -60,7 +60,7 @@
   is **not merged.** Nothing lands from a Spike. The three render scripts stay
   on the branch as *reference inputs* to the next Frame - good inputs, because
   the terrain is now mapped.
-- **Graduation:** a fresh `/compass:frame` has been run for the real delivery
+- **Graduation:** a fresh `/compass:triage` has been run for the real delivery
   work - task `report-pdf-export`. That Frame inherits this spike's `route.md`,
   this conclusion, and the reference code. The new task will compose to a real
   route (likely Standard) where guardrails G1–G3 apply in full: the PDF export

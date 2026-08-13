@@ -10,26 +10,6 @@
 # pointer landed, so the exemption never has to be retrofitted.
 # =============================================================================
 
-# Retired verb groups -> their replacement group. A bare `compass <verb>`
-# hitting one of these exits 2 with a one-line stderr pointer.
-verbs:
-  route: approach
-  backfill: follow-up
-  calibration: retro
-  land-commit: ship-commit
-  task: issue
-  plan: design
-
-# Retired verb+subverb pairs -> the exact replacement invocation, so the
-# pointer can name the full new spelling.
-subverbs:
-  route evaluate: approach evaluate
-  backfill pay: follow-up resolve
-  task lint: issue lint
-  task receipt: issue receipt
-  task set-status: issue set-status
-  plan lint: design lint
-
 # Flag renames (old spelling tolerated for one major version).
 flags:
   --task: --issue

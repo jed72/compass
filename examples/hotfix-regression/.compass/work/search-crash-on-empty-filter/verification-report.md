@@ -83,6 +83,6 @@ project line coverage                87%   (floor: 80% - met; unchanged by a
 - [x] **No lint / format / type errors** - `ruff check src/api/search/` clean (logged in `devlog.md`).
 - [x] **Traceability intact** - code → scenario → intent holds.
 - [x] *(carried to Land)* Living docs updated - the `/search` API reference now notes that an empty `filter` object means "no filtering".
-- [x] *(carried to Land)* **Every owed backfill paid** - BF-001, BF-002, BF-003 all `paid` in `task.yml`. This is the Hotfix-defining check: `/compass:land` refuses to close while any backfill is `owed`.
+- [x] *(carried to Land)* **Every owed backfill paid** - BF-001, BF-002, BF-003 all `paid` in `task.yml`. This is the Hotfix-defining check: `/compass:ship` refuses to close while any backfill is `owed`.
 
-Next phase: **Land** (`/compass:land`) - ship, then pay the backfill.
+Next phase: **Land** (`/compass:ship`) - ship, then pay the backfill.

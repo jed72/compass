@@ -87,33 +87,14 @@ def test_the_v2_verbs_exist_and_work(tmp_path):
     assert "ship" in r.stdout.lower()
 
 
-def test_a_retired_verb_fails_loudly_and_legibly(tmp_path):
-    """TRC-2: a retired verb exits 2 with exactly one stderr line naming
-    the replacement, and stdout stays empty - a script can never mistake
-    the pointer for success."""
-    root = _project(tmp_path)
-    cases = {
-        ("route", "evaluate"): "approach",
-        ("backfill", "pay"): "follow-up",
-        ("calibration",): "retro",
-        ("land-commit",): "ship-commit",
-        ("task", "lint"): "issue",
-        ("plan", "lint"): "design",
-    }
-    for argv, replacement in cases.items():
-        r = _run(root, *argv)
-        assert r.returncode == 2, (
-            f"compass {' '.join(argv)}: expected exit 2, got "
-            f"{r.returncode}\nstdout: {r.stdout[:200]}\nstderr: {r.stderr[:200]}")
-        assert r.stdout.strip() == "", (
-            f"compass {' '.join(argv)}: pointer must not write stdout")
-        lines = [l for l in r.stderr.splitlines() if l.strip()]
-        assert len(lines) == 1, (
-            f"compass {' '.join(argv)}: expected one stderr line, got "
-            f"{len(lines)}: {r.stderr[:300]}")
-        assert replacement in lines[0], (
-            f"compass {' '.join(argv)}: pointer does not name "
-            f"'{replacement}': {lines[0]}")
+# The retired-verb pointer contract used to be asserted here: a retired v1
+# verb exited 2 with exactly one stderr line naming its replacement. ADR-014
+# removed the pointers at the major version, so there is no pointer left to
+# assert. What replaced it - a retired verb failing as an unrecognised verb,
+# for all six retired spellings - is asserted in
+# tests/test_no_deprecation_stubs.py (RCD-F2). Recorded rather than silently
+# deleted, because a test that vanishes with no forwarding address is
+# indistinguishable from coverage lost by accident.
 
 
 def test_the_issue_flag_with_task_tolerated(tmp_path):

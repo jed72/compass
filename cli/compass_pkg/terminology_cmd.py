@@ -54,33 +54,3 @@ def cmd_terminology(args):
     if entry.get("related"):
         print(f"  related: {', '.join(entry['related'])}")
     return 0
-
-
-def retired_verb_pointer(argv):
-    """A retired v1 verb fails machine-tolerably: exit 2, exactly one line
-    on stderr naming the replacement, empty stdout - a hook or CI script
-    hitting a retired verb can never mistake the pointer for success. The
-    retired spellings live in cli/migrate-map.yml (scan-exempt data), so
-    this file never carries one in a string literal. Returns the exit code
-    to use, or None when argv starts with a live verb."""
-    if not argv or argv[0].startswith("-"):
-        return None
-    map_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "migrate-map.yml")
-    try:
-        with open(map_path, "r", encoding="utf-8") as fh:
-            data = yaml.safe_load(fh) or {}
-    except OSError:
-        return None
-    verbs = data.get("verbs") or {}
-    if argv[0] not in verbs:
-        return None
-    subverbs = data.get("subverbs") or {}
-    pair = " ".join(argv[:2]) if len(argv) > 1 else None
-    replacement = subverbs.get(pair) or verbs[argv[0]]
-    sys.stderr.write(
-        f"compass {argv[0]}: renamed - run `compass {replacement}` "
-        "instead (the retired spelling is kept as this pointer for one "
-        "major version).\n")
-    return 2

@@ -260,7 +260,7 @@ else
 fi
 
 echo ""
-echo "Integration complete for '$TASK_SLUG'. Back in /compass:land, finish by:"
+echo "Integration complete for '$TASK_SLUG'. Back in /compass:ship, finish by:"
 echo "  - pasting the combined-regression run into verification-report.md"
 echo "  - updating living docs"
 echo "  - resolving every owed backfill in route.md"

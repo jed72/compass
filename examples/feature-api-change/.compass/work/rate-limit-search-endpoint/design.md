@@ -90,4 +90,4 @@ conflict, not parallelism → **solo**. No `distribution-map.md` written.
 - [x] Governance check passes - every guardrail clears with evidence; no strategy deviation to record.
 - [x] No parallel work possible - the units share surface, so no `distribution-map.md`. Route confirmed solo.
 
-Next phase: **Build** (`/compass:build`) - straight to Build, the route is solo.
+Next phase: **Build** (`/compass:implement`) - straight to Build, the route is solo.

@@ -74,7 +74,7 @@ echo ""
 # "compass" so it cannot collide with anything else the user has - the
 # resolved Claude Code path is ~/.claude/<name>/compass/<file>. The "compass"
 # destination dir is also what supplies the slash-command namespace, so the
-# repo's flat commands/*.md resolve as /compass:frame (not /compass:compass:…).
+# repo's flat commands/*.md resolve as /compass:triage (not /compass:compass:…).
 # The repo layout is uniform: commands/*.md, agents/*.md, skills/*/SKILL.md -
 # all installed the same way. (The plugin path uses the plugin name for the
 # same namespace; see .claude-plugin/plugin.json.)
@@ -257,7 +257,7 @@ echo "Done. Compass is wired into Claude Code ($MODE)."
 echo ""
 echo "Next steps:"
 echo "  1. cd into the project you want to use Compass in."
-echo "  2. Run  /compass:frame \"<your task>\"  - that's it. The default guardrails"
+echo "  2. Run  /compass:triage \"<your task>\"  - that's it. The default guardrails"
 echo "     and strategies ship active, so the Needle computes a route with zero setup."
 echo "  3. Optional, whenever you have governance to encode:  /compass:init  -"
 echo "     it copies governance/ into the project so you can add project-specific"
@@ -265,6 +265,6 @@ echo "     guardrails and strategies. It is accretion, not a prerequisite."
 echo ""
 if [ "$MODE" = "global" ]; then
   echo "Note: a global install makes the /compass: commands available everywhere."
-  echo "No per-project setup is required - /compass:frame works immediately; run"
+  echo "No per-project setup is required - /compass:triage works immediately; run"
   echo "/compass:init only when a project wants its own governance."
 fi
