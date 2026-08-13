@@ -148,11 +148,11 @@
 - **Source issue:** `rehearsal-cli-defects`
 - **Landed:** 2026-08-13
 
-### the warners say when they cannot find the project
+### the guard can fail
 
-- **Scenario id:** `PRF-5`
+- **Scenario id:** `EX-4`
 - **Intent:** `REVIEW`
-- **Source issue:** `pr-50-review-findings`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
 - **Landed:** 2026-08-13
 
 ### the Part 0 corrections are folded in
@@ -4025,6 +4025,13 @@
 - **Source issue:** `pr-50-review-findings`
 - **Landed:** 2026-08-13
 
+### the warners say when they cannot find the project _(archived)_
+
+- **Scenario id:** `PRF-5`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
 ### the tests that could not fail can now fail _(archived)_
 
 - **Scenario id:** `PRF-6`
@@ -4037,4 +4044,25 @@
 - **Scenario id:** `PRF-7`
 - **Intent:** `REVIEW`
 - **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the samples use the current vocabulary _(archived)_
+
+- **Scenario id:** `EX-1`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13
+
+### the canonical id prefix is used throughout _(archived)_
+
+- **Scenario id:** `EX-2`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13
+
+### every sample still passes its own checks _(archived)_
+
+- **Scenario id:** `EX-3`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
 - **Landed:** 2026-08-13
