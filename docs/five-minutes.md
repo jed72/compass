@@ -98,28 +98,28 @@ Then the mechanism takes over. `/compass:triage` shells out to
 routing guardrails, and folds the result back into `task.yml`:
 
 ```
-  policy          : governance/routing-policy.yml (v2.0.0)
+  policy          : governance/routing-policy.yml (v2.1.1)
   assessment      : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
   candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix
   policy rules fired: none
   topology        : solo
   per-stage weight:
-    frame      : full
-    specify    : light
-    clarify    : collapsed
-    plan       : collapsed
-    distribute : skipped
-    build      : full
+    triage     : full
+    define     : light
+    refine     : collapsed
+    design     : collapsed
+    breakdown  : skipped
+    implement  : full
     verify     : light
-    land       : light
+    ship       : light
   gate set        : verify.correctness, verify.governance, verify.traceability
 ```
 
-Frame is `full` on every route - it is the one phase that never collapses.
+Triage is `full` on every delivery approach - it is the one stage that never collapses.
 
 `.compass/current-task` now points at `fix-jwt-typo`. `delivery-approach.md` records
-the assessment, the route, and the de-scope reasons.
+the assessment, the delivery approach, and the de-scope reasons.
 
 ### Define the acceptance criteria
 

@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.3.0 · **Last amended:** {{DATE}}
+> **Version:** 0.4.0 · **Last amended:** 2026-08-13
 
 ---
 
@@ -149,6 +149,20 @@ a conversation the reader does not have, and the pointer rots the moment that
 conversation ends. Name the thing instead. When you link an issue or a pull
 request, say in the same sentence what it actually is - "#412, which moved rate
 limiting into the gateway" - so the sentence still works when the link is dead.
+
+**An identifier carries its meaning on first use.** Compass is dense with
+short codes, and a reader meeting one has nowhere to look it up mid-sentence.
+So the first time a code appears in any one piece of output, it appears with
+its plain statement beside it; every mention after that is the bare code,
+which is shorter and reads better once the meaning is known. This governs
+**agent speech**, **printed output**, and **generated artifacts** alike -
+saying "the G5 guard kicked in" to someone who has never read
+`guardrails.yml` communicates nothing.
+
+`compass check` is the shipped example: it prints `G5 A human signs off on
+the irreversible`, the identifier and its meaning together. Match it rather
+than inventing a second convention. Never solve this by dropping the code -
+the codes carry the traceability, and the machine checks read them.
 
 **Self-contained, and short.** Say it once, plainly, then stop. Length is not
 thoroughness: an artifact nobody finishes has communicated nothing. Cut every

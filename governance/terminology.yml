@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre7
+version: 2.0.0-pre8
 
 terms:
 
@@ -573,9 +573,9 @@ banned:
   - term: "task"
     replacement: issue
     context: "In human-facing prose only; machine state files exempt during transition."
-  - term: "G1..G5 / S1..S7 codes"
-    replacement: "the plain statement of the rule"
-    context: "In human-facing output. Codes may live in governance config."
+  - term: "G1..G5 / S1..S12 codes, bare"
+    replacement: "the code followed by its plain statement, on first use"
+    context: "In anything a human reads - agent speech, printed output, generated artifacts. Expand on FIRST use in that piece of output; the bare code is correct and preferable afterwards. Never drop the code: it carries the traceability the machine checks read. `compass check` is the shipped example - it prints 'G5 A human signs off on the irreversible'. Codes may live bare in governance config, which is machine input rather than something a newcomer reads."
   - term: "brief.md"
     replacement: prd.md
     context: "Filename and references."

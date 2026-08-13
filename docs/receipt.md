@@ -32,7 +32,7 @@ Assessment
 Approach
 --------
   feature  (topology: solo-or-pair)
-  routing guardrails fired: none
+  policy rules fired: none
 
 Gates
 -----
@@ -46,7 +46,7 @@ Gates
 Evidence
 --------
   EV-001    test-run            evidence/green-canonical.json
-            scenario: SCN-001
+            scenario: SCN-001 - the fixture scenario
   EV-002    command-output      evidence/check.txt
   EV-003    manual-review       evidence/clarity-review.md
             reviewer: qa@example.com

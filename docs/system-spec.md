@@ -22,12 +22,19 @@
 - **Source issue:** `scan-the-remaining-surfaces`
 - **Landed:** 2026-08-13
 
-### the id set admits the new strategy deliberately
+### the archive still lints and checks clean
 
-- **Scenario id:** `TRC-3`
+- **Scenario id:** `SW-4`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
+### a project outside git still gets the check
+
+- **Scenario id:** `SCN-F2`
 - **Intent:** `INT-1`
-- **Source issue:** `mutation-proof-standing`
-- **Landed:** 2026-08-12
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -36,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the summary reports what was and was not checked
+### the message offers the new path when git knows the rename
 
-- **Scenario id:** `TRC-3`
+- **Scenario id:** `SCN-A2`
 - **Intent:** `INT-2`
-- **Source issue:** `ci-lints-every-issue`
-- **Landed:** 2026-08-12
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
 
-### no document claims Compass has no dependencies
+### a deliberately deleted file is not trace rot
 
-- **Scenario id:** `TRC-D6`
+- **Scenario id:** `SCN-F1`
 - **Intent:** `INT-3`
-- **Source issue:** `zero-friction-install`
-- **Landed:** 2026-08-10
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
 
-### the decision is recorded with the alternative it beat
+### no new check name appears in governance
 
-- **Scenario id:** `TRC-E1`
+- **Scenario id:** `SCN-C1`
 - **Intent:** `INT-4`
-- **Source issue:** `zero-friction-install`
-- **Landed:** 2026-08-10
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
 
-### every file this task adds or changes should pass house style
+### landed is the only privileged value
 
-- **Scenario id:** `TRC-F4`
+- **Scenario id:** `SCN-F2`
 - **Intent:** `INT-5`
-- **Source issue:** `readable-specs-and-flow`
-- **Landed:** 2026-08-03
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
 
 ### recording acceptance for a second scenario does not destroy the first one's evidence
 
@@ -2632,6 +2639,13 @@
 - **Source issue:** `readable-specs-and-flow`
 - **Landed:** 2026-08-03
 
+### every file this task adds or changes should pass house style _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-5`
+- **Source issue:** `readable-specs-and-flow`
+- **Landed:** 2026-08-03
+
 ### the release script packages a tarball on this platform _(archived)_
 
 - **Scenario id:** `SCN-001`
@@ -3451,6 +3465,20 @@
 - **Source issue:** `zero-friction-install`
 - **Landed:** 2026-08-10
 
+### no document claims Compass has no dependencies _(archived)_
+
+- **Scenario id:** `TRC-D6`
+- **Intent:** `INT-3`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
+### the decision is recorded with the alternative it beat _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-4`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
 ### an issue already in flight continues unchanged across the upgrade _(archived)_
 
 - **Scenario id:** `TRC-F4`
@@ -3717,6 +3745,13 @@
 - **Source issue:** `ci-lints-every-issue`
 - **Landed:** 2026-08-12
 
+### the summary reports what was and was not checked _(archived)_
+
+- **Scenario id:** `TRC-3`
+- **Intent:** `INT-2`
+- **Source issue:** `ci-lints-every-issue`
+- **Landed:** 2026-08-12
+
 ### an unparsed span is a failure _(archived)_
 
 - **Scenario id:** `TRC-1`
@@ -3783,6 +3818,13 @@
 ### the verify guidance points at the strategy _(archived)_
 
 - **Scenario id:** `TRC-2`
+- **Intent:** `INT-1`
+- **Source issue:** `mutation-proof-standing`
+- **Landed:** 2026-08-12
+
+### the id set admits the new strategy deliberately _(archived)_
+
+- **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`
 - **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12
@@ -4065,4 +4107,753 @@
 - **Scenario id:** `EX-3`
 - **Intent:** `REVIEW`
 - **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13
+
+### the repo check must ignore files git does not track _(archived)_
+
+- **Scenario id:** `SCN-01`
+- **Intent:** `INT-1`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### enforcement must not switch itself off based on the checkout path _(archived)_
+
+- **Scenario id:** `SCN-02`
+- **Intent:** `INT-1`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a seeded worktree must not inherit another builder's red _(archived)_
+
+- **Scenario id:** `SCN-03`
+- **Intent:** `INT-1`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a BDD run must record which scenarios it actually bound _(archived)_
+
+- **Scenario id:** `SCN-04`
+- **Intent:** `INT-1`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### every BDD adapter example must have the test files it declares _(archived)_
+
+- **Scenario id:** `SCN-05`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### every shipped route example must pass its own checks _(archived)_
+
+- **Scenario id:** `SCN-06`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### the behave adapter must report its bound scenarios correctly _(archived)_
+
+- **Scenario id:** `SCN-07`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a CI job that runs a Python tool must install Python first _(archived)_
+
+- **Scenario id:** `SCN-08`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### an example's declared tests must point at real files _(archived)_
+
+- **Scenario id:** `SCN-09`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a Spike route must still report an owed backfill _(archived)_
+
+- **Scenario id:** `SCN-10`
+- **Intent:** `INT-1`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### landing must not be recorded over gates that have not passed _(archived)_
+
+- **Scenario id:** `SCN-11`
+- **Intent:** `INT-2`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a receipt must not report a clean land over pending gates _(archived)_
+
+- **Scenario id:** `SCN-12`
+- **Intent:** `INT-2`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### the analyze summary must agree with the findings above it _(archived)_
+
+- **Scenario id:** `SCN-13`
+- **Intent:** `INT-2`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a lint must report a malformed file, not crash on it _(archived)_
+
+- **Scenario id:** `SCN-14`
+- **Intent:** `INT-2`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### the onboarding transcript must match what the CLI prints _(archived)_
+
+- **Scenario id:** `SCN-15`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### documented commands must exist _(archived)_
+
+- **Scenario id:** `SCN-16`
+- **Intent:** `INT-3`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a different test command must not read as a rerun-to-green _(archived)_
+
+- **Scenario id:** `SCN-17`
+- **Intent:** `INT-2`
+- **Source issue:** `release-blockers-2026-08`
+- **Landed:** 2026-08-13
+
+### a project can add a file type _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### a critical-blast-radius task requires a human approval _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### a validation acceptance permits the edit _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### a redirect into a source file is blocked with no red on record _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### a critical task with a recorded approval clears G5 _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### a path-shaped glob works too _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-2`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### a refactor acceptance requires a green baseline first _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-3`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### an in-place edit of a source file is blocked _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### a project that configures nothing is unaffected _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-4`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### the domain trigger is unchanged _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-3`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### an unrecognised kind is refused _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### an inline interpreter script that writes a source file is blocked _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### a project cannot exempt what the framework enforces _(archived)_
+
+- **Scenario id:** `SCN-A4`
+- **Intent:** `INT-3`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### a task matching neither condition still skips G5 _(archived)_
+
+- **Scenario id:** `SCN-A4`
+- **Intent:** `INT-3`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### the same command is allowed once a red is on record _(archived)_
+
+- **Scenario id:** `SCN-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### the block names the rule that matched _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### any_of matches when one clause matches _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### a validation acceptance records the validator's output _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### a read-only command is allowed _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### a built-in match says so _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### any_of fails when no clause matches _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### a failing validator does not close the acceptance _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### writing a test file is allowed _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### any_of composes with sibling keys as an AND _(archived)_
+
+- **Scenario id:** `SCN-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### a refactor must run the same command it baselined _(archived)_
+
+- **Scenario id:** `SCN-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### a redirect to a non-code destination is allowed _(archived)_
+
+- **Scenario id:** `SCN-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### a refactor with an unchanged source tree is refused _(archived)_
+
+- **Scenario id:** `SCN-B4`
+- **Intent:** `INT-3`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### a command that reverts to committed state is allowed _(archived)_
+
+- **Scenario id:** `SCN-B4`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### a refactor that preserved behaviour is recorded _(archived)_
+
+- **Scenario id:** `SCN-B5`
+- **Intent:** `INT-1`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### a landed task without an approval is reported, not failed _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-2`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### a path exempt for Edit is exempt for Bash _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### the hook names which marker permitted the edit _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-4`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### Compass's own shell scripts are enforced _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-5`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### an acceptance does not survive into the next task _(archived)_
+
+- **Scenario id:** `SCN-C2`
+- **Intent:** `INT-2`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### the Spike route suspends the check for Bash too _(archived)_
+
+- **Scenario id:** `SCN-C2`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### an unreadable config does not block _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-4`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### the published guarantee matches the trigger _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-4`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### the recorded evidence satisfies the existing checks _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### an undetectable write is a documented limit, not a silent one _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-2`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### test files stay exempt whatever the config says _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-3`
+- **Source issue:** `configurable-enforced-set`
+- **Landed:** 2026-08-13
+
+### governance carries a new version _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-4`
+- **Source issue:** `g5-trigger-matches-statement`
+- **Landed:** 2026-08-13
+
+### the anti-pattern is named where authors will meet it _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-1`
+- **Source issue:** `honest-acceptance-for-config-and-refactor`
+- **Landed:** 2026-08-13
+
+### the hook adds no meaningful cost to ordinary commands _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-bash-write-bypass`
+- **Landed:** 2026-08-13
+
+### Third-party actions in the self-check workflow are SHA-pinned _(archived)_
+
+- **Scenario id:** `SCN-001`
+- **Intent:** `INT-1`
+- **Source issue:** `sha-pin-workflow-actions`
+- **Landed:** 2026-08-13
+
+### a full Specify with no scenarios blocks a code edit _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### a read-only open is allowed _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### a re-frame that changes gates but not the route name is logged _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### the new statuses validate _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### a missing changed_files path fails a task claiming correctness _(archived)_
+
+- **Scenario id:** `SCN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
+### scenarios present allow the edit _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### a path named inside written prose is not the write target _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### a re-frame with no material change is not logged _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### an unknown status is still rejected _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-5`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### routes without a full Specify are unaffected _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### an inline script that opens a source file for writing is still blocked _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-3`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### each entry records what changed _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### a parked task can record why and when _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### a task that has not yet claimed correctness is not failed _(archived)_
+
+- **Scenario id:** `SCN-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
+### a Spike suspends the G2 check _(archived)_
+
+- **Scenario id:** `SCN-A4`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### a heredoc that writes a source file is still blocked _(archived)_
+
+- **Scenario id:** `SCN-A4`
+- **Intent:** `INT-3`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### each entry carries a kind _(archived)_
+
+- **Scenario id:** `SCN-A4`
+- **Intent:** `INT-2`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### calibration counts only judgement re-frames _(archived)_
+
+- **Scenario id:** `SCN-A5`
+- **Intent:** `INT-2`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### the message names the guardrail and the remedy _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### the post-hook retry re-stages only the task's files _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### a raw log declared as test-run is refused at write time _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-3`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### set-status writes the field _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-3`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### a landed task with a rotted trace is reported, not failed _(archived)_
+
+- **Scenario id:** `SCN-B1`
+- **Intent:** `INT-3`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
+### a test file stays editable _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### an out-of-scope staged path aborts the commit _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### a real run record is accepted _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### set-status refuses a value outside the vocabulary _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### a clean task says what it verified _(archived)_
+
+- **Scenario id:** `SCN-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
+### a task that declares nothing is not silently widened _(archived)_
+
+- **Scenario id:** `SCN-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### a missing file is refused _(archived)_
+
+- **Scenario id:** `SCN-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### landing through set-status still respects the gates _(archived)_
+
+- **Scenario id:** `SCN-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### types with no shape contract are unaffected _(archived)_
+
+- **Scenario id:** `SCN-B4`
+- **Intent:** `INT-3`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### a scenario may record what supersedes it _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-4`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### flow separates parked work from active work _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### superseded_by must name a scenario that exists _(archived)_
+
+- **Scenario id:** `SCN-C2`
+- **Intent:** `INT-4`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### calibration excludes parked and abandoned _(archived)_
+
+- **Scenario id:** `SCN-C2`
+- **Intent:** `INT-1`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### the living spec still derives only from landed tasks _(archived)_
+
+- **Scenario id:** `SCN-C3`
+- **Intent:** `INT-4`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### the 1.8.0 detection scenarios keep passing _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-3`
+- **Source issue:** `hotfix-1-8-1-false-blocks-and-land-scope`
+- **Landed:** 2026-08-13
+
+### an unreadable spine does not block _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-4`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### task.yml files written before this keep working _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-5`
+- **Source issue:** `spine-records-the-truth`
+- **Landed:** 2026-08-13
+
+### a task.yml with no status still behaves as active _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-5`
+- **Source issue:** `status-vocabulary`
+- **Landed:** 2026-08-13
+
+### G2 is checked before the red _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-2`
+- **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### swarm.sh strips markdown punctuation from the branch-name cell _(archived)_
+
+- **Scenario id:** `TRC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `swarm-script-strips-markdown`
+- **Landed:** 2026-08-13
+
+### no issue claims to be in flight when it is not _(archived)_
+
+- **Scenario id:** `SW-1`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
+### a status change is justified by evidence _(archived)_
+
+- **Scenario id:** `SW-2`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
+### nothing is marked landed without its gates _(archived)_
+
+- **Scenario id:** `SW-3`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
