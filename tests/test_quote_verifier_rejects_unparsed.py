@@ -16,7 +16,7 @@ it "refuses - and writes nothing at all - if any span's archive file is
 missing or does not contain the quoted text verbatim". A span that did not
 parse belongs in that category and was not in it.
 
-Spec: .compass/work/quote-verifier-rejects-unparsed/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

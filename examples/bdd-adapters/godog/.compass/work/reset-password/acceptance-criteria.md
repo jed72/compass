@@ -1,7 +1,7 @@
 # Spec - reset-password
 
 > **Phase:** Specify · **Last updated:** 2026-08-03 · **Owning agent:** spec-author
-> **Terrain:** greenfield
+> **Familiarity:** greenfield
 
 ## Summary
 
@@ -22,8 +22,8 @@ the acceptance suite - they are the same text in both roles.
 
 | Intent id | Source | Statement |
 |---|---|---|
-| INT-1 | the task description | A user can complete a password reset from a valid link. |
-| INT-2 | the task description | A reset that must be refused changes nothing. |
+| INT-1 | the issue description | A user can complete a password reset from a valid link. |
+| INT-2 | the issue description | A reset that must be refused changes nothing. |
 
 ---
 

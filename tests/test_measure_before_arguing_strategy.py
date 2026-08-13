@@ -1,0 +1,122 @@
+"""Measure before arguing is standing practice, not one issue's lesson.
+
+When a recommendation and an instruction disagree, the cheap move is to
+restate the recommendation more forcefully. Twice now, measuring the disputed
+quantity instead has changed the outcome:
+
+  * The vendored-YAML fork. The argument was about whether bundling PyYAML
+    was worth its cost; the measurement was the artifact size and a run on an
+    interpreter that genuinely could not import it.
+  * Two of three decisions on the 3.0.0 stub removal. The author recommended
+    against deleting the flag aliases and against scanning fenced code
+    blocks. Counting the call sites (268 and 69) and the tightened scan's
+    hits (200 across 38 files) showed both objections were about a sprawl
+    that was not there.
+
+The practice is written down because it has to reach a session that has never
+read this file's history.
+
+Scenario ids: see docs/system-spec.md.
+"""
+from __future__ import annotations
+
+import pathlib
+import re
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+STRATEGIES = ROOT / "governance" / "strategies.md"
+
+# Where a session needs the pointer. CLAUDE.md is loaded every session, and
+# commands/verify.md is where the reviewer assesses the practice - the same
+# two-surface pattern S10 uses.
+#
+# skills/receiving-code-review/SKILL.md would be the natural third home, since
+# disagreeing with a reviewer is exactly its subject. It is deliberately not
+# used: that file sits against a 320-word bound its own test enforces, and
+# trimming its prose to make room for a cross-reference would cost more than
+# the pointer is worth.
+POINTER_SURFACES = (
+    ("CLAUDE.md", ROOT / "CLAUDE.md"),
+    ("commands/verify.md", ROOT / "commands" / "verify.md"),
+)
+
+
+def _flat(text: str) -> str:
+    """Whitespace-collapsed, so an assertion about what the prose says does
+    not break when a paragraph is re-wrapped."""
+    return " ".join(text.split())
+
+
+def _strategy_entry() -> str:
+    """The measure-before-arguing strategy's own section.
+
+    Found by its heading rather than by body text, so a coincidental match
+    elsewhere in the file cannot grab the wrong section.
+    """
+    text = STRATEGIES.read_text(encoding="utf-8")
+    for section in re.split(r"(?m)^### ", text)[1:]:
+        heading = section.split("\n", 1)[0]
+        if "measure" in heading.lower():
+            return "### " + section
+    return ""
+
+
+def test_rr_6_strategy_states_method_and_reason():
+    entry = _strategy_entry()
+    assert entry, (
+        "no strategy in governance/strategies.md states the "
+        "measure-before-arguing practice"
+    )
+    flat = _flat(entry)
+    lower = flat.lower()
+
+    assert re.search(r"\bS\d+\b", entry.split("\n", 1)[0]), (
+        "the heading must carry an S-number, matching the file's convention"
+    )
+
+    # The method as ONE instruction, in order. Checking the words separately
+    # would survive deleting the method sentence, because "measure",
+    # "numbers" and "report" all occur elsewhere in the entry - which is the
+    # exact way S10's own first test failed to be able to fail.
+    method = re.search(
+        r"measure[^.]*?disputed[^.]*?report[^.]*?number[^.]*?"
+        r"before[^.]*?defend",
+        lower,
+    )
+    assert method, (
+        "the strategy does not state the method as one instruction - measure "
+        "the disputed quantity and report the numbers before defending "
+        "either position. Scattered mentions of those words are not the "
+        "method."
+    )
+
+    # The trigger, without which the rule has no moment to fire in.
+    assert re.search(r"recommendation[^.]*?instruction[^.]*?disagree", lower), (
+        "the strategy must name its trigger - a recommendation and an "
+        "instruction that disagree"
+    )
+
+    # The reason, which is the part that makes the rule stick.
+    assert "changed the outcome" in lower or "changed two" in lower, (
+        "the strategy must say why it exists - that measuring has actually "
+        "changed decisions, not that it is good practice in the abstract"
+    )
+
+    assert "*Why a strategy and not a guardrail:*" in entry, (
+        "the entry must carry the file's own convention"
+    )
+
+
+def test_rr_6_the_operating_model_points_at_the_strategy():
+    entry = _strategy_entry()
+    match = re.search(r"`(S\d+)`", entry.split("\n", 1)[0])
+    assert match, "test_rr_6_strategy_states_method_and_reason must pass first"
+    s_number = match.group(1)
+
+    for name, path in POINTER_SURFACES:
+        assert path.is_file(), f"{name} is missing"
+        text = _flat(path.read_text(encoding="utf-8"))
+        assert s_number in text, (
+            f"{name} does not name {s_number}, so a session that has not read "
+            f"governance/strategies.md has no pointer to the practice"
+        )

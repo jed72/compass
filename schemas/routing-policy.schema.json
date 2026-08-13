@@ -225,7 +225,7 @@
               "id": {
                 "type": "string",
                 "minLength": 1,
-                "description": "The framework rule id being waived, e.g. RG-FLOOR-006."
+                "description": "The framework rule id being waived, e.g. RP-REQUIRE-003."
               },
               "reason": {
                 "type": "string",
@@ -294,7 +294,7 @@
     },
     "route_shapes": {
       "type": "object",
-      "description": "The machine mirror of the five reference routes.",
+      "description": "The machine mirror of the five reference approaches.",
       "required": [
         "spike",
         "express",

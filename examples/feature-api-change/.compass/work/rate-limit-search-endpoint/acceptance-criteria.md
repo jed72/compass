@@ -1,11 +1,11 @@
 # Spec - rate-limit-search-endpoint
 
 > **Phase:** Specify · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
-> **Terrain:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
+> **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
 
 ## How each role reads this file
 
-- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `prd.md`?
 - **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
 - **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
 - **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
@@ -24,10 +24,10 @@
 
 ## Scenario group A - Rate limiting behaviour
 
-**Independence note:** single group. All five scenarios exercise the one new middleware; per `plan.md` §4 they share code surface and are built as one solo stream.
+**Independence note:** single group. All five scenarios exercise the one new middleware; per `design.md` §4 they share code surface and are built as one solo stream.
 
 ### Scenario: Requests under the limit pass through unchanged
-<!-- traceability id: SCN-001 · serves: INT-1 -->
+<!-- traceability id: TRC-001 · serves: INT-1 -->
 
 ```gherkin
 Scenario: Requests under the limit pass through unchanged
@@ -39,7 +39,7 @@ Scenario: Requests under the limit pass through unchanged
 ```
 
 ### Scenario: The request over the limit is rejected with 429
-<!-- traceability id: SCN-002 · serves: INT-1 -->
+<!-- traceability id: TRC-002 · serves: INT-1 -->
 
 ```gherkin
 Scenario: The request over the limit is rejected with 429
@@ -51,7 +51,7 @@ Scenario: The request over the limit is rejected with 429
 ```
 
 ### Scenario: A 429 response tells the client when to retry
-<!-- traceability id: SCN-003 · serves: INT-2 -->
+<!-- traceability id: TRC-003 · serves: INT-2 -->
 
 ```gherkin
 Scenario: A 429 response tells the client when to retry
@@ -62,7 +62,7 @@ Scenario: A 429 response tells the client when to retry
 ```
 
 ### Scenario: The window resets and the client can call again
-<!-- traceability id: SCN-004 · serves: INT-1 -->
+<!-- traceability id: TRC-004 · serves: INT-1 -->
 
 ```gherkin
 Scenario: The window resets and the client can call again
@@ -74,7 +74,7 @@ Scenario: The window resets and the client can call again
 ```
 
 ### Scenario: Two clients have independent limits
-<!-- traceability id: SCN-005 · serves: INT-1 -->
+<!-- traceability id: TRC-005 · serves: INT-1 -->
 
 ```gherkin
 Scenario: Two clients have independent limits
@@ -89,11 +89,11 @@ Scenario: Two clients have independent limits
 
 ## Failure-mode scenarios
 
-The failure mode that mattered here - the over-limit case - is SCN-002, kept in
+The failure mode that mattered here - the over-limit case - is TRC-002, kept in
 group A because it is the core behaviour, not an afterthought. `contained`
-blast radius does not call for adversarial inputs; the missing-client-id edge
+risk does not call for adversarial inputs; the missing-client-id edge
 was raised in Clarify and resolved as a config default (see
-`clarifications.md` Q2), not a separate scenario.
+`requirements-review.md` Q2), not a separate scenario.
 
 ---
 
@@ -101,8 +101,8 @@ was raised in Clarify and resolved as a config default (see
 
 | Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
 |---|---|---|---|
-| SCN-001 | INT-1 | [x] | [x] |
-| SCN-002 | INT-1 | [x] | [x] |
-| SCN-003 | INT-2 | [x] | [x] |
-| SCN-004 | INT-1 | [x] | [x] |
-| SCN-005 | INT-1 | [x] | [x] |
+| TRC-001 | INT-1 | [x] | [x] |
+| TRC-002 | INT-1 | [x] | [x] |
+| TRC-003 | INT-2 | [x] | [x] |
+| TRC-004 | INT-1 | [x] | [x] |
+| TRC-005 | INT-1 | [x] | [x] |

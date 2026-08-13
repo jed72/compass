@@ -48,7 +48,7 @@ def run_next(cwd: Path, *, task: Optional[str] = None,
     """Run `compass next` in cwd and return the CompletedProcess."""
     cmd = [sys.executable, str(CLI_PATH), "next"]
     if task:
-        cmd.extend(["--task", task])
+        cmd.extend(["--issue", task])
     env = dict(os.environ)
     if extra_env:
         env.update(extra_env)

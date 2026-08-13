@@ -7,7 +7,7 @@ This is Compass's two differentiators made demonstrable in plain text - **per-is
 ## Invoking
 
 ```
-compass issue receipt --task <slug>
+compass issue receipt --issue <slug>
 ```
 
 Optionally `--workdir <path>` to point the receipt at a project rooted somewhere other than the current working directory. The command is **read-only**: it parses `task.yml`, `delivery-approach.md`, `evidence/`, and `governance/guardrails.yml`, prints the receipt to stdout, and mutates nothing on disk.

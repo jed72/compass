@@ -96,7 +96,7 @@ def demo_task(make_task):
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
-    result = run_cli("bdd", "extract", "--task", "demo")
+    result = run_cli("bdd", "extract", "--issue", "demo")
     assert result.returncode == 0, result
 
     out = demo_task / "acceptance-criteria.feature"
@@ -121,10 +121,10 @@ def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
     first = (demo_task / "acceptance-criteria.feature").read_bytes()
 
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
     second = (demo_task / "acceptance-criteria.feature").read_bytes()
 
     assert hashlib.sha256(first).hexdigest() == hashlib.sha256(second).hexdigest(), (
@@ -144,7 +144,7 @@ def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
     text = (demo_task / "acceptance-criteria.feature").read_text(encoding="utf-8")
 
     assert "@TRC-A1" in text
@@ -164,7 +164,7 @@ def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_a4_feature_names_source_task(demo_task, run_cli):
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
     text = (demo_task / "acceptance-criteria.feature").read_text(encoding="utf-8")
 
     features = re.findall(r"^Feature: (.+)$", text, re.M)
@@ -184,7 +184,7 @@ def test_trc_a4_feature_names_source_task(demo_task, run_cli):
 def test_trc_a5_resolves_current_task_pointer(demo_task, run_cli, project):
     assert (project / ".compass" / "current-task").read_text().strip() == "demo"
 
-    result = run_cli("bdd", "extract")          # no --task
+    result = run_cli("bdd", "extract")          # no issue flag
     assert result.returncode == 0, result
     assert (demo_task / "acceptance-criteria.feature").is_file()
     # it reports where it wrote
@@ -201,7 +201,7 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
         "version: 1.0.0\nmode: enforced\nproject:\n  bdd_features_dir: features\n",
         encoding="utf-8",
     )
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
 
     assert (project / "features" / "demo.feature").is_file(), (
         "configured bdd_features_dir was not honoured"
@@ -212,7 +212,7 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
 
     # and with no key set, the default applies
     cfg.write_text("version: 1.0.0\nmode: enforced\n", encoding="utf-8")
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
     assert (demo_task / "acceptance-criteria.feature").is_file()
 
 
@@ -224,7 +224,7 @@ def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
     task_dir = make_task("empty", {"assessment": {}, "scenarios": []})
     write_spec(task_dir, "There is prose here but no scenario at all.\n")
 
-    result = run_cli("bdd", "extract", "--task", "empty")
+    result = run_cli("bdd", "extract", "--issue", "empty")
     assert result.returncode != 0, result
     assert "acceptance-criteria.md" in result.combined, result
     assert not (task_dir / "spec.feature").exists(), "wrote a file on failure"
@@ -249,7 +249,7 @@ def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
           "```\n"
     ))
 
-    result = run_cli("bdd", "extract", "--task", "bad")
+    result = run_cli("bdd", "extract", "--issue", "bad")
     assert result.returncode != 0, result
     assert "TRC-A2" in result.combined, result
     assert not (task_dir / "spec.feature").exists(), "left a partial file behind"
@@ -270,7 +270,7 @@ def test_trc_f3_title_drift_is_caught(make_task, run_cli):
         "```\n"
     ))
 
-    result = run_cli("bdd", "extract", "--task", "drift")
+    result = run_cli("bdd", "extract", "--issue", "drift")
     assert result.returncode != 0, result
     assert "the heading says this" in result.combined, result
     assert "but the fence says something else" in result.combined, result
@@ -289,7 +289,7 @@ def _digest(path):
 def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
     before = {p: _digest(p) for p in sorted(demo_task.rglob("*")) if p.is_file()}
 
-    assert run_cli("bdd", "extract", "--task", "demo").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "demo").returncode == 0
 
     after = {p: _digest(p) for p in sorted(demo_task.rglob("*")) if p.is_file()}
     created = set(after) - set(before)
@@ -403,7 +403,7 @@ def test_illustrative_gherkin_without_a_trc_comment_is_ignored(make_task, run_cl
                          "  Given a state\n  When it fires\n  Then it holds")
     ))
 
-    assert run_cli("bdd", "extract", "--task", "anchor").returncode == 0
+    assert run_cli("bdd", "extract", "--issue", "anchor").returncode == 0
     text = (task_dir / "acceptance-criteria.feature").read_text(encoding="utf-8")
     assert text.count("Scenario:") == 1, text
     assert "only an example in prose" not in text, text

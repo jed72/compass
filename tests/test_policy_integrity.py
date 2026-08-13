@@ -64,7 +64,7 @@ def test_check_fails_on_missing_check_implementation(run_cli, edit_governance, m
                        "tests": ["tests/test_x.py::test_y"]}],
         "gates": [{"id": "verify.correctness", "status": "pending"}],
     })
-    r = run_cli("check", "--task", "integrity-probe")
+    r = run_cli("check", "--issue", "integrity-probe")
     # in enforced mode an unimplemented check is a hard fail
     assert r.returncode != 0, r
     combined = (r.stdout + r.stderr).lower()

@@ -1,7 +1,7 @@
 # Plan - notifications-subsystem
 
 > **Phase:** Plan · **Date:** 2026-03-07 · **Owning agent:** planner
-> **Plan weight (from route.md):** plan.md + distribution-map.md (Expedition)
+> **Plan weight (from delivery-approach.md):** design.md + distribution-map.md (initiative)
 
 ---
 
@@ -30,7 +30,7 @@ branch from it), then the two streams run in parallel.
 
 ### DD-1 - Security override is a fixed category, not a per-notification flag
 
-- **Context:** SCN-006 / Clarify Q1 - mute must not be able to suppress
+- **Context:** TRC-006 / Clarify Q1 - mute must not be able to suppress
   security notifications. The mechanism had to be chosen.
 - **Decision:** A fixed, closed `security` category. `preferences.py` resolves
   any `(user, "security")` query to `deliver` regardless of stored preference.
@@ -40,26 +40,26 @@ branch from it), then the two streams run in parallel.
 - **Consequences:** Adding a new must-not-miss category is a code change, not a
   config change. Accepted - it should be: the set of un-mutable things deserves
   a code review.
-- **Governance tie:** `brief.md` pre-mortem; product strategy "make the safe
+- **Governance tie:** `prd.md` pre-mortem; product strategy "make the safe
   path the easy path".
 
 ### DD-2 - Idempotency key on the notification row, once-ever dedup
 
-- **Context:** SCN-002 / Clarify Q2 - a retried event must not double-deliver.
+- **Context:** TRC-002 / Clarify Q2 - a retried event must not double-deliver.
 - **Decision:** The producer supplies an idempotency key; `store.py` writes it
   to a unique-constrained column. A second write with the same key is a
   caught-and-logged no-op.
 - **Alternatives considered:** A time-windowed dedup cache - rejected: v1 has
-  no batching/digest concept (`brief.md` non-goal), so there is no window to
+  no batching/digest concept (`prd.md` non-goal), so there is no window to
   scope to; once-ever is simpler and correct.
 - **Consequences:** Producers must supply a stable key. Documented in the
   dispatch contract; the API rejects a dispatch with no key rather than
   silently risking duplicates.
-- **Governance tie:** engineering strategy S3 (simplest thing that works).
+- **Governance tie:** engineering strategy `S3` (simplest thing that works).
 
 ### DD-3 - Durability via write-before-deliver, not an in-memory queue
 
-- **Context:** SCN-003 / INT-2 - a worker restart must not lose a notification.
+- **Context:** TRC-003 / INT-2 - a worker restart must not lose a notification.
   The brief's pre-mortem flagged "looks durable in dev, isn't under real
   restart" as the top technical risk.
 - **Decision:** `dispatch.py` writes the notification to `store.py` (the table)
@@ -69,27 +69,27 @@ branch from it), then the two streams run in parallel.
   log - rejected: it reintroduces exactly the lose-on-restart window the brief
   named as the failure mode.
 - **Consequences:** Every notification is a table write before it is "sent" -
-  a small latency cost, well inside SCN-001's 5s bound. Worth it: durability is
+  a small latency cost, well inside TRC-001's 5s bound. Worth it: durability is
   a brief constraint, not a nice-to-have.
-- **Governance tie:** `brief.md` constraint (durable) and pre-mortem.
+- **Governance tie:** `prd.md` constraint (durable) and pre-mortem.
 
 ## 3. Governance check
 
 | Area | Result | Evidence / note |
 |---|---|---|
-| Guardrails (G1–G5 + project) | pass | G1/G2/G3: all six scenarios stated and Clarify-closed before Build, each with a planned test and a TRC-id; `changed_files` will trace back. G4: every gate cleared with pasted evidence in `verification-report.md`. **G5: applies** - the task `touches: [migrations]`; a human signs off `migrations/0042` before Land, recorded in `task.yml` `approvals:`. The plan routes that sign-off into Land explicitly. |
-| Method strategies (S1–S4 + project) | followed | S1 BDD, S2 TDD apply per stream. S3 simplest-thing honoured in DD-1, DD-2, DD-3. No deviation. |
-| Product strategies | followed | The plan delivers `brief.md`'s outcome - durable, tunable, security-protected in-app notifications - and stays inside the v1 cut. "Depth for existing users" honoured: category preferences over the existing event types, no breadth grab. |
-| Voice & positioning strategies | n/a | No marketer in play on this task - the launch is a separate later task. `verify.claims` exists in the gate set but has no claims to check. |
-| Routing policy | pass | The plan skips nothing `route.md` kept - Expedition's de-scope ledger is empty and the plan keeps it empty. RG-FLOOR-003 (the `migrations` floor) is honoured, not dodged: the migration is treated as the irreversible thing it is, with a forward+rollback review and a G5 sign-off. RG-ROLE-002's Plan block was cleared before this file was written (`brief.md` intent-fidelity check, 2026-03-06). |
+| Guardrails (`G1`-`G5` + project) | pass | `G1`/`G2`/`G3`: all six scenarios stated and the requirements review-closed before Build, each with a planned test and a TRC-id; `changed_files` will trace back. `G4`: every gate cleared with pasted evidence in `verification-report.md`. **`G5`: applies** - the issue `labels: [migrations]`; a human signs off `migrations/0042` before ship, recorded in `task.yml` `approvals:`. The plan routes that sign-off into ship explicitly. |
+| Method strategies (`S1`-`S4` + project) | followed | `S1` BDD, `S2` TDD apply per stream. `S3` simplest-thing honoured in DD-1, DD-2, DD-3. No deviation. |
+| Product strategies | followed | The plan delivers `prd.md`'s outcome - durable, tunable, security-protected in-app notifications - and stays inside the v1 cut. "Depth for existing users" honoured: category preferences over the existing event types, no breadth grab. |
+| Voice & positioning strategies | n/a | No marketer in play for this issue - the launch is a separate later issue. `verify.claims` exists in the gate set but has no claims to check. |
+| Routing policy | pass | The plan skips nothing `delivery-approach.md` kept - initiative's de-scope ledger is empty and the plan keeps it empty. RP-FLOOR-003 (the `migrations` floor) is honoured, not dodged: the migration is treated as the irreversible thing it is, with a forward+rollback review and a `G5` sign-off. RP-ROLE-002's Plan block was cleared before this file was written (`prd.md` intent-fidelity check, 2026-03-06). |
 
 ## 4. Work units
 
 | Unit | Scenario group(s) it satisfies | Code surface it touches | Independent of |
 |---|---|---|---|
 | U0 | foundation - none directly | `migrations/0042_notifications.sql` | lands first; U1 and U2 branch from it |
-| U1 | group A - SCN-001, SCN-002, SCN-003 | `src/notifications/dispatch.py`, `src/notifications/store.py`, `src/notifications/api.py` (read/mark-read endpoints) | independent of U2 - calls `preferences.py` through a narrow interface but does not implement it |
-| U2 | group B - SCN-004, SCN-005, SCN-006 | `src/notifications/preferences.py`, `src/notifications/api.py` (preference endpoints) | independent of U1 - a pure resolver U1 calls; shares only `api.py` and the migration |
+| U1 | group A - TRC-001, TRC-002, TRC-003 | `src/notifications/dispatch.py`, `src/notifications/store.py`, `src/notifications/api.py` (read/mark-read endpoints) | independent of U2 - calls `preferences.py` through a narrow interface but does not implement it |
+| U2 | group B - TRC-004, TRC-005, TRC-006 | `src/notifications/preferences.py`, `src/notifications/api.py` (preference endpoints) | independent of U1 - a pure resolver U1 calls; shares only `api.py` and the migration |
 
 **Parallelism assessment:** U1 and U2 are genuinely independent - disjoint
 scenario groups (A vs B) and *near*-disjoint code: their only overlap is
@@ -102,8 +102,8 @@ written.
 
 ## Gate
 
-- [x] Every scenario in `spec.feature.md` is covered by a work unit - U1 covers SCN-001…003, U2 covers SCN-004…006, U0 is the shared foundation.
-- [x] Governance check passes - every guardrail clears with evidence; G5's Land sign-off is routed in; no strategy deviation to record.
+- [x] Every scenario in `acceptance-criteria.md` is covered by a work unit - U1 covers TRC-001…003, U2 covers TRC-004…006, U0 is the shared foundation.
+- [x] Governance check passes - every guardrail clears with evidence; `G5`'s Land sign-off is routed in; no strategy deviation to record.
 - [x] Parallel work is possible - `distribution-map.md` written next.
 
-Next phase: **Distribute** (`/compass:distribute`) - runs `scripts/swarm.sh` with the distribution map.
+Next stage: **breakdown** (`/compass:breakdown`) - runs `scripts/swarm.sh` with the distribution map.

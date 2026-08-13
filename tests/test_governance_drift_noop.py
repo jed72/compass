@@ -154,7 +154,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
                 value = ",".join(str(v) for v in value)
             if value in (None, ""):
                 continue
-            args += ["--reading", f"{key}={value}"]
+            args += ["--assessment", f"{key}={value}"]
         result = subprocess.run(
             [sys.executable, str(CLI), "approach", "evaluate", *args, "--json"],
             cwd=str(ROOT), capture_output=True, text=True, timeout=60,

@@ -18,7 +18,7 @@ written precisely so the process never has to be re-derived.
    ambiguous or missing, list the available issues and ask. Once found,
    write the slug into `.compass/current-task` - that pointer is how every
    `compass` call (and a later session) resolves to *this* issue without a
-   `--task` flag.
+   `--issue` flag.
 2. **Read `delivery-approach.md` and `task.yml` first.**
    `delivery-approach.md` is the human-readable contract for this issue -
    the delivery approach, the per-stage weight, the gate set, the topology,

@@ -1,6 +1,6 @@
 """Every shipped example does what the framework says it does.
 
-`examples/README.md` tells an adopter that `compass check --task <slug>` passes
+`examples/README.md` tells an adopter that `compass check --issue <slug>` passes
 inside any example. Three independent reviews found that four of five failed it,
 and that `compass bdd extract` - the release's headline feature - worked on none
 of them. Both had shipped unnoticed because nothing exercised the examples.
@@ -60,11 +60,11 @@ def test_every_example_passes_its_own_check(name, slug):
     """examples/README.md promises this. It was false for four of five."""
     tmp, work = _sandbox(name)
     try:
-        r = subprocess.run([sys.executable, str(CLI), "check", "--task", slug],
+        r = subprocess.run([sys.executable, str(CLI), "check", "--issue", slug],
                            cwd=str(work), capture_output=True, text=True,
                            timeout=120)
         assert r.returncode == 0, (
-            f"{name}: `compass check --task {slug}` fails, but "
+            f"{name}: `compass check --issue {slug}` fails, but "
             f"examples/README.md tells adopters it passes:\n{r.stdout[-1800:]}")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -84,7 +84,7 @@ def test_every_example_spec_extracts(name, slug):
         if not spec.is_file():
             pytest.skip(f"{name} is a Spike - no spec by design")
         r = subprocess.run(
-            [sys.executable, str(CLI), "bdd", "extract", "--task", slug],
+            [sys.executable, str(CLI), "bdd", "extract", "--issue", slug],
             cwd=str(work), capture_output=True, text=True, timeout=60)
         assert r.returncode == 0, (
             f"{name}: extract failed on a spec the framework ships:\n"

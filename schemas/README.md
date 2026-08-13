@@ -7,7 +7,8 @@ forms:
 |---|---|---|
 | `governance/routing-policy.yml` | `routing-policy.schema.json` | `routing-policy.reference.yml` |
 | `governance/guardrails.yml` | `guardrails.schema.json` | `guardrails.reference.yml` |
-| `.compass/work/<task>/task.yml` | `task.schema.json` | `task.reference.yml` |
+<!-- vocabulary-scan: allow - the row names files on disk by their real names -->
+| `.compass/work/<issue>/task.yml` | `task.schema.json` | `task.reference.yml` |
 
 **The `.schema.json` files are real, executable JSON Schema** (draft-07) and
 are the authority for structure. **The `.reference.yml` files are the
@@ -17,7 +18,7 @@ the two could be read to differ, the `.schema.json` wins.
 
 ## How validation works
 
-`compass policy lint` and `compass task lint` validate in two layers:
+`compass policy lint` and `compass issue lint` validate in two layers:
 
 1. **The built-in structural linter - always runs.** No dependencies. It is
    the floor, and it does the one thing JSON Schema *cannot*: cross-check that

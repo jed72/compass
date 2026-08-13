@@ -1,9 +1,9 @@
-Human sign-off - guardrail G5 (a human signs off on the irreversible)
+Human sign-off - guardrail `G5` (a human signs off on the irreversible)
 =====================================================================
 
-Task        : notifications-subsystem
+Issue       : notifications-subsystem
 Change      : migrations/0042_notifications.sql - new schema, irreversible
-Why G5      : readings include `touches: [migrations]`
+Why `G5`      : the assessment includes `labels: [migrations]`
 Approver    : L. Haddad (eng lead)
 Status      : approved
 Timestamp   : 2026-03-13T16:20:00+00:00

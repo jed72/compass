@@ -40,7 +40,7 @@ def _project(tmp_path, task_yml):
 
 def _lint(cwd):
     return subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "issue", "lint", "--task", "t"],
+        [sys.executable, str(COMPASS_CLI), "issue", "lint", "--issue", "t"],
         capture_output=True, text=True, cwd=cwd, timeout=30,
     )
 

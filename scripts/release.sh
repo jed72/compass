@@ -243,6 +243,7 @@ echo "  examples integrity (every example must have its task.yml):"
 required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
 for e in $required_examples; do
+  # vocabulary-scan: allow - greps a real path inside the tarball listing
   if ! printf '%s\n' "$TAR_LIST" | grep -q "examples/$e/\.compass/work/.*/task\.yml"; then
     missing="$missing $e"
   fi
@@ -253,6 +254,7 @@ if [ -n "$missing" ]; then
   exit 1
 fi
 for e in $required_examples; do
+  # vocabulary-scan: allow - greps a real path inside the tarball listing
   tf="$(printf '%s\n' "$TAR_LIST" | grep "examples/$e/\.compass/work/.*/task\.yml" | head -1)"
   echo "    OK $tf"
 done

@@ -121,7 +121,7 @@ def make(tmp_path, *, runner=None, seen=None, spec_hash=None,
 
 
 def check(proj):
-    return subprocess.run([sys.executable, str(CLI), "check", "--task", "t"],
+    return subprocess.run([sys.executable, str(CLI), "check", "--issue", "t"],
                           cwd=str(proj), capture_output=True, text=True,
                           timeout=120)
 

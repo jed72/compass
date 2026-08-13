@@ -8,6 +8,20 @@
 
 ## Current Behaviour
 
+### the parser still reads the retired tag
+
+- **Scenario id:** `GL-E2`
+- **Intent:** `DOC-DRIFT`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the guard can fail on each new surface
+
+- **Scenario id:** `SS-4`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
 ### the id set admits the new strategy deliberately
 
 - **Scenario id:** `TRC-3`
@@ -77,6 +91,146 @@
 - **Intent:** `INT-9`
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
+
+### traceability, intent and navigator are defined
+
+- **Scenario id:** `GL-A1`
+- **Intent:** `MISSING-TERMS`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### compass terminology renders a code
+
+- **Scenario id:** `GL-C3`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the new guard can fail
+
+- **Scenario id:** `RR-7`
+- **Intent:** `PRACTICE`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### a genuine triage-has-not-run still says so
+
+- **Scenario id:** `RCD-A4`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the not-found message names the path actually used
+
+- **Scenario id:** `RCD-B2`
+- **Intent:** `REH-2`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a genuinely missing test still fails the check
+
+- **Scenario id:** `RCD-C3`
+- **Intent:** `REH-3`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### an unrelated staged file is still refused
+
+- **Scenario id:** `RCD-D2`
+- **Intent:** `REH-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### compass check's header names the computed approach
+
+- **Scenario id:** `RCD-E1`
+- **Intent:** `REH-6`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the guard can fail
+
+- **Scenario id:** `EX-4`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13
+
+### the Part 0 corrections are folded in
+
+- **Scenario id:** `RR-3`
+- **Intent:** `RULE-2`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the token figures are filed with their caveat and stay internal
+
+- **Scenario id:** `RR-4`
+- **Intent:** `RULE-3`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the cold-reader test heads the next cycle's experiment list
+
+- **Scenario id:** `RR-5`
+- **Intent:** `RULE-4`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the version is consistent across every location
+
+- **Scenario id:** `RCD-H1`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the label guard cannot pass on a partial list
+
+- **Scenario id:** `SR-2`
+- **Intent:** `RULE-S1`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### conventional commits is a project strategy only
+
+- **Scenario id:** `SR-3`
+- **Intent:** `RULE-S2`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### semantic versioning is stated
+
+- **Scenario id:** `SR-4`
+- **Intent:** `RULE-S3`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### prefer-open-technologies is filed, not adopted
+
+- **Scenario id:** `SR-5`
+- **Intent:** `RULE-S4`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### S7 names the surfaces it governs
+
+- **Scenario id:** `SR-6`
+- **Intent:** `RULE-S5`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### the hooks directory is a scanned surface
+
+- **Scenario id:** `RCD-G3`
+- **Intent:** `SWEEP`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the archive keeps the id that fired
+
+- **Scenario id:** `GL-D3`
+- **Intent:** `WRONG-PREFIX`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
 
 ---
 
@@ -3632,3 +3786,283 @@
 - **Intent:** `INT-1`
 - **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12
+
+### the script is the eight-shot re-cut _(archived)_
+
+- **Scenario id:** `RR-1`
+- **Intent:** `RULE-2`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the post-3.0.0 shots are marked pending and listed for re-check _(archived)_
+
+- **Scenario id:** `RR-2`
+- **Intent:** `RULE-2`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### measure-before-arguing is in the operating model _(archived)_
+
+- **Scenario id:** `RR-6`
+- **Intent:** `PRACTICE`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the hook finds the project from a subdirectory _(archived)_
+
+- **Scenario id:** `RCD-A1`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### an unresolvable project root fails closed, not open _(archived)_
+
+- **Scenario id:** `RCD-A2`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the message names the real cause _(archived)_
+
+- **Scenario id:** `RCD-A3`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### design lint defaults to the live artifact filename _(archived)_
+
+- **Scenario id:** `RCD-B1`
+- **Intent:** `REH-2`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a nested test id resolves _(archived)_
+
+- **Scenario id:** `RCD-C1`
+- **Intent:** `REH-3`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a test name ending in a non-word character resolves _(archived)_
+
+- **Scenario id:** `RCD-C2`
+- **Intent:** `REH-3`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the current-issue pointer is in shipping scope _(archived)_
+
+- **Scenario id:** `RCD-D1`
+- **Intent:** `REH-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the cross-issue board names each computed approach _(archived)_
+
+- **Scenario id:** `RCD-E2`
+- **Intent:** `SWEEP`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### no retired slash command remains _(archived)_
+
+- **Scenario id:** `RCD-F1`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a retired CLI verb is an unknown verb _(archived)_
+
+- **Scenario id:** `RCD-F2`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a retired flag is an unknown flag _(archived)_
+
+- **Scenario id:** `RCD-F3`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the migrator keeps its v1-to-v2 mapping _(archived)_
+
+- **Scenario id:** `RCD-F4`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a v1 name in a Python single-token literal is caught _(archived)_
+
+- **Scenario id:** `RCD-G1`
+- **Intent:** `SWEEP`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a v1 name in a markdown code span or fenced block is caught _(archived)_
+
+- **Scenario id:** `RCD-G2`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the archive is exempt and unedited _(archived)_
+
+- **Scenario id:** `RCD-G4`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the tightened guard can fail _(archived)_
+
+- **Scenario id:** `RCD-G5`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### conventional comments is a shipped default _(archived)_
+
+- **Scenario id:** `SR-1`
+- **Intent:** `RULE-S1`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### the four surfaces are scanned _(archived)_
+
+- **Scenario id:** `SS-1`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
+### a JSON schema's prose is read, its contract is not _(archived)_
+
+- **Scenario id:** `SS-2`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
+### the machine contract is untouched _(archived)_
+
+- **Scenario id:** `SS-3`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
+### every id prefix in use is defined _(archived)_
+
+- **Scenario id:** `GL-B1`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the guard fails on an undefined prefix _(archived)_
+
+- **Scenario id:** `GL-B2`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the glossary page is derived, not hand-written _(archived)_
+
+- **Scenario id:** `GL-C1`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### drift between source and page fails the build _(archived)_
+
+- **Scenario id:** `GL-C2`
+- **Intent:** `NO-CODE-DICTIONARY`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### routing ids are RP- and kinds are distinct _(archived)_
+
+- **Scenario id:** `GL-D1`
+- **Intent:** `WRONG-PREFIX`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the evaluator is unchanged by the rename _(archived)_
+
+- **Scenario id:** `GL-D2`
+- **Intent:** `WRONG-PREFIX`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the follow-up surfaces match the schema _(archived)_
+
+- **Scenario id:** `GL-E1`
+- **Intent:** `DOC-DRIFT`
+- **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the enforcement path exempts by anchored name _(archived)_
+
+- **Scenario id:** `PRF-1`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the session-end hook reads the spine _(archived)_
+
+- **Scenario id:** `PRF-2`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the scan reads the hook's own messages _(archived)_
+
+- **Scenario id:** `PRF-3`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### an explicit project root is trusted _(archived)_
+
+- **Scenario id:** `PRF-4`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the warners say when they cannot find the project _(archived)_
+
+- **Scenario id:** `PRF-5`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the tests that could not fail can now fail _(archived)_
+
+- **Scenario id:** `PRF-6`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the suite passes on a clean clone _(archived)_
+
+- **Scenario id:** `PRF-7`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the samples use the current vocabulary _(archived)_
+
+- **Scenario id:** `EX-1`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13
+
+### the canonical id prefix is used throughout _(archived)_
+
+- **Scenario id:** `EX-2`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13
+
+### every sample still passes its own checks _(archived)_
+
+- **Scenario id:** `EX-3`
+- **Intent:** `REVIEW`
+- **Source issue:** `consolidate-trc-and-scn-prefixes`
+- **Landed:** 2026-08-13

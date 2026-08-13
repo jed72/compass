@@ -20,7 +20,7 @@ So this compares the document against the CLI itself rather than against any
 phrase written down in advance. A hardcoded expectation is what let the drift
 survive; the primary record for what the CLI prints is the CLI (`S9`).
 
-Spec: .compass/work/smoke-test-version-drift/acceptance-criteria.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
 """
 from __future__ import annotations
 

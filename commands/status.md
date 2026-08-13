@@ -102,7 +102,7 @@ Here the internals *are* the point. Report:
   `verification-report.md` -> verified. Cross-check the approach's
   de-scope ledger so a *collapsed* stage is not reported as *missing*.
 - **Gates** - from `verification-report.md` and `task.yml`'s `gates:`. Run
-  `compass check --task <slug>` for the mechanical view (read-only).
+  `compass check --issue <slug>` for the mechanical view (read-only).
   **Say when a check passes vacuously.** "no changed_files recorded yet"
   and "0/N pass gates" are green lines that assert nothing; reading them as
   progress is how an issue ships untraced.

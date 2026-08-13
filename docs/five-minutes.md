@@ -81,6 +81,7 @@ Triage reads the four dimensions - size `atomic`, risk
 `trivial`, familiarity `brownfield-mapped`, intent `delivery` - and records
 them in `.compass/work/fix-jwt-typo/task.yml`:
 
+<!-- vocabulary-scan: allow - the spine's own field names; machine state, which the ban exempts -->
 ```yaml
 schema_version: "2.0"
 task: fix-jwt-typo
@@ -99,7 +100,7 @@ routing guardrails, and folds the result back into `task.yml`:
 ```
   policy          : governance/routing-policy.yml (v2.0.0)
   assessment      : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
-  candidate shape : quick fix  <- RS-SHAPE-003 (Small on every axis, on mapped ground.)
+  candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix
   policy rules fired: none
   topology        : solo
@@ -177,23 +178,24 @@ suite, and then calls the kit:
 This is the real output, from the shipped `examples/quick-fix-typo/` issue -
 run `compass check` in that directory to reproduce it verbatim:
 
+<!-- vocabulary-scan: allow - verbatim output; editing a transcript would make it untrue, and the guardrail codes come from guardrails.yml -->
 ```
 $ compass check
-compass check - task 'fix-timeout-error-message' (route: express)
+compass check - issue 'fix-timeout-error-message' (approach: quick-fix)
 [mode: enforced]
 
   G1 Tested before it lands
     PASS scenarios-have-tests: all 1 scenario(s) list a test
-    PASS declared-tests-resolve: all 1 declared test id(s) resolve
+    PASS declared-tests-resolve: issue is landed - declared test ids are a historical record
     PASS suite-passed: 1 test-run(s) on record, all green, bound to scenarios ['SCN-001']
-    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario
+    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario, but 1 no longer exist (src/api/upload.py) - reported only, because the issue is landed - historical record
     PASS scenarios-are-executable: no BDD runner wired (project.bdd_runner is unset) - nothing to verify; see examples/bdd-adapters/ to opt in
 
   G2 Acceptance defined before it is built
     PASS scenario-has-id-and-intent: all 1 scenario(s) have an id and a linked intent
 
   G3 Traceability holds
-    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario
+    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario, but 1 no longer exist (src/api/upload.py) - reported only, because the issue is landed - historical record
     PASS scenario-has-id-and-intent: all 1 scenario(s) have an id and a linked intent
     PASS claim-traces-to-scenario: no claims recorded (no marketer in play, or none yet)
 
@@ -204,9 +206,9 @@ compass check - task 'fix-timeout-error-message' (route: express)
     PASS no-trusted-rerun: no trusted-rerun violations
     PASS command-passes: verify.fitness: 0 project guardrails declared with command-passes; clearing by vacuity (no fitness functions to check - declare project guardrails with `check: command-passes` to add fitness functions)
 
-  G5 A human signs off on the irreversible: not applicable for these readings - skipped
-  owed backfills
-    PASS backfills-paid: no owed backfills
+  G5 A human signs off on the irreversible: not applicable for this assessment - skipped
+  outstanding follow-ups
+    PASS backfills-paid: no outstanding follow-ups
 
 ------------------------------------------------------------
 compass check: PASS - all 15 check(s) passed.
@@ -224,7 +226,7 @@ foot is ticked.
 /compass:ship
 ```
 
-Solo route, no swarm. The commit lands on the current branch, regression
+Solo topology, no swarm. The commit lands on the current branch, regression
 runs, the de-scope ledger has nothing owed, the issue closes. Total
 artifacts on disk: `delivery-approach.md`, `task.yml`, `acceptance-criteria.md`, `evidence/`,
 `verification-report.md`, `devlog.md`. Anyone can pick the issue up from
@@ -259,17 +261,17 @@ you have put that directory on your `PATH`. Otherwise call it by path
 themselves either way.
 
 ```
-compass approach evaluate   apply routing-policy.yml to a task's readings -> the route
-compass check            run the guardrails.yml checks against task.yml + evidence/
-compass bdd extract     extract a task's acceptance-criteria.md into a runnable .feature
+compass approach evaluate   apply routing-policy.yml to an issue's assessment -> the approach
+compass check            run the guardrails.yml checks against the spine + evidence/
+compass bdd extract     extract an issue's acceptance-criteria.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass issue lint        structurally validate a task.yml
 compass design lint        scan a design.md for placeholder phrases - advisory
-compass issue receipt     render a one-screen receipt for a landed task -
-                         readings → route → typed evidence → gate verdicts
-compass issue set-status  record a task as queued | active | parked | landed |
+compass issue receipt     render a one-screen receipt for a landed issue -
+                         assessment → approach → typed evidence → gate verdicts
+compass issue set-status  record an issue as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
 compass acceptance start declare the acceptance for a change with no natural
                          red - a validator (--kind validation) or a green suite
@@ -281,9 +283,9 @@ compass evidence add     append a typed evidence entry to the registry
 compass analyze          cross-artifact coherence check (orphaned scenarios,
                          route disagreements, orphan claims)
 compass adr new          create a new numbered ADR in architecture/decisions/
-compass rework-scan      scan tasks for rework patterns (uses signals.yml)
-compass flow [--digest]  cross-task flow view; --digest writes a dated digest
-compass next             surface the next action on the current task
+compass rework-scan      scan issues for rework patterns (uses signals.yml)
+compass flow [--digest]  cross-issue flow view; --digest writes a dated digest
+compass next             surface the next action on the current issk
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly; verifies HEAD advanced
 compass retro      aggregate the re-assessment log - is the sizing right?

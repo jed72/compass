@@ -92,7 +92,7 @@ def test_no_fifth_routing_dimension_added():
 
 def test_verify_fitness_only_introduced_via_routing_floors():
     """verify.fitness is not in any route_shape's gates list - it is only
-    added by the RG-FLOOR-006/007 floors (route-promoted, never tier-menu).
+    added by the RP-REQUIRE-003/007 floors (route-promoted, never tier-menu).
     """
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     for shape_name, shape in policy["route_shapes"].items():
@@ -103,14 +103,14 @@ def test_verify_fitness_only_introduced_via_routing_floors():
 
 
 def test_verify_fitness_promotion_floors_exist():
-    """RG-FLOOR-006 and RG-FLOOR-007 are present and use add_gate: verify.fitness."""
+    """RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.fitness."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     floors = policy["routing_guardrails"]["floors"]
     by_id = {f["id"]: f for f in floors}
-    assert "RG-FLOOR-006" in by_id, "RG-FLOOR-006 (verify.fitness on cross-cutting/critical) must exist"
-    assert "RG-FLOOR-007" in by_id, "RG-FLOOR-007 (verify.fitness on irreversible touches) must exist"
-    assert by_id["RG-FLOOR-006"]["add_gate"] == "verify.fitness"
-    assert by_id["RG-FLOOR-007"]["add_gate"] == "verify.fitness"
+    assert "RP-REQUIRE-003" in by_id, "RP-REQUIRE-003 (verify.fitness on cross-cutting/critical) must exist"
+    assert "RP-REQUIRE-004" in by_id, "RP-REQUIRE-004 (verify.fitness on irreversible touches) must exist"
+    assert by_id["RP-REQUIRE-003"]["add_gate"] == "verify.fitness"
+    assert by_id["RP-REQUIRE-004"]["add_gate"] == "verify.fitness"
 
 
 # -----------------------------------------------------------------------------
@@ -189,9 +189,16 @@ def test_default_method_strategy_set_is_the_known_set():
     (regression-baseline) from field feedback, S7 (cold-reader prose), S8
     (voice audition, standing - specialises S7 with a named calibration
     sample), S9 (fresh eyes on a sweep - a fresh agent, not the implementer,
-    verifies a sweep, rename, or cleanup). Adding a strategy is allowed and
-    cheap, but it must be a decision - so this list is updated by hand, in
-    the same commit as the strategy it admits.
+    verifies a sweep, rename, or cleanup), S10 (mutation proof - a guard is
+    accepted on a demonstrated failure, not on a passing test), S11 (measure
+    before arguing - when a recommendation and an instruction disagree,
+    measure the disputed quantity and report the numbers first), S12
+    (conventional comments - a review comment opens with a plain-word label
+    saying whether it blocks; a shipped default rather than a project
+    preference, because it serves the review gate and its labels are ordinary
+    English an adopting team inherits no jargon with). Adding a strategy is
+    allowed and cheap, but it must be a decision - so this list is updated by
+    hand, in the same commit as the strategy it admits.
     """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
     # Section markers carry the machine id as a code-span suffix:
@@ -199,7 +206,8 @@ def test_default_method_strategy_set_is_the_known_set():
     # at the docs-prose slice.
     import re
     ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10",
+                "S11", "S12"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "
         f"{sorted(expected)}. If you added a strategy on purpose, add its id "

@@ -24,7 +24,7 @@ hook to failing *quietly*, which is where it was before and is still wrong. A
 guardrail that cannot read its own state must fail closed and say why, which
 is what these tests pin.
 
-Spec: .compass/work/hook-fails-open-on-broken-vendor/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

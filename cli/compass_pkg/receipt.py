@@ -95,9 +95,9 @@ from compass_pkg.core import CompassError, artifact_path, display_shape, find_co
 
 
 # --- command: task receipt ---------------------------------------------------
-# `compass task receipt --task <slug>` renders a one-screen receipt of a task:
-# readings -> route -> gates with verdicts -> evidence registry -> overall
-# verdict. Read-only over .compass/work/<slug>/{task.yml, route.md, evidence/}
+# `compass issue receipt --issue <slug>` renders a one-screen receipt of an issue:
+# assessment -> delivery approach -> gates with verdicts -> evidence registry -> overall
+# verdict. Read-only over .compass/work/<slug>/{task.yml, delivery-approach.md, evidence/}
 # plus governance/guardrails.yml; never re-executes checks (INT-2 / ADR-005).
 # Clustered here next to cmd_task_lint so Move 5C can relocate as one block.
 
@@ -123,7 +123,7 @@ def _receipt_resolve_task_dir(args):
                 slug = fh.read().strip()
     if not slug:
         raise CompassError(
-            "compass issue receipt: no --task and no .compass/current-task pointer"
+            "compass issue receipt: no --issue and no .compass/current-task pointer"
         )
     task_dir = os.path.join(compass_dir, "work", slug)
     if not os.path.isdir(task_dir):
@@ -309,7 +309,10 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
                           "see the delivery approach)")
     lines.append(_receipt_truncate(
         f"  {shape_shown}  (topology: {topology_shown})"))
-    fired = task.get("policy_rules_fired") or task.get("fired_guardrails") or []
+    # No v1-key fallback: the spine is normalised on load (see
+    # normalize_spine), so a 1.x `fired_guardrails` has already become
+    # this key by the time the receipt reads it.
+    fired = task.get("policy_rules_fired") or []
     if fired:
         lines.append("  routing guardrails fired:")
         for g in fired:

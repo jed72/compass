@@ -679,9 +679,9 @@ class TestTrcB6:
         living spec was introduced."""
         result = run_cli(
             "approach", "evaluate",
-            "--reading", "risk=contained",
-            "--reading", "familiarity=greenfield",
-            "--reading", "size=small",
+            "--assessment", "risk=contained",
+            "--assessment", "familiarity=greenfield",
+            "--assessment", "size=small",
             "--json",
             cwd=FRAMEWORK_ROOT,
         )
@@ -798,7 +798,7 @@ class TestTrcB11:
         for name in ("routing-policy.yml", "guardrails.yml"):
             shutil.copyfile(gov_src / name, gov_dst / name)
 
-        result = run_cli("issue", "lint", "--task", "test-status", cwd=str(tmp_path))
+        result = run_cli("issue", "lint", "--issue", "test-status", cwd=str(tmp_path))
         assert result.returncode == 0, (
             f"task.yml with status: landed should lint clean: {result.stdout}\n{result.stderr}"
         )

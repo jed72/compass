@@ -424,7 +424,7 @@ Compass is built in three layers, deliberately separated.
   commands invoke phases, subagents are the swarm, skills carry the
   procedural knowledge, hooks enforce the guardrails and the
   red-before-green strategy, and the commands and agents *call the kit* -
-  `/compass:frame` runs `compass approach evaluate`, `/compass:verify` runs
+  `/compass:triage` runs `compass approach evaluate`, `/compass:verify` runs
   `compass check`. `bin/compass` and `.claude-plugin/` are the
   runtime-specific install wiring; another runtime's adapter would replace
   them with its own equivalent (a shell PATH addition, a different plugin

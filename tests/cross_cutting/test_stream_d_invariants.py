@@ -284,11 +284,11 @@ def test_trc_d9_route_evaluate_deterministic(tmp_path):
     # own routing-policy.yml (no project overrides - work in tmp_path).
     cmd = [
         sys.executable, str(CLI), "approach", "evaluate",
-        "--reading", "risk=contained",
-        "--reading", "familiarity=brownfield-mapped",
-        "--reading", "size=small",
-        "--reading", "intent=delivery",
-        "--reading", "role=engineer",
+        "--assessment", "risk=contained",
+        "--assessment", "familiarity=brownfield-mapped",
+        "--assessment", "size=small",
+        "--assessment", "intent=delivery",
+        "--assessment", "role=engineer",
         "--json",
     ]
     out1 = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, check=True)

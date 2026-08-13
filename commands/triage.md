@@ -93,7 +93,7 @@ force; if it is still a spike, leave the marker in place.
    is the only part of the computation that is judgement - everything below
    is mechanism.
 3. **Compute the delivery approach - this is the mechanism.** Run
-   `compass approach evaluate --task <slug> --write`. The CLI applies
+   `compass approach evaluate --issue <slug> --write`. The CLI applies
    `routing-policy.yml` to the assessment: it composes the candidate shape,
    applies the floors, caps, immovable gates, and blocking role rules, and
    folds the resulting `delivery_approach`, `stages`, `gates` (status
@@ -113,7 +113,7 @@ force; if it is still a spike, leave the marker in place.
    records mechanically.
 5. **Write the `.compass/current-task` pointer.** Write the slug into
    `.compass/current-task` so every later `compass` call resolves to this
-   issue without a `--task` flag.
+   issue without an `--issue` flag.
 6. **On a spike, write the `.spike` marker.** If the CLI's approach is a
    spike, create an empty marker file at `.compass/work/<task-slug>/.spike`.
    The approach-aware pre-tool hook reads this to know the TDD strategy is

@@ -2,7 +2,7 @@
 # =============================================================================
 # Compass script: swarm.sh  -  CREATE WORKTREES, ONE PER INDEPENDENT STREAM
 # =============================================================================
-# The Distribute-phase tool. Given a task's distribution-map.md, it creates one
+# The breakdown-stage tool. Given an issue's distribution-map.md, it creates one
 # git worktree per independent stream under the configured worktree_root, one
 # branch per stream, and prints the launch plan - one `builder` agent per
 # worktree. Only the `orchestrator` agent runs this (see CLAUDE.md, the
@@ -16,8 +16,8 @@
 # WHAT IT RESPECTS
 #   - .compass/config.yml  swarm.worktree_root   (default ../.compass-worktrees)
 #   - .compass/config.yml  swarm.max_worktrees   (default 6) - hard ceiling
-#   - any adaptivity `cap` recorded in route.md, in particular the STANDING CAP:
-#       critical blast radius => max_worktrees: 1.
+#   - any adaptivity `cap` recorded in delivery-approach.md, in particular the STANDING CAP:
+#       critical risk => max_worktrees: 1.
 #     If the cap is below the stream count, the cap WINS and swarm.sh refuses to
 #     over-provision - it tells you to fold/sequence streams in the map first.
 #
@@ -51,18 +51,19 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-[ -n "$TASK_SLUG" ] || { echo "swarm.sh: need a task slug. See --help." >&2; exit 1; }
+[ -n "$TASK_SLUG" ] || { echo "swarm.sh: need an issue slug. See --help." >&2; exit 1; }
 
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"
 ROUTE="$TASK_DIR/delivery-approach.md"
+# vocabulary-scan: allow - reads the retired artifact name for old archives
 [ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
 TASK_YML="$TASK_DIR/task.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
-[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for task '$TASK_SLUG' - Plan must produce it first." >&2; exit 1; }
+[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for issue '$TASK_SLUG' - the design stage must produce it first." >&2; exit 1; }
 [ -f "$ROUTE" ] || { echo "swarm.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
-[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for task '$TASK_SLUG' - the worktree cap is read from structured readings, not route.md prose. Run Frame." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:triage." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
 # Minimal YAML reads - these keys are simple scalars in .compass/config.yml.
@@ -82,12 +83,12 @@ case "$WORKTREE_ROOT_REL" in
 esac
 
 # --- the cap from task.yml (R4) ---------------------------------------------
-# The cap is a MACHINE FACT and must come from the structured readings, not from
-# grepping route.md prose - a well-formed route.md quotes 'blast_radius: critical'
-# and 'RG-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
+# The cap is a MACHINE FACT and must come from the structured assessment, not from
+# grepping delivery-approach.md prose - a well-formed delivery-approach.md quotes 'risk: critical'
+# and 'RP-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
 # prose grep false-positived on exactly those, capping a non-critical swarm to 1.
-# The standing cap (RG-CAP-001): critical blast radius => max_worktrees 1. We read
-# it from readings.blast_radius and fired_guardrails. Absent readings is a hard
+# The standing cap (RP-CAP-001): critical risk => max_worktrees 1. We read
+# it from assessment.risk and policy_rules_fired. Absent assessment is a hard
 # error - never a silent cap, never a fall back to prose.
 CAP_INFO="$(compass_python - "$TASK_YML" <<'PY'
 import sys
@@ -104,8 +105,11 @@ br = assessment.get("risk") or assessment.get("blast_radius")
 if not br:
     print("ERR:no assessment.risk in task.yml"); sys.exit(0)
 fired = d.get("policy_rules_fired") or d.get("fired_guardrails") or []
+# Both id spellings: an archived spine records the id that actually fired,
+# and RG-CAP-001 is the retired spelling of RP-CAP-001.
+CAP_IDS = ("RP-CAP-001", "RG-CAP-001")
 capped = (br == "critical") or any(
-    isinstance(f, dict) and f.get("id") == "RG-CAP-001" for f in fired)
+    isinstance(f, dict) and f.get("id") in CAP_IDS for f in fired)
 print("OK:" + ("1" if capped else "0"))
 PY
 )"
@@ -113,9 +117,9 @@ case "$CAP_INFO" in
   OK:1) CAP=1 ;;
   OK:0) CAP="$MAX_WORKTREES" ;;
   *)    echo "swarm.sh: cannot read the cap from task.yml (${CAP_INFO#ERR:})." >&2
-        echo "          The worktree cap is a machine fact in readings.blast_radius +" >&2
+        echo "          The worktree cap is a machine fact in assessment.risk +" >&2
         echo "          fired_guardrails - fix task.yml. swarm.sh does NOT fall back to" >&2
-        echo "          grepping route.md prose (that was the R4 false-positive)." >&2
+        echo "          grepping delivery-approach.md prose (that was the R4 false-positive)." >&2
         exit 1 ;;
 esac
 # Never exceed the config ceiling regardless.
@@ -179,7 +183,7 @@ git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
   || { echo "swarm.sh: $PROJECT_DIR is not a git repository." >&2; exit 1; }
 BASE_BRANCH="$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)"
 
-echo "Compass swarm - task '$TASK_SLUG'"
+echo "Compass swarm - issue '$TASK_SLUG'"
 echo "  base branch:    $BASE_BRANCH"
 echo "  worktree root:  $WORKTREE_ROOT"
 echo "  streams:        $STREAM_COUNT   (config max $MAX_WORKTREES, route cap $CAP)"
@@ -208,21 +212,21 @@ for i in "${!STREAMS[@]}"; do
     echo "  $sid: created worktree $wt_path on branch $branch"
   fi
 
-  # --- seed the worktree with the task's artifacts --------------------------
+  # --- seed the worktree with the issue's artifacts --------------------------
   # `git worktree add` brings across only what git TRACKS. A project that
-  # commits .compass/work/ gets the task directory for free; one that treats
-  # task state as local - as this framework repo does, see .gitignore - does
+  # commits .compass/work/ gets the issue directory for free; one that treats
+  # issue state as local - as this framework repo does, see .gitignore - does
   # not, and its builder lands in a worktree with no spec, no plan, and no
   # charter. `compass next`, `compass check`, and `compass tdd-red` all fail
   # there, because resolve_task_dir has no work directory to resolve against.
   #
   # NON-DESTRUCTIVE ON PURPOSE. swarm.sh is documented as idempotent, and the
   # second run is the one where a builder has work to lose - a devlog entry, a
-  # recorded red. An existing task directory is left exactly as it is.
+  # recorded red. An existing issue directory is left exactly as it is.
   if [ "$DRY_RUN" -eq 0 ] && [ -d "$wt_path" ]; then
     wt_task_dir="$wt_path/.compass/work/$TASK_SLUG"
     if [ -d "$wt_task_dir" ]; then
-      echo "      task dir already present - left as-is"
+      echo "      issue dir already present - left as-is"
     else
       mkdir -p "$wt_task_dir"
       # Copy the ARTIFACTS a builder needs to work - and nothing that would
@@ -238,10 +242,10 @@ for i in "${!STREAMS[@]}"; do
           *) cp -R "$_f" "$wt_task_dir/" ;;
         esac
       done
-      echo "      seeded task dir -> .compass/work/$TASK_SLUG"
+      echo "      seeded issue dir -> .compass/work/$TASK_SLUG"
     fi
-    # The pointer every `compass` call resolves "the current task" through.
-    # Written unconditionally: it is one line naming this task, so there is no
+    # The pointer every `compass` call resolves "the current issue" through.
+    # Written unconditionally: it is one line naming this issue, so there is no
     # builder work in it to lose, and a stale pointer is worse than none.
     mkdir -p "$wt_path/.compass"
     printf '%s\n' "$TASK_SLUG" > "$wt_path/.compass/current-task"
@@ -267,10 +271,10 @@ echo "----------------------------------------------------------------"
 if [ "$STREAM_COUNT" -ge 4 ]; then
   echo "Topology is a SWARM (4+ streams): an 'orchestrator' agent must also run -"
   echo "it writes no feature code, watches for streams converging on shared surface,"
-  echo "and owns integration at Land via scripts/integrate.sh."
+  echo "and owns integration at ship via scripts/integrate.sh."
 else
   echo "Topology is a PAIR (2-3 streams): no dedicated orchestrator - the lead"
-  echo "builder integrates at Land via scripts/integrate.sh."
+  echo "builder integrates at ship via scripts/integrate.sh."
 fi
 echo ""
 [ "$DRY_RUN" -eq 1 ] && echo "(dry run - nothing was created)"

@@ -95,7 +95,7 @@ import re as _re
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # realpath: resolve symlinks
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
-COMPASS_VERSION = "2.1.0"    # the CLI's own version
+COMPASS_VERSION = "3.0.0"    # the CLI's own version
 COMPASS_SCHEMA_VERSION = "2.0"    # the task.yml schema this CLI writes
 COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
 
@@ -224,7 +224,7 @@ def resolve_task_dir(slug=None):
         raise CompassError(f"no issue directories under {work}")
     if len(candidates) > 1:
         sys.stderr.write(
-            "compass: no --task slug and no .compass/current-task pointer - "
+            "compass: no --issue slug and no .compass/current-task pointer - "
             "falling back to the most recently modified issue directory. This "
             "is ambiguous; write .compass/current-task to be sure.\n"
         )
@@ -505,6 +505,18 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
 
 # when-condition dimension keys: a project policy written against the v1
 # names keeps matching until it migrates.
+def shape_stages(shape):
+    """A route shape's per-stage weights, tolerating the retired key name.
+
+    The policy-side analogue of SPINE_KEY_MAP: a project routing policy
+    written before the v2 freeze says `phases:` where the current one says
+    `stages:`. Living here rather than at the call site keeps every retired
+    spelling in the one module that is allowed to name them, so the
+    vocabulary scan can enforce that rule everywhere else.
+    """
+    return dict(shape.get("stages") or shape.get("phases") or {})
+
+
 _WHEN_KEY_MAP = {
     "blast_radius": "risk", "terrain": "familiarity",
     "magnitude": "size", "intent": "goal", "touches": "labels",

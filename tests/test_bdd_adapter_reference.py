@@ -46,7 +46,7 @@ def _run_adapter(cwd):
     env.pop("PYTEST_DISABLE_PLUGIN_AUTOLOAD", None)
     subprocess.run(
         [sys.executable, str(ROOT / "cli" / "compass"), "bdd", "extract",
-         "--task", "reset-password"],
+         "--issue", "reset-password"],
         cwd=str(cwd), capture_output=True, text=True, check=True, timeout=60,
     )
     return subprocess.run(

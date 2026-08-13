@@ -1,23 +1,23 @@
 # Devlog - pdf-export-library-viability
 
-> **Task:** Is `weasyprint` a viable PDF engine for our report layouts? Timeboxed spike. · **Opened:** 2026-05-12
+> **Issue:** Is `weasyprint` a viable PDF engine for our report layouts? Timeboxed spike. · **Opened:** 2026-05-12
 > Append-only. Newest at the bottom.
 
-<!-- On a Spike, this devlog carries more weight than usual: there is no
-     verification-report.md, no plan.md. The Conclude gate's evidence IS the
+<!-- On a spike, this devlog carries more weight than usual: there is no
+     verification-report.md, no design.md. The Conclude gate's evidence IS the
      conclusion entry below. A Spike that never reaches a written conclusion
-     has not used the route - it has just avoided the framework. -->
+     has not used the delivery approach - it has just avoided the framework. -->
 
 ---
 
 ## 2026-05-12 09:30 - Frame
 
 - **Event:** Needle ran; route computed. `.spike` marker written - the pre-tool hook will suspend the TDD strategy.
-- **Route:** Spike - see `route.md` revision 1. Selected by `intent: exploration` (RS-SHAPE-001).
-- **Readings:** blast radius contained, terrain greenfield, magnitude small, intent & role engineer/exploration.
-- **Routing guardrails fired:** none. (RG-FLOOR-003 did not fire - `touches:` is empty; that is what keeps Spike legitimately available here.)
-- **Owed backfills:** none - a Spike owes nothing, it lands nothing.
-- **Next:** Explore (Specify, Clarify, Plan all collapsed/skipped per the route).
+- **Route:** Spike - see `delivery-approach.md` revision 1. Selected by `intent: exploration` (RP-SHAPE-001).
+- **Assessment:** risk contained, familiarity greenfield, size small, intent & role engineer/exploration.
+- **Routing guardrails fired:** none. (RP-FLOOR-003 did not fire - `touches:` is empty; that is what keeps Spike legitimately available here.)
+- **Outstanding follow-ups:** none - a spike owes nothing, it lands nothing.
+- **Next:** Explore (Specify, Clarify, Plan all collapsed/skipped per the delivery approach).
 
 ## 2026-05-12 10:00 - Explore - begin
 
@@ -55,22 +55,22 @@
 
 ## 2026-05-13 16:45 - Land - graduate
 
-- **Event:** task closed. **Decision: GRADUATE.**
+- **Event:** issue closed. **Decision: GRADUATE.**
 - **What happens to the code:** the scratch branch `spike/pdf-export-weasyprint`
-  is **not merged.** Nothing lands from a Spike. The three render scripts stay
+  is **not merged.** Nothing lands from a spike. The three render scripts stay
   on the branch as *reference inputs* to the next Frame - good inputs, because
-  the terrain is now mapped.
-- **Graduation:** a fresh `/compass:frame` has been run for the real delivery
-  work - task `report-pdf-export`. That Frame inherits this spike's `route.md`,
-  this conclusion, and the reference code. The new task will compose to a real
-  route (likely Standard) where guardrails G1–G3 apply in full: the PDF export
+  the familiarity is now mapped.
+- **Graduation:** a fresh `/compass:triage` has been run for the real delivery
+  work - issue `report-pdf-export`. That triage inherits this spike's `delivery-approach.md`,
+  this conclusion, and the reference code. The new issue will compose to a real
+  route (likely Standard) where guardrails `G1`–`G3` apply in full: the PDF export
   code will be written under TDD with real scenarios before anything lands. The
-  chart-pre-rendering caveat is carried into that task's brief as a known
+  chart-pre-rendering caveat is carried into that issue's brief as a known
   constraint.
-- **This spike's status:** graduated → task `report-pdf-export`. Closed.
-- **Note on `compass check`:** running `compass check` against this task reports
-  G1/G2 FAILs - no tested scenarios, no `green.json`. That is correct and
-  expected: `compass check` asks "is this a landable delivery task?" and a
+- **This spike's status:** graduated → issue `report-pdf-export`. Closed.
+- **Note on `compass check`:** running `compass check` against this issue reports
+  `G1`/`G2` FAILs - no tested scenarios, no `green.json`. That is correct and
+  expected: `compass check` asks "is this a landable delivery issue?" and a
   Spike is honestly not one. A Spike passes its one Conclude gate (above), not
   the delivery guardrail set. The guardrails are not skipped - they moved with
   the code to `report-pdf-export`, where they apply in full.

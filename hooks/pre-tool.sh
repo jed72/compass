@@ -2,31 +2,34 @@
 # =============================================================================
 # Compass hook: pre-tool.sh  -  THE RED-BEFORE-GREEN STRATEGY ENFORCER
 # =============================================================================
-# Enforces the TDD strategy (S2: red-green-refactor) mechanically - in service
-# of guardrail G1 ("tested before it lands"). Note the distinction, because it
-# is the whole point of Compass's governance model:
+# Enforces the red-before-green strategy mechanically - in service of the
+# guardrail that every change lands with a passing automated test covering it.
+# Note the distinction, because it is the whole point of Compass's governance
+# model:
 #
-#   * G1 (a GUARDRAIL) is the hard line: no code lands without a passing test
-#     it traces to. G1 is checked at Verify and Land, with evidence.
-#   * Red-before-green (a STRATEGY) is the strong, shipped-on *way* to satisfy
-#     G1. This hook enforces the strategy - and a strategy is route-aware.
+#   * The GUARDRAIL is the hard line: no code ships without a passing test it
+#     traces to. It is checked at the test-and-review stage and at ship time,
+#     with evidence.
+#   * Red-before-green is a STRATEGY - the strong, shipped-on *way* to satisfy
+#     that guardrail. This hook enforces the strategy, and a strategy is aware
+#     of the delivery approach.
 #
 # This hook therefore BLOCKS code edits with no failing test on record - EXCEPT
-# on a Spike route, where the TDD strategy is deliberately suspended so
-# exploration is not throttled. A Spike still cannot violate G1: nothing lands
-# from a Spike without graduating (re-framing) into a real route first, where
-# this hook applies in full.
+# on a spike, where the strategy is deliberately suspended so exploration is
+# not throttled. A spike still cannot cross the guardrail: nothing ships from a
+# spike without graduating (re-assessing) into a real delivery approach first,
+# where this hook applies in full.
 #
 # WHAT IT DOES
 #   Runs as a Claude Code PreToolUse hook. On a tool call that edits or writes a
 #   *code* file (not a test, not docs, not a Compass artifact):
-#     - if the current task's route is Spike (a ".spike" marker exists) → ALLOW.
+#     - if the current issue is a spike (a ".spike" marker exists) → ALLOW.
 #     - else, require a recorded failing test - a ".red" marker file under
 #       .compass/work/<task-slug>/. No .red marker → the edit is BLOCKED.
 #
 # THE MARKER CONVENTION  (this is the "not magic" part - read this)
 #   .compass/work/<task-slug>/.red    "a failing test currently exists for this
-#                                      task". It is NOT a bare `touch` - it is
+#                                      issue". It is NOT a bare `touch` - it is
 #                                      written by `compass tdd-red <test-cmd>`,
 #                                      which runs the test, confirms it really
 #                                      fails, writes evidence/red.json with the
@@ -38,18 +41,19 @@
 #     2. Edit the production code - this hook sees .red and allows it.
 #     3. `compass tdd-green -- <test command>` confirms green, writes
 #        evidence/green.json, and clears .red - the hand-off to Verify.
-#   .compass/work/<task-slug>/.spike  "this task is on a Spike route - the TDD
-#                                      strategy is suspended". /compass:triage
+#   .compass/work/<task-slug>/.spike  "this issue is a spike - the red-
+#                                      before-green strategy is suspended".
+#                                      /compass:triage
 #                                      writes this when it composes a Spike.
 #   Markers are deliberately plain files so they are inspectable and auditable;
 #   the evidence/*.json records next to them are the audit trail.
 #
 # ESCAPE HATCH
 #   Test files, docs, config, and .compass/ artifacts are never blocked - you
-#   must be able to write the failing test in the first place. The Spike route
+#   must be able to write the failing test in the first place. A spike
 #   is the *intentional* escape hatch for exploratory work. There is no env var
-#   to disable the check on a delivery route: that would not be suspending a
-#   strategy, it would be crossing guardrail G1.
+#   to disable the check on delivery work: that would not be suspending a
+#   strategy, it would be crossing the tested-before-ship guardrail.
 #
 # WIRING  (.claude/settings.json)
 #   {
@@ -93,7 +97,65 @@ else
   COMMAND="$(printf '%s' "$INPUT" | grep -oE '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)"
 fi
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# --- resolve the project this hook is enforcing -----------------------------
+# CLAUDE_PROJECT_DIR is authoritative when the host sets it. When it does not
+# - and it does not always - fall back to the nearest ancestor of the working
+# directory that contains a .compass/ directory, the way git finds its repo.
+#
+# The previous fallback was a bare $(pwd), which assumed the session started
+# at the repository root. Started anywhere else, the hook looked for .compass/
+# in the wrong place, found none, and blocked every edit while reporting that
+# triage had not run - when it had. Two faults: the resolution, and a
+# diagnostic naming a cause that was not the cause.
+#
+# Deliberately NOT resolved from this script's own location: the hook is
+# installed from the plugin cache, and Compass self-hosts, so its own tree has
+# a .compass/ of its own. That would enforce the framework's issue against the
+# user's edits.
+INVOKED_FROM="$(pwd)"
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  PROJECT_DIR=""
+  _search="$INVOKED_FROM"
+  while [ -n "$_search" ]; do
+    if [ -d "$_search/.compass" ]; then
+      PROJECT_DIR="$_search"
+      break
+    fi
+    # The repository is the outer bound of a project. A directory holding
+    # .git and no .compass/ has not been triaged, and the honest answer is
+    # to refuse rather than borrow a parent's answer: an unbounded walk
+    # would resolve a stranger's issue - a monorepo sibling, or a stray
+    # .compass/ in $HOME - and if that issue happened to be mid-red, ALLOW
+    # the edit. A fail-open path inside the fix that exists to close one.
+    #
+    # -e, not -d: in a git worktree .git is a file, and Compass creates
+    # worktrees itself for swarm topologies.
+    [ -e "$_search/.git" ] && break
+    [ "$_search" = "/" ] && break
+    _search="$(dirname "$_search")"
+  done
+fi
+
+# Whether the walk found anything is recorded, not acted on yet. The refusal
+# lives further down, at the point the hook actually needs issue state - a
+# read-only Bash call is allowed without a project at all, and refusing here
+# would make the cheap path expensive and wrong.
+# An EXPLICIT root is taken at its word. `.compass/` does not exist until
+# triage runs, so treating its absence as "I could not find your project"
+# tells the author on their very first edit to fix a working directory that
+# is already correct - the same misdiagnosis this resolution work exists to
+# remove, one branch earlier. Only the walk failing means the project is
+# genuinely unfindable; the missing-.compass/work/ branch further down says
+# the useful thing.
+PROJECT_RESOLVED=1
+if [ -z "$PROJECT_DIR" ]; then
+  PROJECT_RESOLVED=0
+  # Provisional, so path classification below still has something to compare
+  # against. Nothing is permitted on the strength of it.
+  PROJECT_DIR="$INVOKED_FROM"
+fi
 
 # --- classify a target file -------------------------------------------------
 # A "code file" here means: a production-impacting file whose change must be
@@ -135,8 +197,21 @@ is_enforced_path() {
     "$PROJECT_DIR"/*) rel="${target#"$PROJECT_DIR"/}" ;;
   esac
   base="$(basename "$target")"
+  # ANCHORED, not a substring match. `*test*` called latest.py, inspector.py
+  # and protest.py tests, and silently skipped both guardrail checks for them -
+  # on the allow path, which prints nothing. An earlier fix narrowed this from
+  # the absolute path to the basename after a clone under /Users/testuser/
+  # switched enforcement off entirely; that narrowed the class without closing
+  # it.
+  #
+  # The conventions covered: pytest/go (test_x, x_test), jest/vitest
+  # (x.test.ts, x.spec.js), JUnit/RSpec class names (XTest.java, XSpec.rb),
+  # and Ruby's x_spec.rb. Directory rules below catch the rest.
   case "$base" in
-    *test*|*Test*|*spec*|*Spec*|*.test.*|*.spec.*|*_test.*) return 1 ;;
+    test_*|spec_*) return 1 ;;
+    *_test.*|*_spec.*|*.test.*|*.spec.*) return 1 ;;
+    *Test.*|*Spec.*|*Tests.*|*Specs.*) return 1 ;;
+    conftest.py) return 1 ;;
   esac
   case "$rel" in
     tests/*|*/tests/*|test/*|*/test/*|spec/*|*/spec/*|\
@@ -364,16 +439,30 @@ else
   is_enforced_path "$TARGET" || exit 0
 fi
 
-# --- find the current task --------------------------------------------------
-# The current task is named by the .compass/current-task pointer (written by
+# --- find the current issue -------------------------------------------------
+# The current issue is named by the .compass/current-task pointer (written by
 # /compass:triage and /compass:resume). The pointer is what makes this reliable
-# when more than one task is in flight - "most recently modified directory" is
-# only the fallback, and it is ambiguous, so it warns. If there is no task at
-# all, Frame has not run - CLAUDE.md's one rule is "Never skip Frame".
+# when more than one issue is in flight - "most recently modified directory"
+# is only the fallback, and it is ambiguous, so it warns. If there is no issue
+# all, triage has not run - CLAUDE.md's one rule is "Never skip triage".
+# This is the first point that needs issue state, so it is the first point at
+# which an unresolved project matters. Unresolved means the hook cannot tell
+# what it is enforcing, so it refuses: an enforcement path that answers
+# "allow" to a question it could not ask is a guardrail switched off
+# silently. That is the same failure fixed one layer down in 2.1.0, where a
+# missing vendored library made this hook exit 3 and the runtime read it as
+# permission.
+if [ "$PROJECT_RESOLVED" -eq 0 ]; then
+  echo "Compass: could not locate a Compass project - no .compass/ directory at or above $INVOKED_FROM" >&2
+  echo "  Start Claude Code inside the project, or set CLAUDE_PROJECT_DIR to its root." >&2
+  echo "  Refusing this edit rather than allowing it unchecked." >&2
+  exit 2
+fi
+
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:triage before changing code." >&2
+  echo "Compass: no .compass/work/ in $PROJECT_DIR - triage has not run. Run /compass:triage before changing code." >&2
   exit 2
 fi
 
@@ -389,11 +478,11 @@ if [ -z "$TASK_DIR" ]; then
   # fallback: most recently modified - ambiguous, so say so.
   TASK_DIR="$(ls -dt "$WORK_DIR"/*/ 2>/dev/null | head -n1 || true)"
   TASK_DIR="${TASK_DIR%/}"
-  [ -n "$TASK_DIR" ] && echo "Compass: no .compass/current-task pointer - falling back to the most recently modified task ($(basename "$TASK_DIR")). Write .compass/current-task to be unambiguous." >&2
+  [ -n "$TASK_DIR" ] && echo "Compass: no .compass/current-task pointer - falling back to the most recently modified issue ($(basename "$TASK_DIR")). Write .compass/current-task to be unambiguous." >&2
 fi
 
 if [ -z "${TASK_DIR:-}" ]; then
-  echo "Compass: no task under .compass/work/ - Frame has not run for this change." >&2
+  echo "Compass: no issue under $PROJECT_DIR/.compass/work/ - triage has not run for this change." >&2
   exit 2
 fi
 
@@ -401,36 +490,41 @@ TASK_SLUG="$(basename "$TASK_DIR")"
 
 # The delivery-approach record must exist - code work without a computed
 # approach is process laundering. Both filename generations are accepted:
-# the archive predating the artifact rename still says route.md.
+# the archive predating the artifact rename still uses the retired filename.
+# An issue directory written before the artifact rename still resolves here.
+# vocabulary-scan: allow - names the retired filename on purpose
 if [ ! -f "$TASK_DIR/delivery-approach.md" ] && [ ! -f "$TASK_DIR/route.md" ]; then
   echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:triage." >&2
   exit 2
 fi
 
-# --- route-aware: the TDD strategy is suspended on a Spike route -------------
-# /compass:triage writes a .spike marker when it composes a Spike route. On a
-# Spike, exploration is not throttled - the red-before-green strategy is
-# suspended. Guardrail G1 is NOT suspended: nothing lands from a Spike without
-# graduating into a real route, where this hook applies in full.
+# --- approach-aware: red-before-green is suspended on a spike ----------------
+# /compass:triage writes a .spike marker when it computes a spike. On a
+# spike, exploration is not throttled - the red-before-green strategy is
+# suspended. The tested-before-ship guardrail is NOT: nothing ships from a
+# spike without graduating into a real delivery approach, where this hook
+# applies in full.
 if [ -f "$TASK_DIR/.spike" ]; then
   exit 0
 fi
 
-# --- guardrail G2: acceptance defined before it is built ---------------------
-# The check below enforces strategy S2 (red before green). S2 serves guardrail
-# G1. Nothing enforced G2 - acceptance stated and checkable BEFORE the code -
-# at the point where it can still be true, so a route asking for a full Specify
-# could go Frame -> Build with no spec at all: every edit allowed, because a red
-# was on record and S2 was satisfied. `compass check` catches it at Verify,
-# after the code exists, which is the ordering G2 exists to prevent.
+# --- the guardrail: acceptance defined before it is built --------------------
+# The check below enforces red-before-green, which serves the guardrail that
+# every change lands with a passing test. Nothing enforced the OTHER guardrail
+# - acceptance stated and checkable before the code - at the point where it can
+# still be true. So an approach asking for full acceptance criteria could go
+# straight from triage to implementation with no spec at all: every edit
+# allowed, because a red was on record and red-before-green was satisfied.
+# `compass check` catches it at the test-and-review stage, after the code
+# exists, which is the ordering the acceptance guardrail exists to prevent.
 #
 # A guardrail beats a strategy, so this runs BEFORE the red check: you cannot
 # write a red for a scenario that does not exist yet.
 #
-# Only `specify: full` triggers it, which routing-policy.yml gives to standard
-# and expedition. Hotfix (reproduce-first) and Spike (collapsed) are exempt by
-# construction, and the .spike early exit above suspends this the same way it
-# suspends S2.
+# Only `specify: full` triggers it, which routing-policy.yml gives to feature
+# and initiative work. A hotfix (reproduce-first) and a spike (collapsed) are
+# exempt by construction, and the .spike early exit above suspends this the
+# same way it suspends red-before-green.
 #
 # If the spine cannot be read - no task.yml, unparseable YAML, no python3, no
 # PyYAML - this stays silent and the prior behaviour applies. A false block on
@@ -483,9 +577,9 @@ EOF
     cat >&2 <<EOF
 Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no scenarios.
 
-  Guardrail G2 (acceptance defined before it is built). No code is written
-  that no stated, checkable acceptance criterion describes - and a guardrail
-  beats a strategy, so this is checked before the red.
+  The acceptance-before-code guardrail. No code is written that no stated,
+  checkable acceptance criterion describes - and a guardrail beats a
+  strategy, so this is checked before the red.
   Edit target: $TARGET  (tool: ${TOOL:-?})
   Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
@@ -496,7 +590,7 @@ Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no
          compass scenario add SCN-001 --title "..." --intent INT-1
     3. Re-try this edit.
 
-  If this is genuinely exploratory work it should be a Spike, where G2 is
+  If this is genuinely exploratory work it should be a spike, where this is
   suspended - re-run /compass:triage. The fix is to state the acceptance or
   re-frame, not to route around the hook.
 EOF
@@ -519,18 +613,18 @@ if [ -f "$TASK_DIR/.acceptance" ]; then
   exit 0
 fi
 
-# --- the red-before-green check (delivery routes) ---------------------------
+# --- the red-before-green check (delivery work) -----------------------------
 if [ -f "$TASK_DIR/.red" ]; then
-  # A failing test is on record for this task. Red came before green. Allow.
+  # A failing test is on record for this issue. Red came before green. Allow.
   exit 0
 fi
 
 # No .red marker → no failing test on record → block the code edit.
 cat >&2 <<EOF
-Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
+Compass: BLOCKED - no failing test on record for issue '$TASK_SLUG'.
 
-  Strategy S2 (red-before-green) applies on this route, in service of
-  guardrail G1 (tested before it lands).
+  The red-before-green strategy applies on this delivery approach, in
+  service of the guardrail that a change ships only with a passing test.
   Edit target: $TARGET  (tool: ${TOOL:-?})
   Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
@@ -546,7 +640,7 @@ Compass: BLOCKED - no failing test on record for task '$TASK_SLUG'.
   Later, \`compass tdd-green -- <test command>\` confirms green, writes
   evidence/green.json, and clears the .red marker - the hand-off to Verify.
 
-  If this is genuinely exploratory work, it should be a Spike route - re-run
+  If this is genuinely exploratory work, it should be a spike - re-run
   /compass:triage. The fix is to write the test or re-frame, not to route
   around the hook.
 EOF

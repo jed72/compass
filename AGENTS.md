@@ -118,7 +118,7 @@ equivalent isolation or cap itself at solo/pair.
 **6. Shell out for CI and the feedback loop too.** Two cross-issue kit
 commands round out the contract, and a portable runtime should call them
 rather than reinvent them. `compass ci` runs the full mechanical gate suite
-(`policy lint` + `task lint` + `check` for every issue) and aggregates exit
+(`policy lint` + `issue lint` + `check` for every issue) and aggregates exit
 codes - the CI integration is "run `compass ci`, honour the exit code" (see
 `ci/README.md`). `compass retro` aggregates the `reframes` log across
 issues and reports whether triage is systematically over- or under-sizing
@@ -144,7 +144,7 @@ them.
 The kit layer (`cli/compass`, `governance/*.yml`, `schemas/`, `task.yml`) is
 itself runtime-neutral - an adapter does not rewrite it, it invokes it. The
 only thing the adapter owes the kit is a `.compass/current-task` pointer (or
-an explicit `--task` slug) so the CLI can resolve which issue it is acting
+an explicit `--issue` slug) so the CLI can resolve which issue it is acting
 on.
 
 ## Writing voice

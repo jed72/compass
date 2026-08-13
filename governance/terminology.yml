@@ -142,6 +142,47 @@ terms:
       criteria.
     not: "The feature issue type - unqualified 'feature' means the issue type."
     related: [scenario, step, acceptance-criteria]
+  assessment:
+    means: >
+      The four-dimension judgement triage produces - risk, familiarity, size
+      and goal, plus the domain labels. It is the only judgement field in the
+      issue spine; everything below it is computed from it deterministically.
+    not: >
+      A choice of process. The assessment is read; the delivery approach is
+      computed from it by `compass approach evaluate`.
+    related: [triage, delivery-approach, navigator]
+  traceability:
+    means: >
+      The chain that makes a change accountable: code traces to a TRC- id,
+      which traces to an INT- id. Maintained as the work happens, not
+      reconstructed at the end. It is one of the five guardrails, and the
+      thing the `TRC-` prefix is named after.
+    not: >
+      A report produced at the end. A chain assembled after the fact records
+      what someone remembered, not what happened.
+    related: [scenario, intent, acceptance-criteria]
+  intent:
+    means: >
+      The outcome a change is meant to produce - the "why" end of the
+      traceability chain, sourced from the PRD's desired outcome, the UI
+      contract, or the issue description. A goal, not a requirement: the
+      functional requirement is the scenario.
+    also: The product owner's entry point, `/compass:intent`, captures it.
+    not: >
+      A restatement of the request. "Add a CSV export" is a request; "let
+      finance self-serve" is the intent, and it may need filters and
+      permissions the request never mentioned.
+    related: [prd, scenario, traceability]
+  navigator:
+    means: >
+      The agent that runs triage: reads the four assessment dimensions, hands
+      them to the CLI, and writes the delivery-approach record. It assesses;
+      it does not choose a process.
+    not: >
+      A decision-maker about ceremony. The approach is computed from the
+      assessment by `compass approach evaluate`, which is the determinism
+      boundary.
+    related: [triage, assessment, delivery-approach]
   scenario:
     means: >
       The atomic unit of acceptance: one behaviour, one Given/When/Then,
@@ -373,6 +414,125 @@ terms:
 # is the intent, and the tuned, executable patterns live in
 # tests/test_terminology.py beside the fixtures that prove them.
 # =============================================================================
+# =============================================================================
+# CODES - the id prefixes that appear in artifacts
+# =============================================================================
+# `terms:` above defines the words. This defines the short codes a reader
+# actually meets: TRC-A1 in a spec, EV-003 in a spine, RP-FLOOR-001 in a
+# delivery-approach record. Until 3.0.0 there was nowhere to look any of them
+# up. See ADR-016.
+#
+# docs/glossary.md is DERIVED from this section and from terms: above. Edit
+# here; the page is regenerated at ship and a drift guard fails the build if
+# the two disagree.
+#
+# The set is not maintained by hand: a guard scans shipped artifacts for
+# prefixes and requires an entry for each one it finds, so a new prefix
+# introduced without a definition fails on arrival.
+codes:
+  TRC:
+    means: >
+      Traceability id. The join key of the traceability chain: code traces to
+      a TRC- id, which traces to an INT- id. It names the chain, not one node
+      on it - changed_files, claims, evidence records and Definition-of-Done
+      tags all point at it.
+    referent: The traced item, normally a scenario.
+    appears_in: [acceptance-criteria.md, "task.yml scenarios[].id"]
+    related: [INT, EV, SCN]
+  SCN:
+    means: >
+      The retired spelling of TRC-. Still present in shipped examples and
+      read wherever TRC- is. TRC- is canonical because the parser's anchor is
+      the literal keyword `traceability id:`, and because SCN- presumes every
+      traced item is a Given/When/Then - a non-functional requirement can be
+      traceable and testable without being a scenario.
+    referent: The traced item. Same referent as TRC-.
+    appears_in: [examples/]
+    related: [TRC]
+  INT:
+    means: >
+      Intent id. The "why" end of the traceability chain - the outcome the
+      work is meant to produce, sourced from the PRD's desired outcome, the
+      UI contract, or the issue description. A goal, not a requirement; the
+      requirement is the scenario.
+    referent: A stated desired outcome.
+    appears_in: [prd.md, acceptance-criteria.md, "task.yml scenarios[].intent"]
+    related: [TRC, prd]
+  EV:
+    means: >
+      Evidence id. Identifies one typed record in the issue's evidence
+      registry that clears a quality gate. One record can clear several
+      gates. The accepted types are fixed by guardrails.yml; a gate that
+      requires a mechanical type cannot be cleared with a written note.
+    referent: One typed evidence record.
+    appears_in: ["task.yml evidence[].id", "gates[].evidence", verification-report.md]
+    related: [quality-gate, evidence]
+  FU:
+    means: >
+      Follow-up id. Ceremony this issue owes after an expedited ship - the
+      hotfix's promoted scenario, a de-scoped artifact. Not "any outstanding
+      work": a newly found defect gets its own issue named by slug. A
+      follow-up may carry target_task, naming the issue whose ship it blocks.
+    referent: One outstanding piece of ceremony this issue owes.
+    appears_in: ["task.yml follow_ups[].id", verification-report.md]
+    related: [follow-up, definition-of-done]
+  BF:
+    means: >
+      The retired spelling of FU-. Still read by the Definition-of-Done tag
+      parser so archived verification reports keep resolving.
+    referent: A follow-up. Same referent as FU-.
+    appears_in: [".compass/work/ (archive)"]
+    related: [FU]
+  DD:
+    means: >
+      Design decision. Numbered within one design.md: what was chosen, what
+      was rejected, and why. A decision with no alternative recorded is not
+      yet a decision.
+    referent: One decision inside a single issue's design.
+    appears_in: [design.md]
+    related: [ADR, design]
+  ADR:
+    means: >
+      Architecture decision record. A DD- promoted to a standing decision
+      about the system rather than about one issue - it outlives the issue
+      and constrains later ones.
+    referent: One numbered file under architecture/decisions/.
+    appears_in: [architecture/decisions/]
+    related: [DD]
+  CLM:
+    means: >
+      Claim id. A public statement the product marketer intends to make.
+      Every claim must trace to a passing scenario before the issue ships;
+      the claims gate blocks on it.
+    referent: One planned public claim.
+    appears_in: [positioning.md, launch-readiness.md, "task.yml claims[].id"]
+    related: [TRC, launch-readiness]
+  RP:
+    means: >
+      Routing policy rule. One rule in routing-policy.yml that biases or
+      constrains the computed delivery approach. RP-SHAPE and RP-ADV are
+      soft - they bias the candidate. RP-FLOOR, RP-CAP, RP-GATE and RP-ROLE
+      are hard - they constrain the result. RP-REQUIRE attaches a gate
+      without raising a minimum.
+    not: >
+      A guardrail. `guardrail` means one of the five hard rules cleared with
+      evidence; a routing rule constrains which delivery approach you end up
+      with. The prefix said RG- until 3.0.0, which is why this distinction
+      needs stating.
+    referent: One rule in the routing policy.
+    appears_in: [routing-policy.yml, delivery-approach.md, "task.yml policy_rules_fired[].id"]
+    related: [routing-policy, delivery-approach, guardrail]
+  RG:
+    means: The retired spelling of RP-. Kept in archived records, which keep the id that fired.
+    referent: A routing policy rule. Same referent as RP-.
+    appears_in: [".compass/work/ (archive)"]
+    related: [RP]
+  RS:
+    means: The retired spelling of RP- for the soft rules. Same replacement, same reason.
+    referent: A routing policy rule. Same referent as RP-.
+    appears_in: [".compass/work/ (archive)"]
+    related: [RP]
+
 banned:
   - term: "Frame / the Needle"
     replacement: triage
@@ -428,6 +588,14 @@ banned:
 # =============================================================================
 scan:
   surfaces:
+    - hooks/               # the enforcement path speaks to users too
+    - schemas/             # a schema's description is what a validation error quotes
+    - scripts/             # the shell a user runs, and what it prints
+    - architecture/        # the framework's own invariants and relations
+    - examples/           # shipped worked examples - what an adopter copies from
+    - governance/routing-policy.yml   # comments only, per the YAML rule
+    - governance/guardrails.yml
+    - governance/signals.yml
     - templates/
     - commands/
     - skills/
@@ -496,3 +664,78 @@ scan:
   # reached zero. Every scanned surface is enforced, forever; this list
   # never grows again.
   pending_surfaces: []
+
+# =============================================================================
+# RETIRED MACHINE NAMES - the identifiers, not the prose
+# =============================================================================
+# `banned:` above governs what a surface *teaches*: prose, printed sentences,
+# headings. This list governs what the code *uses*: spine keys, artifact
+# filenames, flag spellings - names with no whitespace in them, which read as
+# machine identifiers rather than as English.
+#
+# It exists because the prose scan could not see them. Its patterns are
+# sentence-shaped (`route.md`, `route evaluate`), and the Python scan skipped
+# string literals with no whitespace on the reasoning that a single token is a
+# machine identifier rather than prose. That reasoning was sound for the
+# surface it was written for and wrong for the one it was applied to: a bare
+# `'route'` used as a dict key is exactly that shape. `compass check` printed
+# a placeholder header on every run and the cross-issue board printed one on
+# every row, for months, past a green scan. See ADR-015.
+#
+# NOT listed here: `task`. `task.yml` is still the live artifact filename and
+# `dest="task"` is internal plumbing - `banned:` already says the word is
+# banned in human-facing prose only, with machine state exempt. Listing it
+# would flag correct code.
+retired_machine_names:
+  # spine keys, renamed at the v2 freeze
+  - name: route
+    replacement: delivery_approach
+  - name: readings
+    replacement: assessment
+  - name: phases
+    replacement: stages
+  - name: reframes
+    replacement: reassessments
+  - name: fired_guardrails
+    replacement: policy_rules_fired
+  - name: backfills
+    replacement: follow_ups
+  # artifact filenames
+  - name: route.md
+    replacement: delivery-approach.md
+  - name: plan.md
+    replacement: design.md
+  - name: spec.feature.md
+    replacement: acceptance-criteria.md
+  - name: clarifications.md
+    replacement: requirements-review.md
+  - name: brief.md
+    replacement: prd.md
+  # flag spellings, removed outright at the major version (ADR-014)
+  - name: --task
+    replacement: --issue
+  - name: --reading
+    replacement: --assessment
+
+  # Files that must name these identifiers to do their job. Each is here with
+  # a reason, not as a blanket path exclusion - and each is a file whose
+  # SUBJECT is the rename rather than a file that merely uses it.
+  #
+  # ADR-015 originally said these would move into cli/migrate-map.yml as data.
+  # Implementation found that wrong: the spine loader reads these tables at
+  # import time, so sourcing them from a YAML file would make the thing that
+  # loads YAML depend on loading YAML first. Amended there.
+retired_machine_name_exempt:
+  - path: cli/compass_pkg/core.py
+    why: >-
+      Holds the read-side rename tables (SPINE_KEY_MAP, ASSESSMENT_KEY_MAP,
+      _WHEN_KEY_MAP). Every loader normalises through them, which is what lets
+      the rest of the CLI speak one vocabulary while a 1.x spine still loads.
+      This is the single legitimate home for a retired spine key.
+  - path: cli/compass_pkg/migrate.py
+    why: >-
+      The migrator's in-code fallback copy of the artifact map, used when a
+      tree has no framework install to read cli/migrate-map.yml from. Reading
+      an old archive is translation, not a redirect (ADR-014).
+  - path: cli/migrate-map.yml
+    why: The translation table itself, as data.

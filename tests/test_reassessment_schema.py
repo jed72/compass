@@ -14,7 +14,7 @@ Both keys earn their place: `kind` is what separates a judgement re-assessment
 from a scope change in `compass retro`'s re-sizing signal, and `changed` is the
 audit detail. The schema was what needed correcting.
 
-Spec: .compass/work/spine-schema-reassessment-keys/acceptance-criteria.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
 """
 from __future__ import annotations
 

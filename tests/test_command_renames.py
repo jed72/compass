@@ -54,26 +54,11 @@ def test_the_command_set_carries_the_v2_names():
             f"{name}.md lacks an H1 naming /compass:{name}")
 
 
-def test_each_renamed_v1_command_is_a_redirect_stub():
-    """TRC-2: each retired name is a short stub whose whole job is a pointer
-    to the v2 command, with the retired name only ever a code span (the
-    vocabulary scan reads markdown prose only, so the stub stays clean on an
-    enforced surface)."""
-    for old, new in STUBS.items():
-        path = COMMANDS / f"{old}.md"
-        assert path.is_file(), f"missing redirect stub commands/{old}.md"
-        text = path.read_text(encoding="utf-8")
-        body = [l for l in text.splitlines() if l.strip()]
-        assert len(body) <= 12, (
-            f"commands/{old}.md has {len(body)} non-blank lines - that is a "
-            "command, not a redirect stub")
-        assert f"/compass:{new}" in text, (
-            f"commands/{old}.md does not point at /compass:{new}")
-        for lineno, line in enumerate(text.splitlines(), 1):
-            prose = INLINE_CODE.sub(" ", line)
-            assert f"/compass:{old}" not in prose, (
-                f"commands/{old}.md:{lineno} carries its retired name in "
-                f"prose (outside a code span): {line.strip()}")
+# The redirect-stub contract used to be asserted here: each retired command
+# name existed as a short stub pointing at its v2 replacement. ADR-014 deleted
+# those stubs at the major version. The replacement assertion - that no such
+# stub exists, by filename and by content - is
+# tests/test_no_deprecation_stubs.py (RCD-F1).
 
 
 def test_the_vocabulary_carries_the_command_names_and_a_version_bump():

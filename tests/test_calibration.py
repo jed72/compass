@@ -14,9 +14,9 @@ def _readings_to_args(d):
     out = []
     for k, v in d.items():
         if isinstance(v, list):
-            out.extend(["--reading", f"{k}=" + ",".join(v)])
+            out.extend(["--assessment", f"{k}=" + ",".join(v)])
         else:
-            out.extend(["--reading", f"{k}={v}"])
+            out.extend(["--assessment", f"{k}={v}"])
     return out
 
 
@@ -44,7 +44,7 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
     body["assessment"]["labels"] = ["auth"]
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    r = run_cli("approach", "evaluate", "--task", "rf-task", "--write",
+    r = run_cli("approach", "evaluate", "--issue", "rf-task", "--write",
                 "--reason", "discovered the change touches auth")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
@@ -73,7 +73,7 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
         "delivery_approach": "express",
     }
     task_dir = make_task("no-rf", body)
-    r = run_cli("approach", "evaluate", "--task", "no-rf", "--write")
+    r = run_cli("approach", "evaluate", "--issue", "no-rf", "--write")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
     assert task["delivery_approach"] == "quick-fix"
@@ -97,7 +97,7 @@ def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
         "delivery_approach": "express",
     }
     task_dir = make_task("rf-noreason", body)
-    r = run_cli("approach", "evaluate", "--task", "rf-noreason", "--write")
+    r = run_cli("approach", "evaluate", "--issue", "rf-noreason", "--write")
     assert r.returncode == 0, r
     combined = r.stdout + r.stderr
     # the CLI should mention the missing reason on stderr
@@ -432,13 +432,16 @@ def test_friction_never_in_land_gate(framework_root):
     assert "friction" not in guardrails, (
         "TRC-F1 violated: guardrails.yml references friction - it must never "
         "be a gate (ADR-002).")
-    land = (framework_root / "commands" / "land.md").read_text()
-    # The gate is the checklist under the '## Gate - Land refuses to close …'
+    # commands/ship.md - the ship stage. This read commands/land.md until
+    # ADR-014 deleted the retired command names at the major version; the
+    # stage and the assertion are unchanged, only the filename moved.
+    ship = (framework_root / "commands" / "ship.md").read_text()
+    # The gate is the checklist under the '## Gate - ship refuses to close …'
     # heading (not the intro, and not the Procedure, where friction capture is
     # an explicit *non*-gate step).
-    gate_section = land.split("## Gate", 1)[-1].lower()
+    gate_section = ship.split("## Gate", 1)[-1].lower()
     assert "friction" not in gate_section, (
-        "TRC-F1 violated: friction appears in Land's 'refuses to close' gate.")
+        "TRC-F1 violated: friction appears in ship's 'refuses to close' gate.")
 
 
 def test_friction_recorded_but_unclusterable_is_not_reported_as_none(

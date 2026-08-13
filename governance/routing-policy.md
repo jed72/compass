@@ -69,15 +69,17 @@ participants, not optional consultees.
 
 The shipped defaults (see `routing-policy.yml` for the live, id-tagged set):
 
-- **floors** - `RG-FLOOR-001` critical risk → at least initiative,
-  never skip clarify/verify/land; `RG-FLOOR-002` brownfield-unmapped familiarity →
-  Specify runs full-weight with `blueprint-distillation`; `RG-FLOOR-003`
+- **floors** - `RP-FLOOR-001` critical risk → at least initiative,
+  never skip clarify/verify/land; `RP-FLOOR-002` brownfield-unmapped familiarity →
+  Specify runs full-weight with `blueprint-distillation`; `RP-FLOOR-003`
   touching auth/payments/personal-data/migrations → at least initiative.
-- **caps** - `RG-CAP-001` critical risk caps worktrees at 1.
-- **immovable_gates** - `RG-GATE-001..004`: `verify.correctness`,
-  `verify.governance`, `verify.regression`, `verify.claims`.
-- **role_rules** - `RG-ROLE-001` the product-marketer's involvement blocks Land
-  until claims trace to scenarios; `RG-ROLE-002` the product-owner's involvement
+- **caps** - `RP-CAP-001` critical risk caps worktrees at 1.
+- **immovable_gates** - `RP-GATE-001..003`: `verify.correctness`,
+  `verify.governance`, `verify.traceability`. Deliberately not here:
+  `verify.regression` is scoped by the delivery approach and
+  `verify.claims` by the role in play, so neither is immovable.
+- **role_rules** - `RP-ROLE-001` the product-marketer's involvement blocks Land
+  until claims trace to scenarios; `RP-ROLE-002` the product-owner's involvement
   gates Plan on the spec being checked against the brief.
 
 The `verify.governance` immovable gate is what makes guardrail human-sign-off ("a human
@@ -95,27 +97,30 @@ recorded in `delivery-approach.md`, not punished.
 
 ```yaml
 routing_strategies:
-  # The reference route shapes triage composes toward. See approaches/.
+  # The reference shapes triage composes toward. See approaches/.
+  # These mirror governance/routing-policy.yml; the live file also carries an
+  # `id:` and a `rationale:` per entry, which the evaluator reports when a
+  # shape fires.
   default_shapes:
-    - reading: { magnitude: [atomic, small], blast_radius: [trivial, contained], terrain: brownfield-mapped }
+    - when: { size: [atomic, small], risk: [trivial, contained], familiarity: brownfield-mapped }
       lean_toward: express
-    - reading: { magnitude: standard }
+    - when: { size: standard }
       lean_toward: standard
-    - reading: { magnitude: [large, product] }
+    - when: { size: [large, product] }
       lean_toward: expedition
-    - reading: { urgency: live-defect, magnitude: [atomic, small] }
+    - when: { urgency: live-defect, size: [atomic, small] }
       lean_toward: hotfix
-    - reading: { intent: exploration }      # "I need to understand this before I can frame it"
+    - when: { goal: exploration }      # "I need to understand this before I can scope it"
       lean_toward: spike
 
   # Tie-breaking biases.
   biases:
-    - "When magnitude is genuinely unclear, estimate up - it is cheaper to
-       collapse a phase that turned out easy than to discover mid-Build that
-       the route was too light."
+    - "When size is genuinely unclear, estimate up - it is cheaper to
+       collapse a stage that turned out easy than to discover mid-implementation
+       that the approach was too light."
     - "A non-engineering role in play usually pulls the route heavier, because
        it adds artifacts and assessed strategies - but this is a bias, not a
-       floor. A marketer glancing at a tiny change need not trigger Expedition."
+       floor. A marketer glancing at a tiny change need not trigger an initiative."
     - "Prefer the lightest route that still clears the routing guardrails and
        the applicable gates. Ceremony is a cost; spend it where it buys safety."
 
@@ -136,15 +141,19 @@ policy lint` - against the executable `schemas/routing-policy.schema.json`
 human-readable field-by-field companion is `schemas/routing-policy.reference.yml`.
 In brief:
 
-`when` conditions match against the assessment - `blast_radius`, `terrain`,
-`magnitude`, `role`, `intent`, `urgency` - or `touches_any` (a domain-tag list:
+`when` conditions match against the assessment - `risk`, `familiarity`,
+`size`, `goal`, `role`, `urgency` - or `labels_any` (a domain-tag list:
 `auth`, `payments`, `personal-data`, `migrations`, `public-api`, …). A list
 value means "any of".
+
+A policy written before the v2 freeze keeps working: the evaluator maps the
+retired dimension names on read, so an unmigrated project file still matches.
+Write the current names in anything new.
 
 Routing-guardrail keys: `force_minimum_route`, `require_phase`,
 `require_skill`, `never_skip`, `max_worktrees`, `forbid_route`,
 `block_phase` + `until`, `require_artifact`, `gate`. Every guardrail carries a
-stable `id` (e.g. `RG-FLOOR-001`) so `delivery-approach.md` can name exactly which one
+stable `id` (e.g. `RP-FLOOR-001`) so `delivery-approach.md` can name exactly which one
 fired.
 
 Routing-strategy keys: `lean_toward`, `suggest_artifact`, free-text `biases`.

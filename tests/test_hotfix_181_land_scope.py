@@ -91,7 +91,7 @@ def _install_autofixing_hook(repo):
 def _land(repo, *extra):
     return subprocess.run(
         [sys.executable, str(CLI), "ship-commit", "-m", "land it",
-         "--task", SLUG, *extra],
+         "--issue", SLUG, *extra],
         cwd=str(repo), capture_output=True, text=True, timeout=60,
     )
 

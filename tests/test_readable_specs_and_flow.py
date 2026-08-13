@@ -554,7 +554,7 @@ def test_trc_f1_pre_existing_specs_still_pass():
         if status in not_startable:
             continue
         result = subprocess.run(
-            [sys.executable, str(ROOT / "cli" / "compass"), "check", "--task", slug],
+            [sys.executable, str(ROOT / "cli" / "compass"), "check", "--issue", slug],
             capture_output=True, text=True, timeout=120, cwd=str(ROOT),
         )
         if result.returncode != 0:

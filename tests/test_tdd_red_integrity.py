@@ -52,7 +52,7 @@ def test_trc_g1_usage_error_is_not_a_red(make_task, run_cli, project):
 
     # --definitely-not-a-pytest-flag makes pytest exit 4 (usage error).
     result = run_cli(
-        "tdd-red", "--task", "g1", "--",
+        "tdd-red", "--issue", "g1", "--",
         "python3", "-m", "pytest", "tests_demo", "-q",
         "--definitely-not-a-pytest-flag",
         timeout=60,
@@ -79,7 +79,7 @@ def test_trc_g2_no_tests_collected_is_not_a_red(make_task, run_cli, project):
     (project / "tests_empty").mkdir()          # no test files at all
 
     result = run_cli(
-        "tdd-red", "--task", "g2", "--",
+        "tdd-red", "--issue", "g2", "--",
         "python3", "-m", "pytest", "tests_empty", "-q",
         timeout=60,
     )
@@ -107,7 +107,7 @@ def test_trc_g3_real_failure_is_still_a_red(make_task, run_cli, project):
     # Autoload disabled: pytest-cov is not loadable here, which is the exact
     # condition that produced the false red in the field.
     result = run_cli(
-        "tdd-red", "--task", "g3", "--",
+        "tdd-red", "--issue", "g3", "--",
         "python3", "-m", "pytest", "tests_fail", "-q",
         extra_env={"PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
         timeout=60,

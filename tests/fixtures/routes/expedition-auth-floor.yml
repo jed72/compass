@@ -1,5 +1,5 @@
-# A small change that touches auth. RS-SHAPE-003 picks express as the
-# candidate; RG-FLOOR-003 forces the route to at least expedition because
+# A small change that touches auth. RP-SHAPE-003 picks express as the
+# candidate; RP-FLOOR-003 forces the route to at least expedition because
 # `touches` includes a G5 domain.
 name: expedition-auth-floor
 assessment:
@@ -12,7 +12,7 @@ assessment:
 expected:
   candidate_route: quick-fix
   delivery_approach: initiative
-  fired_guardrail_ids: [RG-FLOOR-003]
+  fired_guardrail_ids: [RP-FLOOR-003]
   conflict: false
   topology: swarm
   has_gate: verify.security

@@ -82,11 +82,11 @@ when the behaviour was never actually written down.
 So:
 
 ```
-/compass:frame --reframe --reason "three fixes failed; the terrain was misread"
+/compass:triage --reframe --reason "three fixes failed; the familiarity was misread"
 ```
 
 Re-score the dimensions honestly. If familiarity is genuinely unmapped,
-`RG-FLOOR-002` will force `blueprint-distillation`, and writing the current
+`RP-FLOOR-002` will force `blueprint-distillation`, and writing the current
 behaviour down is very often the thing that ends the bug hunt. A re-assess here
 is the system working; a fourth guess is not.
 

@@ -3,10 +3,10 @@
 The content specification is the ratified verb map in the slice's issue
 archive: approach evaluate, follow-up resolve (states outstanding ->
 resolved), retro, design lint, issue lint/receipt/set-status, ship-commit,
-and the new terminology verb. Retired verbs fail machine-tolerably (exit 2,
-one stderr line, empty stdout) with pointer text carried as data in the
-scan-exempt cli/migrate-map.yml. The --task flag renames to --issue with
-the old spelling tolerated for one major version. The cli/ scan surface is
+and the new terminology verb. Retired verbs and the tolerated --task and
+--reading flag spellings were removed at the major version (ADR-014); what
+remains of those contracts is asserted in tests/test_no_deprecation_stubs.py,
+which checks they no longer parse. The cli/ scan surface is
 enforced and widened to cli/compass_pkg/ string literals, and the receipt
 speaks v2 change-type names and shows recorded topology overrides.
 """
@@ -87,44 +87,26 @@ def test_the_v2_verbs_exist_and_work(tmp_path):
     assert "ship" in r.stdout.lower()
 
 
-def test_a_retired_verb_fails_loudly_and_legibly(tmp_path):
-    """TRC-2: a retired verb exits 2 with exactly one stderr line naming
-    the replacement, and stdout stays empty - a script can never mistake
-    the pointer for success."""
-    root = _project(tmp_path)
-    cases = {
-        ("route", "evaluate"): "approach",
-        ("backfill", "pay"): "follow-up",
-        ("calibration",): "retro",
-        ("land-commit",): "ship-commit",
-        ("task", "lint"): "issue",
-        ("plan", "lint"): "design",
-    }
-    for argv, replacement in cases.items():
-        r = _run(root, *argv)
-        assert r.returncode == 2, (
-            f"compass {' '.join(argv)}: expected exit 2, got "
-            f"{r.returncode}\nstdout: {r.stdout[:200]}\nstderr: {r.stderr[:200]}")
-        assert r.stdout.strip() == "", (
-            f"compass {' '.join(argv)}: pointer must not write stdout")
-        lines = [l for l in r.stderr.splitlines() if l.strip()]
-        assert len(lines) == 1, (
-            f"compass {' '.join(argv)}: expected one stderr line, got "
-            f"{len(lines)}: {r.stderr[:300]}")
-        assert replacement in lines[0], (
-            f"compass {' '.join(argv)}: pointer does not name "
-            f"'{replacement}': {lines[0]}")
+# The retired-verb pointer contract used to be asserted here: a retired v1
+# verb exited 2 with exactly one stderr line naming its replacement. ADR-014
+# removed the pointers at the major version, so there is no pointer left to
+# assert. What replaced it - a retired verb failing as an unrecognised verb,
+# for all six retired spellings - is asserted in
+# tests/test_no_deprecation_stubs.py (RCD-F2). Recorded rather than silently
+# deleted, because a test that vanishes with no forwarding address is
+# indistinguishable from coverage lost by accident.
 
 
-def test_the_issue_flag_with_task_tolerated(tmp_path):
-    """TRC-3: --issue and --task resolve the same issue; the help text
-    teaches --issue."""
+def test_the_issue_flag_is_the_only_spelling(tmp_path):
+    """TRC-3: the help text teaches --issue, and its metavar speaks v2.
+
+    This used to assert that --issue and the tolerated --task spelling
+    resolved the same issue. ADR-014 removed the alias at the major version,
+    so there is no second spelling to agree with; that half now lives in
+    tests/test_no_deprecation_stubs.py (RCD-F3), which asserts --task no
+    longer parses. The help-text assertions below are unchanged.
+    """
     root = _project(tmp_path)
-    r_issue = _run(root, "check", "--issue", "t")
-    r_task = _run(root, "check", "--task", "t")
-    assert r_issue.returncode == r_task.returncode, (
-        "--issue and --task disagree:\n" + r_issue.stderr[-200:]
-        + r_task.stderr[-200:])
     r = _run(root, "check", "--help")
     assert "--issue" in r.stdout, "check --help does not document --issue"
     # The metavar speaks v2 too: "--issue TASK" would teach the banned word

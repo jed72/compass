@@ -14,7 +14,7 @@
     },
     "scope_bloat_phrases": {
       "type": "array",
-      "description": "Substrings searched in agent-authored text (devlog, verification-report) by the stop-hook to nudge a re-frame. Case-insensitive substring match - not regex.",
+      "description": "Substrings searched in agent-authored text (devlog, verification-report) by the stop-hook to nudge a re-assessment. Case-insensitive substring match - not regex.",
       "items": { "type": "string", "minLength": 1 },
       "minItems": 0,
       "uniqueItems": true
@@ -27,7 +27,7 @@
         "window_days": {
           "type": "integer",
           "minimum": 1,
-          "description": "Lookback window for `compass rework-scan`. Tasks landed outside this window are not considered as candidates for the add→delete pairing."
+          "description": "Lookback window for `compass rework-scan`. Issues landed outside this window are not considered as candidates for the add→delete pairing."
         },
         "public_surface_patterns": {
           "type": "array",
@@ -58,7 +58,7 @@
         "recurrence_threshold": {
           "type": "integer",
           "minimum": 1,
-          "description": "Number of distinct tasks that must independently propose the same change before it is reported as a recurring pattern. Below it, an item is noise, not a trend. Defaults to 2 when absent."
+          "description": "Number of distinct issues that must independently propose the same change before it is reported as a recurring pattern. Below it, an item is noise, not a trend. Defaults to 2 when absent."
         }
       }
     }

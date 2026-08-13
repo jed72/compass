@@ -3,48 +3,48 @@
 # =============================================================================
 # THE MACHINE-READABLE ROUTING POLICY. This file is authoritative for the
 # mechanical parts of routing. `routing-policy.md` explains the why; this file
-# is what the deterministic evaluator (`compass route evaluate`) actually runs.
+# is what the deterministic evaluator (`compass approach evaluate`) actually runs.
 #
-# The split that matters: the four-dimension *readings* (risk, familiarity,
-# size, intent, role, touches) are JUDGEMENT - the Needle, an LLM or a
+# The split that matters: the four-dimension *assessment* (risk, familiarity,
+# size, intent, role, touches) are JUDGEMENT - triage, an LLM or a
 # human, produces them, and they are not mechanizable, because that judgement
-# IS the adaptivity. This file governs only what happens *after* the readings
+# IS the adaptivity. This file governs only what happens *after* the assessment
 # exist: composing and constraining the route. That part is deterministic and
-# reproducible - same readings + same policy => same route, every time.
+# reproducible - same assessment + same policy => same route, every time.
 #
 # Edit this file to tune routing. `compass policy lint` validates it against
 # schemas/routing-policy.schema.json. Loosening a routing guardrail weakens the
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.0.0
+version: 2.1.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
 # -----------------------------------------------------------------------------
 routing_strategies:
 
-  # default_shapes - the reference route the Needle leans toward for a reading.
+  # default_shapes - the reference delivery approach triage leans toward for a reading.
   # Evaluated top to bottom; the first whose `when` matches sets the candidate.
-  # `when` keys match against the readings; a list value means "any of".
+  # `when` keys match against the assessment; a list value means "any of".
   default_shapes:
-    - id: RS-SHAPE-001
+    - id: RP-SHAPE-001
       when: { goal: exploration }
       lean_toward: spike
       rationale: "Exploration intent - cannot frame for delivery yet."
-    - id: RS-SHAPE-002
+    - id: RP-SHAPE-002
       when: { urgency: live-defect, size: [atomic, small] }
       lean_toward: hotfix
       rationale: "A live defect, small enough to reproduce-and-fix fast."
-    - id: RS-SHAPE-003
+    - id: RP-SHAPE-003
       when: { size: [atomic, small], risk: [trivial, contained], familiarity: brownfield-mapped }
       lean_toward: express
       rationale: "Small on every axis, on mapped ground."
-    - id: RS-SHAPE-004
+    - id: RP-SHAPE-004
       when: { size: [large, product] }
       lean_toward: expedition
       rationale: "Large work - full weight, plausibly parallel."
-    - id: RS-SHAPE-005
+    - id: RP-SHAPE-005
       when: { size: standard }
       lean_toward: standard
       rationale: "The default working shape."
@@ -52,8 +52,8 @@ routing_strategies:
   # Fallback when no default_shape matches.
   default_route: standard
 
-  # biases - free-text tie-breakers the Needle applies during composition.
-  # Not machine-evaluated; surfaced to the Needle and recorded for audit.
+  # biases - free-text tie-breakers triage applies during composition.
+  # Not machine-evaluated; surfaced to triage and recorded for audit.
   biases:
     - "When size is genuinely unclear, estimate up - collapsing an easy
        phase is cheaper than discovering mid-Build that the route was too light."
@@ -65,18 +65,18 @@ routing_strategies:
   # role_defaults - advisory artifacts a role's involvement suggests. The
   # BLOCKING versions live under routing_guardrails.role_rules.
   role_defaults:
-    - id: RS-ROLE-001
+    - id: RP-SROLE-001
       when: { role: designer }
       suggest_artifact: ui-contract.md
       rationale: "A new user-facing surface usually wants a UI contract."
 
   # advisory_strategies - soft strategies the evaluator surfaces (in
-  # `applicable_strategies`) when their `when` matches the readings. They BIAS
+  # `applicable_strategies`) when their `when` matches the assessment. They BIAS
   # and are ASSESSED at Verify; they NEVER add a gate, raise the route, or block
   # Land. A strategy, not a guardrail (the full method strategy is S6 in
   # governance/strategies.md).
   advisory_strategies:
-    - id: RS-ADV-001
+    - id: RP-ADV-001
       strategy: regression-baseline
       when: { risk: [cross-cutting, critical] }
       rationale: "Shared/critical surface - capture a green baseline of the
@@ -88,7 +88,7 @@ routing_strategies:
 # -----------------------------------------------------------------------------
 # ROUTING GUARDRAILS - hard. They BOUND the candidate route. The evaluator
 # applies these after composition; they cannot be routed around, and a human
-# cannot override them per-task (changing one means editing this file).
+# cannot override them per-issue (changing one means editing this file).
 # -----------------------------------------------------------------------------
 routing_guardrails:
 
@@ -96,81 +96,86 @@ routing_guardrails:
   # and/or forces specific phases/skills back to full weight.
   # Route weight order for force_minimum_route: spike < express < standard
   # < hotfix < expedition. The evaluator raises the candidate to the max.
+  # NOTE: four of the entries below carry RP-REQUIRE ids because they attach a
+  # gate and raise no minimum - they are not floors. The block name lags its
+  # contents for one release: moving them into their own section changes a
+  # structure the evaluator iterates and the schema validates, which is filed
+  # as rename-routing-policy-machine-keys. See ADR-016.
   floors:
-    - id: RG-FLOOR-001
+    - id: RP-FLOOR-001
       when: { risk: critical }
       force_minimum_route: expedition
       never_skip: [clarify, verify, land]
       rationale: "Critical changes coordinate, or they break things quietly."
 
-    - id: RG-FLOOR-002
+    - id: RP-FLOOR-002
       when: { familiarity: brownfield-unmapped }
       require_phase: specify
       require_skill: blueprint-distillation
       rationale: "You cannot safely change behaviour you have not first written down."
 
-    - id: RG-FLOOR-003
+    - id: RP-FLOOR-003
       when: { labels_any: [auth, payments, personal-data, migrations] }
       force_minimum_route: expedition
       rationale: "Domain risk overrides size. A one-line auth change is not small."
 
-    - id: RG-FLOOR-004
+    - id: RP-REQUIRE-001
       when: { risk: critical }
       add_gate: verify.analyze
       rationale: "Cross-artifact coherence checked before high-care work lands."
 
-    - id: RG-FLOOR-005
+    - id: RP-REQUIRE-002
       when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.analyze
       rationale: "Irreversible-surface tasks have coherence checked before Land."
 
-    - id: RG-FLOOR-006
+    - id: RP-REQUIRE-003
       when: { risk: [cross-cutting, critical] }
       add_gate: verify.fitness
       rationale: "Architectural fitness checked before cross-cutting or critical changes land."
 
-    - id: RG-FLOOR-007
+    - id: RP-REQUIRE-004
       when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.fitness
       rationale: "Irreversible-surface tasks have fitness checked before Land."
 
   # caps - limits on scaling up.
   caps:
-    - id: RG-CAP-001
+    - id: RP-CAP-001
       when: { risk: critical }
       max_worktrees: 1
       rationale: "Coordination risk on critical changes outweighs parallelism."
 
-  # immovable_gates - review gates no route may drop, for any DELIVERY route.
+  # immovable_gates - review gates no delivery approach may drop, for any DELIVERY approach.
   # These three are "the default guardrails in review form": every delivery
   # route's route_shape already includes them, and stapling them here means a
   # future custom or tuned route still cannot drop them. NOTE what is NOT
-  # here: verify.regression is route-scoped (Express, being atomic+trivial,
-  # does not run it - that is Express's whole point), and verify.claims is
-  # role-scoped (added by RG-ROLE-001 when a marketer is in play, and built
-  # into Expedition). Immovable means immovable *everywhere* - keep the set to
+  # here: verify.regression is route-scoped (quick fix, being atomic+trivial,
+  # does not run it - that is quick fix's whole point), and verify.claims is
+  # role-scoped (added by RP-ROLE-001 when a marketer is in play, and built
+  # into initiative). Immovable means immovable *everywhere* - keep the set to
   # what genuinely is.
   immovable_gates:
-    - id: RG-GATE-001
+    - id: RP-GATE-001
       gate: verify.correctness
       rationale: "Protects the user - the work must satisfy its acceptance criteria."
-    - id: RG-GATE-002
+    - id: RP-GATE-002
       gate: verify.governance
       rationale: "Protects the project's own rules - honours guardrails and strategies."
-    - id: RG-GATE-003
+    - id: RP-GATE-003
       gate: verify.traceability
       rationale: "Protects the audit trail - code -> criterion -> intent stays intact."
 
   # role_rules - a role's involvement that ENFORCES a gate or a phase block.
   role_rules:
-    - id: RG-ROLE-001
+    - id: RP-ROLE-001
       when: { role: product-marketer }
       require_artifact: launch-readiness.md
       gate: verify.claims                # adds the claims gate to the route's set
       block_phase: land
       until: "every claim in positioning.md traces to a passing scenario"
       rationale: "A launch claim with no backing scenario must not ship."
-    - id: RG-ROLE-002
+    - id: RP-ROLE-002
       when: { role: product-owner }
       require_artifact: prd.md
       block_phase: plan
@@ -178,7 +183,7 @@ routing_guardrails:
       rationale: "Built-the-thing-right and built-the-right-thing are different checks."
 
 # -----------------------------------------------------------------------------
-# Reading vocabulary - the legal values the readings may take. The evaluator
+# Reading vocabulary - the legal values the assessment may take. The evaluator
 # rejects a reading outside this vocabulary (a misclassification should fail
 # loudly, not route silently).
 # -----------------------------------------------------------------------------
@@ -193,9 +198,9 @@ assessment_vocabulary:
   labels_common: [auth, payments, personal-data, migrations, public-api, infra, ci]
 
 # -----------------------------------------------------------------------------
-# Route shapes - the machine-readable mirror of the five reference routes. The
+# Route shapes - the machine-readable mirror of the five reference delivery approach. The
 # approaches/*.md files are the human-readable canonical descriptions; this is what
-# `compass route evaluate` reads to emit the per-phase weight, gate set, and
+# `compass approach evaluate` reads to emit the per-phase weight, gate set, and
 # topology once the final route is known. The weight ladder for
 # force_minimum_route (spike < express < standard < hotfix < expedition) is the
 # `weight:` field.

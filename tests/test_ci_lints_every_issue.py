@@ -17,7 +17,7 @@ Two consequences. A malformed spine could sit in a repository indefinitely
 without the sweep noticing, and `status: parked` became a one-word way to
 leave the sweep while it still reported everything clean.
 
-Spec: .compass/work/ci-lints-every-issue/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

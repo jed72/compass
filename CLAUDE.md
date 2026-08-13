@@ -95,7 +95,12 @@ Compass is governed by two kinds of thing, and you must keep them straight.
   apply.
 
 The conflict rule: a guardrail beats a strategy; strategy-versus-strategy is
-triage's call (via the delivery approach) or a human's. Read `governance/`
+triage's call (via the delivery approach) or a human's. **When your
+recommendation and an instruction disagree, measure the disputed quantity
+and report the numbers before defending either position** (`S11`) - the
+disagreement is nearly always about a quantity someone has guessed, and the
+guess is doing the arguing. Report what you find even when it undercuts you.
+Read `governance/`
 at the start of an issue - `guardrails.md`, `strategies.md`, and
 `routing-policy.md` for the why; `routing-policy.yml` and `guardrails.yml`
 are the machine-readable companions the CLI runs. The guardrail *checks* are
@@ -152,7 +157,7 @@ ends with the **Definition of Ready** (the foot of `requirements-review.md`); on
 delivery approaches where that review collapses (quick fix, hotfix, spike),
 it is satisfied by construction. Before shipping comes the **Definition of
 Done** (the foot of `verification-report.md`); its unchecked items carry
-typed inline evidence tags - `(evidence: EV-id)` or `(backfill: BF-id)` -
+typed inline evidence tags - `(evidence: EV-id)` or `(follow-up: FU-id)` -
 and a bare unchecked item fails `compass check`. Treat an unchecked box as a
 closed gate.
 

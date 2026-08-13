@@ -31,7 +31,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    pre-commit hooks (which otherwise silently no-op the commit and leave
    HEAD unmoved), retries once after re-staging the hooks' fixes, and
    **errors if HEAD did not advance** so shipping can never falsely believe
-   it happened. Pass `--task <slug>` to mark the issue shipped only on a
+   it happened. Pass `--issue <slug>` to mark the issue shipped only on a
    verified commit. The message follows the cold-reader strategy: say what
    changed and why, for someone who was not in the conversation; no
    `Co-Authored-By:` trailer for any agent and no "Generated with" footer.
@@ -77,11 +77,11 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    - `- [ ] (evidence: EV-<id>) <description>` - passes if `EV-<id>` is in
      `task.yml`'s evidence registry with an accepted type (`test-run`,
      `command-output`, `manual-review`, `human-approval`, `artifact`, etc.).
-   - `- [ ] (backfill: BF-<id>) <description>` - passes if `BF-<id>` is in
+   - `- [ ] (follow-up: FU-<id>) <description>` - passes if `FU-<id>` is in
      `task.yml`'s `follow_ups:` with `status: owed`. The follow-up can
      carry an optional `target_task: <slug>` field; when set, the named
      issue's ship check fails until this entry is paid
-     (`compass follow-up resolve --task <slug> <BF-id>` - the CLI verb renames
+     (`compass follow-up resolve --issue <slug> <FU-id>` - the CLI verb renames
      with the CLI-voice slice).
    - `- [x] <description>` - a human-ticked box passes unconditionally.
    - `- [ ] <bare description>` - **fails**. Narrative notes in `devlog.md`

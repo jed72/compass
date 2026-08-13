@@ -61,6 +61,18 @@ verifier gathered, `acceptance-criteria.md`, `design.md`, the `governance/` file
 they are the default guardrails in review form. The route can add dimensions;
 it can never remove those three or any `immovable_gate`.
 
+## How you write a comment
+
+Open every comment with a plain-word label saying what kind of comment it is -
+**issue**, **suggestion**, **nitpick**, **question**, **praise**
+(`governance/strategies.md` `S12`). The label goes first so the author can
+tell what blocks the merge without reading the whole thread.
+
+Label honestly. A blocking defect filed as a nitpick passes any check that
+looks for a word at the front and costs the author more than an unlabelled
+comment would. The label is a claim about severity, and you own it the same
+way you own the finding.
+
 ## How you behave per route
 
 - **quick-fix** - three dimensions, one gate. Light, but real: a no-pass on

@@ -22,7 +22,7 @@ def test_baseline_lint_check_disagree_on_corpus_shape(run_cli, make_task):
     make_task("r3-base", _body(
         {"id": "TRC-Z1", "intent": ["INT-1", "INT-2"], "group": "A",
          "verifiable": "narrative", "tests": []}))
-    r = run_cli("check", "--task", "r3-base")
+    r = run_cli("check", "--issue", "r3-base")
     line = next((l for l in (r.stdout + r.stderr).splitlines()
                  if "scenario-has-id-and-intent" in l), "")
     assert "PASS" in line, r
@@ -34,7 +34,7 @@ def test_corpus_shape_passes_after_fix(run_cli, make_task):
     make_task("r3-corpus", _body(
         {"id": "TRC-Z1", "intent": ["INT-1", "INT-2"], "group": "A",
          "verifiable": "narrative", "tests": []}))
-    r = run_cli("issue", "lint", "--task", "r3-corpus")
+    r = run_cli("issue", "lint", "--issue", "r3-corpus")
     assert r.returncode == 0, r
     assert "PASS" in (r.stdout + r.stderr), r
 
@@ -43,14 +43,14 @@ def test_string_intent_still_passes(run_cli, make_task):
     """TRC-R3-3: a plain-string intent still lints clean (backward compat)."""
     make_task("r3-str", _body(
         {"id": "TRC-Z2", "intent": "INT-1", "tests": ["tests/test_x.py::test_y"]}))
-    r = run_cli("issue", "lint", "--task", "r3-str")
+    r = run_cli("issue", "lint", "--issue", "r3-str")
     assert r.returncode == 0, r
 
 
 def test_numeric_intent_still_fails(run_cli, make_task):
     """TRC-R3-4: a numeric intent is still rejected - widened, not removed."""
     make_task("r3-num", _body({"id": "TRC-Z3", "intent": 7, "tests": []}))
-    r = run_cli("issue", "lint", "--task", "r3-num")
+    r = run_cli("issue", "lint", "--issue", "r3-num")
     assert r.returncode != 0, r
     assert "intent" in (r.stdout + r.stderr), r
 
@@ -59,6 +59,6 @@ def test_list_intent_non_string_element_fails(run_cli, make_task):
     """TRC-R3-5: a list intent with a non-string element is rejected."""
     make_task("r3-listbad", _body(
         {"id": "TRC-Z4", "intent": ["INT-1", 7], "tests": []}))
-    r = run_cli("issue", "lint", "--task", "r3-listbad")
+    r = run_cli("issue", "lint", "--issue", "r3-listbad")
     assert r.returncode != 0, r
     assert "intent" in (r.stdout + r.stderr), r

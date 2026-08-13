@@ -90,7 +90,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task
+from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task, shape_stages
 from compass_pkg.governance import governance_drift
 from compass_pkg.task_spine import _annotate_gate_accepts
 
@@ -169,7 +169,16 @@ def evaluate_route(readings, policy):
             floor_gates.append(fl["add_gate"])
             changed.append(f"gate '{fl['add_gate']}' added to the route's set")
         if changed:
-            fired.append({"id": fl.get("id", "?"), "kind": "floor",
+            # The kind follows what the entry actually did, not which block it
+            # sits in. An entry that only attaches a gate raises no minimum, so
+            # calling it a floor is the same conflation the RP-REQUIRE ids were
+            # introduced to end - and it would print "[RP-REQUIRE-003] floor:"
+            # on screen, which reads as a contradiction.
+            raises_minimum = any(
+                k in fl for k in ("force_minimum_route", "require_phase",
+                                  "require_skill", "never_skip"))
+            fired.append({"id": fl.get("id", "?"),
+                          "kind": "floor" if raises_minimum else "requirement",
                           "rationale": fl.get("rationale", ""), "changed": changed})
 
     # --- 2b. routing conflict: exploration must not silently become delivery -
@@ -240,7 +249,7 @@ def evaluate_route(readings, policy):
     shape = shapes.get(final)
     if not shape:
         raise CompassError(f"route '{final}' has no entry in route_shapes")
-    phases = dict(shape.get("stages") or shape.get("phases") or {})
+    phases = shape_stages(shape)
     for p in (never_skip | required_phases):
         if phases.get(p) in ("collapsed", "skipped", "light"):
             phases[p] = "full"
@@ -303,7 +312,7 @@ def cmd_route_evaluate(args):
         readings = {}
         for pair in args.reading:
             if "=" not in pair:
-                raise CompassError(f"--reading expects key=value, got: {pair}")
+                raise CompassError(f"--assessment expects key=value, got: {pair}")
             k, v = pair.split("=", 1)
             k = ASSESSMENT_KEY_MAP.get(k, k)
             if k == "labels":
@@ -370,29 +379,29 @@ def cmd_route_evaluate(args):
     # --write: fold the result back into task.yml
     if args.write:
         if task is None:
-            raise CompassError("--write needs an issue (use --task or run in a "
-                               "issue; it cannot write with ad-hoc --reading)")
+            raise CompassError("--write needs an issue (use --issue or run in a "
+                               "issue; it cannot write with ad-hoc --assessment)")
         # Re-frame detection, on the route's CONTENT rather than its name.
         # Keying on the name discarded real re-frames: a task whose governance
         # was updated went from 7 gates to 9 under the same route name and
         # logged nothing, taking its `--reason` with it. Route weight is not the
         # only thing that matters about a route.
         prior = {
-            "route": task.get("delivery_approach"),
-            "phases": task.get("stages"),
+            "delivery_approach": task.get("delivery_approach"),
+            "stages": task.get("stages"),
             "topology": task.get("topology"),
             "gates": sorted(g.get("id") for g in (task.get("gates") or [])
                             if isinstance(g, dict)),
-            "fired_guardrails": sorted(
+            "policy_rules_fired": sorted(
                 f.get("id") for f in (task.get("policy_rules_fired") or [])
                 if isinstance(f, dict)),
         }
         now = {
-            "route": result["delivery_approach"],
-            "phases": result["stages"],
+            "delivery_approach": result["delivery_approach"],
+            "stages": result["stages"],
             "topology": result.get("topology"),
             "gates": sorted(result.get("gates") or []),
-            "fired_guardrails": sorted(
+            "policy_rules_fired": sorted(
                 f.get("id") for f in (result["policy_rules_fired"] or [])
                 if isinstance(f, dict)),
         }
@@ -403,7 +412,7 @@ def cmd_route_evaluate(args):
         # to sharpen.
         changed = {k: {"from": prior[k], "to": now[k]}
                    for k in prior if prior[k] and prior[k] != now[k]}
-        reframed = bool(prior["route"]) and bool(changed)
+        reframed = bool(prior["delivery_approach"]) and bool(changed)
         if reframed:
             reason = args.reason or "(reason not given - fill this in)"
             # The kind keeps calibration honest. Logging a governance-driven
@@ -412,7 +421,7 @@ def cmd_route_evaluate(args):
             # under them moved. Only `judgement` feeds the re-sizing aggregate.
             kind = getattr(args, "kind", None) or "judgement"
             task.setdefault("reassessments", []).append({
-                "from_route": prior["route"],
+                "from_route": prior["delivery_approach"],
                 "to_route": result["delivery_approach"],
                 "kind": kind,
                 "changed": changed,
@@ -441,7 +450,7 @@ def cmd_route_evaluate(args):
                   "all identical to what was already on record.")
         if reframed:
             print(f"  RE-FRAME recorded ({task['reassessments'][-1]['kind']}): "
-                  f"{prior['route']} -> {result['delivery_approach']}"
+                  f"{prior['delivery_approach']} -> {result['delivery_approach']}"
                   + (f"  [changed: {', '.join(sorted(changed))}]" if changed else ""))
             if not args.reason:
                 sys.stderr.write(

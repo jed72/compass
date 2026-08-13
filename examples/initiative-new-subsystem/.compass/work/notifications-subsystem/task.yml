@@ -11,20 +11,20 @@ assessment:
   role: product-owner
   labels:
   - migrations
-delivery_approach: expedition
+delivery_approach: initiative
 topology: swarm
 policy_rules_fired:
-- id: RG-FLOOR-003
+- id: RP-FLOOR-003
   kind: floor
-  rationale: Domain risk overrides magnitude. A one-line auth change is not small.
+  rationale: Domain risk overrides size. A one-line auth change is not small.
   changed:
   - route raised standard -> expedition
-- id: RG-ROLE-002
+- id: RP-ROLE-002
   kind: role_rule
   rationale: Built-the-thing-right and built-the-right-thing are different checks.
   changed:
-  - artifact 'brief.md' required
-  - 'phase ''plan'' blocked until: the spec has been checked against brief.md for
+  - artifact 'prd.md' required
+  - 'phase ''plan'' blocked until: the spec has been checked against prd.md for
     intent fidelity'
 stages:
   frame: full
@@ -39,7 +39,7 @@ evidence:
 - id: EV-T1
   type: test-run
   path: evidence/green.json
-  scenario: SCN-001
+  scenario: TRC-001
 - id: EV-SEC1
   type: command-output
   path: evidence/security-scan.txt
@@ -90,32 +90,32 @@ gates:
   evidence:
   - EV-V1
 scenarios:
-- id: SCN-001
+- id: TRC-001
   title: An in-app event produces a notification for the target user
   intent: INT-1
   tests:
   - tests/notifications/test_dispatch.py::test_event_creates_notification
-- id: SCN-002
+- id: TRC-002
   title: A notification is delivered once, even if the event is retried
   intent: INT-1
   tests:
   - tests/notifications/test_dispatch.py::test_delivery_is_idempotent
-- id: SCN-003
+- id: TRC-003
   title: Notifications survive a worker restart
   intent: INT-2
   tests:
   - tests/notifications/test_dispatch.py::test_durable_across_restart
-- id: SCN-004
+- id: TRC-004
   title: A user mutes a category and stops receiving that category
   intent: INT-3
   tests:
   - tests/notifications/test_preferences.py::test_mute_category
-- id: SCN-005
+- id: TRC-005
   title: A user with no saved preferences gets the safe defaults
   intent: INT-3
   tests:
   - tests/notifications/test_preferences.py::test_default_preferences
-- id: SCN-006
+- id: TRC-006
   title: A muted category does not suppress a security notification
   intent: INT-3
   tests:
@@ -123,29 +123,29 @@ scenarios:
 changed_files:
 - path: migrations/0042_notifications.sql
   scenarios:
-  - SCN-001
-  - SCN-002
-  - SCN-003
-  - SCN-004
+  - TRC-001
+  - TRC-002
+  - TRC-003
+  - TRC-004
 - path: src/notifications/dispatch.py
   scenarios:
-  - SCN-001
-  - SCN-002
-  - SCN-003
+  - TRC-001
+  - TRC-002
+  - TRC-003
 - path: src/notifications/store.py
   scenarios:
-  - SCN-002
-  - SCN-003
+  - TRC-002
+  - TRC-003
 - path: src/notifications/preferences.py
   scenarios:
-  - SCN-004
-  - SCN-005
-  - SCN-006
+  - TRC-004
+  - TRC-005
+  - TRC-006
 - path: src/notifications/api.py
   scenarios:
-  - SCN-001
-  - SCN-004
-  - SCN-005
+  - TRC-001
+  - TRC-004
+  - TRC-005
 claims: []
 follow_ups: []
 reassessments: []

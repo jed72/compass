@@ -4,7 +4,7 @@
 # =============================================================================
 # Runs as a Claude Code PostToolUse hook, after an Edit/Write/MultiEdit tool
 # call completes. It does ONE lightweight thing: appends a short line to the
-# current task's devlog.md, so "persistence over conversation" holds without
+# current issue's devlog.md, so "persistence over conversation" holds without
 # the agent having to remember to log every touch.
 #
 # WHAT IT DOES NOT DO (any more)
@@ -15,7 +15,7 @@
 #   marker was the brittle, trust-based version; the CLI replaces it with an
 #   evidence-backed one. This hook stays out of that.
 #
-# THE CURRENT TASK
+# THE CURRENT ISSUE
 #   Named by the .compass/current-task pointer (written by /compass:triage and
 #   /compass:resume); most-recently-modified is only the fallback.
 #
@@ -39,7 +39,29 @@
 set -euo pipefail
 
 INPUT="$(cat || true)"
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# Same ancestor walk as hooks/pre-tool.sh. A bare $(pwd) assumed the session
+# started at the repository root; started anywhere else this hook found no
+# .compass/work/, exited 0, and a silent warner is exactly what a clean
+# session looks like. Every gate-state warning disappeared with no trace.
+#
+# A warner must not refuse - it says so rather than blocking - but it says so.
+INVOKED_FROM="$(pwd)"
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  PROJECT_DIR=""
+  _search="$INVOKED_FROM"
+  while [ -n "$_search" ]; do
+    [ -d "$_search/.compass" ] && { PROJECT_DIR="$_search"; break; }
+    [ -e "$_search/.git" ] && break
+    [ "$_search" = "/" ] && break
+    _search="$(dirname "$_search")"
+  done
+  if [ -z "$PROJECT_DIR" ]; then
+    echo "Compass: could not locate a Compass project at or above $INVOKED_FROM - no end-of-session check ran." >&2
+    exit 0
+  fi
+fi
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 
@@ -62,7 +84,7 @@ case "$TARGET" in
   *.compass/*|*/.compass/*) exit 0 ;;
 esac
 
-# --- find the current task (pointer first, most-recent as fallback) ---------
+# --- find the current issue (pointer first, most-recent as fallback) --------
 TASK_DIR=""
 POINTER="$COMPASS_DIR/current-task"
 if [ -f "$POINTER" ]; then

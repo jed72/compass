@@ -96,7 +96,7 @@ def test_trc_a1_missing_test_file_reported(run_cli, make_task, project):
                          _task_claiming_correctness(["tests/test_nothing_here.py::test_x"]))
     _green(task_dir)
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
 
     assert r.returncode != 0, r
     assert "declared-tests-resolve" in r.stdout, r
@@ -113,7 +113,7 @@ def test_trc_a2_missing_test_function_reported(run_cli, make_task, project):
                          _task_claiming_correctness(["tests/test_real.py::test_absent"]))
     _green(task_dir)
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
 
     assert r.returncode != 0, r
     assert "declared-tests-resolve" in r.stdout, r
@@ -126,7 +126,7 @@ def test_trc_a3_resolvable_test_id_passes(run_cli, make_task, project):
                          _task_claiming_correctness(["tests/test_real.py::test_present"]))
     _green(task_dir)
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
 
     assert r.returncode == 0, r
     assert "declared-tests-resolve" in r.stdout, "the check should report a pass"
@@ -140,7 +140,7 @@ def test_trc_a3_parametrised_id_resolves(run_cli, make_task, project):
         _task_claiming_correctness(["tests/test_real.py::test_present[case-1]"]))
     _green(task_dir)
 
-    assert run_cli("check", "--task", "resolve-me").returncode == 0
+    assert run_cli("check", "--issue", "resolve-me").returncode == 0
 
 
 def test_trc_a3_non_file_shaped_id_is_skipped(run_cli, make_task, project):
@@ -151,7 +151,7 @@ def test_trc_a3_non_file_shaped_id_is_skipped(run_cli, make_task, project):
         _task_claiming_correctness(["grep: governance/strategies.md carries S7"]))
     _green(task_dir)
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
     assert r.returncode == 0, r
 
 
@@ -171,7 +171,7 @@ def test_trc_a4_narrative_scenario_exempt(run_cli, make_task, project):
         "  Given a documented procedure\n  When it is followed\n"
         "  Then the outcome is recorded\n```\n")
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
 
     assert r.returncode == 0, r
     assert "FAIL declared-tests-resolve" not in r.stdout, (
@@ -188,7 +188,7 @@ def test_trc_a7_pending_correctness_not_checked(run_cli, make_task, project):
                                    correctness="pending"))
     _green(task_dir)
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
     combined = r.stdout
     assert "test_not_written_yet" not in combined, (
         "the resolution check must not fire before correctness is claimed:\n" + combined)
@@ -202,7 +202,7 @@ def test_trc_a8_landed_task_not_rechecked(run_cli, make_task, project):
         _task_claiming_correctness(["tests/test_long_gone.py::test_x"], status="landed"))
     _green(task_dir)
 
-    r = run_cli("check", "--task", "resolve-me")
+    r = run_cli("check", "--issue", "resolve-me")
     assert "test_long_gone" not in r.stdout, (
         "a landed task must not be re-checked:\n" + r.stdout)
 
@@ -249,7 +249,7 @@ def test_trc_b1_second_note_appends(run_cli, make_task):
          "observation": "the first note"},
     ])
 
-    r = run_cli("_friction-capture", "--internal", "--task", "fric",
+    r = run_cli("_friction-capture", "--internal", "--issue", "fric",
                 "--note", "the second note", "--note-category", "tooling",
                 "--note-phase", "land")
     assert r.returncode == 0, r
@@ -270,7 +270,7 @@ def test_trc_b2_derived_entries_not_duplicated(run_cli, make_task):
          "observation": "a derived observation"},
     ])
 
-    run_cli("_friction-capture", "--internal", "--task", "fric",
+    run_cli("_friction-capture", "--internal", "--issue", "fric",
             "--note", "a human note", "--note-category", "tooling")
 
     got = yaml.safe_load((task_dir / "task.yml").read_text())["friction"]
@@ -284,7 +284,7 @@ def test_trc_b1_identical_note_not_appended_twice(run_cli, make_task):
          "observation": "same note"},
     ])
 
-    run_cli("_friction-capture", "--internal", "--task", "fric",
+    run_cli("_friction-capture", "--internal", "--issue", "fric",
             "--note", "same note", "--note-category", "tooling",
             "--note-phase", "verify")
 
@@ -296,7 +296,7 @@ def test_trc_b3_nothing_captured_stays_absent(run_cli, make_task):
     """A task that hit no friction stays a clean no-op (ADR-006)."""
     task_dir = _friction_task("fric", make_task)
 
-    r = run_cli("_friction-capture", "--internal", "--task", "fric")
+    r = run_cli("_friction-capture", "--internal", "--issue", "fric")
 
     assert r.returncode == 0, r
     body = yaml.safe_load((task_dir / "task.yml").read_text())
@@ -308,7 +308,7 @@ def test_trc_f2_task_without_friction_key_loads(run_cli, make_task):
     """A spine written before the friction key existed must still accept a note."""
     task_dir = _friction_task("fric", make_task)   # no friction key at all
 
-    r = run_cli("_friction-capture", "--internal", "--task", "fric",
+    r = run_cli("_friction-capture", "--internal", "--issue", "fric",
                 "--note", "a note", "--note-category", "tooling")
 
     assert r.returncode == 0, r
@@ -389,7 +389,7 @@ def test_trc_f1_existing_tasks_still_pass():
     failures = []
     for slug in _pre_existing_task_slugs():
         r = subprocess.run(
-            [sys.executable, str(ROOT / "cli" / "compass"), "check", "--task", slug],
+            [sys.executable, str(ROOT / "cli" / "compass"), "check", "--issue", slug],
             capture_output=True, text=True, timeout=120, cwd=str(ROOT))
         if r.returncode != 0:
             failures.append(f"--- {slug} ---\n{r.stdout[-1500:]}")

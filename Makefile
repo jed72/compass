@@ -28,7 +28,7 @@ release:  ## build a clean release tarball into dist/
 adapter-check:  ## run the pytest-bdd adapter exactly as CI does (cleans derived files first)
 	git clean -fdX examples/
 	cd examples/bdd-adapters/pytest-bdd && \
-	  python3 ../../../cli/compass bdd extract --task reset-password && \
+	  python3 ../../../cli/compass bdd extract --issue reset-password && \
 	  python3 -m pytest tests/ -q
 	@echo "adapter-check: PASS (from a clean tree, as CI sees it)"
 

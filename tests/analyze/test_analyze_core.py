@@ -572,7 +572,7 @@ def test_trc_a11_no_evidence_findings(project: Path, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
-    """TRC-A12: the routing-policy floor RG-FLOOR-004 adds verify.analyze to a
+    """TRC-A12: the routing-policy floor RP-REQUIRE-001 adds verify.analyze to a
     task with touches=[auth]; the evaluator writes it to task.yml.gates."""
     slug = "auth-task"
     task_dir = project / ".compass" / "work" / slug

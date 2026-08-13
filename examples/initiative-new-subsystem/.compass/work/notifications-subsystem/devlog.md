@@ -1,6 +1,6 @@
 # Devlog - notifications-subsystem
 
-> **Task:** Build the in-app notifications subsystem - durable delivery, per-category preferences, an un-mutable security category · **Opened:** 2026-03-02
+> **Issue:** Build the in-app notifications subsystem - durable delivery, per-category preferences, an un-mutable security category · **Opened:** 2026-03-02
 > Append-only. Newest at the bottom.
 
 ---
@@ -8,28 +8,28 @@
 ## 2026-03-02 11:00 - Frame
 
 - **Event:** Needle ran; route computed.
-- **Route:** Expedition - see `route.md` revision 1.
-- **Readings:** blast radius contained, terrain greenfield, magnitude standard, intent & role product-owner/delivery, touches [migrations].
-- **Routing guardrails fired:** RG-FLOOR-003 (touches migrations → candidate raised standard→expedition); RG-ROLE-002 (product-owner → brief.md required, Plan blocked until intent-fidelity check).
-- **Owed backfills:** none - Expedition borrows no ceremony. (G5 applies because of the `migrations` tag - a Land sign-off, not a backfill.)
+- **Route:** initiative - see `delivery-approach.md` revision 1.
+- **Assessment:** risk contained, familiarity greenfield, size standard, intent & role product-owner/delivery, touches [migrations].
+- **Routing guardrails fired:** RP-FLOOR-003 (touches migrations → candidate raised standard→expedition); RP-ROLE-002 (product-owner → prd.md required, Plan blocked until intent-fidelity check).
+- **Outstanding follow-ups:** none - initiative borrows no ceremony. (`G5` applies because of the `migrations` tag - a Land sign-off, not a follow-up.)
 - **Next:** Specify.
 
 ## 2026-03-05 16:30 - Specify
 
-- **Event:** Full BDD discovery from `brief.md`. Six scenarios discovered, grouped by independence into group A (delivery & dispatch) and group B (preferences) - that grouping is the seed for the distribution map.
-- **Artifact:** `spec.feature.md` - 6 scenarios in 2 groups (+ a failure-mode scenario, SCN-006).
+- **Event:** Full BDD discovery from `prd.md`. Six scenarios discovered, grouped by independence into group A (delivery & dispatch) and group B (preferences) - that grouping is the seed for the distribution map.
+- **Artifact:** `acceptance-criteria.md` - 6 scenarios in 2 groups (+ a failure-mode scenario, TRC-006).
 - **Next:** Clarify.
 
 ## 2026-03-06 14:00 - Clarify
 
-- **Event:** Full pass. Three ambiguities resolved - Q1 (security override → fixed category, not a flag), Q2 (dedup → once-ever), Q3 (the 5s in SCN-001 → test bound, not an SLA). Product owner reviewed and signed the intent-fidelity check at the foot of `brief.md` - that clears the RG-ROLE-002 block on Plan.
-- **Artifact:** `clarifications.md` - Definition of Ready ticked.
+- **Event:** Full pass. Three ambiguities resolved - Q1 (security override → fixed category, not a flag), Q2 (dedup → once-ever), Q3 (the 5s in TRC-001 → test bound, not an SLA). Product owner reviewed and signed the intent-fidelity check at the foot of `prd.md` - that clears the RP-ROLE-002 block on Plan.
+- **Artifact:** `requirements-review.md` - Definition of Ready ticked.
 - **Next:** Plan (now unblocked).
 
 ## 2026-03-07 10:00 - Plan
 
-- **Event:** Full `plan.md` + `distribution-map.md`. Three design decisions recorded - DD-1 (fixed security category), DD-2 (idempotency key), DD-3 (write-before-deliver durability). Governance check passed, including how G5's migration sign-off is routed into Land. Two independent streams + a shared U0 foundation (`migrations/0042`).
-- **Artifact:** `plan.md`, `distribution-map.md`.
+- **Event:** Full `design.md` + `distribution-map.md`. Three design decisions recorded - DD-1 (fixed security category), DD-2 (idempotency key), DD-3 (write-before-deliver durability). Governance check passed, including how `G5`'s migration sign-off is routed into ship. Two independent streams + a shared U0 foundation (`migrations/0042`).
+- **Artifact:** `design.md`, `distribution-map.md`.
 - **Next:** Distribute.
 
 ## 2026-03-08 09:30 - Distribute
@@ -51,20 +51,20 @@
 
 ## 2026-03-13 14:50 - Verify
 
-- **Event:** Per-stream verification (stream-1: 3 green, stream-2: 3 green), then `scripts/integrate.sh` merged both onto the integration branch and the orchestrator ran the combined regression - 71 passed. All seven Expedition gates GREEN. `ruff` + `mypy` clean. Coverage 85% (floor 80%).
+- **Event:** Per-stream verification (stream-1: 3 green, stream-2: 3 green), then `scripts/integrate.sh` merged both onto the integration branch and the orchestrator ran the combined regression - 71 passed. All seven initiative gates GREEN. `ruff` + `mypy` clean. Coverage 85% (floor 80%).
 - **Artifact:** `verification-report.md` - Definition of Done ticked.
 - **Evidence:** per-stream + combined runs in `verification-report.md` §2; `evidence/green.json`.
 - **Next:** Land.
 
-## 2026-03-13 16:20 - note: G5 sign-off
+## 2026-03-13 16:20 - note: `G5` sign-off
 
-- **Event:** Guardrail G5 - irreversible change. L. Haddad (eng lead) reviewed `migrations/0042` forward and rollback paths and approved in PR #618.
-- **Detail:** Recorded in `task.yml` `approvals:`. `compass check` requires this because the readings include `touches: [migrations]`.
+- **Event:** Guardrail `G5` - irreversible change. L. Haddad (eng lead) reviewed `migrations/0042` forward and rollback paths and approved in PR #618.
+- **Detail:** Recorded in `task.yml` `approvals:`. `compass check` requires this because the assessment include `labels: [migrations]`.
 
 ## 2026-03-13 17:00 - Land
 
-- **Event:** task closed.
+- **Event:** issue closed.
 - **What landed:** The `src/notifications/` subsystem - `dispatch.py`, `store.py`, `preferences.py`, `api.py` - and `migrations/0042_notifications.sql`. Orchestrated merge of both streams; combined regression clean.
-- **How verified:** `verification-report.md` gate decision - all seven gates GREEN; G5 approval on record.
-- **Backfills paid:** none owed.
-- **Follow-ups filed:** none owed by this task. (The external launch - positioning, claims, a marketer - is the separate already-planned next task, not a follow-up this task generated.)
+- **How verified:** `verification-report.md` gate decision - all seven gates GREEN; `G5` approval on record.
+- **Follow-ups resolved:** none outstanding.
+- **Follow-up issues filed:** none outstanding by this issue. (The external launch - positioning, claims, a marketer - is the separate already-planned next issue, not a follow-up this issue generated.)

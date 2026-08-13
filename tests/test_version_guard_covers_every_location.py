@@ -19,7 +19,7 @@ So this test does not restate the list of locations. Restating it is how the
 list went stale. It finds every version string in the repository's published
 surfaces and asserts the guard has a case for each.
 
-Spec: .compass/work/version-guard-covers-all/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

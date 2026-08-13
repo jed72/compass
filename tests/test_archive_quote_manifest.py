@@ -26,7 +26,7 @@ fail, rather than asserting it never gets exercised
 against the real files, which is why that file still uses `pytest.skip` when
 this developer's own checkout happens to be missing the archive).
 
-Criteria: .compass/work/archive-quote-verification/acceptance-criteria.md
+Criteria: docs/system-spec.md
 """
 from __future__ import annotations
 

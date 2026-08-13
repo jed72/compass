@@ -14,7 +14,7 @@ pointer from the verify stage guidance (`commands/verify.md`,
 `skills/evidence-gates/SKILL.md`) that names where it lives without
 repeating it.
 
-Criteria: .compass/work/fresh-eyes-verify-sweeps/acceptance-criteria.md
+Criteria: docs/system-spec.md
 (Requirements review and design collapsed on this quick fix - see
 `.compass/work/fresh-eyes-verify-sweeps/delivery-approach.md` §5.)
 """
@@ -293,8 +293,18 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     terminology = yaml.safe_load(
         (REPO_ROOT / "governance" / "terminology.yml").read_text(encoding="utf-8")
     )
-    assert len(terminology["terms"]) == 53, (
-        "governance/terminology.yml must gain no new vocabulary term"
+    # The count is a ratchet against a sweep quietly widening the vocabulary,
+    # not a ban on ever defining a word. Raising it is the deliberate act that
+    # says a vocabulary change was intended - the same shape as
+    # EXPECTED_VERSION in test_version_consistency.
+    #
+    # 53 -> 57 at 3.0.0: traceability, intent, navigator and assessment. Each
+    # named something already load-bearing and undefined - the most-used id
+    # prefix in the repository, a live command, a live agent, and the only
+    # judgement field in the spine. ADR-016 records the decision.
+    assert len(terminology["terms"]) == 57, (
+        "governance/terminology.yml gained or lost a term without this count "
+        "moving. A vocabulary change is a decision (ADR-012); make it one."
     )
 
     result = subprocess.run(

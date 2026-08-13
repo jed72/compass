@@ -1,17 +1,17 @@
 # Distribution Map - notifications-subsystem
 
-> **Phase:** Plan · **Date:** 2026-03-07 · **Reads from:** plan.md §4, spec.feature.md
+> **Phase:** Plan · **Date:** 2026-03-07 · **Reads from:** design.md §4, acceptance-criteria.md
 > **Consumed by:** Distribute, `scripts/swarm.sh`, the `orchestrator` agent
 
 ---
 
 ## 1. Work units
 
-| Unit | From plan.md | Scenario group(s) | Code surface |
+| Unit | From design.md | Scenario group(s) | Code surface |
 |---|---|---|---|
 | U0 | plan §4 U0 | foundation (none directly) | `migrations/0042_notifications.sql` |
-| U1 | plan §4 U1 | group A - SCN-001, SCN-002, SCN-003 | `src/notifications/dispatch.py`, `store.py`, `api.py` (read/mark-read) |
-| U2 | plan §4 U2 | group B - SCN-004, SCN-005, SCN-006 | `src/notifications/preferences.py`, `api.py` (preferences) |
+| U1 | plan §4 U1 | group A - TRC-001, TRC-002, TRC-003 | `src/notifications/dispatch.py`, `store.py`, `api.py` (read/mark-read) |
+| U2 | plan §4 U2 | group B - TRC-004, TRC-005, TRC-006 | `src/notifications/preferences.py`, `api.py` (preferences) |
 
 ## 2. Independence analysis
 
@@ -30,8 +30,8 @@ first" move - it is why U1 and U2 can then run truly in parallel.
 
 | Stream | Owns work unit(s) | Owns scenario ids | Branch name |
 |---|---|---|---|
-| stream-1 | U1 | SCN-001, SCN-002, SCN-003 | `compass/notifications-subsystem/stream-1` |
-| stream-2 | U2 | SCN-004, SCN-005, SCN-006 | `compass/notifications-subsystem/stream-2` |
+| stream-1 | U1 | TRC-001, TRC-002, TRC-003 | `compass/notifications-subsystem/stream-1` |
+| stream-2 | U2 | TRC-004, TRC-005, TRC-006 | `compass/notifications-subsystem/stream-2` |
 
 U0 is not a stream - it is a single commit on the integration branch
 (`compass/notifications-subsystem/integration`) that both streams branch from,
@@ -44,7 +44,7 @@ landed by the orchestrator before the streams start.
 - Worktree root: `../.compass-worktrees` (from `.compass/config.yml`)
 - One worktree + one `builder` per stream, plus one `orchestrator` that writes
   no feature code - it lands U0, watches the shared `api.py` surface during
-  Build, and integrates at Land.
+  Build, and integrates at ship.
 
 <!-- 2 streams is below the "4+" that the word "swarm" usually implies, but it
      runs the swarm machinery - worktrees + orchestrator - because the two
@@ -55,7 +55,7 @@ landed by the orchestrator before the streams start.
 ## 5. The cap that applies
 
 - `.compass/config.yml` `max_worktrees`: 6
-- Routing-guardrail cap from `route.md`: none - blast radius is `contained`, so
+- Routing-guardrail cap from `delivery-approach.md`: none - risk is `contained`, so
   the standing `critical → max_worktrees: 1` cap does not apply.
 - **Final stream count after caps:** 2 - unchanged, no cap bit.
 - If capped below the proposed count: n/a - nothing was capped.
@@ -64,8 +64,8 @@ landed by the orchestrator before the streams start.
 
 ## Gate
 
-- [x] Every scenario in `spec.feature.md` is owned by exactly one stream - SCN-001…003 → stream-1, SCN-004…006 → stream-2.
+- [x] Every scenario in `acceptance-criteria.md` is owned by exactly one stream - TRC-001…003 → stream-1, TRC-004…006 → stream-2.
 - [x] Every "independent" verdict in §2 passed both tests - U1 ↔ U2 are disjoint in scenarios and near-disjoint in code, with the bounded overlap assigned to the orchestrator, not ignored.
 - [x] Final stream count respects every cap in §5 - 2 ≤ 6, no routing cap in play.
 
-Next phase: **Distribute** (`/compass:distribute`) - runs `scripts/swarm.sh` with this map.
+Next stage: **breakdown** (`/compass:breakdown`) - runs `scripts/swarm.sh` with this map.

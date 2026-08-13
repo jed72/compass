@@ -79,7 +79,7 @@ def test_route_evaluate_writes_a_v2_spine(tmp_path):
     under the v2 keys, stamping schema 2.0 - no v1 key appears in what it
     writes."""
     root = _project(tmp_path, dict(V2_SPINE))
-    r = _run(root, "approach", "evaluate", "--task", "t", "--write")
+    r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-500:] + r.stdout[-500:]
     out = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
     assert str(out.get("schema_version")) == "2.0"
@@ -96,7 +96,7 @@ def test_a_v1_spine_is_still_readable(tmp_path):
     migration tool wraps; an un-migrated tree degrades gracefully instead
     of crashing."""
     root = _project(tmp_path, dict(V1_SPINE))
-    r = _run(root, "approach", "evaluate", "--task", "t", "--write")
+    r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-500:] + r.stdout[-500:]
     out = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
     assert str(out.get("schema_version")) == "2.0"

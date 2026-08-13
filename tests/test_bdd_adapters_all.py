@@ -117,7 +117,7 @@ def test_trc_a2_each_adapter_should_run_the_extracted_feature_and_pass(name, tmp
     if name != "pytest-bdd":
         out_flag = ["--out", "features/reset-password.feature"]
     r = subprocess.run(
-        [sys.executable, str(CLI), "bdd", "extract", "--task",
+        [sys.executable, str(CLI), "bdd", "extract", "--issue",
          "reset-password", *out_flag],
         cwd=str(work), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"{name}: extract failed:\n{r.stderr[-500:]}"

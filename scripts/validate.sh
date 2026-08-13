@@ -124,7 +124,7 @@ say ""
 
 # --- 5. templates referenced by commands exist ------------------------------
 say "5. Template references in commands/"
-# Commands say "from `templates/route.md`" or "templates/verification-report.md".
+# Commands say "from `templates/delivery-approach.md`" or "templates/verification-report.md".
 REFS="$(grep -rohE 'templates/[a-z][a-z.-]+\.md' commands/ 2>/dev/null \
         | sed -E 's:templates/([a-z.-]+)\.md:\1:' | sort -u || true)"
 if [ -z "$REFS" ]; then
@@ -170,7 +170,7 @@ done
 say ""
 
 # --- 7. the five reference approaches -------------------------------------------
-say "7. Reference routes"
+say "7. Reference approaches"
 for r in quick-fix feature initiative hotfix spike; do
   if [ -f "approaches/$r.md" ]; then
     if grep -qiE "(\`|/| )$r\b" approaches/rubric.md 2>/dev/null; then
@@ -185,7 +185,7 @@ done
 say ""
 
 # --- 8. the kit layer -------------------------------------------------------
-say "8. Kit layer - CLI, machine-readable governance, schemas, task spine"
+say "8. Kit layer - CLI, machine-readable governance, schemas, issue spine"
 # 8a. the CLI exists and is executable
 if [ -f "cli/compass" ]; then
   if [ -x "cli/compass" ]; then ok "exec cli/compass  <- exists, executable"
@@ -201,6 +201,7 @@ done
 #     companion for each of the three machine-readable files.
 if [ -d "schemas" ]; then
   ok "dir  schemas/"
+  # vocabulary-scan: allow - the loop iterates schema basenames on disk
   for s in routing-policy guardrails task; do
     if [ -f "schemas/$s.schema.json" ]; then ok "schema $s.schema.json"
     else fail "missing executable schema: schemas/$s.schema.json"; fi
@@ -210,9 +211,9 @@ if [ -d "schemas" ]; then
 else
   fail "missing directory: schemas/"
 fi
-# 8d. the task manifest template
+# 8d. the issue manifest template
 if [ -f "templates/task.yml" ]; then ok "file templates/task.yml"
-else fail "missing task manifest template: templates/task.yml"; fi
+else fail "missing issue manifest template: templates/task.yml"; fi
 # 8e. run `compass policy lint` if python3 and the CLI are runnable. PyYAML
 # is bundled inside the plugin (cli/vendor/yaml/), so there is no longer a
 # "missing dependency" branch to distinguish from a real failure - a lint

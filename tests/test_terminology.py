@@ -91,10 +91,17 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     "route": [
         re.compile(r"\broute\.md\b"),
         re.compile(r"\broute\s+evaluate\b"),
-        re.compile(r"\broutes?/"),
+        # Not preceded by a path separator: `src/api/routes/search.py` is a
+        # web router directory, which is ordinary in almost any codebase.
+        # The ban is about a Compass `routes/` directory at the top level.
+        re.compile(r"(?<![\w/.-])routes?/"),
+        # Case-insensitive on the qualifier: "**Reference route:**" is how a
+        # heading writes it, and the lowercase-only pattern walked past every
+        # one of them in the shipped examples.
         re.compile(
             r"\b(?:computed|reference|delivery|solo|swarm|"
-            r"Express|Standard|Expedition|Hotfix|Spike)\s+routes?\b"
+            r"express|standard|expedition|hotfix|spike)\s+routes?\b",
+            re.IGNORECASE,
         ),
         # Tuned at the skills-prose review, widened at the docs-prose
         # review: the compose/compute verb family on the process noun
@@ -153,8 +160,10 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     ],
     # The v1 domain-tag mechanism. Ordinary "touches" (the verb) stays
     # legal; the underscored keys and the bare key-in-prose form do not.
-    # (A backticked `touches:` is a machine identifier and never reaches
-    # these patterns - markdown code spans are stripped before scanning.)
+    # (Code spans no longer shelter it: ADR-015 brought them into the scan
+    # once ADR-014 removed the live v1 names. A genuine machine identifier
+    # that must keep its spelling carries a `vocabulary-scan: allow` marker
+    # with a reason.)
     "touches": [
         re.compile(r"\btouches?_(?:any|common)\b"),
         re.compile(r"\btouches:\s"),
@@ -172,17 +181,33 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     # stay legal during the transition: task.yml, current-task, --task,
     # task-slug and friends.
     "task": [
+        # The `--task` exemption is gone: it was there because --task was a
+        # live flag spelling, and ADR-014 removed it. Prose teaching it now
+        # teaches a flag that does not parse, so the ban should say so.
         re.compile(
-            r"(?<!current-)(?<!--)(?<!<)\btasks?\b(?!\.yml)(?![-_>])",
+            r"(?<!current-)(?<!<)\btasks?\b(?!\.yml)(?![-_>])",
             re.IGNORECASE,
         ),
     ],
-    # Governance shorthand codes in human-facing prose. The plain
-    # statement of the rule replaces the code; codes may live in
-    # governance config files, which the scan does not read.
+    # Governance shorthand codes STANDING IN FOR the rule. "satisfy S2" tells
+    # a reader nothing; "write the failing test first" does.
+    #
+    # A BACKTICKED code is exempt, because that is a cross-reference beside a
+    # rule that has already been stated in full - the same shape as citing an
+    # ADR by id. The range was `S[1-7]` while the file defined S1 to S12, so
+    # every strategy added after S7 sat outside the ban meant to govern it;
+    # widening it to `S\d+` without this exemption then flagged the pointers
+    # that `S11` and `S12` require by test.
+    #
+    # The plain statement of the rule replaces the code. The ban's own context says
+    # "codes may live in governance config" - governance/ is where they are
+    # DEFINED, and a definition has to name the thing it defines. That
+    # exemption is in TERM_SURFACE_EXEMPT below; it used to be implicit in
+    # the scan not reading those files, which stopped being true when the
+    # scan widened.
     "G1..G5 / S1..S7 codes": [
-        re.compile(r"\bG[1-5]\b"),
-        re.compile(r"\bS[1-7]\b"),
+        re.compile(r"(?<!`)\bG[1-5]\b(?!`)"),
+        re.compile(r"(?<!`)\bS\d+\b(?!`)"),
     ],
     # The v1 intake artifact filename; v2 writes prd.md.
     "brief.md": [
@@ -282,15 +307,51 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
                     units.append((node.lineno + offset, line))
         return units
     if path.suffix == ".md":
-        units = []
-        fenced = False
+        # Full text, code spans and fenced blocks included. Both used to be
+        # stripped, and the reason was real at the time: a backticked
+        # `/compass:frame` named a command that really was still called that
+        # during the transition. ADR-014 removed those names at the major
+        # version, so the exclusion had nothing left to protect - and it was
+        # hiding a quickstart that told new users to run a command which no
+        # longer exists, fourteen times, on a scanned surface. See ADR-015.
+        return list(enumerate(text.splitlines(), 1))
+    if path.suffix == ".sh":
+        # A shell script's prose is its comments AND the messages it prints,
+        # and both matter here - the hook's stderr is the most user-facing
+        # text Compass has. So: full text, minus the embedded Python.
+        #
+        # The hooks run Python through `compass_python - <<'PYEOF'`, and that
+        # block is code, not prose: `task = yaml.safe_load(...)` is a variable
+        # name. Scanning it would flag correct code and teach the next author
+        # to work around the guard rather than with it.
+        units, in_python, delim = [], False, ""
         for lineno, line in enumerate(text.splitlines(), 1):
-            if line.lstrip().startswith("```"):
-                fenced = not fenced
+            if not in_python:
+                # ONLY a heredoc handed to a Python interpreter. Matching any
+                # uppercase delimiter also swallowed `cat >&2 <<EOF`, which is
+                # where every one of the hook's BLOCKED messages lives - 92 of
+                # pre-tool.sh's 627 lines, and precisely the text this rule's
+                # own comment calls the most user-facing Compass has. The scan
+                # passed green over them because they happen to be clean.
+                m = re.search(r"<<'?([A-Z_]{2,})'?\s*$", line.rstrip())
+                if m and re.search(r"\bpython3?\b|compass_python", line):
+                    in_python, delim = True, m.group(1)
+                    continue
+            else:
+                if line.strip() == delim:
+                    in_python = False
                 continue
-            if fenced:
-                continue
-            units.append((lineno, INLINE_CODE_RE.sub(" ", line)))
+            units.append((lineno, line))
+        return units
+    if path.suffix == ".json":
+        # A JSON schema's prose is its `description` and `title` values -
+        # the text a validation error quotes back at a user, and the closest
+        # thing the schema has to documentation. Keys and enum values are the
+        # machine contract and are renamed with a migration, not a sweep.
+        units = []
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if '"description"' in line or '"title"' in line:
+                units.append((lineno, line))
         return units
     if path.suffix in (".yml", ".yaml"):
         # The YAML analogue of the markdown rule: in a machine file only the
@@ -330,6 +391,47 @@ def _surface_files(surface: str) -> list[Path]:
     return files
 
 
+# A line may name a retired term when naming it IS the job - reading an old
+# archive, quoting historical output verbatim, or documenting the rename
+# itself. Such a line carries the marker below, and the marker requires a
+# reason after the colon, so an exemption is a sentence somebody wrote rather
+# than a switch somebody flipped.
+#
+#     grep -rn "vocabulary-scan: allow" .      # every exemption, enumerable
+#
+# ADR-015 is explicit that this is the resolution for a legitimate case, and
+# equally explicit that quietly widening the scan is not.
+# A banned term may be legitimate on a specific surface. Not a loophole: each
+# entry implements a context note already written in the ban itself, and the
+# list is short enough to read.
+TERM_SURFACE_EXEMPT = {
+    # The guardrails and strategies are where G1..G5 and S1..S7 are defined.
+    # A definition names the thing it defines; banning the code here would
+    # mean governance could not label its own rules.
+    # governance/ DEFINES the codes; schemas/ describes the fields that
+    # carry them, which is the same act one layer down - a schema saying
+    # "the shipped default guardrails (G1-G5)" is naming what it validates.
+    "G1..G5 / S1..S7 codes": ("governance/", "schemas/", "architecture/"),
+    # writing-voice.md teaches by quoting this repository's own archive
+    # verbatim, and tests/test_human_voice.py hashes those quotations against
+    # the archived files. Its retired stage names are inside quotations of
+    # sessions that really said them; editing one would falsify the quote,
+    # and the quote guard fails the build if anyone tries. Exempt at file
+    # granularity rather than per line because an inline marker breaks the
+    # before/after parsing that same guard depends on.
+    "Specify / Clarify / Distribute / Land": (
+        "skills/compass-runtime/writing-voice.md",),
+    "Frame / the Needle": ("skills/compass-runtime/writing-voice.md",),
+    # architecture/ownership.md names the role-perspective agents by their
+    # machine identifiers and reasons about them as a set; `role` is the
+    # concept word and the agents are still called *-lens.
+    "lens": ("architecture/",),
+}
+
+
+ALLOW_MARKER_RE = re.compile(r"vocabulary-scan:\s*allow\s*-\s*\S")
+
+
 def _scan_files(files: list[Path]) -> list[str]:
     """Every banned-term hit across `files`.
 
@@ -339,8 +441,30 @@ def _scan_files(files: list[Path]) -> list[str]:
     hits = []
     for path in files:
         rel = path.relative_to(REPO_ROOT)
+        allowed_next = False
+        in_allowed_block = False
         for lineno, line in _scan_units(path):
+            if in_allowed_block:
+                # Runs to the closing fence. A quoted transcript is exempt as
+                # a block because rewriting any line of it would make it a
+                # transcript of something that never happened.
+                if line.lstrip().startswith("```"):
+                    in_allowed_block = False
+                continue
+            if ALLOW_MARKER_RE.search(line):
+                # Covers the marker's own line and the one after it. Shell and
+                # markdown often cannot carry a trailing comment on the line
+                # that needs the exemption, so the marker sits above it.
+                allowed_next = True
+                continue
+            if allowed_next:
+                allowed_next = False
+                if line.lstrip().startswith("```"):
+                    in_allowed_block = True
+                continue
             for term, patterns in BAN_PATTERNS.items():
+                if str(rel).startswith(TERM_SURFACE_EXEMPT.get(term, ())):
+                    continue
                 for pattern in patterns:
                     if pattern.search(line):
                         hits.append(
@@ -601,4 +725,156 @@ def test_repository_scan_is_green():
         "Rule: a surface not in pending_surfaces must contain no banned v1 "
         "vocabulary (governance/terminology.yml, banned:). Use each ban's "
         "replacement; the context note says which usages are in scope.",
+    )
+
+
+# =============================================================================
+# The scan reads code positions, not only prose (ADR-015)
+# =============================================================================
+# Three of the six defects in the 3.0.0 cycle hid in a position this scan
+# covered but did not read. `cli/compass_pkg/` was a scanned surface the whole
+# time; the scan skipped string literals with no whitespace, on the reasoning
+# that a single token is a machine identifier rather than prose. That is
+# exactly the shape of `task.get('route')` and `os.path.join(dir, "plan.md")`.
+#
+# The fix is two questions rather than one loosened answer:
+#   * what does a surface TEACH   -> the ban patterns, now reaching markdown
+#                                    code spans and fenced blocks too
+#   * what does the code USE      -> an exact list of retired identifiers,
+#                                    read from governance/terminology.yml
+#
+# Spec: docs/system-spec.md (group G).
+
+RETIRED_NAMES = {
+    e["name"]: e["replacement"]
+    for e in (_terminology().get("retired_machine_names") or [])
+}
+RETIRED_EXEMPT = {
+    e["path"] for e in (_terminology().get("retired_machine_name_exempt") or [])
+}
+
+
+def _python_literals(path: Path):
+    """Every string literal in a Python file except docstrings.
+
+    Deliberately NOT filtered by whitespace. That filter is right for the
+    prose scan - a printed sentence has spaces in it - and is precisely the
+    hole this check exists to close.
+    """
+    text = _read(path)
+    if text is None:
+        return []
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return []
+    docstrings: set[int] = set()
+    for node in ast.walk(tree):
+        body = getattr(node, "body", None)
+        if (isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef,
+                              ast.ClassDef))
+                and body and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)):
+            docstrings.add(id(body[0].value))
+    return [
+        (node.lineno, node.value)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Constant) and isinstance(node.value, str)
+        and id(node) not in docstrings
+    ]
+
+
+def _retired_name_hits() -> list[str]:
+    """Retired machine identifiers used as identifiers, across scanned Python."""
+    scan_cfg = _terminology()["scan"]
+    exempt = tuple(scan_cfg.get("exempt", []))
+    hits = []
+    for surface in scan_cfg["surfaces"]:
+        for path in _surface_files(surface):
+            rel = str(path.relative_to(REPO_ROOT))
+            if rel.startswith(exempt) or rel in RETIRED_EXEMPT:
+                continue
+            if path.suffix != ".py" and path != REPO_ROOT / "cli" / "compass":
+                continue
+            for lineno, value in _python_literals(path):
+                if value in RETIRED_NAMES:
+                    hits.append(
+                        f"{rel}:{lineno}: {value!r} is retired - use "
+                        f"{RETIRED_NAMES[value]!r}")
+    return hits
+
+
+def test_rcd_g1_python_single_token_literal_caught():
+    """A retired identifier used as a literal is reported."""
+    hits = _retired_name_hits()
+    assert not hits, _report(hits, "retired machine names in code")
+
+
+def test_rcd_g1b_the_check_can_see_a_planted_name(tmp_path):
+    """The check is wired to something.
+
+    A pass proves nothing unless the same code reports a name that IS there -
+    the exact failure this whole cycle is about. Plants each retired name in
+    a literal and requires it to be seen.
+    """
+    for name, replacement in RETIRED_NAMES.items():
+        src = tmp_path / "planted.py"
+        src.write_text(f'x = {name!r}\n', encoding="utf-8")
+        found = [v for _, v in _python_literals(src) if v in RETIRED_NAMES]
+        assert found == [name], (
+            f"a literal {name!r} was not seen by the literal reader, so the "
+            f"check would pass on code using it instead of {replacement!r}"
+        )
+
+
+def test_rcd_g2_markdown_code_span_and_fence_caught():
+    """Markdown contributes its code spans and fenced blocks to the scan.
+
+    Both were skipped while the retired names were still live: a backticked
+    `/compass:frame` named a command that really was still called that.
+    ADR-014 removed those, so the exclusion has no remaining justification.
+    """
+    import tempfile
+
+    def _units(markdown: str) -> str:
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "sample.md"
+            p.write_text(markdown, encoding="utf-8")
+            return " ".join(text for _, text in _scan_units(p))
+
+    assert "route evaluate" in _units("Run `compass route evaluate` first.\n"), (
+        "markdown code spans are still stripped before scanning, so a retired "
+        "name inside backticks cannot be caught"
+    )
+    assert "route evaluate" in _units("```\ncompass route evaluate\n```\n"), (
+        "fenced blocks are still skipped, so a retired name inside one cannot "
+        "be caught"
+    )
+
+
+def test_rcd_g3_hooks_surface_is_scanned():
+    """hooks/ is on the scanned list.
+
+    It never was, which is how `hooks/pre-tool.sh` told users "Frame has not
+    run" through the entire v2 rename - the enforcement path itself teaching
+    the retired vocabulary, on every block.
+    """
+    surfaces = _terminology()["scan"]["surfaces"]
+    assert any(s.rstrip("/") == "hooks" for s in surfaces), (
+        f"hooks/ is not a scanned surface, so the enforcement path's own "
+        f"messages are unchecked. Surfaces: {surfaces}"
+    )
+
+
+def test_rcd_g4_archive_exempt_and_unedited():
+    """The archive is exempt, and exempt is the only thing it ever is.
+
+    Historical records are allowed to say what they said. A project whose
+    selling point is an audit trail cannot rewrite its own audit trail to
+    make a check pass.
+    """
+    exempt = _terminology()["scan"]["exempt"]
+    assert any(e.rstrip("/") == ".compass/work" for e in exempt), (
+        f"the issue archive is not exempt from the vocabulary scan: {exempt}"
     )

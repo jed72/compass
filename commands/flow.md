@@ -32,7 +32,7 @@ dated digest file (see below).
 1. **Enumerate.** List every issue directory under `.compass/work/`. For
    each, read `delivery-approach.md`, `task.yml` (the machine-readable
    spine), and whichever stage artifacts exist. To report an issue's
-   *mechanical* gate status you may run `compass check --task <slug>` - it
+   *mechanical* gate status you may run `compass check --issue <slug>` - it
    is read-only and changes nothing.
 
 2. **Triage each issue.** Apply the `flow-management` heuristics:

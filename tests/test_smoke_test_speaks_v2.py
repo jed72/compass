@@ -15,7 +15,7 @@ the repository came clean.
 This asserts both halves: the document speaks v2, and it is in the scanned
 set so it cannot drift back out of sight.
 
-Spec: .compass/work/smoke-test-speaks-v2/acceptance-criteria.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
 """
 from __future__ import annotations
 

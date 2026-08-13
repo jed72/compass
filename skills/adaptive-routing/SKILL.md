@@ -173,6 +173,6 @@ Re-framing mid-issue is a normal event, not a failure. Trigger it when:
 - Clarify finds the spec is bigger or more ambiguous than the route assumed.
 - A `touches:` tag surfaces late (you discover the change reaches auth).
 
-Run `/compass:frame --reframe`: re-score the dimensions, write a new `delivery-approach.md`
+Run `/compass:triage --reframe`: re-score the dimensions, write a new `delivery-approach.md`
 revision, record what changed and why. A route quietly outgrown is the failure;
 a route honestly re-framed is the system working.

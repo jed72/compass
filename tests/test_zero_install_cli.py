@@ -201,7 +201,7 @@ def test_pre_tool_hook_enforces_acceptance_before_code_without_a_system_pyyaml(
     # never runs. This scenario changes that, deliberately - it must now
     # refuse the edit, the same way it would on a machine with PyYAML.
     assert result.returncode == 2, result.stdout + result.stderr
-    assert "G2" in result.stderr, result.stderr
+    assert "acceptance-before-code" in result.stderr, result.stderr
     assert "acceptance-criteria.md" in result.stderr, result.stderr
 
 

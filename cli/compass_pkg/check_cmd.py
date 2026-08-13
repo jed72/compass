@@ -205,7 +205,7 @@ def cmd_check(args):
     # delivery defaults.
     if task.get("delivery_approach") == "spike":
         spike_gs = list(guardrails.get("spike_guardrails", []))
-        print(f"compass check - issue '{os.path.basename(task_dir)}' (route: spike)")
+        print(f"compass check - issue '{os.path.basename(task_dir)}' (approach: spike)")
         print(f"{mode_banner(mode)}\n")
         if not spike_gs:
             print("  WARNING: no `spike_guardrails:` defined in guardrails.yml - a Spike is uncontrolled.")
@@ -242,7 +242,7 @@ def cmd_check(args):
             passed, detail = _check_backfills_paid(task, task_dir)
         except Exception as exc:                        # noqa: BLE001
             passed, detail = False, f"check errored: {exc}"
-        print("  owed follow-ups")
+        print("  outstanding follow-ups")
         _print_check_result("backfills-paid", passed, detail)
         print()
         if not passed:
@@ -260,8 +260,11 @@ def cmd_check(args):
     declared_checks = guardrails.get("checks") or {}
     failures = 0
     ran = 0
+    # Reads `delivery_approach`, the live spine key. This said `route` - the
+    # key the v2 rename retired - so it fell to its default and printed a
+    # placeholder on every run, with the real value sitting in the spine.
     print(f"compass check - issue '{os.path.basename(task_dir)}' "
-          f"(route: {task.get('route', '?')})")
+          f"(approach: {task.get('delivery_approach', '?')})")
     print(f"{mode_banner(mode)}\n")
 
     # A guardrail the project's file OMITS produced no output at all: not
@@ -344,7 +347,7 @@ def cmd_check(args):
         passed, detail = _check_backfills_paid(task, task_dir)
     except Exception as exc:                            # noqa: BLE001
         passed, detail = False, f"check errored: {exc}"
-    print("  owed follow-ups")
+    print("  outstanding follow-ups")
     _print_check_result("backfills-paid", passed, detail)
     print()
     if not passed:

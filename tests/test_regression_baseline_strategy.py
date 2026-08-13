@@ -31,7 +31,7 @@ def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task)
                          "familiarity": "brownfield-mapped", "size": "large",
                          "intent": "delivery"}}
     make_task("rb", body)
-    r = run_cli("approach", "evaluate", "--task", "rb", "--json")
+    r = run_cli("approach", "evaluate", "--issue", "rb", "--json")
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     applicable = " ".join(str(s) for s in data.get("applicable_strategies", []))
@@ -48,7 +48,7 @@ def test_routing_strategy_absent_on_contained_task(run_cli, make_task):
                          "familiarity": "brownfield-mapped", "size": "small",
                          "intent": "delivery"}}
     make_task("rb2", body)
-    r = run_cli("approach", "evaluate", "--task", "rb2", "--json")
+    r = run_cli("approach", "evaluate", "--issue", "rb2", "--json")
     data = json.loads(r.stdout)
     applicable = " ".join(str(s) for s in data.get("applicable_strategies", []))
     assert "regression-baseline" not in applicable, data
