@@ -15,7 +15,7 @@ The fix widens the allowance by a named list, never by a prefix: anything
 under `.compass/` would re-admit a sibling issue's artifacts into this
 issue's commit, which is exactly what the check exists to stop.
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group D).
+Scenario ids: see docs/system-spec.md (group D).
 """
 from __future__ import annotations
 
@@ -86,10 +86,16 @@ def test_rcd_d2b_a_sibling_issues_artifacts_are_still_refused():
     collision the scope check was built for.
     """
     owned, artifact_dir = _scope()
+    # `demo-2` EXTENDS `demo`. A slug sharing no prefix passes whether or not
+    # the artifact directory carries its trailing slash, so the earlier
+    # fixture left that boundary untested - and slugs that extend one another
+    # are ordinary here (rehearsal-recordings beside rehearsal-cli-defects).
     stray = task_spine._out_of_scope(
-        [".compass/work/some-other-issue/task.yml"], owned, artifact_dir)
+        [".compass/work/demo-2/task.yml",
+         ".compass/work/some-other-issue/task.yml"], owned, artifact_dir)
 
-    assert stray == [".compass/work/some-other-issue/task.yml"], (
+    assert stray == [".compass/work/demo-2/task.yml",
+                     ".compass/work/some-other-issue/task.yml"], (
         "a sibling issue's artifacts were accepted into this issue's commit - "
         "the allowance widened to a prefix instead of a named set"
     )

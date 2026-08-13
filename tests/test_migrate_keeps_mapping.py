@@ -12,7 +12,7 @@ decision:
 Deleting the second along with the first would strand exactly the historical
 records the framework's own pitch is built on.
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (RCD-F4).
+Scenario ids: see docs/system-spec.md (RCD-F4).
 """
 from __future__ import annotations
 

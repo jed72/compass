@@ -10,7 +10,7 @@ grounds. It serves the review gate, which is the centre of the pipeline. And
 the labels are ordinary English - issue, suggestion, nitpick, question,
 praise - so an adopting team inherits no jargon with them.
 
-Spec: .compass/work/strategy-rulings-2026-08/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

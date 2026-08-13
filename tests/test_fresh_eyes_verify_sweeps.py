@@ -14,7 +14,7 @@ pointer from the verify stage guidance (`commands/verify.md`,
 `skills/evidence-gates/SKILL.md`) that names where it lives without
 repeating it.
 
-Criteria: .compass/work/fresh-eyes-verify-sweeps/acceptance-criteria.md
+Criteria: docs/system-spec.md
 (Requirements review and design collapsed on this quick fix - see
 `.compass/work/fresh-eyes-verify-sweeps/delivery-approach.md` §5.)
 """

@@ -14,7 +14,7 @@ file that used it.
 The removal is also what makes ADR-015 possible - a scan cannot ban a name
 the machinery still answers to.
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group F).
+Scenario ids: see docs/system-spec.md (group F).
 """
 from __future__ import annotations
 

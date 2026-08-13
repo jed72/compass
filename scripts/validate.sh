@@ -27,7 +27,7 @@
 #   6. Every script and hook referenced in the repo exists and is executable.
 #   7. The five reference shape docs exist and the rubric references them.
 #   8. The kit layer is present: the CLI, the machine-readable governance,
-#      the schemas, and the issue.yml template - and `compass policy lint`
+#      the schemas, and the task.yml template - and `compass policy lint`
 #      passes if python3 and the CLI are runnable.
 #
 # This script is deliberately dependency-free (pure bash + coreutils + grep).

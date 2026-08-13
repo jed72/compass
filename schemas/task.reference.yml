@@ -46,7 +46,7 @@ approvals:       # (optional; only when guardrail G5 applies) list of maps:
     timestamp:   #   (optional) string - ISO 8601
     evidence:    #   (optional) string
 
-follow-ups:       # (optional) list of maps - outstanding ceremony:
+follow_ups:       # (optional) list of maps - outstanding ceremony:
   - id:          #   (required in entry) string
     description: #   (required in entry) string
-    status:      #   (required in entry) [outstanding, paid]
+    status:      #   (required in entry) [outstanding, resolved]

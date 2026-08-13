@@ -7,7 +7,7 @@ quantity instead has changed the outcome:
   * The vendored-YAML fork. The argument was about whether bundling PyYAML
     was worth its cost; the measurement was the artifact size and a run on an
     interpreter that genuinely could not import it.
-  * Two of three decisions on the 2.2.0 stub removal. The author recommended
+  * Two of three decisions on the 3.0.0 stub removal. The author recommended
     against deleting the flag aliases and against scanning fenced code
     blocks. Counting the call sites (268 and 69) and the tightened scan's
     hits (200 across 38 files) showed both objections were about a sprawl
@@ -16,7 +16,7 @@ quantity instead has changed the outcome:
 The practice is written down because it has to reach a session that has never
 read this file's history.
 
-Spec: .compass/work/rehearsal-recordings/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

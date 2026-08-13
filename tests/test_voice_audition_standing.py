@@ -14,11 +14,11 @@ Kept separate from `test_human_voice.py` rather than added to it: that file's
 traceability ids (TRC-A1..A4, B1..B3, C1..C3, D1, F3) belong to the
 `human-voice` issue's own `acceptance-criteria.md`. This issue has its own
 criteria and its own TRC ids in
-`.compass/work/voice-audition-standing/acceptance-criteria.md`; reusing the
+`docs/system-spec.md`; reusing the
 same ids in the same file would make two different scenarios answer to one
 traceability id, which breaks the very chain this strategy is about.
 
-Criteria: .compass/work/voice-audition-standing/acceptance-criteria.md
+Criteria: docs/system-spec.md
 (Requirements review and design collapsed on this quick fix - see
 `.compass/work/voice-audition-standing/delivery-approach.md` §5.)
 """

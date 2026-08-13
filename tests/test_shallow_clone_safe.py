@@ -9,7 +9,7 @@ The range check may degrade when the history genuinely is not there. What may
 not degrade is the content assertion beside it, which needs no history and
 carries the invariant that matters now.
 
-Spec: .compass/work/tests-survive-shallow-clone/acceptance-criteria.md (TRC-1).
+Scenario ids: see docs/system-spec.md (TRC-1).
 """
 from __future__ import annotations
 

@@ -61,7 +61,7 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-[ -n "$TASK_SLUG" ] || { echo "integrate.sh: need a issue slug. See --help." >&2; exit 1; }
+[ -n "$TASK_SLUG" ] || { echo "integrate.sh: need an issue slug. See --help." >&2; exit 1; }
 
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"

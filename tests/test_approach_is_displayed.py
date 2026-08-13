@@ -14,7 +14,7 @@ Neither was caught by the vocabulary scan, which covers `cli/compass_pkg/`,
 because it skipped string literals with no whitespace as machine identifiers -
 and `'route'` is exactly that shape. ADR-015 records the widening.
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group E).
+Scenario ids: see docs/system-spec.md (group E).
 """
 from __future__ import annotations
 

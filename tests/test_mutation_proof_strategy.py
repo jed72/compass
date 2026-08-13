@@ -11,7 +11,7 @@ zero comparisons on the single location it existed for. Setting both version
 banners to `9.9.9` left it green. Nothing but breaking the subject would have
 shown that.
 
-Spec: .compass/work/mutation-proof-standing/acceptance-criteria.md.
+Scenario ids: see docs/system-spec.md.
 """
 from __future__ import annotations
 

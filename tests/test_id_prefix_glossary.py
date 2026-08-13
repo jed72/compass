@@ -12,7 +12,7 @@ minimum at all - they attach a gate - so a glossary could not define `FLOOR`
 honestly while they shared its name.
 
 See ADR-016. Spec:
-.compass/work/id-prefix-vocabulary-and-glossary/acceptance-criteria.md.
+docs/system-spec.md.
 """
 from __future__ import annotations
 
@@ -259,7 +259,28 @@ def test_routing_ids_are_rp_and_kinds_are_distinct():
             )
 
 
-def test_a_gate_adder_reports_its_kind_as_requirement():
+def _probe_project(tmp_path):
+    """A throwaway project with one cross-cutting issue.
+
+    Built here rather than read from `.compass/work/`, which is gitignored and
+    therefore absent from every clean clone - including the one continuous
+    integration checks out.
+    """
+    import shutil
+    spine = tmp_path / ".compass" / "work" / "probe"
+    spine.mkdir(parents=True)
+    (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
+    (spine / "task.yml").write_text(
+        'schema_version: "2.0"\ntask: "probe"\ncreated: "2026-08-13"\n'
+        'status: active\nassessment:\n  risk: cross-cutting\n'
+        '  familiarity: brownfield-mapped\n  size: large\n  goal: delivery\n'
+        '  role: engineer\n  labels: [auth]\n', encoding="utf-8")
+    shutil.copytree(ROOT / "governance", tmp_path / "governance")
+    shutil.copytree(ROOT / "schemas", tmp_path / "schemas")
+    return tmp_path
+
+
+def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
     """The kind follows the effect, not the block the entry sits in.
 
     Every entry in the `floors:` block was reported as `kind: floor`,
@@ -269,17 +290,22 @@ def test_a_gate_adder_reports_its_kind_as_requirement():
     saying the other. Found by checking what the demo would actually show.
     """
     r = subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate",
-         "--issue", "id-prefix-vocabulary-and-glossary"],
-        cwd=ROOT, capture_output=True, text=True, timeout=120,
+        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "probe"],
+        cwd=str(_probe_project(tmp_path)), capture_output=True, text=True,
+        timeout=120,
     )
     assert r.returncode == 0, r.stdout + r.stderr
     assert "[RP-REQUIRE-003] requirement:" in r.stdout, (
         f"a rule that only attaches a gate still reports itself as a floor:\n"
         f"{r.stdout}"
     )
-    assert "] floor:" not in r.stdout or "RP-FLOOR" in r.stdout, (
-        "something reports kind floor without a FLOOR id"
+    # Per line. `"] floor:" not in output or "RP-FLOOR" in output` passed
+    # twice over for the wrong reason: today's output contains no `] floor:`
+    # at all, and one correct FLOOR line anywhere satisfied the other half.
+    mislabelled = [ln for ln in r.stdout.splitlines()
+                   if "] floor:" in ln and "RP-FLOOR" not in ln]
+    assert not mislabelled, (
+        f"a rule reports kind floor without a FLOOR id:\n" + "\n".join(mislabelled)
     )
 
 
@@ -318,19 +344,29 @@ def test_the_rename_does_not_change_any_computed_approach(tmp_path):
 def test_the_archive_is_untouched():
     """Historical records keep the id that actually fired.
 
-    This issue's own spine recorded the pre-rename id at triage. Rewriting it
+    Checked against the WORKING TREE, not `git diff`. `.compass/work/` is
+    gitignored, so a diff over it is empty whatever anyone did to those files -
+    the first version of this test could not fail, which is the class it was
+    written to guard against.
+
+    The archive holds records naming the pre-rename routing ids. Rewriting one
     would make the audit trail say something that did not happen.
     """
-    changed = subprocess.run(
-        ["git", "diff", "--name-only", "origin/main...HEAD", "--", ".compass/work"],
-        cwd=ROOT, capture_output=True, text=True,
-    )
-    if changed.returncode != 0:
-        pytest.skip("no origin/main to compare against")
-    tracked = [f for f in changed.stdout.split() if f]
-    assert not tracked, (
-        f"archived issue files were modified: {tracked}. The archive keeps "
-        f"the ids that fired."
+    archive = ROOT / ".compass" / "work"
+    if not archive.is_dir():
+        pytest.skip("no archive on this checkout - it is gitignored")
+
+    retired = []
+    for spine in archive.glob("*/task.yml"):
+        text = spine.read_text(encoding="utf-8")
+        if "RG-" in text or "RS-" in text:
+            retired.append(spine.parent.name)
+
+    assert retired, (
+        "no archived spine records a pre-rename routing id. Either the "
+        "archive was rewritten by the rename - which it must not be, since a "
+        "record keeps the id that fired - or this check is looking in the "
+        "wrong place and can no longer fail."
     )
 
 

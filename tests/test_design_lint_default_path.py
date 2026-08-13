@@ -10,7 +10,7 @@ The effect on a real run: the design stage reports a visible error on every
 issue that has a design, and the way past it is a `--file` argument nobody
 should need.
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group B).
+Scenario ids: see docs/system-spec.md (group B).
 """
 from __future__ import annotations
 

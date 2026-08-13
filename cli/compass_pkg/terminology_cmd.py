@@ -47,7 +47,10 @@ def cmd_terminology(args):
 
     raw = args.term.strip()
     code_key = raw.rstrip("-").upper()
-    if code_key in codes:
+    # A term wins a bare lookup; the code is reachable by its hyphenated form.
+    # `adr` exists in both blocks, and checking codes first made the term
+    # entry unreachable from the CLI entirely.
+    if code_key in codes and (raw.endswith("-") or raw.lower() not in terms):
         entry = codes[code_key]
         print(f"{code_key}-  (vocabulary {version})")
         print(f"  means:    {' '.join(str(entry.get('means', '')).split())}")

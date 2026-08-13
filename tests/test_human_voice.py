@@ -13,7 +13,7 @@ asserts what the prose surfaces carry (TRC-A1..A4, B1..B3, C1..C3, D1, F3);
 `tests/test_voice_tells.py` asserts how the standalone check behaves
 (TRC-D2, D3, F1, F2), by running it as a subprocess over fixtures.
 
-Criteria: .compass/work/human-voice/acceptance-criteria.md
+Criteria: docs/system-spec.md
 Design:   .compass/work/human-voice/design.md (DD-4 names what each function
           asserts; DD-7 recorded the original reason the archive-dependent
           half of TRC-A2 and TRC-C2 skipped rather than failed when

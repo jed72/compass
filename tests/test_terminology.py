@@ -182,16 +182,25 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
             re.IGNORECASE,
         ),
     ],
-    # Governance shorthand codes in human-facing prose. The plain
-    # statement of the rule replaces the code. The ban's own context says
+    # Governance shorthand codes STANDING IN FOR the rule. "satisfy S2" tells
+    # a reader nothing; "write the failing test first" does.
+    #
+    # A BACKTICKED code is exempt, because that is a cross-reference beside a
+    # rule that has already been stated in full - the same shape as citing an
+    # ADR by id. The range was `S[1-7]` while the file defined S1 to S12, so
+    # every strategy added after S7 sat outside the ban meant to govern it;
+    # widening it to `S\d+` without this exemption then flagged the pointers
+    # that `S11` and `S12` require by test.
+    #
+    # The plain statement of the rule replaces the code. The ban's own context says
     # "codes may live in governance config" - governance/ is where they are
     # DEFINED, and a definition has to name the thing it defines. That
     # exemption is in TERM_SURFACE_EXEMPT below; it used to be implicit in
     # the scan not reading those files, which stopped being true when the
     # scan widened.
     "G1..G5 / S1..S7 codes": [
-        re.compile(r"\bG[1-5]\b"),
-        re.compile(r"\bS[1-7]\b"),
+        re.compile(r"(?<!`)\bG[1-5]\b(?!`)"),
+        re.compile(r"(?<!`)\bS\d+\b(?!`)"),
     ],
     # The v1 intake artifact filename; v2 writes prd.md.
     "brief.md": [
@@ -311,8 +320,14 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
         units, in_python, delim = [], False, ""
         for lineno, line in enumerate(text.splitlines(), 1):
             if not in_python:
+                # ONLY a heredoc handed to a Python interpreter. Matching any
+                # uppercase delimiter also swallowed `cat >&2 <<EOF`, which is
+                # where every one of the hook's BLOCKED messages lives - 92 of
+                # pre-tool.sh's 627 lines, and precisely the text this rule's
+                # own comment calls the most user-facing Compass has. The scan
+                # passed green over them because they happen to be clean.
                 m = re.search(r"<<'?([A-Z_]{2,})'?\s*$", line.rstrip())
-                if m:
+                if m and re.search(r"\bpython3?\b|compass_python", line):
                     in_python, delim = True, m.group(1)
                     continue
             else:
@@ -721,7 +736,7 @@ def test_repository_scan_is_green():
 #   * what does the code USE      -> an exact list of retired identifiers,
 #                                    read from governance/terminology.yml
 #
-# Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group G).
+# Spec: docs/system-spec.md (group G).
 
 RETIRED_NAMES = {
     e["name"]: e["replacement"]

@@ -51,7 +51,29 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-pyt
 
 cat >/dev/null || true   # drain stdin; we do not need it
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# Same ancestor walk as hooks/pre-tool.sh. A bare $(pwd) assumed the session
+# started at the repository root; started anywhere else this hook found no
+# .compass/work/, exited 0, and a silent warner is exactly what a clean
+# session looks like. Every gate-state warning disappeared with no trace.
+#
+# A warner must not refuse - it says so rather than blocking - but it says so.
+INVOKED_FROM="$(pwd)"
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  PROJECT_DIR=""
+  _search="$INVOKED_FROM"
+  while [ -n "$_search" ]; do
+    [ -d "$_search/.compass" ] && { PROJECT_DIR="$_search"; break; }
+    [ -e "$_search/.git" ] && break
+    [ "$_search" = "/" ] && break
+    _search="$(dirname "$_search")"
+  done
+  if [ -z "$PROJECT_DIR" ]; then
+    echo "Compass: could not locate a Compass project at or above $INVOKED_FROM - no end-of-session check ran." >&2
+    exit 0
+  fi
+fi
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 [ -d "$WORK_DIR" ] || exit 0
@@ -97,9 +119,9 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   fi
 
   # --- 2. a phase left mid-gate --------------------------------------------
-  # Unpaid red: Build never closed.
+  # An unresolved red: implementation never closed.
   if [ -f "$RED_MARKER" ]; then
-    WARNINGS+=("[$SLUG] .red marker still present - a failing test is on record and was never paid off green. Build is mid-gate.")
+    WARNINGS+=("[$SLUG] .red marker still present - a failing test is on record and was never paid off green. implementation is mid-gate.")
   fi
 
   # Verify entered but not cleared.
@@ -114,31 +136,42 @@ for TASK_DIR in "$WORK_DIR"/*/; do
     if grep -qiE 'Overall:.*\bRED\b|Overall:.*FAIL|FAIL[^[:alnum:]]+(issue|task) does not advance' "$VREPORT" 2>/dev/null; then
       WARNINGS+=("[$SLUG] verification-report.md records a FAILING gate decision - test-and-review did not pass. The issue is mid-gate.")
     elif ! grep -qiE 'Overall:.*PASS' "$VREPORT" 2>/dev/null; then
-      WARNINGS+=("[$SLUG] verification-report.md exists but its gate decision is blank - Verify was entered and not completed.")
+      WARNINGS+=("[$SLUG] verification-report.md exists but its gate decision is blank - test-and-review was entered and not completed.")
     fi
   fi
 
   # --- 3. a hotfix with an outstanding follow-up ---------------------------
   #
-  # Same reasoning as above: the record's heading names the approach, and
-  # the separator is matched loosely so route files written with an em dash
-  # (every one produced before this repo's style sweep) still match.
-  # Both generations of the heading: the record has said "Reference
-  # approach" since the rename, and the archive still says the old word.
-  # vocabulary-scan: allow - matches the retired heading on purpose
-  if grep -qiE 'reference (approach|route):.*hotfix|(Approach|Route)[^[:alnum:]]+.*[Hh]otfix|nearest reference (approach|route).*[Hh]otfix' "$ROUTE" 2>/dev/null \
-     || grep -qiE '^[[:space:]]*(Approach|Route)[^[:alnum:]]+Hotfix' "$ROUTE" 2>/dev/null; then
+  # Both facts come from task.yml, not from the prose record. Grepping the
+  # record for a heading is how this check died twice: it looked for
+  # "Reference route:" while the template wrote "Reference shape:", and a
+  # later repair pointed it at "Outstanding follow-ups" while the template
+  # writes "Owed follow-ups". Neither failure was visible - the block simply
+  # stopped firing. scripts/swarm.sh makes the same argument about the
+  # worktree cap and refuses to fall back to prose for exactly this reason.
+  HOTFIX_STATE="$(compass_python - "$TASK_DIR/task.yml" 2>/dev/null <<'PYSTOP'
+import sys
+import compass_pkg          # side effect: the bundled PyYAML resolves first
+import yaml
+try:
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        task = yaml.safe_load(fh) or {}
+except OSError:
+    raise SystemExit(0)
+if not isinstance(task, dict):
+    raise SystemExit(0)
+approach = str(task.get("delivery_approach") or "")
+outstanding = [
+    f for f in (task.get("follow_ups") or [])
+    if isinstance(f, dict) and str(f.get("status", "")) in ("outstanding", "owed")
+]
+print(approach + "|" + str(len(outstanding)))
+PYSTOP
+)"
+  if [ "${HOTFIX_STATE%%|*}" = "hotfix" ]; then
 
-    # An unchecked item in the outstanding-follow-ups section is one that has
-    # not been resolved. We scan the section for "- [ ]" lines that are not
-    # the "none outstanding" line.
-    if awk '
-        /^##? *.*([Oo]utstanding [Ff]ollow-ups|[Oo]wed [Bb]ackfills)/ { insec=1; next }
-        /^##? / && insec { insec=0 }
-        insec && /- \[ \]/ && tolower($0) !~ /none (outstanding|owed)/ { found=1 }
-        END { exit(found?0:1) }
-      ' "$ROUTE" 2>/dev/null; then
-      WARNINGS+=("[$SLUG] HOTFIX with an OUTSTANDING FOLLOW-UP - the delivery-approach record has an unchecked item in its outstanding follow-ups. The issue is not closeable until it is resolved.")
+    if [ "${HOTFIX_STATE#*|}" != "0" ]; then
+      WARNINGS+=("[$SLUG] HOTFIX with ${HOTFIX_STATE#*|} OUTSTANDING FOLLOW-UP(S) recorded in task.yml. The issue is not closeable until they are resolved.")
     fi
 
     # The reproduction test must have been promoted into a real scenario.

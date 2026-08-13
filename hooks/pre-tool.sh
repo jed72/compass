@@ -142,8 +142,15 @@ fi
 # lives further down, at the point the hook actually needs issue state - a
 # read-only Bash call is allowed without a project at all, and refusing here
 # would make the cheap path expensive and wrong.
+# An EXPLICIT root is taken at its word. `.compass/` does not exist until
+# triage runs, so treating its absence as "I could not find your project"
+# tells the author on their very first edit to fix a working directory that
+# is already correct - the same misdiagnosis this resolution work exists to
+# remove, one branch earlier. Only the walk failing means the project is
+# genuinely unfindable; the missing-.compass/work/ branch further down says
+# the useful thing.
 PROJECT_RESOLVED=1
-if [ -z "$PROJECT_DIR" ] || [ ! -d "$PROJECT_DIR/.compass" ]; then
+if [ -z "$PROJECT_DIR" ]; then
   PROJECT_RESOLVED=0
   # Provisional, so path classification below still has something to compare
   # against. Nothing is permitted on the strength of it.
@@ -190,8 +197,21 @@ is_enforced_path() {
     "$PROJECT_DIR"/*) rel="${target#"$PROJECT_DIR"/}" ;;
   esac
   base="$(basename "$target")"
+  # ANCHORED, not a substring match. `*test*` called latest.py, inspector.py
+  # and protest.py tests, and silently skipped both guardrail checks for them -
+  # on the allow path, which prints nothing. An earlier fix narrowed this from
+  # the absolute path to the basename after a clone under /Users/testuser/
+  # switched enforcement off entirely; that narrowed the class without closing
+  # it.
+  #
+  # The conventions covered: pytest/go (test_x, x_test), jest/vitest
+  # (x.test.ts, x.spec.js), JUnit/RSpec class names (XTest.java, XSpec.rb),
+  # and Ruby's x_spec.rb. Directory rules below catch the rest.
   case "$base" in
-    *test*|*Test*|*spec*|*Spec*|*.test.*|*.spec.*|*_test.*) return 1 ;;
+    test_*|spec_*) return 1 ;;
+    *_test.*|*_spec.*|*.test.*|*.spec.*) return 1 ;;
+    *Test.*|*Spec.*|*Tests.*|*Specs.*) return 1 ;;
+    conftest.py) return 1 ;;
   esac
   case "$rel" in
     tests/*|*/tests/*|test/*|*/test/*|spec/*|*/spec/*|\
@@ -480,10 +500,10 @@ fi
 
 # --- approach-aware: red-before-green is suspended on a spike ----------------
 # /compass:triage writes a .spike marker when it computes a spike. On a
-# Spike, exploration is not throttled - the red-before-green strategy is
+# spike, exploration is not throttled - the red-before-green strategy is
 # suspended. The tested-before-ship guardrail is NOT: nothing ships from a
-# spike without
-# graduating into a real route, where this hook applies in full.
+# spike without graduating into a real delivery approach, where this hook
+# applies in full.
 if [ -f "$TASK_DIR/.spike" ]; then
   exit 0
 fi

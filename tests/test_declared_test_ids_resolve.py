@@ -19,7 +19,7 @@ It looked it up two ways that cannot succeed:
 Both fail at verify, *after* correctness has been claimed, which is the worst
 moment to discover a bookkeeping problem.
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group C).
+Scenario ids: see docs/system-spec.md (group C).
 """
 from __future__ import annotations
 
@@ -123,4 +123,13 @@ def test_rcd_c3b_partial_word_still_fails(tmp_path):
         "'test_plain' resolved against a file containing only "
         "'test_plain_name' - the matcher now matches substrings, which lets a "
         "misspelled or truncated id pass"
+    )
+
+    # And from the front. Only the trailing boundary was covered, so deleting
+    # the leading one survived the whole suite - the same substring hole
+    # entered from the other end.
+    assert checks._test_id_resolves(
+        "src/tests/unit.py::plain_name", str(root)) is False, (
+        "'plain_name' resolved against a file containing only "
+        "'test_plain_name' - the leading word boundary is not doing anything"
     )

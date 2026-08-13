@@ -6,7 +6,7 @@ used the value directly as a dictionary key, so the list form crashed it with
 `TypeError: unhashable type: 'list'`. Nothing hit it until an issue actually
 wrote the list form.
 
-Spec: .compass/work/derive-spec-multi-intent/acceptance-criteria.md (TRC-1).
+Scenario ids: see docs/system-spec.md (TRC-1).
 """
 from __future__ import annotations
 

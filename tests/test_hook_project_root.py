@@ -16,7 +16,7 @@ never wave an edit through. That is the same failure 2.1.0 fixed one layer
 down, where a missing vendored library made this hook exit 3 and the runtime
 read it as "allow".
 
-Spec: .compass/work/rehearsal-cli-defects/acceptance-criteria.md (group A).
+Scenario ids: see docs/system-spec.md (group A).
 """
 from __future__ import annotations
 
@@ -226,6 +226,34 @@ def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
     )
     assert "someone-elses" not in result.stderr, (
         f"the hook named another project's issue:\n{result.stderr}"
+    )
+
+
+def test_rcd_a4b_a_project_before_its_first_triage_is_told_to_triage(tmp_path):
+    """An explicit project root with no .compass/ yet means triage, not lost.
+
+    Every project's first edit hits this. `.compass/` does not exist until
+    triage runs, so treating "no .compass/ here" as "I could not find your
+    project" tells the author to fix a working directory that is already
+    correct, or to set a variable that is already set. That is the same fault
+    the resolution fix was written to remove, one branch earlier.
+    """
+    proj = tmp_path / "fresh"
+    (proj / "src").mkdir(parents=True)
+    target = proj / "src" / "app.py"
+    target.write_text("x = 1\n", encoding="utf-8")
+
+    result = _run(proj, target, env_project=proj)
+    err = result.stderr.lower()
+
+    assert result.returncode == BLOCK, "an untriaged project must still block"
+    assert "triage" in err, (
+        f"the hook did not mention triage on a project that simply has not "
+        f"been triaged yet:\n{err}"
+    )
+    assert "could not locate" not in err, (
+        f"the hook claims it could not find the project, though the project "
+        f"root was given to it explicitly:\n{err}"
     )
 
 

@@ -2,7 +2,7 @@
 # =============================================================================
 # Compass script: swarm.sh  -  CREATE WORKTREES, ONE PER INDEPENDENT STREAM
 # =============================================================================
-# The Distribute-phase tool. Given an issue's distribution-map.md, it creates one
+# The breakdown-stage tool. Given an issue's distribution-map.md, it creates one
 # git worktree per independent stream under the configured worktree_root, one
 # branch per stream, and prints the launch plan - one `builder` agent per
 # worktree. Only the `orchestrator` agent runs this (see CLAUDE.md, the
@@ -51,7 +51,7 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-[ -n "$TASK_SLUG" ] || { echo "swarm.sh: need a issue slug. See --help." >&2; exit 1; }
+[ -n "$TASK_SLUG" ] || { echo "swarm.sh: need an issue slug. See --help." >&2; exit 1; }
 
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"
@@ -61,9 +61,9 @@ ROUTE="$TASK_DIR/delivery-approach.md"
 TASK_YML="$TASK_DIR/task.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
-[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for issue '$TASK_SLUG' - Plan must produce it first." >&2; exit 1; }
+[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for issue '$TASK_SLUG' - the design stage must produce it first." >&2; exit 1; }
 [ -f "$ROUTE" ] || { echo "swarm.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
-[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run Frame." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:triage." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
 # Minimal YAML reads - these keys are simple scalars in .compass/config.yml.
@@ -88,7 +88,7 @@ esac
 # and 'RP-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
 # prose grep false-positived on exactly those, capping a non-critical swarm to 1.
 # The standing cap (RP-CAP-001): critical risk => max_worktrees 1. We read
-# it from assessment.risk and fired_guardrails. Absent assessment is a hard
+# it from assessment.risk and policy_rules_fired. Absent assessment is a hard
 # error - never a silent cap, never a fall back to prose.
 CAP_INFO="$(compass_python - "$TASK_YML" <<'PY'
 import sys
@@ -105,8 +105,11 @@ br = assessment.get("risk") or assessment.get("blast_radius")
 if not br:
     print("ERR:no assessment.risk in task.yml"); sys.exit(0)
 fired = d.get("policy_rules_fired") or d.get("fired_guardrails") or []
+# Both id spellings: an archived spine records the id that actually fired,
+# and RG-CAP-001 is the retired spelling of RP-CAP-001.
+CAP_IDS = ("RP-CAP-001", "RG-CAP-001")
 capped = (br == "critical") or any(
-    isinstance(f, dict) and f.get("id") == "RP-CAP-001" for f in fired)
+    isinstance(f, dict) and f.get("id") in CAP_IDS for f in fired)
 print("OK:" + ("1" if capped else "0"))
 PY
 )"

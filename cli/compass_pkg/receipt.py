@@ -96,8 +96,8 @@ from compass_pkg.core import CompassError, artifact_path, display_shape, find_co
 
 # --- command: task receipt ---------------------------------------------------
 # `compass issue receipt --issue <slug>` renders a one-screen receipt of an issue:
-# readings -> route -> gates with verdicts -> evidence registry -> overall
-# verdict. Read-only over .compass/work/<slug>/{task.yml, route.md, evidence/}
+# assessment -> delivery approach -> gates with verdicts -> evidence registry -> overall
+# verdict. Read-only over .compass/work/<slug>/{task.yml, delivery-approach.md, evidence/}
 # plus governance/guardrails.yml; never re-executes checks (INT-2 / ADR-005).
 # Clustered here next to cmd_task_lint so Move 5C can relocate as one block.
 
