@@ -22,6 +22,13 @@
 - **Source issue:** `scan-the-remaining-surfaces`
 - **Landed:** 2026-08-13
 
+### the archive still lints and checks clean
+
+- **Scenario id:** `SW-4`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
 ### a project outside git still gets the check
 
 - **Scenario id:** `SCN-F2`
@@ -4828,4 +4835,25 @@
 - **Scenario id:** `TRC-1`
 - **Intent:** `INT-1`
 - **Source issue:** `swarm-script-strips-markdown`
+- **Landed:** 2026-08-13
+
+### no issue claims to be in flight when it is not _(archived)_
+
+- **Scenario id:** `SW-1`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
+### a status change is justified by evidence _(archived)_
+
+- **Scenario id:** `SW-2`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
+- **Landed:** 2026-08-13
+
+### nothing is marked landed without its gates _(archived)_
+
+- **Scenario id:** `SW-3`
+- **Intent:** `HYGIENE`
+- **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
