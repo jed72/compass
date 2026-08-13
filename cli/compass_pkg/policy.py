@@ -336,14 +336,18 @@ def _plan_lint_findings(text):
 
 
 def cmd_plan_lint(args):
+    # The default path is the LIVE artifact name. It was left at the retired
+    # `plan.md` when the artifact was renamed, so the command reported "no such
+    # file" on every issue that had a design - while the advice underneath
+    # named `design.md`, a file the command had never looked for.
     if args.file:
         path = args.file
     else:
         task_dir = resolve_task_dir(args.task)
-        path = os.path.join(task_dir, "plan.md")
+        path = os.path.join(task_dir, "design.md")
 
     if not os.path.isfile(path):
-        print(f"compass plan lint: ERROR - no such file: {path}")
+        print(f"compass design lint: ERROR - no such file: {path}")
         print("  The design stage collapses on quick-fix, hotfix and spike "
               "approaches, so an issue on one of those has no design.md to "
               "lint.")
@@ -353,11 +357,11 @@ def cmd_plan_lint(args):
         findings = _plan_lint_findings(fh.read())
 
     if not findings:
-        print(f"compass plan lint: PASS - no placeholders found in {path}")
+        print(f"compass design lint: PASS - no placeholders found in {path}")
         return 0
 
     noun = "placeholder" if len(findings) == 1 else "placeholders"
-    print(f"compass plan lint: {len(findings)} possible {noun} in {path} [advisory]")
+    print(f"compass design lint: {len(findings)} possible {noun} in {path} [advisory]")
     for lineno, phrase in findings:
         print(f"  line {lineno}: {phrase}")
     print("\n  Advisory, not a gate - this exits 0. Assess these as judgement in "
