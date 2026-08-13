@@ -148,6 +148,41 @@
 - **Source issue:** `rehearsal-cli-defects`
 - **Landed:** 2026-08-13
 
+### the label guard cannot pass on a partial list
+
+- **Scenario id:** `SR-2`
+- **Intent:** `RULE-S1`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### conventional commits is a project strategy only
+
+- **Scenario id:** `SR-3`
+- **Intent:** `RULE-S2`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### semantic versioning is stated
+
+- **Scenario id:** `SR-4`
+- **Intent:** `RULE-S3`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### prefer-open-technologies is filed, not adopted
+
+- **Scenario id:** `SR-5`
+- **Intent:** `RULE-S4`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### S7 names the surfaces it governs
+
+- **Scenario id:** `SR-6`
+- **Intent:** `RULE-S5`
+- **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
 ### the hooks directory is a scanned surface
 
 - **Scenario id:** `RCD-G3`
@@ -3841,4 +3876,11 @@
 - **Scenario id:** `RCD-G5`
 - **Intent:** `RULE-5`
 - **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### conventional comments is a shipped default _(archived)_
+
+- **Scenario id:** `SR-1`
+- **Intent:** `RULE-S1`
+- **Source issue:** `strategy-rulings-2026-08`
 - **Landed:** 2026-08-13
