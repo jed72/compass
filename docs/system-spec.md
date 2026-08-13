@@ -148,6 +148,13 @@
 - **Source issue:** `rehearsal-cli-defects`
 - **Landed:** 2026-08-13
 
+### the warners say when they cannot find the project
+
+- **Scenario id:** `PRF-5`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
 ### the Part 0 corrections are folded in
 
 - **Scenario id:** `RR-3`
@@ -3988,4 +3995,46 @@
 - **Scenario id:** `GL-E1`
 - **Intent:** `DOC-DRIFT`
 - **Source issue:** `id-prefix-vocabulary-and-glossary`
+- **Landed:** 2026-08-13
+
+### the enforcement path exempts by anchored name _(archived)_
+
+- **Scenario id:** `PRF-1`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the session-end hook reads the spine _(archived)_
+
+- **Scenario id:** `PRF-2`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the scan reads the hook's own messages _(archived)_
+
+- **Scenario id:** `PRF-3`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### an explicit project root is trusted _(archived)_
+
+- **Scenario id:** `PRF-4`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the tests that could not fail can now fail _(archived)_
+
+- **Scenario id:** `PRF-6`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
+- **Landed:** 2026-08-13
+
+### the suite passes on a clean clone _(archived)_
+
+- **Scenario id:** `PRF-7`
+- **Intent:** `REVIEW`
+- **Source issue:** `pr-50-review-findings`
 - **Landed:** 2026-08-13
