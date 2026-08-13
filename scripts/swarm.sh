@@ -85,9 +85,9 @@ esac
 # --- the cap from task.yml (R4) ---------------------------------------------
 # The cap is a MACHINE FACT and must come from the structured assessment, not from
 # grepping delivery-approach.md prose - a well-formed delivery-approach.md quotes 'risk: critical'
-# and 'RG-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
+# and 'RP-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
 # prose grep false-positived on exactly those, capping a non-critical swarm to 1.
-# The standing cap (RG-CAP-001): critical risk => max_worktrees 1. We read
+# The standing cap (RP-CAP-001): critical risk => max_worktrees 1. We read
 # it from assessment.risk and fired_guardrails. Absent assessment is a hard
 # error - never a silent cap, never a fall back to prose.
 CAP_INFO="$(compass_python - "$TASK_YML" <<'PY'
@@ -106,7 +106,7 @@ if not br:
     print("ERR:no assessment.risk in task.yml"); sys.exit(0)
 fired = d.get("policy_rules_fired") or d.get("fired_guardrails") or []
 capped = (br == "critical") or any(
-    isinstance(f, dict) and f.get("id") == "RG-CAP-001" for f in fired)
+    isinstance(f, dict) and f.get("id") == "RP-CAP-001" for f in fired)
 print("OK:" + ("1" if capped else "0"))
 PY
 )"

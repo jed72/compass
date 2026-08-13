@@ -112,7 +112,7 @@ Logical surface: **role pipeline**
    checks, but they cannot remove or soften G1–G5. Adopters declare
    architectural fitness functions as project guardrails using the generic
    `command-passes` check (see ADR-009); the `verify.fitness` gate is promoted
-   to blocking by routing floors `RG-FLOOR-006/007` when the issue's blast
+   to blocking by routing floors `RP-REQUIRE-003/007` when the issue's blast
    radius or domain tags warrant it.
 
 4. **The router is not extensible in-line.** Adding a new route shape or

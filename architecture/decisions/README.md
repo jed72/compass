@@ -55,6 +55,7 @@ Rules:
 | [ADR-012](ADR-012-the-v2-vocabulary-freeze.md) | The v2 vocabulary is frozen - industry words only, enforced by the build; post-freeze changes carry decision-record ceremony | accepted | governance/terminology.yml + tests/test_terminology.py (the ratchet); ADR-006 (break paid once behind a major version) |
 | [ADR-014](ADR-014-retired-names-are-removed-at-the-major-version.md) | Retired names are removed at the major version rather than carried as redirects | accepted | Inv-8 (backward compat - the break is paid once, behind a major version, per ADR-006); enables ADR-015 |
 | [ADR-015](ADR-015-the-vocabulary-scan-covers-code-positions.md) | The vocabulary scan covers code positions, not only prose | accepted | ADR-012 (the v2 vocabulary freeze - the scan is its enforcement); depends on ADR-014 |
+| [ADR-016](ADR-016-id-codes-are-part-of-the-frozen-vocabulary.md) | Id prefixes are part of the frozen vocabulary, and routing rule ids say routing policy rather than guardrail | accepted | ADR-012 (extends the freeze from terms to codes); ADR-006 (the read side stays tolerant) |
 | [ADR-013](ADR-013-vendored-third-party-code.md) | Compass may redistribute third-party code inside the plugin, and a bundled copy takes precedence over any system copy | accepted | Inv-8 (backward compat - TRC-F4/TRC-F5 hold no behaviour change); ADR-002 (no new guardrail or routing dimension added) |
 
 ## Principle → ADR mapping

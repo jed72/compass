@@ -1,4 +1,4 @@
-# A live defect that is small enough to fix fast - the Hotfix shape (RS-SHAPE-002).
+# A live defect that is small enough to fix fast - the Hotfix shape (RP-SHAPE-002).
 name: hotfix-prod-defect
 assessment:
   risk: contained

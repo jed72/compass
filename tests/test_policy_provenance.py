@@ -36,7 +36,7 @@ def _project(tmp_path, stale=False):
         d = yaml.safe_load(rp.read_text())
         rg = d["routing_guardrails"]
         rg["floors"] = [f for f in rg["floors"]
-                        if f["id"] not in ("RG-FLOOR-004", "RG-FLOOR-006")]
+                        if f["id"] not in ("RP-REQUIRE-001", "RP-REQUIRE-003")]
         d["version"] = "1.0.0"
         rp.write_text(yaml.safe_dump(d, sort_keys=False))
     return proj

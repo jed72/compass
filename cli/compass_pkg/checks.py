@@ -670,7 +670,10 @@ def _parse_dod_lines(task_dir):
 
 _DOD_ITEM_RE = _re.compile(r"^\s*-\s+\[([ xX])\]\s*(.*)")
 _EVIDENCE_TAG_RE = _re.compile(r"\(evidence:\s*(EV-[^\)]+)\)")
-_BACKFILL_TAG_RE = _re.compile(r"\((?:follow-up|backfill):\s*(BF-[^\)]+)\)")
+# Both id spellings and both tag words. FU- is what the templates write
+# now; BF- is what every archived verification report on disk says, and
+# ADR-006 keeps the read side tolerant so those keep resolving.
+_BACKFILL_TAG_RE = _re.compile(r"\((?:follow-up|backfill):\s*((?:FU|BF)-[^\)]+)\)")
 
 # Evidence types accepted for DoD evidence (all types that represent real,
 # typed evidence - not the catch-all `artifact` which is the weakest).

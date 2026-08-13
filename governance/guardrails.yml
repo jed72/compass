@@ -19,7 +19,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.5.1
+version: 1.5.2
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -60,7 +60,7 @@ checks:
     description: >
       Every unchecked DoD box in verification-report.md must carry an inline
       tag: `(evidence: EV-<id>)` referencing a typed evidence registry entry,
-      or `(backfill: BF-<id>)` referencing an owed backfill. A bare unchecked
+      or `(backfill: FU-<id>)` referencing an owed backfill. A bare unchecked
       box fails. Checked boxes (`- [x]`) pass without a tag - the human took
       responsibility. Narrative notes (devlog 'USER TO APPLY') never count.
       Cross-task: when another task has a backfill with target_task pointing at

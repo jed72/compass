@@ -69,15 +69,15 @@ participants, not optional consultees.
 
 The shipped defaults (see `routing-policy.yml` for the live, id-tagged set):
 
-- **floors** - `RG-FLOOR-001` critical risk → at least initiative,
-  never skip clarify/verify/land; `RG-FLOOR-002` brownfield-unmapped familiarity →
-  Specify runs full-weight with `blueprint-distillation`; `RG-FLOOR-003`
+- **floors** - `RP-FLOOR-001` critical risk → at least initiative,
+  never skip clarify/verify/land; `RP-FLOOR-002` brownfield-unmapped familiarity →
+  Specify runs full-weight with `blueprint-distillation`; `RP-FLOOR-003`
   touching auth/payments/personal-data/migrations → at least initiative.
-- **caps** - `RG-CAP-001` critical risk caps worktrees at 1.
-- **immovable_gates** - `RG-GATE-001..004`: `verify.correctness`,
+- **caps** - `RP-CAP-001` critical risk caps worktrees at 1.
+- **immovable_gates** - `RP-GATE-001..004`: `verify.correctness`,
   `verify.governance`, `verify.regression`, `verify.claims`.
-- **role_rules** - `RG-ROLE-001` the product-marketer's involvement blocks Land
-  until claims trace to scenarios; `RG-ROLE-002` the product-owner's involvement
+- **role_rules** - `RP-ROLE-001` the product-marketer's involvement blocks Land
+  until claims trace to scenarios; `RP-ROLE-002` the product-owner's involvement
   gates Plan on the spec being checked against the brief.
 
 The `verify.governance` immovable gate is what makes guardrail human-sign-off ("a human
@@ -151,7 +151,7 @@ Write the current names in anything new.
 Routing-guardrail keys: `force_minimum_route`, `require_phase`,
 `require_skill`, `never_skip`, `max_worktrees`, `forbid_route`,
 `block_phase` + `until`, `require_artifact`, `gate`. Every guardrail carries a
-stable `id` (e.g. `RG-FLOOR-001`) so `delivery-approach.md` can name exactly which one
+stable `id` (e.g. `RP-FLOOR-001`) so `delivery-approach.md` can name exactly which one
 fired.
 
 Routing-strategy keys: `lean_toward`, `suggest_artifact`, free-text `biases`.

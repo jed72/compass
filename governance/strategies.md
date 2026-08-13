@@ -106,7 +106,7 @@ surfaced it immediately). The designated suite is a project knob
 (`project.regression_baseline_suite` in `.compass/config.yml`; falls back to
 `project.test_command`). Build prompts for the baseline **up front**, not as an
 afterthought; `compass approach evaluate` surfaces it under
-`applicable_strategies` when the assessment match (`RS-ADV-001`).
+`applicable_strategies` when the assessment match (`RP-ADV-001`).
 
 It adds **no guardrail and no new gate**, and it **does not block Land** when
 absent - it reuses the existing `verify.regression` gate and is assessed as
@@ -114,7 +114,7 @@ reviewer judgement (a strategy note), never a mechanical failure. The framework
 grows by adding artifacts, not rules (ADR-002, ADR-006).
 
 *Cross-reference: tested-before-ship (tested before it lands), applied to non-regression;
-`verify.regression`; `routing-policy.yml` `advisory_strategies` RS-ADV-001.*
+`verify.regression`; `routing-policy.yml` `advisory_strategies` RP-ADV-001.*
 
 ---
 

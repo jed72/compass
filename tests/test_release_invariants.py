@@ -92,7 +92,7 @@ def test_no_fifth_routing_dimension_added():
 
 def test_verify_fitness_only_introduced_via_routing_floors():
     """verify.fitness is not in any route_shape's gates list - it is only
-    added by the RG-FLOOR-006/007 floors (route-promoted, never tier-menu).
+    added by the RP-REQUIRE-003/007 floors (route-promoted, never tier-menu).
     """
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     for shape_name, shape in policy["route_shapes"].items():
@@ -103,14 +103,14 @@ def test_verify_fitness_only_introduced_via_routing_floors():
 
 
 def test_verify_fitness_promotion_floors_exist():
-    """RG-FLOOR-006 and RG-FLOOR-007 are present and use add_gate: verify.fitness."""
+    """RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.fitness."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     floors = policy["routing_guardrails"]["floors"]
     by_id = {f["id"]: f for f in floors}
-    assert "RG-FLOOR-006" in by_id, "RG-FLOOR-006 (verify.fitness on cross-cutting/critical) must exist"
-    assert "RG-FLOOR-007" in by_id, "RG-FLOOR-007 (verify.fitness on irreversible touches) must exist"
-    assert by_id["RG-FLOOR-006"]["add_gate"] == "verify.fitness"
-    assert by_id["RG-FLOOR-007"]["add_gate"] == "verify.fitness"
+    assert "RP-REQUIRE-003" in by_id, "RP-REQUIRE-003 (verify.fitness on cross-cutting/critical) must exist"
+    assert "RP-REQUIRE-004" in by_id, "RP-REQUIRE-004 (verify.fitness on irreversible touches) must exist"
+    assert by_id["RP-REQUIRE-003"]["add_gate"] == "verify.fitness"
+    assert by_id["RP-REQUIRE-004"]["add_gate"] == "verify.fitness"
 
 
 # -----------------------------------------------------------------------------

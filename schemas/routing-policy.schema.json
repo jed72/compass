@@ -225,7 +225,7 @@
               "id": {
                 "type": "string",
                 "minLength": 1,
-                "description": "The framework rule id being waived, e.g. RG-FLOOR-006."
+                "description": "The framework rule id being waived, e.g. RP-REQUIRE-003."
               },
               "reason": {
                 "type": "string",

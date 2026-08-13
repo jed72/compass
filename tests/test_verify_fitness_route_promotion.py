@@ -90,7 +90,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         assert "verify.fitness" in data["gates"]
 
     def test_fired_guardrails_names_floor_rg_floor_006(self, tmp_path):
-        """When cross-cutting fires RG-FLOOR-006, it appears in fired_guardrails."""
+        """When cross-cutting fires RP-REQUIRE-003, it appears in fired_guardrails."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -103,8 +103,8 @@ class TestVerifyFitnessPromotionBlastRadius:
         assert result.returncode == 0
         data = json.loads(result.stdout)
         floor_ids = [f["id"] for f in data.get("policy_rules_fired", [])]
-        assert "RG-FLOOR-006" in floor_ids, (
-            f"Expected RG-FLOOR-006 in fired_guardrails, got: {floor_ids}"
+        assert "RP-REQUIRE-003" in floor_ids, (
+            f"Expected RP-REQUIRE-003 in fired_guardrails, got: {floor_ids}"
         )
 
     def test_contained_blast_radius_does_not_add_verify_fitness(self, tmp_path):
@@ -157,7 +157,7 @@ class TestVerifyFitnessPromotionTouches:
         )
 
     def test_fired_guardrails_names_floor_rg_floor_007(self, tmp_path):
-        """When touches fires RG-FLOOR-007, it appears in fired_guardrails."""
+        """When touches fires RP-REQUIRE-004, it appears in fired_guardrails."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -171,8 +171,8 @@ class TestVerifyFitnessPromotionTouches:
         assert result.returncode == 0
         data = json.loads(result.stdout)
         floor_ids = [f["id"] for f in data.get("policy_rules_fired", [])]
-        assert "RG-FLOOR-007" in floor_ids, (
-            f"Expected RG-FLOOR-007 in fired_guardrails, got: {floor_ids}"
+        assert "RP-REQUIRE-004" in floor_ids, (
+            f"Expected RP-REQUIRE-004 in fired_guardrails, got: {floor_ids}"
         )
 
     def test_safe_domain_does_not_add_verify_fitness(self, tmp_path):

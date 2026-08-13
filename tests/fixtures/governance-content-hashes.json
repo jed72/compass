@@ -1,10 +1,10 @@
 {
   "guardrails.yml": {
-    "sha256": "aa16a0dc567c34c958de66e51c041b55a524c1e7b75cb59689bc1c659d79281a",
-    "version": "1.5.1"
+    "sha256": "83935c01448c0b3cefe36c139b7d84fbbacf8bfee5be3a3e62ac1869c2b85e02",
+    "version": "1.5.2"
   },
   "routing-policy.yml": {
-    "sha256": "fe187dbf2ed90b1d17f2c80baa67f9cfcac2cf33228a8b71c332cd13e500b681",
-    "version": "2.0.0"
+    "sha256": "16dab6357b49640f5900c84e9cdda1567cd30e61ba3664cff75f17b649605cc3",
+    "version": "2.1.0"
   }
 }

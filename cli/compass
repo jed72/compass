@@ -488,6 +488,15 @@ def build_parser():
     )
     p_derive.set_defaults(func=cmd_derive_system_spec)
 
+    # docs/glossary.md is generated from governance/terminology.yml. Private
+    # and called at ship, the same shape as _derive-system-spec: the surface
+    # deepens rather than widens.
+    p_gloss = sub.add_parser("_derive-glossary", help=argparse.SUPPRESS)
+    p_gloss.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
+    p_gloss.add_argument("--out", help=argparse.SUPPRESS)
+    p_gloss.add_argument("--root", help=argparse.SUPPRESS)
+    p_gloss.set_defaults(func=cmd_derive_glossary)
+
     # Private entry point for the archive migration core the user-facing
     # migrate verb will wrap in its own slice. Hidden like its siblings.
     p_marc = sub.add_parser("_migrate-archive", help=argparse.SUPPRESS)

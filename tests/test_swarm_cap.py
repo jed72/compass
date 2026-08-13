@@ -44,7 +44,7 @@ def _task(d, slug, *, risk=None, capped=False, readings=True):
         if risk:
             rd["risk"] = risk
         body["assessment"] = rd
-    fired = ("- id: RG-CAP-001\n  kind: cap\n" if capped else "")
+    fired = ("- id: RP-CAP-001\n  kind: cap\n" if capped else "")
     import yaml
     (td / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False) +
                                  ("fired_guardrails:\n" + fired if fired else "fired_guardrails: []\n"))
@@ -70,7 +70,7 @@ def _run(repo, slug):
 
 
 # did-not-fire prose that the OLD grep false-positived on:
-_PROSE = "RG-CAP-001 (`blast_radius: critical`) - not matched; blast radius is contained."
+_PROSE = "RP-CAP-001 (`blast_radius: critical`) - not matched; blast radius is contained."
 
 
 def test_did_not_fire_note_caps_to_one_today(tmp_path):
@@ -99,7 +99,7 @@ def test_cap_from_readings_ignores_prose(tmp_path):
 
 
 def test_critical_reading_caps_to_one(tmp_path):
-    """TRC-R4-3: a genuinely critical task (RG-CAP-001 fired) still caps to 1."""
+    """TRC-R4-3: a genuinely critical task (RP-CAP-001 fired) still caps to 1."""
     repo = _repo(tmp_path)
     td = _task(repo, "t3", risk="critical", capped=True)
     _route(td, "blast radius is critical")

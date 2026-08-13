@@ -32,7 +32,7 @@ def _reading_args(readings: dict) -> list[str]:
 
 
 def test_express_route_for_small_mapped_change(run_cli):
-    """RS-SHAPE-003: small + contained + mapped == express."""
+    """RP-SHAPE-003: small + contained + mapped == express."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -45,7 +45,7 @@ def test_express_route_for_small_mapped_change(run_cli):
 
 
 def test_standard_route_for_default_shape(run_cli):
-    """RS-SHAPE-005: size=standard == standard."""
+    """RP-SHAPE-005: size=standard == standard."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -57,7 +57,7 @@ def test_standard_route_for_default_shape(run_cli):
 
 
 def test_expedition_route_for_large_magnitude(run_cli):
-    """RS-SHAPE-004: size=large == expedition."""
+    """RP-SHAPE-004: size=large == expedition."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -70,7 +70,7 @@ def test_expedition_route_for_large_magnitude(run_cli):
 
 
 def test_hotfix_route_for_live_defect(run_cli):
-    """RS-SHAPE-002: urgency=live-defect + small magnitude == hotfix."""
+    """RP-SHAPE-002: urgency=live-defect + small magnitude == hotfix."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -83,7 +83,7 @@ def test_hotfix_route_for_live_defect(run_cli):
 
 
 def test_spike_route_for_exploration_intent(run_cli):
-    """RS-SHAPE-001: intent=exploration on safe surface == spike."""
+    """RP-SHAPE-001: intent=exploration on safe surface == spike."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -99,7 +99,7 @@ def test_spike_route_for_exploration_intent(run_cli):
 
 
 def test_floor_critical_blast_radius_forces_expedition(run_cli):
-    """RG-FLOOR-001: risk=critical forces at least expedition."""
+    """RP-FLOOR-001: risk=critical forces at least expedition."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "critical",
                                 "familiarity": "brownfield-mapped",
@@ -109,14 +109,14 @@ def test_floor_critical_blast_radius_forces_expedition(run_cli):
     data = json.loads(r.stdout)
     assert data["delivery_approach"] == "initiative"
     fired = [f["id"] for f in data["policy_rules_fired"]]
-    assert "RG-FLOOR-001" in fired
+    assert "RP-FLOOR-001" in fired
     # candidate was lighter; the floor raised it
     assert data["candidate_route"] != data["delivery_approach"]
 
 
 @pytest.mark.parametrize("domain", ["auth", "payments", "personal-data", "migrations"])
 def test_floor_g5_domains_force_expedition(run_cli, domain):
-    """RG-FLOOR-003: touching any G5 domain forces at least expedition."""
+    """RP-FLOOR-003: touching any G5 domain forces at least expedition."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -129,11 +129,11 @@ def test_floor_g5_domains_force_expedition(run_cli, domain):
         f"touching {domain!r} should force expedition, got {data['delivery_approach']!r}"
     )
     fired = [f["id"] for f in data["policy_rules_fired"]]
-    assert "RG-FLOOR-003" in fired
+    assert "RP-FLOOR-003" in fired
 
 
 def test_floor_brownfield_unmapped_requires_specify(run_cli):
-    """RG-FLOOR-002: brownfield-unmapped forces Specify phase to full and
+    """RP-FLOOR-002: brownfield-unmapped forces Specify phase to full and
     requires blueprint-distillation skill."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
@@ -143,7 +143,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     fired = [f["id"] for f in data["policy_rules_fired"]]
-    assert "RG-FLOOR-002" in fired
+    assert "RP-FLOOR-002" in fired
     assert data["stages"].get("specify") == "full"
     assert "blueprint-distillation" in data["required_skills"]
 
@@ -152,7 +152,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
 
 
 def test_cap_critical_caps_worktrees_to_one(run_cli):
-    """RG-CAP-001: critical blast radius => max_worktrees=1, topology forced solo."""
+    """RP-CAP-001: critical blast radius => max_worktrees=1, topology forced solo."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "critical",
                                 "familiarity": "brownfield-mapped",
@@ -164,7 +164,7 @@ def test_cap_critical_caps_worktrees_to_one(run_cli):
     assert data["max_worktrees"] == 1
     assert "solo" in data["topology"]
     fired_ids = [f["id"] for f in data["policy_rules_fired"]]
-    assert "RG-CAP-001" in fired_ids
+    assert "RP-CAP-001" in fired_ids
 
 
 # --- candidate-vs-final is recorded in the output -------------------------

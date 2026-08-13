@@ -91,7 +91,7 @@ def test_scn_a1_content_change_is_logged(tmp_path):
     assert before["delivery_approach"] == "feature", before["delivery_approach"]
 
     # cross-cutting keeps the route name `standard` and takes the gate set from
-    # 6 to 7 (RG-FLOOR-006 adds verify.fitness) - R18's exact case. `critical`
+    # 6 to 7 (RP-REQUIRE-003 adds verify.fitness) - R18's exact case. `critical`
     # would also change the route NAME, which the old code already logged, so it
     # would prove nothing.
     before["assessment"]["risk"] = "cross-cutting"

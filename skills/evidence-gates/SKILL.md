@@ -172,8 +172,8 @@ structural properties of the codebase (e.g. "modules respect the dependency
 direction", "no cyclic imports in the domain layer"). Adopters declare each
 fitness function as a project guardrail in `governance/guardrails.yml` with
 `check: command-passes` and a `params.command:` that exits 0 on pass. The gate
-is advisory by default and promoted to blocking by routing floors `RG-FLOOR-006`
-(risk ∈ {cross-cutting, critical}) and `RG-FLOOR-007` (touches ∈
+is advisory by default and promoted to blocking by routing floors `RP-REQUIRE-003`
+(risk ∈ {cross-cutting, critical}) and `RP-REQUIRE-004` (touches ∈
 irreversible domains) - following the same promotion pattern as `verify.analyze`
 (ADR-007). When no project guardrails declare `command-passes`, the gate clears
 by vacuity: a project that has not yet declared any fitness functions sees no

@@ -18,7 +18,7 @@ Two properties matter as much as the detection:
     floors, or added its own rules has not drifted. A detector that fires on
     those gets switched off, and then detects nothing.
   * A deliberate omission must be distinguishable from an unseen one. A project
-    that considered RG-FLOOR-006 and rejected it is in a different state from
+    that considered RP-REQUIRE-003 and rejected it is in a different state from
     one that has never heard of it.
 
 Spec: .compass/work/governance-drift-detection/spec.feature.md (TRC-A1..A3,
@@ -45,8 +45,8 @@ GOV_FILES = ("routing-policy.yml", "guardrails.yml")
 
 # Rules the framework ships that a ~1.5.0 project predates. Used to build a
 # realistically stale copy rather than an invented one.
-STALE_DROP_FLOORS = ["RG-FLOOR-004", "RG-FLOOR-005", "RG-FLOOR-006",
-                     "RG-FLOOR-007"]
+STALE_DROP_FLOORS = ["RP-REQUIRE-001", "RP-REQUIRE-002", "RP-REQUIRE-003",
+                     "RP-REQUIRE-004"]
 STALE_DROP_CHECKS = ["declared-tests-resolve", "dod-evidence-typed",
                      "coherence-check-passes", "no-trusted-rerun",
                      "command-passes"]
@@ -212,7 +212,7 @@ def test_trc_a3_a_project_behind_the_frameworks_governance_version_should_be_tol
 
 def test_trc_b1_missing_floors_and_strategies_should_be_named_individually(tmp_path):
     out = lint(make_project(tmp_path, stale=True)).stdout
-    for rule in STALE_DROP_FLOORS + ["RS-ADV-001"]:
+    for rule in STALE_DROP_FLOORS + ["RP-ADV-001"]:
         assert rule in out, f"{rule} is missing from the project but not named:\n{out}"
     assert "5" in out, f"the report does not state a total count:\n{out}"
 
@@ -229,23 +229,26 @@ def test_trc_b2_missing_guardrail_checks_should_be_named_individually(tmp_path):
 
 def test_trc_b3_a_waived_rule_should_read_as_deliberate_not_as_drift(tmp_path):
     proj = make_project(tmp_path, stale=True, waived=[
-        {"id": "RG-FLOOR-006", "reason": "this project has no fitness functions yet"}])
+        {"id": "RP-REQUIRE-003", "reason": "this project has no fitness functions yet"}])
     out = lint(proj).stdout
 
     assert "waived" in out.lower(), f"the report never mentions waivers:\n{out}"
     # the four remaining drifted floors, not five
     assert "4" in out, f"the drifted count does not exclude the waiver:\n{out}"
     waived_section = out.lower().split("waived", 1)[1]
-    assert "rg-floor-006" in waived_section, (
-        f"RG-FLOOR-006 is not reported under waived:\n{out}")
+    # Lowercased because the section is lowercased for comparison. The 3.0.0
+    # id sweep renamed every uppercase RG-/RS- id and missed this one, leaving
+    # an assertion checking the old id against output produced from the new.
+    assert "rp-require-003" in waived_section, (
+        f"RP-REQUIRE-003 is not reported under waived:\n{out}")
 
 
 def test_trc_b4_a_waiver_without_a_reason_should_be_refused(tmp_path):
-    proj = make_project(tmp_path, stale=True, waived=[{"id": "RG-FLOOR-006"}])
+    proj = make_project(tmp_path, stale=True, waived=[{"id": "RP-REQUIRE-003"}])
     result = lint(proj)
     assert result.returncode != 0, f"a reasonless waiver passed:\n{result.stdout}"
     combined = result.stdout + result.stderr
-    assert "RG-FLOOR-006" in combined
+    assert "RP-REQUIRE-003" in combined
     assert "reason" in combined.lower(), (
         f"the message does not say a waiver needs a reason:\n{combined}")
 
@@ -270,7 +273,7 @@ def test_trc_b6_drift_should_be_advisory_by_default(tmp_path):
     assert result.returncode == 0, (
         "drift blocked by default; ADR-006 says an upgrade must not turn every "
         f"existing adopter's build red:\n{result.stdout}")
-    assert "RG-FLOOR-004" in result.stdout, "drift was not reported at all"
+    assert "RP-REQUIRE-001" in result.stdout, "drift was not reported at all"
     assert "strict" in result.stdout.lower(), (
         f"the report does not say how to make drift blocking:\n{result.stdout}")
 

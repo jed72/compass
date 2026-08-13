@@ -100,7 +100,7 @@ routing guardrails, and folds the result back into `task.yml`:
 ```
   policy          : governance/routing-policy.yml (v2.0.0)
   assessment      : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
-  candidate shape : quick fix  <- RS-SHAPE-003 (Small on every axis, on mapped ground.)
+  candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix
   policy rules fired: none
   topology        : solo

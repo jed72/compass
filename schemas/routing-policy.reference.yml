@@ -6,7 +6,7 @@ version:               # (required) string
 
 routing_strategies:    # (required) map - the SOFT layer; biases the candidate route
   default_shapes:      #   (required) list of maps, evaluated top to bottom:
-    - id:              #     (required) string - stable id, e.g. RS-SHAPE-001
+    - id:              #     (required) string - stable id, e.g. RP-SHAPE-001
       when:            #     (required) map - match condition against the assessment
       lean_toward:     #     (required) string - a route name from route_shapes
       rationale:       #     (required) string
@@ -16,7 +16,7 @@ routing_strategies:    # (required) map - the SOFT layer; biases the candidate r
 
 routing_guardrails:    # (required) map - the HARD layer; bounds the route
   floors:              #   (optional) list of maps:
-    - id:              #     (required) string - e.g. RG-FLOOR-001
+    - id:              #     (required) string - e.g. RP-FLOOR-001
       when:            #     (required) map - match condition
       force_minimum_route:  # (optional) string - raise route to >= this weight
       require_phase:   #     (optional) string - force a phase to full weight
@@ -24,17 +24,17 @@ routing_guardrails:    # (required) map - the HARD layer; bounds the route
       never_skip:      #     (optional) list of phase names
       rationale:       #     (required) string
   caps:                #   (optional) list of maps:
-    - id:              #     (required) string - e.g. RG-CAP-001
+    - id:              #     (required) string - e.g. RP-CAP-001
       when:            #     (required) map
       max_worktrees:   #     (optional) integer
       forbid_route:    #     (optional) string
       rationale:       #     (required) string
   immovable_gates:     #   (optional) list of maps:
-    - id:              #     (required) string - e.g. RG-GATE-001
+    - id:              #     (required) string - e.g. RP-GATE-001
       gate:            #     (required) string - a gate id, e.g. verify.correctness
       rationale:       #     (required) string
   role_rules:          #   (optional) list of maps:
-    - id:              #     (required) string - e.g. RG-ROLE-001
+    - id:              #     (required) string - e.g. RP-ROLE-001
       when:            #     (required) map - typically {role: <role>}
       require_artifact:#     (optional) string
       gate:            #     (optional) string - a gate id to add to the route's set
