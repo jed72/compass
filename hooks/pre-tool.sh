@@ -93,7 +93,48 @@ else
   COMMAND="$(printf '%s' "$INPUT" | grep -oE '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -n1 | sed -E 's/.*:[[:space:]]*"([^"]*)"/\1/' || true)"
 fi
 
-PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"
+# --- resolve the project this hook is enforcing -----------------------------
+# CLAUDE_PROJECT_DIR is authoritative when the host sets it. When it does not
+# - and it does not always - fall back to the nearest ancestor of the working
+# directory that contains a .compass/ directory, the way git finds its repo.
+#
+# The previous fallback was a bare $(pwd), which assumed the session started
+# at the repository root. Started anywhere else, the hook looked for .compass/
+# in the wrong place, found none, and blocked every edit while reporting that
+# triage had not run - when it had. Two faults: the resolution, and a
+# diagnostic naming a cause that was not the cause.
+#
+# Deliberately NOT resolved from this script's own location: the hook is
+# installed from the plugin cache, and Compass self-hosts, so its own tree has
+# a .compass/ of its own. That would enforce the framework's issue against the
+# user's edits.
+INVOKED_FROM="$(pwd)"
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
+  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+else
+  PROJECT_DIR=""
+  _search="$INVOKED_FROM"
+  while [ -n "$_search" ]; do
+    if [ -d "$_search/.compass" ]; then
+      PROJECT_DIR="$_search"
+      break
+    fi
+    [ "$_search" = "/" ] && break
+    _search="$(dirname "$_search")"
+  done
+fi
+
+# Whether the walk found anything is recorded, not acted on yet. The refusal
+# lives further down, at the point the hook actually needs task state - a
+# read-only Bash call is allowed without a project at all, and refusing here
+# would make the cheap path expensive and wrong.
+PROJECT_RESOLVED=1
+if [ -z "$PROJECT_DIR" ] || [ ! -d "$PROJECT_DIR/.compass" ]; then
+  PROJECT_RESOLVED=0
+  # Provisional, so path classification below still has something to compare
+  # against. Nothing is permitted on the strength of it.
+  PROJECT_DIR="$INVOKED_FROM"
+fi
 
 # --- classify a target file -------------------------------------------------
 # A "code file" here means: a production-impacting file whose change must be
@@ -369,11 +410,25 @@ fi
 # /compass:triage and /compass:resume). The pointer is what makes this reliable
 # when more than one task is in flight - "most recently modified directory" is
 # only the fallback, and it is ambiguous, so it warns. If there is no task at
-# all, Frame has not run - CLAUDE.md's one rule is "Never skip Frame".
+# all, triage has not run - CLAUDE.md's one rule is "Never skip triage".
+# This is the first point that needs task state, so it is the first point at
+# which an unresolved project matters. Unresolved means the hook cannot tell
+# what it is enforcing, so it refuses: an enforcement path that answers
+# "allow" to a question it could not ask is a guardrail switched off
+# silently. That is the same failure fixed one layer down in 2.1.0, where a
+# missing vendored library made this hook exit 3 and the runtime read it as
+# permission.
+if [ "$PROJECT_RESOLVED" -eq 0 ]; then
+  echo "Compass: could not locate a Compass project - no .compass/ directory at or above $INVOKED_FROM" >&2
+  echo "  Start Claude Code inside the project, or set CLAUDE_PROJECT_DIR to its root." >&2
+  echo "  Refusing this edit rather than allowing it unchecked." >&2
+  exit 2
+fi
+
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ - Frame has not run. Run /compass:triage before changing code." >&2
+  echo "Compass: no .compass/work/ in $PROJECT_DIR - triage has not run. Run /compass:triage before changing code." >&2
   exit 2
 fi
 
@@ -393,7 +448,7 @@ if [ -z "$TASK_DIR" ]; then
 fi
 
 if [ -z "${TASK_DIR:-}" ]; then
-  echo "Compass: no task under .compass/work/ - Frame has not run for this change." >&2
+  echo "Compass: no issue under $PROJECT_DIR/.compass/work/ - triage has not run for this change." >&2
   exit 2
 fi
 

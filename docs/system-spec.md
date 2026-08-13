@@ -78,6 +78,34 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
+### the new guard can fail
+
+- **Scenario id:** `RR-7`
+- **Intent:** `PRACTICE`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the Part 0 corrections are folded in
+
+- **Scenario id:** `RR-3`
+- **Intent:** `RULE-2`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the token figures are filed with their caveat and stay internal
+
+- **Scenario id:** `RR-4`
+- **Intent:** `RULE-3`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the cold-reader test heads the next cycle's experiment list
+
+- **Scenario id:** `RR-5`
+- **Intent:** `RULE-4`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
 ---
 
 ## Archived Behaviour
@@ -3632,3 +3660,24 @@
 - **Intent:** `INT-1`
 - **Source issue:** `mutation-proof-standing`
 - **Landed:** 2026-08-12
+
+### the script is the eight-shot re-cut _(archived)_
+
+- **Scenario id:** `RR-1`
+- **Intent:** `RULE-2`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the post-3.0.0 shots are marked pending and listed for re-check _(archived)_
+
+- **Scenario id:** `RR-2`
+- **Intent:** `RULE-2`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### measure-before-arguing is in the operating model _(archived)_
+
+- **Scenario id:** `RR-6`
+- **Intent:** `PRACTICE`
+- **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
