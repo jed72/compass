@@ -113,7 +113,7 @@ force; if it is still a spike, leave the marker in place.
    records mechanically.
 5. **Write the `.compass/current-task` pointer.** Write the slug into
    `.compass/current-task` so every later `compass` call resolves to this
-   issue without a `--task` flag.
+   issue without an `--issue` flag.
 6. **On a spike, write the `.spike` marker.** If the CLI's approach is a
    spike, create an empty marker file at `.compass/work/<task-slug>/.spike`.
    The approach-aware pre-tool hook reads this to know the TDD strategy is

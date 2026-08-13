@@ -182,6 +182,53 @@ def test_rcd_a4_missing_work_dir_still_says_so(tmp_path):
     )
 
 
+def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
+    """A project with no .compass/ must not inherit an ancestor's issue.
+
+    Found at the verify stage, in the security dimension, in this issue's own
+    fix. Walking up from the working directory is right; walking up *without
+    a bound* is not. A user working in a repository that has never been
+    triaged, underneath a parent that happens to hold a .compass/ - a
+    monorepo, or a stray one in $HOME - would have the hook resolve the
+    stranger's issue and enforce it. If that issue happens to hold a `.red`
+    marker, the edit is ALLOWED: a fail-open path, in the fix whose whole
+    purpose was to close one.
+
+    The repository is the outer bound of a project. A directory holding .git
+    and no .compass/ is a project that has not been triaged, and the honest
+    answer there is to refuse, not to borrow someone else's answer.
+    """
+    outer = tmp_path / "outer"
+    (outer / ".compass" / "work" / "someone-elses").mkdir(parents=True)
+    (outer / ".compass" / "config.yml").write_text("version: 1.0.0\n", encoding="utf-8")
+    (outer / ".compass" / "work" / "someone-elses" / "task.yml").write_text(
+        SPINE.format(slug="someone-elses"), encoding="utf-8")
+    (outer / ".compass" / "work" / "someone-elses" / "delivery-approach.md").write_text(
+        "# approach\n", encoding="utf-8")
+    (outer / ".compass" / "current-task").write_text("someone-elses\n", encoding="utf-8")
+    # The stranger's issue is mid-red, which is what makes this dangerous:
+    # inheriting it would permit the edit rather than merely mis-report.
+    (outer / ".compass" / "work" / "someone-elses" / ".red").write_text("", encoding="utf-8")
+
+    inner = outer / "untriaged-repo"
+    (inner / ".git").mkdir(parents=True)
+    (inner / "src").mkdir()
+    target = inner / "src" / "app.py"
+    target.write_text("x = 1\n", encoding="utf-8")
+
+    result = _run(inner, target)
+
+    assert result.returncode == BLOCK, (
+        f"the hook exited {result.returncode} for an untriaged repository, "
+        f"by resolving a .compass/ above it. That enforces a stranger's "
+        f"issue - and because that issue is mid-red, it ALLOWS the edit.\n"
+        f"stderr: {result.stderr}"
+    )
+    assert "someone-elses" not in result.stderr, (
+        f"the hook named another project's issue:\n{result.stderr}"
+    )
+
+
 @pytest.mark.skipif(shutil.which("bash") is None, reason="bash required")
 def test_rcd_a1b_explicit_project_dir_still_wins(tmp_path):
     """CLAUDE_PROJECT_DIR stays authoritative when the host sets it.

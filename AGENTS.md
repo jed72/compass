@@ -144,7 +144,7 @@ them.
 The kit layer (`cli/compass`, `governance/*.yml`, `schemas/`, `task.yml`) is
 itself runtime-neutral - an adapter does not rewrite it, it invokes it. The
 only thing the adapter owes the kit is a `.compass/current-task` pointer (or
-an explicit `--task` slug) so the CLI can resolve which issue it is acting
+an explicit `--issue` slug) so the CLI can resolve which issue it is acting
 on.
 
 ## Writing voice

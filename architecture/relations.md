@@ -29,7 +29,7 @@ components. Relations are ordered by the calling component.
 | `cli/compass` | `governance/signals.yml` | file read | `compass rework-scan` and `compass calibration` read signal patterns | medium |
 | `cli/compass` | `architecture/` | file read | `frame_load_architecture` reads all `*.md` files and `decisions/ADR-*.md` into `architecture-loaded.yml` | medium |
 | `cli/compass` | `.compass/work/` | file read/write | every subcommand (frame, check, tdd-red, tdd-green, rework-scan, calibration) reads and writes task spines under this directory | high |
-| `cli/compass` | `.compass/current-task` | file read | resolves the active task slug for hooks and subcommands that don't receive `--task` explicitly | high |
+| `cli/compass` | `.compass/current-task` | file read | resolves the active task slug for hooks and subcommands that don't receive `--issue` explicitly | high |
 | `hooks/pre-tool.sh` | `.compass/work/<task>/.red` | file read | the hook checks for the `.red` marker before allowing code-editing tool calls; absent marker → edit blocked | high |
 | `hooks/pre-tool.sh` | `.compass/current-task` | file read | resolves which task's `.red` marker to check | high |
 | `hooks/stop.sh` | `governance/signals.yml` | file read | reads scope-bloat and rework signal patterns at session end | medium |

@@ -123,6 +123,16 @@ else
       PROJECT_DIR="$_search"
       break
     fi
+    # The repository is the outer bound of a project. A directory holding
+    # .git and no .compass/ has not been triaged, and the honest answer is
+    # to refuse rather than borrow a parent's answer: an unbounded walk
+    # would resolve a stranger's issue - a monorepo sibling, or a stray
+    # .compass/ in $HOME - and if that issue happened to be mid-red, ALLOW
+    # the edit. A fail-open path inside the fix that exists to close one.
+    #
+    # -e, not -d: in a git worktree .git is a file, and Compass creates
+    # worktrees itself for swarm topologies.
+    [ -e "$_search/.git" ] && break
     [ "$_search" = "/" ] && break
     _search="$(dirname "$_search")"
   done

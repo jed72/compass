@@ -184,7 +184,7 @@ def test_trc_a4_feature_names_source_task(demo_task, run_cli):
 def test_trc_a5_resolves_current_task_pointer(demo_task, run_cli, project):
     assert (project / ".compass" / "current-task").read_text().strip() == "demo"
 
-    result = run_cli("bdd", "extract")          # no --task
+    result = run_cli("bdd", "extract")          # no issue flag
     assert result.returncode == 0, result
     assert (demo_task / "acceptance-criteria.feature").is_file()
     # it reports where it wrote

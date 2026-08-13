@@ -118,13 +118,24 @@ def test_rcd_f3_retired_flag_is_unknown():
     worked, so removing the old ones changes no behaviour - only what the
     parser accepts.
     """
-    # The RETIRED spellings. A blanket call-site sweep rewrote this tuple to
-    # the live flags once, which inverted the test into asserting that
-    # `--issue` fails. Left as a literal with this note so the next sweep
-    # does not do it again.
-    for flag in ("--task", "--reading"):
+    # Each retired spelling is probed on the subcommand that actually carried
+    # it. The first version of this test ran both against `issue lint`, and
+    # `--reading` was never an alias there - it lived only on `approach
+    # evaluate`. So that half reported "unrecognized" before the removal as
+    # well as after, and would have passed unchanged if the alias were put
+    # back. Half a guard, green either way. Caught by a fresh reader applying
+    # S9 to the sweep this file belongs to.
+    #
+    # The RETIRED spellings are literals here on purpose: a blanket call-site
+    # sweep once rewrote them to the live flags, inverting the test into
+    # asserting that `--issue` fails.
+    for argv in (
+        ["issue", "lint", "--task", "demo"],
+        ["approach", "evaluate", "--reading", "risk=contained"],
+    ):
+        flag = next(a for a in argv if a.startswith("--"))
         result = subprocess.run(
-            [sys.executable, str(CLI), "issue", "lint", flag, "demo"],
+            [sys.executable, str(CLI), *argv],
             cwd=str(ROOT), capture_output=True, text=True, timeout=60,
         )
         combined = (result.stdout + result.stderr).lower()
@@ -132,9 +143,15 @@ def test_rcd_f3_retired_flag_is_unknown():
         assert result.returncode != 0, (
             f"`{flag}` was accepted - a retired flag spelling must fail"
         )
-        assert "unrecognized" in combined or "invalid" in combined, (
-            f"`{flag}` failed, but not as an unrecognised flag - it may still "
-            f"be wired up:\n{combined}"
+        # argparse's exact wording, not a loose "did it fail somehow". An
+        # earlier version accepted "invalid" as well, and `approach evaluate`
+        # answers a PARSED `--reading` with "compass: invalid assessment:
+        # missing required reading" - so the guard passed with the alias
+        # restored. It was checking that the command failed, which it does
+        # either way, rather than that the flag was rejected.
+        assert "unrecognized arguments" in combined, (
+            f"`{flag}` failed, but not as an unrecognised flag - it parsed, "
+            f"so it may still be wired up:\n{combined}"
         )
 
 

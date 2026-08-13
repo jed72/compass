@@ -174,8 +174,11 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     # stay legal during the transition: task.yml, current-task, --task,
     # task-slug and friends.
     "task": [
+        # The `--task` exemption is gone: it was there because --task was a
+        # live flag spelling, and ADR-014 removed it. Prose teaching it now
+        # teaches a flag that does not parse, so the ban should say so.
         re.compile(
-            r"(?<!current-)(?<!--)(?<!<)\btasks?\b(?!\.yml)(?![-_>])",
+            r"(?<!current-)(?<!<)\btasks?\b(?!\.yml)(?![-_>])",
             re.IGNORECASE,
         ),
     ],
