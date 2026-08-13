@@ -8,6 +8,13 @@
 
 ## Current Behaviour
 
+### the guard can fail on each new surface
+
+- **Scenario id:** `SS-4`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
 ### the id set admits the new strategy deliberately
 
 - **Scenario id:** `TRC-3`
@@ -3883,4 +3890,25 @@
 - **Scenario id:** `SR-1`
 - **Intent:** `RULE-S1`
 - **Source issue:** `strategy-rulings-2026-08`
+- **Landed:** 2026-08-13
+
+### the four surfaces are scanned _(archived)_
+
+- **Scenario id:** `SS-1`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
+### a JSON schema's prose is read, its contract is not _(archived)_
+
+- **Scenario id:** `SS-2`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
+- **Landed:** 2026-08-13
+
+### the machine contract is untouched _(archived)_
+
+- **Scenario id:** `SS-3`
+- **Intent:** `GAP-1`
+- **Source issue:** `scan-the-remaining-surfaces`
 - **Landed:** 2026-08-13
