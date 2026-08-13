@@ -10,11 +10,6 @@
 # pointer landed, so the exemption never has to be retrofitted.
 # =============================================================================
 
-# Flag renames (old spelling tolerated for one major version).
-flags:
-  --task: --issue
-  --reading: --assessment
-
 # Spine value renames. Read-side: the normaliser maps them on load.
 # Write-side: the migrate tool (its own slice) rewrites them on disk.
 values:

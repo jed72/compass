@@ -95,7 +95,7 @@ from compass_pkg.core import CompassError, artifact_path, display_shape, find_co
 
 
 # --- command: task receipt ---------------------------------------------------
-# `compass task receipt --task <slug>` renders a one-screen receipt of a task:
+# `compass issue receipt --issue <slug>` renders a one-screen receipt of an issue:
 # readings -> route -> gates with verdicts -> evidence registry -> overall
 # verdict. Read-only over .compass/work/<slug>/{task.yml, route.md, evidence/}
 # plus governance/guardrails.yml; never re-executes checks (INT-2 / ADR-005).
@@ -123,7 +123,7 @@ def _receipt_resolve_task_dir(args):
                 slug = fh.read().strip()
     if not slug:
         raise CompassError(
-            "compass issue receipt: no --task and no .compass/current-task pointer"
+            "compass issue receipt: no --issue and no .compass/current-task pointer"
         )
     task_dir = os.path.join(compass_dir, "work", slug)
     if not os.path.isdir(task_dir):

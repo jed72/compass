@@ -110,6 +110,73 @@ def test_rcd_f2b_the_live_verb_still_works():
     )
 
 
+def test_rcd_f3_retired_flag_is_unknown():
+    """A retired flag spelling fails as any unrecognised flag would.
+
+    `--task` and `--reading` were tolerated alongside `--issue` and
+    `--assessment` "for one major version". Both live spellings already
+    worked, so removing the old ones changes no behaviour - only what the
+    parser accepts.
+    """
+    # The RETIRED spellings. A blanket call-site sweep rewrote this tuple to
+    # the live flags once, which inverted the test into asserting that
+    # `--issue` fails. Left as a literal with this note so the next sweep
+    # does not do it again.
+    for flag in ("--task", "--reading"):
+        result = subprocess.run(
+            [sys.executable, str(CLI), "issue", "lint", flag, "demo"],
+            cwd=str(ROOT), capture_output=True, text=True, timeout=60,
+        )
+        combined = (result.stdout + result.stderr).lower()
+
+        assert result.returncode != 0, (
+            f"`{flag}` was accepted - a retired flag spelling must fail"
+        )
+        assert "unrecognized" in combined or "invalid" in combined, (
+            f"`{flag}` failed, but not as an unrecognised flag - it may still "
+            f"be wired up:\n{combined}"
+        )
+
+
+def test_rcd_f3b_the_live_flag_still_works(tmp_path):
+    """The control: removing the alias must not remove the real flag.
+
+    Without this, F3 passes against a CLI where `--issue` was deleted too.
+    """
+    work = tmp_path / ".compass" / "work" / "demo"
+    work.mkdir(parents=True)
+    (tmp_path / ".compass" / "config.yml").write_text(
+        "version: 1.0.0\n", encoding="utf-8")
+    (work / "task.yml").write_text(
+        'schema_version: "2.0"\ntask: "demo"\ncreated: "2026-08-13"\n'
+        'status: queued\nassessment:\n  risk: contained\n'
+        '  familiarity: brownfield-mapped\n  size: small\n  goal: delivery\n'
+        '  role: engineer\n  labels: []\n',
+        encoding="utf-8")
+
+    result = subprocess.run(
+        [sys.executable, str(CLI), "issue", "lint", "--issue", "demo"],
+        cwd=str(tmp_path), capture_output=True, text=True, timeout=60,
+    )
+    assert result.returncode == 0, (
+        f"`--issue`, the live spelling, no longer works:\n"
+        f"{result.stdout}{result.stderr}"
+    )
+
+
+def test_rcd_f3c_the_flag_alias_data_is_gone():
+    """The tolerated spellings go out of the map with the pointer data."""
+    import yaml
+    sys.path.insert(0, str(ROOT / "cli"))
+    import compass_pkg                                   # noqa: F401
+
+    data = yaml.safe_load((ROOT / "cli" / "migrate-map.yml").read_text()) or {}
+    assert "flags" not in data, (
+        "migrate-map.yml still carries `flags:`, the tolerated retired flag "
+        "spellings that ADR-014 removes"
+    )
+
+
 def test_rcd_f2c_the_pointer_machinery_is_gone():
     """The data that fed the pointer goes with it.
 

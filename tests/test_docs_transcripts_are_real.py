@@ -34,7 +34,7 @@ def _documented_readings():
 def _evaluate(readings):
     args = [sys.executable, str(COMPASS_CLI), "approach", "evaluate"]
     for key, value in readings.items():
-        args += ["--reading", f"{key}={value}"]
+        args += ["--assessment", f"{key}={value}"]
     return subprocess.run(args, capture_output=True, text=True, cwd=ROOT, timeout=30)
 
 

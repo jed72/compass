@@ -139,7 +139,7 @@ class TestStatusLandedWrite:
         )
 
         result = subprocess.run(
-            [sys.executable, str(CLI_PATH), "issue", "lint", "--task", "test-land"],
+            [sys.executable, str(CLI_PATH), "issue", "lint", "--issue", "test-land"],
             cwd=str(tmp_path),
             capture_output=True,
             text=True,
@@ -189,7 +189,7 @@ class TestStatusLandedWrite:
         )
 
         result = subprocess.run(
-            [sys.executable, str(CLI_PATH), "issue", "lint", "--task", "test-active"],
+            [sys.executable, str(CLI_PATH), "issue", "lint", "--issue", "test-active"],
             cwd=str(tmp_path),
             capture_output=True,
             text=True,
@@ -238,7 +238,7 @@ class TestStatusLandedWrite:
         )
 
         result = subprocess.run(
-            [sys.executable, str(CLI_PATH), "issue", "lint", "--task", "test-bad-status"],
+            [sys.executable, str(CLI_PATH), "issue", "lint", "--issue", "test-bad-status"],
             cwd=str(tmp_path),
             capture_output=True,
             text=True,

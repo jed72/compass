@@ -69,7 +69,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     checked = 0
     for slug in slugs:
         r = subprocess.run(
-            [sys.executable, str(CLI), "check", "--task", slug],
+            [sys.executable, str(CLI), "check", "--issue", slug],
             cwd=str(ROOT), capture_output=True, text=True, timeout=180)
         line = next((l for l in r.stdout.splitlines()
                      if "scenarios-are-executable" in l), "")

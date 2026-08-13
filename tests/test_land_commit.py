@@ -119,7 +119,7 @@ def test_head_advance_always_verified(run_cli, tmp_path):
 
 def test_persistent_noop_errors_loudly(run_cli, tmp_path):
     """TRC-R5-F1: a hook that keeps aborting → land-commit errors, HEAD unmoved,
-    and any --task status stays active (never a silent false land)."""
+    and any --issue status stays active (never a silent false land)."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
@@ -132,7 +132,7 @@ def test_persistent_noop_errors_loudly(run_cli, tmp_path):
     (repo / "file.txt").write_text("NEEDS_FIX\n")
     _git(repo, "add", "-A")
     h0 = _head(repo)
-    r = run_cli("ship-commit", "-m", "land it", "--task", "slug", cwd=repo)
+    r = run_cli("ship-commit", "-m", "land it", "--issue", "slug", cwd=repo)
     assert r.returncode != 0, r
     assert _head(repo) == h0, r
     combined = (r.stdout + r.stderr).lower()

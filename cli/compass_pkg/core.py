@@ -224,7 +224,7 @@ def resolve_task_dir(slug=None):
         raise CompassError(f"no issue directories under {work}")
     if len(candidates) > 1:
         sys.stderr.write(
-            "compass: no --task slug and no .compass/current-task pointer - "
+            "compass: no --issue slug and no .compass/current-task pointer - "
             "falling back to the most recently modified issue directory. This "
             "is ambiguous; write .compass/current-task to be sure.\n"
         )

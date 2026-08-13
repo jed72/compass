@@ -80,13 +80,13 @@ def _run(root, *args):
 @pytest.mark.parametrize("status", NEW_STATUSES)
 def test_scn_a1_new_statuses_validate(tmp_path, status):
     root = _project(tmp_path, {"t": _task(status)})
-    r = _run(root, "issue", "lint", "--task", "t")
+    r = _run(root, "issue", "lint", "--issue", "t")
     assert r.returncode == 0, f"status {status!r} rejected:\n{r.stdout}{r.stderr}"
 
 
 def test_scn_a2_unknown_status_rejected(tmp_path):
     root = _project(tmp_path, {"t": _task("in-flight")})
-    r = _run(root, "issue", "lint", "--task", "t")
+    r = _run(root, "issue", "lint", "--issue", "t")
     assert r.returncode != 0, "an invented status was accepted"
     assert "parked" in (r.stdout + r.stderr), (
         "the failure should name the permitted values")
@@ -96,7 +96,7 @@ def test_scn_a3_parked_reason_and_at_validate(tmp_path):
     root = _project(tmp_path, {"t": _task("parked", extra={
         "parked_reason": "blocked on a pricing decision",
         "parked_at": "2026-08-06T10:00:00Z"})})
-    r = _run(root, "issue", "lint", "--task", "t")
+    r = _run(root, "issue", "lint", "--issue", "t")
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
 
 
@@ -106,19 +106,19 @@ def test_scn_a3_parked_reason_and_at_validate(tmp_path):
 
 def test_scn_b1_set_status_writes_the_field(tmp_path):
     root = _project(tmp_path, {"t": _task()})
-    r = _run(root, "issue", "set-status", "parked", "--task", "t",
+    r = _run(root, "issue", "set-status", "parked", "--issue", "t",
              "--reason", "blocked on a pricing decision")
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
     body = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
     assert body["status"] == "parked", body
     assert body.get("parked_reason") == "blocked on a pricing decision", body
     assert body.get("parked_at"), "a parked task should record when"
-    assert _run(root, "issue", "lint", "--task", "t").returncode == 0
+    assert _run(root, "issue", "lint", "--issue", "t").returncode == 0
 
 
 def test_scn_b2_set_status_refuses_unknown(tmp_path):
     root = _project(tmp_path, {"t": _task()})
-    r = _run(root, "issue", "set-status", "finished", "--task", "t")
+    r = _run(root, "issue", "set-status", "finished", "--issue", "t")
     assert r.returncode != 0, "an invented status was written"
     assert "parked" in (r.stdout + r.stderr)
 
@@ -127,7 +127,7 @@ def test_scn_b3_set_status_landed_respects_gates(tmp_path):
     """`land-commit` refuses to mark landed over unpassed gates. A second door
     into the same field must not be an easier one."""
     root = _project(tmp_path, {"t": _task(gates_pass=False)})
-    r = _run(root, "issue", "set-status", "landed", "--task", "t")
+    r = _run(root, "issue", "set-status", "landed", "--issue", "t")
     body = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
     assert body.get("status") != "landed", (
         f"marked landed over a pending gate:\n{r.stdout}{r.stderr}")
@@ -186,7 +186,7 @@ def test_scn_c3_derivation_only_from_landed(tmp_path):
 def test_scn_f1_absent_status_is_active(tmp_path):
     """Every task.yml written before this change omits status entirely."""
     root = _project(tmp_path, {"t": _task()})
-    assert _run(root, "issue", "lint", "--task", "t").returncode == 0
+    assert _run(root, "issue", "lint", "--issue", "t").returncode == 0
     r = _run(root, "flow")
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
     assert "t" in r.stdout, f"a status-less task vanished from flow:\n{r.stdout}"

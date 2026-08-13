@@ -29,7 +29,7 @@ def _spike_body():
 def test_spike_without_conclusion_fails(run_cli, make_task):
     body = _spike_body()
     make_task("spike-no-conc", body)
-    r = run_cli("check", "--task", "spike-no-conc")
+    r = run_cli("check", "--issue", "spike-no-conc")
     assert r.returncode != 0, r
     assert "spike-conclusion-present" in r.stdout, r
 
@@ -42,7 +42,7 @@ def test_spike_graduate_without_next_task_fails(run_cli, make_task):
         # missing next_task
     })
     make_task("spike-no-next", body)
-    r = run_cli("check", "--task", "spike-no-next")
+    r = run_cli("check", "--issue", "spike-no-next")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "next_task" in combined, r
@@ -56,7 +56,7 @@ def test_spike_with_production_changes_fails(run_cli, make_task):
     })
     body["changed_files"] = [{"path": "src/feature.py", "scenarios": []}]
     make_task("spike-with-changes", body)
-    r = run_cli("check", "--task", "spike-with-changes")
+    r = run_cli("check", "--issue", "spike-with-changes")
     assert r.returncode != 0, r
     assert "spike-no-production-changes" in r.stdout, r
 
@@ -68,7 +68,7 @@ def test_spike_with_invalid_decision_fails(run_cli, make_task):
         "decision": "go-for-it",
     })
     make_task("spike-bad-decision", body)
-    r = run_cli("check", "--task", "spike-bad-decision")
+    r = run_cli("check", "--issue", "spike-bad-decision")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "go-for-it" in combined or "decision" in combined, r
@@ -81,7 +81,7 @@ def test_spike_discard_decision_passes(run_cli, make_task):
         "decision": "discard",
     })
     make_task("spike-discard", body)
-    r = run_cli("check", "--task", "spike-discard")
+    r = run_cli("check", "--issue", "spike-discard")
     assert r.returncode == 0, r
     assert "PASS" in r.stdout, r
 
@@ -94,7 +94,7 @@ def test_spike_graduate_with_next_task_passes(run_cli, make_task):
         "next_task": ".compass/work/build-the-thing/",
     })
     make_task("spike-graduate", body)
-    r = run_cli("check", "--task", "spike-graduate")
+    r = run_cli("check", "--issue", "spike-graduate")
     assert r.returncode == 0, r
     assert "PASS" in r.stdout, r
 
@@ -108,7 +108,7 @@ def test_spike_check_does_not_run_delivery_guardrails(run_cli, make_task):
         "decision": "defer",
     })
     make_task("spike-only", body)
-    r = run_cli("check", "--task", "spike-only")
+    r = run_cli("check", "--issue", "spike-only")
     assert r.returncode == 0, r
     # the output should mention the spike route header
     assert "spike" in r.stdout.lower(), r

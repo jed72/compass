@@ -72,7 +72,7 @@ def _project(tmp_path, *, touches="", drop_g5=False):
 
 def _check(proj):
     return subprocess.run(
-        [sys.executable, str(CLI), "check", "--task", "t"],
+        [sys.executable, str(CLI), "check", "--issue", "t"],
         cwd=str(proj), capture_output=True, text=True, timeout=120,
     ).stdout
 

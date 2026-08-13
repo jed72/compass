@@ -44,7 +44,7 @@ def _base_body(slug, **overrides):
 
 
 def _capture(run_cli, slug, *extra):
-    return run_cli("_friction-capture", "--internal", "--task", slug, *extra)
+    return run_cli("_friction-capture", "--internal", "--issue", slug, *extra)
 
 
 def test_reframe_seeds_misroute_friction(run_cli, make_task, project):

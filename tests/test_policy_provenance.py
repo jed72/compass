@@ -21,9 +21,9 @@ CLI = ROOT / "cli" / "compass"
 GOVERNANCE = ROOT / "governance"
 ROUTE_TEMPLATE = ROOT / "templates" / "delivery-approach.md"
 
-READINGS = ["--reading", "risk=cross-cutting", "--reading",
-            "familiarity=brownfield-mapped", "--reading", "size=standard",
-            "--reading", "intent=delivery", "--reading", "role=engineer"]
+READINGS = ["--assessment", "risk=cross-cutting", "--assessment",
+            "familiarity=brownfield-mapped", "--assessment", "size=standard",
+            "--assessment", "intent=delivery", "--assessment", "role=engineer"]
 
 
 def _project(tmp_path, stale=False):

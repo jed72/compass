@@ -303,7 +303,7 @@ def cmd_route_evaluate(args):
         readings = {}
         for pair in args.reading:
             if "=" not in pair:
-                raise CompassError(f"--reading expects key=value, got: {pair}")
+                raise CompassError(f"--assessment expects key=value, got: {pair}")
             k, v = pair.split("=", 1)
             k = ASSESSMENT_KEY_MAP.get(k, k)
             if k == "labels":
@@ -370,8 +370,8 @@ def cmd_route_evaluate(args):
     # --write: fold the result back into task.yml
     if args.write:
         if task is None:
-            raise CompassError("--write needs an issue (use --task or run in a "
-                               "issue; it cannot write with ad-hoc --reading)")
+            raise CompassError("--write needs an issue (use --issue or run in a "
+                               "issue; it cannot write with ad-hoc --assessment)")
         # Re-frame detection, on the route's CONTENT rather than its name.
         # Keying on the name discarded real re-frames: a task whose governance
         # was updated went from 7 gates to 9 under the same route name and

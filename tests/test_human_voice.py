@@ -436,11 +436,13 @@ def test_trc_c1_the_worked_example_does_not_misstate_or_embellish_its_source():
     # unifies it; nobody wrote that it was an accident. Fidelity, not colour.
     assert "accident of drafting" not in flat
 
-    # A new teaching artifact should not teach a tolerated alias or a
-    # retired stage name.
+    # A new teaching artifact should not teach a retired flag spelling or a
+    # retired stage name. `--task` was a tolerated alias when this was
+    # written; ADR-014 removed it entirely, so teaching it is now teaching a
+    # flag that does not parse.
     assert "--task <slug>" not in flat, (
-        "--issue is the CLI's primary spelling today; --task is only its "
-        "tolerated alias"
+        "--issue is the CLI's only spelling; --task was removed at the major "
+        "version and no longer parses"
     )
     assert "at land" not in flat, "'at land' is the retired stage name"
     assert "ship time" in flat

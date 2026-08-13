@@ -59,10 +59,10 @@ class TestVerifyFitnessPromotionBlastRadius:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=cross-cutting",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=standard",
-            "--reading", "intent=delivery",
+            "--assessment", "risk=cross-cutting",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=standard",
+            "--assessment", "intent=delivery",
             cwd=project_root,
         )
         assert result.returncode == 0, (
@@ -79,10 +79,10 @@ class TestVerifyFitnessPromotionBlastRadius:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=critical",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=large",
-            "--reading", "intent=delivery",
+            "--assessment", "risk=critical",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=large",
+            "--assessment", "intent=delivery",
             cwd=project_root,
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
@@ -94,10 +94,10 @@ class TestVerifyFitnessPromotionBlastRadius:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=cross-cutting",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=standard",
-            "--reading", "intent=delivery",
+            "--assessment", "risk=cross-cutting",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=standard",
+            "--assessment", "intent=delivery",
             cwd=project_root,
         )
         assert result.returncode == 0
@@ -112,10 +112,10 @@ class TestVerifyFitnessPromotionBlastRadius:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=contained",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=small",
-            "--reading", "intent=delivery",
+            "--assessment", "risk=contained",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=small",
+            "--assessment", "intent=delivery",
             cwd=project_root,
         )
         assert result.returncode == 0
@@ -140,11 +140,11 @@ class TestVerifyFitnessPromotionTouches:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=contained",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=small",
-            "--reading", "intent=delivery",
-            "--reading", f"touches={domain}",
+            "--assessment", "risk=contained",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=small",
+            "--assessment", "intent=delivery",
+            "--assessment", f"touches={domain}",
             cwd=project_root,
         )
         assert result.returncode == 0, (
@@ -161,11 +161,11 @@ class TestVerifyFitnessPromotionTouches:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=contained",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=small",
-            "--reading", "intent=delivery",
-            "--reading", "touches=auth",
+            "--assessment", "risk=contained",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=small",
+            "--assessment", "intent=delivery",
+            "--assessment", "touches=auth",
             cwd=project_root,
         )
         assert result.returncode == 0
@@ -180,11 +180,11 @@ class TestVerifyFitnessPromotionTouches:
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=contained",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=small",
-            "--reading", "intent=delivery",
-            "--reading", "touches=public-api",
+            "--assessment", "risk=contained",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=small",
+            "--assessment", "intent=delivery",
+            "--assessment", "touches=public-api",
             cwd=project_root,
         )
         assert result.returncode == 0

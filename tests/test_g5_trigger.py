@@ -85,7 +85,7 @@ def _project(tmp_path, *, blast="critical", touches=None, approval=False,
 
 
 def _check(root):
-    return subprocess.run([sys.executable, str(CLI), "check", "--task", "t"],
+    return subprocess.run([sys.executable, str(CLI), "check", "--issue", "t"],
                           cwd=str(root), capture_output=True, text=True, timeout=60)
 
 

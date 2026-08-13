@@ -60,7 +60,8 @@ def test_trc_a1_the_entry_point_should_be_thin():
     # for no reason but the threshold. 454 from 6,201 is a 93% reduction,
     # which is what "thin" was reaching for. Relaxed again to 560 at the
     # CLI-voice slice, and saying so: the parser gained the terminology verb
-    # and a dual-spelling flag registration (--issue with --task tolerated)
+    # and the issue-flag registration (--issue; the tolerated --task spelling
+    # was removed at the major version by ADR-014)
     # on every issue-scoped verb - all irreducibly parser. Still 91% below
     # the pre-split file.
     assert lines < 560, (
@@ -166,10 +167,10 @@ def test_trc_b4_every_command_should_still_run_end_to_end(tmp_path):
     shutil.copytree(ROOT / "governance", proj / "governance")
     (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     for args in (["policy", "lint"],
-                 ["approach", "evaluate", "--reading", "risk=contained",
-                  "--reading", "familiarity=greenfield", "--reading",
-                  "size=small", "--reading", "intent=delivery",
-                  "--reading", "role=engineer"]):
+                 ["approach", "evaluate", "--assessment", "risk=contained",
+                  "--assessment", "familiarity=greenfield", "--assessment",
+                  "size=small", "--assessment", "intent=delivery",
+                  "--assessment", "role=engineer"]):
         r = subprocess.run([sys.executable, str(CLI), *args], cwd=str(proj),
                            capture_output=True, text=True, timeout=60)
         assert r.returncode == 0, f"`compass {' '.join(args)}` broke:\n{r.stderr[-600:]}"

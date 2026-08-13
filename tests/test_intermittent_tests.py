@@ -100,7 +100,7 @@ class TestTddGreenRecordsAttempts:
         }
         task_dir = make_task("attempts-test", body)
         r = run_cli(
-            "tdd-green", "--task", "attempts-test",
+            "tdd-green", "--issue", "attempts-test",
             "--scenario", "SCN-001",
             "--", sys.executable, "-c", "import sys; sys.exit(0)",
         )
@@ -134,7 +134,7 @@ class TestTddGreenRecordsAttempts:
         }
         make_task("attempts-unbound", body)
         r = run_cli(
-            "tdd-green", "--task", "attempts-unbound",
+            "tdd-green", "--issue", "attempts-unbound",
             "--", sys.executable, "-c", "import sys; sys.exit(0)",
         )
         assert r.returncode == 0, r
@@ -178,7 +178,7 @@ class TestTddGreenRerunDetection:
 
         # Step 1: record a red
         r = run_cli(
-            "tdd-red", "--task", "rerun-test",
+            "tdd-red", "--issue", "rerun-test",
             "--scenario", "SCN-001",
             "--", sys.executable, "-c", "import sys; sys.exit(1)",
         )
@@ -195,7 +195,7 @@ class TestTddGreenRerunDetection:
 
         # First green (attempt 1):
         r = run_cli(
-            "tdd-green", "--task", "rerun-test",
+            "tdd-green", "--issue", "rerun-test",
             "--scenario", "SCN-001",
             "--", sys.executable, "-c", "import sys; sys.exit(0)",
         )
@@ -206,7 +206,7 @@ class TestTddGreenRerunDetection:
 
         # Second green with same source tree (no file changes):
         r = run_cli(
-            "tdd-green", "--task", "rerun-test",
+            "tdd-green", "--issue", "rerun-test",
             "--scenario", "SCN-001",
             "--", sys.executable, "-c", "import sys; sys.exit(0)",
         )
@@ -273,7 +273,7 @@ class TestNoTrustedRerunCheck:
             "rerun_without_change": True,
             "scenario": "SCN-A3",
         }))
-        r = run_cli("check", "--task", "rerun-check-a3")
+        r = run_cli("check", "--issue", "rerun-check-a3")
         assert r.returncode != 0, (
             "compass check must fail when rerun_without_change:true and no quarantine"
         )
@@ -324,7 +324,7 @@ class TestNoTrustedRerunCheck:
         (gov_dir / "quarantine.yml").write_text(
             yaml.safe_dump(quarantine, default_flow_style=False)
         )
-        r = run_cli("check", "--task", "rerun-check-a4")
+        r = run_cli("check", "--issue", "rerun-check-a4")
         # The no-trusted-rerun check must pass (quarantined with tracking task)
         combined = r.stdout + r.stderr
         assert "no-trusted-rerun" not in combined.lower().replace("pass no-trusted-rerun", ""), (
@@ -359,7 +359,7 @@ class TestNoTrustedRerunCheck:
             "passed": True,
             "scenario": "SCN-A5",
         }))
-        r = run_cli("check", "--task", "rerun-check-a5")
+        r = run_cli("check", "--issue", "rerun-check-a5")
         combined = r.stdout + r.stderr
         # no-trusted-rerun check must pass (no attempts to evaluate)
         assert "PASS no-trusted-rerun" in combined, (
@@ -392,7 +392,7 @@ class TestNoTrustedRerunCheck:
             # rerun_without_change absent - incomplete evidence
             "scenario": "SCN-FM3",
         }))
-        r = run_cli("check", "--task", "rerun-check-fm3")
+        r = run_cli("check", "--issue", "rerun-check-fm3")
         assert r.returncode != 0, (
             "check must fail when attempts>1 and rerun_without_change marker absent"
         )
@@ -502,7 +502,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint", body)
-        r = run_cli("issue", "lint", "--task", "attempts-lint")
+        r = run_cli("issue", "lint", "--issue", "attempts-lint")
         assert r.returncode != 0, (
             "task lint must fail when test-run evidence has attempts:0"
         )
@@ -532,7 +532,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-neg", body)
-        r = run_cli("issue", "lint", "--task", "attempts-lint-neg")
+        r = run_cli("issue", "lint", "--issue", "attempts-lint-neg")
         assert r.returncode != 0, (
             "task lint must fail when test-run evidence has negative attempts"
         )
@@ -558,7 +558,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-ok", body)
-        r = run_cli("issue", "lint", "--task", "attempts-lint-ok")
+        r = run_cli("issue", "lint", "--issue", "attempts-lint-ok")
         assert r.returncode == 0, (
             f"task lint must pass when test-run evidence has attempts:1: {r}"
         )
@@ -585,7 +585,7 @@ class TestTaskLintAttemptsValidation:
             ],
         }
         make_task("attempts-lint-absent", body)
-        r = run_cli("issue", "lint", "--task", "attempts-lint-absent")
+        r = run_cli("issue", "lint", "--issue", "attempts-lint-absent")
         assert r.returncode == 0, (
             f"task lint must pass on old evidence without attempts field: {r}"
         )

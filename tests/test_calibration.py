@@ -14,9 +14,9 @@ def _readings_to_args(d):
     out = []
     for k, v in d.items():
         if isinstance(v, list):
-            out.extend(["--reading", f"{k}=" + ",".join(v)])
+            out.extend(["--assessment", f"{k}=" + ",".join(v)])
         else:
-            out.extend(["--reading", f"{k}={v}"])
+            out.extend(["--assessment", f"{k}={v}"])
     return out
 
 
@@ -44,7 +44,7 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
     body["assessment"]["labels"] = ["auth"]
     (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
-    r = run_cli("approach", "evaluate", "--task", "rf-task", "--write",
+    r = run_cli("approach", "evaluate", "--issue", "rf-task", "--write",
                 "--reason", "discovered the change touches auth")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
@@ -73,7 +73,7 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
         "delivery_approach": "express",
     }
     task_dir = make_task("no-rf", body)
-    r = run_cli("approach", "evaluate", "--task", "no-rf", "--write")
+    r = run_cli("approach", "evaluate", "--issue", "no-rf", "--write")
     assert r.returncode == 0, r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
     assert task["delivery_approach"] == "quick-fix"
@@ -97,7 +97,7 @@ def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
         "delivery_approach": "express",
     }
     task_dir = make_task("rf-noreason", body)
-    r = run_cli("approach", "evaluate", "--task", "rf-noreason", "--write")
+    r = run_cli("approach", "evaluate", "--issue", "rf-noreason", "--write")
     assert r.returncode == 0, r
     combined = r.stdout + r.stderr
     # the CLI should mention the missing reason on stderr

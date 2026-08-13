@@ -31,7 +31,7 @@ project that edits nothing has opted into nothing.
 ### 2. Extract the Gherkin
 
 ```bash
-compass bdd extract --task reset-password
+compass bdd extract --issue reset-password
 ```
 
 This reads `.compass/work/reset-password/spec.feature.md` and writes

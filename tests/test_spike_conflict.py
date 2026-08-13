@@ -17,9 +17,9 @@ def _readings_to_args(d):
     out = []
     for k, v in d.items():
         if isinstance(v, list):
-            out.extend(["--reading", f"{k}=" + ",".join(v)])
+            out.extend(["--assessment", f"{k}=" + ",".join(v)])
         else:
-            out.extend(["--reading", f"{k}={v}"])
+            out.extend(["--assessment", f"{k}={v}"])
     return out
 
 

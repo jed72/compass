@@ -93,7 +93,7 @@ force; if it is still a spike, leave the marker in place.
    is the only part of the computation that is judgement - everything below
    is mechanism.
 3. **Compute the delivery approach - this is the mechanism.** Run
-   `compass approach evaluate --task <slug> --write`. The CLI applies
+   `compass approach evaluate --issue <slug> --write`. The CLI applies
    `routing-policy.yml` to the assessment: it composes the candidate shape,
    applies the floors, caps, immovable gates, and blocking role rules, and
    folds the resulting `delivery_approach`, `stages`, `gates` (status

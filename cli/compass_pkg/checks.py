@@ -829,8 +829,8 @@ def _check_inbound_backfills(task_dir, this_slug):
                 problems.append(
                     f"cross-issue block: issue '{src_slug}' has follow-up "
                     f"'{bf.get('id', '?')}' (status: outstanding) targeting this "
-                    f"issue - pay it with `compass follow-up pay --task "
-                    f"{src_slug} {bf.get('id', '?')}` before shipping"
+                    f"issue - resolve it with `compass follow-up resolve "
+                    f"--issue {src_slug} {bf.get('id', '?')}` before shipping"
                 )
     return problems
 

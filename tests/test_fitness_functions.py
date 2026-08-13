@@ -129,7 +129,7 @@ class TestCommandPassesSuccess:
             tmp_path, project_guardrails=project_guardrails
         )
         # Run compass check
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         # command-passes should report success (PASS command-passes)
         assert "PASS command-passes" in result.stdout or "command-passes" in result.stdout, (
             f"Expected PASS command-passes in output:\n{result.stdout}\n{result.stderr}"
@@ -150,7 +150,7 @@ class TestCommandPassesSuccess:
         project_root, task_dir = _make_project(
             tmp_path, project_guardrails=project_guardrails
         )
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         assert "FAIL command-passes" not in result.stdout, (
             f"Unexpected FAIL:\n{result.stdout}"
         )
@@ -179,7 +179,7 @@ class TestCommandPassesFailure:
         project_root, task_dir = _make_project(
             tmp_path, project_guardrails=project_guardrails
         )
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         assert "FAIL command-passes" in result.stdout, (
             f"Expected FAIL command-passes in output:\n{result.stdout}\n{result.stderr}"
         )
@@ -199,7 +199,7 @@ class TestCommandPassesFailure:
         project_root, task_dir = _make_project(
             tmp_path, project_guardrails=project_guardrails
         )
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         # The failure detail must mention the exit code or "non-zero"
         combined = result.stdout + result.stderr
         assert ("exit" in combined.lower() or "1" in combined), (
@@ -228,10 +228,10 @@ class TestVerifyFitnessAdvisory:
 
         result = _run_cli(
             "approach", "evaluate", "--json",
-            "--reading", "risk=contained",
-            "--reading", "familiarity=brownfield-mapped",
-            "--reading", "size=small",
-            "--reading", "intent=delivery",
+            "--assessment", "risk=contained",
+            "--assessment", "familiarity=brownfield-mapped",
+            "--assessment", "size=small",
+            "--assessment", "intent=delivery",
             cwd=tmp_path,
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
@@ -267,7 +267,7 @@ class TestVerifyFitnessAdvisory:
         )
         # command-passes check still runs (it's in G4 defaults),
         # but verify.fitness gate is not in gate set
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         # The key invariant: verify.fitness gate should not be mentioned as blocking
         # (it's not in the task's gates list)
         assert "verify.fitness" not in result.stdout or \
@@ -295,7 +295,7 @@ class TestVacuousClear:
                 {"id": "verify.fitness", "status": "pending", "evidence": []}
             ],
         )
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         # Must pass (not fail) and mention vacuity / no guardrails
         assert "FAIL command-passes" not in result.stdout, (
             f"command-passes should pass vacuously:\n{result.stdout}\n{result.stderr}"
@@ -319,7 +319,7 @@ class TestVacuousClear:
                 {"id": "verify.fitness", "status": "pending", "evidence": []}
             ],
         )
-        result = _run_cli("check", "--task", "test-task", cwd=project_root)
+        result = _run_cli("check", "--issue", "test-task", cwd=project_root)
         assert "PASS command-passes" in result.stdout, (
             f"Expected PASS command-passes in output:\n{result.stdout}\n{result.stderr}"
         )

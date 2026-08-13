@@ -94,7 +94,7 @@ def test_receipt_does_not_report_a_clean_land_over_pending_gates(project):
         _task_yml("t", gates=PENDING_GATES, status="landed",
                   land_timestamp="2026-08-04T00:00:00Z")
     )
-    result = _compass(project, "issue", "receipt", "--task", "t")
+    result = _compass(project, "issue", "receipt", "--issue", "t")
     verdict = [l for l in result.stdout.splitlines() if "Verdict:" in l]
     assert verdict, f"no verdict line in the receipt:\n{result.stdout}"
     assert "cleanly" not in verdict[0], (
@@ -123,7 +123,7 @@ def test_land_commit_refuses_to_mark_landed_with_unpassed_gates(project):
     subprocess.run(["git", "-C", str(project), "add", "src.py"], check=True,
                    capture_output=True, text=True)
 
-    result = _compass(project, "ship-commit", "-m", "land it", "--task", "t")
+    result = _compass(project, "ship-commit", "-m", "land it", "--issue", "t")
     written = yaml.safe_load(task_path.read_text())
     assert written.get("status") != "landed", (
         "land-commit marked a task landed with two pending gates:\n"
@@ -150,7 +150,7 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     (task_dir / "delivery-approach.md").write_text("# Route - t\n")
     (task_dir / "acceptance-criteria.md").write_text("# Spec - t\n\n## Summary\n\n**Goal:** x\n")
 
-    result = _compass(project, "analyze", "--task", "t")
+    result = _compass(project, "analyze", "--issue", "t")
     reported = [l for l in result.stdout.splitlines() if "findings:" in l]
     summary = [l for l in result.stdout.splitlines() if "compass analyze:" in l]
     assert reported and summary, f"unexpected analyze output:\n{result.stdout}"
@@ -266,7 +266,7 @@ def test_spike_route_still_reports_an_owed_backfill(project):
     (task_dir / "delivery-approach.md").write_text("# Route - t\n\nroute: spike\n")
     (task_dir / ".spike").write_text("")
 
-    result = _compass(project, "check", "--task", "t")
+    result = _compass(project, "check", "--issue", "t")
     combined = result.stdout + result.stderr
     assert "BF-001" in combined or "backfill" in combined.lower(), (
         f"a Spike with an owed backfill reported nothing about it:\n{combined}"

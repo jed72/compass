@@ -38,7 +38,7 @@ def _baseline_body():
 
 def test_tdd_red_rejects_unknown_scenario(run_cli, make_task):
     make_task("tdd-bind", _baseline_body())
-    r = run_cli("tdd-red", "--task", "tdd-bind",
+    r = run_cli("tdd-red", "--issue", "tdd-bind",
                 "--scenario", "SCN-BOGUS",
                 "--", "false")    # would have failed anyway
     assert r.returncode != 0, r
@@ -48,7 +48,7 @@ def test_tdd_red_rejects_unknown_scenario(run_cli, make_task):
 
 def test_tdd_green_rejects_unknown_scenario(run_cli, make_task):
     make_task("tdd-bind-g", _baseline_body())
-    r = run_cli("tdd-green", "--task", "tdd-bind-g",
+    r = run_cli("tdd-green", "--issue", "tdd-bind-g",
                 "--scenario", "SCN-BOGUS",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode != 0, r
@@ -61,7 +61,7 @@ def test_tdd_green_rejects_unknown_scenario(run_cli, make_task):
 
 def test_tdd_red_refuses_a_passing_command(run_cli, make_task):
     make_task("tdd-honest-red", _baseline_body())
-    r = run_cli("tdd-red", "--task", "tdd-honest-red",
+    r = run_cli("tdd-red", "--issue", "tdd-honest-red",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode != 0, r
@@ -71,7 +71,7 @@ def test_tdd_red_refuses_a_passing_command(run_cli, make_task):
 
 def test_tdd_red_records_red_on_real_failure(run_cli, make_task, project):
     task_dir = make_task("tdd-real-red", _baseline_body())
-    r = run_cli("tdd-red", "--task", "tdd-real-red",
+    r = run_cli("tdd-red", "--issue", "tdd-real-red",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(2)")
     assert r.returncode == 0, r
@@ -85,7 +85,7 @@ def test_tdd_red_records_red_on_real_failure(run_cli, make_task, project):
 
 def test_tdd_green_refuses_a_failing_command(run_cli, make_task):
     make_task("tdd-honest-green", _baseline_body())
-    r = run_cli("tdd-green", "--task", "tdd-honest-green",
+    r = run_cli("tdd-green", "--issue", "tdd-honest-green",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(1)")
     assert r.returncode != 0, r
@@ -98,7 +98,7 @@ def test_tdd_green_refuses_a_failing_command(run_cli, make_task):
 
 def test_tdd_green_upserts_test_run_in_registry(run_cli, make_task, project):
     task_dir = make_task("tdd-upsert", _baseline_body())
-    r = run_cli("tdd-green", "--task", "tdd-upsert",
+    r = run_cli("tdd-green", "--issue", "tdd-upsert",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
@@ -115,7 +115,7 @@ def test_tdd_green_upsert_is_idempotent_for_same_scenario(run_cli, make_task,
     existing entry, not append a new one."""
     task_dir = make_task("tdd-idem", _baseline_body())
     for _ in range(2):
-        r = run_cli("tdd-green", "--task", "tdd-idem",
+        r = run_cli("tdd-green", "--issue", "tdd-idem",
                     "--scenario", "SCN-001",
                     "--", sys.executable, "-c", "import sys; sys.exit(0)")
         assert r.returncode == 0, r
@@ -128,7 +128,7 @@ def test_tdd_green_clears_red_marker(run_cli, make_task, project):
     task_dir = make_task("tdd-clear", _baseline_body())
     # leave a stale .red on disk first
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "tdd-clear",
+    r = run_cli("tdd-green", "--issue", "tdd-clear",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
@@ -155,7 +155,7 @@ def test_check_suite_passed_fails_on_unresolvable_binding(run_cli, make_task):
     ev = task_dir / "evidence"
     ev.mkdir(exist_ok=True)
     (ev / "green.json").write_text('{"exit_code": 0, "passed": true}')
-    r = run_cli("check", "--task", "bad-bind")
+    r = run_cli("check", "--issue", "bad-bind")
     assert r.returncode != 0, r
     assert "SCN-NEVER" in (r.stdout + r.stderr), r
 
@@ -183,7 +183,7 @@ def test_pipe_masking_records_false_green_baseline(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-mask", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r2-mask", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r2-mask", "--scenario", "SCN-001",
                 "--", "bash", "-c", "exit 1 | tail -1")
     assert r.returncode != 0, r              # refused - not a false green
     assert (task_dir / ".red").exists(), r   # marker NOT cleared
@@ -196,7 +196,7 @@ def test_pipefail_propagates_masked_failure(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-pf", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r2-pf", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r2-pf", "--scenario", "SCN-001",
                 "--", "bash", "-c", "exit 1 | tail -1")
     assert r.returncode != 0, r
     assert "FAILED" in (r.stdout + r.stderr), r
@@ -210,7 +210,7 @@ def test_direct_argv_green_unchanged(run_cli, make_task):
     (the hardening must not touch the default shell=False path)."""
     task_dir = make_task("r2-direct", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r2-direct", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r2-direct", "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
     green = json.loads((task_dir / "evidence" / "green.json").read_text())
@@ -225,7 +225,7 @@ def test_pipe_filter_final_stage_warns(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-warn", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r2-warn", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r2-warn", "--scenario", "SCN-001",
                 "--", "bash", "-c", "echo hi | tail")
     combined = (r.stdout + r.stderr).lower()
     assert "pipe" in combined and "tail" in combined, r
@@ -238,7 +238,7 @@ def test_output_token_crosscheck_on_known_runner(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-token", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r2-token", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r2-token", "--scenario", "SCN-001",
                 "--", "bash", "-c", "echo '1 failed in 0.10s'; exit 0")
     assert r.returncode != 0, r              # not a silent clean green
     assert "fail" in (r.stdout + r.stderr).lower(), r
@@ -271,7 +271,7 @@ def test_coverage_floor_refuses_micro_run_baseline(run_cli, make_task):
 
     task_dir = make_task("r7-base", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r7-base", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r7-base", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
     green = json.loads((task_dir / "evidence" / "green.json").read_text())
@@ -288,7 +288,7 @@ def test_micro_run_neutralises_coverage_floor(run_cli, make_task):
     """TRC-R7-2: a passing pytest micro-run records green with the floor neutralised."""
     task_dir = make_task("r7-neut", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r7-neut", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r7-neut", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
     assert json.loads((task_dir / "evidence" / "green.json").read_text())["passed"] is True
@@ -299,7 +299,7 @@ def test_full_suite_coverage_gate_unaffected(run_cli, make_task):
     the full-suite gate's floor is respected."""
     task_dir = make_task("r7-full", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r7-full", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r7-full", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version", "--cov-fail-under=85")
     assert r.returncode == 0, r
     cmd = json.loads((task_dir / "evidence" / "green.json").read_text())["command"]
@@ -310,7 +310,7 @@ def test_non_pytest_micro_run_untouched(run_cli, make_task):
     """TRC-R7-4: a non-pytest command gets no coverage injection."""
     task_dir = make_task("r7-nonpy", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r7-nonpy", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r7-nonpy", "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
     assert "--cov-fail-under" not in json.loads(
@@ -323,7 +323,7 @@ def test_test_micro_command_knob_precedence(run_cli, make_task, project):
     (task_dir / ".red").write_text("")
     (project / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\nproject:\n  test_micro_command: \"true\"\n")
-    r = run_cli("tdd-green", "--task", "r7-knob", "--scenario", "SCN-001")
+    r = run_cli("tdd-green", "--issue", "r7-knob", "--scenario", "SCN-001")
     assert r.returncode == 0, r
     assert json.loads((task_dir / "evidence" / "green.json").read_text())["command"] == "true", r
 
@@ -336,7 +336,7 @@ def test_test_micro_command_knob_precedence(run_cli, make_task, project):
 def test_verified_by_typecheck_records_red(run_cli, make_task):
     """TRC-R8-2: a typecheck-verified red records the guard with its kind."""
     task_dir = make_task("r8-vb", _r2_body())
-    r = run_cli("tdd-red", "--task", "r8-vb", "--scenario", "SCN-001",
+    r = run_cli("tdd-red", "--issue", "r8-vb", "--scenario", "SCN-001",
                 "--verified-by", "typecheck", "--", "bash", "-c", "exit 1")
     assert r.returncode == 0, r
     red = json.loads((task_dir / "evidence" / "red.json").read_text())
@@ -349,7 +349,7 @@ def test_verified_by_guard_bound_to_scenario_at_verify(run_cli, make_task):
     guard to the scenario in the registry."""
     task_dir = make_task("r8-bind", _r2_body())
     (task_dir / ".red").write_text("")
-    r = run_cli("tdd-green", "--task", "r8-bind", "--scenario", "SCN-001",
+    r = run_cli("tdd-green", "--issue", "r8-bind", "--scenario", "SCN-001",
                 "--verified-by", "typecheck", "--", "true")
     assert r.returncode == 0, r
     green = json.loads((task_dir / "evidence" / "green.json").read_text())
@@ -362,7 +362,7 @@ def test_verified_by_guard_bound_to_scenario_at_verify(run_cli, make_task):
 def test_passing_command_without_verified_by_rejected(run_cli, make_task):
     """TRC-R8-4: no smuggling - a passing command with no --verified-by records no red."""
     task_dir = make_task("r8-nosmug", _r2_body())
-    r = run_cli("tdd-red", "--task", "r8-nosmug", "--scenario", "SCN-001",
+    r = run_cli("tdd-red", "--issue", "r8-nosmug", "--scenario", "SCN-001",
                 "--", "true")
     assert r.returncode != 0, r
     assert "PASSED" in (r.stdout + r.stderr), r
@@ -372,7 +372,7 @@ def test_passing_command_without_verified_by_rejected(run_cli, make_task):
 def test_verified_by_rejects_unknown_kind(run_cli, make_task):
     """TRC-R8-5: an unrecognised verified-by kind is refused with the allowed set."""
     task_dir = make_task("r8-kind", _r2_body())
-    r = run_cli("tdd-red", "--task", "r8-kind", "--scenario", "SCN-001",
+    r = run_cli("tdd-red", "--issue", "r8-kind", "--scenario", "SCN-001",
                 "--verified-by", "handwave", "--", "bash", "-c", "exit 1")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
@@ -383,7 +383,7 @@ def test_verified_by_rejects_unknown_kind(run_cli, make_task):
 def test_verified_by_guard_must_fail_first(run_cli, make_task):
     """TRC-R8-6: a verified-by red still requires the guard to genuinely fail."""
     task_dir = make_task("r8-mustfail", _r2_body())
-    r = run_cli("tdd-red", "--task", "r8-mustfail", "--scenario", "SCN-001",
+    r = run_cli("tdd-red", "--issue", "r8-mustfail", "--scenario", "SCN-001",
                 "--verified-by", "regression", "--", "true")
     assert r.returncode != 0, r
     assert not (task_dir / ".red").exists(), r

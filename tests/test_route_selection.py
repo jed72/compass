@@ -21,13 +21,13 @@ from conftest import load_route_fixtures
 
 
 def _reading_args(readings: dict) -> list[str]:
-    """Translate a readings dict into --reading key=value CLI args."""
+    """Translate a readings dict into --assessment key=value CLI args."""
     args = []
     for k, v in readings.items():
         if isinstance(v, list):
-            args.extend(["--reading", f"{k}=" + ",".join(v)])
+            args.extend(["--assessment", f"{k}=" + ",".join(v)])
         else:
-            args.extend(["--reading", f"{k}={v}"])
+            args.extend(["--assessment", f"{k}={v}"])
     return args
 
 

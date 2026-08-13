@@ -36,7 +36,7 @@ def test_mismatch_surfaces_at_check_baseline(run_cli, make_task):
     )
     task_dir = make_task("ge-base", body)
     _mk(task_dir, "evidence/green.json")
-    r = run_cli("check", "--task", "ge-base")
+    r = run_cli("check", "--issue", "ge-base")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "verify.governance" in combined and "test-run" in combined, r
@@ -54,7 +54,7 @@ def test_check_accumulates_both_gate_problems_baseline(run_cli, make_task):
     task_dir = make_task("ge-both", body)
     _mk(task_dir, "evidence/green.json")
     _mk(task_dir, "evidence/rev.md")
-    r = run_cli("check", "--task", "ge-both")
+    r = run_cli("check", "--issue", "ge-both")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "verify.governance" in combined and "verify.claims" in combined, r
@@ -72,7 +72,7 @@ def test_two_bad_gates_show_two_enumerated_failures(run_cli, make_task):
     task_dir = make_task("ge-enum", body)
     _mk(task_dir, "evidence/green.json")
     _mk(task_dir, "evidence/rev.md")
-    r = run_cli("check", "--task", "ge-enum")
+    r = run_cli("check", "--issue", "ge-enum")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     gov_lines = [ln for ln in combined.splitlines() if "verify.governance" in ln]
@@ -92,7 +92,7 @@ def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
                      "size": "small", "intent": "delivery"},
     }
     task_dir = make_task("ge-seed", body)
-    r = run_cli("approach", "evaluate", "--task", "ge-seed", "--write")
+    r = run_cli("approach", "evaluate", "--issue", "ge-seed", "--write")
     assert r.returncode == 0, r
     text = (task_dir / "task.yml").read_text()
     assert "accepts:" in text, r

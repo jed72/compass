@@ -80,7 +80,7 @@ def _project(tmp_path, *, changed, status="active", correctness="pass",
 
 def _check(root):
     return subprocess.run(
-        [sys.executable, str(CLI), "check", "--task", "t"],
+        [sys.executable, str(CLI), "check", "--issue", "t"],
         cwd=str(root), capture_output=True, text=True, timeout=60,
     )
 

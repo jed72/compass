@@ -125,7 +125,7 @@ def test_trc_b2_a_record_with_no_spec_hash_should_not_read_as_verified(tmp_path)
     (d / "evidence" / "bdd-run.json").write_text(json.dumps(
         {"scenarios_seen": ["TRC-A1"], "spec_sha256": None}))
     (proj / ".compass" / "current-task").write_text("t\n")
-    out = subprocess.run([sys.executable, str(CLI), "check", "--task", "t"],
+    out = subprocess.run([sys.executable, str(CLI), "check", "--issue", "t"],
                          cwd=str(proj), capture_output=True, text=True,
                          timeout=90).stdout
     line = next(l for l in out.splitlines() if "scenarios-are-executable" in l)
@@ -182,7 +182,7 @@ def test_trc_c4_the_repairs_key_should_be_accepted_by_the_task_schema(tmp_path):
         "the key is not documented in the shipped task template")
     proj = _proj(tmp_path, [
         ("h1", _task("h1", "hotfix", "2026-01-04T00:00:00Z", "repairs: d1\n"))])
-    r = subprocess.run([sys.executable, str(CLI), "issue", "lint", "--task", "h1"],
+    r = subprocess.run([sys.executable, str(CLI), "issue", "lint", "--issue", "h1"],
                        cwd=str(proj), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"a task declaring repairs fails lint:\n{r.stdout}"
 
@@ -199,9 +199,9 @@ def test_trc_d1_a_malformed_rule_id_should_not_crash_the_router(tmp_path):
     rp.write_text(yaml.safe_dump(d, sort_keys=False))
     r = subprocess.run(
         [sys.executable, str(CLI), "approach", "evaluate",
-         "--reading", "risk=contained", "--reading", "familiarity=greenfield",
-         "--reading", "size=small", "--reading", "intent=delivery",
-         "--reading", "role=engineer"],
+         "--assessment", "risk=contained", "--assessment", "familiarity=greenfield",
+         "--assessment", "size=small", "--assessment", "intent=delivery",
+         "--assessment", "role=engineer"],
         cwd=str(proj), capture_output=True, text=True, timeout=60)
     assert "Traceback" not in r.stderr, (
         f"a malformed rule id crashed the router:\n{r.stderr[-800:]}")
