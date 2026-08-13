@@ -85,6 +85,41 @@
 - **Source issue:** `rehearsal-recordings`
 - **Landed:** 2026-08-13
 
+### a genuine triage-has-not-run still says so
+
+- **Scenario id:** `RCD-A4`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the not-found message names the path actually used
+
+- **Scenario id:** `RCD-B2`
+- **Intent:** `REH-2`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a genuinely missing test still fails the check
+
+- **Scenario id:** `RCD-C3`
+- **Intent:** `REH-3`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### an unrelated staged file is still refused
+
+- **Scenario id:** `RCD-D2`
+- **Intent:** `REH-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### compass check's header names the computed approach
+
+- **Scenario id:** `RCD-E1`
+- **Intent:** `REH-6`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
 ### the Part 0 corrections are folded in
 
 - **Scenario id:** `RR-3`
@@ -104,6 +139,20 @@
 - **Scenario id:** `RR-5`
 - **Intent:** `RULE-4`
 - **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the version is consistent across every location
+
+- **Scenario id:** `RCD-H1`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the hooks directory is a scanned surface
+
+- **Scenario id:** `RCD-G3`
+- **Intent:** `SWEEP`
+- **Source issue:** `rehearsal-cli-defects`
 - **Landed:** 2026-08-13
 
 ---
@@ -3680,4 +3729,116 @@
 - **Scenario id:** `RR-6`
 - **Intent:** `PRACTICE`
 - **Source issue:** `rehearsal-recordings`
+- **Landed:** 2026-08-13
+
+### the hook finds the project from a subdirectory _(archived)_
+
+- **Scenario id:** `RCD-A1`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### an unresolvable project root fails closed, not open _(archived)_
+
+- **Scenario id:** `RCD-A2`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the message names the real cause _(archived)_
+
+- **Scenario id:** `RCD-A3`
+- **Intent:** `REH-1`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### design lint defaults to the live artifact filename _(archived)_
+
+- **Scenario id:** `RCD-B1`
+- **Intent:** `REH-2`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a nested test id resolves _(archived)_
+
+- **Scenario id:** `RCD-C1`
+- **Intent:** `REH-3`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a test name ending in a non-word character resolves _(archived)_
+
+- **Scenario id:** `RCD-C2`
+- **Intent:** `REH-3`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the current-issue pointer is in shipping scope _(archived)_
+
+- **Scenario id:** `RCD-D1`
+- **Intent:** `REH-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the cross-issue board names each computed approach _(archived)_
+
+- **Scenario id:** `RCD-E2`
+- **Intent:** `SWEEP`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### no retired slash command remains _(archived)_
+
+- **Scenario id:** `RCD-F1`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a retired CLI verb is an unknown verb _(archived)_
+
+- **Scenario id:** `RCD-F2`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a retired flag is an unknown flag _(archived)_
+
+- **Scenario id:** `RCD-F3`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the migrator keeps its v1-to-v2 mapping _(archived)_
+
+- **Scenario id:** `RCD-F4`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a v1 name in a Python single-token literal is caught _(archived)_
+
+- **Scenario id:** `RCD-G1`
+- **Intent:** `SWEEP`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### a v1 name in a markdown code span or fenced block is caught _(archived)_
+
+- **Scenario id:** `RCD-G2`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the archive is exempt and unedited _(archived)_
+
+- **Scenario id:** `RCD-G4`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
+- **Landed:** 2026-08-13
+
+### the tightened guard can fail _(archived)_
+
+- **Scenario id:** `RCD-G5`
+- **Intent:** `RULE-5`
+- **Source issue:** `rehearsal-cli-defects`
 - **Landed:** 2026-08-13
