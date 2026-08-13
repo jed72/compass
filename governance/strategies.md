@@ -282,6 +282,47 @@ establishes that this is true", where S9 answers who and this answers how.
 See `commands/verify.md` and `skills/evidence-gates/SKILL.md` for the pointer
 at the point of use.*
 
+### Measure before arguing: settle a disagreement with the number (`S11`)
+
+**Soft, assessed - not a guardrail.** When a recommendation and an
+instruction disagree, measure the disputed quantity and report the numbers
+before defending either position. The disagreement is almost always about a
+quantity somebody has guessed - how many call sites, how much output, how
+often it fires - and the guess is doing the arguing.
+
+This is written down because measuring has changed the outcome twice, in
+both directions:
+
+- **The vendored dependency.** The argument was whether bundling PyYAML was
+  worth carrying a dependency. The measurement was the artifact size and a
+  run on an interpreter that genuinely could not import it - which settled
+  what neither position had established.
+- **Two decisions on the stub removal.** The author recommended against
+  deleting the retired flag aliases and against scanning fenced code blocks,
+  on the grounds that both would sprawl. Counting first - 268 and 69 call
+  sites, and 200 scan hits across 38 files - showed the sprawl was not there,
+  and the objection dissolved. The instruction was right and the
+  recommendation was wrong, and no further argument was needed once the
+  numbers existed.
+
+The second case is the one that matters: the practice is not a way to win,
+it is a way to stop needing to. Restating a recommendation more forcefully
+is the cheap move and the one to distrust in yourself.
+
+Report the numbers plainly and say what they mean for the decision, including
+when they undercut your own position - a measurement produced and then argued
+around is worse than none, because it lends the argument false weight.
+
+*Why a strategy and not a guardrail:* no check can tell whether a quantity
+was genuinely in dispute, and demanding a measurement before every
+disagreement would tax the ordinary case where somebody simply knows the
+answer. The `reviewer` agent assesses it at Verify under the `correctness`
+dimension.
+
+*Cross-reference: mutation proof (`S10`) - both replace a confident assertion
+with an observation. See `CLAUDE.md` and `commands/verify.md` for the pointer
+at the point of use.*
+
 ---
 
 ## Project strategies

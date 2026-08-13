@@ -189,9 +189,12 @@ def test_default_method_strategy_set_is_the_known_set():
     (regression-baseline) from field feedback, S7 (cold-reader prose), S8
     (voice audition, standing - specialises S7 with a named calibration
     sample), S9 (fresh eyes on a sweep - a fresh agent, not the implementer,
-    verifies a sweep, rename, or cleanup). Adding a strategy is allowed and
-    cheap, but it must be a decision - so this list is updated by hand, in
-    the same commit as the strategy it admits.
+    verifies a sweep, rename, or cleanup), S10 (mutation proof - a guard is
+    accepted on a demonstrated failure, not on a passing test), S11 (measure
+    before arguing - when a recommendation and an instruction disagree,
+    measure the disputed quantity and report the numbers first). Adding a
+    strategy is allowed and cheap, but it must be a decision - so this list
+    is updated by hand, in the same commit as the strategy it admits.
     """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
     # Section markers carry the machine id as a code-span suffix:
@@ -199,7 +202,8 @@ def test_default_method_strategy_set_is_the_known_set():
     # at the docs-prose slice.
     import re
     ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
-    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"}
+    expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10",
+                "S11"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "
         f"{sorted(expected)}. If you added a strategy on purpose, add its id "
