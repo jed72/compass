@@ -7,7 +7,7 @@ version:               # (required) string
 routing_strategies:    # (required) map - the SOFT layer; biases the candidate route
   default_shapes:      #   (required) list of maps, evaluated top to bottom:
     - id:              #     (required) string - stable id, e.g. RS-SHAPE-001
-      when:            #     (required) map - match condition against the readings
+      when:            #     (required) map - match condition against the assessment
       lean_toward:     #     (required) string - a route name from route_shapes
       rationale:       #     (required) string
   default_route:       #   (required) string - fallback when no shape matches
@@ -42,20 +42,20 @@ routing_guardrails:    # (required) map - the HARD layer; bounds the route
       until:           #     (optional) string - the unblock condition
       rationale:       #     (required) string
 
-# `when` match conditions: keys are reading names (blast_radius, terrain,
-# magnitude, intent, urgency, role) with a scalar or list value (list = any-of),
-# OR the special key `touches_any` with a list value (intersect with readings.touches).
+# `when` match conditions: keys are reading names (risk, familiarity,
+# size, intent, urgency, role) with a scalar or list value (list = any-of),
+# OR the special key `labels_any` with a list value (intersect with assessment.touches).
 
 reading_vocabulary:    # (required) map - the closed value sets per reading dimension
-  blast_radius:        #   (required) list of strings
-  terrain:             #   (required) list of strings
-  magnitude:           #   (required) list of strings
+  risk:        #   (required) list of strings
+  familiarity:             #   (required) list of strings
+  size:           #   (required) list of strings
   intent:              #   (required) list of strings
   urgency:             #   (optional) list of strings
   role:                #   (optional) list of strings
   touches_common:      #   (optional) list of strings - illustrative, not closed
 
-route_shapes:          # (required) map - the machine mirror of the 5 reference routes
+route_shapes:          # (required) map - the machine mirror of the 5 reference delivery approach
   <route-name>:        #   one entry per route; spike/express/standard/hotfix/expedition required
     weight:            #     (required) integer - the force_minimum_route ladder position
     phases:            #     (required) map of phase name -> weight string

@@ -21,7 +21,7 @@ exclusively, and what it must not do.
 
 | Component | Owns | Must own exclusively |
 |---|---|---|
-| `cli/compass` | Route evaluation, gate checking, tdd-red/green evidence, rework-scan, calibration, ADR helpers | All mechanism-produced writes to task spines and evidence directories |
+| `cli/compass` | Approach evaluation, gate checking, tdd-red/green evidence, rework-scan, retro, ADR helpers | All mechanism-produced writes to issue spines and evidence directories |
 | `hooks/pre-tool.sh` | `.red` marker gate enforcement | The decision of whether to block a tool call |
 | `hooks/stop.sh` | Session-end signal scanning, rework nudge | Detection of scope-bloat and rework signals |
 | `commands/*.md` | Phase slash-command definitions | The user-facing pipeline protocol |
@@ -41,14 +41,14 @@ exclusively, and what it must not do.
   contract).
 - The gate set for each route (as computed by the router and encoded in
   `task.yml.gates`).
-- The Definition of Ready (Clarify → Plan gate) and Definition of Done
-  (Verify → Land gate).
+- The Definition of Ready (requirements review → design gate) and Definition of Done
+  (verify → ship gate).
 
-### Router (governance/routing-policy.yml + `compass route evaluate`)
+### Router (governance/routing-policy.yml + `compass approach evaluate`)
 
 **Must own:**
 - The deterministic computation of route, phase weights, and gate set from
-  the four context-dimension readings.
+  the four context-dimension assessment.
 - The routing guardrail logic (floors, caps, immovable gates).
 - The `routing-policy.yml` schema and its validation.
 
@@ -64,8 +64,8 @@ exclusively, and what it must not do.
 **Must own:**
 - The BDD strategy (G/W/T as spec and acceptance check).
 - The TDD strategy (red → green → refactor cycle and `.red` marker protocol).
-- The route-awareness of strategy enforcement (the Spike route suspends TDD;
-  other delivery routes do not).
+- The approach-awareness of strategy enforcement (the spike route suspends TDD;
+  other delivery delivery approach do not).
 
 ### Role Pipeline (agents/*.md + commands/roundtable.md)
 
@@ -86,10 +86,10 @@ change would quietly cross a line.
 
 ### calibration must not mutate task.yml
 
-`compass calibration` is read-only over all task spines. It aggregates reframe
+`compass retro` is read-only over all issue spines. It aggregates reframe
 data to produce a calibration report but never writes back to any
 `.compass/work/*/task.yml`. Mutation would violate **Inv-4** (Flow advises,
-never gates). The likely way in is the reframe-debt pass: it reads every task's
+never gates). The likely way in is the reframe-debt pass: it reads every issue's
 reframe log, so writing a debt marker back into `task.yml` looks harmless.
 
 ### rework-scan must not exit non-zero on detection
@@ -104,18 +104,18 @@ can fail a build will be tuned until it stops detecting anything.
 
 `architecture-notes.md` contains annotations, candidate ADR titles, and
 boundary-risk flags. It never contains Given/When/Then scenarios. Scenarios live
-in `spec.feature.md` exclusively. Emitting scenarios from the lens would violate
+in `acceptance-criteria.md` exclusively. Emitting scenarios from the lens would violate
 **Inv-5** (one spec, many lenses). A lens that emits scenarios has forked the
 spec, which is exactly what the one-spec rule exists to prevent.
 
-### No mechanism may write into task.yml.readings
+### No mechanism may write into task.yml.assessment
 
-`task.yml.readings` is the sole field the human fills with judgement (blast
-radius, terrain, magnitude, intent, role, touches). Every mechanism-produced
+`task.yml.assessment` is the sole field the human fills with judgement (blast
+radius, familiarity, size, intent, role, touches). Every mechanism-produced
 load record (`architecture-loaded.yml`, `architecture-notes.md`, `evidence/`,
-etc.) lives in its own named file outside `task.yml.readings`. Violating this
+etc.) lives in its own named file outside `task.yml.assessment`. Violating this
 would cross **Inv-1**. The tempting mistake is folding loaded architecture
-content into `readings` because it informed the judgement; it did not make it.
+content into `assessment` because it informed the judgement; it did not make it.
 
 ### The guardrail count stays at five (G1–G5)
 
@@ -145,8 +145,8 @@ explicitly note why the consultation is not needed:
 
 | Caller component | Callee component | Risk |
 |---|---|---|
-| Any agent (`agents/*.md`) | `spec.feature.md` | Agents must not write scenarios; annotation only |
-| `compass route evaluate` | `governance/routing-policy.yml` | Schema changes require a routing-policy ADR |
+| Any agent (`agents/*.md`) | `acceptance-criteria.md` | Agents must not write scenarios; annotation only |
+| `compass approach evaluate` | `governance/routing-policy.yml` | Schema changes require a routing-policy ADR |
 | `compass check` | `governance/guardrails.yml` | Adding a check requires a guardrail-count check |
 | `hooks/pre-tool.sh` | `.compass/work/<task>/.red` | Any change to the marker protocol requires updating both sides |
 | `frame_load_architecture` | `architecture/decisions/ADR-*.md` | ADR parsing logic change requires TRC-X1/X2 regression tests |

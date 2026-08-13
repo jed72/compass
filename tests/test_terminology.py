@@ -308,16 +308,28 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
         # block is code, not prose: `task = yaml.safe_load(...)` is a variable
         # name. Scanning it would flag correct code and teach the next author
         # to work around the guard rather than with it.
-        units, in_python = [], False
+        units, in_python, delim = [], False, ""
         for lineno, line in enumerate(text.splitlines(), 1):
-            if not in_python and line.rstrip().endswith("<<'PYEOF'"):
-                in_python = True
-                continue
-            if in_python:
-                if line.strip() == "PYEOF":
+            if not in_python:
+                m = re.search(r"<<'?([A-Z_]{2,})'?\s*$", line.rstrip())
+                if m:
+                    in_python, delim = True, m.group(1)
+                    continue
+            else:
+                if line.strip() == delim:
                     in_python = False
                 continue
             units.append((lineno, line))
+        return units
+    if path.suffix == ".json":
+        # A JSON schema's prose is its `description` and `title` values -
+        # the text a validation error quotes back at a user, and the closest
+        # thing the schema has to documentation. Keys and enum values are the
+        # machine contract and are renamed with a migration, not a sweep.
+        units = []
+        for lineno, line in enumerate(text.splitlines(), 1):
+            if '"description"' in line or '"title"' in line:
+                units.append((lineno, line))
         return units
     if path.suffix in (".yml", ".yaml"):
         # The YAML analogue of the markdown rule: in a machine file only the
@@ -374,7 +386,10 @@ TERM_SURFACE_EXEMPT = {
     # The guardrails and strategies are where G1..G5 and S1..S7 are defined.
     # A definition names the thing it defines; banning the code here would
     # mean governance could not label its own rules.
-    "G1..G5 / S1..S7 codes": ("governance/",),
+    # governance/ DEFINES the codes; schemas/ describes the fields that
+    # carry them, which is the same act one layer down - a schema saying
+    # "the shipped default guardrails (G1-G5)" is naming what it validates.
+    "G1..G5 / S1..S7 codes": ("governance/", "schemas/", "architecture/"),
     # writing-voice.md teaches by quoting this repository's own archive
     # verbatim, and tests/test_human_voice.py hashes those quotations against
     # the archived files. Its retired stage names are inside quotations of
@@ -385,6 +400,10 @@ TERM_SURFACE_EXEMPT = {
     "Specify / Clarify / Distribute / Land": (
         "skills/compass-runtime/writing-voice.md",),
     "Frame / the Needle": ("skills/compass-runtime/writing-voice.md",),
+    # architecture/ownership.md names the role-perspective agents by their
+    # machine identifiers and reasons about them as a set; `role` is the
+    # concept word and the agents are still called *-lens.
+    "lens": ("architecture/",),
 }
 
 

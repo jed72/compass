@@ -4,7 +4,7 @@
 # THE MACHINE-READABLE GUARDRAIL DEFINITIONS. This file is authoritative for
 # how guardrails are *checked*. `guardrails.md` explains what each guardrail is
 # and why; this file says what evidence clears it, and `compass check` runs
-# those checks against a task's `task.yml` and `evidence/`.
+# those checks against an issue's `task.yml` and `evidence/`.
 #
 # Note the asymmetry, and that it is deliberate: GUARDRAILS get a .yml because
 # they are checkable. STRATEGIES do not - `strategies.md` stays prose-only,
@@ -148,7 +148,7 @@ defaults:
     # The red-before-green ritual is strategy S2, not this guardrail. G1 is the
     # outcome; `compass check` verifies the outcome, the hook enforces S2.
     # `declared-tests-resolve` closes the gap that a test being *named* is not
-    # the same as a test existing. It fires only once a task has claimed
+    # the same as a test existing. It fires only once an issue has claimed
     # verify.correctness and is still active - before that the test legitimately
     # does not exist yet, and after landing the spine is a historical record.
     checks: [scenarios-have-tests, declared-tests-resolve, suite-passed,
@@ -203,10 +203,10 @@ defaults:
     checked_at: [land]
 
 # -----------------------------------------------------------------------------
-# SPIKE GUARDRAILS - apply only on a Spike route. A Spike is intentionally
+# SPIKE GUARDRAILS - apply only on a spike. A spike is intentionally
 # free of the delivery guardrails (G1-G5 do not apply), but it is still
 # CONTROLLED: it must conclude, and it must not silently produce production
-# work. `compass check` runs these instead of the defaults on a Spike route.
+# work. `compass check` runs these instead of the defaults on a spike.
 # -----------------------------------------------------------------------------
 spike_guardrails:
 

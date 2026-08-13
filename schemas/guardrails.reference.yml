@@ -19,8 +19,8 @@ defaults:          # (required) list of maps - the shipped default guardrails (G
     checks:        #   (required) list of strings - names declared under `checks:`
     checked_at:    #   (optional) list of phase names - when the check runs
     applies_when:  #   (optional) map - a `when` condition; the guardrail is only
-                   #     checked when it matches the task's readings (e.g. G5's
-                   #     {touches_any: [auth, payments, personal-data, migrations]})
+                   #     checked when it matches the issue's assessment (e.g. G5's
+                   #     {labels_any: [auth, payments, personal-data, migrations]})
 
 project:           # (required, may be empty list) list of maps - project-added
                    #   guardrails. SAME shape as a `defaults` entry. Each MUST

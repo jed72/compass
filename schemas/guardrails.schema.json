@@ -51,7 +51,7 @@
 
     "spike_guardrails": {
       "type": "array",
-      "description": "Guardrails that apply ONLY on a Spike route. compass check runs these instead of the defaults when route=spike.",
+      "description": "Guardrails that apply ONLY on a spike. compass check runs these instead of the defaults when route=spike.",
       "items": { "$ref": "#/definitions/guardrail" }
     },
 
@@ -80,7 +80,7 @@
         "checked_at": { "type": "array", "items": { "type": "string" } },
         "applies_when": {
           "type": "object",
-          "description": "An optional `when` condition; the guardrail is only checked when it matches the task's readings."
+          "description": "An optional `when` condition; the guardrail is only checked when it matches the issue's assessment."
         },
         "params": {
           "type": "object",

@@ -1,30 +1,30 @@
 # Schema reference for: .compass/work/<task-slug>/task.yml
-# The machine-readable task spine. `compass task lint` enforces this.
+# The machine-readable issue spine. `compass issue lint` enforces this.
 # Notation: (required) / (optional); `type`; [enum] where the set is closed.
 
-task:            # (required) string - the task slug, matches the directory name
-created:         # (required) string - ISO date the task was framed
+task:            # (required) string - the issue slug, matches the directory name
+created:         # (required) string - ISO date the issue was framed
 
-readings:        # (required) map - the four-dimension JUDGEMENT readings (Frame)
-  blast_radius:  # (required) [trivial, contained, cross-cutting, critical]
-  terrain:       # (required) [greenfield, brownfield-mapped, brownfield-unmapped]
-  magnitude:     # (required) [atomic, small, standard, large, product]
+assessment:        # (required) map - the four-dimension JUDGEMENT assessment (Frame)
+  risk:  # (required) [trivial, contained, cross-cutting, critical]
+  familiarity:       # (required) [greenfield, brownfield-mapped, brownfield-unmapped]
+  size:     # (required) [atomic, small, standard, large, product]
   intent:        # (optional) [delivery, exploration]   - defaults to delivery
   urgency:       # (optional) [none, live-defect]        - defaults to none
   role:          # (optional) [engineer, product-owner, product-marketer, designer, qa]
   touches:       # (optional) list of strings - domain tags (auth, payments, …)
 
-route:           # (optional until route evaluate) string - the final route name
-topology:        # (optional until route evaluate) string - solo | pair | swarm | …
+route:           # (optional until approach evaluate) string - the final route name
+topology:        # (optional until approach evaluate) string - solo | pair | swarm | …
 fired_guardrails:# (optional) list of maps {id, kind, rationale, changed[]}
-phases:          # (optional until route evaluate) map of phase -> weight string
+phases:          # (optional until approach evaluate) map of phase -> weight string
 
-gates:           # (optional until route evaluate) list of maps:
+gates:           # (optional until approach evaluate) list of maps:
   - id:          #   (required in entry) string - e.g. verify.correctness
     status:      #   (required in entry) [pending, pass, fail]
-    evidence:    #   (optional) string - path, relative to the task dir, or null
+    evidence:    #   (optional) string - path, relative to the issue dir, or null
 
-scenarios:       # (optional until Specify) list of maps:
+scenarios:       # (optional until the define stage) list of maps:
   - id:          #   (required in entry) string - stable id, e.g. SCN-001
     title:       #   (optional) string
     intent:      #   (required in entry) string - intent id it traces to
@@ -46,7 +46,7 @@ approvals:       # (optional; only when guardrail G5 applies) list of maps:
     timestamp:   #   (optional) string - ISO 8601
     evidence:    #   (optional) string
 
-backfills:       # (optional) list of maps - owed ceremony:
+follow-ups:       # (optional) list of maps - outstanding ceremony:
   - id:          #   (required in entry) string
     description: #   (required in entry) string
-    status:      #   (required in entry) [owed, paid]
+    status:      #   (required in entry) [outstanding, paid]

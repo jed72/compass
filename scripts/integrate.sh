@@ -61,7 +61,7 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-[ -n "$TASK_SLUG" ] || { echo "integrate.sh: need a task slug. See --help." >&2; exit 1; }
+[ -n "$TASK_SLUG" ] || { echo "integrate.sh: need a issue slug. See --help." >&2; exit 1; }
 
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"
@@ -119,7 +119,7 @@ if [ -z "$TEST_CMD" ] && [ -f "$PROJECT_DIR/Makefile" ] \
   TEST_CMD="make test"
 fi
 
-echo "Compass integrate - task '$TASK_SLUG'"
+echo "Compass integrate - issue '$TASK_SLUG'"
 echo "  base branch:   $BASE_BRANCH"
 echo "  streams:       ${#STREAMS[@]}  (merged in map order)"
 echo "  test command:  ${TEST_CMD:-<none resolved - combined regression cannot run automatically>}"
@@ -189,7 +189,7 @@ if [ -n "$TEST_CMD" ]; then
   fi
 else
   echo "No test command resolved (set 'test_command:' in .compass/config.yml)."
-  echo "Combined regression MUST still be run by hand before Land closes -"
+  echo "Combined regression MUST still be run by hand before ship closes -"
   echo "per-stream green does not imply integrated green."
 fi
 
@@ -263,5 +263,5 @@ echo ""
 echo "Integration complete for '$TASK_SLUG'. Back in /compass:ship, finish by:"
 echo "  - pasting the combined-regression run into verification-report.md"
 echo "  - updating living docs"
-echo "  - resolving every owed backfill in route.md"
+echo "  - resolving every outstanding follow-up in delivery-approach.md"
 echo "  - writing the final devlog.md entry"
