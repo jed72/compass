@@ -10,7 +10,7 @@ assessment:
   goal: delivery
   role: engineer
   labels: []
-delivery_approach: express
+delivery_approach: quick-fix
 topology: solo
 policy_rules_fired: []
 stages:
@@ -26,7 +26,7 @@ evidence:
 - id: EV-001
   type: test-run
   path: evidence/green.json
-  scenario: SCN-001
+  scenario: TRC-001
 - id: EV-V1
   type: artifact
   path: verification-note.md
@@ -44,7 +44,7 @@ gates:
   evidence:
   - EV-V1
 scenarios:
-- id: SCN-001
+- id: TRC-001
   title: Upload timeout reports the real cause and the real limit
   intent: INT-1
   tests:
@@ -52,7 +52,7 @@ scenarios:
 changed_files:
 - path: src/api/upload.py
   scenarios:
-  - SCN-001
+  - TRC-001
 claims: []
 follow_ups: []
 reassessments: []

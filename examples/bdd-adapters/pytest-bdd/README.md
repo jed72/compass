@@ -5,7 +5,7 @@ acceptance suite. Copy the wiring, not the domain - the password-reset rule
 here is three lines, on purpose.
 
 **What this demonstrates:** the Gherkin an engineer writes in
-`spec.feature.md` is the same text a runner executes. The link between a
+`acceptance-criteria.md` is the same text a runner executes. The link between a
 scenario and the test that satisfies it stops being a convention someone
 maintains and becomes a fact the runner establishes.
 
@@ -18,7 +18,7 @@ maintains and becomes a fact the runner establishes.
 ```yaml
 project:
   bdd_runner: pytest-bdd        # which runner; names this directory
-  # bdd_features_dir: features  # where extract writes; unset = the task dir
+  # bdd_features_dir: features  # where extract writes; unset = the issue dir
   bdd_steps_dir: tests/steps    # where your step definitions live
   bdd_run_command: "pytest tests/"
 ```
@@ -34,11 +34,11 @@ project that edits nothing has opted into nothing.
 compass bdd extract --issue reset-password
 ```
 
-This reads `.compass/work/reset-password/spec.feature.md` and writes
+This reads `.compass/work/reset-password/acceptance-criteria.md` and writes
 `.compass/work/reset-password/acceptance-criteria.feature`:
 
 ```gherkin
-# Derived from .compass/work/reset-password/spec.feature.md by `compass bdd extract`.
+# Derived from .compass/work/reset-password/acceptance-criteria.md by `compass bdd extract`.
 # Do not hand-edit - your edits are overwritten on the next extract.
 # Edit the source spec instead.
 

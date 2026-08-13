@@ -91,10 +91,17 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     "route": [
         re.compile(r"\broute\.md\b"),
         re.compile(r"\broute\s+evaluate\b"),
-        re.compile(r"\broutes?/"),
+        # Not preceded by a path separator: `src/api/routes/search.py` is a
+        # web router directory, which is ordinary in almost any codebase.
+        # The ban is about a Compass `routes/` directory at the top level.
+        re.compile(r"(?<![\w/.-])routes?/"),
+        # Case-insensitive on the qualifier: "**Reference route:**" is how a
+        # heading writes it, and the lowercase-only pattern walked past every
+        # one of them in the shipped examples.
         re.compile(
             r"\b(?:computed|reference|delivery|solo|swarm|"
-            r"Express|Standard|Expedition|Hotfix|Spike)\s+routes?\b"
+            r"express|standard|expedition|hotfix|spike)\s+routes?\b",
+            re.IGNORECASE,
         ),
         # Tuned at the skills-prose review, widened at the docs-prose
         # review: the compose/compute verb family on the process noun

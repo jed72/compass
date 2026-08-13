@@ -64,7 +64,7 @@ exclusively, and what it must not do.
 **Must own:**
 - The BDD strategy (G/W/T as spec and acceptance check).
 - The TDD strategy (red → green → refactor cycle and `.red` marker protocol).
-- The approach-awareness of strategy enforcement (the spike route suspends TDD;
+- The approach-awareness of strategy enforcement (the spike approach suspends TDD;
   other delivery delivery approach do not).
 
 ### Role Pipeline (agents/*.md + commands/roundtable.md)

@@ -245,7 +245,7 @@ issue does not advance - you fix it, or it goes back.
 /compass:ship
 ```
 
-Solo route, so Land commits on the current branch, runs regression across the
+Solo topology, so shipping commits on the current branch, runs regression across the
 result, updates any living docs the change touched, and checks the de-scope
 ledger for owed follow-ups (Standard owed none here). A final `devlog.md` entry
 records what landed and how it was verified. The issue is closed.

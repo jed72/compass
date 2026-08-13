@@ -144,7 +144,7 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   #
   # Both facts come from task.yml, not from the prose record. Grepping the
   # record for a heading is how this check died twice: it looked for
-  # "Reference route:" while the template wrote "Reference shape:", and a
+  # a heading the template had already replaced, and a
   # later repair pointed it at "Outstanding follow-ups" while the template
   # writes "Owed follow-ups". Neither failure was visible - the block simply
   # stopped firing. scripts/swarm.sh makes the same argument about the

@@ -592,6 +592,7 @@ scan:
     - schemas/             # a schema's description is what a validation error quotes
     - scripts/             # the shell a user runs, and what it prints
     - architecture/        # the framework's own invariants and relations
+    - examples/           # shipped worked examples - what an adopter copies from
     - governance/routing-policy.yml   # comments only, per the YAML rule
     - governance/guardrails.yml
     - governance/signals.yml

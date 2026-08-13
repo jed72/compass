@@ -1,11 +1,11 @@
 # Spec - notifications-subsystem
 
 > **Phase:** Specify · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
-> **Terrain:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `brief.md`, not distilled from existing behaviour.
+> **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `prd.md`, not distilled from existing behaviour.
 
 ## How each role reads this file
 
-- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `brief.md`?
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `prd.md`?
 - **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
 - **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
 - **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
@@ -17,9 +17,9 @@
 
 | Intent id | Source | Statement |
 |---|---|---|
-| INT-1 | `brief.md` desired outcome | A user is reliably told about events that affect them, in-app, within seconds. |
-| INT-2 | `brief.md` constraint | Notifications are durable - a worker restart or brief outage does not lose one a user should have received. |
-| INT-3 | `brief.md` desired outcome | A user can tune what they hear about, with safe defaults, but cannot mute what they must not miss. |
+| INT-1 | `prd.md` desired outcome | A user is reliably told about events that affect them, in-app, within seconds. |
+| INT-2 | `prd.md` constraint | Notifications are durable - a worker restart or brief outage does not lose one a user should have received. |
+| INT-3 | `prd.md` desired outcome | A user can tune what they hear about, with safe defaults, but cannot mute what they must not miss. |
 
 ---
 
@@ -31,7 +31,7 @@ be created, stored, and delivered without any preference logic (the default is
 "deliver"). Group A became swarm **stream-1**.
 
 ### Scenario: An in-app event produces a notification for the target user
-<!-- traceability id: SCN-001 · serves: INT-1 -->
+<!-- traceability id: TRC-001 · serves: INT-1 -->
 
 ```gherkin
 Scenario: An in-app event produces a notification for the target user
@@ -42,7 +42,7 @@ Scenario: An in-app event produces a notification for the target user
 ```
 
 ### Scenario: A notification is delivered once, even if the event is retried
-<!-- traceability id: SCN-002 · serves: INT-1 -->
+<!-- traceability id: TRC-002 · serves: INT-1 -->
 
 ```gherkin
 Scenario: A notification is delivered once, even if the event is retried
@@ -53,7 +53,7 @@ Scenario: A notification is delivered once, even if the event is retried
 ```
 
 ### Scenario: Notifications survive a worker restart
-<!-- traceability id: SCN-003 · serves: INT-2 -->
+<!-- traceability id: TRC-003 · serves: INT-2 -->
 
 ```gherkin
 Scenario: Notifications survive a worker restart
@@ -76,7 +76,7 @@ The two groups share only `migrations/0042` (the table both read) and `api.py`
 became swarm **stream-2**.
 
 ### Scenario: A user mutes a category and stops receiving that category
-<!-- traceability id: SCN-004 · serves: INT-3 -->
+<!-- traceability id: TRC-004 · serves: INT-3 -->
 
 ```gherkin
 Scenario: A user mutes a category and stops receiving that category
@@ -87,7 +87,7 @@ Scenario: A user mutes a category and stops receiving that category
 ```
 
 ### Scenario: A user with no saved preferences gets the safe defaults
-<!-- traceability id: SCN-005 · serves: INT-3 -->
+<!-- traceability id: TRC-005 · serves: INT-3 -->
 
 ```gherkin
 Scenario: A user with no saved preferences gets the safe defaults
@@ -102,7 +102,7 @@ Scenario: A user with no saved preferences gets the safe defaults
 ## Failure-mode scenarios
 
 ### Scenario: A muted category does not suppress a security notification
-<!-- traceability id: SCN-006 · serves: INT-3 -->
+<!-- traceability id: TRC-006 · serves: INT-3 -->
 
 ```gherkin
 Scenario: A muted category does not suppress a security notification
@@ -122,9 +122,9 @@ Scenario: A muted category does not suppress a security notification
 
 | Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
 |---|---|---|---|
-| SCN-001 | INT-1 | [x] | [x] |
-| SCN-002 | INT-1 | [x] | [x] |
-| SCN-003 | INT-2 | [x] | [x] |
-| SCN-004 | INT-3 | [x] | [x] |
-| SCN-005 | INT-3 | [x] | [x] |
-| SCN-006 | INT-3 | [x] | [x] |
+| TRC-001 | INT-1 | [x] | [x] |
+| TRC-002 | INT-1 | [x] | [x] |
+| TRC-003 | INT-2 | [x] | [x] |
+| TRC-004 | INT-3 | [x] | [x] |
+| TRC-005 | INT-3 | [x] | [x] |
+| TRC-006 | INT-3 | [x] | [x] |

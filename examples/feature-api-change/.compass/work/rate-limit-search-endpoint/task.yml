@@ -10,7 +10,7 @@ assessment:
   goal: delivery
   role: engineer
   labels: []
-delivery_approach: standard
+delivery_approach: feature
 topology: solo-or-pair
 policy_rules_fired: []
 stages:
@@ -26,7 +26,7 @@ evidence:
 - id: EV-T1
   type: test-run
   path: evidence/green.json
-  scenario: SCN-001
+  scenario: TRC-001
 - id: EV-SEC1
   type: command-output
   path: evidence/security-scan.txt
@@ -59,27 +59,27 @@ gates:
   evidence:
   - EV-SEC1
 scenarios:
-- id: SCN-001
+- id: TRC-001
   title: Requests under the limit pass through unchanged
   intent: INT-1
   tests:
   - tests/api/test_rate_limit.py::test_under_limit_passes
-- id: SCN-002
+- id: TRC-002
   title: The request over the limit is rejected with 429
   intent: INT-1
   tests:
   - tests/api/test_rate_limit.py::test_over_limit_returns_429
-- id: SCN-003
+- id: TRC-003
   title: A 429 response tells the client when to retry
   intent: INT-2
   tests:
   - tests/api/test_rate_limit.py::test_429_includes_retry_after
-- id: SCN-004
+- id: TRC-004
   title: The window resets and the client can call again
   intent: INT-1
   tests:
   - tests/api/test_rate_limit.py::test_window_resets
-- id: SCN-005
+- id: TRC-005
   title: Two clients have independent limits
   intent: INT-1
   tests:
@@ -87,19 +87,19 @@ scenarios:
 changed_files:
 - path: src/api/middleware/rate_limit.py
   scenarios:
-  - SCN-001
-  - SCN-002
-  - SCN-003
-  - SCN-004
-  - SCN-005
+  - TRC-001
+  - TRC-002
+  - TRC-003
+  - TRC-004
+  - TRC-005
 - path: src/api/routes/search.py
   scenarios:
-  - SCN-001
-  - SCN-002
+  - TRC-001
+  - TRC-002
 - path: src/api/config.py
   scenarios:
-  - SCN-002
-  - SCN-004
+  - TRC-002
+  - TRC-004
 claims: []
 follow_ups: []
 reassessments: []

@@ -15,7 +15,7 @@ project:
   bdd_runner: pytest-bdd
 
   # Where `compass bdd extract` writes the .feature file. Left unset here on
-  # purpose: the default is the task's own directory, which keeps the spec and
+  # purpose: the default is the issue's own directory, which keeps the spec and
   # the extracted feature side by side. Set it when your runner insists on a
   # conventional features/ directory.
   # bdd_features_dir: features

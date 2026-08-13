@@ -146,7 +146,7 @@ routing_guardrails:
       max_worktrees: 1
       rationale: "Coordination risk on critical changes outweighs parallelism."
 
-  # immovable_gates - review gates no route may drop, for any DELIVERY route.
+  # immovable_gates - review gates no delivery approach may drop, for any DELIVERY approach.
   # These three are "the default guardrails in review form": every delivery
   # route's route_shape already includes them, and stapling them here means a
   # future custom or tuned route still cannot drop them. NOTE what is NOT

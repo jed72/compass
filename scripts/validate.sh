@@ -170,7 +170,7 @@ done
 say ""
 
 # --- 7. the five reference approaches -------------------------------------------
-say "7. Reference routes"
+say "7. Reference approaches"
 for r in quick-fix feature initiative hotfix spike; do
   if [ -f "approaches/$r.md" ]; then
     if grep -qiE "(\`|/| )$r\b" approaches/rubric.md 2>/dev/null; then

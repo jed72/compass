@@ -226,7 +226,7 @@ foot is ticked.
 /compass:ship
 ```
 
-Solo route, no swarm. The commit lands on the current branch, regression
+Solo topology, no swarm. The commit lands on the current branch, regression
 runs, the de-scope ledger has nothing owed, the issue closes. Total
 artifacts on disk: `delivery-approach.md`, `task.yml`, `acceptance-criteria.md`, `evidence/`,
 `verification-report.md`, `devlog.md`. Anyone can pick the issue up from

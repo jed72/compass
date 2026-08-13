@@ -22,12 +22,12 @@ stages:
   distribute: skipped
   build: expedited
   verify: full
-  land: full-plus-backfill
+  land: full-plus-follow-up
 evidence:
 - id: EV-T1
   type: test-run
   path: evidence/green.json
-  scenario: SCN-001
+  scenario: TRC-001
 - id: EV-SEC1
   type: command-output
   path: evidence/security-scan.txt
@@ -56,7 +56,7 @@ gates:
   evidence:
   - EV-SEC1
 scenarios:
-- id: SCN-001
+- id: TRC-001
   title: Search with an empty filter object returns results, does not crash
   intent: INT-1
   tests:
@@ -64,18 +64,18 @@ scenarios:
 changed_files:
 - path: src/api/search/filter_compiler.py
   scenarios:
-  - SCN-001
+  - TRC-001
 claims: []
 follow_ups:
-- id: BF-001
+- id: FU-001
   description: Promote the reproduction test into a proper Given/When/Then scenario
-    in spec.feature.md, traceable to the defect.
+    in acceptance-criteria.md, traceable to the defect.
   status: paid
-- id: BF-002
-  description: Complete route.md properly - the four dimension readings and the root-cause
+- id: FU-002
+  description: Complete delivery-approach.md properly - the four dimension assessment and the root-cause
     note, not just the urgent stub.
   status: paid
-- id: BF-003
+- id: FU-003
   description: Root-cause line in devlog.md, plus the follow-up task for the missing-scenario
     class of gap.
   status: paid

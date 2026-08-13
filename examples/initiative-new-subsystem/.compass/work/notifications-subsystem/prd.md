@@ -42,7 +42,7 @@ must not miss.
 
 ## Non-goals
 
-- We are NOT building email/push/SMS channels in this task.
+- We are NOT building email/push/SMS channels in this issue.
 - We are NOT building a notification *digest* or batching/quiet-hours logic.
 - We are NOT building an admin console for notification templates.
 
@@ -68,7 +68,7 @@ rather than reinventing delivery.
 
 **What could make this fail?**
 - *Technical:* delivery that is not genuinely durable - looks fine in dev,
-  loses notifications under real restart/outage conditions. Mitigation: SCN-003
+  loses notifications under real restart/outage conditions. Mitigation: TRC-003
   makes durability an explicit, tested scenario.
 - *Product:* the preference model is too coarse (users mute everything because
   the only knob is too blunt) or too fine (nobody configures it). Mitigation:
@@ -82,19 +82,19 @@ rather than reinventing delivery.
 
 - product-owner - this brief; reviews the spec for intent fidelity before Plan.
 - engineer - owns the build (swarm across two streams).
-- *Not* product-marketer on this task - the external launch is a separate,
-  later task; this one ships the capability.
+- *Not* product-marketer on this issue - the external launch is a separate,
+  later issue; this one ships the capability.
 
 ---
 
-## Intent-fidelity check (filled at the pre-Plan gate - RG-ROLE-002)
+## Intent-fidelity check (filled at the pre-Plan gate - RP-ROLE-002)
 
-The product-owner role rule (RG-ROLE-002) blocks Plan until the spec is checked
+The product-owner role rule (RP-ROLE-002) blocks Plan until the spec is checked
 against this brief.
 
 - [x] Every success signal above maps to at least one scenario in
-  `spec.feature.md` - delivery-within-seconds → SCN-001; durability → SCN-003;
-  mute survives sessions → SCN-004; security reaches through mute → SCN-006.
+  `acceptance-criteria.md` - delivery-within-seconds → TRC-001; durability → TRC-003;
+  mute survives sessions → TRC-004; security reaches through mute → TRC-006.
   (The "support tickets drop" signal is an outcome metric, tracked post-launch,
   not a scenario - noted, not orphaned.)
 - [x] No scenario contradicts a constraint, pursues a non-goal, or runs against

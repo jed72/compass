@@ -1,38 +1,38 @@
-# Route - pdf-export-library-viability
+# Delivery approach - pdf-export-library-viability
 
-> **Task:** Customers want to export reports as PDF. Before we plan that feature: is `weasyprint` a viable engine for our report layouts, or do we need a heavier tool? Timeboxed investigation.
-> **Framed:** 2026-05-12 by N. Brandt (engineer) · **Revision:** 1
-> **Reference route:** Spike
+> **Issue:** Customers want to export reports as PDF. Before we plan that feature: is `weasyprint` a viable engine for our report layouts, or do we need a heavier tool? Timeboxed investigation.
+> **Triaged:** 2026-05-12 by N. Brandt (engineer) · **Revision:** 1
+> **Reference shape:** Spike
 
-<!-- On a Spike route the Needle also writes a `.spike` marker file in this
-     task directory, so the pre-tool hook knows to suspend the TDD strategy.
-     That marker is present alongside this route.md. -->
+<!-- On a spike triage also writes a `.spike` marker file in this
+     issue directory, so the pre-tool hook knows to suspend the TDD strategy.
+     That marker is present alongside this delivery-approach.md. -->
 
 ---
 
-## 1. The four dimension readings
+## 1. The four dimension assessment
 
-| Dimension | Reading | One-line justification |
+| Dimension | Value | One-line justification |
 |---|---|---|
-| **Blast radius** | contained | Nothing ships from this. The exploration code is throwaway on a scratch branch. Worst case if the spike is wrong: we learn the wrong thing and re-spike - no production impact. |
-| **Terrain** | greenfield | There is no PDF export today and no prior art in the codebase. There is nothing to distil - the spike *is* the mapping of this terrain. |
-| **Magnitude** | small | A timeboxed two-day investigation: render three representative report layouts, check fidelity, measure speed and memory. Not a large effort - it is a *bounded* one. |
-| **Intent & role** | engineer / **exploration** | An engineer who cannot yet frame the real feature - the open question ("is this library viable?") has to be answered before a delivery route can be composed. Exploration intent is what selects Spike. |
+| **Risk:** | contained | Nothing ships from this. The exploration code is throwaway on a scratch branch. Worst case if the spike is wrong: we learn the wrong thing and re-spike - no production impact. |
+| **Familiarity:** | greenfield | There is no PDF export today and no prior art in the codebase. There is nothing to distil - the spike *is* the mapping of this familiarity. |
+| **Size:** | small | A timeboxed two-day investigation: render three representative report layouts, check fidelity, measure speed and memory. Not a large effort - it is a *bounded* one. |
+| **Goal & role** | engineer / **exploration** | An engineer who cannot yet frame the real feature - the open question ("is this library viable?") has to be answered before a delivery delivery approach can be composed. Exploration intent is what selects Spike. |
 
-**Domain tags (`touches:`):** none - and this is load-bearing for a Spike. A
+**Domain tags (`labels:`):** none - and this is load-bearing for a spike. A
 Spike may not touch anything irreversible (auth, payments, personal-data,
-migrations); those are floored to Expedition regardless of intent. This
+migrations); those are floored to initiative regardless of intent. This
 question can be answered entirely with throwaway rendering code, so Spike is
 legitimately available.
 
 ---
 
-## 2. The composed candidate route
+## 2. The composed candidate approach
 
-Candidate route: **Spike**, with no deviations from its reference shape.
+Candidate approach: **Spike**, with no deviations from its reference shape.
 
 Spike is selected by **intent**, the way Hotfix is selected by urgency.
-`intent: exploration` matched routing strategy RS-SHAPE-001 ("exploration
+`intent: exploration` matched routing strategy RP-SHAPE-001 ("exploration
 intent - cannot frame for delivery yet"). The Needle still scored the other
 three dimensions - they confirm the work is bounded and touches nothing
 irreversible, which is what makes Spike *safe* to use here.
@@ -48,18 +48,18 @@ gate (§4b).
 No routing guardrail fired. Candidate route stands.
 
 The guardrails that *could* have fired and did not, both worth recording:
-- **RG-FLOOR-003** (`touches_any: [auth, payments, personal-data, migrations]`)
+- **RP-FLOOR-003** (`labels_any: [auth, payments, personal-data, migrations]`)
   did not fire - `touches:` is empty. Had this question required touching any
-  of those, it would not be a Spike: the floor would force Expedition, because
+  of those, it would not be a spike: the floor would force initiative, because
   you cannot "explore" an irreversible change.
-- **RG-FLOOR-002** (`terrain: brownfield-unmapped`) did not fire - terrain is
+- **RP-FLOOR-002** (`familiarity: brownfield-unmapped`) did not fire - familiarity is
   `greenfield`, not unmapped brownfield. (On a brownfield-unmapped spike it
   *would* fire and force a full Specify with blueprint-distillation, even on a
   Spike - a useful thing to know the policy does.)
 
 ---
 
-## 4. The final route
+## 4. The final approach
 
 ### 4a. Per-phase weight
 
@@ -70,7 +70,7 @@ The guardrails that *could* have fired and did not, both worth recording:
 | Clarify | Skipped | Nothing to QA - the behaviour is the unknown, and discovering it is the point. |
 | Plan | Collapsed to a timebox | "Explore, with a clock" - §5. |
 | Distribute | Skipped | Solo. One person, one question. |
-| Build | = **Explore** | Write rendering code freely to answer the question. **TDD strategy (S2) suspended** - the pre-tool hook is route-aware and does not block edits here. Code is assumed throwaway. |
+| Build | = **Explore** | Write rendering code freely to answer the question. **TDD strategy (`S2`) suspended** - the pre-tool hook is route-aware and does not block edits here. Code is assumed throwaway. |
 | Verify | = **Conclude** | Not a test gate - a findings check: did we answer the question? Output is a written conclusion (in `devlog.md`), not a passing suite. |
 | Land | = **Graduate or Discard** | Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
 
@@ -80,14 +80,14 @@ The guardrails that *could* have fired and did not, both worth recording:
   asks one thing: *is the question answered, and is the answer written down?*
 - Review dimensions applied: none. A Spike runs no delivery review dimensions -
   it ships nothing, so there is nothing to review for correctness or
-  traceability. Guardrails G1–G3 are not skipped - they are **deferred to
+  traceability. Guardrails `G1`–`G3` are not skipped - they are **deferred to
   graduation**, where they apply in full to any code that is kept.
-- A note on the immovable gates: `compass route evaluate` staples the policy's
+- A note on the immovable gates: `compass approach evaluate` staples the policy's
   `immovable_gates` (`verify.correctness`, `verify.governance`,
   `verify.traceability`) onto *every* route's gate set, including this one -
-  the policy comment says they are "for any DELIVERY route", but the CLI
-  applies them unconditionally. On a Spike they are inert: `task.yml` carries
-  them at `status: pending` forever, because a Spike never produces anything
+  the policy comment says they are "for any DELIVERY approach", but the CLI
+  applies them unconditionally. On a spike they are inert: `task.yml` carries
+  them at `status: pending` forever, because a spike never produces anything
   for them to be about. Only `spike.conclude` is ever `pass`. This is recorded,
   not hidden - see the comment in `task.yml`.
 
@@ -103,14 +103,14 @@ The guardrails that *could* have fired and did not, both worth recording:
 
 | Phase / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| Specify | collapsed to a question | A spike has no acceptance criteria - its output is knowledge, not behaviour. **Nothing lands from a Spike.** |
-| Clarify | skipped | Nothing to QA against - the unknown is the point. **Nothing lands from a Spike.** |
-| Plan | collapsed to a timebox | The plan for exploration is "explore, with a clock." **Nothing lands from a Spike.** |
-| Distribute | skipped | One person, one question. **Nothing lands from a Spike.** |
-| Build - TDD strategy | suspended | Red-before-green is the wrong discipline for throwaway learning code. G1 is not skipped - it is **deferred to graduation**, where it applies in full. **Nothing lands from a Spike.** |
+| Specify | collapsed to a question | A spike has no acceptance criteria - its output is knowledge, not behaviour. **Nothing lands from a spike.** |
+| Clarify | skipped | Nothing to QA against - the unknown is the point. **Nothing lands from a spike.** |
+| Plan | collapsed to a timebox | The plan for exploration is "explore, with a clock." **Nothing lands from a spike.** |
+| Distribute | skipped | One person, one question. **Nothing lands from a spike.** |
+| Build - TDD strategy | suspended | Red-before-green is the wrong discipline for throwaway learning code. `G1` is not skipped - it is **deferred to graduation**, where it applies in full. **Nothing lands from a spike.** |
 
 Every justification rests on the same fact, repeated deliberately: **nothing
-lands from a Spike.** The de-scopes are safe because the route has no delivery
+lands from a spike.** The de-scopes are safe because the delivery approach has no delivery
 output to protect.
 
 **Spike question + timebox:**
@@ -128,12 +128,12 @@ output to protect.
 
 ---
 
-## 6. Owed backfills
+## 6. Outstanding follow-ups
 
-- [x] None owed. A Spike owes nothing - it borrows no ceremony because it lands
-  nothing. Its exit is graduate-or-discard, not a backfill. (Contrast Hotfix,
+- [x] None outstanding. A Spike owes nothing - it borrows no ceremony because it lands
+  nothing. Its exit is graduate-or-discard, not a follow-up. (Contrast Hotfix,
   which always owes one: Hotfix *ships* and borrows from the front of the
-  pipeline; a Spike ships nothing, so there is nothing to repay.)
+  pipeline; a spike ships nothing, so there is nothing to repay.)
 
 ---
 
@@ -148,7 +148,7 @@ No human overrides. Route confirmed as composed.
 - [x] Route presented to the invoker and confirmed.
 - [x] Every dimension in §1 has a justification.
 - [x] Every skipped/collapsed phase in §5 has a "safe to skip because…" line (all the same fact: nothing lands).
-- [x] On a Spike route: the `.spike` marker file is written to the task directory.
+- [x] On a spike: the `.spike` marker file is written to the issue directory.
 - [x] `devlog.md` opened with the Frame entry.
 
-Next phase: **Explore** (`/compass:implement` on a Spike route).
+Next stage: **explore** (`/compass:implement` on a spike).
