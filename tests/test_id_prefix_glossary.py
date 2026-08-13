@@ -259,6 +259,30 @@ def test_routing_ids_are_rp_and_kinds_are_distinct():
             )
 
 
+def test_a_gate_adder_reports_its_kind_as_requirement():
+    """The kind follows the effect, not the block the entry sits in.
+
+    Every entry in the `floors:` block was reported as `kind: floor`,
+    including the four that only attach a gate. After the id rename that
+    printed "[RP-REQUIRE-003] floor:" on screen and wrote the same
+    contradiction into the spine - the id saying one thing and the kind
+    saying the other. Found by checking what the demo would actually show.
+    """
+    r = subprocess.run(
+        [sys.executable, str(CLI), "approach", "evaluate",
+         "--issue", "id-prefix-vocabulary-and-glossary"],
+        cwd=ROOT, capture_output=True, text=True, timeout=120,
+    )
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert "[RP-REQUIRE-003] requirement:" in r.stdout, (
+        f"a rule that only attaches a gate still reports itself as a floor:\n"
+        f"{r.stdout}"
+    )
+    assert "] floor:" not in r.stdout or "RP-FLOOR" in r.stdout, (
+        "something reports kind floor without a FLOOR id"
+    )
+
+
 def test_the_rename_does_not_change_any_computed_approach(tmp_path):
     """The ids are data the evaluator copies; renaming must compute the same.
 

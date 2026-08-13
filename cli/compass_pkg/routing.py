@@ -169,7 +169,16 @@ def evaluate_route(readings, policy):
             floor_gates.append(fl["add_gate"])
             changed.append(f"gate '{fl['add_gate']}' added to the route's set")
         if changed:
-            fired.append({"id": fl.get("id", "?"), "kind": "floor",
+            # The kind follows what the entry actually did, not which block it
+            # sits in. An entry that only attaches a gate raises no minimum, so
+            # calling it a floor is the same conflation the RP-REQUIRE ids were
+            # introduced to end - and it would print "[RP-REQUIRE-003] floor:"
+            # on screen, which reads as a contradiction.
+            raises_minimum = any(
+                k in fl for k in ("force_minimum_route", "require_phase",
+                                  "require_skill", "never_skip"))
+            fired.append({"id": fl.get("id", "?"),
+                          "kind": "floor" if raises_minimum else "requirement",
                           "rationale": fl.get("rationale", ""), "changed": changed})
 
     # --- 2b. routing conflict: exploration must not silently become delivery -
