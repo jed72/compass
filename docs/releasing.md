@@ -25,8 +25,16 @@ release to a clean, reproducible artifact.
    | `.claude-plugin/marketplace.json` `$.plugins[0].version` | `tests/test_version_consistency.py` |
    | The expected `compass --version` output in `docs/install-smoke-test.md` | `tests/test_version_consistency.py` and `tests/test_cli_surface_drift.py` |
 
-   This table said six for two releases while there were seven, and the
-   missing row was the one no manifest carries. Do not trust the count
+   **And one more thing to edit, which is not a published location.**
+   `EXPECTED_VERSION` in `tests/test_version_consistency.py` is hardcoded on
+   purpose - reading it from `VERSION` would make the test self-maintaining
+   and blind to the case it exists for, a release where nothing was bumped.
+   Editing it is the deliberate act that says a release is intended, so it
+   is part of the procedure even though it ships nowhere. Bumping the seven
+   without it leaves the suite red.
+
+   This table said six for two releases while there were seven, and then
+   seven while the procedure needed eight edits. Do not trust the count
    here alone: `tests/test_version_guard_covers_every_location.py` derives
    the set from the files themselves and fails if the guard has no case for
    one of them, precisely so a stale table cannot let a partial bump

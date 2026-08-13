@@ -115,7 +115,7 @@ from compass_pkg._all import *  # noqa: F401,F403
 # what `compass --version` and the release-consistency test read, and a
 # grep for the constant should find it at the CLI's front door. The
 # assert makes the duplication impossible to drift.
-COMPASS_VERSION = "2.1.0"
+COMPASS_VERSION = "3.0.0"
 assert COMPASS_VERSION == _core.COMPASS_VERSION, (
     "cli/compass and compass_pkg/core.py disagree about the version")
 
