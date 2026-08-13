@@ -309,7 +309,10 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
                           "see the delivery approach)")
     lines.append(_receipt_truncate(
         f"  {shape_shown}  (topology: {topology_shown})"))
-    fired = task.get("policy_rules_fired") or task.get("fired_guardrails") or []
+    # No v1-key fallback: the spine is normalised on load (see
+    # normalize_spine), so a 1.x `fired_guardrails` has already become
+    # this key by the time the receipt reads it.
+    fired = task.get("policy_rules_fired") or []
     if fired:
         lines.append("  routing guardrails fired:")
         for g in fired:

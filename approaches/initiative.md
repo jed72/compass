@@ -9,7 +9,7 @@
 - risk is `critical` (a floor forces this regardless of size),
   **or**
 - familiarity is `greenfield` at scale or `brownfield-unmapped` and large, **or**
-- a routing guardrail (floor) forces it (e.g. `touches: [auth, payments, migrations]`).
+- a routing guardrail (floor) forces it (e.g. `labels: [auth, payments, migrations]`).
 
 Typical issues: a new subsystem, a multi-module refactor, a migration, anything
 touching auth/payments/personal-data at more than trivial size, a product

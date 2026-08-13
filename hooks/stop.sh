@@ -3,26 +3,27 @@
 # Compass hook: stop.sh  -  END-OF-SESSION GATE-STATE WARNER
 # =============================================================================
 # Runs as a Claude Code Stop hook, when a session ends. It does not block - a
-# session is allowed to end. It exists to make sure a half-finished task is
+# session is allowed to end. It exists to make sure a half-finished issue is
 # LOUD on the way out, so the next session (or a human) does not have to
 # rediscover that something was left dangling.
 #
-# WHAT IT CHECKS, per task under .compass/work/
-#   1. route.md missing on in-progress work
-#        => a task directory exists but has no route.md. CLAUDE.md's one rule
-#           is "Never skip Frame" - work with no computed route is
-#           unaccountable, warned loudly.
-#   2. a phase left mid-gate
-#        => a still-present .red marker means Build is unfinished (a failing
-#           test is on record and was never paid off green). Verify cannot
-#           have passed cleanly.
+# WHAT IT CHECKS, per issue under .compass/work/
+#   1. the delivery-approach record missing on in-progress work
+#        => an issue directory exists but has no delivery-approach.md.
+#           CLAUDE.md's one rule is "Never skip triage" - work with no
+#           computed approach is unaccountable, warned loudly.
+#   2. a stage left mid-gate
+#        => a still-present .red marker means implementation is unfinished (a
+#           failing test is on record and was never taken green). The
+#           test-and-review stage cannot have passed cleanly.
 #        => artifacts present out of order, or a verification-report.md whose
-#           gate decision is RED / blank, mean Verify was entered and not
-#           cleared.
-#   3. a Hotfix with an unpaid backfill
-#        => route.md names the route Hotfix and its "Owed backfills" section
-#           still has an unchecked item, or spec.feature.md still lacks the
-#           promoted reproduction scenario.
+#           gate decision is RED / blank, mean test-and-review was entered and
+#           not cleared.
+#   3. a hotfix with an outstanding follow-up
+#        => the delivery-approach record names a hotfix and its outstanding
+#           follow-ups section still has an unchecked item, or
+#           acceptance-criteria.md still lacks the promoted reproduction
+#           scenario.
 #
 # This mirrors what /compass:status reports, but fires automatically at session
 # end so nothing silently rots.
@@ -59,12 +60,12 @@ WARNINGS=()
 
 # --- 0. the current-task pointer should resolve -----------------------------
 # The hooks and the CLI rely on .compass/current-task. A dangling pointer is a
-# quiet way for the wrong task to be acted on next session.
+# quiet way for the wrong issue to be acted on next session.
 POINTER="$COMPASS_DIR/current-task"
 if [ -f "$POINTER" ]; then
   PSLUG="$(tr -d '[:space:]' < "$POINTER" 2>/dev/null || true)"
   if [ -n "$PSLUG" ] && [ ! -d "$WORK_DIR/$PSLUG" ]; then
-    WARNINGS+=(".compass/current-task points at '$PSLUG' but no such task directory exists - fix or clear the pointer.")
+    WARNINGS+=(".compass/current-task points at '$PSLUG' but no such issue directory exists - fix or clear the pointer.")
   fi
 fi
 
@@ -74,17 +75,23 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   SLUG="$(basename "$TASK_DIR")"
 
   ROUTE="$TASK_DIR/delivery-approach.md"
+  # An archive written before the artifact rename still uses the old name.
+  # vocabulary-scan: allow - names the retired filename on purpose
   [ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
-  SPEC="$TASK_DIR/spec.feature.md"
+  SPEC="$TASK_DIR/acceptance-criteria.md"
+  # An archive written before the artifact rename still uses the old name.
+  # vocabulary-scan: allow - names the retired filename on purpose
+  [ -f "$SPEC" ] || SPEC="$TASK_DIR/spec.feature.md"
   VREPORT="$TASK_DIR/verification-report.md"
   RED_MARKER="$TASK_DIR/.red"
 
-  # --- 1. route.md missing on in-progress work ------------------------------
+  # --- 1. the delivery-approach record missing on in-progress work ----------
   if [ ! -f "$ROUTE" ]; then
-    # A work dir with no route.md and no other artifacts may just be an empty
-    # scaffold; but if anything else is in it, work started without Frame.
+    # A work dir with no delivery-approach record and no other artifacts may
+    # just be an empty scaffold; but if anything else is in it, work started
+    # without triage.
     if [ -n "$(ls -A "$TASK_DIR" 2>/dev/null)" ]; then
-      WARNINGS+=("[$SLUG] route.md is MISSING but the task has artifacts - work started without Frame. Run /compass:triage.")
+      WARNINGS+=("[$SLUG] the delivery-approach record is MISSING but the issue has artifacts - work started without triage. Run /compass:triage.")
     fi
     continue
   fi
@@ -97,45 +104,50 @@ for TASK_DIR in "$WORK_DIR"/*/; do
 
   # Verify entered but not cleared.
   #
-  # The separator between "FAIL" and "task does not advance" is matched as
+  # The separator between "FAIL" and the phrase after it is matched as
   # "one or more non-alphanumeric characters" rather than a literal dash.
   # Reports written before this repo swapped em dashes for hyphens are still
   # on disk in projects using Compass, and both spellings must be recognised.
   # POSIX character classes rather than \s, so this also runs under BSD grep.
   if [ -f "$VREPORT" ]; then
-    if grep -qiE 'Overall:.*\bRED\b|Overall:.*FAIL|FAIL[^[:alnum:]]+task does not advance' "$VREPORT" 2>/dev/null; then
-      WARNINGS+=("[$SLUG] verification-report.md records a FAILING gate decision - Verify did not pass. Task is mid-gate.")
+    # vocabulary-scan: allow - matches the retired wording in older reports too
+    if grep -qiE 'Overall:.*\bRED\b|Overall:.*FAIL|FAIL[^[:alnum:]]+(issue|task) does not advance' "$VREPORT" 2>/dev/null; then
+      WARNINGS+=("[$SLUG] verification-report.md records a FAILING gate decision - test-and-review did not pass. The issue is mid-gate.")
     elif ! grep -qiE 'Overall:.*PASS' "$VREPORT" 2>/dev/null; then
       WARNINGS+=("[$SLUG] verification-report.md exists but its gate decision is blank - Verify was entered and not completed.")
     fi
   fi
 
-  # --- 3. a Hotfix with an unpaid backfill ---------------------------------
+  # --- 3. a hotfix with an outstanding follow-up ---------------------------
   #
-  # Same reasoning as above: a route.md heading is "Route <sep> Hotfix", and
+  # Same reasoning as above: the record's heading names the approach, and
   # the separator is matched loosely so route files written with an em dash
   # (every one produced before this repo's style sweep) still match.
-  if grep -qiE 'reference route:.*hotfix|Route[^[:alnum:]]+.*[Hh]otfix|nearest reference route.*[Hh]otfix' "$ROUTE" 2>/dev/null \
-     || grep -qiE '^[[:space:]]*Route[^[:alnum:]]+Hotfix' "$ROUTE" 2>/dev/null; then
+  # Both generations of the heading: the record has said "Reference
+  # approach" since the rename, and the archive still says the old word.
+  # vocabulary-scan: allow - matches the retired heading on purpose
+  if grep -qiE 'reference (approach|route):.*hotfix|(Approach|Route)[^[:alnum:]]+.*[Hh]otfix|nearest reference (approach|route).*[Hh]otfix' "$ROUTE" 2>/dev/null \
+     || grep -qiE '^[[:space:]]*(Approach|Route)[^[:alnum:]]+Hotfix' "$ROUTE" 2>/dev/null; then
 
-    # An unchecked item in the "Owed backfills" section is an unpaid backfill.
-    # We scan the section for "- [ ]" lines that are not the "none owed" line.
+    # An unchecked item in the outstanding-follow-ups section is one that has
+    # not been resolved. We scan the section for "- [ ]" lines that are not
+    # the "none outstanding" line.
     if awk '
-        /^##? *.*[Oo]wed [Bb]ackfills/ { insec=1; next }
+        /^##? *.*([Oo]utstanding [Ff]ollow-ups|[Oo]wed [Bb]ackfills)/ { insec=1; next }
         /^##? / && insec { insec=0 }
-        insec && /- \[ \]/ && tolower($0) !~ /none owed/ { found=1 }
+        insec && /- \[ \]/ && tolower($0) !~ /none (outstanding|owed)/ { found=1 }
         END { exit(found?0:1) }
       ' "$ROUTE" 2>/dev/null; then
-      WARNINGS+=("[$SLUG] HOTFIX with an UNPAID BACKFILL - route.md's Owed backfills section has an unchecked item. The task is not closeable until the backfill is paid.")
+      WARNINGS+=("[$SLUG] HOTFIX with an OUTSTANDING FOLLOW-UP - the delivery-approach record has an unchecked item in its outstanding follow-ups. The issue is not closeable until it is resolved.")
     fi
 
     # The reproduction test must have been promoted into a real scenario.
     if [ -f "$SPEC" ]; then
       if ! grep -qiE 'reproduc|regression|defect|incident' "$SPEC" 2>/dev/null; then
-        WARNINGS+=("[$SLUG] HOTFIX backfill incomplete - spec.feature.md has no promoted reproduction scenario yet.")
+        WARNINGS+=("[$SLUG] HOTFIX follow-up incomplete - acceptance-criteria.md has no promoted reproduction scenario yet.")
       fi
     else
-      WARNINGS+=("[$SLUG] HOTFIX backfill incomplete - spec.feature.md does not exist; the reproduction test was never promoted to a scenario.")
+      WARNINGS+=("[$SLUG] HOTFIX follow-up incomplete - acceptance-criteria.md does not exist; the reproduction test was never promoted to a scenario.")
     fi
   fi
 done
@@ -160,7 +172,7 @@ fi
 
 # --- 4. scope-bloat reframe nudge -------------------------------------------
 # Reads governance/signals.yml at runtime; the patterns are never hardcoded.
-# For each scope_bloat_phrase, greps the current task's devlog.md.
+# For each scope_bloat_phrase, greps the current issue's devlog.md.
 # The regex anchors the phrase at the start of the line (no leading whitespace
 # beyond the line start) - this prevents false positives when the phrase
 # appears inside a block-quote (`> "..."`) or inside backtick code context,

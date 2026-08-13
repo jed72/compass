@@ -373,7 +373,7 @@ def build_parser():
 
     pnx = sub.add_parser(
         "next",
-        help="what comes next on this issue's route? (read-only; one line)",
+        help="what comes next on this issue's delivery approach? (read-only; one line)",
     )
     pnx.add_argument("--issue", dest="task", metavar="SLUG", help="issue slug (default: current-task pointer)")
     pnx.set_defaults(func=cmd_next)

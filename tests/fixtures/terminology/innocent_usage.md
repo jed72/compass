@@ -14,20 +14,24 @@ Planes land safely when checklists hold, and boats land their catch.
 The change touches the parser but nothing else.
 One machine form of the follow-up ledger stays legal until the CLI verbs
 rename: the data team backfilled last month's metrics overnight.
-Machine identifiers keep their real names while the rename is in flight, so
-code-quoted references stay legal: run `/compass:frame` or
-`compass route evaluate`, open `route.md`, `brief.md`, or `spec.feature.md`,
-settle what is owed with `compass backfill pay`, and read the `readings:`
-block or the `touches:` list in the issue spine.
+Code spans and fenced blocks are NO LONGER a shelter. They were, while the
+rename was in flight - a backticked command name really did name a live
+command. ADR-014 removed those names at the major version and ADR-015 closed
+the exclusion, so this fixture no longer claims a retired name is innocent
+merely for being inside backticks. The live spellings are innocent, and they
+are what belongs here: run `/compass:triage`, `compass approach evaluate`,
+open `delivery-approach.md`, `prd.md`, or `acceptance-criteria.md`, settle
+what is outstanding with `compass follow-up resolve`, and read the
+`assessment:` block or the `labels:` list in the issue spine.
 
 ```yaml
-# A fenced block is machine content: these live v1 keys must not be flagged.
-readings:
-  blast_radius: contained
-  terrain: brownfield-mapped
-  magnitude: small
-route: express
-backfills: []
+# A fenced block is scanned like any other line now. These are the live keys.
+assessment:
+  risk: contained
+  familiarity: brownfield-mapped
+  size: small
+delivery_approach: quick-fix
+follow_ups: []
 ```
 When a PRD exists, invoke the product-lens agent by its machine name.
 We frame the problem before we start; planes land when the tower clears

@@ -428,6 +428,7 @@ banned:
 # =============================================================================
 scan:
   surfaces:
+    - hooks/               # the enforcement path speaks to users too
     - templates/
     - commands/
     - skills/
@@ -496,3 +497,78 @@ scan:
   # reached zero. Every scanned surface is enforced, forever; this list
   # never grows again.
   pending_surfaces: []
+
+# =============================================================================
+# RETIRED MACHINE NAMES - the identifiers, not the prose
+# =============================================================================
+# `banned:` above governs what a surface *teaches*: prose, printed sentences,
+# headings. This list governs what the code *uses*: spine keys, artifact
+# filenames, flag spellings - names with no whitespace in them, which read as
+# machine identifiers rather than as English.
+#
+# It exists because the prose scan could not see them. Its patterns are
+# sentence-shaped (`route.md`, `route evaluate`), and the Python scan skipped
+# string literals with no whitespace on the reasoning that a single token is a
+# machine identifier rather than prose. That reasoning was sound for the
+# surface it was written for and wrong for the one it was applied to: a bare
+# `'route'` used as a dict key is exactly that shape. `compass check` printed
+# a placeholder header on every run and the cross-issue board printed one on
+# every row, for months, past a green scan. See ADR-015.
+#
+# NOT listed here: `task`. `task.yml` is still the live artifact filename and
+# `dest="task"` is internal plumbing - `banned:` already says the word is
+# banned in human-facing prose only, with machine state exempt. Listing it
+# would flag correct code.
+retired_machine_names:
+  # spine keys, renamed at the v2 freeze
+  - name: route
+    replacement: delivery_approach
+  - name: readings
+    replacement: assessment
+  - name: phases
+    replacement: stages
+  - name: reframes
+    replacement: reassessments
+  - name: fired_guardrails
+    replacement: policy_rules_fired
+  - name: backfills
+    replacement: follow_ups
+  # artifact filenames
+  - name: route.md
+    replacement: delivery-approach.md
+  - name: plan.md
+    replacement: design.md
+  - name: spec.feature.md
+    replacement: acceptance-criteria.md
+  - name: clarifications.md
+    replacement: requirements-review.md
+  - name: brief.md
+    replacement: prd.md
+  # flag spellings, removed outright at the major version (ADR-014)
+  - name: --task
+    replacement: --issue
+  - name: --reading
+    replacement: --assessment
+
+  # Files that must name these identifiers to do their job. Each is here with
+  # a reason, not as a blanket path exclusion - and each is a file whose
+  # SUBJECT is the rename rather than a file that merely uses it.
+  #
+  # ADR-015 originally said these would move into cli/migrate-map.yml as data.
+  # Implementation found that wrong: the spine loader reads these tables at
+  # import time, so sourcing them from a YAML file would make the thing that
+  # loads YAML depend on loading YAML first. Amended there.
+retired_machine_name_exempt:
+  - path: cli/compass_pkg/core.py
+    why: >-
+      Holds the read-side rename tables (SPINE_KEY_MAP, ASSESSMENT_KEY_MAP,
+      _WHEN_KEY_MAP). Every loader normalises through them, which is what lets
+      the rest of the CLI speak one vocabulary while a 1.x spine still loads.
+      This is the single legitimate home for a retired spine key.
+  - path: cli/compass_pkg/migrate.py
+    why: >-
+      The migrator's in-code fallback copy of the artifact map, used when a
+      tree has no framework install to read cli/migrate-map.yml from. Reading
+      an old archive is translation, not a redirect (ADR-014).
+  - path: cli/migrate-map.yml
+    why: The translation table itself, as data.

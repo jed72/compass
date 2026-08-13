@@ -77,7 +77,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    - `- [ ] (evidence: EV-<id>) <description>` - passes if `EV-<id>` is in
      `task.yml`'s evidence registry with an accepted type (`test-run`,
      `command-output`, `manual-review`, `human-approval`, `artifact`, etc.).
-   - `- [ ] (backfill: BF-<id>) <description>` - passes if `BF-<id>` is in
+   - `- [ ] (follow-up: BF-<id>) <description>` - passes if `BF-<id>` is in
      `task.yml`'s `follow_ups:` with `status: owed`. The follow-up can
      carry an optional `target_task: <slug>` field; when set, the named
      issue's ship check fails until this entry is paid

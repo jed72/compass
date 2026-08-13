@@ -82,7 +82,7 @@ def test_scn_a1_full_specify_with_no_scenarios_blocks_a_code_edit():
         assert result.returncode == 2, (
             f"code was edited on a full-Specify route with no scenarios:\n"
             f"{result.stdout}{result.stderr}")
-        assert "G2" in result.stderr, result.stderr
+        assert "acceptance-before-code" in result.stderr, result.stderr
     finally:
         shutil.rmtree(project, ignore_errors=True)
 
@@ -126,7 +126,7 @@ def test_scn_b1_the_message_names_the_guardrail_and_the_remedy():
     project = _project(specify="full", scenarios=0, red=True)
     try:
         err = _run(project).stderr
-        assert "G2" in err and "acceptance-criteria.md" in err, err
+        assert "acceptance-before-code" in err and "acceptance-criteria.md" in err, err
         assert "scenarios" in err, err
         assert "frame" in err.lower(), (
             "a genuinely exploratory task should be told to re-frame - a Spike "
@@ -172,7 +172,7 @@ def test_scn_f2_g2_is_checked_before_the_red():
     project = _project(specify="full", scenarios=0, red=False)
     try:
         err = _run(project).stderr
-        assert "G2" in err, (
+        assert "acceptance-before-code" in err, (
             f"the red message won over the acceptance one:\n{err}")
     finally:
         shutil.rmtree(project, ignore_errors=True)

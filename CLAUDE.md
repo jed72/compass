@@ -152,7 +152,7 @@ ends with the **Definition of Ready** (the foot of `requirements-review.md`); on
 delivery approaches where that review collapses (quick fix, hotfix, spike),
 it is satisfied by construction. Before shipping comes the **Definition of
 Done** (the foot of `verification-report.md`); its unchecked items carry
-typed inline evidence tags - `(evidence: EV-id)` or `(backfill: BF-id)` -
+typed inline evidence tags - `(evidence: EV-id)` or `(follow-up: BF-id)` -
 and a bare unchecked item fails `compass check`. Treat an unchecked box as a
 closed gate.
 

@@ -217,18 +217,18 @@ runs `compass check`. It is the part that makes the framework's checks real
 rather than aspirational.
 
 ```
-compass approach evaluate   apply routing-policy.yml to a task's readings → the route
-compass check            run the guardrails.yml checks against task.yml + evidence/
-compass bdd extract     extract a task's acceptance-criteria.md into a runnable .feature
+compass approach evaluate   apply routing-policy.yml to an issue's assessment → the approach
+compass check            run the guardrails.yml checks against the spine + evidence/
+compass bdd extract     extract an issue's acceptance-criteria.md into a runnable .feature
 compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass issue lint        structurally validate a task.yml
 compass design lint        scan a design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
-compass issue receipt     render a one-screen receipt for a landed task:
-                         readings → route → typed evidence → gate verdicts
-compass issue set-status  record a task as queued | active | parked | landed |
+compass issue receipt     render a one-screen receipt for a landed issue:
+                         assessment → approach → typed evidence → gate verdicts
+compass issue set-status  record an issue as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
 compass acceptance start declare the acceptance for a change with no natural
                          red - a validator (--kind validation) or a green suite
@@ -241,10 +241,10 @@ compass analyze          cross-artifact coherence check: orphaned scenarios,
                          route disagreements, orphan claims (advisory, or
                          gate-clearing if verify.analyze is in the route)
 compass adr new          create a new numbered ADR in architecture/decisions/
-compass rework-scan      scan tasks for rework patterns (window from signals.yml)
-compass flow [--digest]  cross-task flow view; --digest writes a dated digest
+compass rework-scan      scan issues for rework patterns (window from signals.yml)
+compass flow [--digest]  cross-issue flow view; --digest writes a dated digest
                          with the rework-scan section and calibration signal
-compass next             surface the next action on the current task
+compass next             surface the next action on the current issk
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly: survives auto-fixing
                          pre-commit hooks and verifies HEAD advanced
@@ -350,14 +350,14 @@ compass/
 ├── governance/        Guardrails + strategies + routing policy: .md (prose)
 │                      AND .yml (the machine-readable governance the CLI runs,
 │                      including signals.yml and quarantine.yml)
-├── architecture/      The project's cross-task architectural artifacts:
+├── architecture/      The project's cross-issue architectural artifacts:
 │                      system-context.md, relations.md, ownership.md, and
 │                      ADRs in decisions/. Compass ships its own founding ADRs
 │                      as a worked example; another project drops its own here
 ├── approaches/        The sizing rubric (rubric.md) + the 5 reference shapes
 ├── schemas/           Executable JSON Schema (.schema.json) for the .yml +
 │                      task.yml, with human-readable .reference.yml companions
-├── cli/               compass - the deterministic CLI (route evaluate, check,
+├── cli/               compass - the deterministic CLI (approach evaluate, check,
 │                      tdd-red/green, lint, calibration, ci); the kit's mechanism
 ├── bin/               compass - plugin CLI shim that execs cli/compass.
 │                      Claude Code adds the plugin's bin/ to PATH when the
@@ -370,7 +370,7 @@ compass/
 ├── skills/            Procedural knowledge: routing, BDD, TDD, worktrees…
 ├── hooks/             Mechanical enforcement of the guardrails + TDD strategy
 ├── templates/         Artifact templates for every phase and role,
-│                      including task.yml, the machine-readable task spine
+│                      including task.yml, the machine-readable issk spine
 ├── scripts/           install, swarm, integrate, validate
 ├── .claude-plugin/    Claude Code plugin manifest (plugin.json) +
 │                      marketplace manifest - the install path used by

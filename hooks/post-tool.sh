@@ -4,7 +4,7 @@
 # =============================================================================
 # Runs as a Claude Code PostToolUse hook, after an Edit/Write/MultiEdit tool
 # call completes. It does ONE lightweight thing: appends a short line to the
-# current task's devlog.md, so "persistence over conversation" holds without
+# current issue's devlog.md, so "persistence over conversation" holds without
 # the agent having to remember to log every touch.
 #
 # WHAT IT DOES NOT DO (any more)
@@ -15,7 +15,7 @@
 #   marker was the brittle, trust-based version; the CLI replaces it with an
 #   evidence-backed one. This hook stays out of that.
 #
-# THE CURRENT TASK
+# THE CURRENT ISSUE
 #   Named by the .compass/current-task pointer (written by /compass:triage and
 #   /compass:resume); most-recently-modified is only the fallback.
 #
@@ -62,7 +62,7 @@ case "$TARGET" in
   *.compass/*|*/.compass/*) exit 0 ;;
 esac
 
-# --- find the current task (pointer first, most-recent as fallback) ---------
+# --- find the current issue (pointer first, most-recent as fallback) --------
 TASK_DIR=""
 POINTER="$COMPASS_DIR/current-task"
 if [ -f "$POINTER" ]; then

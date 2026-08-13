@@ -125,7 +125,7 @@ in `.compass/work/add-rate-limiting/task.yml`. For this issue it scores
 something like: size `standard` (several files, one or two design
 decisions), risk `cross-cutting` (a misconfigured limiter degrades
 something every API consumer touches), familiarity `brownfield-mapped`, role
-`engineer`. It tags `touches: [public-api]`.
+`engineer`. It tags `labels: [public-api]`.
 
 Then the mechanism takes over. `/compass:triage` shells out to
 `compass approach evaluate --write`, which applies `governance/routing-policy.yml`
@@ -404,7 +404,7 @@ is the view across all of them - triage, blockers, and a periodic digest;
 `docs/methodology.md` §10 explains why it is a capability rather than a role.
 
 Two more CLI commands work across the whole board. `compass ci` runs the full
-mechanical gate suite - `policy lint`, then `task lint` and `check` for every
+mechanical gate suite - `policy lint`, then `issue lint` and `check` for every
 issue - and exits non-zero if anything fails; wiring Compass into CI is just
 "run `compass ci`, honour the exit code" (see `ci/README.md`). And
 `compass retro` reads the re-assessment log across every issue and

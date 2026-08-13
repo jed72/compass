@@ -52,7 +52,7 @@ What follows is six cases. Read them in order; they build on each other.
 | Intent & role | `engineer` | Standard pipeline ownership; no brief, no other role. |
 
 Triage also assigns domain tags. The change is *in* the JWT module, so it
-tags `touches: [auth]` - honestly, because the tag is about where the change
+tags `labels: [auth]` - honestly, because the tag is about where the change
 lives, not how scary it looks.
 
 ### Compose
@@ -65,8 +65,8 @@ on a tiny surface, one light gate at Verify.
 
 ### Constrain
 
-Now the routing guardrails run. The floor `when: { touches: [auth] }` matches
-the `touches: [auth]` tag, and its action is `force_minimum_route: expedition`.
+Now the routing guardrails run. The floor `when: { labels: [auth] }` matches
+the `labels: [auth]` tag, and its action is `force_minimum_route: expedition`.
 The candidate quick fix is raised to **initiative**.
 
 This is the single most important thing the routing system does, so it is
@@ -79,7 +79,7 @@ line count. A floor is domain knowledge overriding the raw dimension assessment.
 
 The route is initiative. The routing-guardrails section of `delivery-approach.md` records:
 
-> **floor** · `touches: [auth]` · Candidate route quick fix was raised to
+> **floor** · `labels: [auth]` · Candidate route quick fix was raised to
 > initiative · *"Domain risk overrides size. A one-line auth change is
 > not small."*
 
@@ -89,7 +89,7 @@ silently routed light. A floor is governance speaking; overriding it would
 mean amending `governance/routing-policy.md`, not overriding a route.
 
 In practice the team might decide the policy is too blunt and narrow the floor
-(`touches: [auth]` only when the change is to auth *logic*, not auth-adjacent
+(`labels: [auth]` only when the change is to auth *logic*, not auth-adjacent
 strings). That is a legitimate, logged amendment to
 `governance/routing-policy.md` - not a convenience edit mid-issue. Until then,
 the typo fix runs initiative, and that is the system being conservative on
@@ -111,7 +111,7 @@ purpose.
 | Size | `standard` | Several files - a persistence layer, the filter serialisation, the UI - and one or two design decisions, 1–3 days. |
 | Intent & role | `engineer` | No brief; an engineer is implementing a well-understood feature. |
 
-Domain tags: `touches: [persistence]` perhaps, but nothing on the policy's
+Domain tags: `labels: [persistence]` perhaps, but nothing on the policy's
 floor list (`auth`, `payments`, `personal-data`, `migrations`, `public-api`).
 
 ### Compose
@@ -167,7 +167,7 @@ This is the case the methodology opens with: *a migration that touches one
 file is small but not safe.* Size and risk are different axes, and
 here they point in opposite directions. Triage scores them honestly -
 size `small`, risk `critical` - and does not let one launder the
-other. Domain tags: `touches: [payments, migrations]` - two tags, both on the
+other. Domain tags: `labels: [payments, migrations]` - two tags, both on the
 floor list.
 
 ### Compose
@@ -183,10 +183,10 @@ toward **initiative** - on risk alone.
 
 Two floors fire, and they reinforce each other:
 
-- `when: { blast_radius: critical }` → `force_minimum_route: expedition`,
+- `when: { risk: critical }` → `force_minimum_route: expedition`,
   `never_skip: [clarify, verify, land]`. *"Critical changes coordinate or they
   break things quietly."*
-- `when: { touches: [payments, migrations] }` → `force_minimum_route:
+- `when: { labels: [payments, migrations] }` → `force_minimum_route:
   expedition`. *"Domain risk overrides size."*
 
 Then a **cap** fires - and this is the subtle part. `when: { risk:
@@ -233,7 +233,7 @@ map is the record of *what could have been parallel and why it wasn't* - here,
 | Size | `product` | A new subsystem - three delivery channels, a preferences model, a delivery log. 2+ weeks, many independent work streams. |
 | Intent & role | `engineer` | An engineering lead, though a designer and a product owner may well join (preferences are a user-facing surface; the subsystem serves a stated outcome). |
 
-Domain tags: possibly `touches: [personal-data]` if the preferences or
+Domain tags: possibly `labels: [personal-data]` if the preferences or
 delivery log store anything personal - triage tags honestly and that tag
 would add a floor; assume here it does not.
 
@@ -250,7 +250,7 @@ a per-worktree mid-route checkpoint.
 
 ### Constrain
 
-The `blast_radius: critical` floor does *not* fire - this is `cross-cutting`,
+The `risk: critical` floor does *not* fire - this is `cross-cutting`,
 not `critical`. So the critical-risk cap does *not* apply either: the
 swarm is not pinned to one worktree. Stream count comes from the distribution
 map, bounded by `.compass/config.yml`'s `max_worktrees` (default 6). If the
@@ -304,7 +304,7 @@ then requires the mandatory follow-up.
 
 ### Constrain
 
-The `blast_radius: critical` floor's `force_minimum_route: expedition` would
+The `risk: critical` floor's `force_minimum_route: expedition` would
 seem to apply - but Hotfix's gate set is *already* at full Verify weight, and
 `never_skip: [clarify, verify, land]` is honoured by Hotfix's structure
 (the review is collapsed *into* the reproduction, not skipped; verify and ship

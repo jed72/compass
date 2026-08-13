@@ -103,15 +103,15 @@ the natural fit). Keep it short enough to read in two minutes.
 ## Blocked
 - {{task-slug}} - blocked on {{precise blocker}}; needs {{who/what}}
 
-## Owed backfills
-- {{task-slug}} - {{unpaid Hotfix backfill | unbacked claim | de-scoped artifact}}
+## Outstanding follow-ups
+- {{issue-slug}} - {{outstanding hotfix follow-up | unbacked claim | de-scoped artifact}}
 
 ## Calibration
 - {{`compass retro` signal - re-frame rate, lean toward over- or
   under-sizing, or "balanced" - or "not enough history yet"}}
 
 ## Next up
-- {{tasks framed but not started, in route order}}
+- {{issues triaged but not started, in approach order}}
 ```
 
 ## What flow management must not do

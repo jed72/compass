@@ -94,7 +94,7 @@ to clear silently when a rerun is unaccounted for.
 ### Regression baseline: green before, re-run after, on shared surface (`S6`)
 
 **Soft, assessed - not a guardrail.** When a change touches shared or critical
-surface (`blast_radius` cross-cutting or critical), the highest-value evidence
+surface (`risk` cross-cutting or critical), the highest-value evidence
 is a *baseline*: run a designated existing end-to-end / regression suite green
 **before** the change, keep the change additive / guarded, and re-run it
 **after**. Record both as `test-run` evidence on `verify.regression`.

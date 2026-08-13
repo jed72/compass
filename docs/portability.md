@@ -48,7 +48,7 @@ governance/      routing-policy.yml, guardrails.yml - machine-readable governanc
 schemas/         *.schema.json - executable JSON Schema (draft-07);
                  *.reference.yml - human-readable companions
 ci/              github-actions.yml + README - the CI integration contract
-templates/       task.yml - the machine-readable task spine
+templates/       task.yml - the machine-readable issue spine
 ```
 
 The kit layer is the *mechanism* side of the determinism boundary
@@ -61,7 +61,7 @@ the guardrail checks - is pure function, and this layer is that function.
 `evidence/` (gate evidence is *typed* - a `{type, path}` record - so a
 mechanical gate cannot be cleared with a written note); `compass tdd-red` /
 `tdd-green` run a test and write the evidence records; `compass policy lint` /
-`task lint` validate the YAML against the executable JSON Schema in `schemas/`
+`issue lint` validate the YAML against the executable JSON Schema in `schemas/`
 when the optional `jsonschema` library is present, and against the built-in
 linter always; `compass ci` aggregates the lot for CI; `compass retro`
 reads the re-assess log across all issues and reports whether routing is
@@ -181,7 +181,7 @@ the same outcome - mechanically if it can, procedurally if it cannot.
 
 ### 2. Walk the eight-phase pipeline
 
-`Frame → Specify → Clarify → Plan → Distribute → Build → Verify → Land`. The
+`triage → define → refine → design → breakdown → implement → verify → ship`. The
 adapter must make each phase an invocable unit - a command, a mode, a routine,
 whatever the runtime offers - run in order. The route in `delivery-approach.md` says which
 phases are full-weight, which collapse, and which are skipped, and always says
@@ -256,7 +256,7 @@ the isolation that makes a swarm safe.
 
 Two kit commands operate across the whole board, and the adapter wires them
 into the runtime's surfaces rather than reimplementing them. `compass ci` runs
-the full mechanical gate suite - `policy lint`, then `task lint` and `check`
+the full mechanical gate suite - `policy lint`, then `issue lint` and `check`
 for every issue - and aggregates exit codes; the CI integration is "run
 `compass ci`, honour the exit code" (`ci/README.md` is the contract, and
 `ci/github-actions.yml` the reference workflow). `compass retro`

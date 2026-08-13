@@ -242,7 +242,7 @@ def cmd_check(args):
             passed, detail = _check_backfills_paid(task, task_dir)
         except Exception as exc:                        # noqa: BLE001
             passed, detail = False, f"check errored: {exc}"
-        print("  owed follow-ups")
+        print("  outstanding follow-ups")
         _print_check_result("backfills-paid", passed, detail)
         print()
         if not passed:
@@ -347,7 +347,7 @@ def cmd_check(args):
         passed, detail = _check_backfills_paid(task, task_dir)
     except Exception as exc:                            # noqa: BLE001
         passed, detail = False, f"check errored: {exc}"
-    print("  owed follow-ups")
+    print("  outstanding follow-ups")
     _print_check_result("backfills-paid", passed, detail)
     print()
     if not passed:

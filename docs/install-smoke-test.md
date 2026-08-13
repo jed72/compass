@@ -150,6 +150,7 @@ The check runs against an early-issue state - triage has run, but the
 acceptance criteria, the implementation and the review have not. The check will report what is missing
 honestly. Expected output shape:
 
+<!-- vocabulary-scan: allow - quoted `compass check` output; the guardrail codes come from guardrails.yml -->
 ```
 compass check - issue 'test-installation' (approach: quick-fix)
 [mode: enforced]
