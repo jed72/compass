@@ -13,9 +13,10 @@ superseded_by: ''
 surface by surface. It deliberately scanned less than the full text of two
 file types, and the reasoning was written down at the time:
 
-- **In markdown**, fenced blocks and inline code spans were skipped, because
-  "a backticked `/compass:frame` names a command that really is still called
-  that during the transition - so markdown contributes prose only."
+- **In markdown**, fenced blocks (the triple-backtick kind) and inline code
+  spans (the single-backtick kind) were skipped, because "a backticked
+  `/compass:frame` names a command that really is still called that during
+  the transition - so markdown contributes prose only."
 - **In Python**, docstrings and *string literals with no whitespace* were
   skipped, because "a single token is a machine identifier (a spine key, a
   filename, a flag), not prose."
