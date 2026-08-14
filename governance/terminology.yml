@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre11
+version: 2.0.0-pre12
 
 terms:
 
@@ -429,6 +429,14 @@ terms:
 # The set is not maintained by hand: a guard scans shipped artifacts for
 # prefixes and requires an entry for each one it finds, so a new prefix
 # introduced without a definition fails on arrival.
+# A CHECK DERIVES FROM THIS BLOCK'S STRUCTURE.
+# tests/plain_language_check.py reads each entry's `means:` to know what plain
+# words count as explaining that prefix. Rename the block or the field and the
+# derivation fails loudly, naming this file. It is deliberately not a
+# hand-written table elsewhere: that would drift from this block in silence,
+# and the check would keep passing while describing codes that had been
+# renamed. See TRC-C9 in plain-language-3-2-0.
+
 codes:
   TRC:
     means: >
@@ -590,6 +598,9 @@ banned:
   - term: "G1..G5 / S1..S12 codes, bare"
     replacement: "the code followed by its plain statement, on first use"
     context: "In anything a human reads - agent speech, printed output, generated artifacts. Expand on FIRST use in that piece of output; the bare code is correct and preferable afterwards. Never drop the code: it carries the traceability the machine checks read. `compass check` is the shipped example - it prints 'G5 A human signs off on the irreversible'. Codes may live bare in governance config, which is machine input rather than something a newcomer reads."
+  - term: "seam / seams"
+    replacement: "interface, contract, dependency injection, boundary, extension point, abstraction layer"
+    context: "For code structure, extension points and software boundaries. A vague structural metaphor lets a writer assert a structure they have not checked exists; naming the specific mechanism forces them to check. Use interface or contract for a declared Protocol, ABC or signature; dependency injection for substituting an implementation; boundary for where one package's or layer's responsibility ends; extension point for where a new implementation registers; abstraction layer when discussing decoupling. Ordinary non-structural use is fine - a garment has seams. Quoted from a tool's output, an API or an existing spec: keep it in quotation marks or a code span and say what it means, per the quoted-term exception below. Maintainer ruling, 2026-08-14."
   - term: "vacuous / vacuity / orthogonal / elide / salient"
     replacement: "everyday words, even if it takes more of them"
     context: "In anything a human reads. Each is accurate and almost never used in ordinary speech, so it costs a junior or mid engineer a lookup at the moment they are trying to read a result. Prefer a longer plain sentence to a short exact one - 'the check passed without actually checking anything' rather than 'the check cleared by vacuity'. Keep a rare word only when it is quoted from a tool's output, an API or an existing spec and the reader needs it to search; then say what it means. `canonical` is deliberately NOT on this list - it is fine in identifiers such as canonical_shape(). Maintainer ruling, 2026-08-14."
@@ -733,6 +744,90 @@ scan:
 # `dest="task"` is internal plumbing - `banned:` already says the word is
 # banned in human-facing prose only, with machine state exempt. Listing it
 # would flag correct code.
+# =============================================================================
+# How an exemption is written: per line, never by path prefix
+# =============================================================================
+# **A path prefix lists nothing.** That is the whole argument, and it is about
+# countability rather than strictness.
+#
+#     grep -rn "vocabulary-scan: allow" .
+#
+# enumerates every per-line exemption in the repository, each carrying the
+# reason someone wrote for it. A directory prefix is one line hiding an unknown
+# number of instances, and nothing can report what it covers - not the scan, not
+# a reviewer, not the person who added it.
+#
+# This is the same finding as the printed-output guard one level across: what
+# was missing there was never coverage but ENUMERATION. With no list of print
+# sites, nothing could report what was uncovered, so 2 commands out of 24 looked
+# exactly like 24.
+#
+# It matters because the instinct when a check is too noisy is always to reach
+# for a prefix, and a prefix is the one form of exemption that cannot be
+# audited. Measured 2026-08-14: narrowing ONE prefix - the bare-codes ban's
+# `governance/`, covering about five prose files - surfaced a real defect nobody
+# had noticed. Two prefixes in the `exempt:` list below still hide 197 tracked
+# files between them. Tracked in `path-prefix-exemptions-hide-their-contents`.
+#
+# So: reach for the marker first. Reach for a file list second. Reach for a
+# prefix only when the directory genuinely has no scannable content, and say so.
+
+# =============================================================================
+# The quoted-term exception - when a banned word may stay
+# =============================================================================
+# A ban exists so a reader is not made to look something up. That reason stops
+# applying when the word is not ours: if a tool's output, an API, a spec or a
+# standard uses the word, the reader needs the exact string in order to search
+# for it, and paraphrasing it costs them the thing the ban was protecting.
+#
+# So a banned word may stay when BOTH hold:
+#   1. It is quoted - inside quotation marks or a code span (backticks). That
+#      is how the scanners recognise it, and every ban pattern is written with
+#      a lookbehind and lookahead that skip a quoted or code-spanned use.
+#   2. The same sentence, or the one before it, says what it means in plain
+#      words. The quotation buys the reader a search term; it does not excuse
+#      the sentence from explaining itself.
+#
+# Both halves are required. A quoted word with no explanation is the original
+# defect with punctuation around it.
+quoted_term_exception:
+  applies_to: every entry under `banned:`
+  recognised_by: "a quotation mark or a code span around the word"
+  also_required: "a plain-words statement of the meaning in the same sentence or the one before"
+  why: "the reader needs the exact string to search for; paraphrasing it removes that"
+  worked_example: >-
+    governance/strategies.md quotes the command `git grep -n -i -E '\bseam\b'`
+    when explaining that a word-boundary scan returned nothing. "seam" is banned
+    and stays there, in a code span, because the sentence is about that exact
+    command and a reader retyping a paraphrase would not reproduce the result.
+
+# =============================================================================
+# Project-specific additions - NOT SUPPORTED YET
+# =============================================================================
+# The ruling (maintainer, 2026-08-14): the everyday-words list ships as a
+# default, is extendable per project, and is never replaceable. The named
+# prohibitions are about plain English rather than domain vocabulary, so they
+# hold in any project; a team's own words are additions. A genuine domain term
+# that collides with the list is handled by the quoted-term exception above,
+# never by deleting the entry.
+#
+# WHAT IS TRUE TODAY, which is not that:
+#   - The shipped list above applies as-is. That part works.
+#   - Project-specific additions are NOT SUPPORTED YET. A project-local
+#     governance/ currently REPLACES the shipped defaults wholesale rather than
+#     layering onto them, and only when routing-policy.yml sits beside it - so
+#     there is no layer for a project's entries to be added to.
+#   - Tracked in `governance-merge-not-replace`. The acceptance criterion for
+#     the behaviour above travels with that issue.
+#
+# This section states what is true rather than what is intended, deliberately.
+# Writing the end state in the present tense would be a governance file
+# asserting something it has not established.
+project_additions:
+  supported: false
+  shipped_list_applies: true
+  tracked_in: governance-merge-not-replace
+
 retired_machine_names:
   # spine keys, renamed at the v2 freeze
   - name: route
