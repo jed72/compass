@@ -164,6 +164,15 @@ the irreversible`, the identifier and its meaning together. Match it rather
 than inventing a second convention. Never solve this by dropping the code -
 the codes carry the traceability, and the machine checks read them.
 
+**Correct a retired name in a comment you were touching anyway.** The
+vocabulary scan does not read comments or docstrings - the parser discards
+them, so nothing there reaches a user (`PX-1` in `terminology.yml`). But the
+752 retired names sitting in them are the reservoir the next user-facing
+string gets copied from, which is close to how the v1 vocabulary spread in
+the first place. So: no sweep, and no obligation to go looking - but a
+comment you are editing for another reason gets its retired name fixed on the
+way past. It drains without a big bang.
+
 **Self-contained, and short.** Say it once, plainly, then stop. Length is not
 thoroughness: an artifact nobody finishes has communicated nothing. Cut every
 sentence that only restates the one before it.
@@ -379,6 +388,19 @@ dimension.
 *Cross-reference: mutation proof (`S10`) - both replace a confident assertion
 with an observation. See `CLAUDE.md` and `commands/verify.md` for the pointer
 at the point of use.*
+
+**A worked instance.** A findings report from the lead listed five identifiers
+the receipt printed "with nothing beside them". Rendering a receipt from a
+reconstructed spine took one command. Two of the five already printed their
+meaning, and the genuinely broken case - evidence ids truncated mid-token, so
+they could not be matched to the entry defining them eight lines below - was
+not on the list at all.
+
+The cost of checking was one command. The cost of not checking would have been
+three false statements inside an instruction that was about to shape a day's
+work. That asymmetry is the whole strategy: the disputed quantity is almost
+always cheaper to measure than to argue about, and the argument is usually
+being carried by somebody's pattern-match.
 
 ---
 

@@ -258,6 +258,10 @@ def _read(path: Path) -> str | None:
 INLINE_CODE_RE = re.compile(r"`[^`]+`")
 
 
+_YAML_KEY_RE = re.compile(r"^\s*-?\s*[\w.\-/]+\s*:")
+_YAML_INLINE_KEY_RE = re.compile(r"(?<![\w.\-/])[\w.\-/]+\s*:")
+
+
 def _scan_units(path: Path) -> list[tuple[int, str]]:
     """The (line number, text) pairs the scanner checks for one file.
 
@@ -354,15 +358,40 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
                 units.append((lineno, line))
         return units
     if path.suffix in (".yml", ".yaml"):
-        # The YAML analogue of the markdown rule: in a machine file only the
-        # comments are prose - keys and values are the live schema. Backticked
-        # names inside a comment are code, as in markdown.
+        # Values ARE scanned - that is the inversion (PX-1, PX-2 in
+        # terminology.yml). A `rationale:` value is printed verbatim to the
+        # terminal by `compass approach evaluate`, so it is prose whatever
+        # file it lives in; reading only the comments is how "checked before
+        # Land" reached a screen past a green scan.
+        #
+        # Exempt, by declared exemption: the comment (PX-1 - the parser
+        # discards it) and the key itself (PX-2 - machine contract, renamed by
+        # migration). So each line contributes its value, with the key and any
+        # trailing comment removed.
         units = []
         for lineno, line in enumerate(text.splitlines(), 1):
-            if "#" in line:
-                comment = line.split("#", 1)[1]
-                units.append((lineno, INLINE_CODE_RE.sub(" ", comment)))
+            # The allow marker lives in a comment, and comments are exempt -
+            # so the marker line has to be emitted anyway or the exemption
+            # mechanism cannot see it. Emitting it is safe: the marker text
+            # carries no banned word, and _scan_files consumes the line as a
+            # marker rather than scanning it.
+            if ALLOW_MARKER_RE.search(line):
+                units.append((lineno, line))
+                continue
+            body = line.split("#", 1)[0]
+            m = _YAML_KEY_RE.match(body)
+            value = body[m.end():] if m else body
+            # PX-2 again, for nested keys: `stages: { frame: light, ... }`
+            # carries its keys inline, and those are the same machine contract
+            # as a key on its own line. A key is always the token immediately
+            # before a colon, so blanking that shape removes them.
+            value = _YAML_INLINE_KEY_RE.sub(" ", value)
+            if value.strip():
+                units.append((lineno, INLINE_CODE_RE.sub(" ", value)))
         return units
+    # The DEFAULT IS TO SCAN. A file type with no rule above contributes every
+    # line. A position is excluded by being declared in
+    # terminology.yml `scan.position_exemptions`, never by falling through.
     return list(enumerate(text.splitlines(), 1))
 
 

@@ -118,6 +118,10 @@ the why before the detail, never leave a dangling reference, say what a
 linked issue or pull request actually changed rather than only citing it,
 and stop once you have said it. Commit messages and pull-request bodies
 never carry an agent co-author trailer and never a "Generated with" footer.
+A comment or docstring you are editing for any other reason gets its
+retired vocabulary corrected on the way past. Comments are exempt from the
+scan - nothing in them reaches a user - but they are what the next
+user-facing string is copied from, so they decay rather than being swept.
 This repository writes a plain hyphen where an em dash would go
 (`tests/test_house_style.py` enforces that). And everything you write -
 test names, comments, commit messages, artifacts - uses the frozen v2

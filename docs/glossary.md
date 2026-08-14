@@ -80,6 +80,16 @@ Intent id. The "why" end of the traceability chain - the outcome the work is mea
 
 **Related:** `TRC`, `prd`
 
+### `PX-`
+
+Position exemption. One entry in `scan.position_exemptions` naming a position the vocabulary scan does not read - a source comment, a machine key - together with the reason a string in that position cannot reach a user. The scan reads every position by default, so a PX- entry is the only way a position is excluded.
+
+**Not:** A surface exemption. `scan.exempt` names whole FILES the scan skips; a PX- entry names a POSITION within a file that is scanned.
+
+**Refers to:** One position exemption: the positions it names, and the reason a string there cannot reach a user.
+
+**Appears in:** governance/terminology.yml, tests/test_terminology.py
+
 ### `RG-`
 
 The retired spelling of RP-. Kept in archived records, which keep the id that fired.

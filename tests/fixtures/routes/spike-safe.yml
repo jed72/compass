@@ -13,5 +13,5 @@ expected:
   delivery_approach: spike
   fired_guardrail_ids: []
   conflict: false
-  topology: solo
+  stream_ceiling: 1
   has_gate: spike.conclude

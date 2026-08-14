@@ -19,7 +19,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.5.2
+version: 1.6.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -37,7 +37,7 @@ checks:
     # finding is the honest default (ADR-006).
     blocking_when: { blast_radius: [cross-cutting, critical] }
   declared-tests-resolve:
-    description: "Every declared test id points at a test that exists on disk. Fires only once a task has claimed verify.correctness and is still active - before that the test legitimately does not exist yet; after landing the spine is a historical record."
+    description: "Every declared test id points at a test that exists on disk. Fires only once an issue has claimed verify.correctness and is still active - before that the test legitimately does not exist yet; after landing the spine is a historical record."
   suite-passed:
     description: "evidence/green.json records the full suite passing, recently."
   changed-code-traces-to-scenario:
@@ -51,27 +51,27 @@ checks:
   human-approval-present:
     description: "An approval record exists for an irreversible change."
   backfills-paid:
-    description: "task.yml's backfills list is empty or every item is marked paid."
+    description: "The issue spine's follow-ups list is empty or every item is resolved."
   spike-conclusion-present:
-    description: "A Spike has a `spike-conclusion` evidence entry with a recorded decision (discard | graduate-to-delivery | defer); graduate-to-delivery links the next task."
+    description: "A spike has a `spike-conclusion` evidence entry with a recorded decision (discard | graduate-to-delivery | defer); graduate-to-delivery links the next issue."
   spike-no-production-changes:
     description: "A Spike's `changed_files` is empty - a spike ships nothing; graduating to delivery is a fresh Frame, not a merge."
   dod-evidence-typed:
     description: >
       Every unchecked DoD box in verification-report.md must carry an inline
       tag: `(evidence: EV-<id>)` referencing a typed evidence registry entry,
-      or `(backfill: FU-<id>)` referencing an owed backfill. A bare unchecked
+      or `(follow-up: FU-<id>)` referencing an outstanding follow-up. A bare unchecked
       box fails. Checked boxes (`- [x]`) pass without a tag - the human took
       responsibility. Narrative notes (devlog 'USER TO APPLY') never count.
-      Cross-task: when another task has a backfill with target_task pointing at
-      this task, that backfill must be paid before this task's Land closes.
+      Cross-issue: when another issue has a follow-up with target_task pointing at
+      this issue, that follow-up must be resolved before this issue ships.
   coherence-check-passes:
     description: "compass analyze reports zero coherence findings. Gate-clearing runs write type coherence-check evidence; advisory runs write command-output and do not clear verify.analyze."
   no-trusted-rerun:
     description: >
       Every test-run evidence entry is checked for rerun integrity. A record
       with rerun_without_change: true must have its test listed in the project
-      quarantine registry (governance/quarantine.yml) with a tracking task - a
+      quarantine registry (governance/quarantine.yml) with a tracking issue - a
       rerun-to-green without a quarantine entry is a G4 failure (S5: intermittency
       is failure). A record with attempts > 1 but no rerun_without_change marker
       is also rejected - incomplete evidence cannot clear G4. Old evidence without
@@ -114,7 +114,7 @@ evidence_types:
   claim-review:
     description: "A recorded review of public/user-facing claims against backing scenarios - the marketer's audit trail."
   spike-conclusion:
-    description: "A recorded close-out of a Spike: what was learned, a decision (discard | graduate-to-delivery | defer), and any link to the next task."
+    description: "A recorded close-out of a spike: what was learned, a decision (discard | graduate-to-delivery | defer), and any link to the next issue."
   coherence-check:
     description: "Output of compass analyze - a structured coherence findings list. Gate-clearing: zero findings. Only this type clears verify.analyze; advisory command-output entries do not."
   artifact:
@@ -176,7 +176,7 @@ defaults:
     statement: >
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
-      reference typed evidence or a filed backfill - narrative notes never clear it.
+      reference typed evidence or a filed follow-up - narrative notes never clear it.
     checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun, command-passes]
     checked_at: [verify, land]
 

@@ -331,8 +331,17 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     if topology_override and topology_override != topology:
         topology_shown = (f"{topology} (overridden: {topology_override} - "
                           "see the delivery approach)")
-    lines.append(_receipt_truncate(
-        f"  {shape_shown}  (topology: {topology_shown})"))
+    # Triage records a ceiling, breakdown records a topology. A spine may
+    # legitimately carry either: an archived one has the topology word triage
+    # used to write, and an in-flight one has only the ceiling until the
+    # distribution map exists. Printing the empty slot said nothing.
+    if topology_shown:
+        detail = f"topology: {topology_shown}"
+    else:
+        ceiling = task.get("stream_ceiling")
+        detail = ("parallel streams: unbounded by policy" if ceiling is None
+                  else f"parallel streams: up to {ceiling}")
+    lines.append(_receipt_truncate(f"  {shape_shown}  ({detail})"))
     # No v1-key fallback: the spine is normalised on load (see
     # normalize_spine), so a 1.x `fired_guardrails` has already become
     # this key by the time the receipt reads it.

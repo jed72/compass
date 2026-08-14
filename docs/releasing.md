@@ -28,6 +28,15 @@ ADR-006 is the other half of this: backward compatibility is non-negotiable
 *within* a major, so a new mechanism no-ops on projects that have not adopted
 it, and a break is paid once, at a major, with the reason recorded.
 
+**When a change looks like it forces a major, removing the break is a
+legitimate response; redefining the break is not.** 3.1.0 is the worked case:
+triage started recording a stream ceiling where it had recorded a topology,
+and nothing normalised the old field - so every spine written earlier read as
+`None`. That was a major. Normalising old spines on read made it a minor, and
+normalising was owed under ADR-006 regardless of what it did to the number.
+The test is whether you would make the change with the version hidden. Arguing
+that the break is tolerable is the other thing, and it is not this.
+
 1. **Bump the version** in every location that carries it. There are seven:
 
    | Location | Guarded by |

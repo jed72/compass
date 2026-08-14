@@ -76,7 +76,7 @@ follow_ups:
     note, not just the urgent stub.
   status: paid
 - id: FU-003
-  description: Root-cause line in devlog.md, plus the follow-up task for the missing-scenario
+  description: Root-cause line in devlog.md, plus the follow-up issue for the missing-scenario
     class of gap.
   status: paid
 reassessments: []

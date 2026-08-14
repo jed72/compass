@@ -12,5 +12,5 @@ expected:
   delivery_approach: feature
   fired_guardrail_ids: []
   conflict: false
-  topology: solo-or-pair
+  stream_ceiling: 2
   has_gate: verify.regression
