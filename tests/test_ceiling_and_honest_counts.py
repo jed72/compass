@@ -116,7 +116,11 @@ def test_trc_a3_an_uncapped_approach_permits_more_than_one(tmp_path):
         check=True)
     spine = yaml.safe_load(
         (root / ".compass" / "work" / "demo" / "task.yml").read_text())
-    assert spine["stream_ceiling"] > 1, (
+    # None means unbounded, which is what an uncapped swarm actually permits.
+    # The assertion is "not pinned to one", not "greater than one" - an
+    # earlier version asserted the latter and only passed because `swarm`
+    # carried an invented ceiling of 8.
+    assert spine["stream_ceiling"] != 1, (
         f"large work on contained risk permits parallel streams; the ceiling "
         f"came out {spine['stream_ceiling']!r}")
 
@@ -243,3 +247,67 @@ def test_trc_c3_a_real_test_still_resolves(tmp_path, monkeypatch):
     }
     passed, detail = _check_declared_tests_resolve(task, str(d))
     assert passed, f"an ordinary passing test was refused: {detail!r}"
+
+
+# ---------------------------------------------------------------------------
+# Group E - the ceiling is derived, and an old spine still reads
+# ---------------------------------------------------------------------------
+
+def test_trc_e1_swarm_has_no_invented_ceiling():
+    """`swarm` is unbounded in the policy - no number exists to encode.
+
+    The first version of this work wrote `swarm: 8`. Nothing in
+    `routing-policy.yml` or `.compass/config.yml` says eight; the only cap in
+    the policy is RP-CAP-001's `max_worktrees: 1`, and the config file states
+    that the worktree cap is a routing concern it deliberately does not hold.
+    So eight was a configurable-looking number frozen into a literal, and it
+    would have misreported the day anyone set a real cap.
+    """
+    from compass_pkg.routing import _SHAPE_STREAM_CEILING
+
+    assert _SHAPE_STREAM_CEILING["swarm"] is None, (
+        f"`swarm` carries an invented ceiling of "
+        f"{_SHAPE_STREAM_CEILING['swarm']!r}. Unbounded is the honest value: "
+        f"the policy states no number, so only a cap can produce one")
+    assert _SHAPE_STREAM_CEILING["solo"] == 1
+    assert _SHAPE_STREAM_CEILING["solo-or-pair"] == 2
+
+
+def test_trc_e2_a_cap_still_produces_a_number(tmp_path):
+    """The control: unbounded must not mean uncappable."""
+    root = _project(tmp_path)          # critical risk -> RP-CAP-001 fires
+    subprocess.run(
+        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "demo",
+         "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
+        check=True)
+    spine = yaml.safe_load(
+        (root / ".compass" / "work" / "demo" / "task.yml").read_text())
+    assert spine["stream_ceiling"] == 1, spine.get("stream_ceiling")
+
+
+def test_trc_e3_an_old_spine_normalises_to_a_ceiling():
+    """A spine written before this change carries `topology: swarm` and no
+    ceiling. It must still be readable - ADR-006's tolerant read side - so the
+    old word normalises to the ceiling it always implied."""
+    from compass_pkg.core import normalize_spine
+
+    for word, expected in (("solo", 1), ("solo-or-pair", 2), ("swarm", None)):
+        out = normalize_spine({"task": "old", "topology": word})
+        assert "stream_ceiling" in out, (
+            f"an old spine carrying `topology: {word}` does not normalise to a "
+            f"stream_ceiling, so every reader of the new field sees None")
+        assert out["stream_ceiling"] == expected, (
+            f"topology {word!r} normalised to {out['stream_ceiling']!r}, "
+            f"expected {expected!r}")
+        assert out.get("topology") == word, (
+            "normalisation destroyed the recorded topology - an archived "
+            "spine keeps what it said")
+
+
+def test_trc_e4_a_new_spine_is_not_overwritten():
+    """The control. A spine that already carries a ceiling must keep it, or
+    normalisation would silently re-derive a number breakdown had refined."""
+    from compass_pkg.core import normalize_spine
+
+    out = normalize_spine({"task": "t", "topology": "swarm", "stream_ceiling": 3})
+    assert out["stream_ceiling"] == 3, out["stream_ceiling"]

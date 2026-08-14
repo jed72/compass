@@ -309,10 +309,29 @@ def normalize_spine(task):
         for f in fups:
             if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
                 f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
+    # Triage used to record a `topology:` word; it now records a
+    # `stream_ceiling:` number, because it cannot know a topology before the
+    # distribution map exists. A spine written before that change carries the
+    # word and no ceiling, so the word is read as the ceiling it always
+    # implied. The recorded topology is KEPT: an archived spine says what it
+    # said, and breakdown legitimately writes a topology of its own.
+    if out.get("stream_ceiling") is None and "stream_ceiling" not in out:
+        topo = out.get("topology")
+        if isinstance(topo, str) and topo:
+            # A capped 1.x spine recorded the sentence
+            # "solo (capped to 1 worktree)"; its first word is the topology.
+            out["stream_ceiling"] = TOPOLOGY_STREAM_CEILING.get(
+                topo.split(" ")[0], None)
     # The on-disk schema_version is preserved: readers must be able to say
     # honestly what generation a spine was written in (the receipt reports
     # legacy spines). Writers stamp the current version when they save.
     return out
+
+
+# The topology words a pre-ceiling spine could carry, and the ceiling each
+# always implied. `swarm` is None - unbounded - for the same reason the
+# evaluator's table says so: no number for it exists anywhere in the policy.
+TOPOLOGY_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
 
 
 # 1.x follow-up states -> their v2 spellings, applied read-side by

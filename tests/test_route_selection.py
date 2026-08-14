@@ -66,7 +66,9 @@ def test_expedition_route_for_large_magnitude(run_cli):
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     assert data["delivery_approach"] == "initiative"
-    assert data["stream_ceiling"] == 8
+    # swarm is unbounded by policy: no number for it exists in
+    # routing-policy.yml or .compass/config.yml, so only a cap makes one.
+    assert data["stream_ceiling"] is None
 
 
 def test_hotfix_route_for_live_defect(run_cli):

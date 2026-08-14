@@ -126,4 +126,4 @@
   - verify.clarity
   - verify.claims
   - verify.fitness
-  expected_stream_ceiling: 8
+  expected_stream_ceiling: null

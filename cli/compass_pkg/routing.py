@@ -99,7 +99,16 @@ from compass_pkg.task_spine import _annotate_gate_accepts
 # How many parallel streams each route shape permits. The policy states this
 # as a topology word; here it becomes the number a cap can be compared
 # against. `solo-or-pair` permits two - that is what "or pair" means.
-_SHAPE_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": 8}
+#
+# `swarm` is None because it is UNBOUNDED, not because the number is unknown.
+# Nothing in routing-policy.yml or .compass/config.yml states a swarm width -
+# the only cap the policy carries is RP-CAP-001's max_worktrees: 1, and the
+# config file says in as many words that the worktree cap is a routing
+# concern it does not hold. An earlier draft wrote 8 here; that is a
+# configurable-looking number frozen into a literal, and it would have
+# misreported the day anyone set a real cap. A ceiling on a swarm can only
+# come from a cap, or from the distribution map at breakdown.
+_SHAPE_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
 
 
 def evaluate_route(readings, policy):
@@ -291,7 +300,8 @@ def evaluate_route(readings, policy):
     stream_ceiling = _SHAPE_STREAM_CEILING.get(
         str(shape.get("topology", "solo")), 1)
     if max_worktrees is not None:
-        stream_ceiling = min(stream_ceiling, max_worktrees)
+        stream_ceiling = (max_worktrees if stream_ceiling is None
+                          else min(stream_ceiling, max_worktrees))
 
     # --- soft advisory strategies (R10) -------------------------------------
     # These BIAS/ASSESS only - they never alter the route, gates, weight, or
@@ -385,9 +395,11 @@ def cmd_route_evaluate(args):
                     print(f"        - {c}")
         else:
             print("  policy rules fired: none")
-        print(f"  parallel streams: up to {result['stream_ceiling']} "
-              f"(a ceiling - breakdown sets the topology once the "
-              f"distribution map exists)")
+        ceiling = result["stream_ceiling"]
+        permits = ("unbounded by policy" if ceiling is None
+                   else f"up to {ceiling}")
+        print(f"  parallel streams: {permits} (a ceiling - breakdown sets the "
+              f"topology once the distribution map exists)")
         print("  per-stage weight:")
         for p, w in result["stages"].items():
             print(f"    {display_stage(p):<11}: {w}")
