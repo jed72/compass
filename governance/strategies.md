@@ -302,6 +302,51 @@ The recorded result matters as much as the act. A reviewer cannot tell a
 guard that was mutation-proved from one that was not, so the table - what was
 broken, what failed, what passed on restore - travels with the change.
 
+**What this actually yields, measured on one stream.** Nine scenarios were
+implemented in `plain-language-3-2-0` stream 1, every test green, every scenario
+looking done. Mutation-proving them found three checks that asserted nothing -
+and **not one was a defect in the code**. All three were tests that would have
+shipped as coverage while proving nothing:
+
+- A check written *after* its defect had been fixed passed on first run. It was
+  proved only by planting the original offending content back; until that was
+  done, its pass established nothing at all.
+- A check for build noise matched paths with `str.startswith`, so
+  `tests/__pycache__/x.pyc` did not begin with `__pycache__/`. It could never
+  have caught build noise in any subdirectory - the case it existed for.
+- A check that an explanation appears in a module docstring was first mutated in
+  the *test function's own* docstring rather than the module docstring its
+  assertion reads. It reported "not proved" and was right to: the mutation had
+  not touched the subject.
+
+Three catches in nine scenarios, none of them findable by reading, all of them
+in tests whose green was indistinguishable from a real one. On that evidence
+this is not a formality attached to a strategy - it is the highest-yield check
+in the workflow, and it is aimed at the tests rather than at the code.
+
+**Two procedural rules, learned by getting them wrong.** Clear any bytecode
+cache between steps, and re-run after restoring to confirm green before
+recording the proof. A proof that reads stale bytecode can report either result,
+and the dangerous direction is the one that says PROVED. An unreproducible
+"restore was not honoured" was observed once and never explained; by
+intermittency is failure (`S5`) that stays open rather than being written off as
+noise.
+
+**The same rule for a search: a result of zero is not believed until the search
+has been run against a case it must find.** A grep that reports nothing and a
+grep that cannot match anything look identical, and the second is common enough
+to plan for - a pattern with a typo, a path that does not exist, a flag the tool
+silently ignores. Before reporting a surface clean, run the search against one
+string you know is there and watch it come back. Two seconds, and it turns
+"clean" from an assumption into an observation.
+
+This is not hypothetical. Auditing this repository for a banned word,
+`git grep -n -i -E '\bseam\b'` returned nothing at all, because `git grep -E`
+does not honour `\b` - while the plain pattern found four uses. A scan reporting
+zero had in fact read nothing. The same audit's markdown-only scan reported a
+count for the repository and missed a use in a Python file, for the same reason
+one level up: the search could not reach where the answer was.
+
 *Why a strategy and not a guardrail:* nothing mechanical can tell whether an
 author actually broke the subject, and a check that demanded proof would be
 satisfied by a pasted table as easily as by a real one - trusting the same
