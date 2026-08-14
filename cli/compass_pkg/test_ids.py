@@ -7,7 +7,7 @@ projects using pytest, jest, go test and cargo, and a per-runner adapter is
 far more surface than the problem needs.
 
 Split out of checks.py when that module passed its size cap; these two
-functions are one job and were the natural seam.
+functions are one job and were the natural boundary to split on.
 """
 from __future__ import annotations
 

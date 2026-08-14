@@ -39,6 +39,64 @@ either way.
 I wrote that part up properly a little while back, if you want the longer version.
 [The one-size-fits-all problem](https://medium.com/@James.edwards_75381/spec-driven-development-has-a-one-size-fits-all-problem-ff81378f69f0)
 
+## The bit that made me trust it
+
+I want to give you a concrete thing rather than a claim, and it's the only part of
+this I'd point at if you asked why I still use it.
+
+Compass keeps a record of what proved each change. Each record has a type, and the
+types are a hierarchy of who can check it: at the top, a test run a machine
+executed and recorded; below that, output from a command someone captured; below
+that, a judgement a person wrote down for a reviewer to weigh. The gates read
+those types. It's the part I was least sure about when I built it, because a
+record of your own work is the easiest thing in the world to quietly write in your
+favour.
+
+Last week I found out what it does when I'm the one being sloppy.
+
+I'd run the test suite and watched it pass. I'd run it in a way that produced no
+machine record, and rather than run it again I wrote a small file saying it had
+passed. Which was true. The gate refused it: the file claimed to be a recorded
+test run and had no exit code in it, no trace of a process having actually run and
+returned something.
+
+So I fixed that one and re-ran the check. It refused the next one. Then the next.
+Six records in a row, every one written by me, every one labelled as the strongest
+kind of proof, and not one of them was. They were honest notes about work I had
+genuinely done - and every one was claiming a machine had confirmed it when only I
+had.
+
+The fix wasn't to add fake exit codes. It was to relabel each one truthfully: my
+transcription of a test run is captured output, and my write-up of an experiment is
+a judgement for a reviewer to assess. Nothing about what happened changed. What
+changed was the claim attached to it. After that the gate passed, resting only on
+the nine records a machine had actually produced.
+
+That's the distinction the whole tool is built on, and I'd never had it
+demonstrated on me before. I built the thing, I knew the rule, I had good reasons
+to be in a hurry, and it wouldn't take my word for it six times running.
+
+And it wasn't a one-off. Building that same release, four different parts of the
+tool refused me:
+
+- the evidence gate, on six records in a row, as above
+- a rule I'd just written banning unexplained shorthand - which caught me using
+  unexplained shorthand in the very file where I was writing the rule, inside a
+  minute
+- a check that pins the list of guidance the project ships, which refused two new
+  entries until I wrote down that I'd added them on purpose
+- a scan I'd narrowed to cover more files, which immediately found something in
+  the newly covered ones
+
+Every one of those was correct. None of them was a bug I then had to fix; they
+were the tool declining to let me skip a step, four times, in one week, on my own
+project.
+
+If you're weighing this up: that's the behaviour you're buying. Not process for its
+own sake - a system that won't accept "it's fine, I checked" from anybody,
+including the person who wrote it. I'd rather show you that than tell you it's
+rigorous.
+
 ## Where I already know it's thin
 
 Let me save you the trouble of finding the obvious holes, because I've found a few

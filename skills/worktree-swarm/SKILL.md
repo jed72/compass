@@ -49,9 +49,9 @@ map is where you confirm it against the plan.
 
 Practical decomposition heuristics:
 
-- **Cut along seams the architecture already has** - module boundaries, service
-  boundaries, layers. Cutting across a seam creates a shared surface and a
-  guaranteed collision.
+- **Cut along boundaries the architecture already has** - module boundaries,
+  service boundaries, layers. Cutting across one of them creates a shared
+  surface and a guaranteed collision.
 - **Shared surface = shared stream, or sequenced streams.** If two units both
   need to change the same interface, either fold them into one stream or
   sequence them (one lands, then the other branches from the result). Do not
