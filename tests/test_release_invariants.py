@@ -196,9 +196,16 @@ def test_default_method_strategy_set_is_the_known_set():
     (conventional comments - a review comment opens with a plain-word label
     saying whether it blocks; a shipped default rather than a project
     preference, because it serves the review gate and its labels are ordinary
-    English an adopting team inherits no jargon with). Adding a strategy is
-    allowed and cheap, but it must be a decision - so this list is updated by
-    hand, in the same commit as the strategy it admits.
+    English an adopting team inherits no jargon with), S13 (a title is a
+    summary, not a headline - pull-request and commit titles say what the
+    change does in the words a reader would search for; scoped deliberately to
+    exclude ADR titles, where an assertion-shaped title earns its keep), S14
+    (correct every place at once - a correction that leaves the record
+    contradicting itself is worse than the original error, because the next
+    reader has two answers and no way to choose; carries the re-read-the-
+    summary-last checklist item). Adding a strategy is allowed and cheap, but
+    it must be a decision - so this list is updated by hand, in the same commit
+    as the strategy it admits.
     """
     text = (REPO_ROOT / "governance/strategies.md").read_text()
     # Section markers carry the machine id as a code-span suffix:
@@ -207,7 +214,7 @@ def test_default_method_strategy_set_is_the_known_set():
     import re
     ids = set(re.findall(r"^### .*\(`(S\d+)`\)", text, flags=re.MULTILINE))
     expected = {"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10",
-                "S11", "S12"}
+                "S11", "S12", "S13", "S14"}
     assert ids == expected, (
         f"strategies.md declares {sorted(ids)}; this invariant expects "
         f"{sorted(expected)}. If you added a strategy on purpose, add its id "

@@ -209,6 +209,19 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"(?<!`)\bG[1-5]\b(?!`)"),
         re.compile(r"(?<!`)\bS\d+\b(?!`)"),
     ],
+    # Structural metaphor only. "the seam of a garment" is ordinary English and
+    # must not fire, so the patterns require a structural noun nearby rather
+    # than matching the bare word. Both fixtures prove the pair: banned_usage.md
+    # plants the structural forms, innocent_usage.md the ordinary ones.
+    # A quoted or code-spanned use is exempt - the reader needs it to search.
+    "seam / seams": [
+        re.compile(r"(?<![`\"'])\bseams?\b(?![`\"'])"
+                   r"(?=[^.\n]*\b(architect\w*|module|service|layer|boundar\w+|"
+                   r"interface|component|code|system|surface|abstraction)\b)",
+                   re.I),
+        re.compile(r"\b(along|across|find|the natural|cut\w*)\s+(the\s+)?seams?\b"
+                   r"(?![`\"'])", re.I),
+    ],
     # The v1 intake artifact filename; v2 writes prd.md.
     "vacuous / vacuity / orthogonal / elide / salient": [
         # Plain-word rule: accurate but almost never used in ordinary speech,
@@ -451,7 +464,24 @@ TERM_SURFACE_EXEMPT = {
     # governance/ DEFINES the codes; schemas/ describes the fields that
     # carry them, which is the same act one layer down - a schema saying
     # "the shipped default guardrails (G1-G5)" is naming what it validates.
-    "G1..G5 / S1..S12 codes, bare": ("governance/", "schemas/", "architecture/"),
+    #
+    # NARROWED from the whole of governance/ to its machine-readable files
+    # (issue plain-language-3-2-0, design decision DD-9). A policy file's
+    # `when: {risk: critical}` clause cannot gloss its own ids, so those stay
+    # exempt. governance/strategies.md is different: it is prose a contributor
+    # reads, and it is where this project states the rule about bare codes -
+    # so the prefix made the one file the rule could not reach the one file
+    # stating it. The identical bare code in agents/reviewer.md was caught in
+    # under a minute while the copy in strategies.md was not.
+    #
+    # The .md files under governance/ are scanned. A deliberate illustration of
+    # the wrong form carries a `vocabulary-scan: allow` marker and a reason,
+    # which is enumerable by grep; a path prefix is not.
+    "G1..G5 / S1..S12 codes, bare": (
+        "governance/guardrails.yml", "governance/routing-policy.yml",
+        "governance/terminology.yml", "governance/signals.yml",
+        "schemas/", "architecture/",
+    ),
     # writing-voice.md teaches by quoting this repository's own archive
     # verbatim, and tests/test_human_voice.py hashes those quotations against
     # the archived files. Its retired stage names are inside quotations of
@@ -917,4 +947,112 @@ def test_rcd_g4_archive_exempt_and_unedited():
     exempt = _terminology()["scan"]["exempt"]
     assert any(e.rstrip("/") == ".compass/work" for e in exempt), (
         f"the issue archive is not exempt from the vocabulary scan: {exempt}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# The everyday-words list, as a thing a project author reads and configures.
+# Issue plain-language-3-2-0, group B.
+# ---------------------------------------------------------------------------
+
+def _banned_entry(term_fragment: str) -> dict:
+    for e in _terminology().get("banned") or []:
+        if term_fragment in str(e.get("term", "")):
+            return e
+    raise AssertionError(f"no banned entry mentioning {term_fragment!r}")
+
+
+def test_pl_b3_seam_ban_names_its_replacements():
+    """TRC-B3 - a ban that does not say what to write instead is a scold.
+
+    The global rules already name the replacements; the entry has to carry them
+    or a contributor who hits the ban has to go and find them.
+    """
+    entry = _banned_entry("seam")
+    replacement = str(entry.get("replacement", "")).lower()
+    for word in ("interface", "contract", "dependency injection", "boundary",
+                 "extension point", "abstraction layer"):
+        assert word in replacement, (
+            f"the 'seam' ban does not offer {word!r} as a replacement. Its "
+            f"replacement field reads: {entry.get('replacement')!r}"
+        )
+    context = str(entry.get("context", "")).lower()
+    assert "structure" in context or "structural" in context, (
+        "the ban must say it applies to code structure - the ordinary word is "
+        "fine, and a ban that does not scope itself will be read as banning both"
+    )
+
+
+def test_pl_b4_quoted_term_exception_is_written_down():
+    """TRC-B4 - the exception is a rule, not folklore in three context strings.
+
+    Without it written once, in the place a contributor configuring the list
+    reads, someone paraphrases a string the reader needed in order to search.
+    """
+    doc = TERMINOLOGY_PATH.read_text(encoding="utf-8")
+    low = doc.lower()
+    # A cross-reference is not a statement. The first draft of this test passed
+    # on the phrase appearing inside another ban's context, pointing at a rule
+    # that did not exist - a presence check satisfied by a dangling reference.
+    assert "quoted_term_exception" in _terminology(), (
+        "terminology.yml has no `quoted_term_exception:` section of its own. A "
+        "ban saying 'per the quoted-term exception below' is a dangling "
+        "reference if there is nothing below. (Checked as a parsed key, not a "
+        "substring: `quoted_term_exception_RENAMED` contains the substring and "
+        "would have satisfied the first version of this assertion.)"
+    )
+    for phrase in ("quotation mark", "code span", "search"):
+        assert phrase in doc, (
+            f"the quoted-term exception does not mention {phrase!r} - it needs "
+            f"to say how a quotation is recognised and why the word is kept"
+        )
+
+
+def test_pl_b7_the_list_states_todays_behaviour_not_the_intended_one():
+    """TRC-B7 - what ships says what is true now, not what is planned.
+
+    The ruling is that the list ships as a default, extends per project and is
+    never replaceable. Only the first of those is true today: a project-local
+    governance/ replaces the shipped defaults wholesale. Stating the end state
+    in the present tense would be this issue committing the defect it exists to
+    fix.
+    """
+    doc = TERMINOLOGY_PATH.read_text(encoding="utf-8")
+    low = doc.lower()
+    assert "not supported yet" in low or "not yet supported" in low, (
+        "the vocabulary file does not say that project-specific additions are "
+        "not supported yet, so a project author will assume they are"
+    )
+    assert "governance-merge-not-replace" in doc, (
+        "the file does not name the issue tracking project additions, so a "
+        "reader who wants them has nowhere to go"
+    )
+
+
+def test_pl_c11_strategies_prose_is_not_path_exempt():
+    """TRC-C11 - the bare-codes exemption covers definitions, not prose.
+
+    `governance/` is exempt because it DEFINES G1-G5 and S1-S12, and a
+    definition has to name what it defines. That holds for the machine-readable
+    files. `strategies.md` is prose a contributor reads, and it is where this
+    project writes the rule about bare codes - so a path exemption made the one
+    file the rule could not reach the one file stating the rule.
+
+    A deliberate illustration of the wrong form is handled per line, with the
+    `vocabulary-scan: allow` marker and a written reason, which is greppable.
+    A path prefix is not.
+    """
+    exempt = TERM_SURFACE_EXEMPT.get("G1..G5 / S1..S12 codes, bare", ())
+    assert not any(e == "governance/" for e in exempt), (
+        "the bare-codes ban still exempts all of governance/ by prefix, so "
+        "governance/strategies.md is unscanned"
+    )
+    assert any("guardrails.yml" in e for e in exempt), (
+        "the machine-readable governance files must stay exempt - a policy "
+        "file's `when: {risk: critical}` clause cannot gloss its own ids"
+    )
+    from pathlib import Path as _P
+    covered = [e for e in exempt if str(_P("governance/strategies.md")).startswith(e)]
+    assert not covered, (
+        f"governance/strategies.md is still covered by exemption(s) {covered}"
     )
