@@ -34,7 +34,7 @@ def _fresh_project_dir() -> Path:
 
     The hook exempts those paths so the failing test can always be written; a
     fixture living under one would be exempt for the wrong reason and every
-    assertion below would pass vacuously.
+    assertion below would pass without checking anything.
     """
     return Path(tempfile.mkdtemp(prefix="compass-fix-"))
 

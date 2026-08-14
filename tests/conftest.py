@@ -268,7 +268,7 @@ def _write_bare_fallback_wrapper(wrapper_dir: Path) -> Path:
 def _build_bare_interpreter(base_dir: Path) -> BareInterpreter:
     """Build a genuinely empty interpreter and PROVE it is empty before
     handing it back. If the precondition does not hold, this FAILS - it never
-    skips its way to a vacuous green (DD-6)."""
+    skips its way to a empty green (DD-6)."""
     venv_dir = base_dir / "bare-venv"
     result = subprocess.run(
         [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],

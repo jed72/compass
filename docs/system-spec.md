@@ -71,6 +71,20 @@
 - **Source issue:** `status-vocabulary`
 - **Landed:** 2026-08-13
 
+### the hook still blocks a code file inside the project
+
+- **Scenario id:** `FF-2`
+- **Intent:** `INT-57`
+- **Source issue:** `field-feedback-hook-scope-and-restage`
+- **Landed:** 2026-08-14
+
+### the issue's artifact directory is still re-staged
+
+- **Scenario id:** `FF-4`
+- **Intent:** `INT-58`
+- **Source issue:** `field-feedback-hook-scope-and-restage`
+- **Landed:** 2026-08-14
+
 ### recording acceptance for a second scenario does not destroy the first one's evidence
 
 - **Scenario id:** `TRC-F7`
@@ -167,6 +181,13 @@
 - **Scenario id:** `CU-1`
 - **Intent:** `INT-SEC`
 - **Source issue:** `cucumber-13-drops-vulnerable-uuid`
+- **Landed:** 2026-08-14
+
+### no obscure word appears in user-facing text
+
+- **Scenario id:** `FF-5`
+- **Intent:** `INT-WORD`
+- **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
 ### traceability, intent and navigator are defined
@@ -5017,4 +5038,18 @@
 - **Scenario id:** `TRC-D2`
 - **Intent:** `INT-R2`
 - **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### the hook allows a code file outside the project _(archived)_
+
+- **Scenario id:** `FF-1`
+- **Intent:** `INT-57`
+- **Source issue:** `field-feedback-hook-scope-and-restage`
+- **Landed:** 2026-08-14
+
+### the re-stage does not widen the commit beyond what was staged _(archived)_
+
+- **Scenario id:** `FF-3`
+- **Intent:** `INT-58`
+- **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14

@@ -3,12 +3,12 @@
 Three of the sixteen checks clear with nothing to check: no BDD runner wired,
 no claims recorded, no project guardrails declared. Each is honestly labelled
 on its own line - that is to the tool's credit. The summary was the problem:
-`PASS - all 16 check(s) passed` flattens three vacuous clearances into the
+`PASS - all 16 check(s) passed` flattens three checks that inspected nothing into the
 same count as thirteen real ones, and the summary is the line a reader takes
 away.
 
 The signal is structured rather than matched from the detail prose. A check's
-vacuity is a runtime property - "no BDD runner wired" depends on the project -
+nothing to check is a runtime property - "no BDD runner wired" depends on the project -
 so a static list cannot express it, and matching the message would be a guard
 that silently stops working the first time someone improves the wording.
 
@@ -38,12 +38,12 @@ def _summarise():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 - vacuous clearances are counted apart
+# TRC-D1 - checks that inspected nothing are counted apart
 # ---------------------------------------------------------------------------
 
-def test_trc_d1_vacuous_counted_apart():
+def test_trc_d1_empty_counted_apart():
     """Sixteen ran, three had nothing to check."""
-    line = _summarise()(ran=16, failures=0, vacuous=3)
+    line = _summarise()(ran=16, failures=0, nothing_to_check=3)
 
     # The denominator was dropped after this test first shipped: "13 of 16
     # passed" reads as three failures at a glance, and the total is not a
@@ -55,8 +55,9 @@ def test_trc_d1_vacuous_counted_apart():
         f"{line!r}")
     assert " of 16" not in line, (
         f"the summary prints a denominator again: {line!r}")
-    assert re.search(r"3\b.*(nothing to check|vacuous)", line, re.I), (
-        f"the three vacuous clearances are not reported as such: {line!r}")
+    assert re.search(r"3\b.*(nothing to check|empty)", line, re.I), (
+        f"the three checks that inspected nothing are not reported as such: "
+        f"{line!r}")
     assert line.startswith("compass check: PASS"), (
         f"a run with no failures must still read as a pass: {line!r}")
 
@@ -68,36 +69,36 @@ def test_trc_d1_vacuous_counted_apart():
 def test_trc_d2_real_pass_not_miscounted():
     """The control.
 
-    Without it, a change that labelled every check vacuous would satisfy
+    Without it, a change that labelled every check empty would satisfy
     TRC-D1 while reporting that Compass verified nothing.
     """
-    line = _summarise()(ran=16, failures=0, vacuous=0)
+    line = _summarise()(ran=16, failures=0, nothing_to_check=0)
 
     assert "16" in line, f"the total is no longer reported: {line!r}"
-    assert not re.search(r"nothing to check|vacuous", line, re.I), (
+    assert not re.search(r"nothing to check|empty", line, re.I), (
         f"a run where every check had something to check still claims some "
         f"had nothing: {line!r}")
     assert line.startswith("compass check: PASS"), line
 
 
 def test_trc_d2b_a_failure_still_reads_as_a_failure():
-    """Vacuity must not soften a real failure - the count is a caveat on a
+    """Nothing to check must not soften a real failure - the count is a caveat on a
     pass, never a way to report fewer failures than there were."""
-    line = _summarise()(ran=16, failures=2, vacuous=3)
+    line = _summarise()(ran=16, failures=2, nothing_to_check=3)
 
     assert line.startswith("compass check: FAIL"), line
     assert "2" in line, f"the failure count is missing: {line!r}"
 
 
 def test_trc_d2c_the_sentinel_is_truthy():
-    """VACUOUS stands in for True at every existing call site.
+    """NOTHING_TO_CHECK stands in for True at every existing call site.
 
     A falsy sentinel would silently convert three passing checks into three
     failures, which is the opposite of the defect being fixed.
     """
-    from compass_pkg.checks import VACUOUS
+    from compass_pkg.checks import NOTHING_TO_CHECK
 
-    assert VACUOUS, "VACUOUS is falsy - every vacuous check would count as a failure"
-    assert VACUOUS is not True, (
-        "VACUOUS is literally True, so the summary cannot tell a vacuous "
+    assert NOTHING_TO_CHECK, "NOTHING_TO_CHECK is falsy - every empty check would count as a failure"
+    assert NOTHING_TO_CHECK is not True, (
+        "NOTHING_TO_CHECK is literally True, so the summary cannot tell a empty "
         "clearance from a verified one")

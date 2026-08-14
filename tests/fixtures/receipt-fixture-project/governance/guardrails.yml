@@ -71,7 +71,7 @@ checks:
       attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
       (see strategy S5).
   command-passes:
-    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, clears by vacuity (no declarations = no fitness functions to check)."
+    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, passes without checking anything (no declarations = no fitness functions to check)."
 
 # -----------------------------------------------------------------------------
 # Evidence types - what KINDS of evidence a gate can be cleared with. Without

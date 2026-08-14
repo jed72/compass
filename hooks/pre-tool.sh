@@ -173,7 +173,36 @@ fi
 # Returns 0 (true) if a change to $1 must be preceded by a failing test.
 MATCHED_RULE=""
 is_enforced_path() {
-  local target="$1" rel base is_code=0
+  local target="$1" rel base is_code=0 abs
+
+  # CONTAINMENT FIRST: only guard what is inside the project Compass governs.
+  #
+  # Without this, the extension rules below fired on any .py/.ts/.go file
+  # anywhere on the machine - a scratch file in a session temp directory, a
+  # throwaway script in a detached worktree. Neither can reach `main` by any
+  # path, and the refusal told the author to write a failing test or re-run
+  # triage as a spike, neither of which is a coherent action for such a file.
+  # A guardrail issuing unactionable instructions teaches people to look for
+  # the bypass. Reported from the field.
+  #
+  # The target is resolved first, because a Bash redirect yields a RELATIVE
+  # path: comparing `src/app.py` against an absolute project directory would
+  # answer "outside" and switch enforcement off for exactly the writes the
+  # hook is here for.
+  # Resolved against PROJECT_DIR, not the hook's own working directory. The
+  # hook cannot know the shell's cwd, and guessing wrong in that direction
+  # fails OPEN - a relative write would be judged outside the project and
+  # allowed. A relative path in an agent's command is against the project root
+  # in practice, and being wrong the other way costs only a visible refusal.
+  abs="$target"
+  case "$abs" in
+    /*) ;;
+    *) abs="$PROJECT_DIR/$abs" ;;
+  esac
+  case "$abs" in
+    "$PROJECT_DIR"/*) ;;
+    *) return 1 ;;
+  esac
 
   # Always exempt: Compass artifacts, docs, lockfiles, the obvious non-code.
   case "$target" in

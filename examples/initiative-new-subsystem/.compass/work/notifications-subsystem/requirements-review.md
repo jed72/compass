@@ -10,7 +10,7 @@
 - Every scenario has an observable `Then` - checked across all six. TRC-001's
   "within 5 seconds" is observable via the test harness clock, not a vibe.
 - TRC-002 and TRC-005 do not contradict: TRC-005's "default is deliver" and
-  TRC-002's idempotency are orthogonal - one is about *whether*, the other
+  TRC-002's idempotency do not overlap - one is about *whether*, the other
   about *how many times*.
 - No scenario reaches into another group's surface in its `Then`. Group A
   scenarios never assert on preference state; group B scenarios never assert on

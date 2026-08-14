@@ -64,7 +64,7 @@ def shallow_clone(tmp_path_factory):
     assert checkout.returncode == 0, f"checkout failed:\n{checkout.stderr}"
 
     # Precondition: the history really is absent. A full one would make every
-    # assertion below vacuous.
+    # assertion below empty.
     assert (dest / ".git" / "shallow").exists(), (
         "the checkout is not shallow - nothing below proves anything"
     )

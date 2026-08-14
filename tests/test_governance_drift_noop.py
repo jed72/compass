@@ -142,7 +142,7 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
     against what the fixture declares.
     """
     fixtures = sorted(FIXTURES.glob("*.yml"))
-    assert fixtures, "no routing fixtures found - this guard would be vacuous"
+    assert fixtures, "no routing fixtures found - this guard would be empty"
     total_checks = 0
 
     for path in fixtures:

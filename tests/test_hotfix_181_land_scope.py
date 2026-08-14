@@ -73,7 +73,7 @@ def _install_autofixing_hook(repo):
 
     This is what triggers land-commit's retry path - the one that re-staged the
     whole tree. Without it the retry never runs and the scope assertions below
-    would pass vacuously.
+    would pass without checking anything.
     """
     hook = repo / ".git" / "hooks" / "pre-commit"
     hook.write_text(

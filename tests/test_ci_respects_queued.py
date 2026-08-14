@@ -9,7 +9,7 @@ stop complying.
 
 This repository only avoids the problem because `.compass/work/` is
 gitignored, so the sweep in continuous integration finds nothing to check and
-passes vacuously. An adopter who commits their archive - which the framework
+passes without checking anything. An adopter who commits their archive - which the framework
 tells them to do, since it is their audit trail - meets it on day one.
 
 The sweep still lists every issue it saw and says why one was not checked.

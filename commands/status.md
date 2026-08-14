@@ -103,7 +103,7 @@ Here the internals *are* the point. Report:
   de-scope ledger so a *collapsed* stage is not reported as *missing*.
 - **Gates** - from `verification-report.md` and `task.yml`'s `gates:`. Run
   `compass check --issue <slug>` for the mechanical view (read-only).
-  **Say when a check passes vacuously.** "no changed_files recorded yet"
+  **Say when a check passes without checking anything.** "no changed_files recorded yet"
   and "0/N pass gates" are green lines that assert nothing; reading them as
   progress is how an issue ships untraced.
 - **Owed follow-ups** - scan `delivery-approach.md`'s de-scope ledger and

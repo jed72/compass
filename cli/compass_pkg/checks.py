@@ -248,13 +248,13 @@ def _check_scenarios_are_executable(task, task_dir):
     proj = _read_config(task_dir).get("project") or {}
     runner = (proj.get("bdd_runner") or "").strip()
     if not runner:
-        return VACUOUS, ("no BDD runner wired (project.bdd_runner is unset) - "
+        return NOTHING_TO_CHECK, ("no BDD runner wired (project.bdd_runner is unset) - "
                          "nothing to verify; see examples/bdd-adapters/ to opt in")
 
     scenario_ids = [s.get("id") for s in (task.get("scenarios") or [])
                     if isinstance(s, dict) and s.get("id")]
     if not scenario_ids:
-        return VACUOUS, "no scenarios recorded yet - nothing to verify"
+        return NOTHING_TO_CHECK, "no scenarios recorded yet - nothing to verify"
 
     record_path = os.path.join(task_dir, "evidence", "bdd-run.json")
     if not os.path.isfile(record_path):
@@ -302,24 +302,24 @@ def _check_scenarios_are_executable(task, task_dir):
 from compass_pkg.test_ids import _test_id_resolves, _test_is_skipped
 
 
-class _Vacuous(int):
+class _NothingToCheck(int):
     """A pass that verified nothing, distinguishable from one that did.
 
-    A check clears "by vacuity" when the thing it inspects does not exist in
+    A check passes without checking anything when the thing it inspects does not exist in
     this project - no BDD runner wired, no claims recorded, no project
     guardrails declared. That is a legitimate pass, but counting it beside a
     real one lets the summary overstate what was verified.
 
     It subclasses int and is truthy, so every existing `if not passed` and
     every caller that only cares pass/fail keeps working untouched; only the
-    summary asks whether a result `is VACUOUS`.
+    summary asks whether a result `is NOTHING_TO_CHECK`.
     """
 
     def __repr__(self):
-        return "VACUOUS"
+        return "NOTHING_TO_CHECK"
 
 
-VACUOUS = _Vacuous(1)
+NOTHING_TO_CHECK = _NothingToCheck(1)
 
 
 def _check_suite_passed(task, task_dir):
@@ -499,7 +499,7 @@ def _check_claim_traces(task, task_dir):
     claims = task.get("claims") or []
     scn_ids = {s.get("id") for s in (task.get("scenarios") or [])}
     if not claims:
-        return VACUOUS, "no claims recorded (no marketer in play, or none yet)"
+        return NOTHING_TO_CHECK, "no claims recorded (no marketer in play, or none yet)"
     problems = []
     for c in claims:
         ref = c.get("scenario")
@@ -1026,7 +1026,7 @@ def _check_command_passes(task, task_dir):
 
     Behaviour:
     - When verify.fitness is in the gate set but zero project guardrails
-      declare check: command-passes → vacuous-clear (DD-6).
+      declare check: command-passes → nothing-to-check pass (DD-6).
     - For each project guardrail with check: command-passes, run
       subprocess.run(shell=True, timeout=timeout_seconds) from the project
       root (inferred as the directory 2 levels above task_dir, which is
@@ -1054,14 +1054,14 @@ def _check_command_passes(task, task_dir):
         if isinstance(g, dict) and "command-passes" in (g.get("checks") or [])
     ]
 
-    # Vacuous-clear (DD-6): verify.fitness in gate set, zero command-passes
-    # guardrails declared → the gate has nothing to check; it clears by vacuity.
+    # nothing-to-check pass (DD-6): verify.fitness in gate set, zero command-passes
+    # guardrails declared → the gate has nothing to check; it passes without checking anything.
     if not cp_guardrails:
-        return VACUOUS, ("verify.fitness: 0 project guardrails declared with "
-                         "command-passes; clearing by vacuity (no fitness "
-                         "functions to check - declare project guardrails "
-                         "with `check: command-passes` to add fitness "
-                         "functions)")
+        return NOTHING_TO_CHECK, ("verify.fitness: this project declares no guardrail "
+                         "that runs a command, so there was nothing to check "
+                         "and this passed without checking anything. To add "
+                         "fitness functions, declare a project guardrail with "
+                         "`check: command-passes`")
 
     failures = []
     for g in cp_guardrails:

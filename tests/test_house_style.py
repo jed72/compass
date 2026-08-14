@@ -159,7 +159,7 @@ def test_no_agent_coauthor_trailer_in_tracked_files():
     """No commit or pull-request body in the repository credits an agent.
 
     This scans files rather than git history on purpose. CI checks out at
-    depth 1, so a history scan would pass vacuously there and behave
+    depth 1, so a history scan would pass without checking anything there and behave
     differently on a local clone - the kind of environment-dependent result
     strategy S5 (intermittency is failure) rules out. Enforcing the rule on
     commit messages themselves belongs in a commit-msg hook, not here.

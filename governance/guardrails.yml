@@ -19,7 +19,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.6.0
+version: 1.6.1
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -79,7 +79,7 @@ checks:
       attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
       (see strategy S5).
   command-passes:
-    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, clears by vacuity (no declarations = no fitness functions to check)."
+    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, it passes without checking anything (no declarations means there are no fitness functions to run)."
 
 # -----------------------------------------------------------------------------
 # Evidence types - what KINDS of evidence a gate can be cleared with. Without

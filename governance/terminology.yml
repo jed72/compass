@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre9
+version: 2.0.0-pre11
 
 terms:
 
@@ -590,6 +590,9 @@ banned:
   - term: "G1..G5 / S1..S12 codes, bare"
     replacement: "the code followed by its plain statement, on first use"
     context: "In anything a human reads - agent speech, printed output, generated artifacts. Expand on FIRST use in that piece of output; the bare code is correct and preferable afterwards. Never drop the code: it carries the traceability the machine checks read. `compass check` is the shipped example - it prints 'G5 A human signs off on the irreversible'. Codes may live bare in governance config, which is machine input rather than something a newcomer reads."
+  - term: "vacuous / vacuity / orthogonal / elide / salient"
+    replacement: "everyday words, even if it takes more of them"
+    context: "In anything a human reads. Each is accurate and almost never used in ordinary speech, so it costs a junior or mid engineer a lookup at the moment they are trying to read a result. Prefer a longer plain sentence to a short exact one - 'the check passed without actually checking anything' rather than 'the check cleared by vacuity'. Keep a rare word only when it is quoted from a tool's output, an API or an existing spec and the reader needs it to search; then say what it means. `canonical` is deliberately NOT on this list - it is fine in identifiers such as canonical_shape(). Maintainer ruling, 2026-08-14."
   - term: "brief.md"
     replacement: prd.md
     context: "Filename and references."

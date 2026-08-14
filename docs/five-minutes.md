@@ -204,7 +204,7 @@ compass check - issue 'fix-timeout-error-message' (approach: quick-fix)
     PASS dod-evidence-typed: DoD section is empty or absent - nothing to evidence
     PASS coherence-check-passes: verify.analyze not in gate set - coherence check not required
     PASS no-trusted-rerun: no trusted-rerun violations
-    PASS command-passes: verify.fitness: 0 project guardrails declared with command-passes; clearing by vacuity (no fitness functions to check - declare project guardrails with `check: command-passes` to add fitness functions)
+    PASS command-passes: verify.fitness: this project declares no guardrail that runs a command, so there was nothing to check and this passed without checking anything. To add fitness functions, declare a project guardrail with `check: command-passes`
 
   G5 A human signs off on the irreversible: not applicable for this assessment - skipped
   outstanding follow-ups
