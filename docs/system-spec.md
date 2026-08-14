@@ -134,6 +134,34 @@
 - **Source issue:** `identifiers-and-vocabulary-in-printed-output`
 - **Landed:** 2026-08-13
 
+### the widened scan can fail in the newly covered position
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-R2`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### an uncapped approach permits more than one stream
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-R3`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### a failing check summary keeps its denominator
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-R4`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### an ordinary test still resolves
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-R5`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
 ### traceability, intent and navigator are defined
 
 - **Scenario id:** `GL-A1`
@@ -4934,3 +4962,52 @@
 - **Intent:** `INT-F5`
 - **Source issue:** `identifiers-and-vocabulary-in-printed-output`
 - **Landed:** 2026-08-13
+
+### triage states permitted parallel streams and no topology _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-R3`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### the stream ceiling is an integer, not a sentence _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-R3`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### a passing check summary prints no denominator _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-R4`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### suite-passed does not present a binding as coverage _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-R5`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### a skipped test does not count as a resolving test _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-R5`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### YAML values are scanned for retired vocabulary _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-R2`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
+
+### every position exemption names its reason _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-R2`
+- **Source issue:** `dry-run-2-rulings`
+- **Landed:** 2026-08-14
