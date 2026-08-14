@@ -90,14 +90,14 @@ def test_trc_d2b_a_failure_still_reads_as_a_failure():
 
 
 def test_trc_d2c_the_sentinel_is_truthy():
-    """VACUOUS stands in for True at every existing call site.
+    """NOTHING_TO_CHECK stands in for True at every existing call site.
 
     A falsy sentinel would silently convert three passing checks into three
     failures, which is the opposite of the defect being fixed.
     """
-    from compass_pkg.checks import VACUOUS
+    from compass_pkg.checks import NOTHING_TO_CHECK
 
-    assert VACUOUS, "VACUOUS is falsy - every vacuous check would count as a failure"
-    assert VACUOUS is not True, (
-        "VACUOUS is literally True, so the summary cannot tell a vacuous "
+    assert NOTHING_TO_CHECK, "NOTHING_TO_CHECK is falsy - every vacuous check would count as a failure"
+    assert NOTHING_TO_CHECK is not True, (
+        "NOTHING_TO_CHECK is literally True, so the summary cannot tell a vacuous "
         "clearance from a verified one")

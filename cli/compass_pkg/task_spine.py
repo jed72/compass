@@ -214,15 +214,23 @@ def cmd_land_commit(args):
         """Re-stage this issue's paths after a hook rewrote them.
 
         Never `git add -A`. The set is what was already staged for this land,
-        plus the issue's declared files and its artifact directory - so a hook
-        that reformats fifty unrelated files cannot smuggle them into the
-        commit, and neither can another agent working in the same tree.
+        plus the issue's artifact directory - so a hook that reformats fifty
+        unrelated files cannot smuggle them into the commit, and neither can
+        another agent working in the same tree.
+
+        It deliberately does NOT re-add the issue's whole `changed_files:`
+        list. That list names every file the issue will touch, including files
+        belonging to commits not yet made - so on an issue landed as a
+        sequence of commits, re-adding it widened the current commit to the
+        issue's entire declared scope. In the field that put a module's
+        registration into the commit before the module itself, producing a
+        commit that referenced code it did not contain: unbisectable,
+        unrevertable, and green in CI, because CI only builds the branch tip.
+
+        Recovering from a hook rewrite only needs what was already staged.
         """
         for path in sorted(set(staged_now) | set(files)):
             _git(["add", "--", path], cwd)
-        for path in sorted(owned):
-            if os.path.exists(os.path.join(cwd, path)):
-                _git(["add", "--", path], cwd)
         if os.path.isdir(os.path.join(cwd, artifact_dir)):
             _git(["add", "--", artifact_dir], cwd)
 

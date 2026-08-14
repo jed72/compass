@@ -24,3 +24,5 @@ The dimensions were scored during Frame, checked at verify and Land, and
 the evaluator computes the route from them.
 Triage never composes the route by hand; composing a route by eye is
 the defect.
+
+The gate cleared by vacuity, which is a vacuous result.

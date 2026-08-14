@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre9
+version: 2.0.0-pre10
 
 terms:
 
@@ -590,6 +590,9 @@ banned:
   - term: "G1..G5 / S1..S12 codes, bare"
     replacement: "the code followed by its plain statement, on first use"
     context: "In anything a human reads - agent speech, printed output, generated artifacts. Expand on FIRST use in that piece of output; the bare code is correct and preferable afterwards. Never drop the code: it carries the traceability the machine checks read. `compass check` is the shipped example - it prints 'G5 A human signs off on the irreversible'. Codes may live bare in governance config, which is machine input rather than something a newcomer reads."
+  - term: "vacuous / vacuity"
+    replacement: "passed without checking anything / nothing to check"
+    context: "In anything a human reads. Accurate and almost never used in ordinary speech, so it costs a junior or mid engineer a lookup at the moment they are trying to read a result. Prefer more words to a precise but obscure one. Maintainer ruling, 2026-08-14."
   - term: "brief.md"
     replacement: prd.md
     context: "Filename and references."

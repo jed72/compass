@@ -272,7 +272,7 @@ class TestVerifyFitnessAdvisory:
         # (it's not in the task's gates list)
         assert "verify.fitness" not in result.stdout or \
                "not in gate set" in result.stdout or \
-               "vacuity" in result.stdout.lower(), (
+               "nothing to check" in result.stdout.lower(), (
             f"Unexpected verify.fitness blocking mention:\n{result.stdout}"
         )
 
@@ -302,10 +302,10 @@ class TestVacuousClear:
         )
         combined = result.stdout + result.stderr
         assert (
-            "vacu" in combined.lower()
+            "nothing to check" in combined.lower()
             or "0 project" in combined.lower()
             or "no fitness" in combined.lower()
-            or "clearing by vacuity" in combined.lower()
+            or "passed without checking anything" in combined.lower()
         ), (
             f"Expected vacuous-clear message:\n{combined}"
         )

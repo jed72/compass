@@ -90,7 +90,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.checks import VACUOUS, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
+from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
 from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_task, load_yaml, mode_banner, reading_matches, resolve_task_dir
 
 
@@ -361,7 +361,7 @@ def cmd_check(args):
 
             if not passed:
                 failures += 1
-            elif passed is VACUOUS:
+            elif passed is NOTHING_TO_CHECK:
                 vacuous += 1
             _print_check_result(check_name, passed, detail)
         print()
