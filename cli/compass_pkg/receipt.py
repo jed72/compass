@@ -351,7 +351,14 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         for g in fired:
             gid = g.get("id", "?") if isinstance(g, dict) else str(g)
             rationale = g.get("rationale", "") if isinstance(g, dict) else ""
-            lines.append(_receipt_truncate(f"    {gid}: {rationale}"))
+            # Meaning first, code in brackets. This line used to read
+            # "<id>: <rationale>", so a reader met an unresolvable code and
+            # learned what it did only afterwards - the defect S7 forbids, in
+            # the receipt of the release that forbids it. The code stays: it
+            # carries the traceability and it is what someone searches for.
+            lines.append(_receipt_truncate(
+                f"    {rationale.rstrip().rstrip('.')} ({gid})"
+                if rationale else f"    ({gid})"))
     else:
         lines.append("  policy rules fired: none")
     lines.append("")
