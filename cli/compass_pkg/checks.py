@@ -335,13 +335,13 @@ def _check_scenarios_are_executable(task, task_dir):
     proj = _read_config(task_dir).get("project") or {}
     runner = (proj.get("bdd_runner") or "").strip()
     if not runner:
-        return True, ("no BDD runner wired (project.bdd_runner is unset) - "
-                      "nothing to verify; see examples/bdd-adapters/ to opt in")
+        return VACUOUS, ("no BDD runner wired (project.bdd_runner is unset) - "
+                         "nothing to verify; see examples/bdd-adapters/ to opt in")
 
     scenario_ids = [s.get("id") for s in (task.get("scenarios") or [])
                     if isinstance(s, dict) and s.get("id")]
     if not scenario_ids:
-        return True, "no scenarios recorded yet - nothing to verify"
+        return VACUOUS, "no scenarios recorded yet - nothing to verify"
 
     record_path = os.path.join(task_dir, "evidence", "bdd-run.json")
     if not os.path.isfile(record_path):
@@ -384,6 +384,26 @@ def _check_scenarios_are_executable(task, task_dir):
                        % ", ".join(missing))
     return True, ("all %d scenario(s) accounted for by %s"
                   % (len(scenario_ids), runner))
+
+
+class _Vacuous(int):
+    """A pass that verified nothing, distinguishable from one that did.
+
+    A check clears "by vacuity" when the thing it inspects does not exist in
+    this project - no BDD runner wired, no claims recorded, no project
+    guardrails declared. That is a legitimate pass, but counting it beside a
+    real one lets the summary overstate what was verified.
+
+    It subclasses int and is truthy, so every existing `if not passed` and
+    every caller that only cares pass/fail keeps working untouched; only the
+    summary asks whether a result `is VACUOUS`.
+    """
+
+    def __repr__(self):
+        return "VACUOUS"
+
+
+VACUOUS = _Vacuous(1)
 
 
 def _check_suite_passed(task, task_dir):
@@ -558,7 +578,7 @@ def _check_claim_traces(task, task_dir):
     claims = task.get("claims") or []
     scn_ids = {s.get("id") for s in (task.get("scenarios") or [])}
     if not claims:
-        return True, "no claims recorded (no marketer in play, or none yet)"
+        return VACUOUS, "no claims recorded (no marketer in play, or none yet)"
     problems = []
     for c in claims:
         ref = c.get("scenario")
@@ -1116,10 +1136,11 @@ def _check_command_passes(task, task_dir):
     # Vacuous-clear (DD-6): verify.fitness in gate set, zero command-passes
     # guardrails declared → the gate has nothing to check; it clears by vacuity.
     if not cp_guardrails:
-        return True, ("verify.fitness: 0 project guardrails declared with "
-                      "command-passes; clearing by vacuity (no fitness functions "
-                      "to check - declare project guardrails with "
-                      "`check: command-passes` to add fitness functions)")
+        return VACUOUS, ("verify.fitness: 0 project guardrails declared with "
+                         "command-passes; clearing by vacuity (no fitness "
+                         "functions to check - declare project guardrails "
+                         "with `check: command-passes` to add fitness "
+                         "functions)")
 
     failures = []
     for g in cp_guardrails:

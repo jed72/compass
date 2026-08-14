@@ -205,7 +205,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     # exemption is in TERM_SURFACE_EXEMPT below; it used to be implicit in
     # the scan not reading those files, which stopped being true when the
     # scan widened.
-    "G1..G5 / S1..S7 codes": [
+    "G1..G5 / S1..S12 codes, bare": [
         re.compile(r"(?<!`)\bG[1-5]\b(?!`)"),
         re.compile(r"(?<!`)\bS\d+\b(?!`)"),
     ],
@@ -411,7 +411,7 @@ TERM_SURFACE_EXEMPT = {
     # governance/ DEFINES the codes; schemas/ describes the fields that
     # carry them, which is the same act one layer down - a schema saying
     # "the shipped default guardrails (G1-G5)" is naming what it validates.
-    "G1..G5 / S1..S7 codes": ("governance/", "schemas/", "architecture/"),
+    "G1..G5 / S1..S12 codes, bare": ("governance/", "schemas/", "architecture/"),
     # writing-voice.md teaches by quoting this repository's own archive
     # verbatim, and tests/test_human_voice.py hashes those quotations against
     # the archived files. Its retired stage names are inside quotations of

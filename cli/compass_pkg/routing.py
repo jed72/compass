@@ -90,7 +90,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task, shape_stages
+from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, display_stage, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task, shape_stages
 from compass_pkg.governance import governance_drift
 from compass_pkg.task_spine import _annotate_gate_accepts
 
@@ -130,7 +130,7 @@ def evaluate_route(readings, policy):
 
     # --- 1. compose the candidate (routing strategies bias this) -------------
     candidate = strategies.get("default_route", "standard")
-    candidate_via = "default_route (no shape matched)"
+    candidate_via = "the policy default (no shape matched)"
     for shape in strategies.get("default_shapes", []):
         if reading_matches(shape.get("when"), readings):
             candidate = shape["lean_toward"]
@@ -154,20 +154,24 @@ def evaluate_route(readings, policy):
         changed = []
         forced = fl.get("force_minimum_route")
         if forced and weight(forced) > weight(final):
-            changed.append(f"route raised {final} -> {forced}")
+            changed.append(f"approach raised {display_shape(final)} -> "
+                           f"{display_shape(forced)}")
             final = forced
         if fl.get("require_phase"):
             required_phases.add(fl["require_phase"])
-            changed.append(f"phase '{fl['require_phase']}' forced full-weight")
+            changed.append(f"stage '{display_stage(fl['require_phase'])}' "
+                           f"forced full-weight")
         if fl.get("require_skill"):
             required_skills.add(fl["require_skill"])
             changed.append(f"skill '{fl['require_skill']}' required")
         if fl.get("never_skip"):
             never_skip.update(fl["never_skip"])
-            changed.append(f"never-skip: {', '.join(fl['never_skip'])}")
+            changed.append("never-skip: " + ", ".join(
+                display_stage(s) for s in fl["never_skip"]))
         if fl.get("add_gate"):
             floor_gates.append(fl["add_gate"])
-            changed.append(f"gate '{fl['add_gate']}' added to the route's set")
+            changed.append(f"gate '{fl['add_gate']}' added to the "
+                           f"approach's gate set")
         if changed:
             # The kind follows what the entry actually did, not which block it
             # sits in. An entry that only attaches a gate raises no minimum, so
@@ -213,7 +217,8 @@ def evaluate_route(readings, policy):
             changed.append(f"max_worktrees capped at {cap['max_worktrees']}")
         if cap.get("forbid_route"):
             forbidden.add(cap["forbid_route"])
-            changed.append(f"route '{cap['forbid_route']}' forbidden")
+            changed.append(
+                f"approach '{display_shape(cap['forbid_route'])}' forbidden")
         if changed:
             fired.append({"id": cap.get("id", "?"), "kind": "cap",
                           "rationale": cap.get("rationale", ""), "changed": changed})
@@ -229,11 +234,12 @@ def evaluate_route(readings, policy):
         if rr.get("block_phase"):
             blocked_phases.append({"phase": rr["block_phase"],
                                    "until": rr.get("until", "")})
-            changed.append(f"phase '{rr['block_phase']}' blocked until: "
-                           f"{rr.get('until', '')}")
+            changed.append(f"stage '{display_stage(rr['block_phase'])}' "
+                           f"blocked until: {rr.get('until', '')}")
         if rr.get("gate"):
             role_gates.append(rr["gate"])
-            changed.append(f"gate '{rr['gate']}' added to the route's set")
+            changed.append(f"gate '{rr['gate']}' added to the "
+                           f"approach's gate set")
         if changed:
             fired.append({"id": rr.get("id", "?"), "kind": "role_rule",
                           "rationale": rr.get("rationale", ""), "changed": changed})
@@ -353,16 +359,20 @@ def cmd_route_evaluate(args):
         print(f"  FINAL APPROACH  : {display_shape(result['delivery_approach'])}")
         if result["policy_rules_fired"]:
             print("  policy rules fired:")
+            seen_effects = set()
             for f in result["policy_rules_fired"]:
                 print(f"    [{f['id']}] {f['kind']}: {f['rationale']}")
                 for c in f["changed"]:
+                    if c in seen_effects:
+                        continue
+                    seen_effects.add(c)
                     print(f"        - {c}")
         else:
             print("  policy rules fired: none")
         print(f"  topology        : {result['topology']}")
         print("  per-stage weight:")
         for p, w in result["stages"].items():
-            print(f"    {p:<11}: {w}")
+            print(f"    {display_stage(p):<11}: {w}")
         print(f"  gate set        : {', '.join(result['gates'])}")
         if result["required_artifacts"]:
             print(f"  required artifacts: {', '.join(result['required_artifacts'])}")

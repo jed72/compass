@@ -209,6 +209,30 @@ def _receipt_truncate(text, width=_RECEIPT_LINE_CAP):
     return text[:width - 3] + "..."
 
 
+def _receipt_wrap_ids(head, ids, width=_RECEIPT_LINE_CAP):
+    """`head` followed by `ids`, wrapping instead of cutting an identifier.
+
+    Identifiers are the receipt's join keys - a reader follows one from a gate
+    to the registry entry that defines it. Truncating one mid-token breaks
+    that link silently, so a list that will not fit continues on an indented
+    line rather than losing its tail.
+    """
+    if not ids:
+        return [_receipt_truncate(head + "(none)", width)]
+    cont = " " * len(head.rstrip()) if len(head) < width // 2 else "      "
+    out, current, first = [], head, True
+    for i, ident in enumerate(ids):
+        piece = str(ident) + ("," if i < len(ids) - 1 else "")
+        candidate = current + ("" if first else " ") + piece
+        if len(candidate) > width and not first:
+            out.append(current)
+            current, first = cont + piece, False
+            continue
+        current, first = candidate, False
+    out.append(current)
+    return out
+
+
 def _receipt_parse_topology_override(approach_path):
     """Find a recorded topology override in the delivery-approach record.
 
@@ -314,13 +338,13 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     # this key by the time the receipt reads it.
     fired = task.get("policy_rules_fired") or []
     if fired:
-        lines.append("  routing guardrails fired:")
+        lines.append("  policy rules fired:")
         for g in fired:
             gid = g.get("id", "?") if isinstance(g, dict) else str(g)
             rationale = g.get("rationale", "") if isinstance(g, dict) else ""
             lines.append(_receipt_truncate(f"    {gid}: {rationale}"))
     else:
-        lines.append("  routing guardrails fired: none")
+        lines.append("  policy rules fired: none")
     lines.append("")
 
     # 4. gates + verdicts + evidence ids
@@ -369,9 +393,13 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         else:
             verdict = f"[ {gstatus.upper()} ]"
             any_caveat = True
-        ev_str = ", ".join(ev_ids) if ev_ids else "(none)"
-        lines.append(_receipt_truncate(
-            f"  {gid:<26} {verdict:<18} evidence: {ev_str}"))
+        # Wrap the evidence list rather than truncating it. A cut identifier
+        # is worse than a bare one: "EV-ANALYZE-signup-email-va..." cannot be
+        # matched to the entry that defines it further down this same
+        # receipt, so it identifies nothing. Prose still truncates - a cut
+        # sentence is still readable.
+        head = f"  {gid:<26} {verdict:<18} evidence: "
+        lines.extend(_receipt_wrap_ids(head, ev_ids))
     lines.append("")
 
     # 5. evidence registry - type-specific minimal fields rendered alongside
@@ -386,6 +414,18 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     if not evs:
         lines.append("  (no evidence recorded)")
     else:
+        # Column width follows the widest id actually present. A fixed width
+        # of 8 shoved every other column off its grid the moment one long
+        # generated id appeared.
+        id_w = max(8, *(len(str(e.get("id", "?"))) for e in evs
+                        if isinstance(e, dict)))
+        # An identifier appears with its meaning on first use (the cold-reader
+        # strategy). A scenario's meaning is its title, which the spine
+        # already holds - so print it rather than making the reader resolve
+        # `TRC-B1` from somewhere else.
+        titles = {s.get("id"): s.get("title")
+                  for s in (task.get("scenarios") or [])
+                  if isinstance(s, dict) and s.get("title")}
         for ev in evs:
             if not isinstance(ev, dict):
                 continue
@@ -393,10 +433,13 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
             etype = ev.get("type", "?")
             epath = ev.get("path", "")
             lines.append(_receipt_truncate(
-                f"  {eid:<8}  {etype:<18}  {epath}"))
+                f"  {eid:<{id_w}}  {etype:<18}  {epath}"))
             extras = _RECEIPT_EVIDENCE_EXTRAS.get(etype, ())
             extra_pairs = ", ".join(
-                f"{k}: {ev.get(k)}" for k in extras if ev.get(k) is not None
+                f"{k}: {ev.get(k)}"
+                + (f" - {titles[ev.get(k)]}"
+                   if k == "scenario" and titles.get(ev.get(k)) else "")
+                for k in extras if ev.get(k) is not None
             )
             if extra_pairs:
                 # Continuation line, indented under the entry to keep the

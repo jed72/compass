@@ -351,6 +351,27 @@ def display_shape(value):
     return SHAPE_DISPLAY.get(str(value or ""), str(value or ""))
 
 
+# The stage-name half of the same boundary. The spine and the routing policy
+# keep the keys they have always had - renaming them needs a back-compat shim
+# for every spine on disk, and is the rename slice's work - but nothing
+# retired is printed, whatever the key underneath is called.
+STAGE_DISPLAY = {
+    "frame": "triage",
+    "specify": "define",
+    "clarify": "refine",
+    "plan": "design",
+    "distribute": "breakdown",
+    "build": "implement",
+    "verify": "verify",
+    "land": "ship",
+}
+
+
+def display_stage(value):
+    """The v2 pipeline-stage name for a machine stage key."""
+    return STAGE_DISPLAY.get(str(value or ""), str(value or ""))
+
+
 def save_task(task, path):
     with open(path, "w", encoding="utf-8") as fh:
         yaml.safe_dump(task, fh, sort_keys=False, default_flow_style=False)

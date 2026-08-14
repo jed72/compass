@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.1.0
+version: 2.1.1
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -83,7 +83,8 @@ routing_strategies:
         designated existing suite (project.regression_baseline_suite, else
         test_command) BEFORE the change and re-run it AFTER; record both as
         test-run evidence on verify.regression. Soft: assessed as reviewer
-        judgement, never gating (S6)."
+        judgement, never gating - it is the regression-baseline strategy, and a
+        strategy is assessed rather than checked."
 
 # -----------------------------------------------------------------------------
 # ROUTING GUARDRAILS - hard. They BOUND the candidate route. The evaluator
@@ -127,7 +128,7 @@ routing_guardrails:
     - id: RP-REQUIRE-002
       when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.analyze
-      rationale: "Irreversible-surface tasks have coherence checked before Land."
+      rationale: "Irreversible-surface issues have coherence checked before they ship."
 
     - id: RP-REQUIRE-003
       when: { risk: [cross-cutting, critical] }
@@ -137,7 +138,7 @@ routing_guardrails:
     - id: RP-REQUIRE-004
       when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.fitness
-      rationale: "Irreversible-surface tasks have fitness checked before Land."
+      rationale: "Irreversible-surface issues have fitness checked before they ship."
 
   # caps - limits on scaling up.
   caps:
