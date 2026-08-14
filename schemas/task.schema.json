@@ -112,7 +112,15 @@
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "description": "Set at breakdown, once the distribution map says whether independent work units exist. Triage does not write it - see stream_ceiling."
+    },
+    "stream_ceiling": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "How many parallel streams this delivery approach permits, written by `compass approach evaluate`. A ceiling, not a decision: the evaluator has no concept of a work unit."
     },
     "policy_rules_fired": {
       "type": "array",

@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre8
+version: 2.0.0-pre9
 
 terms:
 
@@ -507,6 +507,20 @@ codes:
     referent: One planned public claim.
     appears_in: [positioning.md, launch-readiness.md, "task.yml claims[].id"]
     related: [TRC, launch-readiness]
+  PX:
+    means: >
+      Position exemption. One entry in `scan.position_exemptions` naming a
+      position the vocabulary scan does not read - a source comment, a machine
+      key - together with the reason a string in that position cannot reach a
+      user. The scan reads every position by default, so a PX- entry is the
+      only way a position is excluded.
+    not: >
+      A surface exemption. `scan.exempt` names whole FILES the scan skips; a
+      PX- entry names a POSITION within a file that is scanned.
+    referent: >
+      One position exemption: the positions it names, and the reason a
+      string there cannot reach a user.
+    appears_in: governance/terminology.yml, tests/test_terminology.py
   RP:
     means: >
       Routing policy rule. One rule in routing-policy.yml that biases or
@@ -637,6 +651,36 @@ scan:
     # on describing v1 commands and v1 spine keys for the whole of v2. Zero
     # pending means the listed surfaces came clean, not the repository.
     - docs/install-smoke-test.md
+  # ---------------------------------------------------------------------------
+  # POSITION EXEMPTIONS - the inverted default.
+  #
+  # The scan reads every position in a scanned file. Three positions were once
+  # excluded - markdown fenced blocks, Python string literals, YAML values -
+  # each justified with the same sentence ("machine identifiers, not prose"),
+  # and each turned out to be wrong for the same reason: a string that gets
+  # printed is prose wherever it lives.
+  #
+  # So an exclusion is now declared here, names the positions it covers, and
+  # states why a string in that position cannot reach a user. A position not
+  # listed here is scanned. Adding an entry is a governance change.
+  # ---------------------------------------------------------------------------
+  position_exemptions:
+    - id: PX-1
+      positions: [source comments, python docstrings]
+      reason: >
+        The parser discards them, so no string here can be printed, logged or
+        rendered - there is no path from a comment to a user. They are also
+        where the history lives: a comment explaining that a key used to be
+        called something else is the record, and banning the old name there
+        would delete the explanation.
+    - id: PX-2
+      positions: [yaml keys, json keys, json enum values]
+      reason: >
+        These are the machine contract, not documentation. A spine on disk, a
+        policy file and a schema all agree on them, so a rename is a migration
+        with a back-compat shim rather than a text sweep. The prose that sits
+        beside them - descriptions, titles, rationales - is scanned.
+
   exempt:
     - docs/proposals/      # history stays honest
     - docs/system-spec.md  # derived at ship time; hand-editing forbidden

@@ -14,5 +14,5 @@ expected:
   delivery_approach: initiative
   fired_guardrail_ids: [RP-FLOOR-003]
   conflict: false
-  topology: swarm
+  stream_ceiling: 8
   has_gate: verify.security

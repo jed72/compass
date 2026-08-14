@@ -188,9 +188,15 @@ def summarise_counts(ran, failures, vacuous=0):
     """
     if failures:
         return f"compass check: FAIL - {failures} of {ran} check(s) failed."
+    # No denominator on a pass. "12 of 15 passed" reads as three failures at
+    # a glance, and the total is not a constant anyway - `G5 A human signs off
+    # on the irreversible` only runs when the work touches auth, payments,
+    # personal data or migrations, so it moves between issues. A denominator
+    # is the right thing to print when checks FAILED, which is the branch
+    # above.
     if vacuous:
-        return (f"compass check: PASS - {ran - vacuous} of {ran} check(s) "
-                f"passed, {vacuous} had nothing to check.")
+        return (f"compass check: PASS - {ran - vacuous} check(s) passed, "
+                f"{vacuous} had nothing to check.")
     return f"compass check: PASS - all {ran} check(s) passed."
 
 

@@ -4,8 +4,14 @@ title: The vocabulary scan covers code positions, not only prose
 status: accepted
 date: 2026-08-13
 supersedes: ''
-superseded_by: ''
+superseded_by: ADR-018
 ---
+
+> **Superseded by ADR-018.** The two corrections below stand. What ADR-018
+> replaces is this record's framing - that an exclusion should "name the
+> surface it was reasoned about" - which still relied on someone remembering
+> to ask. A third position (YAML values) was excluded for the same reason
+> after this was written, so the default itself was inverted.
 
 ## Context
 

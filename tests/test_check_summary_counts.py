@@ -45,10 +45,16 @@ def test_trc_d1_vacuous_counted_apart():
     """Sixteen ran, three had nothing to check."""
     line = _summarise()(ran=16, failures=0, vacuous=3)
 
-    assert "16" in line, f"the total is no longer reported: {line!r}"
-    assert "13" in line, (
-        f"the summary does not report how many checks actually verified "
-        f"something. Thirteen did; the line says: {line!r}")
+    # The denominator was dropped after this test first shipped: "13 of 16
+    # passed" reads as three failures at a glance, and the total is not a
+    # constant - G5 only runs when the work touches auth, payments, personal
+    # data or migrations. The count that matters is what passed.
+    # tests/test_ceiling_and_honest_counts.py holds the current contract.
+    assert "13 check(s) passed" in line, (
+        f"the summary does not lead with how many checks verified something: "
+        f"{line!r}")
+    assert " of 16" not in line, (
+        f"the summary prints a denominator again: {line!r}")
     assert re.search(r"3\b.*(nothing to check|vacuous)", line, re.I), (
         f"the three vacuous clearances are not reported as such: {line!r}")
     assert line.startswith("compass check: PASS"), (

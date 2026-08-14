@@ -12,7 +12,7 @@ version: 1.0.0
 scope_bloat_phrases:
   - "more files than Plan estimated"
   - "narrow scope and spawn sibling"
-  - "file deeper layer as a sibling task at Land"
+  - "file deeper layer as a sibling issue at ship"
   - "soften the gate"
   - "(carried to Land)"
   - "USER TO APPLY"

@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.1.1
+version: 2.1.2
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -224,6 +224,10 @@ route_shapes:
     topology: solo-or-pair
   hotfix:
     weight: 3
+    # `full-plus-backfill` below is a stage-weight enum the evaluator
+    # and every spine on disk read; renaming it is a migration with a
+    # back-compat shim, not a text sweep.
+    # vocabulary-scan: allow - machine enum value, see above
     stages: { frame: light, specify: reproduce-first, clarify: collapsed, plan: collapsed, distribute: skipped, build: expedited, verify: full, land: full-plus-backfill }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security]
     topology: solo

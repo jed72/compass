@@ -2,7 +2,7 @@
 
 These tests prove that `compass approach evaluate` is a pure function: given
 readings + the shipped routing-policy.yml, it produces the documented route,
-fires the documented floors/caps, and selects the documented topology.
+fires the documented floors/caps, and permits the documented parallelism.
 
 The bulk of the proof is the YAML-driven parameterised test at the bottom -
 each fixture in tests/fixtures/routes/ declares an input + expected output.
@@ -66,7 +66,7 @@ def test_expedition_route_for_large_magnitude(run_cli):
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     assert data["delivery_approach"] == "initiative"
-    assert data["topology"] == "swarm"
+    assert data["stream_ceiling"] == 8
 
 
 def test_hotfix_route_for_live_defect(run_cli):
@@ -92,7 +92,7 @@ def test_spike_route_for_exploration_intent(run_cli):
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     assert data["delivery_approach"] == "spike"
-    assert data["topology"] == "solo"
+    assert data["stream_ceiling"] == 1
 
 
 # --- floors: a matching reading raises the route or forces a phase ---------
@@ -152,7 +152,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
 
 
 def test_cap_critical_caps_worktrees_to_one(run_cli):
-    """RP-CAP-001: critical blast radius => max_worktrees=1, topology forced solo."""
+    """RP-CAP-001: critical risk => max_worktrees=1, so the ceiling is 1."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "critical",
                                 "familiarity": "brownfield-mapped",
@@ -162,7 +162,7 @@ def test_cap_critical_caps_worktrees_to_one(run_cli):
     data = json.loads(r.stdout)
     assert data["delivery_approach"] == "initiative"   # floor pushed it
     assert data["max_worktrees"] == 1
-    assert "solo" in data["topology"]
+    assert data["stream_ceiling"] == 1
     fired_ids = [f["id"] for f in data["policy_rules_fired"]]
     assert "RP-CAP-001" in fired_ids
 
@@ -196,7 +196,7 @@ def test_existing_combinations_unchanged(run_cli):
     the cross-task-architectural-integrity work started) and asserts that for
     each reading combination, `compass approach evaluate --json` still produces:
       - the same route name (expected_route)
-      - the same topology (expected_topology)
+      - the same permitted parallelism (expected_stream_ceiling)
       - the same per-phase weights (expected_phases)
       - the same gate set (expected_gates)
 
@@ -220,7 +220,12 @@ def test_existing_combinations_unchanged(run_cli):
         name = entry.get("name", "?")
         readings = entry["assessment"]
         expected_route = entry["expected_route"]
-        expected_topology = entry["expected_topology"]
+        # The baseline recorded a topology. Triage no longer decides one -
+        # it emits a ceiling, and breakdown sets the topology once the
+        # distribution map exists. The baseline's values were translated
+        # through the mapping each topology word always implied
+        # (solo=1, solo-or-pair=2, swarm=8), not re-captured from the code.
+        expected_ceiling = entry["expected_stream_ceiling"]
         expected_phases = entry["expected_phases"]
         expected_gates = set(entry["expected_gates"])
 
@@ -236,7 +241,7 @@ def test_existing_combinations_unchanged(run_cli):
         data = json.loads(r.stdout)
 
         actual_route = data.get("delivery_approach")
-        actual_topology = data.get("topology", "")
+        actual_ceiling = data.get("stream_ceiling")
         actual_phases = data.get("stages", {})
         actual_gates = set(data.get("gates", []))
 
@@ -245,9 +250,9 @@ def test_existing_combinations_unchanged(run_cli):
                 f"[{name}] ROUTE DRIFT: expected '{expected_route}', "
                 f"got '{actual_route}'"
             )
-        if expected_topology not in actual_topology:
+        if expected_ceiling != actual_ceiling:
             failures.append(
-                f"[{name}] TOPOLOGY DRIFT: expected '{expected_topology}' "
+                f"[{name}] PARALLELISM DRIFT: expected ceiling {expected_ceiling} "
                 f"(substring), got '{actual_topology}'"
             )
         if actual_phases != expected_phases:
@@ -295,9 +300,10 @@ def test_route_fixture(run_cli, fixture):
     fired = [f["id"] for f in data.get("policy_rules_fired", [])]
     for fid in expected.get("fired_guardrail_ids", []):
         assert fid in fired, f"expected {fid!r} fired, got {fired!r}"
-    if "topology" in expected:
-        assert expected["topology"] in data["topology"], (
-            f"topology mismatch: {data['topology']!r} vs {expected['topology']!r}"
+    if "stream_ceiling" in expected:
+        assert expected["stream_ceiling"] == data["stream_ceiling"], (
+            f"permitted-parallelism mismatch: {data['stream_ceiling']!r} vs "
+            f"{expected['stream_ceiling']!r}"
         )
     if "has_gate" in expected:
         assert expected["has_gate"] in data["gates"], (

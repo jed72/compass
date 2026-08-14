@@ -134,99 +134,6 @@ def _scenario_documented_in_spec(spec_path, scenario_id):
     return has_when and has_then
 
 
-def _test_id_resolves(test_id, project_root):
-    """Does this declared test id point at something real on disk?
-
-    Returns True (resolves), False (does not), or None (not file-shaped, so
-    this check has no opinion).
-
-    Resolution is by text, not by asking a test runner. Compass ships to
-    projects using pytest, jest, go test and cargo, and a per-runner adapter is
-    far more surface than the problem needs. The trade is that a name appearing
-    only inside a comment would pass; the failure being caught is a name that
-    appears nowhere at all.
-
-    Ids that are not file-shaped are skipped rather than failed. Test ids in the
-    wild are not all file references, and a false positive on a legitimate id
-    teaches people to switch the check off. `verifiable: narrative` remains the
-    sanctioned way to declare a scenario has no automated test.
-    """
-    import re as _re
-    _re_ws = _re.compile(r"\s")
-    tid = (test_id or "").strip()
-    if not tid:
-        return None
-
-    if "::" in tid:
-        file_part, name_part = tid.split("::", 1)
-        name = name_part.split("::")[-1]
-        name = name.split("[", 1)[0].strip()      # drop pytest parametrisation
-    else:
-        file_part, name = tid, None
-        # Only treat it as a path if it looks like one; otherwise no opinion.
-        if "/" not in file_part or "." not in os.path.basename(file_part):
-            return None
-
-    # A path has no whitespace in it. Prose that happens to mention a file -
-    # "grep: governance/strategies.md carries S7" - is a description, not a
-    # reference, and must not be reported as a broken path.
-    file_part = file_part.strip()
-    if not file_part or _re_ws.search(file_part):
-        return None
-
-    path = os.path.join(project_root, file_part.strip())
-    if not os.path.isfile(path):
-        return False
-    if not name:
-        return True
-
-    try:
-        with open(path, encoding="utf-8", errors="replace") as fh:
-            body = fh.read()
-    except OSError:
-        return False
-    return _name_appears(name, body)
-
-
-def _name_appears(name, body):
-    """Is this test name written in this file?
-
-    Two id shapes have to work, and the original handled only the first.
-
-    A flat id names the test directly. A NESTED id - jest's
-    `outer > inner > the test` - names a path through describe blocks, and
-    only its final segment is the test's own name. The chain as a whole is
-    never written anywhere, so searching for it verbatim could not succeed on
-    any correctly-declared id.
-
-    Word boundaries are applied only on an end where they can be satisfied.
-    `\\b` after a name ending in `@`, `)` or `.` requires a word character
-    next, so such ids were unresolvable whatever was on disk. Dropping the
-    boundaries entirely would be the opposite error - `test_plain` would match
-    `test_plain_name`, letting a truncated or misspelled id pass - so each end
-    keeps its boundary when that end is a word character.
-    """
-    import re as _re
-
-    candidates = [name]
-    if ">" in name:
-        candidates.append(name.rsplit(">", 1)[-1])
-
-    for candidate in candidates:
-        candidate = candidate.strip()
-        if not candidate:
-            continue
-        pattern = ""
-        if candidate[0].isalnum() or candidate[0] == "_":
-            pattern += r"(?<!\w)"
-        pattern += _re.escape(candidate)
-        if candidate[-1].isalnum() or candidate[-1] == "_":
-            pattern += r"(?!\w)"
-        if _re.search(pattern, body):
-            return True
-    return False
-
-
 def _check_declared_tests_resolve(task, task_dir):
     """G1: a scenario's declared test id must point at a test that exists.
 
@@ -252,7 +159,7 @@ def _check_declared_tests_resolve(task, task_dir):
                       "plan, not a claim")
 
     project_root = os.path.dirname(find_compass_dir())
-    broken, checked = [], 0
+    broken, skipped, checked = [], [], 0
     for s in (task.get("scenarios") or []):
         if s.get("verifiable") == "narrative":
             continue
@@ -263,11 +170,17 @@ def _check_declared_tests_resolve(task, task_dir):
             checked += 1
             if not verdict:
                 broken.append(f"{s.get('id', '?')}: {tid}")
+            elif _test_is_skipped(tid, project_root):
+                skipped.append(f"{s.get('id', '?')}: {tid}")
 
     if broken:
         return False, ("declared test(s) do not resolve to a test on disk: "
                        + "; ".join(broken))
-    return True, f"all {checked} declared test id(s) resolve"
+    if skipped:
+        return False, ("declared test(s) resolve but are marked skipped, so "
+                       "they never run and prove nothing: "
+                       + "; ".join(skipped))
+    return True, f"all {checked} declared test id(s) resolve and are runnable"
 
 
 def _check_scenarios_have_tests(task, task_dir):
@@ -386,6 +299,9 @@ def _check_scenarios_are_executable(task, task_dir):
                   % (len(scenario_ids), runner))
 
 
+from compass_pkg.test_ids import _test_id_resolves, _test_is_skipped
+
+
 class _Vacuous(int):
     """A pass that verified nothing, distinguishable from one that did.
 
@@ -437,9 +353,14 @@ def _check_suite_passed(task, task_dir):
             return False, (f"test-run evidence {entry.get('id', '?')} is bound "
                            f"to scenario '{scn}' which is not in task.yml")
         green.append(entry)
-    bindings = [e.get("scenario") for e in green if e.get("scenario")]
-    bound = f", bound to scenarios {sorted(set(bindings))}" if bindings else ""
-    return True, f"{len(green)} test-run(s) on record, all green{bound}"
+    # What this establishes, stated exactly. A test-run record holds ONE exit
+    # code for ONE command; it does not enumerate the tests that ran. So a
+    # green suite does not establish which scenarios it exercised, and naming
+    # the scenarios an evidence entry happens to be labelled with invited
+    # exactly that reading. Per-scenario coverage needs the runner's own
+    # result output parsed, which is filed as its own issue.
+    return True, (f"{len(green)} test-run(s) on record, all green. This does "
+                  f"not record which scenarios the run exercised")
 
 
 def _git_out(args, cwd):

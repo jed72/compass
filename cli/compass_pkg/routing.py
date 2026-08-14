@@ -96,6 +96,12 @@ from compass_pkg.task_spine import _annotate_gate_accepts
 
 
 
+# How many parallel streams each route shape permits. The policy states this
+# as a topology word; here it becomes the number a cap can be compared
+# against. `solo-or-pair` permits two - that is what "or pair" means.
+_SHAPE_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": 8}
+
+
 def evaluate_route(readings, policy):
     """Pure function: readings + policy -> the final route and everything that
     shaped it. This is the deterministic heart of Compass."""
@@ -273,9 +279,19 @@ def evaluate_route(readings, policy):
         for fl_gate in floor_gates:  # gates added by a floor's add_gate (ADR-007)
             if fl_gate not in gates:
                 gates.append(fl_gate)
-    topology = shape.get("topology", "solo")
-    if max_worktrees == 1 and topology in ("swarm", "solo-or-pair"):
-        topology = "solo (capped to 1 worktree)"
+    # A CEILING, not a decision. Triage cannot know the topology: the
+    # evaluator has no concept of a work unit, `routing-policy.yml` says
+    # nothing about independence or streams, and the distribution map that
+    # decides parallelism is written at design - three stages later. So the
+    # evaluator reports how many parallel streams this approach PERMITS, and
+    # breakdown sets the actual topology once the map exists.
+    #
+    # It stays a number so a cap can be compared against it. The previous code
+    # wrote the sentence "solo (capped to 1 worktree)" into a machine field.
+    stream_ceiling = _SHAPE_STREAM_CEILING.get(
+        str(shape.get("topology", "solo")), 1)
+    if max_worktrees is not None:
+        stream_ceiling = min(stream_ceiling, max_worktrees)
 
     # --- soft advisory strategies (R10) -------------------------------------
     # These BIAS/ASSESS only - they never alter the route, gates, weight, or
@@ -297,7 +313,7 @@ def evaluate_route(readings, policy):
         "policy_rules_fired": fired,
         "stages": phases,
         "gates": gates,
-        "topology": topology,
+        "stream_ceiling": stream_ceiling,
         "required_artifacts": required_artifacts,
         "required_skills": sorted(required_skills),
         "blocked_phases": blocked_phases,
@@ -369,7 +385,9 @@ def cmd_route_evaluate(args):
                     print(f"        - {c}")
         else:
             print("  policy rules fired: none")
-        print(f"  topology        : {result['topology']}")
+        print(f"  parallel streams: up to {result['stream_ceiling']} "
+              f"(a ceiling - breakdown sets the topology once the "
+              f"distribution map exists)")
         print("  per-stage weight:")
         for p, w in result["stages"].items():
             print(f"    {display_stage(p):<11}: {w}")
@@ -399,7 +417,7 @@ def cmd_route_evaluate(args):
         prior = {
             "delivery_approach": task.get("delivery_approach"),
             "stages": task.get("stages"),
-            "topology": task.get("topology"),
+            "stream_ceiling": task.get("stream_ceiling"),
             "gates": sorted(g.get("id") for g in (task.get("gates") or [])
                             if isinstance(g, dict)),
             "policy_rules_fired": sorted(
@@ -409,7 +427,7 @@ def cmd_route_evaluate(args):
         now = {
             "delivery_approach": result["delivery_approach"],
             "stages": result["stages"],
-            "topology": result.get("topology"),
+            "stream_ceiling": result.get("stream_ceiling"),
             "gates": sorted(result.get("gates") or []),
             "policy_rules_fired": sorted(
                 f.get("id") for f in (result["policy_rules_fired"] or [])
@@ -450,7 +468,10 @@ def cmd_route_evaluate(args):
         ]
         # ensure the evidence registry exists at the top level
         task.setdefault("evidence", [])
-        task["topology"] = result["topology"]
+        task["stream_ceiling"] = result["stream_ceiling"]
+        # Triage no longer records a topology: breakdown owns it, once the
+        # distribution map says whether independent work units exist.
+        task.pop("topology", None)
         save_task(task, task_path)
         _annotate_gate_accepts(task_path)   # R6-6: seed accepted-type comments
         print(f"\n  wrote route, phases, gates -> {task_path}")
