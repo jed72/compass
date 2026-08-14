@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.6.0 · **Last amended:** 2026-08-14
+> **Version:** 0.7.0 · **Last amended:** 2026-08-14
 
 ---
 
@@ -292,6 +292,12 @@ Sections and lists rather than paragraphs. Leave out the story of how the work
 went - what was tried, what was discovered, what it taught you. A reviewer wants
 the state of the code, not the journey to it, and the journey is the most common
 reason a body gets too long to read.
+
+**This forbids narrative, not length.** Read as one rule the two run together,
+and it then fights real substance: a change with a lot in it is allowed to be
+long, and four sections of genuine content running to a page is a large change
+honestly described. Trim the story, never the substance. Found on this rule's
+first real use, where it pushed against a description that needed the room.
 
 *Why a strategy and not a guardrail:* no mechanical check can tell a summary
 from a slogan. `tests/test_plain_language.py` checks that the rule is stated and

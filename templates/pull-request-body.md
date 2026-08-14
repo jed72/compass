@@ -11,6 +11,11 @@ Leave out the story of how the work went - what you tried, what you discovered,
 what it taught you. A reviewer wants the state of the code, not the journey to
 it, and the journey is the most common reason a body gets too long to read.
 Sections and lists beat paragraphs.
+
+This is a rule against NARRATIVE, not against LENGTH. A change with a lot in it
+is allowed to be long; what is never allowed is walking the reader through the
+journey. If four sections of substance run to a page, that is a large change
+honestly described - trim the story, never the substance.
 -->
 
 ## What changed
