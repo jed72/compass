@@ -15,6 +15,25 @@ Two rules are enforced here:
    change; `devlog.md` and `task.yml` already record provenance in a form the
    framework can read.
 
+The file list comes from `git ls-files`, which means this guard reads exactly
+what the repository ships and gives the same answer on every machine. That is
+deliberate, and it silently omitted something for months: the project's own
+launch article lived in `docs/analysis/`, which `.gitignore` excludes as a
+directory, so the one document written for strangers was the one document no
+guard had ever read. It was absent from every fresh clone and from CI, so
+nothing reported a gap - the scan simply had nothing to say about a file it
+could not see.
+
+The fix was to track what gets published, not to make this guard read untracked
+files. Reading untracked files would have made the answer depend on whatever
+each contributor keeps on disk, and would have passed in CI where those files
+are absent entirely. Working notes and the campaign plan stay untracked and
+stay unread, which is correct: nothing publishes them.
+
+Still deliberately excluded: `assets/` (binary), `LICENSE` (verbatim Apache-2.0,
+never edited for style), and the framework's own `.compass/work/`. The
+`examples/*/.compass/work/` fixtures are committed on purpose and are scanned.
+
 This file contains no literal em dash and no literal forbidden trailer. Every
 needle is assembled from its parts at import time, so the scanners never have
 to exempt themselves from their own rules.
@@ -66,6 +85,14 @@ def _tracked_files(root: Path) -> list[Path]:
         ).stdout
         rels = [p for p in out.split("\0") if p]
     except (subprocess.SubprocessError, OSError):
+        # Say so. A run over the filesystem scans a different set from a run
+        # over `git ls-files` - it can include local-only content - and the two
+        # must not report identically. Silence here is how a "clean" result
+        # over the wrong file set looks exactly like a clean result over the
+        # right one.
+        print(f"test_house_style: no git metadata at {root} - "
+              f"falling back to a filesystem walk; the scanned file set is the "
+              f"working tree, not `git ls-files`.")
         rels = _walk(root)
     return [root / rel for rel in rels if not _skipped(rel)]
 
@@ -259,3 +286,254 @@ def test_house_style_is_documented():
         "land-commit`. Land authors the commit message, so the rule has to be "
         "at the point of use to take effect."
     )
+
+
+# ---------------------------------------------------------------------------
+# Published copy comes under the guard (issue plain-language-3-2-0, group A).
+#
+# The guard reads what `git ls-files` reports. That is correct and is not
+# changing: a guard whose file list depends on local-only content gives a
+# different answer on every machine, and passes in CI where the files are
+# absent entirely. What was wrong is that the project's own published article
+# was not tracked, so the guard had never once read it.
+# ---------------------------------------------------------------------------
+
+PUBLISHED_COPY = "docs/launch-article.md"
+
+
+def _git_tracked(rel: str) -> bool:
+    out = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", rel],
+        cwd=REPO_ROOT, capture_output=True, text=True,
+    )
+    return out.returncode == 0
+
+
+def test_pl_a1_published_copy_is_tracked():
+    """TRC-A1 - the article written for publication is under version control.
+
+    It used to live in `docs/analysis/`, which `.gitignore` excludes as a
+    directory, so it was absent from every fresh clone and from CI. Anything
+    the project publishes is tracked; working notes and the campaign plan stay
+    untracked, because nothing publishes them and a public repository should
+    not carry the launch strategy beside the framework.
+    """
+    assert (REPO_ROOT / PUBLISHED_COPY).is_file(), (
+        f"{PUBLISHED_COPY} does not exist. The published article must live on a "
+        f"tracked path outside docs/analysis/, or no guard in this file reads it."
+    )
+    assert _git_tracked(PUBLISHED_COPY), (
+        f"{PUBLISHED_COPY} exists but `git ls-files` does not report it, so the "
+        f"house-style guard - which builds its list from git - will not read it."
+    )
+
+
+def test_pl_a1b_working_notes_stay_untracked():
+    """TRC-A1 - tracking the article does not drag the planning directory in.
+
+    `docs/analysis/` holds internal review notes and `launch-plan.md`, which
+    names venues, poll wording and who gets seeded first. Publishing the
+    campaign strategy beside the framework would be a worse outcome than an
+    unscanned em dash.
+    """
+    gitignore = (REPO_ROOT / ".gitignore").read_text(encoding="utf-8")
+    for path in ("/docs/analysis/", "/docs/proposals/"):
+        assert path in gitignore, (
+            f"{path} must stay in .gitignore - it holds local-only planning "
+            f"documents, and this repository is public."
+        )
+    leaked = [p for p in subprocess.run(
+        ["git", "ls-files", "docs/analysis", "docs/proposals"],
+        cwd=REPO_ROOT, capture_output=True, text=True,
+    ).stdout.split("\n") if p.strip()]
+    assert not leaked, (
+        "these local-only planning files are tracked and should not be:\n  "
+        + "\n  ".join(leaked)
+    )
+
+
+# The heading a file uses to fence off its own non-published material. Real
+# instance: launch-article.md carried "## Not part of the article - where to
+# post it", holding venue order, the Show HN title and the poll wording, and
+# tracking the file would have published all of it in a public repository.
+SELF_EXCLUSION_PHRASES = ("not part of the article", "not part of this article",
+                          "not for publication", "internal only", "do not publish")
+
+
+def test_pl_a9_no_self_declared_exclusion_in_publication_copy():
+    """TRC-A9 - a tracked publication file holds only what will be published.
+
+    The rule this enforces is TRC-A7's: the article holds what gets published,
+    the untracked plan holds everything that does not. That rule is judgement
+    and cannot be checked mechanically in general. This is the one crude half
+    that can be: a file which says out loud that a section is not part of it
+    is telling you its contents are mixed, and mixed contents must not be
+    tracked as publication copy.
+
+    The fix is never to reword the heading. It is to move the section into the
+    untracked plan, where that material belongs.
+    """
+    path = REPO_ROOT / PUBLISHED_COPY
+    if not path.is_file():
+        return  # TRC-A1 owns the file's existence and fails on its own.
+    hits = []
+    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.lstrip().startswith("#"):
+            continue
+        low = line.lower()
+        for phrase in SELF_EXCLUSION_PHRASES:
+            if phrase in low:
+                hits.append(f"{PUBLISHED_COPY}:{lineno}: {line.strip()[:90]}")
+    assert not hits, (
+        "a tracked publication file declares that part of it is not for "
+        "publication:\n  " + "\n  ".join(hits) + "\n\n"
+        "Fix: move that section into the untracked plan (docs/analysis/). Do "
+        "NOT reword the heading - the heading is honest, and the problem is "
+        "that the material is in a tracked file at all. This repository is "
+        "public."
+    )
+
+
+def test_pl_a3_fallback_not_used_where_git_works():
+    """TRC-A3 - the filesystem walk is not reached when git can answer.
+
+    The walk exists for an extracted release tarball, which has no git
+    metadata. Reaching it anywhere else would put local-only content back into
+    the file list and make the guard's answer vary by machine - the exact
+    property tracking the article was meant to remove.
+    """
+    files = _tracked_files(REPO_ROOT)
+    rels = {str(p.relative_to(REPO_ROOT)) for p in files}
+    from_git = {p for p in subprocess.run(
+        ["git", "ls-files"], cwd=REPO_ROOT, capture_output=True, text=True,
+    ).stdout.split("\n") if p.strip() and not _skipped(p)}
+    extra = sorted(rels - from_git)
+    assert not extra, (
+        "the guard's file list contains paths `git ls-files` does not report, "
+        "so it fell back to the filesystem walk while git was available:\n  "
+        + "\n  ".join(extra[:20])
+    )
+
+
+def test_pl_a8_fallback_announces_itself():
+    """TRC-A8 - falling back to the filesystem walk says so.
+
+    A run over a different file set must not look identical to a run over the
+    tracked one. Without this, a repository where git is unavailable reports
+    the same "PASS" while having scanned something else entirely.
+    """
+    import io
+    import contextlib
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        _walk_used = _tracked_files(Path("/nonexistent-so-git-cannot-run"))
+    said = buf.getvalue().lower()
+    assert "filesystem" in said or "fallback" in said or "no git" in said, (
+        "the guard fell back to the filesystem walk and said nothing. A run "
+        "that scanned a different file set must not be indistinguishable from "
+        "one that scanned the tracked set.\n"
+        f"Captured output: {buf.getvalue()!r}"
+    )
+
+
+def test_pl_a4_build_noise_stays_out_of_the_scan():
+    """TRC-A4 - build noise and the framework's own issue state are not scanned.
+
+    A regression lock on behaviour that is already correct. It can still be
+    proved failing - see the mutation record in evidence/ - by removing a
+    prune entry and watching the list grow.
+    """
+    rels = {p.relative_to(REPO_ROOT) for p in _tracked_files(REPO_ROOT)}
+    # Match on path SEGMENTS, not a leading prefix. `tests/__pycache__/x.pyc`
+    # does not start with "__pycache__/", so a prefix test would report clean
+    # while the walk was returning build noise from every subdirectory.
+    for noise in (".git", "node_modules", "__pycache__", ".ruff_cache",
+                  ".pytest_cache", "dist", "build"):
+        offenders = sorted(str(r) for r in rels if noise in r.parts)
+        assert not offenders, (
+            f"'{noise}' should never be scanned; found {len(offenders)}, "
+            f"e.g. {offenders[:3]}"
+        )
+    # The framework's own issue state is gitignored and must not be walked in,
+    # but the examples' committed fixtures must be.
+    own_state = sorted(str(r) for r in rels
+                       if r.parts[:2] == (".compass", "work"))
+    assert not own_state, (
+        f"the framework's own .compass/work/ was scanned: {own_state[:3]}")
+    assert any(r.parts[0] == "examples" and ".compass" in r.parts for r in rels), (
+        "the deliberately-tracked examples/*/.compass/work/ fixtures are missing "
+        "from the scan - the prune above is too broad."
+    )
+
+
+def test_pl_a6_en_dash_is_left_alone():
+    """TRC-A6 - U+2013 is not swept up with U+2014.
+
+    En dashes carry meaning in ranges such as `G1-G5` and `2-3 streams`, and
+    there are real ones in this repository doing that work. A guard that took
+    them too would force every range to be rewritten.
+    """
+    EN_DASH = chr(0x2013)
+    assert EN_DASH != EM_DASH
+    assert not _scan(EN_DASH, only_suffix=".nonexistent-suffix"), "sanity"
+    # The em-dash scanner must not fire on a line whose only dash is an en dash.
+    sample = f"the range G1{EN_DASH}G5 and 2{EN_DASH}3 streams"
+    assert EM_DASH not in sample
+    living = _scan(EN_DASH)
+    assert living, (
+        "no en dash found anywhere in the repository. This test asserts they "
+        "are LEFT ALONE, so with none present it would pass without checking "
+        "anything - the failure mode strategy S10 exists to catch."
+    )
+
+
+def test_pl_a2_em_dash_in_published_copy_is_caught(tmp_path):
+    """TRC-A2 - the guard fails on an em dash in the published article.
+
+    The guard's reach over that file is the whole point of tracking it, and
+    "the guard now reads it" is exactly the kind of claim that passes without
+    being true. This plants one in a copy and drives `_scan`'s own matcher
+    over it, so the assertion is about the scanner rather than about a file
+    that happens to be clean today.
+    """
+    article = REPO_ROOT / PUBLISHED_COPY
+    assert article.is_file(), "TRC-A1 owns this file's existence"
+    planted = tmp_path / "launch-article.md"
+    planted.write_text(
+        article.read_text(encoding="utf-8") + f"\nA sentence {EM_DASH} with one.\n",
+        encoding="utf-8",
+    )
+    text = _read(planted)
+    hits = [ln for ln, line in enumerate(text.splitlines(), 1) if EM_DASH in line]
+    assert hits, "the planted em dash was not found - the matcher is not looking"
+
+    # And the real file is clean, which is what the suite-level scan asserts.
+    assert EM_DASH not in article.read_text(encoding="utf-8"), (
+        f"{PUBLISHED_COPY} contains an em dash. It is tracked, so "
+        f"test_no_em_dash_in_tracked_files covers it - fix it there."
+    )
+
+
+def test_pl_a5_docstring_records_the_silent_omission():
+    """TRC-A5 - the module says why its file list is what it is.
+
+    A future reader who meets a guard that reads only tracked files will ask
+    whether that was a decision or an accident, and the honest answer is
+    "both": it was a decision, and it silently omitted the one document
+    written for strangers. Without that written down, the next person
+    re-proposes reading untracked files, which is the option that gives a
+    different answer on every machine.
+    """
+    doc = __doc__ or ""
+    for phrase, why in (
+        ("git ls-files", "the file list's actual source"),
+        ("silently omitted", "that the gap was silent, which is the pattern ADR-018 names"),
+        ("launch article", "which document was missed"),
+        ("track what gets published", "the fix that was chosen"),
+        ("depend on whatever", "why reading untracked files was rejected"),
+    ):
+        assert phrase in doc, (
+            f"the module docstring does not record {why} (looked for "
+            f"{phrase!r}). A guard whose file list surprised someone once "
+            f"should explain itself to the next reader."
+        )
