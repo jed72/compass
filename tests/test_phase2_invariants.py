@@ -54,7 +54,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     if not work.is_dir():
         return
     slugs = sorted(p.name for p in work.iterdir() if (p / "task.yml").is_file())
-    assert slugs, "no tasks on disk - this guard would be vacuous"
+    assert slugs, "no tasks on disk - this guard would be empty"
 
     # A Spike runs `spike_guardrails`, not G1-G5 - the BDD and TDD strategies
     # are suspended there by design, so a check about executable scenarios

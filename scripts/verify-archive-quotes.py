@@ -243,7 +243,7 @@ def verify(
 
         # A span whose quoted block did not parse has no text to verify.
         # Coercing it to "" made the hash the hash of nothing and the
-        # substring check vacuously true, so an unreadable quote reported
+        # substring check without checking anything true, so an unreadable quote reported
         # clean - in the one script whose job is proving quotes are real.
         if not span.get("quoted"):
             failures.append(

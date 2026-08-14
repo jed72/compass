@@ -134,7 +134,7 @@ def test_trc_b1_summary_has_no_denominator():
     the 15 is not a constant - it depends on whether G5 applies."""
     from compass_pkg.check_cmd import summarise_counts
 
-    line = summarise_counts(ran=15, failures=0, vacuous=3)
+    line = summarise_counts(ran=15, failures=0, nothing_to_check=3)
     assert "12 check(s) passed" in line, (
         f"the summary does not lead with what actually passed: {line!r}")
     assert "3 had nothing to check" in line, line
@@ -148,7 +148,7 @@ def test_trc_b2_a_failure_still_names_its_denominator():
     FAILED - "2 of 15 failed" is the number a reader needs."""
     from compass_pkg.check_cmd import summarise_counts
 
-    line = summarise_counts(ran=15, failures=2, vacuous=3)
+    line = summarise_counts(ran=15, failures=2, nothing_to_check=3)
     assert line.startswith("compass check: FAIL"), line
     assert "2 of 15" in line, (
         f"a failing run must still say how many of how many: {line!r}")

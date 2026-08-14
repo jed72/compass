@@ -150,7 +150,7 @@ def test_release_script_packages_on_this_platform(tmp_path):
     This runs the script's own flag-selection helper against a fixture tree and
     inspects the result with `tar -tzf`, so it exercises the branch matching the
     tar on the running machine - meaningful on a macOS laptop and on Linux CI
-    rather than passing vacuously on one of them.
+    rather than passing without checking anything on one of them.
     """
     import subprocess
 

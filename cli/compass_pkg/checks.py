@@ -1026,7 +1026,7 @@ def _check_command_passes(task, task_dir):
 
     Behaviour:
     - When verify.fitness is in the gate set but zero project guardrails
-      declare check: command-passes → vacuous-clear (DD-6).
+      declare check: command-passes → nothing-to-check pass (DD-6).
     - For each project guardrail with check: command-passes, run
       subprocess.run(shell=True, timeout=timeout_seconds) from the project
       root (inferred as the directory 2 levels above task_dir, which is
@@ -1054,8 +1054,8 @@ def _check_command_passes(task, task_dir):
         if isinstance(g, dict) and "command-passes" in (g.get("checks") or [])
     ]
 
-    # Vacuous-clear (DD-6): verify.fitness in gate set, zero command-passes
-    # guardrails declared → the gate has nothing to check; it clears by vacuity.
+    # nothing-to-check pass (DD-6): verify.fitness in gate set, zero command-passes
+    # guardrails declared → the gate has nothing to check; it passes without checking anything.
     if not cp_guardrails:
         return NOTHING_TO_CHECK, ("verify.fitness: this project declares no guardrail "
                          "that runs a command, so there was nothing to check "

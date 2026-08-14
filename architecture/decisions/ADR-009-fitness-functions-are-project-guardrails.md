@@ -60,7 +60,7 @@ routing floors `RG-FLOOR-006` (blast_radius ∈ {cross-cutting, critical}) and
 following the ADR-007 precedent for `verify.analyze`.
 
 When `verify.fitness` is in a task's gate set and zero project guardrails
-declare `command-passes`, the gate clears by vacuity: `compass check` writes a
+declare `command-passes`, the gate passes without checking anything: `compass check` writes a
 `command-output` evidence entry noting that 0 project guardrails are declared,
 and the gate passes. This preserves the routing contract (the gate was earned;
 it must be tracked) without imposing a tax on projects that haven't declared
@@ -84,7 +84,7 @@ fitness functions yet (ADR-006).
   is a CHECK_FN registered under G4, not a sixth guardrail.
 - The pattern is reusable: any future "project-declared, route-promoted" gate
   follows the same shape (`command-passes` + a floor in `routing-policy.yml`).
-- The vacuous-clear prevents cross-cutting tasks from being blocked by
+- The nothing-to-check pass prevents cross-cutting tasks from being blocked by
   fitness gates on projects that simply haven't declared any yet.
 
 **Negative:**

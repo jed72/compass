@@ -278,16 +278,16 @@ class TestVerifyFitnessAdvisory:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6: vacuous-clear - no project guardrails → verify.fitness clears
+# TRC-B6: nothing-to-check pass - no project guardrails → verify.fitness clears
 # ---------------------------------------------------------------------------
 
-class TestVacuousClear:
+class TestNothingToCheckPass:
     """TRC-B6: when verify.fitness is in the gate set but no project guardrails
-    declare command-passes, the check clears by vacuity."""
+    declare command-passes, the check passes without checking anything."""
 
-    def test_no_project_guardrails_vacuous_clear(self, tmp_path):
+    def test_no_project_guardrails_passes_with_nothing_to_check(self, tmp_path):
         """With empty project: section and verify.fitness in gate set,
-        command-passes passes vacuously and reports the vacuity message."""
+        command-passes passes without checking anything and reports the nothing to check message."""
         project_root, task_dir = _make_project(
             tmp_path,
             project_guardrails=[],  # no project guardrails
@@ -296,9 +296,9 @@ class TestVacuousClear:
             ],
         )
         result = _run_cli("check", "--issue", "test-task", cwd=project_root)
-        # Must pass (not fail) and mention vacuity / no guardrails
+        # Must pass (not fail) and mention nothing to check / no guardrails
         assert "FAIL command-passes" not in result.stdout, (
-            f"command-passes should pass vacuously:\n{result.stdout}\n{result.stderr}"
+            f"command-passes should pass without checking anything:\n{result.stdout}\n{result.stderr}"
         )
         combined = result.stdout + result.stderr
         assert (
@@ -307,11 +307,11 @@ class TestVacuousClear:
             or "no fitness" in combined.lower()
             or "passed without checking anything" in combined.lower()
         ), (
-            f"Expected vacuous-clear message:\n{combined}"
+            f"Expected nothing-to-check pass message:\n{combined}"
         )
 
-    def test_vacuous_clear_exits_pass(self, tmp_path):
-        """PASS command-passes should appear in output when vacuous-clear."""
+    def test_passes_with_nothing_to_check_exits_pass(self, tmp_path):
+        """PASS command-passes should appear in output when nothing-to-check pass."""
         project_root, task_dir = _make_project(
             tmp_path,
             project_guardrails=[],

@@ -70,3 +70,34 @@ def test_ff_5b_the_vocabulary_bans_it():
     assert any("vacuous" in b or "vacuity" in b for b in banned), (
         "the vocabulary does not ban 'vacuous'/'vacuity', so nothing stops it "
         "returning the next time someone needs a word for this")
+
+# Files that must name the banned words in order to ban them.
+_NAMES_THE_BAN = {"test_plain_words.py", "test_terminology.py",
+                  "terminology.yml", "banned_usage.md"}
+
+
+def test_ff_5c_not_in_comments_test_names_or_docstrings_either():
+    """The rule covers everything written for a person, not only what is printed.
+
+    A test name appears in every run's output; a docstring is read by whoever
+    opens the file; a comment is read by whoever maintains it. Scoping the
+    sweep to printed strings left the word in sixty places and called the job
+    done.
+    """
+    hits = []
+    for root in ("cli", "tests", "scripts", "commands", "architecture",
+                 "hooks", "skills", "templates"):
+        for p in sorted((ROOT / root).rglob("*")):
+            if not p.is_file() or p.suffix not in (".py", ".md", ".yml", ".sh"):
+                continue
+            if p.name in _NAMES_THE_BAN:
+                continue
+            for lineno, line in enumerate(
+                    p.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+                if OBSCURE.search(line):
+                    hits.append(f"{p.relative_to(ROOT)}:{lineno}")
+
+    assert not hits, (
+        f"{len(hits)} occurrence(s) of 'vacuous'/'vacuity' outside the files "
+        f"that have to name them:\n  " + "\n  ".join(hits[:40]))
+

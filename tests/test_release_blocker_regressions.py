@@ -155,7 +155,7 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     summary = [l for l in result.stdout.splitlines() if "compass analyze:" in l]
     assert reported and summary, f"unexpected analyze output:\n{result.stdout}"
     count = int(reported[0].split(":")[1].strip())
-    assert count > 0, "fixture produced no findings - the assertion would be vacuous"
+    assert count > 0, "fixture produced no findings - the assertion would be empty"
     assert "0 finding(s)" not in summary[0], (
         f"analyze listed {count} finding(s) then summarised: {summary[0]!r}"
     )
@@ -330,5 +330,5 @@ def test_swarm_does_not_seed_evidence_or_the_red_marker(tmp_path):
             f"{wt_task} inherited evidence/ from another worktree"
         )
         assert (wt_task / "delivery-approach.md").exists(), (
-            f"{wt_task} was not seeded at all - the assertions above are vacuous"
+            f"{wt_task} was not seeded at all - the assertions above are empty"
         )
