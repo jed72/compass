@@ -21,8 +21,8 @@ We place `architecture/` at the project root as a sibling to `governance/`.
 
 `governance/` describes *how we work* (delivery process, routing rules,
 guardrails).  `architecture/` describes *what we built* (system structure,
-relations, ownership, decisions).  These are orthogonal categories; nesting
-one inside the other blurs the distinction.
+relations, ownership, decisions).  These are separate concerns that do not
+overlap; nesting one inside the other blurs the distinction.
 
 A top-level location is also more adoption-friendly: many projects already
 have a top-level `architecture/` or `docs/architecture/` directory, reducing

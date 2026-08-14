@@ -210,13 +210,16 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"(?<!`)\bS\d+\b(?!`)"),
     ],
     # The v1 intake artifact filename; v2 writes prd.md.
-    "vacuous / vacuity": [
+    "vacuous / vacuity / orthogonal / elide / salient": [
         # Plain-word rule: accurate but almost never used in ordinary speech,
         # so it costs a junior or mid engineer a lookup at the moment they are
         # reading a result. tests/test_plain_words.py holds the surface rule;
         # this binds the ban so the vocabulary and the scan agree.
         re.compile(r"(?i)\bvacuous\b"),
         re.compile(r"(?i)\bvacuit(?:y|ies)\b"),
+        re.compile(r"(?i)\borthogonal(?:ly|ity)?\b"),
+        re.compile(r"(?i)\belid(?:e|es|ed|ing)\b"),
+        re.compile(r"(?i)\bsalient\b"),
     ],
     "brief.md": [
         re.compile(r"\bbrief\.md\b"),
