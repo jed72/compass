@@ -162,6 +162,13 @@
 - **Source issue:** `dry-run-2-rulings`
 - **Landed:** 2026-08-14
 
+### the cucumber-js adapter declares no vulnerable uuid dependency
+
+- **Scenario id:** `CU-1`
+- **Intent:** `INT-SEC`
+- **Source issue:** `cucumber-13-drops-vulnerable-uuid`
+- **Landed:** 2026-08-14
+
 ### traceability, intent and navigator are defined
 
 - **Scenario id:** `GL-A1`
