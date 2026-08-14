@@ -134,3 +134,16 @@ the consumer, not the file.
 - `governance/strategies.md` `S11` - measure before arguing. The 1004 / 752 /
   26 split was produced before this decision was taken, and it is what made
   the shape of the exemptions obvious.
+
+## Postscript - the class appeared inside the issue that named it
+
+A test written for this issue asserted `stream_ceiling > 1` and passed because
+of an invented value (`swarm: 8`) that nothing in the policy supported - an
+assertion passing for the wrong reason, written after the document explaining
+that outputs assert outcomes they never established.
+
+Recorded here because it is the strongest evidence in this record and it
+arrived after the record was written. It means this is not legacy debt being
+cleaned up: it is a live tendency that reproduces under someone actively
+thinking about it, which is why the remedy is a standing habit - ask what
+would have to be true for this assertion to fail - rather than a sweep.
