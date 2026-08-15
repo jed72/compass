@@ -666,3 +666,44 @@ def test_pl_d6_correction_rule_distinguishes_record_from_claim():
             f"convention someone will reverse")
     assert "sixteen checks" in doc, (
         "S14 states the rule without the real instance it came from")
+
+
+def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
+    """TRC-C13 - the evidence block is a table a reader can scan down.
+
+    It rendered 28 entries across 44 lines: sixteen spilled onto an indented
+    continuation line and twelve did not, so there was no row to follow. The
+    scenario title - the only human-readable content in the block - sat on that
+    continuation line behind the word `scenario:`, while the widest column held
+    a file path derivable from the id.
+
+    One line per entry, and what was proved before where to find it.
+    """
+    import subprocess
+    import sys as _sys
+    out = subprocess.run(
+        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
+         "--issue", "plain-language-3-2-0"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
+    block = out.split("Evidence\n--------\n", 1)[1].split("\n\n", 1)[0]
+    rows = [l for l in block.splitlines() if l.strip()]
+
+    orphans = [l for l in rows if not re.match(r"\s+EV-", l)]
+    assert not orphans, (
+        f"{len(orphans)} continuation line(s) in the evidence block. Every "
+        f"entry is one row, or the block cannot be scanned:\n  "
+        + "\n  ".join(orphans[:5]))
+
+    titled = [l for l in rows if "published launch copy" in l]
+    assert titled, "no row carries a scenario title - the readable content is missing"
+    row = titled[0]
+    assert row.index("published launch copy") < row.index("test-run"), (
+        f"the row puts the evidence type before what was proved:\n  {row}")
+    assert "evidence/" not in block, (
+        "the evidence block still prints file paths. They were retired on "
+        "2026-08-15: widest column, derivable from the id for per-scenario "
+        "records, and rendered as 'evidence/gr...' once the line capped.")
+    assert "TRC-A1 - published launch copy" in row, (
+        "the row dropped the scenario id. The title is the content and the id "
+        "is the cross-reference; a record whose evidence id does not carry the "
+        "scenario would lose its link entirely.")

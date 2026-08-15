@@ -414,7 +414,21 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
     assert label in ev_section, (
         f"type label {label!r} missing from evidence section:\n{ev_section}"
     )
-    # Each minimal field's value appears in the same section.
+    # Each minimal field's value appears in the same section - EXCEPT the path.
+    #
+    # `path` was retired from the receipt on 2026-08-15 (maintainer's ruling).
+    # It was the widest column on every row; for a per-scenario record it is
+    # mechanically derivable from the id (`EV-T-TRC-A1` -> `green-TRC-A1.json`);
+    # for the rest the filename now renders as the row's plain-words
+    # description, so it is present as words rather than as a path. And once
+    # the line hit its column cap it printed as `evidence/gr...`, which looks
+    # like information and is not.
+    #
+    # The path is still in the spine and still resolves - `compass check`'s
+    # gate-evidence-present reads it. What changed is that the receipt stopped
+    # printing it, and the receipt is a summary for a person rather than an
+    # index for a machine.
+    fields = {k: v for k, v in fields.items() if k != "path"}
     for k, v in fields.items():
         assert str(v) in ev_section, (
             f"field {k}={v!r} missing from evidence section\n--- stdout ---\n{out}"
