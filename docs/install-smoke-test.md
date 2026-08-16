@@ -71,7 +71,7 @@ Expected output (two lines - the second names the bundled PyYAML and where
 it resolved from):
 
 ```
-compass 3.1.1 (issue schema 2.0)
+compass 3.2.0 (issue schema 2.0)
 PyYAML 6.0.2 at /path/to/compass/cli/vendor/yaml/__init__.py
 ```
 
@@ -133,7 +133,7 @@ python3 $COMPASS_HOME/cli/compass --version
 Expected output:
 
 ```
-compass 3.1.1 (issue schema 2.0)
+compass 3.2.0 (issue schema 2.0)
 ```
 
 The schema version is what the CLI will accept in a `task.yml`. A
