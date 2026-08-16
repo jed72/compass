@@ -330,15 +330,13 @@ def test_pl_c2b_the_receipt_puts_meaning_before_the_policy_code():
     because FU-001 is about to be run against this receipt and pre-correcting
     everything findable would have the reader confirm a screen already tuned
     for them.
+
+    Reads the checked-in fixture, not the live issue. It first read this
+    release's own issue, which lives in a directory git ignores - so it passed
+    here and found nothing to check anywhere else.
     """
-    import subprocess
-    import sys as _sys
-    out = subprocess.run(
-        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
-         "--issue", "plain-language-3-2-0"],
-        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
-    fired = [l for l in out.splitlines() if "Architectural fitness" in l
-             or "Built-the-thing-right" in l]
+    out = _fixture_receipt()
+    fired = [l for l in out.splitlines() if re.search(r"\((RP|G|S)[-\w]+\)\s*$", l)]
     assert fired, "no fired policy rules in the receipt to check"
     for line in fired:
         body = line.strip()
