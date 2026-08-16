@@ -1,7 +1,7 @@
 # My spec-driven dev tool works for me. That's the problem.
 
 A few weeks ago I noticed which Compass command I was running most. Not the one
-that frames a task, or the one that checks the work. It was the one that quietly
+that sizes a piece of work, or the one that checks it. It was the one that quietly
 admits I got the framing wrong and re-does it. I built the tool to stop me
 cutting corners, and the part I reach for most is the part that says "you called
 this one wrong, start that bit again."
@@ -31,13 +31,66 @@ guardrails that never move: tested before it lands, acceptance defined before it
 built, a human signs off on anything irreversible. And there's a set of softer
 strategies, like TDD and BDD, which are the usual way of meeting those guardrails
 but which you can step off, with a reason. Then it reads a few plain things about
-the task, how risky it is, how big, whether it's greenfield or you're cutting into
+the work, how risky it is, how big, whether it's new ground or you're cutting into
 something that already exists, and works out how much process to apply. A small
 change gets a light path. A new subsystem gets the full set. The hard rules hold
 either way.
 
 I wrote that part up properly a little while back, if you want the longer version.
 [The one-size-fits-all problem](https://medium.com/@James.edwards_75381/spec-driven-development-has-a-one-size-fits-all-problem-ff81378f69f0)
+
+## What it looks like when it chooses
+
+That is the half that never moves. The other half is the point.
+
+Fix a typo and it wants one worked example of the behaviour, a one-line note
+saying which file you are editing, and a test. No written design, no separate
+review of the requirements, no plan for splitting the work up, because there is
+nothing to split and nothing to review.
+
+Yes, a test, even for that - and I know that is more than "just fix it". It is
+the one line that never moves, and it is the one I would keep if I had to throw
+the rest away. A typo fix that breaks something is still a broken thing, and the
+test costs a minute.
+
+Add authentication to something that has none and it wants all of it: every
+step at full weight, and a written description of how the existing behaviour
+works before anything is allowed to change it.
+
+For scale, on a heavy one: this release was a change to the project's own
+writing rules, and it ran to forty-two worked examples across eight documents.
+
+You do not argue it into either. You answer four plain questions - how risky,
+how big, new ground or existing, what you are actually trying to do - and it
+tells you what it decided and why. Asked about adding authentication to an app
+that has none, it printed this:
+
+```
+  policy rules fired:
+    You cannot safely change behaviour you have not first
+    written down (RP-FLOOR-002, floor)
+        - stage 'define' forced full-weight
+    Domain risk overrides size. A one-line auth change is not
+    small (RP-FLOOR-003, floor)
+        - approach raised feature -> initiative
+```
+
+Wrapped to fit the page and otherwise exactly what it prints. A "floor" is a
+rule that can only push the process up, never down, so no assessment of the work
+can talk its way underneath one. The codes are how you look a rule up, and they
+come after the sentence rather than before it - which is a rule this same
+release added, and then caught me breaking on this very screen.
+
+That second sentence - a one-line auth change is not small - is the whole idea,
+so I will put it plainly:
+
+**The question is not how much work it is. It is what happens if you get it
+wrong.**
+
+The typo cannot hurt you. The auth change can, and it gets the full treatment
+whether or not it looks small. Most process I have worked under sizes itself by effort,
+which is why the frightening one-liner sails through and the harmless refactor
+drags a form behind it.
 
 ## The bit that made me trust it
 
@@ -72,30 +125,29 @@ a judgement for a reviewer to assess. Nothing about what happened changed. What
 changed was the claim attached to it. After that the gate passed, resting only on
 the nine records a machine had actually produced.
 
-That's the distinction the whole tool is built on, and I'd never had it
-demonstrated on me before. I built the thing, I knew the rule, I had good reasons
-to be in a hurry, and it wouldn't take my word for it six times running.
+I built the thing, I knew the rule, I had good reasons to be in a hurry, and it
+wouldn't take my word for it six times running.
 
-And it wasn't a one-off. Building that same release, four different parts of the
+And it wasn't a one-off. Building that same release, five different parts of the
 tool refused me:
 
 - the evidence gate, on six records in a row, as above
-- a rule I'd just written banning unexplained shorthand - which caught me using
-  unexplained shorthand in the very file where I was writing the rule, inside a
-  minute
-- a check that pins the list of guidance the project ships, which refused two new
-  entries until I wrote down that I'd added them on purpose
-- a scan I'd narrowed to cover more files, which immediately found something in
-  the newly covered ones
+- a rule I'd just written banning obscure words, which caught me writing one of
+  those words into the rule itself, inside a minute
+- a test holding the list of rules the tool ships, which blocked two rules I'd
+  just written until I confirmed I meant to add them rather than having let them
+  drift in
+- a scan I'd widened to cover more files, which found a stray reference in the
+  newly covered ones within seconds
+- a check on the project's own write-ups, which caught one still saying "sixteen
+  checks passed" when there are now fifteen
 
-Every one of those was correct. None of them was a bug I then had to fix; they
-were the tool declining to let me skip a step, four times, in one week, on my own
-project.
+Every one was correct. None was a bug I then had to fix; they were the tool
+declining to let me skip a step, five times, in one week, on my own project.
 
-If you're weighing this up: that's the behaviour you're buying. Not process for its
-own sake - a system that won't accept "it's fine, I checked" from anybody,
-including the person who wrote it. I'd rather show you that than tell you it's
-rigorous.
+That's the behaviour you're buying. Not process for its own sake - a system that
+won't accept "it's fine, I checked" from anybody, including the person who wrote
+it. I'd rather show you that than tell you it's rigorous.
 
 ## Where I already know it's thin
 
@@ -109,6 +161,14 @@ framing being roughly right, and as I said, the command I reach for most is the 
 for when it isn't. I haven't pointed it at a big, messy, legacy codebase and
 watched it struggle. And there's a fair chance that some of the things I think are
 clever are just things that happen to suit the way I work.
+
+And there's an obvious one I'll say before you do: a guardrail that demands a
+human signs off on anything irreversible, on a project with one human, is me
+clicking yes to myself. That's fair. What it still buys, even solo, is that I
+have to write down what I actually checked - and as the six refusals above show,
+the tool won't let me pass that off as something stronger than it was. It's
+weaker than a second pair of eyes. It's a good deal better than nothing, and it
+is the first thing that gets properly tested the day someone else uses it.
 
 None of that is false modesty. It's the actual state of it.
 
@@ -144,7 +204,7 @@ can add it as a plugin:
 /plugin install compass@compass
 ```
 
-Then start a task with `/compass:frame "..."`. There is nothing else to install -
+Then start with `/compass:triage "..."`. There is nothing else to install -
 the plugin carries what it needs - and the defaults work out of the box, so
 there's nothing to set up first. It's early, so point it at a branch you don't mind
 burning.

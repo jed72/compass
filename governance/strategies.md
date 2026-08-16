@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.7.0 · **Last amended:** 2026-08-14
+> **Version:** 0.8.0 · **Last amended:** 2026-08-16
 
 ---
 
@@ -352,6 +352,21 @@ That is the specific mechanical cause rather than carelessness: a summary is
 written first, the body changes underneath it, and nothing sends the writer back
 to the top. It has happened to this project's proposal, its acceptance criteria,
 its requirements review, and to an audit document written to record corrections.
+
+**Nothing checks this rule. It depends on a person noticing.** That is worth
+saying outright rather than leaving to inference, because a rule that sounds
+like a machine is watching invites people to relax, and here nobody is.
+
+No check can find these. The three instances caught so far were each a different
+shape: a figure in a published write-up that had moved; a heading corrected in
+one file while the record it was derived from kept the old wording; and two
+pieces of code printing the same information, one corrected and one not. Nothing
+static links any of those pairs - the connection is that two sentences mean the
+same thing, and no scan reads meaning.
+
+**All three were found by someone reading, and all three were found.** That is
+the case for the habit, not an apology for the missing check: attention has a
+record here, and it is the only thing that has ever caught this.
 
 *Why a strategy and not a guardrail:* nothing mechanical knows which documents
 state the same fact. The `reviewer` agent assesses it under `clarity`.

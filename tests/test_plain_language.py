@@ -707,3 +707,49 @@ def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
         "the row dropped the scenario id. The title is the content and the id "
         "is the cross-reference; a record whose evidence id does not carry the "
         "scenario would lose its link entirely.")
+
+
+def test_pl_c15_evaluator_puts_meaning_before_the_code():
+    """TRC-C15 - both screens that print a fired rule read the same way.
+
+    TRC-C2 corrected the receipt and stopped there. `compass approach evaluate`
+    prints the same data through a different renderer and still opened each
+    line with a bare identifier - on the first screen a new user ever sees, and
+    the one the demo recording holds longest.
+
+    This asserts the property on BOTH screens, because a test that covers one
+    renderer is how the two came apart in the first place.
+    """
+    import subprocess
+    import sys as _sys
+    ev = subprocess.run(
+        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "approach", "evaluate",
+         "--assessment", "risk=contained",
+         "--assessment", "familiarity=brownfield-unmapped",
+         "--assessment", "size=standard", "--assessment", "goal=delivery",
+         "--assessment", "role=engineer", "--assessment", "labels=auth"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
+    rc = subprocess.run(
+        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
+         "--issue", "plain-language-3-2-0"],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
+
+    for screen, out, marker in (("evaluator", ev, "written down"),
+                                ("receipt", rc, "Architectural fitness")):
+        rule_lines = [l for l in out.splitlines() if marker in l]
+        assert rule_lines, f"no fired-rule line found on the {screen} screen"
+        for line in rule_lines:
+            body = line.strip().lstrip("- ")
+            assert not re.match(r"^[\[(]?(RP|G|S|TRC|EV|INT|FU|CLM)[-\w]*[\])]?\s*[:\]]",
+                                body), (
+                f"the {screen} opens a fired-rule line with its code:\n  {body}\n"
+                f"State what the rule did, then the code in brackets.")
+            # The code may share its brackets - "(RP-FLOOR-002, floor)" keeps
+            # the rule's kind beside it. An earlier version of this pattern
+            # demanded a closing bracket immediately after the code and failed
+            # against a correct line, which is the brittle-matcher failure S10
+            # warns about: establish whether the rule is missing or the match
+            # is wrong before changing either.
+            assert re.search(r"\((RP|G|S)[-\w]+[,)]", body), (
+                f"the {screen} dropped the code entirely - it carries the "
+                f"traceability and must stay, in brackets:\n  {body}")

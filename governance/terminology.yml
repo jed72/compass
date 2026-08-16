@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre12
+version: 2.0.0-pre13
 
 terms:
 
@@ -633,6 +633,10 @@ scan:
                            # split; same string-literals-only rule
     - README.md
     - docs/five-minutes.md
+    # The article written for publication - the most reader-facing prose the
+    # project has, and the first document a stranger meets. Added 2026-08-15
+    # once it was tracked (design decision DD-5 of plain-language-3-2-0).
+    - docs/launch-article.md
     - governance/          # prose files
     - .claude-plugin/      # manifests - first prose an adopter reads
     # Session-facing instruction files, added clean (never pending): these
