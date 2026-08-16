@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### a project outside git still gets the check
+### repairing a banned word should not paraphrase a quoted tool string
 
-- **Scenario id:** `SCN-F2`
+- **Scenario id:** `TRC-X4`
 - **Intent:** `INT-1`
-- **Source issue:** `trace-rot-detection`
-- **Landed:** 2026-08-13
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the message offers the new path when git knows the rename
+### a banned word should never be fixed by deleting the identifier
 
-- **Scenario id:** `SCN-A2`
+- **Scenario id:** `TRC-X3`
 - **Intent:** `INT-2`
-- **Source issue:** `trace-rot-detection`
-- **Landed:** 2026-08-13
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
 
-### a deliberately deleted file is not trace rot
+### an en dash should not be flagged
 
-- **Scenario id:** `SCN-F1`
+- **Scenario id:** `TRC-A6`
 - **Intent:** `INT-3`
-- **Source issue:** `trace-rot-detection`
-- **Landed:** 2026-08-13
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
 
-### no new check name appears in governance
+### the long-sentence report should never fail a build
 
-- **Scenario id:** `SCN-C1`
+- **Scenario id:** `TRC-E2`
 - **Intent:** `INT-4`
-- **Source issue:** `trace-rot-detection`
-- **Landed:** 2026-08-13
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
 
-### landed is the only privileged value
+### the living spec's stale title should be fixed by re-deriving it
 
-- **Scenario id:** `SCN-F2`
+- **Scenario id:** `TRC-G3`
 - **Intent:** `INT-5`
-- **Source issue:** `status-vocabulary`
-- **Landed:** 2026-08-13
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
 
 ### the hook still blocks a code file inside the project
 
@@ -4690,6 +4690,13 @@
 - **Source issue:** `status-vocabulary`
 - **Landed:** 2026-08-13
 
+### the message offers the new path when git knows the rename _(archived)_
+
+- **Scenario id:** `SCN-A2`
+- **Intent:** `INT-2`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
 ### routes without a full Specify are unaffected _(archived)_
 
 - **Scenario id:** `SCN-A3`
@@ -4865,6 +4872,13 @@
 - **Source issue:** `status-vocabulary`
 - **Landed:** 2026-08-13
 
+### no new check name appears in governance _(archived)_
+
+- **Scenario id:** `SCN-C1`
+- **Intent:** `INT-4`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
 ### superseded_by must name a scenario that exists _(archived)_
 
 - **Scenario id:** `SCN-C2`
@@ -4914,11 +4928,32 @@
 - **Source issue:** `status-vocabulary`
 - **Landed:** 2026-08-13
 
+### a deliberately deleted file is not trace rot _(archived)_
+
+- **Scenario id:** `SCN-F1`
+- **Intent:** `INT-3`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
 ### G2 is checked before the red _(archived)_
 
 - **Scenario id:** `SCN-F2`
 - **Intent:** `INT-2`
 - **Source issue:** `hook-enforces-g2`
+- **Landed:** 2026-08-13
+
+### a project outside git still gets the check _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-1`
+- **Source issue:** `trace-rot-detection`
+- **Landed:** 2026-08-13
+
+### landed is the only privileged value _(archived)_
+
+- **Scenario id:** `SCN-F2`
+- **Intent:** `INT-5`
+- **Source issue:** `status-vocabulary`
 - **Landed:** 2026-08-13
 
 ### swarm.sh strips markdown punctuation from the branch-name cell _(archived)_
@@ -5053,3 +5088,248 @@
 - **Intent:** `INT-58`
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
+
+### published launch copy should be under version control _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### an em dash in published copy should fail the guard _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the filesystem fallback should not be used where git works _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### build noise should stay out of the scan _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the guard's docstring should record that the omission was silent _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### falling back to the filesystem should announce itself _(archived)_
+
+- **Scenario id:** `TRC-A8`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a file declaring its own exclusions should not be tracked as publication copy _(archived)_
+
+- **Scenario id:** `TRC-A9`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### "seam" used for code structure should be flagged _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### "seam" used for anything else should not be flagged _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the ban should name what to write instead _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a rare word quoted from a tool should survive the ban _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### "un-conflate" should be gone from governance _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-5`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the shipped list should say what is true today, not what is intended _(archived)_
+
+- **Scenario id:** `TRC-B7`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the strategy should state the order, with real pairs _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### an empty gloss registry should fail loudly, never report zero _(archived)_
+
+- **Scenario id:** `TRC-C10`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### governance prose should be scanned for bare codes, not exempt by path _(archived)_
+
+- **Scenario id:** `TRC-C11`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the claims gate should say it checks traceability, not truth _(archived)_
+
+- **Scenario id:** `TRC-C12`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### every screen printing a fired rule should put the meaning first _(archived)_
+
+- **Scenario id:** `TRC-C15`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a bare code in human-facing output should be counted _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a code with its meaning in front of it should not be counted _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a non-zero count should report rather than block _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the reviewer should be told to look for this _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the first run should record a starting count _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the meaning arriving after the code should still be counted _(archived)_
+
+- **Scenario id:** `TRC-C7`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### an entry that is only an identifier should not have to gloss itself _(archived)_
+
+- **Scenario id:** `TRC-C8`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a derivation failure should name what changed and what was expected _(archived)_
+
+- **Scenario id:** `TRC-C9`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the title rule should name the shapes it refuses _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the body template should say what a reviewer needs _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a commit title should be held to the same rule _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a correction should not leave the record contradicting itself _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a search reporting zero should have been proved able to find something _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### the correction rule should say which places take a correction and which take a note _(archived)_
+
+- **Scenario id:** `TRC-D6`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### a sentence of thirty-one words or more should be reported _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-4`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### no em dash should remain in published copy _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-5`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### no structural use of "seam" should remain _(archived)_
+
+- **Scenario id:** `TRC-G2`
+- **Intent:** `INT-5`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
