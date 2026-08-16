@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.8.0 · **Last amended:** 2026-08-16
+> **Version:** 0.9.0 · **Last amended:** 2026-08-16
 
 ---
 
@@ -554,6 +554,25 @@ copy of that identifier survived elsewhere in the same passage. Each reported
 The remedy is one cheap step: **before mutating, identify the exact text the
 assertion consumes** - not the text you believe it consumes. Read the assertion,
 find that string on disk, change that string.
+
+**Assert what must hold, not the words it is currently written in.** A test
+pinned to an exact layout fails the moment those words move for a good reason -
+and the person who meets that failure does not usually stop to work out which
+kind it is. They loosen the match until it passes, and the check ends up
+asserting nothing. That is the same ending as a check that could never fail,
+reached from the opposite direction.
+
+The instance: a test matched the literal string `[RP-REQUIRE-003] requirement:`.
+Its real subject was that a rule which only attaches a gate must not describe
+itself as one that raises the whole process. When the output was corrected to
+put the rule's meaning before its code, a true property failed because the
+punctuation had moved. Rewritten to assert that the code and the kind appear on
+the same line, in whatever order the line puts them, it survives the next
+rewording as well.
+
+Write the assertion so it would still be true if someone rephrased the output
+without changing what it means. If it would not, it is pinned to prose rather
+than to behaviour.
 
 **Two procedural rules, learned by getting them wrong.** Clear any bytecode
 cache between steps, and re-run after restoring to confirm green before
