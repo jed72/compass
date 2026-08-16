@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.9.0 · **Last amended:** 2026-08-16
+> **Version:** 0.10.0 · **Last amended:** 2026-08-16
 
 ---
 
@@ -597,10 +597,22 @@ zero had in fact read nothing. The same audit's markdown-only scan reported a
 count for the repository and missed a use in a Python file, for the same reason
 one level up: the search could not reach where the answer was.
 
-*Why a strategy and not a guardrail:* nothing mechanical can tell whether an
-author actually broke the subject, and a check that demanded proof would be
-satisfied by a pasted table as easily as by a real one - trusting the same
-self-report the practice exists to replace. The `reviewer` agent assesses it
+**Nothing checks this, and one attempt to change that was withdrawn.** The
+question "does a proof EXIST?" is mechanically answerable, unlike "is the proof
+REAL?", and a check for the first was built and then removed - not because the
+distinction was wrong but because declaring it required contradicting a recorded
+decision that this repository holds no rules of its own. See
+`declare-a-project-guardrail-or-do-not`.
+
+Asking the existence question is worth it on its own evidence: run once by hand,
+it found twenty of thirty-eight checks with no proof on record at all, and a
+registered claim saying otherwise was false. No fabrication was involved. There
+was nothing there.
+
+*Why a strategy and not a guardrail:* nothing mechanical can tell
+whether an author actually broke the subject, and a check that demanded proof of
+a genuine mutation would be satisfied by a pasted table as easily as by a real
+one - trusting the same self-report the practice exists to replace. The `reviewer` agent assesses it
 at Verify under the `correctness` dimension, and a guard offered without one
 is a conversation, never an automatic gate failure.
 

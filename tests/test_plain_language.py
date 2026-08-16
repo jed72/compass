@@ -376,100 +376,14 @@ def test_pl_c12_claims_gate_states_traceability_not_truth():
     )
 
 
-# ---------------------------------------------------------------------------
-# TRC-X1 - every check this issue adds has a recorded, well-formed proof
-# ---------------------------------------------------------------------------
-
-EVIDENCE_DIR = REPO_ROOT / ".compass" / "work" / "plain-language-3-2-0" / "evidence"
-
-
-def _recorded_proofs():
-    """Every mutation proof on record, keyed by the test it proves."""
-    out = {}
-    for f in sorted(EVIDENCE_DIR.glob("mutation-proof-*.json")):
-        for p in json.loads(f.read_text(encoding="utf-8")).get("proofs") or []:
-            entry = dict(p)
-            entry["_file"] = f.name
-            out.setdefault(p.get("test", ""), entry)
-    return out
-
-
-def _checks_this_issue_adds():
-    """The test functions this issue introduced, by name.
-
-    `test_pl_` is the issue's own prefix. One name is excluded and named here
-    rather than filtered silently: this test, which would otherwise require a
-    proof of itself.
-    """
-    names = set()
-    for f in ("test_plain_language.py", "test_house_style.py",
-              "test_terminology.py", "test_long_sentences.py"):
-        for m in re.finditer(r"^def (test_pl_\w+)",
-                             (REPO_ROOT / "tests" / f).read_text(encoding="utf-8"), re.M):
-            names.add(m.group(1))
-    return names - {"test_pl_x1_every_new_check_has_a_recorded_failure"}
-
-
-def test_pl_x1_every_new_check_has_a_recorded_failure():
-    """TRC-X1 - a check with no recorded failure is not counted as delivered.
-
-    Sixteen mutation proofs in this issue were performed by hand, and until
-    this test existed nothing mechanical established that any had happened.
-    CLM-004 rested entirely on the author's own assessment.
-
-    What this CAN establish: every check the issue adds is covered by a proof
-    record, and each record is well-formed - passed unmutated, FAILED mutated,
-    passed again on restore. A record whose `mutated` is not FAIL proves
-    nothing and is rejected here.
-
-    What it CANNOT establish, and S10 says so outright: that the mutation
-    described was the mutation performed. Nothing mechanical can. This turns
-    "the author says every check was proved" into "every check has a record,
-    and the records say what a proof must say" - which a reader can check
-    without trusting anyone.
-    """
-    proofs = _recorded_proofs()
-    checks = _checks_this_issue_adds()
-
-    unproved = sorted(c for c in checks if c not in proofs)
-    assert not unproved, (
-        f"{len(unproved)} check(s) this issue adds have no mutation proof on "
-        f"record. A check accepted on a passing test is a check nobody has "
-        f"shown can fail (S10):\n  " + "\n  ".join(unproved)
-    )
-
-    malformed = []
-    for name in sorted(checks):
-        p = proofs[name]
-        if p.get("mutated") != "FAIL":
-            malformed.append(f"{name}: mutated={p.get('mutated')!r}, must be FAIL")
-        if p.get("unmutated") != "PASS" or p.get("restored") != "PASS":
-            malformed.append(f"{name}: unmutated={p.get('unmutated')!r} "
-                             f"restored={p.get('restored')!r}, both must be PASS")
-        if not str(p.get("mutation", "")).strip():
-            malformed.append(f"{name}: no mutation described")
-    assert not malformed, (
-        "mutation records that do not say what a proof must say:\n  "
-        + "\n  ".join(malformed))
-
-
-def test_pl_x1b_the_proof_records_name_their_own_limit():
-    """TRC-X1 - the records say what assurance they carry.
-
-    Every one is `manual-review` and the reviewer is the author. An unstated
-    limitation reads as an absent one, and this is the gate a reader is most
-    likely to take at face value.
-    """
-    for f in sorted(EVIDENCE_DIR.glob("mutation-proof-*.json")):
-        d = json.loads(f.read_text(encoding="utf-8"))
-        lim = d.get("assurance_limitation")
-        assert lim, f"{f.name} does not record what assurance it carries"
-        blob = json.dumps(lim).lower()
-        assert "author" in blob, f"{f.name} does not say the reviewer is the author"
-        assert "independent" in blob, (
-            f"{f.name} does not say what IS independently checkable")
-
-
+# TRC-X1 was withdrawn from this release, so no test for it lives here.
+#
+# It checked that every check this repository adds has a mutation proof on
+# record. Keeping it running needed this repository to declare a rule of its
+# own, and a recorded decision - guarded by a test - says it declares none.
+# Its subject is also live issue state, which is not in the repository, so a
+# test could not have read it anyway. See the filed issue
+# `declare-a-project-guardrail-or-do-not`.
 def test_pl_c6b_the_count_states_its_own_limit_when_it_reports():
     """TRC-C6 - a number that is known to be high says so where it is read.
 
@@ -668,6 +582,30 @@ def test_pl_d6_correction_rule_distinguishes_record_from_claim():
         "S14 states the rule without the real instance it came from")
 
 
+# A purpose-built issue on disk, not the one being worked on. These tests assert
+# properties of the RENDERER, and a fixture exercises that completely.
+#
+# They used to render this issue's own working state. That state is not in
+# version control, so they failed everywhere but the author's machine - and the
+# deeper fault is that a test reading the CURRENT issue can only pass while that
+# issue is current. The day this one lands, it would have been reading a
+# different issue or nothing at all.
+RECEIPT_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "receipt-fixture-project"
+
+
+def _fixture_receipt() -> str:
+    import subprocess
+    import sys as _sys
+    r = subprocess.run(
+        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
+         "--issue", "receipt-task", "--workdir", str(RECEIPT_FIXTURE)],
+        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, (
+        f"the receipt fixture would not render, so nothing below establishes "
+        f"anything:\n{r.stdout}{r.stderr}")
+    return r.stdout
+
+
 def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
     """TRC-C13 - the evidence block is a table a reader can scan down.
 
@@ -679,12 +617,7 @@ def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
 
     One line per entry, and what was proved before where to find it.
     """
-    import subprocess
-    import sys as _sys
-    out = subprocess.run(
-        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
-         "--issue", "plain-language-3-2-0"],
-        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
+    out = _fixture_receipt()
     block = out.split("Evidence\n--------\n", 1)[1].split("\n\n", 1)[0]
     rows = [l for l in block.splitlines() if l.strip()]
 
@@ -694,16 +627,18 @@ def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
         f"entry is one row, or the block cannot be scanned:\n  "
         + "\n  ".join(orphans[:5]))
 
-    titled = [l for l in rows if "published launch copy" in l]
-    assert titled, "no row carries a scenario title - the readable content is missing"
+    # Asserted as properties, not as the words the fixture happens to use, so
+    # rewording the fixture does not fail a test whose subject is the layout.
+    titled = [l for l in rows if "the fixture scenario" in l]
+    assert titled, f"no row carries a scenario title:\n{block}"
     row = titled[0]
-    assert row.index("published launch copy") < row.index("test-run"), (
+    assert row.index("the fixture scenario") < row.index("test-run"), (
         f"the row puts the evidence type before what was proved:\n  {row}")
     assert "evidence/" not in block, (
         "the evidence block still prints file paths. They were retired on "
         "2026-08-15: widest column, derivable from the id for per-scenario "
         "records, and rendered as 'evidence/gr...' once the line capped.")
-    assert "TRC-A1 - published launch copy" in row, (
+    assert "SCN-001 - the fixture scenario" in row, (
         "the row dropped the scenario id. The title is the content and the id "
         "is the cross-reference; a record whose evidence id does not carry the "
         "scenario would lose its link entirely.")
@@ -729,10 +664,7 @@ def test_pl_c15_evaluator_puts_meaning_before_the_code():
          "--assessment", "size=standard", "--assessment", "goal=delivery",
          "--assessment", "role=engineer", "--assessment", "labels=auth"],
         cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
-    rc = subprocess.run(
-        [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
-         "--issue", "plain-language-3-2-0"],
-        cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60).stdout
+    rc = _fixture_receipt()
 
     for screen, out, marker in (("evaluator", ev, "written down"),
                                 ("receipt", rc, "Architectural fitness")):
