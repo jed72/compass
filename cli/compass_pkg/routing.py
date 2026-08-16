@@ -387,7 +387,20 @@ def cmd_route_evaluate(args):
             print("  policy rules fired:")
             seen_effects = set()
             for f in result["policy_rules_fired"]:
-                print(f"    [{f['id']}] {f['kind']}: {f['rationale']}")
+                # Meaning first, code in brackets. This printed
+                # "[RP-FLOOR-002] floor: You cannot safely..." - a bare
+                # identifier opening the first screen a new user ever sees.
+                # The receipt's renderer was corrected for exactly this and
+                # this one was missed; the two print the same data through
+                # different code, which is how they came apart.
+                # The KIND stays. It says whether the rule raised the whole
+                # approach or only attached a single gate, and an earlier issue
+                # exists because every entry in the floors block reported
+                # itself as a floor including the four that only add a gate.
+                # Dropping it to shorten the line would have quietly undone
+                # that work.
+                rationale = str(f['rationale']).rstrip().rstrip('.')
+                print(f"    {rationale} ({f['id']}, {f['kind']})")
                 for c in f["changed"]:
                     if c in seen_effects:
                         continue

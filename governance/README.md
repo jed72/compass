@@ -18,8 +18,9 @@ This replaces the older single "constitution." The constitution model jammed
 soft preferences, hard limits, and routing rules into one document under one
 connotation - "supremacy" - and that conflation caused real problems: it made
 governance a heavy all-or-nothing artifact you had to author before you could
-start, and it let advisory judgements get dressed up as hard gates. Strategies
-and guardrails un-conflate those.
+start, and it let advisory judgements get dressed up as hard gates. Splitting
+them into strategies and guardrails keeps the two apart: a guardrail blocks and
+is cleared with evidence, a strategy guides and is assessed.
 
 ---
 

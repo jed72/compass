@@ -134,7 +134,7 @@
 - **Source issue:** `identifiers-and-vocabulary-in-printed-output`
 - **Landed:** 2026-08-13
 
-### a real pass is not miscounted as vacuous
+### a real pass is not miscounted
 
 - **Scenario id:** `TRC-D2`
 - **Intent:** `INT-F5`
@@ -4984,7 +4984,7 @@
 - **Source issue:** `identifiers-and-vocabulary-in-printed-output`
 - **Landed:** 2026-08-13
 
-### compass check counts vacuous clearances apart from verified ones _(archived)_
+### compass check counts clearances that checked nothing apart from verified ones _(archived)_
 
 - **Scenario id:** `TRC-D1`
 - **Intent:** `INT-F5`

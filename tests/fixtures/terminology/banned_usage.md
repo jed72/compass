@@ -27,3 +27,7 @@ the defect.
 
 The gate cleared by vacuity, which is a vacuous result. These concerns are
 orthogonal, so we elide the salient detail.
+
+Cut along the seams the architecture already has. Cutting across a seam creates
+a shared surface. Find the seams of the module and name them. These functions
+were the natural seam in the code.

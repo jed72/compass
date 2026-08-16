@@ -1,4 +1,11 @@
 # =============================================================================
+# A CHECK DERIVES FROM THIS FILE'S STRUCTURE.
+# tests/plain_language_check.py builds its registry of what each code means by
+# reading `defaults:` and each entry's `id`, `name` and `statement`. Change
+# those key names or that nesting and the derivation fails loudly, naming this
+# file - it does not fall back to a hand-written table, because a table would
+# drift from this file in silence. See TRC-C9 in plain-language-3-2-0.
+# =============================================================================
 # Compass - guardrails.yml
 # =============================================================================
 # THE MACHINE-READABLE GUARDRAIL DEFINITIONS. This file is authoritative for
@@ -19,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.6.1
+version: 1.7.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -45,7 +52,17 @@ checks:
   scenario-has-id-and-intent:
     description: "Every scenario has a stable id and a linked intent id."
   claim-traces-to-scenario:
-    description: "Every claim maps to a scenario id that exists."
+    description: >
+      Every claim maps to a scenario id that exists. TRACEABILITY, NOT TRUTH -
+      and this check is the one in the set whose name promises less than a
+      reader hears. It confirms a claim points at something. It cannot confirm
+      that what the claim says is so, and no machine can. A claim reading "7 em
+      dashes repaired to zero" traced correctly to its scenario and was false:
+      the file had never contained one. Passing means "this is traceable"; a
+      reader will hear "this is verified". Every other check here means roughly
+      what it sounds like, which is exactly why this one needs saying. What
+      catches a false claim is the reviewer at verify.claims, reading it against
+      the scenario it points at - a person, not this check.
   gate-evidence-present:
     description: "Every gate marked pass has an evidence pointer that resolves."
   human-approval-present:

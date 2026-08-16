@@ -67,15 +67,15 @@ proved wrong, rather than quietly pushed through. It landed as
 commit inside it, `5a4da2d`, calls the whole thing "the industry's
 words, the same behaviour."
 
-## The migrator: sixteen checks passed, and a sign-off earned the hard way
+## The migrator: every check passed, and a sign-off earned the hard way
 
 The last piece was `compass migrate` - the tool that rewrites someone
 else's 1.x archive to the new schema. It edits a tree it doesn't own,
 the riskiest thing in the cycle, and the `migrations` label floored its
 delivery approach to a full human sign-off gate. `compass check` on the finished issue
-reports all sixteen checks passing: tested-before-ship,
-acceptance-before-code, traceability, evidence over assertion, and the
-human-approval record, together.
+reports every check passing: tested-before-ship, acceptance-before-code,
+traceability, evidence over assertion, and the human-approval record,
+together.
 
 The sign-off is worth reading closely. The maintainer didn't approve
 from the diff - he built a constructed 1.x tree by hand and ran the

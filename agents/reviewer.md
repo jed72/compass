@@ -45,7 +45,16 @@ verifier gathered, `acceptance-criteria.md`, `design.md`, the `governance/` file
   a reader with no prior context follow the artifacts this issue produced? Flag
   any dangling reference ("Option 2", "Finding 3", "per the review"), any issue
   or pull-request link with no statement of what it actually is, and any commit
-  or pull-request body carrying an agent co-author trailer. This is also where the writing-voice
+  or pull-request body carrying an agent co-author trailer. Flag **a short code
+  with no plain words in front of it** - a guardrail or scenario id standing at
+  the front of a sentence, with the reader expected to already know it -
+  including the case where the meaning arrives *after* the code,
+  which reads as adjacent but leaves the reader holding an unresolved symbol.
+  The fix is always to put the meaning first and the code in brackets, **never
+  to delete the code**: the codes carry the traceability and the machine checks
+  read them. `tests/test_plain_language.py` reports a count against a recorded
+  baseline and never fails a build, so this dimension is where it is actually
+  assessed. This is also where the writing-voice
   tells named in `skills/compass-runtime/writing-voice.md` are judged: does the
   prose communicate a decision, or does it narrate the pipeline? Run
   `scripts/voice-tells.py` over the issue's artifacts for the three tells a

@@ -29,7 +29,7 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
    Use the route's `touches:` tags and the plan's intended change site to draw
    the boundary. Distilling too wide wastes the route; too narrow misses the
    regression you are about to cause.
-2. **Find the seams.** Identify the inputs and outputs of the bounded surface -
+2. **Find the interfaces.** Identify the inputs and outputs of the bounded surface -
    the function signatures, the endpoints, the events, the stored state. These
    are where your `When` and `Then` will attach.
 3. **Read behaviour, not intent.** Trace what the code actually does for each

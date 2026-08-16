@@ -12,7 +12,7 @@ Compass works out of the box. Below them is a **project strategies** section
 that starts empty and grows as the team forms opinions. An empty project
 section is a valid, complete state - see `README.md` on gradient-not-threshold.
 
-> **Version:** 0.4.0 · **Last amended:** 2026-08-13
+> **Version:** 0.10.0 · **Last amended:** 2026-08-16
 
 ---
 
@@ -156,6 +156,7 @@ So the first time a code appears in any one piece of output, it appears with
 its plain statement beside it; every mention after that is the bare code,
 which is shorter and reads better once the meaning is known. This governs
 **agent speech**, **printed output**, and **generated artifacts** alike -
+<!-- vocabulary-scan: allow - the next line quotes the WRONG form on purpose; backticking it would turn the bad example into a good one. -->
 saying "the G5 guard kicked in" to someone who has never read
 `guardrails.yml` communicates nothing.
 
@@ -163,6 +164,54 @@ saying "the G5 guard kicked in" to someone who has never read
 the irreversible`, the identifier and its meaning together. Match it rather
 than inventing a second convention. Never solve this by dropping the code -
 the codes carry the traceability, and the machine checks read them.
+
+**The plain words come first; the code follows in brackets.** An identifier
+carrying its meaning is the rule above. This is the order, which that rule never
+settled. A code placed first makes the reader hold an unresolved symbol while
+they wait to find out what it meant - and if they stop reading at the comma,
+they never do. Put the meaning where they already are, and the code where they
+can search for it.
+
+Pairs from this project's own output, not invented:
+
+> Bound the baseline to a scenario this time, which sidesteps the EV-T
+> collision from F3.
+
+instead of:
+
+> Each piece of test evidence now records which scenario it proves, so two
+> records can no longer end up sharing one identifier (`EV-T`).
+
+<!-- vocabulary-scan: allow - the next line is a deliberate example of the defect this rule forbids; correcting it would delete the example. -->
+> the G5 guard kicked in
+
+instead of:
+
+> a human signs off on the irreversible, and that guard (`G5`) refused
+
+> RP-ROLE-002 blocked the design stage
+
+instead of:
+
+> the design stage stayed shut until the criteria were checked against the
+> intake, which is the product-owner rule (`RP-ROLE-002`)
+
+> TRC-C7 covers the ordering case
+
+instead of:
+
+> the case where the meaning arrives after the code, and the reader has already
+> met it unexplained (`TRC-C7`)
+
+The test: read the sentence and stop at the first comma. If the reader has
+learned nothing yet, the code came too early.
+
+Never solve this by removing the code. The codes carry the traceability and the
+machine checks read them - deleting one trades a reader's small confusion for a
+broken chain. `tests/test_plain_language.py` counts the ones that arrive
+unexplained and reports the number against a recorded baseline; it never fails a
+build, because a number that can fail a build becomes a number people write
+around.
 
 **Correct a retired name in a comment you were touching anyway.** The
 vocabulary scan does not read comments or docstrings - the parser discards
@@ -195,6 +244,132 @@ Assessed under the `clarity` review dimension; restated at the point of use in
 `commands/land.md` (commit messages).*
 
 ---
+
+### A title is a summary, not a headline (`S13`)
+
+**Soft, assessed - not a guardrail.** A pull-request or commit title is read by
+someone scanning a list of thirty, and read again in six months by someone
+searching for the change. Both want the same thing: what the change does, in the
+words they would search for.
+
+**Say what it does.** "Add rate limiting to the search endpoint". "Fix the
+timeout error message to name the size limit". "Remove retired CLI flags; add
+glossary; fix six defects" when it genuinely does several things - name the main
+one and leave the rest to the body.
+
+**Four shapes it refuses**, each named because each is a different temptation:
+
+- a **slogan** - "Make the record trustworthy again"
+- a **theme** - "Clarity week: part two"
+- a **play on words** - "Guarding the guards"
+- a **"the X that Y" construction** - "The check that could not fail"
+
+**The test:** if the title would work as a blog post title, it is wrong. A blog
+post title is written to make you click; a pull-request title is written to save
+you opening it.
+
+**Body prose is different, and the distinction matters.** A neat formulation is
+allowed and is often the clearest thing to write in a paragraph - "a number
+reported without saying what it counts is as hard to act on as a code reported
+without saying what it means" earns its place in prose. The same sentence as a
+**heading** does not. A heading is a label; a label that has to be decoded is a
+worse label than a plain one.
+
+**Scope: pull-request titles and commit titles. Deliberately NOT ADR titles.**
+Stating a decision as an assertion is ordinary practice in an architecture
+decision record and it earns its keep - a reader learns the decision from
+`an-identifier-is-a-key-not-jargon` without opening the file, and learns nothing
+from `identifier-naming-policy`. This note exists so nobody applies the rule by
+analogy and starts flattening them.
+
+**Commit titles follow the same rule.** Not a second rule that says the same
+thing: the pull-request title rule above, applied unchanged. Two statements of
+one rule drift apart, and then a contributor has to work out which is current.
+
+**The body is a description, not a narrative.** `templates/pull-request-body.md`
+is the shape: what changed, what breaks, how to check it, where to look.
+Sections and lists rather than paragraphs. Leave out the story of how the work
+went - what was tried, what was discovered, what it taught you. A reviewer wants
+the state of the code, not the journey to it, and the journey is the most common
+reason a body gets too long to read.
+
+**This forbids narrative, not length.** Read as one rule the two run together,
+and it then fights real substance: a change with a lot in it is allowed to be
+long, and four sections of genuine content running to a page is a large change
+honestly described. Trim the story, never the substance. Found on this rule's
+first real use, where it pushed against a description that needed the room.
+
+*Why a strategy and not a guardrail:* no mechanical check can tell a summary
+from a slogan. `tests/test_plain_language.py` checks that the rule is stated and
+that the template has its sections; whether a given title obeys it is the
+reviewer's judgement under the `clarity` dimension.
+
+### Correct every place at once, or you have made it worse (`S14`)
+
+**Soft, assessed - not a guardrail.** When a figure, a decision or a claim is
+corrected, every place stating the superseded version is corrected in the same
+change.
+
+**A correction that leaves the record contradicting itself is worse than the
+original error**, because the next reader now has two answers and no way to tell
+which is current. One wrong number is a mistake; one wrong number and one right
+number is a document that cannot be trusted anywhere.
+
+Say what is superseded and why, not only what is now true. A reader who meets
+the old version somewhere you missed can then tell which way the correction ran.
+
+**Which places take a correction, and which take a note.** The rule above says
+apply it everywhere it belongs. This says where that is, because without it a
+moved number forces a false choice - falsify a record to keep it consistent with
+today, or leave a false claim standing because rewriting felt dishonest.
+
+- **A record of what happened keeps its number and gains a note.** A devlog
+  entry, a dry-run result, a captured command output, an archived spine. These
+  say what was observed at a moment. Rewriting one falsifies it: it becomes a
+  transcript of something that did not happen. Annotate instead - what the figure
+  was, that it has since moved, and that nothing should be quoted from there.
+- **A claim about what is true gets corrected.** A published document, a caption,
+  a README line, a registered claim in a spine. These assert something about the
+  present tense. Annotating one leaves it false, and the annotation is not
+  travelling with the sentence when someone quotes it.
+
+The instance this came from: *"sixteen checks passed"* appeared in a published
+case study and in three records of runs that genuinely printed sixteen. The case
+study was corrected to "every check passed" - which is what was true and stays
+true. The run records kept their number and gained a note saying the total has
+since moved to fifteen.
+
+*Cross-reference: the claim rules in a publication script - **say what held, not
+how many of it there were**. Any count a tool produces is a number that moves,
+and a caption cannot be patched after publishing.*
+
+**The checklist item, stated as an item because it was advice for three rounds
+and was broken in all three:**
+
+> **Re-read the summary last, before calling the artifact finished.**
+
+That is the specific mechanical cause rather than carelessness: a summary is
+written first, the body changes underneath it, and nothing sends the writer back
+to the top. It has happened to this project's proposal, its acceptance criteria,
+its requirements review, and to an audit document written to record corrections.
+
+**Nothing checks this rule. It depends on a person noticing.** That is worth
+saying outright rather than leaving to inference, because a rule that sounds
+like a machine is watching invites people to relax, and here nobody is.
+
+No check can find these. The three instances caught so far were each a different
+shape: a figure in a published write-up that had moved; a heading corrected in
+one file while the record it was derived from kept the old wording; and two
+pieces of code printing the same information, one corrected and one not. Nothing
+static links any of those pairs - the connection is that two sentences mean the
+same thing, and no scan reads meaning.
+
+**All three were found by someone reading, and all three were found.** That is
+the case for the habit, not an apology for the missing check: attention has a
+record here, and it is the only thing that has ever caught this.
+
+*Why a strategy and not a guardrail:* nothing mechanical knows which documents
+state the same fact. The `reviewer` agent assesses it under `clarity`.
 
 ### Voice audition: read against a calibration sample (`S8`)
 
@@ -302,15 +477,147 @@ The recorded result matters as much as the act. A reviewer cannot tell a
 guard that was mutation-proved from one that was not, so the table - what was
 broken, what failed, what passed on restore - travels with the change.
 
-*Why a strategy and not a guardrail:* nothing mechanical can tell whether an
-author actually broke the subject, and a check that demanded proof would be
-satisfied by a pasted table as easily as by a real one - trusting the same
-self-report the practice exists to replace. The `reviewer` agent assesses it
+**What this actually yields, measured across three groups of work.** Seven
+checks that asserted nothing, in `plain-language-3-2-0`, every test green and
+every scenario looking done before proving began. **Not one was a defect in the
+code. All seven were tests.**
+
+**And they have a shape: almost every one was a presence check** - an assertion
+that some required text is on the page. Presence is the easiest thing in the
+world to satisfy by accident, and the two worst cases were both the same check:
+one draft passed because the phrase it looked for appeared inside a
+cross-reference *pointing at a rule that did not exist*, and the next draft used
+a substring test that `quoted_term_exception_RENAMED` satisfied - a test written
+to catch a rename, passing because of the rename.
+
+So: **treat a presence-shaped assertion as wrong until a mutation says
+otherwise.** On this evidence they usually are. Three worked examples:
+
+- A check written *after* its defect had been fixed passed on first run. It was
+  proved only by planting the original offending content back; until that was
+  done, its pass established nothing at all.
+- A check for build noise matched paths with `str.startswith`, so
+  `tests/__pycache__/x.pyc` did not begin with `__pycache__/`. It could never
+  have caught build noise in any subdirectory - the case it existed for.
+- A check that an explanation appears in a module docstring was first mutated in
+  the *test function's own* docstring rather than the module docstring its
+  assertion reads. It reported "not proved" and was right to: the mutation had
+  not touched the subject.
+
+Three catches in nine scenarios, none of them findable by reading, all of them
+in tests whose green was indistinguishable from a real one. On that evidence
+this is not a formality attached to a strategy - it is the highest-yield check
+in the workflow, and it is aimed at the tests rather than at the code.
+
+**When a presence check fails, find out which thing is broken before you touch
+either.** A check asserting that some required text is on the page can fail for
+two unrelated reasons: the rule really is absent, or the matcher is brittle. One
+of these failed against a correctly written rule because the prose was
+hard-wrapped and the phrase it looked for spanned a line break, so it was not a
+substring. It read as a real finding until someone looked.
+
+That distinction is not pedantry, because **loosening a matcher to cure a false
+negative is how the next false positive is born.** The sequence runs: the check
+fails spuriously, someone widens the pattern to make it green, and now it passes
+on anything. Several of the empty checks found in this project arrived that way.
+So: establish whether the rule is missing or the match is wrong, and only then
+change the one that is actually at fault.
+
+**Changing a matcher stales every mutation proof that used it.** This is the
+general form and the one that will catch someone else. A proof establishes that
+a check fails when its subject is broken - but "its subject" means the text the
+assertion consumes, and a matcher change redefines that. Widen a normaliser,
+switch a substring test to a parsed lookup, add a case fold, and every proof
+established through it was made against something the assertion no longer reads.
+The checks may still be sound; the proofs no longer say so.
+
+So a matcher change is not a local edit. **It obliges a re-proof of everything
+downstream of it**, and the re-proof is cheap while working out why a check
+quietly stopped catching things is not.
+
+**Aim the mutation at the text the assertion actually reads - and remember the
+assertion may normalise it.** A check that joins hard-wrapped prose before
+matching is reading a string that does not exist on disk in that form. One
+mutation here removed the only literal "blog post" in a file and the check still
+passed, because a second copy was wrapped as "blog" / "post" across a line break
+and the normaliser rejoined it. The raw file said one; the text the assertion
+consumed said two. Normalising is the right fix for a brittle matcher and it
+creates a place a mutation can miss, so do both: normalise the matcher, then
+mutate what the normalised text contains. Three of the
+empty checks found here were not weak checks at all - they were mutations that
+never touched the subject. One edited a test function's own docstring while the
+assertion read the module's. One renamed a dictionary key while the patterns
+under it stayed in place. One removed a phrase near an identifier while a second
+copy of that identifier survived elsewhere in the same passage. Each reported
+"not proved" and invited the wrong conclusion, that the check was untestable.
+
+The remedy is one cheap step: **before mutating, identify the exact text the
+assertion consumes** - not the text you believe it consumes. Read the assertion,
+find that string on disk, change that string.
+
+**Assert what must hold, not the words it is currently written in.** A test
+pinned to an exact layout fails the moment those words move for a good reason -
+and the person who meets that failure does not usually stop to work out which
+kind it is. They loosen the match until it passes, and the check ends up
+asserting nothing. That is the same ending as a check that could never fail,
+reached from the opposite direction.
+
+The instance: a test matched the literal string `[RP-REQUIRE-003] requirement:`.
+Its real subject was that a rule which only attaches a gate must not describe
+itself as one that raises the whole process. When the output was corrected to
+put the rule's meaning before its code, a true property failed because the
+punctuation had moved. Rewritten to assert that the code and the kind appear on
+the same line, in whatever order the line puts them, it survives the next
+rewording as well.
+
+Write the assertion so it would still be true if someone rephrased the output
+without changing what it means. If it would not, it is pinned to prose rather
+than to behaviour.
+
+**Two procedural rules, learned by getting them wrong.** Clear any bytecode
+cache between steps, and re-run after restoring to confirm green before
+recording the proof. A proof that reads stale bytecode can report either result,
+and the dangerous direction is the one that says PROVED. An unreproducible
+"restore was not honoured" was observed once and never explained; by
+intermittency is failure (`S5`) that stays open rather than being written off as
+noise.
+
+**The same rule for a search: a result of zero is not believed until the search
+has been run against a case it must find.** A grep that reports nothing and a
+grep that cannot match anything look identical, and the second is common enough
+to plan for - a pattern with a typo, a path that does not exist, a flag the tool
+silently ignores. Before reporting a surface clean, run the search against one
+string you know is there and watch it come back. Two seconds, and it turns
+"clean" from an assumption into an observation.
+
+This is not hypothetical. Auditing this repository for a banned word,
+`git grep -n -i -E '\bseam\b'` returned nothing at all, because `git grep -E`
+does not honour `\b` - while the plain pattern found four uses. A scan reporting
+zero had in fact read nothing. The same audit's markdown-only scan reported a
+count for the repository and missed a use in a Python file, for the same reason
+one level up: the search could not reach where the answer was.
+
+**Nothing checks this, and one attempt to change that was withdrawn.** The
+question "does a proof EXIST?" is mechanically answerable, unlike "is the proof
+REAL?", and a check for the first was built and then removed - not because the
+distinction was wrong but because declaring it required contradicting a recorded
+decision that this repository holds no rules of its own. See
+`declare-a-project-guardrail-or-do-not`.
+
+Asking the existence question is worth it on its own evidence: run once by hand,
+it found twenty of thirty-eight checks with no proof on record at all, and a
+registered claim saying otherwise was false. No fabrication was involved. There
+was nothing there.
+
+*Why a strategy and not a guardrail:* nothing mechanical can tell
+whether an author actually broke the subject, and a check that demanded proof of
+a genuine mutation would be satisfied by a pasted table as easily as by a real
+one - trusting the same self-report the practice exists to replace. The `reviewer` agent assesses it
 at Verify under the `correctness` dimension, and a guard offered without one
 is a conversation, never an automatic gate failure.
 
 *Cross-reference: fresh eyes on a sweep (`S9`) - both answer "who or what
-establishes that this is true", where S9 answers who and this answers how.
+establishes that this is true", where `S9` answers who and this answers how.
 See `commands/verify.md` and `skills/evidence-gates/SKILL.md` for the pointer
 at the point of use.*
 

@@ -154,6 +154,22 @@ an immovable gate, so it is always at least live for the marketer): does every
 public claim trace to a *passing* scenario? Evidence is `launch-readiness.md`
 with no red rows.
 
+**Read the claim, not just the link.** `claim-traces-to-scenario` checks that a
+claim points at a scenario that exists. It cannot check that what the claim says
+is true, and no machine can. This is the one gate in the set whose name promises
+less than a reader hears: passing means "traceable", and a reader will take it
+as "verified". Every other check here means roughly what it sounds like.
+
+A worked instance: a claim reading *"7 em dashes in publication copy, repaired
+to zero"* traced correctly to its scenario and was false - the file had never
+contained one, so nothing was repaired. The check passed. The reviewer is what
+catches that, by reading the claim against the scenario it points at and asking
+whether the sentence is *so*, not whether the id resolves.
+
+Two questions worth asking of every claim, because both failures showed up in
+one release: does it say what it counted **and what it did not**, and would it
+still be true if someone quoted it on its own six months from now?
+
 ## Passing a gate - the procedure
 
 1. Read `delivery-approach.md` for the gate set and the dimensions in play.

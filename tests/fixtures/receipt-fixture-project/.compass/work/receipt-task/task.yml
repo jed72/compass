@@ -13,7 +13,18 @@ assessment:
   - public-api
 delivery_approach: standard
 topology: solo-or-pair
-policy_rules_fired: []
+policy_rules_fired:
+- id: RP-FLOOR-003
+  kind: floor
+  rationale: Domain risk overrides size. A one-line auth change is not small.
+  changed:
+  - approach raised feature -> initiative
+- id: RP-REQUIRE-003
+  kind: requirement
+  rationale: Architectural fitness checked before cross-cutting or critical changes
+    land.
+  changed:
+  - gate 'verify.fitness' added to the approach's gate set
 stages:
   frame: full
   specify: full

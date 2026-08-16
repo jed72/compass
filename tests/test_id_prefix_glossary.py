@@ -295,15 +295,21 @@ def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
         timeout=120,
     )
     assert r.returncode == 0, r.stdout + r.stderr
-    assert "[RP-REQUIRE-003] requirement:" in r.stdout, (
+    # Asserted as a property of the LINE, not of a layout. The first version
+    # matched the literal string "[RP-REQUIRE-003] requirement:", which broke
+    # the day the renderer was corrected to put the rule's meaning before its
+    # code - a true property failing because the words moved. What matters is
+    # that the id and the kind agree on the same line, in whatever order the
+    # line is written.
+    gate_adder = [ln for ln in r.stdout.splitlines() if "RP-REQUIRE-003" in ln]
+    assert gate_adder, f"RP-REQUIRE-003 did not fire:\n{r.stdout}"
+    assert all("requirement" in ln for ln in gate_adder), (
         f"a rule that only attaches a gate still reports itself as a floor:\n"
-        f"{r.stdout}"
+        + "\n".join(gate_adder)
     )
-    # Per line. `"] floor:" not in output or "RP-FLOOR" in output` passed
-    # twice over for the wrong reason: today's output contains no `] floor:`
-    # at all, and one correct FLOOR line anywhere satisfied the other half.
     mislabelled = [ln for ln in r.stdout.splitlines()
-                   if "] floor:" in ln and "RP-FLOOR" not in ln]
+                   if "floor" in ln and "RP-FLOOR" not in ln
+                   and "RP-" in ln]
     assert not mislabelled, (
         f"a rule reports kind floor without a FLOOR id:\n" + "\n".join(mislabelled)
     )

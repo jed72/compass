@@ -48,6 +48,7 @@ import datetime
 import hashlib
 import json
 import os
+import pathlib
 import re
 import shlex
 import subprocess
@@ -351,7 +352,14 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         for g in fired:
             gid = g.get("id", "?") if isinstance(g, dict) else str(g)
             rationale = g.get("rationale", "") if isinstance(g, dict) else ""
-            lines.append(_receipt_truncate(f"    {gid}: {rationale}"))
+            # Meaning first, code in brackets. This line used to read
+            # "<id>: <rationale>", so a reader met an unresolvable code and
+            # learned what it did only afterwards - the defect S7 forbids, in
+            # the receipt of the release that forbids it. The code stays: it
+            # carries the traceability and it is what someone searches for.
+            lines.append(_receipt_truncate(
+                f"    {rationale.rstrip().rstrip('.')} ({gid})"
+                if rationale else f"    ({gid})"))
     else:
         lines.append("  policy rules fired: none")
     lines.append("")
@@ -426,8 +434,13 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         # Column width follows the widest id actually present. A fixed width
         # of 8 shoved every other column off its grid the moment one long
         # generated id appeared.
-        id_w = max(8, *(len(str(e.get("id", "?"))) for e in evs
-                        if isinstance(e, dict)))
+        # Sized to the widest id present, but CAPPED. One auto-generated id -
+        # `EV-ANALYZE-<slug>-<timestamp>` runs to 51 characters - would
+        # otherwise set the column for all of them and crush the readable
+        # column to nothing. A long id overflows its cell and shifts that one
+        # row; every other row keeps its grid, and the words stay legible.
+        id_w = min(14, max(8, *(len(str(e.get("id", "?"))) for e in evs
+                                if isinstance(e, dict))))
         # An identifier appears with its meaning on first use (the cold-reader
         # strategy). A scenario's meaning is its title, which the spine
         # already holds - so print it rather than making the reader resolve
@@ -435,26 +448,80 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         titles = {s.get("id"): s.get("title")
                   for s in (task.get("scenarios") or [])
                   if isinstance(s, dict) and s.get("title")}
+        # One line per entry, and the readable part first. This used to print a
+        # narrow id/type/path row and push the extras onto an indented
+        # continuation line - so 28 entries took 44 lines, sixteen of them
+        # two-line and twelve one-line, with no row to scan down. The scenario
+        # title, the only human-readable content in the block, sat on the
+        # continuation line while the widest column held a path derivable from
+        # the id for most entries.
+        #
+        # Column order follows what a reader wants in order: WHAT was proved,
+        # HOW strongly, then WHERE to find it. The path is last because it is
+        # the first thing worth losing when the line is capped.
+        rows = []
         for ev in evs:
             if not isinstance(ev, dict):
                 continue
-            eid = ev.get("id", "?")
-            etype = ev.get("type", "?")
-            epath = ev.get("path", "")
-            lines.append(_receipt_truncate(
-                f"  {eid:<{id_w}}  {etype:<18}  {epath}"))
+            eid = str(ev.get("id", "?"))
+            etype = str(ev.get("type", "?"))
             extras = _RECEIPT_EVIDENCE_EXTRAS.get(etype, ())
-            extra_pairs = ", ".join(
-                f"{k}: {ev.get(k)}"
-                + (f" - {titles[ev.get(k)]}"
-                   if k == "scenario" and titles.get(ev.get(k)) else "")
-                for k in extras if ev.get(k) is not None
-            )
-            if extra_pairs:
-                # Continuation line, indented under the entry to keep the
-                # primary row narrow and avoid hitting the 100-col cap on
-                # long extras (e.g. spike-conclusion's decision + next_task).
-                lines.append(_receipt_truncate(f"            {extra_pairs}"))
+            # What this proves, in words. A scenario's title is held in the
+            # spine, so print it rather than making the reader resolve the id.
+            # What this proves, in words.
+            #
+            # A scenario's title says it outright, so use the title alone - the
+            # spine holds it, and making the reader resolve `TRC-B1` from
+            # somewhere else is the defect this column exists to remove.
+            #
+            # Every other type keeps ALL its declared fields, joined on one
+            # line. A human sign-off means nothing without who approved, in
+            # what role, and what they decided; a spike conclusion means
+            # nothing without the decision and where it went. Those are the
+            # type-specific minimal fields, and dropping any of them would lose
+            # information rather than noise.
+            proves = ""
+            scenario = ev.get("scenario")
+            if "scenario" in extras and titles.get(scenario):
+                # Id AND title. The title is the content and the id is the
+                # cross-reference - dropping the id looked tidier and broke the
+                # trace for any record whose evidence id does not already carry
+                # it. Ids written by the CLI do (`EV-T-TRC-A1`), so it reads as
+                # mild repetition there; a hand-written `EV-X` would otherwise
+                # have lost its link to the scenario entirely.
+                proves = f"{scenario} - {titles[scenario]}"
+            else:
+                proves = ", ".join(f"{k}: {ev.get(k)}"
+                                   for k in extras if ev.get(k) is not None)
+            if not proves:
+                # No scenario behind it - a baseline, a review, a sweep. The
+                # filename is what it is called, so use that rather than
+                # leaving the column blank: "mutation-proof-group-A" reads.
+                stem = pathlib.PurePosixPath(str(ev.get("path", ""))).stem
+                proves = stem.replace("-", " ").replace("_", " ")
+            rows.append((eid, etype, proves))
+
+        # Issue-level records - baselines, reviews, sweeps - have no scenario
+        # behind them. Grouping them after the per-scenario rows stops the two
+        # kinds interleaving in whatever order they were written.
+        # Per-scenario records first, then the issue-level ones, so the two
+        # kinds do not interleave in whatever order they were written.
+        rows.sort(key=lambda r: (not r[0].startswith("EV-T-"), ))
+        # The path column is gone. It was the widest thing on the row, it is
+        # derivable from the id for most entries, and once the line was capped
+        # it rendered as "evidence/gr..." - which looks like information and is
+        # not. The id identifies the record; anyone who needs the file can
+        # resolve it. Dropping it buys the width back for the readable column.
+        # Width maths, spelled out because getting it wrong silently truncates
+        # whichever column is last: two spaces of indent, the id, two spaces,
+        # the readable column, two spaces, the type. The type width comes from
+        # the rows actually present rather than a guessed constant.
+        type_w = max((len(r[1]) for r in rows), default=0)
+        proves_w = max(4, _RECEIPT_LINE_CAP - 2 - id_w - 2 - 2 - type_w)
+        for eid, etype, proves in rows:
+            shown = proves if len(proves) <= proves_w else proves[:proves_w - 1] + "\u2026"
+            lines.append(_receipt_truncate(
+                f"  {eid:<{id_w}}  {shown:<{proves_w}}  {etype}"))
     lines.append("")
 
     # 5b. follow-ups (rendered only when any exist)

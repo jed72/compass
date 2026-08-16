@@ -32,7 +32,9 @@ Assessment
 Approach
 --------
   feature  (topology: solo-or-pair)
-  policy rules fired: none
+  policy rules fired:
+    Domain risk overrides size. A one-line auth change is not small (RP-FLOOR-003)
+    Architectural fitness checked before cross-cutting or critical changes land (RP-REQUIRE-003)
 
 Gates
 -----
@@ -45,11 +47,9 @@ Gates
 
 Evidence
 --------
-  EV-001    test-run            evidence/green-canonical.json
-            scenario: SCN-001 - the fixture scenario
-  EV-002    command-output      evidence/check.txt
-  EV-003    manual-review       evidence/clarity-review.md
-            reviewer: qa@example.com
+  EV-001    SCN-001 - the fixture scenario                                            test-run
+  EV-002    check                                                                     command-output
+  EV-003    reviewer: qa@example.com                                                  manual-review
 
 ================================================================================
 Verdict: landed cleanly
