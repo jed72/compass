@@ -169,18 +169,33 @@ def test_a5_replace_or_merge_is_documented():
     """
     doc = (REPO_ROOT / "governance" / "README.md")
     assert doc.is_file(), "governance/README.md is where this is expected to live"
-    text = doc.read_text(encoding="utf-8").lower()
 
-    assert "replace" in text, (
-        "the documentation does not say that project governance replaces the "
+    # Scoped to the section that answers the question. The first version of
+    # this test asked whether the word "replace" appeared anywhere in the file.
+    # It does, three times, twice for unrelated reasons - so the test passed
+    # over a document it had not inspected, and its own mutation proof is what
+    # caught that.
+    body = doc.read_text(encoding="utf-8")
+    marker = "## What happens to the shipped defaults when a project declares its own"
+    assert marker in body, (
+        "governance/README.md has no section answering what happens to the "
+        "shipped defaults when a project declares its own")
+    # Whitespace is collapsed because the phrases below wrap across lines in
+    # the source and a raw substring search would miss them - a failure about
+    # formatting, not about what the document says.
+    section = " ".join(
+        body.split(marker, 1)[1].split("\n## ", 1)[0].lower().split())
+
+    assert "replaces the shipped defaults" in section, (
+        "the section does not say that project governance replaces the "
         "shipped defaults - an adopter could reasonably expect their rules to "
         "be added to the shipped ones, and they are not")
-    assert "omit" in text or "absent" in text, (
-        "the documentation does not say what happens to a shipped guardrail "
-        "the project leaves out")
-    assert "does not fail" in text or "not fail the run" in text or "reported" in text, (
-        "the documentation does not say whether an omitted shipped guardrail "
-        "is enforced or merely reported")
+    assert "omits" in section or "omitted" in section, (
+        "the section does not say what happens to a shipped guardrail the "
+        "project leaves out")
+    assert "does not fail the run" in section, (
+        "the section does not say whether an omitted shipped guardrail is "
+        "enforced or merely reported")
 
 
 # --- TRC-A6 -----------------------------------------------------------------

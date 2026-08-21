@@ -92,28 +92,66 @@ tooling and your system PyYAML itself are untouched. The version
 Compass is running is never a guess - `compass --version` prints it,
 alongside where it resolved from.
 
-## Project guardrails go through PR review
+## Project governance is executable code
 
-A team can add project-specific guardrails to `governance/guardrails.md`
-and `governance/guardrails.yml`. In principle, a hostile project-added
-guardrail could try to exfiltrate data via a check function. In
-practice, it cannot, because of two layers:
+A team can add project-specific guardrails to `governance/guardrails.md` and
+`governance/guardrails.yml`. **Treat those files as code, not as
+configuration**, because one of them can run commands.
 
-1. **It has to come through PR review.** `governance/` lives in the
-   project repository - every change to it is a code change like any
-   other and goes through your normal code-review process.
-2. **The CHECK_FNS implementation gate.** A guardrail in
-   `guardrails.yml` declares a `check` by name; that check must have an
-   implementation in `cli/compass`'s `CHECK_FNS` table. `compass policy
-   lint` and `compass check` both fail closed if a declared check has
-   no implementation. So a hostile guardrail cannot just *name* a check
-   and have the CLI run it - adding a new check is a code change to the
-   CLI itself, which is a separate repo and a separate review.
+`command-passes` is a shipped check whose parameter is the command to run.
+A project guardrail declaring it looks like this:
 
-These two layers do not eliminate risk; they make it impossible for a
-guardrail addition to be a one-line surprise. Treat the
-`governance/` directory and the CLI's `CHECK_FNS` table as security-
-relevant code, and review changes to them accordingly.
+```yaml
+checks: [command-passes]
+params:
+  command: "python3 scripts/architecture-fitness.py"
+```
+
+`compass check` runs that string with `subprocess.run(..., shell=True)` from
+the project root, with whatever permissions the process already has. Anything a
+shell can do, a project guardrail can do.
+
+### Two defences this guide used to claim, and why they do not hold
+
+This section previously argued that a hostile guardrail could not run code,
+for two reasons. An outside review of 3.2.0 showed both were wrong, and they
+are recorded here rather than quietly deleted.
+
+**"A hostile guardrail cannot just name a check and have the CLI run it."**
+That is true of a check the project invents - the name must resolve to an
+implementation in the CLI, and adding one is a change to a different repository
+under separate review. It is not true of `command-passes`, which is already
+implemented and whose entire purpose is to run what it is given. The registry
+constrains which *kinds* of check exist. It does not constrain what one of them
+executes.
+
+**"It has to come through pull-request review."** Continuous integration
+normally runs on a pull request **before** it is approved. A contribution from
+a fork can therefore reach the runner without anyone having read it, which is
+the point at which review was supposed to be the boundary.
+
+### What this means for you today
+
+- **Review `governance/` changes as you would review a script**, especially any
+  `params.command`. A one-line YAML addition can be a one-line shell command.
+- **Decide deliberately whether your CI runs Compass on untrusted pull
+  requests.** If it does, a fork can propose a project guardrail and have your
+  runner execute it. Restricting workflow triggers for fork pull requests, or
+  requiring approval before workflows run, is the control that actually applies.
+- **Scope the runner's permissions.** A token with no write access limits what a
+  command can do with the access it inherits.
+
+### The work that closes this
+
+Tracked in [issue #65](https://github.com/jed72/compass/issues/65). The intended
+shape is an explicit opt-in for project commands, refusal on fork and untrusted
+pull-request contexts by default, an allowlist or named-script-path mode as the
+ordinary way to declare a fitness function, and an argument array in place of
+`shell=True` wherever the command shape allows.
+
+Until that ships, the honest statement is the one above: this is a real
+execution surface, bounded by how you review governance changes and how your CI
+is configured, not by anything the CLI enforces.
 
 ## Supply-chain stance
 

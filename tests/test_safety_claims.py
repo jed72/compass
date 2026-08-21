@@ -143,3 +143,104 @@ def test_f2_narrowed_wording_does_not_soften_the_check():
         "governance change and must stop.\n"
         f"  expected: {sorted(expected)}\n"
         f"  found   : {sorted(g1.get('checks') or [])}")
+
+
+# --- TRC-B3 -----------------------------------------------------------------
+
+def test_b3_contract_states_the_evidence_limit():
+    """TRC-B3 - the contract says what a green record does not establish.
+
+    It already has the right section for this - 'What Compass does NOT claim' -
+    sitting next to the honest note about the hook failing open on shell
+    commands. This is the same kind of admission and belongs beside it.
+    """
+    body = _normalise(CONTRACT.read_text(encoding="utf-8"))
+    section = body.lower()
+
+    assert "one exit code for one command" in section, (
+        "the contract does not say what a test-run record actually holds")
+    assert "which tests" in section or "which test" in section, (
+        "the contract does not say the record leaves the collected tests "
+        "unrecorded - which is the whole limit")
+    assert "not bound" in section or "state of the code" in section, (
+        "the contract does not say the record is unbound to the state of the "
+        "code when it was made, so a stale green satisfies it")
+
+
+# --- TRC-B4, TRC-D1, TRC-D2 -------------------------------------------------
+
+from safety_contract_check import (  # noqa: E402
+    EmptyContract, Problem, check, parse_backing, parse_guarantees,
+)
+
+
+def test_b4_every_guarantee_names_a_backing_mechanism():
+    """TRC-B4 - run against the real contract; it must come back clean."""
+    problems = check(CONTRACT.read_text(encoding="utf-8"), str(REPO_ROOT))
+    assert not problems, "\n".join(str(p) for p in problems)
+
+
+def test_b4b_the_check_actually_inspected_something():
+    """TRC-B4 - a clean result is only worth having if the parse found rows.
+
+    Paired with the test above on purpose. 'No problems' and 'no input' produce
+    the same empty list, and this is the assertion that tells them apart.
+    """
+    text = CONTRACT.read_text(encoding="utf-8")
+    assert len(parse_guarantees(text)) >= 5, "suspiciously few guarantees parsed"
+    assert len(parse_backing(text)) >= 5, "suspiciously few backing rows parsed"
+
+
+def test_d1_guarantee_without_backing_fails():
+    """TRC-D1 - a guarantee nothing accounts for is reported by number."""
+    text = CONTRACT.read_text(encoding="utf-8")
+    n = max(parse_guarantees(text)) + 1
+    planted = text.replace(
+        "## What Compass 1.0 does NOT claim",
+        f"{n}. **A guarantee nobody wrote a mechanism for.** Invented by a "
+        f"test.\n\n## What Compass 1.0 does NOT claim", 1)
+
+    problems = check(planted, str(REPO_ROOT))
+    assert any(p.guarantee == n for p in problems), (
+        f"a guarantee with no backing row was not reported. Found: "
+        f"{[str(p) for p in problems]}")
+
+
+def test_d2_missing_named_mechanism_fails():
+    """TRC-D2 - a row naming a file that is not there is reported."""
+    text = CONTRACT.read_text(encoding="utf-8")
+    backing = parse_backing(text)
+    n = min(backing)
+    planted = text.replace(
+        backing[n], " a mechanism in `docs/this-file-does-not-exist.md` ", 1)
+
+    problems = check(planted, str(REPO_ROOT))
+    assert any("this-file-does-not-exist" in p.detail for p in problems), (
+        f"a backing row naming a missing file was not reported. Found: "
+        f"{[str(p) for p in problems]}")
+
+
+def test_d2b_a_row_naming_a_command_the_cli_lacks_fails():
+    """TRC-D2 - the same for a command, since half the rows name one."""
+    text = CONTRACT.read_text(encoding="utf-8")
+    backing = parse_backing(text)
+    n = min(backing)
+    planted = text.replace(backing[n], " run `compass nonexistentverb` ", 1)
+
+    problems = check(planted, str(REPO_ROOT))
+    assert any("nonexistentverb" in p.detail for p in problems)
+
+
+def test_d3_an_unparseable_contract_raises_rather_than_passing():
+    """The design decision that keeps this from being a check that cannot fail.
+
+    Four checks have shipped in this project that passed because they found
+    nothing to inspect. Fed a contract with no guarantees, this one must refuse
+    to answer rather than answer 'clean'.
+    """
+    with pytest.raises(EmptyContract):
+        parse_guarantees("# Not a contract\n\nNothing here.\n")
+    with pytest.raises(EmptyContract):
+        parse_backing("# Not a contract\n\nNothing here.\n")
+    with pytest.raises(EmptyContract):
+        check("# Not a contract\n\nNothing here.\n", str(REPO_ROOT))

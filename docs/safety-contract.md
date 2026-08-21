@@ -75,6 +75,25 @@ Equally important. Honest scope is what makes the promise credible.
   governs how human-and-AI teams shape work; it does not police what AI
   agents do outside its pipeline.
 
+- **A green test record does not establish which tests ran.** A `test-run`
+  record holds **one exit code for one command**. It does not enumerate the
+  tests the command collected, so Compass cannot tell which tests a run
+  exercised - only that a command it was given exited zero. The record is also
+  **not bound to the state of the code** when it was made: a genuine green from
+  before later edits still satisfies the check, and so would an unrelated
+  command that happens to exit zero.
+
+  What Compass does establish is the declared relationship - this changed file
+  traces to this scenario, which names this test, which exists - plus the fact
+  that a green run was recorded. That is a real and useful thing, and it is
+  less than a reader hears in "a passing automated test it traces to", which is
+  why that wording was withdrawn.
+
+  Closing the gap means recording the commit or tree identity, the acceptance
+  spec's hash, and the exact test ids a run collected, then requiring every
+  scenario to be covered by an observed test rather than a declared one. That
+  is being built; it is not built yet, and this contract does not promise it.
+
 - **Red-before-green enforcement on shell commands is best-effort.**
   `hooks/pre-tool.sh` intercepts the file-editing tools completely: an `Edit`,
   `Write`, or `MultiEdit` of a production file cannot proceed without a
