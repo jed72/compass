@@ -138,8 +138,7 @@ is the what.
 they are the floor under every delivery approach, including the lightest
 and the most exploratory:
 
-1. **Tested before it lands.** No code reaches `main` without a passing
-   automated test it traces to.
+1. **Tested before it lands.** No code reaches `main` unless it traces to a declared test and a green test run is on record. Compass checks that both exist and line up; it does not observe the declared test running - see `docs/safety-contract.md` for what a test-run record does and does not establish.
 2. **Acceptance defined before it is built.** No code is written that no
    stated, checkable acceptance criterion describes.
 3. **Traceability holds.** code → acceptance criterion → intent, and

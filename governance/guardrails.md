@@ -33,9 +33,10 @@ there are not many.
 
 ### Tested before it lands (`G1`)
 
-No code reaches `main` without a passing automated test it traces to. This is
-checked at Verify and again at ship time - `verification-report.md` carries the
-evidence (the pasted run).
+No code reaches `main` unless it traces to a declared test and a green test run is on record. Compass checks that both exist and line up; it does not observe the declared test running - see `docs/safety-contract.md` for what a test-run record does and does not establish.
+
+This is checked at Verify and again at ship time - `verification-report.md`
+carries the evidence (the pasted run).
 
 *What this is not:* tested-before-ship is not "red before green on every change." Writing the
 failing test first is **TDD**, a default *strategy* (see `strategies.md`) -
