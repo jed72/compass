@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### narrowing the promise should not weaken what the check actually enforces
+### a repair should not change what an agent is instructed to do
 
-- **Scenario id:** `TRC-F2`
+- **Scenario id:** `TRC-D2`
 - **Intent:** `INT-1`
-- **Source issue:** `claims-match-what-is-proved`
+- **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### a project governance directory missing its guardrails should be refused the same way
+### history should stay exempt and stay honest
 
-- **Scenario id:** `TRC-F1`
+- **Scenario id:** `TRC-D3`
 - **Intent:** `INT-2`
-- **Source issue:** `claims-match-what-is-proved`
+- **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
-### the guide should point at the work that closes the gap
+### widening the patterns should not change what the scan reports on today's clean surfaces
 
-- **Scenario id:** `TRC-C3`
+- **Scenario id:** `TRC-C4`
 - **Intent:** `INT-3`
-- **Source issue:** `claims-match-what-is-proved`
+- **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
-### a backing mechanism that does not exist should fail the check
+### a narrowed guarantee should still name its backing mechanism
 
-- **Scenario id:** `TRC-D2`
+- **Scenario id:** `TRC-E2`
 - **Intent:** `INT-4`
-- **Source issue:** `claims-match-what-is-proved`
+- **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
-### the living spec's stale title should be fixed by re-deriving it
+### the launch article should read as publication copy throughout
 
-- **Scenario id:** `TRC-G3`
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-5`
-- **Source issue:** `plain-language-3-2-0`
-- **Landed:** 2026-08-16
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
 
 ### the hook still blocks a code file inside the project
 
@@ -5348,6 +5348,13 @@
 - **Source issue:** `plain-language-3-2-0`
 - **Landed:** 2026-08-16
 
+### the living spec's stale title should be fixed by re-deriving it _(archived)_
+
+- **Scenario id:** `TRC-G3`
+- **Intent:** `INT-5`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
 ### a banned word should never be fixed by deleting the identifier _(archived)_
 
 - **Scenario id:** `TRC-X3`
@@ -5446,9 +5453,156 @@
 - **Source issue:** `claims-match-what-is-proved`
 - **Landed:** 2026-08-22
 
+### the guide should point at the work that closes the gap _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
 ### a guarantee with no backing mechanism should fail the check _(archived)_
 
 - **Scenario id:** `TRC-D1`
 - **Intent:** `INT-4`
 - **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### a backing mechanism that does not exist should fail the check _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### a project governance directory missing its guardrails should be refused the same way _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### narrowing the promise should not weaken what the check actually enforces _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### no published file should misspell the word the framework renamed to _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### the safety contract should be titled for the release it describes _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### the security guide should not deny a distribution channel the project publishes on _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a document should not point at files that do not exist _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a live architecture artifact should not describe a retired stage as current _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a message the CLI prints should not tell a user to run a stage that no longer exists _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a retired stage name alone in a table cell should be caught _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a retired stage name alone in a bold run should be caught _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### every retired stage name should be bound to the label shape, not only Frame _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### the scan should report the count it found, not only that it found some _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a retired stage name used mid-sentence should be caught _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-2`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a retired word used as an ordinary verb should not be caught _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a bold run that begins with a retired word but continues into a sentence should not be caught _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### the tolerance fixture should carry every shape the patterns must walk past _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### no live surface should carry a retired stage name _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a claim about every failure message should be checked or withdrawn _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-4`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### the decay rule should say what it asks of the reader _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-5`
+- **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
