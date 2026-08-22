@@ -202,13 +202,48 @@ def _lint_errors_guardrails(p):
             continue
         params = g.get("params") or {}
         command = params.get("command")
+        script = params.get("script")
         gid = g.get("id", "?")
-        if command is None:
+        # Two declaration forms, and exactly one of them per guardrail.
+        # `script:` names a file run with no shell; `command:` is a shell
+        # string. Allowing both would need a precedence rule, and a precedence
+        # rule is a quiet way to reach the shell from a declaration that looks
+        # like the safe form.
+        if script is not None and command is not None:
+            errs.append(
+                f"project guardrail {gid} declares both `params.script` and "
+                f"`params.command` - declare one. `script:` runs a file "
+                f"without a shell; `command:` runs a shell string"
+            )
+        elif script is not None:
+            if not isinstance(script, str):
+                errs.append(
+                    f"project guardrail {gid} uses check 'command-passes' but "
+                    f"`params.script` is not a string "
+                    f"(got {type(script).__name__!r}) - it must be a path "
+                    f"relative to the project root"
+                )
+            elif not script.strip():
+                errs.append(
+                    f"project guardrail {gid} uses check 'command-passes' but "
+                    f"`params.script` is an empty string - name a script path"
+                )
+            args = params.get("args")
+            if args is not None and (
+                    not isinstance(args, list)
+                    or not all(isinstance(a, str) for a in args)):
+                errs.append(
+                    f"project guardrail {gid}: `params.args` must be a list of "
+                    f"strings - they are passed to the script as separate "
+                    f"arguments, never joined into a command line"
+                )
+        elif command is None:
             errs.append(
                 f"project guardrail {gid} uses check "
-                f"'command-passes' but `params.command` is missing - "
-                f"add a `command:` string to the guardrail's `params:` "
-                f"block (e.g. `command: 'pytest tests/architecture/'`)"
+                f"'command-passes' but both `params.command` and "
+                f"`params.script` are missing - add a `script:` path to run a "
+                f"file without a shell (preferred), or a `command:` shell "
+                f"string"
             )
         elif not isinstance(command, str):
             errs.append(

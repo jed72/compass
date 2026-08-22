@@ -130,28 +130,121 @@ normally runs on a pull request **before** it is approved. A contribution from
 a fork can therefore reach the runner without anyone having read it, which is
 the point at which review was supposed to be the boundary.
 
-### What this means for you today
+### What Compass does about it now
 
+Three things sit in front of that execution path, and they are not equally
+strong. Knowing which is which is the point of this section.
+
+**Running a project command is opt-in, and the default is off.** Add this to
+`.compass/config.yml` to turn it on:
+
+```yaml
+allow_project_commands: true
+```
+
+**This is not a security control, and it is important not to read it as one.**
+The setting lives in your repository, so a hostile pull request can add the
+command and the opt-in in the same diff. What it defends against is accidents
+and defaults - a project executing something it never asked to execute.
+
+**The refusal on an untrusted contribution is the strongest thing here.**
+Compass decides, from the CI runner's own state, whether the contribution being
+checked is trusted, and refuses to run any project command unless it is
+**positively confirmed** as trusted. Nothing in your repository is consulted on
+that path - including the opt-in above.
+
+The rule is confirmation, not suspicion, and the difference matters. Compass
+does not ask "has anything told me this is untrusted?" - a contribution could
+answer that by deleting the signal. It asks "has anything confirmed this is
+trusted?", and an absent, blank or unreadable signal confirms nothing, so it
+refuses. On GitHub the confirmation comes from the runner's event payload, which
+must be readable and must sit outside the checkout; a payload path pointing back
+into your repository is rejected rather than believed.
+
+On a provider Compass does not recognise it has nothing to read, so your project
+commands will not run until you say so:
+
+```yaml
+# In your CI configuration - NOT in a file inside the repository, which a
+# contribution could edit.
+env:
+  COMPASS_CONTRIBUTION_TRUST: trusted
+```
+
+**A safer way to declare the work.** Name a script instead of writing a shell
+string, and no shell is involved at all - arguments are passed as a list rather
+than interpolated:
+
+```yaml
+checks: [command-passes]
+params:
+  script: scripts/architecture-fitness.py
+  args: ["--strict"]
+```
+
+The script path is resolved before it is used, and a path that resolves outside
+the project root is refused - a symlink inside the project pointing out of it
+does not get past this. The `command:` form still works, and it still runs a
+shell; prefer `script:` where the shape allows.
+
+### What you still have to configure yourself
+
+- **Declare your workflow's token permissions.** Compass cannot do this for
+  you. Without a `permissions:` block your workflow gets whatever your
+  repository or organisation default is, and a project command inherits it. The
+  reference workflow in `ci/github-actions.yml` declares
+  `permissions: contents: read`; copy that posture and widen it only where a
+  job genuinely needs more.
 - **Review `governance/` changes as you would review a script**, especially any
   `params.command`. A one-line YAML addition can be a one-line shell command.
-- **Decide deliberately whether your CI runs Compass on untrusted pull
-  requests.** If it does, a fork can propose a project guardrail and have your
-  runner execute it. Restricting workflow triggers for fork pull requests, or
-  requiring approval before workflows run, is the control that actually applies.
-- **Scope the runner's permissions.** A token with no write access limits what a
-  command can do with the access it inherits.
+- **Decide what your CI does on untrusted pull requests.** Restricting workflow
+  triggers for fork pull requests, or requiring approval before workflows run,
+  is a control Compass cannot apply on your behalf.
 
-### The work that closes this
+### Where this came from
 
-Tracked in [issue #65](https://github.com/jed72/compass/issues/65). The intended
-shape is an explicit opt-in for project commands, refusal on fork and untrusted
-pull-request contexts by default, an allowlist or named-script-path mode as the
-ordinary way to declare a fitness function, and an argument array in place of
-`shell=True` wherever the command shape allows.
+The two defences above were described in this guide as holding when they did
+not. An outside review of 3.2.0 found both, the description was corrected
+first, and the mechanism described on this page landed in
+[issue #65](https://github.com/jed72/compass/issues/65) - the explicit opt-in,
+the refusal on untrusted contributions, the script form, and the token
+permissions in the reference workflow.
 
-Until that ships, the honest statement is the one above: this is a real
-execution surface, bounded by how you review governance changes and how your CI
-is configured, not by anything the CLI enforces.
+One recommendation from that review was considered and not taken: an allowlist
+of permitted command strings. It keeps the shell and constrains only the
+strings that reach it, which is weaker than not invoking a shell at all, so the
+script form above was built instead.
+
+### The limit, stated plainly
+
+**A contributor with push access to your repository is not defended against.**
+They can add a command, set the opt-in, and merge. No arrangement of in-repo
+configuration defends a repository against its own contents - GitHub's own
+answer to the same problem is to withhold secrets from forks rather than to
+trust a setting.
+
+**And the refusal is not unforgeable either.** It is worth being exact about
+this, because the obvious way to describe it would be wrong. On a
+`pull_request` event GitHub runs the workflow from the pull request's own merge
+ref, so the contribution controls its workflow file - and therefore controls
+every environment variable the Compass process sees. Compass makes the cheap
+attacks fail: blanking `GITHUB_EVENT_NAME` or `CI` refuses, declaring
+`COMPASS_CONTRIBUTION_TRUST=trusted` does not override GitHub's own report of a
+fork, and a payload inside the checkout is rejected. What remains is that a
+contribution could write a forged event payload outside the checkout and point
+at it. That is a real gap, it takes deliberate work rather than one line of
+YAML, and you should know it is there.
+
+What actually bounds a fork pull request is not this at all: GitHub withholds
+your secrets from fork pull requests and issues a read-only token on the
+`pull_request` trigger. That is the boundary. Everything on this page reduces
+what a contribution can reach and how easily; it does not replace GitHub's own
+answer, and it is not a substitute for `pull_request_target` hygiene.
+
+So what you get is a bounded reach: the default is off, the cheap forgeries
+fail, a project can avoid the shell entirely, and the runner's token is narrowed
+to what the job needs. That is not an impassable boundary, and this guide will
+not describe it as one.
 
 ## Supply-chain stance
 

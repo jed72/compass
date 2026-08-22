@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### a repair should not change what an agent is instructed to do
+### the report should distinguish disabled from nothing declared
 
-- **Scenario id:** `TRC-D2`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
-- **Source issue:** `public-docs-tell-the-truth`
+- **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,32 +43,32 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### history should stay exempt and stay honest
+### an unrecognised CI provider should be refused rather than trusted
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-2`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### the shell form should keep working, and say what it costs
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### the security guide should say what a project must decide about untrusted pull requests
 
 - **Scenario id:** `TRC-D3`
-- **Intent:** `INT-2`
-- **Source issue:** `public-docs-tell-the-truth`
+- **Intent:** `INT-4`
+- **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
-### widening the patterns should not change what the scan reports on today's clean surfaces
-
-- **Scenario id:** `TRC-C4`
-- **Intent:** `INT-3`
-- **Source issue:** `public-docs-tell-the-truth`
-- **Landed:** 2026-08-22
-
-### a narrowed guarantee should still name its backing mechanism
+### the guarantee about declared guardrails should still hold
 
 - **Scenario id:** `TRC-E2`
-- **Intent:** `INT-4`
-- **Source issue:** `public-docs-tell-the-truth`
-- **Landed:** 2026-08-22
-
-### the launch article should read as publication copy throughout
-
-- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-5`
-- **Source issue:** `public-docs-tell-the-truth`
+- **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
 ### the hook still blocks a code file inside the project
@@ -5586,10 +5586,31 @@
 - **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
+### widening the patterns should not change what the scan reports on today's clean surfaces _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
 ### no live surface should carry a retired stage name _(archived)_
 
 - **Scenario id:** `TRC-D1`
 - **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a repair should not change what an agent is instructed to do _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-1`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### history should stay exempt and stay honest _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-2`
 - **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
@@ -5600,9 +5621,100 @@
 - **Source issue:** `public-docs-tell-the-truth`
 - **Landed:** 2026-08-22
 
+### a narrowed guarantee should still name its backing mechanism _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-4`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
 ### the decay rule should say what it asks of the reader _(archived)_
 
 - **Scenario id:** `TRC-F1`
 - **Intent:** `INT-5`
 - **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### the launch article should read as publication copy throughout _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-5`
+- **Source issue:** `public-docs-tell-the-truth`
+- **Landed:** 2026-08-22
+
+### a project command should not run unless the project has opted in _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### a project that has opted in should have its command run _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### a command should be refused when the CI environment says the contribution is untrusted _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### the repository must not be able to switch the refusal off _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### detection should not depend on one CI provider _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### an ordinary local run should not be treated as untrusted _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### a project should be able to name a script instead of writing a shell string _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### a script path outside the project should be refused _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### the reference workflow should declare the token permissions it needs _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### Compass's own workflow should follow the same posture _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### a project whose command stops running should be told _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-5`
+- **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22

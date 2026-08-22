@@ -41,9 +41,13 @@ governance_drift: advisory
 # Terraform, SQL, Dockerfiles, CI workflows, k8s/helm/migration paths). Listing
 # a glob here means "a change to this needs a failing test on record first".
 #
-# It only ever ADDS. There is no key that removes framework enforcement -
+# It only ever ADDS. There is no key HERE that removes framework enforcement -
 # project rules ratchet up, the same way a project guardrail may exceed a floor
-# but never fall short of one.
+# but never fall short of one. That rule is about this `enforcement:` block.
+# `allow_project_commands` below is the one setting in this file that gates a
+# check rather than adding one, and it is not an exception to the rule so much
+# as a different thing: it decides whether Compass executes code the project
+# wrote, and the answer defaults to no.
 #
 # This repository declares its own shell scripts, because `hooks/*.sh` and
 # `scripts/*.sh` ARE the production code here: pre-tool.sh is the enforcement
@@ -54,6 +58,27 @@ enforcement:
   code_globs:
     - "hooks/*.sh"
     - "scripts/*.sh"
+
+# --- running commands a project guardrail declares -------------------------
+# A project guardrail may declare `check: command-passes`, which runs a command
+# the project wrote. That is useful for architectural fitness functions and it
+# is code execution, so it is off unless you say otherwise.
+#
+# Set this to true to run declared project commands:
+# allow_project_commands: true
+#
+# TWO THINGS THIS SETTING IS NOT.
+# It is not a security control. This file is in your repository, so a hostile
+# pull request can add a command and set this key in the same diff. What it
+# defends against is accidents and defaults.
+# It is not the last word. Compass refuses to run project commands when the CI
+# runner's environment says the contribution is untrusted, and that refusal
+# reads nothing in this repository - this key is not even consulted on that
+# path. See docs/security.md.
+#
+# With this unset, a project that declares a command is told so on every run:
+# the check reports the guardrail by name, says it was not run, and is counted
+# apart from the passes rather than reported green.
 
 project:
   # The name shown in artifact headers and the devlog. In a project that has

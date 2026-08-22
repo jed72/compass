@@ -92,6 +92,8 @@ import fnmatch
 import re as _re
 from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml, normalize_spine
 from compass_pkg.tdd import _read_config
+from compass_pkg.trust import UNKNOWN, UNTRUSTED, contribution_trust, is_ci
+from compass_pkg.project_commands import _contained_script, _project_commands_allowed
 
 
 
@@ -1054,6 +1056,26 @@ def _check_command_passes(task, task_dir):
         if isinstance(g, dict) and "command-passes" in (g.get("checks") or [])
     ]
 
+    # The trust decision comes BEFORE the opt-in, and that order is the whole
+    # security property. A hostile pull request could add the command and the
+    # opt-in in one diff; it cannot change what the CI runner reports about
+    # where the contribution came from. See cli/compass_pkg/trust.py.
+    if cp_guardrails:
+        state, reason = contribution_trust(project_root=project_root)
+        # Fail closed on a runner we cannot read. UNKNOWN on a laptop is
+        # ordinary and runs; UNKNOWN on CI means something is being checked and
+        # Compass cannot tell whose work it is, which is the case that refuses.
+        if state == UNKNOWN and is_ci():
+            state = UNTRUSTED
+        if state == UNTRUSTED:
+            return False, (
+                f"refused to run {len(cp_guardrails)} project command(s): "
+                f"{reason}. Any `allow_project_commands` setting in this "
+                f"repository is ignored here and was not read - the refusal "
+                f"is decided from the CI runner's own environment, which a "
+                f"contribution cannot edit"
+            )
+
     # nothing-to-check pass (DD-6): verify.fitness in gate set, zero command-passes
     # guardrails declared → the gate has nothing to check; it passes without checking anything.
     if not cp_guardrails:
@@ -1063,23 +1085,76 @@ def _check_command_passes(task, task_dir):
                          "fitness functions, declare a project guardrail with "
                          "`check: command-passes`")
 
+    # The opt-in, read AFTER the trust decision above. Running a declared
+    # command is a deliberate choice, and the default is off.
+    #
+    # This returns nothing-to-check rather than a pass or a failure, and the
+    # distinction is the point. A pass would be a check that cannot fail - it
+    # would report green having executed nothing. A failure would turn red the
+    # build of every project that declared a command before upgrading. Nothing-
+    # to-check does not fail the run and is counted apart from the passes, so a
+    # guardrail that stopped running is visible rather than silent.
+    if not _project_commands_allowed(task_dir):
+        names = ", ".join(
+            f"{g.get('id', '?')} ({g.get('name', 'unnamed')})" for g in cp_guardrails)
+        return NOTHING_TO_CHECK, (
+            f"{len(cp_guardrails)} project guardrail(s) declare a command and "
+            f"NONE were run, because project commands are disabled: {names}. "
+            f"This is a declaration that exists and was not checked, not an "
+            f"absence of declarations. To run them, add "
+            f"`allow_project_commands: true` to .compass/config.yml")
+
     failures = []
     for g in cp_guardrails:
         params = g.get("params") or {}
         command = params.get("command")
-        if not command or not isinstance(command, str):
+        script = params.get("script")
+        gid = g.get("id", "?")
+
+        if script is not None and command is not None:
             failures.append(
-                f"project guardrail {g.get('id', '?')}: missing or non-string "
+                f"project guardrail {gid}: declares both `script` and "
+                f"`command` - pick one. A precedence rule here would be a "
+                f"quiet way to get the shell back"
+            )
+            continue
+
+        if script is not None:
+            resolved = _contained_script(script, project_root)
+            if resolved is None:
+                failures.append(
+                    f"project guardrail {gid} ({g.get('name', 'unnamed')}): "
+                    f"`script: {script}` resolves outside the project root and "
+                    f"was not run. The check is made on the real path, so a "
+                    f"symlink inside the project pointing out of it is refused "
+                    f"too"
+                )
+                continue
+            argv = [sys.executable, resolved] if resolved.endswith(".py") else [resolved]
+            raw_args = params.get("args") or []
+            if not isinstance(raw_args, list) or not all(
+                    isinstance(a, str) for a in raw_args):
+                failures.append(
+                    f"project guardrail {gid}: `args` must be a list of "
+                    f"strings - they are passed to the script as separate "
+                    f"arguments, never joined into a command line"
+                )
+                continue
+            argv.extend(raw_args)
+        elif not command or not isinstance(command, str):
+            failures.append(
+                f"project guardrail {gid}: missing or non-string "
                 f"`command` in params - declaration is malformed"
             )
             continue
+
         timeout = params.get("timeout_seconds", 300)
         if timeout == 0:
             timeout = None  # 0 = no timeout (discouraged, as per DD-2)
         try:
             proc = subprocess.run(
-                command,
-                shell=True,
+                argv if script is not None else command,
+                shell=script is None,
                 timeout=timeout,
                 capture_output=True,
                 text=True,
