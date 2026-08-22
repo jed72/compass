@@ -12,6 +12,15 @@ on:
   push:
     branches: [main]
 
+# The token these jobs get. Declared rather than inherited: without this block
+# the workflow runs with whatever the repository or organisation default is,
+# which on many repositories is a read-write token. Compass runs commands a
+# project declares in its governance file, so the token handed to that runner
+# is part of what a compromised command could reach. Reading the checkout is
+# all these jobs need.
+permissions:
+  contents: read
+
 jobs:
   self-check:
     runs-on: ubuntu-latest

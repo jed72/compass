@@ -69,7 +69,14 @@ def _make_project(
     task_dir = compass_dir / "work" / "test-task"
     task_dir.mkdir()
     (compass_dir / "current-task").write_text("test-task\n")
-    (compass_dir / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
+    # These tests are about what happens when a declared command RUNS - its
+    # exit code, its timeout, its malformed declarations. Running a project
+    # command is opt-in (see project-commands-are-a-trust-boundary), so the
+    # fixture opts in; without it every test here would get "nothing to check"
+    # and stop exercising the execution path it exists for. The opt-in itself
+    # is covered in tests/test_project_command_boundary.py.
+    (compass_dir / "config.yml").write_text(
+        "version: 1.0.0\nmode: enforced\nallow_project_commands: true\n")
 
     # task.yml
     gates = task_gates if task_gates is not None else [

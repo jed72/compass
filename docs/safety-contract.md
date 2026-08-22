@@ -23,6 +23,14 @@ workflows. **When it is in use, it guarantees:**
    and `compass check` fail closed on the absence. There is no "marked pass
    without an implementation."
 
+   A guardrail can also stop running because project configuration disabled it -
+   `allow_project_commands` is the one case that ships today. The guarantee
+   holds there in the same way: `compass check` reports the disabled guardrail
+   by name on every run, states the line that restores it, and reports it as
+   **not checked** rather than as passing. It is counted apart from the passes,
+   so the headline number never absorbs it. The guarantee is that the loss of
+   coverage is visible, not that configuration cannot cause it.
+
 3. **Delivery work cannot land without required evidence.** Gate evidence is
    typed, registered, and traceable; `verify.correctness` cannot be cleared
    with a written note, and an unbacked claim cannot ship. Follow-ups are
@@ -153,7 +161,7 @@ Equally important. Honest scope is what makes the promise credible.
 | Guarantee | How |
 |---|---|
 | 1 (deterministic routing) | `compass approach evaluate` - pure function over assessment + policy |
-| 2 (no silent guardrails) | `compass policy lint` + `compass check` both fail on missing CHECK_FNS implementation |
+| 2 (no silent guardrails) | `compass policy lint` + `compass check` both fail on missing CHECK_FNS implementation; a guardrail disabled by project configuration returns nothing-to-check, named and counted apart from the passes |
 | 3 (typed, registered evidence) | `governance/guardrails.yml` declares per-gate accepted types; gates reference entries in the issue's evidence registry by id |
 | 4 (Spike safety) | Routing guardrail raises a conflict on unsafe exploration; `compass check` enforces the spike-conclusion + no-production-changed_files invariants on a spike |
 | 5 (recorded approvals) | `human-approval` typed evidence with structured fields, validated at ship time |
