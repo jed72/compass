@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### repairing a banned word should not paraphrase a quoted tool string
+### narrowing the promise should not weaken what the check actually enforces
 
-- **Scenario id:** `TRC-X4`
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-1`
-- **Source issue:** `plain-language-3-2-0`
-- **Landed:** 2026-08-16
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,26 +43,26 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### a banned word should never be fixed by deleting the identifier
+### a project governance directory missing its guardrails should be refused the same way
 
-- **Scenario id:** `TRC-X3`
+- **Scenario id:** `TRC-F1`
 - **Intent:** `INT-2`
-- **Source issue:** `plain-language-3-2-0`
-- **Landed:** 2026-08-16
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
 
-### an en dash should not be flagged
+### the guide should point at the work that closes the gap
 
-- **Scenario id:** `TRC-A6`
+- **Scenario id:** `TRC-C3`
 - **Intent:** `INT-3`
-- **Source issue:** `plain-language-3-2-0`
-- **Landed:** 2026-08-16
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
 
-### the long-sentence report should never fail a build
+### a backing mechanism that does not exist should fail the check
 
-- **Scenario id:** `TRC-E2`
+- **Scenario id:** `TRC-D2`
 - **Intent:** `INT-4`
-- **Source issue:** `plain-language-3-2-0`
-- **Landed:** 2026-08-16
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
 
 ### the living spec's stale title should be fixed by re-deriving it
 
@@ -5124,6 +5124,13 @@
 - **Source issue:** `plain-language-3-2-0`
 - **Landed:** 2026-08-16
 
+### an en dash should not be flagged _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-3`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
 ### falling back to the filesystem should announce itself _(archived)_
 
 - **Scenario id:** `TRC-A8`
@@ -5320,6 +5327,13 @@
 - **Source issue:** `plain-language-3-2-0`
 - **Landed:** 2026-08-16
 
+### the long-sentence report should never fail a build _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-4`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
 ### no em dash should remain in published copy _(archived)_
 
 - **Scenario id:** `TRC-G1`
@@ -5333,3 +5347,108 @@
 - **Intent:** `INT-5`
 - **Source issue:** `plain-language-3-2-0`
 - **Landed:** 2026-08-16
+
+### a banned word should never be fixed by deleting the identifier _(archived)_
+
+- **Scenario id:** `TRC-X3`
+- **Intent:** `INT-2`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### repairing a banned word should not paraphrase a quoted tool string _(archived)_
+
+- **Scenario id:** `TRC-X4`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-language-3-2-0`
+- **Landed:** 2026-08-16
+
+### an incomplete project governance directory should be refused rather than quietly replaced _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the refusal should name the file it found and the file it expected _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### a project that has said nothing about governance should still use the shipped defaults silently _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### a complete project governance directory should still be used _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the documentation should state that project governance replaces the shipped defaults _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### an incomplete governance directory outside the project should not stop work inside it _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-2`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the promise should not say a test ran when only a command exited zero _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the promise should read the same in every place it is made _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-1`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the safety contract should state what a green record does not establish _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-1`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### every guarantee should name the mechanism that backs it _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-1`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the guide should say that project governance is executable code _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### the guide should not offer pull-request review as the execution boundary _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
+
+### a guarantee with no backing mechanism should fail the check _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `claims-match-what-is-proved`
+- **Landed:** 2026-08-22
