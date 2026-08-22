@@ -1,6 +1,6 @@
 # Spec - notifications-subsystem
 
-> **Phase:** Specify · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
+> **Phase:** define · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
 > **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `prd.md`, not distilled from existing behaviour.
 
 ## How each role reads this file

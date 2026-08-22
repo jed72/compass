@@ -1,7 +1,7 @@
 # Clarifications - notifications-subsystem
 
-> **Phase:** Clarify · **Date:** 2026-03-06 · **Owning agent:** spec-author
-> **Clarify weight (from delivery-approach.md):** full pass
+> **Phase:** refine · **Date:** 2026-03-06 · **Owning agent:** spec-author
+> **Requirements review weight (from delivery-approach.md):** full pass
 
 ---
 
@@ -99,7 +99,7 @@
       `distribution-map.md` name the module tree, the API surface, and
       `migrations/0042`.
 - [x] **No open questions** - the ambiguity ledger is fully resolved.
-- [x] **Route still fits** - nothing in Clarify changed a reading. initiative
+- [x] **Route still fits** - nothing in refine changed a reading. initiative
       still fits; the `migrations` tag (and so RP-FLOOR-003) still holds.
 
 Next stage: **design** (`/compass:design`) - unblocked: RP-ROLE-002's intent-fidelity check passed (`prd.md` foot, 2026-03-06).

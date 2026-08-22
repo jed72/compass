@@ -59,14 +59,14 @@ trust at stake.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Frame | Light | Urgent stub at 08:50, completed at ship (FU-002). Even under the clock the audit trail starts here. |
-| Specify | Reproduce-first | The spec *is* the failing regression test - `test_empty_filter_object_does_not_crash`, written RED before any fix. |
-| Clarify | Collapsed | The reproduction is the clarification - once the test reproduces, the bug is unambiguous. |
+| Triage | Light | Urgent stub at 08:50, completed at ship (FU-002). Even under the clock the audit trail starts here. |
+| Define | Reproduce-first | The spec *is* the failing regression test - `test_empty_filter_object_does_not_crash`, written RED before any fix. |
+| Refine | Collapsed | The reproduction is the clarification - once the test reproduces, the bug is unambiguous. |
 | Plan | Collapsed | One-line root-cause note below. |
-| Distribute | Skipped | Solo. One clear owner beats coordination here. |
+| Breakdown | Skipped | Solo. One clear owner beats coordination here. |
 | Build | Expedited | The reproduction test is already red; make it green with the smallest correct guard; no refactor (the branch was already minimal). |
 | Verify | Full | **Not compressed.** All five Hotfix gates, evidence pasted - see `verification-report.md`. |
-| Land | Full + follow-up | Ship the fix, then pay the mandatory follow-up - §6. |
+| Ship | Full + follow-up | Ship the fix, then pay the mandatory follow-up - §6. |
 
 ### 4b. Gate set
 
@@ -86,9 +86,9 @@ trust at stake.
 
 | Phase / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| Clarify | collapsed | The reproduction test *is* the clarification - a bug that reliably reproduces is unambiguous. Not skipped silently: the reproduction does Clarify's job. |
+| Refine | collapsed | The reproduction test *is* the clarification - a bug that reliably reproduces is unambiguous. Not skipped silently: the reproduction does refine's job. |
 | Plan | collapsed to a root-cause note | Size `small`, mapped familiarity - there is no design decision, only a missing guard to add. The root cause is named below so this is a *decision*, not a skip. |
-| Distribute | skipped | One stream, one owner. Parallelism on a hotfix is coordination cost with no payoff. |
+| Breakdown | skipped | One stream, one owner. Parallelism on a hotfix is coordination cost with no payoff. |
 | `clarity` review dimension | **deferred, not dropped** | Hotfix defers `clarity` to the follow-up: FU-001 promotes the reproduction into a readable Given/When/Then scenario, which is where the clarity record lands. Deferred ceremony is outstanding ceremony - see §6. |
 
 **One-line edit note (Hotfix collapsed Plan - root cause, not symptom):**
@@ -105,8 +105,8 @@ real condition. (This is the root cause, not the symptom - the symptom was the
 ## 6. Outstanding follow-ups
 
 Hotfix borrows speed from the front of the pipeline and **pays it back at
-Land**. All three are recorded in `task.yml` under `follow-ups:` and `compass
-check` fails the issue while any is `outstanding`. As of Land, all are **paid**:
+Ship**. All three are recorded in `task.yml` under `follow-ups:` and `compass
+check` fails the issue while any is `outstanding`. As of ship, all are **paid**:
 
 - [x] **FU-001** - the reproduction test promoted into a proper Given/When/Then
   scenario in `acceptance-criteria.md` (TRC-001), traceable to the defect. *Resolved 2026-05-11 11:20.*
@@ -130,6 +130,6 @@ No human overrides. Route confirmed as composed.
 - [x] Every dimension in §1 has a justification (completed at ship - FU-002).
 - [x] Every collapsed phase in §5 has a "safe to skip because…" line.
 - [x] Not a spike - no `.spike` marker needed.
-- [x] `devlog.md` opened with the Frame entry.
+- [x] `devlog.md` opened with the triage entry.
 
 Next stage: **define** (reproduce-first) - `/compass:define`.

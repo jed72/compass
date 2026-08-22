@@ -60,7 +60,7 @@ lives, not how scary it looks.
 Atomic size, trivial risk, mapped familiarity, engineer role. This is
 the textbook quick fix case. The candidate route is **quick fix**: one scenario,
 The requirements review collapsed, design collapsed to a one-liner,
-breakdown skipped, full TDD
+Breakdown skipped, full TDD
 on a tiny surface, one light gate at Verify.
 
 ### Constrain
@@ -118,7 +118,7 @@ floor list (`auth`, `payments`, `personal-data`, `migrations`, `public-api`).
 
 Standard size, contained risk, mapped familiarity. The candidate is
 **Standard**, plainly: a small feature set of scenarios, a light-to-full
-Clarify pass, a real `design.md` with the design decisions recorded, solo or
+Refine pass, a real `design.md` with the design decisions recorded, solo or
 pair topology, two gates at Verify. No deviation from the reference shape is
 warranted - risk is only `contained`, so `security` stays scaled
 rather than full and `clarity` and `regression` are on as Standard always has
@@ -191,7 +191,7 @@ Two floors fire, and they reinforce each other:
 
 Then a **cap** fires - and this is the subtle part. `when: { risk:
 critical }` → `max_worktrees: 1`. So this is an initiative route that is
-*capped to a single worktree*. It is heavy - full BDD discovery, full Clarify,
+*capped to a single worktree*. It is heavy - full BDD discovery, full refine,
 a full `design.md`, every gate - and **solo**. That is not a contradiction. The
 cap encodes a real tradeoff: parallelism is speed, but a swarm has
 coordination risk, and on a critical change the coordination risk costs more
@@ -299,7 +299,7 @@ starts here); the define stage is **reproduce-first** (the spec *is* a failing
 regression test that reproduces the 500 - simultaneously the BDD scenario and
 the TDD red); the requirements review collapsed (the reproduction *is* the clarification);
 design collapsed to a one-line root-cause note; breakdown skipped; impld
-expedited; Verify **at full weight, not compressed**; Land ships the fix and
+expedited; Verify **at full weight, not compressed**; ship ships the fix and
 then requires the mandatory follow-up.
 
 ### Constrain
@@ -356,7 +356,7 @@ intent.
 
 Exploration intent composes toward **Spike**, the way live-defect urgency
 composes toward Hotfix - the routing strategy `reading: { intent: exploration }
-→ lean_toward: spike` is the bias. Frame is light but real: `delivery-approach.md` records
+→ lean_toward: spike` is the bias. Triage is light but real: `delivery-approach.md` records
 the **question** ("what is dropping ~2% of jobs under load?") and a **timebox**.
 The define stage collapses to that question. The requirements review is
 skipped - there is nothing to QA
@@ -380,7 +380,7 @@ clear of irreversible surface, so Spike stands. Nothing is floored.
 Spike. Verify becomes **Conclude**: not a test gate, a findings check - *was
 the question answered?* The one gate is "the question is answered (or
 explicitly answered with 'inconclusive - here is why'), and the finding is
-written down." Land becomes **Graduate or Discard**:
+written down." ship becomes **Graduate or Discard**:
 
 - **Graduate** - the spike found the cause (say, a connection-pool exhaustion
   under a specific retry storm). The finding feeds a fresh `/compass:triage` for
@@ -436,7 +436,7 @@ Same three words again, but the table is the payments ledger. Triage tags
 not matter: the policy floor `when: { labels: [payments,
 personal-data] }` fires and forces the initiative shape. Composes to
 **initiative** - full
-discovery (what exactly is in this export? what must *not* be?), full Clarify,
+discovery (what exactly is in this export? what must *not* be?), full refine,
 a `design.md` with the data-handling decisions recorded, every gate, `security`
 full. A "small" feature, the full treatment, because of what it touches.
 
@@ -444,10 +444,10 @@ full. A "small" feature, the full treatment, because of what it touches.
 
 A marketer invokes `/compass:position` for an export feature being launched.
 The `product-marketer` role rule fires: `positioning.md` and
-`launch-readiness.md` required, the `claims` review dimension on, and **Land
+`launch-readiness.md` required, the `claims` review dimension on, and **shipping
 blocked** until every claim ("export your data in one click", "works with
 spreadsheets you already use") traces to a passing scenario. The engineering
-work might be quick fix-sized, but the route carries the claims gate to Land
+work might be quick fix-sized, but the route carries the claims gate to ship
 regardless - `verify.claims` is immovable. Same three words; an extra gate
 that did not exist in the other three assessment.
 

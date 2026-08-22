@@ -3,21 +3,21 @@ TEMPLATE: launch-readiness.md
 Produced by: the product marketer via `/compass:position`; completed at ship time.
 Lives at:    .compass/work/<task-slug>/launch-readiness.md
 Role in the pipeline: the marketer's GATE artifact. The routing-policy
-role_rule for `product-marketer` requires this file and blocks Land until
+role_rule for `product-marketer` requires this file and blocks shipping until
 every claim in positioning.md traces to a PASSING scenario. This is where
 the claims→scenario chain is proven before anything ships publicly. The
 `claims` review dimension and the `verify.claims` immovable gate both read
 this file.
 
 Fill every {{PLACEHOLDER}}. A claim with no passing scenario is a no-go,
-full stop - Land refuses to close on it.
+full stop - ship refuses to close on it.
 -->
 
 # Launch Readiness - {{TASK_SLUG}}
 
 > **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
 > **Reads from:** positioning.md (the claims), verification-report.md (the scenario results)
-> **Gates:** Land - per the routing-policy.md role_rule and the `verify.claims` immovable gate.
+> **Gates:** ship - per the routing-policy.md role_rule and the `verify.claims` immovable gate.
 
 ---
 

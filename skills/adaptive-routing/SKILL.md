@@ -24,7 +24,7 @@ land near, not boxes to sort into.
 default guardrails, default strategies, and a default routing policy. If a
 project has not run init and has no project-specific additions, that is a
 valid, complete governance state - you route against the shipped defaults
-exactly as you would route against an extended set. "Frame-and-go on day one"
+exactly as you would route against an extended set. "triage-and-go on day one"
 is honest precisely because the defaults are real, in-force content. Never
 treat an un-extended `governance/` as a missing prerequisite.
 
@@ -74,15 +74,15 @@ unjustified guess is worse than a question, every time.
 
 Go phase by phase, not route by route:
 
-- **Specify** - scenario count and discovery depth; distillation if brownfield.
-- **Clarify** - full / light / collapsed. Collapsed is permitted *only* when the
-  spec is a single unambiguous scenario *and* no routing guardrail requires Clarify.
+- **Define** - scenario count and discovery depth; distillation if brownfield.
+- **Refine** - full / light / collapsed. Collapsed is permitted *only* when the
+  spec is a single unambiguous scenario *and* no routing guardrail requires the requirements review.
 - **Plan** - one-liner / real `design.md` / plan + distribution map.
-- **Distribute** - solo / pair / swarm, stream count from the distribution map.
+- **Breakdown** - solo / pair / swarm, stream count from the distribution map.
 - **Build** - test-surface target, scaled to risk.
 - **Verify** - which review dimensions, how many gates (see the router's
   dimensions-by-route table).
-- **Land** - trivial integration vs. coordinated merge; which follow-ups are owed.
+- **Ship** - trivial integration vs. coordinated merge; which follow-ups are owed.
 
 Name the nearest reference shape for shared vocabulary, then list deviations
 explicitly. "Standard, but Verify also runs `security` because risk is
@@ -109,7 +109,7 @@ What is different about a Spike composition:
   away. The route-aware pre-tool hook does not block on a Spike - it reads a
   `.compass/work/<task>/.spike` marker file. **The Navigator writes that marker
   when it composes a spike**; without it the hook will still block.
-- **Specify collapses to the question, Clarify is skipped, Plan collapses to a
+- **The define stage collapses to the question, the requirements review is skipped, design collapses to a
   timebox.** A spike has no acceptance criteria - its output is knowledge.
 - **Nothing lands from a Spike.** The only exit that keeps code is *graduating*
   - re-framing into a real delivery approach where the tested-before-ship, acceptance-before-code, and traceability guardrails apply in full.
@@ -144,7 +144,7 @@ skips earns a row in the de-scope ledger, and each row needs an explicit
   phase runs.** This is non-negotiable - it is what separates "adaptive" from
   "arbitrary."
 - Do not copy a reference shape's standing justification on autopilot. Confirm
-  it actually holds for *this* issue. quick-fix's "Clarify collapsed - the one
+  it actually holds for *this* issue. quick-fix's "requirements review collapsed - the one
   scenario is unambiguous" is only valid if the scenario really is unambiguous.
 - Cap-driven reductions are **not** de-scopes. If the `critical` risk
   cap pins an initiative to one worktree, record that as cap-driven in the
@@ -170,7 +170,7 @@ Re-framing mid-issue is a normal event, not a failure. Trigger it when:
 
 - Build reveals the size was under-read - a "small" change is unspooling
   into a multi-module refactor.
-- Clarify finds the spec is bigger or more ambiguous than the route assumed.
+- Refine finds the spec is bigger or more ambiguous than the route assumed.
 - A `touches:` tag surfaces late (you discover the change reaches auth).
 
 Run `/compass:triage --reframe`: re-score the dimensions, write a new `delivery-approach.md`

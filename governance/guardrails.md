@@ -99,7 +99,7 @@ is what makes the checkpoint non-negotiable.
        - "Test coverage does not drop below {{N}}%."  (checkable)
        - "No secret or credential is ever committed."  (checkable)
        - "Every migration has a tested rollback."  (checkable)
-       - "p95 API latency stays under {{N}}ms; a >10% regression blocks Land."
+       - "p95 API latency stays under {{N}}ms; a >10% regression blocks shipping."
      Leave this section empty rather than padding it. Empty is a valid state. -->
 
 _(none yet - the shipped default guardrails apply as-is)_

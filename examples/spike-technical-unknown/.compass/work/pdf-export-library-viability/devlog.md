@@ -10,14 +10,14 @@
 
 ---
 
-## 2026-05-12 09:30 - Frame
+## 2026-05-12 09:30 - triage
 
 - **Event:** Needle ran; route computed. `.spike` marker written - the pre-tool hook will suspend the TDD strategy.
 - **Route:** Spike - see `delivery-approach.md` revision 1. Selected by `intent: exploration` (RP-SHAPE-001).
 - **Assessment:** risk contained, familiarity greenfield, size small, intent & role engineer/exploration.
 - **Routing guardrails fired:** none. (RP-FLOOR-003 did not fire - `touches:` is empty; that is what keeps Spike legitimately available here.)
 - **Outstanding follow-ups:** none - a spike owes nothing, it lands nothing.
-- **Next:** Explore (Specify, Clarify, Plan all collapsed/skipped per the delivery approach).
+- **Next:** Explore (define, refine, design all collapsed/skipped per the delivery approach).
 
 ## 2026-05-12 10:00 - Explore - begin
 
@@ -53,12 +53,12 @@
   written down (this entry). That is the whole Spike gate.
 - **Next:** the graduate-or-discard decision.
 
-## 2026-05-13 16:45 - Land - graduate
+## 2026-05-13 16:45 - ship - graduate
 
 - **Event:** issue closed. **Decision: GRADUATE.**
 - **What happens to the code:** the scratch branch `spike/pdf-export-weasyprint`
   is **not merged.** Nothing lands from a spike. The three render scripts stay
-  on the branch as *reference inputs* to the next Frame - good inputs, because
+  on the branch as *reference inputs* to the next triage - good inputs, because
   the familiarity is now mapped.
 - **Graduation:** a fresh `/compass:triage` has been run for the real delivery
   work - issue `report-pdf-export`. That triage inherits this spike's `delivery-approach.md`,

@@ -43,13 +43,13 @@ TRC-002 the reject path, and the rest layer on.
 
 ### DD-2 - Fixed window, fail-closed on unknown client
 
-- **Context:** Clarify Q1 settled the window algorithm (fixed); Clarify Q2
+- **Context:** refine Q1 settled the window algorithm (fixed); refine Q2
   asked what happens with no resolvable client id.
 - **Decision:** Fixed window keyed on the minute boundary. A request with no
   resolvable client id is rejected (`rate_limit.unknown_client = reject`) -
   `/search` is behind auth so this can only be a misconfiguration, and failing
   closed is the safe direction.
-- **Alternatives considered:** Sliding window - rejected in Clarify Q1 as
+- **Alternatives considered:** Sliding window - rejected in refine Q1 as
   solving a problem the incident did not present. Fall-through-unlimited for
   unknown clients - rejected: it is a silent hole in the very protection being
   added.
@@ -63,11 +63,11 @@ TRC-002 the reject path, and the rest layer on.
 
 | Area | Result | Evidence / note |
 |---|---|---|
-| Guardrails (`G1`-`G5` + project) | pass | `G2`: all five acceptance scenarios stated before Build (`acceptance-criteria.md`, Clarify-complete). `G1`/`G3`: each scenario has a planned test and a traceability id; `changed_files` will trace back to them. `G5`: not applicable - the change touches no auth/payments/personal-data/migrations surface (the limiter *reads* an already-resolved client id, it does not modify auth). |
+| Guardrails (`G1`-`G5` + project) | pass | `G2`: all five acceptance scenarios stated before Build (`acceptance-criteria.md`, refine-complete). `G1`/`G3`: each scenario has a planned test and a traceability id; `changed_files` will trace back to them. `G5`: not applicable - the change touches no auth/payments/personal-data/migrations surface (the limiter *reads* an already-resolved client id, it does not modify auth). |
 | Method strategies (`S1`-`S4` + project) | followed | `S1` BDD and `S2` TDD apply as the default. `S3` simplest-thing honoured in DD-1 and DD-2. No deviation. |
 | Product strategies | n/a | No product owner in play; no `prd.md`. |
 | Voice & positioning strategies | n/a | No marketer in play. |
-| Routing policy | pass | The plan requires skipping nothing `delivery-approach.md` kept. Distribute is skipped because §4 finds the units share surface - that matches `delivery-approach.md` §5, it does not contradict it. No floor was due and none is dodged. |
+| Routing policy | pass | The design requires skipping nothing `delivery-approach.md` kept. Breakdown is skipped because §4 finds the units share surface - that matches `delivery-approach.md` §5, it does not contradict it. No floor was due and none is dodged. |
 
 ## 4. Work units
 

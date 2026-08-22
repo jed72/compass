@@ -108,7 +108,7 @@ surfaced it immediately). The designated suite is a project knob
 afterthought; `compass approach evaluate` surfaces it under
 `applicable_strategies` when the assessment match (`RP-ADV-001`).
 
-It adds **no guardrail and no new gate**, and it **does not block Land** when
+It adds **no guardrail and no new gate**, and it **does not block shipping** when
 absent - it reuses the existing `verify.regression` gate and is assessed as
 reviewer judgement (a strategy note), never a mechanical failure. The framework
 grows by adding artifacts, not rules (ADR-002, ADR-006).
@@ -760,7 +760,7 @@ conventions this repository holds itself to.
 The first two are checked by `tests/test_house_style.py`, and all three are strategies
 rather than guardrails. What separates them is *what the check protects*. The
 checks in `guardrails.yml` run against an adopting project's `task.yml` and
-`evidence/`, and can block a Land. `tests/test_house_style.py` is one of this
+`evidence/`, and can block a ship. `tests/test_house_style.py` is one of this
 repository's own source invariants, alongside `test_release_invariants.py`. It
 never runs in an adopting project and never touches a gate. A style rule is a
 preference held consistently, not a must-never, so it does not become a sixth

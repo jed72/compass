@@ -22,7 +22,7 @@ Typical: root-causing a mysterious defect, a viability prototype, a timeboxed
 to plan real work against it.
 
 Spike is selected by *intent*, the way Hotfix is selected by *urgency* - the
-triage still scores all four dimensions, but exploration intent is what picks
+Triage still scores all four dimensions, but exploration intent is what picks
 the shape.
 
 ## What is different about Spike
@@ -41,14 +41,14 @@ means re-assessing into a real delivery approach, where the tested-before-ship, 
 
 | Phase | Weight on Spike |
 |---|---|
-| Frame | Light but real. `delivery-approach.md` is written - even a spike is accountable. It records the **question** and the **timebox**. |
-| Specify | **Collapsed** into the question. The spike's spec is "what do we need to learn, and what would a useful answer look like?" - not acceptance criteria for code. |
-| Clarify | **Skipped.** There is nothing to QA the spec against - the behaviour is the unknown, and discovering it is the point. |
+| Triage | Light but real. `delivery-approach.md` is written - even a spike is accountable. It records the **question** and the **timebox**. |
+| Define | **Collapsed** into the question. The spike's spec is "what do we need to learn, and what would a useful answer look like?" - not acceptance criteria for code. |
+| Refine | **Skipped.** There is nothing to QA the spec against - the behaviour is the unknown, and discovering it is the point. |
 | Plan | **Collapsed** to a timebox and an approach sketch in `delivery-approach.md`. |
-| Distribute | **Skipped.** Solo. |
+| Breakdown | **Skipped.** Solo. |
 | Build | **= Explore.** Write code freely to answer the question. TDD strategy suspended; the hook does not block. Code here is assumed throwaway. |
 | Verify | **= Conclude.** Not a test gate - a findings check: *did we answer the question?* The output is a written conclusion, not a passing suite. |
-| Land | **= Graduate or Discard.** Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
+| Ship | **= Graduate or Discard.** Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
 
 ## Gate set
 
@@ -64,10 +64,10 @@ Solo. No worktree.
 
 | Phase | Action | Standing justification |
 |---|---|---|
-| Specify | collapsed to a question | A spike has no acceptance criteria - its output is knowledge, not behaviour. |
-| Clarify | skipped | Nothing to QA; the unknown is the point. |
+| Define | collapsed to a question | A spike has no acceptance criteria - its output is knowledge, not behaviour. |
+| Refine | skipped | Nothing to QA; the unknown is the point. |
 | Plan | collapsed to a timebox | The plan for exploration is "explore, with a clock." |
-| Distribute | skipped | One person, one question. |
+| Breakdown | skipped | One person, one question. |
 | Build | TDD strategy suspended | Red-before-green is the wrong discipline for throwaway learning code. The tested-before-ship guardrail is not skipped - it is *deferred to graduation*, where it applies in full. |
 
 Every justification rests on the same fact: **nothing lands from a Spike.**
@@ -79,7 +79,7 @@ When a spike answers its question and the team wants to act on it:
 
 1. **Re-assess.** Run `/compass:triage` afresh for the real delivery work. The
    spike's `delivery-approach.md`, conclusion, and any reference code are inputs to that
-   Frame - often very good inputs, because the familiarity is now mapped.
+   triage - often very good inputs, because the familiarity is now mapped.
 2. **The new route owns the code.** Any code carried over from the spike is
    now subject to that approach's guardrails - tested-before-ship (tested before it lands), acceptance-before-code
    (acceptance defined), traceability (traceability). In practice most spike code is
@@ -100,13 +100,14 @@ conclusion, which is just untracked work.
 
 ## Spike may NOT
 
-- **Land production code.** The only exit that keeps code is graduation, which
+- **Land production code.** <!-- vocabulary-scan: allow - ordinary verb opening a sentence, not the retired stage name; the sentence is about landing code, and rewording it would lose the plain meaning -->
+  The only exit that keeps code is graduation, which
   is re-assessing. If you find yourself wanting to merge a spike branch to
   `main`, stop - that is a re-assess, not a merge.
 - **Touch anything irreversible.** No auth, payments, personal data, or
   migrations - the routing guardrails floor those to initiative regardless of
   intent. If the question can only be answered by touching irreversible
-  surface, it is not a spike; it is initiative with a discovery-heavy Specify.
+  surface, it is not a spike; it is initiative with a discovery-heavy define stage.
 - **Run past its timebox silently.** When the clock runs out, either conclude
   or re-assess the spike with a new timebox and a written reason. An open-ended
   spike is how exploration becomes drift.

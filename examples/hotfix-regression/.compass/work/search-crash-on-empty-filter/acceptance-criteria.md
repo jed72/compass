@@ -1,6 +1,6 @@
 # Spec - search-crash-on-empty-filter
 
-> **Phase:** Specify (reproduce-first) · **Last updated:** 2026-05-11 · **Owning agent:** spec-author
+> **Phase:** define (reproduce-first) · **Last updated:** 2026-05-11 · **Owning agent:** spec-author
 > **Familiarity:** brownfield-mapped - on Hotfix the spec begins as the failing regression test; this file is its promoted, readable form (follow-up FU-001).
 
 ## How each role reads this file
@@ -18,7 +18,7 @@
 This file was not written before the work - on Hotfix it cannot be, the bug is
 the starting point. The sequence was: a failing regression test
 (`test_empty_filter_object_does_not_crash`) was written first and watched fail
-(`evidence/red.json`) - that *was* Specify. At Land, follow-up FU-001 promoted
+(`evidence/red.json`) - that *was* define. At ship, follow-up FU-001 promoted
 that test into the proper Given/When/Then below, so the spec reads like every
 other Compass spec and the next person finds it where they expect it.
 

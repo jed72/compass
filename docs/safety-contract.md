@@ -26,12 +26,12 @@ workflows. **When it is in use, it guarantees:**
 3. **Delivery work cannot land without required evidence.** Gate evidence is
    typed, registered, and traceable; `verify.correctness` cannot be cleared
    with a written note, and an unbacked claim cannot ship. Follow-ups are
-   tracked and block Land until paid.
+   tracked and block shipping until paid.
 
 4. **Exploration cannot silently become production delivery.** A Spike is
    mechanically constrained: no production-landable `changed_files`, a written
    `spike-conclusion` with an explicit decision (discard / graduate-to-delivery
-   / defer), and any decision to act on the findings becomes a fresh Frame for
+   / defer), and any decision to act on the findings becomes a fresh triage for
    a real route. The router refuses to silently promote a Spike onto delivery
    surface when a risk floor applies - it raises a routing conflict instead.
 
@@ -39,7 +39,7 @@ workflows. **When it is in use, it guarantees:**
    changes.** Changes that touch auth, payments, personal data, or migrations
    route to initiative and demand a structured `human-approval` evidence
    record - approver, role, decision, timestamp, scope, conditions - before
-   Land can complete. **So does any change whose risk is `critical`**,
+   ship can complete. **So does any change whose risk is `critical`**,
    which the router defines as one that can lose data, lose money, breach
    auth or privacy, or resist a clean rollback. That second arm matters
    because those consequences do not always carry one of the four tags: a

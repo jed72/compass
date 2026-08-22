@@ -20,7 +20,7 @@ scenario, concrete Given/When/Then, no implementation detail.
 
 # Spec - {{TASK_SLUG}}
 
-> **Phase:** Specify · **Last updated:** {{DATE}} · **Owning agent:** spec-author
+> **Phase:** define · **Last updated:** {{DATE}} · **Owning agent:** spec-author
 > **Familiarity:** {{greenfield discovery \| existing behaviour distilled first, then new scenarios}}
 
 ## Summary

@@ -78,6 +78,23 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         # suffix forms above miss; lowercase "frame the problem" stays
         # legal.
         re.compile(r"\b(?:during|at|before|after|since|until)\s+Frame\b"),
+        # --- the total ban -------------------------------------------------
+        # Three designs were tried. Enumerating shapes caught 85 of 149 live
+        # occurrences. Capitalisation caught 297 and still left 102 - after a
+        # slash, inside parentheses, inside a longer bold run, possessive - and
+        # the scan reported zero while all 102 sat there, which is the exact
+        # failure this issue exists to repair, repeating inside its own repair.
+        #
+        # So: the capitalised name is banned outright on live surfaces, and the
+        # legitimate uses carry an inline `vocabulary-scan: allow - <reason>`
+        # marker naming why. There are few of them and each is nameable; an
+        # allowlist is the only shape in which "no retired stage name survives"
+        # is a property this check actually holds.
+        #
+        # Case-sensitive on purpose. Lowercase is ordinary English - you frame a
+        # problem, a spike does not land production code - and stays legal
+        # without a marker.
+        re.compile(r"\bFrame\b"),
     ],
     # The four-dimension judgement. The plural is the v1 term of art;
     # singular "reading" (the ordinary gerund) stays legal.
@@ -136,6 +153,9 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         # lowercase ordinary verbs ("planes land") stay legal.
         re.compile(r"\b(?:during|at|before|after|since|until|and|into)\s+"
                    r"(?:Specify|Clarify|Distribute|Land)\b"),
+        # Banned outright, like Frame above and for the same reason. See the
+        # comment there for the two designs that were measured and rejected.
+        re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\b"),
     ],
     # The role-perspective concept, in any casing. Tuned at the
     # skills-prose slice: a hyphen-preceded "lens" is an agent identifier
@@ -489,8 +509,15 @@ TERM_SURFACE_EXEMPT = {
     # and the quote guard fails the build if anyone tries. Exempt at file
     # granularity rather than per line because an inline marker breaks the
     # before/after parsing that same guard depends on.
+    # scripts/verify-archive-quotes.py holds the quoted spans it verifies. The
+    # retired name in one of them is what the archived file actually says, and
+    # a sweep rewrote it - so the script briefly verified a sentence nobody had
+    # written, and its own guard failed within seconds. Exempt at file
+    # granularity because Python surfaces contribute string literals only, so
+    # an inline marker in a comment is invisible to the scanner.
     "Specify / Clarify / Distribute / Land": (
-        "skills/compass-runtime/writing-voice.md",),
+        "skills/compass-runtime/writing-voice.md",
+        "scripts/verify-archive-quotes.py",),
     "Frame / the Needle": ("skills/compass-runtime/writing-voice.md",),
     # architecture/ownership.md names the role-perspective agents by their
     # machine identifiers and reasons about them as a set; `role` is the

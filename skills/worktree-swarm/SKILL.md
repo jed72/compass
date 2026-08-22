@@ -6,7 +6,7 @@ description: Git worktree mechanics, decomposing work into independent streams, 
 # Worktree Swarm
 
 Parallelism in Compass is **decided in Plan** (the distribution map) and
-**executed in Distribute** (the worktree topology). This skill covers both
+**executed in breakdown** (the worktree topology). This skill covers both
 halves: how to decompose work correctly, and how to run and land the swarm
 without the parallelism costing more than it saves.
 
@@ -14,7 +14,7 @@ without the parallelism costing more than it saves.
 
 | Topology | Streams | Setup | Who integrates |
 |---|---|---|---|
-| **Solo** | 1 | No worktree; current branch. Distribute is a no-op. | The builder, trivially. |
+| **Solo** | 1 | No worktree; current branch. Breakdown is a no-op. | The builder, trivially. |
 | **Pair** | 2–3 | One worktree per stream; one `builder` each; no dedicated orchestrator. | The lead builder. |
 | **Swarm** | 4+ | One worktree per stream; one `builder` each; plus one `orchestrator`. | The orchestrator. |
 
@@ -98,7 +98,7 @@ detection, and integration:
   across.
 - Runs full TDD inside its worktree (see `tdd-discipline`).
 
-## Integration discipline (Land)
+## Integration discipline (ship)
 
 1. Confirm every stream is independently green - the `verifier` has per-stream
    evidence.
@@ -108,7 +108,7 @@ detection, and integration:
 4. **Run combined regression across the integrated result.** This is
    non-negotiable on initiative. Per-stream green does not imply integrated
    green; proving the combination is the entire reason the orchestrator owns
-   Land. Paste the output.
+   ship. Paste the output.
 5. Resolve every owed follow-up, update living docs, write the integration
    devlog entry.
 

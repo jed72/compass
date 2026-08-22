@@ -19,7 +19,7 @@ Fill every {{PLACEHOLDER}}.
 # Distribution Map - {{TASK_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** design.md §4, acceptance-criteria.md
-> **Consumed by:** Distribute, `scripts/swarm.sh`, the `orchestrator` agent
+> **Consumed by:** breakdown, `scripts/swarm.sh`, the `orchestrator` agent
 
 ---
 

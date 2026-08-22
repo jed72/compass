@@ -17,8 +17,8 @@ resolution → who decided → what it changed.
 
 # Clarifications - {{TASK_SLUG}}
 
-> **Phase:** Clarify · **Date:** {{DATE}} · **Owning agent:** spec-author
-> **Clarify weight (from delivery-approach.md):** {{light pass \| full pass}}
+> **Phase:** refine · **Date:** {{DATE}} · **Owning agent:** spec-author
+> **Requirements review weight (from delivery-approach.md):** {{light pass \| full pass}}
 
 ---
 
@@ -42,7 +42,7 @@ resolution → who decided → what it changed.
 
 ## Ambiguity ledger
 
-<!-- One entry per ambiguity. An open entry blocks the Plan phase - Clarify
+<!-- One entry per ambiguity. An open entry blocks the Plan phase - refine
      does not hand a question downstream. -->
 
 ### Q1 - {{SHORT TITLE}}
@@ -95,7 +95,7 @@ a form.
 
 ### Definition of Ready
 
-<!-- The crisp check that the spec is ready to LEAVE Clarify and enter Plan.
+<!-- The crisp check that the spec is ready to LEAVE refine and enter Plan.
      If any box is unchecked, Plan does not start. This is the entry gate;
      the Definition of Done in verification-report.md is the exit gate. -->
 
@@ -105,7 +105,7 @@ a form.
       the CLI never inspects the spec's prose, so an empty Summary is caught
       here or not at all.
 - [ ] **Problem traces up** - the spec serves the Problem and Desired outcome
-      in `prd.md` (or the Frame request, if no brief). No scenario is
+      in `prd.md` (or the triage request, if no brief). No scenario is
       orphaned from intent.
 - [ ] **Behaviour is Given/When/Then** - every scenario has an observable
       `Then`. No scenario is a wish.
@@ -114,7 +114,7 @@ a form.
 - [ ] **Affected surface named** - the spec or `delivery-approach.md` identifies what code
       and which components this touches.
 - [ ] **No open questions** - the ambiguity ledger above is fully resolved.
-- [ ] **Route still fits** - nothing found in Clarify makes `delivery-approach.md` wrong;
+- [ ] **Route still fits** - nothing found in refine makes `delivery-approach.md` wrong;
       if it does, re-frame before Plan.
 
 Next stage: **design** (`/compass:design`).

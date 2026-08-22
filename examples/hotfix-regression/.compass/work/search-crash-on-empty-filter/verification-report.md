@@ -65,7 +65,7 @@ project line coverage                87%   (floor: 80% - met; unchanged by a
 | verify.regression | route | GREEN |
 | verify.security | route | GREEN |
 
-**Overall:** PASS - advance to Land (then the mandatory follow-up).
+**Overall:** PASS - advance to ship (then the mandatory follow-up).
 
 ---
 

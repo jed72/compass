@@ -5,22 +5,22 @@
 
 ---
 
-## 2026-04-21 10:40 - Frame
+## 2026-04-21 10:40 - triage
 
 - **Event:** Needle ran; route computed.
 - **Route:** Standard - see `delivery-approach.md` revision 1.
 - **Assessment:** risk contained, familiarity brownfield-mapped, size standard, intent & role engineer/delivery.
 - **Routing guardrails fired:** none - `touches` is empty, so no domain floor; risk is not critical.
 - **Outstanding follow-ups:** none.
-- **Next:** Specify.
+- **Next:** define.
 
-## 2026-04-22 09:15 - Specify
+## 2026-04-22 09:15 - define
 
 - **Event:** Scenarios authored from the incident write-up - happy path, over-limit reject, retry-after contract, window reset, per-client isolation.
 - **Artifact:** `acceptance-criteria.md` - 5 scenarios in 1 group (TRC-001…TRC-005).
-- **Next:** Clarify.
+- **Next:** refine.
 
-## 2026-04-22 15:30 - Clarify
+## 2026-04-22 15:30 - refine
 
 - **Event:** Light pass. Two ambiguities found and resolved - Q1 (window algorithm → fixed), Q2 (unknown client id → fail closed). One untestable phrase in TRC-003 rewritten during self-QA. Definition of Ready ticked.
 - **Artifact:** `requirements-review.md`.
@@ -30,7 +30,7 @@
 
 - **Event:** Real `design.md`. Two design decisions recorded - DD-1 (Redis-backed counters), DD-2 (fixed window, fail-closed unknown client). Governance check passed. Work units U1–U3 all converge on `rate_limit.py` → solo, no distribution map.
 - **Artifact:** `design.md`.
-- **Next:** Build (solo - Distribute skipped).
+- **Next:** Build (solo - breakdown skipped).
 
 ## 2026-04-23 14:02 - Build
 
@@ -55,9 +55,9 @@
 - **Event:** Full Verify. Six review dimensions applied, all PASS. `ruff check` and `mypy src/api/` clean. Coverage 87% project (floor 80%). Definition of Done ticked.
 - **Artifact:** `verification-report.md`.
 - **Evidence:** test run in `verification-report.md` §2; `evidence/green.json`.
-- **Next:** Land.
+- **Next:** ship.
 
-## 2026-04-24 13:35 - Land
+## 2026-04-24 13:35 - ship
 
 - **Event:** issue closed.
 - **What landed:** `RateLimitMiddleware` on `/search`, Redis-backed fixed-window counters, config keys for limit/window/unknown-client. Committed on the current branch; regression re-run clean.

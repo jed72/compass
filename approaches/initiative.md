@@ -19,14 +19,14 @@ launch's worth of work.
 
 | Phase | Weight on initiative |
 |---|---|
-| Frame | Full, plus explicit `touches:` tagging - initiative is where domain floors most often fire. |
-| Specify | **Full BDD discovery.** Greenfield: scenario discovery from the brief. Brownfield: `blueprint-distillation` of current behaviour *then* the new scenarios. Scenarios are grouped by independence - this grouping seeds the distribution map. |
-| Clarify | **Full pass.** Self-QA, governance QA, and an explicit ambiguity ledger. Non-engineering roles review here. |
+| Triage | Full, plus explicit `touches:` tagging - initiative is where domain floors most often fire. |
+| Define | **Full BDD discovery.** Greenfield: scenario discovery from the brief. Brownfield: `blueprint-distillation` of current behaviour *then* the new scenarios. Scenarios are grouped by independence - this grouping seeds the distribution map. |
+| Refine | **Full pass.** Self-QA, governance QA, and an explicit ambiguity ledger. Non-engineering roles review here. |
 | Plan | **Full `design.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work streams. |
-| Distribute | **Swarm.** `scripts/swarm.sh` creates one git worktree per stream; one `builder` agent per worktree; one `orchestrator` agent that writes no feature code. |
+| Breakdown | **Swarm.** `scripts/swarm.sh` creates one git worktree per stream; one `builder` agent per worktree; one `orchestrator` agent that writes no feature code. |
 | Build | Full TDD inside each worktree, in parallel. The orchestrator watches for streams converging on shared surface and intervenes before they collide. |
 | Verify | **All gates, all dimensions.** Per-stream verification, then combined verification after integration. |
-| Land | `scripts/integrate.sh`: orchestrated merge of all worktrees, full regression across the combined result, living-docs update, every owed follow-up resolved. |
+| Ship | `scripts/integrate.sh`: orchestrated merge of all worktrees, full regression across the combined result, living-docs update, every owed follow-up resolved. |
 
 ## Gate set
 
@@ -47,7 +47,7 @@ intentional, not a contradiction.
 Roles: `orchestrator` coordinates and integrates; `builder` agents implement,
 one per worktree; `verifier` and `reviewer` run at the gates; `product-lens`
 and `marketing-lens` apply role checks at the requirements review and at
-ship time.
+Ship time.
 
 ## De-scope ledger - what initiative collapses or skips
 
@@ -63,7 +63,7 @@ are ones a `cap` imposes (e.g. the worktree cap), and those are recorded as
 - Let a `builder` agent touch a sibling worktree. Cross-stream changes go
   through the orchestrator. This is what makes the isolation real.
 - Skip the combined-regression step at ship time. Per-stream green does not imply
-  integrated green - the whole point of the orchestrator's Land role is to
+  integrated green - the whole point of the orchestrator's ship role is to
   prove the combination.
 - Be down-routed mid-issue to "save time." If initiative turns out to be
   overkill, that is a re-assess (`/compass:triage --reassess`) with a written

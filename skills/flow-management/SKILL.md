@@ -41,9 +41,9 @@ is a cross-issue question, and this is the command that answers it.
 Run these against every issue directory under `.compass/work/`. Order of
 severity, worst first:
 
-1. **No `delivery-approach.md`** - a guardrail violation. Work was started without Frame.
+1. **No `delivery-approach.md`** - a guardrail violation. Work was started without triage.
    This outranks everything; an issue with no computed approach is unaccountable.
-   The fix is to run Frame retroactively and reconcile.
+   The fix is to run triage retroactively and reconcile.
 
 2. **Route outgrown** - the devlog shows the issue drifting past its route
    (a "Standard" issue that has sprouted a fourth work stream; an "quick-fix"

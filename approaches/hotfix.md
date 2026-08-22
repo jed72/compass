@@ -20,14 +20,14 @@ dimensions - they shape the follow-up - but urgency is what selects the shape.
 
 | Phase | Weight on Hotfix |
 |---|---|
-| Frame | Fast but real. `delivery-approach.md` is written - even under time pressure, the audit trail starts here. |
-| Specify | **Reproduce-first.** The spec *is* a failing regression test that reproduces the defect. Writing that test is non-negotiable and comes before any fix - it is simultaneously the BDD scenario and the TDD red. |
-| Clarify | Collapsed - the reproduction *is* the clarification. The bug is unambiguous once it reproduces. |
+| Triage | Fast but real. `delivery-approach.md` is written - even under time pressure, the audit trail starts here. |
+| Define | **Reproduce-first.** The spec *is* a failing regression test that reproduces the defect. Writing that test is non-negotiable and comes before any fix - it is simultaneously the BDD scenario and the TDD red. |
+| Refine | Collapsed - the reproduction *is* the clarification. The bug is unambiguous once it reproduces. |
 | Plan | Collapsed to a one-line root-cause note in `delivery-approach.md`. (Root cause, not symptom - a hotfix that treats the symptom owes a follow-up initiative.) |
-| Distribute | Skipped. Solo. Speed and a single clear owner beat parallelism here. |
+| Breakdown | Skipped. Solo. Speed and a single clear owner beat parallelism here. |
 | Build | Expedited TDD: the reproduction test is already red; make it green with the smallest correct change; refactor only if the refactor itself is low-risk. |
 | Verify | **All Verify gates, no exceptions.** This is the phase Hotfix does *not* compress. The reproduction test passes, the full suite passes, regression is clean, output is pasted. |
-| Land | Ship the fix. Then the **mandatory follow-up** - see below. The issue is not closed until the follow-up is done. |
+| Ship | Ship the fix. Then the **mandatory follow-up** - see below. The issue is not closed until the follow-up is done. |
 
 ## Gate set
 
@@ -43,7 +43,7 @@ Solo. No worktree.
 ## The mandatory follow-up - Hotfix's defining obligation
 
 Hotfix borrows speed from the front of the pipeline and **pays it back at the
-end**. Before the issue closes, Land requires:
+end**. Before the issue closes, shipping requires:
 
 1. **`delivery-approach.md` completed** - the dimension assessment and root-cause note,
    filled in properly, not just the urgent stub.

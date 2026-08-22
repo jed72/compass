@@ -26,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.8.0
+version: 1.9.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -72,7 +72,7 @@ checks:
   spike-conclusion-present:
     description: "A spike has a `spike-conclusion` evidence entry with a recorded decision (discard | graduate-to-delivery | defer); graduate-to-delivery links the next issue."
   spike-no-production-changes:
-    description: "A Spike's `changed_files` is empty - a spike ships nothing; graduating to delivery is a fresh Frame, not a merge."
+    description: "A Spike's `changed_files` is empty - a spike ships nothing; graduating to delivery is a fresh triage, not a merge."
   dod-evidence-typed:
     description: >
       Every unchecked DoD box in verification-report.md must carry an inline
@@ -242,7 +242,7 @@ spike_guardrails:
     statement: >
       A Spike ships nothing - its `changed_files` must be empty. Exploration
       code lives on a scratch branch; if the finding is acted on, a fresh
-      Frame owns the code under a real route's guardrails. This is the safety
+      triage owns the code under a real route's guardrails. This is the safety
       model: a Spike cannot silently become delivery.
     checks: [spike-no-production-changes]
     checked_at: [land]

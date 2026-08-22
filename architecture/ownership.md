@@ -5,7 +5,7 @@ date: 2026-05-24
 
 # Compass - Service Ownership
 
-<!-- Frame reads this file and includes it in architecture-loaded.yml as a
+<!-- triage reads this file and includes it in architecture-loaded.yml as a
      narrative artifact. The architect-lens uses ownership information to
      flag when a proposed change crosses component boundaries - a common source
      of undetected coupling and rework.

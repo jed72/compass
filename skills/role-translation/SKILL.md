@@ -37,7 +37,7 @@ Reads each scenario asking: *what can I truthfully say publicly because this
 scenario exists and passes?*
 - Every line of launch copy in `positioning.md` must point at a backing
   scenario. `launch-readiness.md` is the ledger: claim → scenario → status.
-- Works *parallel* to the spec and gates Land - `verify.claims` is an immovable
+- Works *parallel* to the spec and gates shipping - `verify.claims` is an immovable
   gate; no claim ships on a missing, red, or skipped scenario. Applied by the
   `marketing-lens` agent.
 
@@ -56,14 +56,14 @@ not described at all?*
 - Owns the Verify gate. Checks that the scenario set actually covers the
   behaviour space - not just that the listed scenarios pass, but that the
   unlisted edges were a deliberate choice, not an oversight.
-- Has a real power: QA **can send an issue back to Specify** if scenarios are
+- Has a real power: QA **can send an issue back to define** if scenarios are
   uncoverable or the coverage has holes. Coverage gaps are a spec problem, found
   at Verify.
 
 ### Designer - the **contracts** perspective
 Reads - and *writes into* - the spec through UI contracts.
 - `ui-contract.md` expresses UI behaviour as scenarios, and those scenarios
-  *flow into* Specify. The designer feeds the shared file rather than consuming
+  *flow into* define. The designer feeds the shared file rather than consuming
   a finished one.
 - A UI contract is a Given/When/Then like any other: given this state, when this
   interaction, then this observable interface outcome.
@@ -74,7 +74,7 @@ The roles are different *assessment*, not different *documents* - that is the
 safeguard. But they still have to be reconciled, and the pipeline has specific
 moments for it:
 
-- **At Clarify**, the non-engineering roles review the spec together. This is
+- **At refine**, the non-engineering roles review the spec together. This is
   where intent-lens, claims-lens, and contracts-lens disagreements surface
   while the spec is still cheap to change. An ambiguity one perspective sees is logged
   in `requirements-review.md` with its resolution.

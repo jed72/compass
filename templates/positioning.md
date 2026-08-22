@@ -8,7 +8,7 @@ scenario id in acceptance-criteria.md that backs it - that is the claim→scenar
 half of the traceability guardrail, and the voice & positioning
 strategies in governance/strategies.md govern how it is said. Unbacked
 claims are resolved at ship time via launch-readiness.md; the marketer role_rule
-blocks Land until they are.
+blocks shipping until they are.
 
 Fill every {{PLACEHOLDER}}. Leave the "backing scenario" slot blank if no
 scenario backs the claim yet - an empty slot is a visible debt, which is

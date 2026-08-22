@@ -44,14 +44,14 @@ and that is a Verify no-pass.
 The discipline is *continuous*, and that is the whole craft - a chain rebuilt
 at the end is a chain that was guessed.
 
-- **At Specify** - the Spec Author tags each scenario with its intent reference
+- **At define** - the Spec Author tags each scenario with its intent reference
   as the scenario is written. The upper half of the chain exists before any
   code does.
 - **At Build** - the Builder records the scenario each unit serves *as the unit
   is written* - a comment, a test name, a commit message convention, whatever
   the project uses. The link is made at the moment the code is made, when the
   reason is still in your head. Recovering it later is archaeology.
-- **Alongside Specify/Land** - the Marketing Perspective adds a `claim → scenario` row
+- **Alongside define and ship** - the Marketing Perspective adds a `claim → scenario` row
   to `launch-readiness.md` as each claim is drafted. A claim with no row is not
   yet a shippable claim.
 - **At Verify** - the Reviewer runs `traceability` as a review dimension: walk

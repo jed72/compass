@@ -71,14 +71,14 @@ The shipped defaults (see `routing-policy.yml` for the live, id-tagged set):
 
 - **floors** - `RP-FLOOR-001` critical risk → at least initiative,
   never skip clarify/verify/land; `RP-FLOOR-002` brownfield-unmapped familiarity →
-  Specify runs full-weight with `blueprint-distillation`; `RP-FLOOR-003`
+  define runs full-weight with `blueprint-distillation`; `RP-FLOOR-003`
   touching auth/payments/personal-data/migrations → at least initiative.
 - **caps** - `RP-CAP-001` critical risk caps worktrees at 1.
 - **immovable_gates** - `RP-GATE-001..003`: `verify.correctness`,
   `verify.governance`, `verify.traceability`. Deliberately not here:
   `verify.regression` is scoped by the delivery approach and
   `verify.claims` by the role in play, so neither is immovable.
-- **role_rules** - `RP-ROLE-001` the product-marketer's involvement blocks Land
+- **role_rules** - `RP-ROLE-001` the product-marketer's involvement blocks shipping
   until claims trace to scenarios; `RP-ROLE-002` the product-owner's involvement
   gates Plan on the spec being checked against the brief.
 

@@ -1,6 +1,6 @@
 # Spec - fix-timeout-error-message
 
-> **Phase:** Specify · **Last updated:** 2026-05-04 · **Owning agent:** spec-author
+> **Phase:** define · **Last updated:** 2026-05-04 · **Owning agent:** spec-author
 > **Familiarity:** brownfield-mapped - the timeout branch already exists; this is one scenario for its corrected behaviour, not a discovery.
 
 ## How each role reads this file

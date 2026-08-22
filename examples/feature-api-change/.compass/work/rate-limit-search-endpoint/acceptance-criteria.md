@@ -1,6 +1,6 @@
 # Spec - rate-limit-search-endpoint
 
-> **Phase:** Specify · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
+> **Phase:** define · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
 > **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
 
 ## How each role reads this file
@@ -92,7 +92,7 @@ Scenario: Two clients have independent limits
 The failure mode that mattered here - the over-limit case - is TRC-002, kept in
 group A because it is the core behaviour, not an afterthought. `contained`
 risk does not call for adversarial inputs; the missing-client-id edge
-was raised in Clarify and resolved as a config default (see
+was raised in refine and resolved as a config default (see
 `requirements-review.md` Q2), not a separate scenario.
 
 ---

@@ -5,7 +5,7 @@ date: 2026-05-24
 
 # Compass - Component Relations
 
-<!-- Frame reads this file and includes it in architecture-loaded.yml as a
+<!-- triage reads this file and includes it in architecture-loaded.yml as a
      narrative artifact. The architect-lens reads it to determine which
      `touches:` tags in task.yml.assessment map to known component names, so
      it knows when to fire automatically at the define stage time.
@@ -38,7 +38,7 @@ components. Relations are ordered by the calling component.
 | `architect-lens` (agent) | `architecture/` | file read | reads `system-context.md`, `relations.md`, `ownership.md`, `invariants.yml` (if present), and all `decisions/ADR-*.md` to build its consultation context | medium |
 | `architect-lens` (agent) | `.compass/work/<task>/acceptance-criteria.md` | file read | reads scenarios the issue must satisfy | medium |
 | `architect-lens` (agent) | `.compass/work/<task>/design.md` | file read | reads the technical approach to annotate | medium |
-| `architect-lens` (agent) | `.compass/work/<task>/architecture-loaded.yml` | file read | reads Frame's load record if present | medium |
+| `architect-lens` (agent) | `.compass/work/<task>/architecture-loaded.yml` | file read | reads triage's load record if present | medium |
 | `architect-lens` (agent) | `.compass/work/<task>/architecture-notes.md` | file write | writes its output (annotations, boundary risks, candidate ADR titles) | medium |
 | `agents/spec-author.md` | `architecture/decisions/ADR-*.md` | via `architecture-loaded.yml` | reads ADR summaries (id, title, status) to avoid re-litigating closed decisions | low |
 | `agents/planner.md` | `.compass/work/<task>/architecture-notes.md` | file read | planner reads architect-lens output to compose `design.md §2` design decisions | medium |

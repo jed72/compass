@@ -237,7 +237,7 @@ def test_f1_decay_rule_states_its_ask():
                      flat, re.I), (
         "the decay rule never states the action it asks for. A rule a reader "
         "cannot act on has not landed")
-    bare = re.findall(r"\b([GS]\d+)\b(?!\s*[-–—:(])", flat)
+    bare = re.findall(r"\b([GS]\d+)\b(?!\s*[-\u2013\u2014:(])", flat)
     assert not bare, (
         f"the decay rule uses short codes without expanding them: {bare}. A "
         f"reader outside the conversation cannot resolve them")
@@ -255,3 +255,57 @@ def test_f2_launch_article_carries_no_working_notes():
     assert not tells, (
         f"the article carries working-notes markers: {tells}. It is published "
         f"copy, not a scratchpad")
+
+
+# --- TRC-D2 -----------------------------------------------------------------
+
+def test_d2_repairs_change_only_retired_names():
+    """TRC-D2 - the sweep changed wording, not structure.
+
+    Fourteen of the repaired files are under agents/ and skills/ - instructions
+    to an agent, not prose - so a careless rename changes behaviour rather than
+    reading.
+
+    The design asked for something stronger: replay a substitution map over the
+    pre-repair text and require it to reproduce the result byte for byte. That
+    turned out not to be true and was not made true by pretending. Several
+    repairs needed rephrasing rather than substitution ("Clarify may be *light*
+    on Standard" does not become correct English by swapping one word), and a
+    check asserting otherwise would have been a check nobody could satisfy
+    honestly.
+
+    What is checked instead is the structural property the map was a proxy for,
+    fingerprinted from the pre-repair text and committed: heading levels and
+    order, fenced code blocks, table rows, list items. All 59 were identical
+    across the repair. A repair that drops a step, merges a table row or edits
+    a code example fails this; one that renames a stage does not.
+    """
+    import json
+    snap = json.loads(
+        (REPO_ROOT / "tests" / "fixtures" / "repaired-file-structure.json")
+        .read_text(encoding="utf-8"))
+    assert len(snap) > 50, (
+        f"only {len(snap)} files in the structure fixture - it has been "
+        f"truncated, and this check would pass over almost nothing")
+
+    drift = []
+    for rel, expected in sorted(snap.items()):
+        p = REPO_ROOT / rel
+        if not p.is_file():
+            drift.append(f"{rel}: gone")
+            continue
+        lines = p.read_text(encoding="utf-8").splitlines()
+        actual = {
+            "heading_levels": [len(m.group(1)) for l in lines
+                               if (m := re.match(r"^(#+)\s", l))],
+            "fences": sum(1 for l in lines if l.lstrip().startswith("```")),
+            "table_rows": sum(1 for l in lines if l.lstrip().startswith("|")),
+            "list_items": sum(1 for l in lines
+                              if re.match(r"^\s*(?:[-*]|\d+\.)\s", l)),
+        }
+        for key in expected:
+            if actual[key] != expected[key]:
+                drift.append(f"{rel}: {key} changed")
+    assert not drift, (
+        "the vocabulary repair changed document structure, not just wording:\n  "
+        + "\n  ".join(drift))

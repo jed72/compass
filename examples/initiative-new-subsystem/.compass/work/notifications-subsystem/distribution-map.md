@@ -1,7 +1,7 @@
 # Distribution Map - notifications-subsystem
 
 > **Phase:** Plan · **Date:** 2026-03-07 · **Reads from:** design.md §4, acceptance-criteria.md
-> **Consumed by:** Distribute, `scripts/swarm.sh`, the `orchestrator` agent
+> **Consumed by:** breakdown, `scripts/swarm.sh`, the `orchestrator` agent
 
 ---
 
