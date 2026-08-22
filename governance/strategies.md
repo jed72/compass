@@ -108,7 +108,7 @@ surfaced it immediately). The designated suite is a project knob
 afterthought; `compass approach evaluate` surfaces it under
 `applicable_strategies` when the assessment match (`RP-ADV-001`).
 
-It adds **no guardrail and no new gate**, and it **does not block Land** when
+It adds **no guardrail and no new gate**, and it **does not block shipping** when
 absent - it reuses the existing `verify.regression` gate and is assessed as
 reviewer judgement (a strategy note), never a mechanical failure. The framework
 grows by adding artifacts, not rules (ADR-002, ADR-006).
@@ -215,7 +215,9 @@ around.
 
 **Correct a retired name in a comment you were touching anyway.** The
 vocabulary scan does not read comments or docstrings - the parser discards
-them, so nothing there reaches a user (`PX-1` in `terminology.yml`). But the
+them, so nothing there reaches a user. That exclusion is recorded as position
+exemption `PX-1` in `terminology.yml`, which is the list of places the scan
+deliberately does not read and the reason for each. But the
 752 retired names sitting in them are the reservoir the next user-facing
 string gets copied from, which is close to how the v1 vocabulary spread in
 the first place. So: no sweep, and no obligation to go looking - but a
@@ -241,7 +243,7 @@ nothing here fails `compass check`.
 *Cross-reference: persistence over conversation (persistence over conversation), which this extends; traceability
 (traceability) - a reference the reader cannot resolve is not traceability.
 Assessed under the `clarity` review dimension; restated at the point of use in
-`commands/land.md` (commit messages).*
+`commands/ship.md` (commit messages).*
 
 ---
 
@@ -758,7 +760,7 @@ conventions this repository holds itself to.
 The first two are checked by `tests/test_house_style.py`, and all three are strategies
 rather than guardrails. What separates them is *what the check protects*. The
 checks in `guardrails.yml` run against an adopting project's `task.yml` and
-`evidence/`, and can block a Land. `tests/test_house_style.py` is one of this
+`evidence/`, and can block a ship. `tests/test_house_style.py` is one of this
 repository's own source invariants, alongside `test_release_invariants.py`. It
 never runs in an adopting project and never touches a gate. A style rule is a
 preference held consistently, not a must-never, so it does not become a sixth

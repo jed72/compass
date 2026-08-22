@@ -33,7 +33,7 @@ the feature code.
    or a plan plus a full distribution map.
    Also read `architecture-notes.md` in the issue directory if it exists. This
    file is the architect-lens's output from an earlier invocation (typically at
-   Specify or via `/compass:roundtable architect-lens`). If the file is present,
+   define or via `/compass:roundtable architect-lens`). If the file is present,
    your Design Decisions in `design.md` §2 must each either:
    - **cite** an existing ADR (referenced via `architecture/decisions/ADR-N-*`),
    - **name** a candidate ADR to author at Build, or

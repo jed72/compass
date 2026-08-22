@@ -1,6 +1,6 @@
 # Spec - reset-password
 
-> **Phase:** Specify · **Last updated:** 2026-08-03 · **Owning agent:** spec-author
+> **Phase:** define · **Last updated:** 2026-08-03 · **Owning agent:** spec-author
 > **Familiarity:** greenfield
 
 ## Summary

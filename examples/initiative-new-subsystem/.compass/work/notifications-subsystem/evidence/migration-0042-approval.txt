@@ -15,4 +15,4 @@ Reviewed:
     no data loss outside the subsystem being introduced.
   - No change to any existing table; the migration is purely additive.
 
-Decision: approved for Land. The forward + rollback path were both walked.
+Decision: approved for ship. The forward + rollback path were both walked.

@@ -59,9 +59,9 @@ that turned out easy than to discover mid-Build that the route was too light.
 |---|---|---|
 | `engineer` | `/compass:triage` | Standard pipeline ownership. |
 | `product-owner` | `/compass:intent` | Adds `prd.md` upstream of the spec; inserts the intent-fidelity gate before Plan. |
-| `product-marketer` | `/compass:position` | Adds `positioning.md` / `launch-readiness.md`; blocks Land on the claims gate. |
-| `designer` | `/compass:design` | Adds `ui-contract.md`; UI contracts enter Specify as scenarios. |
-| `qa` | joins at `/compass:verify` | Owns the Verify gate; can send an issue back to Specify if scenarios are uncoverable. |
+| `product-marketer` | `/compass:position` | Adds `positioning.md` / `launch-readiness.md`; blocks shipping on the claims gate. |
+| `designer` | `/compass:design` | Adds `ui-contract.md`; UI contracts enter the define stage as scenarios. |
+| `qa` | joins at `/compass:verify` | Owns the Verify gate; can send an issue back to define if scenarios are uncoverable. |
 
 Intent is also *the actual outcome wanted*, not just the literal request. "Add
 a CSV export" invoked by a product owner whose brief says "let finance
@@ -90,16 +90,16 @@ from per-dimension contributions:
 
 Concretely, triage decides, per phase:
 
-- **Specify** - how many scenarios, discovery vs. distillation, how deep.
-- **Clarify** - full pass, light pass, or collapsed (only collapsible when the
+- **Define** - how many scenarios, discovery vs. distillation, how deep.
+- **Refine** - full pass, light pass, or collapsed (only collapsible when the
   spec is a single unambiguous scenario *and* no routing guardrail requires it).
 - **Plan** - "edit this file" one-liner, a real technical plan, or a plan plus
   a distribution map.
-- **Distribute** - skipped (solo), pair, or swarm. Stream count comes from the
+- **Breakdown** - skipped (solo), pair, or swarm. Stream count comes from the
   distribution map; topology thresholds come from `.compass/config.yml`.
 - **Build** - test surface target, scaled to risk.
 - **Verify** - which review dimensions apply (see below), how many gates.
-- **Land** - trivial integration vs. coordinated multi-worktree merge; which
+- **Ship** - trivial integration vs. coordinated multi-worktree merge; which
   follow-ups are owed.
 
 Most compositions land near one of the five reference shapes

@@ -3,7 +3,7 @@ TEMPLATE: ui-contract.md
 Produced by: the designer via `/compass:wireframe`.
 Lives at:    .compass/work/<task-slug>/ui-contract.md
 Role in the pipeline: the designer's artifact. The designer feeds INTO
-Specify - UI behaviour here is authored as Given/When/Then scenarios so it
+Define - UI behaviour here is authored as Given/When/Then scenarios so it
 flows directly into acceptance-criteria.md as scenarios, not as a separate track.
 That is how the designer is a full pipeline citizen and not a downstream
 consumer. Accessibility commitments here are checked against the
@@ -80,7 +80,7 @@ Scenario: {{scenario title}}
 
 ---
 
-## Handoff to Specify
+## Handoff to define
 
 - [ ] Every interaction scenario above has a traceability id and an intent link.
 - [ ] Accessibility commitments meet or exceed the accessibility strategy in `governance/strategies.md`.

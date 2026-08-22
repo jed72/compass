@@ -27,7 +27,7 @@ compass check --issue <slug>                 # the guardrail checks pass (see th
 **Issue:** the upload timeout error says "try again later" when it should name
 the file-size limit that is the actual cause.
 
-**What it demonstrates:** the *lightness*. Clarify, Plan, and breakdown all
+**What it demonstrates:** the *lightness*. the requirements review, design, and breakdown all
 collapse - and `delivery-approach.md` §5 carries an explicit "safe to skip because…" line
 for each. One scenario is the whole spec. Verify is a short note, not a full
 report. The artifact set is four files and an `evidence/` pair, and that is
@@ -48,7 +48,7 @@ one client's bulk job degraded latency for everyone.
 **What it demonstrates:** the default working shape at full artifact weight -
 `requirements-review.md` with the Definition of Ready ticked, a real `design.md` with
 two ADR-style design decisions, a full `verification-report.md` with the
-Definition of Done and pasted test output. It also shows Distribute being
+Definition of Done and pasted test output. It also shows breakdown being
 *skipped for a reason* (the work units share code surface, so a swarm would
 manufacture a merge conflict, not parallelism).
 
@@ -64,7 +64,7 @@ a live crash on a new mobile build.
 spec - `evidence/red.json` reproduces the crash before any fix), the compressed
 front of the pipeline, the *uncompressed* Verify gate, and the **mandatory
 follow-up**. `task.yml`'s `follow-ups:` lists three outstanding items; `delivery-approach.md` §6 and
-the `devlog.md` Land entry show all three **paid** - which is what makes this a
+the `devlog.md` ship entry show all three **paid** - which is what makes this a
 closed issue and not an open one. `compass check` enforces it.
 
 **One-line lesson:** speed is borrowed from the front of the pipeline and paid

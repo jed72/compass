@@ -78,6 +78,23 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         # suffix forms above miss; lowercase "frame the problem" stays
         # legal.
         re.compile(r"\b(?:during|at|before|after|since|until)\s+Frame\b"),
+        # --- the total ban -------------------------------------------------
+        # Three designs were tried. Enumerating shapes caught 85 of 149 live
+        # occurrences. Capitalisation caught 297 and still left 102 - after a
+        # slash, inside parentheses, inside a longer bold run, possessive - and
+        # the scan reported zero while all 102 sat there, which is the exact
+        # failure this issue exists to repair, repeating inside its own repair.
+        #
+        # So: the capitalised name is banned outright on live surfaces, and the
+        # legitimate uses carry an inline `vocabulary-scan: allow - <reason>`
+        # marker naming why. There are few of them and each is nameable; an
+        # allowlist is the only shape in which "no retired stage name survives"
+        # is a property this check actually holds.
+        #
+        # Case-sensitive on purpose. Lowercase is ordinary English - you frame a
+        # problem, a spike does not land production code - and stays legal
+        # without a marker.
+        re.compile(r"\bFrame\b"),
     ],
     # The four-dimension judgement. The plural is the v1 term of art;
     # singular "reading" (the ordinary gerund) stays legal.
@@ -136,6 +153,9 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         # lowercase ordinary verbs ("planes land") stay legal.
         re.compile(r"\b(?:during|at|before|after|since|until|and|into)\s+"
                    r"(?:Specify|Clarify|Distribute|Land)\b"),
+        # Banned outright, like Frame above and for the same reason. See the
+        # comment there for the two designs that were measured and rejected.
+        re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\b"),
     ],
     # The role-perspective concept, in any casing. Tuned at the
     # skills-prose slice: a hyphen-preceded "lens" is an agent identifier
@@ -489,8 +509,15 @@ TERM_SURFACE_EXEMPT = {
     # and the quote guard fails the build if anyone tries. Exempt at file
     # granularity rather than per line because an inline marker breaks the
     # before/after parsing that same guard depends on.
+    # scripts/verify-archive-quotes.py holds the quoted spans it verifies. The
+    # retired name in one of them is what the archived file actually says, and
+    # a sweep rewrote it - so the script briefly verified a sentence nobody had
+    # written, and its own guard failed within seconds. Exempt at file
+    # granularity because Python surfaces contribute string literals only, so
+    # an inline marker in a comment is invisible to the scanner.
     "Specify / Clarify / Distribute / Land": (
-        "skills/compass-runtime/writing-voice.md",),
+        "skills/compass-runtime/writing-voice.md",
+        "scripts/verify-archive-quotes.py",),
     "Frame / the Needle": ("skills/compass-runtime/writing-voice.md",),
     # architecture/ownership.md names the role-perspective agents by their
     # machine identifiers and reasons about them as a set; `role` is the
@@ -1056,3 +1083,186 @@ def test_pl_c11_strategies_prose_is_not_path_exempt():
     assert not covered, (
         f"governance/strategies.md is still covered by exemption(s) {covered}"
     )
+
+
+# ---------------------------------------------------------------------------
+# Issue public-docs-tell-the-truth - the retired stage names are banned
+# outright, and the ban is only as good as what it can be shown to catch.
+#
+# Three designs were measured before this one. Enumerating shapes caught 85 of
+# 149 live occurrences. Capitalisation caught 297 and left 102. Both reported
+# clean over surfaces that were not clean, which is the failure the issue
+# exists to repair. See the comment on the Frame patterns above.
+# ---------------------------------------------------------------------------
+
+RETIRED_STAGES = ("Frame", "Specify", "Clarify", "Distribute", "Land")
+
+
+def _scan_text(text: str, name: str = "sample.md") -> list[str]:
+    """Run the scanner over a string by writing it to a temp markdown file."""
+    # Inside the repository: _scan_files reports paths relative to REPO_ROOT
+    # and raises on anything outside it. Under a dot-directory so no surface
+    # glob picks the sample up while it exists.
+    import tempfile
+    holder = REPO_ROOT / ".pytest-vocab-tmp"
+    holder.mkdir(exist_ok=True)
+    d = tempfile.mkdtemp(dir=holder)
+    try:
+        p = Path(d) / name
+        p.write_text(text, encoding="utf-8")
+        return _scan_files([p])
+    finally:
+        import shutil
+        shutil.rmtree(d, ignore_errors=True)
+        try:
+            holder.rmdir()
+        except OSError:
+            pass
+
+
+def test_b1_label_shape_in_a_table_cell_is_caught():
+    """TRC-B1 - the shape every approach document uses for its stage table."""
+    for stage in RETIRED_STAGES:
+        hits = _scan_text(f"| {stage} | Light but real. |\n")
+        assert hits, f"a table cell holding only '{stage}' was not reported"
+
+
+def test_b2_label_shape_in_a_bold_run_is_caught():
+    """TRC-B2 - the other label form: `- **Specify** - how many scenarios`."""
+    for stage in RETIRED_STAGES:
+        hits = _scan_text(f"- **{stage}** - how many scenarios and how deep.\n")
+        assert hits, f"a bold run holding only '{stage}' was not reported"
+
+
+def test_b3_every_retired_stage_name_has_a_label_pattern():
+    """TRC-B3 - five names were retired together and are written alike.
+
+    Teaching the shape to one and not the rest is how the next four survive,
+    so this asserts the ban covers all five rather than trusting that it does.
+    """
+    for stage in RETIRED_STAGES:
+        assert _scan_text(f"| {stage} |\n"), (
+            f"'{stage}' has no pattern for the label shape - it was retired "
+            f"alongside the others and is written the same way")
+
+
+def test_b5_sentence_shape_is_caught():
+    """TRC-B5 - the shape found in the CLI's printed strings.
+
+    "has Frame run?", "a fresh Frame", "the next Land". These sit mid-sentence
+    and are the shape most likely to collide with ordinary English, which is
+    why the tolerance test below matters as much as this one.
+    """
+    for text in ("The message asks: has Frame run?\n",
+                 "Edits are overwritten on the next Land.\n",
+                 "It becomes a fresh Frame, not a merge.\n"):
+        assert _scan_text(text), f"mid-sentence stage name not reported: {text!r}"
+
+
+def test_b4_scan_report_states_the_count():
+    """TRC-B4 - a failure without a number cannot tell a real hit from a
+    pattern that has started matching everything."""
+    hits = _scan_text("| Frame |\n| Land |\n")
+    report = _report(hits, "rule")
+    assert str(len(hits)) in report.split("\n")[0], (
+        f"the report's first line does not state how many were found: "
+        f"{report.splitlines()[0]!r}")
+    for h in hits:
+        assert ":" in h and "banned" in h, (
+            "a hit does not name file, line and term, so a failure is not "
+            "actionable without re-running anything")
+
+
+def test_c1_ordinary_verb_use_is_tolerated():
+    """TRC-C1 - the ban is case-sensitive, and that is what keeps it usable.
+
+    You frame a problem, you specify behaviour, a spike does not land
+    production code. Every one of those is correct English and stays legal
+    without a marker.
+    """
+    for text in ("You do not understand the problem well enough to frame it yet.\n",
+                 "A spike does not land production code.\n",
+                 "You specify the format and then you clarify the edges.\n",
+                 "The orchestrator will distribute the work.\n"):
+        hits = _scan_text(text)
+        stage_hits = [h for h in hits if any(s in h for s in RETIRED_STAGES)]
+        assert not stage_hits, (
+            f"ordinary lowercase English was reported as a retired stage "
+            f"name:\n  {text!r}\n  {stage_hits}")
+
+
+def test_c2_bold_sentence_opening_is_tolerated():
+    """TRC-C2 - the one legitimate capitalised use, and how it is allowed.
+
+    `- **Land production code.**` is a sentence whose first word is capitalised
+    by position. Under a total ban it IS reported, and the inline marker is how
+    it is permitted - with a reason, in the file, where a reader meets it.
+    """
+    plain = _scan_text("- **Land production code.** The only exit is graduation.\n")
+    assert plain, (
+        "the total ban did not report a capitalised stage name. If this stops "
+        "firing, the marker below is permitting something nothing objected to")
+
+    marked = _scan_text(
+        "- **Land production code.** <!-- vocabulary-scan: allow - ordinary "
+        "verb opening a sentence -->\n")
+    assert not marked, (
+        "an inline allow marker with a reason did not permit the line - the "
+        "allowlist is the only way a legitimate capitalised use can stay")
+
+
+def test_c3_innocent_fixture_covers_every_retired_stage_name():
+    """TRC-C3 - the tolerance fixture must grow with the patterns.
+
+    The project keeps a pair: one planting every banned usage, one reusing
+    every word innocently. If the innocent one does not exercise a word, it
+    certifies nothing about that word's pattern.
+    """
+    body = FIXTURE_INNOCENT.read_text(encoding="utf-8").lower()
+    missing = [s for s in RETIRED_STAGES if s.lower() not in body]
+    assert not missing, (
+        f"the innocent-usage fixture never uses {missing} in an ordinary "
+        f"sense, so nothing proves the ban tolerates them")
+    assert not _scan_files([FIXTURE_INNOCENT]), (
+        "the innocent-usage fixture reports violations - the patterns have "
+        "become wide enough to fail the build on correct English")
+
+
+def test_c4_clean_surfaces_stay_clean():
+    """TRC-C4 - the blast radius, pinned to zero rather than to a count.
+
+    The requirements review pinned this to 35 files and the design corrected it
+    to 36; both numbers described work in progress. Now that the sweep is done
+    the honest pin is zero, and it is the number that stays true.
+    """
+    hits = _enforced_hits(_terminology()["scan"])
+    assert not hits, _report(hits, "every live surface must be clean")
+
+
+def test_d1_no_live_surface_carries_a_retired_stage_name():
+    """TRC-D1 - 297 occurrences repaired across 66 files."""
+    for stage in RETIRED_STAGES:
+        planted = _scan_text(f"The issue moves to {stage} next.\n")
+        assert planted, (
+            f"'{stage}' is no longer caught anywhere - the ban has been "
+            f"weakened and the 297 repairs are unguarded")
+    assert not _enforced_hits(_terminology()["scan"])
+
+
+def test_d3_exempt_list_still_covers_history_and_no_live_surface():
+    """TRC-D3 - history stays exempt, and the exemption stays narrow.
+
+    213 raw hits became 0 enforced mostly because decision records are exempt.
+    That is correct - rewriting one would falsify an account of what was
+    decided at the time - and it must not creep into covering a live surface.
+    """
+    exempt = _terminology()["scan"].get("exempt", [])
+    assert "architecture/decisions/" in exempt, (
+        "decision records are no longer exempt; a sweep would falsify them")
+
+    live = ("approaches/", "skills/", "agents/", "commands/", "templates/",
+            "docs/methodology.md", "docs/quickstart.md", "README.md")
+    crept = [e for e in exempt if e in live]
+    assert not crept, (
+        f"the exempt list has grown to cover live surfaces: {crept}. That is "
+        f"how a scan reports zero while the drift it exists to catch survives")

@@ -5,18 +5,18 @@
 
 ---
 
-## 2026-05-04 09:12 - Frame
+## 2026-05-04 09:12 - triage
 
 - **Event:** Needle ran; route computed.
 - **Route:** quick fix - see `delivery-approach.md` revision 1.
 - **Assessment:** risk trivial, familiarity brownfield-mapped, size small, intent & role engineer/delivery.
 - **Routing guardrails fired:** none.
 - **Outstanding follow-ups:** none.
-- **Next:** Specify.
+- **Next:** define.
 
-## 2026-05-04 09:15 - Specify
+## 2026-05-04 09:15 - define
 
-- **Event:** One scenario authored - the corrected message quoted verbatim in the `Then`, so Clarify can collapse.
+- **Event:** One scenario authored - the corrected message quoted verbatim in the `Then`, so refine can collapse.
 - **Artifact:** `acceptance-criteria.md` - 1 scenario in 1 group (TRC-001).
 - **Next:** Plan collapsed (one-line edit note in `delivery-approach.md` §5) → Build.
 
@@ -35,9 +35,9 @@
 - **Event:** Ran the new test plus the full `test_upload_errors.py` module; all green. Three quick fix review dimensions applied - correctness (TRC-001 passes), governance (`G1`/`G2`/`G3` clear; no strategy departures), traceability (TRC-001 → INT-1, `upload.py` → TRC-001).
 - **Artifact:** `verification-note.md` - quick fix's light Verify output.
 - **Evidence:** `evidence/green.json`.
-- **Next:** Land.
+- **Next:** ship.
 
-## 2026-05-04 09:29 - Land
+## 2026-05-04 09:29 - ship
 
 - **Event:** issue closed.
 - **What landed:** One-line message fix in `src/api/upload.py`, committed on the current branch.

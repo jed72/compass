@@ -38,7 +38,7 @@ already appear in `acceptance-criteria.md`.
 2. **Read the issue artifacts.** Read:
    - `.compass/work/<task>/acceptance-criteria.md` (the scenarios the issue must satisfy)
    - `.compass/work/<task>/design.md` (the technical approach)
-   - `.compass/work/<task>/architecture-loaded.yml` (Frame's load record, if present)
+   - `.compass/work/<task>/architecture-loaded.yml` (triage's load record, if present)
 3. **Degrade gracefully when architecture/ is absent.** If there is no
    `architecture/` directory, write `architecture-notes.md` with the first
    line exactly:

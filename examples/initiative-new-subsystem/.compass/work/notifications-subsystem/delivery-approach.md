@@ -66,14 +66,14 @@ checks, and initiative runs both. That check is recorded at the foot of
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Frame | Full | This document, with explicit `touches:` tagging - initiative is where domain floors most often fire, and one did. |
-| Specify | Full BDD discovery | Greenfield - six scenarios discovered from `prd.md`, grouped by independence into two groups (A: delivery & dispatch, B: preferences). The grouping seeds the distribution map. |
-| Clarify | Full pass | Self-QA, governance QA, explicit ambiguity ledger. The product owner reviewed here. See `requirements-review.md`. |
+| Triage | Full | This document, with explicit `touches:` tagging - initiative is where domain floors most often fire, and one did. |
+| Define | Full BDD discovery | Greenfield - six scenarios discovered from `prd.md`, grouped by independence into two groups (A: delivery & dispatch, B: preferences). The grouping seeds the distribution map. |
+| Refine | Full pass | Self-QA, governance QA, explicit ambiguity ledger. The product owner reviewed here. See `requirements-review.md`. |
 | Plan | Full `design.md` + `distribution-map.md` | Architecture, every design decision as an ADR note, governance check, scenario-group → stream mapping. **Was blocked** by RP-ROLE-002 until the intent-fidelity check passed. |
-| Distribute | Swarm | `scripts/swarm.sh` created two worktrees from `distribution-map.md` - stream-1 (dispatch/store), stream-2 (preferences). One `builder` each, plus an `orchestrator`. |
+| Breakdown | Swarm | `scripts/swarm.sh` created two worktrees from `distribution-map.md` - stream-1 (dispatch/store), stream-2 (preferences). One `builder` each, plus an `orchestrator`. |
 | Build | Full TDD per stream | Two builders, parallel, red→green→refactor in their own worktrees. The orchestrator watched the shared `migrations/0042` and `api.py` surface. |
 | Verify | All gates, all dimensions | Per-stream verification, then combined verification after integration. See `verification-report.md`. |
-| Land | Full | `scripts/integrate.sh` - orchestrated merge, full combined regression, living docs, `G5` human sign-off on the migration. |
+| Ship | Full | `scripts/integrate.sh` - orchestrated merge, full combined regression, living docs, `G5` human sign-off on the migration. |
 
 ### 4b. Gate set
 
@@ -109,7 +109,7 @@ honest decomposition, not a de-scope.
 - [x] None outstanding. initiative borrows no ceremony from the front of the pipeline -
   it runs every phase at full weight in order, so there is nothing to pay back.
 
-Note - not a follow-up, but a Land obligation: guardrail `G5` applies because
+Note - not a follow-up, but a ship obligation: guardrail `G5` applies because
 the issue `labels: [migrations]`. A human signs off the irreversible schema
 change before ship. That sign-off is recorded in `task.yml` `approvals:` and
 `compass check` requires it; it is a *gate*, not a borrowed-and-outstanding item.
@@ -131,6 +131,6 @@ would have stayed initiative regardless. That is the floor doing its job.)
 - [x] Every dimension in §1 has a justification.
 - [x] §5 de-scope ledger is empty - initiative skips nothing.
 - [x] Not a spike - no `.spike` marker needed.
-- [x] `devlog.md` opened with the Frame entry.
+- [x] `devlog.md` opened with the triage entry.
 
 Next stage: **define** (`/compass:define`) - full BDD discovery from `prd.md`.

@@ -23,7 +23,7 @@ docs/            methodology.md (canonical), quickstart, routing-deep-dive,
                  roles-guide, this file
 governance/      README.md, guardrails.md, strategies.md, routing-policy.md
 approaches/      rubric.md, README.md,
-                 express/standard/expedition/hotfix/spike.md
+                 quick-fix/feature/initiative/hotfix/spike.md
 templates/       delivery-approach.md, task.yml, prd.md, acceptance-criteria.md,
                  requirements-review.md, design.md, distribution-map.md,
                  positioning.md, launch-readiness.md, ui-contract.md,
@@ -161,7 +161,7 @@ end of the contract.
 ### 1. Triage before changing anything
 
 Before an issue modifies code, specs, or product artifacts, the runtime must run
-triage: read the four context dimensions (risk, familiarity,
+Triage: read the four context dimensions (risk, familiarity,
 size, intent & role) - that part is judgement, and the runtime must
 produce it. *Composing* the route from those assessment is mechanism, and the
 adapter should shell out to `compass approach evaluate` rather than reimplement
@@ -175,7 +175,7 @@ explaining, exploring. The moment an operation would change a file, triage must
 already have run for the current issue.
 
 The reference adapter enforces this two ways: `CLAUDE.md` states "Never skip
-Frame" as the one rule that creates every other rule, and `pre-tool.sh` blocks
+Triage" as the one rule that creates every other rule, and `pre-tool.sh` blocks
 a code edit when no `delivery-approach.md` exists for the current issue. A port must achieve
 the same outcome - mechanically if it can, procedurally if it cannot.
 

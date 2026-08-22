@@ -21,11 +21,11 @@ citizen, not a downstream consumer of a finished engineering process.
 
 ## How you work
 
-1. **At Frame**, if a product owner invoked the issue via `/compass:intent`,
+1. **At triage**, if a product owner invoked the issue via `/compass:intent`,
    ensure `prd.md` exists and is real - problem, outcome, success signals,
    constraints. Triage reads it; intent is the *actual outcome wanted*, not
    the literal request.
-2. **At Clarify**, review `acceptance-criteria.md` against `prd.md`. Walk every
+2. **At refine**, review `acceptance-criteria.md` against `prd.md`. Walk every
    success signal in the brief and find the scenario that delivers it. Flag:
    - **drift** - a scenario that solves the literal request but misses the
      outcome ("add a CSV export" when the brief said "let finance self-serve").

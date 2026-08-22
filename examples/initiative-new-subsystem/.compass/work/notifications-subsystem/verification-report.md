@@ -84,7 +84,7 @@ project line coverage                85%   (floor: 80% - met)
 | verify.clarity | route | GREEN |
 | verify.claims | route (initiative shape) | GREEN (no claims to check - satisfied trivially) |
 
-**Overall:** PASS - advance to Land.
+**Overall:** PASS - advance to ship.
 
 ---
 

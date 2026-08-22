@@ -75,7 +75,7 @@ route-aware: on a **Spike** route the TDD strategy is suspended and the hook
 does not block. The rest of this document is, in part, how to work with the
 hook rather than against it.
 
-## 2. Frame-and-go - `/compass:init` is optional
+## 2. Triage-and-go - `/compass:init` is optional
 
 There is no required setup step between installing Compass and running your
 first issue. The **five default guardrails** and the **default method
@@ -92,7 +92,7 @@ root:
 /compass:init
 ```
 
-`init` is exempt from Frame - it changes no application code. It:
+`init` is exempt from triage - it changes no application code. It:
 
 1. **Copies `governance/`** into the project - `guardrails.md`,
    `strategies.md`, `routing-policy.md` - so the team can extend the shipped
@@ -173,7 +173,7 @@ your acceptance suite and seed your TDD cycle.
 /compass:refine
 ```
 
-On Standard, Clarify is a light-to-full pass - never skipped. The `spec-author`
+On Standard, the requirements review is a light-to-full pass - never skipped. The `spec-author`
 QAs the spec against itself (is "the limit" defined? per-client or global? what
 about unauthenticated traffic?) and against governance. Each ambiguity is
 resolved into `acceptance-criteria.md` or recorded in `requirements-review.md` with an
@@ -318,7 +318,7 @@ proceed; the spec goes back. Well-formed and faithful are different tests, and
 this gate is where the difference is enforced.
 
 From here the pipeline continues as the approach specifies - implement,
-verify, Land -
+verify, ship -
 with the engineer carrying it. The product owner's involvement did not bolt a
 review onto the end; it changed the route from the start and put a gate before
 Plan.
@@ -354,7 +354,7 @@ audience - reads the voice & positioning strategies in
 ### How this shapes the route, and the gate at ship time
 
 The `product-marketer` reading turns on the `claims` review dimension and -
-per the `role_rules` - **blocks Land until every claim in `positioning.md`
+per the `role_rules` - **blocks shipping until every claim in `positioning.md`
 traces to a passing scenario**. `verify.claims` is an immovable gate; no route
 removes it.
 

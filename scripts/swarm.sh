@@ -165,7 +165,7 @@ done < "$MAP"
 STREAM_COUNT="${#STREAMS[@]}"
 if [ "$STREAM_COUNT" -eq 0 ]; then
   echo "swarm.sh: distribution-map.md lists no streams (no 'stream-N' rows in §3)." >&2
-  echo "          If the route is solo, Distribute is a no-op - do not run swarm.sh." >&2
+  echo "          If the route is solo, breakdown is a no-op - do not run swarm.sh." >&2
   exit 1
 fi
 

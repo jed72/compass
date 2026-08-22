@@ -54,7 +54,7 @@ The guardrails that *could* have fired and did not, both worth recording:
   you cannot "explore" an irreversible change.
 - **RP-FLOOR-002** (`familiarity: brownfield-unmapped`) did not fire - familiarity is
   `greenfield`, not unmapped brownfield. (On a brownfield-unmapped spike it
-  *would* fire and force a full Specify with blueprint-distillation, even on a
+  *would* fire and force a full define with blueprint-distillation, even on a
   Spike - a useful thing to know the policy does.)
 
 ---
@@ -65,14 +65,14 @@ The guardrails that *could* have fired and did not, both worth recording:
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Frame | Light but real | This document. Even a spike is accountable - it records the question and the timebox. |
-| Specify | Collapsed into the question | The spike's "spec" is the question in §5, not acceptance criteria for code. |
-| Clarify | Skipped | Nothing to QA - the behaviour is the unknown, and discovering it is the point. |
+| Triage | Light but real | This document. Even a spike is accountable - it records the question and the timebox. |
+| Define | Collapsed into the question | The spike's "spec" is the question in §5, not acceptance criteria for code. |
+| Refine | Skipped | Nothing to QA - the behaviour is the unknown, and discovering it is the point. |
 | Plan | Collapsed to a timebox | "Explore, with a clock" - §5. |
-| Distribute | Skipped | Solo. One person, one question. |
+| Breakdown | Skipped | Solo. One person, one question. |
 | Build | = **Explore** | Write rendering code freely to answer the question. **TDD strategy (`S2`) suspended** - the pre-tool hook is route-aware and does not block edits here. Code is assumed throwaway. |
 | Verify | = **Conclude** | Not a test gate - a findings check: did we answer the question? Output is a written conclusion (in `devlog.md`), not a passing suite. |
-| Land | = **Graduate or Discard** | Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
+| Ship | = **Graduate or Discard** | Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
 
 ### 4b. Gate set
 
@@ -103,10 +103,10 @@ The guardrails that *could* have fired and did not, both worth recording:
 
 | Phase / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| Specify | collapsed to a question | A spike has no acceptance criteria - its output is knowledge, not behaviour. **Nothing lands from a spike.** |
-| Clarify | skipped | Nothing to QA against - the unknown is the point. **Nothing lands from a spike.** |
+| Define | collapsed to a question | A spike has no acceptance criteria - its output is knowledge, not behaviour. **Nothing lands from a spike.** |
+| Refine | skipped | Nothing to QA against - the unknown is the point. **Nothing lands from a spike.** |
 | Plan | collapsed to a timebox | The plan for exploration is "explore, with a clock." **Nothing lands from a spike.** |
-| Distribute | skipped | One person, one question. **Nothing lands from a spike.** |
+| Breakdown | skipped | One person, one question. **Nothing lands from a spike.** |
 | Build - TDD strategy | suspended | Red-before-green is the wrong discipline for throwaway learning code. `G1` is not skipped - it is **deferred to graduation**, where it applies in full. **Nothing lands from a spike.** |
 
 Every justification rests on the same fact, repeated deliberately: **nothing
@@ -149,6 +149,6 @@ No human overrides. Route confirmed as composed.
 - [x] Every dimension in §1 has a justification.
 - [x] Every skipped/collapsed phase in §5 has a "safe to skip because…" line (all the same fact: nothing lands).
 - [x] On a spike: the `.spike` marker file is written to the issue directory.
-- [x] `devlog.md` opened with the Frame entry.
+- [x] `devlog.md` opened with the triage entry.
 
 Next stage: **explore** (`/compass:implement` on a spike).

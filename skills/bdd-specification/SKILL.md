@@ -255,7 +255,7 @@ Walk it for:
   must-fix; a strategy departure is a note and a conversation.
 
 Record each ambiguity, its resolution, and who resolved it in
-`requirements-review.md`. Clarify may be *light* on Standard; it may be *collapsed*
+`requirements-review.md`. The requirements review may be *light* on a feature; it may be *collapsed*
 on quick-fix only because the one scenario was certified unambiguous; it is
 *skipped* on Spike because the unknown is the point; it is never simply
 *absent* where the route or a routing guardrail calls for it.

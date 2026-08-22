@@ -41,14 +41,14 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Frame | Full | This document. |
-| Specify | Small feature set | Five scenarios - happy path, the over-limit reject, the retry-after contract, the window reset, per-client isolation. See `acceptance-criteria.md`. |
-| Clarify | Light pass | Two ambiguities surfaced and resolved; spec QA'd against itself and governance. See `requirements-review.md`. |
+| Triage | Full | This document. |
+| Define | Small feature set | Five scenarios - happy path, the over-limit reject, the retry-after contract, the window reset, per-client isolation. See `acceptance-criteria.md`. |
+| Refine | Light pass | Two ambiguities surfaced and resolved; spec QA'd against itself and governance. See `requirements-review.md`. |
 | Plan | Real `design.md` | Two design decisions recorded (storage backend, window algorithm); governance check run. |
-| Distribute | Skipped (solo) | The work units share surface - see `design.md` §4. Solo on the current branch. |
+| Breakdown | Skipped (solo) | The work units share surface - see `design.md` §4. Solo on the current branch. |
 | Build | Full TDD | Five scenarios, red→green→refactor each. Test surface scaled to `contained`. |
 | Verify | Full - one gate | Six review dimensions, all evidenced in `verification-report.md`. |
-| Land | Full | Commit on the current branch, regression run, living docs updated, one devlog entry. |
+| Ship | Full | Commit on the current branch, regression run, living docs updated, one devlog entry. |
 
 ### 4b. Gate set
 
@@ -68,10 +68,10 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| Distribute | skipped | The three work units (middleware, route wiring, config) all touch `rate_limit.py` or depend on it. They are not independent - disjoint code is one of the two independence tests and it fails. Solo is correct, not a shortcut. |
+| Breakdown | skipped | The three work units (middleware, route wiring, config) all touch `rate_limit.py` or depend on it. They are not independent - disjoint code is one of the two independence tests and it fails. Solo is correct, not a shortcut. |
 | Dedicated orchestrator agent | skipped | Standing Standard de-scope: at solo/≤3 streams the lead builder integrates; a separate orchestrator is overhead. |
 
-Note what is *not* in this ledger: Clarify is not skipped - Standard's spec is a feature set, and there was real ambiguity to resolve (`requirements-review.md`). Clarify is *light*, never absent, on Standard.
+Note what is *not* in this ledger: refine is not skipped - a feature's spec is a feature set, and there was real ambiguity to resolve (`requirements-review.md`). The requirements review is *light*, never absent, on a feature.
 
 ---
 
@@ -93,6 +93,6 @@ No human overrides. Route confirmed as composed.
 - [x] Every dimension in §1 has a justification.
 - [x] Every skipped phase in §5 has a "safe to skip because…" line.
 - [x] Not a spike - no `.spike` marker needed.
-- [x] `devlog.md` opened with the Frame entry.
+- [x] `devlog.md` opened with the triage entry.
 
 Next stage: **define** (`/compass:define`).

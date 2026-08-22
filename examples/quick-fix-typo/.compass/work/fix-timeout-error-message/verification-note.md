@@ -43,4 +43,4 @@ full suite. The module run above is the proportionate check.)
 | verify.governance | immovable + route | GREEN |
 | verify.traceability | immovable + route | GREEN |
 
-**Overall:** PASS - advance to Land.
+**Overall:** PASS - advance to ship.

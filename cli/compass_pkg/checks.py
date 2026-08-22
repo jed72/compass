@@ -848,7 +848,7 @@ def _check_spike_conclusion_present(task, task_dir):
         return False, (f"spike-conclusion {c.get('id', '?')} graduates to "
                        f"delivery, but `next_task:` is empty - link the new "
                        f"issue (e.g. .compass/work/<new-slug>/). Graduation is "
-                       f"a fresh Frame, not a merge.")
+                       f"a fresh triage, not a merge.")
     nt = f" -> {c['next_task']}" if c.get("next_task") else ""
     return True, f"spike close-out on record: {decision}{nt}"
 
@@ -859,7 +859,7 @@ def _check_spike_no_production_changes(task, task_dir):
         paths = [c.get("path", "?") for c in cf if isinstance(c, dict)]
         return False, (f"a Spike must not list production changed_files "
                        f"(found: {paths}). Exploration code stays on a scratch "
-                       f"branch; if the finding is acted on, a fresh Frame "
+                       f"branch; if the finding is acted on, a fresh triage "
                        f"owns the code under a real route's guardrails. This "
                        f"is the safety model - a Spike cannot silently become "
                        f"delivery.")

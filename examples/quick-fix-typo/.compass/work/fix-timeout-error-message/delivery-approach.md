@@ -41,14 +41,14 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Frame | Full | This document. |
-| Specify | One scenario | A single Given/When/Then naming the corrected message. That scenario is the spec. |
-| Clarify | Collapsed | See the de-scope ledger. |
+| Triage | Full | This document. |
+| Define | One scenario | A single Given/When/Then naming the corrected message. That scenario is the spec. |
+| Refine | Collapsed | See the de-scope ledger. |
 | Plan | Collapsed | One-line edit note below. No `design.md`. |
-| Distribute | Skipped | Solo, current branch. |
+| Breakdown | Skipped | Solo, current branch. |
 | Build | Full TDD | Failing test for TRC-001 → green → no refactor needed. |
 | Verify | Light | Run the new test plus the upload test module; paste output. |
-| Land | Light | Commit on the current branch, one devlog entry. |
+| Ship | Light | Commit on the current branch, one devlog entry. |
 
 ### 4b. Gate set
 
@@ -68,9 +68,9 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| Clarify | collapsed | The spec is a single scenario triage certified unambiguous - the corrected message is quoted verbatim in the `Then`. Nothing to QA against itself. |
+| Refine | collapsed | The spec is a single scenario triage certified unambiguous - the corrected message is quoted verbatim in the `Then`. Nothing to QA against itself. |
 | Plan | collapsed to one-liner | Size `small` on mapped familiarity. No design decision: there is exactly one place the string lives and one correct value for it. |
-| Distribute | skipped | One stream of work. A worktree would be pure overhead. |
+| Breakdown | skipped | One stream of work. A worktree would be pure overhead. |
 
 **One-line edit note (quick fix collapsed Plan):** edit the timeout branch in `src/api/upload.py` - replace the generic string with one that names the configured `MAX_UPLOAD_MB` limit.
 
@@ -94,6 +94,6 @@ No human overrides. Route confirmed as composed.
 - [x] Every dimension in §1 has a justification.
 - [x] Every collapsed phase in §5 has a "safe to skip because…" line.
 - [x] Not a spike - no `.spike` marker needed.
-- [x] `devlog.md` opened with the Frame entry.
+- [x] `devlog.md` opened with the triage entry.
 
 Next stage: **define** (`/compass:define`).

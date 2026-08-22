@@ -30,7 +30,7 @@ branch from it), then the two streams run in parallel.
 
 ### DD-1 - Security override is a fixed category, not a per-notification flag
 
-- **Context:** TRC-006 / Clarify Q1 - mute must not be able to suppress
+- **Context:** TRC-006 / refine Q1 - mute must not be able to suppress
   security notifications. The mechanism had to be chosen.
 - **Decision:** A fixed, closed `security` category. `preferences.py` resolves
   any `(user, "security")` query to `deliver` regardless of stored preference.
@@ -45,7 +45,7 @@ branch from it), then the two streams run in parallel.
 
 ### DD-2 - Idempotency key on the notification row, once-ever dedup
 
-- **Context:** TRC-002 / Clarify Q2 - a retried event must not double-deliver.
+- **Context:** TRC-002 / refine Q2 - a retried event must not double-deliver.
 - **Decision:** The producer supplies an idempotency key; `store.py` writes it
   to a unique-constrained column. A second write with the same key is a
   caught-and-logged no-op.
@@ -103,7 +103,7 @@ written.
 ## Gate
 
 - [x] Every scenario in `acceptance-criteria.md` is covered by a work unit - U1 covers TRC-001…003, U2 covers TRC-004…006, U0 is the shared foundation.
-- [x] Governance check passes - every guardrail clears with evidence; `G5`'s Land sign-off is routed in; no strategy deviation to record.
+- [x] Governance check passes - every guardrail clears with evidence; `G5`'s ship sign-off is routed in; no strategy deviation to record.
 - [x] Parallel work is possible - `distribution-map.md` written next.
 
 Next stage: **breakdown** (`/compass:breakdown`) - runs `scripts/swarm.sh` with the distribution map.

@@ -451,7 +451,7 @@
     },
     "friction": {
       "type": "array",
-      "description": "Optional. Written at ship. Records where Compass's own ceremony cost more than it returned between Frame and ship, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates ship. Absent on issues that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
+      "description": "Optional. Written at ship. Records where Compass's own ceremony cost more than it returned between triage and ship, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates ship. Absent on issues that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
       "items": {
         "type": "object",
         "required": [

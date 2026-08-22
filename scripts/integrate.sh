@@ -2,7 +2,7 @@
 # =============================================================================
 # Compass script: integrate.sh  -  LAND THE WORKTREES BACK TOGETHER
 # =============================================================================
-# The Land-phase counterpart to swarm.sh. It merges the per-stream branches
+# The ship-stage counterpart to swarm.sh. It merges the per-stream branches
 # back into the base branch in a coordinated order, runs the project's test
 # command for combined regression, reports any conflicts for the `orchestrator`
 # to resolve, and cleans up the worktrees on success. Only the `orchestrator`
@@ -29,7 +29,7 @@
 # COMBINED REGRESSION
 #   After all streams merge cleanly, the project's test command runs once
 #   against the integrated result. Per-stream green does not imply integrated
-#   green - proving the combination is the whole point of Land. If combined
+#   green - proving the combination is the whole point of ship. If combined
 #   regression fails, worktrees are NOT cleaned up (you will need them) and the
 #   script exits non-zero.
 #
@@ -104,7 +104,7 @@ done < "$MAP"
 
 if [ "${#STREAMS[@]}" -eq 0 ]; then
   echo "integrate.sh: no streams in distribution-map.md. If the route is solo," >&2
-  echo "              Land integrates with a plain commit - integrate.sh is not needed." >&2
+  echo "              ship integrates with a plain commit - integrate.sh is not needed." >&2
   exit 1
 fi
 

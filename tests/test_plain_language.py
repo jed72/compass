@@ -596,7 +596,7 @@ def _fixture_receipt() -> str:
     import sys as _sys
     r = subprocess.run(
         [_sys.executable, str(REPO_ROOT / "cli" / "compass"), "issue", "receipt",
-         "--issue", "receipt-task", "--workdir", str(RECEIPT_FIXTURE)],
+         "--issue", "receipt-example", "--workdir", str(RECEIPT_FIXTURE)],
         cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, (
         f"the receipt fixture would not render, so nothing below establishes "

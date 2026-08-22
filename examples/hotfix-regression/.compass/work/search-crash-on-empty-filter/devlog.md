@@ -5,16 +5,16 @@
 
 ---
 
-## 2026-05-11 08:50 - Frame
+## 2026-05-11 08:50 - triage
 
 - **Event:** Needle ran; route computed. Urgent stub of `delivery-approach.md` written to start the audit trail - completed properly at ship (FU-002).
 - **Route:** Hotfix - selected by `urgency: live-defect` + `size: small` (RP-SHAPE-002).
 - **Assessment:** risk cross-cutting, familiarity brownfield-mapped, size small, intent & role engineer/delivery, urgency live-defect.
 - **Routing guardrails fired:** none - risk held at `cross-cutting`, not `critical`; had it been critical, RP-FLOOR-001 would have forced initiative (incident, not hotfix).
 - **Outstanding follow-ups:** FU-001 (promote the reproduction to scenario), FU-002 (complete delivery-approach.md), FU-003 (root-cause line + follow-up issue). Hotfix always owes a follow-up.
-- **Next:** Specify - reproduce-first.
+- **Next:** define - reproduce-first.
 
-## 2026-05-11 09:08 - Specify (reproduce-first)
+## 2026-05-11 09:08 - define (reproduce-first)
 
 - **Event:** Wrote `test_empty_filter_object_does_not_crash` and watched it fail - it reproduces the production 500 (`AttributeError: 'NoneType' object has no attribute 'render'`). On Hotfix this failing test *is* the spec. `compass tdd-red` recorded it.
 - **Artifact:** the red test; `evidence/red.json`.
@@ -34,13 +34,13 @@
 - **Event:** Full Verify - not compressed. Five gates applied (correctness, governance, traceability, regression, security), all GREEN. `clarity` deferred to follow-up FU-001 per the delivery approach. `ruff check` clean.
 - **Artifact:** `verification-report.md`.
 - **Evidence:** test run in `verification-report.md` §2; `evidence/green.json`.
-- **Next:** Land - ship, then the mandatory follow-up.
+- **Next:** ship - ship, then the mandatory follow-up.
 
-## 2026-05-11 11:05 - Land - fix shipped
+## 2026-05-11 11:05 - ship - fix shipped
 
 - **Event:** Fix deployed to production; the crash on the mobile build stopped. Living docs updated (the `/search` API reference now documents empty-filter behaviour).
 
-## 2026-05-11 11:45 - Land - follow-up paid
+## 2026-05-11 11:45 - ship - follow-up paid
 
 - **Event:** issue closed - the mandatory Hotfix follow-up is paid in full.
 - **What landed:** A one-branch empty-filter guard in `src/api/search/filter_compiler.py`.

@@ -94,11 +94,11 @@ that the break is tolerable is the other thing, and it is not this.
 
    If any of the drift-guard tests fail, **do not bump VERSION further.**
    A failed drift-guard means a public-facing artifact has not been
-   updated for a behaviour change - the framework's own G3 (traceability)
+   updated for a behaviour change - the framework's own traceability guardrail (`G3`)
    is at risk. Fix the docs to catch up, re-run, then bump.
 
 4. **`make ci`** - must be green. Runs `compass policy lint` + `issue
-   lint` + `check` across all tasks under `.compass/work/`. (`make ci`
+   lint` + `check` across all issues under `.compass/work/`. (`make ci`
    is what CI runs; failing it locally means CI will fail.)
 
 5. **`make release`** - produces `dist/compass-<version>.tar.gz`.
@@ -120,7 +120,7 @@ that the break is tolerable is the other thing, and it is not this.
    - eyeballs are still useful even when the script's checks have
    passed.
 
-7. **Distribute ONLY the tarball from step 5.** Do not zip the source
+7. **Distribute ONLY the tarball from step 5.** <!-- vocabulary-scan: allow - ordinary verb, and the sentence is an instruction about distribution rather than the retired stage --> Do not zip the source
    tree from Finder, GitHub's "Download ZIP," or any other tool. Those
    zip the live working tree, including `__MACOSX`, `.DS_Store`,
    `.pytest_cache`, any `.bak` file, and any other dev noise. The

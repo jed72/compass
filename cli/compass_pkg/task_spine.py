@@ -200,7 +200,7 @@ def cmd_land_commit(args):
             f"{len(stray)} staged path(s) are outside issue '{slug}'s declared "
             "scope:\n  " + "\n  ".join(stray[:20])
             + ("\n  ... and %d more" % (len(stray) - 20) if len(stray) > 20 else "")
-            + "\n\nA Land commit contains the issue's `changed_files` and its "
+            + "\n\nA ship commit contains the issue's `changed_files` and its "
             f"artifact directory ({artifact_dir}). If these paths belong to "
             "this issue, record them first:\n"
             "  compass changed-file add <path> --scenario <SCN-ID>\n"
@@ -290,7 +290,7 @@ def cmd_land_commit(args):
                     if unmet:
                         landed_note = (
                             "\n  NOT marked landed: %d gate(s) have not "
-                            "passed (%s).\n  The commit stands - Land is a "
+                            "passed (%s).\n  The commit stands - shipping is a "
                             "record, not a rubber stamp. Clear the gates and "
                             "re-run, or set status by hand if this issue "
                             "genuinely lands unverified."
@@ -511,7 +511,7 @@ def cmd_task_set_status(args):
             "  queued    - recorded as next up, not started\n"
             "  active    - in flight\n"
             "  parked    - stopped, phases so far still valid, can resume\n"
-            "  landed    - Land completed; only this grants living-spec eligibility\n"
+            "  landed    - shipping completed; only this grants living-spec eligibility\n"
             "  abandoned - will not resume"
         )
 
@@ -528,7 +528,7 @@ def cmd_task_set_status(args):
             raise CompassError(
                 f"compass issue set-status: refusing to mark '{task.get('issue')}' "
                 f"landed - {len(unmet)} gate(s) have not passed "
-                f"({', '.join(unmet)}). Land is a record, not a rubber stamp. "
+                f"({', '.join(unmet)}). Shipping is a record, not a rubber stamp. "
                 "Clear the gates and re-run."
             )
         task["land_timestamp"] = now_iso()

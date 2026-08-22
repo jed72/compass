@@ -309,7 +309,7 @@ def load_task(task_dir):
     path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(path):
         raise CompassError(
-            f"no task.yml in {task_dir} - has Frame run? task.yml is the "
+            f"no task.yml in {task_dir} - has triage run? task.yml is the "
             f"machine-readable issue spine."
         )
     task = load_yaml(path)

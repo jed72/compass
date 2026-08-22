@@ -1,7 +1,7 @@
 # Clarifications - rate-limit-search-endpoint
 
-> **Phase:** Clarify · **Date:** 2026-04-22 · **Owning agent:** spec-author
-> **Clarify weight (from delivery-approach.md):** light pass
+> **Phase:** refine · **Date:** 2026-04-22 · **Owning agent:** spec-author
+> **Requirements review weight (from delivery-approach.md):** light pass
 
 ---
 
@@ -80,7 +80,7 @@
 - [x] **Affected surface named** - `delivery-approach.md` §4 and the upcoming `design.md` §4
       name the middleware, the delivery approach wiring, and the config addition.
 - [x] **No open questions** - the ambiguity ledger above is fully resolved.
-- [x] **Route still fits** - nothing in Clarify changed the size or blast
+- [x] **Route still fits** - nothing in refine changed the size or blast
       radius reading. Standard still fits; no re-frame needed.
 
 Next stage: **design** (`/compass:design`).

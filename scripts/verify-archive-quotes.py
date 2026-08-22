@@ -82,6 +82,9 @@ WORKED_EXAMPLE_SPANS = [
     {
         "id": "worked-example-original-decided-by",
         "source": WORKED_EXAMPLE_SOURCE,
+        # The retired name below is what the archived file actually says.
+        # Rewriting it would have this script verify a sentence nobody wrote,
+        # which is the failure the whole guard exists to catch.
         "quoted": "**Decided by:** James (engineer) via Clarify reasoning",
         "mode": "substring",
     },
