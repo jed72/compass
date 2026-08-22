@@ -99,3 +99,27 @@ stale, contradictory strategies is its own kind of mess. So:
 The framework ships these with sane, active defaults. `/compass:init` copies
 them into a project so the team can extend them; until then, the shipped
 defaults apply as-is. Editing is accretion, not a precondition.
+
+## What happens to the shipped defaults when a project declares its own
+
+**Project governance replaces the shipped defaults. It is not added to them.**
+
+`compass check` builds the guardrail set from the one `governance/` directory
+in force - the project's if it has one, the framework's otherwise. A project
+that declares its own therefore keeps only what its files contain. Copy the
+shipped `guardrails.yml` and edit it rather than writing a short one from
+scratch, or the five default guardrails stop applying.
+
+**A shipped guardrail the project omits is reported, but does not fail the
+run.** When `compass check` meets an issue that one of the framework's defaults
+would have applied to, and the project's file does not define it, it prints
+that the guardrail is absent and points at `compass policy lint`. That is a
+notice, not a failure - the project is allowed to decide it wants fewer rules,
+and Compass says so rather than pretending.
+
+**Both files are required together.** A `governance/` directory holding
+`guardrails.yml` with no `routing-policy.yml`, or the reverse, is refused with
+a message naming the missing file and two ways to fix it. Compass will not
+quietly substitute its own defaults for governance a project has declared. A
+directory holding neither file is passed over, because sharing a name is not a
+declaration.

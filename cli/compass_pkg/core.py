@@ -132,11 +132,85 @@ def find_upwards(start, rel):
         cur = parent
 
 
+#: The files that make a `governance/` directory a declaration rather than a
+#: directory that happens to share the name. Both must be present for the
+#: directory to be usable; either one alone means the project declared
+#: governance Compass cannot apply.
+GOVERNANCE_FILES = ("routing-policy.yml", "guardrails.yml")
+
+#: Markers of the project's own boundary. The upward walk does not go above the
+#: first directory holding one of these, so a stray `governance/` in an outer
+#: repository or a home directory cannot stop work inside a project.
+BOUNDARY_MARKERS = (".compass", ".git")
+
+
+def _governance_refusal(gov_dir, present, missing):
+    """The message an incomplete project governance directory earns.
+
+    This is also the migration path. A project in this state works today -
+    its guardrails are quietly ignored - and fails on its first command after
+    upgrading, so the message has to be actionable without reading the source.
+    Two ways out, each one step.
+    """
+    shipped = os.path.join(FRAMEWORK_ROOT, "governance")
+    return CompassError(
+        "this project declares governance that Compass cannot apply.\n\n"
+        f"  found   : {os.path.join(gov_dir, present)}\n"
+        f"  missing : {os.path.join(gov_dir, missing)}\n\n"
+        "Compass will not use its own defaults in place of yours without "
+        "telling you, so nothing here is being applied.\n\n"
+        "To keep your governance, add the missing file and edit it from there:\n"
+        f"  cp {os.path.join(shipped, missing)} {gov_dir}/\n\n"
+        "To use the shipped defaults instead, remove:\n"
+        f"  {os.path.join(gov_dir, present)}"
+    )
+
+
 def find_governance():
-    """Project-local governance/ if present; else the framework's shipped one."""
-    proj = find_upwards(os.getcwd(), os.path.join("governance", "routing-policy.yml"))
-    if proj:
-        return os.path.join(proj, "governance")
+    """The governance directory in force: the project's own, or the shipped one.
+
+    Walks up from the working directory looking for a `governance/` holding at
+    least one recognised file, and stops at the project boundary. What it finds
+    decides the answer:
+
+    - both files      -> that directory
+    - one file only   -> refuse, and say which is missing and how to fix it
+    - neither file    -> keep walking; the directory declared nothing
+    - nothing at all  -> the framework's shipped defaults, silently
+
+    The refusal is the point. Discovery used to look for `routing-policy.yml`
+    alone, so a project shipping `guardrails.yml` beside no policy silently got
+    the framework's governance and never learned its own was being ignored -
+    which contradicts the promise that a declared guardrail cannot quietly
+    become advisory.
+    """
+    cur = os.path.abspath(os.getcwd())
+    while True:
+        gov_dir = os.path.join(cur, "governance")
+        if os.path.isdir(gov_dir):
+            present = [f for f in GOVERNANCE_FILES
+                       if os.path.isfile(os.path.join(gov_dir, f))]
+            if len(present) == len(GOVERNANCE_FILES):
+                return gov_dir
+            if present:
+                missing = next(f for f in GOVERNANCE_FILES if f not in present)
+                raise _governance_refusal(gov_dir, present[0], missing)
+            # Neither file: a directory that shares the name has declared
+            # nothing. Walk past it, exactly as before.
+
+        # Stop at the project's own boundary, inclusive of the directory that
+        # marks it. Without this a project that declares no governance would
+        # inherit - and could be refused by - a directory its author may not
+        # know exists. When no marker is ever found the walk reaches the
+        # filesystem root, which is the behaviour that shipped before this and
+        # is left alone deliberately.
+        if any(os.path.exists(os.path.join(cur, m)) for m in BOUNDARY_MARKERS):
+            break
+        parent = os.path.dirname(cur)
+        if parent == cur:
+            break
+        cur = parent
+
     shipped = os.path.join(FRAMEWORK_ROOT, "governance")
     if os.path.isfile(os.path.join(shipped, "routing-policy.yml")):
         return shipped

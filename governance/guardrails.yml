@@ -26,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.7.0
+version: 1.8.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -161,7 +161,8 @@ defaults:
   - id: G1
     name: "Tested before it lands"
     statement: >
-      No code reaches main without a passing automated test it traces to.
+      No code reaches main unless it traces to a declared test and a green test run is on record.
+      Compass checks that both exist and line up; it does not observe the declared test running - see docs/safety-contract.md for what a test-run record does and does not establish.
     # The red-before-green ritual is strategy S2, not this guardrail. G1 is the
     # outcome; `compass check` verifies the outcome, the hook enforces S2.
     # `declared-tests-resolve` closes the gap that a test being *named* is not
