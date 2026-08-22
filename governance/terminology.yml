@@ -669,6 +669,14 @@ scan:
     # on describing v1 commands and v1 spine keys for the whole of v2. Zero
     # pending means the listed surfaces came clean, not the repository.
     - docs/install-smoke-test.md
+    # Added after five published docs were found outside the list entirely.
+    # docs/glossary.md is NOT among them: it is derived from this file, so it
+    # is checked at its source. Hand-editing a derived page is how a derivation
+    # silently stops matching, and its drift guard caught exactly that attempt.
+    - docs/releasing.md
+    - docs/writing-specs-and-plans.md
+    - docs/receipt.md
+    - docs/case-study-compass-rebuilt-itself.md
   # ---------------------------------------------------------------------------
   # POSITION EXEMPTIONS - the inverted default.
   #

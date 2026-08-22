@@ -1,7 +1,7 @@
 # Writing specs and plans
 
 This is a worked example, not a new rule. Compass already has the rule:
-**strategy S7** in `governance/strategies.md` says write for a cold reader -
+**the cold-reader strategy** (`S7`) in `governance/strategies.md` says write for a cold reader -
 someone who was not in the conversation, has not read the review, and cannot ask
 you a follow-up question. This page shows what that looks like in the four
 places it matters most.
@@ -80,7 +80,7 @@ preference that has not been tested.
 >   without removing it and slows every other route behind the same proxy.
 > - **Consequences:** Commits us to a job store and a polling endpoint. Clients
 >   must handle a two-step flow, so the API is no longer a single call.
-> - **Governance tie:** G1 - the job path needs its own test surface.
+> - **Governance tie:** the tested-before-ship guardrail (`G1`) - the job path needs its own test surface.
 
 **What changed:** the weak version records that a choice was made; the better one
 records enough for a future reader to reopen the choice when the constraints
@@ -288,7 +288,7 @@ their v5.0.6 release after regression testing across five versions and five
 trials found identical quality scores whether the loop ran or not, at roughly 25
 minutes of overhead per run. Compass has not repeated that measurement, and
 takes their published result at face value. Compass already has two
-review moments that earn their cost: **Clarify**, which QAs the spec against
+review moments that earn their cost: **the requirements review**, which QAs the spec against
 governance and records an ambiguity ledger, and the **reviewer** agent at Verify.
 The four-scan self-review in the `bdd-specification` skill gets the ergonomic
 benefit without the ceremony, because the author fixes their own cheap mistakes
@@ -305,7 +305,7 @@ fine *upstream* of Compass, in a brief or a ticket; they are not the spec.
 reader is a junior engineer with no context". Compass does not, because its
 five-lens model is a stronger reader model than any single persona: the same
 spec is read for intent fidelity, for claims, for tests, for coverage, and for UI
-behaviour. S7 already assumes zero prior context without having to name someone
+behaviour. the cold-reader strategy (`S7`) already assumes zero prior context without having to name someone
 to imagine.
 
 **No bite-sized issues with exact commands in the plan.** Some frameworks make
@@ -320,8 +320,8 @@ lint`.
 
 ## Related
 
-- `governance/strategies.md` - S7 (cold reader) and S4 (persistence over
-  conversation), which S7 extends.
+- `governance/strategies.md` - the cold-reader strategy (`S7`) and the persistence-over-conversation strategy (`S4`) (persistence over
+  conversation), which the cold-reader strategy (`S7`) extends.
 - `skills/bdd-specification/SKILL.md` - the Summary section, the four-scan
   self-review, and what makes a scenario runnable.
 - `skills/governance-check/SKILL.md` - where `compass design lint` fits in the

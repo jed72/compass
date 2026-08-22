@@ -603,7 +603,7 @@ def test_docs_example_matches_actual_output(framework_root, cli_path):
     proc = _subprocess.run(
         [
             "python3", str(cli_path), "issue", "receipt",
-            "--issue", "receipt-task",
+            "--issue", "receipt-example",
             "--workdir", str(fixture_root),
         ],
         capture_output=True, text=True, check=True, timeout=10,
