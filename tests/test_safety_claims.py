@@ -195,10 +195,16 @@ def test_d1_guarantee_without_backing_fails():
     """TRC-D1 - a guarantee nothing accounts for is reported by number."""
     text = CONTRACT.read_text(encoding="utf-8")
     n = max(parse_guarantees(text)) + 1
-    planted = text.replace(
-        "## What Compass 1.0 does NOT claim",
-        f"{n}. **A guarantee nobody wrote a mechanism for.** Invented by a "
-        f"test.\n\n## What Compass 1.0 does NOT claim", 1)
+    # Anchored on the section heading by shape rather than by its exact
+    # words. Pinning the version in it is what broke this check when the
+    # contract's headings stopped carrying one.
+    import re as _re
+    m = _re.search(r"^## What Compass.*does NOT claim.*$", text, _re.M)
+    assert m, "the contract has no 'does NOT claim' section to plant before"
+    planted = (text[:m.start()]
+               + f"{n}. **A guarantee nobody wrote a mechanism for.** Invented "
+                 f"by a test.\n\n"
+               + text[m.start():])
 
     problems = check(planted, str(REPO_ROOT))
     assert any(p.guarantee == n for p in problems), (

@@ -89,7 +89,7 @@ Logical surface: **role pipeline**
 | `governance/guardrails.yml` | `compass check` reads this to run gate assertions | high |
 | `governance/strategies.md` | Consulted by agents when deciding TDD/BDD application | medium |
 | `governance/signals.yml` | `hooks/stop.sh` and `compass rework-scan` read this | medium |
-| `.compass/work/<issue>/task.yml` | The machine-readable issk spine; written by Frame, read by all phases | high |
+| `.compass/work/<issue>/task.yml` | The machine-readable issue spine; written by triage, read by every stage | high |
 | `.compass/work/<task>/*.md` | Phase artefacts (spec, plan, clarifications, etc.) | high |
 | `.compass/current-task` | One-line pointer resolved by CLI and hooks | high |
 | `architecture/` (this tree) | Frame loads into `architecture-loaded.yml`; architect-lens reads | medium |

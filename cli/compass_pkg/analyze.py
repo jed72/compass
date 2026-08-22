@@ -354,7 +354,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
             "subject": "prd.md",
             "detail": (
                 f"prd.md is absent but the define stage is '{specify_weight}' - "
-                f"a full-weight Specify requires a brief."
+                f"a full-weight define stage requires a brief."
             ),
         })
 
@@ -615,7 +615,7 @@ def cmd_analyze(args):
         # (even though we called the gate path for the registry update)
         pass
     else:
-        print(f"\n  [advisory] findings above are informational - Land is not blocked.")
+        print(f"\n  [advisory] findings above are informational - shipping is not blocked.")
 
     if findings and is_gate_mode:
         print(f"\ncompass analyze: FAIL - {len(findings)} coherence finding(s).")
@@ -626,7 +626,7 @@ def cmd_analyze(args):
         # its findings and then denied having any - and the evidence JSON,
         # which recorded the real count, disagreed with the line a human reads.
         print(f"\ncompass analyze: PASS (advisory) - {len(findings)} coherence "
-              f"finding(s) reported above; they do not block Land on this route.")
+              f"finding(s) reported above; they do not block shipping on this route.")
         return 0
     print("\ncompass analyze: PASS - 0 finding(s), coherence checks clean.")
     return 0

@@ -193,7 +193,7 @@ def cmd_next(args):
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
         sys.stdout.write(
-            "Frame has not run for this issue - task.yml is missing.\n"
+            "Triage has not run for this issue - task.yml is missing.\n"
             f"  Run /compass:triage to start the issue at: {task_dir}\n"
         )
         return 2

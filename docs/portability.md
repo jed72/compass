@@ -23,7 +23,7 @@ docs/            methodology.md (canonical), quickstart, routing-deep-dive,
                  roles-guide, this file
 governance/      README.md, guardrails.md, strategies.md, routing-policy.md
 approaches/      rubric.md, README.md,
-                 express/standard/expedition/hotfix/spike.md
+                 quick-fix/feature/initiative/hotfix/spike.md
 templates/       delivery-approach.md, task.yml, prd.md, acceptance-criteria.md,
                  requirements-review.md, design.md, distribution-map.md,
                  positioning.md, launch-readiness.md, ui-contract.md,

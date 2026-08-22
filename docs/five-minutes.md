@@ -285,7 +285,7 @@ compass analyze          cross-artifact coherence check (orphaned scenarios,
 compass adr new          create a new numbered ADR in architecture/decisions/
 compass rework-scan      scan issues for rework patterns (uses signals.yml)
 compass flow [--digest]  cross-issue flow view; --digest writes a dated digest
-compass next             surface the next action on the current issk
+compass next             surface the next action on the current issue
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly; verifies HEAD advanced
 compass retro      aggregate the re-assessment log - is the sizing right?

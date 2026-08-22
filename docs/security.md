@@ -173,8 +173,8 @@ is small:
   executable parts are the three hook scripts and the install script;
   the rest is instructions to an agent.
 
-There is no Compass plugin marketplace today, and any future plugin or
-skill marketplace should be treated with the same supply-chain caution
+Compass publishes through the Claude Code plugin marketplace, and that install
+path deserves the same supply-chain caution as any other
 as any other code source. If Compass ever ships a mechanism for loading
 third-party skills or commands, the same rules apply: pin to a SHA,
 mirror to a trusted location, review the diff before bumping.

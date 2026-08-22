@@ -244,7 +244,7 @@ compass adr new          create a new numbered ADR in architecture/decisions/
 compass rework-scan      scan issues for rework patterns (window from signals.yml)
 compass flow [--digest]  cross-issue flow view; --digest writes a dated digest
                          with the rework-scan section and calibration signal
-compass next             surface the next action on the current issk
+compass next             surface the next action on the current issue
 compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
 compass ship-commit -m   commit staged artifacts robustly: survives auto-fixing
                          pre-commit hooks and verifies HEAD advanced
@@ -370,7 +370,7 @@ compass/
 ├── skills/            Procedural knowledge: routing, BDD, TDD, worktrees…
 ├── hooks/             Mechanical enforcement of the guardrails + TDD strategy
 ├── templates/         Artifact templates for every phase and role,
-│                      including task.yml, the machine-readable issk spine
+│                      including task.yml, the machine-readable issue spine
 ├── scripts/           install, swarm, integrate, validate
 ├── .claude-plugin/    Claude Code plugin manifest (plugin.json) +
 │                      marketplace manifest - the install path used by

@@ -215,7 +215,9 @@ around.
 
 **Correct a retired name in a comment you were touching anyway.** The
 vocabulary scan does not read comments or docstrings - the parser discards
-them, so nothing there reaches a user (`PX-1` in `terminology.yml`). But the
+them, so nothing there reaches a user. That exclusion is recorded as position
+exemption `PX-1` in `terminology.yml`, which is the list of places the scan
+deliberately does not read and the reason for each. But the
 752 retired names sitting in them are the reservoir the next user-facing
 string gets copied from, which is close to how the v1 vocabulary spread in
 the first place. So: no sweep, and no obligation to go looking - but a
@@ -241,7 +243,7 @@ nothing here fails `compass check`.
 *Cross-reference: persistence over conversation (persistence over conversation), which this extends; traceability
 (traceability) - a reference the reader cannot resolve is not traceability.
 Assessed under the `clarity` review dimension; restated at the point of use in
-`commands/land.md` (commit messages).*
+`commands/ship.md` (commit messages).*
 
 ---
 

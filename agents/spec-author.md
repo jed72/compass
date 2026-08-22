@@ -80,8 +80,8 @@ and you do not write production code.
    `devlog.md`.
 
 9. **Hand off deliberately.** Close each phase with its hand-off prompt - the
-   one in `commands/specify.md`, and after the requirements review the one in
-   `commands/clarify.md`. Use the wording there rather than inventing your own:
+   one in `commands/define.md`, and after the requirements review the one in
+   `commands/refine.md`. Use the wording there rather than inventing your own:
    the prompt is pipeline protocol and lives in the command file, so it stays in
    one place. Fill in the real path and counts.
 

@@ -369,7 +369,7 @@ def cmd_friction_capture(args):
     if not getattr(args, "internal", False):
         raise CompassError(
             "compass _friction-capture: the --internal flag is required - this "
-            "is an in-framework entry point called by the Land procedure, not a "
+            "is an in-framework entry point called by the ship procedure, not a "
             "public verb.")
     task_dir = resolve_task_dir(getattr(args, "task", None))
     task, path = load_task(task_dir)
@@ -660,7 +660,7 @@ def cmd_calibration(args):
     for r in sorted(dist, key=lambda x: weights.get(x, 99)):
         print(f"  {r:<12}: {dist[r]}")
     if no_route:
-        print(f"  (no route)  : {len(no_route)}  <- Frame did not complete: "
+        print(f"  (no route)  : {len(no_route)}  <- triage did not complete: "
               f"{', '.join(no_route)}")
     print()
     pct = round(100 * reframed_tasks / len(tasks))

@@ -1,12 +1,17 @@
-# The Compass 1.0 safety contract
+# The Compass safety contract
 
-A short, central statement of what Compass 1.0 promises - and what it does
-not. Everything else in the framework exists to keep this promise.
+A short, central statement of what Compass promises - and what it does not.
+Everything else in the framework exists to keep this promise.
 
-## What Compass 1.0 guarantees
+**This contract applies from version 1.0.0.** The title used to carry a version
+and had to be edited at every major, which is how it came to read "1.0" on a
+3.2.0 release. The version lives here instead, where a check compares it to
+`VERSION`.
 
-Compass 1.0 is an adaptive spec-driven development kit for AI-assisted
-engineering workflows. **When it is in use, it guarantees:**
+## What Compass guarantees
+
+Compass is an adaptive spec-driven development kit for AI-assisted engineering
+workflows. **When it is in use, it guarantees:**
 
 1. **An issue receives a deterministic route once its assessment are known.** The
    four-dimension assessment are judgement (triage's); given those assessment
@@ -51,12 +56,18 @@ engineering workflows. **When it is in use, it guarantees:**
 
 7. **Users can install, run, and recover from common failures using
    documented workflows.** Install is verifiable (`docs/install-smoke-test.md`);
-   onboarding is five minutes (`docs/five-minutes.md`); every failure message
-   tells you *what failed, why it matters, and how to fix it*; adoption is
-   gradient - start in `advisory` mode and tighten to `enforced` when the
-   team is ready.
+   onboarding is five minutes (`docs/five-minutes.md`); adoption is gradient -
+   start in `advisory` mode and tighten to `enforced` when the team is ready.
 
-## What Compass 1.0 does NOT claim
+   **On failure messages, narrowed to what is true.** The messages the CLI
+   raises through its own error type carry what failed and what to do about it,
+   and that is the house style every new one follows. It is a **design intent,
+   not a checked property**: whether a sentence explains a cause is a judgement
+   no check can make, and writing one that counted keywords would report a
+   quality it had not inspected. Earlier wording claimed this of *every*
+   failure message. Nothing established that.
+
+## What Compass does NOT claim
 
 Equally important. Honest scope is what makes the promise credible.
 
@@ -151,11 +162,11 @@ Equally important. Honest scope is what makes the promise credible.
 
 ## Versioning and stability
 
-Compass 1.0 declares its policy and schema versions in `governance/*.yml` and
+Compass declares its policy and schema versions in `governance/*.yml` and
 the issue spine (`schema_version`). The CLI will warn - or in `enforced` mode,
 fail - when it meets an issue whose schema is not compatible with the running
 CLI. Migration guidance ships with every breaking change.
 
-This contract is the bar for 1.0. Future versions may *add* guarantees; they
+This contract is the bar from 1.0.0 onward. Future versions may *add* guarantees; they
 must not weaken these without a major-version bump and a written migration
 path.
