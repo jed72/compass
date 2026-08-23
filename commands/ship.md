@@ -41,7 +41,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    orchestrator is the only agent allowed to resolve cross-stream conflicts.
 2. **Combined regression.** Run regression across the *combined* result. On
    a swarm this is non-negotiable - per-stream green does not imply
-   integrated green. Paste the output.
+   integrated green. Record the run and link the record.
 3. **Update living docs.** Bring READMEs, architecture notes, and any docs
    the change touched in line with reality. If the change is launch-visible
    (the product-marketer role is in play), draft the release notes here
@@ -66,7 +66,8 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    `guardrails.yml` check against `task.yml` and `evidence/` - suite
    passed, traceability holds, every `pass` gate has evidence, no owed
    follow-up unpaid, and (where a human sign-off applies) the approval is
-   on record. It exits non-zero on any failure; paste its output. This is
+   on record. It exits non-zero on any failure; record its output and link
+   the record. This is
    the checkable backbone of shipping.
 
    **Typed Definition of Done (evidence, not assertion):** `compass check`
@@ -111,10 +112,10 @@ for delivery work; on a spike, follow the graduate-or-discard step in
 
 ## Gate - ship refuses to close the issue unless
 
-- integration is complete and combined regression is green (evidence
-  pasted);
+- integration is complete and combined regression is green (evidence recorded
+  and linked);
 - living docs are updated;
-- `compass check` passes (its output pasted);
+- `compass check` passes (its output recorded and linked);
 - **every owed follow-up is settled** - no unsettled hotfix follow-up, no
   unbacked marketing claim, no de-scoped artifact left owed.
 

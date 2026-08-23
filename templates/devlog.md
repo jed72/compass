@@ -40,7 +40,7 @@ short - what happened, evidence pointer, what's next.
 
 - **Event:** {{what happened}}.
 - **Artifact:** {{which file written/updated}}.
-- **Evidence:** {{pointer to pasted output, e.g. "test run in verification-report.md §2"}}.
+- **Evidence:** {{pointer to the evidence record, e.g. "evidence/green-TRC-3.json"}}.
 - **Next:** {{next stage}}.
 
 <!-- Notable-event entries (not stage transitions) look like this: -->

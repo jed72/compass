@@ -96,6 +96,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_evidence_identity_matches, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
+from compass_pkg.dashboard import _check_dashboard_current
 from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_task, load_yaml, mode_banner, reading_matches, resolve_task_dir
 
 
@@ -118,6 +119,7 @@ CHECK_FNS = {
     "no-trusted-rerun": _check_no_trusted_rerun,
     "command-passes": _check_command_passes,
     "evidence-identity-matches": _check_evidence_identity_matches,
+    "dashboard-current": _check_dashboard_current,
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
@@ -126,6 +128,10 @@ CHECK_FNS = {
 # this table supplies the rest. A failure with guidance reads like support;
 # a failure without reads like bureaucracy.
 CHECK_GUIDANCE = {
+    "dashboard-current": {
+        "why": "The issue's README is the page a reviewer approves from - it states which documents exist, which one is waiting on them, and what was deliberately left out. Generated from task.yml, so once the spine moves it is an assertion the record contradicts, and a reviewer has no way to tell.",
+        "fix": "Run `compass issue dashboard` to regenerate it, then read the page again before approving anything from it. Never hand-edit it - the next regeneration discards the edit.",
+    },
     "scenarios-have-tests": {
         "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (the acceptance-before-code guardrail). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in acceptance-criteria.md - not by a fabricated test.",
         "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in acceptance-criteria.md - documentation is its acceptance.",

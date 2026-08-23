@@ -271,6 +271,10 @@ compass issue lint        structurally validate a task.yml
 compass design lint        scan a design.md for placeholder phrases - advisory
 compass issue receipt     render a one-screen receipt for a landed issue -
                          assessment → approach → typed evidence → gate verdicts
+compass issue dashboard   render the per-issue review README - the decision,
+                         the pack, and what was deliberately omitted
+compass issue artifact   set a document's status in the pack - omitting one
+                         needs --reason, so an omission is never a gap
 compass issue set-status  record an issue as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
 compass acceptance start declare the acceptance for a change with no natural

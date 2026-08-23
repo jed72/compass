@@ -45,7 +45,7 @@ The five default guardrails:
 - **Tested before it lands.** Is the work shaped so that nothing reaches
   `main` without a passing automated test it traces to? At Plan, this means the
   plan introduces work test-first (the TDD strategy is how) and the test
-  surface is planned. At Verify, it is cleared with the pasted run.
+  surface is planned. At Verify, it is cleared with the recorded run.
 - **Acceptance defined before it is built.** Does every piece of planned
   code trace to a stated, checkable acceptance criterion that exists *before*
   the code? The BDD strategy (Given/When/Then scenarios) is the default way to

@@ -191,7 +191,7 @@ chosen, what was rejected, why), and a governance check run against all of
 `governance/` - guardrails, strategies, and the routing policy. The work here
 is one or two streams, not four, so the distribution map is a short list, not a
 full `distribution-map.md`. The gate: the governance check passed - every
-guardrail cleared with evidence - and you paste its result.
+guardrail cleared with evidence - and you record its result and link it.
 
 ### Implement
 

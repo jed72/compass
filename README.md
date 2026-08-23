@@ -228,6 +228,12 @@ compass design lint        scan a design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
 compass issue receipt     render a one-screen receipt for a landed issue:
                          assessment → approach → typed evidence → gate verdicts
+compass issue dashboard   render the per-issue review README - the decision, the
+                         pack, and what was deliberately omitted; evidence is
+                         linked rather than reproduced
+compass issue artifact   set a document's status in the pack: draft |
+                         awaiting-approval | approved | superseded |
+                         omitted. Omitting one needs --reason
 compass issue set-status  record an issue as queued | active | parked | landed |
                          abandoned - the mutator for the lifecycle field
 compass acceptance start declare the acceptance for a change with no natural

@@ -64,7 +64,20 @@ def test_trc_a1_the_entry_point_should_be_thin():
     # was removed at the major version by ADR-014)
     # on every issue-scoped verb - all irreducibly parser. Still 91% below
     # the pre-split file.
-    assert lines < 560, (
+    #
+    # RAISED 560 -> 575 on 2026-08-23 by James Edwards, adding `compass issue
+    # dashboard`. A new public verb costs about four lines of parser
+    # registration, and registering parsers is what this file is FOR - the cap
+    # exists to keep *logic* out, not to cap the verb count.
+    #
+    # It was not raised before looking for slack. The cap surfaced eighteen
+    # copies of one identical `--issue` line, which is real duplication and is
+    # now `issue_arg()` in core.py. That was worth doing on its own and bought
+    # no lines: a helper call and an add_argument call are one line each, so
+    # deduplicating a one-liner cannot shrink the file. Recorded because the
+    # obvious assumption - dedupe to get under a line cap - is wrong here, and
+    # the next person will reach for it too.
+    assert lines < 575, (
         f"cli/compass is still {lines} lines (was {BASELINE['line_count']}). "
         f"The entry point should hold the shebang, the parser and main().")
     src = CLI.read_text(encoding="utf-8")

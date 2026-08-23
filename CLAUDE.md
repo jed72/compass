@@ -80,8 +80,8 @@ Compass is governed by two kinds of thing, and you must keep them straight.
      no stated, checkable criterion describes.
   3. **Everything traces.** Code to acceptance criterion to stated reason,
      and claim to criterion. Maintain it as you go, not at the end.
-  4. **Evidence, not assertion.** Clear a guardrail with pasted command
-     output and artifacts. "The tests pass" without the run clears nothing.
+  4. **Evidence, not assertion.** Clear a guardrail with recorded command
+     output and artifacts a reader can open. "The tests pass" without the run clears nothing.
   5. **A human signs off on the irreversible.** Data loss, money, auth,
      privacy - these get an explicit human checkpoint before they ship.
 - **Strategies** are many, soft, directional, assessed. They bias your work;

@@ -5,7 +5,7 @@ Produced by: the test & review stage (`/compass:verify`); owning role QA, agents
              review dimensions).
 Lives at:    .compass/work/<task-slug>/verification-report.md
 Role in the pipeline: the Verify output. Proves the work with EVIDENCE -
-pasted command output and artifacts, never assertion. "It works" is not a
+recorded command output and artifacts a reader can open, never assertion. "It works" is not a
 gate-passing statement on any route. The route's gate set and review
 dimensions come from delivery-approach.md; the `immovable_gates` from
 governance/routing-policy.md are stapled on regardless.
@@ -28,32 +28,32 @@ evidence block is an automatic fail.
 <!-- Every scenario in acceptance-criteria.md run as an acceptance check - the same
      artifact the spec was, read now at verification time. -->
 
-| Scenario id | Title | Result | Evidence (where the run is pasted below) |
+| Scenario id | Title | Result | Evidence (the record id - §2 links it) |
 |---|---|---|---|
-| TRC-A1 | {{…}} | {{PASS \| FAIL}} | §2 |
-| TRC-A2 | {{…}} | {{PASS \| FAIL}} | §2 |
-| TRC-B1 | {{…}} | {{PASS \| FAIL}} | §2 |
-| TRC-F1 | {{…}} | {{PASS \| FAIL}} | §2 |
+| TRC-A1 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| TRC-A2 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| TRC-B1 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| TRC-F1 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
 
 ## 2. Test suite evidence
 
-<!-- Pasted command output. Not a description of it - the actual run.
-     On a swarm, paste per-stream runs first, then the combined run. -->
+<!-- LINKED, NOT REPRODUCED. The run itself lives in an evidence record that
+     `compass tdd-green` wrote; this section gives the command, the headline
+     numbers, and the record to open. A report that reproduces its evidence
+     stops being two screens and stops being read, and the reader who wants
+     the raw run can open the file - which is more than a paste gives them,
+     because a paste cannot be re-run.
+
+     On a swarm, list each stream's record, then the combined one. -->
 
 **Command run:** `{{e.g. npm test}}`
 
-```
-{{PASTE THE FULL TEST RUN OUTPUT HERE}}
-```
+| Record | What it covers | Result |
+|---|---|---|
+| `evidence/{{green-TRC-x.json}}` | {{which scenarios}} | {{e.g. 214 passed, 0 failed}} |
 
 **Coverage (against the tested-before-ship guardrail's floor):**
-
-```
-{{PASTE COVERAGE OUTPUT - must meet or exceed the guardrail coverage floor}}
-```
-
-<!-- Swarm: repeat the block above per stream, then add a "Combined
-     regression" block for the integrated result. -->
+{{e.g. 87.4% lines, floor 80% - record: `evidence/{{coverage.json}}`}}
 
 ## 3. Review dimensions
 
@@ -79,7 +79,7 @@ evidence block is an automatic fail.
 | correctness | always | {{PASS \| FAIL}} | {{reviewer \| name \| author}} | {{every scenario in §1 passes}} |
 | governance | always | {{PASS \| FAIL}} | {{…}} | {{honours governance/ - guardrails clear with evidence, strategy deviations recorded; cite checks}} |
 | traceability | always | {{PASS \| FAIL}} | {{…}} | {{code→scenario→intent and claim→scenario chains intact}} |
-| regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{nothing previously passing now fails - paste the run}} |
+| regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{nothing previously passing now fails - link the record}} |
 | security | {{full / scaled / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{OWASP-style pass, scaled to the assessed risk}} |
 | clarity | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{a future reader can follow it}} |
 | claims | {{if role / yes}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{see launch-readiness.md - every claim traces to a passing scenario}} |
@@ -153,12 +153,12 @@ guardrail applies to the checklist itself):
 
 - [ ] (evidence: {{EV-id}}) **Every scenario passes** - §1 is all PASS; the
       spec, read as the acceptance suite, is green.
-- [ ] (evidence: {{EV-id}}) **TDD suite green** - §2 shows the full suite
-      passing, output pasted.
+- [ ] (evidence: {{EV-id}}) **TDD suite green** - §2 links the record of the
+      full suite passing.
 - [ ] (evidence: {{EV-id}}) **Coverage meets the tested-before-ship
       guardrail's floor** - evidence in §2.
-- [ ] (evidence: {{EV-id}}) **No lint / format / type errors** - clean,
-      evidence pasted.
+- [ ] (evidence: {{EV-id}}) **No lint / format / type errors** - clean, with
+      the record linked.
 - [ ] (evidence: {{EV-id}}) **Traceability intact** - code → scenario → intent
       holds; claim → scenario holds where the marketer is in play.
 - [ ] (follow-up: {{FU-id}}) *(carried to ship)* Living docs updated to match

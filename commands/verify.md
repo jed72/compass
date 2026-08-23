@@ -5,8 +5,8 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 
 # /compass:verify
 
-Verify proves the work with evidence - pasted command output and artifacts,
-never assertion. "It works" is not a gate-passing statement on any delivery
+Verify proves the work with evidence - recorded command output and artifacts
+a reader can open, never assertion. "It works" is not a gate-passing statement on any delivery
 approach. QA owns this gate.
 
 ## On a spike
@@ -50,7 +50,9 @@ The rest of this command is for delivery work.
 1. **Scenarios as acceptance tests.** Run every scenario in
    `acceptance-criteria.md` as an acceptance check. They are the same
    artifact the spec was - read now at verification time.
-2. **TDD suite.** Run the full test suite. Paste the output.
+2. **TDD suite.** Run the full test suite through `compass tdd-green -- <cmd>`,
+   which confirms it passes and writes the record. Link that record from the
+   report rather than reproducing the run inside it.
 3. **Run `compass check`.** This is the **mechanical half** of the verify
    gate: the CLI runs the `guardrails.yml` checks against `task.yml` and
    `evidence/` - every scenario has a test, the suite passed
@@ -84,7 +86,8 @@ command." See `skills/compass-runtime/writing-voice.md`.
 
 ## Gate
 
-`compass check` passes (paste its output - that is the mechanical half);
+`compass check` passes (record its output with `compass evidence add` and link
+the record - that is the mechanical half);
 every required *judgement* dimension passed with evidence; every gate in
 `task.yml` is `pass` with a resolving evidence pointer;
 `verification-report.md` is written, and its **Definition of Done**
