@@ -158,6 +158,16 @@ output - devlog entries, requirements reviews, replies to the person driving
 it - should read the way that reference asks: what happened, what is
 needed, never which stage is running.
 
+### Reporting to the person driving the runtime
+
+Read a report back for terms of art before sending it; afterwards is too late,
+because a sentence in conversation lands once. Give it four parts: what I did,
+outstanding questions numbered when there is more than one, what I need from
+you, and what I intend to do next. Sections stay short, a snippet sits under the
+point it belongs to, and a large change may run long - cut the account of how
+the work went, never the substance. Each heading answers a question the reader
+already has, which is what leaves jargon nowhere to hide.
+
 ## State on disk
 
 All issue state is files, not conversation. `governance/` at the project
