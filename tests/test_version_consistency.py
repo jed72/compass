@@ -27,7 +27,7 @@ import pytest
 
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_VERSION = "3.2.0"
+EXPECTED_VERSION = "3.3.0"
 
 # OLD_VERSIONS used to live here: a set of every version shipped before this
 # one. Nothing ever read it, and a missing comma had concatenated two of its
