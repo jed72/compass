@@ -134,6 +134,36 @@ After:
 
 What changed: tells the reader directly that action follows, instead of a label-and-value row answering a question nobody asked out loud.
 
+## The terms that leak, and what to say instead
+
+A cold reader hit six of these in one message on 2026-08-15 and named every one
+unprompted. Their words are kept because that is what makes the next one
+noticeable: the failure was not ignorance of the rule, it was not noticing these
+words were jargon. Someone a day inside the vocabulary cannot see them.
+
+| Written | What the reader said | Say instead |
+|---|---|---|
+| "papercuts" | "what the hell is papercuts?" | a list of small irritations |
+| "work the issue owes" | "would be better as 'outstanding work'" | outstanding work |
+| "a stale green on record" | "I have no idea what a stale green is - is it green or not?" | the tool checks a recorded result, not the tests, and the record can be old |
+| "keys only on the define stage's weight, with no role condition" | "pretty meaningless to me" | it asks how much work the step is doing and never asks who is involved |
+| "at full weight" | "what is 'at full weight'?" | when that step is being done properly rather than skipped |
+| "borrowed ceremony" | "a meaningless sentence to me" | the list of steps that were skipped earlier and have to be gone back and done |
+
+**The four families these come from**, so the next leak is recognisable before a
+reader has to ask:
+
+- **stage weights** - full, light, collapsed, skipped. Say what actually happens
+  to the step.
+- **borrowed ceremony** - the follow-ups list. Say what is outstanding and why.
+- **evidence types** - `test-run`, `command-output`, `manual-review`,
+  `human-approval`. Say what the thing is: a recorded test run, the output of a
+  command, someone's written review, a person's sign-off.
+- **routing shapes** - quick fix, feature, initiative, hotfix, spike. Say how
+  much process the change is getting and why.
+
+Not one of these is a hard idea. Each took a single sentence to say plainly.
+
 ## The tells
 
 Nine habits mark this narration. Three of them a fixed string can find -
@@ -158,9 +188,12 @@ links back here, or names only the three the check greps.
 5. **"utilize"** - **findable**. The check greps this exact string; "use"
    always beats it.
 6. **"Upon completion"** - **findable**. The check greps this exact string.
-7. **headings inside conversation** - **judgement**. Look for a markdown
-   heading doing what a sentence should - a reply that writes "## Summary"
-   instead of just summarising.
+7. **headings inside conversation** - **judgement**. Look for a heading
+   *labelling* the prose beneath it - "## Summary" over a summary, "## Status"
+   over a status. The test is whether the heading answers a question the reader
+   was already going to ask. "## Summary" does not; nobody asked for a summary.
+   "What I need from you" does, and that is the reply shape in `CLAUDE.md`
+   working rather than this tell firing. A label is the tell; an answer is not.
 8. **restating the request before answering it** - **judgement**. Look for a
    paragraph that repeats what was asked before it answers it - the person
    already knows what they asked.

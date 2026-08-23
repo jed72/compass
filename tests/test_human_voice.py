@@ -566,9 +566,31 @@ def test_trc_b1_claude_md_and_agents_md_carry_the_voice_paragraph():
         assert REFERENCE_PATH in section, (
             f"{name}'s voice paragraph must name the reference by path"
         )
+        # RAISED 120 -> 260 on 2026-08-23, deliberately, by James Edwards.
+        #
+        # The cap exists because these files are loaded on every run, so every
+        # word costs attention every time - that reasoning still holds and the
+        # cap is still a cap. What changed is what the section has to carry.
+        #
+        # `agent-speech-is-unchecked` found that the one surface the
+        # plain-language rule governs with no check is what the assistant says,
+        # and that the fix - a four-part reply shape, its rules, and the moment
+        # to apply it - only works if it reaches the speaker at the moment of
+        # speaking. A rule that lives only in a skill a session may never load
+        # is exactly the failure that issue was filed about: it had been ruled
+        # on for eight days and reached no session.
+        #
+        # The shape does not fit in the 19 words the old cap left. Making it a
+        # sibling `## ` section would have passed this check while adding the
+        # same words to every run, which is satisfying the letter and defeating
+        # the purpose - so the cap was raised in the open instead.
+        #
+        # 260 is the current content plus a small margin, not a round number
+        # chosen to stop this failing again. If a later change needs more, it
+        # should come back here and say why.
         words = len(section.split())
-        assert words <= 120, (
-            f"{name}'s voice paragraph is {words} words; must be <=120"
+        assert words <= 260, (
+            f"{name}'s voice paragraph is {words} words; must be <=260"
         )
         assert "### Pair" not in section, (
             f"{name} must not copy the before/after pairs"

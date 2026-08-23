@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### a worked example shows the path a reader will actually see
+### the portable instructions carry the shape too
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-A4`
 - **Intent:** `INT-1`
-- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,25 +43,25 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the guard fails when a surface reintroduces the old claim
+### the list covers every term the cold reader named
 
-- **Scenario id:** `TRC-B1`
+- **Scenario id:** `TRC-B2`
 - **Intent:** `INT-2`
-- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23
 
-### every CLI module's banner describes what the verbs actually write
+### the rule is attached to a moment, not stated as advice
 
 - **Scenario id:** `TRC-C1`
 - **Intent:** `INT-3`
-- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23
 
-### an unverifiable record is reported as unverifiable, not as verified
+### no instruction tells a session both to use and to avoid reply headings
 
 - **Scenario id:** `TRC-D2`
 - **Intent:** `INT-4`
-- **Source issue:** `tdd-green-unbound-record`
+- **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23
 
 ### the guarantee about declared guardrails should still hold
@@ -5831,6 +5831,13 @@
 - **Source issue:** `tdd-green-unbound-record`
 - **Landed:** 2026-08-23
 
+### an unverifiable record is reported as unverifiable, not as verified _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
 ### no published surface claims a green is always written to the shared path _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -5843,4 +5850,60 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source issue:** `docs-describe-the-old-evidence-path`
+- **Landed:** 2026-08-23
+
+### a worked example shows the path a reader will actually see _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Landed:** 2026-08-23
+
+### the guard fails when a surface reintroduces the old claim _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Landed:** 2026-08-23
+
+### every CLI module's banner describes what the verbs actually write _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Landed:** 2026-08-23
+
+### the always-loaded instructions state the four-part reply shape _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### the shape carries its three rules _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### the length tension is resolved rather than left open _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### a worked list gives each leaky term its plain-English form _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### the headings tell distinguishes a label from an answer _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23

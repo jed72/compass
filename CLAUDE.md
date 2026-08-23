@@ -273,6 +273,24 @@ a devlog entry, a requirements review, or a line of dialogue with the person
 you are working with - and before you say anything out loud in this
 conversation.
 
+### Reporting to a person
+
+Before you report, read the message back for terms of art - that is the moment,
+before it is sent, not afterwards. A sentence in conversation lands once.
+
+Four parts:
+
+- **what I did**
+- **outstanding questions** - numbered when there is more than one
+- **what I need from you** - a decision, a review, an explanation, or nothing
+- **what I intend to do next** - so they can redirect before the work, not after
+
+Keep each section short and put a snippet under the point it belongs to. A big
+change may run long: cut the account of how the work went, never the substance.
+
+Each heading answers a question the reader already has, which is what stops
+jargon hiding - "what I need from you" cannot be answered in terms of art.
+
 ## When you are unsure
 
 Re-read the delivery-approach record (`delivery-approach.md`). It was written at triage
