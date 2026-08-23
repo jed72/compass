@@ -59,6 +59,23 @@ def test_tdd_green_rejects_unknown_scenario(run_cli, make_task):
 # --- tdd-red honesty: a passing command cannot be recorded as red ---------
 
 
+
+def _rec(task_dir, kind="green", scenario="SCN-001"):
+    """The record a verb wrote, resolved by its binding.
+
+    The binding decides the path: a run recorded `--scenario SCN-001` writes
+    `<kind>-SCN-001.json`, not the shared `<kind>.json`. Before that rule, every
+    scenario-bound run also overwrote the shared record - which is what
+    destroyed a cited full-suite run on `zero-friction-install`.
+
+    Reading through this helper rather than by convention keeps these tests
+    about what they actually assert - coverage floors, micro-run knobs,
+    verified-by - instead of about the evidence layout.
+    """
+    name = f"{kind}-{scenario}.json" if scenario else f"{kind}.json"
+    return task_dir / "evidence" / name
+
+
 def test_tdd_red_refuses_a_passing_command(run_cli, make_task):
     make_task("tdd-honest-red", _baseline_body())
     r = run_cli("tdd-red", "--issue", "tdd-honest-red",
@@ -75,8 +92,14 @@ def test_tdd_red_records_red_on_real_failure(run_cli, make_task, project):
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(2)")
     assert r.returncode == 0, r
-    # evidence/red.json + the .red marker on disk
-    assert (task_dir / "evidence" / "red.json").is_file()
+    # The record and the .red marker on disk. The record's path follows the
+    # binding: this red was recorded --scenario SCN-001, so it is that
+    # scenario's record and does not sit at the shared `red.json`. Before that
+    # rule, every red overwrote the last one regardless of which scenario it
+    # was evidence for (see tdd-green-unbound-record).
+    assert _rec(task_dir, "red").is_file()
+    assert not _rec(task_dir, "red", scenario=None).exists(), (
+        "a scenario-bound red also wrote the unbound record")
     assert (task_dir / ".red").is_file()
 
 
@@ -200,7 +223,7 @@ def test_pipefail_propagates_masked_failure(run_cli, make_task):
                 "--", "bash", "-c", "exit 1 | tail -1")
     assert r.returncode != 0, r
     assert "FAILED" in (r.stdout + r.stderr), r
-    green = task_dir / "evidence" / "green.json"
+    green = _rec(task_dir, "green")
     if green.exists():
         assert json.loads(green.read_text()).get("passed") is not True, r
 
@@ -213,7 +236,7 @@ def test_direct_argv_green_unchanged(run_cli, make_task):
     r = run_cli("tdd-green", "--issue", "r2-direct", "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
-    green = json.loads((task_dir / "evidence" / "green.json").read_text())
+    green = json.loads((_rec(task_dir, "green")).read_text())
     assert green["passed"] is True, r
     assert not (task_dir / ".red").exists(), r
 
@@ -274,7 +297,7 @@ def test_coverage_floor_refuses_micro_run_baseline(run_cli, make_task):
     r = run_cli("tdd-green", "--issue", "r7-base", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
-    green = json.loads((task_dir / "evidence" / "green.json").read_text())
+    green = json.loads((_rec(task_dir, "green")).read_text())
 
     if cov_loadable:
         assert "--cov-fail-under=0" in green["command"], r
@@ -291,7 +314,7 @@ def test_micro_run_neutralises_coverage_floor(run_cli, make_task):
     r = run_cli("tdd-green", "--issue", "r7-neut", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
-    assert json.loads((task_dir / "evidence" / "green.json").read_text())["passed"] is True
+    assert json.loads((_rec(task_dir, "green")).read_text())["passed"] is True
 
 
 def test_full_suite_coverage_gate_unaffected(run_cli, make_task):
@@ -302,7 +325,7 @@ def test_full_suite_coverage_gate_unaffected(run_cli, make_task):
     r = run_cli("tdd-green", "--issue", "r7-full", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version", "--cov-fail-under=85")
     assert r.returncode == 0, r
-    cmd = json.loads((task_dir / "evidence" / "green.json").read_text())["command"]
+    cmd = json.loads((_rec(task_dir, "green")).read_text())["command"]
     assert "--cov-fail-under=85" in cmd and "--cov-fail-under=0" not in cmd, r
 
 
@@ -314,7 +337,7 @@ def test_non_pytest_micro_run_untouched(run_cli, make_task):
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
     assert "--cov-fail-under" not in json.loads(
-        (task_dir / "evidence" / "green.json").read_text())["command"], r
+        (_rec(task_dir, "green")).read_text())["command"], r
 
 
 def test_test_micro_command_knob_precedence(run_cli, make_task, project):
@@ -325,7 +348,7 @@ def test_test_micro_command_knob_precedence(run_cli, make_task, project):
         "version: 1.0.0\nmode: enforced\nproject:\n  test_micro_command: \"true\"\n")
     r = run_cli("tdd-green", "--issue", "r7-knob", "--scenario", "SCN-001")
     assert r.returncode == 0, r
-    assert json.loads((task_dir / "evidence" / "green.json").read_text())["command"] == "true", r
+    assert json.loads((_rec(task_dir, "green")).read_text())["command"] == "true", r
 
 
 # ===========================================================================
@@ -339,7 +362,7 @@ def test_verified_by_typecheck_records_red(run_cli, make_task):
     r = run_cli("tdd-red", "--issue", "r8-vb", "--scenario", "SCN-001",
                 "--verified-by", "typecheck", "--", "bash", "-c", "exit 1")
     assert r.returncode == 0, r
-    red = json.loads((task_dir / "evidence" / "red.json").read_text())
+    red = json.loads((_rec(task_dir, "red")).read_text())
     assert red.get("verified_by") == "typecheck", r
     assert (task_dir / ".red").exists(), r
 
@@ -352,7 +375,7 @@ def test_verified_by_guard_bound_to_scenario_at_verify(run_cli, make_task):
     r = run_cli("tdd-green", "--issue", "r8-bind", "--scenario", "SCN-001",
                 "--verified-by", "typecheck", "--", "true")
     assert r.returncode == 0, r
-    green = json.loads((task_dir / "evidence" / "green.json").read_text())
+    green = json.loads((_rec(task_dir, "green")).read_text())
     assert green.get("verified_by") == "typecheck", r
     task = yaml.safe_load((task_dir / "task.yml").read_text())
     assert any(e.get("type") == "test-run" and e.get("scenario") == "SCN-001"

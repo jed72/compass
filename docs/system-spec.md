@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the report should distinguish disabled from nothing declared
+### the unbound record can still be re-recorded deliberately
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-A4`
 - **Intent:** `INT-1`
-- **Source issue:** `project-commands-are-a-trust-boundary`
-- **Landed:** 2026-08-22
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,26 +43,26 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### an unrecognised CI provider should be refused rather than trusted
+### the registry entry stores the identity of the run it was created from
 
-- **Scenario id:** `TRC-B5`
+- **Scenario id:** `TRC-B3`
 - **Intent:** `INT-2`
-- **Source issue:** `project-commands-are-a-trust-boundary`
-- **Landed:** 2026-08-22
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
 
-### the shell form should keep working, and say what it costs
+### the report names the evidence id, the path, and what changed
 
 - **Scenario id:** `TRC-C3`
 - **Intent:** `INT-3`
-- **Source issue:** `project-commands-are-a-trust-boundary`
-- **Landed:** 2026-08-22
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
 
-### the security guide should say what a project must decide about untrusted pull requests
+### an unverifiable record is reported as unverifiable, not as verified
 
-- **Scenario id:** `TRC-D3`
+- **Scenario id:** `TRC-D2`
 - **Intent:** `INT-4`
-- **Source issue:** `project-commands-are-a-trust-boundary`
-- **Landed:** 2026-08-22
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
 
 ### the guarantee about declared guardrails should still hold
 
@@ -5656,6 +5656,13 @@
 - **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
+### the report should distinguish disabled from nothing declared _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
 ### a command should be refused when the CI environment says the contribution is untrusted _(archived)_
 
 - **Scenario id:** `TRC-B1`
@@ -5684,6 +5691,13 @@
 - **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
+### an unrecognised CI provider should be refused rather than trusted _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-2`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
 ### a project should be able to name a script instead of writing a shell string _(archived)_
 
 - **Scenario id:** `TRC-C1`
@@ -5694,6 +5708,13 @@
 ### a script path outside the project should be refused _(archived)_
 
 - **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
+### the shell form should keep working, and say what it costs _(archived)_
+
+- **Scenario id:** `TRC-C3`
 - **Intent:** `INT-3`
 - **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
@@ -5712,9 +5733,72 @@
 - **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
+### the security guide should say what a project must decide about untrusted pull requests _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-4`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
 ### a project whose command stops running should be told _(archived)_
 
 - **Scenario id:** `TRC-E1`
 - **Intent:** `INT-5`
 - **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
+
+### recording a scenario-bound green leaves the unbound green intact _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### recording a scenario-bound acceptance leaves the unbound acceptance intact _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### no evidence-writing verb overwrites a path the registry names _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### a recorded run carries an identity unique to that run _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### re-recording the same command produces a different identity _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### a citation whose record has been replaced is reported _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### a citation that matches its record is not reported _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### a record written before this change does not fail the check _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23

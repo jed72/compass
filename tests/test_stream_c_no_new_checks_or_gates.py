@@ -28,6 +28,12 @@ BASELINE_CHECKS = {
     "scenario-has-id-and-intent",
     "claim-traces-to-scenario",
     "gate-evidence-present",
+    # Added by tdd-green-unbound-record (2026-08-23), declared here because
+    # ADR-002 permits exactly this growth path: a new CHECK_FN under an
+    # existing guardrail (G4), never a sixth G-letter. It asks whether a
+    # registry entry still names the record it was created from - the
+    # question nothing asked, which let three gates rest on the wrong run.
+    "evidence-identity-matches",
     "human-approval-present",
     "backfills-paid",
     "spike-conclusion-present",
