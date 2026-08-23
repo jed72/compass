@@ -218,7 +218,8 @@ red-before-green strategy **mechanically if the runtime can** - the reference
 adapter uses `pre-tool.sh` as a `PreToolUse` hook with a `.red` marker
 convention, and makes it route-aware so it does not block on a Spike. The
 red/green *records* themselves come from the kit: `compass tdd-red` runs a
-test, asserts it fails, and writes the `.red` marker and `evidence/red.json`;
+test, asserts it fails, and writes the `.red` marker and the red record
+(`evidence/red-<scenario>.json` when bound, `evidence/red.json` when not);
 `compass tdd-green` asserts it passes and clears the marker. An adapter wires
 its hook to that marker; it does not need to reproduce the test-running and
 evidence-writing. If the runtime has no hook mechanism, the adapter must
@@ -374,7 +375,7 @@ The adapter layer, against the contract above:
   spike), the devlog append becomes an explicit instruction, the
   session-end warning becomes a `/compass:status`-style check the runtime is
   told to run. Note that even here the kit does the heavy lifting: the recorded
-  red is `compass tdd-red`'s `.red` marker and `evidence/red.json`, and the
+  red is `compass tdd-red`'s `.red` marker and its red record, and the
   guardrail checks are `compass check` - the procedural layer's job is to
   *invoke* them at the right moment, not to reproduce them. The `.red` marker
   convention is deliberately a plain file precisely so it survives this

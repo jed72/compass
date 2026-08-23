@@ -39,7 +39,7 @@ the other; this is guarantee 6 of `docs/safety-contract.md`.
   missing or wrongly-typed evidence, an unpaid backfill.
 
 It does **not** re-run your test suite - that is `compass tdd-green`'s job
-during Build, and its result is the `evidence/green.json` that `compass check`
+during Build, and its result is the green record that `compass check`
 reads. CI verifies the *task state is coherent and backed by evidence*, fast.
 
 ## GitHub Actions

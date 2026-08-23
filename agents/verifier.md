@@ -40,7 +40,7 @@ what is actually true. Your deliverable is the evidence portion of
    *checkable* half; the `reviewer` owns the judgement dimensions.
 7. **Update the gates in `task.yml`.** As each gate clears, set its `status` to
    `pass` and point its `evidence:` at the artifact that clears it
-   (`evidence/green.json`, a coverage report, a report path). The CLI's
+   (the green record, a coverage report, a report path). The CLI's
    `gate-evidence-present` check fails any `pass` gate whose pointer does not
    resolve - so the pointer is the evidence, not a claim about it.
 8. **Write the evidence into `verification-report.md`** and hand to the

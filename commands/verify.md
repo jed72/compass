@@ -54,7 +54,7 @@ The rest of this command is for delivery work.
 3. **Run `compass check`.** This is the **mechanical half** of the verify
    gate: the CLI runs the `guardrails.yml` checks against `task.yml` and
    `evidence/` - every scenario has a test, the suite passed
-   (`evidence/green.json`), every changed file traces to a scenario, every
+   (a green record on file), every changed file traces to a scenario, every
    `pass` gate has resolving evidence, and so on. It exits non-zero on any
    failure. The `reviewer` agent still does the *judgement* dimensions
    (clarity, security depth, governance-as-assessed) - `compass check` is
@@ -69,7 +69,7 @@ The rest of this command is for delivery work.
    combined result.
 5. **Update the gates in `task.yml`.** As each gate is cleared, the
    `verifier` sets its `status` to `pass` and points its `evidence:` at the
-   artifact (`evidence/green.json`, a report path). `compass check`'s
+   artifact (the scenario-bound green record, a report path). `compass check`'s
    `gate-evidence-present` check verifies every `pass` gate has a pointer
    that resolves - a gate marked pass with no evidence fails the check.
 6. **Write `verification-report.md`** from

@@ -18,7 +18,7 @@
 This file was not written before the work - on Hotfix it cannot be, the bug is
 the starting point. The sequence was: a failing regression test
 (`test_empty_filter_object_does_not_crash`) was written first and watched fail
-(`evidence/red.json`) - that *was* define. At ship, follow-up FU-001 promoted
+(`evidence/red-TRC-001.json`) - that *was* define. At ship, follow-up FU-001 promoted
 that test into the proper Given/When/Then below, so the spec reads like every
 other Compass spec and the next person finds it where they expect it.
 

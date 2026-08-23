@@ -23,7 +23,7 @@
 ## 2026-05-04 09:21 - Build
 
 - **Event:** Wrote the failing test for TRC-001 (`compass tdd-red`), then the fix. The timeout branch in `src/api/upload.py` now interpolates `MAX_UPLOAD_MB` and names the cause. No refactor needed - the branch was already small.
-- **Evidence:** `evidence/red.json` (test fails: old string), `evidence/green.json` (test passes after the fix).
+- **Evidence:** `evidence/red-TRC-001.json` (test fails: old string), `evidence/green-TRC-001.json` (test passes after the fix).
 - **Next:** Verify.
 
 ## 2026-05-04 09:24 - edit: src/api/upload.py
@@ -34,7 +34,7 @@
 
 - **Event:** Ran the new test plus the full `test_upload_errors.py` module; all green. Three quick fix review dimensions applied - correctness (TRC-001 passes), governance (`G1`/`G2`/`G3` clear; no strategy departures), traceability (TRC-001 → INT-1, `upload.py` → TRC-001).
 - **Artifact:** `verification-note.md` - quick fix's light Verify output.
-- **Evidence:** `evidence/green.json`.
+- **Evidence:** `evidence/green-TRC-001.json`.
 - **Next:** ship.
 
 ## 2026-05-04 09:29 - ship

@@ -31,8 +31,10 @@ the file-size limit that is the actual cause.
 collapse - and `delivery-approach.md` §5 carries an explicit "safe to skip because…" line
 for each. One scenario is the whole spec. Verify is a short note, not a full
 report. The artifact set is four files and an `evidence/` pair, and that is
-*correct* - quick fix adapts test surface, never test existence, so `red.json`
-and `green.json` are still there. The `task.yml` is the new 1.0 shape: a
+*correct* - quick fix adapts test surface, never test existence, so the red and
+green records are still there. Their filenames follow the binding: a run
+recorded `--scenario TRC-001` writes `evidence/green-TRC-001.json`, and a run
+with no binding writes `evidence/green.json`. The `task.yml` is the new 1.0 shape: a
 top-level `evidence:` registry of two typed entries (a `test-run` and an
 `artifact`), and each `pass` gate references them by id - `verify.correctness`
 points at the `test-run`, governance and traceability at the `artifact`.
@@ -61,7 +63,7 @@ gates are real, and "solo" is a justified finding, not a default.
 a live crash on a new mobile build.
 
 **What it demonstrates:** reproduce-first (the failing regression test *is* the
-spec - `evidence/red.json` reproduces the crash before any fix), the compressed
+spec - `evidence/red-TRC-001.json` reproduces the crash before any fix), the compressed
 front of the pipeline, the *uncompressed* Verify gate, and the **mandatory
 follow-up**. `task.yml`'s `follow-ups:` lists three outstanding items; `delivery-approach.md` §6 and
 the `devlog.md` ship entry show all three **paid** - which is what makes this a

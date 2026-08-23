@@ -26,7 +26,7 @@ TDD. You do not write the spec, the plan, or the route.
    `compass tdd-red -- <failing test command>` - this is the **TDD
    strategy (red-before-green)**, the shipped-on default way to satisfy
    the tested-before-ship guardrail. The CLI runs the test, asserts it
-   FAILS, writes `evidence/red.json` and drops the `.red` marker - it
+   FAILS, writes the red record and drops the `.red` marker - it
    writes the marker only after a real failure, so the record is honest.
    The approach-aware `hooks/pre-tool.sh` reads `.red` to
    allow the code edit. Do not write or clear markers by hand - the CLI owns
@@ -37,7 +37,7 @@ TDD. You do not write the spec, the plan, or the route.
    never adapts whether red came before green.
 3. **Green.** Write the smallest correct code that makes the test pass, then run
    `compass tdd-green -- <test command>`. The CLI asserts it PASSES, writes
-   `evidence/green.json`, and clears `.red`. If it still fails, the CLI keeps
+   the green record, and clears `.red`. If it still fails, the CLI keeps
    `.red` in place - you are not green.
 4. **Refactor.** Clean up under a green suite. Keep changes inside your stream.
 5. **Record every changed file.** As you change production files, add each to
