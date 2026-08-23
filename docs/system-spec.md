@@ -336,6 +336,13 @@
 
 > These scenarios were superseded by a later-landed scenario with the same intent id.
 
+### every version location carries 3.3.0 and the suite is green _(archived)_
+
+- **Scenario id:** `TRC-001`
+- **Intent:** `INT-1`
+- **Source issue:** `release-3-3-0`
+- **Landed:** 
+
 ### the hook blocks an edit it cannot check _(archived)_
 
 - **Scenario id:** `TRC-1`
