@@ -204,13 +204,18 @@ at a time, driving the cycle through the CLI:
 
 1. **Red.** Write the failing test for the scenario. Then run
    `compass tdd-red -- <test cmd>`: the CLI runs the test, *asserts it actually
-   fails*, writes the `evidence/red.json` record, and only then writes the
+   fails*, writes the red record, and only then writes the
    `.red` marker. If the test passes, `tdd-red` refuses - there is no red to
    record. The marker is honest by construction.
 2. **Green.** Now edit the production code. The `pre-tool.sh` hook sees the
    `.red` marker and allows the edit. Write the smallest correct change, then
    run `compass tdd-green -- <test cmd>`: the CLI asserts the test now passes,
-   writes `evidence/green.json`, and clears the `.red` marker.
+   writes the green record, and clears the `.red` marker.
+
+   **Where the record lands.** The binding decides the filename. Recorded
+   `--scenario TRC-x`, the run writes `evidence/green-TRC-x.json`; with no
+   binding it writes `evidence/green.json`. Only that one file is written, so
+   recording one scenario never overwrites a record another gate is citing.
 3. **Refactor** under a green suite - the marker is already cleared, which is
    the detectable hand-off to Verify.
 

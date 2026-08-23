@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the unbound record can still be re-recorded deliberately
+### a worked example shows the path a reader will actually see
 
-- **Scenario id:** `TRC-A4`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
-- **Source issue:** `tdd-green-unbound-record`
+- **Source issue:** `docs-describe-the-old-evidence-path`
 - **Landed:** 2026-08-23
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,18 +43,18 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the registry entry stores the identity of the run it was created from
+### the guard fails when a surface reintroduces the old claim
 
-- **Scenario id:** `TRC-B3`
+- **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
-- **Source issue:** `tdd-green-unbound-record`
+- **Source issue:** `docs-describe-the-old-evidence-path`
 - **Landed:** 2026-08-23
 
-### the report names the evidence id, the path, and what changed
+### every CLI module's banner describes what the verbs actually write
 
-- **Scenario id:** `TRC-C3`
+- **Scenario id:** `TRC-C1`
 - **Intent:** `INT-3`
-- **Source issue:** `tdd-green-unbound-record`
+- **Source issue:** `docs-describe-the-old-evidence-path`
 - **Landed:** 2026-08-23
 
 ### an unverifiable record is reported as unverifiable, not as verified
@@ -5768,6 +5768,13 @@
 - **Source issue:** `tdd-green-unbound-record`
 - **Landed:** 2026-08-23
 
+### the unbound record can still be re-recorded deliberately _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
 ### a recorded run carries an identity unique to that run _(archived)_
 
 - **Scenario id:** `TRC-B1`
@@ -5778,6 +5785,13 @@
 ### re-recording the same command produces a different identity _(archived)_
 
 - **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### the registry entry stores the identity of the run it was created from _(archived)_
+
+- **Scenario id:** `TRC-B3`
 - **Intent:** `INT-2`
 - **Source issue:** `tdd-green-unbound-record`
 - **Landed:** 2026-08-23
@@ -5796,9 +5810,30 @@
 - **Source issue:** `tdd-green-unbound-record`
 - **Landed:** 2026-08-23
 
+### the report names the evidence id, the path, and what changed _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
 ### a record written before this change does not fail the check _(archived)_
 
 - **Scenario id:** `TRC-D1`
 - **Intent:** `INT-4`
 - **Source issue:** `tdd-green-unbound-record`
+- **Landed:** 2026-08-23
+
+### no published surface claims a green is always written to the shared path _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-describe-the-old-evidence-path`
+- **Landed:** 2026-08-23
+
+### the documentation names both forms and says which is written when _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-describe-the-old-evidence-path`
 - **Landed:** 2026-08-23

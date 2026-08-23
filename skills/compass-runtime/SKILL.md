@@ -31,7 +31,7 @@ one major version.
 | Requirements review | `/compass:refine` | `requirements-review.md` (ends with the Definition of Ready) |
 | Design | `/compass:design` | `design.md` (+ `distribution-map.md` on parallel work) |
 | Break down the work | `/compass:breakdown` | worktrees + stream charters |
-| Implement | `/compass:implement` | code + `evidence/red.json` / `evidence/green.json` |
+| Implement | `/compass:implement` | code + the red and green records (named by binding) |
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
 | Ship | `/compass:ship` | the integration commit + settled follow-ups |
 
@@ -133,9 +133,13 @@ writes it for you.
 
 While **implementing**, drive the red-green cycle through the CLI, not by
 hand: `compass tdd-red -- <test cmd>` runs the test, asserts it genuinely
-fails, writes the `evidence/red.json` record and the `.red` marker the
+fails, writes the red record and the `.red` marker the
 pre-tool hook reads; `compass tdd-green -- <test cmd>` asserts it now
-passes, writes `evidence/green.json`, and clears the marker. The marker is
+passes, writes the green record, and clears the marker. **The binding decides
+the filename**: `--scenario TRC-x` writes `evidence/green-TRC-x.json`, an
+unbound run writes `evidence/green.json`, and only that one file is written -
+so recording a scenario never overwrites a record another gate cites. The
+marker is
 only ever written after a real failure - that honesty is the point.
 
 Two stage transitions carry an explicit checklist gate. Requirements review
@@ -205,7 +209,7 @@ the approach is solo, there is no worktree - work on the current branch.
 │       ├── positioning.md       Marketer messaging (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)
 │       ├── verification-report.md  (ends with the Definition of Done gate)
-│       ├── evidence/            red.json/green.json + typed gate evidence
+│       ├── evidence/            red/green records (named by binding) + typed gate evidence
 │       └── devlog.md            Append-only running log
 └── flow/
     └── digest-<date>.md         Periodic cross-issue digest

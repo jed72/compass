@@ -35,7 +35,9 @@ phase and read by downstream phases.
 
 Mechanism-produced state (evidence, load records, scan reports) also lives on
 disk in deterministic locations: `architecture-loaded.yml` in the task
-directory, `evidence/red.json` / `evidence/green.json` in the task directory,
+directory, the red and green records in the task directory
+(`evidence/green-<scenario>.json` when the run was bound to a scenario,
+`evidence/green.json` when it was not),
 `.compass/flow/rework-<date>.md` in the flow directory.
 
 No Compass mechanism produces only-in-chat output. If a mechanism's output is

@@ -69,7 +69,7 @@
   constraint.
 - **This spike's status:** graduated → issue `report-pdf-export`. Closed.
 - **Note on `compass check`:** running `compass check` against this issue reports
-  `G1`/`G2` FAILs - no tested scenarios, no `green.json`. That is correct and
+  `G1`/`G2` FAILs - no tested scenarios, no green record. That is correct and
   expected: `compass check` asks "is this a landable delivery issue?" and a
   Spike is honestly not one. A Spike passes its one Conclude gate (above), not
   the delivery guardrail set. The guardrails are not skipped - they moved with

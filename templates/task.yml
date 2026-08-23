@@ -56,7 +56,8 @@ stages: {}                   # filled by the evaluator - {frame: full, specify: 
 evidence: []
 #  - id: EV-001
 #    type: test-run
-#    path: evidence/green.json
+#    path: evidence/green-TRC-001.json   # scenario-bound; an unbound run
+#                                        # writes evidence/green.json
 #    scenario: TRC-001
 
 # --- gates -----------------------------------------------------------------

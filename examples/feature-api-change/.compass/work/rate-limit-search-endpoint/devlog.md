@@ -35,7 +35,7 @@
 ## 2026-04-23 14:02 - Build
 
 - **Event:** TDD started. `compass tdd-red` recorded all five scenarios failing (`ModuleNotFoundError` - middleware does not exist yet).
-- **Evidence:** `evidence/red.json`.
+- **Evidence:** `evidence/red-TRC-001.json`.
 - **Next:** implement U1, then U2, U3.
 
 ## 2026-04-23 16:20 - edit: src/api/middleware/rate_limit.py
@@ -54,7 +54,7 @@
 
 - **Event:** Full Verify. Six review dimensions applied, all PASS. `ruff check` and `mypy src/api/` clean. Coverage 87% project (floor 80%). Definition of Done ticked.
 - **Artifact:** `verification-report.md`.
-- **Evidence:** test run in `verification-report.md` §2; `evidence/green.json`.
+- **Evidence:** test run in `verification-report.md` §2; `evidence/green-TRC-001.json`.
 - **Next:** ship.
 
 ## 2026-04-24 13:35 - ship

@@ -151,9 +151,12 @@ writes it for you.
 
 While **implementing**, drive the red-green cycle through the CLI, not by
 hand: `compass tdd-red -- <test cmd>` runs the test, asserts it genuinely
-fails, writes the `evidence/red.json` record and the `.red` marker the
-pre-tool hook reads; `compass tdd-green -- <test cmd>` asserts it now
-passes, writes `evidence/green.json`, and clears the marker. The marker is
+fails, writes the red record and the `.red` marker the pre-tool hook reads;
+`compass tdd-green -- <test cmd>` asserts it now passes, writes the green
+record, and clears the marker. **The binding decides the filename**: a run
+recorded `--scenario TRC-x` writes `evidence/green-TRC-x.json`, and a run with
+no binding writes `evidence/green.json`. Nothing else is touched, so recording
+one scenario cannot destroy a record another gate is citing. The marker is
 only ever written after a real failure - that honesty is the point.
 
 Two stage transitions carry an explicit checklist gate. Requirements review
@@ -238,7 +241,7 @@ the approach is solo, there is no worktree - work on the current branch.
 │       ├── verification-report.md  (ends with the Definition of Done gate)
 │       ├── architecture-loaded.yml (what cross-issue architectural state was loaded)
 │       ├── architecture-notes.md   (the architect perspective's annotations)
-│       ├── evidence/            red.json/green.json + typed gate evidence
+│       ├── evidence/            red/green records (named by binding) + typed gate evidence
 │       └── devlog.md            Append-only running log
 └── flow/
     └── digest-<date>.md         Periodic cross-issue digest

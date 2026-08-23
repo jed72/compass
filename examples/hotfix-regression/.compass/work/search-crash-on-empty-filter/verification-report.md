@@ -32,7 +32,7 @@ tests/api/test_health.py ..                                              [100%]
 ```
 
 `test_empty_filter_object_does_not_crash` - the reproduction test that was red
-at 09:08 (`evidence/red.json`) - now passes. The other 44 API tests still pass.
+at 09:08 (`evidence/red-TRC-001.json`) - now passes. The other 44 API tests still pass.
 
 **Coverage (against the guardrail floor):**
 
@@ -49,7 +49,7 @@ project line coverage                87%   (floor: 80% - met; unchanged by a
 | Dimension | Applies on this approach? | Result | Evidence |
 |---|---|---|---|
 | correctness | always | PASS | TRC-001 passes - the reproduction test is green. |
-| governance | always | PASS | `G1`: the fix has a passing test it traces to (§2). `G2`: the acceptance criterion existed before the fix - it *was* the red test (`evidence/red.json` at 09:08 precedes the fix at ~10:20). `G3`: see traceability. `G4`: every gate has a resolving evidence pointer. `S2` red-before-green followed - that is exactly how Hotfix's reproduce-first works. |
+| governance | always | PASS | `G1`: the fix has a passing test it traces to (§2). `G2`: the acceptance criterion existed before the fix - it *was* the red test (`evidence/red-TRC-001.json` at 09:08 precedes the fix at ~10:20). `G3`: see traceability. `G4`: every gate has a resolving evidence pointer. `S2` red-before-green followed - that is exactly how Hotfix's reproduce-first works. |
 | traceability | always | PASS | `src/api/search/filter_compiler.py` → TRC-001 → INT-1; `compass check` confirms the chain. |
 | regression | yes | PASS | The 44 pre-existing API tests in §2 still pass - the guard broke nothing. A fast fix that regressed something is just a faster outage; this did not. |
 | security | yes | PASS | The empty-filter path now compiles to an explicit "no filtering applied", not a `None` that the query builder dereferenced. No injection surface introduced - the empty case takes a constant code path, no user value reaches the query string unfiltered that did not before. |

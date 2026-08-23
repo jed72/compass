@@ -149,7 +149,7 @@ through `compass tdd-red`:
 $ compass tdd-red --scenario SCN-001 -- pytest tests/auth/test_jwt_refresh.py::test_typo
   ran: pytest tests/auth/test_jwt_refresh.py::test_typo
   exit code: 1  (test correctly fails)
-  wrote evidence/red.json, .red marker
+  wrote evidence/red-SCN-001.json, .red marker
 ```
 
 The CLI confirmed the test actually failed before it wrote the marker.
@@ -160,7 +160,7 @@ the hook lets the edit through because `.red` exists. Then:
 $ compass tdd-green --scenario SCN-001 -- pytest tests/auth/test_jwt_refresh.py::test_typo
   ran: pytest tests/auth/test_jwt_refresh.py::test_typo
   exit code: 0  (test passes)
-  wrote evidence/green.json, cleared .red marker
+  wrote evidence/green-SCN-001.json, cleared .red marker
 ```
 
 `task.yml` now has both records in its evidence registry, and a

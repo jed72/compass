@@ -13,14 +13,19 @@
 #   compass check            Run the governance/guardrails.yml checks against a
 #                            task's task.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record
-#                            evidence/red.json + the .red marker (honestly -
-#                            the marker is only written after a real failure).
+#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
+#                            red + the .red marker (honestly - the marker is
+#                            only written after a real failure).
 #                            --scenario SCN-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record
-#                            evidence/green.json, clear the .red marker.
+#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
+#                            green, clear the .red marker.
 #                            --scenario binds the green the same way.
+#                            THE BINDING DECIDES THE FILENAME: a bound run
+#                            writes evidence/green-<scenario>.json, an unbound
+#                            one writes evidence/green.json, and only that file
+#                            is written - so recording one scenario cannot
+#                            destroy a record another gate is citing.
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.

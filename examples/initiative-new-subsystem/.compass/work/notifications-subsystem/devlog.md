@@ -41,7 +41,7 @@
 ## 2026-03-09 10:14 - Build
 
 - **Event:** Both builders wrote their failing scenarios first. `compass tdd-red` recorded the combined red - all 6 scenarios fail (`ModuleNotFoundError`, the subsystem does not exist yet).
-- **Evidence:** `evidence/red.json`.
+- **Evidence:** `evidence/red-TRC-001.json`.
 - **Next:** parallel implementation in the two worktrees.
 
 ## 2026-03-11 15:20 - note: orchestrator intervention
@@ -53,7 +53,7 @@
 
 - **Event:** Per-stream verification (stream-1: 3 green, stream-2: 3 green), then `scripts/integrate.sh` merged both onto the integration branch and the orchestrator ran the combined regression - 71 passed. All seven initiative gates GREEN. `ruff` + `mypy` clean. Coverage 85% (floor 80%).
 - **Artifact:** `verification-report.md` - Definition of Done ticked.
-- **Evidence:** per-stream + combined runs in `verification-report.md` §2; `evidence/green.json`.
+- **Evidence:** per-stream + combined runs in `verification-report.md` §2; `evidence/green-TRC-001.json`.
 - **Next:** ship.
 
 ## 2026-03-13 16:20 - note: `G5` sign-off

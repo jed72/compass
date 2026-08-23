@@ -17,7 +17,7 @@
 ## 2026-05-11 09:08 - define (reproduce-first)
 
 - **Event:** Wrote `test_empty_filter_object_does_not_crash` and watched it fail - it reproduces the production 500 (`AttributeError: 'NoneType' object has no attribute 'render'`). On Hotfix this failing test *is* the spec. `compass tdd-red` recorded it.
-- **Artifact:** the red test; `evidence/red.json`.
+- **Artifact:** the red test; `evidence/red-TRC-001.json`.
 - **Next:** Plan collapsed (root-cause note in `delivery-approach.md` §5) → Build.
 
 ## 2026-05-11 09:30 - note: root cause identified
@@ -33,7 +33,7 @@
 
 - **Event:** Full Verify - not compressed. Five gates applied (correctness, governance, traceability, regression, security), all GREEN. `clarity` deferred to follow-up FU-001 per the delivery approach. `ruff check` clean.
 - **Artifact:** `verification-report.md`.
-- **Evidence:** test run in `verification-report.md` §2; `evidence/green.json`.
+- **Evidence:** test run in `verification-report.md` §2; `evidence/green-TRC-001.json`.
 - **Next:** ship - ship, then the mandatory follow-up.
 
 ## 2026-05-11 11:05 - ship - fix shipped

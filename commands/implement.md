@@ -43,7 +43,7 @@ into real delivery work.
 
 1. **Red.** Write the failing test for the scenario, then run
    `compass tdd-red -- <failing test command>`. The CLI runs the test,
-   asserts it actually FAILS, records `evidence/red.json`, and drops the
+   asserts it actually FAILS, records the red for that scenario, and drops the
    `.red` marker - honestly, only after a real failure. If the test passes,
    the CLI refuses and says so: you skipped red. The `hooks/pre-tool.sh`
    hook reads `.red` to allow the code edit. Do not touch markers by hand -
@@ -51,7 +51,10 @@ into real delivery work.
    is suspended; see the spike note.)
 2. **Green.** Write the smallest correct change that makes the test pass,
    then run `compass tdd-green -- <test command>`. The CLI asserts it
-   PASSES, records `evidence/green.json`, and clears `.red`. If it still
+   PASSES, records the green, and clears `.red`. **The binding decides the
+   filename**: `--scenario TRC-x` writes `evidence/green-TRC-x.json`, and an
+   unbound run writes `evidence/green.json`. Only one file is written, so
+   recording a scenario cannot destroy a record another gate cites. If it still
    fails, the CLI leaves `.red` in place - you are not green yet.
 3. **Refactor.** Clean up with the suite green. On a hotfix, refactor only
    if the refactor itself is low-risk.
@@ -100,7 +103,7 @@ longer believe is the failure mode.
 ## Gate
 
 On delivery work: every scenario has a test; every test went red before
-green (`evidence/red.json` then `evidence/green.json` on record); the suite
+green (a red record then a green record on file); the suite
 is green; every changed production file is recorded in `task.yml`'s
 `changed_files:` traced to a scenario. On a spike: the question was explored
 and the findings are captured - there is no test gate, because nothing

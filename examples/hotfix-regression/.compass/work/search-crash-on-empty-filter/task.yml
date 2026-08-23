@@ -26,7 +26,7 @@ stages:
 evidence:
 - id: EV-T1
   type: test-run
-  path: evidence/green.json
+  path: evidence/green-TRC-001.json
   scenario: TRC-001
 - id: EV-SEC1
   type: command-output
@@ -68,15 +68,15 @@ changed_files:
 claims: []
 follow_ups:
 - id: FU-001
-  description: Promote the reproduction test into a proper Given/When/Then scenario
-    in acceptance-criteria.md, traceable to the defect.
+  description: Promote the reproduction test into a proper Given/When/Then scenario in acceptance-criteria.md,
+    traceable to the defect.
   status: paid
 - id: FU-002
   description: Complete delivery-approach.md properly - the four dimension assessment and the root-cause
     note, not just the urgent stub.
   status: paid
 - id: FU-003
-  description: Root-cause line in devlog.md, plus the follow-up issue for the missing-scenario
-    class of gap.
+  description: Root-cause line in devlog.md, plus the follow-up issue for the missing-scenario class of
+    gap.
   status: paid
 reassessments: []

@@ -25,7 +25,7 @@ stages:
 evidence:
 - id: EV-T1
   type: test-run
-  path: evidence/green.json
+  path: evidence/green-TRC-001.json
   scenario: TRC-001
 - id: EV-SEC1
   type: command-output
