@@ -47,6 +47,7 @@ import argparse
 import datetime
 import hashlib
 import json
+import uuid
 import os
 import re
 import shlex
@@ -180,7 +181,46 @@ def _run_test(cmd):
     return proc.returncode, out, warnings
 
 
+def _stamp_identity(payload):
+    """Give a record an identity, in place, and return (record_id, digest).
+
+    TWO STAMPS, AND THEY ANSWER DIFFERENT QUESTIONS.
+
+    `record_id` is unique to this write. It is what makes a registry entry able
+    to say "the run I was created from", so a file replaced after it was cited
+    is detectable. A digest cannot do this job on its own: `now_iso()` is
+    second-resolution, so two runs of a fast command with identical output
+    inside one second produce a byte-identical payload and the same digest.
+
+    `content_digest` covers what was written. It catches the other failure - a
+    record edited in place rather than replaced, which keeps its record_id.
+
+    Neither is a claim about whether the run was honest. They establish only
+    that the record a gate cites is the record that was written.
+    """
+    record_id = uuid.uuid4().hex[:16]
+    payload["record_id"] = record_id
+    payload.pop("content_digest", None)
+    digest = _content_digest(payload)
+    payload["content_digest"] = digest
+    return record_id, digest
+
+
+def _content_digest(payload):
+    """A stable digest over a record's content, excluding the digest itself."""
+    body = {k: v for k, v in payload.items() if k != "content_digest"}
+    encoded = json.dumps(body, sort_keys=True, default=str).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
 def _write_evidence(task_dir, name, payload):
+    """Write one evidence record, stamped with its identity.
+
+    Stamping happens here rather than in each caller so that every record gets
+    an identity by construction - a caller cannot forget, and a caller added
+    later inherits it.
+    """
+    _stamp_identity(payload)
     ev_dir = os.path.join(task_dir, "evidence")
     os.makedirs(ev_dir, exist_ok=True)
     path = os.path.join(ev_dir, name + ".json")
@@ -365,7 +405,15 @@ def cmd_tdd_red(args):
     }
     if verified_by:
         payload["verified_by"] = verified_by   # R8: a sanctioned non-unit red
-    ev_path = _write_evidence(task_dir, "red", payload)
+    # The binding decides the path here too. No registry entry cites a red
+    # today, so this is not a live hazard - but the guard being added is on the
+    # shape, and shipping a class guard with a known exception is worse than
+    # the small change that removes it. It also stops one scenario's red being
+    # destroyed by the next.
+    red_name = "red"
+    if scenario:
+        red_name = "red-" + scenario.replace("/", "_")
+    ev_path = _write_evidence(task_dir, red_name, payload)
     open(os.path.join(task_dir, ".red"), "w").close()  # the hook reads this
     payload.pop("_full_log", None)
     bound = f" (bound to {scenario})" if scenario else " (unbound - consider --scenario)"
@@ -547,17 +595,26 @@ def cmd_tdd_green(args):
         payload["rerun_without_change"] = rerun_without_change
     if verified_by:
         payload["verified_by"] = verified_by   # R8: carry the guard kind forward
-    ev_path = _write_evidence(task_dir, "green", payload)
-    # If scenario-bound, also write a scenario-specific copy so multiple
-    # scenarios' green records do not overwrite each other.
-    rel_path = "evidence/green.json"
+    # THE BINDING DECIDES THE PATH. One record per run, and nothing else is
+    # touched.
+    #
+    # This used to write `green.json` unconditionally and then add a scenario
+    # copy, which meant every scenario-bound run also replaced the unbound
+    # record - the one a full-suite citation names. The scenario copy protected
+    # scenarios from each other and protected the unbound record from nothing.
+    # A tool whose safe use depends on remembering that is not safe, so the
+    # rule is now symmetrical and declared rather than inferred: bound writes
+    # touch only their own record, unbound writes touch only the unbound one.
+    name = "green"
     if scenario:
-        scn_name = "green-" + scenario.replace("/", "_")
-        _write_evidence(task_dir, scn_name, payload)
-        rel_path = f"evidence/{scn_name}.json"
+        name = "green-" + scenario.replace("/", "_")
+    ev_path = _write_evidence(task_dir, name, payload)
+    rel_path = f"evidence/{name}.json"
     # Upsert a test-run entry in the task's evidence registry - the registry
     # is what `compass check` reads, so the green has to land there.
-    _upsert_test_run_evidence(task_dir, scenario, rel_path)
+    _upsert_test_run_evidence(task_dir, scenario, rel_path,
+                              record_id=payload.get("record_id"),
+                              content_digest=payload.get("content_digest"))
     red_marker = os.path.join(task_dir, ".red")
     if os.path.exists(red_marker):
         os.remove(red_marker)
@@ -569,10 +626,19 @@ def cmd_tdd_green(args):
     return 0
 
 
-def _upsert_test_run_evidence(task_dir, scenario, rel_path):
+def _upsert_test_run_evidence(task_dir, scenario, rel_path,
+                             record_id=None, content_digest=None):
     """Append or update a test-run entry in task.yml's evidence registry.
     Same scenario -> update in place; new -> append. This is what makes the
-    green visible to `compass check`, which reads the registry, not the file."""
+    green visible to `compass check`, which reads the registry, not the file.
+
+    The entry carries the identity of the record it was created from. That is
+    what lets `evidence-identity-matches` later ask whether the file a gate
+    cites is still the run this entry was made for. The stamps are passed in
+    rather than re-read from the file: the record was just written, and
+    re-reading it would leave a window in which what is registered is not what
+    was recorded.
+    """
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
         return  # no task.yml - Frame hasn't run; nothing to update
@@ -593,6 +659,9 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
             break
     if existing:
         existing["path"] = rel_path
+        if record_id:
+            existing["record_id"] = record_id
+            existing["content_digest"] = content_digest
     else:
         base = f"EV-T-{scenario}" if scenario else "EV-T"
         used = {e.get("id") for e in reg if isinstance(e, dict)}
@@ -603,6 +672,9 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path):
         entry = {"id": ev_id, "type": "test-run", "path": rel_path}
         if scenario:
             entry["scenario"] = scenario
+        if record_id:
+            entry["record_id"] = record_id
+            entry["content_digest"] = content_digest
         reg.append(entry)
     task["evidence"] = reg
     save_task(task, task_path)
@@ -760,22 +832,22 @@ def cmd_acceptance_record(args):
         payload["baseline"] = state.get("baseline", {})
         payload["baseline"]["command"] = state.get("command")
 
-    ev_path = _write_evidence(task_dir, "acceptance", payload)
+    # The binding decides the path - see the note in cmd_tdd_green. This half
+    # of the module had the identical defect: the fixed path was written
+    # unconditionally, so a scenario-bound acceptance replaced the unbound
+    # record as well as writing its own.
     scenario = getattr(args, "scenario", None)
-    # If scenario-bound, also write a scenario-specific copy - the same
-    # reason `compass tdd-green` writes both `green.json` and
-    # `green-<scenario>.json`. Without this, a second scenario's `acceptance
-    # record` silently overwrote the first's real evidence at the one fixed
-    # path, even though the registry still named both scenarios against it.
-    rel_path = "evidence/acceptance.json"
+    name = "acceptance"
     if scenario:
-        scn_name = "acceptance-" + scenario.replace("/", "_")
-        ev_path = _write_evidence(task_dir, scn_name, payload)
-        rel_path = f"evidence/{scn_name}.json"
+        name = "acceptance-" + scenario.replace("/", "_")
+    ev_path = _write_evidence(task_dir, name, payload)
+    rel_path = f"evidence/{name}.json"
     # Registered as `test-run` so the existing G1 checks accept it: the point of
     # this verb is to remove the incentive to fake a red, which it only does if
     # the result counts.
-    _upsert_test_run_evidence(task_dir, scenario, rel_path)
+    _upsert_test_run_evidence(task_dir, scenario, rel_path,
+                              record_id=payload.get("record_id"),
+                              content_digest=payload.get("content_digest"))
     marker = _acceptance_marker(task_dir)
     if os.path.exists(marker):
         os.remove(marker)

@@ -26,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.9.0
+version: 1.10.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -95,6 +95,17 @@ checks:
       an attempts field passes trivially (backward compat, TRC-A5). May carry
       attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
       (see strategy S5).
+  evidence-identity-matches:
+    description: >
+      Every registry entry still names the record it was created from. Records
+      are stamped at write time with a `record_id` (unique per write) and a
+      `content_digest` (over the payload); the entry stores both. A different
+      record_id means the file was replaced after it was cited; a matching
+      record_id with a different digest means it was edited in place. An entry
+      with no record_id predates stamping and is UNVERIFIABLE - reported and
+      counted apart from the passes, never treated as verified, because an
+      unstamped record cannot be checked against its citation.
+
   command-passes:
     description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, it passes without checking anything (no declarations means there are no fitness functions to run)."
 
@@ -195,7 +206,8 @@ defaults:
       A guardrail is cleared with artifacts and command output, never a claim.
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed follow-up - narrative notes never clear it.
-    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun, command-passes]
+    checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun, command-passes,
+             evidence-identity-matches]
     checked_at: [verify, land]
 
   - id: G5

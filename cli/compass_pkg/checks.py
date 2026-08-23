@@ -93,6 +93,8 @@ import re as _re
 from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml, normalize_spine
 from compass_pkg.tdd import _read_config
 from compass_pkg.trust import UNKNOWN, UNTRUSTED, contribution_trust, is_ci
+from compass_pkg.check_results import NOTHING_TO_CHECK  # re-exported: callers still import it from here
+from compass_pkg.evidence_identity import _check_evidence_identity_matches
 from compass_pkg.project_commands import _contained_script, _project_commands_allowed
 
 
@@ -304,24 +306,6 @@ def _check_scenarios_are_executable(task, task_dir):
 from compass_pkg.test_ids import _test_id_resolves, _test_is_skipped
 
 
-class _NothingToCheck(int):
-    """A pass that verified nothing, distinguishable from one that did.
-
-    A check passes without checking anything when the thing it inspects does not exist in
-    this project - no BDD runner wired, no claims recorded, no project
-    guardrails declared. That is a legitimate pass, but counting it beside a
-    real one lets the summary overstate what was verified.
-
-    It subclasses int and is truthy, so every existing `if not passed` and
-    every caller that only cares pass/fail keeps working untouched; only the
-    summary asks whether a result `is NOTHING_TO_CHECK`.
-    """
-
-    def __repr__(self):
-        return "NOTHING_TO_CHECK"
-
-
-NOTHING_TO_CHECK = _NothingToCheck(1)
 
 
 def _check_suite_passed(task, task_dir):

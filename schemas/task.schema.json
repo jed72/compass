@@ -223,6 +223,14 @@
           "next_task": {
             "type": "string",
             "description": "For spike-conclusion with decision=graduate-to-delivery: the path to the new issue that owns the delivery work (e.g. .compass/work/<new-slug>/)."
+          },
+          "record_id": {
+            "type": "string",
+            "description": "The identity of the record this entry was created from. Stamped into the record at write time and copied here, so `evidence-identity-matches` can ask whether the file a gate cites is still that run. Absent on entries written before stamping existed - those are unverifiable, never verified."
+          },
+          "content_digest": {
+            "type": "string",
+            "description": "A digest over the record's content when this entry was created. A matching record_id with a differing digest means the record was edited in place rather than replaced."
           }
         }
       }
