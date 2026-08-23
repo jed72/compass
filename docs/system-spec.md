@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the portable instructions carry the shape too
+### a document's status can be moved, and an omission recorded
 
-- **Scenario id:** `TRC-A4`
+- **Scenario id:** `TRC-C7`
 - **Intent:** `INT-1`
-- **Source issue:** `agent-speech-is-unchecked`
+- **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the list covers every term the cold reader named
+### every landed issue still resolves after the change
 
-- **Scenario id:** `TRC-B2`
+- **Scenario id:** `TRC-B4`
 - **Intent:** `INT-2`
-- **Source issue:** `agent-speech-is-unchecked`
+- **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
-### the rule is attached to a moment, not stated as advice
+### the dashboard can be generated and checked from the CLI
 
-- **Scenario id:** `TRC-C1`
+- **Scenario id:** `TRC-C5`
 - **Intent:** `INT-3`
-- **Source issue:** `agent-speech-is-unchecked`
+- **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
-### no instruction tells a session both to use and to avoid reply headings
+### the currency check is wired into a guardrail
 
-- **Scenario id:** `TRC-D2`
+- **Scenario id:** `TRC-D3`
 - **Intent:** `INT-4`
-- **Source issue:** `agent-speech-is-unchecked`
+- **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
-### the guarantee about declared guardrails should still hold
+### the instructions tell a stage to link evidence rather than paste it
 
-- **Scenario id:** `TRC-E2`
+- **Scenario id:** `TRC-E1`
 - **Intent:** `INT-5`
-- **Source issue:** `project-commands-are-a-trust-boundary`
-- **Landed:** 2026-08-22
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
 
 ### the hook still blocks a code file inside the project
 
@@ -85,12 +85,12 @@
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
-### recording acceptance for a second scenario does not destroy the first one's evidence
+### the same assessment computes the same artifact set every time
 
-- **Scenario id:** `TRC-F7`
+- **Scenario id:** `TRC-F4`
 - **Intent:** `INT-6`
-- **Source issue:** `zero-friction-install`
-- **Landed:** 2026-08-10
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
 
 ### A configured test_micro_command takes precedence when present
 
@@ -3598,6 +3598,13 @@
 - **Source issue:** `zero-friction-install`
 - **Landed:** 2026-08-10
 
+### recording acceptance for a second scenario does not destroy the first one's evidence _(archived)_
+
+- **Scenario id:** `TRC-F7`
+- **Intent:** `INT-6`
+- **Source issue:** `zero-friction-install`
+- **Landed:** 2026-08-10
+
 ### the bundled copy is the one used, whatever the machine has _(archived)_
 
 - **Scenario id:** `TRC-G1`
@@ -5754,6 +5761,13 @@
 - **Source issue:** `project-commands-are-a-trust-boundary`
 - **Landed:** 2026-08-22
 
+### the guarantee about declared guardrails should still hold _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-5`
+- **Source issue:** `project-commands-are-a-trust-boundary`
+- **Landed:** 2026-08-22
+
 ### recording a scenario-bound green leaves the unbound green intact _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -5894,10 +5908,31 @@
 - **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23
 
+### the portable instructions carry the shape too _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
 ### a worked list gives each leaky term its plain-English form _(archived)_
 
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### the list covers every term the cold reader named _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### the rule is attached to a moment, not stated as advice _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
 - **Source issue:** `agent-speech-is-unchecked`
 - **Landed:** 2026-08-23
 
@@ -5906,4 +5941,123 @@
 - **Scenario id:** `TRC-D1`
 - **Intent:** `INT-4`
 - **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### no instruction tells a session both to use and to avoid reply headings _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `agent-speech-is-unchecked`
+- **Landed:** 2026-08-23
+
+### a registered artifact declares its kind, path, status and reason _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### an omitted artifact records why it was omitted _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### the schema refuses an entry that explains nothing _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### a registered path resolves ahead of the flat filename _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### an issue with no registry still resolves its artifacts _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### an artifact that resolves by neither route is reported, not silently absent _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### the dashboard names the decision required and where to start _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### it lists every registered artifact with its status and why it exists _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### it lists what was deliberately omitted, with reasons _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### it carries no raw evidence _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### the pack separates a document that exists from one still owed _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-1`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### a dashboard that no longer matches the spine is reported as stale _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### a drifted dashboard fails the check rather than warning _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### the evaluator computes the artifact set from the assessment _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-6`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### a trivial atomic change earns almost nothing _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-6`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### a policy rule can add an artifact the way it adds a gate _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-6`
+- **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
