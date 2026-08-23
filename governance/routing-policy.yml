@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.1.2
+version: 2.3.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -140,6 +140,19 @@ routing_guardrails:
       add_gate: verify.fitness
       rationale: "Irreversible-surface issues have fitness checked before they ship."
 
+    # Artifacts are a routed output like gates. A dimension the shape does not
+    # know about can earn a document the same way it earns a gate - which is
+    # what stops the artifact set being "whatever this shape always writes".
+    - id: RP-REQUIRE-005
+      when: { labels_any: [auth, payments, personal-data] }
+      add_artifact: threat-model
+      rationale: "Work on a trust boundary states the threats it considered."
+
+    - id: RP-REQUIRE-006
+      when: { labels_any: [migrations] }
+      add_artifact: rollback-plan
+      rationale: "A change that is hard to undo says in advance how it would be undone."
+
   # caps - limits on scaling up.
   caps:
     - id: RP-CAP-001
@@ -212,16 +225,25 @@ route_shapes:
     stages: { frame: light, specify: collapsed, clarify: skipped, plan: collapsed, distribute: skipped, build: explore, verify: conclude, land: graduate-or-discard }
     gates: [spike.conclude]
     topology: solo
+    # A spike writes no review document. What it owes is a recorded
+    # conclusion - discard, graduate, or defer - and that is typed evidence,
+    # not a document. An empty pack here is the honest answer, not a gap.
+    artifacts: {}
   express:
     weight: 1
     stages: { frame: full, specify: light, clarify: collapsed, plan: collapsed, distribute: skipped, build: full, verify: light, land: light }
     gates: [verify.correctness, verify.governance, verify.traceability]
     topology: solo
+    # The floor the guardrails already impose, and nothing more: a stated
+    # criterion before the code (G2) and a recorded green after it (G1).
+    # Both light. A variable rename earns these two and no review pack.
+    artifacts: { acceptance-criteria: light, verification-report: light }
   standard:
     weight: 2
     stages: { frame: full, specify: full, clarify: light, plan: full, distribute: solo-or-pair, build: full, verify: full, land: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.clarity, verify.security]
     topology: solo-or-pair
+    artifacts: { acceptance-criteria: full, design: full, verification-report: full }
   hotfix:
     weight: 3
     # `full-plus-backfill` below is a stage-weight enum the evaluator
@@ -231,8 +253,10 @@ route_shapes:
     stages: { frame: light, specify: reproduce-first, clarify: collapsed, plan: collapsed, distribute: skipped, build: expedited, verify: full, land: full-plus-backfill }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security]
     topology: solo
+    artifacts: { acceptance-criteria: light, verification-report: full }
   expedition:
     weight: 4
     stages: { frame: full, specify: full, clarify: full, plan: full, distribute: swarm, build: full, verify: full, land: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security, verify.clarity, verify.claims]
     topology: swarm
+    artifacts: { prd: full, acceptance-criteria: full, requirements-review: full, design: full, distribution-map: full, verification-report: full }

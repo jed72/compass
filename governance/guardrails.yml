@@ -26,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.10.1
+version: 1.11.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -34,6 +34,8 @@ version: 1.10.1
 # it verifies the recorded state is coherent and backed by evidence.
 # -----------------------------------------------------------------------------
 checks:
+  dashboard-current:
+    description: "The issue's generated README still matches the spine it was rendered from. Declines to check - it does not pass - when there is no README, or when the README carries no generated marker and is therefore somebody's hand-written page."
   scenarios-have-tests:
     description: "Every scenario in task.yml lists at least one test."
   scenarios-are-executable:
@@ -213,7 +215,7 @@ defaults:
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed follow-up - narrative notes never clear it.
     checks: [gate-evidence-present, dod-evidence-typed, coherence-check-passes, no-trusted-rerun, command-passes,
-             evidence-identity-matches]
+             evidence-identity-matches, dashboard-current]
     checked_at: [verify, land]
 
   - id: G5

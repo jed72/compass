@@ -168,6 +168,12 @@ def evaluate_route(readings, policy):
 
     # --- 2. floors raise the route / force phases (routing guardrails) -------
     floor_gates = []  # gates added by floors via add_gate (DD-1 / ADR-007)
+    # Artifacts a rule earns, beside the gates a rule earns. What an issue
+    # documents is a routed output like its stages and its gate set: judgement
+    # produces the assessment, and the mechanism produces everything downstream.
+    # A hand-assembled artifact list is a form, which is the thing this
+    # framework exists to remove.
+    rule_artifacts = []
     for fl in guardrails.get("floors", []):
         if not reading_matches(fl.get("when"), readings):
             continue
@@ -192,6 +198,10 @@ def evaluate_route(readings, policy):
             floor_gates.append(fl["add_gate"])
             changed.append(f"gate '{fl['add_gate']}' added to the "
                            f"approach's gate set")
+        if fl.get("add_artifact"):
+            rule_artifacts.append((fl["add_artifact"], fl.get("rationale", "")))
+            changed.append(f"artifact '{fl['add_artifact']}' added to the "
+                           f"approach's artifact set")
         if changed:
             # The kind follows what the entry actually did, not which block it
             # sits in. An entry that only attaches a gate raises no minimum, so
@@ -302,6 +312,43 @@ def evaluate_route(readings, policy):
     #
     # It stays a number so a cap can be compared against it. The previous code
     # wrote the sentence "solo (capped to 1 worktree)" into a machine field.
+    # --- the artifact set --------------------------------------------------
+    # The shape says what this size and risk of work ordinarily documents; a
+    # rule adds what a dimension the shape cannot see has earned. Nothing is
+    # recorded as "omitted" here: a document the assessment never earned was
+    # never a candidate, and writing a reason for it would be the bookkeeping
+    # this is meant to remove. `omitted` is for a human deliberately dropping
+    # something that WAS earned.
+    artifacts = []
+    for kind, depth in (shape.get("artifacts") or {}).items():
+        artifacts.append({
+            "id": "ART-" + str(kind).upper().replace("-", "_"),
+            "kind": kind, "status": "draft", "depth": depth,
+            # The reason names the rule that earned it, in the reader's words.
+            # It deliberately does not repeat the kind - the row already says
+            # which document this is, and "initiative earns it (prd)" told a
+            # reviewer nothing they could not see.
+            "reason": "every %s carries %s" % (
+                display_shape(final),
+                "one" if depth == "full" else "a light one"),
+        })
+    # A role rule already demands documents via `require_artifact` - a marketer
+    # needs launch-readiness, a product owner a brief. That is the same idea
+    # from the role's side, so it joins the same set rather than living in a
+    # second list nothing renders.
+    for req in required_artifacts:
+        kind = req[:-3] if str(req).endswith(".md") else str(req)
+        rule_artifacts.append((kind, "a role in play requires it"))
+
+    for kind, why in rule_artifacts:
+        if any(a["kind"] == kind for a in artifacts):
+            continue
+        artifacts.append({
+            "id": "ART-" + str(kind).upper().replace("-", "_"),
+            "kind": kind, "status": "draft", "depth": "full",
+            "reason": why or "added by a policy rule",
+        })
+
     stream_ceiling = _SHAPE_STREAM_CEILING.get(
         str(shape.get("topology", "solo")), 1)
     if max_worktrees is not None:
@@ -328,6 +375,7 @@ def evaluate_route(readings, policy):
         "policy_rules_fired": fired,
         "stages": phases,
         "gates": gates,
+        "artifacts": artifacts,
         "stream_ceiling": stream_ceiling,
         "required_artifacts": required_artifacts,
         "required_skills": sorted(required_skills),
@@ -496,6 +544,26 @@ def cmd_route_evaluate(args):
             existing.get(gid, {"id": gid, "status": "pending", "evidence": []})
             for gid in result["gates"]
         ]
+        # Seed the artifact registry the same way the gate list is seeded:
+        # what routing computed, without clobbering a status or path a stage
+        # has already recorded against an entry.
+        recorded = {a.get("kind"): a for a in task.get("artifacts", [])
+                    if isinstance(a, dict)}
+        merged = []
+        for a in result["artifacts"]:
+            keep = recorded.get(a["kind"])
+            if keep:
+                keep = dict(keep)
+                keep["reason"] = a["reason"]      # the rule that earned it
+                merged.append(keep)
+            else:
+                merged.append(a)
+        # A human-recorded omission of something routing no longer earns is
+        # kept: it is a decision someone took, not stale computed output.
+        for kind, a in recorded.items():
+            if a.get("status") == "omitted" and not any(m["kind"] == kind for m in merged):
+                merged.append(a)
+        task["artifacts"] = merged
         # ensure the evidence registry exists at the top level
         task.setdefault("evidence", [])
         task["stream_ceiling"] = result["stream_ceiling"]

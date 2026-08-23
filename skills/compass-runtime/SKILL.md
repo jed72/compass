@@ -89,7 +89,7 @@ definition has a bug. The five shipped defaults, stated plainly:
    stated, checkable criterion describes.
 3. **Everything traces.** Code to acceptance criterion to stated reason, and
    claim to criterion. Maintain it as you go, not at the end.
-4. **Evidence, not assertion.** Clear a guardrail with pasted command output
+4. **Evidence, not assertion.** Clear a guardrail with recorded command output
    and artifacts. "The tests pass" without the run clears nothing.
 5. **A human signs off on the irreversible.** Data loss, money, auth,
    privacy - these get an explicit human checkpoint before they ship.

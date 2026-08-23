@@ -7,7 +7,7 @@ description: What counts as evidence versus assertion, how guardrails are cleare
 
 "Evidence, not assertion" is **the evidence-not-assertion guardrail**. A guardrail is cleared with
 artifacts and command output - never with a claim. "The tests pass" is not a
-gate-passing statement in any route; the *paste of the test run* is. This skill
+gate-passing statement in any route; the *recorded test run* is. This skill
 covers what counts as evidence, the checklists for each review dimension, and -
 just as important - the line between what is *checked* and what is *assessed*.
 
@@ -19,7 +19,7 @@ mode the evidence-not-assertion guardrail exists to prevent.
 
 - **Guardrails are *checkable*.** They are cleared with evidence - a test ran, a
   scan passed, a human approved, the artifact exists. A guardrail clears or it
-  does not, and "clears" means there is pasted output a sceptic could re-run. A
+  does not, and "clears" means there is recorded output a sceptic could re-run. A
   failed guardrail is a no-pass. A guardrail beats any strategy.
 - **Strategies are *assessed*.** They are the reviewer's judgement - is this the
   simplest thing that works, does it follow the team's engineering or voice
@@ -38,7 +38,7 @@ side, judgement on the other.
 
 | Assertion (does not clear a guardrail) | Evidence (clears a guardrail) |
 |---|---|
-| "The tests pass." | The pasted test-runner output: counts, the green summary, the command that produced it. |
+| "The tests pass." | The recorded test-runner output: counts, the green summary, the command that produced it. |
 | "Coverage is fine." | The coverage report, with the number, against any project coverage-floor guardrail. |
 | "It's fast enough." | The benchmark output against any project performance-budget guardrail. |
 | "No regressions." | The regression run, before-and-after, showing nothing previously green is now red. |
@@ -46,7 +46,7 @@ side, judgement on the other.
 | "Every claim is backed." | `launch-readiness.md` with each claim's backing scenario and that scenario's passing status. |
 
 The test is simple: **could someone who does not trust you verify it from what
-you pasted?** If yes, it is evidence. If they would have to take your word, it
+you recorded?** If yes, it is evidence. If they would have to take your word, it
 is assertion.
 
 ## Properties of real evidence
@@ -92,8 +92,13 @@ verification pipeline.
 ## How the two halves of Verify split
 
 - The **Verifier** does the mechanical half: runs the scenarios as the
-  acceptance suite, runs the TDD suite, runs regression, gathers artifacts,
-  pastes raw output into `verification-report.md`. It establishes what is true.
+  acceptance suite, runs the TDD suite, runs regression, and **writes each
+  capture to an evidence file and links it** from
+  `verification-report.md`. It establishes what is true.
+  **Link, do not paste.** A report that reproduces its evidence stops being
+  something a person reads - it becomes a transcript with a summary at the top.
+  The record belongs in `evidence/`; the report cites it and states what it
+  shows.
 - The **Reviewer** does the judgement half: applies the review dimensions to
   that evidence and the change, and renders pass / no-pass. It decides whether
   what is true is good enough.
@@ -173,8 +178,8 @@ still be true if someone quoted it on its own six months from now?
 ## Passing a gate - the procedure
 
 1. Read `delivery-approach.md` for the gate set and the dimensions in play.
-2. Verifier: run everything the dimensions require, paste raw output into
-   `verification-report.md`, flag every gap.
+2. Verifier: run everything the dimensions require, write the raw output to an
+   evidence record and link it from `verification-report.md`, flag every gap.
 3. Reviewer: walk each dimension's checklist against the evidence and the
    change. Record per-dimension **pass** or **no-pass with the specific reason**.
 4. The gate passes only if every applicable dimension passes. One no-pass sends
@@ -219,7 +224,7 @@ quality in.
 
 ## Anti-patterns
 
-- **The assertion gate** - "all green, looks good" with nothing pasted. The most
+- **The assertion gate** - "all green, looks good" with nothing recorded. The most
   common way the evidence-not-assertion guardrail is quietly broken.
 - **The dressed-up strategy** - presenting a strategy assessment ("this follows
   our engineering strategies") as if it were an evidence-backed guardrail

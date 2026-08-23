@@ -82,7 +82,8 @@ the design.
 
 ## Gate
 
-`design.md` exists; the governance check passed (paste its result); if a PRD
+`design.md` exists; the governance check passed (record its result and link
+the record); if a PRD
 exists, the intent-fidelity gate passed; if the work is parallelisable, a
 distribution map exists. Log to `devlog.md`. Next: `/compass:breakdown` (or
 straight to `/compass:implement` on solo work).

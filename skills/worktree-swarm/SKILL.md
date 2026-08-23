@@ -108,7 +108,7 @@ detection, and integration:
 4. **Run combined regression across the integrated result.** This is
    non-negotiable on initiative. Per-stream green does not imply integrated
    green; proving the combination is the entire reason the orchestrator owns
-   ship. Paste the output.
+   ship. Record the run and link the record.
 5. Resolve every owed follow-up, update living docs, write the integration
    devlog entry.
 

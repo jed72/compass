@@ -36,7 +36,7 @@ there are not many.
 No code reaches `main` unless it traces to a declared test and a green test run is on record. Compass checks that both exist and line up; it does not observe the declared test running - see `docs/safety-contract.md` for what a test-run record does and does not establish.
 
 This is checked at Verify and again at ship time - `verification-report.md`
-carries the evidence (the pasted run).
+carries the evidence (the recorded run).
 
 *What this is not:* tested-before-ship is not "red before green on every change." Writing the
 failing test first is **TDD**, a default *strategy* (see `strategies.md`) -
@@ -70,7 +70,7 @@ The chains are the audit trail. A broken chain is a failed guardrail.
 ### Evidence, not assertion (`G4`)
 
 A guardrail is cleared with artifacts and command output, never with a claim.
-"The tests pass" is the pasted run, not the sentence. "It works" clears
+"The tests pass" is the recorded run, not the sentence. "It works" clears
 nothing. This guardrail is *about* the others: it defines what "cleared"
 means.
 

@@ -677,6 +677,109 @@ def reading_matches(when, assessment):
 # The archive speaks the v2 filenames; the v1 fallback this function once
 # carried retired when the repository's own archive migrated. The old-name
 # map lives in compass_pkg.migrate, which is what reads un-migrated trees.
+# The four answers a lookup can give. OMITTED and UNRESOLVABLE both mean "no
+# document here" and they mean opposite things - one is a decision, the other is
+# a broken record. Collapsing them is how a document stops being read while the
+# review page reports it as deliberately left out.
+FOUND = "found"
+OMITTED = "omitted"
+UNRESOLVABLE = "unresolvable"
+ABSENT = "absent"
+
+
+def _registry(task_dir):
+    """The issue's artifact registry, or [] when it has none.
+
+    Eighty-eight issues landed before this existed. A missing registry is the
+    ordinary case, never a fault.
+    """
+    path = os.path.join(task_dir, "task.yml")
+    if not os.path.isfile(path):
+        return []
+    try:
+        task = load_yaml(path)
+    except CompassError:
+        return []
+    arts = (task or {}).get("artifacts") if isinstance(task, dict) else None
+    return arts if isinstance(arts, list) else []
+
+
+def _entry_for(task_dir, kind):
+    for e in _registry(task_dir):
+        if isinstance(e, dict) and e.get("kind") == kind:
+            return e
+    return None
+
+
+def _flat_name(kind):
+    """The old flat filename for a kind - `design` -> `design.md`."""
+    return kind if kind.endswith(".md") else kind + ".md"
+
+
 def artifact_path(task_dir, name):
-    """The on-disk path of a per-issue artifact, by its v2 filename."""
+    """The on-disk path of a per-issue artifact, by its v2 filename.
+
+    Registry-aware, and unchanged for its callers: it still returns a path. A
+    registered path wins; the flat filename is the fallback, so an issue with
+    no registry - or one whose registry does not mention this document - keeps
+    working exactly as before.
+
+    Callers that need to know WHY that is the answer want resolve_artifact().
+    """
+    kind = name[:-3] if name.endswith(".md") else name
+    entry = _entry_for(task_dir, kind)
+    if entry and entry.get("path"):
+        registered = os.path.join(task_dir, entry["path"])
+        if os.path.isfile(registered):
+            return registered
     return os.path.join(task_dir, name)
+
+
+def resolve_artifact(task_dir, kind):
+    """Where a document is, and why that is the answer.
+
+    Returns (state, path, reason):
+
+      FOUND        path is real; reason says which route found it.
+      OMITTED      the registry records a deliberate omission, with its reason.
+      UNRESOLVABLE an entry names a path that is not there, and the flat
+                   filename is not there either. The reason names both paths
+                   tried, because the entry is wrong and someone has to fix it.
+      ABSENT       no entry and no file. Ordinary for an issue that predates the
+                   registry; not a fault on its own.
+    """
+    entry = _entry_for(task_dir, kind)
+    flat = os.path.join(task_dir, _flat_name(kind))
+
+    if entry is not None and entry.get("status") == "omitted":
+        return (OMITTED, None,
+                entry.get("reason") or "omitted, with no reason recorded")
+
+    if entry is not None and entry.get("path"):
+        registered = os.path.join(task_dir, entry["path"])
+        if os.path.isfile(registered):
+            return FOUND, registered, "the registered path"
+        if os.path.isfile(flat):
+            return FOUND, flat, (
+                "the flat filename - the registered path %s is not there"
+                % entry["path"])
+        return (UNRESOLVABLE, None,
+                "%s names %s, which does not exist, and there is no %s either"
+                % (entry.get("id", "the entry"), entry["path"],
+                   _flat_name(kind)))
+
+    if os.path.isfile(flat):
+        return FOUND, flat, "the flat filename"
+    return ABSENT, None, "no registry entry and no %s" % _flat_name(kind)
+
+
+def issue_arg(p):
+    """The `--issue SLUG` argument, which many verbs take identically.
+
+    One line repeated is one line to drift, and it was what pushed this file
+    past the cap that keeps logic out of the entry point. The cap surfaced real
+    duplication rather than an arbitrary limit, so the duplication went.
+    """
+    p.add_argument("--issue", dest="task", metavar="SLUG",
+                   help="issue slug (default: current-task pointer)")
+    return p

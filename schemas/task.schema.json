@@ -523,6 +523,51 @@
     "parked_at": {
       "type": "string",
       "description": "Optional. ISO-8601 timestamp recording when the issue was parked."
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "The issue's artifact registry: which documents this issue produced, where they are, and WHY each exists - or why it was deliberately not written. The reason is the point. A filename with no reason is a directory listing, so `reason` is required on every entry including the omitted ones. The CLI resolves a registered `path` first and the old flat filename second, so issues written before this registry keep working.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable id, e.g. ART-HLD."
+          },
+          "kind": {
+            "type": "string",
+            "description": "What kind of document this is - design, prd, threat-model."
+          },
+          "path": {
+            "type": "string",
+            "description": "Path relative to the issue directory. Absent on an omitted entry, which has no document."
+          },
+          "status": {
+            "enum": [
+              "draft",
+              "awaiting-approval",
+              "approved",
+              "superseded",
+              "omitted"
+            ],
+            "description": "`omitted` is the one that makes a decision visible: paired with a required reason, it records that a document was deliberately not written rather than forgotten."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Why this document exists, or why it was omitted. Required either way."
+          },
+          "revision": {
+            "type": "integer",
+            "description": "Optional. Bumped when the document materially changes; an approval binds to it."
+          }
+        }
+      }
     }
   }
 }

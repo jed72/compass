@@ -22,6 +22,11 @@ GUARDRAILS_YML = "governance/guardrails.yml"
 # structural comparison against main below is the canonical guard; the
 # state-based tests use this list as the known-legitimate set.
 BASELINE_CHECKS = {
+    # Added by the per-issue review dashboard: the generated README is
+    # what a reviewer approves from, so it must not be allowed to
+    # disagree with the spine it was rendered from. Joins G4 rather
+    # than becoming a sixth guardrail (ADR-002).
+    "dashboard-current",
     "scenarios-have-tests",
     "suite-passed",
     "changed-code-traces-to-scenario",
