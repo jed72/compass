@@ -22,6 +22,12 @@ GUARDRAILS_YML = "governance/guardrails.yml"
 # structural comparison against main below is the canonical guard; the
 # state-based tests use this list as the known-legitimate set.
 BASELINE_CHECKS = {
+    # Added by the borrowed document shapes: a threat model that lists
+    # threats and mitigates none is the Threat Modeling Manifesto's named
+    # anti-pattern, and a rollback plan nobody has rehearsed is a guess.
+    # One check reads both, under G4 rather than as a sixth guardrail
+    # (ADR-002).
+    "borrowed-documents-answered",
     # Added by the per-issue review dashboard: the generated README is
     # what a reviewer approves from, so it must not be allowed to
     # disagree with the spine it was rendered from. Joins G4 rather

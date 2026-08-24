@@ -96,6 +96,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_evidence_identity_matches, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
+from compass_pkg.borrowed_docs import _check_borrowed_documents_answered
 from compass_pkg.dashboard import _check_dashboard_current
 from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_task, load_yaml, mode_banner, reading_matches, resolve_task_dir
 
@@ -120,6 +121,7 @@ CHECK_FNS = {
     "command-passes": _check_command_passes,
     "evidence-identity-matches": _check_evidence_identity_matches,
     "dashboard-current": _check_dashboard_current,
+    "borrowed-documents-answered": _check_borrowed_documents_answered,
 }
 
 # Per-check guidance for structured failure messages. Each entry has the
@@ -134,6 +136,11 @@ CHECK_FNS = {
 # and it would change silently whenever the long text was edited. A missing
 # `do` fails the suite rather than falling back to a truncation.
 CHECK_GUIDANCE = {
+    "borrowed-documents-answered": {
+        "why": "A threat model that lists threats and mitigates none is the Threat Modeling Manifesto's named anti-pattern, \"Admiration for the Problem\". A rollback plan nobody has run is a guess - SWEBOK requires the rollback be rehearsed before the deploy, and a guess recorded as a plan is the assertion the evidence-not-assertion guardrail rejects.",
+        "fix": "In threat-model.md, give every threat either a TRC- scenario id in acceptance-criteria.md, or the words `risk accepted` and the reason. In rollback-plan.md, run the rollback against something and record what happened, when, and against what.",
+        "do": "Answer each threat with a TRC- id or `risk accepted`; rehearse the rollback.",
+    },
     "command-passes": {
         "why": 'A project guardrail with `check: command-passes` runs a real command - a fitness function, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
         "fix": 'Run the command the guardrail names and fix what it reports. If this project declares no such guardrail, nothing was checked and the pass is empty - declare one in governance/guardrails.yml with `check: command-passes` to make the gate mean something.',

@@ -12,7 +12,7 @@ real file; on initiative-scale work it is paired with distribution-map.md.
 The governance check here is run by the `governance-check` skill. How to
 choose and write the sections below is the `plan-authoring` skill.
 
-SECTIONS 0 AND 2-5 ARE OPTIONAL. They exist so a reviewer can *see* the shape
+SECTIONS 0, 2-5 AND 5a ARE OPTIONAL. They exist so a reviewer can *see* the shape
 of a change before it is built - an interaction, a structure, a named pattern,
 the shape of a key type. Used well they replace paragraphs of prose. Used
 badly they are padding, and a padded plan is read less carefully than a short
@@ -153,6 +153,38 @@ classDiagram
 ```
 
 {{One or two lines on what a reviewer should push back on if they disagree.}}
+
+---
+
+## 5a. Cross-cutting concerns
+
+<!-- OPTIONAL. Include when the change touches security, privacy, or the
+     ability to see what it is doing in production - and say which. Design
+     Docs at Google names these three as concerns of the DESIGN rather than
+     as separate documents, which is why they live here and not in a folder
+     of their own.
+
+     Omit when the change touches none of them, and delete the heading with
+     it. An empty optional section is worse than an absent one.
+
+     WHEN A LABEL EARNS A DOCUMENT INSTEAD. Some of this is not optional. An
+     issue whose assessment carries `auth`, `payments` or `personal-data`
+     earns a full threat-model.md (RP-REQUIRE-005), and one carrying
+     `migrations` earns a rollback-plan.md (RP-REQUIRE-006). Where those
+     exist, this section points at them rather than repeating them - two
+     copies of the same thinking drift, and the one with the scenarios
+     attached is the one that gets tested. -->
+
+**Security:** {{what an attacker gains if this is wrong, and what stops them -
+or "no new surface". If a threat model was earned, link it rather than
+summarising it.}}
+
+**Privacy:** {{what personal data this touches, where it goes, and how long it
+stays - or "none".}}
+
+**Observability:** {{what tells you this is working in production, and what
+tells you it is not. A metric, an alert, a log line someone will actually
+read - or "the existing dashboards cover it", said deliberately.}}
 
 ---
 
