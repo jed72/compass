@@ -95,6 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
+from compass_pkg.terminal import say
 from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, now_iso, resolve_task_dir, save_task, normalize_spine
 
 
@@ -371,9 +372,9 @@ def cmd_gate_pass(args):
     gate["status"] = "pass"
     gate["evidence"] = list(ev_ids)
     save_task(task, task_path)
-    print(f"compass gate pass: {args.gate_id} -> pass "
-          f"(evidence: {', '.join(ev_ids)}).")
-    return 0
+    return say(args, f"compass gate pass: {args.gate_id} -> pass "
+                    f"(evidence: {', '.join(ev_ids)}).",
+               gate=args.gate_id, status="pass", evidence=list(ev_ids))
 
 
 def cmd_scenario_add(args):
@@ -392,8 +393,9 @@ def cmd_scenario_add(args):
         "tests": list(args.test or []),
     })
     save_task(task, task_path)
-    print(f"compass scenario add: {args.scenario_id} added.")
-    return 0
+    return say(args, f"compass scenario add: {args.scenario_id} added.",
+               scenario=args.scenario_id, intent=getattr(args, "intent", None),
+               tests=list(args.test or []))
 
 
 def cmd_changed_file_add(args):
@@ -409,8 +411,8 @@ def cmd_changed_file_add(args):
     else:
         cfs.append({"path": args.path, "scenarios": [args.scenario]})
     save_task(task, task_path)
-    print(f"compass changed-file add: {args.path} -> {args.scenario}.")
-    return 0
+    return say(args, f"compass changed-file add: {args.path} -> {args.scenario}.",
+               path=args.path, scenario=args.scenario)
 
 
 def cmd_evidence_add(args):
@@ -461,8 +463,9 @@ def cmd_evidence_add(args):
         entry["scenario"] = args.scenario
     reg.append(entry)
     save_task(task, task_path)
-    print(f"compass evidence add: {args.evidence_id} ({args.type}) added.")
-    return 0
+    return say(args, f"compass evidence add: {args.evidence_id} "
+                    f"({args.type}) added.",
+               evidence_id=args.evidence_id, type=args.type, path=args.path)
 
 
 def _annotate_gate_accepts(task_path):
@@ -549,5 +552,6 @@ def cmd_task_set_status(args):
 
     save_task(task, path)
     detail = f" ({reason})" if reason else ""
-    print(f"compass issue set-status: {task.get('issue')} -> {status}{detail}.")
-    return 0
+    return say(args, f"compass issue set-status: {task.get('issue')} -> "
+                    f"{status}{detail}.",
+               issue=task.get("issue"), status=status, reason=reason or None)

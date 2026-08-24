@@ -14,6 +14,13 @@ honestly while they shared its name.
 See ADR-016. Spec:
 docs/system-spec.md.
 """
+
+# These read `compass approach evaluate`'s DETAIL - the provenance line,
+# the per-stage weights, the full gate list, the effect lines under each
+# fired rule. That detail moved to --verbose on 2026-08-24 when the
+# evaluator came under the terminal output contract; the computation is
+# unchanged. The assertions are re-pointed rather than rewritten, because
+# what they assert still holds - only where it is printed changed.
 from __future__ import annotations
 
 import pathlib
@@ -290,7 +297,7 @@ def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
     saying the other. Found by checking what the demo would actually show.
     """
     r = subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "probe"],
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "probe"],
         cwd=str(_probe_project(tmp_path)), capture_output=True, text=True,
         timeout=120,
     )
@@ -335,7 +342,7 @@ def test_the_rename_does_not_change_any_computed_approach(tmp_path):
     shutil.copytree(ROOT / "schemas", tmp_path / "schemas")
 
     r = subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "probe"],
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "probe"],
         cwd=str(tmp_path), capture_output=True, text=True, timeout=120,
     )
     assert r.returncode == 0, r.stdout + r.stderr

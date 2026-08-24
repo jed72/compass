@@ -6,6 +6,13 @@ whether a light route reflected the terrain or stale governance.
 
 Spec: .compass/work/governance-drift-detection/spec.feature.md (TRC-C1..C3).
 """
+
+# The plain "which policy file did I read" line is provenance and moved to
+# --verbose on 2026-08-24, when the evaluator came under the terminal output
+# contract. POLICY DRIFT did not move: a project running a policy missing
+# rules the framework ships gets a lighter approach than it should, and a
+# reader cannot tell that from a genuinely light one - so it is a concern on
+# the first screen. The drift test below asserts the default view, deliberately.
 from __future__ import annotations
 
 import pathlib
@@ -44,7 +51,7 @@ def _project(tmp_path, stale=False):
 
 def _evaluate(proj):
     return subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", *READINGS],
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", *READINGS],
         cwd=str(proj), capture_output=True, text=True, timeout=60,
     )
 

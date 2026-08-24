@@ -216,10 +216,12 @@ def cmd_issue_dashboard(args):
     path = os.path.join(task_dir, "README.md")
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(page)
-    print("compass issue dashboard: written -> %s" % path)
-    print("  %d line(s). Evidence is linked, not reproduced."
-          % len(page.splitlines()))
-    return 0
+    from compass_pkg.terminal import say
+
+    return say(args, "compass issue dashboard: written -> %s" % path,
+               detail=["%d line(s). Evidence is linked, not reproduced."
+                       % len(page.splitlines())],
+               path=path, lines=len(page.splitlines()))
 
 
 # The statuses a document can be in. `draft` is what routing seeds; the rest
@@ -267,7 +269,10 @@ def cmd_issue_artifact(args):
         entry["reason"] = args.reason.strip()
     task["artifacts"] = arts
     save_task(task, path)
-    print("compass issue artifact: %s -> %s" % (args.kind, args.status))
-    print("  reason: %s" % entry.get("reason", "(none recorded)"))
-    print("  regenerate the review page with `compass issue dashboard`")
-    return 0
+    from compass_pkg.terminal import say
+
+    return say(args, "compass issue artifact: %s -> %s" % (args.kind, args.status),
+               detail=["reason: %s" % entry.get("reason", "(none recorded)"),
+                       "regenerate the review page with `compass issue dashboard`"],
+               kind=args.kind, status=args.status,
+               reason=entry.get("reason"))

@@ -14,6 +14,13 @@ back-compat shim and belongs to the rename slice.
 Scenario ids: see .compass/work/identifiers-and-vocabulary-in-printed-output/
 acceptance-criteria.md (groups B, C, E).
 """
+
+# These read `compass approach evaluate`'s DETAIL - the provenance line,
+# the per-stage weights, the full gate list, the effect lines under each
+# fired rule. That detail moved to --verbose on 2026-08-24 when the
+# evaluator came under the terminal output contract; the computation is
+# unchanged. The assertions are re-pointed rather than rewritten, because
+# what they assert still holds - only where it is printed changed.
 from __future__ import annotations
 
 import pathlib
@@ -45,7 +52,7 @@ ASSESSMENT = ["risk=critical", "familiarity=brownfield-mapped", "size=small",
 
 
 def _evaluate(*extra):
-    args = [sys.executable, str(CLI), "approach", "evaluate"]
+    args = [sys.executable, str(CLI), "approach", "evaluate", "--verbose"]
     for pair in ASSESSMENT:
         args += ["--assessment", pair]
     args += list(extra)
@@ -145,7 +152,7 @@ def test_trc_b3_spine_keys_unchanged(tmp_path):
     }, sort_keys=False))
 
     r = subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "demo",
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
 

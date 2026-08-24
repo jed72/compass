@@ -22,6 +22,13 @@ it is neither.
 
 Scenario ids: see .compass/work/dry-run-2-rulings/acceptance-criteria.md.
 """
+
+# These read `compass approach evaluate`'s DETAIL - the provenance line,
+# the per-stage weights, the full gate list, the effect lines under each
+# fired rule. That detail moved to --verbose on 2026-08-24 when the
+# evaluator came under the terminal output contract; the computation is
+# unchanged. The assertions are re-pointed rather than rewritten, because
+# what they assert still holds - only where it is printed changed.
 from __future__ import annotations
 
 import json
@@ -68,7 +75,7 @@ def test_trc_a1_evaluator_emits_a_ceiling_not_a_topology(tmp_path):
     there is, because the work units are not known until design."""
     root = _project(tmp_path)
     r = subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "demo",
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
 
@@ -85,7 +92,7 @@ def test_trc_a2_the_ceiling_is_a_number_not_a_sentence(tmp_path):
     in a machine field, which nothing downstream can compare against."""
     root = _project(tmp_path)
     subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "demo",
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
         check=True)
     spine = yaml.safe_load(
@@ -111,7 +118,7 @@ def test_trc_a3_an_uncapped_approach_permits_more_than_one(tmp_path):
         "size": "large", "goal": "delivery", "role": "engineer",
         "labels": []}))
     subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "demo",
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
         check=True)
     spine = yaml.safe_load(
@@ -277,7 +284,7 @@ def test_trc_e2_a_cap_still_produces_a_number(tmp_path):
     """The control: unbounded must not mean uncappable."""
     root = _project(tmp_path)          # critical risk -> RP-CAP-001 fires
     subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate", "--issue", "demo",
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
         check=True)
     spine = yaml.safe_load(

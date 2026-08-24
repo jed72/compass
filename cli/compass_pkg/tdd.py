@@ -96,6 +96,7 @@ import re as _re
 
 import fnmatch
 import re as _re
+from compass_pkg.terminal import say
 from compass_pkg.core import CompassError, find_upwards, load_task, load_yaml, now_iso, resolve_task_dir, save_task
 
 
@@ -422,11 +423,13 @@ def cmd_tdd_red(args):
     open(os.path.join(task_dir, ".red"), "w").close()  # the hook reads this
     payload.pop("_full_log", None)
     bound = f" (bound to {scenario})" if scenario else " (unbound - consider --scenario)"
-    print(f"compass tdd-red: failing test recorded (exit {code}){bound}.")
-    print(f"  evidence : {ev_path}")
-    print(f"  marker   : {os.path.join(task_dir, '.red')}  (the pre-tool hook "
-          f"will now allow code edits)")
-    return 0
+    return say(args,
+               f"compass tdd-red: failing test recorded (exit {code}){bound}.",
+               detail=[f"evidence : {ev_path}",
+                       f"marker   : {os.path.join(task_dir, '.red')}",
+                       "           the pre-tool hook will now allow code edits."],
+               scenario=scenario, exit_code=code, evidence=ev_path,
+               marker=os.path.join(task_dir, ".red"))
 
 
 def _source_tree_hash(project_root):
@@ -624,11 +627,13 @@ def cmd_tdd_green(args):
     if os.path.exists(red_marker):
         os.remove(red_marker)
     bound = f" (bound to {scenario})" if scenario else " (unbound - consider --scenario)"
-    print(f"compass tdd-green: passing suite recorded (exit 0){bound}.")
-    print(f"  evidence : {ev_path}")
-    print("  registry : task.yml `evidence:` updated with the test-run entry")
-    print("  marker   : .red cleared - red -> green is on record.")
-    return 0
+    return say(args,
+               f"compass tdd-green: passing suite recorded (exit 0){bound}.",
+               detail=[f"evidence : {ev_path}",
+                       "registry : task.yml `evidence:` updated with the "
+                       "test-run entry",
+                       "marker   : .red cleared - red -> green is on record."],
+               scenario=scenario, exit_code=0, evidence=ev_path)
 
 
 def _upsert_test_run_evidence(task_dir, scenario, rel_path,
@@ -772,15 +777,19 @@ def cmd_acceptance_start(args):
     with open(_acceptance_marker(task_dir), "w", encoding="utf-8") as fh:
         fh.write(kind + "\n")
 
-    print(f"compass acceptance start: {kind} acceptance declared.")
-    if kind == "refactor":
-        print("  baseline : PASSING - the same command must pass again after "
-              "the change")
-    else:
-        print("  validator: " + payload["command"])
-    print(f"  marker   : {_acceptance_marker(task_dir)}  (the pre-tool hook "
-          f"will now allow edits; `.red` is untouched and still means a real "
-          f"failure was observed)")
+    # The marker path gets a line to itself. A path followed by prose is a
+    # line where neither half is usable: too long to read, and the path cannot
+    # be copied without picking it back out of the sentence.
+    _detail = ["baseline : PASSING - the same command must pass again after "
+               "the change" if kind == "refactor"
+               else "validator: " + payload["command"],
+               f"marker   : {_acceptance_marker(task_dir)}",
+               "           the pre-tool hook will now allow edits. `.red` is "
+               "untouched",
+               "           and still means a real failure was observed."]
+    say(args, f"compass acceptance start: {kind} acceptance declared.",
+        detail=_detail, kind=kind, command=payload.get("command"),
+        marker=_acceptance_marker(task_dir))
     return 0
 
 

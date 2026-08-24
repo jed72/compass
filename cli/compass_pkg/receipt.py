@@ -706,9 +706,14 @@ def cmd_adr_new(args):
             # newline before the row.
             fh.write(row)
 
-    print(f"compass adr new: created {full_path}")
-    print(f"  registered in {readme_path}")
-    print("  NOTE: concurrent worktree numbering caveat - if another "
-          "worktree creates ADRs in parallel, renumber when the streams "
-          "integrate.")
-    return 0
+    # The caveat is split across two lines: one 129-character line is not a
+    # line a person reads, and this one is worth reading.
+    from compass_pkg.terminal import say
+
+    return say(args, f"compass adr new: created {full_path}",
+               detail=[f"registered in {readme_path}",
+                       "NOTE: if another worktree creates ADRs at the same "
+                       "time, the",
+                       "      numbers will collide - renumber when the "
+                       "streams integrate."],
+               path=full_path, index=readme_path)

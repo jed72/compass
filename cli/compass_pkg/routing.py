@@ -416,8 +416,57 @@ def cmd_route_evaluate(args):
 
     result = evaluate_route(readings, policy)
 
-    if args.json:
+    from compass_pkg.terminal import Emitter, resolve_mode
+
+    _mode = resolve_mode(args)
+    if _mode == "json":
         print(json.dumps(result, indent=2))
+    elif _mode != "verbose":
+        # The default view. Everything below this branch is what --verbose
+        # still prints, unchanged: the provenance line, the raw assessment,
+        # the per-stage weights and the full gate list. That detail is real,
+        # and a person deciding whether the approach looks right does not need
+        # all of it on the first screen - they need the approach, the rules
+        # that produced it, and where it was written.
+        _fired = [str(f["rationale"]).rstrip().rstrip(".")
+                  + " (%s, %s)" % (f["id"], f["kind"])
+                  for f in result["policy_rules_fired"]]
+        _ceiling = result["stream_ceiling"]
+        _concerns = []
+        # Policy drift is a CONCERN, not provenance. The plain "which policy
+        # file did I read" line is detail and lives under --verbose, but a
+        # project running a policy that is missing rules the framework ships
+        # gets a lighter approach than it should - and a reader has no way to
+        # tell that from a genuinely light one. It belongs on the first screen.
+        _drift = governance_drift(gov)
+        if _drift.drifted:
+            _fw = _drift.framework_versions.get("routing-policy.yml", "unknown")
+            _concerns.append(
+                "this project's policy is missing %d rule(s) or check(s) that "
+                "framework v%s ships - run `compass policy lint`"
+                % (_drift.count, _fw))
+        if result["blocked_phases"]:
+            _concerns += ["%s is blocked until %s" % (b["phase"], b["until"])
+                          for b in result["blocked_phases"]]
+        if result["required_artifacts"]:
+            _concerns.append("documents required: "
+                             + ", ".join(result["required_artifacts"]))
+        _e = Emitter(mode=_mode,
+                     evidence_out=getattr(args, "evidence_out", None))
+        _e.hand_off(
+            outcome="%s - %d gate(s), %s"
+                    % (display_shape(result["delivery_approach"]),
+                       len(result["gates"]),
+                       "unbounded parallel streams" if _ceiling is None
+                       else "up to %d parallel stream(s)" % _ceiling),
+            read=(os.path.join(task_dir, "delivery-approach.md")
+                  if task is not None else None),
+            items=_fired or ["no policy rule fired - the shape is the "
+                             "assessment's default"],
+            concerns=_concerns,
+            next_step=None if args.write else
+            "nothing recorded - re-run with --write to fold this into the spine")
+        _e.flush()
     else:
         # Provenance first. route.md records which guardrails fired and why; it
         # said nothing about WHICH POLICY produced those answers, so a reader
