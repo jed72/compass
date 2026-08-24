@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the budget guard fails when the budget is breached
+### every document kind the policy names has a template
 
-- **Scenario id:** `TRC-E2`
+- **Scenario id:** `TRC-D1`
 - **Intent:** `INT-1`
-- **Source issue:** `the-terminal-output-contract`
+- **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,25 +43,25 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### evidence-out on a verb with nothing to capture
+### the fourth question is answered by evidence, not by assertion
 
-- **Scenario id:** `TRC-C7`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-2`
-- **Source issue:** `the-terminal-output-contract`
+- **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
 
-### verbose is where detail goes, not where the contract is escaped
+### a rollback plan with no rehearsal date is caught
 
-- **Scenario id:** `TRC-C5`
+- **Scenario id:** `TRC-B3`
 - **Intent:** `INT-3`
-- **Source issue:** `the-terminal-output-contract`
+- **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
 
-### retired vocabulary stays out of printed strings
+### both templates stay shorter than the framework's own PRD
 
 - **Scenario id:** `TRC-D3`
 - **Intent:** `INT-4`
-- **Source issue:** `the-terminal-output-contract`
+- **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
 
 ### every verb declares which contract it is under
@@ -6181,6 +6181,20 @@
 - **Source issue:** `the-terminal-output-contract`
 - **Landed:** 2026-08-24
 
+### verbose is where detail goes, not where the contract is escaped _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### evidence-out on a verb with nothing to capture _(archived)_
+
+- **Scenario id:** `TRC-C7`
+- **Intent:** `INT-2`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
 ### an identifier survives compression with its meaning attached _(archived)_
 
 - **Scenario id:** `TRC-D1`
@@ -6191,6 +6205,13 @@
 ### the meaning still comes before the code _(archived)_
 
 - **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### retired vocabulary stays out of printed strings _(archived)_
+
+- **Scenario id:** `TRC-D3`
 - **Intent:** `INT-4`
 - **Source issue:** `the-terminal-output-contract`
 - **Landed:** 2026-08-24
@@ -6207,4 +6228,60 @@
 - **Scenario id:** `TRC-E1`
 - **Intent:** `INT-1`
 - **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### the budget guard fails when the budget is breached _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### the template asks the four questions and no others _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### a threat with no scenario is visibly unfinished _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-2`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### the template records when the rollback was last rehearsed _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-3`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### the evidence type stops accepting a plan as a rollback _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### the design template offers a cross-cutting concerns section _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-4`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### the skill that governs the optional sections knows about it _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-4`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### no document was added that nothing asks for _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
