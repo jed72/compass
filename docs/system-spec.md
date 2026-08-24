@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### a document's status can be moved, and an omission recorded
+### the budget guard fails when the budget is breached
 
-- **Scenario id:** `TRC-C7`
+- **Scenario id:** `TRC-E2`
 - **Intent:** `INT-1`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### every landed issue still resolves after the change
+### evidence-out on a verb with nothing to capture
 
-- **Scenario id:** `TRC-B4`
+- **Scenario id:** `TRC-C7`
 - **Intent:** `INT-2`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
 
-### the dashboard can be generated and checked from the CLI
+### verbose is where detail goes, not where the contract is escaped
 
 - **Scenario id:** `TRC-C5`
 - **Intent:** `INT-3`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
 
-### the currency check is wired into a guardrail
+### retired vocabulary stays out of printed strings
 
 - **Scenario id:** `TRC-D3`
 - **Intent:** `INT-4`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
 
-### the instructions tell a stage to link evidence rather than paste it
+### every verb declares which contract it is under
 
-- **Scenario id:** `TRC-E1`
+- **Scenario id:** `TRC-C6`
 - **Intent:** `INT-5`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
 
 ### the hook still blocks a code file inside the project
 
@@ -5992,6 +5992,13 @@
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
+### every landed issue still resolves after the change _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
 ### the dashboard names the decision required and where to start _(archived)_
 
 - **Scenario id:** `TRC-C1`
@@ -6020,9 +6027,23 @@
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
+### the dashboard can be generated and checked from the CLI _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
 ### the pack separates a document that exists from one still owed _(archived)_
 
 - **Scenario id:** `TRC-C6`
+- **Intent:** `INT-1`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### a document's status can be moved, and an omission recorded _(archived)_
+
+- **Scenario id:** `TRC-C7`
 - **Intent:** `INT-1`
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
@@ -6038,6 +6059,20 @@
 
 - **Scenario id:** `TRC-D2`
 - **Intent:** `INT-4`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### the currency check is wired into a guardrail _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-4`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
+### the instructions tell a stage to link evidence rather than paste it _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-5`
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
@@ -6061,3 +6096,115 @@
 - **Intent:** `INT-6`
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
+
+### a stage hand-off fits on one screen _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### the hand-off says what was decided and what to read _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### a hand-off with nothing to decide is shorter, not padded _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### at most three key choices and three concerns _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### the budget cannot be met by making the lines longer _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### the gate verdict keeps its guidance one flag away _(archived)_
+
+- **Scenario id:** `TRC-A6`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### a report opens with a summary a reader can stop at _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-5`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### a report's own detail is never truncated by the contract _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-5`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### every verb accepts every mode flag _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### quiet prints nothing on success _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### json is the machine mode and carries no prose _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### evidence-out writes the raw capture rather than printing it _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-2`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### an identifier survives compression with its meaning attached _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### the meaning still comes before the code _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### an expected string is updated only when the test's intent still holds _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
+### a verb prints past its budget and the guard says which one _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-1`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
