@@ -157,14 +157,25 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     (task_dir / "delivery-approach.md").write_text("# Route - t\n")
     (task_dir / "acceptance-criteria.md").write_text("# Spec - t\n\n## Summary\n\n**Goal:** x\n")
 
+    # Re-pointed on 2026-08-24: `analyze` came under the terminal output
+    # contract, so its verdict is now the FIRST line and its findings are a
+    # counted section rather than a "findings: N" line. The intent is unchanged
+    # and this now asserts it directly - the two counts must be the same number
+    # - rather than only checking the summary does not say zero.
+    import re as _re
+
     result = _compass(project, "analyze", "--issue", "t")
-    reported = [l for l in result.stdout.splitlines() if "findings:" in l]
-    summary = [l for l in result.stdout.splitlines() if "compass analyze:" in l]
-    assert reported and summary, f"unexpected analyze output:\n{result.stdout}"
-    count = int(reported[0].split(":")[1].strip())
-    assert count > 0, "fixture produced no findings - the assertion would be empty"
-    assert "0 finding(s)" not in summary[0], (
-        f"analyze listed {count} finding(s) then summarised: {summary[0]!r}"
+    lines = result.stdout.splitlines()
+    section = [l for l in lines if _re.search(r"findings \((\d+)\)", l)]
+    verdict = [l for l in lines if "compass analyze" in l]
+    assert section and verdict, f"unexpected analyze output:\n{result.stdout}"
+
+    listed = int(_re.search(r"findings \((\d+)\)", section[0]).group(1))
+    stated = int(_re.search(r"(\d+) finding\(s\)", verdict[0]).group(1))
+    assert listed > 0, "fixture produced no findings - the assertion would be empty"
+    assert stated == listed, (
+        f"analyze listed {listed} finding(s) and its verdict says {stated}: "
+        f"{verdict[0]!r}"
     )
 
 

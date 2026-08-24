@@ -654,3 +654,134 @@ def test_trc_a4_a_check_named_twice_is_not_listed_twice(tmp_path):
         assert name not in tail[0], (
             "%r was shown in full and named again as hidden:\n%s"
             % (name, out))
+
+
+# ---------------------------------------------------------------------------
+# U3 - the reports
+# ---------------------------------------------------------------------------
+#
+# A report is run deliberately to GET detail, so the hand-off budget must not
+# reach it. What it owes a reader is a summary they can stop at.
+#
+# These are written over EVERY verb that declares itself a report rather than
+# over a list of four names, so a fifth report is covered the day it is
+# declared instead of the day somebody remembers to add it here. The names are
+# discovered from the parser, which is also where the declaration lives.
+
+def _report_verbs():
+    """Every verb that declares itself a report, from the parser tree."""
+    return sorted(path for path, p in _leaf_parsers().items()
+                  if p.get_default("output_kind") == "report"
+                  and not path.startswith("_"))
+
+
+def _repo_run(*argv):
+    """Run a verb against this repository, which has 140 issues to report on."""
+    return subprocess.run([sys.executable, str(CLI), *argv],
+                          cwd=str(REPO_ROOT), capture_output=True, text=True,
+                          timeout=180)
+
+
+# The reports that read this repository's own issue tree and produce enough
+# output to be worth testing. `migrate` and the linters need an argument or a
+# broken tree to say anything, so they are exercised by their own suites.
+_LIVE_REPORTS = ["retro", "flow", "terminology", "analyze"]
+
+
+def test_trc_b1_every_live_report_opens_with_a_summary():
+    """TRC-B1: the first five lines say what was found.
+
+    A reader who has to scan 157 lines to learn there is nothing to do has been
+    failed by the report.
+    """
+    for verb in _LIVE_REPORTS:
+        r = _repo_run(verb)
+        out = r.stdout
+        assert out.strip(), "`compass %s` printed nothing" % verb
+        # ONLY the summary: the lines before the first blank one. Reading the
+        # first five lines of the whole report caught a section header like
+        # "  IN PROGRESS (1)" instead - so a mutation that stripped every
+        # number from the summary still passed, and this checked the detail
+        # while claiming to check the summary.
+        head = []
+        for line in out.splitlines():
+            if not line.strip():
+                break
+            head.append(line)
+        assert head, "`compass %s` opens with blank lines" % verb
+        assert len(head) <= REPORT_SUMMARY_LINES, (
+            "`compass %s` opens with a %d-line summary, over the %d-line "
+            "budget:\n%s" % (verb, len(head), REPORT_SUMMARY_LINES,
+                             "\n".join(head)))
+        # A summary states a quantity. Without one it is a title, and a title
+        # is not something a reader can stop at.
+        assert any(c.isdigit() for l in head for c in l), (
+            "`compass %s` opens with no number in its first %d lines, so a "
+            "reader cannot tell from the summary whether the detail needs "
+            "reading:\n%s" % (verb, REPORT_SUMMARY_LINES, "\n".join(head)))
+
+
+def test_trc_b2_a_report_keeps_all_of_its_detail():
+    """TRC-B2: the hand-off budget is not applied to a report.
+
+    Asserted against the LONGEST report this repository produces, because a
+    budget applied by accident would show up there first.
+    """
+    default = _repo_run("flow").stdout
+    verbose = _repo_run("flow", "--verbose").stdout
+    assert len(default.splitlines()) > HANDOFF_LINES, (
+        "`compass flow` was cut to a hand-off budget - it reports on 140 "
+        "issues, and cutting it to %d lines removes the reason to run it:\n%s"
+        % (HANDOFF_LINES, default))
+    assert len(verbose.splitlines()) >= len(default.splitlines()), (
+        "--verbose produced less than the default view")
+
+
+def test_trc_c2_a_report_under_quiet_is_the_summary_only():
+    """TRC-C2 for a report: --quiet keeps the finding, drops the detail.
+
+    Not silence. A person who asked for a report asked for an answer; --quiet
+    says they want it short, not that they want nothing.
+    """
+    for verb in _LIVE_REPORTS:
+        quiet = _repo_run(verb, "--quiet").stdout
+        default = _repo_run(verb).stdout
+        assert quiet.strip(), (
+            "`compass %s --quiet` printed nothing, so the answer the reader "
+            "asked for was thrown away" % verb)
+        assert len(quiet.splitlines()) <= REPORT_SUMMARY_LINES, (
+            "`compass %s --quiet` ran to %d lines:\n%s"
+            % (verb, len(quiet.splitlines()), quiet))
+        assert len(quiet.splitlines()) < len(default.splitlines()), (
+            "`compass %s --quiet` was no shorter than the default" % verb)
+
+
+def test_trc_c3_every_live_report_emits_json():
+    """TRC-C3: --json is one document and carries no prose."""
+    for verb in _LIVE_REPORTS:
+        r = _repo_run(verb, "--json")
+        try:
+            doc = json.loads(r.stdout)
+        except json.JSONDecodeError as exc:
+            raise AssertionError(
+                "`compass %s --json` did not emit one JSON document (%s):\n%s"
+                % (verb, exc, r.stdout[:400]))
+        assert isinstance(doc, dict) and doc, (
+            "`compass %s --json` emitted an empty document" % verb)
+
+
+def test_trc_c6_the_report_list_is_not_empty():
+    """TRC-C6, the other half: something actually declares itself a report.
+
+    If nothing did, every test above would iterate an empty list and pass
+    without checking anything - and this repository has found four checks that
+    cleared exactly that way.
+    """
+    verbs = _report_verbs()
+    assert len(verbs) >= 4, (
+        "only %d verbs declare themselves reports: %s" % (len(verbs), verbs))
+    for v in _LIVE_REPORTS:
+        assert v in verbs, (
+            "`%s` is exercised by the tests above but no longer declares "
+            "itself a report, so those tests are checking a hand-off against "
+            "a report's contract. Declared reports: %s" % (v, verbs))

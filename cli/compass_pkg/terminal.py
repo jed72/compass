@@ -396,3 +396,103 @@ def _is_unbreakable(line, width):
         return False
     rest = len(line) - len(longest)
     return rest <= width and ("/" in longest or "://" in longest)
+
+
+# =============================================================================
+# Reports
+# =============================================================================
+
+class Report:
+    """A verb that is run deliberately to GET detail.
+
+    It collects a SUMMARY - what was found, in a few lines a reader can stop at
+    - and named SECTIONS of rows. The hand-off budget is never applied: cutting
+    a report to twelve lines removes the reason to run it.
+
+    Rows may be plain strings or dicts. Dicts are what make `--json` a machine
+    mode rather than prose in a wrapper, so a verb that has structure should
+    pass it rather than pre-formatted lines.
+    """
+
+    def __init__(self, args, title=None):
+        self.mode = resolve_mode(args)
+        self.evidence_out = getattr(args, "evidence_out", None)
+        self.title = title
+        self._summary = []
+        self._sections = []
+        self._body = []
+        self._extra = {}
+
+    def summary(self, *lines):
+        for l in lines:
+            if l is not None:
+                self._summary.append(str(l))
+        return self
+
+    def section(self, name, rows, render=None):
+        """One named group. `render` turns a row into its display line."""
+        self._sections.append((name, list(rows or []), render))
+        return self
+
+    def body(self, text):
+        """Prose a verb already renders itself, kept as the report's detail.
+
+        For a verb whose rendering is not worth restructuring yet: it still
+        gets the right behaviour in every mode, and `data()` is what carries
+        the machine-readable half. Prefer `section()` with dict rows where the
+        structure already exists - a report whose JSON is only prose is a
+        wrapper, not a machine mode.
+        """
+        self._body = [l for l in str(text).splitlines()]
+        return self
+
+    def data(self, **kw):
+        """Extra machine-only fields for --json."""
+        self._extra.update(kw)
+        return self
+
+    def _row_line(self, row, render):
+        if render is not None:
+            return render(row)
+        if isinstance(row, dict):
+            return "  ".join("%s=%s" % (k, v) for k, v in row.items())
+        return str(row)
+
+    def emit(self):
+        if self.mode == "json":
+            doc = {"summary": list(self._summary),
+                   "sections": {name: rows for name, rows, _ in self._sections}}
+            if self._body:
+                doc["body"] = list(self._body)
+            doc.update(self._extra)
+            if self.title:
+                doc["title"] = self.title
+            print(json.dumps(doc, indent=2, default=str))
+            return 0
+
+        # A summary line carrying a path is printed WHOLE. Shortening it makes
+        # the link unopenable, which fails at the thing the line exists for -
+        # the same rule the hand-off applies, and the same mistake made twice
+        # before it was written down here.
+        head = [l if _is_unbreakable(l, MAX_WIDTH) else _fit(l)
+                for l in self._summary][:REPORT_SUMMARY_LINES]
+        if self.mode == "quiet":
+            # NOT silence. Somebody who asked for a report asked for an answer;
+            # --quiet says they want it short, not that they want nothing.
+            if head:
+                print("\n".join(head))
+            return 0
+
+        out = list(head)
+        if self._body:
+            out.append("")
+            out += self._body
+        for name, rows, render in self._sections:
+            if not rows:
+                continue
+            out.append("")
+            out.append("  %s (%d)" % (name, len(rows)))
+            for row in rows:
+                out.append("    %s" % self._row_line(row, render))
+        print("\n".join(out))
+        return 0
