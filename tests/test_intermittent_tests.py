@@ -12,6 +12,13 @@ Production changes driven by these tests:
                  policy lint quarantine validation,
                  task lint attempts validation
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import json
@@ -273,7 +280,7 @@ class TestNoTrustedRerunCheck:
             "rerun_without_change": True,
             "scenario": "SCN-A3",
         }))
-        r = run_cli("check", "--issue", "rerun-check-a3")
+        r = run_cli("check", "--verbose", "--issue", "rerun-check-a3")
         assert r.returncode != 0, (
             "compass check must fail when rerun_without_change:true and no quarantine"
         )
@@ -324,7 +331,7 @@ class TestNoTrustedRerunCheck:
         (gov_dir / "quarantine.yml").write_text(
             yaml.safe_dump(quarantine, default_flow_style=False)
         )
-        r = run_cli("check", "--issue", "rerun-check-a4")
+        r = run_cli("check", "--verbose", "--issue", "rerun-check-a4")
         # The no-trusted-rerun check must pass (quarantined with tracking task)
         combined = r.stdout + r.stderr
         assert "no-trusted-rerun" not in combined.lower().replace("pass no-trusted-rerun", ""), (
@@ -359,7 +366,7 @@ class TestNoTrustedRerunCheck:
             "passed": True,
             "scenario": "SCN-A5",
         }))
-        r = run_cli("check", "--issue", "rerun-check-a5")
+        r = run_cli("check", "--verbose", "--issue", "rerun-check-a5")
         combined = r.stdout + r.stderr
         # no-trusted-rerun check must pass (no attempts to evaluate)
         assert "PASS no-trusted-rerun" in combined, (
@@ -392,7 +399,7 @@ class TestNoTrustedRerunCheck:
             # rerun_without_change absent - incomplete evidence
             "scenario": "SCN-FM3",
         }))
-        r = run_cli("check", "--issue", "rerun-check-fm3")
+        r = run_cli("check", "--verbose", "--issue", "rerun-check-fm3")
         assert r.returncode != 0, (
             "check must fail when attempts>1 and rerun_without_change marker absent"
         )

@@ -14,6 +14,13 @@ losing or failing to record information.
 
 Spec: .compass/work/record-keeping-integrity/spec.feature.md
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import json
@@ -96,7 +103,7 @@ def test_trc_a1_missing_test_file_reported(run_cli, make_task, project):
                          _task_claiming_correctness(["tests/test_nothing_here.py::test_x"]))
     _green(task_dir)
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
 
     assert r.returncode != 0, r
     assert "declared-tests-resolve" in r.stdout, r
@@ -113,7 +120,7 @@ def test_trc_a2_missing_test_function_reported(run_cli, make_task, project):
                          _task_claiming_correctness(["tests/test_real.py::test_absent"]))
     _green(task_dir)
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
 
     assert r.returncode != 0, r
     assert "declared-tests-resolve" in r.stdout, r
@@ -126,7 +133,7 @@ def test_trc_a3_resolvable_test_id_passes(run_cli, make_task, project):
                          _task_claiming_correctness(["tests/test_real.py::test_present"]))
     _green(task_dir)
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
 
     assert r.returncode == 0, r
     assert "declared-tests-resolve" in r.stdout, "the check should report a pass"
@@ -140,7 +147,7 @@ def test_trc_a3_parametrised_id_resolves(run_cli, make_task, project):
         _task_claiming_correctness(["tests/test_real.py::test_present[case-1]"]))
     _green(task_dir)
 
-    assert run_cli("check", "--issue", "resolve-me").returncode == 0
+    assert run_cli("check", "--verbose", "--issue", "resolve-me").returncode == 0
 
 
 def test_trc_a3_non_file_shaped_id_is_skipped(run_cli, make_task, project):
@@ -151,7 +158,7 @@ def test_trc_a3_non_file_shaped_id_is_skipped(run_cli, make_task, project):
         _task_claiming_correctness(["grep: governance/strategies.md carries S7"]))
     _green(task_dir)
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
     assert r.returncode == 0, r
 
 
@@ -171,7 +178,7 @@ def test_trc_a4_narrative_scenario_exempt(run_cli, make_task, project):
         "  Given a documented procedure\n  When it is followed\n"
         "  Then the outcome is recorded\n```\n")
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
 
     assert r.returncode == 0, r
     assert "FAIL declared-tests-resolve" not in r.stdout, (
@@ -188,7 +195,7 @@ def test_trc_a7_pending_correctness_not_checked(run_cli, make_task, project):
                                    correctness="pending"))
     _green(task_dir)
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
     combined = r.stdout
     assert "test_not_written_yet" not in combined, (
         "the resolution check must not fire before correctness is claimed:\n" + combined)
@@ -202,7 +209,7 @@ def test_trc_a8_landed_task_not_rechecked(run_cli, make_task, project):
         _task_claiming_correctness(["tests/test_long_gone.py::test_x"], status="landed"))
     _green(task_dir)
 
-    r = run_cli("check", "--issue", "resolve-me")
+    r = run_cli("check", "--verbose", "--issue", "resolve-me")
     assert "test_long_gone" not in r.stdout, (
         "a landed task must not be re-checked:\n" + r.stdout)
 
@@ -389,7 +396,7 @@ def test_trc_f1_existing_tasks_still_pass():
     failures = []
     for slug in _pre_existing_task_slugs():
         r = subprocess.run(
-            [sys.executable, str(ROOT / "cli" / "compass"), "check", "--issue", slug],
+            [sys.executable, str(ROOT / "cli" / "compass"), "check", "--verbose", "--issue", slug],
             capture_output=True, text=True, timeout=120, cwd=str(ROOT))
         if r.returncode != 0:
             failures.append(f"--- {slug} ---\n{r.stdout[-1500:]}")

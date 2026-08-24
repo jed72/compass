@@ -16,6 +16,13 @@ and `'route'` is exactly that shape. ADR-015 records the widening.
 
 Scenario ids: see docs/system-spec.md (group E).
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import pathlib
@@ -87,7 +94,7 @@ def _header(text):
 
 def test_rcd_e1_check_header_names_approach(tmp_path):
     project = _project(tmp_path, [("demo", "feature", "active")])
-    result = _run(project, "check", "--issue", "demo")
+    result = _run(project, "check", "--verbose", "--issue", "demo")
     header = _header(result.stdout + result.stderr)
 
     assert header, f"no header line in:\n{result.stdout}\n{result.stderr}"

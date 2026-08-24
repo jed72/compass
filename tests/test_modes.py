@@ -1,6 +1,13 @@
 """Adoption modes: enforced blocks on failures (exit 1), advisory reports
 the same failures but exits 0. The banner makes the mode visible so a run
 is never mistaken."""
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import json
@@ -34,7 +41,7 @@ def _set_mode(project, mode):
 def test_enforced_mode_returns_nonzero_on_failure(run_cli, project, make_task):
     _set_mode(project, "enforced")
     make_task("fail-1", _failing_task_body())
-    r = run_cli("check", "--issue", "fail-1")
+    r = run_cli("check", "--verbose", "--issue", "fail-1")
     assert r.returncode != 0, r
     assert "[mode: enforced]" in r.stdout, r
     assert "FAIL" in r.stdout, r
@@ -43,7 +50,7 @@ def test_enforced_mode_returns_nonzero_on_failure(run_cli, project, make_task):
 def test_advisory_mode_returns_zero_on_failure(run_cli, project, make_task):
     _set_mode(project, "advisory")
     make_task("fail-1", _failing_task_body())
-    r = run_cli("check", "--issue", "fail-1")
+    r = run_cli("check", "--verbose", "--issue", "fail-1")
     assert r.returncode == 0, f"advisory mode must exit 0 even on failure:\n{r}"
     # the failure is still reported
     assert "FAIL" in r.stdout, r
@@ -61,7 +68,7 @@ def test_advisory_banner_is_visible(run_cli, project, make_task):
     (task_dir / "evidence").mkdir(exist_ok=True)
     (task_dir / "evidence" / "green.json").write_text(
         json.dumps({"exit_code": 0, "passed": True}))
-    r = run_cli("check", "--issue", "ok")
+    r = run_cli("check", "--verbose", "--issue", "ok")
     assert "[mode: advisory]" in r.stdout, r
 
 
@@ -80,10 +87,10 @@ def test_same_task_different_exit_under_two_modes(run_cli, project, make_task):
     make_task("twin", _failing_task_body())
 
     _set_mode(project, "enforced")
-    r1 = run_cli("check", "--issue", "twin")
+    r1 = run_cli("check", "--verbose", "--issue", "twin")
 
     _set_mode(project, "advisory")
-    r2 = run_cli("check", "--issue", "twin")
+    r2 = run_cli("check", "--verbose", "--issue", "twin")
 
     assert r1.returncode != 0, r1
     assert r2.returncode == 0, r2

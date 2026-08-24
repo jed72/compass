@@ -18,6 +18,13 @@ G5's statement names. The definitions already agreed; only the trigger did not.
 
 Scenarios: .compass/work/g5-trigger-matches-statement/spec.feature.md (SCN-A1..F2).
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import shutil
@@ -85,7 +92,7 @@ def _project(tmp_path, *, blast="critical", touches=None, approval=False,
 
 
 def _check(root):
-    return subprocess.run([sys.executable, str(CLI), "check", "--issue", "t"],
+    return subprocess.run([sys.executable, str(CLI), "check", "--verbose", "--issue", "t"],
                           cwd=str(root), capture_output=True, text=True, timeout=60)
 
 

@@ -454,3 +454,203 @@ def test_trc_e2_the_budget_guard_can_fail_and_declines_an_empty_input():
         "an empty verb list reported a clean pass. A guard that is handed "
         "nothing and says 'all good' is how four checks in one release cleared "
         "without reading anything")
+
+
+# ---------------------------------------------------------------------------
+# U2 - `compass check` moves onto the contract
+# ---------------------------------------------------------------------------
+#
+# The gate verdict is the most important hand-off in the pipeline, and today it
+# spends 45 lines - 14 of them PASS lines nobody asked for - to say four things
+# failed. Its failure format is four lines each: what failed, why it matters,
+# how to fix it. Three failures is thirteen lines before the verdict, so the
+# budget and that format cannot both survive untouched.
+#
+# The ruling, from the requirements review: `what` and `fix` stay in the
+# default, `why` moves to --verbose. `fix` is what a person acts on; `why` is
+# what convinces them it was worth acting on. When only one fits, keep the one
+# that changes what they do next.
+
+def _failing_issue(tmp_path):
+    """A project whose issue fails several checks. Returns its root."""
+    import yaml
+    proj = tmp_path / "proj"
+    (proj / "governance").mkdir(parents=True)
+    for f in ("routing-policy.yml", "guardrails.yml"):
+        (proj / "governance" / f).write_text(
+            (REPO_ROOT / "governance" / f).read_text())
+    td = proj / ".compass" / "work" / "t"
+    td.mkdir(parents=True)
+    (proj / ".compass" / "current-task").write_text("t\n")
+    (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
+    # No scenarios and no evidence: several checks fail, which is what this
+    # needs. An issue that passes would exercise none of the failure path.
+    (td / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "2.0", "task": "t", "created": "2026-08-24",
+        "status": "active",
+        "assessment": {"risk": "cross-cutting", "familiarity": "brownfield-mapped",
+                       "size": "large", "goal": "delivery", "role": "engineer",
+                       "labels": []},
+        "delivery_approach": "initiative", "stages": {}, "gates": [],
+        "evidence": [], "scenarios": [], "changed_files": []}, sort_keys=False))
+    return proj
+
+
+def _run_check(proj, *flags):
+    r = subprocess.run([sys.executable, str(CLI), "check", *flags],
+                       cwd=str(proj), capture_output=True, text=True, timeout=120)
+    return r
+
+
+def test_trc_a6_check_verdict_fits_and_keeps_its_guidance(tmp_path):
+    """TRC-A6 with TRC-A1, A2 and A4: the gate verdict on one screen."""
+    proj = _failing_issue(tmp_path)
+    r = _run_check(proj)
+    out = r.stdout
+    lines = [l for l in out.splitlines()]
+
+    assert r.returncode != 0, "the fixture was meant to fail checks:\n" + out
+    assert len(lines) <= HANDOFF_LINES, (
+        "the gate verdict ran to %d lines against a budget of %d:\n%s"
+        % (len(lines), HANDOFF_LINES, out))
+    assert "FAIL" in lines[0], (
+        "the first line does not state the outcome:\n" + lines[0])
+
+    # `fix` survives; `why` moves to --verbose. Both asserted, because
+    # "compressed" must not quietly mean "the guidance is gone".
+    assert "fix" in out.lower(), (
+        "the default view dropped the fix instruction, which is the part a "
+        "person acts on:\n" + out)
+    assert "why" not in out.lower(), (
+        "the default view still carries the `why` text that was ruled to "
+        "--verbose, so nothing was actually compressed:\n" + out)
+
+    # PASS lines are the bulk of what a reader does not need.
+    assert "PASS " not in out, (
+        "individual PASS lines are still in the default view - they were 14 of "
+        "the original 45 lines:\n" + out)
+
+    # A truncation with no count reads as "there were three".
+    # Lines that START with FAIL, not every occurrence of the word - the
+    # verdict line begins "FAIL - 4 of 17 ..." and counting substrings made
+    # this read one higher than the number of failures actually shown.
+    shown = len([l for l in lines if l.startswith("FAIL ") and " - " not in l[:12]])
+    assert shown <= 3, (
+        "more than three failures were shown (%d):\n%s" % (shown, out))
+    assert shown >= 1, ("no failure was shown at all:\n" + out)
+    assert "more" in out.lower(), (
+        "failures were cut to three with no count of what was hidden:\n" + out)
+
+
+def test_trc_c5_check_verbose_keeps_everything(tmp_path):
+    """TRC-C5: --verbose is where the detail goes, not where the budget is lost."""
+    proj = _failing_issue(tmp_path)
+    verbose = _run_check(proj, "--verbose").stdout
+    default = _run_check(proj).stdout
+
+    assert "why" in verbose.lower(), "--verbose dropped the reason it matters"
+    assert "PASS " in verbose, "--verbose dropped the passing checks"
+    assert len(verbose.splitlines()) > len(default.splitlines()), (
+        "--verbose produced no more than the default view")
+    assert len(default.splitlines()) <= HANDOFF_LINES, (
+        "the default view broke its budget:\n" + default)
+
+
+def test_trc_c2_check_is_silent_when_it_passes(tmp_path):
+    """TRC-C2: --quiet on a clean run says nothing; the exit code carries it."""
+    import yaml
+    proj = _failing_issue(tmp_path)
+    # A spike concludes with evidence rather than the delivery guardrails, so
+    # it is the cheapest issue shape that can genuinely pass.
+    td = proj / ".compass" / "work" / "t"
+    spine = yaml.safe_load((td / "task.yml").read_text())
+    spine["delivery_approach"] = "spike"
+    spine["evidence"] = [{"id": "EV-1", "type": "spike-conclusion",
+                          "path": "evidence/conclusion.md",
+                          "decision": "discard"}]
+    (td / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+
+    r = _run_check(proj, "--quiet")
+    assert r.returncode == 0, (
+        "the fixture was meant to pass:\n" + r.stdout + r.stderr)
+    assert r.stdout.strip() == "", (
+        "--quiet printed on a clean run:\n" + r.stdout)
+
+
+def test_trc_c3_check_emits_json(tmp_path):
+    """TRC-C3: --json is one document and carries no prose."""
+    proj = _failing_issue(tmp_path)
+    r = _run_check(proj, "--json")
+    doc = json.loads(r.stdout)
+    assert doc["failed"] >= 1, doc
+    assert isinstance(doc["checks"], list) and doc["checks"], doc
+    one = doc["checks"][0]
+    for key in ("name", "guardrail", "status", "detail"):
+        assert key in one, "a check result is missing %r: %s" % (key, one)
+
+
+def test_trc_d1_check_keeps_every_identifier(tmp_path):
+    """TRC-D1: ADR-017 - the compressed verdict still names each check.
+
+    A check's name IS its identifier. Compressing the verdict must not leave a
+    reader with "3 checks failed" and no way to know which.
+    """
+    proj = _failing_issue(tmp_path)
+    out = _run_check(proj).stdout
+    named = [l for l in out.splitlines() if l.strip().startswith("FAIL ")]
+    assert named, (
+        "the verdict says checks failed and names none of them, so a reader "
+        "cannot act on it:\n" + out)
+    for line in named:
+        name = line.split("FAIL ", 1)[1].split(":")[0].strip()
+        assert name and "-" in name, (
+            "a failure line does not carry the check's identifier: " + line)
+
+
+def test_trc_a6_every_guidance_entry_has_a_one_line_fix():
+    """TRC-A6: the short fix is written, not derived.
+
+    The full `fix` strings run to 320 characters. Deriving a short form by
+    cutting at the first sentence would produce something nobody read before it
+    shipped, and it would change silently when the long text was edited. Each
+    is written out, and a missing one fails rather than falling back.
+    """
+    from compass_pkg.check_cmd import CHECK_GUIDANCE
+
+    assert CHECK_GUIDANCE, "there is no guidance table to check"
+    missing, too_long = [], []
+    for name, g in sorted(CHECK_GUIDANCE.items()):
+        do = g.get("do")
+        if not do:
+            missing.append(name)
+        elif len(do) > 90:
+            too_long.append("%s: %d chars" % (name, len(do)))
+    assert not missing, (
+        "these checks have no one-line fix, so their failure in the default "
+        "view would either overflow the budget or say nothing actionable:\n  "
+        + "\n  ".join(missing))
+    assert not too_long, (
+        "these one-line fixes do not fit a line:\n  " + "\n  ".join(too_long))
+
+
+def test_trc_a4_a_check_named_twice_is_not_listed_twice(tmp_path):
+    """TRC-A4: the hidden list names only what was not shown.
+
+    Found by reading the output, not by a test. Several checks are listed under
+    more than one guardrail - `scenario-has-id-and-intent` runs under both
+    "acceptance defined before it is built" and "traceability holds" - so a
+    failing run produces two rows with the same name. The first version showed
+    it in the top three AND named it again in "... and 2 more", which reads as
+    the tool being confused about its own findings.
+    """
+    proj = _failing_issue(tmp_path)
+    out = _run_check(proj).stdout
+    shown = {l.split("FAIL ", 1)[1].split(":")[0].strip()
+             for l in out.splitlines()
+             if l.startswith("FAIL ") and " - " not in l[:12]}
+    tail = [l for l in out.splitlines() if l.startswith("... and")]
+    assert tail, "the fixture did not produce a hidden-count line:\n" + out
+    for name in shown:
+        assert name not in tail[0], (
+            "%r was shown in full and named again as hidden:\n%s"
+            % (name, out))

@@ -6,6 +6,13 @@ paid.
 Each test builds the smallest task.yml + evidence set that should pass or
 fail a specific check, then asserts exit code and a (loose) message match.
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import json
@@ -68,7 +75,7 @@ def test_check_fails_when_scenarios_have_no_tests(run_cli, make_task):
     body["scenarios"][0].pop("tests")
     task_dir = make_task("no-tests", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "no-tests")
+    r = run_cli("check", "--verbose", "--issue", "no-tests")
     assert r.returncode != 0, r
     assert "scenarios-have-tests" in r.stdout, r
 
@@ -76,7 +83,7 @@ def test_check_fails_when_scenarios_have_no_tests(run_cli, make_task):
 def test_check_fails_when_no_test_run_evidence(run_cli, make_task):
     body = _correct_body(write_test_run=False)
     make_task("no-green", body)
-    r = run_cli("check", "--issue", "no-green")
+    r = run_cli("check", "--verbose", "--issue", "no-green")
     assert r.returncode != 0, r
     assert "suite-passed" in r.stdout, r
 
@@ -86,7 +93,7 @@ def test_check_fails_when_test_run_path_does_not_resolve(run_cli, make_task):
     body = _correct_body()
     # don't write the green.json file
     task_dir = make_task("dangling-path", body)
-    r = run_cli("check", "--issue", "dangling-path")
+    r = run_cli("check", "--verbose", "--issue", "dangling-path")
     assert r.returncode != 0, r
     assert "suite-passed" in r.stdout, r
 
@@ -99,7 +106,7 @@ def test_check_fails_when_test_run_records_failure(run_cli, make_task):
     # exit_code != 0 means the recorded run was not green
     with (ev / "green.json").open("w") as fh:
         json.dump({"exit_code": 1, "passed": False}, fh)
-    r = run_cli("check", "--issue", "not-green")
+    r = run_cli("check", "--verbose", "--issue", "not-green")
     assert r.returncode != 0, r
 
 
@@ -110,7 +117,7 @@ def test_check_fails_when_test_run_bound_to_unknown_scenario(run_cli, make_task)
     body["evidence"][0]["scenario"] = "SCN-999"   # not in scenarios
     task_dir = make_task("bad-binding", body)
     _make_green(task_dir, scenario="SCN-001")
-    r = run_cli("check", "--issue", "bad-binding")
+    r = run_cli("check", "--verbose", "--issue", "bad-binding")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "SCN-999" in combined, r
@@ -124,7 +131,7 @@ def test_check_fails_on_changed_file_without_scenario(run_cli, make_task):
     body["changed_files"] = [{"path": "src/x.py", "scenarios": []}]
     task_dir = make_task("untraced", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "untraced")
+    r = run_cli("check", "--verbose", "--issue", "untraced")
     assert r.returncode != 0, r
     assert "changed-code-traces" in r.stdout, r
 
@@ -136,7 +143,7 @@ def test_check_fails_on_changed_file_pointing_at_unknown_scenario(run_cli,
                                "scenarios": ["SCN-DOES-NOT-EXIST"]}]
     task_dir = make_task("dangling-scn", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "dangling-scn")
+    r = run_cli("check", "--verbose", "--issue", "dangling-scn")
     assert r.returncode != 0, r
     assert "changed-code-traces" in r.stdout, r
     assert "SCN-DOES-NOT-EXIST" in (r.stdout + r.stderr), r
@@ -146,7 +153,7 @@ def test_check_passes_when_changed_file_traces_to_real_scenario(run_cli, make_ta
     body = _correct_body()
     task_dir = make_task("traced", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "traced")
+    r = run_cli("check", "--verbose", "--issue", "traced")
     assert r.returncode == 0, r
     assert "PASS" in r.stdout, r
 
@@ -159,7 +166,7 @@ def test_check_fails_when_claim_references_unknown_scenario(run_cli, make_task):
     body["claims"] = [{"id": "CLM-1", "text": "fast", "scenario": "SCN-???"}]
     task_dir = make_task("bad-claim", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "bad-claim")
+    r = run_cli("check", "--verbose", "--issue", "bad-claim")
     assert r.returncode != 0, r
     assert "claim-traces-to-scenario" in r.stdout, r
 
@@ -183,7 +190,7 @@ def test_check_fails_on_wrong_evidence_type_for_gate(run_cli, make_task):
     _make_green(task_dir)
     # also create the file so path-resolution doesn't trip first
     (task_dir / "notes.md").write_text("placeholder")
-    r = run_cli("check", "--issue", "wrong-type")
+    r = run_cli("check", "--verbose", "--issue", "wrong-type")
     assert r.returncode != 0, r
     assert "gate-evidence-present" in r.stdout, r
 
@@ -207,7 +214,7 @@ def test_check_passes_with_correct_evidence_type(run_cli, make_task, project):
     # must have the file it says it changed.
     (project / "src").mkdir(parents=True, exist_ok=True)
     (project / "src" / "x.py").write_text("x = 1\n")
-    r = run_cli("check", "--issue", "right-type")
+    r = run_cli("check", "--verbose", "--issue", "right-type")
     assert r.returncode == 0, r
 
 
@@ -221,7 +228,7 @@ def test_check_fails_on_old_inline_dict_evidence_shape(run_cli, make_task):
     }
     task_dir = make_task("old-shape", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "old-shape")
+    r = run_cli("check", "--verbose", "--issue", "old-shape")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "old inline-evidence" in combined or "inline-evidence" in combined, r
@@ -236,7 +243,7 @@ def test_check_fails_on_evidence_id_not_in_registry(run_cli, make_task):
     }
     task_dir = make_task("dangling-ev", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "dangling-ev")
+    r = run_cli("check", "--verbose", "--issue", "dangling-ev")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "EV-NOPE" in combined, r
@@ -253,7 +260,7 @@ def test_check_fails_on_g5_touched_task_with_no_approval(run_cli, make_task):
     body["delivery_approach"] = "expedition"
     task_dir = make_task("g5-no-approval", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "g5-no-approval")
+    r = run_cli("check", "--verbose", "--issue", "g5-no-approval")
     assert r.returncode != 0, r
     assert "human-approval-present" in r.stdout, r
 
@@ -271,7 +278,7 @@ def test_check_fails_on_g5_approval_missing_fields(run_cli, make_task):
     })
     task_dir = make_task("g5-partial-approval", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "g5-partial-approval")
+    r = run_cli("check", "--verbose", "--issue", "g5-partial-approval")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "missing required" in combined or "approver" in combined, r
@@ -291,7 +298,7 @@ def test_check_passes_on_complete_g5_approval(run_cli, make_task):
     })
     task_dir = make_task("g5-ok", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "g5-ok")
+    r = run_cli("check", "--verbose", "--issue", "g5-ok")
     # the approval check should pass - overall result depends on the other
     # checks all passing (they do, in this baseline task), so we just check
     # the approval check passes its own line.
@@ -307,7 +314,7 @@ def test_check_fails_on_unpaid_backfill(run_cli, make_task):
                            "status": "owed"}]
     task_dir = make_task("owed-bf", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "owed-bf")
+    r = run_cli("check", "--verbose", "--issue", "owed-bf")
     assert r.returncode != 0, r
     assert "backfills-paid" in r.stdout, r
     assert "BF-1" in (r.stdout + r.stderr), r
@@ -319,7 +326,7 @@ def test_check_passes_with_paid_backfill(run_cli, make_task):
                            "status": "paid"}]
     task_dir = make_task("paid-bf", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "paid-bf")
+    r = run_cli("check", "--verbose", "--issue", "paid-bf")
     assert r.returncode == 0, r
 
 
@@ -331,7 +338,7 @@ def test_check_fails_when_scenario_has_no_intent(run_cli, make_task):
     body["scenarios"][0].pop("intent")
     task_dir = make_task("no-intent", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "no-intent")
+    r = run_cli("check", "--verbose", "--issue", "no-intent")
     assert r.returncode != 0, r
     assert "scenario-has-id-and-intent" in r.stdout, r
 
@@ -371,7 +378,7 @@ def test_dod_unbacked_fails(run_cli, make_task):
         "e1-bare-unchecked",
         ["- [ ] All branch-protection rules applied"],
     )
-    r = run_cli("check", "--issue", "e1-bare-unchecked")
+    r = run_cli("check", "--verbose", "--issue", "e1-bare-unchecked")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "dod-evidence-typed" in combined, r
@@ -392,7 +399,7 @@ def test_dod_with_evidence_passes(run_cli, make_task):
              "timestamp": "2026-05-23T10:00:00Z"},
         ],
     )
-    r = run_cli("check", "--issue", "e2-evidence-tag")
+    r = run_cli("check", "--verbose", "--issue", "e2-evidence-tag")
     # The DoD check itself should pass for this line
     combined = r.stdout + r.stderr
     assert "PASS dod-evidence-typed" in combined, r
@@ -414,7 +421,7 @@ def test_owed_backfill_chains(run_cli, make_task):
              "status": "owed", "target_task": "e3-t2"},
         ],
     )
-    r_t1 = run_cli("check", "--issue", "e3-t1")
+    r_t1 = run_cli("check", "--verbose", "--issue", "e3-t1")
     combined_t1 = r_t1.stdout + r_t1.stderr
     assert "PASS dod-evidence-typed" in combined_t1, (
         "T1's DoD check should pass when backfill is tagged and recorded", r_t1)
@@ -426,7 +433,7 @@ def test_owed_backfill_chains(run_cli, make_task):
         "e3-t2",
         ["- [x] All unit tests green"],  # checked - no evidence tag needed
     )
-    r_t2 = run_cli("check", "--issue", "e3-t2")
+    r_t2 = run_cli("check", "--verbose", "--issue", "e3-t2")
     assert r_t2.returncode != 0, (
         "T2 check should fail because T1's BF-1 (target_task=e3-t2) is owed", r_t2)
     combined_t2 = r_t2.stdout + r_t2.stderr
@@ -447,7 +454,7 @@ def test_narrative_not_evidence(run_cli, make_task):
         "# Devlog\n\n## 2026-05-23\n\nUSER TO APPLY the env config.\n",
         encoding="utf-8",
     )
-    r = run_cli("check", "--issue", "e4-user-to-apply")
+    r = run_cli("check", "--verbose", "--issue", "e4-user-to-apply")
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "dod-evidence-typed" in combined, r
@@ -469,7 +476,7 @@ def test_human_approval_clears_dod(run_cli, make_task):
              "timestamp": "2026-05-23T12:00:00Z"},
         ],
     )
-    r = run_cli("check", "--issue", "e5-human-approval")
+    r = run_cli("check", "--verbose", "--issue", "e5-human-approval")
     combined = r.stdout + r.stderr
     assert "PASS dod-evidence-typed" in combined, r
 
@@ -481,7 +488,7 @@ def test_empty_dod_passes(run_cli, make_task):
     body = _correct_body()
     task_dir = make_task("x4-no-report", body)
     _make_green(task_dir)
-    r = run_cli("check", "--issue", "x4-no-report")
+    r = run_cli("check", "--verbose", "--issue", "x4-no-report")
     combined = r.stdout + r.stderr
     assert "PASS dod-evidence-typed" in combined, (
         "Should pass when verification-report.md is absent", r)
@@ -492,7 +499,7 @@ def test_empty_dod_passes(run_cli, make_task):
         "x4-empty-dod",
         [],  # no DoD lines
     )
-    r2 = run_cli("check", "--issue", "x4-empty-dod")
+    r2 = run_cli("check", "--verbose", "--issue", "x4-empty-dod")
     combined2 = r2.stdout + r2.stderr
     assert "PASS dod-evidence-typed" in combined2, (
         "Should pass when DoD section has no items", r2)
