@@ -300,14 +300,36 @@ def test_trc_a5_determinism(project: Path, run_cli):
     # Strip lines that contain timestamps or unique evidence IDs from the output
     # before comparing - the evidence FILE NAME contains a timestamp (by design,
     # DD-5), but the REPORT CONTENT (findings, mode, task name) must be identical.
-    def _strip_evidence_line(out: str) -> str:
-        lines = [l for l in out.splitlines()
-                 if not (l.strip().startswith("evidence:") or
-                         l.strip().startswith("registry:"))]
-        return "\n".join(lines)
+    def _strip_evidence_line(out: str):
+        """Drop the lines that legitimately differ between runs.
 
-    out1 = _strip_evidence_line(result1.stdout.strip())
-    out2 = _strip_evidence_line(result2.stdout.strip())
+        Case-insensitive, and it REPORTS how many it dropped. The first version
+        matched a lowercase "evidence:" prefix only. When analyze came under the
+        terminal output contract on 2026-08-24 the line became "Evidence: ...",
+        so nothing was stripped, the timestamped path stayed in the comparison,
+        and this test failed whenever the two runs crossed a second boundary -
+        intermittently, which is the kind of failure that gets re-run rather
+        than fixed. The count below is what turns that into a loud failure.
+        """
+        kept, dropped = [], 0
+        for l in out.splitlines():
+            low = l.strip().lower()
+            if low.startswith("evidence:") or low.startswith("registry:"):
+                dropped += 1
+                continue
+            kept.append(l)
+        return "\n".join(kept), dropped
+
+    out1, dropped1 = _strip_evidence_line(result1.stdout.strip())
+    out2, dropped2 = _strip_evidence_line(result2.stdout.strip())
+
+    # If the evidence line is ever renamed again, this fails on the next run
+    # instead of failing one run in ten.
+    assert dropped1 and dropped2, (
+        "no evidence line was stripped, so the timestamped path is still in "
+        "the comparison and this test will fail intermittently whenever two "
+        "runs cross a second boundary. The line analyze prints must have been "
+        f"renamed:\n{result1.stdout}")
     assert out1 == out2, \
         f"Non-deterministic report content:\nRun 1:\n{out1}\nRun 2:\n{out2}"
 
