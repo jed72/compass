@@ -127,53 +127,71 @@ CHECK_FNS = {
 # string usually does not have room for. The check returns the "what failed";
 # this table supplies the rest. A failure with guidance reads like support;
 # a failure without reads like bureaucracy.
+#
+# `do` is the one-line form, shown in the default view where the full `fix`
+# would not fit. It is WRITTEN OUT, never derived by cutting `fix` at its first
+# sentence: a derived short form is a sentence nobody read before it shipped,
+# and it would change silently whenever the long text was edited. A missing
+# `do` fails the suite rather than falling back to a truncation.
 CHECK_GUIDANCE = {
     "dashboard-current": {
         "why": "The issue's README is the page a reviewer approves from - it states which documents exist, which one is waiting on them, and what was deliberately left out. Generated from task.yml, so once the spine moves it is an assertion the record contradicts, and a reviewer has no way to tell.",
+        "do": 'Run `compass issue dashboard`, then re-read the page.',
         "fix": "Run `compass issue dashboard` to regenerate it, then read the page again before approving anything from it. Never hand-edit it - the next regeneration discards the edit.",
     },
     "scenarios-have-tests": {
         "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (the acceptance-before-code guardrail). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in acceptance-criteria.md - not by a fabricated test.",
+        "do": "List at least one test under each scenario's `tests:` in task.yml.",
         "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in acceptance-criteria.md - documentation is its acceptance.",
     },
     "suite-passed": {
         "why": "The tested-before-ship guardrail requires a recorded green test run.",
+        "do": 'Run `compass tdd-green --scenario TRC-<id> -- <your test command>`.',
         "fix": "Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
     },
     "changed-code-traces-to-scenario": {
         "why": "Compass requires every production change to trace back to a stated acceptance criterion (the traceability guardrail).",
+        "do": 'Trace each file: `compass changed-file add <path> --scenario TRC-<id>`.',
         "fix": "Edit task.yml: under each `changed_files:` entry, list the scenario id(s) that drove the change. Add a new scenario if the behaviour was unspecified.",
     },
     "scenario-has-id-and-intent": {
         "why": "Each scenario needs a stable id and an intent link so claims, tests, and code can reference it.",
+        "do": 'Give each scenario in task.yml an `id:` and an `intent:`.',
         "fix": "Add `id:` (e.g. SCN-003) and `intent:` (the intent id from prd.md) fields to the scenario in task.yml.",
     },
     "claim-traces-to-scenario": {
         "why": "Public claims must trace to a scenario that backs them (traceability) - an unbacked claim is a promise the framework cannot prove.",
+        "do": 'Point each claim in launch-readiness.md at a passing scenario id.',
         "fix": "Add a backing `scenario:` field to the claim in task.yml, or remove the claim from `claims:`.",
     },
     "gate-evidence-present": {
         "why": "The evidence-not-assertion guardrail: a gate marked pass must point at registry evidence of the right type. A mechanical gate cannot be cleared with a written note.",
+        "do": 'Re-run `compass gate pass <gate> --evidence EV-<id>` with an accepted type.',
         "fix": "Add the evidence to the top-level `evidence:` registry with the correct `type:` (see governance/guardrails.yml `gate_evidence_requirements`), then reference its id under the gate's `evidence:` list.",
     },
     "human-approval-present": {
         "why": "The human-sign-off guardrail (a human signs off on the irreversible): this issue touches auth, payments, personal data, or migrations and needs a recorded approval.",
+        "do": 'Record the sign-off: `compass evidence add EV-<id> --type human-approval`.',
         "fix": "Add a `human-approval` evidence entry to the registry with approver, role, scope, decision=approved, and timestamp. Then reference it from the relevant gate's evidence.",
     },
     "backfills-paid": {
         "why": "Borrowed ceremony - a Hotfix follow-up or a de-scoped artifact - must be paid before an issue closes. Otherwise the audit trail has a hole.",
+        "do": 'Settle each owed follow-up: `compass follow-up resolve FU-<id>`.',
         "fix": "Complete each unpaid follow-up (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in task.yml.",
     },
     "spike-conclusion-present": {
         "why": "A Spike without a recorded conclusion is just untracked work - the conclusion is what makes the exploration accountable.",
+        "do": 'Record the close-out: discard, graduate-to-delivery, or defer.',
         "fix": "Add a `spike-conclusion` evidence entry to the registry with `decision:` (discard | graduate-to-delivery | defer). If graduating, include `next_task:` linking the new delivery issue.",
     },
     "spike-no-production-changes": {
         "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh triage, not a silent merge.",
+        "do": 'Move the production edits to a delivery issue; a spike ships nothing.',
         "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:triage` to start a new delivery issue that owns the code under a real route.",
     },
     "dod-evidence-typed": {
         "why": "The evidence-not-assertion guardrail: the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed follow-up - narrative notes in devlog.md do not count.",
+        "do": 'Give each unchecked box an `(evidence: EV-<id>)` or `(follow-up: FU-<id>)` tag.',
         "fix": (
             "For each bare unchecked DoD item: (a) add `(evidence: EV-<id>)` "
             "inline, where EV-<id> is an entry in the issue's evidence registry "
@@ -184,6 +202,7 @@ CHECK_GUIDANCE = {
     },
     "coherence-check-passes": {
         "why": "Evidence, not assertion: verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
+        "do": 'Run `compass analyze` and settle what it reports.',
         "fix": "Run `compass analyze` - when verify.analyze is in the gate set it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, approach disagreements, or orphan claims first.",
     },
 }
@@ -210,6 +229,152 @@ def summarise_counts(ran, failures, nothing_to_check=0):
         return (f"compass check: PASS - {ran - nothing_to_check} check(s) "
                 f"passed, {nothing_to_check} had nothing to check.")
     return f"compass check: PASS - all {ran} check(s) passed."
+
+
+
+# =============================================================================
+# The gate verdict, under the terminal output contract
+# =============================================================================
+# `compass check` is the most important hand-off in the pipeline and it used to
+# spend 45 lines - 14 of them PASS lines - to say four things failed. The checks
+# themselves are unchanged; only what reaches the terminal is.
+#
+# The verb now COLLECTS its results and renders them at the end, because a
+# decision about what to show cannot be made by code that has already printed.
+# --verbose renders exactly what this command printed before, line for line.
+# =============================================================================
+
+class _CheckRun:
+    """What a run of `compass check` found, before anything is printed."""
+
+    def __init__(self, task_dir, task, mode):
+        self.slug = os.path.basename(task_dir)
+        self.approach = task.get("delivery_approach", "?")
+        self.mode_banner = mode_banner(mode)
+        self.rows = []       # (kind, text) in the order they were produced
+        self.results = []    # (guardrail, name, passed, detail)
+        self.ran = 0
+        self.failures = 0
+        self.nothing = 0
+
+    def line(self, text):
+        self.rows.append(("line", text))
+
+    def guardrail(self, gid, name, skipped=None):
+        self.current = gid
+        self.rows.append(("guardrail", (gid, name, skipped)))
+
+    def result(self, name, passed, detail):
+        self.results.append((getattr(self, "current", "?"), name, passed, detail))
+        self.rows.append(("result", (name, passed, detail)))
+
+
+def _verbose_lines(run):
+    """Exactly what this command printed before the contract - line for line."""
+    out = ["compass check - issue '%s' (approach: %s)" % (run.slug, run.approach),
+           run.mode_banner, ""]
+    for kind, payload in run.rows:
+        if kind == "line":
+            out.append(payload)
+        elif kind == "guardrail":
+            gid, name, skipped = payload
+            if skipped:
+                out.append("  %s %s: %s" % (gid, name, skipped))
+            else:
+                out.append("  %s %s" % (gid, name))
+        else:
+            name, passed, detail = payload
+            if passed:
+                out.append("    PASS %s: %s" % (name, detail))
+            else:
+                out.append("    FAIL %s" % name)
+                out.append("         what: %s" % detail)
+                g = CHECK_GUIDANCE.get(name)
+                if g:
+                    out.append("         why : %s" % g["why"])
+                    out.append("         fix : %s" % g["fix"])
+    out += ["-" * 60,
+            summarise_counts(run.ran, run.failures, run.nothing)]
+    return out
+
+
+def _summary_lines(run):
+    """The default view: the verdict, what failed, and what to do about it.
+
+    `why` moves to --verbose. `fix` is what a person acts on; `why` is what
+    convinces them it was worth acting on, and when only one fits, the one that
+    changes what they do next is the one to keep.
+
+    Every failure is NAMED even when its body is not shown - a verdict that
+    says "3 checks failed" without saying which is not something a reader can
+    act on, and a check name is its identifier (ADR-017).
+    """
+    from compass_pkg.terminal import MAX_ITEMS, _fit
+
+    # Deduplicated by check name. Several checks are listed under more than
+    # one guardrail - `scenario-has-id-and-intent` runs under both G2 and G3 -
+    # so a failing run produces two rows with the same name and the same
+    # detail. Showing one in the top three and naming it again as hidden reads
+    # as the tool being confused about its own findings. The COUNT in the
+    # verdict still counts check runs, because that is what `ran` counts and
+    # the two must agree.
+    failed, seen = [], set()
+    for _g, n, p, d in run.results:
+        if p or n in seen:
+            continue
+        seen.add(n)
+        failed.append((n, d))
+    # Built from the counts rather than by re-parsing `summarise_counts`,
+    # which already begins "compass check: PASS - ..." and produced a verdict
+    # reading "PASS - PASS - ...". The "nothing to check" clause is carried
+    # through deliberately: a check that inspected nothing must never be
+    # reported as one that verified something.
+    if run.failures:
+        verdict = "FAIL - %d of %d check(s) failed on '%s' (%s)" % (
+            run.failures, run.ran, run.slug, run.approach)
+    else:
+        nothing = (", %d had nothing to check" % run.nothing) if run.nothing else ""
+        verdict = "PASS - %d check(s) passed%s on '%s' (%s)" % (
+            run.ran - run.nothing, nothing, run.slug, run.approach)
+    out = [_fit(verdict)]
+    if not failed:
+        return out
+
+    out.append("")
+    for name, detail in failed[:MAX_ITEMS]:
+        out.append(_fit("%s: %s" % (name, detail), "FAIL "))
+        g = CHECK_GUIDANCE.get(name)
+        if g and g.get("do"):
+            out.append(_fit(g["do"], "     fix: "))
+    hidden = failed[MAX_ITEMS:]
+    if hidden:
+        out.append(_fit("... and %d more (%s) - run with --verbose"
+                        % (len(hidden), ", ".join(n for n, _ in hidden))))
+    return out
+
+
+def _emit_check(run, args):
+    """Render the run in the mode the caller asked for."""
+    from compass_pkg.terminal import resolve_mode
+
+    mode = resolve_mode(args)
+    if mode == "json":
+        print(json.dumps({
+            "issue": run.slug, "approach": run.approach,
+            "ran": run.ran, "failed": run.failures,
+            "nothing_to_check": run.nothing,
+            "checks": [{"guardrail": g, "name": n,
+                        "status": ("nothing-to-check"
+                                   if p is NOTHING_TO_CHECK else
+                                   "pass" if p else "fail"),
+                        "detail": d}
+                       for g, n, p, d in run.results],
+        }, indent=2))
+        return
+    if mode == "quiet" and not run.failures:
+        return
+    lines = _verbose_lines(run) if mode == "verbose" else _summary_lines(run)
+    print("\n".join(lines))
 
 
 def _print_check_result(check_name, passed, detail, indent="    "):
@@ -240,23 +405,26 @@ def cmd_check(args):
     # delivery defaults.
     if task.get("delivery_approach") == "spike":
         spike_gs = list(guardrails.get("spike_guardrails", []))
-        print(f"compass check - issue '{os.path.basename(task_dir)}' (approach: spike)")
-        print(f"{mode_banner(mode)}\n")
+        run = _CheckRun(task_dir, task, mode)
         if not spike_gs:
-            print("  WARNING: no `spike_guardrails:` defined in guardrails.yml - a Spike is uncontrolled.")
+            run.line("  WARNING: no `spike_guardrails:` defined in "
+                     "guardrails.yml - a Spike is uncontrolled.")
+            run.ran = run.failures = 1
+            _emit_check(run, args)
             return exit_for_mode(1, mode)
         failures = 0
         ran = 0
         for g in spike_gs:
             gid = g.get("id", "?")
-            print(f"  {gid} {g.get('name', '')}")
+            run.guardrail(gid, g.get("name", ""))
             for check_name in g.get("checks", []):
                 fn = CHECK_FNS.get(check_name)
                 ran += 1
                 if fn is None:
                     failures += 1
-                    _print_check_result(check_name, False,
-                        "declared spike guardrail check has NO CLI implementation")
+                    run.result(check_name, False,
+                               "declared spike guardrail check has NO CLI "
+                               "implementation")
                     continue
                 try:
                     passed, detail = fn(task, task_dir)
@@ -264,8 +432,7 @@ def cmd_check(args):
                     passed, detail = False, f"check errored: {exc}"
                 if not passed:
                     failures += 1
-                _print_check_result(check_name, passed, detail)
-            print()
+                run.result(check_name, passed, detail)
 
         # Backfills are cross-cutting and a Spike is the route that most often
         # OWES one - a graduating spike leaves ceremony behind by design. The
@@ -277,18 +444,13 @@ def cmd_check(args):
             passed, detail = _check_backfills_paid(task, task_dir)
         except Exception as exc:                        # noqa: BLE001
             passed, detail = False, f"check errored: {exc}"
-        print("  outstanding follow-ups")
-        _print_check_result("backfills-paid", passed, detail)
-        print()
+        run.guardrail("", "outstanding follow-ups")
+        run.result("backfills-paid", passed, detail)
         if not passed:
             failures += 1
 
-        print("-" * 60)
-        if failures:
-            print(f"compass check: FAIL - {failures} of {ran} Spike check(s) failed.")
-        else:
-            print(f"compass check: PASS - all {ran} Spike check(s) passed. "
-                  "Spike is concluded and contained.")
+        run.ran, run.failures = ran, failures
+        _emit_check(run, args)
         return exit_for_mode(failures, mode)
 
     all_guardrails = list(guardrails.get("defaults", [])) + list(guardrails.get("project", []))
@@ -302,9 +464,7 @@ def cmd_check(args):
     # Reads `delivery_approach`, the live spine key. This said `route` - the
     # key the v2 rename retired - so it fell to its default and printed a
     # placeholder on every run, with the real value sitting in the spine.
-    print(f"compass check - issue '{os.path.basename(task_dir)}' "
-          f"(approach: {task.get('delivery_approach', '?')})")
-    print(f"{mode_banner(mode)}\n")
+    run = _CheckRun(task_dir, task, mode)
 
     # A guardrail the project's file OMITS produced no output at all: not
     # "skipped", nothing. On a task touching auth, against a governance copy
@@ -327,18 +487,19 @@ def cmd_check(args):
         applies = fg.get("applies_when")
         if applies and not reading_matches(applies, readings):
             continue          # absent, but would not have applied here anyway
-        print(f"  {fid} {fg.get('name', '')}: ABSENT from this project's "
-              f"governance, and it applies to this assessment - the framework "
-              f"defines it but governance/guardrails.yml does not. Run "
-              f"`compass policy lint`.")
+        run.line(f"  {fid} {fg.get('name', '')}: ABSENT from this project's "
+                 f"governance, and it applies to this assessment - the "
+                 f"framework defines it but governance/guardrails.yml does "
+                 f"not. Run `compass policy lint`.")
 
     for g in all_guardrails:
         gid = g.get("id", "?")
         applies = g.get("applies_when")
         if applies and not reading_matches(applies, readings):
-            print(f"  {gid} {g.get('name', '')}: not applicable for this assessment - skipped")
+            run.guardrail(gid, g.get("name", ""),
+                          skipped="not applicable for this assessment - skipped")
             continue
-        print(f"  {gid} {g.get('name', '')}")
+        run.guardrail(gid, g.get("name", ""))
         for check_name in g.get("checks", []):
             fn = CHECK_FNS.get(check_name)
             ran += 1
@@ -348,10 +509,11 @@ def cmd_check(args):
                 # team believes they have a hard, blocking check, and they do
                 # not. So this FAILS - loudly - rather than warning.
                 failures += 1
-                _print_check_result(check_name, False,
-                    "declared guardrail check has NO CLI implementation - "
-                    "it cannot run, so it is not a guardrail. Implement it "
-                    "in CHECK_FNS, or move the guardrail to strategies.md.")
+                run.result(check_name, False,
+                           "declared guardrail check has NO CLI implementation "
+                           "- it cannot run, so it is not a guardrail. "
+                           "Implement it in CHECK_FNS, or move the guardrail "
+                           "to strategies.md.")
                 continue
             try:
                 passed, detail = fn(task, task_dir)
@@ -376,8 +538,7 @@ def cmd_check(args):
                 failures += 1
             elif passed is NOTHING_TO_CHECK:
                 nothing_to_check += 1
-            _print_check_result(check_name, passed, detail)
-        print()
+            run.result(check_name, passed, detail)
 
     # backfills are cross-cutting - always run them
     ran += 1
@@ -388,12 +549,11 @@ def cmd_check(args):
         passed, detail = _check_backfills_paid(task, task_dir)
     except Exception as exc:                            # noqa: BLE001
         passed, detail = False, f"check errored: {exc}"
-    print("  outstanding follow-ups")
-    _print_check_result("backfills-paid", passed, detail)
-    print()
+    run.guardrail("", "outstanding follow-ups")
+    run.result("backfills-paid", passed, detail)
     if not passed:
         failures += 1
 
-    print("-" * 60)
-    print(summarise_counts(ran, failures, nothing_to_check))
+    run.ran, run.failures, run.nothing = ran, failures, nothing_to_check
+    _emit_check(run, args)
     return exit_for_mode(failures, mode)

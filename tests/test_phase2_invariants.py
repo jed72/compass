@@ -7,6 +7,13 @@ only - no guardrail, gate, reading dimension, or top-level CLI verb.
 
 Spec: .compass/work/phase-2-skills-check-and-cli-split/spec.feature.md (TRC-F1..F3).
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import pathlib
@@ -69,7 +76,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     checked = 0
     for slug in slugs:
         r = subprocess.run(
-            [sys.executable, str(CLI), "check", "--issue", slug],
+            [sys.executable, str(CLI), "check", "--verbose", "--issue", slug],
             cwd=str(ROOT), capture_output=True, text=True, timeout=180)
         line = next((l for l in r.stdout.splitlines()
                      if "scenarios-are-executable" in l), "")

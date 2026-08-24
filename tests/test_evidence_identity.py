@@ -287,7 +287,7 @@ def test_c1_replaced_record_is_reported(tmp_path):
                     record_id="0000000000000000",
                     command="python3 -m pytest one_file.py")
 
-    result = _run(proj, "check")
+    result = _run(proj, "check", "--verbose")
     output = result.stdout + result.stderr
 
     assert "evidence-identity-matches" in output, (
@@ -306,7 +306,7 @@ def test_c2_matching_citation_is_quiet(tmp_path):
     proj = _make_project(tmp_path)
     _green(proj, "FULL SUITE: 957 tests")
 
-    output = _run(proj, "check").stdout
+    output = _run(proj, "check", "--verbose").stdout
     line = next((l for l in output.splitlines()
                  if "evidence-identity-matches" in l), "")
     assert line, "the check did not report at all:\n" + output
@@ -324,7 +324,7 @@ def test_c3_report_names_what_changed(tmp_path):
     _green(proj, "FULL SUITE: 957 tests")
     _replace_record(proj, "green.json", record_id="0000000000000000")
 
-    output = _run(proj, "check").stdout + _run(proj, "check").stderr
+    output = _run(proj, "check", "--verbose").stdout + _run(proj, "check", "--verbose").stderr
     line = next((l for l in output.splitlines()
                  if "evidence-identity-matches" in l), "")
     detail = output[output.find(line):][:400] if line else output
@@ -363,7 +363,7 @@ def test_d1_unstamped_record_does_not_fail(tmp_path):
     proj = _make_project(tmp_path)
     _unstamped_entry(proj)
 
-    result = _run(proj, "check")
+    result = _run(proj, "check", "--verbose")
     line = next((l for l in result.stdout.splitlines()
                  if "evidence-identity-matches" in l), "")
     assert line, "the check did not report:\n" + result.stdout
@@ -382,7 +382,7 @@ def test_d2_unstamped_record_is_not_reported_as_verified(tmp_path):
     proj = _make_project(tmp_path)
     _unstamped_entry(proj)
 
-    line = next((l for l in _run(proj, "check").stdout.splitlines()
+    line = next((l for l in _run(proj, "check", "--verbose").stdout.splitlines()
                  if "evidence-identity-matches" in l), "")
     assert "unverifiable" in line.lower() or "no identity" in line.lower(), (
         "the report does not say the citation could not be verified:\n" + line)

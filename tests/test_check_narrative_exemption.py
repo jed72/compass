@@ -3,6 +3,13 @@
 non-empty When/Then in spec.feature.md), not by carrying a fabricated test -
 and not merely by carrying an incidental command.
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 GHERKIN = "```gherkin"
@@ -50,7 +57,7 @@ def test_baseline_narrative_without_test_fails(run_cli, make_task):
                          _body({"id": "SCN-N", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
     _write_spec(task_dir, "SCN-N", documented=False)
-    r = run_cli("check", "--issue", "narr-base")
+    r = run_cli("check", "--verbose", "--issue", "narr-base")
     assert "FAIL" in _scenarios_line(r.stdout + r.stderr), r
 
 
@@ -60,7 +67,7 @@ def test_documented_narrative_passes(run_cli, make_task):
                          _body({"id": "SCN-N", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
     _write_spec(task_dir, "SCN-N", documented=True)
-    r = run_cli("check", "--issue", "narr-doc")
+    r = run_cli("check", "--verbose", "--issue", "narr-doc")
     assert "PASS" in _scenarios_line(r.stdout + r.stderr), r
 
 
@@ -70,7 +77,7 @@ def test_non_narrative_without_test_still_fails(run_cli, make_task):
     task_dir = make_task("narr-deliv",
                          _body({"id": "SCN-D", "intent": "INT-1", "tests": []}))
     _write_spec(task_dir, "SCN-D", documented=True)   # a body, but not narrative
-    r = run_cli("check", "--issue", "narr-deliv")
+    r = run_cli("check", "--verbose", "--issue", "narr-deliv")
     line = _scenarios_line(r.stdout + r.stderr)
     assert "FAIL" in line and "SCN-D" in (r.stdout + r.stderr), r
 
@@ -82,7 +89,7 @@ def test_undocumented_narrative_fails_weaker_assertion(run_cli, make_task):
                          _body({"id": "SCN-E", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
     _write_spec(task_dir, "SCN-E", documented=False)
-    r = run_cli("check", "--issue", "narr-empty")
+    r = run_cli("check", "--verbose", "--issue", "narr-empty")
     combined = r.stdout + r.stderr
     assert "SCN-E" in combined and "not documented" in combined.lower(), r
 
@@ -95,7 +102,7 @@ def test_incidental_command_not_rewarded(run_cli, make_task):
                                 "verifiable": "narrative",
                                 "tests": ["scripts/diagnose.sh"]}))
     _write_spec(task_dir, "SCN-CMD-BARE", documented=False)
-    r = run_cli("check", "--issue", "narr-cmd")
+    r = run_cli("check", "--verbose", "--issue", "narr-cmd")
     combined = r.stdout + r.stderr
     assert "FAIL" in _scenarios_line(combined), r
     assert "SCN-CMD-BARE" in combined and "not documented" in combined.lower(), r

@@ -18,6 +18,13 @@ Covered:
   SCN-12  `compass issue receipt` must not print "landed cleanly" over pending gates
   SCN-13  `compass analyze` must not report 0 findings after listing findings
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import json
@@ -266,7 +273,7 @@ def test_spike_route_still_reports_an_owed_backfill(project):
     (task_dir / "delivery-approach.md").write_text("# Route - t\n\nroute: spike\n")
     (task_dir / ".spike").write_text("")
 
-    result = _compass(project, "check", "--issue", "t")
+    result = _compass(project, "check", "--verbose", "--issue", "t")
     combined = result.stdout + result.stderr
     assert "BF-001" in combined or "backfill" in combined.lower(), (
         f"a Spike with an owed backfill reported nothing about it:\n{combined}"

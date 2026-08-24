@@ -15,6 +15,13 @@ copy and its resolver land, and recorded after - across a tree that genuinely
 changed - so the "before" and "after" are two different points in this
 issue's history, not one run compared with itself.
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import hashlib
@@ -85,7 +92,7 @@ def test_an_issue_in_flight_survives_the_upgrade_unchanged(make_task, run_cli):
     before_fingerprint = _tree_fingerprint(task_dir)
     before_red = (task_dir / ".red").read_bytes()
 
-    result = run_cli("check", "--issue", "in-flight-issue")
+    result = run_cli("check", "--verbose", "--issue", "in-flight-issue")
 
     after_fingerprint = _tree_fingerprint(task_dir)
     after_red = (task_dir / ".red").read_bytes()

@@ -3,6 +3,13 @@ already accepts: `intent` may be a string OR a list of strings, and `group` +
 `verifiable` are admitted optional fields. The widening is precise - a numeric
 intent, or a list with a non-string element, still fails.
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 
@@ -22,7 +29,7 @@ def test_baseline_lint_check_disagree_on_corpus_shape(run_cli, make_task):
     make_task("r3-base", _body(
         {"id": "TRC-Z1", "intent": ["INT-1", "INT-2"], "group": "A",
          "verifiable": "narrative", "tests": []}))
-    r = run_cli("check", "--issue", "r3-base")
+    r = run_cli("check", "--verbose", "--issue", "r3-base")
     line = next((l for l in (r.stdout + r.stderr).splitlines()
                  if "scenario-has-id-and-intent" in l), "")
     assert "PASS" in line, r

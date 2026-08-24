@@ -17,6 +17,13 @@ Scenario ids trace to .compass/work/project-commands-are-a-trust-boundary/
 acceptance-criteria.md - group A (opt-in), group B (the refusal), group C (the
 script form), group E (a disabled guardrail does not go quiet).
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import json
@@ -51,7 +58,7 @@ def _run_check(project_root: Path,
                 env.pop(key)
     env.update(extra_env or {})
     return subprocess.run(
-        [sys.executable, str(CLI_PATH), "check"],
+        [sys.executable, str(CLI_PATH), "check", "--verbose"],
         cwd=str(project_root), capture_output=True, text=True, env=env, timeout=60,
     )
 

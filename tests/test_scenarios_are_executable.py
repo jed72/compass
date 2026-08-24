@@ -20,6 +20,13 @@ than no check.
 
 Spec: .compass/work/phase-2-skills-check-and-cli-split/spec.feature.md (TRC-C1..C6).
 """
+
+# These tests read `compass check`'s PER-CHECK detail - a check's name,
+# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
+# 2026-08-24 when the gate verdict came under the terminal output contract;
+# the checks themselves are unchanged. The assertions are re-pointed rather
+# than rewritten, because what they assert still holds - only where it is
+# printed changed.
 from __future__ import annotations
 
 import hashlib
@@ -121,7 +128,7 @@ def make(tmp_path, *, runner=None, seen=None, spec_hash=None,
 
 
 def check(proj):
-    return subprocess.run([sys.executable, str(CLI), "check", "--issue", "t"],
+    return subprocess.run([sys.executable, str(CLI), "check", "--verbose", "--issue", "t"],
                           cwd=str(proj), capture_output=True, text=True,
                           timeout=120)
 
