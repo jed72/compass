@@ -16,7 +16,7 @@
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.
@@ -376,7 +376,7 @@ def cmd_tdd_red(args):
     command = _micro_command(args, task_dir)
     if not command:
         raise CompassError("compass tdd-red needs a test command, e.g. "
-                           "`compass tdd-red --scenario SCN-001 -- pytest tests/test_x.py`"
+                           "`compass tdd-red --scenario TRC-A1 -- pytest tests/test_x.py`"
                            " (or set project.test_micro_command in .compass/config.yml)")
     command = _neutralise_coverage(command)
     code, out, warnings = _run_test(command)

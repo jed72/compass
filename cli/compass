@@ -34,7 +34,7 @@ import compass_pkg  # noqa: E402,F401
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.
@@ -241,7 +241,7 @@ def build_parser():
     prd = sub.add_parser("tdd-red", help="run a test, assert it FAILS, record the red")
     issue_arg(prd)
     prd.add_argument("--scenario", help="scenario id this red is evidence FOR "
-                     "(e.g. SCN-001) - binds the failure to a scenario, so it "
+                     "(e.g. TRC-A1) - binds the failure to a scenario, so it "
                      "proves relevance, not just that something failed")
     prd.add_argument("--verified-by", dest="verified_by",
                      help="sanction a non-unit red for a change with no natural "
@@ -254,7 +254,7 @@ def build_parser():
     pg = sub.add_parser("tdd-green", help="run a test, assert it PASSES, record the green")
     issue_arg(pg)
     pg.add_argument("--scenario", help="scenario id this green is evidence FOR "
-                    "(e.g. SCN-001)")
+                    "(e.g. TRC-A1)")
     pg.add_argument("--verified-by", dest="verified_by",
                     help="carry forward a verified-by guard kind (regression | "
                          "e2e | typecheck | live) - the green re-runs the guard "
@@ -439,7 +439,7 @@ def build_parser():
     pscn = sub.add_parser("scenario", help="issue scenario tools")
     pscs = pscn.add_subparsers(dest="subcmd", required=True)
     psca = pscs.add_parser("add", help="append a scenario to task.yml")
-    psca.add_argument("scenario_id", help="scenario id (e.g. SCN-001)")
+    psca.add_argument("scenario_id", help="scenario id (e.g. TRC-A1)")
     issue_arg(psca)
     psca.add_argument("--title", help="scenario title")
     psca.add_argument("--intent", required=True, help="linked intent id")
@@ -566,7 +566,7 @@ def main(argv=None):
     if getattr(args, "command", None) and args.command and args.command[0] == "--":
         args.command = args.command[1:]
     try:
-        return args.func(args) or 0
+        return run_with_mode(args, lambda a: args.func(a) or 0) or 0
     except CompassError as exc:
         sys.stderr.write(f"compass: {exc}\n")
         return 2

@@ -151,7 +151,12 @@ def test_trc_a1_coherent_artifacts_pass_cleanly(project: Path, run_cli):
     result = run_cli("analyze")
     assert result.returncode == 0, f"Expected exit 0:\n{result}"
     combined = result.stdout + result.stderr
-    assert "0 finding" in combined.lower() or "zero finding" in combined.lower() or \
+    # "PASS - no coherence findings" replaced "PASS - 0 finding(s)" on
+    # 2026-08-24: a verdict reading "PASS - 1 finding(s)" was the problem, and
+    # the fix was to stop pairing the word PASS with a count. The intent - a
+    # clean run says plainly that it found nothing - is unchanged.
+    assert "no coherence finding" in combined.lower() or \
+        "0 finding" in combined.lower() or "zero finding" in combined.lower() or \
            "no finding" in combined.lower() or "findings: 0" in combined.lower() or \
            "clean" in combined.lower(), \
         f"Expected zero findings message:\n{result}"

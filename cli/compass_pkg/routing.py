@@ -16,7 +16,7 @@
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.
@@ -416,8 +416,13 @@ def cmd_route_evaluate(args):
 
     result = evaluate_route(readings, policy)
 
-    from compass_pkg.terminal import Emitter, resolve_mode
+    from compass_pkg.terminal import Emitter, mark_handled, resolve_mode
 
+    # This verb renders all three modes itself, including the JSON document it
+    # shipped with. Saying so keeps the generic fallback in main() out of the
+    # way - without it, that fallback wrapped this verb's own JSON in its
+    # "unconverted verb" envelope and every key moved a level down.
+    mark_handled()
     _mode = resolve_mode(args)
     if _mode == "json":
         print(json.dumps(result, indent=2))
@@ -459,8 +464,12 @@ def cmd_route_evaluate(args):
                        len(result["gates"]),
                        "unbounded parallel streams" if _ceiling is None
                        else "up to %d parallel stream(s)" % _ceiling),
-            read=(os.path.join(task_dir, "delivery-approach.md")
-                  if task is not None else None),
+            # Only if it is actually there. `delivery-approach.md` is written
+            # by the triage command, not by the evaluator, so a first evaluate
+            # was telling the reader to open a file that did not exist.
+            read=(_approach_doc if task is not None
+                  and os.path.isfile(_approach_doc := os.path.join(
+                      task_dir, "delivery-approach.md")) else None),
             items=_fired or ["no policy rule fired - the shape is the "
                              "assessment's default"],
             concerns=_concerns,
