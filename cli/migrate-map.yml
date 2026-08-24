@@ -40,3 +40,22 @@ artifacts:
   clarifications.md: requirements-review.md
   plan.md: design.md
   spec.feature: acceptance-criteria.feature
+
+# Stage keys. The one set of renames this map never covered, which is why they
+# were never migrated: `frame` was banned as a phase name at the v2 freeze and
+# survived here as a live machine key for months, because governance/*.yml is
+# not a scanned surface.
+#
+# `plan` and `verify` are DELIBERATELY ABSENT. `verify` already agrees. `plan`
+# stays because the command moves TO it - and note the `artifacts:` section
+# above records `plan.md: design.md`, so the engineering document was called
+# `plan.md` in v1. A later reader will see the word circling this stage and may
+# take the key for a vestige. It is not: `plan-authoring` and `planner` were
+# named deliberately at v2, and the command joins them.
+stage_keys:
+  frame: assess
+  specify: define
+  clarify: refine
+  distribute: breakdown
+  build: implement
+  land: ship

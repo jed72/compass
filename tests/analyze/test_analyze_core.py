@@ -5,6 +5,13 @@ Covers TRC-A1 through TRC-A13, TRC-F1, TRC-F4, TRC-F5.
 Each test invokes `compass analyze` via subprocess in an isolated project
 directory (using the `project`/`run_cli` fixtures from conftest.py).
 """
+
+# The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
+# `define`, `clarify` -> `refine`, `distribute` -> `breakdown`, `build` ->
+# `implement`, `land` -> `ship`. `plan` and `verify` did not. Spines written
+# before that still load, because `normalize_spine` maps them forward
+# (ADR-006), so what changed is the CANONICAL form these tests assert -
+# not what the routing computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import json
@@ -64,14 +71,14 @@ def _minimal_task(slug: str, readings: Dict | None = None) -> Dict[str, Any]:
         "readings": readings or dict(_MINIMAL_READINGS),
         "delivery_approach": "express",
         "stages": {
-            "frame": "full",
-            "specify": "light",
-            "clarify": "collapsed",
+            "assess": "full",
+            "define": "light",
+            "refine": "collapsed",
             "plan": "collapsed",
-            "distribute": "skipped",
-            "build": "full",
+            "breakdown": "skipped",
+            "implement": "full",
             "verify": "light",
-            "land": "light",
+            "ship": "light",
         },
         "gates": [
             {"id": "verify.correctness", "status": "pending", "evidence": []},
@@ -207,7 +214,7 @@ def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
 
     body = _minimal_task(slug)
     # task.yml says clarify: collapsed
-    body["stages"]["clarify"] = "collapsed"
+    body["stages"]["refine"] = "collapsed"
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     # Gate mode so findings → non-zero
     body["gates"] = [
@@ -230,7 +237,7 @@ def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
     result = run_cli("analyze")
     assert result.returncode != 0, f"Expected non-zero exit:\n{result}"
     combined = result.stdout + result.stderr
-    assert "clarify" in combined.lower(), f"Expected 'Clarify' in output:\n{result}"
+    assert "refine" in combined.lower(), f"Expected 'Clarify' in output:\n{result}"
     assert "route-disagreement" in combined.lower() or "disagree" in combined.lower(), \
         f"Expected route-disagreement finding:\n{result}"
 
@@ -525,14 +532,14 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     body = _minimal_task(slug)
     body["delivery_approach"] = "hotfix"
     body["stages"] = {
-        "frame": "light",
-        "specify": "reproduce-first",
-        "clarify": "collapsed",
+        "assess": "light",
+        "define": "reproduce-first",
+        "refine": "collapsed",
         "plan": "collapsed",
-        "distribute": "skipped",
-        "build": "expedited",
+        "breakdown": "skipped",
+        "implement": "expedited",
         "verify": "full",
-        "land": "full-plus-backfill",
+        "ship": "full-plus-backfill",
     }
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     _write_task(task_dir, body)
@@ -718,8 +725,15 @@ def test_trc_f4_unframed_task(project: Path, run_cli):
     result = run_cli("analyze")
     assert result.returncode != 0, f"Expected non-zero exit for unframed task:\n{result}"
     combined = result.stdout + result.stderr
-    assert "frame" in combined.lower(), \
-        f"Expected 'Frame' in output:\n{result}"
+    # This asserted that "frame" appeared in the output. It did - inside the
+    # slug `unframed-task`, which the tool echoes back. The word never came
+    # from the tool, so the assertion passed on its own fixture's name and
+    # would have passed whatever the message said. Renaming the stage to
+    # `assess` is what exposed it.
+    assert "does not exist" in combined.lower(), \
+        f"the message does not say what is wrong with the issue:\n{result}"
+    assert "unframed-task" in combined, \
+        f"the message does not name the issue it could not find:\n{result}"
     # Must not report a coherence finding (the task simply hasn't been framed)
     assert "orphan" not in combined.lower() and \
            "route-disagreement" not in combined.lower() and \
@@ -744,9 +758,9 @@ def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
     # That constitutes a route disagreement (a tool hand-edited the route field).
     body["delivery_approach"] = "expedition"
     body["stages"] = {
-        "frame": "full", "specify": "full", "clarify": "full",
-        "plan": "full", "distribute": "swarm", "build": "full",
-        "verify": "full", "land": "full",
+        "assess": "full", "define": "full", "refine": "full",
+        "plan": "full", "breakdown": "swarm", "implement": "full",
+        "verify": "full", "ship": "full",
     }
     # Gate mode so findings → non-zero
     body["gates"] = [

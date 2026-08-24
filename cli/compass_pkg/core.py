@@ -357,6 +357,49 @@ ASSESSMENT_KEY_MAP = {
 }
 
 
+def migrate_map_path():
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        os.pardir, "migrate-map.yml")
+
+
+def migrate_map_section(name, fallback):
+    """One section of `cli/migrate-map.yml`, or the in-module copy of it.
+
+    THE READER LIVES HERE, not in the migration module, because `core` must not
+    import `migrate` - that is the import cycle `test_cli_module_split` exists
+    to prevent, and it caught this on the first run. `migrate` imports `core`
+    already, so the dependency runs one way.
+
+    The mapping itself stays in the data file: this module is a scanned
+    surface, and the map has to name six retired words. The fallback is for a
+    bare checkout with no framework install, and a test proves it equal to the
+    file with the file made unreadable - a guard that reads the file both times
+    is comparing it with itself.
+    """
+    try:
+        with open(migrate_map_path(), encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+        section = data.get(name)
+        if isinstance(section, dict) and section:
+            return section
+    except OSError:
+        pass
+    return dict(fallback)
+
+
+# The fallback copy. Retired spellings in a scanned surface would normally be a
+# violation; this is the one place they are unavoidable, and the scan exemption
+# for it is recorded in governance/terminology.yml.
+_V1_STAGE_KEYS = {
+    "frame": "assess", "specify": "define", "clarify": "refine",
+    "distribute": "breakdown", "build": "implement", "land": "ship",
+}
+
+
+def _stage_key_renames():
+    return migrate_map_section("stage_keys", _V1_STAGE_KEYS)
+
+
 def normalize_spine(task):
     """Return the spine with v2 canonical keys, whatever generation it was
     written in. A v2 key present alongside its v1 twin wins; the v1 key is
@@ -369,6 +412,22 @@ def normalize_spine(task):
         if k2 in out and k in SPINE_KEY_MAP:
             continue
         out[k2] = v
+    # Stage keys. `frame` was banned as a phase name at the v2 freeze and
+    # survived as a live machine key, because governance/*.yml is not a scanned
+    # surface. Ninety-four landed issues carry the retired spellings, so they
+    # are mapped forward on load and rewritten on disk by `compass migrate`
+    # (ADR-006: accept both, remove the old at the major version).
+    st = out.get("stages")
+    if isinstance(st, dict):
+        renames = _stage_key_renames()
+        mapped = {}
+        for k, v in st.items():
+            k2 = renames.get(k, k)
+            if k2 in mapped and k in renames:
+                continue
+            mapped[k2] = v
+        out["stages"] = mapped
+
     a = out.get("assessment")
     if isinstance(a, dict):
         a2 = {}
@@ -449,19 +508,27 @@ def display_shape(value):
     return SHAPE_DISPLAY.get(str(value or ""), str(value or ""))
 
 
-# The stage-name half of the same boundary. The spine and the routing policy
-# keep the keys they have always had - renaming them needs a back-compat shim
-# for every spine on disk, and is the rename slice's work - but nothing
-# retired is printed, whatever the key underneath is called.
+# The stage-name half of the same boundary: nothing retired is printed,
+# whatever the key underneath is called.
+#
+# THIS MAP IS KEYED ON THE CURRENT KEYS, not the retired ones. `normalize_spine`
+# maps a retired key forward on load, so by the time anything is displayed the
+# key is already `assess`, `define` and so on - a map still keyed on `frame`
+# would silently stop matching and print the raw key.
+#
+# It looks like an identity map today and is not one for long: the command
+# renames land next, and `plan` -> `plan` is the entry that will still be
+# earning its place when the others are gone. Keeping the map means the
+# display layer stays the one place a stage name is chosen.
 STAGE_DISPLAY = {
-    "frame": "triage",
-    "specify": "define",
-    "clarify": "refine",
+    "assess": "triage",
+    "define": "define",
+    "refine": "refine",
     "plan": "design",
-    "distribute": "breakdown",
-    "build": "implement",
+    "breakdown": "breakdown",
+    "implement": "implement",
     "verify": "verify",
-    "land": "ship",
+    "ship": "ship",
 }
 
 
@@ -633,7 +700,19 @@ def shape_stages(shape):
     spelling in the one module that is allowed to name them, so the
     vocabulary scan can enforce that rule everywhere else.
     """
-    return dict(shape.get("stages") or shape.get("phases") or {})
+    raw = dict(shape.get("stages") or shape.get("phases") or {})
+    # And the KEYS inside it, not only the block's own name. A policy written
+    # before this rename says `frame:` where the current one says `assess:`,
+    # and the evaluator prints these straight - so without this the tool that
+    # computes the approach is the loudest place a retired name still appears.
+    renames = _stage_key_renames()
+    out = {}
+    for k, v in raw.items():
+        k2 = renames.get(k, k)
+        if k2 in out and k in renames:
+            continue
+        out[k2] = v
+    return out
 
 
 _WHEN_KEY_MAP = {
@@ -711,8 +790,20 @@ def _entry_for(task_dir, kind):
     return None
 
 
+# Kinds this framework renamed, and the filename a landed issue still holds.
+# Read-side only: the resolver finds the old file, and `compass migrate`
+# rewrites it on disk (ADR-006).
+_RENAMED_KIND_FILES = {
+    "technical-design": "design.md",
+    "intent": "prd.md",
+}
+
+
 def _flat_name(kind):
-    """The old flat filename for a kind - `design` -> `design.md`."""
+    """The flat filename for a kind - `technical-design` -> `design.md` where a
+    landed issue still holds the old name, otherwise `<kind>.md`."""
+    if kind in _RENAMED_KIND_FILES:
+        return _RENAMED_KIND_FILES[kind]
     return kind if kind.endswith(".md") else kind + ".md"
 
 
