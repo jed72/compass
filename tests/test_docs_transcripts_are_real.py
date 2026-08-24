@@ -31,8 +31,8 @@ def _documented_readings():
     return parsed["assessment"]
 
 
-def _evaluate(readings):
-    args = [sys.executable, str(COMPASS_CLI), "approach", "evaluate"]
+def _evaluate(readings, *flags):
+    args = [sys.executable, str(COMPASS_CLI), "approach", "evaluate", *flags]
     for key, value in readings.items():
         args += ["--assessment", f"{key}={value}"]
     return subprocess.run(args, capture_output=True, text=True, cwd=ROOT, timeout=30)
@@ -48,8 +48,14 @@ def test_worked_example_readings_are_accepted_by_the_cli():
 
 
 def test_worked_example_route_and_gates_match_the_cli():
-    """The documented FINAL ROUTE and gate set are the ones the CLI computes."""
-    out = _evaluate(_documented_readings()).stdout
+    """The documented FINAL ROUTE and gate set are the ones the CLI computes.
+
+    Against --verbose: the doc shows both views, and this checks the detailed
+    one because that is where the labels below live. The evaluator came under
+    the terminal output contract on 2026-08-24 and moved them there; what the
+    CLI computes is unchanged.
+    """
+    out = _evaluate(_documented_readings(), "--verbose").stdout
     doc = DOC.read_text(encoding="utf-8")
 
     # "FINAL ROUTE" became "FINAL APPROACH" with the CLI-voice slice.

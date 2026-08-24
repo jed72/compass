@@ -95,10 +95,23 @@ assessment:
 
 Then the mechanism takes over. `/compass:triage` shells out to
 `compass approach evaluate --write`, which composes the delivery approach, applies the
-routing guardrails, and folds the result back into `task.yml`:
+routing guardrails, and folds the result back into `task.yml`.
+
+What you see by default is the answer and the rules that produced it:
 
 ```
-  policy          : governance/routing-policy.yml (v2.1.1)
+quick fix - 3 gate(s), up to 1 parallel stream(s)
+Read: .compass/work/fix-jwt-typo/delivery-approach.md
+
+Key choices:
+  - no policy rule fired - the shape is the assessment's default
+```
+
+`--verbose` adds the working - which policy file was read, the assessment it
+was applied to, the weight of every stage, and the full gate set:
+
+```
+  policy          : governance/routing-policy.yml (v2.3.0)
   assessment      : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
   candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix

@@ -837,3 +837,221 @@ def test_trc_c6_the_report_list_is_not_empty():
             "`%s` is exercised by the tests above but no longer declares "
             "itself a report, so those tests are checking a hand-off against "
             "a report's contract. Declared reports: %s" % (v, verbs))
+
+
+# ---------------------------------------------------------------------------
+# U4 - the long tail, measured against the contract for real
+# ---------------------------------------------------------------------------
+#
+# Everything above tests the emitter, or one verb at a time. Nothing yet runs
+# EVERY hand-off verb and measures what actually reached the terminal, which is
+# what TRC-A1 and TRC-A3 are about.
+#
+# The table below is the argv each verb needs in order to do its job. A verb
+# that is in the parser and not in the table fails the coverage guard, so the
+# next verb added has to be measured rather than quietly missed.
+
+# Verbs excluded from the run, each with the reason. Kept short and named -
+# an unexplained exclusion is how a guard stops covering things.
+_TAIL_EXEMPT = {
+    "_friction-capture": "private, and writes to the spine as a side effect",
+    "_migrate-archive": "private, and rewrites a whole work tree",
+    "_derive-system-spec": "private, and writes a tracked doc",
+    "_derive-glossary": "private, and writes a tracked doc",
+    "migrate": "rewrites a work tree; its own suite covers its output",
+    "ship-commit": "writes a git commit",
+    "check": "measured by its own tests above, on a failing issue",
+    "policy lint": "needs a governance tree of its own to say anything",
+    "issue lint": "needs a malformed spine to say anything",
+    "design lint": "needs a design with placeholders to say anything",
+    "next": "advisory pointer; its own suite covers it",
+    "rework-scan": "its own suite covers it",
+    "follow-up resolve": "needs an owed follow-up planted first",
+    "bdd verify": "needs a project BDD runner wired",
+    "acceptance record": "needs an acceptance already started",
+    "analyze": "a report, measured above",
+    "retro": "a report, measured above",
+    "flow": "a report, measured above",
+    "terminology": "a report, measured above",
+    "ci": "a report - runs the whole mechanical suite to produce detail",
+    "issue receipt": "a report - run to read a landed issue's full record",
+}
+
+_TAIL_ARGV = {
+    "approach evaluate": ["approach", "evaluate"],
+    "issue dashboard": ["issue", "dashboard"],
+    "issue set-status": ["issue", "set-status", "active"],
+    # The artifact set is computed by the evaluator, so the fixture runs
+    # `approach evaluate --write` first and this names a document the
+    # assessment actually earned.
+    "issue artifact": ["issue", "artifact", "acceptance-criteria",
+                       "--status", "draft"],
+    "scenario add": ["scenario", "add", "TRC-9", "--title", "a new one",
+                     "--intent", "INT-1"],
+    "changed-file add": ["changed-file", "add", "src/a.py", "--scenario", "TRC-1"],
+    "evidence add": ["evidence", "add", "EV-9", "--type", "artifact",
+                     "--path", "task.yml"],
+    # The gate's accepted evidence type is checked at write time, so the
+    # record this points at has to be a test-run, not the artifact above.
+    "gate pass": ["gate", "pass", "verify.correctness", "--evidence", "EV-T"],
+    "adr new": ["adr", "new", "a decision worth recording"],
+    "bdd extract": ["bdd", "extract"],
+    "acceptance start": ["acceptance", "start", "--kind", "validation",
+                         "--", "true"],
+    "tdd-red": ["tdd-red", "--scenario", "TRC-1", "--", "false"],
+    "tdd-green": ["tdd-green", "--scenario", "TRC-1", "--", "true"],
+}
+
+
+def _with_flags(argv, *flags):
+    """Insert mode flags BEFORE any `--`.
+
+    `tdd-red -- false --json` puts `--json` inside the command being run, not
+    on the verb. That is correct behaviour and a real trap for anyone scripting
+    these verbs, so the tests place the flags where a person would have to.
+    """
+    argv = list(argv)
+    if "--" in argv:
+        i = argv.index("--")
+        return argv[:i] + list(flags) + argv[i:]
+    return argv + list(flags)
+
+
+@pytest.fixture
+def tail_project(tmp_path):
+    """A project where every verb in the table can actually do its job."""
+    import yaml
+
+    proj = tmp_path / "tail"
+    (proj / "governance").mkdir(parents=True)
+    for f in ("routing-policy.yml", "guardrails.yml", "terminology.yml"):
+        (proj / "governance" / f).write_text(
+            (REPO_ROOT / "governance" / f).read_text())
+    td = proj / ".compass" / "work" / "t"
+    (td / "evidence").mkdir(parents=True)
+    (proj / ".compass" / "current-task").write_text("t\n")
+    (proj / ".compass" / "config.yml").write_text(
+        "version: 1.0.0\nmode: enforced\n")
+    (td / "acceptance-criteria.md").write_text(
+        "# Spec\n\n## Summary\n\n**Goal:** a thing\n\n"
+        "### Scenario: a thing happens\n"
+        "<!-- traceability id: TRC-1 - serves: INT-1 -->\n\n"
+        "```gherkin\nScenario: a thing happens\n  Given a start\n"
+        "  When it runs\n  Then it works\n```\n")
+    (td / "delivery-approach.md").write_text("# Delivery approach - t\n")
+    (td / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "2.0", "task": "t", "created": "2026-08-24",
+        "status": "active",
+        "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
+                       "size": "standard", "goal": "delivery",
+                       "role": "engineer", "labels": []},
+        "delivery_approach": "feature", "stages": {"specify": "full"},
+        "gates": [{"id": "verify.correctness", "status": "pending",
+                   "evidence": []}],
+        "evidence": [], "scenarios": [{"id": "TRC-1", "intent": "INT-1",
+                                       "title": "a thing happens",
+                                       "tests": ["tests/t.py::a"]}],
+        "changed_files": [],
+    }, sort_keys=False))
+    # A test-run record, because `gate pass verify.correctness` checks the
+    # evidence TYPE at write time and refuses an artifact.
+    (td / "evidence" / "green.json").write_text(
+        '{"command": "true", "exit_code": 0}')
+    subprocess.run([sys.executable, str(CLI), "evidence", "add", "EV-T",
+                    "--type", "test-run", "--path", "evidence/green.json"],
+                   cwd=str(proj), capture_output=True, text=True, timeout=60)
+    # The artifact set is a routing output, so it has to be computed before a
+    # document in it can have its status set.
+    subprocess.run([sys.executable, str(CLI), "approach", "evaluate", "--write"],
+                   cwd=str(proj), capture_output=True, text=True, timeout=60)
+    return proj
+
+
+def test_trc_c1_the_tail_table_covers_every_hand_off_verb():
+    """TRC-C1: a verb in the parser is measured, or exempt with a reason.
+
+    Without this, adding a verb quietly leaves it unmeasured, which is how
+    this surface drifted in the first place.
+    """
+    hand_offs = {path for path, p in _leaf_parsers().items()
+                 if p.get_default("output_kind") == "hand-off"}
+    unmeasured = hand_offs - set(_TAIL_ARGV) - set(_TAIL_EXEMPT)
+    assert not unmeasured, (
+        "these hand-off verbs are neither measured against the contract nor "
+        "exempt with a reason:\n  " + "\n  ".join(sorted(unmeasured)))
+    assert len(_TAIL_ARGV) >= 10, (
+        "only %d verbs are actually run, so most of this file's coverage is "
+        "exemptions" % len(_TAIL_ARGV))
+
+
+def test_trc_a1_and_a3_every_hand_off_verb_fits_its_budget(tail_project):
+    """TRC-A1 and TRC-A3: what actually reaches the terminal, measured.
+
+    Each verb runs for real. A verb that exits non-zero is a FAILURE of this
+    test, not a skip - a table entry with the wrong arguments would otherwise
+    quietly stop measuring that verb.
+    """
+    from compass_pkg.terminal import over_budget
+
+    outputs, broken = {}, []
+    for verb, argv in sorted(_TAIL_ARGV.items()):
+        r = subprocess.run([sys.executable, str(CLI), *argv],
+                           cwd=str(tail_project), capture_output=True,
+                           text=True, timeout=120)
+        if r.returncode != 0:
+            broken.append("%s -> exit %d: %s"
+                          % (verb, r.returncode,
+                             (r.stderr or r.stdout).strip().splitlines()[-1:]))
+            continue
+        outputs[verb] = r.stdout
+    assert not broken, (
+        "these verbs could not run, so they were not measured. Fix the argv in "
+        "_TAIL_ARGV - a verb that cannot run is not a verb that passed:\n  "
+        + "\n  ".join(broken))
+
+    findings = over_budget(outputs)
+    assert findings is not NOTHING_TO_CHECK_SENTINEL(), (
+        "no verb output was collected at all")
+    assert not findings, (
+        "these verbs printed past the contract:\n  " + "\n  ".join(findings))
+
+
+def NOTHING_TO_CHECK_SENTINEL():
+    from compass_pkg.terminal import NOTHING_TO_CHECK
+    return NOTHING_TO_CHECK
+
+
+def test_trc_c2_the_tail_is_silent_under_quiet(tail_project):
+    """TRC-C2: a verb with nothing to decide prints nothing under --quiet."""
+    noisy = []
+    for verb, argv in sorted(_TAIL_ARGV.items()):
+        r = subprocess.run([sys.executable, str(CLI), *_with_flags(argv, "--quiet")],
+                           cwd=str(tail_project), capture_output=True,
+                           text=True, timeout=120)
+        if r.returncode == 0 and r.stdout.strip():
+            noisy.append("%s printed %d line(s)"
+                         % (verb, len(r.stdout.splitlines())))
+    assert not noisy, (
+        "--quiet is accepted by these verbs and ignored, which is worse than "
+        "not having the flag:\n  " + "\n  ".join(noisy))
+
+
+def test_trc_c3_the_tail_emits_json(tail_project):
+    """TRC-C3: --json is one document per verb, and carries no prose."""
+    bad = []
+    for verb, argv in sorted(_TAIL_ARGV.items()):
+        r = subprocess.run([sys.executable, str(CLI), *_with_flags(argv, "--json")],
+                           cwd=str(tail_project), capture_output=True,
+                           text=True, timeout=120)
+        if r.returncode != 0:
+            continue
+        try:
+            doc = json.loads(r.stdout)
+        except json.JSONDecodeError as exc:
+            bad.append("%s: %s -- %r" % (verb, exc, r.stdout[:120]))
+            continue
+        if not isinstance(doc, dict) or not doc:
+            bad.append("%s: not a non-empty object" % verb)
+    assert not bad, (
+        "--json is accepted by these verbs and does not produce one JSON "
+        "document:\n  " + "\n  ".join(bad))

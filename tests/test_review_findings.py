@@ -6,6 +6,13 @@ durable.
 
 Spec: .compass/work/review-findings-2026-08/spec.feature.md
 """
+
+# These read `compass approach evaluate`'s DETAIL - the provenance line,
+# the per-stage weights, the full gate list, the effect lines under each
+# fired rule. That detail moved to --verbose on 2026-08-24 when the
+# evaluator came under the terminal output contract; the computation is
+# unchanged. The assertions are re-pointed rather than rewritten, because
+# what they assert still holds - only where it is printed changed.
 from __future__ import annotations
 
 import json
@@ -198,7 +205,7 @@ def test_trc_d1_a_malformed_rule_id_should_not_crash_the_router(tmp_path):
          "rationale": "malformed on purpose"})
     rp.write_text(yaml.safe_dump(d, sort_keys=False))
     r = subprocess.run(
-        [sys.executable, str(CLI), "approach", "evaluate",
+        [sys.executable, str(CLI), "approach", "evaluate", "--verbose",
          "--assessment", "risk=contained", "--assessment", "familiarity=greenfield",
          "--assessment", "size=small", "--assessment", "intent=delivery",
          "--assessment", "role=engineer"],

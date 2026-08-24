@@ -96,6 +96,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.checks import _spec_sha256
+from compass_pkg.terminal import say
 from compass_pkg.core import CompassError, artifact_path, find_upwards, load_yaml, now_iso, resolve_task_dir, normalize_spine
 from compass_pkg.tdd import _read_config, _run_test
 
@@ -524,5 +525,9 @@ def cmd_bdd_extract(args):
     out_path = _bdd_out_path(args, task_dir, slug)
     spec_rel = os.path.join(".compass", "work", slug, os.path.basename(spec_path))
     atomic_write(out_path, render_feature(slug, scenarios, spec_rel))
-    sys.stdout.write("%s\n" % out_path)
-    return 0
+    # The path used to be the ENTIRE output, with no sentence around it - a
+    # verb that answers with a bare string is written for a shell pipeline,
+    # not a person. It is still the only thing --json carries, under a key.
+    return say(args, "compass bdd extract: %d scenario(s) -> %s"
+                     % (len(scenarios), out_path),
+               path=out_path, scenarios=len(scenarios), spec=spec_rel)

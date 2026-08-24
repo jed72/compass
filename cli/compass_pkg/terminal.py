@@ -189,6 +189,18 @@ def _fit(text, prefix=""):
     if len(text) <= room:
         return prefix + text
 
+    # A line that is long only because it carries one unbreakable token - a
+    # path or a URL - is printed WHOLE. Shortening it makes the link
+    # unopenable, which fails at the thing the line exists for.
+    #
+    # THIS CHECK LIVES HERE, not at the call sites, because it was fixed at
+    # three separate call sites on three separate days and came back each time:
+    # the hand-off's Read line, the report's summary, and then the one-line
+    # `say()`. A rule every caller has to remember is a rule that gets
+    # forgotten by the fourth caller.
+    if _is_unbreakable(prefix + text, MAX_WIDTH):
+        return prefix + text
+
     m = _ID_TAIL.search(text)
     if m:
         tail = " (%s)" % m.group(1)
@@ -228,13 +240,14 @@ class Emitter:
     # -- the two contracts --------------------------------------------------
 
     def hand_off(self, outcome, read=None, items=None, concerns=None,
-                 reply=None, detail=None, failed=False):
+                 reply=None, detail=None, failed=False, next_step=None):
         """A verb that ends a stage or renders a verdict. One screen."""
         if self.mode == "json":
             self._doc = {"outcome": outcome, "read": read,
                          "items": list(items or []),
                          "concerns": list(concerns or []),
-                         "reply": reply, "failed": bool(failed)}
+                         "reply": reply, "next_step": next_step,
+                         "failed": bool(failed)}
             return self
 
         if self.mode == "quiet" and not failed and not reply:
@@ -496,3 +509,42 @@ class Report:
                 out.append("    %s" % self._row_line(row, render))
         print("\n".join(out))
         return 0
+
+
+def say(args, outcome, detail=None, read=None, reply=None, **data):
+    """One hand-off, from a verb that has a single thing to report.
+
+    Most verbs are one line and a couple of details: "the record is written,
+    here is where". This is that shape, so such a verb is one call rather than
+    a hand-rolled Emitter.
+
+    `**data` is the verb's real identifiers - the id it wrote, the path it
+    wrote to, the status it set. They are what make `--json` a machine mode
+    instead of the verb's prose in a wrapper, which is why this takes them
+    rather than deriving them from the sentence.
+    """
+    mode = resolve_mode(args)
+    if mode == "json":
+        doc = {"outcome": outcome}
+        doc.update({k: v for k, v in data.items() if v is not None})
+        if detail:
+            doc["detail"] = [str(d) for d in detail]
+        if read:
+            doc["read"] = read
+        print(json.dumps(doc, indent=2, default=str))
+        return 0
+    if mode == "quiet":
+        # Nothing was decided and nothing went wrong. The exit code carries it.
+        return 0
+    lines = [_fit(outcome)]
+    for d in (detail or []):
+        # A detail that is a bare path keeps its whole length: a link a reader
+        # cannot open fails at the thing it exists for.
+        lines.append(d if _is_unbreakable("  " + str(d), MAX_WIDTH)
+                     else _fit(str(d), "  "))
+    if read:
+        lines.append(_path_line("Read: ", read))
+    if reply:
+        lines.append(_fit(reply, "Reply: "))
+    print("\n".join(lines))
+    return 0
