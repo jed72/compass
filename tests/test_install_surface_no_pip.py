@@ -243,14 +243,20 @@ def test_no_document_claims_compass_is_stdlib_only():
     unmarked = []
     for rel in cli_files:
         text = _read_text(rel)
-        if "DEPENDENCY: PyYAML" not in text:
+        # The marker is "DEPENDENCY:", not "DEPENDENCY: PyYAML". A module that
+        # uses no third-party code at all cannot honestly carry a PyYAML
+        # header, and exempting it would shrink this check by one file every
+        # time such a module is added. Stating its position instead keeps it
+        # covered: only a header that actually NAMES PyYAML has to say
+        # "bundled".
+        if "DEPENDENCY:" not in text:
             # Self-exempting: a module that stops carrying the marker used to
             # leave this check silently, so coverage could drain away without
             # a red. Collect them and assert on the set instead.
             unmarked.append(rel)
             continue
         checked.append(rel)
-        if "bundled" not in text.lower():
+        if "PyYAML" in text and "bundled" not in text.lower():
             header_problems.append(rel)
         if _PIP_INSTALL_PYYAML_RE.search(text):
             header_problems.append(rel)

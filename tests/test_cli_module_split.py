@@ -77,7 +77,21 @@ def test_trc_a1_the_entry_point_should_be_thin():
     # deduplicating a one-liner cannot shrink the file. Recorded because the
     # obvious assumption - dedupe to get under a line cap - is wrong here, and
     # the next person will reach for it too.
-    assert lines < 575, (
+    #
+    # RAISED 575 -> 620 on 2026-08-23, adding the terminal output contract: one
+    # call that attaches five flags to every verb, and an `output_kind=` on
+    # each of the 34 `set_defaults` registrations. The declaration is per-verb
+    # ON PURPOSE - deriving it centrally would mean no verb could ever lack
+    # one, and the guard that checks for it could never fail.
+    #
+    # Recorded because the raise before this one was three days ago and left
+    # exactly THREE lines of headroom: the file was at 572 against a cap of
+    # 575. A cap that is re-raised every time a verb is added is measuring
+    # something other than what it means to measure - it says "the entry point
+    # should hold the shebang, the parser and main()", and 47 parser
+    # registrations ARE the parser. Filed as
+    # `entry-point-cap-measures-the-wrong-thing` rather than nudged again.
+    assert lines < 620, (
         f"cli/compass is still {lines} lines (was {BASELINE['line_count']}). "
         f"The entry point should hold the shebang, the parser and main().")
     src = CLI.read_text(encoding="utf-8")

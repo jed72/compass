@@ -175,7 +175,7 @@ def build_parser():
                           "re-sizing signal - a policy correction is not "
                           "triage mis-reading the work.")
     pre.add_argument("--json", action="store_true", help="emit JSON")
-    pre.set_defaults(func=cmd_route_evaluate)
+    pre.set_defaults(func=cmd_route_evaluate, output_kind="hand-off")
 
     # `bdd` is a subcommand GROUP, not a flat verb, so later BDD work (a
     # scenarios-are-executable check) adds `compass bdd <thing>` rather than a
@@ -187,7 +187,7 @@ def build_parser():
         help="extract an issue's acceptance-criteria.md into a runnable .feature file")
     issue_arg(pbe)
     pbe.add_argument("--out", help="write here instead of the resolved default")
-    pbe.set_defaults(func=cmd_bdd_extract)
+    pbe.set_defaults(func=cmd_bdd_extract, output_kind="hand-off")
 
     pbv = pbs.add_parser(
         "verify",
@@ -195,11 +195,11 @@ def build_parser():
     issue_arg(pbv)
     pbv.add_argument("command", nargs=argparse.REMAINDER,
                      help="the run command, after `--`")
-    pbv.set_defaults(func=cmd_bdd_verify)
+    pbv.set_defaults(func=cmd_bdd_verify, output_kind="hand-off")
 
     pc = sub.add_parser("check", help="run the guardrails.yml checks against an issue")
     issue_arg(pc)
-    pc.set_defaults(func=cmd_check)
+    pc.set_defaults(func=cmd_check, output_kind="hand-off")
 
     pan = sub.add_parser(
         "analyze",
@@ -208,7 +208,7 @@ def build_parser():
              "depending on whether verify.analyze is in the issue's gate set)",
     )
     issue_arg(pan)
-    pan.set_defaults(func=cmd_analyze)
+    pan.set_defaults(func=cmd_analyze, output_kind="report")
 
     pcal = sub.add_parser("retro",
                           help="the retrospective signal - re-assessment "
@@ -231,12 +231,12 @@ def build_parser():
         default="markdown",
         help="output format for --friction (default: markdown)",
     )
-    pcal.set_defaults(func=cmd_calibration)
+    pcal.set_defaults(func=cmd_calibration, output_kind="report")
 
     pci = sub.add_parser("ci",
                          help="run the full mechanical gate suite (policy lint "
                               "+ issue lint + check, all issues) - for CI")
-    pci.set_defaults(func=cmd_ci)
+    pci.set_defaults(func=cmd_ci, output_kind="hand-off")
 
     prd = sub.add_parser("tdd-red", help="run a test, assert it FAILS, record the red")
     issue_arg(prd)
@@ -249,7 +249,7 @@ def build_parser():
                           "The guard must still genuinely fail first.")
     prd.add_argument("command", nargs=argparse.REMAINDER,
                      help="the test command (after --)")
-    prd.set_defaults(func=cmd_tdd_red)
+    prd.set_defaults(func=cmd_tdd_red, output_kind="hand-off")
 
     pg = sub.add_parser("tdd-green", help="run a test, assert it PASSES, record the green")
     issue_arg(pg)
@@ -261,12 +261,12 @@ def build_parser():
                          "that stood in for a unit red (R8)")
     pg.add_argument("command", nargs=argparse.REMAINDER,
                     help="the test command (after --)")
-    pg.set_defaults(func=cmd_tdd_green)
+    pg.set_defaults(func=cmd_tdd_green, output_kind="hand-off")
 
     pl = sub.add_parser("policy", help="governance policy tools")
     pls = pl.add_subparsers(dest="subcmd", required=True)
     pll = pls.add_parser("lint", help="structurally validate the governance YAML")
-    pll.set_defaults(func=cmd_policy_lint)
+    pll.set_defaults(func=cmd_policy_lint, output_kind="report")
 
     ppl = sub.add_parser("design", help="design.md tools")
     ppls = ppl.add_subparsers(dest="subcmd", required=True)
@@ -274,24 +274,24 @@ def build_parser():
         "lint", help="scan a design.md for placeholder phrases (advisory; always exits 0)")
     issue_arg(ppll)
     ppll.add_argument("--file", help="lint a specific design.md file")
-    ppll.set_defaults(func=cmd_plan_lint)
+    ppll.set_defaults(func=cmd_plan_lint, output_kind="report")
 
     pt = sub.add_parser("issue", help="issue spine tools")
     pts = pt.add_subparsers(dest="subcmd", required=True)
     ptl = pts.add_parser("lint", help="structurally validate a task.yml")
     issue_arg(ptl)
     ptl.add_argument("--file", help="lint a specific task.yml file")
-    ptl.set_defaults(func=cmd_task_lint)
+    ptl.set_defaults(func=cmd_task_lint, output_kind="report")
 
     ptr = pts.add_parser("receipt", help="render a one-screen receipt for an issue")
     issue_arg(ptr)
     ptr.add_argument("--workdir", help="alternate project root (default: cwd)")
-    ptr.set_defaults(func=cmd_task_receipt)
+    ptr.set_defaults(func=cmd_task_receipt, output_kind="hand-off")
 
     ptd = pts.add_parser("dashboard", help="render the per-issue review README from the artifact registry")
     issue_arg(ptd)
     ptd.add_argument("--check", action="store_true", help="report whether the README matches the spine; write nothing")
-    ptd.set_defaults(func=cmd_issue_dashboard)
+    ptd.set_defaults(func=cmd_issue_dashboard, output_kind="hand-off")
 
     pta = pts.add_parser("artifact", help="set a document's status in the issue's review pack")
     pta.add_argument("kind", help="document kind, e.g. design (must be one the issue earned)")
@@ -299,14 +299,14 @@ def build_parser():
                      help="new status")
     pta.add_argument("--reason", help="why - required when omitting")
     issue_arg(pta)
-    pta.set_defaults(func=cmd_issue_artifact)
+    pta.set_defaults(func=cmd_issue_artifact, output_kind="hand-off")
 
     ptss = pts.add_parser("set-status",
                           help="set an issue's lifecycle status (queued|active|parked|landed|abandoned)")
     ptss.add_argument("status", help="the new status")
     issue_arg(ptss)
     ptss.add_argument("--reason", help="why - recorded as parked_reason when parking")
-    ptss.set_defaults(func=cmd_task_set_status)
+    ptss.set_defaults(func=cmd_task_set_status, output_kind="hand-off")
 
     pacc = sub.add_parser(
         "acceptance",
@@ -319,14 +319,14 @@ def build_parser():
     issue_arg(pas)
     pas.add_argument("command", nargs=argparse.REMAINDER,
                      help="the validator, or the suite being preserved (after --)")
-    pas.set_defaults(func=cmd_acceptance_start)
+    pas.set_defaults(func=cmd_acceptance_start, output_kind="hand-off")
 
     par = paccs.add_parser("record", help="close the acceptance after the change")
     issue_arg(par)
     par.add_argument("--scenario", help="scenario id this acceptance is FOR")
     par.add_argument("command", nargs=argparse.REMAINDER,
                      help="the command to run (after --)")
-    par.set_defaults(func=cmd_acceptance_record)
+    par.set_defaults(func=cmd_acceptance_record, output_kind="hand-off")
 
     padr = sub.add_parser("adr", help="Architecture Decision Record tools")
     padrs = padr.add_subparsers(dest="subcmd", required=True)
@@ -338,7 +338,7 @@ def build_parser():
         "slug",
         help="short kebab-case slug for the ADR (e.g. 'use-postgres')",
     )
-    padrn.set_defaults(func=cmd_adr_new)
+    padrn.set_defaults(func=cmd_adr_new, output_kind="hand-off")
 
     prs2 = sub.add_parser(
         "rework-scan",
@@ -364,7 +364,7 @@ def build_parser():
         default="markdown",
         help="output format (default: markdown)",
     )
-    prs2.set_defaults(func=cmd_rework_scan)
+    prs2.set_defaults(func=cmd_rework_scan, output_kind="report")
 
     pfl = sub.add_parser(
         "flow",
@@ -384,14 +384,14 @@ def build_parser():
         help="root directory containing issue subdirectories "
              "(default: .compass/work/ in the current project)",
     )
-    pfl.set_defaults(func=cmd_flow)
+    pfl.set_defaults(func=cmd_flow, output_kind="report")
 
     pnx = sub.add_parser(
         "next",
         help="what comes next on this issue's delivery approach? (read-only; one line)",
     )
     issue_arg(pnx)
-    pnx.set_defaults(func=cmd_next)
+    pnx.set_defaults(func=cmd_next, output_kind="report")
 
     pbf = sub.add_parser(
         "follow-up",
@@ -410,7 +410,7 @@ def build_parser():
         "backfill_id", metavar="follow-up-id",
         help="the follow-up id to mark resolved (e.g. BF-1)"
     )
-    pbfp.set_defaults(func=cmd_backfill_pay)
+    pbfp.set_defaults(func=cmd_backfill_pay, output_kind="hand-off")
 
     plc = sub.add_parser(
         "ship-commit",
@@ -423,7 +423,7 @@ def build_parser():
     plc.add_argument("--issue", dest="task", metavar="SLUG", help="issue slug to mark landed on a verified commit")
     plc.add_argument("files", nargs="*",
                      help="optional paths to stage before committing")
-    plc.set_defaults(func=cmd_land_commit)
+    plc.set_defaults(func=cmd_land_commit, output_kind="hand-off")
 
     # --- task-spine mutators (R9) + gate pass (R6) --------------------------
     pgate = sub.add_parser("gate", help="issue gate tools")
@@ -434,7 +434,7 @@ def build_parser():
     issue_arg(pgp)
     pgp.add_argument("--evidence", action="append",
                      help="evidence id backing this gate (repeatable)")
-    pgp.set_defaults(func=cmd_gate_pass)
+    pgp.set_defaults(func=cmd_gate_pass, output_kind="hand-off")
 
     pscn = sub.add_parser("scenario", help="issue scenario tools")
     pscs = pscn.add_subparsers(dest="subcmd", required=True)
@@ -445,7 +445,7 @@ def build_parser():
     psca.add_argument("--intent", required=True, help="linked intent id")
     psca.add_argument("--test", action="append",
                       help="test that exercises it (repeatable)")
-    psca.set_defaults(func=cmd_scenario_add)
+    psca.set_defaults(func=cmd_scenario_add, output_kind="hand-off")
 
     pcf = sub.add_parser("changed-file", help="issue changed-file tools")
     pcfs = pcf.add_subparsers(dest="subcmd", required=True)
@@ -453,7 +453,7 @@ def build_parser():
     pcfa.add_argument("path", help="production file path")
     issue_arg(pcfa)
     pcfa.add_argument("--scenario", required=True, help="scenario id it traces to")
-    pcfa.set_defaults(func=cmd_changed_file_add)
+    pcfa.set_defaults(func=cmd_changed_file_add, output_kind="hand-off")
 
     pev = sub.add_parser("evidence", help="issue evidence-registry tools")
     pevs = pev.add_subparsers(dest="subcmd", required=True)
@@ -463,7 +463,7 @@ def build_parser():
     peva.add_argument("--type", required=True, help="evidence type (see guardrails.yml)")
     peva.add_argument("--path", required=True, help="path to the evidence file")
     peva.add_argument("--scenario", help="scenario this evidence is for (optional)")
-    peva.set_defaults(func=cmd_evidence_add)
+    peva.set_defaults(func=cmd_evidence_add, output_kind="hand-off")
 
     pmig = sub.add_parser(
         "migrate",
@@ -474,7 +474,7 @@ def build_parser():
                       help="the work root to examine (default: .compass/work)")
     pmig.add_argument("--apply", action="store_true",
                       help="execute the changes the dry run reports")
-    pmig.set_defaults(func=cmd_migrate)
+    pmig.set_defaults(func=cmd_migrate, output_kind="report")
 
     pterm = sub.add_parser(
         "terminology",
@@ -482,7 +482,7 @@ def build_parser():
              "(governance/terminology.yml is the single source of truth)")
     pterm.add_argument("term", nargs="?",
                        help="the term to render (omit to list every term)")
-    pterm.set_defaults(func=cmd_terminology)
+    pterm.set_defaults(func=cmd_terminology, output_kind="report")
 
     # --- private entry point (DD-4, TRC-B6) ---------------------------------
     # The leading underscore in the name is the convention that marks a
@@ -501,7 +501,7 @@ def build_parser():
         action="store_true",
         help=argparse.SUPPRESS,
     )
-    p_derive.set_defaults(func=cmd_derive_system_spec)
+    p_derive.set_defaults(func=cmd_derive_system_spec, output_kind="report")
 
     # docs/glossary.md is generated from governance/terminology.yml. Private
     # and called at ship, the same shape as _derive-system-spec: the surface
@@ -510,7 +510,7 @@ def build_parser():
     p_gloss.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
     p_gloss.add_argument("--out", help=argparse.SUPPRESS)
     p_gloss.add_argument("--root", help=argparse.SUPPRESS)
-    p_gloss.set_defaults(func=cmd_derive_glossary)
+    p_gloss.set_defaults(func=cmd_derive_glossary, output_kind="report")
 
     # Private entry point for the archive migration core the user-facing
     # migrate verb will wrap in its own slice. Hidden like its siblings.
@@ -518,7 +518,7 @@ def build_parser():
     p_marc.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
     p_marc.add_argument("roots", nargs="*", help=argparse.SUPPRESS)
     from compass_pkg.migrate import cmd_migrate_archive as _cmd_marc
-    p_marc.set_defaults(func=_cmd_marc)
+    p_marc.set_defaults(func=_cmd_marc, output_kind="hand-off")
 
     # Private entry point for the Land friction-capture step (DD-3). Hidden the
     # same way as _derive-system-spec; called by commands/land.md, not a public
@@ -530,7 +530,7 @@ def build_parser():
     p_fric.add_argument("--note-category", dest="note_category",
                         help=argparse.SUPPRESS)
     p_fric.add_argument("--note-phase", dest="note_phase", help=argparse.SUPPRESS)
-    p_fric.set_defaults(func=cmd_friction_capture)
+    p_fric.set_defaults(func=cmd_friction_capture, output_kind="hand-off")
     # Hide all private (leading-underscore) subcommands from --help output:
     #   1. Remove from _choices_actions  →  hides from the positional-args
     #      listing section in the help text.
@@ -547,7 +547,13 @@ def build_parser():
     public_names = [k for k in sub.choices if not k.startswith("_")]
     sub.metavar = "{" + ",".join(public_names) + "}"
 
+    # The five output flags, added to every leaf verb at once. The output KIND
+    # is deliberately NOT set here - see attach_mode_flags in terminal.py.
+    attach_mode_flags(p)
+
     return p
+
+
 
 
 def main(argv=None):
