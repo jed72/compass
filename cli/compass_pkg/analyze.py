@@ -16,7 +16,7 @@
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.
@@ -189,7 +189,7 @@ def _parse_scenario_intents_from_spec(spec_path: str) -> dict:
     """Extract {scenario_id: intent_id} from acceptance-criteria.md traceability comments.
 
     Looks for lines like:
-      <!-- traceability id: SCN-001 · serves: INT-1 -->
+      <!-- traceability id: TRC-A1 · serves: INT-1 -->
     """
     scenario_intents = {}
     if not os.path.isfile(spec_path):
@@ -235,7 +235,7 @@ def _parse_claimed_scenario_ids_from_spec(spec_path: str) -> set:
 
     Looks for:
       <!-- claims: CLM-1 -->
-      <!-- backed-by: SCN-001 -->
+      <!-- backed-by: TRC-A1 -->
     Returns set of scenario ids that a claim is backed by.
     """
     # For simplicity, also return the scenario ids found in the spec
@@ -599,8 +599,16 @@ def cmd_analyze(args):
         _upsert_analyze_evidence_registry(task_dir, ev_id, ev_type, rel_path)
 
     blocks = bool(findings) and is_gate_mode
-    verdict = ("FAIL - %d coherence finding(s)" % len(findings) if blocks
-               else "PASS - %d finding(s)" % len(findings))
+    # Not "PASS - 1 finding(s)". The verdict word is the one that gets read,
+    # and "PASS" with a count after it reads as a clean result. A run that
+    # found something says so; only a run that found nothing says PASS.
+    if blocks:
+        verdict = "FAIL - %d coherence finding(s), and they block shipping" % len(findings)
+    elif findings:
+        verdict = ("%d coherence finding(s) - advisory on this approach, so "
+                   "they do not block shipping" % len(findings))
+    else:
+        verdict = "PASS - no coherence findings"
     rep = Report(args, title="compass analyze")
     rep.summary(
         "compass analyze - issue '%s' (%s): %s." % (task_slug, mode_str, verdict),
@@ -704,7 +712,15 @@ def cmd_ci(args):
         # want to honour mode at the top level, so call cmd_check and let it
         # return; failures captured here mean "this group had problems."
         checked += 1
-        if cmd_check(types.SimpleNamespace(task=slug)):
+        # The caller's mode is FORWARDED. A bare namespace resolved to the
+        # default view, so CI logs got each issue's four-line summary ending
+        # "run with --verbose" - and `compass ci --verbose` printed the same
+        # summary, because the flag never reached the check. The one place a
+        # reader cannot re-run interactively was the one place that advice was
+        # dead.
+        if cmd_check(types.SimpleNamespace(
+                task=slug, _mode=getattr(args, "_mode", None),
+                evidence_out=getattr(args, "evidence_out", None))):
             failures += 1
 
     print("\n" + "=" * 60)

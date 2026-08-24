@@ -16,7 +16,7 @@
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.
@@ -209,7 +209,7 @@ def cmd_land_commit(args):
             + "\n\nA ship commit contains the issue's `changed_files` and its "
             f"artifact directory ({artifact_dir}). If these paths belong to "
             "this issue, record them first:\n"
-            "  compass changed-file add <path> --scenario <SCN-ID>\n"
+            "  compass changed-file add <path> --scenario TRC-<id>\n"
             "Otherwise unstage them (`git restore --staged <path>`) - they may "
             "belong to another issue or another agent working in this tree."
         )

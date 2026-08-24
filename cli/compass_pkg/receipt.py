@@ -16,7 +16,7 @@
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.

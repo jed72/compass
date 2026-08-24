@@ -16,7 +16,7 @@
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
 #                            only written after a real failure).
-#                            --scenario SCN-xxx binds the red to a scenario, so
+#                            --scenario TRC-xxx binds the red to a scenario, so
 #                            it proves relevance, not just that something broke.
 #   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
 #                            green, clear the .red marker.
@@ -134,6 +134,31 @@ CHECK_FNS = {
 # and it would change silently whenever the long text was edited. A missing
 # `do` fails the suite rather than falling back to a truncation.
 CHECK_GUIDANCE = {
+    "command-passes": {
+        "why": 'A project guardrail with `check: command-passes` runs a real command - a fitness function, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
+        "fix": 'Run the command the guardrail names and fix what it reports. If this project declares no such guardrail, nothing was checked and the pass is empty - declare one in governance/guardrails.yml with `check: command-passes` to make the gate mean something.',
+        "do": 'Run the command the guardrail names, or declare one to make this gate real.',
+    },
+    "declared-tests-resolve": {
+        "why": 'A scenario listing a test that is not on disk traces to nothing. The acceptance-before-code guardrail is cleared by a test that exists and runs, not by a path in a file.',
+        "fix": "For each unresolved reference, correct the path in the scenario's `tests:` list in task.yml, or write the test it names. `pytest --collect-only <path>` tells you whether a reference resolves.",
+        "do": 'Correct each `tests:` path in task.yml, or write the test it names.',
+    },
+    "evidence-identity-matches": {
+        "why": 'A gate cites an evidence record by id. If the file has changed since, the gate is cleared by something other than what was reviewed - which is the difference between evidence and a filename.',
+        "fix": 'Re-run whatever produced the record so it is stamped afresh (`compass tdd-green` for a test run), or point the gate at the record that actually backs it.',
+        "do": 'Re-record the evidence, or point the gate at the record that backs it.',
+    },
+    "no-trusted-rerun": {
+        "why": "A green recorded from a run nobody observed is an assertion wearing evidence's clothes. The tested-before-ship guardrail wants the run, not a note about it.",
+        "fix": 'Re-run the test through `compass tdd-green -- <cmd>`, which runs it, confirms it passes, and records the output it saw.',
+        "do": 'Re-run it through `compass tdd-green -- <your test command>`.',
+    },
+    "scenarios-are-executable": {
+        "why": 'Scenarios are meant to be runnable acceptance criteria. This reads the record `compass bdd verify` writes; it never runs the suite itself.',
+        "fix": 'Run `compass bdd verify` so the record exists, and account for any scenario it reports as unmatched. If this project has wired no BDD runner, there is nothing to check - see examples/bdd-adapters/ to opt in.',
+        "do": 'Run `compass bdd verify`, or wire a runner (see examples/bdd-adapters/).',
+    },
     "dashboard-current": {
         "why": "The issue's README is the page a reviewer approves from - it states which documents exist, which one is waiting on them, and what was deliberately left out. Generated from task.yml, so once the spine moves it is an assertion the record contradicts, and a reviewer has no way to tell.",
         "do": 'Run `compass issue dashboard`, then re-read the page.',
@@ -147,7 +172,7 @@ CHECK_GUIDANCE = {
     "suite-passed": {
         "why": "The tested-before-ship guardrail requires a recorded green test run.",
         "do": 'Run `compass tdd-green --scenario TRC-<id> -- <your test command>`.',
-        "fix": "Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
+        "fix": "Run `compass tdd-green --scenario TRC-<id> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
     },
     "changed-code-traces-to-scenario": {
         "why": "Compass requires every production change to trace back to a stated acceptance criterion (the traceability guardrail).",
@@ -157,7 +182,7 @@ CHECK_GUIDANCE = {
     "scenario-has-id-and-intent": {
         "why": "Each scenario needs a stable id and an intent link so claims, tests, and code can reference it.",
         "do": 'Give each scenario in task.yml an `id:` and an `intent:`.',
-        "fix": "Add `id:` (e.g. SCN-003) and `intent:` (the intent id from prd.md) fields to the scenario in task.yml.",
+        "fix": "Add `id:` (e.g. TRC-A3) and `intent:` (the intent id from prd.md) fields to the scenario in task.yml.",
     },
     "claim-traces-to-scenario": {
         "why": "Public claims must trace to a scenario that backs them (traceability) - an unbacked claim is a promise the framework cannot prove.",
@@ -270,7 +295,13 @@ class _CheckRun:
 
 
 def _verbose_lines(run):
-    """Exactly what this command printed before the contract - line for line."""
+    """The full view: every check, its result, and the why behind each failure.
+
+    This was written to reproduce the pre-contract output line for line, and it
+    is close but not identical - the old printer emitted a blank line after
+    each guardrail group. Saying so, because a comment claiming an equivalence
+    nobody has checked is worse than no comment.
+    """
     out = ["compass check - issue '%s' (approach: %s)" % (run.slug, run.approach),
            run.mode_banner, ""]
     for kind, payload in run.rows:
@@ -324,19 +355,52 @@ def _summary_lines(run):
             continue
         seen.add(n)
         failed.append((n, d))
+    # The verdict counts DISTINCT failing checks, the same set the list below
+    # is drawn from. It used to count check RUNS: `scenario-has-id-and-intent`
+    # runs under both G2 and G3, so the header said "4 failed", the list showed
+    # 3 after deduplication, and the "and N more" line - computed from the
+    # deduplicated set - was empty. A failure vanished with nothing saying
+    # anything had been cut, which is exactly what TRC-A4 exists to prevent.
+    # Two numbers describing the same thing have to come from the same set.
+    distinct_failed = len(failed)
+    distinct_ran = len({n for _g, n, _p, _d in run.results})
     # Built from the counts rather than by re-parsing `summarise_counts`,
     # which already begins "compass check: PASS - ..." and produced a verdict
     # reading "PASS - PASS - ...". The "nothing to check" clause is carried
     # through deliberately: a check that inspected nothing must never be
     # reported as one that verified something.
-    if run.failures:
+    # "(?)" told a reader nothing. An issue with no computed approach is one
+    # `compass approach evaluate` has not been run on, and saying so is the
+    # difference between a puzzle and an instruction.
+    approach = (run.approach if run.approach and run.approach != "?"
+                else "no approach yet - run `compass approach evaluate --write`")
+    if distinct_failed:
         verdict = "FAIL - %d of %d check(s) failed on '%s' (%s)" % (
-            run.failures, run.ran, run.slug, run.approach)
+            distinct_failed, distinct_ran, run.slug, approach)
     else:
         nothing = (", %d had nothing to check" % run.nothing) if run.nothing else ""
         verdict = "PASS - %d check(s) passed%s on '%s' (%s)" % (
-            run.ran - run.nothing, nothing, run.slug, run.approach)
+            distinct_ran - run.nothing, nothing, run.slug, approach)
     out = [_fit(verdict)]
+
+    # The adoption-mode banner stays in the DEFAULT view. It was moved to
+    # --verbose with the rest of the header, which meant an advisory run showed
+    # a FAIL verdict and exited 0 with nothing explaining the contradiction -
+    # precisely the mistake the banner was written to prevent. It costs one
+    # line of twelve.
+    if run.mode_banner and run.mode_banner.strip():
+        out.append(_fit(run.mode_banner.strip()))
+
+    # A guardrail this project's governance omits is reported here, not only
+    # under --verbose. Silence was the original defect; the summary path had
+    # gone silent again.
+    notices = [t for kind, t in run.rows if kind == "line" and t.strip()]
+    for n in notices[:MAX_ITEMS]:
+        out.append(_fit(n.strip(), "  "))
+    if len(notices) > MAX_ITEMS:
+        out.append(_fit("... and %d more notice(s) - run with --verbose"
+                        % (len(notices) - MAX_ITEMS), "  "))
+
     if not failed:
         return out
 
@@ -346,7 +410,7 @@ def _summary_lines(run):
         g = CHECK_GUIDANCE.get(name)
         if g and g.get("do"):
             out.append(_fit(g["do"], "     fix: "))
-    hidden = failed[MAX_ITEMS:]
+    hidden = failed[MAX_ITEMS:]  # drawn from the same set the verdict counts
     if hidden:
         out.append(_fit("... and %d more (%s) - run with --verbose"
                         % (len(hidden), ", ".join(n for n, _ in hidden))))
@@ -355,14 +419,17 @@ def _summary_lines(run):
 
 def _emit_check(run, args):
     """Render the run in the mode the caller asked for."""
-    from compass_pkg.terminal import resolve_mode
+    from compass_pkg.terminal import mark_handled, resolve_mode
 
+    mark_handled()
     mode = resolve_mode(args)
     if mode == "json":
         print(json.dumps({
             "issue": run.slug, "approach": run.approach,
             "ran": run.ran, "failed": run.failures,
             "nothing_to_check": run.nothing,
+            "notices": [t.strip() for kind, t in run.rows
+                        if kind == "line" and t.strip()],
             "checks": [{"guardrail": g, "name": n,
                         "status": ("nothing-to-check"
                                    if p is NOTHING_TO_CHECK else
@@ -374,20 +441,15 @@ def _emit_check(run, args):
     if mode == "quiet" and not run.failures:
         return
     lines = _verbose_lines(run) if mode == "verbose" else _summary_lines(run)
+    # --evidence-out writes the FULL verdict, so the summary on screen has
+    # something to link to. The flag was advertised here and wrote nothing.
+    out_path = getattr(args, "evidence_out", None)
+    if out_path:
+        from compass_pkg.terminal import write_capture
+
+        write_capture(out_path, "\n".join(_verbose_lines(run)))
+        lines = list(lines) + ["", "Full verdict written to: %s" % out_path]
     print("\n".join(lines))
-
-
-def _print_check_result(check_name, passed, detail, indent="    "):
-    """Print one check's result with structured why/fix on failure."""
-    if passed:
-        print(f"{indent}PASS {check_name}: {detail}")
-        return
-    print(f"{indent}FAIL {check_name}")
-    print(f"{indent}     what: {detail}")
-    g = CHECK_GUIDANCE.get(check_name)
-    if g:
-        print(f"{indent}     why : {g['why']}")
-        print(f"{indent}     fix : {g['fix']}")
 
 
 def cmd_check(args):
@@ -407,8 +469,16 @@ def cmd_check(args):
         spike_gs = list(guardrails.get("spike_guardrails", []))
         run = _CheckRun(task_dir, task, mode)
         if not spike_gs:
-            run.line("  WARNING: no `spike_guardrails:` defined in "
-                     "guardrails.yml - a Spike is uncontrolled.")
+            # Reported as a FAILED CHECK, not as a line. A line is only read
+            # by --verbose, so the default view showed "FAIL - 1 of 1" with
+            # nothing saying what failed, and --json showed an empty checks
+            # list. `ran`/`failures` were also fabricated as 1 for a run in
+            # which nothing executed, which is the overstatement
+            # NOTHING_TO_CHECK exists to prevent, pointing the other way.
+            run.guardrail("", "spike control")
+            run.result("spike-guardrails-declared", False,
+                       "no `spike_guardrails:` defined in guardrails.yml - "
+                       "a Spike is uncontrolled")
             run.ran = run.failures = 1
             _emit_check(run, args)
             return exit_for_mode(1, mode)

@@ -15,12 +15,13 @@ surface G5 exists to guard.
 Spec: .compass/work/governance-drift-detection/spec.feature.md (TRC-D1, D2).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# RE-POINT REVERTED on 2026-08-24. These tests guard something that belongs
+# in the DEFAULT view, not in --verbose, and moving them there left the
+# default view unguarded: the adoption-mode banner, and the warning that a
+# guardrail is absent from this project's governance. A fresh reader found
+# both missing from the default output, which is the case each was written
+# to prevent. The behaviour is back on the first screen and these assert it
+# there.
 from __future__ import annotations
 
 import pathlib
@@ -77,9 +78,16 @@ def _project(tmp_path, *, touches="", drop_g5=False):
     return proj
 
 
-def _check(proj):
+def _check(proj, *flags):
+    """`compass check`, in the mode the caller asks for.
+
+    The two tests below want different views, and that difference is the point.
+    A guardrail this project's governance OMITS is a warning that belongs on
+    the first screen - the default view. A guardrail that genuinely does not
+    apply to this assessment is detail, and belongs under --verbose.
+    """
     return subprocess.run(
-        [sys.executable, str(CLI), "check", "--verbose", "--issue", "t"],
+        [sys.executable, str(CLI), "check", "--issue", "t", *flags],
         cwd=str(proj), capture_output=True, text=True, timeout=120,
     ).stdout
 
@@ -111,7 +119,7 @@ def test_trc_d2_a_guardrail_that_genuinely_does_not_apply_should_still_read_as_s
     import tempfile
     tmp = pathlib.Path(tempfile.mkdtemp(prefix="compass-skip-"))
     try:
-        out = _check(_project(tmp, touches=""))
+        out = _check(_project(tmp, touches=""), "--verbose")
         assert "G5" in out, f"G5 is not reported at all:\n{out}"
         g5_line = next(l for l in out.splitlines() if "G5" in l)
         assert "not applicable" in g5_line.lower(), (

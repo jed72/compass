@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 
 # The budget, and why each number is what it is.
@@ -50,21 +51,32 @@ DEFAULT_MODE = "summary"
 MODE_FLAGS = ("--quiet", "--summary", "--verbose", "--json", "--evidence-out")
 
 
-class _NothingToCheck:
+class _NothingToCheckHere:
     """A guard that was handed nothing. Not a pass.
 
     Truthy would make an empty input clear the guard; falsey would make it read
     as a breach. It is neither, and callers compare against the sentinel.
+
+    DELIBERATELY DISTINCT from the sentinel in check_results.py, and named and
+    repr'd so the two cannot be mistaken for each other. That one is TRUTHY -
+    it subclasses int, because a check function returns it where a pass would
+    go. This one is FALSEY, because `over_budget` returns a list of findings
+    and an empty result must not read as findings.
+
+    They previously shared a class name and a repr. `_all.py` star-imports this
+    module after the others, so the flat namespace resolved to whichever was
+    imported last - a trap that only failed to bite because nothing read it
+    from there.
     """
 
     def __bool__(self):
         return False
 
     def __repr__(self):
-        return "NOTHING_TO_CHECK"
+        return "NOTHING_TO_CHECK(terminal)"
 
 
-NOTHING_TO_CHECK = _NothingToCheck()
+NOTHING_TO_CHECK = _NothingToCheckHere()
 
 
 def add_mode_flags(parser):
@@ -157,7 +169,7 @@ def emitter_for(args):
                    evidence_out=getattr(args, "evidence_out", None))
 
 
-_ID_TAIL = __import__("re").compile(r"\s*\(([A-Z][A-Z0-9-]*[0-9][^)]*)\)\s*$")
+_ID_TAIL = re.compile(r"\s*\(([A-Z][A-Z0-9-]*[0-9][^)]*)\)\s*$")
 
 
 def _path_line(prefix, path):
@@ -169,6 +181,26 @@ def _path_line(prefix, path):
     line whose overflow is a single unbreakable token.
     """
     return "%s%s" % (prefix, str(path).strip())
+
+
+def write_capture(path, capture):
+    """Write raw output to PATH, so the terminal can link it instead.
+
+    Errors are turned into CompassError, because `--evidence-out
+    /nope/x.txt` used to be an unreachable code path and would have surfaced
+    as a raw traceback the first time somebody used it.
+    """
+    from compass_pkg.core import CompassError
+
+    try:
+        d = os.path.dirname(os.path.abspath(path))
+        if d and not os.path.isdir(d):
+            os.makedirs(d, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(capture if capture.endswith("\n") else capture + "\n")
+    except OSError as exc:
+        raise CompassError("could not write --evidence-out %s: %s" % (path, exc))
+    return path
 
 
 def _fit(text, prefix=""):
@@ -211,19 +243,25 @@ def _fit(text, prefix=""):
     return prefix + text[:max(1, room - 1)] + "…"
 
 
-def _capped(values, label):
+def _capped(values, label, where=None):
     """At most three, plus a line saying how many were not shown.
 
     The count line is not decoration. A silent truncation reads as "there were
     three", which is a claim the command never checked.
+
+    `where` says where the rest are. It used to say "see the artifact above"
+    unconditionally, including when there was no artifact line above - and the
+    two other renderers say "run with --verbose" for the same situation. Three
+    renderers, one piece of advice.
     """
     values = [v for v in (values or [])]
     shown = values[:MAX_ITEMS]
     lines = [_fit(v, "  - ") for v in shown]
     hidden = len(values) - len(shown)
     if hidden:
-        lines.append(_fit("... and %d more %s - see the artifact above"
-                          % (hidden, label), "  "))
+        lines.append(_fit("... and %d more %s - %s"
+                          % (hidden, label, where or "run with --verbose"),
+                          "  "))
     return lines
 
 
@@ -250,7 +288,12 @@ class Emitter:
                          "failed": bool(failed)}
             return self
 
-        if self.mode == "quiet" and not failed and not reply:
+        # CONCERNS keep the mode talking. The test was `not failed and not
+        # reply`, so `approach evaluate --quiet` on a project with a drifted
+        # policy printed nothing at all - including the warning that had been
+        # deliberately promoted to the first screen.
+        if (self.mode == "quiet" and not failed and not reply
+                and not concerns):
             # Nothing to decide and nothing went wrong. The exit code carries
             # it. This is the case the proposal left unstated, and an unstated
             # case in a mode flag becomes each verb's own guess.
@@ -263,22 +306,38 @@ class Emitter:
         if items:
             lines.append("")
             lines.append("Key choices:")
-            lines += _capped(items, "choices")
+            lines += _capped(items, "choices",
+                             "see %s" % read if read else None)
         if concerns:
             lines.append("")
             lines.append("Pay attention to:")
-            lines += _capped(concerns, "concerns")
+            lines += _capped(concerns, "concerns",
+                             "see %s" % read if read else None)
         if detail and self.mode == "verbose":
             lines.append("")
             lines += [_fit(d, "  ") for d in detail]
+        if next_step:
+            # A NEXT STEP is not a reply. A reply means a person is being asked
+            # to decide; a next step is what to run. Telling them apart is what
+            # lets --quiet be silent when nothing is being asked.
+            #
+            # This was declared in the signature, written into the --json
+            # document, and never rendered for a person - so `approach
+            # evaluate` without --write said nothing about nothing having been
+            # written.
+            lines.append("")
+            lines.append(_fit(next_step, "Next: "))
         if reply:
             lines.append("")
             lines.append(_fit(reply, "Reply: "))
 
-        if self.mode != "verbose":
-            lines = _within(lines, HANDOFF_LINES)
         self._out = lines
+        # The no-capture note goes in BEFORE the budget is applied. Appending
+        # it afterwards pushed a full hand-off to thirteen lines against a
+        # budget of twelve.
         self._note_no_capture()
+        if self.mode != "verbose":
+            self._out = _within(self._out, HANDOFF_LINES)
         return self
 
     def report(self, summary, detail=None, capture=None):
@@ -315,11 +374,7 @@ class Emitter:
     # -- capture ------------------------------------------------------------
 
     def _write_capture(self, capture):
-        d = os.path.dirname(os.path.abspath(self.evidence_out))
-        if d and not os.path.isdir(d):
-            os.makedirs(d, exist_ok=True)
-        with open(self.evidence_out, "w", encoding="utf-8") as fh:
-            fh.write(capture)
+        write_capture(self.evidence_out, capture)
 
     def _note_no_capture(self, silent=False):
         """`--evidence-out` on a verb with nothing to capture.
@@ -341,6 +396,7 @@ class Emitter:
         return "\n".join(self._out)
 
     def flush(self):
+        mark_handled()
         text = self.rendered()
         if text:
             print(text, file=self._stream or sys.stdout)
@@ -408,7 +464,19 @@ def _is_unbreakable(line, width):
     if len(longest) <= 20:
         return False
     rest = len(line) - len(longest)
-    return rest <= width and ("/" in longest or "://" in longest)
+    if rest > width:
+        return False
+    # A PATH or a URL, not merely a long word with a slash in it. The test was
+    # `"/" in longest`, which exempted
+    # "a/very/long-thing-name-that-is-not-a-path-at-all" - and since the width
+    # guard uses this same predicate, a line the renderer wrongly exempted was
+    # also invisible to the check meant to catch it.
+    if "://" in longest:
+        return True
+    return "/" in longest and (
+        longest.startswith(("/", "./", "../", "~/"))
+        or longest.count("/") >= 2
+        or os.path.splitext(longest)[1] != "")
 
 
 # =============================================================================
@@ -472,6 +540,7 @@ class Report:
         return str(row)
 
     def emit(self):
+        mark_handled()
         if self.mode == "json":
             doc = {"summary": list(self._summary),
                    "sections": {name: rows for name, rows, _ in self._sections}}
@@ -497,6 +566,20 @@ class Report:
             return 0
 
         out = list(head)
+        if self.evidence_out:
+            # The whole report goes to the file; the terminal keeps the
+            # summary and a link. This was stored and never read, so the flag
+            # was advertised on every verb and wrote nothing anywhere.
+            full = list(self._summary) + list(self._body)
+            for name, rows, render in self._sections:
+                full.append("")
+                full.append("%s (%d)" % (name, len(rows)))
+                full += ["  " + self._row_line(r, render) for r in rows]
+            write_capture(self.evidence_out, "\n".join(full))
+            out.append("")
+            out.append(_path_line("Full detail written to: ", self.evidence_out))
+            print("\n".join(out))
+            return 0
         if self._body:
             out.append("")
             out += self._body
@@ -523,6 +606,7 @@ def say(args, outcome, detail=None, read=None, reply=None, **data):
     instead of the verb's prose in a wrapper, which is why this takes them
     rather than deriving them from the sentence.
     """
+    mark_handled()
     mode = resolve_mode(args)
     if mode == "json":
         doc = {"outcome": outcome}
@@ -533,6 +617,9 @@ def say(args, outcome, detail=None, read=None, reply=None, **data):
             doc["read"] = read
         print(json.dumps(doc, indent=2, default=str))
         return 0
+    if getattr(args, "evidence_out", None):
+        write_capture(args.evidence_out,
+                      "\n".join([str(outcome)] + [str(d) for d in (detail or [])]))
     if mode == "quiet":
         # Nothing was decided and nothing went wrong. The exit code carries it.
         return 0
@@ -540,11 +627,84 @@ def say(args, outcome, detail=None, read=None, reply=None, **data):
     for d in (detail or []):
         # A detail that is a bare path keeps its whole length: a link a reader
         # cannot open fails at the thing it exists for.
-        lines.append(d if _is_unbreakable("  " + str(d), MAX_WIDTH)
-                     else _fit(str(d), "  "))
+        # The indent is applied either way. This measured the indented line
+        # and then appended the unindented one, so a continuation line sat at
+        # a different indent from the line it continued.
+        text = str(d)
+        lines.append("  " + text if _is_unbreakable("  " + text, MAX_WIDTH)
+                     else _fit(text, "  "))
     if read:
         lines.append(_path_line("Read: ", read))
     if reply:
         lines.append(_fit(reply, "Reply: "))
+    if getattr(args, "evidence_out", None):
+        lines.append(_path_line("Written to: ", args.evidence_out))
     print("\n".join(lines))
     return 0
+
+
+# Set by whichever renderer handled a run's mode. `main()` reads it to decide
+# whether a verb rendered itself or still prints as it always did.
+_HANDLED = {"mode": False}
+
+
+def mark_handled():
+    _HANDLED["mode"] = True
+
+
+def was_handled():
+    return _HANDLED["mode"]
+
+
+def run_with_mode(args, fn):
+    """Run a verb, and honour the output flags even if the verb does not.
+
+    Every verb accepts --quiet, --json and --evidence-out, because they are
+    attached to the whole parser tree at once. A verb that has not been
+    converted would otherwise ACCEPT each of them and ignore it, which is worse
+    than not offering the flag - the reader is told the tool did something it
+    did not do.
+
+    So: the verbs that render themselves say so, and anything else has its
+    output captured here and shaped to the mode. The JSON this produces for an
+    unconverted verb is that verb's own prose under an `output` key - honest
+    about being prose, and not the same thing as the structured document a
+    converted verb emits. Converting the rest is per-verb work, and this is
+    what keeps the flag truthful until then.
+    """
+    import contextlib
+    import io as _io
+
+    _HANDLED["mode"] = False
+    mode = resolve_mode(args)
+    out_path = getattr(args, "evidence_out", None)
+    if mode == "summary" and not out_path:
+        return fn(args)                      # the ordinary path, untouched
+
+    buf = _io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = fn(args)
+    text = buf.getvalue()
+    if _HANDLED["mode"]:
+        sys.stdout.write(text)               # the verb handled it already
+        return code
+
+    if out_path:
+        write_capture(out_path, text.rstrip("\n"))
+    if mode == "json":
+        print(json.dumps({"output": text.rstrip("\n").splitlines(),
+                          "structured": False,
+                          "note": "this verb has not been converted to the "
+                                  "output contract; these are its own lines"},
+                         indent=2))
+        return code
+    if mode == "quiet":
+        if code:
+            sys.stdout.write(text)           # a failure is never swallowed
+        elif out_path:
+            print(_path_line("Written to: ", out_path))
+        return code
+    sys.stdout.write(text)
+    if out_path:
+        print(_path_line("Written to: ", out_path))
+    return code

@@ -236,6 +236,21 @@ def test_trc_f2_no_function_should_be_renamed_merged_or_split_by_this_task():
     for m in _modules():
         after |= _top_level_functions(m)
     before = set(BASELINE["functions"])
+
+    # Functions a LATER issue deleted on purpose, each with the reason. The
+    # baseline is a snapshot of what existed before the split; a later issue is
+    # allowed to remove genuinely dead code, but it has to say so here rather
+    # than have this guard quietly relaxed into a warning.
+    DELIBERATELY_REMOVED = {
+        # Left with no callers when `compass check` moved to the terminal
+        # output contract (2026-08-24) and the rendering moved into
+        # _verbose_lines. Its formatting had already drifted from the live
+        # renderer, so keeping it meant keeping dead code that disagreed with
+        # the code that replaced it.
+        "_print_check_result",
+    }
+    before -= DELIBERATELY_REMOVED
+
     assert before <= after, (
         "this task moves code and does nothing else, but functions that "
         "existed before the split are missing.\n"

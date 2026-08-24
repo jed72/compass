@@ -106,6 +106,51 @@ def test_trc_c1_every_verb_accepts_every_mode_flag():
         "an error or silently ignored:\n  " + "\n  ".join(missing[:30]))
 
 
+def test_trc_c1_every_verb_honours_the_flags_it_accepts(tail_project):
+    """TRC-C1, the half that was missing: ACCEPTED is not HONOURED.
+
+    The docstring above this test used to promise the verb "honours it rather
+    than accepting and ignoring it", and the test checked only that argparse
+    took the flag. So the parser attached five flags to all 47 leaves and about
+    a third of the verbs ignored every one of them - the exact failure the
+    scenario was written to prevent, passing a test written to prevent it.
+
+    Run against verbs that were NOT converted by hand, because those are the
+    ones a generic mechanism has to carry.
+    """
+    unconverted = [["issue", "lint"], ["policy", "lint"], ["next"]]
+    for argv in unconverted:
+        name = " ".join(argv)
+        plain = subprocess.run([sys.executable, str(CLI), *argv],
+                               cwd=str(tail_project), capture_output=True,
+                               text=True, timeout=120)
+        as_json = subprocess.run([sys.executable, str(CLI), *argv, "--json"],
+                                 cwd=str(tail_project), capture_output=True,
+                                 text=True, timeout=120)
+        if plain.returncode != 0:
+            continue          # the verb has nothing to say in this fixture
+        assert as_json.stdout != plain.stdout, (
+            "`compass %s --json` printed exactly what it prints without the "
+            "flag, so the flag is accepted and ignored:\n%s"
+            % (name, as_json.stdout[:200]))
+        try:
+            json.loads(as_json.stdout)
+        except json.JSONDecodeError as exc:
+            raise AssertionError(
+                "`compass %s --json` is not a JSON document (%s):\n%s"
+                % (name, exc, as_json.stdout[:200]))
+
+        out = tmp_capture = tail_project / ("cap-%s.txt" % name.replace(" ", "-"))
+        ev = subprocess.run([sys.executable, str(CLI), *argv,
+                             "--evidence-out", str(out)],
+                            cwd=str(tail_project), capture_output=True,
+                            text=True, timeout=120)
+        assert ev.returncode == 0, ev.stdout + ev.stderr
+        assert out.is_file(), (
+            "`compass %s --evidence-out PATH` wrote no file, and its own help "
+            "says it writes the capture to PATH" % name)
+
+
 def test_trc_c6_every_verb_declares_which_contract_it_is_under():
     """TRC-C6: each verb declares hand-off or report; neither is not allowed.
 
@@ -243,7 +288,11 @@ def test_trc_c4_evidence_out_writes_the_capture(tmp_path):
     e = Emitter(mode="summary", evidence_out=str(path))
     e.report(summary=["the suite is green"], detail=["1283 passed"], capture=raw)
 
-    assert path.read_text() == raw, "the capture was not written to the path"
+    written = path.read_text()
+    assert raw in written, "the capture was not written to the path"
+    assert written.endswith("\n"), (
+        "the captured file does not end with a newline - it is a text file a "
+        "person and a shell will both read")
     out = e.rendered()
     assert raw not in out, "the raw capture was printed as well as written"
     assert str(path) in out, (
@@ -282,6 +331,27 @@ def test_trc_a3_hand_off_with_nothing_to_decide_is_shorter():
         % (len(out.splitlines()), out))
     assert "reply" not in out.lower(), (
         "a reply prompt was invented where nothing is being asked:\n" + out)
+
+    # A NEXT STEP is rendered, and is not a reply. This field was declared in
+    # the signature, written into the --json document, and never printed for a
+    # person - so `approach evaluate` without --write said nothing about
+    # nothing having been recorded. Nothing caught it because nothing asked.
+    e2 = Emitter(mode="summary")
+    e2.hand_off(outcome="nothing was recorded",
+                next_step="re-run with --write to record it")
+    step_out = e2.rendered()
+    assert "re-run with --write" in step_out, (
+        "a next step was accepted and never rendered:\n" + step_out)
+    assert "reply" not in step_out.lower(), (
+        "a next step was rendered as a decision the reader must answer:\n"
+        + step_out)
+
+    e3 = Emitter(mode="quiet")
+    e3.hand_off(outcome="nothing was recorded",
+                next_step="re-run with --write to record it")
+    assert e3.rendered() == "", (
+        "--quiet spoke for a next step, which is guidance rather than a "
+        "decision being asked of anyone:\n" + e3.rendered())
 
 
 def test_trc_a4_three_items_and_the_count_of_what_was_hidden():
@@ -543,6 +613,22 @@ def test_trc_a6_check_verdict_fits_and_keeps_its_guidance(tmp_path):
     assert "more" in out.lower(), (
         "failures were cut to three with no count of what was hidden:\n" + out)
 
+    # THE NUMBER IN THE VERDICT MUST EQUAL WHAT THE PAGE ACCOUNTS FOR.
+    # The verdict counted check RUNS while the list below it was deduplicated
+    # by name, so a header saying "5 failed" sat above three shown plus one
+    # hidden - and when the duplicate happened to fall among the hidden ones,
+    # the "... and N more" line vanished and a failure disappeared with nothing
+    # saying anything had been cut. Asserting the arithmetic is what catches
+    # that; asserting only that a marker exists does not.
+    import re as _re
+    stated = int(_re.search(r"FAIL - (\d+) of \d+", lines[0]).group(1))
+    hidden_line = [l for l in lines if l.startswith("... and")]
+    hidden = int(_re.search(r"and (\d+) more", hidden_line[0]).group(1)) if hidden_line else 0
+    assert stated == shown + hidden, (
+        "the verdict says %d check(s) failed, and the page accounts for %d "
+        "(%d shown + %d hidden). Two numbers describing the same thing must "
+        "come from the same set:\n%s" % (stated, shown + hidden, shown, hidden, out))
+
 
 def test_trc_c5_check_verbose_keeps_everything(tmp_path):
     """TRC-C5: --verbose is where the detail goes, not where the budget is lost."""
@@ -599,7 +685,13 @@ def test_trc_d1_check_keeps_every_identifier(tmp_path):
     """
     proj = _failing_issue(tmp_path)
     out = _run_check(proj).stdout
-    named = [l for l in out.splitlines() if l.strip().startswith("FAIL ")]
+    # EXCLUDING the verdict headline, which begins "FAIL - 5 of 17 ...". Its
+    # own hyphen satisfied the `"-" in name` check below, so replacing every
+    # per-failure line with "3 check(s) failed. Run with --verbose." - the
+    # exact output this test forbids - passed. The two sibling tests already
+    # carried this exclusion; this one did not.
+    named = [l for l in out.splitlines()
+             if l.strip().startswith("FAIL ") and " - " not in l[:12]]
     assert named, (
         "the verdict says checks failed and names none of them, so a reader "
         "cannot act on it:\n" + out)
@@ -617,11 +709,17 @@ def test_trc_a6_every_guidance_entry_has_a_one_line_fix():
     shipped, and it would change silently when the long text was edited. Each
     is written out, and a missing one fails rather than falling back.
     """
-    from compass_pkg.check_cmd import CHECK_GUIDANCE
+    from compass_pkg.check_cmd import CHECK_FNS, CHECK_GUIDANCE
 
     assert CHECK_GUIDANCE, "there is no guidance table to check"
+    # Iterates CHECK_FNS, the checks that can actually FAIL - not
+    # CHECK_GUIDANCE, which is the answer sheet. Walking the guidance table
+    # meant a check with no entry at all was invisible to a test whose message
+    # claims it covers them, and five of eighteen had none: their failures
+    # printed with no `fix:` line under them.
     missing, too_long = [], []
-    for name, g in sorted(CHECK_GUIDANCE.items()):
+    for name in sorted(CHECK_FNS):
+        g = CHECK_GUIDANCE.get(name) or {}
         do = g.get("do")
         if not do:
             missing.append(name)
@@ -873,8 +971,13 @@ _TAIL_EXEMPT = {
     "retro": "a report, measured above",
     "flow": "a report, measured above",
     "terminology": "a report, measured above",
-    "ci": "a report - runs the whole mechanical suite to produce detail",
-    "issue receipt": "a report - run to read a landed issue's full record",
+    # These say WHY the verb is not run here, not what kind it is - two of
+    # these reasons used to say "a report" while `cli/compass` declared both
+    # hand-offs, and nothing caught the contradiction.
+    "ci": "runs the whole mechanical suite over every issue; too slow here, and "
+          "its own suite covers it",
+    "issue receipt": "renders a landed issue's record; needs a landed issue with "
+                     "cleared gates to say anything",
 }
 
 _TAIL_ARGV = {
@@ -1023,14 +1126,23 @@ def NOTHING_TO_CHECK_SENTINEL():
 
 def test_trc_c2_the_tail_is_silent_under_quiet(tail_project):
     """TRC-C2: a verb with nothing to decide prints nothing under --quiet."""
-    noisy = []
+    noisy, broken = [], []
     for verb, argv in sorted(_TAIL_ARGV.items()):
         r = subprocess.run([sys.executable, str(CLI), *_with_flags(argv, "--quiet")],
                            cwd=str(tail_project), capture_output=True,
                            text=True, timeout=120)
-        if r.returncode == 0 and r.stdout.strip():
+        # A non-zero exit is a FAILURE, not a skip. Skipping it meant a verb
+        # could ignore the flag AND fail, and be counted as fine - the sibling
+        # test at the top of this group states that rule and enforces it; these
+        # two broke it.
+        if r.returncode != 0:
+            broken.append("%s -> exit %d" % (verb, r.returncode))
+        elif r.stdout.strip():
             noisy.append("%s printed %d line(s)"
                          % (verb, len(r.stdout.splitlines())))
+    assert not broken, (
+        "these verbs could not run under --quiet, so they were not measured:\n  "
+        + "\n  ".join(broken))
     assert not noisy, (
         "--quiet is accepted by these verbs and ignored, which is worse than "
         "not having the flag:\n  " + "\n  ".join(noisy))
@@ -1038,12 +1150,15 @@ def test_trc_c2_the_tail_is_silent_under_quiet(tail_project):
 
 def test_trc_c3_the_tail_emits_json(tail_project):
     """TRC-C3: --json is one document per verb, and carries no prose."""
-    bad = []
+    bad, broken = [], []
     for verb, argv in sorted(_TAIL_ARGV.items()):
         r = subprocess.run([sys.executable, str(CLI), *_with_flags(argv, "--json")],
                            cwd=str(tail_project), capture_output=True,
                            text=True, timeout=120)
+        # Same rule as above: a non-zero exit is a failure of this test. `continue`
+        # meant a verb printing "this is definitely not JSON" and exiting 1 passed.
         if r.returncode != 0:
+            broken.append("%s -> exit %d" % (verb, r.returncode))
             continue
         try:
             doc = json.loads(r.stdout)
@@ -1052,6 +1167,9 @@ def test_trc_c3_the_tail_emits_json(tail_project):
             continue
         if not isinstance(doc, dict) or not doc:
             bad.append("%s: not a non-empty object" % verb)
+    assert not broken, (
+        "these verbs could not run under --json, so they were not measured:\n  "
+        + "\n  ".join(broken))
     assert not bad, (
         "--json is accepted by these verbs and does not produce one JSON "
         "document:\n  " + "\n  ".join(bad))

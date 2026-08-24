@@ -171,7 +171,12 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     assert section and verdict, f"unexpected analyze output:\n{result.stdout}"
 
     listed = int(_re.search(r"findings \((\d+)\)", section[0]).group(1))
-    stated = int(_re.search(r"(\d+) finding\(s\)", verdict[0]).group(1))
+    # Tolerant of the word between the number and "finding(s)": the verdict
+    # reads "1 coherence finding(s)" on the advisory path. The number and the
+    # noun are what this test is about, not the adjective.
+    _m = _re.search(r"(\d+)\s+(?:\w+\s+)?finding\(s\)", verdict[0])
+    assert _m, ("the verdict does not state a finding count:\n" + verdict[0])
+    stated = int(_m.group(1))
     assert listed > 0, "fixture produced no findings - the assertion would be empty"
     assert stated == listed, (
         f"analyze listed {listed} finding(s) and its verdict says {stated}: "
