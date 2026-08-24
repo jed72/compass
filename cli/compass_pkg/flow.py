@@ -155,7 +155,12 @@ def cmd_flow(args):
             except Exception:                                   # noqa: BLE001
                 groups["unreadable"].append((slug, "?", "unreadable task.yml"))
 
-        print("compass flow - cross-issue board (advisory)\n")
+        # The board is a REPORT: every issue is listed, because a board that
+        # omits part of the work looks complete when it is not. What it owes a
+        # reader is a summary they can stop at - the counts - before 150 rows
+        # of detail.
+        from compass_pkg.terminal import Report
+
         headings = [
             ("active", "IN PROGRESS"),
             ("queued", "NEXT UP"),
@@ -163,31 +168,28 @@ def cmd_flow(args):
             ("landed", "DONE"),
             ("abandoned", "ABANDONED - will not resume"),
         ]
+        named = {k for k, _ in headings} | {"unreadable"}
+        counts = {k: len(v) for k, v in groups.items() if v}
+        rep = Report(args, title="compass flow - cross-issue board (advisory)")
+        rep.summary(
+            "compass flow - %d issue(s) across %d state(s). Advisory: this "
+            "changes no issue state." % (len(slugs), len(counts)),
+            ", ".join("%s %d" % (k, n) for k, n in sorted(counts.items()))
+            or "nothing to report")
+
+        def _row(r):
+            slug, route, note = r
+            return "%-40s approach=%s%s" % (slug, route,
+                                            "  - %s" % note if note else "")
+
         for key, heading in headings:
-            rows = groups.get(key) or []
-            if not rows:
-                continue
-            print(f"  {heading} ({len(rows)})")
-            for slug, route, note in rows:
-                suffix = f"  - {note}" if note else ""
-                print(f"    {slug:<40} approach={route}{suffix}")
-            print()
-        # Never dropped silently: a board that omits part of the work looks
-        # complete when it is not.
-        for key in sorted(set(groups) - {k for k, _ in headings} - {"unreadable"}):
-            rows = groups[key]
-            if rows:
-                print(f"  {key.upper()} ({len(rows)})")
-                for slug, route, _ in rows:
-                    print(f"    {slug:<40} approach={route}")
-                print()
-        if groups["unreadable"]:
-            print(f"  UNPLACEABLE ({len(groups['unreadable'])}) - "
-                  f"no readable task.yml, so no state to report")
-            for slug, _, why in groups["unreadable"]:
-                print(f"    {slug:<40} {why}")
-            print()
-        return 0
+            rep.section(heading, groups.get(key) or [], _row)
+        for key in sorted(set(groups) - named):
+            rep.section(key.upper(), groups[key], _row)
+        rep.section("UNPLACEABLE - no readable task.yml, so no state to report",
+                    groups["unreadable"], _row)
+        rep.data(counts=counts)
+        return rep.emit()
 
     # --digest mode: produce a digest including rework-scan
     import io as _io

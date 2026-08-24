@@ -660,7 +660,32 @@ def cmd_calibration(args):
             else:
                 sideways += 1
 
-    print(f"compass retro - {len(tasks)} issue(s) under .compass/work/\n")
+    # The retrospective is a REPORT. Its summary is the SIGNAL - whether triage
+    # is systematically over- or under-sizing - because that is the one thing a
+    # reader is here for, and it used to sit eighteen lines down.
+    pct_head = round(100 * reframed_tasks / len(tasks))
+    if total == 0:
+        _signal = ("no re-frames recorded - either routing is well-calibrated "
+                   "or there is not enough history yet")
+    elif ups >= 2 and ups > downs * 2:
+        _signal = "a lean toward UNDER-sizing (%d up vs %d down)" % (ups, downs)
+    elif downs >= 2 and downs > ups * 2:
+        _signal = "a lean toward OVER-sizing (%d down vs %d up)" % (downs, ups)
+    else:
+        _signal = "roughly balanced (%d up / %d down)" % (ups, downs)
+    from compass_pkg.terminal import Report
+    import contextlib as _cl, io as _io
+
+    _rep = Report(args, title="compass retro")
+    _rep.summary("compass retro - %d issue(s), %d re-framed (%d%%): %s."
+                 % (len(tasks), reframed_tasks, pct_head, _signal))
+    _rep.data(issues=len(tasks), reframed=reframed_tasks,
+              reframe_pct=pct_head, up=ups, down=downs, sideways=sideways,
+              distribution=dict(dist), no_route=list(no_route),
+              transitions=dict(transitions))
+    _buf = _io.StringIO()
+    _ctx = _cl.redirect_stdout(_buf)
+    _ctx.__enter__()
     print("Route distribution:")
     for r in sorted(dist, key=lambda x: weights.get(x, 99)):
         print(f"  {r:<12}: {dist[r]}")
@@ -718,7 +743,12 @@ def cmd_calibration(args):
             print(f"  issue    : {d['task']}")
             print(f"  signal  : {d['devlog_line']!r}")
             print()
-    return 0
+    # Close the capture opened above and hand the prose to the report, which
+    # decides what the caller's mode should see. The numbers went in via
+    # `data()`, so --json carries the retrospective's findings rather than its
+    # paragraphs.
+    _ctx.__exit__(None, None, None)
+    return _rep.body(_buf.getvalue().rstrip("\n")).emit()
 
 
 def _cmd_calibration_impact(args):

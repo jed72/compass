@@ -22,6 +22,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "cli"))
 CLI = REPO_ROOT / "cli" / "compass"
@@ -654,3 +656,184 @@ def test_trc_a4_a_check_named_twice_is_not_listed_twice(tmp_path):
         assert name not in tail[0], (
             "%r was shown in full and named again as hidden:\n%s"
             % (name, out))
+
+
+# ---------------------------------------------------------------------------
+# U3 - the reports
+# ---------------------------------------------------------------------------
+#
+# A report is run deliberately to GET detail, so the hand-off budget must not
+# reach it. What it owes a reader is a summary they can stop at.
+#
+# These are written over EVERY verb that declares itself a report rather than
+# over a list of four names, so a fifth report is covered the day it is
+# declared instead of the day somebody remembers to add it here. The names are
+# discovered from the parser, which is also where the declaration lives.
+
+def _report_verbs():
+    """Every verb that declares itself a report, from the parser tree."""
+    return sorted(path for path, p in _leaf_parsers().items()
+                  if p.get_default("output_kind") == "report"
+                  and not path.startswith("_"))
+
+
+# The reports that read an issue tree and produce enough output to be worth
+# testing. `migrate` and the linters need an argument or a broken tree to say
+# anything, so they are exercised by their own suites.
+_LIVE_REPORTS = ["retro", "flow", "terminology", "analyze"]
+
+
+@pytest.fixture(scope="module")
+def report_project(tmp_path_factory):
+    """A project with enough issues for a report to have something to report.
+
+    These tests originally ran the verbs against REPO_ROOT itself, which has
+    140 issues - in the author's working tree. `.compass/work/` is GITIGNORED,
+    so a clean clone has none, and every one of these tests passed locally and
+    failed in CI against "no issues found". A test that reads untracked local
+    state is testing the machine it runs on.
+    """
+    import yaml
+
+    proj = tmp_path_factory.mktemp("reports")
+    (proj / "governance").mkdir()
+    # terminology.yml too: `compass terminology` reads the project's copy, and
+    # without it the verb says "not found" and these tests would assert against
+    # an error message instead of a glossary.
+    for f in ("routing-policy.yml", "guardrails.yml", "terminology.yml"):
+        (proj / "governance" / f).write_text(
+            (REPO_ROOT / "governance" / f).read_text())
+    work = proj / ".compass" / "work"
+    work.mkdir(parents=True)
+    (proj / ".compass" / "config.yml").write_text(
+        "version: 1.0.0\nmode: enforced\n")
+
+    # Enough issues, in enough states, that `flow` has more to say than a
+    # hand-off budget would allow - which is the thing TRC-B2 asserts.
+    states = ["active", "queued", "queued", "parked", "landed", "abandoned"]
+    for i in range(18):
+        slug = "issue-%02d" % i
+        d = work / slug
+        d.mkdir()
+        (d / "task.yml").write_text(yaml.safe_dump({
+            "schema_version": "2.0", "task": slug, "created": "2026-08-24",
+            "status": states[i % len(states)],
+            "assessment": {"risk": "contained",
+                           "familiarity": "brownfield-mapped",
+                           "size": "standard", "goal": "delivery",
+                           "role": "engineer", "labels": []},
+            "delivery_approach": "feature", "stages": {"specify": "full"},
+            "gates": [], "evidence": [], "scenarios": [], "changed_files": [],
+        }, sort_keys=False))
+    # `analyze` reads the current issue's artifacts, so one issue needs them.
+    (proj / ".compass" / "current-task").write_text("issue-00\n")
+    (work / "issue-00" / "delivery-approach.md").write_text("# Delivery approach\n")
+    (work / "issue-00" / "acceptance-criteria.md").write_text(
+        "# Spec\n\n## Summary\n\n**Goal:** something\n")
+    return proj
+
+
+def _repo_run(project, *argv):
+    """Run a verb against the fixture project."""
+    return subprocess.run([sys.executable, str(CLI), *argv],
+                          cwd=str(project), capture_output=True, text=True,
+                          timeout=180)
+
+
+def test_trc_b1_every_live_report_opens_with_a_summary(report_project):
+    """TRC-B1: the first five lines say what was found.
+
+    A reader who has to scan 157 lines to learn there is nothing to do has been
+    failed by the report.
+    """
+    for verb in _LIVE_REPORTS:
+        r = _repo_run(report_project, verb)
+        out = r.stdout
+        assert out.strip(), "`compass %s` printed nothing" % verb
+        # ONLY the summary: the lines before the first blank one. Reading the
+        # first five lines of the whole report caught a section header like
+        # "  IN PROGRESS (1)" instead - so a mutation that stripped every
+        # number from the summary still passed, and this checked the detail
+        # while claiming to check the summary.
+        head = []
+        for line in out.splitlines():
+            if not line.strip():
+                break
+            head.append(line)
+        assert head, "`compass %s` opens with blank lines" % verb
+        assert len(head) <= REPORT_SUMMARY_LINES, (
+            "`compass %s` opens with a %d-line summary, over the %d-line "
+            "budget:\n%s" % (verb, len(head), REPORT_SUMMARY_LINES,
+                             "\n".join(head)))
+        # A summary states a quantity. Without one it is a title, and a title
+        # is not something a reader can stop at.
+        assert any(c.isdigit() for l in head for c in l), (
+            "`compass %s` opens with no number in its first %d lines, so a "
+            "reader cannot tell from the summary whether the detail needs "
+            "reading:\n%s" % (verb, REPORT_SUMMARY_LINES, "\n".join(head)))
+
+
+def test_trc_b2_a_report_keeps_all_of_its_detail(report_project):
+    """TRC-B2: the hand-off budget is not applied to a report.
+
+    Asserted against the LONGEST report this repository produces, because a
+    budget applied by accident would show up there first.
+    """
+    default = _repo_run(report_project, "flow").stdout
+    verbose = _repo_run(report_project, "flow", "--verbose").stdout
+    assert len(default.splitlines()) > HANDOFF_LINES, (
+        "`compass flow` was cut to a hand-off budget - it lists every "
+        "issue, and cutting it to %d lines removes the reason to run it:\n%s"
+        % (HANDOFF_LINES, default))
+    assert len(verbose.splitlines()) >= len(default.splitlines()), (
+        "--verbose produced less than the default view")
+
+
+def test_trc_c2_a_report_under_quiet_is_the_summary_only(report_project):
+    """TRC-C2 for a report: --quiet keeps the finding, drops the detail.
+
+    Not silence. A person who asked for a report asked for an answer; --quiet
+    says they want it short, not that they want nothing.
+    """
+    for verb in _LIVE_REPORTS:
+        quiet = _repo_run(report_project, verb, "--quiet").stdout
+        default = _repo_run(report_project, verb).stdout
+        assert quiet.strip(), (
+            "`compass %s --quiet` printed nothing, so the answer the reader "
+            "asked for was thrown away" % verb)
+        assert len(quiet.splitlines()) <= REPORT_SUMMARY_LINES, (
+            "`compass %s --quiet` ran to %d lines:\n%s"
+            % (verb, len(quiet.splitlines()), quiet))
+        assert len(quiet.splitlines()) < len(default.splitlines()), (
+            "`compass %s --quiet` was no shorter than the default" % verb)
+
+
+def test_trc_c3_every_live_report_emits_json(report_project):
+    """TRC-C3: --json is one document and carries no prose."""
+    for verb in _LIVE_REPORTS:
+        r = _repo_run(report_project, verb, "--json")
+        try:
+            doc = json.loads(r.stdout)
+        except json.JSONDecodeError as exc:
+            raise AssertionError(
+                "`compass %s --json` did not emit one JSON document (%s):\n%s"
+                % (verb, exc, r.stdout[:400]))
+        assert isinstance(doc, dict) and doc, (
+            "`compass %s --json` emitted an empty document" % verb)
+
+
+def test_trc_c6_the_report_list_is_not_empty():
+    """TRC-C6, the other half: something actually declares itself a report.
+
+    If nothing did, every test above would iterate an empty list and pass
+    without checking anything - and this repository has found four checks that
+    cleared exactly that way.
+    """
+    verbs = _report_verbs()
+    assert len(verbs) >= 4, (
+        "only %d verbs declare themselves reports: %s" % (len(verbs), verbs))
+    for v in _LIVE_REPORTS:
+        assert v in verbs, (
+            "`%s` is exercised by the tests above but no longer declares "
+            "itself a report, so those tests are checking a hand-off against "
+            "a report's contract. Declared reports: %s" % (v, verbs))

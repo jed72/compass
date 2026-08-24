@@ -587,54 +587,39 @@ def cmd_analyze(args):
         print("  (no prd.md and no acceptance-criteria.md found - bare-repo path)")
         return 0
 
-    # Print the report
+    # A REPORT: every finding is listed, and the summary says how many there
+    # are and whether they block, which is what a reader is here to learn.
+    from compass_pkg.terminal import Report
+
     mode_str = "gate-clearing" if is_gate_mode else "advisory"
-    print(f"compass analyze - issue '{task_slug}' (mode: {mode_str})")
-    if is_gate_mode:
-        print("  verify.analyze gate is in the route's gate set.")
-    else:
-        print("  verify.analyze gate is NOT in the route's gate set - advisory mode.")
-
-    if not findings:
-        print(f"\n  findings: 0 - all coherence checks clean.")
-    else:
-        print(f"\n  findings: {len(findings)}")
-        for i, f in enumerate(findings, 1):
-            print(f"    [{i}] type: {f['type']}")
-            print(f"        subject: {f['subject']}")
-            print(f"        detail: {f['detail']}")
-
-    # Write evidence (always, regardless of findings count)
     rel_path, ev_id, ev_type = _write_analyze_evidence(
         task_dir, task_slug, report, is_gate_mode
     )
-    print(f"\n  evidence: {rel_path} (type: {ev_type}, id: {ev_id})")
-
-    # In gate-clearing mode: upsert into task.yml evidence registry
     if is_gate_mode:
         _upsert_analyze_evidence_registry(task_dir, ev_id, ev_type, rel_path)
-        print("  registry: task.yml `evidence:` updated with the coherence-check entry")
 
-    if is_gate_mode:
-        # Advisory: the advisory evidence file has been written
-        # (even though we called the gate path for the registry update)
-        pass
-    else:
-        print(f"\n  [advisory] findings above are informational - shipping is not blocked.")
-
-    if findings and is_gate_mode:
-        print(f"\ncompass analyze: FAIL - {len(findings)} coherence finding(s).")
-        return 1
-    if findings:
-        # Advisory mode still found something. The old summary hardcoded
-        # "0 finding(s), coherence checks clean" here, so the command listed
-        # its findings and then denied having any - and the evidence JSON,
-        # which recorded the real count, disagreed with the line a human reads.
-        print(f"\ncompass analyze: PASS (advisory) - {len(findings)} coherence "
-              f"finding(s) reported above; they do not block shipping on this route.")
-        return 0
-    print("\ncompass analyze: PASS - 0 finding(s), coherence checks clean.")
-    return 0
+    blocks = bool(findings) and is_gate_mode
+    verdict = ("FAIL - %d coherence finding(s)" % len(findings) if blocks
+               else "PASS - %d finding(s)" % len(findings))
+    rep = Report(args, title="compass analyze")
+    rep.summary(
+        "compass analyze - issue '%s' (%s): %s." % (task_slug, mode_str, verdict),
+        ("The verify.analyze gate is in this approach's gate set."
+         if is_gate_mode else
+         "The verify.analyze gate is NOT in this approach's gate set, so these "
+         "findings do not block shipping."),
+        # Path only. The type and the id are in --json; what a reader needs
+        # from a summary line is the file they can open.
+        "Evidence: %s" % rel_path)
+    rep.section("findings", list(findings),
+                lambda f: "%-20s %-28s %s" % (f["type"], f["subject"],
+                                              f["detail"]))
+    rep.data(issue=task_slug, gate_mode=is_gate_mode, blocks=blocks,
+             finding_count=len(findings), evidence={"path": rel_path,
+                                                    "id": ev_id, "type": ev_type},
+             registry_updated=bool(is_gate_mode))
+    rep.emit()
+    return 1 if blocks else 0
 
 
 # --- command: ci ------------------------------------------------------------

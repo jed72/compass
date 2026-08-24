@@ -31,19 +31,29 @@ def cmd_terminology(args):
     codes = doc.get("codes") or {}
     version = doc.get("version", "?")
     if not args.term:
-        print(f"The v2 vocabulary ({version}) - "
-              f"{len(terms)} terms and {len(codes)} codes. Ask for one with "
-              "`compass terminology <term-or-code>`.")
-        if codes:
-            print("\n  CODES")
-            for name in sorted(codes):
-                means = " ".join(str(codes[name].get("means", "")).split())
-                print(f"  {name + '-':<24} {means[:70]}")
-            print("\n  TERMS")
-        for name in sorted(terms):
-            means = str(terms[name].get("means", "")).strip().split("\n")[0]
-            print(f"  {name:<24} {means[:70]}")
-        return 0
+        # The whole glossary is a REPORT: every term is listed, because a
+        # glossary that shows a selection is not a glossary. The summary says
+        # how many there are and how to look one up, which is what a reader who
+        # does not want to scroll actually needs.
+        from compass_pkg.terminal import Report
+
+        rep = Report(args, title="the v2 vocabulary")
+        rep.summary(
+            f"The v2 vocabulary ({version}) - {len(terms)} terms and "
+            f"{len(codes)} codes.",
+            "Ask for one with `compass terminology <term-or-code>`.")
+        rep.section("CODES",
+                    [{"code": f"{n}-",
+                      "means": " ".join(str(codes[n].get("means", "")).split())}
+                     for n in sorted(codes)],
+                    lambda r: "%-24s %s" % (r["code"], r["means"][:70]))
+        rep.section("TERMS",
+                    [{"term": n,
+                      "means": str(terms[n].get("means", "")).strip().split("\n")[0]}
+                     for n in sorted(terms)],
+                    lambda r: "%-24s %s" % (r["term"], r["means"][:70]))
+        rep.data(version=version)
+        return rep.emit()
 
     raw = args.term.strip()
     code_key = raw.rstrip("-").upper()
