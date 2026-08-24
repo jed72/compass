@@ -1,6 +1,6 @@
 ---
 name: plan-authoring
-description: How to write a design.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code), scaling them by route, and the self-review before hand-off. Triggers during Plan.
+description: How to write a design.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code, cross-cutting concerns), scaling them by route, and the self-review before hand-off. Triggers during Plan.
 ---
 
 # Plan Authoring
@@ -13,9 +13,9 @@ A plan has one job that its section list does not make obvious: **let a
 reviewer disagree with the design before the code exists.** That is the
 cheapest moment to change it. Everything below serves that.
 
-## The five optional sections
+## The six optional sections
 
-`templates/design.md` offers five sections beyond the ones every plan has. They
+`templates/design.md` offers six sections beyond the ones every plan has. They
 are optional individually, and the judgement about which to use is the craft
 this skill teaches.
 
@@ -26,6 +26,7 @@ this skill teaches.
 | **3. Structure** (class/module diagram) | New components, changed relationships, or a contract the work units assume. | The change adds no new boundary. |
 | **4. Design patterns invoked** | A real named pattern is genuinely being applied *and* you can say what it buys this change. | You cannot name it, or cannot say what it buys. |
 | **5. The shape of the change** (code) | The shape of an interface, type, or API is itself a decision worth arguing with. | The shape is obvious from section 1. |
+| **5a. Cross-cutting concerns** | The change touches security, privacy, or what you can see in production. *Design Docs at Google* names these three as concerns of the design rather than documents of their own. | It touches none of them - or a label earned a full threat-model.md or rollback-plan.md, in which case link that rather than summarising it here. |
 
 **Delete the sections you do not use.** An empty optional heading is worse
 than an absent one: it reads as an omission rather than a decision, and the
@@ -36,7 +37,7 @@ next author fills it in to be safe.
 - **quick-fix** - none of them. quick-fix writes no `design.md` at all; the plan is
   a one-line edit note in `delivery-approach.md`.
 - **feature** - the ones that add clarity. Typically one diagram, and one of
-  the other three. Reaching for all five on a feature approach is a sign the
+  the other three. Reaching for all six on a feature approach is a sign the
   route was under-read, not a sign of thoroughness.
 - **initiative** - all of them, freely, where the work warrants it. Here the
   plan *is* the design document, and a reviewer is expected to spend real time
@@ -100,7 +101,7 @@ self-review in `bdd-specification`.
 
 ## Anti-patterns
 
-- **The padded plan** - all five optional sections filled on a change that
+- **The padded plan** - all six optional sections filled on a change that
   needed one. Ceremony is a cost; a long plan is read less carefully than a
   short one.
 - **The decorative diagram** - a diagram that restates the paragraph above it.
