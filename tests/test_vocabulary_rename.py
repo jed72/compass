@@ -969,3 +969,81 @@ def test_trc_b8_a_policy_floor_written_with_a_retired_stage_key_still_applies():
         "a floor naming the retired stage key raised nothing - it was looked "
         "up in a map whose keys have already been canonicalised, so it found "
         "no entry and silently did not apply")
+
+
+def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
+    """A spine that names a renamed file must be repointed with it.
+
+    The migrator renamed the files and left every reference to them inside
+    `task.yml` untouched - so `evidence:` entries, artifact `path:` fields and
+    `changed_files:` all went on naming a document that is no longer there.
+    `compass check`'s gate-evidence-present then fails with "path does not
+    resolve" on an issue nothing is wrong with.
+
+    22 spines in this repository were in that state, and some of them name
+    `route.md` and `plan.md` - retired at the v2 freeze - so the freeze's own
+    migration left the same wreckage a cycle earlier and nobody looked.
+    """
+    import subprocess
+    import sys
+    import tempfile
+
+    import yaml
+
+    project = Path(tempfile.mkdtemp(prefix="compass-repoint-"))
+    work = project / ".compass" / "work" / "one"
+    work.mkdir(parents=True)
+    (project / ".compass" / "config.yml").write_text("version: 1.0.0\n")
+    (work / "plan.md").write_text("# the v1 design\n")
+    (work / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "1.1", "task": "one", "created": "2026-01-01",
+        "status": "landed",
+        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "route": "standard",
+        "phases": {"frame": "full", "specify": "full", "plan": "full",
+                   "build": "full", "verify": "full", "land": "full"},
+        "evidence": [{"id": "EV-DESIGN", "type": "artifact", "path": "plan.md"}],
+        "artifacts": [{"kind": "technical-design", "status": "draft",
+                       "path": "plan.md", "reason": "every feature carries one"}],
+        "changed_files": ["plan.md"],
+        "gates": [], "scenarios": [],
+    }, sort_keys=False))
+
+    run = subprocess.run(
+        [sys.executable, str(REPO_ROOT / "cli" / "compass"), "migrate", "--apply"],
+        cwd=str(project), capture_output=True, text=True, timeout=120)
+    assert run.returncode == 0, run.stdout + run.stderr
+
+    assert (work / "technical-design.md").is_file()
+    spine = yaml.safe_load((work / "task.yml").read_text())
+
+    assert spine["evidence"][0]["path"] == "technical-design.md", (
+        "the evidence record still points at the file the migration renamed "
+        "away, so `compass check` fails on an issue nothing is wrong with")
+    assert spine["artifacts"][0]["path"] == "technical-design.md", (
+        "the artifact registry still points at the retired filename")
+    assert spine["changed_files"] == ["technical-design.md"], (
+        "changed_files still names the retired filename")
+
+
+def test_trc_c6b_a_reference_to_a_file_that_is_still_there_is_left_alone():
+    """The control: repointing must be driven by the rename, not the name.
+
+    A directory that legitimately still holds `plan.md` - because nothing
+    renamed it - must keep its reference. Rewriting every occurrence of a
+    retired name would break exactly the records this compatibility path
+    exists to preserve.
+    """
+    import sys
+    import tempfile
+
+    sys.path.insert(0, str(REPO_ROOT / "cli"))
+    from compass_pkg.migrate import repoint_spine_references
+
+    tmp = Path(tempfile.mkdtemp(prefix="compass-repoint-"))
+    (tmp / "plan.md").write_text("# still here\n")
+    spine = {"evidence": [{"path": "plan.md"}]}
+    changed = repoint_spine_references(str(tmp), spine, {})
+    assert not changed and spine["evidence"][0]["path"] == "plan.md", (
+        "a reference to a file that is still on disk was rewritten")

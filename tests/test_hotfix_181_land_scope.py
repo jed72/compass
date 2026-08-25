@@ -11,7 +11,7 @@ the index went from ~23 task files to 1,574, including a concurrent agent's
 work. Only a manual inspection caught it before it committed. This is R5's cure
 over-applied - the fix for a real problem, scoped too broadly.
 
-Scenarios: .compass/work/hotfix-1-8-1-false-blocks-and-land-scope/spec.feature.md
+Scenarios: .compass/work/hotfix-1-8-1-false-blocks-and-land-scope/acceptance-criteria.md
 (SCN-B1..B3).
 """
 from __future__ import annotations

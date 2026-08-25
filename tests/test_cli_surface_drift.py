@@ -4,7 +4,11 @@ The forward-looking move: parse `compass --help` to derive the truth set of
 subcommands and assert it appears in the documented CLI blocks. The next new
 subcommand that ships without updating the docs fails these tests in CI.
 
-Spec: .compass/work/cli-surface-drift-v1-2/spec.feature.md (TRC-A1..C1).
+Scenario ids: TRC-A1..C1, from the `cli-surface-drift-v1-2` issue. Its
+record is not in this tree - `.compass/work/` has never been tracked in
+git, so a path into it was never openable by anyone but the author, and
+that directory is gone. The ids and the description above are what
+survives.
 """
 import re
 import subprocess

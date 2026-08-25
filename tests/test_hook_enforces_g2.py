@@ -15,7 +15,7 @@ Only `specify: full` triggers this, and routing-policy.yml gives that to
 standard and expedition only. A Hotfix (reproduce-first) and a Spike (collapsed)
 are exempt by construction rather than by special case.
 
-Scenarios: .compass/work/hook-enforces-g2/spec.feature.md (SCN-A1..F2).
+Scenarios: .compass/work/hook-enforces-g2/acceptance-criteria.md (SCN-A1..F2).
 """
 from __future__ import annotations
 

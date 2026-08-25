@@ -10,7 +10,7 @@ run the unit tests, then run the full suite, with no code change in between -
 was recorded as a rerun-to-green and failed the check. That punishes the exact
 behaviour Verify asks for.
 
-Scenario: .compass/work/release-blockers-2026-08/spec.feature.md (SCN-17).
+Scenario: .compass/work/release-blockers-2026-08/acceptance-criteria.md (SCN-17).
 """
 from __future__ import annotations
 

@@ -5,7 +5,7 @@ wrong suggestion or digging in against a right one. Compass already has a
 `reviewer` agent and a `verifier`; nothing described the other side of that
 conversation.
 
-Spec: .compass/work/phase-2-skills-check-and-cli-split/spec.feature.md (TRC-B1..B3).
+Spec: .compass/work/phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-B1..B3).
 """
 from __future__ import annotations
 

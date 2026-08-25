@@ -5,7 +5,7 @@ may format that cell with backticks or bold for readability - the parser must
 treat the cell value as a clean git ref name, not the literal-with-markdown
 string.
 
-Spec: .compass/work/swarm-script-strips-markdown/spec.feature.md (TRC-1).
+Spec: .compass/work/swarm-script-strips-markdown/acceptance-criteria.md (TRC-1).
 """
 from __future__ import annotations
 

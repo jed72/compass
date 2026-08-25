@@ -439,7 +439,7 @@ one step removed, and a summary can be checked in good faith while the claim
 it summarises has already changed meaning. ADR-013's Context once described
 an install failure in the past tense, with a specific timing figure
 attached - reading as a report of a real outside user, which this
-repository has never had. It was verified against `.compass/work/plain-language-3-2-0/design.md`,
+repository has never had. It was verified against `.compass/work/plain-language-3-2-0/technical-design.md`,
 the document it was lifted from (written before the artifact was renamed to
 `technical-design.md`), which put the same point in the present tense as a
 description of what any newcomer meets - not against the primary record for

@@ -12,7 +12,7 @@ That makes the documented swarm flow unusable in exactly the repository that
 documents it. This was found by running `scripts/swarm.sh` for a real task and
 then looking inside the worktree it made.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md (TRC-E1..E3).
+Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-E1..E3).
 """
 from __future__ import annotations
 

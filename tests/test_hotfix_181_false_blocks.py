@@ -16,7 +16,7 @@ reported from the field within hours:
 Both push authors toward bypassing the hook, which costs more than the misses
 the extra strictness prevented.
 
-Scenarios: .compass/work/hotfix-1-8-1-false-blocks-and-land-scope/spec.feature.md
+Scenarios: .compass/work/hotfix-1-8-1-false-blocks-and-land-scope/acceptance-criteria.md
 (SCN-A1..A4).
 """
 from __future__ import annotations

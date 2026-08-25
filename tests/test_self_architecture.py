@@ -229,22 +229,30 @@ def test_adr_structure():
         # rather than by renumbering, which only works if the field is filled
         # in and the successor claims it back.
         if status == "superseded":
-            successor = str(fm.get("superseded_by", "")).strip()
-            assert successor, (
+            # A comma-separated list, because an ADR can be superseded in
+            # different respects by different successors: ADR-014's redirect
+            # rule went to ADR-019 and its archive rule to ADR-020, and
+            # collapsing that into one pointer would send a reader to an ADR
+            # that does not mention the half they are reading.
+            successors = [x.strip()
+                          for x in str(fm.get("superseded_by", "")).split(",")
+                          if x.strip()]
+            assert successors, (
                 f"{adr.name}: status is 'superseded' with an empty "
                 f"superseded_by - a reader is told the decision is withdrawn "
                 f"and given nowhere to go"
             )
-            matches = sorted(DECISIONS_DIR.glob(f"{successor}-*.md"))
-            assert matches, (
-                f"{adr.name}: superseded_by names {successor!r}, and no such "
-                f"ADR file exists"
-            )
-            back = str(_parse_frontmatter(matches[0]).get("supersedes", ""))
-            assert fm.get("id") in [x.strip() for x in back.split(",")], (
-                f"{matches[0].name} does not name {fm.get('id')} in its "
-                f"supersedes field, so the link is one-way"
-            )
+            for successor in successors:
+                matches = sorted(DECISIONS_DIR.glob(f"{successor}-*.md"))
+                assert matches, (
+                    f"{adr.name}: superseded_by names {successor!r}, and no "
+                    f"such ADR file exists"
+                )
+                back = str(_parse_frontmatter(matches[0]).get("supersedes", ""))
+                assert fm.get("id") in [x.strip() for x in back.split(",")], (
+                    f"{matches[0].name} does not name {fm.get('id')} in its "
+                    f"supersedes field, so the link is one-way"
+                )
 
         # Required sections
         for section in required_sections:

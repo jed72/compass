@@ -12,7 +12,7 @@ losing or failing to record information.
   * provenance column (group C) - the review-dimensions table records who
     assessed each judgement dimension (DD-4).
 
-Spec: .compass/work/record-keeping-integrity/spec.feature.md
+Spec: .compass/work/record-keeping-integrity/acceptance-criteria.md
 """
 
 # These tests read `compass check`'s PER-CHECK detail - a check's name,

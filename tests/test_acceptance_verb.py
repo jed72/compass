@@ -19,7 +19,7 @@ pass, or a green baseline that must stay green across a demonstrably changed
 tree. It writes its own marker - `.red` keeps meaning only "a real failure was
 observed here".
 
-Scenarios: .compass/work/honest-acceptance-for-config-and-refactor/spec.feature.md
+Scenarios: .compass/work/honest-acceptance-for-config-and-refactor/acceptance-criteria.md
 """
 from __future__ import annotations
 

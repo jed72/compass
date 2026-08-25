@@ -10,7 +10,7 @@ runs is an example nobody can trust.** So an adapter ships only with CI that
 runs it, and a test that skips because a runner is absent says so rather than
 reporting success.
 
-Spec: .compass/work/bdd-adapters-and-skill-length/spec.feature.md (TRC-A1..A4,
+Spec: .compass/work/bdd-adapters-and-skill-length/acceptance-criteria.md (TRC-A1..A4,
       TRC-B1, TRC-B2, TRC-C1).
 """
 from __future__ import annotations

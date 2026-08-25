@@ -17,7 +17,7 @@ tested here:
     Compass documents contain illustrative Gherkin that is not a scenario;
     extracting every fence would pick those up as if they were.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md
+Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md
       (TRC-A1..A8, TRC-F1..F4).
 """
 from __future__ import annotations

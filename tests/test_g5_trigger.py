@@ -16,7 +16,7 @@ vanished. It still looked well-governed.
 breach auth/privacy, or resist a clean rollback" - the same four consequences
 G5's statement names. The definitions already agreed; only the trigger did not.
 
-Scenarios: .compass/work/g5-trigger-matches-statement/spec.feature.md (SCN-A1..F2).
+Scenarios: .compass/work/g5-trigger-matches-statement/acceptance-criteria.md (SCN-A1..F2).
 """
 
 # These tests read `compass check`'s PER-CHECK detail - a check's name,

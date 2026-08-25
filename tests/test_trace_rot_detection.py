@@ -11,7 +11,7 @@ is what that project's convention asks for. The trace breaks precisely when the
 project does the right thing, and nothing was wrong except the record, which is
 the only thing a reader six months out will have.
 
-Scenarios: .compass/work/trace-rot-detection/spec.feature.md (SCN-A1..F2).
+Scenarios: .compass/work/trace-rot-detection/acceptance-criteria.md (SCN-A1..F2).
 """
 
 # These tests read `compass check`'s PER-CHECK detail - a check's name,

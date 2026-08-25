@@ -15,7 +15,7 @@ the template and skill tell an author when NOT to use them.
 Every assertion below reads a shipped file. The precedent is
 tests/test_plugin_doc_drift.py and tests/test_readable_specs_and_flow.py.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md (TRC-C1..C6).
+Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-C1..C6).
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took

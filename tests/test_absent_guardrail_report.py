@@ -12,7 +12,7 @@ guardrails.yml with G5 removed, `compass check` printed G1 through G4 and
 returned its normal result. Not an ambiguous label - silence, on the exact
 surface G5 exists to guard.
 
-Spec: .compass/work/governance-drift-detection/spec.feature.md (TRC-D1, D2).
+Spec: .compass/work/governance-drift-detection/acceptance-criteria.md (TRC-D1, D2).
 """
 
 # RE-POINT REVERTED on 2026-08-24. These tests guard something that belongs
