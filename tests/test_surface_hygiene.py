@@ -180,6 +180,10 @@ def test_trc_f7_skill_count_unchanged_on_net():
         "governance-check", "plan-authoring", "role-translation",
         "tdd-discipline", "traceability", "worktree-swarm",
         "receiving-code-review", "systematic-debugging",   # phase-2 task
+        # ingest-an-existing-brief: turning a brief that already exists into
+        # intent.md by asking rather than assuming. A skill rather than a
+        # mechanism, per the plan's P0-C - "the discipline is the skill".
+        "intent-elicitation",
     }
     assert present == expected, (
         "the skill set changed without this allowlist being updated.\n"
