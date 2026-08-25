@@ -335,7 +335,8 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
         "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
         # `plan` is the planning verb again. `design` still works but is
         # hidden from `--help`, so it is not in the advertised set.
-        "tdd-green", "policy", "plan", "issue", "acceptance", "adr",
+        # `intent` added 2026-08-25 - `compass intent ingest`.
+        "tdd-green", "policy", "plan", "intent", "issue", "acceptance", "adr",
         "rework-scan", "flow", "next", "follow-up", "ship-commit", "gate",
         "scenario", "changed-file", "evidence", "migrate", "terminology",
     }
