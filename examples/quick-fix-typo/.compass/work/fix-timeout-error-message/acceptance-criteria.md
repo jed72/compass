@@ -5,7 +5,7 @@
 
 ## How each role reads this file
 
-- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `prd.md`?
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `intent.md`?
 - **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
 - **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
 - **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.

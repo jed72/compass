@@ -1,7 +1,7 @@
 # Plan - rate-limit-search-endpoint
 
 > **Phase:** Plan · **Date:** 2026-04-23 · **Owning agent:** planner
-> **Plan weight (from delivery-approach.md):** real design.md (no distribution-map - solo delivery approach)
+> **Plan weight (from delivery-approach.md):** real technical-design.md (no distribution-map - solo delivery approach)
 
 ---
 
@@ -65,7 +65,7 @@ TRC-002 the reject path, and the rest layer on.
 |---|---|---|
 | Guardrails (`G1`-`G5` + project) | pass | `G2`: all five acceptance scenarios stated before Build (`acceptance-criteria.md`, refine-complete). `G1`/`G3`: each scenario has a planned test and a traceability id; `changed_files` will trace back to them. `G5`: not applicable - the change touches no auth/payments/personal-data/migrations surface (the limiter *reads* an already-resolved client id, it does not modify auth). |
 | Method strategies (`S1`-`S4` + project) | followed | `S1` BDD and `S2` TDD apply as the default. `S3` simplest-thing honoured in DD-1 and DD-2. No deviation. |
-| Product strategies | n/a | No product owner in play; no `prd.md`. |
+| Product strategies | n/a | No product owner in play; no `intent.md`. |
 | Voice & positioning strategies | n/a | No marketer in play. |
 | Routing policy | pass | The design requires skipping nothing `delivery-approach.md` kept. Breakdown is skipped because §4 finds the units share surface - that matches `delivery-approach.md` §5, it does not contradict it. No floor was due and none is dodged. |
 

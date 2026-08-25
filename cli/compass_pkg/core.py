@@ -516,15 +516,19 @@ def display_shape(value):
 # key is already `assess`, `define` and so on - a map still keyed on `frame`
 # would silently stop matching and print the raw key.
 #
-# It looks like an identity map today and is not one for long: the command
-# renames land next, and `plan` -> `plan` is the entry that will still be
-# earning its place when the others are gone. Keeping the map means the
-# display layer stays the one place a stage name is chosen.
+# It IS an identity map now, and that is the point rather than an oversight.
+# The accept phase kept `assess` displaying as "triage" and `plan` as "design"
+# so the internals could move without changing a word anyone read; the command
+# renames landed next, and the two halves finally agree.
+#
+# The map stays rather than being deleted, so the display layer remains the one
+# place a stage name is chosen. The next rename edits this table instead of
+# hunting for print sites - which is what the two entries above used to be for.
 STAGE_DISPLAY = {
-    "assess": "triage",
+    "assess": "assess",
     "define": "define",
     "refine": "refine",
-    "plan": "design",
+    "plan": "plan",
     "breakdown": "breakdown",
     "implement": "implement",
     "verify": "verify",
@@ -794,13 +798,21 @@ def _entry_for(task_dir, kind):
 # Read-side only: the resolver finds the old file, and `compass migrate`
 # rewrites it on disk (ADR-006).
 _RENAMED_KIND_FILES = {
+    # kind -> the filename a LANDED issue still holds. The values are the
+    # RETIRED names on purpose: this map is the only reason an issue that
+    # shipped before the rename still resolves.
+    #
+    # A blanket rename over the tree rewrote both values to the current
+    # filenames on 2026-08-25, quietly collapsing the map to an identity and
+    # taking the compatibility path with it. The test below asserts each value
+    # differs from its key, so the same edit fails instead of passing.
     "technical-design": "design.md",
     "intent": "prd.md",
 }
 
 
 def _flat_name(kind):
-    """The flat filename for a kind - `technical-design` -> `design.md` where a
+    """The flat filename for a kind - `technical-design` -> `technical-design.md` where a
     landed issue still holds the old name, otherwise `<kind>.md`."""
     if kind in _RENAMED_KIND_FILES:
         return _RENAMED_KIND_FILES[kind]
@@ -823,6 +835,14 @@ def artifact_path(task_dir, name):
         registered = os.path.join(task_dir, entry["path"])
         if os.path.isfile(registered):
             return registered
+    # The renamed kinds, same as `resolve_artifact`. Without this the two
+    # functions that both find an artifact disagree: asking for
+    # `technical-design.md` on an issue that landed holding `design.md` would
+    # resolve through one and miss through the other, and this one has
+    # fourteen callers.
+    flat = os.path.join(task_dir, _flat_name(kind))
+    if flat != os.path.join(task_dir, name) and os.path.isfile(flat):
+        return flat
     return os.path.join(task_dir, name)
 
 

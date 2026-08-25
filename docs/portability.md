@@ -24,8 +24,8 @@ docs/            methodology.md (canonical), quickstart, routing-deep-dive,
 governance/      README.md, guardrails.md, strategies.md, routing-policy.md
 approaches/      rubric.md, README.md,
                  quick-fix/feature/initiative/hotfix/spike.md
-templates/       delivery-approach.md, task.yml, prd.md, acceptance-criteria.md,
-                 requirements-review.md, design.md, distribution-map.md,
+templates/       delivery-approach.md, task.yml, intent.md, acceptance-criteria.md,
+                 requirements-review.md, technical-design.md, distribution-map.md,
                  positioning.md, launch-readiness.md, ui-contract.md,
                  verification-report.md, devlog.md
 ```
@@ -108,7 +108,7 @@ scripts/         install.sh, swarm.sh, integrate.sh, validate.sh
 
 This is the methodology and kit layers expressed in one runtime's vocabulary.
 Slash commands invoke the phases - and *call the kit* for the deterministic
-parts: `/compass:triage` runs `compass approach evaluate`, `/compass:verify` runs
+parts: `/compass:assess` runs `compass approach evaluate`, `/compass:verify` runs
 `compass check`, the `builder` agent runs `compass tdd-red` / `tdd-green`.
 Subagents are the swarm and the role roles. Skills carry the procedural
 knowledge a phase needs. Hooks enforce the guardrails mechanically where they
@@ -161,7 +161,7 @@ end of the contract.
 ### 1. Triage before changing anything
 
 Before an issue modifies code, specs, or product artifacts, the runtime must run
-Triage: read the four context dimensions (risk, familiarity,
+Assess: read the four context dimensions (risk, familiarity,
 size, intent & role) - that part is judgement, and the runtime must
 produce it. *Composing* the route from those assessment is mechanism, and the
 adapter should shell out to `compass approach evaluate` rather than reimplement
@@ -175,7 +175,7 @@ explaining, exploring. The moment an operation would change a file, triage must
 already have run for the current issue.
 
 The reference adapter enforces this two ways: `CLAUDE.md` states "Never skip
-Triage" as the one rule that creates every other rule, and `pre-tool.sh` blocks
+Assess" as the one rule that creates every other rule, and `pre-tool.sh` blocks
 a code edit when no `delivery-approach.md` exists for the current issue. A port must achieve
 the same outcome - mechanically if it can, procedurally if it cannot.
 
@@ -233,7 +233,7 @@ enforce tested-before-ship" is not - that is crossing a guardrail.
 
 Engineer, product owner / manager, product marketer, designer, QA. Each needs
 a distinct entry point - a session-start mode the runtime can express - and
-each has artifacts that plug into the same pipeline (`prd.md`,
+each has artifacts that plug into the same pipeline (`intent.md`,
 `positioning.md`, `launch-readiness.md`, `ui-contract.md`,
 `verification-report.md`). The BDD scenario file is the shared substrate read
 through five roles; the adapter must not reduce it to an engineering-only
@@ -273,7 +273,7 @@ both are mechanism the adapter calls.
 | Methodology / kit concept | Adapter must map it to… | Reference (Claude Code) |
 |---|---|---|
 | The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
-| Triage | A triage routine that produces the *assessment*, then calls the kit to compose the approach | `/compass:triage` + the `navigator` agent + the `adaptive-routing` skill, calling `compass approach evaluate` |
+| Triage | A triage routine that produces the *assessment*, then calls the kit to compose the approach | `/compass:assess` + the `navigator` agent + the `adaptive-routing` skill, calling `compass approach evaluate` |
 | The kit-layer CLI | A shell-out from the adapter - never a reimplementation | `commands`/`agents` invoke `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence - orphaned scenarios, route disagreements, orphan claims) |
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the re-assess feedback loop), `compass rework-scan` (cross-issue rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-issue view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass retro`, `compass rework-scan`, and `compass flow --digest` together |
 | Per-issue next-step + follow-up | The adapter wires `compass next` (surface the next action on the current issue) and `compass follow-up resolve` (mark an outstanding follow-up resolved) into its task-resumption and ship flows | `/compass:status` and `/compass:ship` invoke them |
@@ -292,8 +292,8 @@ conversation.** `governance/` at the project root - the `.md` files
 (`guardrails.md`, `strategies.md`, `routing-policy.md`) and the kit-layer
 `.yml` files the CLI runs (`routing-policy.yml`, `guardrails.yml`); per-issue
 artifacts in a `.compass/work/<task-slug>/` directory holding `delivery-approach.md`,
-`task.yml` (the machine-readable issue spine), `prd.md`, `acceptance-criteria.md`,
-`requirements-review.md`, `design.md`, `distribution-map.md`, `positioning.md`,
+`task.yml` (the machine-readable issue spine), `intent.md`, `acceptance-criteria.md`,
+`requirements-review.md`, `technical-design.md`, `distribution-map.md`, `positioning.md`,
 `launch-readiness.md`, `ui-contract.md`, `verification-report.md`, an
 `evidence/` directory (the CLI's red/green and gate records), an append-only
 `devlog.md`, and - on a spike - a `.spike` marker file; plus a
@@ -346,7 +346,7 @@ leak, do not edit the methodology or the kit.
 The adapter layer, against the contract above:
 
 - **`commands/`** → the new runtime's equivalent of invocable phase units. The
-  *content* of each - what `/compass:triage` does, the procedure it follows -
+  *content* of each - what `/compass:assess` does, the procedure it follows -
   is dictated by the methodology layer (`frame.md`'s procedure "follows
   `approaches/rubric.md` exactly"). You are re-expressing known procedures in a
   new command syntax, not redesigning them - and where a procedure has a
@@ -357,7 +357,7 @@ The adapter layer, against the contract above:
 - **`agents/`** → the new runtime's notion of distinct agent contexts. The
   ten agents and their boundaries (the navigator owns triage and only triage;
   the orchestrator writes no feature code; a builder never touches a sibling
-  worktree; the architect-lens reads `architecture/` and annotates `design.md`
+  worktree; the architect-lens reads `architecture/` and annotates `technical-design.md`
   via `architecture-notes.md`, never writing feature code) are methodology;
   the wrapper is runtime.
 - **`skills/`** → loadable procedural-knowledge modules in whatever form the

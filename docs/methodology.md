@@ -51,7 +51,7 @@ The four dimensions triage reads:
 | **Size** | How much work is this? | atomic · small · standard · large · product |
 | **Goal & role** | Who is invoking, and what outcome are they really after? | engineer · product owner/manager · product marketer · designer · QA |
 
-Triage does not just classify - it explains. Its output,
+Assess does not just classify - it explains. Its output,
 `delivery-approach.md`, is an auditable record: here is what I assessed,
 here is the approach the policy computed, here is
 what ceremony applies, **here is what I am skipping and the explicit reason it
@@ -170,7 +170,7 @@ wins and a larger soft set that guides.
 **Governance is a gradient, not a threshold.** A valid, complete governance
 state is "the shipped default guardrails, the shipped default strategies, and
 nothing project-specific yet." A team starts there - `/compass:init` is
-*optional*, and `/compass:triage` works on day one against the shipped
+*optional*, and `/compass:assess` works on day one against the shipped
 defaults -
 and *accretes* project strategies as it forms opinions, adding a guardrail
 only when it hits something that must never recur. That gradient is what makes
@@ -231,10 +231,10 @@ Role entry points:
 
 | Role | Entry point | Primary artifact | Where they gate |
 |---|---|---|---|
-| Product owner / manager | `/compass:intent` | `prd.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before the design stage. Curates the product strategies in `governance/strategies.md`. |
+| Product owner / manager | `/compass:intent` | `intent.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before the design stage. Curates the product strategies in `governance/strategies.md`. |
 | Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Gates shipping: no launch claim goes out without a passing scenario behind it. Curates the voice & positioning strategies. |
-| Designer | `/compass:wireframe` | `ui-contract.md` | UI contracts are written as scenarios and flow into the define stage. |
-| Engineer | `/compass:triage` and the pipeline | `delivery-approach.md`, `design.md`, code | Owns implementation. Curates the engineering strategies. |
+| Designer | `/compass:design` | `ui-contract.md` | UI contracts are written as scenarios and flow into the define stage. |
+| Engineer | `/compass:assess` and the pipeline | `delivery-approach.md`, `technical-design.md`, code | Owns implementation. Curates the engineering strategies. |
 | QA | participates in `/compass:verify` | `verification-report.md` | Owns the verify gate. |
 
 The product owner enters *upstream* of the spec; the marketer works *parallel*
@@ -423,7 +423,7 @@ Compass is built in three layers, deliberately separated.
   commands invoke phases, subagents are the swarm, skills carry the
   procedural knowledge, hooks enforce the guardrails and the
   red-before-green strategy, and the commands and agents *call the kit* -
-  `/compass:triage` runs `compass approach evaluate`, `/compass:verify` runs
+  `/compass:assess` runs `compass approach evaluate`, `/compass:verify` runs
   `compass check`. `bin/compass` and `.claude-plugin/` are the
   runtime-specific install wiring; another runtime's adapter would replace
   them with its own equivalent (a shell PATH addition, a different plugin
@@ -454,7 +454,7 @@ manager" persona with turf and an inbox; it adds `/compass:flow`, a command
 anyone can run, backed by the `flow-management` skill.
 
 The distinction matters because of how Compass stores state. Issue state is not
-a label a manager sets - it is *inferred from the artifacts on disk* (`design.md`
+a label a manager sets - it is *inferred from the artifacts on disk* (`technical-design.md`
 exists and `verification-report.md` does not ⇒ the issue is being
 implemented). So flow
 management has nothing to "own" and nothing to "move." Its whole job is to read
@@ -603,7 +603,7 @@ been filed
 after it, the hook emits a nudge to stderr suggesting:
 
 ```
-/compass:triage --reassess --reason "<what changed and why>"
+/compass:assess --reassess --reason "<what changed and why>"
 ```
 
 The hook is **non-blocking** - it exits 0 regardless. It nudges; the human

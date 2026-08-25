@@ -3,7 +3,7 @@
 > Something is broken in production now. Reproduce first, fix fast, follow-up
 > properly. The clock is real - the default guardrails still aren't negotiable.
 
-## Triage composes toward Hotfix when
+## Assess composes toward Hotfix when
 
 - there is a live defect with user impact happening *now*, **and**
 - size is `atomic` or `small` (a large fix is an incident, not a hotfix -

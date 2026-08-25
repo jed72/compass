@@ -15,6 +15,13 @@ These are still real tests: they run under `pytest tests/`, they fail when the
 shipped text drifts, and `compass tdd-red` / `compass tdd-green` write typed
 test-run evidence from them that the verify gates accept.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 import re
 import subprocess
 import sys
@@ -349,7 +356,7 @@ HANDOFF_HEADING = "## Hand-off"
 HANDOFF_PHASES = {
     "commands/define.md": "acceptance-criteria.md",
     "commands/refine.md": "requirements-review.md",
-    "commands/design.md": "design.md",
+    "commands/plan.md": "technical-design.md",
 }
 
 

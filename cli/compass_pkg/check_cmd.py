@@ -189,7 +189,7 @@ CHECK_GUIDANCE = {
     "scenario-has-id-and-intent": {
         "why": "Each scenario needs a stable id and an intent link so claims, tests, and code can reference it.",
         "do": 'Give each scenario in task.yml an `id:` and an `intent:`.',
-        "fix": "Add `id:` (e.g. TRC-A3) and `intent:` (the intent id from prd.md) fields to the scenario in task.yml.",
+        "fix": "Add `id:` (e.g. TRC-A3) and `intent:` (the intent id from intent.md) fields to the scenario in task.yml.",
     },
     "claim-traces-to-scenario": {
         "why": "Public claims must trace to a scenario that backs them (traceability) - an unbacked claim is a promise the framework cannot prove.",
@@ -219,7 +219,7 @@ CHECK_GUIDANCE = {
     "spike-no-production-changes": {
         "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh triage, not a silent merge.",
         "do": 'Move the production edits to a delivery issue; a spike ships nothing.',
-        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:triage` to start a new delivery issue that owns the code under a real route.",
+        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:assess` to start a new delivery issue that owns the code under a real route.",
     },
     "dod-evidence-typed": {
         "why": "The evidence-not-assertion guardrail: the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed follow-up - narrative notes in devlog.md do not count.",

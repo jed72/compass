@@ -15,6 +15,13 @@ the bare interpreter's `bin/` to `PATH` and running the script the way a
 person on such a machine actually would - `python3` on `PATH` resolves to the
 bare one, which is exactly how these scripts find Python in real life.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import os
@@ -312,7 +319,7 @@ def test_stop_hook_scope_signal_runs_without_a_system_pyyaml(bare_interpreter, t
 
     assert result.returncode == 0, result.stdout + result.stderr
     assert "reframe" in result.stderr.lower(), result.stderr
-    assert "/compass:triage --reassess" in result.stderr, result.stderr
+    assert "/compass:assess --reassess" in result.stderr, result.stderr
 
 
 # ---------------------------------------------------------------------------

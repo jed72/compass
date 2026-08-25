@@ -28,7 +28,7 @@ command name remains as a redirect stub for one major version.
 ## The one rule that creates every other rule
 
 **Never skip triage.** Before any issue that changes code, specs, or product
-artifacts, triage it: run `/compass:triage`. Triage reads the four assessment
+artifacts, triage it: run `/compass:assess`. Triage reads the four assessment
 dimensions - risk, familiarity, size, and goal - that is judgement, and the
 judgement is yours - and records them in the issue spine (`task.yml`, under
 `.compass/work/<task-slug>/`, in the spine's own key names). It then hands
@@ -39,13 +39,13 @@ You also write the human-readable record of the approach (`delivery-approach.md`
 not choose a process, and you do not compose the delivery approach in your
 head - you assess the work, the CLI computes the approach.
 
-`/compass:triage` also writes `.compass/current-task` - a one-line pointer to
+`/compass:assess` also writes `.compass/current-task` - a one-line pointer to
 the active issue. The hooks and the CLI both rely on it: `compass check`,
 `compass tdd-red`, and the pre-tool hook resolve the current issue through
 that pointer, so keep it pointing at the issue you are actually working.
 
 When the assessment turns out to have been misread, re-assess through the
-same mechanism: `/compass:triage --reassess` re-runs the evaluator, detects
+same mechanism: `/compass:assess --reassess` re-runs the evaluator, detects
 that the approach changed, and records the change in the spine's `reframes:`
 log - pass `--reason "..."` so the entry says *why*. That log is the
 framework's retrospective signal: `compass retro` aggregates it across
@@ -59,7 +59,7 @@ a file, triage must already have run for the current issue. If the work is
 genuinely exploratory - you cannot yet state what would be delivered - that
 is not an exemption; that is a **spike**, and triage still runs.
 
-**Trigger triage on intent, not just the literal command.** When the user describes intent to build, change, or fix code - even if they do not type `/compass:triage` - invoke `/compass:triage` before any artifact-changing tool call. The pre-tool hook still enforces the `.red` marker; this rule adds the upstream trigger from intent recognition. Explicit invocation of any Compass command always works regardless. If `.compass/current-task` already points at a triaged issue, do not re-run triage - proceed with the issue's recorded delivery approach.
+**Trigger triage on intent, not just the literal command.** When the user describes intent to build, change, or fix code - even if they do not type `/compass:assess` - invoke `/compass:assess` before any artifact-changing tool call. The pre-tool hook still enforces the `.red` marker; this rule adds the upstream trigger from intent recognition. Explicit invocation of any Compass command always works regardless. If `.compass/current-task` already points at a triaged issue, do not re-run triage - proceed with the issue's recorded delivery approach.
 
 `/compass:init` is **optional**. The default guardrails and default
 strategies ship active with the framework, so triage works with zero project
@@ -207,7 +207,7 @@ inferred from artifacts on disk).
 
 Compass has five roles, four of them non-engineering, all full pipeline
 citizens. If a session opens with a role entry point - `/compass:intent`,
-`/compass:position`, `/compass:wireframe`, `/compass:roundtable` - adopt that
+`/compass:position`, `/compass:design`, `/compass:roundtable` - adopt that
 role's vocabulary and artifacts. Do not collapse a product owner's intake
 into an engineering issue; the intake is upstream of the acceptance
 criteria, and the criteria must be checked back against it.
@@ -230,11 +230,11 @@ the approach is solo, there is no worktree - work on the current branch.
 │   └── <task-slug>/            One directory per issue
 │       ├── delivery-approach.md             The delivery-approach record (prose)
 │       ├── task.yml             The machine-readable issue spine
-│       ├── prd.md             Intake (if a product owner was involved)
+│       ├── intent.md             Intake (if a product owner was involved)
 │       ├── ui-contract.md       Designer contracts (if a designer was involved)
 │       ├── acceptance-criteria.md      Acceptance criteria - the shared artifact
 │       ├── requirements-review.md    (ends with the Definition of Ready gate)
-│       ├── design.md              The design
+│       ├── technical-design.md              The design
 │       ├── distribution-map.md  Swarm topology (initiative-scale work)
 │       ├── positioning.md       Marketer messaging (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)

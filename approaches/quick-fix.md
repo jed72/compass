@@ -3,7 +3,7 @@
 > The change is small, safe, and on mapped ground. Stay out of the way.
 > Still tested before it lands.
 
-## Triage composes toward quick fix when
+## Assess composes toward quick fix when
 
 - size is `atomic` or `small`, **and**
 - risk is `trivial` or `contained`, **and**
@@ -22,7 +22,7 @@ small variant of an existing pattern, a config change with a known shape.
 | Triage | Full. Always runs, always writes `delivery-approach.md`. ~minutes. |
 | Define | **One scenario.** A single Given/When/Then that names the new behaviour. That scenario is the spec. |
 | Refine | **Collapsed** - permitted only because the one scenario is unambiguous. If it is not unambiguous, triage does not compose quick fix. |
-| Plan | **Collapsed** to a one-line "edit which file(s)" note in `delivery-approach.md`. No `design.md`. |
+| Plan | **Collapsed** to a one-line "edit which file(s)" note in `delivery-approach.md`. No `technical-design.md`. |
 | Breakdown | **Skipped.** Solo, current branch, no worktree. |
 | Build | Full TDD: write the failing test for the scenario, make it green, refactor. Test surface = the one scenario plus its obvious edges. |
 | Verify | Light gate: run the new test + the existing suite, paste output. |

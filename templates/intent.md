@@ -1,7 +1,7 @@
 <!--
-TEMPLATE: prd.md
+TEMPLATE: intent.md
 Produced by: the product owner / manager via `/compass:intent`.
-Lives at:    .compass/work/<task-slug>/prd.md
+Lives at:    .compass/work/<task-slug>/intent.md
 Role in the pipeline: the intent artifact. It sits UPSTREAM of the spec -
 the BDD scenarios in acceptance-criteria.md are checked back against this brief
 for intent fidelity before Plan (the product-owner role_rule in
@@ -38,7 +38,7 @@ engineering's - do not pre-solve the problem here.
 ## Success signals
 
 <!-- How will we know the outcome was actually achieved? Each signal should
-     be observable. These seed the success metrics in design.md and the
+     be observable. These seed the success metrics in technical-design.md and the
      acceptance perspective on acceptance-criteria.md. -->
 
 - {{SIGNAL 1 - e.g. "Finance pulls month-end numbers without filing a data request."}}

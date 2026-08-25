@@ -51,7 +51,7 @@ What follows is six cases. Read them in order; they build on each other.
 | Size | `atomic` | One file, one string, no design decision, well under thirty minutes. |
 | Intent & role | `engineer` | Standard pipeline ownership; no brief, no other role. |
 
-Triage also assigns domain tags. The change is *in* the JWT module, so it
+Assess also assigns domain tags. The change is *in* the JWT module, so it
 tags `labels: [auth]` - honestly, because the tag is about where the change
 lives, not how scary it looks.
 
@@ -118,7 +118,7 @@ floor list (`auth`, `payments`, `personal-data`, `migrations`, `public-api`).
 
 Standard size, contained risk, mapped familiarity. The candidate is
 **Standard**, plainly: a small feature set of scenarios, a light-to-full
-Refine pass, a real `design.md` with the design decisions recorded, solo or
+Refine pass, a real `technical-design.md` with the design decisions recorded, solo or
 pair topology, two gates at Verify. No deviation from the reference shape is
 warranted - risk is only `contained`, so `security` stays scaled
 rather than full and `clarity` and `regression` are on as Standard always has
@@ -192,7 +192,7 @@ Two floors fire, and they reinforce each other:
 Then a **cap** fires - and this is the subtle part. `when: { risk:
 critical }` → `max_worktrees: 1`. So this is an initiative route that is
 *capped to a single worktree*. It is heavy - full BDD discovery, full refine,
-a full `design.md`, every gate - and **solo**. That is not a contradiction. The
+a full `technical-design.md`, every gate - and **solo**. That is not a contradiction. The
 cap encodes a real tradeoff: parallelism is speed, but a swarm has
 coordination risk, and on a critical change the coordination risk costs more
 than the speed saves.
@@ -243,7 +243,7 @@ would add a floor; assume here it does not.
 is the textbook **initiative** case, and it composes there with no help from
 the routing guardrails. Full BDD discovery from the brief; scenarios grouped by
 independence - email delivery, in-app delivery, webhook delivery, preferences,
-the delivery log are plausibly disjoint surfaces; a full `design.md` plus a real
+the delivery log are plausibly disjoint surfaces; a full `technical-design.md` plus a real
 `distribution-map.md`; a swarm across git worktrees, one `builder` per stream,
 an `orchestrator` that writes no feature code; all gates, all dimensions, plus
 a per-worktree mid-route checkpoint.
@@ -266,7 +266,7 @@ genuinely different topology - because the dimensions read differently.
 initiative at full weight, swarm topology, empty de-scope ledger (initiative's
 ledger is empty by definition - it is what the other routes are measured
 against). If a designer and product owner did join, their `role_rules` would
-fire: `prd.md` required and the intent-fidelity gate before Plan; the
+fire: `intent.md` required and the intent-fidelity gate before Plan; the
 designer's `ui-contract.md` flowing into the define stage as scenarios. Each would be
 recorded in the routing-guardrails section.
 
@@ -279,7 +279,7 @@ recorded in the routing-guardrails section.
 
 ### Score
 
-Triage still scores all four dimensions - they shape the mandatory
+Assess still scores all four dimensions - they shape the mandatory
 follow-up - but Hotfix is the one route selected by *urgency* rather than by
 the size / risk / familiarity composition.
 
@@ -317,7 +317,7 @@ anyway.
 The methodology's own guard applies here: a fix that turns out to be
 `standard`+ in size is *not* a Hotfix - it is an incident. Route it
 initiative, put someone in incident command, use the swarm if it helps. The
-Triage scores size precisely so that distinction holds.
+Assess scores size precisely so that distinction holds.
 
 ### Final `delivery-approach.md`
 
@@ -340,7 +340,7 @@ issue closes."
 
 ### Score
 
-Triage still scores all four dimensions - but this request is not a known
+Assess still scores all four dimensions - but this request is not a known
 change, it is a *question*. There are no acceptance criteria to state because
 the behaviour to fix is the unknown. That is the signal for **exploration**
 intent.
@@ -383,7 +383,7 @@ explicitly answered with 'inconclusive - here is why'), and the finding is
 written down." ship becomes **Graduate or Discard**:
 
 - **Graduate** - the spike found the cause (say, a connection-pool exhaustion
-  under a specific retry storm). The finding feeds a fresh `/compass:triage` for
+  under a specific retry storm). The finding feeds a fresh `/compass:assess` for
   the real fix. That re-assess is a normal route - Standard, probably - and
   the tested-before-ship, acceptance-before-code, and traceability guardrails apply to the fix in full. Any diagnostic code carried over
   is now subject to that route's guardrails; in practice most is rewritten
@@ -418,12 +418,12 @@ correctly.
 
 ### "Add a CSV export" - product owner, "let finance self-serve"
 
-Same three words, but a `prd.md` sits behind them, and the brief's outcome
+Same three words, but a `intent.md` sits behind them, and the brief's outcome
 is "let finance self-serve their month-end numbers." Triage reads intent
 as the *actual outcome wanted*, not the literal request - and "self-serve"
 implies filters that match what finance actually needs, perhaps scheduling,
 perhaps permissions. Size is no longer `small`; it is `standard` or
-larger. The `product-owner` role rule fires: `prd.md` required, the
+larger. The `product-owner` role rule fires: `intent.md` required, the
 intent-fidelity gate before Plan. Composes to **Standard or heavier**, with a
 gate that checks the export scenarios actually deliver "self-serve" and not
 just "a button that produces a file." Same words, a genuinely bigger route -
@@ -437,7 +437,7 @@ not matter: the policy floor `when: { labels: [payments,
 personal-data] }` fires and forces the initiative shape. Composes to
 **initiative** - full
 discovery (what exactly is in this export? what must *not* be?), full refine,
-a `design.md` with the data-handling decisions recorded, every gate, `security`
+a `technical-design.md` with the data-handling decisions recorded, every gate, `security`
 full. A "small" feature, the full treatment, because of what it touches.
 
 ### "Add a CSV export" - product marketer, a launch feature
@@ -461,12 +461,12 @@ Compass routes the familiarity.
 Routing happens at triage, but the familiarity reading can turn out wrong, and the
 honest response is not to push on with a route you no longer believe.
 
-`/compass:triage --reframe` re-scores the four dimensions mid-issue, writes a
+`/compass:assess --reframe` re-scores the four dimensions mid-issue, writes a
 **new revision** of `delivery-approach.md` (the prior revision is kept visible under a
 "Superseded" heading), and records what changed and why. A re-assess is a
 normal event, not a failure. *A route quietly outgrown is the failure.*
 
-A re-assess is also *recorded as data*. `/compass:triage --reframe` re-runs
+A re-assess is also *recorded as data*. `/compass:assess --reframe` re-runs
 `compass approach evaluate --write`, which detects that the route changed and
 appends an entry to `task.yml`'s `reframes` log - `from_route`, `to_route`, the
 date, and the `--reason`. One entry is an anecdote; the log across every issue

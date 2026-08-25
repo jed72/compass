@@ -24,7 +24,7 @@ four roles can.
   policy floor forces this; you cannot safely change what you have not first
   described.
 - Invoke the `spec-author` agent - it owns this stage.
-- Read any upstream role artifacts for this issue: `prd.md` (the outcome to
+- Read any upstream role artifacts for this issue: `intent.md` (the outcome to
   hit), `ui-contract.md` (designer scenarios that flow in here),
   `positioning.md` (claims that will need backing scenarios).
 

@@ -255,7 +255,7 @@ def cmd_issue_artifact(args):
             "%r is not a document this issue earned (it earned: %s). The "
             "artifact set is computed from the assessment - re-run "
             "`compass approach evaluate --write`, or re-assess with "
-            "`/compass:triage --reassess` if the work really changed shape."
+            "`/compass:assess --reassess` if the work really changed shape."
             % (args.kind, earned))
 
     if args.status == "omitted" and not (args.reason or "").strip():

@@ -25,7 +25,7 @@ collapsed into one. The spec will later be checked back against it.
 
 ## Procedure
 
-1. **Write the PRD.** From `templates/prd.md`, capture:
+1. **Write the intent.** From `templates/intent.md`, capture:
    - **Problem** - what is wrong or missing today, for whom.
    - **Outcome** - the change in the user's world this should create. Not
      the feature; the result.
@@ -36,19 +36,19 @@ collapsed into one. The spec will later be checked back against it.
 2. **Check against governance.** Does this PRD hold the guardrails and
    respect the product strategies? If it pulls against a product strategy,
    name the tension now - do not pass it downstream silently.
-3. **Write `prd.md`** into `.compass/work/<task-slug>/`.
+3. **Write `intent.md`** into `.compass/work/<task-slug>/`.
 
 ## How this shapes the delivery approach
 
 When triage assesses an issue with a PRD, the `product-owner` role adds two
 things (see the delivery-approach rubric and the routing policy's
-`role_rules`): the `prd.md` artifact, and the **intent-fidelity gate** - the
-spec must be checked against `prd.md` before the design stage. Triage reads
+`role_rules`): the `intent.md` artifact, and the **intent-fidelity gate** - the
+spec must be checked against `intent.md` before the design stage. Triage reads
 the PRD as the *actual outcome wanted*, not just the literal request.
 
 ## Gate
 
-`prd.md` exists with all four sections real; it is consistent with the
+`intent.md` exists with all four sections real; it is consistent with the
 product strategies and guardrails in `governance/`, or the tension is named.
-Next: `/compass:triage` to compute the delivery approach - the PRD is now an
+Next: `/compass:assess` to compute the delivery approach - the PRD is now an
 input triage reads.

@@ -6,13 +6,20 @@ issue's markdown artifacts. It is advisory: it always exits 0, it is
 registered in no `guardrails.yml` entry, and no test here asserts the
 repository is free of tells. `tests/test_human_voice.py` asserts what the
 prose surfaces carry; this file asserts how the check itself behaves, run as
-a subprocess over fixtures in `tmp_path` (design.md DD-4).
+a subprocess over fixtures in `tmp_path` (technical-design.md DD-4).
 
 Criteria: docs/system-spec.md
-Design:   .compass/work/human-voice/design.md, section 5 (the script's
+Design:   .compass/work/human-voice/technical-design.md, section 5 (the script's
           contract) and DD-2 (what "newly written" scopes to) and DD-3 (why
           a standalone script rather than a CLI verb).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import importlib.util

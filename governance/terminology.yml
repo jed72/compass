@@ -23,7 +23,7 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre13
+version: 2.0.0-pre14
 
 terms:
 
@@ -108,6 +108,20 @@ terms:
     related: [issue-type]
 
   # --- Intake artifacts -----------------------------------------------------
+  technical-design:
+    means: >
+      The engineering plan for one issue: the approach, the design decisions
+      as ADR-style notes, the governance check, and the independent work
+      units. Written at the planning stage (/compass:plan) as
+      technical-design.md.
+    not: >
+      NOT the designer's work. That is the UI contract (ui-contract.md), from
+      /compass:design. `design` alone named a command, an artifact, an
+      artifact kind, a CLI verb and a role, and was the only overloaded word
+      in this framework with no entry here - which is how it stayed
+      ambiguous. NEVER abbreviate this to TDD: in this repository TDD is
+      red-green-refactor and nothing else.
+    related: [technical-design, delivery-approach]
   prd:
     means: >
       Product requirements document: problem, users, goals, non-goals,
@@ -163,8 +177,14 @@ terms:
     related: [scenario, intent, acceptance-criteria]
   intent:
     means: >
-      The outcome a change is meant to produce - the "why" end of the
-      traceability chain, sourced from the PRD's desired outcome, the UI
+      Two related things, and the entry covers both deliberately. (1) The
+      document: intent.md, the originator's statement of what is wanted and
+      why, AUTHORED at the intake stage or INGESTED from a brief that already
+      exists - it does not presume authorship. (2) The goal it carries: the
+      outcome a change is meant to produce, the "why" end of the traceability
+      chain, carrying the INT- ids that scenarios trace back to. The document
+      holds the goals, which is why one name serves both.
+      Sourced from intent.md's desired outcome, the UI
       contract, or the issue description. A goal, not a requirement: the
       functional requirement is the scenario.
     also: The product owner's entry point, `/compass:intent`, captures it.
@@ -557,8 +577,14 @@ codes:
 
 banned:
   - term: "Frame / the Needle"
-    replacement: triage
-    context: "As phase/agent name and command. The command is /compass:triage; /compass:frame is a redirect stub for one major version. 'frame' as an ordinary verb is fine."
+    replacement: assess
+    context: "As stage/agent name and command. The command is /compass:assess; /compass:frame was removed at the v2 major version. Points at the FINAL name, not at `triage` - `triage` is itself retired now, and a ban naming a banned replacement sends a reader to a word they must rename again. 'frame' as an ordinary verb is fine."
+  - term: "Triage"
+    replacement: assess
+    context: "As the stage name and command. The stage produces an `assessment:` block, the flag is --assessment and the policy section is assessment_vocabulary - a command called triage producing an assessment is the defect this replaced. Triage also means sorting BETWEEN cases by urgency, which is what `compass flow` does, not this stage. The command is /compass:assess; /compass:triage is a redirect stub for one major version. 'triage' as an ordinary verb, about sorting between things, is fine."
+  - term: "Wireframe"
+    replacement: design
+    context: "As the designer's command. The designer's entry point is /compass:design again - it held that name before, and 'design' reads as UI work to most people. /compass:wireframe is a redirect stub for one major version. 'wireframe' as an ordinary noun is fine."
   - term: "reading / readings"
     replacement: assessment
     context: "As the four-dimension judgement. Ordinary uses of the word are fine."
@@ -573,7 +599,10 @@ banned:
     context: "Route name."
   - term: "Specify / Clarify / Distribute / Land"
     replacement: "define acceptance criteria / requirements review / break down the work / ship"
-    context: "As phase names and commands. The commands are /compass:define, /compass:refine, /compass:breakdown, /compass:ship (and Plan's stage command is /compass:design, Build's is /compass:implement); the retired names are redirect stubs for one major version. Capitalised/heading/command usage only; ordinary verbs fine."
+    context: "As stage names and commands. The commands are /compass:define, /compass:refine, /compass:breakdown, /compass:ship (the planning stage's command is /compass:plan, and Build's is /compass:implement); the retired names are redirect stubs for one major version. Capitalised/heading/command usage only; ordinary verbs fine. NOTE: `plan` is NOT retired - it is the planning stage's machine key, skill (plan-authoring), agent (planner) and, since 2026-08-25, its command. A name that was retired can come back; ADR-014 removes retired names, it does not reserve them."
+  - term: "PRD / prd.md"
+    replacement: intent.md
+    context: "As the intake document. /compass:intent writes intent.md - the command and its output had never agreed, and the ids the document sources are INT-. The wider industry name is in Anthropic's AI-Native SDLC playbook, which calls the same artifact intent.md. 'product requirements' as ordinary prose is fine."
   - term: "lens"
     replacement: role
     context: "As the role-perspective concept."
@@ -710,6 +739,14 @@ scan:
   exempt:
     - docs/proposals/      # history stays honest
     - docs/system-spec.md  # derived at ship time; hand-editing forbidden
+    # A redirect stub's whole job is to name the retired command and point at
+    # its replacement. It cannot do that without saying the retired word, and
+    # it is the one surface where saying it is the service rather than the
+    # defect. Same rationale as the mapping data below, and the same shape:
+    # named individually, so a THIRD stub is a deliberate addition rather than
+    # a silent one.
+    - commands/triage.md
+    - commands/wireframe.md
     - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
                            # pointers and the migrate tool must name v1
                            # spellings; they live here so the enforced CLI

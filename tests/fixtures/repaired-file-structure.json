@@ -399,21 +399,6 @@
     "list_items": 12,
     "table_rows": 20
   },
-  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      3,
-      3,
-      2,
-      2,
-      2
-    ],
-    "list_items": 13,
-    "table_rows": 12
-  },
   "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/devlog.md": {
     "fences": 0,
     "heading_levels": [
@@ -446,6 +431,21 @@
     ],
     "list_items": 26,
     "table_rows": 0
+  },
+  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      2,
+      2,
+      2
+    ],
+    "list_items": 13,
+    "table_rows": 12
   },
   "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md": {
     "fences": 4,
@@ -562,22 +562,6 @@
     "list_items": 14,
     "table_rows": 20
   },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      3,
-      3,
-      3,
-      2,
-      2,
-      2
-    ],
-    "list_items": 18,
-    "table_rows": 12
-  },
   "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/devlog.md": {
     "fences": 0,
     "heading_levels": [
@@ -625,6 +609,22 @@
     ],
     "list_items": 33,
     "table_rows": 0
+  },
+  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2
+    ],
+    "list_items": 18,
+    "table_rows": 12
   },
   "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md": {
     "fences": 8,

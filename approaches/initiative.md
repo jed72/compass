@@ -3,7 +3,7 @@
 > Big, cross-cutting, or greenfield. Full weight, every gate, agent swarm
 > across worktrees.
 
-## Triage composes toward initiative when
+## Assess composes toward initiative when
 
 - size is `large` or `product`, **or**
 - risk is `critical` (a floor forces this regardless of size),
@@ -22,7 +22,7 @@ launch's worth of work.
 | Triage | Full, plus explicit `touches:` tagging - initiative is where domain floors most often fire. |
 | Define | **Full BDD discovery.** Greenfield: scenario discovery from the brief. Brownfield: `blueprint-distillation` of current behaviour *then* the new scenarios. Scenarios are grouped by independence - this grouping seeds the distribution map. |
 | Refine | **Full pass.** Self-QA, governance QA, and an explicit ambiguity ledger. Non-engineering roles review here. |
-| Plan | **Full `design.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work streams. |
+| Plan | **Full `technical-design.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work streams. |
 | Breakdown | **Swarm.** `scripts/swarm.sh` creates one git worktree per stream; one `builder` agent per worktree; one `orchestrator` agent that writes no feature code. |
 | Build | Full TDD inside each worktree, in parallel. The orchestrator watches for streams converging on shared surface and intervenes before they collide. |
 | Verify | **All gates, all dimensions.** Per-stream verification, then combined verification after integration. |
@@ -66,5 +66,5 @@ are ones a `cap` imposes (e.g. the worktree cap), and those are recorded as
   integrated green - the whole point of the orchestrator's ship role is to
   prove the combination.
 - Be down-routed mid-issue to "save time." If initiative turns out to be
-  overkill, that is a re-assess (`/compass:triage --reassess`) with a written
+  overkill, that is a re-assess (`/compass:assess --reassess`) with a written
   reason - not a quiet down-shift.

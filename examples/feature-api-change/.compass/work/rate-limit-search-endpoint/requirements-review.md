@@ -57,7 +57,7 @@
   is an operational guard, not a behaviour a user experiences.
 - **Decided by:** D. Mensah (engineer).
 - **Governance reference:** n/a - operational hardening, not a strategy call.
-- **Spec change:** no spec change, clarification only. Recorded in `design.md` DD-2.
+- **Spec change:** no spec change, clarification only. Recorded in `technical-design.md` DD-2.
 - **Status:** resolved
 
 ---
@@ -77,7 +77,7 @@
       neighbourhood during self-QA.
 - [x] **Traceability ids assigned** - TRC-001…TRC-005, all present in
       `acceptance-criteria.md` and `task.yml`.
-- [x] **Affected surface named** - `delivery-approach.md` §4 and the upcoming `design.md` §4
+- [x] **Affected surface named** - `delivery-approach.md` §4 and the upcoming `technical-design.md` §4
       name the middleware, the delivery approach wiring, and the config addition.
 - [x] **No open questions** - the ambiguity ledger above is fully resolved.
 - [x] **Route still fits** - nothing in refine changed the size or blast

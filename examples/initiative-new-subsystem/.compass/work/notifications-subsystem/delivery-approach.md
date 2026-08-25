@@ -11,9 +11,9 @@
 | Dimension | Value | One-line justification |
 |---|---|---|
 | **Risk:** | contained | A new, self-contained subsystem with its own table and module tree. Other code calls *into* it; it does not reach back into theirs. If it misbehaves, notifications are wrong - the rest of the product is not. |
-| **Familiarity:** | greenfield | There is no notifications capability today (`prd.md` Problem). Nothing to distil - the scenarios are discovered from the brief, not reverse-engineered. |
+| **Familiarity:** | greenfield | There is no notifications capability today (`intent.md` Problem). Nothing to distil - the scenarios are discovered from the brief, not reverse-engineered. |
 | **Size:** | standard | On its own, the *code* is standard-sized - a module tree, an API surface, one new table, ~a week. **The route is not standard, though** - see §3. |
-| **Goal & role** | product-owner | A product manager invoked this with a `prd.md`. The intent is the outcome in that brief, not just "add notifications" - and the role pulls RP-ROLE-002 into play. |
+| **Goal & role** | product-owner | A product manager invoked this with a `intent.md`. The intent is the outcome in that brief, not just "add notifications" - and the role pulls RP-ROLE-002 into play. |
 
 **Domain tags (`labels:`):** `migrations` - the subsystem ships a new table as a schema migration. This tag is honest and load-bearing: it is what fires RP-FLOOR-003.
 
@@ -41,7 +41,7 @@ This is the section that decides the delivery approach. Two routing guardrails f
 | Rule type | Rule | What it changed | Rationale (quoted from the policy) |
 |---|---|---|---|
 | floor | RP-FLOOR-003 - `labels_any: [migrations]` | **Candidate route raised: standard → expedition.** | "Domain risk overrides size. A one-line auth change is not small." |
-| role_rule | RP-ROLE-002 - `role: product-owner` | `prd.md` required as an artifact; **Plan blocked** until the spec is checked against the brief for intent fidelity. | "Built-the-thing-right and built-the-right-thing are different checks." |
+| role_rule | RP-ROLE-002 - `role: product-owner` | `intent.md` required as an artifact; **Plan blocked** until the spec is checked against the brief for intent fidelity. | "Built-the-thing-right and built-the-right-thing are different checks." |
 
 **Why RP-FLOOR-003 is the right call here, not bureaucracy:** a migration is
 irreversible in the way that matters - a forward migration that runs in
@@ -52,11 +52,11 @@ regardless of how small the surrounding code looks. The same tag also makes
 **guardrail `G5`** apply: a human signs off the irreversible change before ship
 (see §6 and `task.yml` `approvals:`).
 
-**Why RP-ROLE-002 fired:** a product manager wrote `prd.md`. The rule blocks
+**Why RP-ROLE-002 fired:** a product manager wrote `intent.md`. The rule blocks
 Plan until the spec has been checked back against the brief - built-the-thing-
 right (the gates) and built-the-right-thing (intent fidelity) are different
 checks, and initiative runs both. That check is recorded at the foot of
-`prd.md`; it passed on 2026-03-06 and Plan was unblocked.
+`intent.md`; it passed on 2026-03-06 and Plan was unblocked.
 
 ---
 
@@ -67,9 +67,9 @@ checks, and initiative runs both. That check is recorded at the foot of
 | Phase | Weight | Notes |
 |---|---|---|
 | Triage | Full | This document, with explicit `touches:` tagging - initiative is where domain floors most often fire, and one did. |
-| Define | Full BDD discovery | Greenfield - six scenarios discovered from `prd.md`, grouped by independence into two groups (A: delivery & dispatch, B: preferences). The grouping seeds the distribution map. |
+| Define | Full BDD discovery | Greenfield - six scenarios discovered from `intent.md`, grouped by independence into two groups (A: delivery & dispatch, B: preferences). The grouping seeds the distribution map. |
 | Refine | Full pass | Self-QA, governance QA, explicit ambiguity ledger. The product owner reviewed here. See `requirements-review.md`. |
-| Plan | Full `design.md` + `distribution-map.md` | Architecture, every design decision as an ADR note, governance check, scenario-group → stream mapping. **Was blocked** by RP-ROLE-002 until the intent-fidelity check passed. |
+| Plan | Full `technical-design.md` + `distribution-map.md` | Architecture, every design decision as an ADR note, governance check, scenario-group → stream mapping. **Was blocked** by RP-ROLE-002 until the intent-fidelity check passed. |
 | Breakdown | Swarm | `scripts/swarm.sh` created two worktrees from `distribution-map.md` - stream-1 (dispatch/store), stream-2 (preferences). One `builder` each, plus an `orchestrator`. |
 | Build | Full TDD per stream | Two builders, parallel, red→green→refactor in their own worktrees. The orchestrator watched the shared `migrations/0042` and `api.py` surface. |
 | Verify | All gates, all dimensions | Per-stream verification, then combined verification after integration. See `verification-report.md`. |
@@ -133,4 +133,4 @@ would have stayed initiative regardless. That is the floor doing its job.)
 - [x] Not a spike - no `.spike` marker needed.
 - [x] `devlog.md` opened with the triage entry.
 
-Next stage: **define** (`/compass:define`) - full BDD discovery from `prd.md`.
+Next stage: **define** (`/compass:define`) - full BDD discovery from `intent.md`.

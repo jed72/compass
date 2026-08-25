@@ -46,7 +46,7 @@ it; do not quietly absorb it as your own work.
 What is left for you is everything the author could not settle alone:
 
 - **Contradictions** between scenarios that cannot both hold.
-- **Gaps** across the whole set - a stated outcome, or a `prd.md` success
+- **Gaps** across the whole set - a stated outcome, or a `intent.md` success
   signal, with no scenario.
 - **Governance conflicts** - a scenario that crosses a guardrail, or departs
   from an applicable strategy with no recorded reason.
@@ -65,7 +65,7 @@ is for. The same split is written from the other side in
 - Read `governance/` - the spec is QA'd against the guardrails and the
   applicable strategies here.
 - If a non-engineering role is in play, this is where they review: invoke
-  `product-lens` (intent fidelity against `prd.md`) and/or `marketing-lens`
+  `product-lens` (intent fidelity against `intent.md`) and/or `marketing-lens`
   (every planned claim has a candidate scenario).
 
 ## Procedure
@@ -85,7 +85,7 @@ is for. The same split is written from the other side in
 ## Reassessment trigger
 
 If the review reveals the spec is bigger or more ambiguous than the
-assessment assumed, **stop and re-assess** (`/compass:triage --reassess`) - do
+assessment assumed, **stop and re-assess** (`/compass:assess --reassess`) - do
 not push a feature-shaped process through an initiative-shaped problem.
 
 ## Hand-off

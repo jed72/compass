@@ -31,3 +31,17 @@ orthogonal, so we elide the salient detail.
 Cut along the seams the architecture already has. Cutting across a seam creates
 a shared surface. Find the seams of the module and name them. These functions
 were the natural seam in the code.
+
+## The vocabulary rename of 2026-08-25
+
+Run `/compass:triage` to size the work. During Triage the four dimensions are
+read. The Triage stage never collapses.
+
+# Triage
+
+The designer starts at `/compass:wireframe`. The Wireframe command produces the
+UI contract.
+
+# Wireframe
+
+Write the brief to `prd.md`, from `templates/prd.md`.

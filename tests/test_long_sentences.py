@@ -3,7 +3,7 @@
 Long sentences are a prompt to re-read, not a defect. A threshold that failed a
 build would become a number people wrote around - splitting one 34-word
 sentence into two clumsy ones to clear a gate teaches exactly the wrong habit,
-and `prd.md` rules out any numeric writing gate for that reason.
+and `intent.md` rules out any numeric writing gate for that reason.
 
 So the REPORT never changes an exit status. The tests in this file are a
 different thing and must be able to fail: they check that the reporter finds
@@ -12,6 +12,13 @@ prove wrong is not advisory, it is decorative.
 
 Scenario ids: TRC-E1, TRC-E2 (issue plain-language-3-2-0).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import re
@@ -117,7 +124,7 @@ def test_pl_e2b_no_knob_exists_that_would_make_it_block():
                 if re.search(r"strict|fail|gate|block|error|raise", n, re.I)]
     assert not switches, (
         f"this module exposes {switches}, which invite turning an advisory "
-        f"report into a gate. prd.md rules out a numeric writing gate."
+        f"report into a gate. intent.md rules out a numeric writing gate."
     )
     loose = long_sentences(_sentence_of(35), threshold=100)
     tight = long_sentences(_sentence_of(35), threshold=10)

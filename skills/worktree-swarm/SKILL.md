@@ -18,7 +18,7 @@ without the parallelism costing more than it saves.
 | **Pair** | 2–3 | One worktree per stream; one `builder` each; no dedicated orchestrator. | The lead builder. |
 | **Swarm** | 4+ | One worktree per stream; one `builder` each; plus one `orchestrator`. | The orchestrator. |
 
-Triage's size and risk assessment set the default topology; the
+Assess's size and risk assessment set the default topology; the
 distribution map sets the stream count; `.compass/config.yml` thresholds and the
 routing-guardrail caps bound it.
 

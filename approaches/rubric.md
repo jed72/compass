@@ -1,11 +1,11 @@
-# Triage - the sizing rubric
+# Assess - the sizing rubric
 
-Triage is the component that runs at the start of every issue. It reads four assessment
+Assess is the component that runs at the start of every issue. It reads four assessment
 dimensions, applies `governance/routing-policy.md`, and writes `delivery-approach.md`. This
 file is its rubric. The `adaptive-routing` skill is the procedural companion;
 this is the reference.
 
-Triage does not pick a route from a list. It *scores four dimensions*,
+Assess does not pick a route from a list. It *scores four dimensions*,
 *composes* a candidate route (biased by the routing strategies), *constrains*
 it (bounded by the routing guardrails), and *explains* the result. The five
 reference shapes in this directory are common shapes the composition lands
@@ -57,8 +57,8 @@ that turned out easy than to discover mid-Build that the route was too light.
 
 | Value | Entry point | What it changes |
 |---|---|---|
-| `engineer` | `/compass:triage` | Standard pipeline ownership. |
-| `product-owner` | `/compass:intent` | Adds `prd.md` upstream of the spec; inserts the intent-fidelity gate before Plan. |
+| `engineer` | `/compass:assess` | Standard pipeline ownership. |
+| `product-owner` | `/compass:intent` | Adds `intent.md` upstream of the spec; inserts the intent-fidelity gate before Plan. |
 | `product-marketer` | `/compass:position` | Adds `positioning.md` / `launch-readiness.md`; blocks shipping on the claims gate. |
 | `designer` | `/compass:design` | Adds `ui-contract.md`; UI contracts enter the define stage as scenarios. |
 | `qa` | joins at `/compass:verify` | Owns the Verify gate; can send an issue back to define if scenarios are uncoverable. |
@@ -147,7 +147,7 @@ did it and quotes the floor's rationale.
 
 ## Step 4 - Write `delivery-approach.md` and confirm
 
-Triage writes `.compass/work/<task-slug>/delivery-approach.md` from
+Assess writes `.compass/work/<task-slug>/delivery-approach.md` from
 `templates/delivery-approach.md`. It contains:
 
 - the four dimension assessment, each with its one-line justification;
@@ -171,7 +171,7 @@ guardrail is governance speaking; changing it means amending
 
 If Build reveals the familiarity was misread - the "small" change is unspooling
 into a multi-module refactor - the correct move is to **stop and re-assess**,
-not to push on with a route you no longer believe. `/compass:triage --reassess`
+not to push on with a route you no longer believe. `/compass:assess --reassess`
 re-scores the dimensions, writes a new `delivery-approach.md` revision, and records what
 changed and why. A re-assess is a normal event, not a failure. A route quietly
 outgrown is the failure.

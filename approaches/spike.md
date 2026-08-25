@@ -10,7 +10,7 @@ even viable, learning an unfamiliar API, prototyping to feel out a design. A
 framework that forces that work through a delivery-shaped pipeline is using a
 sledgehammer on a nut. Spike is the route that does not.
 
-## Triage composes toward Spike when
+## Assess composes toward Spike when
 
 - intent is **exploration** - "I need to understand this before I can frame it"
   - rather than delivery, **and**
@@ -22,7 +22,7 @@ Typical: root-causing a mysterious defect, a viability prototype, a timeboxed
 to plan real work against it.
 
 Spike is selected by *intent*, the way Hotfix is selected by *urgency* - the
-Triage still scores all four dimensions, but exploration intent is what picks
+Assess still scores all four dimensions, but exploration intent is what picks
 the shape.
 
 ## What is different about Spike
@@ -48,7 +48,7 @@ means re-assessing into a real delivery approach, where the tested-before-ship, 
 | Breakdown | **Skipped.** Solo. |
 | Build | **= Explore.** Write code freely to answer the question. TDD strategy suspended; the hook does not block. Code here is assumed throwaway. |
 | Verify | **= Conclude.** Not a test gate - a findings check: *did we answer the question?* The output is a written conclusion, not a passing suite. |
-| Ship | **= Graduate or Discard.** Never "merge to main." Either the findings feed a fresh `/compass:triage` for real delivery work, or the spike is discarded with its learnings recorded. |
+| Ship | **= Graduate or Discard.** Never "merge to main." Either the findings feed a fresh `/compass:assess` for real delivery work, or the spike is discarded with its learnings recorded. |
 
 ## Gate set
 
@@ -77,7 +77,7 @@ The de-scopes are safe because the route has no delivery output to protect.
 
 When a spike answers its question and the team wants to act on it:
 
-1. **Re-assess.** Run `/compass:triage` afresh for the real delivery work. The
+1. **Re-assess.** Run `/compass:assess` afresh for the real delivery work. The
    spike's `delivery-approach.md`, conclusion, and any reference code are inputs to that
    triage - often very good inputs, because the familiarity is now mapped.
 2. **The new route owns the code.** Any code carried over from the spike is

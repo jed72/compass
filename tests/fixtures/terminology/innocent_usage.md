@@ -20,8 +20,8 @@ rename was in flight - a backticked command name really did name a live
 command. ADR-014 removed those names at the major version and ADR-015 closed
 the exclusion, so this fixture no longer claims a retired name is innocent
 merely for being inside backticks. The live spellings are innocent, and they
-are what belongs here: run `/compass:triage`, `compass approach evaluate`,
-open `delivery-approach.md`, `prd.md`, or `acceptance-criteria.md`, settle
+are what belongs here: run `/compass:assess`, `compass approach evaluate`,
+open `delivery-approach.md`, `intent.md`, or `acceptance-criteria.md`, settle
 what is outstanding with `compass follow-up resolve`, and read the
 `assessment:` block or the `labels:` list in the issue spine.
 
@@ -41,3 +41,9 @@ The navigation app composed a scenic detour, not that this matters here.
 
 The seam of a garment runs down the sleeve, and a coal seam is a geological
 term. A tailor checks every seam before pressing.
+
+We triage the backlog every Monday, sorting between issues by urgency - which is the ordinary verb and stays legal, because it is what `compass flow` does rather than what one stage of the pipeline does.
+
+The designer sketched a wireframe on paper before touching Figma. That is the ordinary noun and is fine.
+
+We wrote the product requirements down before starting.

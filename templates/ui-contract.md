@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: ui-contract.md
-Produced by: the designer via `/compass:wireframe`.
+Produced by: the designer via `/compass:design`.
 Lives at:    .compass/work/<task-slug>/ui-contract.md
 Role in the pipeline: the designer's artifact. The designer feeds INTO
 Define - UI behaviour here is authored as Given/When/Then scenarios so it
@@ -47,7 +47,7 @@ shape the spec uses - so the handoff into the define stage is mechanical.
      unbroken across the handoff. -->
 
 ### Scenario: {{INTERACTION TITLE}}
-<!-- traceability id: TRC-UI1 · serves: {{INT-id from prd.md, or the issue}} -->
+<!-- traceability id: TRC-UI1 · serves: {{INT-id from intent.md, or the issue}} -->
 
 ```gherkin
 Scenario: {{scenario title}}

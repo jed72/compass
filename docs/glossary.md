@@ -316,7 +316,7 @@ A body of work significant enough to need a PRD, delivered across multiple miles
 
 ### intent
 
-The outcome a change is meant to produce - the "why" end of the traceability chain, sourced from the PRD's desired outcome, the UI contract, or the issue description. A goal, not a requirement: the functional requirement is the scenario.
+Two related things, and the entry covers both deliberately. (1) The document: intent.md, the originator's statement of what is wanted and why, AUTHORED at the intake stage or INGESTED from a brief that already exists - it does not presume authorship. (2) The goal it carries: the outcome a change is meant to produce, the "why" end of the traceability chain, carrying the INT- ids that scenarios trace back to. The document holds the goals, which is why one name serves both. Sourced from intent.md's desired outcome, the UI contract, or the issue description. A goal, not a requirement: the functional requirement is the scenario.
 
 **Not:** A restatement of the request. "Add a CSV export" is a request; "let finance self-serve" is the intent, and it may need filters and permissions the request never mentioned.
 
@@ -509,6 +509,14 @@ The breakdown unit within an issue or initiative. A slice is tracked as a sub-is
 **GitHub:** Sub-issue
 
 **Related:** `issue`, `slice`
+
+### technical-design
+
+The engineering plan for one issue: the approach, the design decisions as ADR-style notes, the governance check, and the independent work units. Written at the planning stage (/compass:plan) as technical-design.md.
+
+**Not:** NOT the designer's work. That is the UI contract (ui-contract.md), from /compass:design. `design` alone named a command, an artifact, an artifact kind, a CLI verb and a role, and was the only overloaded word in this framework with no entry here - which is how it stayed ambiguous. NEVER abbreviate this to TDD: in this repository TDD is red-green-refactor and nothing else.
+
+**Related:** `technical-design`, `delivery-approach`
 
 ### traceability
 

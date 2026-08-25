@@ -17,11 +17,13 @@ from compass_pkg.core import normalize_spine
 
 # v1 filename -> v2 filename, applied inside each issue directory.
 V1_ARTIFACT_NAMES = {
-    "brief.md": "prd.md",
+    "brief.md": "intent.md",
     "spec.feature.md": "acceptance-criteria.md",
     "route.md": "delivery-approach.md",
     "clarifications.md": "requirements-review.md",
-    "plan.md": "design.md",
+    "plan.md": "technical-design.md",
+    "design.md": "technical-design.md",
+    "prd.md": "intent.md",
     "spec.feature": "acceptance-criteria.feature",
 }
 

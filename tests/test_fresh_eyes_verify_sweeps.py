@@ -18,6 +18,13 @@ Criteria: docs/system-spec.md
 (Requirements review and design collapsed on this quick fix - see
 `.compass/work/fresh-eyes-verify-sweeps/delivery-approach.md` §5.)
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import re
@@ -252,7 +259,7 @@ def test_trc_c2_strategy_carries_adr_013_worked_example_and_summary_caution():
         "is often a summary of it"
     )
 
-    # The worked example: ADR-013's Context, checked against design.md
+    # The worked example: ADR-013's Context, checked against technical-design.md
     # (the nearest document) rather than a primary record that does not
     # exist because the claimed event never happened.
     assert "adr-013" in flat_lower, (
@@ -264,8 +271,8 @@ def test_trc_c2_strategy_carries_adr_013_worked_example_and_summary_caution():
         "flagged phrase tests/test_public_copy_claims.py scans public copy "
         "for, which this file is not exempt from"
     )
-    assert "design.md" in flat_lower, (
-        "the strategy must name design.md as the nearest document ADR-013 "
+    assert "technical-design.md" in flat_lower, (
+        "the strategy must name technical-design.md as the nearest document ADR-013 "
         "was checked against"
     )
     assert "did not happen" in flat_lower, (
@@ -302,7 +309,7 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # named something already load-bearing and undefined - the most-used id
     # prefix in the repository, a live command, a live agent, and the only
     # judgement field in the spine. ADR-016 records the decision.
-    assert len(terminology["terms"]) == 57, (
+    assert len(terminology["terms"]) == 58, (
         "governance/terminology.yml gained or lost a term without this count "
         "moving. A vocabulary change is a decision (ADR-012); make it one."
     )

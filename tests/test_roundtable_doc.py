@@ -1,9 +1,16 @@
 """Roundtable doc - Reassessment trigger section.
 
 TRC-C4: commands/roundtable.md contains a "Reassessment trigger" section that
-documents the requirement to run /compass:triage --reassess after boundary
+documents the requirement to run /compass:assess --reassess after boundary
 or migration decisions.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 from pathlib import Path
@@ -30,9 +37,9 @@ def test_reframe_trigger_documented():
     )
 
     # Must show the concrete command
-    assert "/compass:triage --reassess" in text, (
+    assert "/compass:assess --reassess" in text, (
         "The Reassessment trigger section must show the example invocation: "
-        "/compass:triage --reassess --reason \"...\""
+        "/compass:assess --reassess --reason \"...\""
     )
 
     # Must include --reason flag in the example

@@ -18,7 +18,7 @@ unsettled follow-up is an open issue - ship refuses to close it.
 ## Spike note
 
 On a spike, ship is **graduate or discard** - never "merge to main". Nothing
-ships from a spike. Either the findings feed a fresh `/compass:triage` for
+ships from a spike. Either the findings feed a fresh `/compass:assess` for
 real delivery work (graduation - see `approaches/spike.md`), or the spike is
 discarded with its learnings recorded in `devlog.md`. The procedure below is
 for delivery work; on a spike, follow the graduate-or-discard step in

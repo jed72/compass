@@ -16,6 +16,13 @@ trusted anyway, which is worse than no page.
 
 Scenario ids trace to .compass/work/the-human-front-door/acceptance-criteria.md.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import re
@@ -52,7 +59,7 @@ def _issue(tmp_path: Path, artifacts: Optional[List[Dict[str, Any]]] = None,
 
 
 PACK = [
-    {"id": "ART-HLD", "kind": "design", "path": "design.md",
+    {"id": "ART-HLD", "kind": "design", "path": "technical-design.md",
      "status": "awaiting-approval",
      "reason": "new service, queue and storage boundaries"},
     {"id": "ART-AC", "kind": "acceptance-criteria", "path": "acceptance-criteria.md",
@@ -81,7 +88,7 @@ def test_c1_dashboard_names_decision_and_start(tmp_path):
     assert "decision" in first_screen, (
         "the first screen does not say what the reviewer is being asked to "
         "decide:\n" + first_screen)
-    assert "design.md" in "\n".join(page.splitlines()[:25]), (
+    assert "technical-design.md" in "\n".join(page.splitlines()[:25]), (
         "the first screen does not name the one document to read")
 
 
@@ -406,9 +413,9 @@ def test_c7_artifact_status_can_be_moved_from_the_cli(tmp_path):
     (proj / ".compass" / "current-task").write_text("export-portfolio-data\n")
     (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     task_dir = _issue(proj / ".compass", artifacts=[
-        {"id": "ART-PRD", "kind": "prd", "path": "prd.md", "status": "draft",
+        {"id": "ART-PRD", "kind": "prd", "path": "intent.md", "status": "draft",
          "reason": "every initiative carries one"},
-        {"id": "ART-HLD", "kind": "design", "path": "design.md",
+        {"id": "ART-HLD", "kind": "design", "path": "technical-design.md",
          "status": "draft", "reason": "every initiative carries one"}])
 
     def run(*a):

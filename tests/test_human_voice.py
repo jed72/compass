@@ -14,7 +14,7 @@ asserts what the prose surfaces carry (TRC-A1..A4, B1..B3, C1..C3, D1, F3);
 (TRC-D2, D3, F1, F2), by running it as a subprocess over fixtures.
 
 Criteria: docs/system-spec.md
-Design:   .compass/work/human-voice/design.md (DD-4 names what each function
+Design:   .compass/work/human-voice/technical-design.md (DD-4 names what each function
           asserts; DD-7 recorded the original reason the archive-dependent
           half of TRC-A2 and TRC-C2 skipped rather than failed when
           `.compass/work/` is absent, as it always is in continuous
@@ -38,6 +38,13 @@ Design:   .compass/work/human-voice/design.md (DD-4 names what each function
           and archive root, rather than by chance of what this machine
           happens to have checked out.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import importlib.util
@@ -608,9 +615,17 @@ def test_trc_b1_claude_md_and_agents_md_carry_the_voice_paragraph():
         assert tell not in agents_section, f"AGENTS.md must not copy the tells list ({tell!r})"
 
 
-def test_trc_b2_triage_refine_and_verify_point_at_the_reference():
+def test_trc_b2_assess_refine_and_verify_point_at_the_reference():
+    """The three commands whose output a person reads most name the writing
+    reference; no other command does.
+
+    `triage.md` became `assess.md` on 2026-08-25. The file that still carries
+    the old name is a redirect stub - a pointer with no procedure and no voice
+    section - so it is excluded rather than expected to carry one.
+    """
     command_dir = REPO_ROOT / "commands"
-    included = ["triage.md", "refine.md", "verify.md"]
+    included = ["assess.md", "refine.md", "verify.md"]
+    stubs = {"triage.md", "wireframe.md"}
     for name in included:
         text = (command_dir / name).read_text(encoding="utf-8")
         section = _section_after_heading(text, "Voice")
@@ -623,12 +638,12 @@ def test_trc_b2_triage_refine_and_verify_point_at_the_reference():
         )
 
     for path in sorted(command_dir.glob("*.md")):
-        if path.name in included:
+        if path.name in included or path.name in stubs:
             continue
         text = path.read_text(encoding="utf-8")
         assert REFERENCE_PATH not in text, (
             f"commands/{path.name} names the writing-voice reference; only "
-            f"triage, refine, and verify should"
+            f"assess, refine, and verify should"
         )
 
 
@@ -666,7 +681,7 @@ def test_trc_b3_the_full_tells_list_appears_in_exactly_one_file():
 # ---------------------------------------------------------------------------
 
 def test_trc_f3_no_new_guardrail_gate_check_or_cli_verb():
-    # This issue's inventory (design.md section 9) never touches these
+    # This issue's inventory (technical-design.md section 9) never touches these
     # paths at all - the direct proof is that git sees no change to them.
     # tests/test_stream_c_no_new_checks_or_gates.py and
     # tests/test_cli_surface_drift.py are the standing nets for the same

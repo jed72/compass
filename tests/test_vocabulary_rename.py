@@ -151,7 +151,22 @@ def test_trc_b1():
 
 
 def test_trc_b2():
-    """TRC-B2: a document written before the rename still resolves."""
+    """TRC-B2: a document written before the rename still resolves.
+
+    Also asserts the compatibility map has not collapsed to an identity. A
+    blanket rename over the tree rewrote its values to the current filenames
+    on 2026-08-25 - the map whose only job is to remember the old name had the
+    old name renamed out of it, and every assertion below still passed because
+    the fixture wrote whatever the map said.
+    """
+    from compass_pkg.core import _RENAMED_KIND_FILES
+
+    assert _RENAMED_KIND_FILES, "the compatibility map is empty"
+    for kind, filename in _RENAMED_KIND_FILES.items():
+        assert filename != "%s.md" % kind, (
+            "the compatibility entry for %r points at its own current "
+            "filename, so it maps nothing and a landed issue holding the old "
+            "name no longer resolves" % kind)
     import tempfile
     from compass_pkg.core import FOUND, resolve_artifact
 
@@ -169,3 +184,139 @@ def test_trc_b2():
             % (Path(path).name, flat))
         assert flat in reason or "flat" in reason, (
             "the reason does not say which route found it: " + reason)
+
+
+# ---------------------------------------------------------------------------
+# Group A - the names agree
+# ---------------------------------------------------------------------------
+
+COMMANDS = REPO_ROOT / "commands"
+
+# Command -> the machine key it runs, for every stage that has both.
+STAGE_COMMANDS = {
+    "assess": "assess",
+    "define": "define",
+    "refine": "refine",
+    "plan": "plan",
+    "breakdown": "breakdown",
+    "implement": "implement",
+    "verify": "verify",
+    "ship": "ship",
+}
+
+# Retired command names that must answer with a pointer rather than vanish.
+# `design` is NOT here: it is a retired name for the engineering stage AND the
+# live name for the designer's, so a stub pointing at `/compass:plan` would
+# take the designer's command away again.
+RETIRED_COMMANDS = {"triage": "assess", "wireframe": "design"}
+
+
+def _command_names():
+    return {p.stem for p in COMMANDS.glob("*.md")}
+
+
+def _is_stub(name):
+    """A retired name that points and stops, rather than doing the work.
+
+    TRC-A1 and TRC-A2 say a retired name must not be a live command; TRC-B4
+    says it must still answer. Both are right and the first was written too
+    bluntly - the file existing is not the same as the command being live. A
+    stub is identified by what it does: it names its replacement, it says it is
+    retired, and it is short enough that it plainly carries no procedure.
+    """
+    p = COMMANDS / ("%s.md" % name)
+    if not p.is_file():
+        return False
+    text = p.read_text(encoding="utf-8")
+    return ("retired" in text.lower()
+            and "/compass:" in text
+            and len(text.splitlines()) < 40)
+
+
+def test_trc_a1():
+    """TRC-A1: a command, its machine key and its artifact name the same thing.
+
+    The rule is about an artifact CLAIMING another stage, not about sharing a
+    word with one - four artifacts already differ from their stage's name and
+    none is a defect (`define`/`acceptance-criteria`,
+    `refine`/`requirements-review`, `assess`/`delivery-approach`,
+    `verify`/`verification-report`).
+    """
+    names = _command_names()
+    assert names, "no command files found, so this checks nothing"
+
+    for command, key in STAGE_COMMANDS.items():
+        assert command in names, (
+            "no `/compass:%s` command, and the machine key is %r - the word a "
+            "person types and the word the spine holds must be the same. "
+            "Commands present: %s" % (command, key, sorted(names)))
+        assert command == key, (
+            "the command %r and its machine key %r are different words"
+            % (command, key))
+
+    # The two defects this rule exists for, asserted directly rather than left
+    # to the general shape above.
+    intent = (COMMANDS / "intent.md").read_text(encoding="utf-8")
+    assert "prd.md" not in intent, (
+        "`/compass:intent` still writes prd.md - a command and its own output "
+        "naming different things is the defect this issue opened on")
+    assert "intent.md" in intent, (
+        "`/compass:intent` does not name intent.md as what it writes")
+    assert _is_stub("triage"), (
+        "`/compass:triage` is still a live command rather than a stub. It "
+        "produces an `assessment:` block, and the command for that is "
+        "`/compass:assess`; the old name may point at it and nothing more.")
+
+
+def test_trc_a2():
+    """TRC-A2: the designer's command is `design` again, and does not claim
+    the engineering stage's job."""
+    names = _command_names()
+    for want in ("design", "plan"):
+        assert want in names, "no `/compass:%s` command: %s" % (want, sorted(names))
+    assert _is_stub("wireframe"), (
+        "`/compass:wireframe` is still a live command rather than a stub - the "
+        "designer's entry point is `/compass:design` again")
+
+    design = (COMMANDS / "design.md").read_text(encoding="utf-8")
+    plan = (COMMANDS / "plan.md").read_text(encoding="utf-8")
+
+    assert "ui-contract.md" in design, (
+        "`/compass:design` does not produce the UI contract, so it is not the "
+        "designer's entry point")
+    assert "technical-design.md" in plan, (
+        "`/compass:plan` does not produce technical-design.md")
+    assert "ui-contract.md" not in plan, (
+        "`/compass:plan` claims the designer's artifact")
+    assert "technical-design.md" not in design, (
+        "`/compass:design` claims the engineering stage's artifact")
+
+
+def test_trc_b4():
+    """TRC-B4: a retired command answers with a pointer, not as unknown.
+
+    `design` is deliberately excluded: it is retired for one stage and live for
+    another, and a stub pointing at `/compass:plan` would take the designer's
+    command away a second time.
+    """
+    names = _command_names()
+    for retired, replacement in RETIRED_COMMANDS.items():
+        stub = COMMANDS / ("%s.md" % retired)
+        assert stub.is_file(), (
+            "`/compass:%s` was removed rather than left as a redirect stub. "
+            "governance/terminology.yml says a retired name 'is a redirect "
+            "stub for one major version'." % retired)
+        text = stub.read_text(encoding="utf-8")
+        assert replacement in text, (
+            "the `%s` stub does not name its replacement %r"
+            % (retired, replacement))
+        assert len(text.splitlines()) < 40, (
+            "the `%s` stub is %d lines - a stub points, it does not carry a "
+            "copy of the command that replaced it"
+            % (retired, len(text.splitlines())))
+
+    assert "design" in names, "the design command vanished"
+    design = (COMMANDS / "design.md").read_text(encoding="utf-8")
+    assert "/compass:plan" not in design or "designer" in design.lower(), (
+        "`/compass:design` reads as a stub pointing at `/compass:plan`. It is "
+        "the designer's command now, not a redirect")

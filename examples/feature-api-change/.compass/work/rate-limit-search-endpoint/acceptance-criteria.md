@@ -5,7 +5,7 @@
 
 ## How each role reads this file
 
-- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `prd.md`?
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `intent.md`?
 - **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
 - **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
 - **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
@@ -24,7 +24,7 @@
 
 ## Scenario group A - Rate limiting behaviour
 
-**Independence note:** single group. All five scenarios exercise the one new middleware; per `design.md` §4 they share code surface and are built as one solo stream.
+**Independence note:** single group. All five scenarios exercise the one new middleware; per `technical-design.md` §4 they share code surface and are built as one solo stream.
 
 ### Scenario: Requests under the limit pass through unchanged
 <!-- traceability id: TRC-001 · serves: INT-1 -->

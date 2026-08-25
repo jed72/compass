@@ -26,10 +26,10 @@ one major version.
 
 | Stage (v2 name) | Command | Artifact it writes |
 |---|---|---|
-| Triage | `/compass:triage` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
+| Triage | `/compass:assess` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
 | Define acceptance criteria | `/compass:define` | `acceptance-criteria.md` |
 | Requirements review | `/compass:refine` | `requirements-review.md` (ends with the Definition of Ready) |
-| Design | `/compass:design` | `design.md` (+ `distribution-map.md` on parallel work) |
+| Design | `/compass:design` | `technical-design.md` (+ `distribution-map.md` on parallel work) |
 | Break down the work | `/compass:breakdown` | worktrees + stream charters |
 | Implement | `/compass:implement` | code + the red and green records (named by binding) |
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
@@ -38,7 +38,7 @@ one major version.
 Cross-issue: `/compass:status` (one issue or a flat list), `/compass:flow`
 (the managed cross-issue view - advisory, never gating). Role entry points:
 `/compass:intent` (product owner), `/compass:position` (marketer),
-`/compass:wireframe` (designer - produces the UI contract),
+`/compass:design` (designer - produces the UI contract),
 `/compass:roundtable` (multi-role decisions). Setup: `/compass:init` is
 optional - shipped governance defaults apply with zero setup.
 
@@ -55,13 +55,13 @@ also write the human-readable approach record (`delivery-approach.md`). You do n
 choose a process, and you do not compose the approach in your head - you
 assess the work, the CLI computes the approach.
 
-Triage also writes `.compass/current-task` - a one-line pointer to the
+Assess also writes `.compass/current-task` - a one-line pointer to the
 active issue. The hooks and the CLI rely on it: `compass check`,
 `compass tdd-red`, and the pre-tool hook resolve the current issue through
 that pointer, so keep it pointing at the issue you are actually working.
 
 When the assessment turns out to have been misread, re-assess through the
-same mechanism: `/compass:triage --reassess` re-runs the evaluator, detects
+same mechanism: `/compass:assess --reassess` re-runs the evaluator, detects
 that the approach changed, and records the change in the spine's `reframes:`
 log - pass `--reason "..."` so the entry says *why*. `compass retro`
 aggregates that log across issues and reports whether triage is
@@ -200,11 +200,11 @@ the approach is solo, there is no worktree - work on the current branch.
 │   └── <task-slug>/            One directory per issue
 │       ├── delivery-approach.md             The delivery-approach record (prose)
 │       ├── task.yml             The machine-readable issue spine
-│       ├── prd.md             Intake (if a product owner was involved)
+│       ├── intent.md             Intake (if a product owner was involved)
 │       ├── ui-contract.md       Designer contracts (if a designer was involved)
 │       ├── acceptance-criteria.md      Acceptance criteria - the shared artifact
 │       ├── requirements-review.md    (ends with the Definition of Ready gate)
-│       ├── design.md              The design
+│       ├── technical-design.md              The design
 │       ├── distribution-map.md  Swarm topology (initiative-scale work)
 │       ├── positioning.md       Marketer messaging (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)

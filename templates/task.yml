@@ -4,7 +4,7 @@
 #              Lives at: .compass/work/<task-slug>/task.yml
 # =============================================================================
 # task.yml is the structured counterpart to the prose artifacts
-# (delivery-approach.md, acceptance-criteria.md, design.md, …). The prose is
+# (delivery-approach.md, acceptance-criteria.md, technical-design.md, …). The prose is
 # for humans; this is for the CLI. `compass approach evaluate` reads
 # `assessment` and writes `delivery_approach`/`stages`/`gates`;
 # `compass check` reads the rest and verifies the guardrail checks.
@@ -86,7 +86,7 @@ gates: []
 scenarios: []
 #  - id: TRC-001
 #    title: "Finance exports the month-end ledger"
-#    intent: INT-1            # traces to prd.md / the triage request
+#    intent: INT-1            # traces to intent.md / the triage request
 #    tests:
 #      - "tests/api/test_ledger_export.py::test_excludes_drafts"
 

@@ -268,12 +268,12 @@ def build_parser():
     pll = pls.add_parser("lint", help="structurally validate the governance YAML")
     pll.set_defaults(func=cmd_policy_lint, output_kind="report")
 
-    ppl = sub.add_parser("design", help="design.md tools")
+    ppl = sub.add_parser("design", help="technical-design.md tools")
     ppls = ppl.add_subparsers(dest="subcmd", required=True)
     ppll = ppls.add_parser(
-        "lint", help="scan a design.md for placeholder phrases (advisory; always exits 0)")
+        "lint", help="scan a technical-design.md for placeholder phrases (advisory; always exits 0)")
     issue_arg(ppll)
-    ppll.add_argument("--file", help="lint a specific design.md file")
+    ppll.add_argument("--file", help="lint a specific technical-design.md file")
     ppll.set_defaults(func=cmd_plan_lint, output_kind="report")
 
     pt = sub.add_parser("issue", help="issue spine tools")

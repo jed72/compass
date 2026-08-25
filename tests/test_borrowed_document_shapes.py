@@ -20,6 +20,13 @@ borrowing rather than the author's taste:
 Scenario ids trace to
 .compass/work/adaptive-artifact-composition/acceptance-criteria.md.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import re
@@ -33,7 +40,7 @@ TEMPLATES = REPO_ROOT / "templates"
 THREAT = TEMPLATES / "threat-model.md"
 ROLLBACK = TEMPLATES / "rollback-plan.md"
 
-# Measured, not felt: prd.md is 106 lines and design.md - the largest, carrying
+# Measured, not felt: intent.md is 106 lines and technical-design.md - the largest, carrying
 # six optional sections - is 223. 120 sits above the PRD and far below the
 # design: room for a worked example, not for a form.
 TEMPLATE_LINE_CAP = 120
@@ -245,7 +252,7 @@ def _optional_sections(text):
 
 def test_trc_c1():
     """TRC-C1: the design template offers a cross-cutting concerns section."""
-    text = (TEMPLATES / "design.md").read_text(encoding="utf-8")
+    text = (TEMPLATES / "technical-design.md").read_text(encoding="utf-8")
     names = _optional_sections(text)
     match = [n for n in names if "cross-cutting" in n.lower()]
     assert match, (
@@ -279,7 +286,7 @@ def test_trc_c2():
     empty sets are equal, and this repository has already shipped one guard
     that passed for exactly that reason.
     """
-    template = (TEMPLATES / "design.md").read_text(encoding="utf-8")
+    template = (TEMPLATES / "technical-design.md").read_text(encoding="utf-8")
     skill = (REPO_ROOT / "skills" / "plan-authoring" / "SKILL.md").read_text(
         encoding="utf-8")
 
@@ -369,10 +376,10 @@ def test_trc_d3():
     # observable, because nothing breached it - a budget so high nothing can
     # exceed it is the shape this repository keeps finding. Bounding it against
     # the framework's own largest template makes that raise fail here.
-    design_lines = len((TEMPLATES / "design.md").read_text(
+    design_lines = len((TEMPLATES / "technical-design.md").read_text(
         encoding="utf-8").splitlines())
     assert TEMPLATE_LINE_CAP < design_lines, (
-        "the cap (%d) is not below design.md (%d lines), so a borrowed "
+        "the cap (%d) is not below technical-design.md (%d lines), so a borrowed "
         "four-heading document may be longer than the framework's own largest "
         "template and still pass" % (TEMPLATE_LINE_CAP, design_lines))
     over = []

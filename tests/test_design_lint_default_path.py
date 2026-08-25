@@ -1,9 +1,9 @@
 """`compass design lint` resolves the artifact it is named after.
 
 The command was renamed from `plan lint` to `design lint` and the artifact
-from `plan.md` to `design.md`, but the default path was not migrated. With no
+from `plan.md` to `technical-design.md`, but the default path was not migrated. With no
 `--file` argument it looked for `plan.md`, failed to find it, and then printed
-advice about `design.md` - naming one filename in the search and a different
+advice about `technical-design.md` - naming one filename in the search and a different
 one in the explanation, which cannot both be right.
 
 The effect on a real run: the design stage reports a visible error on every
@@ -12,6 +12,13 @@ should need.
 
 Scenario ids: see docs/system-spec.md (group B).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import pathlib
@@ -66,7 +73,7 @@ def _project(tmp_path: pathlib.Path, *, with_design: bool) -> pathlib.Path:
     (tmp_path / ".compass" / "current-task").write_text("demo\n", encoding="utf-8")
     (work / "task.yml").write_text(SPINE, encoding="utf-8")
     if with_design:
-        (work / "design.md").write_text(CLEAN_DESIGN, encoding="utf-8")
+        (work / "technical-design.md").write_text(CLEAN_DESIGN, encoding="utf-8")
     return tmp_path
 
 
@@ -78,13 +85,13 @@ def _lint(project: pathlib.Path):
 
 
 def test_rcd_b1_defaults_to_design_md(tmp_path):
-    """With a design.md present and no --file, the lint must find it."""
+    """With a technical-design.md present and no --file, the lint must find it."""
     project = _project(tmp_path, with_design=True)
     result = _lint(project)
     combined = result.stdout + result.stderr
 
     assert "no such file" not in combined.lower(), (
-        f"`compass design lint` could not find the design.md sitting in the "
+        f"`compass design lint` could not find the technical-design.md sitting in the "
         f"issue directory, so its default path is not the live artifact "
         f"name:\n{combined}"
     )
@@ -97,7 +104,7 @@ def test_rcd_b1_defaults_to_design_md(tmp_path):
 def test_rcd_b2_message_names_path_used(tmp_path):
     """When there is nothing to lint, the message must name what it looked for.
 
-    The old error named `plan.md` in the search line and `design.md` in the
+    The old error named `plan.md` in the search line and `technical-design.md` in the
     advice below it. A reader following that advice looks for a file the
     command never sought.
     """
@@ -109,7 +116,7 @@ def test_rcd_b2_message_names_path_used(tmp_path):
         f"the not-found message still names the retired artifact filename:\n"
         f"{combined}"
     )
-    assert "design.md" in combined, (
+    assert "technical-design.md" in combined, (
         f"the message does not name the file it looked for, so a reader "
         f"cannot tell what to create:\n{combined}"
     )

@@ -1,6 +1,6 @@
 ---
 name: plan-authoring
-description: How to write a design.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code, cross-cutting concerns), scaling them by route, and the self-review before hand-off. Triggers during Plan.
+description: How to write a technical-design.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code, cross-cutting concerns), scaling them by route, and the self-review before hand-off. Triggers during Plan.
 ---
 
 # Plan Authoring
@@ -15,7 +15,7 @@ cheapest moment to change it. Everything below serves that.
 
 ## The six optional sections
 
-`templates/design.md` offers six sections beyond the ones every plan has. They
+`templates/technical-design.md` offers six sections beyond the ones every plan has. They
 are optional individually, and the judgement about which to use is the craft
 this skill teaches.
 
@@ -34,7 +34,7 @@ next author fills it in to be safe.
 
 ## Scaling by route
 
-- **quick-fix** - none of them. quick-fix writes no `design.md` at all; the plan is
+- **quick-fix** - none of them. quick-fix writes no `technical-design.md` at all; the plan is
   a one-line edit note in `delivery-approach.md`.
 - **feature** - the ones that add clarity. Typically one diagram, and one of
   the other three. Reaching for all six on a feature approach is a sign the

@@ -64,6 +64,29 @@ MAX_REPORTED = 40
 # pattern catches the banned sense and tolerates the ordinary one.
 # ---------------------------------------------------------------------------
 BAN_PATTERNS: dict[str, list[re.Pattern]] = {
+    # The v1 assess stage's own retired name, banned in its turn. `triage` as
+    # an ordinary verb - sorting BETWEEN things by urgency, which is what
+    # `compass flow` does - stays legal; the stage name and command do not.
+    "Triage": [
+        re.compile(r"/compass:triage\b"),
+        re.compile(r"\bTriage\s+(?:phase|stage)\b"),
+        re.compile(r"\bTriage\s*(?:→|->)"),
+        re.compile(r"(?:→|->)\s*Triage\b"),
+        re.compile(r"^#+\s+Triage\b", re.M),
+        re.compile(r"\b(?:during|at|before|after|since|until)\s+Triage\b"),
+    ],
+    # The designer's command, which went back to /compass:design.
+    "Wireframe": [
+        re.compile(r"/compass:wireframe\b"),
+        re.compile(r"\bWireframe\s+(?:phase|stage|command)\b"),
+        re.compile(r"^#+\s+Wireframe\b", re.M),
+    ],
+    # The intake document. `prd.md` is the filename; "product requirements" as
+    # ordinary prose stays legal.
+    "PRD / prd.md": [
+        re.compile(r"\bprd\.md\b"),
+        re.compile(r"\btemplates/prd\b"),
+    ],
     # The v1 triage phase and its agent, as names and command. Ordinary
     # lowercase "frame" (the verb) stays legal.
     "Frame / the Needle": [

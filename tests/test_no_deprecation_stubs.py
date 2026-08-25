@@ -27,9 +27,14 @@ CLI = ROOT / "cli" / "compass"
 COMMANDS = ROOT / "commands"
 
 # The seven retired pipeline commands, by the file that would redirect them.
+# `plan.md` is NOT here any more: `plan` was a retired v1 command and became
+# the planning stage's live command again on 2026-08-25. ADR-014 removes
+# retired names at the major version; it does not reserve them for ever.
+# `triage.md` and `wireframe.md` are not here either - they are this cycle's
+# stubs, removed at the NEXT major version rather than this one.
 RETIRED_COMMANDS = (
     "build.md", "clarify.md", "distribute.md", "frame.md",
-    "land.md", "plan.md", "specify.md",
+    "land.md", "specify.md",
 )
 
 # The retired verbs and verb pairs. Each used to exit 2 with a one-line
@@ -42,7 +47,6 @@ RETIRED_VERBS = (
     ("calibration",),
     ("land-commit",),
     ("task", "lint"),
-    ("plan", "lint"),
 )
 
 
@@ -57,9 +61,15 @@ def test_rcd_f1_no_retired_slash_commands():
     # And nothing new has quietly taken their place: no shipped command may
     # describe itself as a retired name. Checked by content as well as by
     # filename, so a rename of the stub file does not slip past.
+    # The stubs THIS cycle ships, named individually so a third is a deliberate
+    # addition rather than a silent one. They go at the next major version
+    # (ADR-014), the same way the v1 stubs above went at this one - which is
+    # what this check exists to enforce, one cycle at a time.
+    CURRENT_STUBS = {"triage.md", "wireframe.md"}
     redirects = [
         p.name for p in COMMANDS.glob("*.md")
         if "retired name" in p.read_text(encoding="utf-8").lower()
+        and p.name not in CURRENT_STUBS
     ]
     assert not redirects, (
         f"command file(s) still describe themselves as a retired name: "

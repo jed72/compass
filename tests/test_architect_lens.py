@@ -11,6 +11,13 @@ Architectural invariant: architecture-notes.md is ANNOTATIONS
 + candidate ADR titles - NOT Given/When/Then scenarios. TRC-F5 encodes
 this prohibition explicitly.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 from pathlib import Path
@@ -139,8 +146,8 @@ def test_architect_lens_reads_task_artifacts():
     assert "acceptance-criteria.md" in content, (
         "architect-lens.md does not instruct reading acceptance-criteria.md"
     )
-    assert "design.md" in content, (
-        "architect-lens.md does not instruct reading design.md"
+    assert "technical-design.md" in content, (
+        "architect-lens.md does not instruct reading technical-design.md"
     )
 
 

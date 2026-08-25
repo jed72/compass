@@ -379,17 +379,17 @@ def cmd_plan_lint(args):
     # The default path is the LIVE artifact name. It was left at the retired
     # `plan.md` when the artifact was renamed, so the command reported "no such
     # file" on every issue that had a design - while the advice underneath
-    # named `design.md`, a file the command had never looked for.
+    # named `technical-design.md`, a file the command had never looked for.
     if args.file:
         path = args.file
     else:
         task_dir = resolve_task_dir(args.task)
-        path = os.path.join(task_dir, "design.md")
+        path = os.path.join(task_dir, "technical-design.md")
 
     if not os.path.isfile(path):
         print(f"compass design lint: ERROR - no such file: {path}")
         print("  The design stage collapses on quick-fix, hotfix and spike "
-              "approaches, so an issue on one of those has no design.md to "
+              "approaches, so an issue on one of those has no technical-design.md to "
               "lint.")
         return 2
 

@@ -42,7 +42,7 @@ dated digest file (see below).
      longer than the approach's expected cadence. Flag it and name the
      likely blocker.
    - **Approach outgrown** -> signs in the devlog that the issue no longer
-     fits its delivery approach. Recommend `/compass:triage --reassess`.
+     fits its delivery approach. Recommend `/compass:assess --reassess`.
    - **Healthy** -> progressing in line with its approach.
 
 3. **Build the board.** Group every issue by pipeline stage: triaged ·

@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: delivery-approach.md
-Produced by: triage (`/compass:triage`).
+Produced by: triage (`/compass:assess`).
 Lives at:    .compass/work/<task-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records the assessment, the
              delivery approach the policy computed, every policy rule that
@@ -96,7 +96,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 | Triage | Full | Always. This document is the output. |
 | Define acceptance criteria | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. distilling existing behaviour first; how deep}} |
 | Requirements review | {{collapsed \| light pass \| full pass \| skipped (spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
-| Design | {{one-line edit note \| real design.md \| design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
+| Design | {{one-line edit note \| real technical-design.md \| technical-design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
 | Break down the work | {{skipped (solo) \| pair \| swarm}} | {{stream count comes from the distribution map}} |
 | Implement | {{test surface target}} | {{scaled to risk - see the TDD skill}} |
 | Test & review | {{gate count}} | {{which review dimensions - section 4b}} |

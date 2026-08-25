@@ -19,8 +19,8 @@ and effort.
 - Load `role-translation` - the whole point of a roundtable is one question
   read through several roles without flattening any of them.
 - Read the relevant issue artifacts so the discussion is grounded in what
-  is actually on disk: `delivery-approach.md`, `prd.md`,
-  `acceptance-criteria.md`, `design.md`, `positioning.md`,
+  is actually on disk: `delivery-approach.md`, `intent.md`,
+  `acceptance-criteria.md`, `technical-design.md`, `positioning.md`,
   `ui-contract.md` - whichever bear on the question.
 - Read `governance/` - a roundtable cannot decide its way past a guardrail.
   Strategy-vs-strategy tension is exactly what a roundtable *is* for; a
@@ -33,7 +33,7 @@ convened by name:
 
 | Agent | Invocation | Auto-trigger condition |
 |---|---|---|
-| `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`prd.md` exists) |
+| `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`intent.md` exists) |
 | `marketing-lens` | `/compass:roundtable marketing-lens` | When a marketer is in play (`positioning.md` exists) |
 | `architect-lens` | `/compass:roundtable architect-lens` | When the spine's `assessment.labels` contains `public-api`, a service name from `architecture/relations.md`, or a `lens_trigger_tag` from `architecture/invariants.yml` |
 | `planner` | `/compass:roundtable planner` | On request |
@@ -75,7 +75,7 @@ met for the current issue.
    question, who was at the table, the options, the tradeoffs, the
    decision, and the rationale. If the decision changes scope or the
    delivery approach, that is a trigger to re-assess
-   (`/compass:triage --reassess`) - say so.
+   (`/compass:assess --reassess`) - say so.
 
 ## Reassessment trigger
 
@@ -87,7 +87,7 @@ that happens, a re-assessment is not optional.
 must end with a re-assessment:**
 
 ```
-/compass:triage --reassess --reason "<roundtable id> - <what changed and why>"
+/compass:assess --reassess --reason "<roundtable id> - <what changed and why>"
 ```
 
 Examples of outcomes that require a re-assessment:
@@ -95,7 +95,7 @@ Examples of outcomes that require a re-assessment:
 - The roundtable decides to extend a planned migration to cover an adjacent
   service that was not in the original scope.
 - A boundary call moves a module from one service to another, adding files
-  that were not in `design.md`.
+  that were not in `technical-design.md`.
 - A scope cut removes a deliverable that was in `acceptance-criteria.md`.
 
 In all these cases, file the re-assessment immediately after the roundtable

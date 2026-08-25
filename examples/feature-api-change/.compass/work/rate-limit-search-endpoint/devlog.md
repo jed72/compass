@@ -28,8 +28,8 @@
 
 ## 2026-04-23 09:50 - Plan
 
-- **Event:** Real `design.md`. Two design decisions recorded - DD-1 (Redis-backed counters), DD-2 (fixed window, fail-closed unknown client). Governance check passed. Work units U1–U3 all converge on `rate_limit.py` → solo, no distribution map.
-- **Artifact:** `design.md`.
+- **Event:** Real `technical-design.md`. Two design decisions recorded - DD-1 (Redis-backed counters), DD-2 (fixed window, fail-closed unknown client). Governance check passed. Work units U1–U3 all converge on `rate_limit.py` → solo, no distribution map.
+- **Artifact:** `technical-design.md`.
 - **Next:** Build (solo - breakdown skipped).
 
 ## 2026-04-23 14:02 - Build
@@ -44,7 +44,7 @@
 
 ## 2026-04-24 10:05 - note: mid-Build checkpoint
 
-- **Event:** Standard's mid-Build gate. Re-read `acceptance-criteria.md` against `design.md` §4 - all five scenarios still map to a work unit, no scope drift, no new ambiguity. No separate artifact; this is the checkpoint.
+- **Event:** Standard's mid-Build gate. Re-read `acceptance-criteria.md` against `technical-design.md` §4 - all five scenarios still map to a work unit, no scope drift, no new ambiguity. No separate artifact; this is the checkpoint.
 
 ## 2026-04-24 11:38 - edit: src/api/routes/search.py, src/api/config.py
 

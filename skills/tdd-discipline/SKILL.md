@@ -227,5 +227,5 @@ If a test is failing for a reason you did not predict, stop cycling and load
 `systematic-debugging`. Repeatedly re-running a red test with a different guess
 each time is not the TDD cycle - it is the reflex the cycle exists to replace.
 That skill also carries the escape clause: three consecutive failed fixes means
-the assessment was wrong, and the next move is `/compass:triage
+the assessment was wrong, and the next move is `/compass:assess
 --reassess`, not a fourth attempt.

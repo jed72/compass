@@ -1,7 +1,7 @@
 <!--
-TEMPLATE: design.md
-Produced by: the design stage (`/compass:design`); owning agent `planner`.
-Lives at:    .compass/work/<task-slug>/design.md
+TEMPLATE: technical-design.md
+Produced by: the planning stage (`/compass:plan`); owning agent `planner`.
+Lives at:    .compass/work/<task-slug>/technical-design.md
 Role in the pipeline: the technical plan. Records the approach, the design
 decisions as ADR-style notes, the governance check against all of
 governance/, and the independent work units. On a quick fix or hotfix, the design stage
@@ -20,7 +20,7 @@ one. Each carries its own rule for when it earns a place; follow the rule
 rather than filling every heading. Delete the ones you do not use - an empty
 optional section is worse than an absent one.
 
-Roughly: a quick fix writes no design.md at all; a feature uses the one or two that
+Roughly: a quick fix writes no technical-design.md at all; a feature uses the one or two that
 add clarity; initiative-scale work may use all of them, because there this file IS the
 design document.
 
@@ -30,7 +30,7 @@ Fill every {{PLACEHOLDER}} in the sections you keep.
 # Plan - {{TASK_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Owning agent:** planner
-> **Plan weight (from delivery-approach.md):** {{real design.md \| design.md + distribution-map.md}}
+> **Plan weight (from delivery-approach.md):** {{real technical-design.md \| technical-design.md + distribution-map.md}}
 
 ---
 
@@ -225,7 +225,7 @@ read - or "the existing dashboards cover it", said deliberately.}}
 |---|---|---|
 | Guardrails (the five defaults + project) | {{pass \| fail}} | {{e.g. "acceptance criteria stated before implementation; traceability chains designed in; coverage targets the guardrail floor"}} |
 | Method strategies (defaults + project) | {{followed \| deviation recorded}} | {{e.g. "BDD + TDD apply; simplest-thing honoured. Any deviation noted with its reason."}} |
-| Product strategies | {{followed \| deviation recorded \| n/a}} | {{e.g. "plan delivers prd.md's outcome; honours the no-dark-patterns strategy"}} |
+| Product strategies | {{followed \| deviation recorded \| n/a}} | {{e.g. "plan delivers intent.md's outcome; honours the no-dark-patterns strategy"}} |
 | Voice & positioning strategies | {{followed \| deviation recorded \| n/a}} | {{n/a unless marketer in play; if so, claims traceable}} |
 | Routing policy | {{pass \| fail}} | {{plan does not require skipping anything delivery-approach.md kept; floors honoured}} |
 

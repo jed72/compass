@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.3.0
+version: 2.4.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -191,9 +191,9 @@ routing_guardrails:
       rationale: "A launch claim with no backing scenario must not ship."
     - id: RP-ROLE-002
       when: { role: product-owner }
-      require_artifact: prd.md
+      require_artifact: intent.md
       block_phase: plan
-      until: "the spec has been checked against prd.md for intent fidelity"
+      until: "the spec has been checked against intent.md for intent fidelity"
       rationale: "Built-the-thing-right and built-the-right-thing are different checks."
 
 # -----------------------------------------------------------------------------
@@ -243,7 +243,7 @@ route_shapes:
     stages: { frame: full, specify: full, clarify: light, plan: full, distribute: solo-or-pair, build: full, verify: full, land: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.clarity, verify.security]
     topology: solo-or-pair
-    artifacts: { acceptance-criteria: full, design: full, verification-report: full }
+    artifacts: { acceptance-criteria: full, technical-design: full, verification-report: full }
   hotfix:
     weight: 3
     # `full-plus-backfill` below is a stage-weight enum the evaluator
@@ -259,4 +259,4 @@ route_shapes:
     stages: { frame: full, specify: full, clarify: full, plan: full, distribute: swarm, build: full, verify: full, land: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security, verify.clarity, verify.claims]
     topology: swarm
-    artifacts: { prd: full, acceptance-criteria: full, requirements-review: full, design: full, distribution-map: full, verification-report: full }
+    artifacts: { intent: full, acceptance-criteria: full, requirements-review: full, technical-design: full, distribution-map: full, verification-report: full }

@@ -79,7 +79,7 @@ hook rather than against it.
 
 There is no required setup step between installing Compass and running your
 first issue. The **five default guardrails** and the **default method
-strategies** ship active with the framework, so `/compass:triage` works against
+strategies** ship active with the framework, so `/compass:assess` works against
 the shipped `governance/` defaults on day one. Governance is a *gradient, not a
 threshold*: "the shipped defaults and nothing project-specific yet" is a valid,
 complete governance state - see `governance/README.md`.
@@ -114,20 +114,20 @@ as-is. Init is accretion, not a gate.
 You are an engineer. An issue: add rate limiting to the public API. You start
 where every engineer starts - at triage.
 
-### Triage
+### Assess
 
 ```
-/compass:triage "Add rate limiting to the public API"
+/compass:assess "Add rate limiting to the public API"
 ```
 
-Triage reads four dimensions - that part is judgement - and records them
+Assess reads four dimensions - that part is judgement - and records them
 in `.compass/work/add-rate-limiting/task.yml`. For this issue it scores
 something like: size `standard` (several files, one or two design
 decisions), risk `cross-cutting` (a misconfigured limiter degrades
 something every API consumer touches), familiarity `brownfield-mapped`, role
 `engineer`. It tags `labels: [public-api]`.
 
-Then the mechanism takes over. `/compass:triage` shells out to
+Then the mechanism takes over. `/compass:assess` shells out to
 `compass approach evaluate --write`, which applies `governance/routing-policy.yml`
 deterministically - composing the candidate route, applying the floors and
 caps, assembling the gate set - and folds `route`, `phases`, and `gates` back
@@ -136,7 +136,7 @@ review dimension turned on because risk is cross-cutting**; no routing
 guardrail forces a heavier route. Triage then writes the human-readable
 `delivery-approach.md` alongside it. Same assessment + same policy would produce this exact
 route on any machine - the route is no longer something an agent composes in
-its head. `/compass:triage` also drops a `.compass/current-task` pointer so the
+its head. `/compass:assess` also drops a `.compass/current-task` pointer so the
 CLI and the hooks know which issue is live.
 
 It then **presents the route and waits**. Routing is advisory until confirmed.
@@ -185,7 +185,7 @@ owner. An unresolved ambiguity is not allowed to pass silently into Plan.
 /compass:design
 ```
 
-The `planner` agent writes a real `design.md`: the technical approach, each
+The `planner` agent writes a real `technical-design.md`: the technical approach, each
 design decision recorded ADR-style (token bucket vs. sliding window - what was
 chosen, what was rejected, why), and a governance check run against all of
 `governance/` - guardrails, strategies, and the routing policy. The work here
@@ -272,7 +272,7 @@ the spec, with intent.
 ```
 
 The `product-lens` agent adopts the product owner's vocabulary - outcomes and
-users, not files and functions - and writes `prd.md`: the **problem**
+users, not files and functions - and writes `intent.md`: the **problem**
 (finance cannot self-serve; every month-end is a data request and a wait), the
 **outcome** (finance gets their numbers directly), the **success signals**
 (finance pulls month-end numbers without filing a request; the data team's
@@ -286,15 +286,15 @@ solution. The brief states the outcome, and the difference matters - see the
 routing deep dive for how the same literal request routes differently
 depending on the brief behind it.
 
-### Triage - now with a PRD
+### Assess - now with a PRD
 
 ```
-/compass:triage "CSV export for finance month-end numbers"
+/compass:assess "CSV export for finance month-end numbers"
 ```
 
-Triage reads `prd.md` as part of the intent & role dimension - intent is
+Assess reads `intent.md` as part of the intent & role dimension - intent is
 the *actual outcome wanted*, not the literal request. The `product-owner`
-reading does two things to the route: it adds `prd.md` as a required
+reading does two things to the route: it adds `intent.md` as a required
 artifact, and it inserts the **intent-fidelity gate** before Plan. The route
 comes out heavier than a bare engineering "add an export" would - that extra
 weight is the framework working, not overhead.
@@ -316,7 +316,7 @@ decision).
 ```
 
 Per the routing policy's `role_rules`, when a product owner is in play the
-spec **must be checked against `prd.md` before Plan completes**. The
+spec **must be checked against `intent.md` before Plan completes**. The
 `product-lens` agent runs that check. If the spec drifts from the brief -
 well-formed scenarios that nonetheless miss the outcome - Plan does not
 proceed; the spec goes back. Well-formed and faithful are different tests, and
@@ -379,7 +379,7 @@ Some work is not a known change - it is a question. Root-causing a mysterious
 defect, evaluating whether an approach is even viable, learning an unfamiliar
 API. You cannot state acceptance criteria for it because the behaviour is the
 unknown. That is not an exemption from triage; it is the **spike**.
-Triage still runs (`delivery-approach.md` records the question and a
+Assess still runs (`delivery-approach.md` records the question and a
 timebox), but the define stage collapses to the question, the
 requirements review is skipped, and implementation becomes exploration -
 the

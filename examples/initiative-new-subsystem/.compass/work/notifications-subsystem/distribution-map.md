@@ -1,13 +1,13 @@
 # Distribution Map - notifications-subsystem
 
-> **Phase:** Plan · **Date:** 2026-03-07 · **Reads from:** design.md §4, acceptance-criteria.md
+> **Phase:** Plan · **Date:** 2026-03-07 · **Reads from:** technical-design.md §4, acceptance-criteria.md
 > **Consumed by:** breakdown, `scripts/swarm.sh`, the `orchestrator` agent
 
 ---
 
 ## 1. Work units
 
-| Unit | From design.md | Scenario group(s) | Code surface |
+| Unit | From technical-design.md | Scenario group(s) | Code surface |
 |---|---|---|---|
 | U0 | plan §4 U0 | foundation (none directly) | `migrations/0042_notifications.sql` |
 | U1 | plan §4 U1 | group A - TRC-001, TRC-002, TRC-003 | `src/notifications/dispatch.py`, `store.py`, `api.py` (read/mark-read) |

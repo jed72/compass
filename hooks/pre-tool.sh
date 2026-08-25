@@ -43,7 +43,7 @@
 #        evidence/green.json, and clears .red - the hand-off to Verify.
 #   .compass/work/<task-slug>/.spike  "this issue is a spike - the red-
 #                                      before-green strategy is suspended".
-#                                      /compass:triage
+#                                      /compass:assess
 #                                      writes this when it composes a Spike.
 #   Markers are deliberately plain files so they are inspectable and auditable;
 #   the evidence/*.json records next to them are the audit trail.
@@ -470,7 +470,7 @@ fi
 
 # --- find the current issue -------------------------------------------------
 # The current issue is named by the .compass/current-task pointer (written by
-# /compass:triage and /compass:resume). The pointer is what makes this reliable
+# /compass:assess and /compass:resume). The pointer is what makes this reliable
 # when more than one issue is in flight - "most recently modified directory"
 # is only the fallback, and it is ambiguous, so it warns. If there is no issue
 # all, triage has not run - CLAUDE.md's one rule is "Never skip triage".
@@ -491,7 +491,7 @@ fi
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ in $PROJECT_DIR - triage has not run. Run /compass:triage before changing code." >&2
+  echo "Compass: no .compass/work/ in $PROJECT_DIR - triage has not run. Run /compass:assess before changing code." >&2
   exit 2
 fi
 
@@ -523,12 +523,12 @@ TASK_SLUG="$(basename "$TASK_DIR")"
 # An issue directory written before the artifact rename still resolves here.
 # vocabulary-scan: allow - names the retired filename on purpose
 if [ ! -f "$TASK_DIR/delivery-approach.md" ] && [ ! -f "$TASK_DIR/route.md" ]; then
-  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:triage." >&2
+  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:assess." >&2
   exit 2
 fi
 
 # --- approach-aware: red-before-green is suspended on a spike ----------------
-# /compass:triage writes a .spike marker when it computes a spike. On a
+# /compass:assess writes a .spike marker when it computes a spike. On a
 # spike, exploration is not throttled - the red-before-green strategy is
 # suspended. The tested-before-ship guardrail is NOT: nothing ships from a
 # spike without graduating into a real delivery approach, where this hook
@@ -620,7 +620,7 @@ Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no
     3. Re-try this edit.
 
   If this is genuinely exploratory work it should be a spike, where this is
-  suspended - re-run /compass:triage. The fix is to state the acceptance or
+  suspended - re-run /compass:assess. The fix is to state the acceptance or
   re-frame, not to route around the hook.
 EOF
     exit 2
@@ -670,7 +670,7 @@ Compass: BLOCKED - no failing test on record for issue '$TASK_SLUG'.
   evidence/green.json, and clears the .red marker - the hand-off to Verify.
 
   If this is genuinely exploratory work, it should be a spike - re-run
-  /compass:triage. The fix is to write the test or re-frame, not to route
+  /compass:assess. The fix is to write the test or re-frame, not to route
   around the hook.
 EOF
 exit 2

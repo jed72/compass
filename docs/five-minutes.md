@@ -15,7 +15,7 @@ uses travels inside the plugin, so there is nothing else to install.
 
 ## The mental model in five points
 
-1. **Compass reads the issue.** Before you change a file, `/compass:triage`
+1. **Compass reads the issue.** Before you change a file, `/compass:assess`
    triages it on four dimensions - risk, familiarity, size, intent
    & role. That part is judgement; you produce the assessment.
 2. **It routes by risk and uncertainty.** Given the assessment,
@@ -71,13 +71,13 @@ are starting shapes triage tunes. See `docs/methodology.md` §8.
 You notice the JWT refresh error message has a typo: "invald token". You
 fix the string. Here is the whole walk.
 
-### Triage
+### Assess
 
 ```
-/compass:triage "fix typo in the JWT refresh error message"
+/compass:assess "fix typo in the JWT refresh error message"
 ```
 
-Triage reads the four dimensions - size `atomic`, risk
+Assess reads the four dimensions - size `atomic`, risk
 `trivial`, familiarity `brownfield-mapped`, intent `delivery` - and records
 them in `.compass/work/fix-jwt-typo/task.yml`:
 
@@ -93,7 +93,7 @@ assessment:
   role: engineer
 ```
 
-Then the mechanism takes over. `/compass:triage` shells out to
+Then the mechanism takes over. `/compass:assess` shells out to
 `compass approach evaluate --write`, which composes the delivery approach, applies the
 routing guardrails, and folds the result back into `task.yml`.
 
@@ -129,7 +129,7 @@ was applied to, the weight of every stage, and the full gate set:
   gate set        : verify.correctness, verify.governance, verify.traceability
 ```
 
-Triage is `full` on every delivery approach - it is the one stage that never collapses.
+Assess is `full` on every delivery approach - it is the one stage that never collapses.
 
 `.compass/current-task` now points at `fix-jwt-typo`. `delivery-approach.md` records
 the assessment, the delivery approach, and the de-scope reasons.
@@ -281,7 +281,7 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass issue lint        structurally validate a task.yml
-compass design lint        scan a design.md for placeholder phrases - advisory
+compass design lint        scan a technical-design.md for placeholder phrases - advisory
 compass issue receipt     render a one-screen receipt for a landed issue -
                          assessment → approach → typed evidence → gate verdicts
 compass issue dashboard   render the per-issue review README - the decision,
@@ -311,7 +311,7 @@ compass terminology      render the v2 vocabulary - one term or the whole glossa
 compass ci               the full mechanical gate suite, for CI
 ```
 
-The slash commands call the CLI under the hood - `/compass:triage` runs
+The slash commands call the CLI under the hood - `/compass:assess` runs
 `compass approach evaluate`, `/compass:verify` runs `compass check`, the
 build procedure runs `compass tdd-red`/`tdd-green` - so you rarely invoke
 it directly. But it is the part that makes the framework's checks real

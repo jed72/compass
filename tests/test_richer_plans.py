@@ -17,6 +17,13 @@ tests/test_plugin_doc_drift.py and tests/test_readable_specs_and_flow.py.
 
 Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md (TRC-C1..C6).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import pathlib
@@ -25,7 +32,7 @@ import re
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-PLAN_TEMPLATE = ROOT / "templates" / "design.md"
+PLAN_TEMPLATE = ROOT / "templates" / "technical-design.md"
 PLAN_SKILL = ROOT / "skills" / "plan-authoring" / "SKILL.md"
 WRITING_GUIDE = ROOT / "docs" / "writing-specs-and-plans.md"
 

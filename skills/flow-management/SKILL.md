@@ -20,7 +20,7 @@ how to handle a blocker, and how to write the digest.
 The builder-style approach modelled delivery as a persona agent with turf - it
 "owned" the board, "assigned" work, "moved" issues between columns. Compass
 deliberately does not. Issue state is not a label someone sets; it is *inferred
-from the artifacts on disk*. An issue is in Build because `design.md` exists and
+from the artifacts on disk*. An issue is in Build because `technical-design.md` exists and
 `verification-report.md` does not - not because someone moved a card. So flow
 management has nothing to *own* and nothing to *move*. Its entire job is to
 read the artifacts, notice what the per-issue pipeline structurally cannot
@@ -36,7 +36,7 @@ framework's own feedback loop. It is read-only and never gates. Run it as part
 of triage and fold its signal into the digest: "are we right-sizing process?"
 is a cross-issue question, and this is the command that answers it.
 
-## Triage heuristics
+## Assess heuristics
 
 Run these against every issue directory under `.compass/work/`. Order of
 severity, worst first:
@@ -47,7 +47,7 @@ severity, worst first:
 
 2. **Route outgrown** - the devlog shows the issue drifting past its route
    (a "Standard" issue that has sprouted a fourth work stream; an "quick-fix"
-   issue still open after days). The fix is `/compass:triage --reframe`, not
+   issue still open after days). The fix is `/compass:assess --reframe`, not
    pushing on. A route quietly outgrown is the failure mode Compass exists to
    prevent - flow management is where it gets caught when the issue itself
    missed it.

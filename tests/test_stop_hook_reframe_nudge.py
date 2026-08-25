@@ -10,6 +10,13 @@ never hardcoded), emits a nudge to stderr, and exits 0 (non-blocking).
 
 Each test invokes hooks/stop.sh as a subprocess with a crafted temp project.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import os
@@ -116,7 +123,7 @@ def test_nudge_on_bloat(tmp_path):
     assert "reframe" in result.stderr.lower(), (
         "Expected a reframe nudge in stderr, got:\n" + result.stderr
     )
-    assert "/compass:triage --reassess" in result.stderr, (
+    assert "/compass:assess --reassess" in result.stderr, (
         "Expected the exact reframe command in stderr"
     )
 

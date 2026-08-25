@@ -6,6 +6,13 @@ Each test invokes `compass analyze` via subprocess in an isolated project
 directory (using the `project`/`run_cli` fixtures from conftest.py).
 """
 
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
+
 # The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
 # `define`, `clarify` -> `refine`, `distribute` -> `breakdown`, `build` ->
 # `implement`, `land` -> `ship`. `plan` and `verify` did not. Spines written
@@ -101,7 +108,7 @@ def _write_brief(task_dir: Path, intents: list[str]) -> None:
     for intent_id in intents:
         lines.append(f"<!-- intent: {intent_id} -->\n")
         lines.append(f"- {intent_id}: some intent statement\n")
-    (task_dir / "prd.md").write_text("".join(lines), encoding="utf-8")
+    (task_dir / "intent.md").write_text("".join(lines), encoding="utf-8")
 
 
 def _write_spec(task_dir: Path, scenarios: list[dict]) -> None:
@@ -558,7 +565,7 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     result = run_cli("analyze")
     combined = result.stdout + result.stderr
     # No "missing brief" or "missing-artifact" finding about brief.md
-    assert "prd.md" not in combined or "missing" not in combined.lower(), \
+    assert "intent.md" not in combined or "missing" not in combined.lower(), \
         f"Hotfix route must not flag missing brief.md:\n{result}"
     # Should not flag orphaned scenarios either (spec links INT-1 but no brief - that's OK on hotfix)
     # The key assertion: no route-disagreement finding (route.md and task.yml agree on hotfix)
