@@ -36,6 +36,21 @@ citizen, not a downstream consumer of a finished engineering process.
    product-owner role is in play, the spec **must be checked against `intent.md`
    before Plan**. You are that check. Plan does not start until you have signed
    off intent fidelity or sent the spec back to the Spec Author.
+
+   **If `intent.md` was ingested rather than authored, say which human each
+   part came from.** `compass intent ingest` records that, and
+   `describe_intent_origins` renders it - the source, a question answered at
+   ingest time, or a question asked and declined. Two different people are
+   involved and they are not interchangeable: the brief's author wrote one
+   half, and whoever sat with Compass supplied the other.
+
+   You are never vouching for material Compass wrote, because there is none -
+   `intent.md` may contain nothing that traces to neither the source nor a
+   recorded answer, and `compass check` refuses it if it does. What you are
+   doing is telling the reader which of the two humans to ask about a given
+   sentence. Include the origin table in your sign-off when a brief was
+   ingested; leave it out entirely when it was authored here, where there is
+   nothing to attribute.
 4. **Apply the product strategies.** Check the spec and, later, the change
    against the product strategies in `governance/strategies.md` - what the
    product is for, who it serves, the lines it tends not to cross, the
