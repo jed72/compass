@@ -116,15 +116,19 @@ from compass_pkg.core import artifact_path, load_yaml, resolve_task_dir, normali
 #   exit non-zero with a message naming Frame
 #
 # The canonical phase order Compass follows:
+# The CURRENT keys. `normalize_spine` maps a retired key forward on load, so a
+# list written in the retired spelling stops matching every spine it reads -
+# and `compass next` then reports the wrong stage rather than failing, which is
+# how it was caught.
 _PHASE_ORDER = [
-    "frame",
-    "specify",
-    "clarify",
+    "assess",
+    "define",
+    "refine",
     "plan",
-    "distribute",
-    "build",
+    "breakdown",
+    "implement",
     "verify",
-    "land",
+    "ship",
 ]
 
 # Weights that indicate a phase was deliberately excluded from this route

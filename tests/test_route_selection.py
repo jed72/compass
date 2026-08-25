@@ -7,6 +7,13 @@ fires the documented floors/caps, and permits the documented parallelism.
 The bulk of the proof is the YAML-driven parameterised test at the bottom -
 each fixture in tests/fixtures/routes/ declares an input + expected output.
 """
+
+# The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
+# `define`, `clarify` -> `refine`, `distribute` -> `breakdown`, `build` ->
+# `implement`, `land` -> `ship`. `plan` and `verify` did not. Spines written
+# before that still load, because `normalize_spine` maps them forward
+# (ADR-006), so what changed is the CANONICAL form these tests assert -
+# not what the routing computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import json
@@ -146,7 +153,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
     data = json.loads(r.stdout)
     fired = [f["id"] for f in data["policy_rules_fired"]]
     assert "RP-FLOOR-002" in fired
-    assert data["stages"].get("specify") == "full"
+    assert data["stages"].get("define") == "full"
     assert "blueprint-distillation" in data["required_skills"]
 
 

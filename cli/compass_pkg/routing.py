@@ -95,7 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, display_stage, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task, shape_stages
+from compass_pkg.core import _stage_key_renames, ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, display_stage, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task, shape_stages
 from compass_pkg.governance import governance_drift
 from compass_pkg.task_spine import _annotate_gate_accepts
 
@@ -191,6 +191,13 @@ def evaluate_route(readings, policy):
             required_skills.add(fl["require_skill"])
             changed.append(f"skill '{fl['require_skill']}' required")
         if fl.get("never_skip"):
+            # Canonicalise the stage names a floor rule lists, the same way
+            # `shape_stages` canonicalises the keys a shape declares. A policy
+            # written before this rename says `clarify` here, and this list is
+            # printed - so without it the evaluator names a retired stage in
+            # the sentence explaining why a stage cannot be skipped.
+            _renames = _stage_key_renames()
+            fl = dict(fl, never_skip=[_renames.get(x, x) for x in fl["never_skip"]])
             never_skip.update(fl["never_skip"])
             changed.append("never-skip: " + ", ".join(
                 display_stage(s) for s in fl["never_skip"]))

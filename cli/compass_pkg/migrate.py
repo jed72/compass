@@ -26,22 +26,36 @@ V1_ARTIFACT_NAMES = {
 }
 
 
+# The reader lives in `core` - see its note. `migrate` imports `core` already,
+# so keeping it there is what stops the import cycle.
+from compass_pkg.core import migrate_map_path as _map_path
+from compass_pkg.core import migrate_map_section as _map_section
+
+
 def artifact_name_map():
     """The v1-to-v2 artifact map, read from the exempt data file
     (cli/migrate-map.yml) so the enforced CLI never teaches a v1 spelling;
     the in-module copy is the fallback for a bare checkout."""
-    map_path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "migrate-map.yml")
-    try:
-        with open(map_path, encoding="utf-8") as fh:
-            data = yaml.safe_load(fh) or {}
-        artifacts = data.get("artifacts")
-        if isinstance(artifacts, dict) and artifacts:
-            return artifacts
-    except OSError:
-        pass
-    return dict(V1_ARTIFACT_NAMES)
+    return _map_section("artifacts", V1_ARTIFACT_NAMES)
+
+
+# The stage-key renames, in the same shape and for the same reason as the
+# artifact names above: the enforced CLI must not carry a retired spelling in a
+# string literal, so the mapping lives in the exempt data file and this is only
+# the fallback for a bare checkout with no framework install.
+V1_STAGE_KEYS = {
+    "frame": "assess",
+    "specify": "define",
+    "clarify": "refine",
+    "distribute": "breakdown",
+    "build": "implement",
+    "land": "ship",
+}
+
+
+def stage_key_map():
+    """The retired-to-current stage keys, read from the exempt data file."""
+    return _map_section("stage_keys", V1_STAGE_KEYS)
 
 
 def plan_issue_dir(task_dir):

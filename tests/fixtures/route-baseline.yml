@@ -1,3 +1,9 @@
+# The stage keys were renamed on 2026-08-24 - frame->assess, specify->define,
+# clarify->refine, distribute->breakdown, build->implement, land->ship.
+# THE KEYS WERE TRANSLATED, NOT RE-CAPTURED. Every weight is the one recorded
+# at fb092c0; re-running the evaluator to regenerate this file would launder a
+# real routing regression into the baseline, which is what a baseline exists
+# to prevent.
 - name: spike
   assessment:
     risk: trivial
@@ -9,14 +15,14 @@
   expected_route: spike
   expected_topology: solo
   expected_phases:
-    frame: light
-    specify: collapsed
-    clarify: skipped
+    assess: light
+    define: collapsed
+    refine: skipped
     plan: collapsed
-    distribute: skipped
-    build: explore
+    breakdown: skipped
+    implement: explore
     verify: conclude
-    land: graduate-or-discard
+    ship: graduate-or-discard
   expected_gates:
   - spike.conclude
   expected_stream_ceiling: 1
@@ -31,14 +37,14 @@
   expected_route: quick-fix
   expected_topology: solo
   expected_phases:
-    frame: full
-    specify: light
-    clarify: collapsed
+    assess: full
+    define: light
+    refine: collapsed
     plan: collapsed
-    distribute: skipped
-    build: full
+    breakdown: skipped
+    implement: full
     verify: light
-    land: light
+    ship: light
   expected_gates:
   - verify.correctness
   - verify.governance
@@ -55,14 +61,14 @@
   expected_route: feature
   expected_topology: solo-or-pair
   expected_phases:
-    frame: full
-    specify: full
-    clarify: light
+    assess: full
+    define: full
+    refine: light
     plan: full
-    distribute: solo-or-pair
-    build: full
+    breakdown: solo-or-pair
+    implement: full
     verify: full
-    land: full
+    ship: full
   expected_gates:
   - verify.correctness
   - verify.governance
@@ -83,14 +89,14 @@
   expected_route: hotfix
   expected_topology: solo
   expected_phases:
-    frame: light
-    specify: reproduce-first
-    clarify: collapsed
+    assess: light
+    define: reproduce-first
+    refine: collapsed
     plan: collapsed
-    distribute: skipped
-    build: expedited
+    breakdown: skipped
+    implement: expedited
     verify: full
-    land: full-plus-backfill
+    ship: full-plus-backfill
   expected_gates:
   - verify.correctness
   - verify.governance
@@ -109,14 +115,14 @@
   expected_route: initiative
   expected_topology: swarm
   expected_phases:
-    frame: full
-    specify: full
-    clarify: full
+    assess: full
+    define: full
+    refine: full
     plan: full
-    distribute: swarm
-    build: full
+    breakdown: swarm
+    implement: full
     verify: full
-    land: full
+    ship: full
   expected_gates:
   - verify.correctness
   - verify.governance

@@ -140,22 +140,28 @@ from compass_pkg.policy import cmd_task_lint
 # when Specify is full-weight.
 _SPECIFY_FULL_WEIGHTS = {"full"}
 
-# Phases that would be checked for route-disagreement
+# The stages this checks for approach-disagreement. CURRENT keys:
+# `normalize_spine` maps a retired key forward on load, so a set written in the
+# retired spelling matches nothing and every check below falls to its default.
 _KNOWN_PHASES = {
-    "frame", "specify", "clarify", "plan", "distribute",
-    "build", "verify", "land",
+    "assess", "define", "refine", "plan", "breakdown",
+    "implement", "verify", "ship",
 }
 
 # Human-readable phase name → task.yml key (lowercase map)
+# The names a human writes in delivery-approach.md, and the spine key each one
+# means. Both the retired and the current spelling map to the CURRENT key,
+# because a prose record written months ago still says the retired word while
+# the spine it describes has been normalised forward.
 _PHASE_NAME_MAP = {
-    "frame": "frame",
-    "specify": "specify",
-    "clarify": "clarify",
-    "plan": "plan",
-    "distribute": "distribute",
-    "build": "build",
+    "assess": "assess", "triage": "assess", "frame": "assess",
+    "define": "define", "specify": "define",
+    "refine": "refine", "clarify": "refine",
+    "plan": "plan", "design": "plan",
+    "breakdown": "breakdown", "distribute": "breakdown",
+    "implement": "implement", "build": "implement",
     "verify": "verify",
-    "land": "land",
+    "ship": "ship", "land": "ship",
 }
 
 
@@ -270,7 +276,13 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
             if m:
                 phase = m.group(1).strip().lower()
                 weight = m.group(2).strip().lower()
-                weights[phase] = weight
+                # Through the name map, so a prose record written months ago
+                # meets the spine it describes. Without this the parser returns
+                # `distribute` while the normalised spine holds `breakdown`,
+                # the comparison finds no key in common, and every
+                # disagreement is silently skipped - the check reporting clean
+                # because the two halves stopped speaking the same language.
+                weights[_PHASE_NAME_MAP.get(phase, phase)] = weight
             elif stripped.startswith("#") or not stripped.startswith("|"):
                 in_phase_table = False
     return weights
@@ -352,7 +364,11 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     # --- 1. Route-aware missing-artifact check ------------------------------
     # Only check for brief.md when Specify is expected to run at full weight.
     phases = task.get("stages") or {}
-    specify_weight = str(phases.get("specify", "full")).lower()
+    # NO DEFAULT OF "full". This read `phases.get("specify", "full")`, and when
+    # the key was renamed to `define` the lookup missed, fell to the default,
+    # and reported every hotfix as owing a brief - a defaulted lookup turning a
+    # rename into a false finding rather than a crash.
+    specify_weight = str(phases.get("define", phases.get("specify", ""))).lower()
     if specify_weight in _SPECIFY_FULL_WEIGHTS and not has_brief:
         findings.append({
             "type": "missing-artifact",

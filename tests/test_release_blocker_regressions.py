@@ -151,8 +151,13 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     coherence checks clean", so the command listed its findings and then denied
     having any - while the evidence JSON recorded the real count."""
     task_dir = project / ".compass" / "work" / "t"
+    # `stages=`, not `phases=`. The base spine in `_task_yml` already sets
+    # `stages: {}`, so a `phases:` twin is dropped as the retired duplicate it
+    # is - this fixture's weight never reached analyze at all, and the test
+    # passed on a `"full"` default in the lookup instead. Removing that default
+    # is what exposed it.
     (task_dir / "task.yml").write_text(
-        _task_yml("t", gates=[], phases={"specify": "full"})
+        _task_yml("t", gates=[], stages={"define": "full"})
     )
     (task_dir / "delivery-approach.md").write_text("# Route - t\n")
     (task_dir / "acceptance-criteria.md").write_text("# Spec - t\n\n## Summary\n\n**Goal:** x\n")
