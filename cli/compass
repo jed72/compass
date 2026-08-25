@@ -289,6 +289,22 @@ def build_parser():
         ppll.set_defaults(func=cmd_plan_lint, output_kind="report",
                           retired_verb=None if verb == "plan" else verb)
 
+    # The intake document. A NEW top-level group: `/compass:intent` has always
+    # been a slash command, and the CLI never had a verb for it. Adding one is a
+    # declaration on a surface four tests pin deliberately - see
+    # technical-design.md DD-1 of issue `ingest-an-existing-brief`, which was
+    # written believing this group already existed and is corrected there.
+    pin = sub.add_parser("intent", help="intake document tools")
+    pins = pin.add_subparsers(dest="subcmd", required=True)
+    ping = pins.add_parser(
+        "ingest",
+        help="read a brief that already exists, by path or https URL, and "
+             "record where it came from")
+    issue_arg(ping)
+    ping.add_argument("--from", dest="source", required=True, metavar="SOURCE",
+                      help="path to the brief, or an https URL holding it")
+    ping.set_defaults(func=cmd_intent_ingest, output_kind="report")
+
     pt = sub.add_parser("issue", help="issue spine tools")
     pts = pt.add_subparsers(dest="subcmd", required=True)
     ptl = pts.add_parser("lint", help="structurally validate a task.yml")

@@ -233,9 +233,13 @@ EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
 # and one word cannot mean two stages in one release. `design` is kept
 # alongside it - it shipped in 3.3.0, so it keeps working until the next
 # major version (ADR-006, ADR-019). Both spellings, one handler.
+# `intent` added 2026-08-25: `compass intent ingest` reads a brief that
+# already exists, by path or https URL, so a team arriving with one does
+# not retype it. A new top-level group rather than a subverb - there was
+# no `intent` verb before, only the slash command.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
-    "tdd-green", "policy", "plan", "issue", "adr", "rework-scan", "flow",
+    "tdd-green", "policy", "plan", "intent", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
     "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator

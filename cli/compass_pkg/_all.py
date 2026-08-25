@@ -15,6 +15,7 @@ from compass_pkg.dashboard import *  # noqa: F401,F403
 from compass_pkg.terminal import *  # noqa: F401,F403
 from compass_pkg.flow import *  # noqa: F401,F403
 from compass_pkg.governance import *  # noqa: F401,F403
+from compass_pkg.ingest import *  # noqa: F401,F403
 from compass_pkg.next_cmd import *  # noqa: F401,F403
 from compass_pkg.policy import *  # noqa: F401,F403
 from compass_pkg.receipt import *  # noqa: F401,F403

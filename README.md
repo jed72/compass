@@ -224,6 +224,9 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass issue lint        structurally validate a task.yml
+compass intent ingest    read a brief that already exists - a path or an https URL -
+                         and record where it came from. Does not write intent.md:
+                         the reshaping stage asks its questions first
 compass plan lint        scan a technical-design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
 compass issue receipt     render a one-screen receipt for a landed issue:
