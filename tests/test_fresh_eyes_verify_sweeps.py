@@ -316,7 +316,13 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # published two retired words as current. What `prd` described - the
     # intake document - is what the `intent` entry describes, which is why it
     # is one entry fewer rather than a replacement.
-    assert len(terminology["terms"]) == 57, (
+    #
+    # 57 -> 59 on 2026-08-25: `design` and `plan`. `design` is the word this
+    # whole rename existed for - it named a command, an artifact, an artifact
+    # kind, a CLI verb and a role, and was the only overloaded word here with
+    # no entry, which is how it stayed ambiguous. `plan` took the engineering
+    # half. TRC-A3 requires both.
+    assert len(terminology["terms"]) == 59, (
         "governance/terminology.yml gained or lost a term without this count "
         "moving. A vocabulary change is a decision (ADR-012); make it one."
     )

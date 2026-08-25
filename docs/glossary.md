@@ -232,6 +232,14 @@ The chosen shape for an issue: which artifacts exist, which gates apply, solo or
 
 **Related:** `assess`, `quality-gate`
 
+### design
+
+The DESIGNER's stage and its command, /compass:design. It produces the UI contract (ui-contract.md) - scenarios written Given/When/Then that flow into the acceptance criteria, not mockup annotations. The word reads as UI work to most people, which is why the designer has it.
+
+**Not:** NOT the engineering design. That is the plan stage (/compass:plan), whose output is technical-design.md. Until 2026-08-25 `design` meant both, and a reader following the wrong one wrote a UI contract where a technical design was wanted and was told it worked. Also NOT the CLI verb: the placeholder scan is `compass plan lint`. Its retired spelling still runs, until the next major version, and is absent from --help (ADR-019).
+
+**Related:** `plan`, `technical-design`, `delivery-approach`
+
 ### design-doc
 
 The high-level design (HLD): approach, system context, components, interfaces, data model, cross-cutting concerns - with sequence diagrams, named design patterns, and illustrative code where they add clarity.
@@ -391,6 +399,14 @@ The agent that runs triage: reads the four assessment dimensions, hands them to 
 The design section answering "what tells us this works in production?": the SLIs/SLOs the change affects, the alerts that watch them, runbook updates where the ops surface changes. Required by the ops-surface label rule; always present on initiatives.
 
 **Related:** `sli`, `slo`, `runbook`
+
+### plan
+
+The engineering design stage: the command /compass:plan, the machine key `plan` in a spine's stages block, the `plan-authoring` skill, the `planner` agent, and the CLI verb `compass plan lint`. Its output is technical-design.md. Every one of those already said `plan` before the command did.
+
+**Not:** NOT a schedule or a project plan - Compass has no such artifact. NOT the delivery approach either, which is computed at the assess stage and recorded in delivery-approach.md. `plan.md` was this artifact's v1 filename and is retired; a name that was retired can come back for the thing it best describes, which is what happened here.
+
+**Related:** `technical-design`, `delivery-approach`, `design`
 
 ### postmortem
 

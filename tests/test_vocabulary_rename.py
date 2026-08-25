@@ -1047,3 +1047,112 @@ def test_trc_c6b_a_reference_to_a_file_that_is_still_there_is_left_alone():
     changed = repoint_spine_references(str(tmp), spine, {})
     assert not changed and spine["evidence"][0]["path"] == "plan.md", (
         "a reference to a file that is still on disk was rewritten")
+
+
+def test_trc_a3():
+    """TRC-A3: every word this rename touches carries a glossary entry.
+
+    This is the root cause, not a tidiness rule. `design` named a command, an
+    artifact, an artifact kind, a CLI verb and a role - five things - and was
+    the only one of them with no entry, while `intent`, `prd`, `triage` and
+    `rollback-plan` all had one. A word stays ambiguous exactly as long as
+    nobody writes down which meaning is which.
+
+    `docs/glossary.md` is generated from these entries, so an unglossed word
+    is one a reader cannot look up anywhere.
+    """
+    doc = _terminology()
+    terms = doc.get("terms") or {}
+
+    # Every word this change renamed, freed, or gave a second meaning.
+    touched = ["assess", "plan", "technical-design", "intent", "design"]
+    missing = [w for w in touched if w not in terms]
+    assert not missing, (
+        "these words are renamed or freed by this change and have no glossary "
+        "entry, so a reader has nowhere to look up which meaning is meant: %s"
+        % missing)
+
+    for word in touched:
+        entry = terms[word]
+        assert str(entry.get("means", "")).strip(), (
+            "the entry for %r says nothing about what it means" % word)
+
+    # `design` is the word that caused this. Its entry has to say what it is
+    # NOT, or it is a definition of one of five meanings.
+    assert str(terms["design"].get("not", "")).strip(), (
+        "the `design` entry does not say what it is NOT - and naming five "
+        "things without saying which is which is how it stayed ambiguous")
+
+    # The engineering artifact. `TDD` in this repository is red-green-refactor
+    # and nothing else, so the abbreviation is banned in the entry itself.
+    td = " ".join(str(v) for v in terms["technical-design"].values())
+    assert "TDD" in td and "NEVER" in td.upper(), (
+        "the technical-design entry does not warn against abbreviating it to "
+        "TDD, which already means red-green-refactor here")
+
+    # The intake document. Most teams arrive with a brief written elsewhere,
+    # so a definition that presumes authorship would contradict
+    # `ingest-an-existing-brief` before that issue starts.
+    intent = " ".join(str(v) for v in terms["intent"].values()).lower()
+    assert "ingest" in intent, (
+        "the `intent` entry presumes the document is authored here. It may "
+        "also be INGESTED from a brief that already exists, and the "
+        "definition has to leave room for that")
+
+
+def test_trc_b3():
+    """TRC-B3: the retired spelling is still accepted after the switch.
+
+    The ordering rule as a criterion rather than as advice: accept both
+    spellings everywhere, THEN switch the writers. Switching first breaks the
+    tree between two commits, and whoever does it finds out halfway through a
+    rename.
+
+    The switch has landed, so what is checkable now is the second half - that
+    accepting the retired spelling survived it. Every reader below is one an
+    adopter's un-migrated tree depends on (ADR-006), and each is asserted
+    against the retired spelling AND the current one, so a reader that
+    silently stopped accepting either fails here.
+    """
+    from compass_pkg.core import normalize_spine, shape_stages
+
+    # 1. The spine loader: a 1.x spine still reads.
+    v1 = normalize_spine({"schema_version": "1.1", "route": "standard",
+                          "readings": {"blast_radius": "contained"},
+                          "phases": {"frame": "full", "specify": "light"}})
+    # `standard` is the v1 SHAPE name; the freeze renamed the value to
+    # `feature` as well as the key, and the loader maps both.
+    assert v1.get("delivery_approach") == "feature"
+    assert v1.get("stages", {}).get("assess") == "full"
+    assert v1.get("stages", {}).get("define") == "light"
+    assert "phases" not in v1 and "route" not in v1
+
+    v2 = normalize_spine({"schema_version": "2.0", "delivery_approach": "feature",
+                          "stages": {"assess": "full", "define": "light"}})
+    assert v2["stages"] == {"assess": "full", "define": "light"}, (
+        "the loader changed a spine that was already current")
+
+    # 2. The policy reader: a project routing policy written before the freeze.
+    assert shape_stages({"phases": {"clarify": "light"}}) == {"refine": "light"}
+    assert shape_stages({"stages": {"refine": "light"}}) == {"refine": "light"}
+
+    # 3. The artifact resolver: both filenames, current preferred.
+    from compass_pkg.core import FOUND, resolve_artifact
+
+    old = _issue_dir(design_md="# landed before the rename\n")
+    state, path, _why = resolve_artifact(str(old), "technical-design")
+    assert state == FOUND and Path(path).name == "design.md"
+
+    # 4. The migrator's maps still carry every retired spelling.
+    import compass_pkg.migrate as migrate
+
+    artifacts = migrate.artifact_name_map()
+    for retired in ("spec.feature.md", "route.md", "plan.md", "design.md",
+                    "brief.md", "prd.md", "clarifications.md"):
+        assert retired in artifacts, (
+            "%s dropped out of the migration map, so a tree still holding it "
+            "can no longer be brought forward" % retired)
+    for retired in ("frame", "specify", "clarify", "distribute", "build",
+                    "land"):
+        assert retired in migrate.stage_key_map(), (
+            "the stage key %r dropped out of the migration map" % retired)
