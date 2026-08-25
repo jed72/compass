@@ -192,12 +192,15 @@ def test_trc_a1_the_reference_lives_under_an_existing_skill_and_opens_with_the_p
         f"skills/{p.name}" for p in (REPO_ROOT / "skills").iterdir()
         if p.is_dir()
     }
-    if head_dirs is not None:
-        assert current_dirs == head_dirs, (
-            "a skill directory exists that did not exist before this issue - "
-            "the reference has to live inside a skill that predates it, not "
-            "a fresh one"
-        )
+    # The set comparison that stood here compared the WHOLE skill directory
+    # set against the pre-issue tree, so any skill added for any unrelated
+    # reason failed it - `intent-elicitation` did, on 2026-08-25. The rule was
+    # never "no skill may be added". It is "the reference must not live in a
+    # skill invented to hold it", and the assertion below says exactly that,
+    # with or without git history. Removed rather than narrowed, because two
+    # assertions of one rule is how the weaker one ends up doing the work.
+    assert current_dirs, "no skill directories found, so this checks nothing"
+
     # Holds with or without git history: the reference's own parent directory
     # must be one that predates the issue. This is the assertion that fails
     # if the file is moved into a new skill, which the HEAD comparison could

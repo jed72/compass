@@ -330,3 +330,123 @@ def cmd_intent_ingest(args):
                        "asks its questions first"],
                origin=document.origin, sha256=document.sha256,
                snapshot=snapshot)
+
+
+# =============================================================================
+# The invention rule, held mechanically
+# =============================================================================
+# The maintainer's instruction was "never take it verbatim, ask questions where
+# needed", so Compass rewrites someone else's document. That is the value and
+# the danger together: an INVENTED non-goal reads exactly like a decided one,
+# and no reader can tell them apart afterwards.
+#
+# requirements-review.md Q2 turned that into a rule a check can hold: every
+# statement in intent.md traces to the source or to a recorded answer, and
+# there is no third origin. This is where it is held. The skill teaches the
+# discipline; without this the discipline is only a good intention.
+# =============================================================================
+
+#: What a section's material may come from. There is deliberately no value
+#: meaning "Compass wrote it".
+ORIGINS = ("source", "answer", "unanswered")
+
+#: Placeholders that read as "someone will get to this". A section that was
+#: asked about and deliberately left open is FINISHED, and must say so in
+#: words - the two states are different and only one of them is true.
+_PLACEHOLDERS = ("tbd", "todo", "tk", "xxx", "fixme")
+
+
+def _sections_of(markdown):
+    """{lowercased heading: body} for every `## ` section with content."""
+    out, name, buf = {}, None, []
+    for line in markdown.splitlines():
+        if line.startswith("## "):
+            if name is not None:
+                out[name] = "\n".join(buf).strip()
+            name, buf = line[3:].strip().lower(), []
+        elif name is not None:
+            buf.append(line)
+    if name is not None:
+        out[name] = "\n".join(buf).strip()
+    return {k: v for k, v in out.items() if v}
+
+
+def validate_intent_origins(task_dir):
+    """Does every section of intent.md trace to the source or to an answer?
+
+    Returns (ok, detail). Detail names the section and what is wrong with it,
+    because "intent.md failed validation" sends a reader nowhere.
+    """
+    from compass_pkg.core import load_task
+
+    intent = os.path.join(task_dir, "intent.md")
+    if not os.path.isfile(intent):
+        return True, "no intent.md yet - nothing to trace"
+
+    task, _path = load_task(task_dir)
+    record = task.get("intent_source") or {}
+    if not record:
+        return True, ("intent.md was authored here rather than ingested, so "
+                      "there is no source to trace it to")
+
+    body = open(intent, encoding="utf-8").read()
+
+    snapshot = os.path.join(task_dir, record.get("snapshot") or SNAPSHOT_NAME)
+    if os.path.isfile(snapshot):
+        if body.strip() == open(snapshot, encoding="utf-8").read().strip():
+            # The cheapest way to satisfy every rule below is to copy the
+            # source: every statement traces, trivially. That is the one thing
+            # the maintainer ruled out.
+            return False, (
+                "intent.md is identical to the ingested source. The brief is "
+                "reshaped into the template's sections, not copied - a verbatim "
+                "copy passes every tracing rule while doing none of the work.")
+
+    declared = {}
+    for entry in record.get("sections") or []:
+        if isinstance(entry, dict) and entry.get("name"):
+            declared[str(entry["name"]).strip().lower()] = entry
+    answers = {str(e.get("id")): e for e in (record.get("elicitation") or [])
+               if isinstance(e, dict) and e.get("id")}
+
+    problems = []
+    for name, text in sorted(_sections_of(body).items()):
+        entry = declared.get(name)
+        if entry is None:
+            problems.append(
+                "%r has content but no recorded origin - it traces to neither "
+                "the source nor an answer, which means nobody said it" % name)
+            continue
+
+        origin = str(entry.get("from") or "").strip().lower()
+        if origin not in ORIGINS:
+            problems.append(
+                "%r records origin %r, which is not one of %s"
+                % (name, entry.get("from"), ", ".join(ORIGINS)))
+            continue
+
+        if origin == "unanswered":
+            if text.strip().lower().rstrip(".") in _PLACEHOLDERS:
+                problems.append(
+                    "%r was asked about and left open, but says %r. A "
+                    "placeholder reads as unfinished; say in words that it was "
+                    "asked and not supplied." % (name, text.strip()))
+            continue
+
+        if origin == "answer":
+            answer_id = str(entry.get("answer_id") or "")
+            answer = answers.get(answer_id)
+            if answer is None:
+                problems.append(
+                    "%r cites answer %r, and no such answer is recorded - a "
+                    "citation is only as good as the thing it points at"
+                    % (name, answer_id or "(none)"))
+            elif answer.get("answer") in (None, ""):
+                problems.append(
+                    "%r cites answer %s, which was DECLINED - an unanswered "
+                    "question is not a source of material, so this is "
+                    "invention with a paper trail" % (name, answer_id))
+
+    if problems:
+        return False, "; ".join(problems)
+    return True, "every section of intent.md traces to the source or an answer"
