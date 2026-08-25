@@ -75,7 +75,7 @@ requirements review rewritten this way. One entry, in the same continuous
 prose every entry above should aim for:
 
 > The receipt's line cap was unclear - a defensible default, or something a
-> project should be able to configure? James kept it fixed at fifty lines, a
+> project should be able to configure? jed72 kept it fixed at fifty lines, a
 > hundred columns wide: a standard terminal shows that much without
 > scrolling, and a receipt that cannot fit needs a less verbose renderer, not
 > a knob.

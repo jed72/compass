@@ -42,7 +42,7 @@ CONTRACT = ROOT / "docs" / "safety-contract.md"
 
 APPROVAL = {
     "id": "EV-APPROVE", "type": "human-approval", "path": "evidence/approval.md",
-    "decision": "approved", "approver": "J. Edwards", "role": "maintainer",
+    "decision": "approved", "approver": "jed72", "role": "maintainer",
     "scope": "backup and restore paths", "timestamp": "2026-08-06T09:00:00Z",
 }
 

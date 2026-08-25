@@ -11,7 +11,7 @@ them.
 
 The spike sketch said a `--format` flag on `status` or `check`. `status` does
 not exist on this branch. `check` does, so folding the renderer into it was
-one of the three real options James weighed, alongside a new top-level verb
+one of the three real options jed72 weighed, alongside a new top-level verb
 and a sibling sub-verb under `compass issue`. He picked the sibling:
 `compass issue receipt --issue <slug>`. `compass issue` is already where a
 single issue's tools live (`lint` checks one, `receipt` renders one), and
@@ -22,7 +22,7 @@ the behaviour does not move.
 
 ## Whether the receipt re-runs anything
 
-`compass check` re-runs the guardrail checks live; the receipt does not. James
+`compass check` re-runs the guardrail checks live; the receipt does not. jed72
 decided the receipt reads recorded state straight out of `task.yml`, with no
 re-execution, because a live re-run could disagree with whatever was actually
 accepted at ship time - and a receipt that could contradict its own record
@@ -30,7 +30,7 @@ would undermine the entire point of an audit trail read from disk.
 
 ## How much fits on one screen
 
-Fifty lines, a hundred columns wide, not configurable. James's call,
+Fifty lines, a hundred columns wide, not configurable. jed72's call,
 following the five-minute-legibility principle this project already holds
 itself to: a standard terminal shows that much without scrolling, and if a
 receipt cannot fit, the fix is a less verbose renderer, not a knob nobody
@@ -40,7 +40,7 @@ asked for.
 
 TRC-C1 and TRC-C2 already exited 0; TRC-C3 exited 1 for a failed gate, and
 the original ledger left that asymmetry as an open question rather than
-defending it as a decision. James unified the three on exit 0 for a
+defending it as a decision. jed72 unified the three on exit 0 for a
 successful render, keeping the non-zero exit for `compass check` itself: the
 receipt is a renderer reporting what is on disk, even when what is on disk
 is a recorded failure, and a renderer that refuses to render a caveat is a

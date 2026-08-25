@@ -65,7 +65,7 @@ def test_trc_a1_the_entry_point_should_be_thin():
     # on every issue-scoped verb - all irreducibly parser. Still 91% below
     # the pre-split file.
     #
-    # RAISED 560 -> 575 on 2026-08-23 by James Edwards, adding `compass issue
+    # RAISED 560 -> 575 on 2026-08-23 by jed72, adding `compass issue
     # dashboard`. A new public verb costs about four lines of parser
     # registration, and registering parsers is what this file is FOR - the cap
     # exists to keep *logic* out, not to cap the verb count.
