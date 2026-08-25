@@ -102,4 +102,4 @@
 - [x] **Route still fits** - nothing in refine changed a reading. initiative
       still fits; the `migrations` tag (and so RP-FLOOR-003) still holds.
 
-Next stage: **design** (`/compass:design`) - unblocked: RP-ROLE-002's intent-fidelity check passed (`intent.md` foot, 2026-03-06).
+Next stage: **plan** (`/compass:plan`) - unblocked: RP-ROLE-002's intent-fidelity check passed (`intent.md` foot, 2026-03-06).

@@ -142,7 +142,7 @@ plan defect, because the ambiguity is discovered after the work starts.
 **What changed:** every cell that a builder would have had to ask about is
 filled in, and the independence claim now says *why* rather than asserting it.
 
-`compass design lint` catches the most mechanical version of this - `TBD`, `TODO`,
+`compass plan lint` catches the most mechanical version of this - `TBD`, `TODO`,
 "implement later", "add appropriate error handling", and work units that promise
 tests without naming any. It is advisory and always exits 0, so it reports and
 you judge. It cannot catch "similar to U1", which needs a reader.
@@ -324,7 +324,7 @@ lint`.
   conversation), which the cold-reader strategy (`S7`) extends.
 - `skills/bdd-specification/SKILL.md` - the Summary section, the four-scan
   self-review, and what makes a scenario runnable.
-- `skills/governance-check/SKILL.md` - where `compass design lint` fits in the
+- `skills/governance-check/SKILL.md` - where `compass plan lint` fits in the
   strategies walk.
 - `architecture/decisions/ADR-004-one-spec-many-lenses.md` - why the spec is one
   artifact rather than one per role.

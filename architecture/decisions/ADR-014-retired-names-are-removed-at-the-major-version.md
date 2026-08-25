@@ -1,11 +1,17 @@
 ---
 id: ADR-014
 title: Retired names are removed at the major version rather than carried as redirects
-status: accepted
+status: superseded
 date: 2026-08-13
 supersedes: ''
-superseded_by: ''
+superseded_by: 'ADR-019'
 ---
+
+> **Superseded by ADR-019 (2026-08-25).** The rule below rested on there being
+> no adopters, which its own Consequences section says would change. Compass is
+> now published and released at 3.3.0, so a name retired INSIDE a major version
+> carries a redirect until the next one. The removals this ADR performed still
+> stand - they were paid at 3.0.0 while the cost was zero.
 
 ## Context
 

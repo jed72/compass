@@ -196,7 +196,12 @@ def test_adr_structure():
         "## Consequences",
         "## References",
     ]
-    valid_statuses = {"accepted", "proposed"}
+    # `superseded` is in the set because architecture/decisions/README.md
+    # documents it: "If an ADR is superseded, the old number and file remain
+    # (with status: superseded)". It was absent here until the first
+    # supersession actually happened, on 2026-08-25 - an unexercised branch of
+    # a documented convention.
+    valid_statuses = {"accepted", "proposed", "superseded"}
 
     for adr in adrs:
         content = adr.read_text(encoding="utf-8")
@@ -211,11 +216,35 @@ def test_adr_structure():
         # Status validity
         status = str(fm.get("status", "")).lower()
         assert status in valid_statuses, (
-            f"{adr.name}: status must be 'accepted' or 'proposed', got {status!r}"
+            f"{adr.name}: status must be one of "
+            f"{sorted(valid_statuses)}, got {status!r}"
         )
         assert status != "draft", (
             f"{adr.name}: status 'draft' is reserved for distillation drafts, not used here"
         )
+
+        # A supersession has to resolve in both directions, or the reader is
+        # told a decision is withdrawn and cannot find what replaced it.
+        # README.md says supersession is recorded via the superseded_by field
+        # rather than by renumbering, which only works if the field is filled
+        # in and the successor claims it back.
+        if status == "superseded":
+            successor = str(fm.get("superseded_by", "")).strip()
+            assert successor, (
+                f"{adr.name}: status is 'superseded' with an empty "
+                f"superseded_by - a reader is told the decision is withdrawn "
+                f"and given nowhere to go"
+            )
+            matches = sorted(DECISIONS_DIR.glob(f"{successor}-*.md"))
+            assert matches, (
+                f"{adr.name}: superseded_by names {successor!r}, and no such "
+                f"ADR file exists"
+            )
+            back = str(_parse_frontmatter(matches[0]).get("supersedes", ""))
+            assert fm.get("id") in [x.strip() for x in back.split(",")], (
+                f"{matches[0].name} does not name {fm.get('id')} in its "
+                f"supersedes field, so the link is one-way"
+            )
 
         # Required sections
         for section in required_sections:

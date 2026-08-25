@@ -65,20 +65,20 @@ that turned out easy than to discover mid-Build that the route was too light.
 
 Intent is also *the actual outcome wanted*, not just the literal request. "Add
 a CSV export" invoked by a product owner whose brief says "let finance
-self-serve" may need more than a button. Triage reads the brief if one
+self-serve" may need more than a button. Assess reads the brief if one
 exists.
 
 One intent value is not a role: **exploration** - "I cannot frame this well
 enough to deliver it yet." Exploration intent composes toward the **Spike**
 route (see `approaches/spike.md`), the way live-defect urgency composes toward
-Hotfix. Triage still scores all four dimensions; the intent is what selects
+Hotfix. Assess still scores all four dimensions; the intent is what selects
 the shape.
 
 ---
 
 ## Step 2 - Compose the candidate route
 
-The candidate route is a composition, not a lookup. Triage assembles it
+The candidate route is a composition, not a lookup. Assess assembles it
 from per-dimension contributions:
 
 | The route is heavier when… | The route is lighter when… |
@@ -103,7 +103,7 @@ Concretely, triage decides, per phase:
   follow-ups are owed.
 
 Most compositions land near one of the five reference shapes
-(`express`, `standard`, `expedition`, `hotfix`, `spike`). Triage names the
+(`express`, `standard`, `expedition`, `hotfix`, `spike`). Assess names the
 nearest reference shape in `delivery-approach.md` for shared vocabulary, then lists any
 phase-level deviations from it. A route that is "Standard, but Verify also runs
 the security dimension because risk is cross-cutting" is a perfectly
@@ -139,7 +139,7 @@ now bounded by the **routing guardrails** in `governance/routing-policy.md`:
 3. **immovable_gates** are stapled on regardless of route.
 4. **blocking role_rules** add required artifacts and phase blocks.
 
-Every routing guardrail that fires is recorded. Triage never applies a
+Every routing guardrail that fires is recorded. Assess never applies a
 constraint silently - if quick fix became initiative, `delivery-approach.md` says which floor
 did it and quotes the floor's rationale.
 

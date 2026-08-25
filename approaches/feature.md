@@ -20,7 +20,7 @@ choices in it.
 
 | Stage | Weight on a feature approach |
 |---|---|
-| Triage | Full. `delivery-approach.md` written. |
+| Assess | Full. `delivery-approach.md` written. |
 | Define | A small **feature set** of scenarios - happy path, the realistic edges, the failure modes that matter. Brownfield-unmapped: distil current behaviour into scenarios first. |
 | Refine | **Light-to-full pass.** Resolve ambiguities, QA the spec against itself and against governance. Writes `requirements-review.md`. |
 | Plan | **Real `technical-design.md`.** Technical approach, the one or two design decisions stated, governance check run. If the work splits into 2–3 independent units, a short distribution map. |

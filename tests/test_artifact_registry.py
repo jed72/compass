@@ -135,7 +135,7 @@ def test_b1_registered_path_wins(tmp_path):
 def test_b2_no_registry_falls_back_to_flat_filename(tmp_path):
     """TRC-B2: an issue with no registry still resolves its artifacts.
 
-    Eighty-eight issues are in this state. It is the ordinary case, not a
+    148 issue directories are in this state. It is the ordinary case, not a
     fault.
     """
     from compass_pkg.core import artifact_path, resolve_artifact, FOUND
@@ -191,7 +191,7 @@ def test_b4_landed_issues_still_resolve():
     """TRC-B4: every issue already in this repository still resolves.
 
     The compatibility claim, checked against the real archive rather than a
-    fixture. Eighty-eight issues have landed with no registry; if any of their
+    fixture. 148 issue directories have no registry; if any of their
     documents stops resolving, the fallback is wrong.
     """
     from compass_pkg.core import artifact_path

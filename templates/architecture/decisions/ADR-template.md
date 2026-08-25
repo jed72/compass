@@ -8,7 +8,7 @@ superseded_by: ''
 ---
 
 <!-- HOW TRIAGE AND THE ARCHITECT PERSPECTIVE USE THIS FILE
-     Triage scans architecture/decisions/ADR-*.md and includes a summary of
+     Assess scans architecture/decisions/ADR-*.md and includes a summary of
      each record (id, title, status) in architecture-loaded.yml.  The
      `architect-lens` agent reads these summaries to know which decisions
      are already recorded, so it can cite them in architecture-notes.md

@@ -296,7 +296,8 @@ def test_d2_stale_dashboard_fails_a_guardrail_check(tmp_path):
     ok, detail = _check_dashboard_current(spine, str(task_dir))
     assert ok is NOTHING_TO_CHECK, (
         "an issue with no dashboard reported a real pass, so this check would "
-        "clear the guardrail on 88 landed issues without reading anything:\n"
+        "clear the guardrail on the 148 issues with no registry without "
+        "reading anything:\n"
         + str(detail))
 
     # 2. A hand-written page. Not Compass's to police, and again not a pass.

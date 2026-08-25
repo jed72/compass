@@ -27,7 +27,7 @@ kit-layer CLI* for the deterministic parts rather than reimplement them. See
 
 ## What any Compass runtime must do
 
-**1. Triage before changing anything.** Before an issue modifies code, specs,
+**1. Assess before changing anything.** Before an issue modifies code, specs,
 or product artifacts, run triage: read the four assessment dimensions - risk,
 familiarity, size, and goal - that is judgement, and judgement is the
 adaptivity, so the runtime must produce it. Composing the delivery approach
@@ -49,7 +49,7 @@ proceed with the issue's recorded delivery approach. This intent-recognition
 is an adapter responsibility (it is *when* to trigger triage, not what triage
 does); methodology describes the stage, this rule describes the trigger.
 
-**2. Walk the eight-stage pipeline.** Triage, define acceptance criteria,
+**2. Walk the eight-stage pipeline.** Assess, define acceptance criteria,
 requirements review, design, break down the work, implement, test & review,
 ship. The delivery approach says which stages are full-weight, which
 collapse, and which are skipped - and why. Each stage emits its artifact
@@ -131,7 +131,7 @@ them.
 | Methodology concept | Adapter must map it to… |
 |---|---|
 | The eight stages | Invocable commands or equivalent |
-| Triage | A routine that produces the assessment, then *calls the kit* (`compass approach evaluate`) to compose the delivery approach |
+| Assess | A routine that produces the assessment, then *calls the kit* (`compass approach evaluate`) to compose the delivery approach |
 | The kit-layer CLI | A shell-out, not a reimplementation - the adapter runs `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the retrospective signal), `compass rework-scan` (cross-issue rework signal), and `compass flow` (cross-issue view; `--digest` writes a dated digest combining rework-scan and calibration) |
 | Subagents (`navigator`, `spec-author`, `planner`, `orchestrator`, `builder`, `verifier`, `reviewer`, `product-lens`, `marketing-lens`, `architect-lens`) | Distinct agent contexts or personas. The 10th - `architect-lens` - applies the architect perspective (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, decision records) at triage and annotates the design via `architecture-notes.md`. Consulted by `spec-author` and `planner`; never writes feature code |

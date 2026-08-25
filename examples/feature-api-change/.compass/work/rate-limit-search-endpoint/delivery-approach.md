@@ -41,7 +41,7 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Full | This document. |
+| Assess | Full | This document. |
 | Define | Small feature set | Five scenarios - happy path, the over-limit reject, the retry-after contract, the window reset, per-client isolation. See `acceptance-criteria.md`. |
 | Refine | Light pass | Two ambiguities surfaced and resolved; spec QA'd against itself and governance. See `requirements-review.md`. |
 | Plan | Real `technical-design.md` | Two design decisions recorded (storage backend, window algorithm); governance check run. |

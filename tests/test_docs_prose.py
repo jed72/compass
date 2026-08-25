@@ -102,10 +102,14 @@ def test_install_refusal_points_at_plugin_dir():
         "the refusal block still sends the plugin source to /plugin install")
 
 
+# `compass plan lint` was on this list until 2026-08-25, when the vocabulary
+# rename moved the planning verb BACK to `plan` - `design` names the designer's
+# stage now, and one word cannot mean two stages in one release. It is the live
+# spelling, and `compass design lint` is the retired one.
 RETIRED_CLI = __import__("re").compile(
     r"compass (?:route|backfill|calibration|land-commit)\b"
     r"|compass task (?:lint|receipt|set-status)"
-    r"|compass plan lint")
+    r"|compass design lint")
 
 
 def test_no_live_doc_teaches_a_retired_cli_spelling():

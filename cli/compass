@@ -268,13 +268,26 @@ def build_parser():
     pll = pls.add_parser("lint", help="structurally validate the governance YAML")
     pll.set_defaults(func=cmd_policy_lint, output_kind="report")
 
-    ppl = sub.add_parser("design", help="technical-design.md tools")
-    ppls = ppl.add_subparsers(dest="subcmd", required=True)
-    ppll = ppls.add_parser(
-        "lint", help="scan a technical-design.md for placeholder phrases (advisory; always exits 0)")
-    issue_arg(ppll)
-    ppll.add_argument("--file", help="lint a specific technical-design.md file")
-    ppll.set_defaults(func=cmd_plan_lint, output_kind="report")
+    # The planning stage's verb. It answers to `plan`, the word its machine
+    # key, skill, agent and slash command all use; `design` now means the
+    # DESIGNER's stage everywhere else, and one word meaning two stages in one
+    # release is the ambiguity this rename exists to remove.
+    #
+    # `compass design lint` shipped in 3.3.0, so it keeps working until the
+    # next major version rather than breaking an adopter's script mid-major
+    # (ADR-006, and ADR-019 which records why this rename carries redirects at
+    # all). It does the work and says once, on stderr, what to call it.
+    for verb in ("plan", "design"):
+        ppl = sub.add_parser(verb, help="technical-design.md tools")
+        ppls = ppl.add_subparsers(dest="subcmd", required=True)
+        ppll = ppls.add_parser(
+            "lint",
+            help="scan a technical-design.md for placeholder phrases "
+                 "(advisory; always exits 0)")
+        issue_arg(ppll)
+        ppll.add_argument("--file", help="lint a specific technical-design.md file")
+        ppll.set_defaults(func=cmd_plan_lint, output_kind="report",
+                          retired_verb=None if verb == "plan" else verb)
 
     pt = sub.add_parser("issue", help="issue spine tools")
     pts = pt.add_subparsers(dest="subcmd", required=True)
@@ -544,7 +557,16 @@ def build_parser():
         a for a in sub._choices_actions
         if not a.dest.startswith("_")
     ]
-    public_names = [k for k in sub.choices if not k.startswith("_")]
+    # Verbs that still work but are no longer taught. A retired spelling that
+    # shipped in a released version cannot simply stop working - ADR-006 makes
+    # backward compatibility non-negotiable inside a major version - but it
+    # must not appear in `--help` either, or every teaching surface has to
+    # document a name the reader should not use. So: it parses, it runs, it
+    # says once what to call it now, and it is absent from the advertised set.
+    # Removed at the next major version (ADR-019).
+    hidden = {"design"}  # renamed to `plan` on 2026-08-25
+    public_names = [k for k in sub.choices
+                    if not k.startswith("_") and k not in hidden]
     sub.metavar = "{" + ",".join(public_names) + "}"
 
     # The five output flags, added to every leaf verb at once. The output KIND

@@ -66,7 +66,7 @@ checks, and initiative runs both. That check is recorded at the foot of
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Full | This document, with explicit `touches:` tagging - initiative is where domain floors most often fire, and one did. |
+| Assess | Full | This document, with explicit `touches:` tagging - initiative is where domain floors most often fire, and one did. |
 | Define | Full BDD discovery | Greenfield - six scenarios discovered from `intent.md`, grouped by independence into two groups (A: delivery & dispatch, B: preferences). The grouping seeds the distribution map. |
 | Refine | Full pass | Self-QA, governance QA, explicit ambiguity ledger. The product owner reviewed here. See `requirements-review.md`. |
 | Plan | Full `technical-design.md` + `distribution-map.md` | Architecture, every design decision as an ADR note, governance check, scenario-group → stream mapping. **Was blocked** by RP-ROLE-002 until the intent-fidelity check passed. |

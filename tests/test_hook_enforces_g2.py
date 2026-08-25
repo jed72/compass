@@ -176,3 +176,67 @@ def test_scn_f2_g2_is_checked_before_the_red():
             f"the red message won over the acceptance one:\n{err}")
     finally:
         shutil.rmtree(project, ignore_errors=True)
+
+
+def _project_v2(*, define="full", scenarios=0, red=True):
+    """An issue spine in the CURRENT vocabulary.
+
+    `_project` above writes `stages: {specify: ...}` - the v2 block name with
+    the v1 stage key inside it. That mixture is what every test here was built
+    on, so the hook reading the retired key looked correct for as long as no
+    fixture used the current one.
+    """
+    root = Path(tempfile.mkdtemp(prefix="compass-g2-v2-"))
+    task_dir = root / ".compass" / "work" / "t"
+    task_dir.mkdir(parents=True)
+    (root / ".compass" / "current-task").write_text("t\n")
+    (task_dir / "delivery-approach.md").write_text("# Delivery approach\n")
+    if red:
+        (task_dir / ".red").write_text("")
+    (task_dir / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "2.0", "task": "t", "created": "2026-08-25",
+        "assessment": {"risk": "contained", "familiarity": "greenfield",
+                       "size": "small", "goal": "delivery"},
+        "delivery_approach": "feature",
+        "stages": {"assess": "full", "define": define, "implement": "full"},
+        "scenarios": [{"id": f"SCN-{i}", "title": "s", "intent": "INT-1",
+                       "tests": ["tests/test_x.py"]}
+                      for i in range(1, scenarios + 1)],
+    }, sort_keys=False))
+    return root
+
+
+def test_scn_a4_g2_fires_on_a_spine_in_the_current_vocabulary():
+    """The guardrail must read the stage key the framework writes today.
+
+    The hook asked for `specify`, the key retired at the v2 freeze, so a spine
+    saying `define: full` with no scenarios was waved through. The migration
+    tool this framework ships is what turns a directory from one to the other,
+    so running `compass migrate --apply` silently switched guardrail G2 off
+    for every issue it touched.
+    """
+    project = _project_v2(define="full", scenarios=0, red=True)
+    try:
+        result = _run(project)
+        assert result.returncode == 2, (
+            "a full define stage with no scenarios was allowed: the guardrail "
+            "is reading a stage key this framework no longer writes\n"
+            + result.stdout + result.stderr)
+    finally:
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def test_scn_a5_a_spine_with_scenarios_still_passes_in_the_current_vocabulary():
+    """The control: reading the current key must not block everything.
+
+    Without this, the check above is satisfied by a hook that blocks whatever
+    it is handed, which would pass while checking nothing.
+    """
+    project = _project_v2(define="full", scenarios=2, red=True)
+    try:
+        result = _run(project)
+        assert result.returncode == 0, (
+            "a full define stage WITH scenarios was blocked\n"
+            + result.stdout + result.stderr)
+    finally:
+        shutil.rmtree(project, ignore_errors=True)

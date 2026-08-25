@@ -50,8 +50,8 @@ artifacts:
 #
 # `plan` and `verify` are DELIBERATELY ABSENT. `verify` already agrees. `plan`
 # stays because the command moves TO it - and note the `artifacts:` section
-# above records `plan.md: design.md`, so the engineering document was called
-# `plan.md` in v1. A later reader will see the word circling this stage and may
+# above records `plan.md: technical-design.md`, so the engineering document
+# was called `plan.md` in v1 and `design.md` in v2. A later reader will see the word circling this stage and may
 # take the key for a vestige. It is not: `plan-authoring` and `planner` were
 # named deliberately at v2, and the command joins them.
 stage_keys:

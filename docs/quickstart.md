@@ -75,7 +75,7 @@ route-aware: on a **Spike** route the TDD strategy is suspended and the hook
 does not block. The rest of this document is, in part, how to work with the
 hook rather than against it.
 
-## 2. Triage-and-go - `/compass:init` is optional
+## 2. Assess-and-go - `/compass:init` is optional
 
 There is no required setup step between installing Compass and running your
 first issue. The **five default guardrails** and the **default method
@@ -133,7 +133,7 @@ deterministically - composing the candidate route, applying the floors and
 caps, assembling the gate set - and folds `route`, `phases`, and `gates` back
 into `task.yml`. For this issue it lands on **Standard, with the `security`
 review dimension turned on because risk is cross-cutting**; no routing
-guardrail forces a heavier route. Triage then writes the human-readable
+guardrail forces a heavier route. Assess then writes the human-readable
 `delivery-approach.md` alongside it. Same assessment + same policy would produce this exact
 route on any machine - the route is no longer something an agent composes in
 its head. `/compass:assess` also drops a `.compass/current-task` pointer so the
@@ -179,10 +179,10 @@ about unauthenticated traffic?) and against governance. Each ambiguity is
 resolved into `acceptance-criteria.md` or recorded in `requirements-review.md` with an
 owner. An unresolved ambiguity is not allowed to pass silently into Plan.
 
-### Design
+### Plan
 
 ```
-/compass:design
+/compass:plan
 ```
 
 The `planner` agent writes a real `technical-design.md`: the technical approach, each
@@ -286,7 +286,7 @@ solution. The brief states the outcome, and the difference matters - see the
 routing deep dive for how the same literal request routes differently
 depending on the brief behind it.
 
-### Assess - now with a PRD
+### Assess - now with an intent document
 
 ```
 /compass:assess "CSV export for finance month-end numbers"
@@ -312,7 +312,7 @@ decision).
 ### The intent-fidelity gate at Plan
 
 ```
-/compass:design
+/compass:plan
 ```
 
 Per the routing policy's `role_rules`, when a product owner is in play the

@@ -19,7 +19,7 @@ small variant of an existing pattern, a config change with a known shape.
 
 | Phase | Weight on quick fix |
 |---|---|
-| Triage | Full. Always runs, always writes `delivery-approach.md`. ~minutes. |
+| Assess | Full. Always runs, always writes `delivery-approach.md`. ~minutes. |
 | Define | **One scenario.** A single Given/When/Then that names the new behaviour. That scenario is the spec. |
 | Refine | **Collapsed** - permitted only because the one scenario is unambiguous. If it is not unambiguous, triage does not compose quick fix. |
 | Plan | **Collapsed** to a one-line "edit which file(s)" note in `delivery-approach.md`. No `technical-design.md`. |

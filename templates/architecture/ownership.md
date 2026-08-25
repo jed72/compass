@@ -1,7 +1,7 @@
 # Ownership
 
 <!-- HOW TRIAGE USES THIS FILE
-     Triage reads this file and includes it in architecture-loaded.yml as a
+     Assess reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The `architect-lens` agent uses ownership data to
      flag when a proposed change crosses team boundaries - a common source of
      undetected coupling and rework.

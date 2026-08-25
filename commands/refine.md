@@ -16,7 +16,7 @@ single scenario was certified unambiguous when it was defined), **collapsed
 on a hotfix** (the reproduction *is* the clarification), and **skipped on a
 spike** (there is nothing to QA - the behaviour is the unknown). If
 `delivery-approach.md` collapsed or skipped it, stop - say so, confirm the
-de-scope reason still holds, and point the user to `/compass:design`. Do not
+de-scope reason still holds, and point the user to `/compass:plan`. Do not
 re-add a stage the approach skipped, and do not skip one it kept.
 
 On a collapsed- or skipped-review approach the **Definition of Ready** is
@@ -125,4 +125,4 @@ label-and-status row. See `skills/compass-runtime/writing-voice.md`.
 spec passes governance QA; and the **Definition of Ready** checklist at the
 foot of `requirements-review.md` is fully checked - that is the entry gate
 into design, and an unchecked box stops design from starting. Log to
-`devlog.md`. Next: `/compass:design`.
+`devlog.md`. Next: `/compass:plan`.

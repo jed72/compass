@@ -78,7 +78,7 @@ Intent id. The "why" end of the traceability chain - the outcome the work is mea
 
 **Appears in:** `prd.md`, `acceptance-criteria.md`, `task.yml scenarios[].intent`
 
-**Related:** `TRC`, `prd`
+**Related:** `TRC`, `intent`
 
 ### `PX-`
 
@@ -156,13 +156,21 @@ Architecture decision record: one real decision, the alternatives considered, th
 
 **Related:** `design-doc`
 
+### assess
+
+Sizing up incoming work: risk, familiarity, size, and goal - producing an issue type, labels, and a delivery approach. The human judgement step; everything after it is mechanism. Named for what it produces: the stage writes an `assessment:` block, the flag is --assessment, and the policy section is assessment_vocabulary.
+
+**Not:** NOT triage. Triage means sorting BETWEEN cases by urgency, which is what `compass flow` does across issues - this stage sizes up ONE piece of work. The retired command name was /compass:triage.
+
+**Related:** `delivery-approach`, `label`, `issue-type`, `assessment`
+
 ### assessment
 
 The four-dimension judgement triage produces - risk, familiarity, size and goal, plus the domain labels. It is the only judgement field in the issue spine; everything below it is computed from it deterministically.
 
 **Not:** A choice of process. The assessment is read; the delivery approach is computed from it by `compass approach evaluate`.
 
-**Related:** `triage`, `delivery-approach`, `navigator`
+**Related:** `assess`, `delivery-approach`, `navigator`
 
 ### backlog
 
@@ -222,7 +230,7 @@ The gate between requirements and design/build: acceptance criteria exist, ambig
 
 The chosen shape for an issue: which artifacts exist, which gates apply, solo or parallel. Deterministic - same triage plus same policy always gives the same approach.
 
-**Related:** `triage`, `quality-gate`
+**Related:** `assess`, `quality-gate`
 
 ### design-doc
 
@@ -274,9 +282,9 @@ A runtime switch decoupling deploy from release.
 
 ### first-slice
 
-The 80/20 cut recorded in a PRD: the slice of an initiative that ships first because it delivers most of the value, with what deliberately waits stated beside it. Design and work breakdown follow the first slice, not the whole PRD.
+The 80/20 cut recorded in intent.md: the slice of an initiative that ships first because it delivers most of the value, with what deliberately waits stated beside it. The design and the work breakdown follow the first slice, not the whole document.
 
-**Related:** `prd`, `slice`, `initiative`
+**Related:** `intent`, `slice`, `initiative`
 
 ### follow-up
 
@@ -312,17 +320,17 @@ A body of work significant enough to need a PRD, delivered across multiple miles
 
 **GitHub:** Project
 
-**Related:** `milestone`, `prd`, `slice`
+**Related:** `milestone`, `intent`, `slice`
 
 ### intent
 
-Two related things, and the entry covers both deliberately. (1) The document: intent.md, the originator's statement of what is wanted and why, AUTHORED at the intake stage or INGESTED from a brief that already exists - it does not presume authorship. (2) The goal it carries: the outcome a change is meant to produce, the "why" end of the traceability chain, carrying the INT- ids that scenarios trace back to. The document holds the goals, which is why one name serves both. Sourced from intent.md's desired outcome, the UI contract, or the issue description. A goal, not a requirement: the functional requirement is the scenario.
+Two related things, and the entry covers both deliberately. (1) The document: intent.md, the originator's statement of what is wanted and why, AUTHORED at the intake stage or INGESTED from a brief that already exists - it does not presume authorship. (2) The goal it carries: the outcome a change is meant to produce, the "why" end of the traceability chain, carrying the INT- ids that scenarios trace back to. The document holds the goals, which is why one name serves both. As a document it carries problem, users, goals, non-goals, success signals, constraints, open questions, and the first slice (the 80/20 cut) - iterated through review before the design is built. User stories are welcome inside it as a format; acceptance criteria are derived from them. As a goal it is sourced from intent.md's desired outcome, the UI contract, or the issue description - a goal, not a requirement: the functional requirement is the scenario.
 
 **Not:** A restatement of the request. "Add a CSV export" is a request; "let finance self-serve" is the intent, and it may need filters and permissions the request never mentioned.
 
 **Also:** The product owner's entry point, `/compass:intent`, captures it.
 
-**Related:** `prd`, `scenario`, `traceability`
+**Related:** `first-slice`, `scenario`, `traceability`
 
 ### issue
 
@@ -340,7 +348,7 @@ The classification triage assigns to an issue: quick fix, bug fix, hotfix, featu
 
 **GitHub:** Issue type
 
-**Related:** `issue`, `triage`, `delivery-approach`, `label`
+**Related:** `issue`, `assess`, `delivery-approach`, `label`
 
 ### label
 
@@ -376,7 +384,7 @@ The agent that runs triage: reads the four assessment dimensions, hands them to 
 
 **Not:** A decision-maker about ceremony. The approach is computed from the assessment by `compass approach evaluate`, which is the determinism boundary.
 
-**Related:** `triage`, `assessment`, `delivery-approach`
+**Related:** `assess`, `assessment`, `delivery-approach`
 
 ### operability
 
@@ -397,12 +405,6 @@ The unit of landing code. Small, trunk-based PRs preferred.
 **GitHub:** Pull request
 
 **Related:** `issue`, `ship`
-
-### prd
-
-Product requirements document: problem, users, goals, non-goals, success metrics, constraints, open questions, and the first slice (the 80/20 cut). Iterated through review before design begins. User stories are welcome inside it as a format; acceptance criteria are derived from them.
-
-**Related:** `initiative`, `first-slice`, `requirements-review`
 
 ### quality-gate
 
@@ -428,13 +430,13 @@ The per-issue proof summary rendered from the spine and the evidence registry: t
 
 The review pass that hardens requirements before design or build: ambiguities resolved into recorded decisions, contradictions and gaps closed, the PRD reviewed where one exists. Satisfying it is what makes an issue ready. v1 called this "Clarify".
 
-**Related:** `prd`, `definition-of-ready`, `acceptance-criteria`
+**Related:** `intent`, `definition-of-ready`, `acceptance-criteria`
 
 ### retrospective-signal
 
 Compass's cross-issue self-check: is triage consistently over- or under-sizing the process? Advisory, surfaced in retro language. v1 called this "calibration".
 
-**Related:** `dora-metrics`, `triage`
+**Related:** `dora-metrics`, `assess`
 
 ### rollback-plan
 
@@ -525,12 +527,6 @@ The chain that makes a change accountable: code traces to a TRC- id, which trace
 **Not:** A report produced at the end. A chain assembled after the fact records what someone remembered, not what happened.
 
 **Related:** `scenario`, `intent`, `acceptance-criteria`
-
-### triage
-
-Sizing up incoming work: risk, size, familiarity, urgency - producing an issue type, labels, and a delivery approach. The human judgement step; everything after it is mechanism.
-
-**Related:** `delivery-approach`, `label`, `issue-type`
 
 ### workflow-state
 

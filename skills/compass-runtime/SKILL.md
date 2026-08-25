@@ -26,10 +26,10 @@ one major version.
 
 | Stage (v2 name) | Command | Artifact it writes |
 |---|---|---|
-| Triage | `/compass:assess` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
+| Assess | `/compass:assess` | `delivery-approach.md` (the delivery-approach record) + the spine's assessment |
 | Define acceptance criteria | `/compass:define` | `acceptance-criteria.md` |
 | Requirements review | `/compass:refine` | `requirements-review.md` (ends with the Definition of Ready) |
-| Design | `/compass:design` | `technical-design.md` (+ `distribution-map.md` on parallel work) |
+| Plan | `/compass:plan` | `technical-design.md` (+ `distribution-map.md` on parallel work) |
 | Break down the work | `/compass:breakdown` | worktrees + stream charters |
 | Implement | `/compass:implement` | code + the red and green records (named by binding) |
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
@@ -45,7 +45,7 @@ optional - shipped governance defaults apply with zero setup.
 ## The one rule that creates every other rule
 
 **Never skip triage.** Before any issue that changes code, specs, or product
-artifacts, run the triage command. Triage reads the four assessment
+artifacts, run the triage command. Assess reads the four assessment
 dimensions - risk, familiarity, size, and goal - that is judgement, and the
 judgement is yours - and records them in the issue spine (`task.yml`). It
 then hands them to the **mechanism**: `compass approach evaluate --write`

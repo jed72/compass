@@ -71,7 +71,7 @@ and picks the route with no setup at all:
 
 # Walk the pipeline (or let the route auto-advance).
 /compass:define
-/compass:design
+/compass:plan
 /compass:implement
 /compass:verify
 /compass:ship
@@ -137,7 +137,7 @@ shapes triage tunes, not a fixed ladder.
 Compass is governed by two kinds of thing, kept deliberately separate:
 
 - **Guardrails** are few, hard, checkable, blocking. The things that must never
-  happen. Triage adapts ceremony *around* them; it never crosses one.
+  happen. Assess adapts ceremony *around* them; it never crosses one.
 - **Strategies** are many, soft, directional, assessed. How the team tends to
   work. A strategy biases a decision; it doesn't block one.
 
@@ -224,7 +224,7 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass issue lint        structurally validate a task.yml
-compass design lint        scan a technical-design.md for placeholder phrases (TBD, TODO,
+compass plan lint        scan a technical-design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
 compass issue receipt     render a one-screen receipt for a landed issue:
                          assessment → approach → typed evidence → gate verdicts

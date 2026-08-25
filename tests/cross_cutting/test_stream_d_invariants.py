@@ -85,8 +85,17 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
     "analyze", "next",            # cross-task-architectural-integrity
     "ship-commit",                # framework-field-feedback R5
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
-    "design",                     # readable-specs-and-flow: `compass design lint`,
-                                  # the advisory placeholder scan over technical-design.md
+    "plan",                       # readable-specs-and-flow shipped this as
+                                  # `compass design lint`, the advisory
+                                  # placeholder scan over technical-design.md.
+                                  # The vocabulary rename moved it to `plan` on
+                                  # 2026-08-25, because `design` now names the
+                                  # DESIGNER's stage and one word cannot mean
+                                  # two stages in one release.
+                                  # The retired spelling `design` still runs -
+                                  # ADR-006 forbids breaking it mid-major - but
+                                  # it is hidden from `--help`, so it is not an
+                                  # advertised verb and is absent from this set.
     "acceptance",                 # honest-acceptance-for-config-and-refactor:
                                   # `compass acceptance start|record`, the
                                   # honest signal for a change with no natural

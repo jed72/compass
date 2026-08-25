@@ -13,14 +13,14 @@
 - role is typically `engineer`, often paired with `qa`.
 
 Hotfix is the one route defined by *urgency* rather than by the size /
-risk / familiarity composition. Triage still scores all four
+risk / familiarity composition. Assess still scores all four
 dimensions - they shape the follow-up - but urgency is what selects the shape.
 
 ## Per-phase weight
 
 | Phase | Weight on Hotfix |
 |---|---|
-| Triage | Fast but real. `delivery-approach.md` is written - even under time pressure, the audit trail starts here. |
+| Assess | Fast but real. `delivery-approach.md` is written - even under time pressure, the audit trail starts here. |
 | Define | **Reproduce-first.** The spec *is* a failing regression test that reproduces the defect. Writing that test is non-negotiable and comes before any fix - it is simultaneously the BDD scenario and the TDD red. |
 | Refine | Collapsed - the reproduction *is* the clarification. The bug is unambiguous once it reproduces. |
 | Plan | Collapsed to a one-line root-cause note in `delivery-approach.md`. (Root cause, not symptom - a hotfix that treats the symptom owes a follow-up initiative.) |

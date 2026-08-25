@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: distribution-map.md
-Produced by: the design stage (`/compass:design`) on pair/swarm-capable work;
+Produced by: the plan stage (`/compass:plan`) on pair/swarm-capable work;
              consumed by breakdown (`/compass:breakdown`) and the
              `orchestrator` agent.
 Lives at:    .compass/work/<task-slug>/distribution-map.md

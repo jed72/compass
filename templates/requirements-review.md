@@ -117,4 +117,4 @@ a form.
 - [ ] **Route still fits** - nothing found in refine makes `delivery-approach.md` wrong;
       if it does, re-frame before Plan.
 
-Next stage: **design** (`/compass:design`).
+Next stage: **plan** (`/compass:plan`).

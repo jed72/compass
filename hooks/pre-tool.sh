@@ -576,10 +576,24 @@ try:
     if not isinstance(task, dict):
         raise ValueError
 except Exception:
+    # Exit 0 means ALLOW, and that is deliberate: an unreadable or missing
+    # spine falls back to the behaviour this hook had before the check
+    # existed, rather than inventing a block. A false block on unreadable
+    # state trains people to bypass the hook, which costs more than the case
+    # it would catch. Pinned by test_scn_f1. The separate status-3 path below
+    # is for the check being unable to RUN (a broken install), which is a
+    # different thing from the spine being unreadable.
     sys.exit(0)
-phases = task.get("stages") or task.get("phases") or {}
-if isinstance(phases, dict) and phases.get("specify") == "full":
-    if not (task.get("scenarios") or []):
+stages = task.get("stages") or task.get("phases") or {}
+# BOTH spellings. `define` is the key this framework writes; `specify` is the
+# one it wrote before the v2 vocabulary freeze, and 107 archived spines still
+# say it. Reading only `specify` - which this did until 2026-08-25 - meant
+# `compass migrate --apply` silently switched the guardrail OFF for every
+# directory it converted, because the migrated spine no longer used the word
+# the guardrail was looking for.
+if isinstance(stages, dict):
+    weight = stages.get("define", stages.get("specify"))
+    if weight == "full" and not (task.get("scenarios") or []):
         print("block")
 PYEOF
 )"

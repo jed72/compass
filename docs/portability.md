@@ -52,7 +52,7 @@ templates/       task.yml - the machine-readable issue spine
 ```
 
 The kit layer is the *mechanism* side of the determinism boundary
-(`docs/methodology.md` §6) made into software. Triage's four-dimension
+(`docs/methodology.md` §6) made into software. Assess's four-dimension
 *assessment* are judgement and stay judgement; everything downstream - composing
 the route, applying the floors and caps, stapling the immovable gates, running
 the guardrail checks - is pure function, and this layer is that function.
@@ -158,7 +158,7 @@ guardrail checks and "doing them locally" - has shipped a fork wearing
 Compass's name. The five requirements below are how an adapter holds up its
 end of the contract.
 
-### 1. Triage before changing anything
+### 1. Assess before changing anything
 
 Before an issue modifies code, specs, or product artifacts, the runtime must run
 Assess: read the four context dimensions (risk, familiarity,
@@ -273,7 +273,7 @@ both are mechanism the adapter calls.
 | Methodology / kit concept | Adapter must map it to… | Reference (Claude Code) |
 |---|---|---|
 | The eight phases | Invocable commands or equivalent units | `commands/*.md` slash commands |
-| Triage | A triage routine that produces the *assessment*, then calls the kit to compose the approach | `/compass:assess` + the `navigator` agent + the `adaptive-routing` skill, calling `compass approach evaluate` |
+| Assess | A routine that produces the *assessment*, then calls the kit to compose the approach | `/compass:assess` + the `navigator` agent + the `adaptive-routing` skill, calling `compass approach evaluate` |
 | The kit-layer CLI | A shell-out from the adapter - never a reimplementation | `commands`/`agents` invoke `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence - orphaned scenarios, route disagreements, orphan claims) |
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the re-assess feedback loop), `compass rework-scan` (cross-issue rework signal, pulling its window from `governance/signals.yml`), and `compass flow` (cross-issue view; `--digest` writes a dated digest) | `ci/github-actions.yml` runs `compass ci`; `/compass:flow` surfaces `compass retro`, `compass rework-scan`, and `compass flow --digest` together |
 | Per-issue next-step + follow-up | The adapter wires `compass next` (surface the next action on the current issue) and `compass follow-up resolve` (mark an outstanding follow-up resolved) into its task-resumption and ship flows | `/compass:status` and `/compass:ship` invoke them |

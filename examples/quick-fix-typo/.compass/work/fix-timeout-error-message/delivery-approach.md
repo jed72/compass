@@ -41,7 +41,7 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Full | This document. |
+| Assess | Full | This document. |
 | Define | One scenario | A single Given/When/Then naming the corrected message. That scenario is the spec. |
 | Refine | Collapsed | See the de-scope ledger. |
 | Plan | Collapsed | One-line edit note below. No `technical-design.md`. |

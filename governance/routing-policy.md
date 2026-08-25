@@ -92,7 +92,7 @@ part of the gate set.
 ## Routing strategies (soft - they bias triage)
 
 These are triage's defaults: the route shapes it reaches for, and how it
-breaks ties. Triage starts here and tunes; a departure is normal and is
+breaks ties. Assess starts here and tunes; a departure is normal and is
 recorded in `delivery-approach.md`, not punished.
 
 ```yaml

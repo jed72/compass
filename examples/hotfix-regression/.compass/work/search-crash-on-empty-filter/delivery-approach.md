@@ -59,7 +59,7 @@ trust at stake.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Light | Urgent stub at 08:50, completed at ship (FU-002). Even under the clock the audit trail starts here. |
+| Assess | Light | Urgent stub at 08:50, completed at ship (FU-002). Even under the clock the audit trail starts here. |
 | Define | Reproduce-first | The spec *is* the failing regression test - `test_empty_filter_object_does_not_crash`, written RED before any fix. |
 | Refine | Collapsed | The reproduction is the clarification - once the test reproduces, the bug is unambiguous. |
 | Plan | Collapsed | One-line root-cause note below. |

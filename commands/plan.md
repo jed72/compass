@@ -28,8 +28,8 @@ now says it too.)
   self-review the author owes the reviewer before the design is handed over.
 - Load the `governance-check` skill.
 - Invoke the `planner` agent - it owns this stage.
-- If a `intent.md` exists, this is where the **intent-fidelity gate** lands: the
-  spec must be checked against the PRD before the design completes. Invoke
+- If an `intent.md` exists, this is where the **intent-fidelity gate** lands: the
+  spec must be checked against `intent.md` before the design completes. Invoke
   `product-lens` to run it.
 
 ## Procedure
@@ -76,7 +76,7 @@ the design.
 >   decision yet.
 > - **Work units that are not as independent as claimed** - optimistic
 >   decomposition surfaces as a collision at integration, not here.
-> - **Anything still unfinished** - `compass design lint` reports placeholder
+> - **Anything still unfinished** - `compass plan lint` reports placeholder
 >   phrases, but a design can be vague without using one.
 >
 > On approval this goes to breakdown, or straight to implementation on solo
@@ -85,7 +85,6 @@ the design.
 ## Gate
 
 `technical-design.md` exists; the governance check passed (record its result and link
-the record); if a PRD
-exists, the intent-fidelity gate passed; if the work is parallelisable, a
+the record); if an `intent.md` exists, the intent-fidelity gate passed; if the work is parallelisable, a
 distribution map exists. Log to `devlog.md`. Next: `/compass:breakdown` (or
 straight to `/compass:implement` on solo work).

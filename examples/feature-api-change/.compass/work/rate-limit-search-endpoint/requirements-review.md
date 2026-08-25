@@ -83,4 +83,4 @@
 - [x] **Route still fits** - nothing in refine changed the size or blast
       radius reading. Standard still fits; no re-frame needed.
 
-Next stage: **design** (`/compass:design`).
+Next stage: **plan** (`/compass:plan`).

@@ -31,7 +31,8 @@ four roles can.
 ## Procedure
 
 1. **Discovery or distillation.** Greenfield: discover scenarios from the
-   PRD or request. Brownfield-unmapped: distil current behaviour first, then
+   intent document or request. Brownfield-unmapped: distil current behaviour
+   first, then
    add the change scenarios.
 2. **Write scenarios** as Given/When/Then - happy path, the realistic edges,
    the failure modes that matter. Depth scales with the delivery approach,
@@ -42,7 +43,7 @@ four roles can.
    disjoint surface - this grouping seeds the distribution map at the design
    stage.
 4. **Maintain traceability** - load `traceability`; each scenario traces to
-   an intent (the PRD, the request, the defect).
+   an intent (`intent.md`, the request, the defect).
 5. **Write `acceptance-criteria.md`** from `templates/acceptance-criteria.md`
    into `.compass/work/<task-slug>/` - the prose spec every role reads.
 6. **Write the `scenarios:` block of `task.yml`** - the machine-readable
@@ -103,5 +104,5 @@ Given/When/Then, every scenario traces to an intent, no described behaviour
 is missing a scenario, and `task.yml`'s `scenarios:` block mirrors it - each
 with an id, a linked intent, and at least one test. On a spike: the question
 and timebox are recorded. Log to `devlog.md`. Next: `/compass:refine` (or
-straight to `/compass:design` if `delivery-approach.md` collapsed the
+straight to `/compass:plan` if `delivery-approach.md` collapsed the
 requirements review - and it is skipped entirely on a spike).

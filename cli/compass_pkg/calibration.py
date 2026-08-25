@@ -713,7 +713,7 @@ def cmd_calibration(args):
         print("  there is not enough history yet. Revisit after more issues.")
     elif ups >= 2 and ups > downs * 2:
         print(f"  {ups} up-reframes vs {downs} down - a lean toward UNDER-sizing.")
-        print("  Triage is reading size or risk low. Tune routing-policy.yml")
+        print("  Assess is reading size or risk low. Tune routing-policy.yml")
         print("  `default_shapes`, or sharpen the sizing rubric in the")
         print("  delivery-approach reference docs.")
     elif downs >= 2 and downs > ups * 2:

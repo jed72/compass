@@ -773,7 +773,7 @@ ABSENT = "absent"
 def _registry(task_dir):
     """The issue's artifact registry, or [] when it has none.
 
-    Eighty-eight issues landed before this existed. A missing registry is the
+    148 issue directories predate the registry. A missing one is the
     ordinary case, never a fault.
     """
     path = os.path.join(task_dir, "task.yml")
@@ -800,23 +800,55 @@ def _entry_for(task_dir, kind):
 _RENAMED_KIND_FILES = {
     # kind -> the filename a LANDED issue still holds. The values are the
     # RETIRED names on purpose: this map is the only reason an issue that
-    # shipped before the rename still resolves.
+    # shipped before the rename still resolves. It is a FALLBACK the lookup
+    # tries SECOND, never a substitution for the current name.
     #
     # A blanket rename over the tree rewrote both values to the current
     # filenames on 2026-08-25, quietly collapsing the map to an identity and
-    # taking the compatibility path with it. The test below asserts each value
+    # taking the compatibility path with it. `test_trc_b2` asserts each value
     # differs from its key, so the same edit fails instead of passing.
     "technical-design": "design.md",
     "intent": "prd.md",
 }
 
 
+def _flat_names(kind):
+    """Every filename to try for a kind, in preference order.
+
+    The name this framework writes TODAY always comes first; a renamed kind
+    appends the retired filename, so an issue that landed before the rename
+    still resolves.
+
+    The order is load-bearing in both directions, and getting it wrong is
+    silent either way. This returned the retired name ALONE until 2026-08-25,
+    which made the lookup blind to every document written after the rename -
+    `compass issue dashboard` reported a technical design sitting on disk as
+    "not written yet". Preferring the retired name where both files exist is
+    the opposite failure: every reader would quietly take the stale document.
+    """
+    current = kind if kind.endswith(".md") else kind + ".md"
+    retired = _RENAMED_KIND_FILES.get(kind)
+    if retired and retired != current:
+        return [current, retired]
+    return [current]
+
+
 def _flat_name(kind):
-    """The flat filename for a kind - `technical-design` -> `technical-design.md` where a
-    landed issue still holds the old name, otherwise `<kind>.md`."""
-    if kind in _RENAMED_KIND_FILES:
-        return _RENAMED_KIND_FILES[kind]
-    return kind if kind.endswith(".md") else kind + ".md"
+    """The filename a kind is written under today.
+
+    Only the current name. For the retired one a landed issue may still hold,
+    ask `_flat_names`.
+    """
+    return _flat_names(kind)[0]
+
+
+def _first_flat_on_disk(task_dir, kind):
+    """The first of a kind's candidate filenames that is actually there."""
+    for candidate in _flat_names(kind):
+        path = os.path.join(task_dir, candidate)
+        if os.path.isfile(path):
+            return path
+    return None
 
 
 def artifact_path(task_dir, name):
@@ -835,13 +867,13 @@ def artifact_path(task_dir, name):
         registered = os.path.join(task_dir, entry["path"])
         if os.path.isfile(registered):
             return registered
-    # The renamed kinds, same as `resolve_artifact`. Without this the two
-    # functions that both find an artifact disagree: asking for
-    # `technical-design.md` on an issue that landed holding `design.md` would
-    # resolve through one and miss through the other, and this one has
-    # fourteen callers.
-    flat = os.path.join(task_dir, _flat_name(kind))
-    if flat != os.path.join(task_dir, name) and os.path.isfile(flat):
+    # Current name first, then the retired one - the same order, through the
+    # same helper, as `resolve_artifact`. Two functions that both find an
+    # artifact must not disagree about which file they found, and they did:
+    # this one grew the fallback while the other kept looking only for the
+    # retired name.
+    flat = _first_flat_on_disk(task_dir, kind)
+    if flat is not None:
         return flat
     return os.path.join(task_dir, name)
 
@@ -860,7 +892,10 @@ def resolve_artifact(task_dir, kind):
                    registry; not a fault on its own.
     """
     entry = _entry_for(task_dir, kind)
-    flat = os.path.join(task_dir, _flat_name(kind))
+    flat = _first_flat_on_disk(task_dir, kind)
+    # Both names, so a reader chasing an absence is not sent looking for a file
+    # the framework does not write any more.
+    tried = " or ".join(_flat_names(kind))
 
     if entry is not None and entry.get("status") == "omitted":
         return (OMITTED, None,
@@ -870,18 +905,17 @@ def resolve_artifact(task_dir, kind):
         registered = os.path.join(task_dir, entry["path"])
         if os.path.isfile(registered):
             return FOUND, registered, "the registered path"
-        if os.path.isfile(flat):
+        if flat is not None:
             return FOUND, flat, (
                 "the flat filename - the registered path %s is not there"
                 % entry["path"])
         return (UNRESOLVABLE, None,
                 "%s names %s, which does not exist, and there is no %s either"
-                % (entry.get("id", "the entry"), entry["path"],
-                   _flat_name(kind)))
+                % (entry.get("id", "the entry"), entry["path"], tried))
 
-    if os.path.isfile(flat):
+    if flat is not None:
         return FOUND, flat, "the flat filename"
-    return ABSENT, None, "no registry entry and no %s" % _flat_name(kind)
+    return ABSENT, None, "no registry entry and no %s" % tried
 
 
 def issue_arg(p):

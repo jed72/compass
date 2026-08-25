@@ -165,7 +165,7 @@ and Standard should feel like the default working shape, not a ceremony.
 
 This is the case the methodology opens with: *a migration that touches one
 file is small but not safe.* Size and risk are different axes, and
-here they point in opposite directions. Triage scores them honestly -
+here they point in opposite directions. Assess scores them honestly -
 size `small`, risk `critical` - and does not let one launder the
 other. Domain tags: `labels: [payments, migrations]` - two tags, both on the
 floor list.
@@ -173,7 +173,7 @@ floor list.
 ### Compose
 
 If size alone drove the route, this would compose toward quick fix or a
-light Standard - `small` on mapped familiarity. Triage composes the candidate
+light Standard - `small` on mapped familiarity. Assess composes the candidate
 from *all four* contributions, and `critical` risk pulls hard: full
 test surface including adversarial and boundary inputs, the rollback path
 exercised, every review dimension. The candidate already composes heavy -
@@ -356,7 +356,7 @@ intent.
 
 Exploration intent composes toward **Spike**, the way live-defect urgency
 composes toward Hotfix - the routing strategy `reading: { intent: exploration }
-→ lean_toward: spike` is the bias. Triage is light but real: `delivery-approach.md` records
+→ lean_toward: spike` is the bias. Assess is light but real: `delivery-approach.md` records
 the **question** ("what is dropping ~2% of jobs under load?") and a **timebox**.
 The define stage collapses to that question. The requirements review is
 skipped - there is nothing to QA
@@ -364,7 +364,7 @@ against, the behaviour is the unknown. Plan collapses to a timebox and an
 approach sketch. Implementation becomes **exploration**: the engineer instruments and
 reproduces freely, and the **TDD strategy is suspended** - the pre-tool hook is
 route-aware and does not block, because red-before-green is the wrong
-discipline for throwaway diagnostic code. Triage also writes a `.spike`
+discipline for throwaway diagnostic code. Assess also writes a `.spike`
 marker file in the issue directory so the hook knows.
 
 ### Constrain
@@ -413,13 +413,13 @@ Size `small`, risk `contained` (an admin tool, bounded), familiarity
 `brownfield-mapped`, role `engineer`, no domain tags. Composes to **quick fix**:
 one scenario ("given a filtered table, when the user exports, then a CSV with
 those rows downloads"), the review collapsed, design a one-liner, full TDD on a
-small surface, one gate. Done in an afternoon. Triage stays out of the way -
+small surface, one gate. Done in an afternoon. Assess stays out of the way -
 correctly.
 
 ### "Add a CSV export" - product owner, "let finance self-serve"
 
 Same three words, but a `intent.md` sits behind them, and the brief's outcome
-is "let finance self-serve their month-end numbers." Triage reads intent
+is "let finance self-serve their month-end numbers." Assess reads intent
 as the *actual outcome wanted*, not the literal request - and "self-serve"
 implies filters that match what finance actually needs, perhaps scheduling,
 perhaps permissions. Size is no longer `small`; it is `standard` or
@@ -431,7 +431,7 @@ because the intent under them is bigger.
 
 ### "Add a CSV export" - engineer, export of the payments ledger
 
-Same three words again, but the table is the payments ledger. Triage tags
+Same three words again, but the table is the payments ledger. Assess tags
 `labels: [payments, personal-data]`. Size might still be `small`. It does
 not matter: the policy floor `when: { labels: [payments,
 personal-data] }` fires and forces the initiative shape. Composes to
@@ -501,7 +501,7 @@ latest revision and knows exactly where the issue stands.
 ## What the routing system is really for
 
 Every case above ends in a `delivery-approach.md` that a human can read and a later
-session can resume from. That is the deliverable. Triage does not just
+session can resume from. That is the deliverable. Assess does not just
 classify the issue - it explains the classification, records every guardrail
 that fired, and writes down every skip with the reason it is safe. The
 adaptivity is real, and it is *bounded*: bounded by the four-dimension rubric,

@@ -51,14 +51,14 @@ down, a statement here has failed - find which one.
 **D7.** A bug fix produces exactly: a bug report note, a failing-then-
 passing test, a PR. Nothing else exists. A typo fix produces even less.
 
-**D8.** An initiative produces: a PRD that was iterated and reviewed
+**D8.** An initiative produces: an intent document that was iterated and reviewed
 before design started, with an explicit first slice (the 80/20 cut); a
 design a reviewer can *see* (diagrams, named patterns, illustrative
 code); work broken into slices that each leave the system releasable;
 flagged incremental PRs; a rollout plan with a way back; and named
 SLOs where the ops surface changes.
 
-**D9.** Requirements are living, not ceremonial. A PRD gets outside
+**D9.** Requirements are living, not ceremonial. An intent document gets outside
 opinion before it hardens; changing it mid-initiative is a normal,
 recorded event, not a failure.
 
@@ -66,7 +66,7 @@ recorded event, not a failure.
 and the test the machine runs are the same artifact, not two artifacts
 that claim to agree.
 
-**D11.** Every artifact reads well cold. A stranger opening any PRD,
+**D11.** Every artifact reads well cold. A stranger opening any intent document,
 design, or PR description can follow it without having been in the
 conversation.
 

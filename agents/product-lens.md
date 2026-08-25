@@ -23,7 +23,7 @@ citizen, not a downstream consumer of a finished engineering process.
 
 1. **At triage**, if a product owner invoked the issue via `/compass:intent`,
    ensure `intent.md` exists and is real - problem, outcome, success signals,
-   constraints. Triage reads it; intent is the *actual outcome wanted*, not
+   constraints. Assess reads it; intent is the *actual outcome wanted*, not
    the literal request.
 2. **At refine**, review `acceptance-criteria.md` against `intent.md`. Walk every
    success signal in the brief and find the scenario that delivers it. Flag:

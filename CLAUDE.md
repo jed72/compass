@@ -28,7 +28,7 @@ command name remains as a redirect stub for one major version.
 ## The one rule that creates every other rule
 
 **Never skip triage.** Before any issue that changes code, specs, or product
-artifacts, triage it: run `/compass:assess`. Triage reads the four assessment
+artifacts, triage it: run `/compass:assess`. Assess reads the four assessment
 dimensions - risk, familiarity, size, and goal - that is judgement, and the
 judgement is yours - and records them in the issue spine (`task.yml`, under
 `.compass/work/<task-slug>/`, in the spine's own key names). It then hands
@@ -257,7 +257,7 @@ root - the `.md` prose and the `.yml` files the CLI runs - not under
 **Compass itself ships one** - read it for the framework's own invariants,
 ownership rules, and the decision records that codify the principles behind
 the guardrails, the sizing model, and the role perspectives. It also doubles
-as a worked example for adopters. Triage loads it (when present) into
+as a worked example for adopters. Assess loads it (when present) into
 `architecture-loaded.yml` in the issue directory; projects without
 `architecture/` continue to work.
 

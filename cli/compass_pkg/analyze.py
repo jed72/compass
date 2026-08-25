@@ -162,6 +162,18 @@ _PHASE_NAME_MAP = {
     "implement": "implement", "build": "implement",
     "verify": "verify",
     "ship": "ship", "land": "ship",
+    # The PROSE names, which are what the shipped template actually writes in
+    # its stage table and therefore what every real record on disk says. Only
+    # the one-word keys above were here, so five of the eight rows in a
+    # template-shaped record matched nothing and the coherence check compared
+    # three stages while reporting on all of them.
+    "define acceptance criteria": "define",
+    "acceptance criteria": "define",
+    "requirements review": "refine",
+    "technical design": "plan",
+    "break down the work": "breakdown",
+    "test & review": "verify",
+    "test and review": "verify",
 }
 
 
@@ -263,19 +275,30 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
     in_phase_table = False
     for line in lines:
         stripped = line.strip()
-        # Detect phase table header: | Phase | Weight |
-        if _re.match(r'\|\s*Phase\s*\|\s*Weight', stripped, _re.IGNORECASE):
+        # BOTH header words. The template writes `| Stage | Weight | Notes |`
+        # and has since the v2 rename of `phases:` to `stages:`; this matched
+        # only `Phase`, so it found no table at all in a record written from
+        # the shipped template - and an empty weight map reads downstream as
+        # "nothing disagreed" rather than "nothing was read".
+        if _re.match(r'\|\s*(?:Phase|Stage)\s*\|\s*Weight', stripped,
+                     _re.IGNORECASE):
             in_phase_table = True
             continue
         if in_phase_table:
             # separator row
             if _re.match(r'\|[-| ]+\|', stripped):
                 continue
-            # data row: | Clarify | full |
-            m = _re.match(r'\|\s*(\w[\w\s-]*?)\s*\|\s*(\S+)\s*\|', stripped)
+            # Data row: `| Requirements review | collapsed | ... |`. The name
+            # cell takes anything but a pipe, because the real names are
+            # phrases and one of them ("Test & review") carries an ampersand.
+            # The weight cell is read whole and then cut at the first comma or
+            # space, because records write "full, streams unbounded by policy"
+            # and the weight is the first word of it.
+            m = _re.match(r'\|\s*([A-Za-z][^|]*?)\s*\|\s*([^|]+?)\s*\|',
+                          stripped)
             if m:
                 phase = m.group(1).strip().lower()
-                weight = m.group(2).strip().lower()
+                weight = _re.split(r'[,\s]', m.group(2).strip().lower(), 1)[0]
                 # Through the name map, so a prose record written months ago
                 # meets the spine it describes. Without this the parser returns
                 # `distribute` while the normalised spine holds `breakdown`,

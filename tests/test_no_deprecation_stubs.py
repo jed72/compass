@@ -1,18 +1,19 @@
-"""No deprecation stub survives the major version.
+"""No deprecation stub outlives the version it was scheduled for removal in.
 
 The v2 vocabulary freeze renamed the pipeline's commands and verbs, leaving a
-redirect behind each one for "one major version". That window was written for
-adopters, and there are none - so every redirect was a promise kept to nobody,
-and the window would have closed the moment someone installed from the
-marketplace.
+redirect behind each one for "one major version". ADR-014 removed those at
+3.0.0, while Compass had no adopters and the removal cost nothing.
 
-ADR-014 removes them at 3.0.0 while the cost is zero. What stays is the
-migrator's v1-to-v2 mapping, which is a translation table rather than a
-redirect: a stub answers a caller who used the old name, a mapping reads a
-file that used it.
+ADR-019 supersedes that rule now Compass is published and released at 3.3.0.
+A name retired INSIDE a major version keeps working until the next one, so
+an adopter who upgrades is not broken; a name retired AT a major version is
+still deleted outright. Every surviving stub is named individually below,
+with the version it goes at - which is what stops a redirect layer becoming
+open-ended, and is the thing ADR-014 was actually protecting against.
 
-The removal is also what makes ADR-015 possible - a scan cannot ban a name
-the machinery still answers to.
+What stays either way is the migrator's v1-to-v2 mapping. That is a
+translation table rather than a redirect: a stub answers a caller who used the
+old name, a mapping reads a file that used it.
 
 Scenario ids: see docs/system-spec.md (group F).
 """
@@ -26,12 +27,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
 COMMANDS = ROOT / "commands"
 
-# The seven retired pipeline commands, by the file that would redirect them.
+# The v1 pipeline commands, removed at 3.0.0 and never to reappear.
 # `plan.md` is NOT here any more: `plan` was a retired v1 command and became
-# the planning stage's live command again on 2026-08-25. ADR-014 removes
-# retired names at the major version; it does not reserve them for ever.
-# `triage.md` and `wireframe.md` are not here either - they are this cycle's
-# stubs, removed at the NEXT major version rather than this one.
+# the planning stage's live command again on 2026-08-25. A removed name is not
+# reserved for ever - it is free to be reused for the thing it best describes.
+# `triage.md` and `wireframe.md` are not here either: they are THIS cycle's
+# stubs, and they go at the next major version under ADR-019.
 RETIRED_COMMANDS = (
     "build.md", "clarify.md", "distribute.md", "frame.md",
     "land.md", "specify.md",
@@ -63,8 +64,8 @@ def test_rcd_f1_no_retired_slash_commands():
     # filename, so a rename of the stub file does not slip past.
     # The stubs THIS cycle ships, named individually so a third is a deliberate
     # addition rather than a silent one. They go at the next major version
-    # (ADR-014), the same way the v1 stubs above went at this one - which is
-    # what this check exists to enforce, one cycle at a time.
+    # (ADR-019), the same way the v1 stubs above went at 3.0.0 - which is what
+    # this check enforces, one cycle at a time.
     CURRENT_STUBS = {"triage.md", "wireframe.md"}
     redirects = [
         p.name for p in COMMANDS.glob("*.md")

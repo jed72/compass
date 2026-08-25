@@ -65,7 +65,7 @@ The guardrails that *could* have fired and did not, both worth recording:
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Light but real | This document. Even a spike is accountable - it records the question and the timebox. |
+| Assess | Light but real | This document. Even a spike is accountable - it records the question and the timebox. |
 | Define | Collapsed into the question | The spike's "spec" is the question in §5, not acceptance criteria for code. |
 | Refine | Skipped | Nothing to QA - the behaviour is the unknown, and discovering it is the point. |
 | Plan | Collapsed to a timebox | "Explore, with a clock" - §5. |

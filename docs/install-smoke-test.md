@@ -85,7 +85,7 @@ pip install jsonschema           # optional
 python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
 ```
 
-## 3. Triage a test issue in Claude Code
+## 3. Assess a test issue in Claude Code
 
 Open Claude Code in a directory you do not mind getting a `.compass/`
 folder in (a scratch repo is ideal). Type:

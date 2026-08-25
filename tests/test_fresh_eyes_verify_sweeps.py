@@ -309,7 +309,14 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # named something already load-bearing and undefined - the most-used id
     # prefix in the repository, a live command, a live agent, and the only
     # judgement field in the spine. ADR-016 records the decision.
-    assert len(terminology["terms"]) == 58, (
+    #
+    # 58 -> 57 on 2026-08-25, the vocabulary rename. `triage` was renamed to
+    # `assess` (net zero) and `prd` was DROPPED: both were defined as live
+    # vocabulary while the same file banned them, so the generated glossary
+    # published two retired words as current. What `prd` described - the
+    # intake document - is what the `intent` entry describes, which is why it
+    # is one entry fewer rather than a replacement.
+    assert len(terminology["terms"]) == 57, (
         "governance/terminology.yml gained or lost a term without this count "
         "moving. A vocabulary change is a decision (ADR-012); make it one."
     )
@@ -320,7 +327,9 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     )
     known_verbs = {
         "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
-        "tdd-green", "policy", "design", "issue", "acceptance", "adr",
+        # `plan` is the planning verb again. `design` still works but is
+        # hidden from `--help`, so it is not in the advertised set.
+        "tdd-green", "policy", "plan", "issue", "acceptance", "adr",
         "rework-scan", "flow", "next", "follow-up", "ship-commit", "gate",
         "scenario", "changed-file", "evidence", "migrate", "terminology",
     }

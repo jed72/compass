@@ -35,7 +35,7 @@ dated digest file (see below).
    *mechanical* gate status you may run `compass check --issue <slug>` - it
    is read-only and changes nothing.
 
-2. **Triage each issue.** Apply the `flow-management` heuristics:
+2. **Assess each issue.** Apply the `flow-management` heuristics:
    - **No `delivery-approach.md`** -> a guardrail violation (work started
      without triage). Surface this above everything else.
    - **Stalled** -> an in-progress stage with no `devlog.md` movement for

@@ -21,7 +21,7 @@ short - what happened, evidence pointer, what's next.
 
 ---
 
-## {{YYYY-MM-DD HH:MM}} - Triage
+## {{YYYY-MM-DD HH:MM}} - Assess
 
 - **Event:** triage ran; the delivery approach was computed.
 - **Approach:** {{reference shape - quick fix/feature/initiative/hotfix/spike}} - see `delivery-approach.md` revision {{N}}.

@@ -136,6 +136,15 @@ def test_trc_a3_the_package_should_import_cleanly_on_its_own():
 # --- group B: nothing changed ----------------------------------------------
 
 def test_trc_b1_the_public_verb_surface_should_be_identical():
+    """The verb surface matches the recorded baseline.
+
+    The baseline was captured at the module split to prove that refactor moved
+    no verb. It is not frozen for ever: a slice that deliberately adds or
+    renames a verb updates it in the same commit, so the diff shows the
+    decision. `plan` was added on 2026-08-25 when the planning verb took the
+    name its machine key already used; `design` stays beside it as the retired
+    spelling until the next major version.
+    """
     out = subprocess.run([sys.executable, str(CLI), "--help"],
                          capture_output=True, text=True, check=True).stdout
     subs = sorted(re.search(r"\{([a-zA-Z0-9_,\-]+)\}", out).group(1).split(","))

@@ -35,7 +35,7 @@ terms:
       decision, and the rollout strategy.
     github: Project
     not: "An epic - that word is dropped; one word per concept."
-    related: [milestone, prd, slice]
+    related: [milestone, intent, slice]
   milestone:
     means: >
       A shippable checkpoint within an initiative: a coherent bundle of
@@ -75,7 +75,7 @@ terms:
       hotfix, feature, or spike. Together with labels it determines the
       delivery approach - which artifacts exist and which gates apply.
     github: Issue type
-    related: [issue, triage, delivery-approach, label]
+    related: [issue, assess, delivery-approach, label]
   quick-fix:
     means: >
       A small, low-risk change on familiar ground. Produces a test and a PR
@@ -122,21 +122,13 @@ terms:
       ambiguous. NEVER abbreviate this to TDD: in this repository TDD is
       red-green-refactor and nothing else.
     related: [technical-design, delivery-approach]
-  prd:
-    means: >
-      Product requirements document: problem, users, goals, non-goals,
-      success metrics, constraints, open questions, and the first slice (the
-      80/20 cut). Iterated through review before design begins. User stories
-      are welcome inside it as a format; acceptance criteria are derived
-      from them.
-    related: [initiative, first-slice, requirements-review]
   first-slice:
     means: >
-      The 80/20 cut recorded in a PRD: the slice of an initiative that
+      The 80/20 cut recorded in intent.md: the slice of an initiative that
       ships first because it delivers most of the value, with what
-      deliberately waits stated beside it. Design and work breakdown
-      follow the first slice, not the whole PRD.
-    related: [prd, slice, initiative]
+      deliberately waits stated beside it. The design and the work breakdown
+      follow the first slice, not the whole document.
+    related: [intent, slice, initiative]
   bug-report:
     means: >
       The intake for a bug fix: observed behaviour, expected behaviour,
@@ -164,7 +156,7 @@ terms:
     not: >
       A choice of process. The assessment is read; the delivery approach is
       computed from it by `compass approach evaluate`.
-    related: [triage, delivery-approach, navigator]
+    related: [assess, delivery-approach, navigator]
   traceability:
     means: >
       The chain that makes a change accountable: code traces to a TRC- id,
@@ -184,15 +176,19 @@ terms:
       outcome a change is meant to produce, the "why" end of the traceability
       chain, carrying the INT- ids that scenarios trace back to. The document
       holds the goals, which is why one name serves both.
-      Sourced from intent.md's desired outcome, the UI
-      contract, or the issue description. A goal, not a requirement: the
+      As a document it carries problem, users, goals, non-goals, success
+      signals, constraints, open questions, and the first slice (the 80/20
+      cut) - iterated through review before the design is built. User stories
+      are welcome inside it as a format; acceptance criteria are derived from
+      them. As a goal it is sourced from intent.md's desired outcome, the UI
+      contract, or the issue description - a goal, not a requirement: the
       functional requirement is the scenario.
     also: The product owner's entry point, `/compass:intent`, captures it.
     not: >
       A restatement of the request. "Add a CSV export" is a request; "let
       finance self-serve" is the intent, and it may need filters and
       permissions the request never mentioned.
-    related: [prd, scenario, traceability]
+    related: [first-slice, scenario, traceability]
   navigator:
     means: >
       The agent that runs triage: reads the four assessment dimensions, hands
@@ -202,7 +198,7 @@ terms:
       A decision-maker about ceremony. The approach is computed from the
       assessment by `compass approach evaluate`, which is the determinism
       boundary.
-    related: [triage, assessment, delivery-approach]
+    related: [assess, assessment, delivery-approach]
   scenario:
     means: >
       The atomic unit of acceptance: one behaviour, one Given/When/Then,
@@ -240,18 +236,24 @@ terms:
     related: [design-doc]
 
   # --- Process & gates --------------------------------------------------------
-  triage:
+  assess:
     means: >
-      Sizing up incoming work: risk, size, familiarity, urgency - producing
+      Sizing up incoming work: risk, familiarity, size, and goal - producing
       an issue type, labels, and a delivery approach. The human judgement
-      step; everything after it is mechanism.
-    related: [delivery-approach, label, issue-type]
+      step; everything after it is mechanism. Named for what it produces: the
+      stage writes an `assessment:` block, the flag is --assessment, and the
+      policy section is assessment_vocabulary.
+    not: >
+      NOT triage. Triage means sorting BETWEEN cases by urgency, which is what
+      `compass flow` does across issues - this stage sizes up ONE piece of
+      work. The retired command name was /compass:triage.
+    related: [delivery-approach, label, issue-type, assessment]
   delivery-approach:
     means: >
       The chosen shape for an issue: which artifacts exist, which gates
       apply, solo or parallel. Deterministic - same triage plus same policy
       always gives the same approach.
-    related: [triage, quality-gate]
+    related: [assess, quality-gate]
   guardrail:
     means: >
       A hard rule cleared with evidence; a failed guardrail stops the work.
@@ -284,7 +286,7 @@ terms:
       ambiguities resolved into recorded decisions, contradictions and
       gaps closed, the PRD reviewed where one exists. Satisfying it is
       what makes an issue ready. v1 called this "Clarify".
-    related: [prd, definition-of-ready, acceptance-criteria]
+    related: [intent, definition-of-ready, acceptance-criteria]
   definition-of-done:
     means: >
       The gate before shipping: acceptance criteria pass, applicable
@@ -426,7 +428,7 @@ terms:
       Compass's cross-issue self-check: is triage consistently over- or
       under-sizing the process? Advisory, surfaced in retro language. v1
       called this "calibration".
-    related: [dora-metrics, triage]
+    related: [dora-metrics, assess]
 
 # =============================================================================
 # BANNED v1 VOCABULARY - the house test scans user-facing surfaces for these.
@@ -485,7 +487,7 @@ codes:
       requirement is the scenario.
     referent: A stated desired outcome.
     appears_in: [prd.md, acceptance-criteria.md, "task.yml scenarios[].intent"]
-    related: [TRC, prd]
+    related: [TRC, intent]
   EV:
     means: >
       Evidence id. Identifies one typed record in the issue's evidence
@@ -634,8 +636,8 @@ banned:
     replacement: "everyday words, even if it takes more of them"
     context: "In anything a human reads. Each is accurate and almost never used in ordinary speech, so it costs a junior or mid engineer a lookup at the moment they are trying to read a result. Prefer a longer plain sentence to a short exact one - 'the check passed without actually checking anything' rather than 'the check cleared by vacuity'. Keep a rare word only when it is quoted from a tool's output, an API or an existing spec and the reader needs it to search; then say what it means. `canonical` is deliberately NOT on this list - it is fine in identifiers such as canonical_shape(). Maintainer ruling, 2026-08-14."
   - term: "brief.md"
-    replacement: prd.md
-    context: "Filename and references."
+    replacement: intent.md
+    context: "Filename and references. Points at the FINAL name: brief.md became prd.md at the v2 freeze and prd.md became intent.md on 2026-08-25, and a ban naming a replacement this file also retires sends a reader to a word they must rename again."
   - term: "spec.feature.md"
     replacement: "acceptance criteria (feature file)"
     context: "Filename and references."
@@ -895,13 +897,21 @@ retired_machine_names:
   - name: route.md
     replacement: delivery-approach.md
   - name: plan.md
-    replacement: design.md
+    replacement: technical-design.md
   - name: spec.feature.md
     replacement: acceptance-criteria.md
   - name: clarifications.md
     replacement: requirements-review.md
   - name: brief.md
-    replacement: prd.md
+    replacement: intent.md
+  # renamed 2026-08-25: the planning artifact and the intake document took the
+  # names their stage and command already used. Both replacements are FINAL
+  # names - plan.md -> design.md -> technical-design.md is two renames, and
+  # the scan must point a reader at the end of that chain, not the middle.
+  - name: design.md
+    replacement: technical-design.md
+  - name: prd.md
+    replacement: intent.md
   # flag spellings, removed outright at the major version (ADR-014)
   - name: --task
     replacement: --issue

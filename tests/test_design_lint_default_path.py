@@ -1,14 +1,22 @@
-"""`compass design lint` resolves the artifact it is named after.
+"""`compass plan lint` resolves the artifact it is named after.
 
-The command was renamed from `plan lint` to `design lint` and the artifact
-from `plan.md` to `technical-design.md`, but the default path was not migrated. With no
-`--file` argument it looked for `plan.md`, failed to find it, and then printed
-advice about `technical-design.md` - naming one filename in the search and a different
-one in the explanation, which cannot both be right.
+The verb and the artifact have both been renamed twice, and the default path
+was left behind at every step:
 
-The effect on a real run: the design stage reports a visible error on every
-issue that has a design, and the way past it is a `--file` argument nobody
-should need.
+  v1                   `compass plan lint`   ->  plan.md
+  v2                   `compass design lint` ->  design.md
+  2026-08-25           `compass plan lint`   ->  technical-design.md
+
+The first time, the path stayed at `plan.md` while the advice underneath
+already named `design.md` - one filename in the search line and a different
+one in the explanation, which cannot both be right. The second time, the path
+moved to `technical-design.md` with no fallback, so the command reported "no
+such file" on every issue that landed holding `design.md`.
+
+The effect on a real run either way: the plan stage reports a visible error on
+an issue that has a design, and the way past it is a `--file` argument nobody
+should need. The default path now goes through `artifact_path`, which knows
+both names.
 
 Scenario ids: see docs/system-spec.md (group B).
 """
@@ -104,9 +112,14 @@ def test_rcd_b1_defaults_to_design_md(tmp_path):
 def test_rcd_b2_message_names_path_used(tmp_path):
     """When there is nothing to lint, the message must name what it looked for.
 
-    The old error named `plan.md` in the search line and `technical-design.md` in the
+    The v1 error named `plan.md` in the search line and `design.md` in the
     advice below it. A reader following that advice looks for a file the
     command never sought.
+
+    `plan` is the LIVE verb again since the vocabulary rename of 2026-08-25,
+    so the message labelling itself `compass plan lint` is now correct rather
+    than a leftover - what must not appear is a filename the command did not
+    look for.
     """
     project = _project(tmp_path, with_design=False)
     result = _lint(project)
@@ -120,6 +133,33 @@ def test_rcd_b2_message_names_path_used(tmp_path):
         f"the message does not name the file it looked for, so a reader "
         f"cannot tell what to create:\n{combined}"
     )
-    assert "compass plan lint" not in combined, (
-        f"the message labels itself with the retired command name:\n{combined}"
+    assert "compass plan lint" in combined, (
+        f"the message does not label itself with the verb that produced it:\n"
+        f"{combined}"
+    )
+
+
+def test_rcd_b3_absence_is_explained_against_the_record(tmp_path):
+    """The reason given for a missing design must be checked, not assumed.
+
+    The command already knows the issue's approach, and said "the design stage
+    collapses on quick-fix, hotfix and spike approaches" whatever that approach
+    was - explaining away an absence on an issue whose plan stage is full and
+    therefore cannot have collapsed. A reader is told the missing file is fine
+    when it is the thing that is wrong.
+    """
+    project = _project(tmp_path, with_design=False)
+    spine = project / ".compass" / "work" / "demo" / "task.yml"
+    spine.write_text(SPINE.replace("plan: collapsed", "plan: full"),
+                     encoding="utf-8")
+    run = _lint(project)
+    combined = run.stdout + run.stderr
+
+    assert "collapses" not in combined, (
+        f"the plan stage is recorded as full on this issue, so it cannot have "
+        f"collapsed - the message explains away a real absence:\n{combined}"
+    )
+    assert "full" in combined and "missing" in combined, (
+        f"the message does not say the design is expected and absent:\n"
+        f"{combined}"
     )
