@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### every document kind the policy names has a template
+### the rename is not counted as done while a surface still says the old word
 
-- **Scenario id:** `TRC-D1`
+- **Scenario id:** `TRC-E1`
 - **Intent:** `INT-1`
-- **Source issue:** `adaptive-artifact-composition`
-- **Landed:** 2026-08-24
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the fourth question is answered by evidence, not by assertion
+### migrate refuses a many-to-one filename collision
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-C5`
 - **Intent:** `INT-2`
-- **Source issue:** `adaptive-artifact-composition`
-- **Landed:** 2026-08-24
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
 
-### a rollback plan with no rehearsal date is caught
+### every citation into the archive opens
 
-- **Scenario id:** `TRC-B3`
+- **Scenario id:** `TRC-E4`
 - **Intent:** `INT-3`
-- **Source issue:** `adaptive-artifact-composition`
-- **Landed:** 2026-08-24
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
 
-### both templates stay shorter than the framework's own PRD
+### no term is both defined and banned
 
-- **Scenario id:** `TRC-D3`
+- **Scenario id:** `TRC-D4`
 - **Intent:** `INT-4`
-- **Source issue:** `adaptive-artifact-composition`
-- **Landed:** 2026-08-24
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
 
-### every verb declares which contract it is under
+### the guard fails when handed nothing
 
-- **Scenario id:** `TRC-C6`
+- **Scenario id:** `TRC-E2`
 - **Intent:** `INT-5`
-- **Source issue:** `the-terminal-output-contract`
-- **Landed:** 2026-08-24
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
 
 ### the hook still blocks a code file inside the project
 
@@ -6188,6 +6188,13 @@
 - **Source issue:** `the-terminal-output-contract`
 - **Landed:** 2026-08-24
 
+### every verb declares which contract it is under _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-5`
+- **Source issue:** `the-terminal-output-contract`
+- **Landed:** 2026-08-24
+
 ### evidence-out on a verb with nothing to capture _(archived)_
 
 - **Scenario id:** `TRC-C7`
@@ -6251,6 +6258,13 @@
 - **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
 
+### the fourth question is answered by evidence, not by assertion _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
 ### the template records when the rollback was last rehearsed _(archived)_
 
 - **Scenario id:** `TRC-B1`
@@ -6261,6 +6275,13 @@
 ### the evidence type stops accepting a plan as a rollback _(archived)_
 
 - **Scenario id:** `TRC-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### a rollback plan with no rehearsal date is caught _(archived)_
+
+- **Scenario id:** `TRC-B3`
 - **Intent:** `INT-3`
 - **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
@@ -6279,9 +6300,184 @@
 - **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
 
+### every document kind the policy names has a template _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
 ### no document was added that nothing asks for _(archived)_
 
 - **Scenario id:** `TRC-D2`
 - **Intent:** `INT-4`
 - **Source issue:** `adaptive-artifact-composition`
 - **Landed:** 2026-08-24
+
+### both templates stay shorter than the framework's own PRD _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-4`
+- **Source issue:** `adaptive-artifact-composition`
+- **Landed:** 2026-08-24
+
+### a command, its key and its artifact name the same thing _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the designer's command is design again _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### every overloaded word carries a glossary entry _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-4`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the planning stage answers to plan in the CLI too _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### no live surface sends the engineering stage to /compass:design _(archived)_
+
+- **Scenario id:** `TRC-A5`
+- **Intent:** `INT-1`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a spine written before the rename still reads _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a document written before the rename still resolves _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### both spellings are accepted before any caller switches _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the retired commands answer with a pointer _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a document written after the rename resolves under its new name _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the current filename wins when both are present _(archived)_
+
+- **Scenario id:** `TRC-B6`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the design lint still reads a landed issue's design _(archived)_
+
+- **Scenario id:** `TRC-B7`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a policy floor written with a retired stage key still applies _(archived)_
+
+- **Scenario id:** `TRC-B8`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the map carries the stage keys _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### migrate rewrites a stale reference _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a dry run writes nothing and says what it would do _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a stopped migration says what it did and what remains _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### migrate repoints the spine at the files it renamed _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a ban never points at a banned replacement _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### governance files are scanned for retired vocabulary _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-5`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the acceptance-criteria guardrail reads the current stage key _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the code-position scan knows this rename _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the coherence check reads the stage table the template writes _(archived)_
+
+- **Scenario id:** `TRC-E3`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
