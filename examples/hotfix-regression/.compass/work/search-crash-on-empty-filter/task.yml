@@ -15,14 +15,14 @@ delivery_approach: hotfix
 topology: solo
 policy_rules_fired: []
 stages:
-  frame: light
-  specify: reproduce-first
-  clarify: collapsed
+  assess: light
+  define: reproduce-first
+  refine: collapsed
   plan: collapsed
-  distribute: skipped
-  build: expedited
+  breakdown: skipped
+  implement: expedited
   verify: full
-  land: full-plus-follow-up
+  ship: full-plus-follow-up
 evidence:
 - id: EV-T1
   type: test-run
@@ -68,15 +68,16 @@ changed_files:
 claims: []
 follow_ups:
 - id: FU-001
-  description: Promote the reproduction test into a proper Given/When/Then scenario in acceptance-criteria.md,
-    traceable to the defect.
-  status: paid
+  description: Promote the reproduction test into a proper Given/When/Then scenario
+    in acceptance-criteria.md, traceable to the defect.
+  status: resolved
 - id: FU-002
-  description: Complete delivery-approach.md properly - the four dimension assessment and the root-cause
-    note, not just the urgent stub.
-  status: paid
+  description: Complete delivery-approach.md properly - the four dimension assessment
+    and the root-cause note, not just the urgent stub.
+  status: resolved
 - id: FU-003
-  description: Root-cause line in devlog.md, plus the follow-up issue for the missing-scenario class of
-    gap.
-  status: paid
+  description: Root-cause line in devlog.md, plus the follow-up issue for the missing-scenario
+    class of gap.
+  status: resolved
 reassessments: []
+stream_ceiling: 1

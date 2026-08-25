@@ -13,7 +13,7 @@ Two pieces of tidying that the Superpowers comparison surfaced:
     Clarify does the work that needs a decision. Writing the split down in both
     places is the fix.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md
+Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md
       (TRC-D1..D4, TRC-F7).
 """
 from __future__ import annotations

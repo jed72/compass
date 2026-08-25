@@ -1,7 +1,7 @@
 """Acceptance tests for task make-receipt-render.
 
 Each test is a Given/When/Then scenario from
-.compass/work/make-receipt-render/spec.feature.md, exercised against the
+.compass/work/make-receipt-render/acceptance-criteria.md, exercised against the
 compass CLI via the run_cli fixture (a hermetic temp project).
 """
 from __future__ import annotations

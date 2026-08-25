@@ -1,7 +1,7 @@
 """Acceptance tests for task readable-specs-and-flow.
 
 Each test_trc_* function asserts one scenario in
-.compass/work/readable-specs-and-flow/spec.feature.md.
+.compass/work/readable-specs-and-flow/acceptance-criteria.md.
 
 Why these are regex assertions over markdown rather than unit tests: the
 "production" change for most of this task is the text of shipped templates,

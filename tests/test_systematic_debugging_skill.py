@@ -9,7 +9,7 @@ writes - a skill can satisfy every regex and still be useless. What they can
 enforce is that the method is present, ordered, actionable, and reachable from
 the place the failure actually happens.
 
-Spec: .compass/work/phase-2-skills-check-and-cli-split/spec.feature.md (TRC-A1..A3).
+Spec: .compass/work/phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-A1..A3).
 """
 from __future__ import annotations
 

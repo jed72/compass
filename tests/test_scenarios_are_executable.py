@@ -18,7 +18,7 @@ The common path is a project that has wired no runner at all. It must pass,
 with a reason - a check that punished projects for not opting in would be worse
 than no check.
 
-Spec: .compass/work/phase-2-skills-check-and-cli-split/spec.feature.md (TRC-C1..C6).
+Spec: .compass/work/phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-C1..C6).
 """
 
 # These tests read `compass check`'s PER-CHECK detail - a check's name,

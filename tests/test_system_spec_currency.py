@@ -9,7 +9,7 @@ as authoritative and is fiction. So the fix is not "regenerate it" - that makes
 it right today. The fix is a test that re-derives and compares, which makes it
 stay right.
 
-Spec: .compass/work/living-spec-and-process-impact/spec.feature.md (TRC-A1..A3,
+Spec: .compass/work/living-spec-and-process-impact/acceptance-criteria.md (TRC-A1..A3,
       TRC-B1, TRC-B2, TRC-F1, TRC-F2).
 """
 from __future__ import annotations

@@ -4,7 +4,7 @@ Eleven were returned at once. These tests pin the ones that had no test - each
 should fail if its fix is reverted, which is the only thing that makes a fix
 durable.
 
-Spec: .compass/work/review-findings-2026-08/spec.feature.md
+Spec: .compass/work/review-findings-2026-08/acceptance-criteria.md
 """
 
 # These read `compass approach evaluate`'s DETAIL - the provenance line,

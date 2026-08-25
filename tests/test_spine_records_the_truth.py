@@ -16,7 +16,7 @@ R19 - `blueprint-distillation` names silent supersession as an anti-pattern and
 asks for the link to be recorded. The schema rejected `superseded_by`, so a
 skill instructed authors to record something the validator forbade.
 
-Scenarios: .compass/work/spine-records-the-truth/spec.feature.md (SCN-A1..F1).
+Scenarios: .compass/work/spine-records-the-truth/acceptance-criteria.md (SCN-A1..F1).
 """
 from __future__ import annotations
 

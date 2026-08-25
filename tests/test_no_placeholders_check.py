@@ -13,7 +13,7 @@ Two properties matter as much as the detection itself, and both are tested here:
     on every document that explains it - including the governance-check skill,
     the writing guide, and the plan for this very task.
 
-Spec: .compass/work/readable-specs-and-flow/spec.feature.md (TRC-C1, C1b, C2, C5).
+Spec: .compass/work/readable-specs-and-flow/acceptance-criteria.md (TRC-C1, C1b, C2, C5).
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took
@@ -215,7 +215,7 @@ def test_trc_c5_real_hit_after_a_fence_is_still_found(tmp_path):
 def test_plan_lint_is_clean_on_this_tasks_own_plan():
     """The plan that specified this check quotes the phrases it forbids. If the
     check cannot read that plan without complaining, it is not usable."""
-    plan = ROOT / ".compass/work/readable-specs-and-flow/plan.md"
+    plan = ROOT / ".compass/work/readable-specs-and-flow/technical-design.md"
     if not plan.exists():          # the task directory is not shipped to adopters
         return
     result = subprocess.run(

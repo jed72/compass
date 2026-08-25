@@ -9,7 +9,7 @@ single stream can prove on its own:
   * The framework grew by artifacts and skills only (ADR-002). No new
     guardrail, no new gate, no fifth reading dimension.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md
+Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md
       (TRC-F5, TRC-F6).
 """
 from __future__ import annotations

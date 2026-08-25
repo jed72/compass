@@ -21,7 +21,7 @@ that flag only exists when pytest-cov is loaded. On a project that disables
 pytest plugin autoload - as this repository does everywhere by design - pytest
 rejected the argument, exited 4, and `tdd-red` recorded it as a failing test.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/spec.feature.md (TRC-G1..G3).
+Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-G1..G3).
 """
 from __future__ import annotations
 

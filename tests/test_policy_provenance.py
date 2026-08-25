@@ -4,7 +4,7 @@
 POLICY produced those answers - so a reader six months later could not tell
 whether a light route reflected the terrain or stale governance.
 
-Spec: .compass/work/governance-drift-detection/spec.feature.md (TRC-C1..C3).
+Spec: .compass/work/governance-drift-detection/acceptance-criteria.md (TRC-C1..C3).
 """
 
 # The plain "which policy file did I read" line is provenance and moved to

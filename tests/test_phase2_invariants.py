@@ -5,7 +5,7 @@ a project which opted into nothing sees no change, every task already on disk
 returns what it returned before, and the framework grew by artifacts and checks
 only - no guardrail, gate, reading dimension, or top-level CLI verb.
 
-Spec: .compass/work/phase-2-skills-check-and-cli-split/spec.feature.md (TRC-F1..F3).
+Spec: .compass/work/phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-F1..F3).
 """
 
 # These tests read `compass check`'s PER-CHECK detail - a check's name,

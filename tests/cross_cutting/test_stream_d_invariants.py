@@ -214,9 +214,12 @@ def test_trc_d5_pipeline_phases_flex_by_route():
         "at least two route shapes must have different phase-weight maps; "
         f"all shapes resolved to {len(distinct)} unique phase map(s)"
     )
-    # Specifically: Express collapses Clarify; Spike skips Distribute
-    assert phase_maps["express"]["clarify"] in {"collapsed", "light"}
-    assert phase_maps["spike"]["distribute"] in {"skipped", "collapsed"}
+    # Specifically: a quick fix collapses the requirements review; a spike
+    # skips the breakdown. Read by the CURRENT stage keys - the policy
+    # declared the retired ones until 2026-08-25, which is the whole reason
+    # `shape_stages` had to canonicalise them for every caller.
+    assert phase_maps["express"]["refine"] in {"collapsed", "light"}
+    assert phase_maps["spike"]["breakdown"] in {"skipped", "collapsed"}
 
 
 # ---------------------------------------------------------------------------

@@ -685,3 +685,365 @@ def test_trc_c5_migrate_refuses_a_many_to_one_collision():
     assert (work / "brief.md").is_file() and (work / "prd.md").is_file(), (
         "migrate renamed one of the colliding files before refusing - a "
         "refusal must leave the directory as it found it")
+
+
+# ---------------------------------------------------------------------------
+# Group C - the migrator, over a real archive
+# ---------------------------------------------------------------------------
+
+_V1_SPINE = """schema_version: "1.1"
+task: "%s"
+created: "2026-01-01"
+status: landed
+readings:
+  blast_radius: contained
+  terrain: brownfield-mapped
+  size: small
+  intent: delivery
+route: standard
+phases: {frame: full, specify: full, clarify: light, plan: full, distribute: solo, build: full, verify: full, land: full}
+evidence: []
+gates: []
+scenarios: []
+changed_files: []
+"""
+
+
+def _archive(root, *slugs, broken=None):
+    """A work root of v1 issue directories, optionally with one broken spine."""
+    work = root / ".compass" / "work"
+    work.mkdir(parents=True)
+    (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
+    for slug in slugs:
+        d = work / slug
+        d.mkdir()
+        d.joinpath("task.yml").write_text(
+            "task: [this is not\n  valid: yaml\n" if slug == broken
+            else _V1_SPINE % slug)
+        d.joinpath("plan.md").write_text("# the v1 design\n")
+    return root
+
+
+def _migrate(project, *flags):
+    import subprocess
+    import sys
+
+    return subprocess.run(
+        [sys.executable, str(REPO_ROOT / "cli" / "compass"), "migrate", *flags],
+        cwd=str(project), capture_output=True, text=True, timeout=180)
+
+
+def test_trc_c2():
+    """TRC-C2: migrate rewrites a stale reference, and is idempotent.
+
+    Both halves matter. The rename is only safe because a record written
+    before it still reads (TRC-B1, TRC-B2); this is the other side of that -
+    the archive is brought forward rather than left resolving through a
+    compatibility path for ever. Running it twice must be a no-op, or nobody
+    can re-run it after a failure without wondering what it will do.
+    """
+    import tempfile
+
+    project = _archive(Path(tempfile.mkdtemp(prefix="compass-mig-")), "one", "two")
+    work = project / ".compass" / "work"
+
+    first = _migrate(project, "--apply")
+    assert first.returncode == 0, first.stdout + first.stderr
+
+    import yaml
+
+    for slug in ("one", "two"):
+        d = work / slug
+        assert (d / "technical-design.md").is_file(), (
+            "%s still holds the retired filename" % slug)
+        assert not (d / "plan.md").exists()
+        spine = yaml.safe_load((d / "task.yml").read_text())
+        assert set(spine["stages"]) == {"assess", "define", "refine", "plan",
+                                        "breakdown", "implement", "verify",
+                                        "ship"}, spine["stages"]
+        assert "phases" not in spine and "readings" not in spine
+        assert str(spine["schema_version"]).startswith("2")
+
+    before = {p: p.read_bytes() for p in sorted(work.rglob("*")) if p.is_file()}
+    second = _migrate(project, "--apply")
+    assert second.returncode == 0, second.stdout + second.stderr
+    assert "nothing to do" in second.stdout, second.stdout
+    after = {p: p.read_bytes() for p in sorted(work.rglob("*")) if p.is_file()}
+    assert before == after, "a second --apply changed the tree"
+
+
+def test_trc_c3():
+    """TRC-C3: a dry run reports what would change and writes nothing.
+
+    The dry run is what a person reads before letting the tool touch an
+    archive they cannot easily reconstruct, so "writes nothing" is the whole
+    promise, and it is asserted by comparing the tree byte for byte rather
+    than by trusting the wording.
+    """
+    import tempfile
+
+    project = _archive(Path(tempfile.mkdtemp(prefix="compass-dry-")), "one", "two")
+    work = project / ".compass" / "work"
+    before = {p: p.read_bytes() for p in sorted(work.rglob("*")) if p.is_file()}
+
+    run = _migrate(project)
+    assert run.returncode == 0, run.stdout + run.stderr
+    assert "would change" in run.stdout and "dry run" in run.stdout.lower()
+    for slug in ("one", "two"):
+        assert slug in run.stdout, "the dry run does not name %r" % slug
+
+    after = {p: p.read_bytes() for p in sorted(work.rglob("*")) if p.is_file()}
+    assert before == after, "the dry run modified the tree"
+
+
+def test_trc_c4():
+    """TRC-C4: a migration that stops says what it did and what remains.
+
+    A failure partway leaves some directories migrated and some not - and
+    because both spellings stay accepted, that tree still WORKS, which is
+    exactly why nobody would notice. The report is the only thing that would
+    tell them.
+
+    The notes were accumulated and printed after the loop, so an unparseable
+    spine raised out of the whole command and took the report with it: every
+    rename already performed stayed on disk, unnamed, under a raw traceback.
+    """
+    import tempfile
+
+    project = _archive(Path(tempfile.mkdtemp(prefix="compass-stop-")),
+                       "aaa", "bbb", "ccc", broken="bbb")
+    work = project / ".compass" / "work"
+
+    run = _migrate(project, "--apply")
+    combined = run.stdout + run.stderr
+
+    assert "Traceback" not in combined, (
+        "the migration ended in a raw traceback rather than a report:\n"
+        + combined)
+    assert run.returncode != 0, (
+        "a migration that could not finish reported success:\n" + combined)
+    assert "bbb" in combined, (
+        "the report does not name the directory it could not migrate:\n"
+        + combined)
+    for slug in ("aaa", "ccc"):
+        assert slug in combined, (
+            "the report does not name %r, which it did migrate - so a reader "
+            "cannot tell what was changed:\n%s" % (slug, combined))
+        assert (work / slug / "technical-design.md").is_file()
+
+    # Re-running finishes the remainder rather than starting over: the two good
+    # directories are already done and report nothing, and the broken one is
+    # still named.
+    again = _migrate(project, "--apply")
+    combined2 = again.stdout + again.stderr
+    assert "bbb" in combined2 and again.returncode != 0, combined2
+    assert "renamed" not in combined2, (
+        "a re-run redid work it had already done:\n" + combined2)
+
+
+def test_trc_d2():
+    """TRC-D2: the vocabulary file's own prose is scanned.
+
+    This is how the retired stage keys survived the v2 freeze unremarked for
+    months: `governance/*.yml` was not a scanned surface. Three of its YAML
+    files were named individually afterwards; `terminology.yml` was not, and
+    `_surface_files` drops every non-`.md` file under `governance/` besides.
+
+    Exempting it whole is the wrong fix and the scenario says so: the
+    glossary's prose is where a retired name is MOST likely to be taught,
+    because `docs/glossary.md` is generated from it and is titled "Every word
+    and every id prefix Compass uses". When this was written, `terms:` and
+    `codes:` between them carried 13 retired names, several of which the
+    glossary was publishing as current.
+
+    So: scanned, with the blocks whose JOB is to name retired terms exempt as
+    REGIONS - `banned:` and `retired_machine_names:` - and every other block
+    read like any other surface.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "terminology_scan", REPO_ROOT / "tests" / "test_terminology.py")
+    tt = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tt)
+
+    scan = tt._terminology()["scan"]
+    files = [f for surface in scan["surfaces"] for f in tt._surface_files(surface)]
+    rels = {str(f.relative_to(REPO_ROOT)) for f in files}
+    assert "governance/terminology.yml" in rels, (
+        "the vocabulary file is not among the files the scan reads, so the "
+        "one document that defines the vocabulary is the one document nobody "
+        "checks it against")
+
+    hits = tt._scan_files([REPO_ROOT / "governance" / "terminology.yml"])
+    assert not hits, tt._report(
+        hits, "governance/terminology.yml teaches a retired name outside the "
+              "blocks whose job is to name one")
+
+
+def test_trc_d2b_the_region_exemption_is_a_region_not_a_file():
+    """The control: the scan must still READ the file it region-exempts.
+
+    A region exemption that quietly widened to the whole file would leave this
+    test passing and check nothing - the exact shape this repository found
+    four of in one release. So: plant a retired name in the `terms:` block and
+    require the scan to catch it.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "terminology_scan", REPO_ROOT / "tests" / "test_terminology.py")
+    tt = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tt)
+
+    rel = "governance/terminology.yml"
+    text = (REPO_ROOT / "governance" / rel.split("/")[-1]).read_text(
+        encoding="utf-8") if False else (REPO_ROOT / rel).read_text(
+        encoding="utf-8")
+    lines = text.splitlines()
+
+    def _first_line_of(block):
+        for i, line in enumerate(lines, 1):
+            if line.startswith(block + ":"):
+                return i
+        raise AssertionError("no top-level %r block in %s" % (block, rel))
+
+    exempt = tt._region_exempt_linenos(rel, lines)
+    assert exempt, "no region is exempt, so the banned: block will fail the scan"
+
+    # Inside `banned:` - naming retired terms is the job.
+    assert _first_line_of("banned") + 2 in exempt
+
+    # Inside `terms:` - the glossary's prose, and NOT exempt. If the region
+    # ever widens to the whole file this is the assertion that notices.
+    terms_start = _first_line_of("terms")
+    assert terms_start + 2 not in exempt, (
+        "a line inside the terms: block is region-exempt, so the exemption "
+        "has widened past the blocks that need it")
+    assert not any(n in exempt for n in range(terms_start, terms_start + 40)), (
+        "the terms: block is region-exempt - that is a whole-file exemption "
+        "wearing a region's name")
+
+
+def test_trc_b8_a_policy_floor_written_with_a_retired_stage_key_still_applies():
+    """A floor must not go quiet because it names the stage by its old word.
+
+    `evaluate_route` canonicalises the stage keys a SHAPE declares, so
+    `phases` holds `refine`. `require_phase` was looked up in that map
+    unchanged, so a floor saying `clarify` asked for a key that is never
+    there, found `None`, and raised nothing. No error, no warning - the floor
+    is still reported as fired.
+
+    `never_skip`, seven lines below it, was canonicalised in the same rename.
+    This one was missed, and the shipped policy has said `require_phase:
+    specify` ever since - a floor that has never had any effect.
+
+    Both spellings, same outcome. That is the whole compatibility promise
+    (ADR-006): an adopter's policy written before the v2 freeze keeps working.
+    """
+    import copy
+    import os
+
+    from compass_pkg import core
+    from compass_pkg.routing import evaluate_route
+
+    policy = core.load_yaml(
+        os.path.join(core.find_governance(), "routing-policy.yml"))
+    assessment = {"risk": "contained", "familiarity": "brownfield-unmapped",
+                  "size": "small", "goal": "delivery", "role": "engineer",
+                  "labels": []}
+
+    def refine_weight(spelling):
+        p = copy.deepcopy(policy)
+        for floor in p["routing_guardrails"]["floors"]:
+            if floor.get("require_phase"):
+                floor["require_phase"] = spelling
+        result = evaluate_route(assessment, p)
+        stages = (result[0] if isinstance(result, tuple) else result)["stages"]
+        return stages.get("refine")
+
+    assert refine_weight("refine") == "full", (
+        "the control failed: `require_phase` does not raise the stage even "
+        "under its current name, so this test proves nothing")
+    assert refine_weight("clarify") == "full", (
+        "a floor naming the retired stage key raised nothing - it was looked "
+        "up in a map whose keys have already been canonicalised, so it found "
+        "no entry and silently did not apply")
+
+
+def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
+    """A spine that names a renamed file must be repointed with it.
+
+    The migrator renamed the files and left every reference to them inside
+    `task.yml` untouched - so `evidence:` entries, artifact `path:` fields and
+    `changed_files:` all went on naming a document that is no longer there.
+    `compass check`'s gate-evidence-present then fails with "path does not
+    resolve" on an issue nothing is wrong with.
+
+    22 spines in this repository were in that state, and some of them name
+    `route.md` and `plan.md` - retired at the v2 freeze - so the freeze's own
+    migration left the same wreckage a cycle earlier and nobody looked.
+    """
+    import subprocess
+    import sys
+    import tempfile
+
+    import yaml
+
+    project = Path(tempfile.mkdtemp(prefix="compass-repoint-"))
+    work = project / ".compass" / "work" / "one"
+    work.mkdir(parents=True)
+    (project / ".compass" / "config.yml").write_text("version: 1.0.0\n")
+    (work / "plan.md").write_text("# the v1 design\n")
+    (work / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "1.1", "task": "one", "created": "2026-01-01",
+        "status": "landed",
+        "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
+                     "size": "small", "intent": "delivery"},
+        "route": "standard",
+        "phases": {"frame": "full", "specify": "full", "plan": "full",
+                   "build": "full", "verify": "full", "land": "full"},
+        "evidence": [{"id": "EV-DESIGN", "type": "artifact", "path": "plan.md"}],
+        "artifacts": [{"kind": "technical-design", "status": "draft",
+                       "path": "plan.md", "reason": "every feature carries one"}],
+        "changed_files": ["plan.md"],
+        "gates": [], "scenarios": [],
+    }, sort_keys=False))
+
+    run = subprocess.run(
+        [sys.executable, str(REPO_ROOT / "cli" / "compass"), "migrate", "--apply"],
+        cwd=str(project), capture_output=True, text=True, timeout=120)
+    assert run.returncode == 0, run.stdout + run.stderr
+
+    assert (work / "technical-design.md").is_file()
+    spine = yaml.safe_load((work / "task.yml").read_text())
+
+    assert spine["evidence"][0]["path"] == "technical-design.md", (
+        "the evidence record still points at the file the migration renamed "
+        "away, so `compass check` fails on an issue nothing is wrong with")
+    assert spine["artifacts"][0]["path"] == "technical-design.md", (
+        "the artifact registry still points at the retired filename")
+    assert spine["changed_files"] == ["technical-design.md"], (
+        "changed_files still names the retired filename")
+
+
+def test_trc_c6b_a_reference_to_a_file_that_is_still_there_is_left_alone():
+    """The control: repointing must be driven by the rename, not the name.
+
+    A directory that legitimately still holds `plan.md` - because nothing
+    renamed it - must keep its reference. Rewriting every occurrence of a
+    retired name would break exactly the records this compatibility path
+    exists to preserve.
+    """
+    import sys
+    import tempfile
+
+    sys.path.insert(0, str(REPO_ROOT / "cli"))
+    from compass_pkg.migrate import repoint_spine_references
+
+    tmp = Path(tempfile.mkdtemp(prefix="compass-repoint-"))
+    (tmp / "plan.md").write_text("# still here\n")
+    spine = {"evidence": [{"path": "plan.md"}]}
+    changed = repoint_spine_references(str(tmp), spine, {})
+    assert not changed and spine["evidence"][0]["path"] == "plan.md", (
+        "a reference to a file that is still on disk was rewritten")

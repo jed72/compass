@@ -4,14 +4,22 @@ title: Retired names are removed at the major version rather than carried as red
 status: superseded
 date: 2026-08-13
 supersedes: ''
-superseded_by: 'ADR-019'
+superseded_by: 'ADR-019, ADR-020'
 ---
 
-> **Superseded by ADR-019 (2026-08-25).** The rule below rested on there being
-> no adopters, which its own Consequences section says would change. Compass is
-> now published and released at 3.3.0, so a name retired INSIDE a major version
-> carries a redirect until the next one. The removals this ADR performed still
-> stand - they were paid at 3.0.0 while the cost was zero.
+> **Superseded in two respects, both on 2026-08-25.** The removals this ADR
+> performed still stand - they were paid at 3.0.0 while the cost was zero.
+>
+> **ADR-019** replaces the redirect rule. It rested on there being no adopters,
+> which this ADR's own Consequences section says would change; Compass is now
+> published at 3.3.0, so a name retired INSIDE a major version carries a
+> redirect until the next one.
+>
+> **ADR-020** replaces "the archive as written". That clause was written after
+> the v2 freeze had already migrated `.compass/work/`, so it never described
+> the tree - and the freeze left 26 citations pointing at records it had
+> renamed. The archive is migrated by the tool, with every citation into it
+> required to resolve.
 
 ## Context
 

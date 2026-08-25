@@ -1,6 +1,8 @@
 """Acceptance tests for task v1-2-narrative.
 
-13 scenarios from .compass/work/v1-2-narrative/spec.feature.md, covering
+13 scenarios from the `v1-2-narrative` issue, whose record is not in this
+tree - `.compass/work/` has never been tracked in git, so that directory
+is gone and a path into it would not open. They cover
 the v1.2.0 surface (architect-lens, architecture/, signals.yml,
 quarantine.yml + fitness functions, Trigger-on-intent rule, typed inline
 DoD tags) that is missing from the public-facing docs.

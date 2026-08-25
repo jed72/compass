@@ -8,7 +8,7 @@ tests/fixtures/cli-surface-baseline.json, captured from the UNSPLIT file before
 any code moved. That ordering matters: a baseline captured afterwards would
 describe whatever the refactor happened to produce, and would prove nothing.
 
-Spec: .compass/work/cli-module-split/spec.feature.md (TRC-A1..A3, B1..B4, F1, F2).
+Spec: .compass/work/cli-module-split/acceptance-criteria.md (TRC-A1..A3, B1..B4, F1, F2).
 """
 from __future__ import annotations
 

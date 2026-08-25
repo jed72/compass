@@ -154,7 +154,7 @@ system-installed copy, deterministically.**
   and how to reproduce and verify the vendored tree.
 - `docs/portability.md` - the adapter contract's clause for a port that
   embeds Python parsing YAML.
-- `.compass/work/zero-friction-install/design.md` - the design record this
+- `.compass/work/zero-friction-install/technical-design.md` - the design record this
   ADR is drawn from (DD-1 through DD-3, DD-7), including the full cost/
   benefit reasoning behind each alternative above. `.compass/work/` is
   gitignored in this repository, which is exactly why this decision is

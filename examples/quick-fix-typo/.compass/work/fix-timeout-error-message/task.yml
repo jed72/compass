@@ -14,14 +14,14 @@ delivery_approach: quick-fix
 topology: solo
 policy_rules_fired: []
 stages:
-  frame: full
-  specify: light
-  clarify: collapsed
+  assess: full
+  define: light
+  refine: collapsed
   plan: collapsed
-  distribute: skipped
-  build: full
+  breakdown: skipped
+  implement: full
   verify: light
-  land: light
+  ship: light
 evidence:
 - id: EV-001
   type: test-run
@@ -56,3 +56,4 @@ changed_files:
 claims: []
 follow_ups: []
 reassessments: []
+stream_ceiling: 1

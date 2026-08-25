@@ -9,7 +9,7 @@ which reads as excellent stability and means "nobody has filed one yet". That is
 this codebase's recurring failure shape in a new costume: a number that looks
 like evidence and is silence. Group C forbids it.
 
-Spec: .compass/work/process-impact-telemetry/spec.feature.md (TRC-A1..A4,
+Spec: .compass/work/process-impact-telemetry/acceptance-criteria.md (TRC-A1..A4,
       B1..B3, C1, C2, F1..F4).
 """
 from __future__ import annotations

@@ -24,16 +24,17 @@ policy_rules_fired:
   rationale: Built-the-thing-right and built-the-right-thing are different checks.
   changed:
   - artifact 'intent.md' required
-  - 'phase ''plan'' blocked until: the spec has been checked against intent.md for intent fidelity'
+  - 'phase ''plan'' blocked until: the spec has been checked against intent.md for
+    intent fidelity'
 stages:
-  frame: full
-  specify: full
-  clarify: full
+  assess: full
+  define: full
+  refine: full
   plan: full
-  distribute: swarm
-  build: full
+  breakdown: swarm
+  implement: full
   verify: full
-  land: full
+  ship: full
 evidence:
 - id: EV-T1
   type: test-run
@@ -48,15 +49,16 @@ evidence:
 - id: EV-A1
   type: human-approval
   path: evidence/approval-migration-0042.json
-  scope: migrations/0042_notifications.sql - additive notifications schema; irreversible forward migration
-    on production.
+  scope: migrations/0042_notifications.sql - additive notifications schema; irreversible
+    forward migration on production.
   approver: l.haddad@example.com
   role: engineering-lead
   decision: approved
   timestamp: '2026-03-13T16:20:00+00:00'
   conditions:
   - Rollback plan (0042_notifications.down.sql) included in the PR.
-  - Migration run in staging first; production cutover only after a clean staging dry-run.
+  - Migration run in staging first; production cutover only after a clean staging
+    dry-run.
   - Migration is purely additive - no change to any existing table.
 gates:
 - id: verify.correctness
@@ -147,3 +149,4 @@ changed_files:
 claims: []
 follow_ups: []
 reassessments: []
+stream_ceiling: null

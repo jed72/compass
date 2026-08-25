@@ -478,6 +478,39 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
     return list(enumerate(text.splitlines(), 1))
 
 
+def _NAMED_SURFACES() -> set:
+    """Surfaces named as individual files rather than directories."""
+    return {s for s in _terminology()["scan"]["surfaces"]
+            if not s.endswith("/")}
+
+
+# --- region exemptions ------------------------------------------------------
+# A file can be scanned while some of its lines are not. `banned:` must name
+# every retired term - that is what a ban is - so scanning it whole would flag
+# the vocabulary file for doing its job, and exempting the FILE would stop
+# scanning the glossary's prose, which is the half a reader learns from.
+# Declared in terminology.yml's `scan.exempt_regions`, each with a reason.
+
+def _region_exempt_linenos(rel: str, lines: list) -> set:
+    """1-based line numbers inside a declared exempt region of `rel`.
+
+    A region is a top-level YAML block: it starts at `<name>:` in column zero
+    and runs to the next line in column zero.
+    """
+    exempt = set()
+    for entry in _terminology()["scan"].get("exempt_regions") or []:
+        if str(entry.get("path")) != str(rel):
+            continue
+        wanted = set(entry.get("blocks") or [])
+        current = None
+        for lineno, line in enumerate(lines, 1):
+            if line[:1].strip() and not line.startswith(("#", " ", "\t")):
+                current = line.split(":", 1)[0].strip()
+            if current in wanted:
+                exempt.add(lineno)
+    return exempt
+
+
 def _surface_files(surface: str) -> list[Path]:
     """Every scannable file a surface entry names.
 
@@ -497,7 +530,13 @@ def _surface_files(surface: str) -> list[Path]:
             continue
         if PRUNE_DIRS & set(path.parts):
             continue
-        if surface == "governance/" and path.suffix != ".md":
+        if (surface == "governance/" and path.suffix != ".md"
+                and str(path.relative_to(REPO_ROOT)) not in _NAMED_SURFACES()):
+            # `governance/` contributes its prose; its YAML files legitimately
+            # carry machine identifiers. A YAML file that IS named as its own
+            # surface is scanned - otherwise the directory entry silently
+            # cancels the explicit one, which is how terminology.yml stayed
+            # unscanned while sitting inside a scanned surface.
             continue
         files.append(path)
     return files
@@ -577,9 +616,14 @@ def _scan_files(files: list[Path]) -> list[str]:
     hits = []
     for path in files:
         rel = path.relative_to(REPO_ROOT)
+        region_exempt = _region_exempt_linenos(
+            str(rel), path.read_text(encoding="utf-8",
+                                     errors="replace").splitlines())
         allowed_next = False
         in_allowed_block = False
         for lineno, line in _scan_units(path):
+            if lineno in region_exempt:
+                continue
             if in_allowed_block:
                 # Runs to the closing fence. A quoted transcript is exempt as
                 # a block because rewriting any line of it would make it a
