@@ -112,11 +112,11 @@ Source: `.compass/work/make-receipt-render/requirements-review.md`
 
 Before:
 
-> **Decided by:** James (engineer) via Clarify reasoning recorded here; defaults if not overridden.
+> **Decided by:** jed72 (engineer) via Clarify reasoning recorded here; defaults if not overridden.
 
 After:
 
-> James decided this one; nobody pushed back.
+> jed72 decided this one; nobody pushed back.
 
 What changed: says who decided and whether it was contested, in a sentence, without losing either fact.
 

@@ -409,7 +409,7 @@ def test_trc_c1_the_worked_example_rewrites_a_named_archive_artifact():
         )
 
     # Review finding (verification-report.md 5.5, #14): a bare count of
-    # "James" across the whole file is a loose proxy - four mentions
+    # "jed72" across the whole file is a loose proxy - four mentions
     # clustered in one section would still pass it. Check each of the four
     # decision sections individually instead.
     sections = re.split(r"(?m)^## ", text)[1:]
@@ -417,7 +417,7 @@ def test_trc_c1_the_worked_example_rewrites_a_named_archive_artifact():
         f"expected four decision sections, found {len(sections)}"
     )
     for section in sections:
-        assert "James" in section, (
+        assert "jed72" in section, (
             f"a decision section does not carry whose call it was: "
             f"{section.splitlines()[0]!r}"
         )
@@ -500,7 +500,7 @@ def test_trc_c3_the_template_worked_example_records_a_decision_in_prose():
     assert "was unclear" in section, (
         "the worked example must state what was unclear"
     )
-    assert "James" in section, "the worked example must state whose call it was"
+    assert "jed72" in section, "the worked example must state whose call it was"
     assert "fifty lines" in section, "the worked example must state the call itself"
     assert "standard terminal" in section, (
         "the worked example must state what the call rests on"
@@ -573,7 +573,7 @@ def test_trc_b1_claude_md_and_agents_md_carry_the_voice_paragraph():
         assert REFERENCE_PATH in section, (
             f"{name}'s voice paragraph must name the reference by path"
         )
-        # RAISED 120 -> 260 on 2026-08-23, deliberately, by James Edwards.
+        # RAISED 120 -> 260 on 2026-08-23, deliberately, by jed72.
         #
         # The cap exists because these files are loaded on every run, so every
         # word costs attention every time - that reasoning still holds and the

@@ -85,7 +85,7 @@ WORKED_EXAMPLE_SPANS = [
         # The retired name below is what the archived file actually says.
         # Rewriting it would have this script verify a sentence nobody wrote,
         # which is the failure the whole guard exists to catch.
-        "quoted": "**Decided by:** James (engineer) via Clarify reasoning",
+        "quoted": "**Decided by:** jed72 (engineer) via Clarify reasoning",
         "mode": "substring",
     },
 ]
