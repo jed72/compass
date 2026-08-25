@@ -14,14 +14,14 @@ delivery_approach: feature
 topology: solo-or-pair
 policy_rules_fired: []
 stages:
-  frame: full
-  specify: full
-  clarify: light
+  assess: full
+  define: full
+  refine: light
   plan: full
-  distribute: solo-or-pair
-  build: full
+  breakdown: solo-or-pair
+  implement: full
   verify: full
-  land: full
+  ship: full
 evidence:
 - id: EV-T1
   type: test-run
@@ -103,3 +103,4 @@ changed_files:
 claims: []
 follow_ups: []
 reassessments: []
+stream_ceiling: 2

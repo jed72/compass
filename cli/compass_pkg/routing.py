@@ -184,8 +184,17 @@ def evaluate_route(readings, policy):
                            f"{display_shape(forced)}")
             final = forced
         if fl.get("require_phase"):
-            required_phases.add(fl["require_phase"])
-            changed.append(f"stage '{display_stage(fl['require_phase'])}' "
+            # Canonicalised, for the same reason as `never_skip` below. These
+            # names are looked up in the shape's stage map, which
+            # `shape_stages` has already canonicalised - so a floor naming the
+            # retired key asked for an entry that is never there, found
+            # nothing, and raised nothing. No error and the floor still
+            # reported as fired. `never_skip` got this treatment in the v2
+            # rename and this line, seven above it, did not.
+            required = _stage_key_renames().get(fl["require_phase"],
+                                                fl["require_phase"])
+            required_phases.add(required)
+            changed.append(f"stage '{display_stage(required)}' "
                            f"forced full-weight")
         if fl.get("require_skill"):
             required_skills.add(fl["require_skill"])

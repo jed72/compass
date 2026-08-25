@@ -139,24 +139,54 @@ def cmd_migrate(args):
               "one automatically would silently keep whichever came first, "
               "which is the older file.")
 
+    # One directory failing must not take the report with it. The notes used
+    # to be printed after the loop, so an unparseable spine raised out of the
+    # whole command: every rename already performed stayed on disk, unnamed,
+    # under a raw traceback. Both spellings still resolve, so the half-migrated
+    # tree WORKS - which is precisely why nobody would notice.
     changed = {}
+    failed = {}
     for entry in dirs:
         d = os.path.join(root, entry)
-        notes = (migrate_issue_dir(d) if apply_mode else plan_issue_dir(d))
+        try:
+            notes = (migrate_issue_dir(d) if apply_mode else plan_issue_dir(d))
+        except Exception as exc:                    # noqa: BLE001
+            # Deliberately broad: whatever one directory does wrong, the other
+            # 109 still get migrated and reported. The reason is carried into
+            # the report rather than swallowed.
+            failed[entry] = "%s: %s" % (type(exc).__name__, exc)
+            continue
         if notes:
             changed[entry] = notes
-    if not changed:
+
+    if not changed and not failed:
         print("compass migrate: nothing to do - every issue directory "
               "already speaks schema 2.0.")
         return 0
-    verb = "migrated" if apply_mode else "would change"
-    noun = "issue directory" if len(changed) == 1 else "issue directories"
-    print(f"compass migrate: {len(changed)} {noun} {verb} "
-          f"under {root}:")
-    for slug, notes in changed.items():
-        print(f"  {slug}")
-        for n in notes:
-            print(f"    - {n}")
+
+    if changed:
+        verb = "migrated" if apply_mode else "would change"
+        noun = "issue directory" if len(changed) == 1 else "issue directories"
+        print(f"compass migrate: {len(changed)} {noun} {verb} "
+              f"under {root}:")
+        for slug, notes in changed.items():
+            print(f"  {slug}")
+            for n in notes:
+                print(f"    - {n}")
+
+    if failed:
+        noun = "directory" if len(failed) == 1 else "directories"
+        print()
+        print(f"compass migrate: {len(failed)} {noun} could NOT be migrated:")
+        for slug, why in failed.items():
+            print(f"  {slug}")
+            print(f"    - {why}")
+        print()
+        print(f"{len(changed)} migrated, {len(failed)} left as they were. "
+              "Fix the files named above and re-run - migration is "
+              "idempotent, so the ones already done are skipped.")
+        return 1
+
     if not apply_mode:
         print()
         print("This was a dry run - nothing was written. "
@@ -183,9 +213,17 @@ def migrate_issue_dir(task_dir):
         if str(migrated.get("schema_version", "")).split(".")[0] != "2":
             migrated["schema_version"] = "2.0"
         if migrated != raw:
-            with open(spine, "w", encoding="utf-8") as fh:
-                yaml.safe_dump(migrated, fh, sort_keys=False,
-                               default_flow_style=False, allow_unicode=True)
+            # Serialise first, then replace atomically. `open(spine, "w")`
+            # empties the file before safe_dump writes a byte, so a dump that
+            # raised - an unexpected object type in the spine will do it - left
+            # task.yml empty and the issue with no record at all. os.replace is
+            # atomic on every platform Compass supports.
+            body = yaml.safe_dump(migrated, sort_keys=False,
+                                  default_flow_style=False, allow_unicode=True)
+            tmp = spine + ".tmp"
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(body)
+            os.replace(tmp, spine)
             notes.append("spine keys and values -> schema 2.0")
     return notes
 

@@ -12,14 +12,14 @@ delivery_approach: spike
 topology: solo
 policy_rules_fired: []
 stages:
-  frame: light
-  specify: collapsed
-  clarify: skipped
+  assess: light
+  define: collapsed
+  refine: skipped
   plan: collapsed
-  distribute: skipped
-  build: explore
+  breakdown: skipped
+  implement: explore
   verify: conclude
-  land: graduate-or-discard
+  ship: graduate-or-discard
 evidence:
 - id: EV-SC1
   type: spike-conclusion
@@ -36,3 +36,4 @@ changed_files: []
 claims: []
 follow_ups: []
 reassessments: []
+stream_ceiling: 1

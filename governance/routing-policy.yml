@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.4.0
+version: 2.5.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -106,12 +106,12 @@ routing_guardrails:
     - id: RP-FLOOR-001
       when: { risk: critical }
       force_minimum_route: expedition
-      never_skip: [clarify, verify, land]
+      never_skip: [refine, verify, ship]
       rationale: "Critical changes coordinate, or they break things quietly."
 
     - id: RP-FLOOR-002
       when: { familiarity: brownfield-unmapped }
-      require_phase: specify
+      require_phase: define
       require_skill: blueprint-distillation
       rationale: "You cannot safely change behaviour you have not first written down."
 
@@ -222,7 +222,7 @@ assessment_vocabulary:
 route_shapes:
   spike:
     weight: 0
-    stages: { frame: light, specify: collapsed, clarify: skipped, plan: collapsed, distribute: skipped, build: explore, verify: conclude, land: graduate-or-discard }
+    stages: { assess: light, define: collapsed, refine: skipped, plan: collapsed, breakdown: skipped, implement: explore, verify: conclude, ship: graduate-or-discard }
     gates: [spike.conclude]
     topology: solo
     # A spike writes no review document. What it owes is a recorded
@@ -231,7 +231,7 @@ route_shapes:
     artifacts: {}
   express:
     weight: 1
-    stages: { frame: full, specify: light, clarify: collapsed, plan: collapsed, distribute: skipped, build: full, verify: light, land: light }
+    stages: { assess: full, define: light, refine: collapsed, plan: collapsed, breakdown: skipped, implement: full, verify: light, ship: light }
     gates: [verify.correctness, verify.governance, verify.traceability]
     topology: solo
     # The floor the guardrails already impose, and nothing more: a stated
@@ -240,7 +240,7 @@ route_shapes:
     artifacts: { acceptance-criteria: light, verification-report: light }
   standard:
     weight: 2
-    stages: { frame: full, specify: full, clarify: light, plan: full, distribute: solo-or-pair, build: full, verify: full, land: full }
+    stages: { assess: full, define: full, refine: light, plan: full, breakdown: solo-or-pair, implement: full, verify: full, ship: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.clarity, verify.security]
     topology: solo-or-pair
     artifacts: { acceptance-criteria: full, technical-design: full, verification-report: full }
@@ -250,13 +250,13 @@ route_shapes:
     # and every spine on disk read; renaming it is a migration with a
     # back-compat shim, not a text sweep.
     # vocabulary-scan: allow - machine enum value, see above
-    stages: { frame: light, specify: reproduce-first, clarify: collapsed, plan: collapsed, distribute: skipped, build: expedited, verify: full, land: full-plus-backfill }
+    stages: { assess: light, define: reproduce-first, refine: collapsed, plan: collapsed, breakdown: skipped, implement: expedited, verify: full, ship: full-plus-backfill }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security]
     topology: solo
     artifacts: { acceptance-criteria: light, verification-report: full }
   expedition:
     weight: 4
-    stages: { frame: full, specify: full, clarify: full, plan: full, distribute: swarm, build: full, verify: full, land: full }
+    stages: { assess: full, define: full, refine: full, plan: full, breakdown: swarm, implement: full, verify: full, ship: full }
     gates: [verify.correctness, verify.governance, verify.traceability, verify.regression, verify.security, verify.clarity, verify.claims]
     topology: swarm
     artifacts: { intent: full, acceptance-criteria: full, requirements-review: full, technical-design: full, distribution-map: full, verification-report: full }

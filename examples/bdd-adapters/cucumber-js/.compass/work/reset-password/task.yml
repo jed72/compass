@@ -10,7 +10,7 @@ assessment:
   urgency: none
   role: engineer
   labels: []
-delivery_approach: standard
+delivery_approach: feature
 topology: solo
 policy_rules_fired: []
 stages: {}
@@ -37,3 +37,4 @@ claims: []
 follow_ups: []
 reassessments: []
 friction: []
+stream_ceiling: 1

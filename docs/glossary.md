@@ -72,11 +72,11 @@ Follow-up id. Ceremony this issue owes after an expedited ship - the hotfix's pr
 
 ### `INT-`
 
-Intent id. The "why" end of the traceability chain - the outcome the work is meant to produce, sourced from the PRD's desired outcome, the UI contract, or the issue description. A goal, not a requirement; the requirement is the scenario.
+Intent id. The "why" end of the traceability chain - the outcome the work is meant to produce, sourced from intent.md's desired outcome, the UI contract, or the issue description. A goal, not a requirement; the requirement is the scenario.
 
 **Refers to:** A stated desired outcome.
 
-**Appears in:** `prd.md`, `acceptance-criteria.md`, `task.yml scenarios[].intent`
+**Appears in:** `intent.md`, `acceptance-criteria.md`, `task.yml scenarios[].intent`
 
 **Related:** `TRC`, `intent`
 
@@ -160,7 +160,7 @@ Architecture decision record: one real decision, the alternatives considered, th
 
 Sizing up incoming work: risk, familiarity, size, and goal - producing an issue type, labels, and a delivery approach. The human judgement step; everything after it is mechanism. Named for what it produces: the stage writes an `assessment:` block, the flag is --assessment, and the policy section is assessment_vocabulary.
 
-**Not:** NOT triage. Triage means sorting BETWEEN cases by urgency, which is what `compass flow` does across issues - this stage sizes up ONE piece of work. The retired command name was /compass:triage.
+**Not:** # vocabulary-scan: allow - naming the retired stage name is the point # of this field; the reader needs to know which word this replaced. NOT triage. Triage means sorting BETWEEN cases by urgency, which is what `compass flow` does across issues - this stage sizes up ONE piece of work. The retired command name was /compass:triage.
 
 **Related:** `delivery-approach`, `label`, `issue-type`, `assessment`
 
@@ -220,7 +220,7 @@ The gate before shipping: acceptance criteria pass, applicable guardrails clear,
 
 ### definition-of-ready
 
-The gate between requirements and design/build: acceptance criteria exist, ambiguities resolved, PRD reviewed where one exists. Trivially satisfied for a quick fix.
+The gate between requirements and design/build: acceptance criteria exist, ambiguities resolved, intent.md reviewed where one exists. Trivially satisfied for a quick fix.
 
 **Also:** DoR
 
@@ -260,7 +260,7 @@ A recorded, typed artifact that clears a gate: a test run, a review, a sign-off.
 
 ### feature
 
-A self-contained change with its own acceptance criteria that does not warrant a full PRD. Unqualified "feature" always means this issue type.
+A self-contained change with its own acceptance criteria that does not warrant a full intent document. Unqualified "feature" always means this issue type.
 
 **Not:** A feature file (the Gherkin artifact) - always say 'feature file'.
 
@@ -314,7 +314,7 @@ The intake that triggers a hotfix: what broke in production, impact, severity. S
 
 ### initiative
 
-A body of work significant enough to need a PRD, delivered across multiple milestones. Owns the PRD, the design, the first-slice (80/20) decision, and the rollout strategy.
+A body of work significant enough to need an intent document, delivered across multiple milestones. Owns intent.md, the technical design, the first-slice (80/20) decision, and the rollout strategy.
 
 **Not:** An epic - that word is dropped; one word per concept.
 
@@ -360,7 +360,7 @@ A plain-word tag on an issue carrying classification and risk surface. Local-fir
 
 ### label-rule
 
-The deterministic consequence of a label, declared in policy: security/payments/personal-data/migration require a security review; user-facing requires a rollout plan; breaking-change requires human sign-off; ops-surface requires the operability section. Triage suggests labels, the human confirms; the rules then apply mechanically.
+The deterministic consequence of a label, declared in policy: security/payments/personal-data/migration require a security review; user-facing requires a rollout plan; breaking-change requires human sign-off; ops-surface requires the operability section. Assess suggests labels, the human confirms; the rules then apply mechanically.
 
 **Related:** `label`, `quality-gate`
 
@@ -428,7 +428,7 @@ The per-issue proof summary rendered from the spine and the evidence registry: t
 
 ### requirements-review
 
-The review pass that hardens requirements before design or build: ambiguities resolved into recorded decisions, contradictions and gaps closed, the PRD reviewed where one exists. Satisfying it is what makes an issue ready. v1 called this "Clarify".
+The review pass that hardens requirements before design or build: ambiguities resolved into recorded decisions, contradictions and gaps closed, intent.md reviewed where one exists. Satisfying it is # vocabulary-scan: allow - a note recording what v1 called this, which # is what someone reading an old record needs to look it up. what makes an issue ready. v1 called this "Clarify".
 
 **Related:** `intent`, `definition-of-ready`, `acceptance-criteria`
 
@@ -464,7 +464,7 @@ The atomic unit of acceptance: one behaviour, one Given/When/Then, one executabl
 
 ### ship
 
-Merging and releasing the change: the PR lands, follow-ups are recorded, the derived system spec accretes. v1 called this "Land".
+Merging and releasing the change: the PR lands, follow-ups are # vocabulary-scan: allow - a note recording what v1 called this. recorded, the derived system spec accretes. v1 called this "Land".
 
 **Related:** `pr`, `rollout-plan`
 
