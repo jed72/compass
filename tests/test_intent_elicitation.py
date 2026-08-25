@@ -238,3 +238,105 @@ def test_ing_b2b_the_skill_steps_aside_when_intake_already_exists():
     assert "step aside" in text or "steps aside" in text, (
         "the skill does not say it steps aside when the source already "
         "carries what the template asks for")
+
+
+# ---------------------------------------------------------------------------
+# ING-C2 - the reshaping is auditable
+# ---------------------------------------------------------------------------
+
+def test_ing_c2_the_record_shows_which_parts_came_from_the_conversation(tmp_path):
+    """ING-C2: a reader can tell source material from answered material.
+
+    Because the content was rewritten, the source's hash no longer proves
+    anything about the output. What makes a reshaped document trustworthy is
+    the record of what was asked and what was answered - so the record has to
+    be readable as an answer to "where did this sentence come from?", not just
+    present.
+    """
+    from compass_pkg.ingest import describe_intent_origins
+
+    work = _issue(
+        tmp_path,
+        sections=[{"name": "problem", "from": "source"},
+                  {"name": "non-goals", "from": "answer", "answer_id": "Q1"},
+                  {"name": "success signals", "from": "unanswered",
+                   "answer_id": "Q2"}],
+        elicitation=[{"id": "Q1", "question": "What is deliberately out?",
+                      "answer": "Rebuilding the index."},
+                     {"id": "Q2", "question": "How will you know it worked?",
+                      "answer": None}],
+        intent_body="## Problem\n\nSearch is slow.\n\n## Non-goals\n\n"
+                    "Rebuilding the index.\n\n## Success signals\n\n"
+                    "Asked, and not supplied.\n")
+
+    report = describe_intent_origins(str(work))
+
+    assert "problem" in report and "the source" in report
+    assert "Q1" in report and "What is deliberately out?" in report, (
+        "the question that produced a section is not in the report, so a "
+        "reader cannot see where the material came from:\n" + report)
+    assert "Rebuilding the index." in report, (
+        "the ANSWER is not in the report - the question alone does not show "
+        "what was contributed:\n" + report)
+    assert "Q2" in report and "not supplied" in report.lower(), (
+        "a declined question is missing, so the report reads as though it was "
+        "never asked:\n" + report)
+
+
+def test_ing_c2b_the_report_says_when_there_is_nothing_to_audit(tmp_path):
+    """An authored intent.md is not a failure, and must not read as one.
+
+    Most issues have no ingested brief at all. A report that renders an empty
+    table for them trains a reader to skip it.
+    """
+    from compass_pkg.ingest import describe_intent_origins
+
+    work = tmp_path / ".compass" / "work" / "demo"
+    work.mkdir(parents=True)
+    (work / "task.yml").write_text(
+        'schema_version: "2.0"\ntask: demo\ncreated: "2026-08-25"\n')
+    (work / "intent.md").write_text("## Problem\n\nWritten here.\n")
+
+    report = describe_intent_origins(str(work))
+    assert "authored" in report.lower(), report
+    assert "|" not in report, "an empty audit table was rendered anyway"
+
+
+def test_ing_e1_the_report_never_claims_compass_supplied_material_is_vouched(tmp_path):
+    """ING-E1: the gate reports origin, and cannot report a pass on invention.
+
+    The structural guarantee, asserted rather than trusted: `ORIGINS` has no
+    value meaning "Compass wrote it", so there is no state the report could
+    describe as vouched-for-but-unsourced. If a later change adds one, this
+    fails - which is the point, because that change is exactly the one that
+    would quietly undo ING-B3.
+    """
+    from compass_pkg.ingest import ORIGINS
+
+    assert set(ORIGINS) == {"source", "answer", "unanswered"}, (
+        "the set of origins changed. Every one must be a HUMAN origin - if a "
+        "value meaning 'Compass wrote it' has been added, the invention rule "
+        "no longer holds and the fidelity gate would be vouching for material "
+        "nobody supplied. Got: %s" % (ORIGINS,))
+
+
+def test_ing_c2c_an_answered_question_no_section_uses_is_surfaced(tmp_path):
+    """A contribution that did not reach the document must be visible.
+
+    The quiet loss: someone was asked, they answered, and the answer never
+    landed in a section. Reporting only that the question was asked hides what
+    went missing - and the person who supplied it will assume it is in there.
+    """
+    from compass_pkg.ingest import describe_intent_origins
+
+    work = _issue(
+        tmp_path,
+        sections=[{"name": "problem", "from": "source"}],
+        elicitation=[{"id": "Q7", "question": "Which slice ships first?",
+                      "answer": "Latency only."}],
+        intent_body="## Problem\n\nSearch is slow.\n")
+
+    report = describe_intent_origins(str(work))
+    assert "Q7" in report and "Latency only." in report, (
+        "an answered question that no section uses is not surfaced with its "
+        "answer, so the reader cannot see what was lost:\n" + report)

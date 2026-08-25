@@ -450,3 +450,96 @@ def validate_intent_origins(task_dir):
     if problems:
         return False, "; ".join(problems)
     return True, "every section of intent.md traces to the source or an answer"
+
+
+def describe_intent_origins(task_dir):
+    """Where each part of intent.md came from, as prose a person reads.
+
+    `validate_intent_origins` answers "does it trace?" for a check.
+    This answers "where did this sentence come from?" for a reviewer, which is
+    the question the fidelity gate actually needs.
+
+    THE GATE CANNOT VOUCH FOR MATERIAL NOBODY SUPPLIED, and that is structural
+    rather than careful: `ORIGINS` has no value meaning "Compass wrote it", so
+    there is no state this could describe as sourced-but-unattributed. Every
+    row names a human - the person who wrote the brief, or the person who
+    answered the question.
+    """
+    from compass_pkg.core import load_task
+
+    task, _path = load_task(task_dir)
+    record = task.get("intent_source") or {}
+    if not record:
+        return ("intent.md was authored in this issue rather than ingested "
+                "from an existing brief, so there is no source to attribute "
+                "it to. Nothing to audit.")
+
+    answers = {str(e.get("id")): e for e in (record.get("elicitation") or [])
+               if isinstance(e, dict) and e.get("id")}
+
+    lines = [
+        "intent.md was ingested from %s on %s."
+        % (record.get("origin", "an unrecorded source"),
+           str(record.get("ingested_at", "an unrecorded date"))[:10]),
+        "",
+        "The snapshot of what arrived is %s; it is never edited, so this "
+        "document can be read beside it." % (record.get("snapshot")
+                                             or SNAPSHOT_NAME),
+        "",
+        "| Section | Came from | Detail |",
+        "|---|---|---|",
+    ]
+
+    for entry in record.get("sections") or []:
+        if not isinstance(entry, dict) or not entry.get("name"):
+            continue
+        name = str(entry["name"])
+        origin = str(entry.get("from") or "").strip().lower()
+        answer = answers.get(str(entry.get("answer_id") or ""))
+
+        if origin == "source":
+            lines.append("| %s | the source | reshaped from the brief as "
+                         "written |" % name)
+        elif origin == "answer" and answer:
+            lines.append("| %s | a question asked at ingest (%s) | %s -> %s |"
+                         % (name, answer.get("id"),
+                            _one_line(answer.get("question")),
+                            _one_line(answer.get("answer"))))
+        elif origin == "unanswered" and answer:
+            lines.append("| %s | asked, and not supplied (%s) | %s -> declined "
+                         "|" % (name, answer.get("id"),
+                                _one_line(answer.get("question"))))
+        else:
+            lines.append("| %s | UNATTRIBUTED | %s |"
+                         % (name, "no usable origin is recorded - "
+                                  "`compass check` refuses this"))
+
+    unused = [a for a in answers.values()
+              if not any(str(e.get("answer_id")) == str(a.get("id"))
+                         for e in (record.get("sections") or [])
+                         if isinstance(e, dict))]
+    if unused:
+        # An ANSWERED question that no section cites is the notable one: a
+        # person was asked, they told Compass something, and it did not reach
+        # the document. That is a quiet loss, and the person who supplied it
+        # will assume it is in there - so the answer is shown, not just the
+        # fact that something is missing.
+        lines += ["", "Asked, and not used in any section:"]
+        for a in unused:
+            if a.get("answer") in (None, ""):
+                lines.append("- %s: %s -> declined"
+                             % (a.get("id"), _one_line(a.get("question"))))
+            else:
+                lines.append(
+                    "- %s: %s -> ANSWERED \"%s\", and no section uses it"
+                    % (a.get("id"), _one_line(a.get("question")),
+                       _one_line(a.get("answer"))))
+
+    return "\n".join(lines)
+
+
+def _one_line(value):
+    """A question or answer, flattened for a table cell."""
+    if value in (None, ""):
+        return "not supplied"
+    return " ".join(str(value).split())
