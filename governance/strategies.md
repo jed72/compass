@@ -439,8 +439,9 @@ one step removed, and a summary can be checked in good faith while the claim
 it summarises has already changed meaning. ADR-013's Context once described
 an install failure in the past tense, with a specific timing figure
 attached - reading as a report of a real outside user, which this
-repository has never had. It was verified against `design.md`, the document
-it was lifted from, which put the same point in the present tense as a
+repository has never had. It was verified against `.compass/work/plain-language-3-2-0/design.md`,
+the document it was lifted from (written before the artifact was renamed to
+`technical-design.md`), which put the same point in the present tense as a
 description of what any newcomer meets - not against the primary record for
 whether this happened to a real person, which does not exist, because it did
 not happen. Fresh eyes stop helping the moment fresh eyes reach for the same
@@ -777,7 +778,7 @@ is yours.
 
 ## How strategies are used
 
-- **Triage** reads routing strategies (`routing-policy.md`) to pick a
+- **Assess** reads routing strategies (`routing-policy.md`) to pick a
   default route shape at triage.
 - **The `reviewer` agent** assesses, at Verify, whether the work followed the
   applicable strategies - and reports that as *judgement*, clearly distinct

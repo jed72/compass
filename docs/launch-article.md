@@ -204,7 +204,7 @@ can add it as a plugin:
 /plugin install compass@compass
 ```
 
-Then start with `/compass:triage "..."`. There is nothing else to install -
+Then start with `/compass:assess "..."`. There is nothing else to install -
 the plugin carries what it needs - and the defaults work out of the box, so
 there's nothing to set up first. It's early, so point it at a branch you don't mind
 burning.

@@ -11,10 +11,17 @@ These are static content-assertion tests. Invisible triggering is prompt-only
 
 Manual-verification note (TRC-C1 / TRC-C3 behaviour at runtime):
   These tests verify the static content that produces the agent behaviour.
-  The runtime behaviour (agent actually calling /compass:triage on natural-
+  The runtime behaviour (agent actually calling /compass:assess on natural-
   language intent) requires a live agent session; that is recorded as
   manual-review evidence in task.yml (EV-MANUAL-C1, EV-MANUAL-C3).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 from pathlib import Path
@@ -35,8 +42,8 @@ AGENTS = {
 DD6_HEADING = "**Trigger triage on intent, not just the literal command.**"
 DD6_CONTENT = (
     "When the user describes intent to build, change, or fix code"
-    " - even if they do not type `/compass:triage` - "
-    "invoke `/compass:triage` before any artifact-changing tool call."
+    " - even if they do not type `/compass:assess` - "
+    "invoke `/compass:assess` before any artifact-changing tool call."
 )
 
 # The existing paragraph that must remain untouched (additive-only check)
@@ -45,10 +52,10 @@ EXISTING_PARAGRAPH = "**Never skip triage.**"
 # The phrase that must NOT appear as a re-frame trigger when a task is already
 # active (TRC-F3 guard: invisible triggering must not re-frame an active task)
 RE_FRAME_TRIGGER_PHRASES = [
-    "re-run /compass:triage",
+    "re-run /compass:assess",
     "re-frame the task",
-    "run /compass:triage again",
-    "invoke /compass:triage again",
+    "run /compass:assess again",
+    "invoke /compass:assess again",
 ]
 
 # Supporting sentence that must appear in each agent description

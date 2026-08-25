@@ -162,11 +162,23 @@ _PHASE_NAME_MAP = {
     "implement": "implement", "build": "implement",
     "verify": "verify",
     "ship": "ship", "land": "ship",
+    # The PROSE names, which are what the shipped template actually writes in
+    # its stage table and therefore what every real record on disk says. Only
+    # the one-word keys above were here, so five of the eight rows in a
+    # template-shaped record matched nothing and the coherence check compared
+    # three stages while reporting on all of them.
+    "define acceptance criteria": "define",
+    "acceptance criteria": "define",
+    "requirements review": "refine",
+    "technical design": "plan",
+    "break down the work": "breakdown",
+    "test & review": "verify",
+    "test and review": "verify",
 }
 
 
 def _parse_intent_ids_from_brief(brief_path: str) -> set:
-    """Extract intent ids from prd.md.
+    """Extract intent ids from intent.md.
 
     Scans for lines matching:
       <!-- intent: INT-xxx --> (explicit traceability comment)
@@ -263,19 +275,30 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
     in_phase_table = False
     for line in lines:
         stripped = line.strip()
-        # Detect phase table header: | Phase | Weight |
-        if _re.match(r'\|\s*Phase\s*\|\s*Weight', stripped, _re.IGNORECASE):
+        # BOTH header words. The template writes `| Stage | Weight | Notes |`
+        # and has since the v2 rename of `phases:` to `stages:`; this matched
+        # only `Phase`, so it found no table at all in a record written from
+        # the shipped template - and an empty weight map reads downstream as
+        # "nothing disagreed" rather than "nothing was read".
+        if _re.match(r'\|\s*(?:Phase|Stage)\s*\|\s*Weight', stripped,
+                     _re.IGNORECASE):
             in_phase_table = True
             continue
         if in_phase_table:
             # separator row
             if _re.match(r'\|[-| ]+\|', stripped):
                 continue
-            # data row: | Clarify | full |
-            m = _re.match(r'\|\s*(\w[\w\s-]*?)\s*\|\s*(\S+)\s*\|', stripped)
+            # Data row: `| Requirements review | collapsed | ... |`. The name
+            # cell takes anything but a pipe, because the real names are
+            # phrases and one of them ("Test & review") carries an ampersand.
+            # The weight cell is read whole and then cut at the first comma or
+            # space, because records write "full, streams unbounded by policy"
+            # and the weight is the first word of it.
+            m = _re.match(r'\|\s*([A-Za-z][^|]*?)\s*\|\s*([^|]+?)\s*\|',
+                          stripped)
             if m:
                 phase = m.group(1).strip().lower()
-                weight = m.group(2).strip().lower()
+                weight = _re.split(r'[,\s]', m.group(2).strip().lower(), 1)[0]
                 # Through the name map, so a prose record written months ago
                 # meets the spine it describes. Without this the parser returns
                 # `distribute` while the normalised spine holds `breakdown`,
@@ -318,7 +341,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     writes the evidence record.
 
     Finding types (Inv-7):
-      orphaned-intent    - scenario links to an intent not in prd.md
+      orphaned-intent    - scenario links to an intent not in intent.md
       route-disagreement - delivery-approach.md phase weight differs from task.yml phases
       orphan-claim       - positioning.md claim has no backing scenario
       missing-artifact   - a required artifact is absent (route-aware)
@@ -342,7 +365,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     has_analyze_gate = "verify.analyze" in gate_ids
 
     # --- No artifacts to analyze (Inv-8) ------------------------------------
-    brief_path = artifact_path(task_dir, "prd.md")
+    brief_path = artifact_path(task_dir, "intent.md")
     spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     route_md_path = artifact_path(task_dir, "delivery-approach.md")
     positioning_path = os.path.join(task_dir, "positioning.md")
@@ -372,9 +395,9 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     if specify_weight in _SPECIFY_FULL_WEIGHTS and not has_brief:
         findings.append({
             "type": "missing-artifact",
-            "subject": "prd.md",
+            "subject": "intent.md",
             "detail": (
-                f"prd.md is absent but the define stage is '{specify_weight}' - "
+                f"intent.md is absent but the define stage is '{specify_weight}' - "
                 f"a full-weight define stage requires a brief."
             ),
         })
@@ -397,7 +420,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                     "subject": scn_id,
                     "detail": (
                         f"scenario '{scn_id}' links to intent '{intent_id}' which "
-                        f"does not appear in prd.md (declared intents: "
+                        f"does not appear in intent.md (declared intents: "
                         f"{sorted(declared_intents)})"
                     ),
                 })
@@ -418,7 +441,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                             "detail": (
                                 f"acceptance-criteria.md: scenario '{scn_id}' links to "
                                 f"intent '{intent_id}' which does not appear in "
-                                f"prd.md (declared intents: {sorted(declared_intents)})"
+                                f"intent.md (declared intents: {sorted(declared_intents)})"
                             ),
                         })
 
@@ -600,7 +623,7 @@ def cmd_analyze(args):
     # Inv-8: no artifacts → exit 0 with informational message
     if no_artifacts:
         print(f"compass analyze: no artifacts to analyze for issue '{task_slug}'.")
-        print("  (no prd.md and no acceptance-criteria.md found - bare-repo path)")
+        print("  (no intent.md and no acceptance-criteria.md found - bare-repo path)")
         return 0
 
     # A REPORT: every finding is listed, and the summary says how many there

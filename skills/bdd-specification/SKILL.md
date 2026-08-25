@@ -222,7 +222,7 @@ how much.
 - **Feature** - a small scenario set: the happy path, the realistic edges,
   and the failure modes that actually matter. Not every conceivable edge -
   the ones with real consequence.
-- **Initiative** - full discovery. Work the PRD and the problem space for
+- **Initiative** - full discovery. Work `intent.md` and the problem space for
   the whole behaviour set. Then **group the scenarios by independence** - disjoint
   code, disjoint scenarios - because that grouping is what seeds the
   distribution map the Planner builds.

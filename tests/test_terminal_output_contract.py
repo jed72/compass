@@ -15,6 +15,13 @@ Measured before any threshold here was written, on 2026-08-23:
 Scenario ids trace to
 .compass/work/the-terminal-output-contract/acceptance-criteria.md.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import json
@@ -172,7 +179,7 @@ def test_trc_c2_quiet_prints_nothing_on_success():
     from compass_pkg.terminal import Emitter
 
     e = Emitter(mode="quiet")
-    e.hand_off(outcome="the policy was applied", read="design.md")
+    e.hand_off(outcome="the policy was applied", read="technical-design.md")
     assert e.rendered() == "", (
         "--quiet printed on a plain success:\n" + e.rendered())
 
@@ -309,13 +316,13 @@ def test_trc_a2_hand_off_states_outcome_artifact_and_reply():
 
     e = Emitter(mode="summary")
     e.hand_off(outcome="design ready for review",
-               read=".compass/work/x/design.md",
+               read=".compass/work/x/technical-design.md",
                reply="approve | request changes | ask a question")
     lines = e.rendered().splitlines()
     assert "design ready for review" in lines[0], (
         "the first line does not state the outcome:\n" + lines[0])
     body = "\n".join(lines)
-    assert ".compass/work/x/design.md" in body, "the artifact to read is missing"
+    assert ".compass/work/x/technical-design.md" in body, "the artifact to read is missing"
     assert "approve" in body, "the reply being asked for is missing"
 
 
@@ -385,7 +392,7 @@ def test_trc_a1_and_a5_a_hand_off_fits_one_screen_and_is_not_widened():
     """
     from compass_pkg.terminal import Emitter
 
-    long_path = ".compass/work/" + "a-long-directory-name/" * 8 + "design.md"
+    long_path = ".compass/work/" + "a-long-directory-name/" * 8 + "technical-design.md"
     e = Emitter(mode="summary")
     e.hand_off(outcome="x" * 300, read=long_path,
                items=["z" * 300] * 5, concerns=["w" * 300] * 5,

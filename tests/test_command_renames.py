@@ -18,19 +18,28 @@ import yaml
 REPO_ROOT = Path(__file__).parent.parent
 COMMANDS = REPO_ROOT / "commands"
 
+# Updated 2026-08-25 by `the-vocabulary-rename`: `triage` -> `assess`, the
+# planning stage's command -> `plan`, and `design` back to the designer, whose
+# command it was before `wireframe`.
 V2_COMMANDS = {
-    "triage", "define", "refine", "design", "breakdown", "implement",
-    "verify", "ship", "wireframe", "intent", "position", "roundtable",
+    "assess", "define", "refine", "plan", "breakdown", "implement",
+    "verify", "ship", "design", "intent", "position", "roundtable",
     "status", "flow", "resume", "init",
 }
 
 # Retired name -> its v2 replacement. Each remains on disk as a redirect
 # stub so an adopter's muscle memory gets a pointer, not a dead command.
+# NOTE `plan` is absent, and `frame` points at the FINAL name. `plan` was a
+# retired v1 command and is live again - ADR-014 removes retired names, it does
+# not reserve them - and `frame`'s replacement is `assess`, because `triage`
+# is itself retired now. A stub naming a retired replacement sends a reader to
+# a word they must rename again.
 STUBS = {
-    "frame": "triage",
+    "frame": "assess",
+    "triage": "assess",
     "specify": "define",
     "clarify": "refine",
-    "plan": "design",
+    "wireframe": "design",
     "distribute": "breakdown",
     "build": "implement",
     "land": "ship",
@@ -38,7 +47,7 @@ STUBS = {
 
 INLINE_CODE = re.compile(r"`[^`]*`")
 DEAD_NAME = re.compile(
-    r"/compass:(?:frame|specify|clarify|plan|distribute|build|land)\b")
+    r"/compass:(?:frame|triage|specify|clarify|wireframe|distribute|build|land)\b")
 
 
 def test_the_command_set_carries_the_v2_names():
@@ -137,8 +146,8 @@ def test_no_live_surface_points_at_a_dead_command_name():
 
 def test_the_ruling_conditions_hold():
     """TRC-6: define's one-line description leads with 'Acceptance criteria';
-    wireframe's says it produces the UI contract; and the UI-contract
-    template's producer line points at /compass:wireframe."""
+    design's says it produces the UI contract; and the UI-contract
+    template's producer line points at /compass:design."""
     def description(name: str) -> str:
         text = (COMMANDS / f"{name}.md").read_text(encoding="utf-8")
         m = re.search(r"^description:\s*(.+)$", text, re.M)
@@ -148,10 +157,10 @@ def test_the_ruling_conditions_hold():
     assert description("define").startswith("Acceptance criteria"), (
         "define's description must lead with 'Acceptance criteria' - the "
         "bare verb is the vaguest in the set")
-    assert "UI contract" in description("wireframe"), (
+    assert "UI contract" in description("design"), (
         "wireframe's description must state it produces the UI contract")
-    assert "/compass:wireframe" in (
+    assert "/compass:design" in (
         REPO_ROOT / "templates" / "ui-contract.md").read_text(
         encoding="utf-8"), (
         "templates/ui-contract.md's producer line must point at "
-        "/compass:wireframe")
+        "/compass:design")

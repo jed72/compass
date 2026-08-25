@@ -10,6 +10,13 @@ derivation must read both generations in the meantime.
 Docstrings cite the acceptance criteria by TRC id; the criteria live in the
 issue's archived spec, indexed in its `task.yml`.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import sys
@@ -22,11 +29,11 @@ sys.path.insert(0, str(REPO_ROOT / "cli"))
 # distribution-map.md, positioning.md, launch-readiness.md, ui-contract.md,
 # and devlog.md keep their names - they are already plain English.
 V2_TO_V1 = {
-    "prd.md": "brief.md",
+    "intent.md": "brief.md",
     "acceptance-criteria.md": "spec.feature.md",
     "delivery-approach.md": "route.md",
     "requirements-review.md": "clarifications.md",
-    "design.md": "plan.md",
+    "technical-design.md": "plan.md",
 }
 NEW_INTAKE_TEMPLATES = {"bug-report.md", "incident.md"}
 
@@ -52,9 +59,9 @@ def test_artifact_path_resolves_v2_names_only(tmp_path):
     d = tmp_path / "issue"
     d.mkdir()
     (d / "brief.md").write_text("v1")
-    (d / "prd.md").write_text("v2")
-    resolved = Path(core.artifact_path(str(d), "prd.md"))
-    assert resolved.name == "prd.md" and resolved.read_text() == "v2"
+    (d / "intent.md").write_text("v2")
+    resolved = Path(core.artifact_path(str(d), "intent.md"))
+    assert resolved.name == "intent.md" and resolved.read_text() == "v2"
 
 
 def test_migration_renames_a_v1_issue_directory(tmp_path):

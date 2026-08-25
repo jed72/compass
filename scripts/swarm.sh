@@ -63,7 +63,7 @@ CONFIG="$PROJECT_DIR/.compass/config.yml"
 
 [ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for issue '$TASK_SLUG' - the design stage must produce it first." >&2; exit 1; }
 [ -f "$ROUTE" ] || { echo "swarm.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
-[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:triage." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:assess." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
 # Minimal YAML reads - these keys are simple scalars in .compass/config.yml.

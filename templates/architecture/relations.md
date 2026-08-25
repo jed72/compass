@@ -1,7 +1,7 @@
 # Service Relations
 
 <!-- HOW TRIAGE USES THIS FILE
-     Triage reads this file and includes it in architecture-loaded.yml as a
+     Assess reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The `architect-lens` agent reads it to determine
      which labels in the issue spine map to known service names, so it
      knows when to fire automatically as acceptance criteria are defined

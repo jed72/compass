@@ -96,7 +96,9 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.check_cmd import CHECK_FNS
-from compass_pkg.core import CompassError, FRAMEWORK_ROOT, load_task, load_yaml, normalize_spine, resolve_task_dir
+from compass_pkg.core import (CompassError, FRAMEWORK_ROOT, artifact_path,
+                              load_task, load_yaml, normalize_spine,
+                              resolve_task_dir)
 
 
 
@@ -375,22 +377,62 @@ def _plan_lint_findings(text):
     return sorted(set(findings))
 
 
+def _plan_stage_weight(task_slug):
+    """What this issue's approach says the plan stage weighs, or None.
+
+    Read so the lint can check its own explanation for a missing design
+    against the record, instead of offering a reason that may not apply.
+    Returns None when the spine cannot be read - an unreadable record is not
+    evidence that the stage collapsed.
+    """
+    try:
+        task, _path = load_task(resolve_task_dir(task_slug))
+    except CompassError:
+        return None
+    stages = task.get("stages") or {}
+    if not isinstance(stages, dict):
+        return None
+    weight = stages.get("plan")
+    return str(weight).strip().lower() if weight else None
+
+
 def cmd_plan_lint(args):
-    # The default path is the LIVE artifact name. It was left at the retired
-    # `plan.md` when the artifact was renamed, so the command reported "no such
-    # file" on every issue that had a design - while the advice underneath
-    # named `design.md`, a file the command had never looked for.
+    # The default path goes through `artifact_path`, which knows both the name
+    # this framework writes today and the one a landed issue still holds. This
+    # function joined the filename itself, and got it wrong twice: first left
+    # at `plan.md` after the artifact became `design.md`, then moved to
+    # `technical-design.md` with no fallback, which broke it on every issue
+    # that landed holding `design.md`. Every other artifact reader in the CLI
+    # goes through the resolver; this one now does too.
+    if getattr(args, "retired_verb", None):
+        print("compass %s lint: this verb is now `compass plan lint` - the "
+              "planning stage took the name its machine key already used, and "
+              "`design` is the designer's stage. `%s` keeps working until the "
+              "next major version."
+              % (args.retired_verb, args.retired_verb), file=sys.stderr)
+
     if args.file:
         path = args.file
     else:
         task_dir = resolve_task_dir(args.task)
-        path = os.path.join(task_dir, "design.md")
+        path = artifact_path(task_dir, "technical-design.md")
 
     if not os.path.isfile(path):
-        print(f"compass design lint: ERROR - no such file: {path}")
-        print("  The design stage collapses on quick-fix, hotfix and spike "
-              "approaches, so an issue on one of those has no design.md to "
-              "lint.")
+        print(f"compass plan lint: ERROR - no such file: {path}")
+        # Say why it might legitimately be absent AND check that reason against
+        # the record, rather than explaining away an absence the approach says
+        # should not happen.
+        weight = _plan_stage_weight(getattr(args, "task", None))
+        if weight in ("collapsed", "skipped"):
+            print("  This issue's approach records the plan stage as %s, so it "
+                  "has no technical-design.md to lint." % weight)
+        elif weight:
+            print("  This issue's approach records the plan stage as %s, so a "
+                  "technical-design.md is expected and is missing." % weight)
+        else:
+            print("  The plan stage collapses on quick-fix, hotfix and spike "
+                  "approaches, so an issue on one of those has no "
+                  "technical-design.md to lint.")
         return 2
 
     with open(path, encoding="utf-8") as fh:

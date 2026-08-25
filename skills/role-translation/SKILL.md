@@ -23,11 +23,11 @@ substrate; the roles are how each role uses it.
 ## The five roles
 
 ### Product owner / manager - the **intent** perspective
-Reads each scenario asking: *does this deliver the outcome in `prd.md`?*
+Reads each scenario asking: *does this deliver the outcome in `intent.md`?*
 - Walks every success signal in the brief and finds the scenario that delivers
   it. A signal with no scenario is a gap; a scenario that solves the literal
   request but misses the outcome is drift.
-- Enters *upstream* of the spec - `prd.md` exists before the scenarios - and
+- Enters *upstream* of the spec - `intent.md` exists before the scenarios - and
   gates Plan: per the routing policy's blocking `role_rules`, the spec must be
   checked against the brief before Plan starts. Applied by the `product-lens`
   agent.
@@ -96,7 +96,7 @@ A role is not a consultation; it is an entry point that *changes the route*.
 When `/compass:intent`, `/compass:position`, or `/compass:design` opens a
 session - or `/compass:roundtable` convenes several - triage reads the role
 as the fourth dimension. A non-engineering role almost always pulls the route
-heavier: it adds artifacts (`prd.md`, `positioning.md`, `ui-contract.md`) and
+heavier: it adds artifacts (`intent.md`, `positioning.md`, `ui-contract.md`) and
 gates (the intent check, the claims gate). That weight is the framework working
 as designed, not overhead to trim.
 

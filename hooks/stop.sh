@@ -113,7 +113,7 @@ for TASK_DIR in "$WORK_DIR"/*/; do
     # just be an empty scaffold; but if anything else is in it, work started
     # without triage.
     if [ -n "$(ls -A "$TASK_DIR" 2>/dev/null)" ]; then
-      WARNINGS+=("[$SLUG] the delivery-approach record is MISSING but the issue has artifacts - work started without triage. Run /compass:triage.")
+      WARNINGS+=("[$SLUG] the delivery-approach record is MISSING but the issue has artifacts - work started without triage. Run /compass:assess.")
     fi
     continue
   fi
@@ -329,7 +329,7 @@ PYEOF
       done
       echo ""
       echo "  If the scope grew during Build, file a reframe now:"
-      echo "    /compass:triage --reassess --reason \"<what changed and why>\""
+      echo "    /compass:assess --reassess --reason \"<what changed and why>\""
       echo ""
       echo "  This preserves the calibration signal (compass retro)."
       echo "  The nudge is non-blocking - the session ends regardless."

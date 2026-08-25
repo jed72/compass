@@ -64,6 +64,45 @@ MAX_REPORTED = 40
 # pattern catches the banned sense and tolerates the ordinary one.
 # ---------------------------------------------------------------------------
 BAN_PATTERNS: dict[str, list[re.Pattern]] = {
+    # The v1 assess stage's own retired name, banned in its turn. `triage` as
+    # an ordinary verb - sorting BETWEEN things by urgency, which is what
+    # `compass flow` does - stays legal; the stage name and command do not.
+    "Triage": [
+        re.compile(r"/compass:triage\b"),
+        # Capitalised, anywhere. Five narrower shapes stood here until
+        # 2026-08-25 - `Triage phase|stage`, the two arrow forms, a heading,
+        # and `during|at|before Triage` - and between them they caught NONE of
+        # the 57 live occurrences across 30 shipped files, because the tree
+        # writes it in table cells (`| Triage |`) and ordinary sentences
+        # ("Triage reads the four dimensions"). This one pattern subsumes all
+        # five and catches those: capital-T Triage is always the stage name.
+        #
+        # LOWERCASE `triage` IS NOT BANNED HERE. The ordinary verb - sorting
+        # BETWEEN cases by urgency, which is what `compass flow` does - stays
+        # legal, and the tree also still uses lowercase `triage` for the stage
+        # in roughly 200 places. Separating those two senses needs reading, not
+        # a regex; it is its own issue rather than a silent widening here.
+        re.compile(r"\bTriage\b"),
+    ],
+    # The designer's command, which went back to /compass:design.
+    "Wireframe": [
+        re.compile(r"/compass:wireframe\b"),
+        re.compile(r"\bWireframe\s+(?:phase|stage|command)\b"),
+        re.compile(r"^#+\s+Wireframe\b", re.M),
+    ],
+    # The intake document. `prd.md` is the filename; "product requirements" as
+    # ordinary prose stays legal.
+    "PRD / prd.md": [
+        re.compile(r"\bprd\.md\b"),
+        re.compile(r"\btemplates/prd\b"),
+        # The bare acronym, which the two patterns above never touched - so
+        # 24 live occurrences survived, including `commands/intent.md`'s own
+        # description line, the sentence a user reads in the slash-command
+        # menu, which said the command captures intent "as a PRD" while
+        # writing intent.md. Naming the document. "Product requirements" as
+        # ordinary prose is still fine.
+        re.compile(r"\bPRD\b"),
+    ],
     # The v1 triage phase and its agent, as names and command. Ordinary
     # lowercase "frame" (the verb) stays legal.
     "Frame / the Needle": [
@@ -72,7 +111,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bthe\s+Needle\b"),
         re.compile(r"\bFrame\s*(?:→|->)"),
         re.compile(r"(?:→|->)\s*Frame\b"),
-        re.compile(r"^#+\s+Frame\b"),
+        re.compile(r"^#+\s+Frame\b", re.M),
         # Tuned at the skills-prose review: the capitalised stage name
         # after a preposition ("during Frame,") is stage-name usage the
         # suffix forms above miss; lowercase "frame the problem" stays
@@ -146,7 +185,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\s+phase\b"),
         re.compile(r"(?:→|->)\s*(?:Specify|Clarify|Distribute|Land)\b"),
         re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\s*(?:→|->)"),
-        re.compile(r"^#+\s+(?:Specify|Clarify|Distribute|Land)\b"),
+        re.compile(r"^#+\s+(?:Specify|Clarify|Distribute|Land)\b", re.M),
         # Tuned at the skills-prose review: the capitalised stage name
         # after a preposition or conjunction ("at Land", "and Land",
         # "during Specify") is stage-name usage the suffix forms miss;
@@ -727,6 +766,32 @@ def test_banned_usage_in_fixture_is_flagged():
         assert re.match(r"^tests/fixtures/terminology/banned_usage\.md:\d+: ", hit), (
             f"hit does not lead with file:line: {hit}"
         )
+
+
+def test_every_ban_pattern_catches_something_in_the_fixture():
+    """Every individual pattern is exercised, not just every ban.
+
+    The check above asks whether each BAN fires on the fixture. A ban with six
+    patterns passes it when one of them fires, so the other five can be dead -
+    a regex that has never matched anything and never will. Ten were, when
+    this was written, including `during|at|before Triage`, which is
+    case-sensitive against a fixture line that says "During Triage".
+
+    That is the "check that cannot fail" shape: it reads as coverage and
+    verifies nothing. `governance/strategies.md` S10 - a guard is accepted on
+    a demonstrated failure, not on a passing test - and a pattern that has
+    never matched has never demonstrated one.
+    """
+    text = FIXTURE_BANNED.read_text(encoding="utf-8")
+    dead = [(term, pattern.pattern)
+            for term, patterns in BAN_PATTERNS.items()
+            for pattern in patterns
+            if not pattern.search(text)]
+    assert not dead, (
+        "these patterns match nothing in tests/fixtures/terminology/"
+        "banned_usage.md, so nothing proves they can fire. Plant the usage "
+        "each one is meant to catch, or delete the pattern:\n  "
+        + "\n  ".join("%s: %s" % (t, p) for t, p in dead))
 
 
 def test_innocent_usage_is_not_flagged():

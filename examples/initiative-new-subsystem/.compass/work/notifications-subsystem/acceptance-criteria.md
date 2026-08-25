@@ -1,11 +1,11 @@
 # Spec - notifications-subsystem
 
 > **Phase:** define · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
-> **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `prd.md`, not distilled from existing behaviour.
+> **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `intent.md`, not distilled from existing behaviour.
 
 ## How each role reads this file
 
-- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `prd.md`?
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `intent.md`?
 - **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
 - **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
 - **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
@@ -17,9 +17,9 @@
 
 | Intent id | Source | Statement |
 |---|---|---|
-| INT-1 | `prd.md` desired outcome | A user is reliably told about events that affect them, in-app, within seconds. |
-| INT-2 | `prd.md` constraint | Notifications are durable - a worker restart or brief outage does not lose one a user should have received. |
-| INT-3 | `prd.md` desired outcome | A user can tune what they hear about, with safe defaults, but cannot mute what they must not miss. |
+| INT-1 | `intent.md` desired outcome | A user is reliably told about events that affect them, in-app, within seconds. |
+| INT-2 | `intent.md` constraint | Notifications are durable - a worker restart or brief outage does not lose one a user should have received. |
+| INT-3 | `intent.md` desired outcome | A user can tune what they hear about, with safe defaults, but cannot mute what they must not miss. |
 
 ---
 

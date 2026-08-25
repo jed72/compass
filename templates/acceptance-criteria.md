@@ -60,7 +60,7 @@ today. If nothing observable changes, say so plainly and explain what does.}}
 <!-- Do not edit this block - it is the same on every spec. It is here so
      any role opening the file knows it is theirs too. -->
 
-- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `prd.md`?
+- **Product owner / manager** - reads for *intent fidelity*: do these scenarios deliver the outcome in `intent.md`?
 - **Product marketer** - reads for *claims*: every line of launch copy must point at a scenario id here.
 - **Engineer** - reads for *tests*: scenarios are the acceptance suite and seed the TDD red→green cycle.
 - **QA** - reads for *coverage*: which scenarios are exercised, which edges are not.
@@ -75,7 +75,7 @@ today. If nothing observable changes, say so plainly and explain what does.}}
 
 | Intent id | Source | Statement |
 |---|---|---|
-| INT-1 | {{prd.md desired outcome \| ui-contract.md \| the issue description}} | {{one line}} |
+| INT-1 | {{intent.md desired outcome \| ui-contract.md \| the issue description}} | {{one line}} |
 | INT-2 | {{…}} | {{…}} |
 
 ---

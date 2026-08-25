@@ -16,7 +16,7 @@ single scenario was certified unambiguous when it was defined), **collapsed
 on a hotfix** (the reproduction *is* the clarification), and **skipped on a
 spike** (there is nothing to QA - the behaviour is the unknown). If
 `delivery-approach.md` collapsed or skipped it, stop - say so, confirm the
-de-scope reason still holds, and point the user to `/compass:design`. Do not
+de-scope reason still holds, and point the user to `/compass:plan`. Do not
 re-add a stage the approach skipped, and do not skip one it kept.
 
 On a collapsed- or skipped-review approach the **Definition of Ready** is
@@ -46,7 +46,7 @@ it; do not quietly absorb it as your own work.
 What is left for you is everything the author could not settle alone:
 
 - **Contradictions** between scenarios that cannot both hold.
-- **Gaps** across the whole set - a stated outcome, or a `prd.md` success
+- **Gaps** across the whole set - a stated outcome, or a `intent.md` success
   signal, with no scenario.
 - **Governance conflicts** - a scenario that crosses a guardrail, or departs
   from an applicable strategy with no recorded reason.
@@ -65,7 +65,7 @@ is for. The same split is written from the other side in
 - Read `governance/` - the spec is QA'd against the guardrails and the
   applicable strategies here.
 - If a non-engineering role is in play, this is where they review: invoke
-  `product-lens` (intent fidelity against `prd.md`) and/or `marketing-lens`
+  `product-lens` (intent fidelity against `intent.md`) and/or `marketing-lens`
   (every planned claim has a candidate scenario).
 
 ## Procedure
@@ -85,7 +85,7 @@ is for. The same split is written from the other side in
 ## Reassessment trigger
 
 If the review reveals the spec is bigger or more ambiguous than the
-assessment assumed, **stop and re-assess** (`/compass:triage --reassess`) - do
+assessment assumed, **stop and re-assess** (`/compass:assess --reassess`) - do
 not push a feature-shaped process through an initiative-shaped problem.
 
 ## Hand-off
@@ -125,4 +125,4 @@ label-and-status row. See `skills/compass-runtime/writing-voice.md`.
 spec passes governance QA; and the **Definition of Ready** checklist at the
 foot of `requirements-review.md` is fully checked - that is the entry gate
 into design, and an unchecked box stops design from starting. Log to
-`devlog.md`. Next: `/compass:design`.
+`devlog.md`. Next: `/compass:plan`.

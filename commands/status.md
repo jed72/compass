@@ -97,7 +97,7 @@ Here the internals *are* the point. Report:
   rule that fired.
 - **Stage** - inferred from which artifacts exist: `delivery-approach.md`
   -> triaged; `acceptance-criteria.md` -> criteria defined;
-  `requirements-review.md` -> requirements reviewed; `design.md` ->
+  `requirements-review.md` -> requirements reviewed; `technical-design.md` ->
   designed; `distribution-map.md` -> broken down;
   `verification-report.md` -> verified. Cross-check the approach's
   de-scope ledger so a *collapsed* stage is not reported as *missing*.

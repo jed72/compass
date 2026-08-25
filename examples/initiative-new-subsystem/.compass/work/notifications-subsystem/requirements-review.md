@@ -22,7 +22,7 @@
   exactly why the delivery approach is initiative and why `G5` applies - but no *scenario*
   describes an irreversible action a user takes; the migration is
   infrastructure, signed off at ship.
-- No scenario pursues a `prd.md` non-goal: nothing here touches email/push/SMS,
+- No scenario pursues a `intent.md` non-goal: nothing here touches email/push/SMS,
   digests, or an admin console. Checked explicitly against the Non-goals list.
 - The "depth for existing users" product strategy is honoured - category-level
   preferences for the existing event types, not a broad new surface.
@@ -42,7 +42,7 @@
   small, fixed category is auditable. TRC-006's Given was tightened to "muted
   every category, including 'security'" to make the category model explicit.
 - **Decided by:** S. Voss (product owner), with R. Okafor (engineer).
-- **Governance reference:** `prd.md` Internal FAQ pre-mortem - the
+- **Governance reference:** `intent.md` Internal FAQ pre-mortem - the
   security-override risk; product strategy "make the safe path the easy path".
 - **Spec change:** TRC-006 Given edited.
 - **Status:** resolved
@@ -56,10 +56,10 @@
   non-goal), so there is no window to scope dedup to - once-ever is both
   simpler and correct for the v1 cut.
 - **Decided by:** R. Okafor (engineer).
-- **Governance reference:** `prd.md` Non-goals (no digest/batching);
+- **Governance reference:** `intent.md` Non-goals (no digest/batching);
   engineering strategy `S3` (simplest thing that works).
 - **Spec change:** no spec change - TRC-002 already says "exactly one"; this
-  records *how*, captured in `design.md` DD-2.
+  records *how*, captured in `technical-design.md` DD-2.
 - **Status:** resolved
 
 ### Q3 - "Within 5 seconds" (TRC-001) - is that a hard SLA or an illustrative bound?
@@ -81,25 +81,25 @@
 ## Gate
 
 - [x] No ambiguity left `open` - Q1, Q2, Q3 all resolved.
-- [x] `acceptance-criteria.md` updated to reflect every resolution (TRC-006 Given tightened; Q2/Q3 needed no scenario change, recorded here and in `design.md`).
+- [x] `acceptance-criteria.md` updated to reflect every resolution (TRC-006 Given tightened; Q2/Q3 needed no scenario change, recorded here and in `technical-design.md`).
 - [x] Non-engineering roles in play have reviewed - the product owner (S. Voss)
   reviewed at this phase, as initiative requires, and signed the intent-fidelity
-  check at the foot of `prd.md`.
+  check at the foot of `intent.md`.
 
 ### Definition of Ready
 
 - [x] **Problem traces up** - every scenario serves INT-1, INT-2, or INT-3, all
-      drawn from `prd.md`. The intent-fidelity check in `prd.md` confirms
+      drawn from `intent.md`. The intent-fidelity check in `intent.md` confirms
       every success signal maps to a scenario.
 - [x] **Behaviour is Given/When/Then** - all six scenarios have an observable
       `Then`; TRC-001's "5 seconds" was confirmed testable, not a wish (Q3).
 - [x] **Traceability ids assigned** - TRC-001…TRC-006, present in
       `acceptance-criteria.md` and `task.yml`.
-- [x] **Affected surface named** - `delivery-approach.md` and the upcoming `design.md` /
+- [x] **Affected surface named** - `delivery-approach.md` and the upcoming `technical-design.md` /
       `distribution-map.md` name the module tree, the API surface, and
       `migrations/0042`.
 - [x] **No open questions** - the ambiguity ledger is fully resolved.
 - [x] **Route still fits** - nothing in refine changed a reading. initiative
       still fits; the `migrations` tag (and so RP-FLOOR-003) still holds.
 
-Next stage: **design** (`/compass:design`) - unblocked: RP-ROLE-002's intent-fidelity check passed (`prd.md` foot, 2026-03-06).
+Next stage: **plan** (`/compass:plan`) - unblocked: RP-ROLE-002's intent-fidelity check passed (`intent.md` foot, 2026-03-06).

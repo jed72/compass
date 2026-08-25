@@ -7,7 +7,7 @@ Why these are regex assertions over markdown rather than unit tests: the
 "production" change for most of this task is the text of shipped templates,
 skills, agents and commands. That is the same situation
 tests/test_plugin_doc_drift.py is in, and these follow its approach. The
-executable half of the task (the `compass design lint` subcommand) is tested
+executable half of the task (the `compass plan lint` subcommand) is tested
 separately in tests/test_no_placeholders_check.py, where real unit tests are
 possible.
 
@@ -15,6 +15,13 @@ These are still real tests: they run under `pytest tests/`, they fail when the
 shipped text drifts, and `compass tdd-red` / `compass tdd-green` write typed
 test-run evidence from them that the verify gates accept.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 import re
 import subprocess
 import sys
@@ -264,7 +271,7 @@ def test_trc_c2b_skill_names_command_and_note():
     """The planner has to know what to run, and what a hit means."""
     flat = _flat(_read(GOVERNANCE_SKILL))
 
-    assert "compass design lint" in flat, (
+    assert "compass plan lint" in flat, (
         "The governance-check skill does not name the command the planner runs"
     )
     assert re.search(r"note,? (rather than|not) a (stop|block)", flat), (
@@ -280,7 +287,7 @@ def test_trc_c3_check_sits_in_strategies_walk():
 
     i_strategies = text.find("## Walk 2 - the strategies")
     i_routing = text.find("## Walk 3 - the routing policy")
-    i_check = text.lower().find("compass design lint")
+    i_check = text.lower().find("compass plan lint")
 
     assert i_strategies >= 0 and i_routing >= 0, "The governance walks were renamed"
     assert i_check >= 0, "The no-placeholders check is not in the skill at all"
@@ -349,7 +356,7 @@ HANDOFF_HEADING = "## Hand-off"
 HANDOFF_PHASES = {
     "commands/define.md": "acceptance-criteria.md",
     "commands/refine.md": "requirements-review.md",
-    "commands/design.md": "design.md",
+    "commands/plan.md": "technical-design.md",
 }
 
 

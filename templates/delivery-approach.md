@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: delivery-approach.md
-Produced by: triage (`/compass:triage`).
+Produced by: triage (`/compass:assess`).
 Lives at:    .compass/work/<task-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records the assessment, the
              delivery approach the policy computed, every policy rule that
@@ -38,7 +38,7 @@ line is not skippable - it runs.
 | **Risk** | {{trivial \| contained \| cross-cutting \| critical}} | {{Why this value. Consequence, not effort.}} |
 | **Familiarity** | {{greenfield \| brownfield-mapped \| brownfield-unmapped}} | {{Why this value. Is current behaviour written down?}} |
 | **Size** | {{atomic \| small \| standard \| large \| product}} | {{Why this value. When unsure, estimate up.}} |
-| **Goal & role** | {{engineer \| product-owner \| product-marketer \| designer \| qa}} | {{Who invoked, and the outcome actually wanted - read the PRD or intake if one exists.}} |
+| **Goal & role** | {{engineer \| product-owner \| product-marketer \| designer \| qa}} | {{Who invoked, and the outcome actually wanted - read `intent.md` or the intake if one exists.}} |
 
 **Labels (the spine's `touches:` field):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
 <!-- These are what the policy's hard floors key on. Be honest - a one-line
@@ -93,10 +93,10 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 | Stage | Weight | Notes |
 |---|---|---|
-| Triage | Full | Always. This document is the output. |
+| Assess | Full | Always. This document is the output. |
 | Define acceptance criteria | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. distilling existing behaviour first; how deep}} |
 | Requirements review | {{collapsed \| light pass \| full pass \| skipped (spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
-| Design | {{one-line edit note \| real design.md \| design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
+| Design | {{one-line edit note \| real technical-design.md \| technical-design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
 | Break down the work | {{skipped (solo) \| pair \| swarm}} | {{stream count comes from the distribution map}} |
 | Implement | {{test surface target}} | {{scaled to risk - see the TDD skill}} |
 | Test & review | {{gate count}} | {{which review dimensions - section 4b}} |

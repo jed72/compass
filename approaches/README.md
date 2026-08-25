@@ -6,7 +6,7 @@ swarm. Approaches are *composed* by triage from the four context dimensions
 (see `router.md`) - they are not picked from this list.
 
 The five files here are **reference shapes**: the common shapes that
-composition lands near. Triage names the nearest reference shape in
+composition lands near. Assess names the nearest reference shape in
 `delivery-approach.md` so everyone shares vocabulary, then records any per-phase deviation
 from it. "Standard, but Verify adds the security dimension" is a normal,
 expected output.

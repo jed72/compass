@@ -39,7 +39,7 @@ Every Compass issue begins with **triage**, which assesses four
 assessment dimensions and computes a **delivery approach**: a tailored
 pipeline with the
 right ceremony, the right gates, the right agent topology, and the right
-artifacts for *this* change. Triage is where that judgement happens; the
+artifacts for *this* change. Assess is where that judgement happens; the
 policy evaluator is what makes it deterministic.
 
 The four dimensions triage reads:
@@ -51,7 +51,7 @@ The four dimensions triage reads:
 | **Size** | How much work is this? | atomic · small · standard · large · product |
 | **Goal & role** | Who is invoking, and what outcome are they really after? | engineer · product owner/manager · product marketer · designer · QA |
 
-Triage does not just classify - it explains. Its output,
+Assess does not just classify - it explains. Its output,
 `delivery-approach.md`, is an auditable record: here is what I assessed,
 here is the approach the policy computed, here is
 what ceremony applies, **here is what I am skipping and the explicit reason it
@@ -79,7 +79,7 @@ triage → define → refine → design → breakdown → implement → verify �
 
 | Stage | What happens | What adapts |
 |---|---|---|
-| **Triage** | The four dimensions are assessed and `delivery-approach.md` is written. Roles in play are identified. | Always runs. Cost: ~minutes even on the heaviest approach. |
+| **Assess** | The four dimensions are assessed and `delivery-approach.md` is written. Roles in play are identified. | Always runs. Cost: ~minutes even on the heaviest approach. |
 | **Define acceptance criteria** | Behaviour is captured as BDD scenarios (Given/When/Then). Greenfield: discovery. Brownfield: *blueprint distillation* - reverse-engineer current behaviour into scenarios before changing it. | One scenario vs. a full scenario set. Discovery depth. |
 | **Requirements review** | Ambiguities resolved. The spec is QA'd against itself and against governance. | Collapsed on a quick fix when the spec is a single unambiguous scenario; skipped on a spike entirely. |
 | **Design** | The technical design. Governance check. Independent work units identified; worktree/swarm topology decided. | Collapses to "edit this file" on a quick fix; expands to a distribution map on an initiative. |
@@ -124,11 +124,11 @@ lets the framework be rigorous *and* adaptive *and* light at the same time.
 
 - **Guardrails** are few, hard, checkable, and blocking. The things that must
   never happen. A guardrail is cleared only with evidence, and a failed
-  guardrail stops the work. Triage adapts ceremony around guardrails; it
+  guardrail stops the work. Assess adapts ceremony around guardrails; it
   never crosses one.
 - **Strategies** are many, soft, directional, and assessed. How the team
   tends to work and what it prefers. A strategy *biases* a decision - it
-  does not block one. Triage, an approach, or a human can depart from a
+  does not block one. Assess, an approach, or a human can depart from a
   strategy for a given issue; the departure is recorded, not punished.
 
 The full set lives in `governance/`. This section is the why; that directory
@@ -170,7 +170,7 @@ wins and a larger soft set that guides.
 **Governance is a gradient, not a threshold.** A valid, complete governance
 state is "the shipped default guardrails, the shipped default strategies, and
 nothing project-specific yet." A team starts there - `/compass:init` is
-*optional*, and `/compass:triage` works on day one against the shipped
+*optional*, and `/compass:assess` works on day one against the shipped
 defaults -
 and *accretes* project strategies as it forms opinions, adding a guardrail
 only when it hits something that must never recur. That gradient is what makes
@@ -219,7 +219,7 @@ The mechanism that makes this work is the **shared scenario file**. The BDD
 spec is the one artifact every role reads - each through their own perspective:
 
 - The **product owner / manager** reads it for *intent fidelity*: do
-  these scenarios actually deliver the outcome in the PRD?
+  these scenarios actually deliver the outcome in `intent.md`?
 - The **product marketer** reads it for *claims*: every line of launch copy
   must point at a scenario that backs it.
 - The **engineer** reads it for *tests*: scenarios become the acceptance
@@ -231,10 +231,10 @@ Role entry points:
 
 | Role | Entry point | Primary artifact | Where they gate |
 |---|---|---|---|
-| Product owner / manager | `/compass:intent` | `prd.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before the design stage. Curates the product strategies in `governance/strategies.md`. |
+| Product owner / manager | `/compass:intent` | `intent.md` (problem, outcome, success signals, constraints) | Reviews the spec for intent fidelity before the design stage. Curates the product strategies in `governance/strategies.md`. |
 | Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Gates shipping: no launch claim goes out without a passing scenario behind it. Curates the voice & positioning strategies. |
-| Designer | `/compass:wireframe` | `ui-contract.md` | UI contracts are written as scenarios and flow into the define stage. |
-| Engineer | `/compass:triage` and the pipeline | `delivery-approach.md`, `design.md`, code | Owns implementation. Curates the engineering strategies. |
+| Designer | `/compass:design` | `ui-contract.md` | UI contracts are written as scenarios and flow into the define stage. |
+| Engineer | `/compass:assess` and the pipeline | `delivery-approach.md`, `technical-design.md`, code | Owns implementation. Curates the engineering strategies. |
 | QA | participates in `/compass:verify` | `verification-report.md` | Owns the verify gate. |
 
 The product owner enters *upstream* of the spec; the marketer works *parallel*
@@ -257,12 +257,12 @@ same guardrails-and-strategies split to triage itself:
   ("anything labelled auth or payments is floored to an initiative
   regardless of size"), a cap can limit how far it scales up ("never
   swarm a critical-risk change"), and an immovable gate is one no
-  approach may remove. Triage cannot route around these, and a human
+  approach may remove. Assess cannot route around these, and a human
   cannot override them per-issue - changing one means amending the file.
 - **The soft defaults** *bias* what triage does - the reference shapes it
   reaches for, how it breaks ties ("when size is unclear, estimate up";
   "prefer the lightest approach that still clears the guardrails").
-  Triage starts here and tunes; a departure is recorded in
+  Assess starts here and tunes; a departure is recorded in
   `delivery-approach.md`.
 
 This is the answer to the obvious objection to any adaptive framework - *"if
@@ -295,7 +295,7 @@ have evidence - are mechanism too.
 Compass puts the mechanism in a CLI (`cli/compass`) so it is *actually*
 deterministic, not deterministic-in-principle: `compass approach evaluate` runs
 `routing-policy.yml` against an issue's assessment; `compass check` runs the
-`guardrails.yml` checks against the issue's `task.yml` and evidence. Triage
+`guardrails.yml` checks against the issue's `task.yml` and evidence. Assess
 still produces the assessment - judgement stays judgement - but it no longer
 *also* composes the delivery approach in its head, where two agents could
 reason to two different answers. It hands the assessment to the mechanism. The machine-readable
@@ -423,7 +423,7 @@ Compass is built in three layers, deliberately separated.
   commands invoke phases, subagents are the swarm, skills carry the
   procedural knowledge, hooks enforce the guardrails and the
   red-before-green strategy, and the commands and agents *call the kit* -
-  `/compass:triage` runs `compass approach evaluate`, `/compass:verify` runs
+  `/compass:assess` runs `compass approach evaluate`, `/compass:verify` runs
   `compass check`. `bin/compass` and `.claude-plugin/` are the
   runtime-specific install wiring; another runtime's adapter would replace
   them with its own equivalent (a shell PATH addition, a different plugin
@@ -454,7 +454,7 @@ manager" persona with turf and an inbox; it adds `/compass:flow`, a command
 anyone can run, backed by the `flow-management` skill.
 
 The distinction matters because of how Compass stores state. Issue state is not
-a label a manager sets - it is *inferred from the artifacts on disk* (`design.md`
+a label a manager sets - it is *inferred from the artifacts on disk* (`technical-design.md`
 exists and `verification-report.md` does not ⇒ the issue is being
 implemented). So flow
 management has nothing to "own" and nothing to "move." Its whole job is to read
@@ -603,7 +603,7 @@ been filed
 after it, the hook emits a nudge to stderr suggesting:
 
 ```
-/compass:triage --reassess --reason "<what changed and why>"
+/compass:assess --reassess --reason "<what changed and why>"
 ```
 
 The hook is **non-blocking** - it exits 0 regardless. It nudges; the human

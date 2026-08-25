@@ -31,3 +31,46 @@ orthogonal, so we elide the salient detail.
 Cut along the seams the architecture already has. Cutting across a seam creates
 a shared surface. Find the seams of the module and name them. These functions
 were the natural seam in the code.
+
+## The vocabulary rename of 2026-08-25
+
+Run `/compass:triage` to size the work. During Triage the four dimensions are
+read. The Triage stage never collapses.
+
+# Triage
+
+The designer starts at `/compass:wireframe`. The Wireframe command produces the
+UI contract.
+
+# Wireframe
+
+Write the brief to `prd.md`, from `templates/prd.md`.
+
+## Shapes that had no planted usage
+
+Each block below exists because a pattern in BAN_PATTERNS matched nothing
+here, so nothing proved it could fire.
+
+Triage -> define acceptance criteria is the hand-off. The reverse arrow form,
+define acceptance criteria -> Triage, is the same word in the same sense.
+The dimensions are read during Triage, at Triage, and before Triage.
+
+Frame -> Specify was the v1 order, so -> Frame is the arrow form.
+
+# Frame
+
+A dimension reading is what the v1 spine called the judgement.
+
+The path routes/ held the retired artifact.
+
+Run `/compass:specify`, then `/compass:clarify`, `/compass:distribute` and
+`/compass:land`.
+
+# Specify
+
+The spine recorded touches: as a list of the domains a change reaches.
+
+When a PRD exists, invoke the product-lens agent. That names the intake
+document by its retired acronym; it lived in innocent_usage.md until
+2026-08-25, when the bare acronym was found on 24 live surfaces
+including the description a user reads in the slash-command menu.

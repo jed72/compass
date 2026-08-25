@@ -16,6 +16,13 @@ it was left out on purpose.
 
 Scenario ids trace to .compass/work/the-human-front-door/acceptance-criteria.md.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import json
@@ -116,10 +123,10 @@ def test_b1_registered_path_wins(tmp_path):
     from compass_pkg.core import artifact_path
     task_dir = _spine(
         tmp_path,
-        artifacts=[{"id": "ART-D", "kind": "design", "path": "30-design/hld.md",
+        artifacts=[{"id": "ART-D", "kind": "technical-design", "path": "30-design/hld.md",
                     "status": "approved", "reason": "an initiative earns one"}],
         files={"30-design/hld.md": "nested", "design.md": "flat"})
-    got = artifact_path(str(task_dir), "design.md")
+    got = artifact_path(str(task_dir), "technical-design.md")
     assert Path(got).read_text() == "nested", (
         "the flat filename won over the registered path, so registering a "
         "document has no effect: " + got)
@@ -128,14 +135,14 @@ def test_b1_registered_path_wins(tmp_path):
 def test_b2_no_registry_falls_back_to_flat_filename(tmp_path):
     """TRC-B2: an issue with no registry still resolves its artifacts.
 
-    Eighty-eight issues are in this state. It is the ordinary case, not a
+    148 issue directories are in this state. It is the ordinary case, not a
     fault.
     """
     from compass_pkg.core import artifact_path, resolve_artifact, FOUND
     task_dir = _spine(tmp_path, artifacts=None, files={"design.md": "flat"})
-    got = artifact_path(str(task_dir), "design.md")
+    got = artifact_path(str(task_dir), "technical-design.md")
     assert Path(got).read_text() == "flat", "an unregistered issue lost its file"
-    state, path, reason = resolve_artifact(str(task_dir), "design")
+    state, path, reason = resolve_artifact(str(task_dir), "technical-design")
     assert state == FOUND, (
         f"an issue with no registry reported {state!r} rather than found - a "
         f"missing registry is not a fault")
@@ -151,10 +158,10 @@ def test_b3_unresolvable_artifact_is_reported(tmp_path):
     from compass_pkg.core import resolve_artifact, UNRESOLVABLE, OMITTED
     task_dir = _spine(
         tmp_path,
-        artifacts=[{"id": "ART-D", "kind": "design", "path": "30-design/hld.md",
+        artifacts=[{"id": "ART-D", "kind": "technical-design", "path": "30-design/hld.md",
                     "status": "approved", "reason": "an initiative earns one"}],
         files={})
-    state, path, reason = resolve_artifact(str(task_dir), "design")
+    state, path, reason = resolve_artifact(str(task_dir), "technical-design")
     assert state == UNRESOLVABLE, (
         f"a registry entry pointing at nothing reported {state!r}")
     assert state != OMITTED, "a broken record was reported as a decision"
@@ -184,7 +191,7 @@ def test_b4_landed_issues_still_resolve():
     """TRC-B4: every issue already in this repository still resolves.
 
     The compatibility claim, checked against the real archive rather than a
-    fixture. Eighty-eight issues have landed with no registry; if any of their
+    fixture. 148 issue directories have no registry; if any of their
     documents stops resolving, the fallback is wrong.
     """
     from compass_pkg.core import artifact_path

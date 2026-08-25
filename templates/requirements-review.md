@@ -34,7 +34,7 @@ resolution → who decided → what it changed.
 
 <!-- Does any scenario cross a guardrail (governance/guardrails.md) or run
      against a strategy (governance/strategies.md), or push a non-goal from
-     prd.md? Cite the guardrail or strategy. -->
+     intent.md? Cite the guardrail or strategy. -->
 
 - {{finding with governance reference - or "no governance conflict found"}}
 
@@ -105,7 +105,7 @@ a form.
       the CLI never inspects the spec's prose, so an empty Summary is caught
       here or not at all.
 - [ ] **Problem traces up** - the spec serves the Problem and Desired outcome
-      in `prd.md` (or the triage request, if no brief). No scenario is
+      in `intent.md` (or the triage request, if no brief). No scenario is
       orphaned from intent.
 - [ ] **Behaviour is Given/When/Then** - every scenario has an observable
       `Then`. No scenario is a wish.
@@ -117,4 +117,4 @@ a form.
 - [ ] **Route still fits** - nothing found in refine makes `delivery-approach.md` wrong;
       if it does, re-frame before Plan.
 
-Next stage: **design** (`/compass:design`).
+Next stage: **plan** (`/compass:plan`).

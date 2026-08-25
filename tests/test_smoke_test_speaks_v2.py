@@ -3,7 +3,7 @@
 `docs/install-smoke-test.md` is the first document a new user follows. It
 told them to run `/compass:frame` and to expect a spine carrying `readings:`,
 `route:` and `schema_version: "1.0"` - all v1. In v2 the command is
-`/compass:triage`, the spine carries `assessment:` and `delivery_approach:`,
+`/compass:assess`, the spine carries `assessment:` and `delivery_approach:`,
 and the schema version is "2.0".
 
 It survived the v2 rename because the file is not in
@@ -17,6 +17,13 @@ set so it cannot drift back out of sight.
 
 Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import pathlib
@@ -31,7 +38,7 @@ SMOKE_TEST_REL = "docs/install-smoke-test.md"
 # Each is paired with what a reader should see instead, so a failure says what
 # to write rather than only what is wrong.
 RETIRED = {
-    "/compass:frame": "/compass:triage",
+    "/compass:frame": "/compass:assess",
     "readings:": "assessment:",
     'schema_version: "1.0"': 'schema_version: "2.0"',
 }

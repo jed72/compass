@@ -9,6 +9,13 @@ fixtures are constructed here: nothing current serves as un-migrated
 input (the archive migrated at the machine-spine slice), per the recorded
 exception.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import subprocess
@@ -77,7 +84,7 @@ def test_apply_migrates_a_v1_tree(tmp_path):
     assert r.returncode == 0, r.stderr[-400:]
     d = root / ".compass" / "work" / "old-one"
     assert (d / "delivery-approach.md").is_file(), "route.md did not rename"
-    assert (d / "prd.md").is_file(), "brief.md did not rename"
+    assert (d / "intent.md").is_file(), "brief.md did not rename"
     assert not (d / "route.md").exists()
     spine = yaml.safe_load((d / "task.yml").read_text())
     assert str(spine["schema_version"]) == "2.0"
@@ -109,7 +116,7 @@ def test_mapping_lives_in_the_exempt_data_file():
     artifacts = data.get("artifacts")
     assert artifacts, "migrate-map.yml has no artifacts section"
     assert artifacts.get("route.md") == "delivery-approach.md"
-    assert artifacts.get("brief.md") == "prd.md"
+    assert artifacts.get("brief.md") == "intent.md"
     sys.path.insert(0, str(REPO_ROOT / "cli"))
     from compass_pkg import migrate
     assert migrate.artifact_name_map() == artifacts, (

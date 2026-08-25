@@ -41,18 +41,18 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Full | This document. |
+| Assess | Full | This document. |
 | Define | Small feature set | Five scenarios - happy path, the over-limit reject, the retry-after contract, the window reset, per-client isolation. See `acceptance-criteria.md`. |
 | Refine | Light pass | Two ambiguities surfaced and resolved; spec QA'd against itself and governance. See `requirements-review.md`. |
-| Plan | Real `design.md` | Two design decisions recorded (storage backend, window algorithm); governance check run. |
-| Breakdown | Skipped (solo) | The work units share surface - see `design.md` §4. Solo on the current branch. |
+| Plan | Real `technical-design.md` | Two design decisions recorded (storage backend, window algorithm); governance check run. |
+| Breakdown | Skipped (solo) | The work units share surface - see `technical-design.md` §4. Solo on the current branch. |
 | Build | Full TDD | Five scenarios, red→green→refactor each. Test surface scaled to `contained`. |
 | Verify | Full - one gate | Six review dimensions, all evidenced in `verification-report.md`. |
 | Ship | Full | Commit on the current branch, regression run, living docs updated, one devlog entry. |
 
 ### 4b. Gate set
 
-- Number of gates: the Standard gate at Verify (Standard's mid-Build checkpoint was a quick spec re-read against `design.md` §4 - logged in `devlog.md`, no separate artifact).
+- Number of gates: the Standard gate at Verify (Standard's mid-Build checkpoint was a quick spec re-read against `technical-design.md` §4 - logged in `devlog.md`, no separate artifact).
 - Review dimensions applied: correctness, governance, traceability, regression, clarity, security.
 - Immovable gates stapled on: verify.correctness, verify.governance, verify.traceability. `verify.regression` is part of Standard's own shape. No `verify.claims` - no marketer in play.
 

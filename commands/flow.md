@@ -35,14 +35,14 @@ dated digest file (see below).
    *mechanical* gate status you may run `compass check --issue <slug>` - it
    is read-only and changes nothing.
 
-2. **Triage each issue.** Apply the `flow-management` heuristics:
+2. **Assess each issue.** Apply the `flow-management` heuristics:
    - **No `delivery-approach.md`** -> a guardrail violation (work started
      without triage). Surface this above everything else.
    - **Stalled** -> an in-progress stage with no `devlog.md` movement for
      longer than the approach's expected cadence. Flag it and name the
      likely blocker.
    - **Approach outgrown** -> signs in the devlog that the issue no longer
-     fits its delivery approach. Recommend `/compass:triage --reassess`.
+     fits its delivery approach. Recommend `/compass:assess --reassess`.
    - **Healthy** -> progressing in line with its approach.
 
 3. **Build the board.** Group every issue by pipeline stage: triaged ·

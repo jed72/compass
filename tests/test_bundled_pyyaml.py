@@ -15,6 +15,13 @@ nobody wrote a seventh reader the old way. It is a fitness function in the
 shape of `tests/test_house_style.py` - it adds no guardrail, no gate, no
 vocabulary; `verify.fitness` is what it clears.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import os
@@ -401,7 +408,7 @@ def test_every_yaml_reader_resolves_through_the_shared_mechanism():
 
 
 # ---------------------------------------------------------------------------
-# cli/vendor/ contents - the invariant ADR-013, design.md and
+# cli/vendor/ contents - the invariant ADR-013, technical-design.md and
 # cli/vendor/README.md all state and none of them checked
 # ---------------------------------------------------------------------------
 
@@ -412,7 +419,7 @@ def _vendor_shadow_violations(vendor_dir: Path) -> list:
     """`cli/vendor/` sits at sys.path[0] in every Compass process (DD-2),
     ahead of the standard library itself - so only names that are not
     already in the standard library may ever be vendored there (ADR-013
-    Decision 1, design.md DD-1 Consequences, `cli/vendor/README.md`: "Nothing
+    Decision 1, technical-design.md DD-1 Consequences, `cli/vendor/README.md`: "Nothing
     else goes in this directory"). Returns a problem string per violation:
     an entry outside the declared allowlist, or an importable top-level name
     that collides with a standard-library module."""

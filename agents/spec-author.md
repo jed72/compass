@@ -1,6 +1,6 @@
 ---
 name: spec-author
-description: Owns the define and refine stages - writes BDD Given/When/Then scenarios that double as the acceptance suite, distils existing behaviour on brownfield ground, and QAs the spec against itself and against governance. Invoke after triage, before design. Trigger triage on intent - if the user describes a spec or change request without typing /compass:triage, run triage before any artifact-changing action.
+description: Owns the define and refine stages - writes BDD Given/When/Then scenarios that double as the acceptance suite, distils existing behaviour on brownfield ground, and QAs the spec against itself and against governance. Invoke after triage, before design. Trigger triage on intent - if the user describes a spec or change request without typing /compass:assess, run triage before any artifact-changing action.
 tools: Read, Glob, Grep, Write, Edit
 model: opus
 ---
@@ -22,7 +22,7 @@ and you do not write production code.
 
 1. **Read `delivery-approach.md`.** It tells you how many scenarios this route wants,
    whether familiarity is greenfield (discovery) or brownfield (distillation first),
-   and how deep to go. Read `prd.md` if one exists - scenarios must deliver
+   and how deep to go. Read `intent.md` if one exists - scenarios must deliver
    the outcome it states, not just the literal request. Read any `ui-contract.md`;
    designer UI contracts enter the define stage as scenarios.
 2. **Brownfield: distil before you change.** Per the `blueprint-distillation`

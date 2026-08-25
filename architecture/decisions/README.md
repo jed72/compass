@@ -86,3 +86,4 @@ Consequences, References.
 
 A decision without alternatives is an assertion, not a record. Every ADR must
 enumerate at least one alternative that was genuinely considered and rejected.
+| ADR-019 | Retired Names Carry Redirects Once There Are Adopters | proposed |

@@ -34,11 +34,13 @@ shape_display:
 # The migration module consumes this section; the copy it keeps in code
 # is only the fallback for a tree with no framework install.
 artifacts:
-  brief.md: prd.md
+  brief.md: intent.md
   spec.feature.md: acceptance-criteria.md
   route.md: delivery-approach.md
   clarifications.md: requirements-review.md
-  plan.md: design.md
+  plan.md: technical-design.md      # v1 name, two renames ago
+  design.md: technical-design.md    # v2 name, renamed 2026-08-25
+  prd.md: intent.md
   spec.feature: acceptance-criteria.feature
 
 # Stage keys. The one set of renames this map never covered, which is why they
@@ -48,8 +50,8 @@ artifacts:
 #
 # `plan` and `verify` are DELIBERATELY ABSENT. `verify` already agrees. `plan`
 # stays because the command moves TO it - and note the `artifacts:` section
-# above records `plan.md: design.md`, so the engineering document was called
-# `plan.md` in v1. A later reader will see the word circling this stage and may
+# above records `plan.md: technical-design.md`, so the engineering document
+# was called `plan.md` in v1 and `design.md` in v2. A later reader will see the word circling this stage and may
 # take the key for a vestige. It is not: `plan-authoring` and `planner` were
 # named deliberately at v2, and the command joins them.
 stage_keys:

@@ -13,15 +13,17 @@ import os
 
 import yaml
 
-from compass_pkg.core import normalize_spine
+from compass_pkg.core import CompassError, normalize_spine
 
 # v1 filename -> v2 filename, applied inside each issue directory.
 V1_ARTIFACT_NAMES = {
-    "brief.md": "prd.md",
+    "brief.md": "intent.md",
     "spec.feature.md": "acceptance-criteria.md",
     "route.md": "delivery-approach.md",
     "clarifications.md": "requirements-review.md",
-    "plan.md": "design.md",
+    "plan.md": "technical-design.md",
+    "design.md": "technical-design.md",
+    "prd.md": "intent.md",
     "spec.feature": "acceptance-criteria.feature",
 }
 
@@ -58,6 +60,26 @@ def stage_key_map():
     return _map_section("stage_keys", V1_STAGE_KEYS)
 
 
+def colliding_artifacts(task_dir):
+    """Retired filenames in this directory that claim the same current name.
+
+    `artifacts:` is many-to-one in two places, because two renames landed on
+    the same document: `brief.md` and `prd.md` both become `intent.md`, and
+    `plan.md` and `design.md` both become `technical-design.md`. A directory
+    holding both members of a pair has two files claiming one name, and no
+    rule in the map says which is the real one.
+
+    Returns {current_name: [retired names present]}, entries with two or more
+    sources only. The caller refuses; picking by dict order silently kept the
+    older file, which is the stale one.
+    """
+    sources = {}
+    for old_name, new_name in artifact_name_map().items():
+        if os.path.exists(os.path.join(task_dir, old_name)):
+            sources.setdefault(new_name, []).append(old_name)
+    return {new: sorted(olds) for new, olds in sources.items() if len(olds) > 1}
+
+
 def plan_issue_dir(task_dir):
     """The dry-run twin of migrate_issue_dir: compute the change notes
     without writing anything."""
@@ -83,18 +105,43 @@ def cmd_migrate(args):
     """`compass migrate [root]` - dry-run by default; --apply executes.
 
     Wraps the core this repository's own archive migration proved.
-    Idempotent: a migrated tree reports nothing to do."""
+    Idempotent: a migrated tree reports nothing to do.
+
+    Refuses before writing anything if any directory holds two retired files
+    that claim the same current name - see colliding_artifacts. The whole run
+    stops rather than that one directory, because a partly-migrated tree is
+    harder to reason about than one that was not touched."""
     root = getattr(args, "root", None) or os.path.join(".compass", "work")
     if not os.path.isdir(root):
         print(f"compass migrate: no issue directories under {root} - "
               "nothing to examine.")
         return 0
     apply_mode = bool(getattr(args, "apply", False))
+    dirs = [e for e in sorted(os.listdir(root))
+            if os.path.isdir(os.path.join(root, e))]
+
+    # Checked across the whole tree BEFORE anything is written, and reported
+    # on a dry run too - a dry run that promises a rename the apply cannot
+    # perform is worse than the refusal.
+    collisions = []
+    for entry in dirs:
+        for new_name, olds in colliding_artifacts(
+                os.path.join(root, entry)).items():
+            collisions.append("  %s: %s both become %s"
+                              % (entry, " and ".join(olds), new_name))
+    if collisions:
+        raise CompassError(
+            "two retired filenames claim the same current name, and nothing "
+            "in the map says which is the real document:\n"
+            + "\n".join(collisions)
+            + "\n\nNothing was changed. Open both files, keep the one that is "
+              "current, and move or delete the other - then re-run. Picking "
+              "one automatically would silently keep whichever came first, "
+              "which is the older file.")
+
     changed = {}
-    for entry in sorted(os.listdir(root)):
+    for entry in dirs:
         d = os.path.join(root, entry)
-        if not os.path.isdir(d):
-            continue
         notes = (migrate_issue_dir(d) if apply_mode else plan_issue_dir(d))
         if notes:
             changed[entry] = notes

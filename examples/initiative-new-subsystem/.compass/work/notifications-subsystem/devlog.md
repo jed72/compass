@@ -10,26 +10,26 @@
 - **Event:** Needle ran; route computed.
 - **Route:** initiative - see `delivery-approach.md` revision 1.
 - **Assessment:** risk contained, familiarity greenfield, size standard, intent & role product-owner/delivery, touches [migrations].
-- **Routing guardrails fired:** RP-FLOOR-003 (touches migrations → candidate raised standard→expedition); RP-ROLE-002 (product-owner → prd.md required, Plan blocked until intent-fidelity check).
+- **Routing guardrails fired:** RP-FLOOR-003 (touches migrations → candidate raised standard→expedition); RP-ROLE-002 (product-owner → intent.md required, Plan blocked until intent-fidelity check).
 - **Outstanding follow-ups:** none - initiative borrows no ceremony. (`G5` applies because of the `migrations` tag - a ship sign-off, not a follow-up.)
 - **Next:** define.
 
 ## 2026-03-05 16:30 - define
 
-- **Event:** Full BDD discovery from `prd.md`. Six scenarios discovered, grouped by independence into group A (delivery & dispatch) and group B (preferences) - that grouping is the seed for the distribution map.
+- **Event:** Full BDD discovery from `intent.md`. Six scenarios discovered, grouped by independence into group A (delivery & dispatch) and group B (preferences) - that grouping is the seed for the distribution map.
 - **Artifact:** `acceptance-criteria.md` - 6 scenarios in 2 groups (+ a failure-mode scenario, TRC-006).
 - **Next:** refine.
 
 ## 2026-03-06 14:00 - refine
 
-- **Event:** Full pass. Three ambiguities resolved - Q1 (security override → fixed category, not a flag), Q2 (dedup → once-ever), Q3 (the 5s in TRC-001 → test bound, not an SLA). Product owner reviewed and signed the intent-fidelity check at the foot of `prd.md` - that clears the RP-ROLE-002 block on Plan.
+- **Event:** Full pass. Three ambiguities resolved - Q1 (security override → fixed category, not a flag), Q2 (dedup → once-ever), Q3 (the 5s in TRC-001 → test bound, not an SLA). Product owner reviewed and signed the intent-fidelity check at the foot of `intent.md` - that clears the RP-ROLE-002 block on Plan.
 - **Artifact:** `requirements-review.md` - Definition of Ready ticked.
 - **Next:** Plan (now unblocked).
 
 ## 2026-03-07 10:00 - Plan
 
-- **Event:** Full `design.md` + `distribution-map.md`. Three design decisions recorded - DD-1 (fixed security category), DD-2 (idempotency key), DD-3 (write-before-deliver durability). Governance check passed, including how `G5`'s migration sign-off is routed into ship. Two independent streams + a shared U0 foundation (`migrations/0042`).
-- **Artifact:** `design.md`, `distribution-map.md`.
+- **Event:** Full `technical-design.md` + `distribution-map.md`. Three design decisions recorded - DD-1 (fixed security category), DD-2 (idempotency key), DD-3 (write-before-deliver durability). Governance check passed, including how `G5`'s migration sign-off is routed into ship. Two independent streams + a shared U0 foundation (`migrations/0042`).
+- **Artifact:** `technical-design.md`, `distribution-map.md`.
 - **Next:** breakdown.
 
 ## 2026-03-08 09:30 - breakdown

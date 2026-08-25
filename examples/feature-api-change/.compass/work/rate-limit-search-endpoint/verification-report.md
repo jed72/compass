@@ -55,7 +55,7 @@ project line coverage                87%   (floor: 80% - met)
 | traceability | always | PASS | `changed_files` in `task.yml` all trace to scenario ids; every scenario traces to INT-1 or INT-2; `compass check` confirms the chains. |
 | regression | yes | PASS | The 39 pre-existing API tests in §2 still pass alongside the 5 new ones - nothing previously green is now red. |
 | security | scaled | PASS | Scaled to `contained` risk: focused review of the new reject path. The 429 leaks no internal state; `Retry-After` exposes only the window remainder; the fail-closed-on-unknown-client default (DD-2) was confirmed by `test_rate_limit.py::test_over_limit_returns_429`'s unknown-client variant. No full adversarial sweep - proportionate to the delivery approach. |
-| clarity | yes | PASS | `RateLimitMiddleware` is ~50 lines, one responsibility; DD-1 and DD-2 in `design.md` explain the two non-obvious choices (Redis, fixed window) for a future reader. |
+| clarity | yes | PASS | `RateLimitMiddleware` is ~50 lines, one responsibility; DD-1 and DD-2 in `technical-design.md` explain the two non-obvious choices (Redis, fixed window) for a future reader. |
 | claims | n/a | n/a | No product-marketer in play - `verify.claims` is role-scoped and not in this approach's set. |
 
 ## 4. Gate decision

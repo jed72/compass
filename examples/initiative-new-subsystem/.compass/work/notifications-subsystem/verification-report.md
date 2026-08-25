@@ -69,7 +69,7 @@ project line coverage                85%   (floor: 80% - met)
 | traceability | always | PASS | All five `changed_files` trace to scenario ids; every scenario traces to INT-1/2/3; `compass check` confirms every chain. |
 | regression | yes | PASS | The combined run in §2 - 65 pre-existing tests still green alongside the 6 new ones. |
 | security | full | PASS | Full pass, not scaled - greenfield code with a new table. Reviewed: the migration adds no PII column; `api.py` endpoints are tenant-scoped and a user can only read their own notifications; the idempotency key is server-trusted only for dedup, not authorization; the security-category override (DD-1) cannot be disabled by user input. No injection surface in the dispatch path. |
-| clarity | yes | PASS | Four focused modules, one responsibility each; `design.md` DD-1/2/3 record the three non-obvious choices (fixed security category, once-ever dedup, write-before-deliver durability) for a future reader. The two-stream split is documented in `distribution-map.md`. |
+| clarity | yes | PASS | Four focused modules, one responsibility each; `technical-design.md` DD-1/2/3 record the three non-obvious choices (fixed security category, once-ever dedup, write-before-deliver durability) for a future reader. The two-stream split is documented in `distribution-map.md`. |
 | claims | yes (in initiative's shape) | PASS | No product-marketer was in play - there are no public claims to back, and `task.yml` `claims:` is empty. The gate exists in initiative's set and is satisfied trivially: `compass check`'s claim-traces-to-scenario passes because there is nothing unbacked. The external launch is a separate later issue. |
 
 ## 4. Gate decision

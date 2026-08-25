@@ -171,7 +171,7 @@ def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
         f"{sorted(spine['stages'])}")
 
     # And the shim the old message demanded: a spine written before the rename
-    # still loads, which is what makes 94 landed issues safe (ADR-006).
+    # still loads, which is what makes the 91 landed issues safe (ADR-006).
     sys.path.insert(0, str(ROOT / "cli"))
     from compass_pkg.core import normalize_spine
     old_spine = {"stages": {"frame": "full", "specify": "full", "clarify": "light",

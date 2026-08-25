@@ -1,6 +1,6 @@
 # Routing Policy - How triage Is Bounded and Biased
 
-Triage (see `approaches/rubric.md` for the sizing rubric) reads the four
+Assess (see `approaches/rubric.md` for the sizing rubric) reads the four
 assessment dimensions and computes the delivery approach. This file
 governs that computation, using
 the same split as the rest of `governance/`:
@@ -19,7 +19,7 @@ This is the answer to the obvious objection to any adaptive framework - *"if
 the process can flex, what stops it flexing to nothing?"* The routing
 guardrails are what stop it. The flex is real, and it is bounded by this file.
 
-Triage applies this policy at triage, after reading the four dimensions
+Assess applies this policy at triage, after reading the four dimensions
 and composing a candidate route, before writing `delivery-approach.md`. Every routing
 guardrail that fires is recorded in `delivery-approach.md` with its rationale - so any
 `delivery-approach.md` shows not just the route, but which bounds were active and why.
@@ -92,7 +92,7 @@ part of the gate set.
 ## Routing strategies (soft - they bias triage)
 
 These are triage's defaults: the route shapes it reaches for, and how it
-breaks ties. Triage starts here and tunes; a departure is normal and is
+breaks ties. Assess starts here and tunes; a departure is normal and is
 recorded in `delivery-approach.md`, not punished.
 
 ```yaml

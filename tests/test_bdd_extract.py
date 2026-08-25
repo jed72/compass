@@ -317,9 +317,14 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 # issue group, ship-commit) and added terminology. The premise of the
 # assertion below is unchanged - the surface equals the known set - but
 # the known set deliberately moved with that slice.
+# The vocabulary rename moved the planning verb BACK to `plan` on
+# 2026-08-25: `design` now means the designer's stage everywhere else,
+# and one word cannot mean two stages in one release. `design` is kept
+# alongside it - it shipped in 3.3.0, so it keeps working until the next
+# major version (ADR-006, ADR-019). Both spellings, one handler.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
-    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "tdd-green", "policy", "plan", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
     "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator

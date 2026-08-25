@@ -6,6 +6,13 @@ Each test invokes `compass analyze` via subprocess in an isolated project
 directory (using the `project`/`run_cli` fixtures from conftest.py).
 """
 
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
+
 # The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
 # `define`, `clarify` -> `refine`, `distribute` -> `breakdown`, `build` ->
 # `implement`, `land` -> `ship`. `plan` and `verify` did not. Spines written
@@ -101,7 +108,7 @@ def _write_brief(task_dir: Path, intents: list[str]) -> None:
     for intent_id in intents:
         lines.append(f"<!-- intent: {intent_id} -->\n")
         lines.append(f"- {intent_id}: some intent statement\n")
-    (task_dir / "prd.md").write_text("".join(lines), encoding="utf-8")
+    (task_dir / "intent.md").write_text("".join(lines), encoding="utf-8")
 
 
 def _write_spec(task_dir: Path, scenarios: list[dict]) -> None:
@@ -558,7 +565,7 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     result = run_cli("analyze")
     combined = result.stdout + result.stderr
     # No "missing brief" or "missing-artifact" finding about brief.md
-    assert "prd.md" not in combined or "missing" not in combined.lower(), \
+    assert "intent.md" not in combined or "missing" not in combined.lower(), \
         f"Hotfix route must not flag missing brief.md:\n{result}"
     # Should not flag orphaned scenarios either (spec links INT-1 but no brief - that's OK on hotfix)
     # The key assertion: no route-disagreement finding (route.md and task.yml agree on hotfix)
@@ -785,3 +792,73 @@ def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
     combined = result.stdout + result.stderr
     assert "route-disagreement" in combined.lower() or "disagree" in combined.lower(), \
         f"Expected route-disagreement finding:\n{result}"
+
+
+# ---------------------------------------------------------------------------
+# The route-disagreement check must read the table the shipped template writes
+# ---------------------------------------------------------------------------
+
+# Copied from templates/delivery-approach.md's "4a. Per-stage weight" section:
+# the header word, the prose stage names, the capitalised weights, and a weight
+# cell carrying a trailing note. Every one of those defeated the parser.
+_TEMPLATE_SHAPED_TABLE = """# Delivery approach - demo
+
+### 4a. Per-stage weight
+
+| Stage | Weight | Why |
+|---|---|---|
+| Assess | Full | Always. This document is the output. |
+| Define acceptance criteria | full | The compatibility rule is the whole risk. |
+| Requirements review | collapsed | One scenario, certified unambiguous. |
+| Design | full | A real design decision sits here. |
+| Break down the work | full, streams unbounded by policy | Disjoint files. |
+| Implement | full | |
+| Test & review | full | Eight gates. |
+| Ship | full | |
+"""
+
+
+def _weights(tmp_path, body):
+    from compass_pkg.analyze import _parse_phase_weights_from_route_md
+
+    p = tmp_path / "delivery-approach.md"
+    p.write_text(body, encoding="utf-8")
+    return _parse_phase_weights_from_route_md(str(p))
+
+
+def test_the_parser_reads_the_table_the_template_writes(tmp_path):
+    """`| Stage |`, prose stage names, and a weight cell with a note.
+
+    The parser required the header `| Phase | Weight` and the shipped template
+    has written `| Stage | Weight | Notes |` for as long as it has existed. No
+    match meant no rows, no rows meant an empty weight map, and the comparison
+    below skips any stage missing from either side - so the check reported
+    "no coherence findings" on a record that contradicted its spine in every
+    row. 28 of the 51 parseable records in this repository were in that state.
+
+    Three separate things had to be fixed and each one alone still returns
+    almost nothing, so they are asserted together: the header word, the row
+    names ("Define acceptance criteria", not "define"), and a weight cell that
+    carries a trailing note after the weight.
+    """
+    got = _weights(tmp_path, _TEMPLATE_SHAPED_TABLE)
+    assert got == {
+        "assess": "full",
+        "define": "full",
+        "refine": "collapsed",
+        "plan": "full",
+        "breakdown": "full",
+        "implement": "full",
+        "verify": "full",
+        "ship": "full",
+    }, got
+
+
+def test_the_parser_still_reads_the_retired_header(tmp_path):
+    """The control: records written under the old header keep parsing.
+
+    51 delivery-approach records are on disk and some say `| Phase |`. Fixing
+    the header must not swap one blind spot for another.
+    """
+    body = _TEMPLATE_SHAPED_TABLE.replace("| Stage | Weight", "| Phase | Weight")
+    assert _weights(tmp_path, body).get("plan") == "full"

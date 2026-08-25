@@ -56,7 +56,7 @@ treat an un-extended `governance/` as a missing prerequisite.
   is plausibly parallelisable.
 
 **Intent & role** - *the actual outcome, not the literal request.*
-- Read `prd.md` if it exists. "Add a CSV export" under a brief that says "let
+- Read `intent.md` if it exists. "Add a CSV export" under a brief that says "let
   finance self-serve" may need filters, scheduling, and permissions - the
   literal request under-describes the intent.
 - A non-engineering role in play almost always pulls the route up: it adds
@@ -77,7 +77,7 @@ Go phase by phase, not route by route:
 - **Define** - scenario count and discovery depth; distillation if brownfield.
 - **Refine** - full / light / collapsed. Collapsed is permitted *only* when the
   spec is a single unambiguous scenario *and* no routing guardrail requires the requirements review.
-- **Plan** - one-liner / real `design.md` / plan + distribution map.
+- **Plan** - one-liner / real `technical-design.md` / plan + distribution map.
 - **Breakdown** - solo / pair / swarm, stream count from the distribution map.
 - **Build** - test-surface target, scaled to risk.
 - **Verify** - which review dimensions, how many gates (see the router's
@@ -173,6 +173,6 @@ Re-framing mid-issue is a normal event, not a failure. Trigger it when:
 - Refine finds the spec is bigger or more ambiguous than the route assumed.
 - A `touches:` tag surfaces late (you discover the change reaches auth).
 
-Run `/compass:triage --reframe`: re-score the dimensions, write a new `delivery-approach.md`
+Run `/compass:assess --reframe`: re-score the dimensions, write a new `delivery-approach.md`
 revision, record what changed and why. A route quietly outgrown is the failure;
 a route honestly re-framed is the system working.

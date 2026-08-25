@@ -4,7 +4,7 @@
 > Append-only. Newest at the bottom.
 
 <!-- On a spike, this devlog carries more weight than usual: there is no
-     verification-report.md, no design.md. The Conclude gate's evidence IS the
+     verification-report.md, no technical-design.md. The Conclude gate's evidence IS the
      conclusion entry below. A Spike that never reaches a written conclusion
      has not used the delivery approach - it has just avoided the framework. -->
 
@@ -60,7 +60,7 @@
   is **not merged.** Nothing lands from a spike. The three render scripts stay
   on the branch as *reference inputs* to the next triage - good inputs, because
   the familiarity is now mapped.
-- **Graduation:** a fresh `/compass:triage` has been run for the real delivery
+- **Graduation:** a fresh `/compass:assess` has been run for the real delivery
   work - issue `report-pdf-export`. That triage inherits this spike's `delivery-approach.md`,
   this conclusion, and the reference code. The new issue will compose to a real
   route (likely Standard) where guardrails `G1`–`G3` apply in full: the PDF export

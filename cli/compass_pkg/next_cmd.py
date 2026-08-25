@@ -202,8 +202,8 @@ def cmd_next(args):
     task_path = os.path.join(task_dir, "task.yml")
     if not os.path.isfile(task_path):
         sys.stdout.write(
-            "Triage has not run for this issue - task.yml is missing.\n"
-            f"  Run /compass:triage to start the issue at: {task_dir}\n"
+            "Assess has not run for this issue - task.yml is missing.\n"
+            f"  Run /compass:assess to start the issue at: {task_dir}\n"
         )
         return 2
 
@@ -214,7 +214,7 @@ def cmd_next(args):
     if not os.path.isfile(route_md_path):
         sys.stdout.write(
             f"delivery-approach.md is missing from {task_dir}\n"
-            "  Run /compass:triage to produce delivery-approach.md before using compass next.\n"
+            "  Run /compass:assess to produce delivery-approach.md before using compass next.\n"
         )
         return 2
 

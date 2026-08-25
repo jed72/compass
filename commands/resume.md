@@ -26,8 +26,8 @@ written precisely so the process never has to be re-derived.
    CLI reads. Everything else is read in light of them. If
    `delivery-approach.md` carries a re-assessment revision, read the latest
    revision.
-3. **Read the artifacts in pipeline order** - `prd.md`,
-   `acceptance-criteria.md`, `requirements-review.md`, `design.md`,
+3. **Read the artifacts in pipeline order** - `intent.md`,
+   `acceptance-criteria.md`, `requirements-review.md`, `technical-design.md`,
    `distribution-map.md`, role artifacts, `verification-report.md` - and
    the `devlog.md` for the running narrative.
 4. **Determine where things stand.** Which stage is complete, which is
@@ -41,5 +41,5 @@ written precisely so the process never has to be re-derived.
 ## When the artifacts do not answer the question
 
 If `delivery-approach.md` does not explain the process from here, triage
-under-sized it. Say so and re-assess (`/compass:triage --reassess`) rather
+under-sized it. Say so and re-assess (`/compass:assess --reassess`) rather
 than improvising a process. A guessed process is not a resumed issue.

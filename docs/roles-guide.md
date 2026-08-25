@@ -49,7 +49,7 @@ Scenario: Finance exports the month-end ledger
 <!-- traceability id: TRC-A1 · serves: INT-1 -->
 ```
 
-`INT-1`, in the spec's intent links, traces to `prd.md`: *"Finance pulls
+`INT-1`, in the spec's intent links, traces to `intent.md`: *"Finance pulls
 month-end numbers without filing a data request."*
 
 One scenario. Four ways of reading it.
@@ -57,9 +57,10 @@ One scenario. Four ways of reading it.
 ### The product owner reads it for intent fidelity
 
 The product owner's governing question: **does this scenario deliver the
-outcome in `prd.md`?**
+outcome in `intent.md`?**
 
-The PRD's outcome is "finance self-serves their month-end numbers." So the
+The intent document's outcome is "finance self-serves their month-end
+numbers." So the
 product owner walks the scenario against that. The permission gate
 (`ledger:read`) is good - self-serve does not mean unguarded. "Within 3
 seconds" matters - a self-serve tool that takes two minutes is not really
@@ -166,13 +167,13 @@ export, and is the call path it implies allowed by the relations diagram?*
 If `relations.md` says the dashboard service may not call the ledger service
 directly (the export must go through the reporting service for caching and
 audit), and the scenario as written implies a direct call, the architect-lens
-flags the drift - *the scenario is well-formed and faithful to the PRD, but
+flags the drift - *the scenario is well-formed and faithful to `intent.md`, but
 it would cut a relation the architecture doesn't permit.* That is exactly the
 kind of failure mode the perspective exists to catch.
 
 The architect-lens does **not** write a parallel spec. The scenario file is
 still the shared substrate; the perspective's output is `architecture-notes.md` in
-the issue directory - annotations *on* `design.md`, pointing at the relevant
+the issue directory - annotations *on* `technical-design.md`, pointing at the relevant
 ADR or relation each annotation defends:
 
 ```markdown
@@ -223,20 +224,20 @@ The five roles, what they own, and how they wire into the pipeline:
 
 | Role | Entry point | Primary artifacts | Where they gate | Strategies curated in `governance/strategies.md` |
 |---|---|---|---|---|
-| Product owner / manager | `/compass:intent` | `prd.md` | Intent-fidelity check before the design stage | Product strategies |
+| Product owner / manager | `/compass:intent` | `intent.md` | Intent-fidelity check before the design stage | Product strategies |
 | Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Claims gate at ship time | Voice & positioning strategies |
-| Designer | `/compass:wireframe` | `ui-contract.md` | UI contracts flow into the define stage as scenarios | (contributes the accessibility strategy) |
-| Engineer | `/compass:triage` and the pipeline | `delivery-approach.md`, `design.md`, code | Owns implementation; verify's mechanical half | Engineering strategies |
+| Designer | `/compass:design` | `ui-contract.md` | UI contracts flow into the define stage as scenarios | (contributes the accessibility strategy) |
+| Engineer | `/compass:assess` and the pipeline | `delivery-approach.md`, `technical-design.md`, code | Owns implementation; verify's mechanical half | Engineering strategies |
 | QA | joins at `/compass:verify` | `verification-report.md` | Owns the verify gate | (guards the guardrails at verify) |
 
 ### Product owner / manager - `/compass:intent`
 
-Enters **upstream of the spec**. `prd.md` exists before the scenarios do -
-problem, desired outcome, success signals, constraints, non-goals. Triage
+Enters **upstream of the spec**. `intent.md` exists before the scenarios do -
+problem, desired outcome, success signals, constraints, non-goals. Assess
 reads it: intent is the *actual outcome wanted*, not the literal
-request. The `product-owner` role rule adds `prd.md` as a required artifact
+request. The `product-owner` role rule adds `intent.md` as a required artifact
 and inserts the **intent-fidelity gate before the design stage** - the spec
-must be checked against the PRD before design starts. The `product-lens`
+must be checked against `intent.md` before design starts. The `product-lens`
 agent applies this perspective, at the requirements review and at the
 pre-design gate. The product owner curates the
 product strategies in `governance/strategies.md` - adding and refining them as
@@ -245,7 +246,7 @@ the team forms opinions, never unilaterally rewriting a guardrail.
 ### Product marketer - `/compass:position`
 
 Works **parallel to the spec**, not downstream of it. Drafts `positioning.md`
-from the PRD and the emerging scenarios - claims written so the scenario
+from `intent.md` and the emerging scenarios - claims written so the scenario
 file can back them, not aspirational copy that outruns the build. Builds
 `launch-readiness.md` as a claims-to-scenarios ledger. The `product-marketer`
 role rule turns on the `claims` review dimension and **blocks shipping**
@@ -254,7 +255,7 @@ immovable gate - no delivery approach removes it. The `marketing-lens` agent app
 the claims gate at ship time. The marketer curates the voice & positioning
 strategies in `governance/strategies.md`.
 
-### Designer - `/compass:wireframe`
+### Designer - `/compass:design`
 
 Feeds **into the spec**. UI contracts in Compass are not mockup annotations -
 they are scenarios, Given/When/Then, written in the same form as the rest of
@@ -266,7 +267,7 @@ the team has hardened from it). When `spec-author` defines the acceptance criter
 UI contract scenarios into `acceptance-criteria.md`; because they are already
 Given/When/Then, nothing is lost in translation.
 
-### Engineer - `/compass:triage` and the pipeline
+### Engineer - `/compass:assess` and the pipeline
 
 The engineer carries the pipeline's spine: triage, design,
 implementation, and the mechanical half of verify. Reads the spec **for tests** - scenarios
@@ -329,7 +330,7 @@ diluted into "looks good." The roles become decorative.
 
 Compass puts them *in* the pipeline:
 
-- The **product owner enters upstream of the spec.** The PRD exists before
+- The **product owner enters upstream of the spec.** `intent.md` exists before
   the scenarios, and the scenarios are checked back against it. The product
   owner is shaping what gets built, not reacting to what got built.
 - The **marketer works parallel to the spec.** Claims are drafted *alongside*
@@ -341,7 +342,7 @@ Compass puts them *in* the pipeline:
   Build starts.
 
 A role in Compass is not a consultation - it is an entry point that *changes
-the approach*. When `/compass:intent`, `/compass:position`, or `/compass:wireframe`
+the approach*. When `/compass:intent`, `/compass:position`, or `/compass:design`
 opens a session, triage reads the role as part of the assessment, and a
 non-engineering role almost always pulls the approach heavier: more
 artifacts, more gates. That weight is the framework working as designed, not overhead to

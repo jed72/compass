@@ -48,7 +48,7 @@ out of the way - but the de-scopes are written down, not assumed.
 one client's bulk job degraded latency for everyone.
 
 **What it demonstrates:** the default working shape at full artifact weight -
-`requirements-review.md` with the Definition of Ready ticked, a real `design.md` with
+`requirements-review.md` with the Definition of Ready ticked, a real `technical-design.md` with
 two ADR-style design decisions, a full `verification-report.md` with the
 Definition of Done and pasted test output. It also shows breakdown being
 *skipped for a reason* (the work units share code surface, so a swarm would
@@ -82,12 +82,12 @@ and two routing guardrails *firing visibly*. The assessment include
 `labels: [migrations]`, so **RP-FLOOR-003** raises the candidate from Standard
 to initiative ("domain risk overrides size") - you can see it in
 `task.yml`'s `fired_guardrails` and in `delivery-approach.md` §3. A product owner is
-involved, so **RP-ROLE-002** requires `prd.md` and blocks Plan until the spec
+involved, so **RP-ROLE-002** requires `intent.md` and blocks Plan until the spec
 is checked against it for intent fidelity. The `migrations` tag also makes
 guardrail `G5` apply - `task.yml`'s `evidence:` registry carries a typed
 `human-approval` entry (approver, role, scope, decision, timestamp,
 conditions) for the irreversible schema change, and the JSON record it points
-at lives under `evidence/approval-migration-0042.json`. Full set: `prd.md`
+at lives under `evidence/approval-migration-0042.json`. Full set: `intent.md`
 with an Internal FAQ, `distribution-map.md` with the two-stream swarm
 topology, per-stream *and* combined verification.
 
@@ -103,7 +103,7 @@ need a heavier tool? A timeboxed investigation.
 Spike; `scenarios:` and `changed_files:` are empty *on purpose* - a spike has
 no acceptance criteria and lands no production code. The `.spike` marker file
 suspends the TDD strategy (the hook does not block edits). There is no
-`design.md` and no `verification-report.md`; the `devlog.md` ends in a written
+`technical-design.md` and no `verification-report.md`; the `devlog.md` ends in a written
 **conclusion** ("viable with caveats") and a **graduate-or-discard decision**
 (graduate - re-assess into a real delivery issue; the scratch branch is *not*
 merged). `task.yml`'s `evidence:` registry carries a single

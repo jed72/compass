@@ -113,7 +113,7 @@
         "string",
         "null"
       ],
-      "description": "Set at breakdown, once the distribution map says whether independent work units exist. Triage does not write it - see stream_ceiling."
+      "description": "Set at breakdown, once the distribution map says whether independent work units exist. Assess does not write it - see stream_ceiling."
     },
     "stream_ceiling": {
       "type": [

@@ -2,7 +2,7 @@
 
 > The default working shape. Full pipeline at moderate weight, solo or pair.
 
-## Triage composes toward a feature approach when
+## Assess composes toward a feature approach when
 
 - size is `standard` (several files, 1–3 days, one or two design
   decisions), **and**
@@ -20,10 +20,10 @@ choices in it.
 
 | Stage | Weight on a feature approach |
 |---|---|
-| Triage | Full. `delivery-approach.md` written. |
+| Assess | Full. `delivery-approach.md` written. |
 | Define | A small **feature set** of scenarios - happy path, the realistic edges, the failure modes that matter. Brownfield-unmapped: distil current behaviour into scenarios first. |
 | Refine | **Light-to-full pass.** Resolve ambiguities, QA the spec against itself and against governance. Writes `requirements-review.md`. |
-| Plan | **Real `design.md`.** Technical approach, the one or two design decisions stated, governance check run. If the work splits into 2–3 independent units, a short distribution map. |
+| Plan | **Real `technical-design.md`.** Technical approach, the one or two design decisions stated, governance check run. If the work splits into 2–3 independent units, a short distribution map. |
 | Breakdown | **Solo or pair.** Solo on the current branch by default; pair (2–3 worktrees) if the distribution map shows clean independence and `.compass/config.yml` thresholds are met. |
 | Build | Full TDD per scenario. Test surface scaled to `contained`/`cross-cutting` risk. |
 | Verify | **Two gates** - one mid-Build checkpoint, one at the end. |

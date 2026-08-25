@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: distribution-map.md
-Produced by: the design stage (`/compass:design`) on pair/swarm-capable work;
+Produced by: the plan stage (`/compass:plan`) on pair/swarm-capable work;
              consumed by breakdown (`/compass:breakdown`) and the
              `orchestrator` agent.
 Lives at:    .compass/work/<task-slug>/distribution-map.md
@@ -18,14 +18,14 @@ Fill every {{PLACEHOLDER}}.
 
 # Distribution Map - {{TASK_SLUG}}
 
-> **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** design.md §4, acceptance-criteria.md
+> **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** technical-design.md §4, acceptance-criteria.md
 > **Consumed by:** breakdown, `scripts/swarm.sh`, the `orchestrator` agent
 
 ---
 
 ## 1. Work units
 
-| Unit | From design.md | Scenario group(s) | Code surface |
+| Unit | From technical-design.md | Scenario group(s) | Code surface |
 |---|---|---|---|
 | U1 | {{plan §4 U1}} | {{group A}} | {{files / modules}} |
 | U2 | {{plan §4 U2}} | {{group B}} | {{…}} |

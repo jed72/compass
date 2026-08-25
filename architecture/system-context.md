@@ -92,13 +92,13 @@ Logical surface: **role pipeline**
 | `.compass/work/<issue>/task.yml` | The machine-readable issue spine; written by triage, read by every stage | high |
 | `.compass/work/<task>/*.md` | Phase artefacts (spec, plan, clarifications, etc.) | high |
 | `.compass/current-task` | One-line pointer resolved by CLI and hooks | high |
-| `architecture/` (this tree) | Triage loads into `architecture-loaded.yml`; architect-lens reads | medium |
+| `architecture/` (this tree) | Assess loads into `architecture-loaded.yml`; architect-lens reads | medium |
 | `templates/` | Worked examples and starting shapes for adopter artefacts | low |
 | Claude Code session | The execution environment; not a file dependency | n/a |
 
 ## Boundary conditions
 
-1. **Triage is always first.** No code-changing tool call may precede a triage
+1. **Assess is always first.** No code-changing tool call may precede an assessment
    invocation for the active issue. The pre-tool hook (`hooks/pre-tool.sh`)
    enforces the `.red` marker contract; it cannot enforce triage itself, but the
    methodology makes triage mandatory.
@@ -120,7 +120,7 @@ Logical surface: **role pipeline**
    issue and ADR; it is not a per-project configuration option.
 
 5. **The `architecture/` tree is advisory.** A project may operate Compass
-   without an `architecture/` directory. Triage degrades gracefully to an
+   without an `architecture/` directory. Assess degrades gracefully to an
    empty load record. The architect-lens degrades gracefully to heuristic
    analysis with a `WARNING:` prefix. Neither absence causes a phase to fail.
 

@@ -15,6 +15,13 @@ Two properties matter as much as the detection itself, and both are tested here:
 
 Spec: .compass/work/readable-specs-and-flow/spec.feature.md (TRC-C1, C1b, C2, C5).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 import subprocess
 import sys
 import pathlib
@@ -23,7 +30,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 COMPASS_CLI = ROOT / "cli" / "compass"
 
 
-def _plan_lint(tmp_path, body, name="design.md"):
+def _plan_lint(tmp_path, body, name="technical-design.md"):
     """Write `body` to a temp plan and run `compass design lint --file` on it."""
     plan = tmp_path / name
     plan.write_text(body)

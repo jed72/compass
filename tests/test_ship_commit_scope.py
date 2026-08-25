@@ -17,6 +17,13 @@ issue's commit, which is exactly what the check exists to stop.
 
 Scenario ids: see docs/system-spec.md (group D).
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import pathlib
@@ -53,7 +60,7 @@ def test_rcd_d1b_the_issues_own_artifacts_stay_in_scope():
     """The existing allowance must survive the widening."""
     owned, artifact_dir = _scope()
     stray = task_spine._out_of_scope(
-        ["src/app.py", ".compass/work/demo/design.md"], owned, artifact_dir)
+        ["src/app.py", ".compass/work/demo/technical-design.md"], owned, artifact_dir)
 
     assert stray == [], (
         f"the issue's own declared file or artifact directory was refused: "

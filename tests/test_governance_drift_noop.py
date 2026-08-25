@@ -228,9 +228,14 @@ EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
 # The CLI-voice slice renamed the banned-word verbs (route -> approach,
 # plan -> design, task -> issue, backfill -> follow-up) and added
 # terminology; the set below is the surface after that deliberate move.
+# The vocabulary rename moved the planning verb BACK to `plan` on
+# 2026-08-25: `design` now means the designer's stage everywhere else,
+# and one word cannot mean two stages in one release. `design` is kept
+# alongside it - it shipped in 3.3.0, so it keeps working until the next
+# major version (ADR-006, ADR-019). Both spellings, one handler.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
-    "tdd-green", "policy", "design", "issue", "adr", "rework-scan", "flow",
+    "tdd-green", "policy", "plan", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
     "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator

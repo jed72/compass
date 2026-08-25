@@ -41,10 +41,10 @@ No routing guardrail fired. Candidate route stands.
 
 | Phase | Weight | Notes |
 |---|---|---|
-| Triage | Full | This document. |
+| Assess | Full | This document. |
 | Define | One scenario | A single Given/When/Then naming the corrected message. That scenario is the spec. |
 | Refine | Collapsed | See the de-scope ledger. |
-| Plan | Collapsed | One-line edit note below. No `design.md`. |
+| Plan | Collapsed | One-line edit note below. No `technical-design.md`. |
 | Breakdown | Skipped | Solo, current branch. |
 | Build | Full TDD | Failing test for TRC-001 → green → no refactor needed. |
 | Verify | Light | Run the new test plus the upload test module; paste output. |

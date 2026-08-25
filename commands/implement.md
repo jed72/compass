@@ -19,7 +19,7 @@ into real delivery work.
 - Read `delivery-approach.md` for the test-surface target (scaled to risk)
   and the topology.
 - Read `acceptance-criteria.md` - scenarios become the acceptance suite and
-  seed the TDD cycle. Read `design.md` for the approach.
+  seed the TDD cycle. Read `technical-design.md` for the approach.
 - Load the `tdd-discipline` skill.
 - Invoke the `builder` agent - **one per worktree** on a pair or swarm
   topology, each owning its scenario set from the distribution map. On solo
@@ -97,7 +97,7 @@ signal - see the reassessment trigger below.
 
 If implementation reveals the assessment was misread - a "small" change
 unspooling into a multi-module refactor - **stop and re-assess**
-(`/compass:triage --reassess`). Pushing on with a delivery approach you no
+(`/compass:assess --reassess`). Pushing on with a delivery approach you no
 longer believe is the failure mode.
 
 ## Gate

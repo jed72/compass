@@ -6,6 +6,13 @@ determinism boundary, refused-idea boundaries (no tier menu, no persona zoo,
 no fixed-depth pipeline, no fluid no-gate mode, no mandatory universal TDD),
 and zero-setup on-ramp.
 """
+
+# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
+# the names their machine keys, skills and agents already used; `design` went
+# back to the designer; design.md became technical-design.md and prd.md became
+# intent.md. Spines and documents written before still load and resolve
+# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
+# what the framework computes. Re-pointed, not relaxed.
 from __future__ import annotations
 
 import json
@@ -78,8 +85,17 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
     "analyze", "next",            # cross-task-architectural-integrity
     "ship-commit",                # framework-field-feedback R5
     "gate", "scenario", "changed-file", "evidence",  # framework-field-feedback R6/R9
-    "design",                     # readable-specs-and-flow: `compass design lint`,
-                                  # the advisory placeholder scan over design.md
+    "plan",                       # readable-specs-and-flow shipped this as
+                                  # `compass design lint`, the advisory
+                                  # placeholder scan over technical-design.md.
+                                  # The vocabulary rename moved it to `plan` on
+                                  # 2026-08-25, because `design` now names the
+                                  # DESIGNER's stage and one word cannot mean
+                                  # two stages in one release.
+                                  # The retired spelling `design` still runs -
+                                  # ADR-006 forbids breaking it mid-major - but
+                                  # it is hidden from `--help`, so it is not an
+                                  # advertised verb and is absent from this set.
     "acceptance",                 # honest-acceptance-for-config-and-refactor:
                                   # `compass acceptance start|record`, the
                                   # honest signal for a change with no natural

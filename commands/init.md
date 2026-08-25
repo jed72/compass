@@ -7,7 +7,7 @@ allowed-tools: Read, Write, Edit, Bash, Glob
 
 `/compass:init` is **optional**. Compass ships with five default guardrails,
 a set of default method strategies (including BDD and TDD), and a default
-routing policy - all active out of the box. `/compass:triage` works on day
+routing policy - all active out of the box. `/compass:assess` works on day
 one with zero project setup; it computes delivery approaches against those
 shipped defaults. Init is not a gate you must clear before the first issue.
 
@@ -73,15 +73,15 @@ it is exempt from triage.
 
 5. **Create working state.** Make `.compass/work/`. Add a `.gitkeep` if
    empty. Remind the user that `.compass/work/` **is committed** - it is
-   the audit trail, not scratch. `/compass:triage` will later write
+   the audit trail, not scratch. `/compass:assess` will later write
    `.compass/current-task` (the pointer the CLI uses to resolve which issue
    a `compass` call acts on); it does not need to be created now.
 
 6. **Report.** Summarise what was created, which project sections the team
    chose to leave empty (a valid state, not owed work), and the next
-   command: `/compass:triage` for an engineer, or a role entry point -
+   command: `/compass:assess` for an engineer, or a role entry point -
    `/compass:intent` (product owner/manager), `/compass:position` (product
-   marketer), or `/compass:wireframe` (designer).
+   marketer), or `/compass:design` (designer).
 
 ## Gate
 

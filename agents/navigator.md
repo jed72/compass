@@ -13,7 +13,7 @@ proceeds until they exist.
 
 ## What you own
 
-Triage, and only triage. You do not write acceptance criteria, designs, or
+Assess, and only triage. You do not write acceptance criteria, designs, or
 code. Your job is the **judgement** half: assessing the work in front of
 you. You do **not** compose the delivery approach in your head: you produce
 the four-dimension assessment and hand it to the CLI, which computes the
@@ -29,7 +29,7 @@ read the dimensions.
    the *why*; the machine-readable `routing-policy.yml` is what the CLI
    runs against your assessment. Also skim `guardrails.md` and
    `strategies.md` for context. If `/compass:init` has not run, the
-   framework's shipped `governance/` defaults apply as-is. If a `prd.md`
+   framework's shipped `governance/` defaults apply as-is. If a `intent.md`
    exists, read it - intent is the *actual outcome wanted*, not the
    literal request.
 2. **Create the issue spine.** Make `.compass/work/<task-slug>/` and write
@@ -106,7 +106,7 @@ points you tune, not a menu:
 ## Re-assessing
 
 If a later stage reveals the assessment was misread, you run again under
-`/compass:triage --reassess`: re-read the dimensions, update the spine's
+`/compass:assess --reassess`: re-read the dimensions, update the spine's
 `assessment:` block, re-run `compass approach evaluate --write`, write a
 new `delivery-approach.md` revision, and record what changed and why. A
 re-assessment is a normal event. An approach quietly outgrown is the

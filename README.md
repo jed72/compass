@@ -46,7 +46,7 @@ reads four dimensions:
 | **Size** | How much work is this actually? |
 | **Intent & role** | Who's invoking, and what outcome are they really after? |
 
-Triage writes `delivery-approach.md`: what it assessed, the approach it computed, the gates
+Assess writes `delivery-approach.md`: what it assessed, the approach it computed, the gates
 that apply, and **exactly what it's skipping and why that's safe**. De-scoping
 is a written, auditable decision, never an accident.
 
@@ -67,11 +67,11 @@ Then start an issue. The default guardrails ship active, so triage frames it
 and picks the route with no setup at all:
 
 ```bash
-/compass:triage "Add rate limiting to the public API"
+/compass:assess "Add rate limiting to the public API"
 
 # Walk the pipeline (or let the route auto-advance).
 /compass:define
-/compass:design
+/compass:plan
 /compass:implement
 /compass:verify
 /compass:ship
@@ -137,7 +137,7 @@ shapes triage tunes, not a fixed ladder.
 Compass is governed by two kinds of thing, kept deliberately separate:
 
 - **Guardrails** are few, hard, checkable, blocking. The things that must never
-  happen. Triage adapts ceremony *around* them; it never crosses one.
+  happen. Assess adapts ceremony *around* them; it never crosses one.
 - **Strategies** are many, soft, directional, assessed. How the team tends to
   work. A strategy biases a decision; it doesn't block one.
 
@@ -153,7 +153,7 @@ them. A one-line typo fix still has to be tested before it lands; it doesn't
 have to perform the full ritual to do so.
 
 Governance is a **gradient, not a threshold**: the defaults ship active, so
-`/compass:init` is optional and `/compass:triage` works on day one. A team
+`/compass:init` is optional and `/compass:assess` works on day one. A team
 *accretes* its own strategies as it forms opinions. See `governance/`.
 
 ## Roles are full citizens - one spec, many roles
@@ -167,8 +167,8 @@ Every role reads it through their own perspective:
 |---|---|---|
 | Product owner / manager | `/compass:intent` | intent fidelity - do these scenarios deliver the brief? |
 | Product marketer | `/compass:position` | claims - every line of launch copy points at a backing scenario |
-| Designer | `/compass:wireframe` | UI contracts, written as scenarios that flow into the define stage |
-| Engineer | `/compass:triage` → pipeline | tests - scenarios become the acceptance suite |
+| Designer | `/compass:design` | UI contracts, written as scenarios that flow into the define stage |
+| Engineer | `/compass:assess` → pipeline | tests - scenarios become the acceptance suite |
 | QA | `/compass:verify` | coverage - which scenarios are exercised, which edges aren't |
 
 The product owner enters *upstream* of the spec. The marketer works *parallel*
@@ -180,7 +180,7 @@ finished engineering process.
 command. The framework ships ten agents rather than five, because some roles
 apply *during* the pipeline instead of starting it. The **architect-lens** is
 the clearest example: it reads the project's `architecture/` artifacts at triage
-and annotates `design.md` at Plan, and is consulted by the spec author and the
+and annotates `technical-design.md` at Plan, and is consulted by the spec author and the
 planner rather than invoked directly. See
 [`docs/roles-guide.md`](docs/roles-guide.md).
 
@@ -212,7 +212,7 @@ triage is systematically over- or under-sizing routes. See
 ## The compass CLI
 
 The slash commands call the CLI under the hood, so you rarely invoke it
-directly. `/compass:triage` runs `compass approach evaluate`; `/compass:verify`
+directly. `/compass:assess` runs `compass approach evaluate`; `/compass:verify`
 runs `compass check`. It is the part that makes the framework's checks real
 rather than aspirational.
 
@@ -224,7 +224,7 @@ compass tdd-red   -- CMD run a test, assert it FAILS, record the red
 compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
 compass policy lint      structurally validate the governance YAML
 compass issue lint        structurally validate a task.yml
-compass design lint        scan a design.md for placeholder phrases (TBD, TODO,
+compass plan lint        scan a technical-design.md for placeholder phrases (TBD, TODO,
                          "implement later") - advisory, always exits 0
 compass issue receipt     render a one-screen receipt for a landed issue:
                          assessment → approach → typed evidence → gate verdicts

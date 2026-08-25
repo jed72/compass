@@ -85,13 +85,13 @@ pip install jsonschema           # optional
 python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
 ```
 
-## 3. Triage a test issue in Claude Code
+## 3. Assess a test issue in Claude Code
 
 Open Claude Code in a directory you do not mind getting a `.compass/`
 folder in (a scratch repo is ideal). Type:
 
 ```
-/compass:triage "test installation"
+/compass:assess "test installation"
 ```
 
 Expected outcomes:
@@ -104,7 +104,7 @@ Expected outcomes:
 - `.compass/current-task` exists at the project root and contains the
   one-line slug `test-installation`.
 
-If `/compass:triage` is unknown to Claude Code, the adapter layer is not
+If `/compass:assess` is unknown to Claude Code, the adapter layer is not
 on the Claude Code config path - re-check step 1.
 
 ## 4. Validate the governance YAML
