@@ -16,6 +16,15 @@ would have avoided this; ADR-020 supersedes that and migrates the archive
 deliberately, with this guard as the condition - the cost is paid once,
 visibly, rather than accumulating unmeasured.
 
+TWO CHECKS, BECAUSE ONLY ONE OF THEM CAN RUN IN CI. `.compass/work/` is
+gitignored, so in a clean checkout those paths cannot resolve no matter how
+correct they are. Splitting them keeps real enforcement everywhere:
+
+  * the NAME is checkable anywhere - a citation must not spell a filename this
+    framework has retired, and that is what all 22 of the originals got wrong.
+  * the PATH is checkable only where the archive exists, so that half skips
+    with a stated reason rather than passing on an empty tree.
+
 Scenario id: TRC-E4, .compass/work/the-vocabulary-rename/acceptance-criteria.md
 """
 from __future__ import annotations
@@ -78,6 +87,32 @@ def _search_roots():
     return roots
 
 
+def _every_citation():
+    """{citation: [file:line, ...]} for every citation on a shipped surface."""
+    found = {}
+    for path, rel, lines, prose in _citing_files():
+        for lineno, line in enumerate(lines, 1):
+            if not prose and not CITATION_LABEL.search(line):
+                continue
+            for cite in CITATION.findall(line):
+                found.setdefault(cite, []).append("%s:%d" % (rel, lineno))
+    return found
+
+
+def _citing_files():
+    for path in sorted(REPO_ROOT.rglob("*")):
+        if not path.is_file() or path.suffix not in SUFFIXES:
+            continue
+        rel = str(path.relative_to(REPO_ROOT))
+        if SKIP_DIRS & set(path.parts) or rel.startswith(SKIP_PREFIXES):
+            continue
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        yield path, rel, lines, path.suffix in (".md", ".yml", ".yaml")
+
+
 def _unopenable():
     roots = _search_roots()
     found = {}
@@ -104,13 +139,56 @@ def _unopenable():
     return found
 
 
+def test_trc_e4_no_citation_names_a_retired_filename():
+    """Runs everywhere, including a clean checkout with no archive.
+
+    A citation naming `spec.feature.md`, `plan.md`, `route.md`, `design.md`,
+    `prd.md`, `brief.md` or `clarifications.md` is pointing at a filename this
+    framework renamed away. That is checkable from the path alone, so it is
+    the half that holds in CI - and it is what all 22 of the original broken
+    citations got wrong.
+    """
+    import sys
+
+    sys.path.insert(0, str(REPO_ROOT / "cli"))
+    import compass_pkg  # noqa: F401  - resolves the bundled yaml
+    from compass_pkg.migrate import artifact_name_map
+
+    retired = artifact_name_map()
+    bad = {}
+    for cite, where in _every_citation().items():
+        name = cite.rsplit("/", 1)[-1]
+        if name in retired and cite not in ILLUSTRATIVE:
+            bad["%s (rename it to %s)" % (cite, retired[name])] = where
+    report = "\n  ".join(
+        "%s\n      cited by: %s" % (cite, ", ".join(where))
+        for cite, where in sorted(bad.items()))
+    assert not bad, (
+        "%d citation(s) name a filename this framework renamed away:\n  %s"
+        % (len(bad), report))
+
+
 def test_trc_e4_every_citation_into_the_archive_opens():
     """Every path into `.compass/work/` named on a shipped surface resolves.
+
+    Skipped where the archive is not present - `.compass/work/` is gitignored,
+    so in a clean checkout these paths cannot resolve however correct they
+    are, and asserting they do would fail CI for a reason nobody can fix.
+    SKIPPED rather than passed: a check that quietly clears on an empty tree
+    reads as coverage and verifies nothing.
 
     The failure names the citation and every file making it, because the fix
     is always the same shape - the record moved, and the pointer did not - and
     a reader needs to see the whole set at once rather than one per run.
     """
+    import pytest
+
+    archive = REPO_ROOT / ".compass" / "work"
+    if not archive.is_dir() or not any(archive.iterdir()):
+        pytest.skip(
+            ".compass/work/ is not in this checkout (it is gitignored), so "
+            "there is no archive for a citation to resolve against. The "
+            "filename half of this rule still ran.")
     bad = _unopenable()
     report = "\n  ".join(
         "%s\n      cited by: %s" % (cite, ", ".join(where))
