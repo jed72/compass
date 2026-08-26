@@ -1,0 +1,137 @@
+"""`compass init` - make a directory a Compass project.
+
+Before this verb, nothing owned initialisation. `/compass:init` created
+`.compass/config.yml` and `.compass/work/` at steps 4 and 5 of a governance
+conversation, `/compass:assess` created `.compass/work/<slug>/` as a side
+effect of writing an issue spine, and four of the five role entry points wrote
+into `.compass/work/<slug>/` while assuming somebody else had made it. A
+project became a Compass project by accident, which meant nothing could check
+that it had.
+
+The split this verb keeps:
+
+  compass init      creates .compass/. Nothing else. Safe to run twice, which
+                    is what lets the entry-point commands call it
+                    unconditionally rather than each testing for the directory.
+  /compass:init     the slash command - calls this, then offers the governance
+                    conversation that copies governance/ into the project.
+
+Auto-initialisation must never adopt governance. Being initialised for you is
+small and reversible; having a governance directory copied into your
+repository because you ran /compass:intent is not, and it would arrive without
+the conversation that is the whole point of adopting it.
+
+DEPENDENCY: none beyond the standard library and this package. It runs before
+a project exists, so it must not reach for anything that assumes one - in
+particular not core.find_compass_dir(), which raises when there is no
+.compass/ and is exactly the case this verb handles.
+"""
+import os
+
+from compass_pkg.terminal import say
+
+# Written on creation only - never over an existing file. Deliberately small:
+# authoritative governance lives in governance/, and a value in two places is a
+# value that drifts. `/compass:init` is where a project fills these in.
+CONFIG_TEMPLATE = """\
+# Compass - per-project configuration
+#
+# Created by `compass init`. Authoritative governance lives in governance/,
+# not here: governance/routing-policy.yml decides how a delivery approach is
+# composed, and governance/guardrails.yml is what `compass check` runs. This
+# file holds only project knobs those files have no opinion on.
+#
+# A project that has not run `/compass:init` uses the shipped governance
+# defaults, which are active and in force. That is a complete, valid state.
+
+version: 1.0.0
+
+# advisory : checks report every failure clearly but exit 0 - nothing blocks.
+# enforced : checks exit non-zero on any failure - the gate is real.
+mode: enforced
+
+project:
+  # Shown in artifact headers and the devlog.
+  name: ""
+
+  # The command Compass runs to execute the test suite, passed to
+  # `compass tdd-red` and `compass tdd-green`. Left empty, the hooks fall back
+  # to detecting npm, Make and pytest conventions.
+  test_command: ""
+"""
+
+
+def resolve_project_root():
+    """Where a project would be, for a verb that runs before one exists.
+
+    Deliberately NOT core.find_compass_dir(): that raises when there is no
+    .compass/, and this is the one verb whose job is that case.
+
+    CLAUDE_PROJECT_DIR is the runtime stating where the project is, so it wins.
+    Otherwise the nearest ancestor holding .git - a repository is the unit a
+    person means by "this project". Failing that, the working directory.
+
+    This is not the pre-tool hook's walk and must not be confused with it. The
+    hook stops at a .git boundary to avoid READING a stranger's issue state;
+    the risk here is the opposite - CREATING state somewhere the user did not
+    mean - so the nearest repository is the answer, not the furthest.
+    """
+    explicit = os.environ.get("CLAUDE_PROJECT_DIR")
+    if explicit:
+        return os.path.abspath(explicit)
+
+    search = os.path.abspath(os.getcwd())
+    while True:
+        if os.path.exists(os.path.join(search, ".git")):
+            return search
+        parent = os.path.dirname(search)
+        if parent == search:
+            return os.path.abspath(os.getcwd())
+        search = parent
+
+
+def ensure_initialised(project_root):
+    """Create .compass/ if it is not there. Returns (created, compass_dir).
+
+    Idempotent on purpose. Every entry-point command calls this without
+    checking first, so a second run must not touch a config the project has
+    edited or anything under work/.
+    """
+    compass_dir = os.path.join(project_root, ".compass")
+    work_dir = os.path.join(compass_dir, "work")
+    config = os.path.join(compass_dir, "config.yml")
+
+    created = not os.path.isdir(compass_dir)
+
+    os.makedirs(work_dir, exist_ok=True)
+    if not os.path.exists(config):
+        with open(config, "w", encoding="utf-8") as fh:
+            fh.write(CONFIG_TEMPLATE)
+
+    return created, compass_dir
+
+
+def cmd_init(args):
+    root = resolve_project_root()
+    created, compass_dir = ensure_initialised(root)
+
+    if created:
+        return say(
+            args,
+            "compass init: initialised Compass in %s." % root,
+            detail=[
+                "config   : %s" % os.path.join(compass_dir, "config.yml"),
+                "work     : %s" % os.path.join(compass_dir, "work"),
+                "governance: the shipped defaults are in force. Run "
+                "/compass:init to adopt your own.",
+            ],
+            decision=True,
+            created=True, path=compass_dir, project_root=root,
+        )
+
+    return say(
+        args,
+        "compass init: %s is already a Compass project - nothing changed." % root,
+        detail=["config : %s" % os.path.join(compass_dir, "config.yml")],
+        created=False, path=compass_dir, project_root=root,
+    )

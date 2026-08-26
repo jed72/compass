@@ -201,6 +201,7 @@ runtime should be able to resume from these files without the original chat.
 Everything above runs through slash commands. The mechanism they call:
 
 ```text
+compass init               make this directory a Compass project - create .compass/
 compass approach evaluate  the assessment -> the delivery approach, deterministically
 compass bdd extract        acceptance criteria -> a runnable .feature
 compass bdd verify         record which scenarios the runner actually ran

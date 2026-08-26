@@ -332,6 +332,15 @@ EXPECTED_SUBCOMMANDS = {
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
     "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
+    # `init` added 2026-08-26: `compass init` creates .compass/ - the config
+    # and the work directory - and is safe to run twice. It exists because
+    # nothing owned initialisation: /compass:init created the directories at
+    # the end of a governance conversation, /compass:assess created them as a
+    # side effect of writing a spine, and four of the five role entry points
+    # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
+    # rather than a subcommand because there is no group it belongs under, and
+    # because the five entry points call it directly.
+    "init",
     "acceptance",   # R13: the acceptance verb group
 }
 

@@ -594,7 +594,7 @@ class Report:
         return 0
 
 
-def say(args, outcome, detail=None, read=None, reply=None, **data):
+def say(args, outcome, detail=None, read=None, reply=None, decision=False, **data):
     """One hand-off, from a verb that has a single thing to report.
 
     Most verbs are one line and a couple of details: "the record is written,
@@ -605,6 +605,13 @@ def say(args, outcome, detail=None, read=None, reply=None, **data):
     wrote to, the status it set. They are what make `--json` a machine mode
     instead of the verb's prose in a wrapper, which is why this takes them
     rather than deriving them from the sentence.
+
+    `decision=True` marks an outcome that survives `--quiet`, which is
+    documented as "errors and the decision hand-off only". Use it when the run
+    changed something in the user's repository that they would want to know
+    about even when they asked for silence - `compass init` creating
+    `.compass/` is the case it was added for. Progress and confirmations are
+    not decisions; if in doubt it is not one.
     """
     mark_handled()
     mode = resolve_mode(args)
@@ -621,6 +628,13 @@ def say(args, outcome, detail=None, read=None, reply=None, **data):
         write_capture(args.evidence_out,
                       "\n".join([str(outcome)] + [str(d) for d in (detail or [])]))
     if mode == "quiet":
+        if decision:
+            # `--quiet` is "errors and the decision hand-off only", so a run
+            # that changed something in the repository still says the one line
+            # that says what. Details are progress; the outcome is the
+            # decision.
+            print(_fit(outcome))
+            return 0
         # Nothing was decided and nothing went wrong. The exit code carries it.
         return 0
     lines = [_fit(outcome)]

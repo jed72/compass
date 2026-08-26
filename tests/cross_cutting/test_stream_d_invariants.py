@@ -108,6 +108,14 @@ EXPECTED_PUBLIC_SUBCOMMANDS = {
                                   # behavioural red (field report R13). A
                                   # GROUP, like `bdd`, so later kinds add
                                   # `compass acceptance <thing>`.
+    "init",                       # init-is-the-opt-in: `compass init` creates
+                                  # .compass/ and is safe to run twice. The
+                                  # five entry points call it, so a project is
+                                  # initialised by the command the user wanted
+                                  # to run rather than by a setup step they had
+                                  # to know about. A verb, not a group: there
+                                  # is no group it belongs under, and nothing
+                                  # else initialises anything.
     "bdd",                        # executable-bdd-and-richer-plans:
                                   # `compass bdd extract`. A subcommand GROUP,
                                   # so later BDD work (a scenarios-are-executable

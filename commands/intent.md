@@ -13,6 +13,18 @@ collapsed into one. The spec will later be checked back against it.
 
 **Intent:** $ARGUMENTS
 
+## First: make sure this is a Compass project
+
+Run `compass init`. It creates `.compass/` if it is not there and reports that
+it did; if the project already exists it says so and changes nothing, so this
+is safe to run every time and you do not need to check first.
+
+**Report the result to the user in one line when it created the project.** A
+`.compass/` directory appearing with no word said is how someone deletes it by
+hand, or commits it without meaning to. It creates project state only - the
+shipped governance defaults stay in force, and adopting your own is what
+`/compass:init` offers separately.
+
 ## Setup
 
 - Adopt the product owner's vocabulary - outcomes and users, not files and
