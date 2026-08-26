@@ -534,7 +534,7 @@ def cmd_task_set_status(args):
                  if isinstance(g, dict) and g.get("status") != "pass"]
         if unmet:
             raise CompassError(
-                f"compass issue set-status: refusing to mark '{task.get('issue')}' "
+                f"compass issue set-status: refusing to mark '{task.get('task')}' "
                 f"landed - {len(unmet)} gate(s) have not passed "
                 f"({', '.join(unmet)}). Shipping is a record, not a rubber stamp. "
                 "Clear the gates and re-run."
@@ -552,6 +552,6 @@ def cmd_task_set_status(args):
 
     save_task(task, path)
     detail = f" ({reason})" if reason else ""
-    return say(args, f"compass issue set-status: {task.get('issue')} -> "
+    return say(args, f"compass issue set-status: {task.get('task')} -> "
                     f"{status}{detail}.",
-               issue=task.get("issue"), status=status, reason=reason or None)
+               issue=task.get("task"), status=status, reason=reason or None)
