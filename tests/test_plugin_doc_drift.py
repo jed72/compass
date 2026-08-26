@@ -148,7 +148,12 @@ def test_trc_b2_methodology_section_9_names_bin_and_plugin_manifest():
     .claude-plugin/."""
     method = _read("docs/methodology.md")
     m = re.search(
-        r"##\s+9\.\s+The three layers.*?(?=^##\s+\d+\.|\Z)",
+        # By NAME, at whatever number. The section was §9 and is §11 since the
+        # docs were slimmed on 2026-08-26; what this guard needs is the
+        # paragraph that names bin/compass, not its position in the running
+        # order. Pinning a section number is the same brittleness that broke
+        # two anchors in this repair already.
+        r"##\s+\d+\.\s+The three layers.*?(?=^##\s+\d+\.|\Z)",
         method,
         re.DOTALL | re.MULTILINE,
     )

@@ -1,127 +1,73 @@
 # Compass in five minutes
 
-The shortest path from "what is this" to "I've shipped an issue with it." This
-page is just enough to get going. Read `docs/methodology.md` afterwards for the
-design, and `docs/safety-contract.md` for what Compass 1.0 does and does not
-promise.
+This walkthrough takes one small change from assessment to a reviewable,
+verified result.
 
-To run the commands below you need Compass installed. The quickest way, inside
-Claude Code, is `/plugin marketplace add jed72/compass` then
-`/plugin install compass@compass`. Compass needs Python 3; the YAML parser it
-uses travels inside the plugin, so there is nothing else to install.
-`docs/quickstart.md` §1 covers that and the install-from-source alternative.
+## Before you start
 
----
+You need Claude Code and Python 3. Compass CI currently tests Python 3.11.
 
-## The mental model in five points
+Install Compass inside Claude Code:
 
-1. **Compass reads the issue.** Before you change a file, `/compass:assess`
-   triages it on four dimensions - risk, familiarity, size, intent
-   & role. That part is judgement; you produce the assessment.
-2. **It routes by risk and uncertainty.** Given the assessment,
-   `compass approach evaluate` applies `governance/routing-policy.yml` and
-   computes the delivery approach deterministically - same assessment, same route, every
-   time. You don't pick a process from a menu.
-3. **It creates only the artifacts that route needs.** quick fix collapses
-   the requirements review, the design stage, and the breakdown to
-   nothing. An initiative expands them.
-   Spike skips most of the pipeline because it ships nothing. The route
-   tells the pipeline what to skip and *why it is safe to skip it* - and
-   the reason is written down in `delivery-approach.md`.
-4. **It requires typed, traceable evidence before delivery work lands.**
-   "The tests pass" is not the sentence - it is the run, recorded as a
-   `test-run` evidence entry the CLI can read. Gates accept specific
-   evidence types; a written note will not clear a mechanical gate.
-5. **It checks the issue spine in CI.** `compass ci` runs `policy lint`,
-   `issue lint`, and `check` for every issue under `.compass/work/`. It does
-   not re-run your test suite - it verifies that the *issue state is
-   coherent and backed by evidence*. Your project's own CI still runs
-   tests, lints, builds, deploys.
-
-The full statement of what Compass 1.0 promises (and explicitly does *not*
-claim) lives in `docs/safety-contract.md`. Everything below is how it feels
-in practice.
-
----
-
-## The five reference shapes, one line each
-
-- **Quick fix** - atomic, contained, mapped. triage → define (1 scenario) →
-  implement → verify. One gate. Still tested before it ships.
-- **Feature** - standard size, contained risk. The full pipeline,
-  solo or pair. Two gates.
-- **Initiative** - large or cross-cutting, often greenfield. Full weight.
-  Distribution map, agent swarm across worktrees, all gates.
-- **Hotfix** - critical and small, brownfield. Reproduce-first: a failing
-  regression test *is* the spec. Implementation is expedited, and two
-  things are owed before the issue closes: the approach record completed
-  properly (not the urgent stub), and the reproduction test promoted into
-  a real Given/When/Then scenario.
-- **Spike** - exploration. TDD strategy suspended, hook does not block.
-  **Nothing ships from a spike**; the only exit that keeps code is
-  graduating - re-triaging into a real delivery approach.
-
-Approaches are *composed* from assessment, not chosen from a menu - these five
-are starting shapes triage tunes. See `docs/methodology.md` §8.
-
----
-
-## A worked example - fix a typo on quick fix
-
-You notice the JWT refresh error message has a typo: "invald token". You
-fix the string. Here is the whole walk.
-
-### Assess
-
-```
-/compass:assess "fix typo in the JWT refresh error message"
+```text
+/plugin marketplace add jed72/compass
+/plugin install compass@compass
 ```
 
-Assess reads the four dimensions - size `atomic`, risk
-`trivial`, familiarity `brownfield-mapped`, intent `delivery` - and records
-them in `.compass/work/fix-jwt-typo/task.yml`:
+Open a project you are happy to change. Compass will add a `.compass/`
+directory containing the issue record and review artefacts.
 
-<!-- vocabulary-scan: allow - the spine's own field names; machine state, which the ban exempts -->
+## 1. Assess the work
+
+Start with a real, contained change:
+
+```text
+/compass:assess "Fix the misspelt invalid-token message"
+```
+
+Compass assesses four dimensions:
+
+| Dimension | What it asks |
+|---|---|
+| Risk | What happens if this goes wrong? |
+| Familiarity | Is the affected code understood? |
+| Size | How much delivery work is involved? |
+| Intent and role | What outcome is wanted, and who is asking? |
+
+Judgement goes into the assessment. Everything after it is deterministic: the
+same assessment plus the same policy produces the same approach, every time.
+
+For a contained typo, Compass will normally choose a quick-fix-shaped approach.
+It writes the result under `.compass/work/<issue>/`, and the spine records the
+judgement it routed from. The part of `task.yml` that matters here:
+
 ```yaml
 schema_version: "2.0"
-task: fix-jwt-typo
+status: active
 assessment:
-  risk: trivial
+  risk: contained
   familiarity: brownfield-mapped
   size: atomic
   goal: delivery
   role: engineer
 ```
 
-Then the mechanism takes over. `/compass:assess` shells out to
-`compass approach evaluate --write`, which composes the delivery approach, applies the
-routing guardrails, and folds the result back into `task.yml`.
+Those four dimensions are the only judgement in the routing. Everything after
+them - the stages, the gates, the topology - is computed. Run
+`compass approach evaluate --verbose` against that assessment and it prints:
 
-What you see by default is the answer and the rules that produced it:
-
-```
-quick fix - 3 gate(s), up to 1 parallel stream(s)
-Read: .compass/work/fix-jwt-typo/delivery-approach.md
-
-Key choices:
-  - no policy rule fired - the shape is the assessment's default
-```
-
-`--verbose` adds the working - which policy file was read, the assessment it
-was applied to, the weight of every stage, and the full gate set:
-
-```
-  policy          : governance/routing-policy.yml (v2.3.0)
-  assessment      : {"risk": "trivial", "familiarity": "brownfield-mapped", ...}
+```text
+  policy          : /Users/jed/dev/compass/governance/routing-policy.yml (v2.5.0)
+  assessment      : {"risk": "contained", "familiarity": "brownfield-mapped", "size": "atomic", "goal": "delivery", "role": "engineer"}
   candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix
   policy rules fired: none
-  topology        : solo
+  parallel streams: up to 1 (a ceiling - breakdown sets the topology once the distribution map exists)
   per-stage weight:
-    triage     : full
+    assess     : full
     define     : light
     refine     : collapsed
-    design     : collapsed
+    plan       : collapsed
     breakdown  : skipped
     implement  : full
     verify     : light
@@ -129,191 +75,174 @@ was applied to, the weight of every stage, and the full gate set:
   gate set        : verify.correctness, verify.governance, verify.traceability
 ```
 
-Assess is `full` on every delivery approach - it is the one stage that never collapses.
+Generate the issue dashboard:
 
-`.compass/current-task` now points at `fix-jwt-typo`. `delivery-approach.md` records
-the assessment, the delivery approach, and the de-scope reasons.
-
-### Define the acceptance criteria
-
+```bash
+compass issue dashboard --issue <issue>
 ```
+
+Then open `.compass/work/<issue>/README.md`. It tells you:
+
+- the proposed approach;
+- what needs human approval;
+- which artefacts will be produced;
+- what Compass deliberately omitted, and why; and
+- the next action.
+
+Approve or correct the assessment before continuing. A good route depends on a
+good assessment. Regenerate the dashboard after a stage changes the issue.
+
+## 2. Define acceptance
+
+Run:
+
+```text
 /compass:define
 ```
 
-One scenario is enough:
+For this change, one Gherkin scenario is enough:
 
 ```gherkin
-Scenario: SCN-001 - the JWT refresh error message reads correctly
-  Given a request with an expired JWT
-  When the user attempts to refresh it with a malformed payload
-  Then the response includes the message "invalid token", correctly spelled
+Scenario: The invalid-token message is spelt correctly
+  Given a request contains an invalid token
+  When authentication rejects the request
+  Then the response says "invalid token"
 ```
 
-`task.yml` gains the scenario; `tests:` lists the test file that will
-exercise it.
+The scenario is the shared specification. It tells the engineer what to test,
+QA what to verify, and reviewers what the change is meant to achieve.
 
-### Build - red, then green, through the CLI
+## 3. Plan only what is useful
 
-The pre-tool hook is watching: edit a code file with no failing test on
-record and it blocks the call. So you write the test first, then run it
-through `compass tdd-red`:
+Run:
 
-```
-$ compass tdd-red --scenario SCN-001 -- pytest tests/auth/test_jwt_refresh.py::test_typo
-  ran: pytest tests/auth/test_jwt_refresh.py::test_typo
-  exit code: 1  (test correctly fails)
-  wrote evidence/red-SCN-001.json, .red marker
+```text
+/compass:plan
 ```
 
-The CLI confirmed the test actually failed before it wrote the marker.
-Now you edit the production code - fix the typo, two characters - and
-the hook lets the edit through because `.red` exists. Then:
+On a quick fix, planning may collapse to a short note naming the file and test
+surface. Larger or riskier work can produce an intent document, high-level design,
+low-level design, ADRs, delivery plan or test strategy.
 
+Those documents are selected because they help this issue. They are not a
+fixed checklist.
+
+## 4. Implement with evidence
+
+Run:
+
+```text
+/compass:implement
 ```
-$ compass tdd-green --scenario SCN-001 -- pytest tests/auth/test_jwt_refresh.py::test_typo
-  ran: pytest tests/auth/test_jwt_refresh.py::test_typo
-  exit code: 0  (test passes)
-  wrote evidence/green-SCN-001.json, cleared .red marker
-```
 
-`task.yml` now has both records in its evidence registry, and a
-`changed_files` entry tracing the production change to `SCN-001`.
+Compass uses TDD by default where it adds value:
 
-### Verify
+1. record a failing test with `compass tdd-red`;
+2. make the smallest useful change; and
+3. record the passing test with `compass tdd-green`.
 
-```
+The commands run the test and write evidence beneath the issue directory.
+Compass does not treat “the tests pass” in chat as evidence.
+
+## 5. Verify and ship
+
+Run:
+
+```text
 /compass:verify
 ```
 
-The verifier runs the scenario as the acceptance test, runs the full
-suite, and then calls the kit:
+Verify checks the acceptance criteria, test evidence, traceability and any
+route-specific gates. Read `verification-report.md` and resolve anything still
+open.
 
-This is the real output, from the shipped `examples/quick-fix-typo/` issue -
-run `compass check` in that directory to reproduce it verbatim:
+Then run:
 
-<!-- vocabulary-scan: allow - verbatim output; editing a transcript would make it untrue, and the guardrail codes come from guardrails.yml -->
-```
-$ compass check
-compass check - issue 'fix-timeout-error-message' (approach: quick-fix)
-[mode: enforced]
-
-  G1 Tested before it lands
-    PASS scenarios-have-tests: all 1 scenario(s) list a test
-    PASS declared-tests-resolve: issue is landed - declared test ids are a historical record
-    PASS suite-passed: 1 test-run(s) on record, all green, bound to scenarios ['SCN-001']
-    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario, but 1 no longer exist (src/api/upload.py) - reported only, because the issue is landed - historical record
-    PASS scenarios-are-executable: no BDD runner wired (project.bdd_runner is unset) - nothing to verify; see examples/bdd-adapters/ to opt in
-
-  G2 Acceptance defined before it is built
-    PASS scenario-has-id-and-intent: all 1 scenario(s) have an id and a linked intent
-
-  G3 Traceability holds
-    PASS changed-code-traces-to-scenario: all 1 changed file(s) trace to a scenario, but 1 no longer exist (src/api/upload.py) - reported only, because the issue is landed - historical record
-    PASS scenario-has-id-and-intent: all 1 scenario(s) have an id and a linked intent
-    PASS claim-traces-to-scenario: no claims recorded (no marketer in play, or none yet)
-
-  G4 Evidence, not assertion
-    PASS gate-evidence-present: 3/3 pass gate(s), all backed by registry evidence of accepted type
-    PASS dod-evidence-typed: DoD section is empty or absent - nothing to evidence
-    PASS coherence-check-passes: verify.analyze not in gate set - coherence check not required
-    PASS no-trusted-rerun: no trusted-rerun violations
-    PASS command-passes: verify.fitness: this project declares no guardrail that runs a command, so there was nothing to check and this passed without checking anything. To add fitness functions, declare a project guardrail with `check: command-passes`
-
-  G5 A human signs off on the irreversible: not applicable for this assessment - skipped
-  outstanding follow-ups
-    PASS backfills-paid: no outstanding follow-ups
-
-------------------------------------------------------------
-compass check: PASS - all 15 check(s) passed.
-```
-
-Several checks appear under more than one guardrail - one check can serve
-two guardrails, and the count is of check *runs*, not distinct checks.
-Each of the three gates flips to `pass` with its evidence id referenced.
-The verifier writes `verification-report.md`, and the DoD checklist at the
-foot is ticked.
-
-### Ship
-
-```
+```text
 /compass:ship
 ```
 
-Solo topology, no swarm. The commit lands on the current branch, regression
-runs, the de-scope ledger has nothing owed, the issue closes. Total
-artifacts on disk: `delivery-approach.md`, `task.yml`, `acceptance-criteria.md`, `evidence/`,
-`verification-report.md`, `devlog.md`. Anyone can pick the issue up from
-the artifacts alone.
+Compass checks the issue record again before completing the delivery workflow.
+Your normal CI still owns tests, linting, security scanning, builds and
+deployment checks.
 
----
+## What you should now have
 
-## What to read next
+A small issue typically leaves:
 
-- `docs/safety-contract.md` - the seven things Compass 1.0 guarantees and
-  the things it explicitly does not claim.
-- `docs/methodology.md` - the canonical design doc. The eight phases, the
-  determinism boundary, governance as guardrails-and-strategies, the
-  three layers.
-- `docs/quickstart.md` - a longer walkthrough including the product
-  owner's and marketer's entry points (`/compass:intent`,
-  `/compass:position`) and how the same literal request routes
-  differently depending on role and brief.
-- `docs/install-smoke-test.md` - the manual install verification
-  checklist. Run it once after `scripts/install.sh` to confirm everything
-  is wired correctly.
-- `docs/security.md` - what the hooks do, what the CLI depends on, and
-  how to install Compass safely.
-- `ci/README.md` - the CI integration contract: "run `compass ci`, honour
-  the exit code." Compass CI does not replace your project CI; they run
-  alongside each other.
-
-The CLI surface, for reference. `compass` is the executable at `cli/compass`
-in the Compass checkout - the examples below write it bare, which assumes
-you have put that directory on your `PATH`. Otherwise call it by path
-(`/path/to/compass/cli/compass check`); the slash commands resolve it for
-themselves either way.
-
-```
-compass approach evaluate   apply routing-policy.yml to an issue's assessment -> the approach
-compass check            run the guardrails.yml checks against the spine + evidence/
-compass bdd extract     extract an issue's acceptance-criteria.md into a runnable .feature
-compass tdd-red   -- CMD run a test, assert it FAILS, record the red
-compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
-compass policy lint      structurally validate the governance YAML
-compass issue lint        structurally validate a task.yml
-compass intent ingest    read an existing brief (path or https URL) into the issue
-compass plan lint        scan a technical-design.md for placeholder phrases - advisory
-compass issue receipt     render a one-screen receipt for a landed issue -
-                         assessment → approach → typed evidence → gate verdicts
-compass issue dashboard   render the per-issue review README - the decision,
-                         the pack, and what was deliberately omitted
-compass issue artifact   set a document's status in the pack - omitting one
-                         needs --reason, so an omission is never a gap
-compass issue set-status  record an issue as queued | active | parked | landed |
-                         abandoned - the mutator for the lifecycle field
-compass acceptance start declare the acceptance for a change with no natural
-                         red - a validator (--kind validation) or a green suite
-                         to preserve (--kind refactor); record closes it
-compass gate pass        flip a gate to pass; validates evidence type at write time
-compass scenario add     append a scenario to task.yml (schema-owning mutator, R9)
-compass changed-file add trace a changed production file to a scenario
-compass evidence add     append a typed evidence entry to the registry
-compass analyze          cross-artifact coherence check (orphaned scenarios,
-                         route disagreements, orphan claims)
-compass adr new          create a new numbered ADR in architecture/decisions/
-compass rework-scan      scan issues for rework patterns (uses signals.yml)
-compass flow [--digest]  cross-issue flow view; --digest writes a dated digest
-compass next             surface the next action on the current issue
-compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
-compass ship-commit -m   commit staged artifacts robustly; verifies HEAD advanced
-compass retro      aggregate the re-assessment log - is the sizing right?
-compass migrate          migrate a 1.x issue tree to schema 2.0 (dry-run; --apply)
-compass terminology      render the v2 vocabulary - one term or the whole glossary
-compass ci               the full mechanical gate suite, for CI
+```text
+.compass/work/<issue>/
+├── README.md
+├── task.yml
+├── delivery-approach.md
+├── acceptance-criteria.md
+├── verification-report.md
+├── devlog.md
+└── evidence/
 ```
 
-The slash commands call the CLI under the hood - `/compass:assess` runs
-`compass approach evaluate`, `/compass:verify` runs `compass check`, the
-build procedure runs `compass tdd-red`/`tdd-green` - so you rarely invoke
-it directly. But it is the part that makes the framework's checks real
-rather than aspirational; see `docs/methodology.md` §6.
+The exact pack varies with the work. Another person, session or compatible
+runtime should be able to resume from these files without the original chat.
+
+## The mental model in five points
+
+1. **Assess the work, do not choose a process.** Four dimensions are judgement;
+   the approach is computed from them.
+2. **The approach decides the ceremony.** Which stages run at what weight,
+   which artefacts are earned, which gates apply.
+3. **Guardrails are hard; strategies are defaults.** An approach reduces
+   ceremony around a guardrail and never routes through one.
+4. **Evidence, not assertion.** A gate clears with a record a reader can open.
+5. **If it is not on disk, it did not happen.** The spine and its artefacts
+   outlive the conversation.
+
+## The CLI underneath
+
+Everything above runs through slash commands. The mechanism they call:
+
+```text
+compass approach evaluate  the assessment -> the delivery approach, deterministically
+compass bdd extract        acceptance criteria -> a runnable .feature
+compass bdd verify         record which scenarios the runner actually ran
+compass check              run the guardrail checks against the spine and evidence
+compass analyze            where an issue's artifacts disagree with each other
+compass retro              is triage systematically over- or under-sizing the process?
+compass ci                 the full mechanical gate suite, for continuous integration
+compass tdd-red            run a test, assert it FAILS, record the red
+compass tdd-green          run a test, assert it PASSES, record the green
+compass policy lint        structurally validate the governance YAML
+compass plan lint          scan a technical design for placeholder phrases
+compass intent ingest      read a brief that already exists, by path or https URL
+compass issue lint         structurally validate an issue spine
+compass issue receipt      one screen: assessment, approach, gates, evidence
+compass issue dashboard    the per-issue review page
+compass issue artifact     set a document's status in the review pack
+compass issue set-status   queued | active | parked | landed | abandoned
+compass acceptance start   open an honest record where there is no natural red
+compass acceptance record  close it with what was observed
+compass adr new            create the next numbered decision record
+compass rework-scan        add-then-delete patterns across issues
+compass flow               blockers, owed follow-ups, the periodic digest
+compass next               which stage this issue reached, and what comes next
+compass follow-up resolve  settle an owed follow-up
+compass ship-commit        commit exactly the files the issue recorded
+compass gate pass          mark a gate passed, validating the evidence type
+compass scenario add       add a scenario to the spine
+compass changed-file add   trace a changed file to the scenario that asked for it
+compass evidence add       append a typed evidence record
+compass migrate            bring older issue directories up to the current schema
+compass terminology        what a term means here, from the frozen vocabulary
+```
+
+Every verb describes itself - `compass <verb> --help` says what it does and
+what the result means, so this list is a map rather than a manual.
+
+## Next
+
+- Read the [methodology](methodology.md) to understand adaptive routing.
+- Read the [roles guide](roles-guide.md) if product, design, marketing or QA
+  will contribute.
+- Read the [safety contract](safety-contract.md) before relying on Compass
+  gates.
+- Run the [install smoke test](install-smoke-test.md) if commands or hooks do
+  not behave as expected.

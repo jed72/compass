@@ -1,105 +1,89 @@
-# Security notes
+# Security
 
-Compass is small and inspectable, and most of its surface is plain
-markdown. The places worth thinking about before you install it in a
-sensitive environment are concentrated and short - this document is the
-list.
+Compass adds executable hooks, a Python CLI and agent instructions to a
+development environment. Review it as tooling that can read and change the
+repositories available to your user account.
 
----
+## Trust boundaries
 
-## The hooks run locally with your user permissions
+| Surface | What it can do | Primary control |
+|---|---|---|
+| Claude Code hooks | Inspect and block tool calls; write issue state | Review the scripts and pin the installed source. |
+| Compass CLI | Read project files, write `.compass/`, run configured checks | Limit project-command execution and CI permissions. |
+| Commands, agents and skills | Instruct Claude Code how to act on a repository | Install only from a trusted, reviewed revision. |
+| Project governance | Change routing and, when enabled, execute project checks | Treat governance changes as code changes. |
+| `.compass/` artefacts | Persist issue content and command evidence in Git | Keep secrets and sensitive output out of artefacts. |
 
-`scripts/install.sh` registers three hooks in Claude Code's
-`settings.json` - `hooks/pre-tool.sh`, `hooks/post-tool.sh`, and
-`hooks/stop.sh`. They are bash scripts that run on every relevant tool
-call (Edit/Write/MultiEdit, and session end), inside your shell, with
-your user's permissions. Read them before you install:
+## Before installing
 
-- `hooks/pre-tool.sh` - enforces the red-before-green TDD strategy by
-  inspecting the current issue's `.red` marker and `.spike` marker. It is
-  the one that can *block* an edit.
-- `hooks/post-tool.sh` - appends to the issue devlog and clears markers.
-- `hooks/stop.sh` - warns at session end if an issue is half-finished.
+### Review and pin the source
 
-They are deliberately short and do not call out to the network. The
-correct review posture is: open each one, read it top to bottom, and
-confirm it does what its header claims. If anything looks off - a
-network call you did not expect, a `curl | sh`, an unexplained path
-write - do not install.
+Compass publishes through the Claude Code plugin **marketplace**. A marketplace
+install is still third-party executable code arriving in your environment -
+treat it with the same care you would give any dependency, and pin what you
+install.
 
-## Do not install Compass from an untrusted source
+Do not install a fork or mutable branch you do not trust. For organisational
+use:
 
-`scripts/install.sh` symlinks the framework's `commands/`, `agents/`,
-and `skills/` directories straight into your Claude Code config. Those
-files become instructions Claude executes against your repository. A
-hostile fork is a hostile agent.
+1. pin Compass to a reviewed commit SHA;
+2. mirror it to a location your organisation controls where appropriate;
+3. review changes before updating the pin; and
+4. protect the mirror and release process like other development tooling.
 
-For organisational use:
+The most important executable surfaces are:
 
-- **Pin to a specific commit SHA, not a branch.** A branch can be
-  rewritten; a SHA cannot. In CI, check out by SHA explicitly.
-- **Mirror to a trusted location** (a private fork, an internal package
-  mirror) and pin to *that*, so a takeover of the upstream cannot
-  silently update what your team runs.
-- **Review the diff between SHAs** before bumping the pin. Compass is
-  small enough that this is realistic, in two parts: for Compass's own
-  code, diff `cli/compass`, `cli/compass_pkg/`, `governance/`, and
-  `schemas/` between the two SHAs, as before - the methodology layer is
-  plain markdown, the kit layer is Compass's own Python plus one vendored
-  third-party package, the adapter layer is bash and markdown. For the
-  vendored tree, do not diff it between SHAs - it should not change except
-  on a deliberate version bump. Reproduce it and compare against upstream
-  instead - the full, runnable command is in `THIRD-PARTY-NOTICES.md` at the
-  repository root, under "PyYAML" (download the pinned sdist, verify its
-  hash, extract it, diff its `lib/yaml/` against `cli/vendor/yaml/`). It is
-  an auditor's command, run once when you want to verify the vendored copy -
-  it is not an install step, and nothing in Compass runs it for you.
+```text
+cli/compass
+cli/compass_pkg/
+hooks/
+scripts/install.sh
+governance/*.yml
+```
 
-## CLI dependencies
+Commands, agents, skills and always-loaded instructions are also security
+relevant: they influence an agent that can modify your repository.
 
-**Nothing is installed onto your Python path.** The CLI's only **hard**
-dependency is **PyYAML**, and it travels inside the plugin - a pinned,
-unmodified copy at `cli/vendor/yaml/`, declared in
-`THIRD-PARTY-NOTICES.md` (version, upstream URL, sha256, licence). It is
-only ever added to `sys.path` inside Compass's own processes
-(`cli/compass_pkg/__init__.py` is the one place that happens), never to
-your environment's site-packages. There is no `setup.py`, no `pip
-install compass-cli`, no package that arrives in your site-packages as
-a side effect of installing Compass - **if a Compass install puts a
-package into your site-packages, that is the bug.**
+### Understand the hooks
 
-**`jsonschema` is optional and not bundled.** It turns on full JSON
-Schema validation in `compass policy lint` and `compass issue lint`;
-the built-in linter runs without it. If you want it, `pip install
-jsonschema` yourself - that one remains a genuine install, on your own
-terms.
+The Claude Code adapter registers three local hooks:
 
-Audit the vendored PyYAML the way you audit any dependency you pull
-into a sensitive environment - pin the version (already done: see
-`THIRD-PARTY-NOTICES.md`), verify the hash if your policy requires it
-(the sha256 is recorded there too), and reproduce it from upstream
-yourself using the commands above rather than trusting the tree as
-shipped, if that is your posture.
+| Hook | Purpose | Can block? |
+|---|---|---|
+| `pre-tool.sh` | Applies route-aware red-before-green checks before edits. | Yes |
+| `post-tool.sh` | Updates the issue history after relevant actions. | No |
+| `stop.sh` | Warns about unfinished or inconsistent issue state. | No |
 
-**The precedence cost, stated plainly.** Compass's own processes always
-use the bundled PyYAML, at position 0 on `sys.path` - ahead of anything
-else on the machine, deliberately and unconditionally, so the same
-version runs everywhere Compass runs. If you have pinned or patched
-your own system PyYAML for a reason of your own, following the advice
-above, that choice is shadowed *inside Compass's own invocations*. It
-is not shadowed anywhere else: this is process-scoped, so your other
-tooling and your system PyYAML itself are untouched. The version
-Compass is running is never a guess - `compass --version` prints it,
-alongside where it resolved from.
+They run locally with the same permissions as your user. The shipped hooks do
+not need network access, but you should verify the installed revision rather
+than relying on this document.
 
-## Project governance is executable code
+## Dependencies
 
-A team can add project-specific guardrails to `governance/guardrails.md` and
-`governance/guardrails.yml`. **Treat those files as code, not as
-configuration**, because one of them can run commands.
+The CLI bundles a pinned copy of PyYAML under `cli/vendor/yaml/`. It adds that
+copy to `sys.path` only inside Compass processes; it does not install packages
+into the user's Python environment.
 
-`command-passes` is a shipped check whose parameter is the command to run.
-A project guardrail declaring it looks like this:
+`THIRD-PARTY-NOTICES.md` records the version, source, hash and licence. Teams
+with stronger supply-chain requirements can reproduce the vendored tree from
+the pinned upstream source and compare it.
+
+`jsonschema` is optional and is not bundled. Installing it enables fuller JSON
+Schema validation in policy and issue linting.
+
+Run `compass --version` to see which Compass and PyYAML versions are active.
+
+## Project guardrails are executable code
+
+A project guardrail can use `command-passes` - a shipped check **whose
+parameter is the command**, not a setting that selects one. `compass check`
+runs that string with `subprocess.run(..., shell=True)` from the project root. Its `command:` form still runs a shell; the `script:`
+form does not - it executes a file directly, so a value cannot smuggle in a
+pipeline or a substitution. That difference is the reason to prefer the script
+form, and it is the only reason.
+
+The command form runs from the project root with the Compass process's
+permissions.
 
 ```yaml
 checks: [command-passes]
@@ -107,73 +91,24 @@ params:
   command: "python3 scripts/architecture-fitness.py"
 ```
 
-`compass check` runs that string with `subprocess.run(..., shell=True)` from
-the project root, with whatever permissions the process already has. Anything a
-shell can do, a project guardrail can do.
+Treat those files **as code, not as configuration** - anything a shell can do, a project guardrail can do. It matters because
+continuous integration normally runs on a pull request **before** it is
+approved, so a contribution's command runs before anyone has read it. The
+explicit opt-in that closes this gap is
+[issue #65](https://github.com/jed72/compass/issues/65).
 
-### Two defences this guide used to claim, and why they do not hold
+### Safer default
 
-This section previously argued that a hostile guardrail could not run code,
-for two reasons. An outside review of 3.2.0 showed both were wrong, and they
-are recorded here rather than quietly deleted.
-
-**"A hostile guardrail cannot just name a check and have the CLI run it."**
-That is true of a check the project invents - the name must resolve to an
-implementation in the CLI, and adding one is a change to a different repository
-under separate review. It is not true of `command-passes`, which is already
-implemented and whose entire purpose is to run what it is given. The registry
-constrains which *kinds* of check exist. It does not constrain what one of them
-executes.
-
-**"It has to come through pull-request review."** Continuous integration
-normally runs on a pull request **before** it is approved. A contribution from
-a fork can therefore reach the runner without anyone having read it, which is
-the point at which review was supposed to be the boundary.
-
-### What Compass does about it now
-
-Three things sit in front of that execution path, and they are not equally
-strong. Knowing which is which is the point of this section.
-
-**Running a project command is opt-in, and the default is off.** Add this to
-`.compass/config.yml` to turn it on:
+Project commands are disabled unless `.compass/config.yml` opts in:
 
 ```yaml
 allow_project_commands: true
 ```
 
-**This is not a security control, and it is important not to read it as one.**
-The setting lives in your repository, so a hostile pull request can add the
-command and the opt-in in the same diff. What it defends against is accidents
-and defaults - a project executing something it never asked to execute.
+This prevents accidental execution; it is not a security boundary because a
+repository change can alter both the command and the setting.
 
-**The refusal on an untrusted contribution is the strongest thing here.**
-Compass decides, from the CI runner's own state, whether the contribution being
-checked is trusted, and refuses to run any project command unless it is
-**positively confirmed** as trusted. Nothing in your repository is consulted on
-that path - including the opt-in above.
-
-The rule is confirmation, not suspicion, and the difference matters. Compass
-does not ask "has anything told me this is untrusted?" - a contribution could
-answer that by deleting the signal. It asks "has anything confirmed this is
-trusted?", and an absent, blank or unreadable signal confirms nothing, so it
-refuses. On GitHub the confirmation comes from the runner's event payload, which
-must be readable and must sit outside the checkout; a payload path pointing back
-into your repository is rejected rather than believed.
-
-On a provider Compass does not recognise it has nothing to read, so your project
-commands will not run until you say so:
-
-```yaml
-# In your CI configuration - NOT in a file inside the repository, which a
-# contribution could edit.
-env:
-  COMPASS_CONTRIBUTION_TRUST: trusted
-```
-
-**A safer way to declare the work.** Name a script instead of writing a shell
-string, and no shell is involved at all - arguments are passed as a list rather
-than interpolated:
+Prefer the non-shell script form:
 
 ```yaml
 checks: [command-passes]
@@ -182,111 +117,94 @@ params:
   args: ["--strict"]
 ```
 
-The script path is resolved before it is used, and a path that resolves outside
-the project root is refused - a symlink inside the project pointing out of it
-does not get past this. The `command:` form still works, and it still runs a
-shell; prefer `script:` where the shape allows.
+Compass resolves the script beneath the project root and passes arguments
+without shell interpolation. A symlink that resolves outside the root is
+refused.
 
-### What you still have to configure yourself
+### Untrusted pull requests
 
-- **Declare your workflow's token permissions.** Compass cannot do this for
-  you. Without a `permissions:` block your workflow gets whatever your
-  repository or organisation default is, and a project command inherits it. The
-  reference workflow in `ci/github-actions.yml` declares
-  `permissions: contents: read`; copy that posture and widen it only where a
-  job genuinely needs more.
-- **Review `governance/` changes as you would review a script**, especially any
-  `params.command`. A one-line YAML addition can be a one-line shell command.
-- **Decide what your CI does on untrusted pull requests.** Restricting workflow
-  triggers for fork pull requests, or requiring approval before workflows run,
-  is a control Compass cannot apply on your behalf.
+Compass refuses project commands unless the CI environment positively reports
+the contribution as trusted. Unknown, blank or unreadable trust state is a
+refusal, not permission.
 
-### Where this came from
+This reduces exposure but is not an unforgeable sandbox. A pull-request branch
+can often modify its workflow and environment. The effective boundary remains
+the CI provider's controls, including restricted secrets, read-only tokens and
+approval policy.
 
-The two defences above were described in this guide as holding when they did
-not. An outside review of 3.2.0 found both, the description was corrected
-first, and the mechanism described on this page landed in
-[issue #65](https://github.com/jed72/compass/issues/65) - the explicit opt-in,
-the refusal on untrusted contributions, the script form, and the token
-permissions in the reference workflow.
+For an unrecognised CI provider, set trust outside repository-controlled files:
 
-One recommendation from that review was considered and not taken: an allowlist
-of permitted command strings. It keeps the shell and constrains only the
-strings that reach it, which is weaker than not invoking a shell at all, so the
-script form above was built instead.
+```yaml
+env:
+  COMPASS_CONTRIBUTION_TRUST: trusted
+```
 
-### The limit, stated plainly
+Do this only for a job whose trigger and source are genuinely trusted.
+
+## CI hardening
 
 **A contributor with push access to your repository is not defended against.**
-They can add a command, set the opt-in, and merge. No arrangement of in-repo
+They can add a command, set the opt-in and merge. No arrangement of in-repo
 configuration defends a repository against its own contents - GitHub's own
 answer to the same problem is to withhold secrets from forks rather than to
 trust a setting.
 
-**And the refusal is not unforgeable either.** It is worth being exact about
-this, because the obvious way to describe it would be wrong. On a
-`pull_request` event GitHub runs the workflow from the pull request's own merge
-ref, so the contribution controls its workflow file - and therefore controls
-every environment variable the Compass process sees. Compass makes the cheap
-attacks fail: blanking `GITHUB_EVENT_NAME` or `CI` refuses, declaring
-`COMPASS_CONTRIBUTION_TRUST=trusted` does not override GitHub's own report of a
-fork, and a payload inside the checkout is rejected. What remains is that a
-contribution could write a forged event payload outside the checkout and point
-at it. That is a real gap, it takes deliberate work rather than one line of
-YAML, and you should know it is there.
+**And the refusal is not unforgeable either.** On a `pull_request`
+event GitHub runs the workflow from the contribution's own merge ref, so the
+contribution controls every environment variable Compass sees. The cheap
+attacks fail: blanking `GITHUB_EVENT_NAME` or `CI` refuses, claiming
+`COMPASS_CONTRIBUTION_TRUST=trusted` does not override GitHub's report of a
+fork, and a payload inside the checkout is rejected. What remains is a forged
+event payload written outside the checkout and pointed at. That takes real
+work rather than one line of YAML - and you should know it is there.
 
-What actually bounds a fork pull request is not this at all: GitHub withholds
-your secrets from fork pull requests and issues a read-only token on the
-`pull_request` trigger. That is the boundary. Everything on this page reduces
-what a contribution can reach and how easily; it does not replace GitHub's own
-answer, and it is not a substitute for `pull_request_target` hygiene.
+What actually bounds a fork pull request is that GitHub withholds your secrets
+from it and issues a read-only token. That is the boundary; everything below reduces blast
+area inside it.
 
-So what you get is a bounded reach: the default is off, the cheap forgeries
-fail, a project can avoid the shell entirely, and the runner's token is narrowed
-to what the job needs. That is not an impassable boundary, and this guide will
-not describe it as one.
+- Declare minimum token permissions. The reference workflow uses
+  `permissions: contents: read`.
+- Do not expose secrets to untrusted contributions.
+- Avoid `pull_request_target` for workflows that check out and execute
+  untrusted code.
+- Require approval before running workflows from forks where appropriate.
+- Review changes to workflows, governance, scripts and hooks using code-owner
+  rules or equivalent protection.
+- Run project commands in an isolated, short-lived runner where possible.
 
-## Supply-chain stance
+## Persistent artefacts
 
-Compass is built so that the surface a malicious change could hide in
-is small:
+`.compass/work/` is intended to be committed. It may contain command output,
+test evidence, approvals, decisions and an append-only development log.
 
-- The **methodology layer** is plain markdown - `docs/`,
-  `governance/*.md`, `approaches/`, `templates/`. It cannot execute
-  anything.
-- The **kit layer** is Compass's own Python (`cli/compass`,
-  `cli/compass_pkg/`) plus declarative YAML and JSON Schema in
-  `governance/`, `schemas/`, plus one vendored, pinned, unmodified
-  third-party package (PyYAML, at `cli/vendor/yaml/` - see "CLI
-  dependencies" above). Compass's own code is easy to diff, easy to
-  audit, the same way it always was; the vendored tree is reproduced
-  from upstream and hash-verified instead of diffed between releases.
-- The **Claude Code adapter layer** - `commands/`, `agents/`,
-  `skills/`, `hooks/`, `CLAUDE.md` - is markdown and bash. The
-  executable parts are the three hook scripts and the install script;
-  the rest is instructions to an agent.
+Do not place secrets, access tokens, personal data or sensitive production
+output in these files. Redact evidence before committing it, while retaining
+enough information for the gate to remain meaningful.
 
-Compass publishes through the Claude Code plugin marketplace, and that install
-path deserves the same supply-chain caution as any other
-as any other code source. If Compass ever ships a mechanism for loading
-third-party skills or commands, the same rules apply: pin to a SHA,
-mirror to a trusted location, review the diff before bumping.
+## Known limits
 
-## A note on the `.compass/` directory
+- Shell commands can hide file writes inside scripts and build tools. Hook
+  detection is best-effort for shell activity.
+- Shell scripts, makefiles and extensionless scripts are not currently part of
+  the default production-file classification for red-before-green checks.
+- A contributor with trusted push and merge rights is inside the repository's
+  trust boundary.
+- Agent instructions are powerful even when they are Markdown rather than
+  executable code.
+- Compass does not sandbox Claude Code, Python, Git or project commands.
 
-`.compass/work/` is the issue audit trail and is **committed to your
-repo**, not scratch. That is deliberate - it is the evidence that
-guardrails were cleared and that work was framed before it ran. The
-test-run records, the human-approval entries, the devlog entries: they
-are reviewable history. Treat them as you would any other repository
-content. Do not paste secrets into a `command-output` evidence file or
-into `devlog.md` any more than you would paste them into a commit
-message.
+See the [safety contract](safety-contract.md) for the guarantees Compass makes
+despite these limits.
 
----
+## Recommended adoption posture
 
-If something here is wrong, missing, or under-stated for your
-environment, the right response is to harden the install in your own
-context rather than soften this document - Compass is small enough that
-the safe configuration for one team is rarely far from the safe
-configuration for another.
+1. Inspect the pinned revision.
+2. Install in a disposable repository.
+3. Run the [install smoke test](install-smoke-test.md).
+4. Start with project commands disabled.
+5. Add least-privilege CI permissions.
+6. Enable project commands only after reviewing each declared script.
+7. Treat Compass upgrades as tooling upgrades, with diff review and rollback.
+
+If your environment needs a stronger boundary, add sandboxing and policy at the
+runner or operating-system level. Do not infer isolation from Compass itself.

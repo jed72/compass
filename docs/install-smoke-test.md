@@ -1,247 +1,168 @@
 # Install smoke test
 
-A documented manual checklist to verify that a fresh Compass install works
-end to end. A real Claude Code install cannot be smoke-tested in a sandbox -
-the framework relies on the local Claude Code config and the user's
-shell - so this is the procedure to walk by hand once.
+Use this checklist after installing Compass or changing its installation.
+Run it in a scratch Git repository so the test issue does not enter a real
+project.
 
-This checklist covers the **install-from-source** path. Run it once after
-`scripts/install.sh`, and again whenever you change how Compass is installed.
-Each step lists the *expected output* so you can compare line by line. Common
-gotchas are at the end. If you installed through the plugin marketplace
-instead, steps 1 and 7 do not apply; the rest still does.
+## 1. Check the prerequisites
 
-Throughout, `COMPASS_HOME` means the directory you cloned the framework
-into - wherever `scripts/install.sh` lives.
+```bash
+python3 --version
+git --version
+```
 
----
+Compass requires Python 3. Its CI currently tests Python 3.11. The CLI bundles
+its required YAML parser; `jsonschema` is optional.
 
-## 1. Clone the framework and install the adapter layer
+## 2. Install Compass
+
+### Plugin marketplace
+
+Inside Claude Code:
+
+```text
+/plugin marketplace add jed72/compass
+/plugin install compass@compass
+```
+
+Restart Claude Code if the new commands are not immediately visible.
+
+### From source
 
 ```bash
 git clone https://github.com/jed72/compass.git
 cd compass
-bash scripts/install.sh --global       # or: bash scripts/install.sh --project DIR
+bash scripts/install.sh --global
 ```
 
-Expected output (the message text may vary slightly; the shape is what
-matters):
+Use `--project <directory>` for a project-scoped install or `--copy` when
+symlinks are unsuitable.
 
-```
-Compass installer
-  source (COMPASS_HOME): /path/to/compass
-  mode:                  global
-  destination:           /Users/you/.claude
-  link mode:             symlink
+For an organisational install, pin the checkout to a reviewed commit rather
+than following a branch. See [Security](security.md).
 
-Installing adapter layer...
-  linked  commands/compass -> /path/to/compass/commands
-  linked  agents/compass -> /path/to/compass/agents
-  linked  skills/compass -> /path/to/compass/skills
-  registered hooks in /Users/you/.claude/settings.json (PreToolUse, PostToolUse, Stop)
+## 3. Check the CLI
 
-Done. Compass is wired into Claude Code (global).
-```
-
-Verify the symlinks (or copies, with `--copy`) actually exist:
+From a source checkout:
 
 ```bash
-ls -la ~/.claude/commands/compass
-ls -la ~/.claude/agents/compass
-ls -la ~/.claude/skills/compass
+python3 cli/compass --version
+python3 cli/compass policy lint
 ```
 
-Each should resolve into the `compass/` repo you cloned. The hook
-registration should be visible in `~/.claude/settings.json` - three
-entries naming `pre-tool.sh`, `post-tool.sh`, and `stop.sh` under
-`$COMPASS_HOME/hooks/`.
+Expect:
 
-## 2. Confirm the CLI needs nothing installed
-
-The CLI's one hard dependency, PyYAML, travels inside the plugin
-(`cli/vendor/yaml/`) - there is nothing to install. Prove it on an
-interpreter that cannot see a single third-party package:
-
-```bash
-python3 -m venv --without-pip /tmp/bare-check
-/tmp/bare-check/bin/python3 $COMPASS_HOME/cli/compass --version
-```
-
-Expected output (two lines - the second names the bundled PyYAML and where
-it resolved from):
-
-```
+```text
 compass 3.3.0 (issue schema 2.0)
-PyYAML 6.0.2 at /path/to/compass/cli/vendor/yaml/__init__.py
+PyYAML 6.0.2 at .../cli/vendor/yaml/__init__.py
 ```
 
-`jsonschema` is a separate, genuinely optional library Compass does not
-bundle - install it yourself if you want full JSON Schema validation in
-`compass policy lint` and `compass issue lint`; the built-in linter still
-runs without it:
+The PyYAML path is the point: it must be the bundled copy, not one from your
+environment. Policy lint should end in `PASS`.
+
+To prove the CLI is not relying on packages from your Python environment:
 
 ```bash
-pip install jsonschema           # optional
-python3 -c "import jsonschema; print(jsonschema.__version__)"   # optional
+python3 -m venv --without-pip /tmp/compass-bare-check
+/tmp/compass-bare-check/bin/python3 cli/compass --version
 ```
 
-## 3. Assess a test issue in Claude Code
-
-Open Claude Code in a directory you do not mind getting a `.compass/`
-folder in (a scratch repo is ideal). Type:
-
-```
-/compass:assess "test installation"
-```
-
-Expected outcomes:
-
-- A new issue directory appears: `.compass/work/test-installation/` (the
-  slug is derived from the title).
-- That directory contains `delivery-approach.md` and `task.yml`. `task.yml` has a
-  `assessment:` block, a `delivery_approach:` field, a `stages:` map, a
-  `gates:` list, and `schema_version: "2.0"`.
-- `.compass/current-task` exists at the project root and contains the
-  one-line slug `test-installation`.
-
-If `/compass:assess` is unknown to Claude Code, the adapter layer is not
-on the Claude Code config path - re-check step 1.
-
-## 4. Validate the governance YAML
+Install `jsonschema` separately only if you want full JSON Schema validation:
 
 ```bash
-python3 $COMPASS_HOME/cli/compass policy lint
+python3 -m pip install jsonschema
 ```
 
-Expected output ends in:
+## 4. Create a scratch issue
 
+In a scratch Git repository, open Claude Code and run:
+
+```text
+/compass:assess "Test the Compass installation"
 ```
-compass policy lint: PASS
+
+Confirm that Compass created:
+
+```text
+.compass/current-task
+.compass/work/test-the-compass-installation/
 ```
 
-A `FAIL` here means either the shipped `governance/*.yml` is corrupt
-(rare - re-clone) or a project-local `governance/` exists and has a
-problem (the CLI prefers project-local; `find_governance` walks up from
-the cwd).
+The exact slug may vary. The issue directory should contain at least
+`task.yml` and `delivery-approach.md`.
 
-## 5. Check the CLI's version
+Generate the review dashboard:
 
 ```bash
-python3 $COMPASS_HOME/cli/compass --version
+compass issue dashboard --issue <issue-slug>
 ```
 
-Expected output:
+Open the generated `README.md`. It should show the route, artefact pack,
+omissions, approval state and next action.
 
-```
-compass 3.3.0 (issue schema 2.0)
-```
+If `/compass:assess` is unknown, the adapter is not loaded. Restart Claude
+Code, then check the plugin installation or source-install wiring.
 
-The schema version is what the CLI will accept in a `task.yml`. A
-`task.yml` with a different *major* schema version makes
-`compass check` fail closed.
+## 5. Confirm an incomplete issue fails honestly
 
-## 6. Run the task-level check on the test issue
+From the scratch repository, run the CLI against the issue:
 
 ```bash
-python3 $COMPASS_HOME/cli/compass check --issue test-installation
+compass check --issue <issue-slug>
 ```
 
-The check runs against an early-issue state - triage has run, but the
-acceptance criteria, the implementation and the review have not. The check will report what is missing
-honestly. Expected output shape:
+For a newly assessed issue, failure is expected: acceptance, implementation
+and verification evidence do not exist yet. A healthy result:
 
-<!-- vocabulary-scan: allow - quoted `compass check` output; the guardrail codes come from guardrails.yml -->
-```
-compass check - issue 'test-installation' (approach: quick-fix)
-[mode: enforced]
+- identifies the missing check;
+- explains why it matters;
+- gives a next action; and
+- exits non-zero without a Python traceback.
 
-  G1 Tested before it lands
-    FAIL suite-passed
-         what: no test-run evidence in the registry - run `compass tdd-green` to record a passing suite
-         why : The tested-before-ship guardrail requires a recorded green test run.
-         fix : Run `compass tdd-green --scenario <SCN-ID> -- <your test command>` ...
-  ...
-compass check: FAIL - N of M check(s) failed.
-```
+A traceback or “governance not found” error indicates an installation or path
+problem rather than an uncleared gate.
 
-That is the correct early-issue state: the gates have not been cleared
-yet because no work has been done. The structured `what / why / fix`
-blocks are how the CLI guides you to the next move. If `compass check`
-*errors* - a traceback, "could not find governance/", "no .compass/
-directory found" - re-check steps 1 and 3.
+## 6. Check the hooks
 
-## 7. Uninstall and reinstall
+Start a small delivery issue, define one scenario, then try to edit production
+code before recording a failing test. The pre-tool hook should block the edit
+and explain how to record the red test.
+
+Do not run this check on a spike: spikes deliberately suspend the
+red-before-green strategy.
+
+For a source install, confirm the Claude Code settings contain Compass entries
+for:
+
+- `hooks/pre-tool.sh`;
+- `hooks/post-tool.sh`; and
+- `hooks/stop.sh`.
+
+These hooks run with your user permissions. Review them before using Compass
+in a sensitive environment.
+
+## 7. Test source uninstall and reinstall
+
+This step applies only to source installs:
 
 ```bash
-bash $COMPASS_HOME/scripts/install.sh --uninstall
+bash scripts/install.sh --uninstall
+bash scripts/install.sh --global
+bash scripts/install.sh --global
 ```
 
-Expected output:
+Uninstall should remove only the Claude Code adapter wiring. Both reinstall
+runs should succeed without duplicate hook entries.
 
-```
-Uninstalling...
-  removed commands/compass
-  removed agents/compass
-  removed skills/compass
-  unregistered Compass hooks from /Users/you/.claude/settings.json
+## Troubleshooting
 
-Compass adapter layer removed. The methodology layer in /path/to/compass is untouched.
-```
+| Symptom | Check |
+|---|---|
+| Command is unknown | Restart Claude Code; verify the plugin or source adapter path. |
+| `policy lint` cannot find governance | Run from the project or use the CLI from a complete Compass checkout. |
+| Edit is blocked | Record a failing test first, or confirm the issue is correctly assessed as a spike. |
+| Hooks were not registered | Install `jq` and rerun the source installer, or follow its manual instructions. |
+| Existing Compass directory is not overwritten | Move the unrelated directory aside; the installer fails safely. |
 
-The methodology and kit layers (`docs/`, `governance/`, `approaches/`,
-`templates/`, `cli/`, `schemas/`) are unchanged - only the adapter
-wiring is removed.
-
-Now reinstall to confirm idempotency:
-
-```bash
-bash $COMPASS_HOME/scripts/install.sh --global
-bash $COMPASS_HOME/scripts/install.sh --global       # second run
-```
-
-Both runs should succeed. The second run refreshes existing symlinks
-in place and does not duplicate the hook entries in `settings.json`
-(the script strips prior Compass entries before re-adding).
-
----
-
-## Common gotchas
-
-**Claude Code's `~/.claude` does not exist yet.** `install.sh` creates
-it. If you have never run Claude Code on the machine, the installer
-will still wire everything correctly, but you may want to open Claude
-Code at least once to confirm `settings.json` is in a place Claude
-respects.
-
-**An existing non-Compass `~/.claude/commands/compass` directory.** The
-installer refuses to clobber files it did not create - it stops with:
-
-```
-  ERROR: ~/.claude/commands/compass exists and was not created by Compass - refusing to overwrite.
-         Move it aside and re-run.
-```
-
-Move the offending directory aside (`mv ~/.claude/commands/compass
-~/.claude/commands/compass.bak`) and re-run the installer.
-
-**`jq` missing.** The installer uses `jq` to splice hooks into
-`settings.json`. Without it, the install still completes, but the hook
-registration is printed for manual paste-in. Install `jq` (`brew
-install jq`, `apt install jq`, etc.) and re-run for the automatic path.
-
-**`compass check` reports "no governance/ found."** The CLI looks for a
-project-local `governance/` walking up from the cwd, and falls back to
-the framework's shipped one next to the CLI script. If you have moved
-or stripped the framework directory, point your CI step at the
-correct CLI location (see `ci/README.md`).
-
-**The hook blocks an edit unexpectedly.** That is the red-before-green
-TDD strategy working - it means you tried to edit production code with
-no failing test recorded for the current issue. The fix is always:
-write the test first, then `compass tdd-red -- <test cmd>`, then edit.
-On a spike the hook does not block; if you want to suspend the
-strategy for genuinely exploratory work, frame the issue as a Spike.
-
-If a step here fails in a way the docs do not anticipate, the failure
-itself is signal - open an issue with the exact command, expected
-output, and what you saw.
+If a failure is not covered here, report the exact command, exit code and
+output. Remove secrets before attaching logs.

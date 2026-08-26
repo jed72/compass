@@ -88,3 +88,4 @@ A decision without alternatives is an assertion, not a record. Every ADR must
 enumerate at least one alternative that was genuinely considered and rejected.
 | ADR-019 | Retired Names Carry Redirects Once There Are Adopters | proposed |
 | ADR-020 | The Archive Is Migrated Not Frozen | proposed |
+| ADR-021 | A release narrative guard retires with its release | accepted |

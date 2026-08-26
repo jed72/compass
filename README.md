@@ -1,424 +1,223 @@
 <p align="center">
-  <img src="assets/compass-icon.png" alt="Compass Framework Icon" width="320" max-width="100%">
+  <img src="assets/compass-icon.png" alt="Compass" width="180">
 </p>
 
-# Compass - Adaptive Spec-Driven Development
+# Compass
 
-**Assess the work. The policy does the routing.**
+**Adaptive spec-driven development for Claude Code.**
 
-Compass is a spec-driven development framework that refuses to treat a typo fix
-and a payments rewrite the same way. It reads the context of each issue - how
-risky, how big, new code or old, who's asking - and computes the right amount
-of process for *that* change. Heavy when it needs to be. Out of the way when it
-doesn't.
+> Enough process for the work at hand. No more.
 
-Built for Claude Code. The methodology and the CLI are tool-agnostic, so it
-ports; only a thin adapter layer is Claude-Code-specific.
+A typo fix should not need an architecture pack. A payments rewrite should
+not begin with an unstructured prompt.
 
----
+Compass assesses each change by **risk, familiarity, size and intent**, then
+composes the right delivery approach: the artefacts worth writing, the checks
+worth running, the human decisions required and the number of agents that can
+work safely in parallel.
 
-## The problem
+Assess the work. Let policy choose the process.
 
-Every spec-driven framework eventually picks a ceremony and applies it to
-everything. Then one of two things happens:
+## Start here
 
-- The process costs more than the change, so people route around it. It gets
-  used for the demo and abandoned for the real work.
-- The same flat process that's too heavy for a typo is too *light* for a
-  schema migration. You can't calibrate one fixed pipeline for both ends.
+Install Compass from inside Claude Code:
 
-The usual fix is *levels* - a fixed ladder of five or six tiers. Better, but a
-ladder is a one-dimensional answer to a multi-dimensional question. "How risky"
-and "how big" and "is this greenfield" and "who's invoking" are different axes.
-A migration that touches one file is small but not safe. A prototype is large
-but low-risk.
-
-## The idea
-
-Compass computes process intensity per issue instead of selecting it from a
-menu. Every issue starts with **triage**, where the evaluator
-reads four dimensions:
-
-| Dimension | Question |
-|---|---|
-| **risk** | If this goes wrong, how bad and how wide? |
-| **Familiarity** | New code or existing code - and how well is it mapped? |
-| **Size** | How much work is this actually? |
-| **Intent & role** | Who's invoking, and what outcome are they really after? |
-
-Assess writes `delivery-approach.md`: what it assessed, the approach it computed, the gates
-that apply, and **exactly what it's skipping and why that's safe**. De-scoping
-is a written, auditable decision, never an accident.
-
-## Quick start
-
-The fastest path is the plugin marketplace. No clone, no install script:
-
-```bash
-# In Claude Code:
+```text
 /plugin marketplace add jed72/compass
 /plugin install compass@compass
 ```
 
-Enabling the plugin namespaces the commands as `/compass:…`, registers the
-hooks, and puts the `compass` CLI on your PATH.
+Requires Python 3. Compass CI currently tests Python 3.11.
 
-Then start an issue. The default guardrails ship active, so triage frames it
-and picks the route with no setup at all:
-
-```bash
-/compass:assess "Add rate limiting to the public API"
-
-# Walk the pipeline (or let the route auto-advance).
-/compass:define
-/compass:plan
-/compass:implement
-/compass:verify
-/compass:ship
-
-# Optional, whenever you have opinions to encode. Not a prerequisite:
-/compass:init   # adopt project guardrails and strategies into governance/
-```
-
-A product owner would instead start with `/compass:intent`, a marketer with
-`/compass:position`. To see across every issue in flight - triage, blockers, the
-periodic digest - run `/compass:flow`. See
-[`docs/quickstart.md`](docs/quickstart.md).
-
-<details>
-<summary>Installing from source instead</summary>
-
-`scripts/install.sh` wires the slash commands, agents, skills, and hooks in by
-symlink, so edits to your clone are picked up live:
+Or from source:
 
 ```bash
 git clone https://github.com/jed72/compass.git
-cd compass && bash scripts/install.sh --global
+cd compass
+bash scripts/install.sh --global
 ```
 
-Unlike the plugin, this does **not** modify your PATH. To make `compass`
-invokable from your shell, add `$PWD/bin` to your `PATH`, or invoke it as
-`python3 $COMPASS_HOME/cli/compass`. The slash commands run the CLI on your
-behalf, so this only matters when you call it directly.
+Add `bin/` to your `PATH` to make `compass` invokable, or call it as
+`python3 cli/compass`.
 
-</details>
+Then describe the work:
 
-## One pipeline, adaptive depth
-
-Every route runs the same eight phases. What changes is how much each one
-costs.
-
-```
-triage → define → refine → design → breakdown → implement → verify → ship
+```text
+/compass:assess "Add rate limiting to the public API"
 ```
 
-On a **quick fix**, the requirements review, the design stage, and the
-breakdown collapse to almost nothing. On an **initiative**, the design
-stage produces a distribution map and the breakdown
-spins up a swarm of agents across git worktrees. Same vocabulary, different
-weight, so anyone who has run one Compass issue can read the artifacts of any
-other.
+Compass assesses the issue, works out the approach and tells you what needs
+review next. The default guardrails work immediately; project setup is
+optional.
 
-## The five reference shapes
+Compass complements your normal CI. It does not replace tests, linting,
+security scanning, builds or deployment checks.
 
-Approaches are *composed* from the dimension assessment. These five are starting
-shapes triage tunes, not a fixed ladder.
+Want the guided walkthrough? Read **[Compass in five minutes](docs/five-minutes.md)**.
+Writing the artefacts is its own craft: see
+[docs/writing-specs-and-plans.md](docs/writing-specs-and-plans.md).
 
-| Route | Typical reading | Shape |
-|---|---|---|
-| **quick fix** | atomic · contained · mapped | triage → define (1 scenario) → implement → verify. Still tested before it ships. One gate. |
-| **feature** | standard · contained | Full pipeline, solo or pair. Two gates. |
-| **initiative** | large · cross-cutting · greenfield | Full weight. Governance check, BDD discovery, distribution map, agent swarm across worktrees. All gates. |
-| **Hotfix** | critical · small · brownfield | Reproduce first: a failing regression test is the spec. Expedited implementation, mandatory post-incident follow-up. All Verify gates. |
-| **Spike** | intent is exploration | Explore freely: the TDD strategy is suspended, the hook doesn't block. Then graduate (re-assess into a real route) or discard. **Nothing ships from a spike.** |
+## What Compass changes
 
-## Governance - guardrails and strategies
+Most spec-driven development systems choose one workflow and apply it to
+everything. Compass adapts the depth without abandoning discipline.
 
-Compass is governed by two kinds of thing, kept deliberately separate:
+| Work | Typical Compass response |
+|---|---|
+| **Quick fix** | One clear criterion, a focused change and evidence that it works. |
+| **Feature** | Behavioural specification in Gherkin, proportionate technical design and review. |
+| **Initiative** | intent document, architecture and delivery plan, with detailed design and test strategy only where useful. |
+| **Hotfix** | Reproduce first, fix safely, then pay back the ceremony borrowed for speed. |
+| **Spike** | Time-boxed exploration. Record the learning; ship nothing directly. |
 
-- **Guardrails** are few, hard, checkable, blocking. The things that must never
-  happen. Assess adapts ceremony *around* them; it never crosses one.
-- **Strategies** are many, soft, directional, assessed. How the team tends to
-  work. A strategy biases a decision; it doesn't block one.
+These are reference shapes, not fixed levels. A one-file authentication change
+can receive more protection than a large throwaway prototype because risk and
+size are different things.
 
-The framework ships five **default guardrails**: tested before it lands,
-acceptance defined before it's built, traceability holds, evidence not
-assertion, and a human signs off on the irreversible.
+## Resumable and auditable
 
-The move that keeps Compass from being a sledgehammer: **BDD and TDD are
-default *strategies*, not guardrails.** The hard line is the *outcome* - code
-is tested, acceptance is checkable. Given/When/Then and red-green-refactor are
-the strong, shipped-on *way* to get there, and a spike can suspend
-them. A one-line typo fix still has to be tested before it lands; it doesn't
-have to perform the full ritual to do so.
+Every issue leaves a reviewable record under `.compass/work/<issue>/`:
 
-Governance is a **gradient, not a threshold**: the defaults ship active, so
-`/compass:init` is optional and `/compass:assess` works on day one. A team
-*accretes* its own strategies as it forms opinions. See `governance/`.
+- a dashboard showing the current decision and what needs approval;
+- the delivery approach, including what was deliberately omitted and why;
+- only the product, requirements, design, test and release artefacts justified
+  by the work;
+- traceable evidence behind each gate; and
+- enough state for another session (or another compatible agent runtime) to
+  resume without relying on chat history.
 
-## Roles are full citizens - one spec, many roles
+The terminal gives you the decision and the document to read. Detailed policy
+output and test logs stay available as evidence rather than taking over the
+conversation.
 
-Compass isn't an engineering framework with bolted-on hooks for everyone else.
-The non-engineering roles have their own entry points and artifacts that plug
-into the *same* pipeline. The shared BDD scenario file is what makes it work.
-Every role reads it through their own perspective:
+## Rigour without ritual
 
-| Role | Entry point | Reads the spec for… |
-|---|---|---|
-| Product owner / manager | `/compass:intent` | intent fidelity - do these scenarios deliver the brief? |
-| Product marketer | `/compass:position` | claims - every line of launch copy points at a backing scenario |
-| Designer | `/compass:design` | UI contracts, written as scenarios that flow into the define stage |
-| Engineer | `/compass:assess` → pipeline | tests - scenarios become the acceptance suite |
-| QA | `/compass:verify` | coverage - which scenarios are exercised, which edges aren't |
+Compass separates two things that process frameworks often confuse:
 
-The product owner enters *upstream* of the spec. The marketer works *parallel*
-to it. The designer feeds *into* it. Nobody is just a downstream consumer of a
-finished engineering process.
+- **Guardrails** are hard, checkable and blocking: tested before shipping,
+  acceptance defined before implementation, traceability, evidence rather
+  than assertion, and human approval for irreversible changes.
+- **Strategies** are strong defaults that improve the work without becoming
+  bureaucracy: BDD, TDD, ADRs, visual architecture models and other practices
+  that apply when they add value.
 
-**A perspective does not always have an entry point.** The table lists the five
-**entry-point roles**, each of which starts an issue with its own `/compass:…`
-command. The framework ships ten agents rather than five, because some roles
-apply *during* the pipeline instead of starting it. The **architect-lens** is
-the clearest example: it reads the project's `architecture/` artifacts at triage
-and annotates `technical-design.md` at Plan, and is consulted by the spec author and the
-planner rather than invoked directly. See
-[`docs/roles-guide.md`](docs/roles-guide.md).
+Judgement goes into the assessment. Everything after it is deterministic: the
+same assessment plus the same policy produces the same approach, every time.
 
-## Why the routing is deterministic
+## One delivery language
 
-An adaptive framework owes an answer to the obvious objection: *if the process
-can flex, what stops it flexing to nothing?*
-
-There is a line through Compass. On one side is **judgement**: triage
-reading the four dimensions. That cannot be mechanized, and that judgement *is*
-the adaptivity. On the other side is **mechanism**: everything that happens
-once the assessment exists: composing the delivery approach, applying the
-floors and caps, and running the guardrail checks. Same assessment plus
-same policy gives
-the same route, every time.
-
-Compass puts that mechanism in a CLI so it is *actually* deterministic rather
-than deterministic in principle. Gate evidence in `task.yml` is **typed**, a
-`{type, path}` record rather than a bare path, so a mechanical gate cannot be
-cleared with a written note. And `compass retro` is the framework's own
-feedback loop: it reads the re-assess log across every issue and reports whether
-triage is systematically over- or under-sizing routes. See
-[`docs/methodology.md`](docs/methodology.md) §6.
-
----
-
-# Reference
-
-## The compass CLI
-
-The slash commands call the CLI under the hood, so you rarely invoke it
-directly. `/compass:assess` runs `compass approach evaluate`; `/compass:verify`
-runs `compass check`. It is the part that makes the framework's checks real
-rather than aspirational.
-
-```
-compass approach evaluate   apply routing-policy.yml to an issue's assessment → the approach
-compass check            run the guardrails.yml checks against the spine + evidence/
-compass bdd extract     extract an issue's acceptance-criteria.md into a runnable .feature
-compass tdd-red   -- CMD run a test, assert it FAILS, record the red
-compass tdd-green -- CMD run a test, assert it PASSES, clear the red marker
-compass policy lint      structurally validate the governance YAML
-compass issue lint        structurally validate a task.yml
-compass intent ingest    read a brief that already exists - a path or an https URL -
-                         and record where it came from. Does not write intent.md:
-                         the reshaping stage asks its questions first
-compass plan lint        scan a technical-design.md for placeholder phrases (TBD, TODO,
-                         "implement later") - advisory, always exits 0
-compass issue receipt     render a one-screen receipt for a landed issue:
-                         assessment → approach → typed evidence → gate verdicts
-compass issue dashboard   render the per-issue review README - the decision, the
-                         pack, and what was deliberately omitted; evidence is
-                         linked rather than reproduced
-compass issue artifact   set a document's status in the pack: draft |
-                         awaiting-approval | approved | superseded |
-                         omitted. Omitting one needs --reason
-compass issue set-status  record an issue as queued | active | parked | landed |
-                         abandoned - the mutator for the lifecycle field
-compass acceptance start declare the acceptance for a change with no natural
-                         red - a validator (--kind validation) or a green suite
-                         to preserve (--kind refactor); record closes it
-compass gate pass        flip a gate to pass; validates evidence type at write time
-compass scenario add     append a scenario to task.yml
-compass changed-file add trace a changed production file to a scenario
-compass evidence add     append a typed evidence entry to the registry
-compass analyze          cross-artifact coherence check: orphaned scenarios,
-                         route disagreements, orphan claims (advisory, or
-                         gate-clearing if verify.analyze is in the route)
-compass adr new          create a new numbered ADR in architecture/decisions/
-compass rework-scan      scan issues for rework patterns (window from signals.yml)
-compass flow [--digest]  cross-issue flow view; --digest writes a dated digest
-                         with the rework-scan section and calibration signal
-compass next             surface the next action on the current issue
-compass follow-up resolve  mark an outstanding follow-up resolved in task.yml
-compass ship-commit -m   commit staged artifacts robustly: survives auto-fixing
-                         pre-commit hooks and verifies HEAD advanced
-compass retro      aggregate the re-assessment log - is the sizing right?
-compass migrate          migrate a 1.x issue tree to schema 2.0 (dry-run; --apply)
-compass terminology      render the v2 vocabulary - one term or the whole glossary
-compass ci               the full mechanical gate suite, for CI - honour the exit code
+```text
+assess → define → plan → implement → verify → ship
 ```
 
-Compass needs Python 3. The YAML parser it uses travels inside the plugin
-(`cli/vendor/yaml/`, pinned in `THIRD-PARTY-NOTICES.md`), so there is nothing
-to install. `jsonschema` is a separate, genuinely optional library Compass
-does not bundle - install it yourself for full JSON Schema validation in the
-lint commands; the built-in linter runs without it either way.
+The stages stay recognisable while their depth adapts. Each role enters the
+same issue through its own command. For example, a product owner can start
+upstream with `/compass:intent`; see the
+**[roles guide](docs/roles-guide.md)** for the others.
 
-## Fitness functions and flaky-test integrity
+## Built to port
 
-Two capabilities extend governance without adding to the five hard guardrails.
+Compass runs on Claude Code today, but its core is split deliberately:
 
-**Fitness functions as project guardrails.** A project declares a fitness
-function in `governance/guardrails.yml` with `check: command-passes` plus the
-command to run. `compass check` runs that command at Verify and refuses to
-clear the gate unless it exits 0. This lets a team encode "the build is under
-N MB", "the API never returns 500 in the smoke suite", or "performance does not
-regress past P95 = X ms" *as guardrails* - checkable, blocking, evidence-backed
-- without inventing new check types in the framework. The reasoning is recorded
-in `architecture/decisions/ADR-009`, which decides that fitness functions
-belong to the project rather than the framework.
+- **Methodology:** plain-language guidance, governance and templates.
+- **Kit:** the runtime-neutral Python CLI, schemas and policy engine.
+- **Adapter:** the commands, agents, skills and hooks for Claude Code.
 
-**Flaky-test integrity.** A test that reruns to green is the classic way a
-guardrail becomes silently advisory. The `no-trusted-rerun` rule under
-evidence-not-assertion refuses to clear a test run that only passed on a
-retry, unless either the root cause is fixed *or* the test is explicitly
-quarantined in `governance/quarantine.yml` with a tracking issue. The
-intermittency rule in `governance/strategies.md` has the detail.
+A future runtime adapter calls the same kit rather than reimplementing the
+rules.
 
-## Compass CI vs project CI
+## The CLI
 
-> Compass CI does not replace your normal project CI. It does not re-run your
-> full test suite unless you explicitly configure your pipeline to do so.
-> Compass checks whether required evidence exists, is valid, and is traceable
-> to the issue route. Your application pipeline should still run tests, linting,
-> type checks, security scans, build validation, and deployment checks.
+The slash commands are the pipeline; the CLI is the mechanism underneath them.
+`/compass:assess` runs `compass approach evaluate`, `/compass:verify` runs
+`compass check`. It is what makes the checks real rather than aspirational.
 
-The two are complementary: project CI proves the *code* is correct, Compass CI
-proves the *process* - that the route was framed, scenarios have tests, changed
-files trace to scenarios, gates carry evidence of the right type, and approvals
-are recorded where they must be. Run them as separate jobs in the same
-workflow, with `compass-ci` gated on `project-ci`, so a failing test suite
-stops the pipeline before Compass even runs:
-
-```yaml
-# .github/workflows/ci.yml
-name: CI
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-
-jobs:
-  project-ci:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      # your normal pipeline: tests, lint, type-check, security scans,
-      # build validation, deploy checks - whatever your project requires.
-      - run: make test
-      - run: make lint
-
-  compass-ci:
-    runs-on: ubuntu-latest
-    needs: project-ci             # only run Compass once the code is green
-    env:
-      COMPASS_CLI: cli/compass    # adjust to wherever Compass lives in your repo
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: python3 "$COMPASS_CLI" ci
+```text
+compass approach evaluate  the assessment -> the delivery approach, deterministically
+compass bdd extract        acceptance criteria -> a runnable .feature
+compass bdd verify         record which scenarios the runner actually ran
+compass check              run the guardrail checks against the spine and evidence
+compass analyze            where an issue's artifacts disagree with each other
+compass retro              is triage systematically over- or under-sizing the process?
+compass ci                 the full mechanical gate suite, for continuous integration
+compass tdd-red            run a test, assert it FAILS, record the red
+compass tdd-green          run a test, assert it PASSES, record the green
+compass policy lint        structurally validate the governance YAML
+compass plan lint          scan a technical design for placeholder phrases
+compass intent ingest      read a brief that already exists, by path or https URL
+compass issue lint         structurally validate an issue spine
+compass issue receipt      one screen: assessment, approach, gates, evidence
+compass issue dashboard    the per-issue review page
+compass issue artifact     set a document's status in the review pack
+compass issue set-status   queued | active | parked | landed | abandoned
+compass acceptance start   open an honest record where there is no natural red
+compass acceptance record  close it with what was observed
+compass adr new            create the next numbered decision record
+compass rework-scan        add-then-delete patterns across issues
+compass flow               blockers, owed follow-ups, the periodic digest
+compass next               which stage this issue reached, and what comes next
+compass follow-up resolve  settle an owed follow-up
+compass ship-commit        commit exactly the files the issue recorded
+compass gate pass          mark a gate passed, validating the evidence type
+compass scenario add       add a scenario to the spine
+compass changed-file add   trace a changed file to the scenario that asked for it
+compass evidence add       append a typed evidence record
+compass migrate            bring older issue directories up to the current schema
+compass terminology        what a term means here, from the frozen vocabulary
 ```
 
-`ci/github-actions.yml` is the reference workflow for the `compass-ci` job
-alone; `ci/README.md` is the full contract. Pin `COMPASS_CLI` to a specific
-commit SHA - see `docs/security.md` for the supply-chain stance.
-
-When you are first piloting Compass and do not want it blocking pull requests,
-set `mode: advisory` in `.compass/config.yml` and `compass ci` will report
-failures without exiting non-zero. Flip to `mode: enforced` when the team is
-ready.
+Every verb describes itself - `compass <verb> --help` says what it does and
+what the result means, so this list is a map rather than a manual.
 
 ## What's in the box
 
-Compass is built in **three layers**. The methodology layer *is* the framework,
-in plain markdown. The kit layer is the deterministic mechanism: a plain CLI
-that bundles the one third-party library it needs (PyYAML), not
-Claude-Code-specific. The adapter layer wires both into Claude Code. See
-[`docs/methodology.md`](docs/methodology.md) §9.
-
 ```
-compass/
-├── governance/        Guardrails + strategies + routing policy: .md (prose)
-│                      AND .yml (the machine-readable governance the CLI runs,
-│                      including signals.yml and quarantine.yml)
-├── architecture/      The project's cross-issue architectural artifacts:
-│                      system-context.md, relations.md, ownership.md, and
-│                      ADRs in decisions/. Compass ships its own founding ADRs
-│                      as a worked example; another project drops its own here
-├── approaches/        The sizing rubric (rubric.md) + the 5 reference shapes
-├── schemas/           Executable JSON Schema (.schema.json) for the .yml +
-│                      task.yml, with human-readable .reference.yml companions
-├── cli/               compass - the deterministic CLI (approach evaluate, check,
-│                      tdd-red/green, lint, calibration, ci); the kit's mechanism
-├── bin/               compass - plugin CLI shim that execs cli/compass.
-│                      Claude Code adds the plugin's bin/ to PATH when the
-│                      plugin is enabled, so `compass <subcommand>` resolves
-│                      without a manual symlink or alias
-├── ci/                CI integration: the reference workflow + the contract
-│                      ("run compass ci, honour the exit code")
-├── commands/          Slash commands: the pipeline + role entry points
-├── agents/            Subagent definitions, including the swarm orchestrator
-├── skills/            Procedural knowledge: routing, BDD, TDD, worktrees…
-├── hooks/             Mechanical enforcement of the guardrails + TDD strategy
-├── templates/         Artifact templates for every phase and role,
-│                      including task.yml, the machine-readable issue spine
-├── scripts/           install, swarm, integrate, validate
-├── .claude-plugin/    Claude Code plugin manifest (plugin.json) +
-│                      marketplace manifest - the install path used by
-│                      `/plugin install`, parallel to scripts/install.sh
-└── docs/              methodology.md is the canonical design doc - start there
+commands/     the stage interface, under the /compass: namespace
+agents/       distinct contexts - navigator, spec-author, planner, builder,
+              verifier, reviewer, product-lens, marketing-lens, architect-lens
+skills/       loadable procedures - adaptive-routing, bdd-specification,
+              tdd-discipline, worktree-swarm, intent-elicitation and the rest
+hooks/        pre-tool.sh, post-tool.sh, stop.sh - mechanical enforcement
+cli/compass   the kit: routing, checks and the issue spine
+bin/compass   the shim that puts the kit on your PATH
+governance/   guardrails, strategies, routing policy, frozen vocabulary
+approaches/   the reference shapes, and the artefacts each one earns
+architecture/ Compass's own invariants and decision records
+.claude-plugin/  the plugin manifest and marketplace entry
 ```
 
-The methodology layer is `docs/`, `governance/*.md`, `approaches/` and
-`templates/`. The kit layer is `cli/`, `governance/*.yml`, `schemas/` and the
-`task.yml` spine. The Claude Code adapter layer is `commands/`, `agents/`,
-`skills/`, `hooks/` and `CLAUDE.md` - and the commands and agents *call the
-kit*.
+The first four are the Claude Code adapter and are rebuilt for another
+runtime. Everything below them is reused unchanged.
+
+## Roles are full citizens
+
+Five roles, four of them non-engineering, each with an entry point and its own
+artefacts: engineer, product owner, designer, product marketer and QA. A
+non-engineering entry point changes the delivery approach rather than adding a
+consultation - see the [roles guide](docs/roles-guide.md).
 
 ## Read next
 
-- **[`docs/five-minutes.md`](docs/five-minutes.md)** - the shortest path from
-  "what is this" to "I've shipped an issue with it." Start here.
-- **[`docs/safety-contract.md`](docs/safety-contract.md)** - the seven things
-  Compass 1.0 guarantees, and what it explicitly does *not* claim.
-- **[`docs/methodology.md`](docs/methodology.md)** - the canonical design doc.
-  Everything else is downstream of it.
-- [`docs/quickstart.md`](docs/quickstart.md) - your first issue, per role.
-- [`docs/install-smoke-test.md`](docs/install-smoke-test.md) - manual install
-  verification checklist.
-- [`docs/security.md`](docs/security.md) - hook surface, dependencies,
-  supply-chain stance.
-- [`docs/routing-deep-dive.md`](docs/routing-deep-dive.md) - how triage
-  actually decides.
-- [`docs/roles-guide.md`](docs/roles-guide.md) - one scenario, seen four ways.
-- [`docs/writing-specs-and-plans.md`](docs/writing-specs-and-plans.md) - the cold-reader strategy
-  (write for a cold reader) shown applied to a spec Summary, a design decision,
-  a scenario name, and a plan work unit, with what Compass deliberately does not
-  adopt and why.
-- [`docs/portability.md`](docs/portability.md) - the three layers, and what
-  porting Compass to another runtime involves (rewrite the adapter; keep the
-  methodology and the kit).
-- [`schemas/README.md`](schemas/README.md) - the shape of the machine-readable
-  files the CLI reads.
+- **[Five-minute walkthrough](docs/five-minutes.md):** install Compass and ship a small issue.
+- **[Methodology](docs/methodology.md):** the design and reasoning behind adaptive delivery.
+- **[Safety contract](docs/safety-contract.md):** what Compass guarantees and what it does not.
+- **[Security](docs/security.md):** hooks, dependencies and the trust model.
+- **[Portability](docs/portability.md):** how the methodology, kit and adapter fit together.
+
+<details>
+<summary>Install from source</summary>
+
+```bash
+git clone https://github.com/jed72/compass.git
+cd compass
+bash scripts/install.sh --global
+```
+
+See [the installation smoke test](docs/install-smoke-test.md) for verification
+and troubleshooting.
+
+</details>
 
 ## License
 
-Apache 2.0. See `LICENSE`.
+Apache 2.0. See [LICENSE](LICENSE).
