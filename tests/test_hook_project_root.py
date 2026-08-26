@@ -113,11 +113,23 @@ def test_rcd_a1_resolves_from_subdirectory(tmp_path):
     )
 
 
-def test_rcd_a2_unresolvable_root_blocks(tmp_path):
-    """No .compass/ anywhere above: refuse, never wave through.
+def test_rcd_a2_a_repository_that_never_opted_in_is_silent(tmp_path):
+    """No .compass/ anywhere: pass through, and say nothing.
 
-    The control that matters. A hook that cannot find what it is enforcing
-    has two options, and exactly one of them is safe.
+    This test used to assert the opposite, and was right to at the time - a
+    hook that could not find what it was enforcing had two options and one of
+    them was safe. What changed is what "could not find it" means. This hook
+    is installed at user scope, so it runs in every repository on the machine,
+    and refusing in all of them meant someone trying Compass on one project
+    lost the ability to edit code in every other one.
+
+    `.compass/` is the opt-in, and since `init-is-the-opt-in` only
+    `compass init` creates it - run by the five entry-point commands. So a
+    repository without it has genuinely never been asked to use Compass, and
+    silence is the honest answer rather than a fail-open one.
+
+    The case that still refuses is a project that HAS opted in and cannot be
+    read - see test_rcd_a4b below.
     """
     outside = tmp_path / "elsewhere"
     (outside / "src").mkdir(parents=True)
@@ -126,40 +138,39 @@ def test_rcd_a2_unresolvable_root_blocks(tmp_path):
 
     result = _run(outside, target)
 
-    assert result.returncode == BLOCK, (
-        f"the hook exited {result.returncode} with no project to enforce. "
-        f"Anything but {BLOCK} lets the edit through, which is a guardrail "
-        f"switched off silently.\nstderr: {result.stderr}"
+    assert result.returncode == ALLOW, (
+        f"the hook exited {result.returncode} in a repository that has never "
+        f"opted into Compass. It runs in every repository on the machine, so "
+        f"this is every unrelated project the user owns.\nstderr: {result.stderr}"
     )
-    assert result.stderr.strip(), (
-        "the hook blocked without saying why - the failure 2.1.0 fixed one "
-        "layer down was exactly a silent refusal"
+    assert not (result.stdout + result.stderr).strip(), (
+        "the hook spoke to a repository that never asked for it:\n"
+        + result.stdout + result.stderr
     )
+def test_rcd_a3_an_opted_in_project_names_the_real_cause(tmp_path):
+    """The diagnostic still names the real cause where it still speaks.
 
-
-def test_rcd_a3_message_names_real_cause(tmp_path):
-    """The diagnostic must not blame triage for a resolution failure."""
-    outside = tmp_path / "elsewhere"
-    (outside / "src").mkdir(parents=True)
-    target = outside / "src" / "app.py"
+    The original fault this guarded against was a message blaming the working
+    directory for a problem that was not the working directory. That fault is
+    still worth guarding; the place it can happen has moved to a project that
+    has opted in and not yet been triaged.
+    """
+    proj = tmp_path / "opted-in"
+    (proj / ".compass").mkdir(parents=True)
+    (proj / "src").mkdir()
+    target = proj / "src" / "app.py"
     target.write_text("x = 1\n", encoding="utf-8")
 
-    err = _run(outside, target).stderr.lower()
+    result = _run(proj, target, env_project=proj)
+    err = result.stderr.lower()
 
-    assert "could not locate" in err or "no compass project" in err, (
-        f"the message does not say that the project directory could not be "
-        f"located:\n{err}"
-    )
-    assert str(outside).lower() in err, (
-        f"the message does not name the directory it searched from, so a "
-        f"reader cannot tell where it looked:\n{err}"
-    )
-    assert "triage" not in err or "could not locate" in err.split("triage")[0], (
-        f"the message still blames triage for a resolution failure. That is "
-        f"the misdiagnosis that cost the rehearsal a symlink workaround:\n{err}"
-    )
-
-
+    assert result.returncode == BLOCK, (
+        "a project that has opted in was waved through - the boundary is "
+        "meant to scope the check, not remove it")
+    assert "triage" in err or "assess" in err, (
+        f"the block does not say what to run:\n{err}")
+    assert "could not locate" not in err, (
+        f"the hook blames a working directory that is already correct:\n{err}")
 def test_rcd_a4_missing_work_dir_still_says_so(tmp_path):
     """The control for A3: a genuine 'triage has not run' still says so.
 
@@ -183,20 +194,19 @@ def test_rcd_a4_missing_work_dir_still_says_so(tmp_path):
 
 
 def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
-    """A project with no .compass/ must not inherit an ancestor's issue.
+    """A repository with no .compass/ must not inherit an ancestor's issue.
 
-    Found at the verify stage, in the security dimension, in this issue's own
-    fix. Walking up from the working directory is right; walking up *without
-    a bound* is not. A user working in a repository that has never been
-    triaged, underneath a parent that happens to hold a .compass/ - a
-    monorepo, or a stray one in $HOME - would have the hook resolve the
-    stranger's issue and enforce it. If that issue happens to hold a `.red`
-    marker, the edit is ALLOWED: a fail-open path, in the fix whose whole
-    purpose was to close one.
+    Found at the verify stage, in the security dimension. Walking up from the
+    working directory is right; walking up *without a bound* is not. A user
+    working in a repository that has never opted in, underneath a parent that
+    happens to hold a .compass/ - a monorepo, or a stray one in $HOME - would
+    have the hook resolve the stranger's issue and enforce it. If that issue
+    holds a `.red` marker the edit is ALLOWED: a fail-open path.
 
-    The repository is the outer bound of a project. A directory holding .git
-    and no .compass/ is a project that has not been triaged, and the honest
-    answer there is to refuse, not to borrow someone else's answer.
+    Silence and a fail-open borrow reach the same exit code, so the exit code
+    cannot tell them apart. What can: the hook must never NAME the stranger's
+    issue, and must never consult it. This test therefore checks the output,
+    not the verdict.
     """
     outer = tmp_path / "outer"
     (outer / ".compass" / "work" / "someone-elses").mkdir(parents=True)
@@ -206,8 +216,6 @@ def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
     (outer / ".compass" / "work" / "someone-elses" / "delivery-approach.md").write_text(
         "# approach\n", encoding="utf-8")
     (outer / ".compass" / "current-task").write_text("someone-elses\n", encoding="utf-8")
-    # The stranger's issue is mid-red, which is what makes this dangerous:
-    # inheriting it would permit the edit rather than merely mis-report.
     (outer / ".compass" / "work" / "someone-elses" / ".red").write_text("", encoding="utf-8")
 
     inner = outer / "untriaged-repo"
@@ -217,29 +225,31 @@ def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
     target.write_text("x = 1\n", encoding="utf-8")
 
     result = _run(inner, target)
+    out = result.stdout + result.stderr
 
-    assert result.returncode == BLOCK, (
-        f"the hook exited {result.returncode} for an untriaged repository, "
-        f"by resolving a .compass/ above it. That enforces a stranger's "
-        f"issue - and because that issue is mid-red, it ALLOWS the edit.\n"
-        f"stderr: {result.stderr}"
-    )
-    assert "someone-elses" not in result.stderr, (
-        f"the hook named another project's issue:\n{result.stderr}"
-    )
+    assert "someone-elses" not in out, (
+        f"the hook resolved another project's issue for an edit in a "
+        f"repository that is not part of it:\n{out}")
+    assert not out.strip(), (
+        f"the hook spoke in a repository that has no .compass/ of its own:\n{out}")
+def test_rcd_a4b_an_opted_in_project_before_its_first_triage_is_told_to_triage(tmp_path):
+    """An opted-in project with no work/ yet means triage, not lost.
 
+    This used to run against a project with no `.compass/` at all, on the
+    reasoning that every project's first edit hits that state. It no longer
+    does: `compass init` creates `.compass/` and the five entry-point commands
+    run it, so a project reaches its first edit already opted in. A directory
+    with no `.compass/` is now a repository that never asked for Compass, and
+    telling its owner to run triage is the fault this test exists to prevent,
+    one level up.
 
-def test_rcd_a4b_a_project_before_its_first_triage_is_told_to_triage(tmp_path):
-    """An explicit project root with no .compass/ yet means triage, not lost.
-
-    Every project's first edit hits this. `.compass/` does not exist until
-    triage runs, so treating "no .compass/ here" as "I could not find your
-    project" tells the author to fix a working directory that is already
-    correct, or to set a variable that is already set. That is the same fault
-    the resolution fix was written to remove, one branch earlier.
+    What it still guards is the message: a project that HAS opted in and has
+    not been triaged must be told to triage, and must not be told its working
+    directory is wrong.
     """
     proj = tmp_path / "fresh"
-    (proj / "src").mkdir(parents=True)
+    (proj / ".compass").mkdir(parents=True)
+    (proj / "src").mkdir()
     target = proj / "src" / "app.py"
     target.write_text("x = 1\n", encoding="utf-8")
 
@@ -247,7 +257,7 @@ def test_rcd_a4b_a_project_before_its_first_triage_is_told_to_triage(tmp_path):
     err = result.stderr.lower()
 
     assert result.returncode == BLOCK, "an untriaged project must still block"
-    assert "triage" in err, (
+    assert "triage" in err or "assess" in err, (
         f"the hook did not mention triage on a project that simply has not "
         f"been triaged yet:\n{err}"
     )
@@ -255,9 +265,6 @@ def test_rcd_a4b_a_project_before_its_first_triage_is_told_to_triage(tmp_path):
         f"the hook claims it could not find the project, though the project "
         f"root was given to it explicitly:\n{err}"
     )
-
-
-@pytest.mark.skipif(shutil.which("bash") is None, reason="bash required")
 def test_rcd_a1b_explicit_project_dir_still_wins(tmp_path):
     """CLAUDE_PROJECT_DIR stays authoritative when the host sets it.
 

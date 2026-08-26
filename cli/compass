@@ -505,7 +505,12 @@ def build_parser():
                       help="execute the changes the dry run reports")
     pmig.set_defaults(func=cmd_migrate, output_kind="report")
 
-    sub.add_parser("init", help="make this directory a Compass project - create .compass/ (safe to run twice)").set_defaults(func=cmd_init, output_kind="hand-off")
+    pinit = sub.add_parser(
+        "init",
+        help="make this directory a Compass project - create .compass/ "
+             "(safe to run twice)")
+    pinit.add_argument("--by", help="what is initialising - the entry-point command, if not a person")
+    pinit.set_defaults(func=cmd_init, output_kind="hand-off")
     pterm = sub.add_parser(
         "terminology",
         help="render the v2 vocabulary - one term, or the whole glossary "
