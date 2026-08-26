@@ -133,6 +133,7 @@ The slash commands are the pipeline; the CLI is the mechanism underneath them.
 `compass check`. It is what makes the checks real rather than aspirational.
 
 ```text
+compass init               make this directory a Compass project - create .compass/
 compass approach evaluate  the assessment -> the delivery approach, deterministically
 compass bdd extract        acceptance criteria -> a runnable .feature
 compass bdd verify         record which scenarios the runner actually ran

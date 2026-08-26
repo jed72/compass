@@ -5,11 +5,18 @@ allowed-tools: Read, Write, Edit, Bash, Glob
 
 # /compass:init
 
-`/compass:init` is **optional**. Compass ships with five default guardrails,
-a set of default method strategies (including BDD and TDD), and a default
-routing policy - all active out of the box. `/compass:assess` works on day
-one with zero project setup; it computes delivery approaches against those
-shipped defaults. Init is not a gate you must clear before the first issue.
+`/compass:init` is **optional**, and it is not what creates your project.
+
+The `compass init` verb creates `.compass/` - a config file and the work
+directory - and your first Compass command runs it for you and says that it
+did. So a project is initialised by the command you actually wanted to run,
+not by a setup step you had to know about first.
+
+What `/compass:init` adds on top is the governance conversation below. Compass
+ships with five default guardrails, a set of default method strategies
+(including BDD and TDD), and a default routing policy, all active out of the
+box, and `/compass:assess` computes delivery approaches against them on day
+one. This command is not a gate you must clear before the first issue.
 
 What init *is*: the step where a project starts to **accrete its own
 governance**. It copies `governance/` into the project so the team can
@@ -65,7 +72,8 @@ it is exempt from triage.
    Fill `{{PROJECT_NAME}}`, `{{DATE}}` (today), and each file's
    amendment-log first row. Do not leave `{{...}}` placeholders behind.
 
-4. **Create the config.** Copy `.compass/config.yml` into place and set
+4. **Create the config.** `compass init` has already written a minimal
+   `.compass/config.yml` if one was missing. Set
    `project.name` and `project.test_command`. It holds only genuine project
    knobs - routing rules (the default shape, the worktree caps) live in
    `governance/routing-policy.yml`, which is authoritative; tune routing

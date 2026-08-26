@@ -61,10 +61,18 @@ is not an exemption; that is a **spike**, and triage still runs.
 
 **Trigger triage on intent, not just the literal command.** When the user describes intent to build, change, or fix code - even if they do not type `/compass:assess` - invoke `/compass:assess` before any artifact-changing tool call. The pre-tool hook still enforces the `.red` marker; this rule adds the upstream trigger from intent recognition. Explicit invocation of any Compass command always works regardless. If `.compass/current-task` already points at a triaged issue, do not re-run triage - proceed with the issue's recorded delivery approach.
 
-`/compass:init` is **optional**. The default guardrails and default
-strategies ship active with the framework, so triage works with zero project
-setup. Init is how a project *accretes* its own governance later - not a
-prerequisite for the first issue.
+`/compass:init` is **optional**, and it is not what creates the project.
+The five entry points - `/compass:assess`, `/compass:intent`,
+`/compass:design`, `/compass:position`, `/compass:roundtable` - run
+`compass init` first, which creates `.compass/` if it is not there and
+reports that it did. So there is no setup step to know about: the command you
+wanted to run initialises the project and says so. It creates project state
+only, never `governance/`.
+
+The default guardrails and default strategies ship active with the framework,
+so triage works with zero project setup in the sense that matters - nothing
+for you to configure, and no gate to clear before the first issue.
+`/compass:init` is how a project *accretes* its own governance later.
 
 ## Governance - guardrails and strategies
 

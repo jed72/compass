@@ -988,6 +988,10 @@ _TAIL_EXEMPT = {
 }
 
 _TAIL_ARGV = {
+    # No prerequisites at all, which is the point of the verb: it runs before
+    # a project exists. In this fixture one already does, so it takes the
+    # already-initialised path.
+    "init": ["init"],
     "approach evaluate": ["approach", "evaluate"],
     "issue dashboard": ["issue", "dashboard"],
     "issue set-status": ["issue", "set-status", "active"],

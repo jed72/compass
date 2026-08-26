@@ -339,6 +339,9 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
         "tdd-green", "policy", "plan", "intent", "issue", "acceptance", "adr",
         "rework-scan", "flow", "next", "follow-up", "ship-commit", "gate",
         "scenario", "changed-file", "evidence", "migrate", "terminology",
+        # `init` added 2026-08-26 - see tests/test_phase2_invariants.py for
+        # why it is a verb rather than a subcommand.
+        "init",
     }
     line = next(l for l in result.stdout.splitlines() if l.strip().startswith("{"))
     verbs = set(line.strip().strip("{}").split(","))

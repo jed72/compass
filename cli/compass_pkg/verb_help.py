@@ -16,6 +16,8 @@ DEPENDENCY: none beyond the standard library. This module is data.
 from __future__ import annotations
 
 VERB_DESCRIPTIONS = {
+    'init':
+        "Make this directory a Compass project by creating .compass/ - a config file and the work directory. Safe to run twice: a second run reports that the project is already there and leaves an edited config and any existing work untouched, which is what lets the entry-point commands call it without checking first. It creates project state only; adopting your own governance/ is what the /compass:init slash command offers afterwards, and the shipped governance defaults are in force meanwhile.",
     'bdd verify':
         "Run the project's BDD suite and record which scenarios it actually reported, so a scenario the runner never ran is visible rather than assumed covered. Records what the runner said; it does not judge the result.",
     'changed-file add':
