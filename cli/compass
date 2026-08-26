@@ -273,7 +273,7 @@ def build_parser():
     # DESIGNER's stage everywhere else, and one word meaning two stages in one
     # release is the ambiguity this rename exists to remove.
     #
-    # `compass design lint` shipped in 3.3.0, so it keeps working until the
+    # `compass design lint` shipped in 3.3.0, so it keeps working until the  # version-guard: allow - when the redirect started, not a version this file publishes
     # next major version rather than breaking an adopter's script mid-major
     # (ADR-006, and ADR-019 which records why this rename carries redirects at
     # all). It does the work and says once, on stderr, what to call it.
