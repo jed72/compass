@@ -26,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.12.0
+version: 1.13.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -38,6 +38,8 @@ checks:
     description: "The threat model and the rollback plan, where they exist, are answered rather than merely written - every threat names a scenario or an accepted risk, and the rollback records a rehearsal that happened. Declines to check, rather than passing, when the issue earned neither document."
   dashboard-current:
     description: "The issue's generated README still matches the spine it was rendered from. Declines to check - it does not pass - when there is no README, or when the README carries no generated marker and is therefore somebody's hand-written page."
+  landed-by-resolves:
+    description: "An issue whose work was delivered through a different issue points at it with `landed_by:`, and the pointer resolves: the named issue exists, has landed, carries a record of its own, and names this one back in `delivered:`. When it holds, four checks about this issue carrying its OWN record stand down - the claim moves rather than being waived. Declines to check when there is no pointer."
   scenarios-have-tests:
     description: "Every scenario in task.yml lists at least one test."
   scenarios-are-executable:
@@ -212,7 +214,12 @@ defaults:
     statement: >
       code -> acceptance criterion -> intent, and public claim -> criterion,
       maintained continuously.
-    checks: [changed-code-traces-to-scenario, scenario-has-id-and-intent, claim-traces-to-scenario]
+    # `landed-by-resolves` is a traceability check: it is what makes a
+    # pointer at another issue's record a LINK rather than a claim. Both
+    # ends must name each other, the named issue must have landed, and it
+    # must carry a record of its own - otherwise a chain of empty issues
+    # could vouch for one another.
+    checks: [changed-code-traces-to-scenario, scenario-has-id-and-intent, claim-traces-to-scenario, landed-by-resolves]
     checked_at: [clarify, build, verify, land]
 
   - id: G4

@@ -39,6 +39,13 @@ BASELINE_CHECKS = {
     "scenario-has-id-and-intent",
     "claim-traces-to-scenario",
     "gate-evidence-present",
+    # Added by no-status-for-work-done-elsewhere (2026-08-26). An issue
+    # whose work was delivered through a different issue points at it with
+    # `landed_by:`, and this verifies the pointer resolves both ways. It
+    # joins G3 (traceability) rather than becoming a sixth guardrail
+    # (ADR-002) - the pointer IS a traceability link, and the check is what
+    # stops it being a one-sided claim on somebody else's evidence.
+    "landed-by-resolves",
     # Added by tdd-green-unbound-record (2026-08-23), declared here because
     # ADR-002 permits exactly this growth path: a new CHECK_FN under an
     # existing guardrail (G4), never a sixth G-letter. It asks whether a
