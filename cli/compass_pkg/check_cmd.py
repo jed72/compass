@@ -95,6 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
+from compass_pkg.landed_by import LANDED_BY_RELAXES, landed_by_holds, _check_landed_by_resolves
 from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_evidence_identity_matches, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
 from compass_pkg.borrowed_docs import _check_borrowed_documents_answered
 from compass_pkg.dashboard import _check_dashboard_current
@@ -110,6 +111,7 @@ CHECK_FNS = {
     "changed-code-traces-to-scenario": _check_changed_code_traces,
     "scenario-has-id-and-intent": _check_scenario_has_id_and_intent,
     "claim-traces-to-scenario": _check_claim_traces,
+    "landed-by-resolves": _check_landed_by_resolves,
     "gate-evidence-present": _check_gate_evidence,
     "dod-evidence-typed": _check_dod_evidence_typed,
     "human-approval-present": _check_human_approval,
@@ -145,6 +147,11 @@ CHECK_GUIDANCE = {
         "why": 'A project guardrail with `check: command-passes` runs a real command - a fitness function, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
         "fix": 'Run the command the guardrail names and fix what it reports. If this project declares no such guardrail, nothing was checked and the pass is empty - declare one in governance/guardrails.yml with `check: command-passes` to make the gate mean something.',
         "do": 'Run the command the guardrail names, or declare one to make this gate real.',
+    },
+    "landed-by-resolves": {
+        "why": 'An issue can say its work was delivered through a different issue - but only if the pointer resolves. The named issue must exist, have landed, carry a record of its own, and name this one back. Otherwise the claim is a slug that happens to exist, and the record guardrail is available to anything.',
+        "fix": "Check the four conditions in turn. The slug must match a directory under .compass/work/; that issue must be `landed`; it must have scenarios of its own; and its `delivered:` list must name this issue. If the work was NOT done elsewhere, remove `landed_by:` and give this issue its own record.",
+        "do": 'Fix the `landed_by:` pointer, or remove it and record this issue properly.',
     },
     "declared-tests-resolve": {
         "why": 'A scenario listing a test that is not on disk traces to nothing. The acceptance-before-code guardrail is cleared by a test that exists and runs, not by a path in a file.',
@@ -592,6 +599,21 @@ def cmd_check(args):
                            "Implement it in CHECK_FNS, or move the guardrail "
                            "to strategies.md.")
                 continue
+            # `landed_by` moves the record claim to another issue rather
+            # than waiving it. Only the three named checks stand down, and only
+            # once the pointer has been verified in full - the named issue
+            # exists, has landed, carries a record, and names this one back.
+            # A relaxation that fired on the field's mere presence would waive
+            # the guardrail for anything that typed a slug.
+            if check_name in LANDED_BY_RELAXES:
+                held, why = landed_by_holds(task, task_dir)
+                if held:
+                    run.result(check_name, NOTHING_TO_CHECK,
+                               "%s - %s" % (why, "this issue does not carry "
+                                                 "its own record, and is not "
+                                                 "asked to"))
+                    continue
+
             try:
                 passed, detail = fn(task, task_dir)
             except Exception as exc:  # a check should never crash the run
