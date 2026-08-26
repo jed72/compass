@@ -589,6 +589,8 @@ def build_parser():
     # is deliberately NOT set here - see attach_mode_flags in terminal.py.
     attach_mode_flags(p)
 
+    apply_descriptions(p)   # what each verb claims about itself - verb_help.py
+
     return p
 
 
