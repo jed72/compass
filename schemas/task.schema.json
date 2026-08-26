@@ -6,8 +6,7 @@
   "type": "object",
   "required": [
     "task",
-    "created",
-    "assessment"
+    "created"
   ],
   "additionalProperties": false,
   "properties": {
@@ -33,6 +32,39 @@
         "abandoned"
       ],
       "description": "Optional. Lifecycle status of the issue. 'active' (default when absent) means in-flight; 'queued' means recorded as next up but not started; 'parked' means stopped with the phases so far still valid, so it can resume; 'landed' means ship completed and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3); 'abandoned' means it will not resume. Only 'landed' grants derivation eligibility - every other value is ineligible, so a new value can never silently acquire it. Issues with schema_version '1.0' that lack this field are treated as 'active' (Inv-8 backward compat)."
+    },
+    "landed_by": {
+      "type": "array",
+      "description": "Optional, and only meaningful on a landed issue. What delivered this issue's work, when the work happened somewhere else. Each entry names another issue or a commit. When it resolves, four checks about this issue carrying its OWN record stand down - the claim moves to whatever carries the evidence rather than being waived. An issue entry must name an issue that exists, has landed, carries a record, and names this one back in `delivered:`; a commit entry must resolve in the project's repository and say what it did. See the `landed-by-resolves` check.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "issue": {
+            "type": "string",
+            "description": "Slug of the issue that delivered this work. That issue must name this one in its `delivered:` list - the link is two-way, or anything could claim anyone's evidence."
+          },
+          "commit": {
+            "type": "string",
+            "description": "A commit in the project's own repository that delivered this work. The common case: most already-done issues were fixed by an ordinary commit with no issue opened."
+          },
+          "what": {
+            "type": "string",
+            "description": "Required alongside `commit`. What that commit did, in words. A bare sha is a reference nobody can act on, and on a shallow clone nobody can resolve."
+          }
+        }
+      }
+    },
+    "delivered": {
+      "type": "array",
+      "description": "Optional. Slugs of other issues whose work this issue delivered. The back-reference for `landed_by`: without it a pointer is one-way, and any issue could claim a landed issue's record for the price of typing a slug that exists.",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tracked_at": {
+      "type": "string",
+      "description": "Optional. URL of the public issue tracking this work. The archive under .compass/work/ is not published, so a queued issue that anyone outside the repository needs to see is raised as a GitHub issue and linked from here."
     },
     "land_timestamp": {
       "type": "string",

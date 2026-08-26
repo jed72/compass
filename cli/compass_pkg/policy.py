@@ -468,7 +468,28 @@ def cmd_task_lint(args):
     # scenario written as a bare string used to raise AttributeError here, and a
     # traceback tells the author nothing about what to fix.
     if "assessment" not in task:
-        errs.append("missing `assessment:` - triage records the four dimensions")
+        if (task.get("status") or "active") == "queued":
+            # Queued means recorded as next up and not started, so it has not
+            # been assessed - assessing it is the first thing starting it would
+            # do. `cmd_ci` draws exactly this distinction for the gate checks
+            # and says why: the framework "asks for work to be triaged early,
+            # and failing the sweep for complying teaches people to stop".
+            #
+            # ONE FIELD, ONE STATUS. The rest of the lint still runs, because
+            # a malformed spine is malformed whether or not the work started -
+            # skipping the lint wholesale for a status is the mistake `cmd_ci`
+            # warns against in the comment above that one.
+            pass
+        elif task.get("landed_by"):
+            # An issue delivered elsewhere never entered the pipeline, so it
+            # has no assessment to record. Demanding one leaves inventing a
+            # judgement nobody made as the only way to satisfy the lint - and
+            # the assessment lives in whatever `landed_by` names, along with
+            # the rest of the record.
+            pass
+        else:
+            errs.append(
+                "missing `assessment:` - triage records the four dimensions")
     elif not isinstance(task["assessment"], dict):
         errs.append("`assessment:` must be a mapping of dimension -> value")
     else:
