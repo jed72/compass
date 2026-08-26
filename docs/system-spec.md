@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the rename is not counted as done while a surface still says the old word
+### a source that is not there fails before anything is written
 
-- **Scenario id:** `TRC-E1`
+- **Scenario id:** `ING-A4`
 - **Intent:** `INT-1`
-- **Source issue:** `the-vocabulary-rename`
+- **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,25 +43,25 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### migrate refuses a many-to-one filename collision
+### the fidelity gate reports which human the material came from
 
-- **Scenario id:** `TRC-C5`
+- **Scenario id:** `ING-E1`
 - **Intent:** `INT-2`
-- **Source issue:** `the-vocabulary-rename`
+- **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
 
-### every citation into the archive opens
+### the reshaping is auditable
 
-- **Scenario id:** `TRC-E4`
+- **Scenario id:** `ING-C2`
 - **Intent:** `INT-3`
-- **Source issue:** `the-vocabulary-rename`
+- **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
 
-### no term is both defined and banned
+### a URL that is not https is refused
 
-- **Scenario id:** `TRC-D4`
+- **Scenario id:** `ING-D4`
 - **Intent:** `INT-4`
-- **Source issue:** `the-vocabulary-rename`
+- **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
 
 ### the guard fails when handed nothing
@@ -6440,6 +6440,13 @@
 - **Source issue:** `the-vocabulary-rename`
 - **Landed:** 2026-08-25
 
+### migrate refuses a many-to-one filename collision _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-2`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
 ### migrate repoints the spine at the files it renamed _(archived)_
 
 - **Scenario id:** `TRC-C6`
@@ -6468,10 +6475,24 @@
 - **Source issue:** `the-vocabulary-rename`
 - **Landed:** 2026-08-25
 
+### no term is both defined and banned _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-4`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
 ### the code-position scan knows this rename _(archived)_
 
 - **Scenario id:** `TRC-D5`
 - **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### the rename is not counted as done while a surface still says the old word _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-1`
 - **Source issue:** `the-vocabulary-rename`
 - **Landed:** 2026-08-25
 
@@ -6480,4 +6501,88 @@
 - **Scenario id:** `TRC-E3`
 - **Intent:** `INT-3`
 - **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### every citation into the archive opens _(archived)_
+
+- **Scenario id:** `TRC-E4`
+- **Intent:** `INT-3`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
+### a local file becomes intent.md _(archived)_
+
+- **Scenario id:** `ING-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### the source may be called anything _(archived)_
+
+- **Scenario id:** `ING-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a URL becomes intent.md _(archived)_
+
+- **Scenario id:** `ING-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### the document is reshaped, not copied _(archived)_
+
+- **Scenario id:** `ING-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a gap becomes a question, not a TBD _(archived)_
+
+- **Scenario id:** `ING-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### nothing is invented _(archived)_
+
+- **Scenario id:** `ING-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a person can decline every question and still get an intent.md _(archived)_
+
+- **Scenario id:** `ING-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### an ingested brief says where it came from _(archived)_
+
+- **Scenario id:** `ING-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### an authenticated source is refused with a way forward _(archived)_
+
+- **Scenario id:** `ING-D1`
+- **Intent:** `INT-4`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### no network, no silent failure _(archived)_
+
+- **Scenario id:** `ING-D2`
+- **Intent:** `INT-4`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a redirect is followed, and provenance names where it landed _(archived)_
+
+- **Scenario id:** `ING-D3`
+- **Intent:** `INT-4`
+- **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25

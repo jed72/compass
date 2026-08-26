@@ -433,3 +433,28 @@ def test_ing_a3_a_url_becomes_a_snapshot_and_a_record(tmp_path, monkeypatch):
     assert rec["origin"] == landed, (
         "the record names the address that was typed rather than where the "
         "fetch landed, which is what ING-D3 exists to prevent")
+
+
+def test_ing_a4d_an_oversized_local_source_is_refused_like_a_fetched_one(tmp_path,
+                                                                        monkeypatch):
+    """The size ceiling applies to both routes, not just the network one.
+
+    Found in the security review at verify. `_fetch_https` reads at most
+    MAX_SOURCE_BYTES + 1 so a misdirected fetch cannot pull an arbitrary body
+    into memory - and the local path called `fh.read()` with no bound at all.
+    A mistyped path at a database dump gave a MemoryError rather than a
+    sentence, which is the same failure the cap exists to prevent arriving by
+    the other door.
+    """
+    from compass_pkg import ingest as ingest_module
+    from compass_pkg.ingest import read_source
+
+    monkeypatch.setattr(ingest_module, "MAX_SOURCE_BYTES", 64)
+    big = tmp_path / "dump.md"
+    big.write_text("x" * 200, encoding="utf-8")
+
+    with pytest.raises(CompassError) as exc:
+        read_source(str(big))
+    message = str(exc.value)
+    assert str(big) in message, message
+    assert "larger" in message.lower() or "too large" in message.lower(), message

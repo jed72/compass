@@ -107,8 +107,17 @@ def _read_file(spec):
             "no such source: %s - nothing was read and no issue directory was "
             "created. Check the path, or pass an https URL." % spec)
     try:
-        with open(spec, encoding="utf-8") as fh:
-            text = fh.read()
+        with open(spec, "rb") as fh:
+            raw = fh.read(MAX_SOURCE_BYTES + 1)
+        if len(raw) > MAX_SOURCE_BYTES:
+            raise CompassError(
+                "the source %s is larger than %d MB. A brief should not be - "
+                "check the path points at the document rather than an export "
+                "or a dump."
+                % (spec, MAX_SOURCE_BYTES // (1024 * 1024)))
+        text = raw.decode("utf-8")
+    except CompassError:
+        raise
     except OSError as exc:
         raise CompassError("could not read the source %s: %s" % (spec, exc))
     except UnicodeDecodeError:
@@ -222,9 +231,6 @@ def _https_only_redirect_handler():
 _ACCEPT = "text/markdown, text/plain, text/html;q=0.9, */*;q=0.1"
 _USER_AGENT = "compass/%s (+https://github.com/jed72/compass)"
 
-#: Enough for a brief, and a ceiling so a misdirected fetch cannot pull an
-#: arbitrarily large body into memory before anyone notices.
-MAX_SOURCE_BYTES = 5 * 1024 * 1024
 
 #: A fetch that hangs is indistinguishable from one that is slow, and a stage
 #: that never returns is worse than one that fails.
@@ -349,6 +355,16 @@ def cmd_intent_ingest(args):
 #: What a section's material may come from. There is deliberately no value
 #: meaning "Compass wrote it".
 ORIGINS = ("source", "answer", "unanswered")
+
+#: Enough for a brief, and a ceiling so a misdirected source cannot pull an
+#: arbitrarily large body into memory before anyone notices.
+#:
+#: APPLIED TO BOTH ROUTES. It bounded only the fetch until the security review
+#: at verify, while the local read called `fh.read()` unbounded - so a mistyped
+#: path at a database dump gave a MemoryError rather than a sentence. Same
+#: failure, other door.
+MAX_SOURCE_BYTES = 5 * 1024 * 1024
+
 
 #: Placeholders that read as "someone will get to this". A section that was
 #: asked about and deliberately left open is FINISHED, and must say so in
