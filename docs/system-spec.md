@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### a source that is not there fails before anything is written
+### a landed_by entry still reads its own key
 
-- **Scenario id:** `ING-A4`
+- **Scenario id:** `SSN-A2`
 - **Intent:** `INT-1`
-- **Source issue:** `ingest-an-existing-brief`
-- **Landed:** 2026-08-25
+- **Source issue:** `set-status-does-not-name-the-issue`
+- **Landed:** 2026-08-26
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,19 +43,19 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the fidelity gate reports which human the material came from
+### no document claims more than governance does
 
-- **Scenario id:** `ING-E1`
+- **Scenario id:** `DOC-A2`
 - **Intent:** `INT-2`
-- **Source issue:** `ingest-an-existing-brief`
-- **Landed:** 2026-08-25
+- **Source issue:** `docs-slimming-pass`
+- **Landed:** 2026-08-26
 
-### the reshaping is auditable
+### a retired guard says what stopped being covered
 
-- **Scenario id:** `ING-C2`
+- **Scenario id:** `DOC-A4`
 - **Intent:** `INT-3`
-- **Source issue:** `ingest-an-existing-brief`
-- **Landed:** 2026-08-25
+- **Source issue:** `docs-slimming-pass`
+- **Landed:** 2026-08-26
 
 ### a URL that is not https is refused
 
@@ -6531,6 +6531,13 @@
 - **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
 
+### a source that is not there fails before anything is written _(archived)_
+
+- **Scenario id:** `ING-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
 ### the document is reshaped, not copied _(archived)_
 
 - **Scenario id:** `ING-B1`
@@ -6566,6 +6573,13 @@
 - **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
 
+### the reshaping is auditable _(archived)_
+
+- **Scenario id:** `ING-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
 ### an authenticated source is refused with a way forward _(archived)_
 
 - **Scenario id:** `ING-D1`
@@ -6586,3 +6600,157 @@
 - **Intent:** `INT-4`
 - **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
+
+### the fidelity gate reports which human the material came from _(archived)_
+
+- **Scenario id:** `ING-E1`
+- **Intent:** `INT-2`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a queued issue is not asked for an assessment it cannot have _(archived)_
+
+- **Scenario id:** `CIQ-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `ci-fails-a-queued-issue-for-being-queued`
+- **Landed:** 2026-08-26
+
+### every verb says what it does _(archived)_
+
+- **Scenario id:** `CLIV-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `cli-verbs-do-not-describe-themselves`
+- **Landed:** 2026-08-26
+
+### a landed issue with a pointer passes without its own record _(archived)_
+
+- **Scenario id:** `DEL-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### the same issue without the pointer still fails _(archived)_
+
+- **Scenario id:** `DEL-A2`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### several entries are all checked _(archived)_
+
+- **Scenario id:** `DEL-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### an absorbed issue that was never assessed still lints _(archived)_
+
+- **Scenario id:** `DEL-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a pointer at an issue that does not exist fails _(archived)_
+
+- **Scenario id:** `DEL-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a pointer at an issue that has not landed fails _(archived)_
+
+- **Scenario id:** `DEL-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a pointer at an issue with no record of its own fails _(archived)_
+
+- **Scenario id:** `DEL-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a pointer is only meaningful on a landed issue _(archived)_
+
+- **Scenario id:** `DEL-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a pointer the named issue does not acknowledge fails _(archived)_
+
+- **Scenario id:** `DEL-B5`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a delivered issue stops being recorded as abandoned _(archived)_
+
+- **Scenario id:** `DEL-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### retro counts them as delivered _(archived)_
+
+- **Scenario id:** `DEL-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### an issue that was decided against stays abandoned _(archived)_
+
+- **Scenario id:** `DEL-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a commit entry resolves and says what it did _(archived)_
+
+- **Scenario id:** `DEL-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a commit that does not resolve fails _(archived)_
+
+- **Scenario id:** `DEL-D2`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### a commit with no explanation fails _(archived)_
+
+- **Scenario id:** `DEL-D3`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### without git, the commit form declines rather than passes _(archived)_
+
+- **Scenario id:** `DEL-D4`
+- **Intent:** `INT-2`
+- **Source issue:** `no-status-for-work-done-elsewhere`
+- **Landed:** 2026-08-26
+
+### every drift guard passes on the slimmed documents _(archived)_
+
+- **Scenario id:** `DOC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-slimming-pass`
+- **Landed:** 2026-08-26
+
+### a guard taught a new shape can still fail _(archived)_
+
+- **Scenario id:** `DOC-A3`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-slimming-pass`
+- **Landed:** 2026-08-26
+
+### set-status names the issue in both outcomes _(archived)_
+
+- **Scenario id:** `SSN-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `set-status-does-not-name-the-issue`
+- **Landed:** 2026-08-26
