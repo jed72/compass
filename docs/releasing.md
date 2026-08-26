@@ -83,8 +83,6 @@ that the break is tolerable is the other thing, and it is not this.
 3. **`make test`** - must be green. The full test suite, including:
    - `tests/test_cli_surface_drift.py` (every CLI subcommand documented
      in the public CLI surface blocks - added in v1.2-era Issue B)
-   - `tests/test_v1_2_narrative.py` (every v1.2.0 feature reflected in
-     `AGENTS.md` and methodology - added in v1.2-era Issue C)
    - `tests/test_release_invariants.py` (the partial-version-bump guard
      + the `comparison-requirements` ADR-006 backward-compat fixture +
      `signals.yml` shape invariants)
@@ -182,7 +180,6 @@ catch common drift:
 | `signals.yml` shape stays valid | `tests/test_release_invariants.py` (`design_smell` category, etc.) |
 | Every CLI subcommand appears in the public CLI blocks | `tests/test_cli_surface_drift.py` (parses `compass --help`) |
 | `docs/install-smoke-test.md` shows the current version | `tests/test_cli_surface_drift.py` (reads `VERSION`, asserts the smoke-test matches) |
-| Every v1.2.0 capability named in CLAUDE.md is in AGENTS.md or methodology | `tests/test_v1_2_narrative.py` (coverage rule) |
 | `install.sh` does not double-register hooks in a plugin-source repo | `tests/test_install_plugin_detection.py` |
 | The release tarball contains no noise files | `scripts/release.sh` (built into `make release`) |
 

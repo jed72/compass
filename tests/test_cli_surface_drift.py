@@ -47,12 +47,16 @@ def _cli_block_in(file_path):
     """Extract the documented CLI surface block from a doc file.
 
     The convention: each file has a fenced code block that lists `compass
-    <subcommand>` lines. We anchor on a stable string (`compass route
-    evaluate`) inside that block and grab the surrounding fence.
+    <subcommand>` lines, one per line. We anchor on a listing line for
+    `compass approach evaluate` and grab the surrounding fence.
+
+    The anchor must start the line. The same command also appears in prose and
+    in pasted terminal transcripts, where it is quoted inline or follows a `$`
+    prompt - matching those picked up a block that lists no verbs at all.
     """
     text = (ROOT / file_path).read_text()
     # Find the fenced block that contains the anchor line.
-    pattern = r"```(?:[a-z]*)?\n((?:[^\n`]*\n)*?[^\n]*compass approach evaluate[^\n]*\n(?:[^\n`]*\n)*?)```"
+    pattern = r"```(?:[a-z]*)?\n((?:[^\n`]*\n)*?compass approach evaluate[^\n]*\n(?:[^\n`]*\n)*?)```"
     m = re.search(pattern, text)
     assert m, f"CLI block (containing 'compass approach evaluate') not found in {file_path}"
     return m.group(1)

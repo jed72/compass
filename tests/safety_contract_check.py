@@ -37,7 +37,12 @@ class EmptyContract(RuntimeError):
 #: DOTALL matters: several titles wrap across a line, and without it this
 #: silently skipped them - the rows were then reported as orphans while the
 #: guarantees themselves went uninspected.
-_GUARANTEE = re.compile(r"^(\d+)\.\s+\*\*(.+?)\*\*", re.M | re.S)
+#: Two shapes, because the contract carries its guarantees as `### 5. Title`
+#: headings and carried them as `5. **Title**` list items before the docs were
+#: slimmed on 2026-08-26. Reading both means the check follows the document
+#: rather than the document being held to a layout to keep a regex happy.
+_GUARANTEE = re.compile(
+    r"^(?:###\s+(\d+)\.\s+(.+?)$|(\d+)\.\s+\*\*(.+?)\*\*)", re.M)
 
 #: A backing row opens with the guarantee's number, then a parenthesised
 #: shorthand, then the mechanism cell: `| 3 (typed evidence) | ... |`
@@ -61,7 +66,10 @@ def _section(text: str, heading_contains: str) -> str:
 def parse_guarantees(text: str) -> dict[int, str]:
     """Guarantee number -> title, from the guarantees section."""
     body = _section(text, "guarantees")
-    found = {int(n): t.strip() for n, t in _GUARANTEE.findall(body)}
+    found = {}
+    for h_num, h_title, l_num, l_title in _GUARANTEE.findall(body):
+        num, title = (h_num, h_title) if h_num else (l_num, l_title)
+        found[int(num)] = title.strip()
     if not found:
         raise EmptyContract(
             "no numbered guarantees were parsed from the contract. Either the "
@@ -73,7 +81,8 @@ def parse_guarantees(text: str) -> dict[int, str]:
 
 def parse_backing(text: str) -> dict[int, str]:
     """Guarantee number -> the mechanism cell that says how it is honoured."""
-    body = _section(text, "honoured mechanically")
+    body = _section(text, "honoured mechanically") or _section(
+        text, "mechanical enforcement")
     found = {int(n): cell.strip() for n, _short, cell in _BACKING_ROW.findall(body)}
     if not found:
         raise EmptyContract(

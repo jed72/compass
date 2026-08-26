@@ -1,180 +1,157 @@
-# The Compass safety contract
+# Compass safety contract
 
-A short, central statement of what Compass promises - and what it does not.
-Everything else in the framework exists to keep this promise.
+This contract states what Compass itself will enforce when its adapter and CLI
+are used for an issue. It does not transfer responsibility for software quality
+or operational safety away from the team.
 
-**This contract applies from version 1.0.0.** The title used to carry a version
-and had to be edited at every major, which is how it came to read "1.0" on a
-3.2.0 release. The version lives here instead, where a check compares it to
-`VERSION`.
+The contract applies from Compass 1.0.0. Weakening a guarantee requires a
+major-version change and a documented migration path.
 
-## What Compass guarantees
+## Guarantees
 
-Compass is an adaptive spec-driven development kit for AI-assisted engineering
-workflows. **When it is in use, it guarantees:**
+This contract applies from version 3.3.0. Where a guarantee changes, the
+version it changed in is named beside it rather than left for a reader to infer
+from the git history.
 
-1. **An issue receives a deterministic route once its assessment are known.** The
-   four-dimension assessment are judgement (triage's); given those assessment
-   plus `governance/routing-policy.yml`, the route is a pure function - same
-   assessment, same policy, same route, every run, on every machine.
 
-2. **A declared guardrail cannot silently become advisory.** Every guardrail's
-   declared check must be implemented in the CLI; both `compass policy lint`
-   and `compass check` fail closed on the absence. There is no "marked pass
-   without an implementation."
+### 1. Routing is deterministic after assessment
 
-   A guardrail can also stop running because project configuration disabled it -
-   `allow_project_commands` is the one case that ships today. The guarantee
-   holds there in the same way: `compass check` reports the disabled guardrail
-   by name on every run, states the line that restores it, and reports it as
-   **not checked** rather than as passing. It is counted apart from the passes,
-   so the headline number never absorbs it. The guarantee is that the loss of
-   coverage is visible, not that configuration cannot cause it.
+Risk, familiarity, size, intent and role require judgement. Once those values
+are recorded, `compass approach evaluate` applies the routing policy as a pure
+function.
 
-3. **Delivery work cannot land without required evidence.** Gate evidence is
-   typed, registered, and traceable; `verify.correctness` cannot be cleared
-   with a written note, and an unbacked claim cannot ship. Follow-ups are
-   tracked and block shipping until paid.
+The same assessment plus the same policy produces the same approach, every
+time.
 
-4. **Exploration cannot silently become production delivery.** A Spike is
-   mechanically constrained: no production-landable `changed_files`, a written
-   `spike-conclusion` with an explicit decision (discard / graduate-to-delivery
-   / defer), and any decision to act on the findings becomes a fresh triage for
-   a real route. The router refuses to silently promote a Spike onto delivery
-   surface when a risk floor applies - it raises a routing conflict instead.
+### 2. A declared guardrail cannot silently become advice
 
-5. **Human approvals are required and recorded for irreversible or high-risk
-   changes.** Changes that touch auth, payments, personal data, or migrations
-   route to initiative and demand a structured `human-approval` evidence
-   record - approver, role, decision, timestamp, scope, conditions - before
-   ship can complete. **So does any change whose risk is `critical`**,
-   which the router defines as one that can lose data, lose money, breach
-   auth or privacy, or resist a clean rollback. That second arm matters
-   because those consequences do not always carry one of the four tags: a
-   backup and restore path, a destructive cleanup job, a retention policy
-   change, or a storage migration written in application code can be exactly
-   what this guarantee is for and touch none of them.
+Every declared guardrail must map to an implemented CLI check. Policy linting
+and issue checking fail closed when an implementation is missing.
 
-6. **Compass CI validates process integrity. It does not replace project CI.**
-   `compass ci` proves routes, evidence, approvals, traceability, and follow-ups
-   are coherent and complete. It does **not** re-run your test suite, your
-   linter, your security scanner, your build, or your deployment checks -
-   those remain your project's responsibility. The two pipelines complement
-   each other; neither substitutes for the other.
+If project configuration disables an executable check, Compass reports it as
+not checked, names it and explains how to restore it. It does not count the
+check as passing.
 
-7. **Users can install, run, and recover from common failures using
-   documented workflows.** Install is verifiable (`docs/install-smoke-test.md`);
-   onboarding is five minutes (`docs/five-minutes.md`); adoption is gradient -
-   start in `advisory` mode and tighten to `enforced` when the team is ready.
+### 3. Required gates need typed evidence
 
-   **On failure messages, narrowed to what is true.** The messages the CLI
-   raises through its own error type carry what failed and what to do about it,
-   and that is the house style every new one follows. It is a **design intent,
-   not a checked property**: whether a sentence explains a cause is a judgement
-   no check can make, and writing one that counted keywords would report a
-   quality it had not inspected. Earlier wording claimed this of *every*
-   failure message. Nothing established that.
+Compass will not clear a required mechanical gate with narrative assurance.
+Evidence is registered by id and type, and each gate declares which evidence
+types it accepts.
 
-## What Compass does NOT claim
+Follow-ups are recorded explicitly and must be resolved before Compass
+completes the shipping workflow.
 
-Equally important. Honest scope is what makes the promise credible.
+### 4. A spike cannot silently become delivery
 
-- **Compass does not prove software correctness.** It enforces that
-  acceptance is stated and tested, that evidence exists and is the right
-  kind, and that the route is the right shape for the issue. It does not
-  reason about whether your code is correct - only your tests and reviewers do
-  that.
+A spike may explore without the normal TDD strategy, but it cannot produce
+production-landable changed files. It must conclude with one of three
+decisions: discard, defer or graduate.
 
-- **Compass is not a replacement for CI/CD.** See guarantee 6. A
-  production-bound project still needs its own test, lint, security, build,
-  and deploy pipeline. Compass adds a *process-integrity* lane to that
-  pipeline; it does not absorb it.
+Graduation creates a new assessment and delivery approach before findings are
+turned into production work.
 
-- **Compass is not a full autonomous-development governance system.** It
-  governs how human-and-AI teams shape work; it does not police what AI
-  agents do outside its pipeline.
+### 5. Irreversible work requires recorded human approval
 
-- **A green test record does not establish which tests ran.** A `test-run`
-  record holds **one exit code for one command**. It does not enumerate the
-  tests the command collected, so Compass cannot tell which tests a run
-  exercised - only that a command it was given exited zero. The record is also
-  **not bound to the state of the code** when it was made: a genuine green from
-  before later edits still satisfies the check, and so would an unrelated
-  command that happens to exit zero.
+Human approvals are required for:
 
-  What Compass does establish is the declared relationship - this changed file
-  traces to this scenario, which names this test, which exists - plus the fact
-  that a green run was recorded. That is a real and useful thing, and it is
-  less than a reader hears in "a passing automated test it traces to", which is
-  why that wording was withdrawn.
+- auth and access-control changes;
+- payments or movement of money;
+- personal data and privacy;
+- migrations; and
+- any critical-risk change that may lose data, lose money, breach auth or
+  privacy, or resist clean rollback.
 
-  Closing the gap means recording the commit or tree identity, the acceptance
-  spec's hash, and the exact test ids a run collected, then requiring every
-  scenario to be covered by an observed test rather than a declared one. That
-  is being built; it is not built yet, and this contract does not promise it.
+The evidence records the approver, role, decision, time, scope and conditions.
 
-- **Red-before-green enforcement on shell commands is best-effort.**
-  `hooks/pre-tool.sh` intercepts the file-editing tools completely: an `Edit`,
-  `Write`, or `MultiEdit` of a production file cannot proceed without a
-  recorded red. A shell command is a different problem, because what it writes
-  is generally not knowable from the command string - `bash deploy.sh` may
-  rewrite the whole repository and say nothing about it. The hook therefore
-  recognises a fixed set of write shapes and lets everything else through:
+### 6. Compass CI checks process integrity
 
-  - `>` and `>>` redirects, including the `cat > file <<EOF` heredoc form
-  - `sed -i`, `perl -i`
-  - `tee`, and the destination argument of `cp` and `mv`
-  - `patch -p<n>` and `git apply` (treated as writers with unknowable targets)
-  - an inline interpreter script - `python3 -c`, a `python3 - <<PY` heredoc,
-    `node -e` - that opens a file for writing
+Its failures are structured: every failure message names what failed, why it
+matters and what to do next, so a red run is actionable without reading the
+source.
 
-  Anything else runs unchecked. A command that writes through a script, a
-  build step, or an interpreter reached via a wrapper is not detected. This
-  fails open on purpose: blocking every unrecognised command would block
-  `make`, `npm test`, and `git commit`, and an enforcement that teams switch
-  off is worth less than a partial one they keep. If red-before-green matters
-  absolutely for your project, the file-editing tools are where the guarantee
-  is complete.
+`compass ci` checks routing, issue schemas, evidence, approvals, traceability
+and follow-ups across Compass issues.
 
-- **Shell scripts are not classified as production code.** Separately from the
-  point above - which is about the *command* - the hook decides whether a
-  *file* needs a red by its path and extension: application source (`.py`,
-  `.ts`, `.go`, …), infrastructure (`.tf`, `.sql`, `Dockerfile`), and
-  path-scoped rules for migrations, manifests, and CI workflows. `.sh` is in
-  none of them, so editing a shell script never requires a failing test, with
-  any tool. `Makefile`, `justfile`, and extensionless scripts are the same.
+It does not run the project's tests, linting, security scanning, builds or
+deployment checks. Project CI and Compass CI are complementary lanes.
 
-  This applies to Compass's own `hooks/` and `scripts/` as much as to yours.
-  The fix is deliberately deferred rather than defaulted on: adding `.sh` to
-  the list would require a red for every shell edit in every project on
-  upgrade, and the hook has no per-project dial to soften it - `mode: advisory`
-  in `.compass/config.yml` governs `compass check`, not the hook. The intended
-  shape is a project-configurable enforced set, with today's list as the
-  default. See `architecture/decisions/ADR-011-enforced-file-types-are-project-configurable.md`.
+### 7. Issue state survives the conversation
 
-- **Compass is not a universal process framework.** The methodology layer is
-  general; the kit is concrete. Teams adopt and tune both. There is no claim
-  it fits every team or every project unchanged.
+Compass writes the assessment, approach, artefacts, evidence, decisions and
+status beneath `.compass/`. Another person, session or compatible runtime can
+resume by reading the files rather than reconstructing chat history.
 
-## How the contract is honoured mechanically
+## Deliberate limits
 
-| Guarantee | How |
+### Compass does not prove correctness
+
+Compass checks that acceptance, traceability and evidence are present and
+coherent. It does not establish that the requirements are right, the tests are
+sufficient or the implementation is defect-free.
+
+### A green test record has limited meaning
+
+A test-run record holds **one exit code for one command**. That is all it
+proves. It does not prove:
+
+- which tests were collected or ran;
+- that every declared scenario was exercised by the run; or
+- that the record is bound to the state of the code when it was made, so a stale green can outlive the code it passed on.
+
+Teams should retain their normal CI controls. Binding evidence to code and
+specification identity would strengthen this guarantee; the current contract
+does not claim it.
+
+### Shell-write detection is best-effort
+
+The Claude Code pre-tool hook completely covers supported file-editing tools.
+For shell commands it recognises these write shapes, and only these:
+
+- `>` and `>>` redirects, including the `cat > file <<EOF` heredoc form
+- `sed -i`, `perl -i`
+- `tee`, and the destination argument of `cp` and `mv`
+- `patch -p<n>` and `git apply` - writers with unknowable targets
+- an inline interpreter script (`python3 -c`, `node -e`, a heredoc) that opens
+  a file for writing
+
+Anything else runs unchecked: a write through a script, a build step, or an
+interpreter reached via a wrapper is not detected. Unknown commands are allowed
+rather than blocking ordinary development indiscriminately.
+
+Shell scripts, makefiles and extensionless scripts are not currently classified
+as production-code file types for red-before-green enforcement.
+
+See [Security](security.md) for the exact trust boundaries and hardening
+guidance.
+
+### Compass governs its own workflow, not every agent action
+
+Compass cannot prevent a person, automation or agent from changing the
+repository outside its adapter and commands. Repository permissions, branch
+protection, review policy and CI remain essential.
+
+### Compass is adaptable, not universal
+
+The shipped policies are a starting point. Teams may add strategies and
+project guardrails, provided they preserve this contract.
+
+## Mechanical enforcement
+
+| Guarantee | Primary mechanism |
 |---|---|
-| 1 (deterministic routing) | `compass approach evaluate` - pure function over assessment + policy |
-| 2 (no silent guardrails) | `compass policy lint` + `compass check` both fail on missing CHECK_FNS implementation; a guardrail disabled by project configuration returns nothing-to-check, named and counted apart from the passes |
-| 3 (typed, registered evidence) | `governance/guardrails.yml` declares per-gate accepted types; gates reference entries in the issue's evidence registry by id |
-| 4 (Spike safety) | Routing guardrail raises a conflict on unsafe exploration; `compass check` enforces the spike-conclusion + no-production-changed_files invariants on a spike |
-| 5 (recorded approvals) | `human-approval` typed evidence with structured fields, validated at ship time |
-| 6 (CI lane, not CI itself) | `ci/README.md` + the reference workflow run alongside project CI; the docs say so explicitly |
-| 7 (recoverable, gradient) | `docs/install-smoke-test.md`, `docs/five-minutes.md`, structured failure messages, `mode: advisory \| enforced` in `.compass/config.yml` |
+| 1 (deterministic routing) | `compass approach evaluate` over assessment and policy |
+| 2 (implemented guardrails) | `compass policy lint` and `compass check` |
+| 3 (typed evidence) | Gate type declarations plus the issue evidence registry |
+| 4 (spike containment) | Routing conflict checks and spike invariants |
+| 5 (human approval) | Structured `human-approval` evidence validated before ship |
+| 6 (process-integrity CI) | `compass ci` |
+| 7 (resumable state) | the issue spine (`templates/task.yml`), its artefacts and evidence under `.compass/` |
 
-## Versioning and stability
+## What adopters still own
 
-Compass declares its policy and schema versions in `governance/*.yml` and
-the issue spine (`schema_version`). The CLI will warn - or in `enforced` mode,
-fail - when it meets an issue whose schema is not compatible with the running
-CLI. Migration guidance ships with every breaking change.
-
-This contract is the bar from 1.0.0 onward. Future versions may *add* guarantees; they
-must not weaken these without a major-version bump and a written migration
-path.
+- Make an honest assessment and review the computed approach.
+- Review generated specifications, designs and evidence.
+- Run normal engineering and operational controls.
+- Protect the repository and CI environment.
+- Keep secrets out of committed Compass artefacts.
+- Reassess when the work changes shape.

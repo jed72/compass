@@ -16,6 +16,7 @@ acceptance-criteria.md - group D, and TRC-E2 from group E.
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import List
 
@@ -137,11 +138,17 @@ def test_e2_contract_covers_the_opt_in_case():
     """
     contract = SAFETY_CONTRACT.read_text()
 
-    guarantee = contract.split("2. **A declared guardrail cannot silently")
-    assert len(guarantee) == 2, (
+    # Either shape. The contract carried its guarantees as `2. **Title**` list
+    # items and carries them as `### 2. Title` headings since the docs were
+    # slimmed on 2026-08-26. What this test needs is guarantee 2's body, not
+    # the markup around its title.
+    m = re.search(r"(?:^|\n)(?:###\s+2\.|2\.\s+\*\*)\s*A declared guardrail "
+                   r"cannot silently", contract)
+    assert m, (
         "guarantee 2 is no longer where this test reads it - the wording this "
         "check depends on has moved or changed")
-    body = guarantee[1].split("3. **")[0]
+    rest = contract[m.end():]
+    body = re.split(r"(?:^|\n)(?:###\s+3\.|3\.\s+\*\*)", rest)[0]
 
     assert "allow_project_commands" in body or "configuration" in body, (
         "guarantee 2 does not reach the case where a guardrail is disabled by "

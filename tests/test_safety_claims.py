@@ -198,9 +198,16 @@ def test_d1_guarantee_without_backing_fails():
     # Anchored on the section heading by shape rather than by its exact
     # words. Pinning the version in it is what broke this check when the
     # contract's headings stopped carrying one.
-    import re as _re
-    m = _re.search(r"^## What Compass.*does NOT claim.*$", text, _re.M)
-    assert m, "the contract has no 'does NOT claim' section to plant before"
+    # Either spelling of the limits heading. It was "What Compass does NOT
+    # claim" and became "Deliberate limits" when the docs were slimmed on
+    # 2026-08-26 - the second time a rename has broken this anchor, the first
+    # being a version number in the heading. What the test needs is the
+    # section AFTER the guarantees, not its wording.
+    m = re.search(r"^## (?:What Compass.*does NOT claim|Deliberate limits).*$",
+                   text, re.M)
+    assert m, (
+        "the contract has no limits section to plant before - it is the "
+        "boundary this test plants a guarantee against")
     planted = (text[:m.start()]
                + f"{n}. **A guarantee nobody wrote a mechanism for.** Invented "
                  f"by a test.\n\n"
