@@ -382,3 +382,54 @@ def _abandoned_in(text, slug):
     """Is `slug` named on a line that also says abandoned?"""
     return any(slug in line and "abandon" in line.lower()
                for line in text.splitlines())
+
+
+def test_del_a4_an_absorbed_issue_that_was_never_assessed_still_lints(tmp_path):
+    """DEL-A4: `assessment` is not demanded of an issue delivered elsewhere.
+
+    The schema requires `assessment` at the root, because every issue that goes
+    through the pipeline is assessed. An issue whose work was absorbed by
+    another never entered the pipeline - so requiring it asks for a record of a
+    judgement nobody made, and the only way to satisfy it is to invent one.
+
+    That is the same argument as the rest of this issue: the claim moves to the
+    issue that has the record. `artifact-filenames-rename-slice` is the real
+    case - split off, absorbed by `the-vocabulary-rename`, never assessed.
+    """
+    p = _project(tmp_path)
+    _issue(p, "doer", record=True, delivered=["absorbed"])
+
+    d = p / ".compass" / "work" / "absorbed"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "2.0", "task": "absorbed", "created": "2026-01-01",
+        "status": "landed", "landed_by": [{"issue": "doer"}],
+    }, sort_keys=False))
+
+    run = subprocess.run(
+        [sys.executable, str(CLI), "issue", "lint", "--issue", "absorbed"],
+        cwd=str(p), capture_output=True, text=True, timeout=120)
+    combined = run.stdout + run.stderr
+    assert run.returncode == 0, (
+        "an issue delivered elsewhere was required to carry an assessment it "
+        "never made:\n" + combined)
+
+
+def test_del_a4b_an_ordinary_issue_still_needs_its_assessment(tmp_path):
+    """The control. Without it, dropping the requirement outright would
+    satisfy DEL-A4 while letting every issue skip triage."""
+    p = _project(tmp_path)
+    d = p / ".compass" / "work" / "ordinary"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "task.yml").write_text(yaml.safe_dump({
+        "schema_version": "2.0", "task": "ordinary", "created": "2026-01-01",
+        "status": "active",
+    }, sort_keys=False))
+
+    run = subprocess.run(
+        [sys.executable, str(CLI), "issue", "lint", "--issue", "ordinary"],
+        cwd=str(p), capture_output=True, text=True, timeout=120)
+    assert run.returncode != 0, (
+        "an issue with no assessment and no landed_by passed the lint - the "
+        "requirement has been dropped rather than moved")
+    assert "assessment" in (run.stdout + run.stderr).lower()
