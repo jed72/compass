@@ -492,8 +492,8 @@ The triggers are concrete:
 - **A `touches:` tag surfaces late.** You discover mid-Build that the change
   reaches auth after all. Re-assess, the floor fires, the route is raised - and
   it is recorded, not silent.
-- **A roundtable changes scope.** `/compass:roundtable` decides to cut or
-  expand scope; if the decision touches the route, the roundtable's own gate
+- **A consult changes scope.** `/compass:consult` decides to cut or
+  expand scope; if the decision touches the route, the consult's own gate
   says to follow it with a re-assess.
 
 The re-framed `delivery-approach.md` is the contract again - the next session reads the

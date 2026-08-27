@@ -10,7 +10,7 @@ superseded_by: ''
 ## Context
 
 When Frame loads the project's `architecture/` artifacts, it needs to expose
-the result to downstream agents (spec-author, planner, architect-lens) in a
+the result to downstream agents (spec-author, planner, architect) in a
 structured, persistent form.  The first design placed this data in
 `manifest.yml.readings` - the existing machine-readable task manifest.  However,
 `readings` is the *judgement* block, where the Needle records its four-dimension

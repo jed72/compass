@@ -1,5 +1,5 @@
 ---
-name: intent-elicitation
+name: intent-interview
 description: How to draw a usable brief out of a conversation - the questions to ask, and what a good answer looks like. Load at the intake stage, before acceptance criteria exist.
 ---
 

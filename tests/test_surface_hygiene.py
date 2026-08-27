@@ -175,15 +175,15 @@ def test_trc_f7_skill_count_unchanged_on_net():
     # phase-2-skills-check-and-cli-split. What this task asserted, and what
     # still holds, is that IT added one and removed one.
     expected = {
-        "adaptive-routing", "bdd-specification", "blueprint-distillation",
+        "adaptive-routing", "bdd-specification", "behaviour-mapping",
         "compass-runtime", "evidence-gates", "flow-management",
         "governance-check", "plan-authoring", "role-translation",
-        "tdd-discipline", "traceability", "worktree-swarm",
+        "tdd-discipline", "traceability", "worktree-multiagent",
         "receiving-code-review", "systematic-debugging",   # phase-2 task
         # ingest-an-existing-brief: turning a brief that already exists into
         # intent.md by asking rather than assuming. A skill rather than a
         # mechanism, per the plan's P0-C - "the discipline is the skill".
-        "intent-elicitation",
+        "intent-interview",
     }
     assert present == expected, (
         "the skill set changed without this allowlist being updated.\n"

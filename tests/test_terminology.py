@@ -198,7 +198,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     ],
     # The role-perspective concept, in any casing. Tuned at the
     # skills-prose slice: a hyphen-preceded "lens" is an agent identifier
-    # (product-lens, architect-lens, marketing-lens) - machine vocabulary
+    # (product-owner, architect, product-marketer) - machine vocabulary
     # that keeps its spelling until an agent-rename decision - and is no
     # longer flagged. The concept word alone still is.
     "lens": [

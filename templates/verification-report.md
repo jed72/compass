@@ -17,7 +17,7 @@ evidence block is an automatic fail.
 # Verification Report - {{ISSUE_SLUG}}
 
 > **Stage:** test & review · **Date:** {{DATE}} · **Owning role:** QA
-> **Agents:** `verifier`, `reviewer`{{, `marketing-lens` if the claims dimension applies}}
+> **Agents:** `verifier`, `reviewer`{{, `product-marketer` if the claims dimension applies}}
 > **Approach (from delivery-approach.md):** {{reference shape}} · **Gate count:** {{1 \| 2 \| all}}
 > **Topology:** {{solo \| pair \| swarm - swarm verifies per-stream then combined}}
 

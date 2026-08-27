@@ -36,7 +36,7 @@ shipped governance defaults stay in force, and adopting your own is what
   traceability guardrail keeps every public claim traced to a backing
   criterion.
 - Read `acceptance-criteria.md` if it exists - claims point at scenarios.
-- Invoke the `marketing-lens` agent.
+- Invoke the `product-marketer` agent.
 
 ## Procedure
 

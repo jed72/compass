@@ -179,8 +179,8 @@ def test_trc_d3_no_tier_ladder_in_routing_policy():
 # ---------------------------------------------------------------------------
 PRE_TASK_AGENT_FILES = {
     "spec-author.md", "planner.md", "builder.md", "orchestrator.md",
-    "verifier.md", "reviewer.md", "navigator.md",
-    "product-lens.md", "marketing-lens.md", "architect-lens.md",
+    "verifier.md", "reviewer.md", "router.md",
+    "product-owner.md", "product-marketer.md", "architect.md",
 }
 EXPECTED_ROLES = {
     "engineer", "product-owner", "product-marketer", "designer", "qa",

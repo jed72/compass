@@ -381,7 +381,7 @@ a template's worked example, a devlog entry - is read against a calibration
 sample before it ships: the worked-example rewrite in
 `skills/compass-runtime/writing-voice-worked-example.md`, paired with the
 "Never stash across a worktree hop" section of
-`skills/worktree-swarm/SKILL.md`. One shows a formal artifact rewritten into
+`skills/worktree-multiagent/SKILL.md`. One shows a formal artifact rewritten into
 the register this strategy asks for; the other is a real incident told the
 way a colleague would tell it. Together they are the standing sample - not a
 one-off exhibit for the cycle that wrote them.
@@ -784,7 +784,7 @@ is yours.
   applicable strategies - and reports that as *judgement*, clearly distinct
   from the evidence-backed guardrail checks. A strategy not followed is a note
   and a conversation, not an automatic gate failure.
-- **`/compass:roundtable`** is where strategy-vs-strategy tensions get
+- **`/compass:consult`** is where strategy-vs-strategy tensions get
   resolved when a decision sits across them.
 
 A strategy that has hardened into a real must-never - checkable, blocking -

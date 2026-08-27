@@ -28,7 +28,7 @@ sys.path.insert(0, str(REPO_ROOT / "cli"))
 import compass_pkg  # noqa: E402,F401
 from compass_pkg.core import CompassError  # noqa: E402
 
-SKILL = REPO_ROOT / "skills" / "intent-elicitation" / "SKILL.md"
+SKILL = REPO_ROOT / "skills" / "intent-interview" / "SKILL.md"
 
 
 def _issue(tmp_path, sections, elicitation, intent_body, source="# src\n\nA.\n"):
@@ -214,7 +214,7 @@ def test_ing_b2_the_skill_requires_asking_rather_than_writing_tbd():
     lives in the skill, and this checks the skill says it. Weak evidence, and
     named as such: prose can satisfy a regex and still teach nothing.
     """
-    assert SKILL.is_file(), "no intent-elicitation skill"
+    assert SKILL.is_file(), "no intent-interview skill"
     text = SKILL.read_text(encoding="utf-8").lower()
 
     for needle, why in (

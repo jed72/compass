@@ -1,5 +1,5 @@
 ---
-name: navigator
+name: router
 description: "Runs the assess stage: reads the four dimensions into the manifest, runs the CLI to compute the delivery approach, and writes the delivery-approach record."
 tools: Read, Glob, Grep, Write, Edit, Bash
 model: opus

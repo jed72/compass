@@ -42,7 +42,7 @@ treat an un-extended `governance/` as a missing prerequisite.
 **Familiarity** - *new code, or old code, and is the old code mapped?*
 - `brownfield-unmapped` is not a judgement of code quality - it means the
   behaviour is not written down as scenarios. It triggers a routing guardrail
-  floor: `blueprint-distillation` must run. Do not route around it.
+  floor: `behaviour-mapping` must run. Do not route around it.
 - "Trivially readable" greenfield or brownfield can be treated as mapped, but
   be honest - "I could figure it out" is not "it is written down."
 

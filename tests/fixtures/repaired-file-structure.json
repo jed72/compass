@@ -1,5 +1,5 @@
 {
-  "agents/marketing-lens.md": {
+  "agents/product-marketer.md": {
     "fences": 0,
     "heading_levels": [
       2,
@@ -35,7 +35,7 @@
     "list_items": 22,
     "table_rows": 0
   },
-  "agents/product-lens.md": {
+  "agents/product-owner.md": {
     "fences": 0,
     "heading_levels": [
       2,
@@ -874,7 +874,7 @@
     "list_items": 19,
     "table_rows": 0
   },
-  "skills/worktree-swarm/SKILL.md": {
+  "skills/worktree-multiagent/SKILL.md": {
     "fences": 0,
     "heading_levels": [
       1,

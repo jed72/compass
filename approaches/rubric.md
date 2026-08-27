@@ -37,7 +37,7 @@ be `critical`.
 |---|---|
 | `greenfield` | Net-new code with no existing behaviour to preserve. |
 | `brownfield-mapped` | Existing code, and its current behaviour is already captured in scenarios (or trivially readable). |
-| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `blueprint-distillation` here - you cannot safely change what you have not first described. |
+| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `behaviour-mapping` here - you cannot safely change what you have not first described. |
 
 ### Size - *how much work is this, honestly?*
 

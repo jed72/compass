@@ -109,12 +109,12 @@ def _prefixes_in_use() -> set[str]:
 # Group A - the missing terms
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("term", ["traceability", "intent", "navigator"])
+@pytest.mark.parametrize("term", ["traceability", "intent", "router"])
 def test_the_missing_terms_are_defined(term):
     """Each names something load-bearing and none was in the vocabulary.
 
     `TRC-` is the most-used prefix in the repository and names traceability.
-    `/compass:intent` is a live command. `navigator` is a live agent, and the
+    `/compass:intent` is a live command. `router` is a live agent, and the
     word that replaced the banned one.
     """
     assert term in _terms(), (

@@ -190,7 +190,7 @@
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
-### traceability, intent and navigator are defined
+### traceability, intent and router are defined
 
 - **Scenario id:** `GL-A1`
 - **Intent:** `MISSING-TERMS`
@@ -679,7 +679,7 @@
 - **Source issue:** `compass-self-architecture`
 - **Landed:** 
 
-### /compass:roundtable can convene the architect-lens _(archived)_
+### /compass:consult can convene the architect _(archived)_
 
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
@@ -742,7 +742,7 @@
 - **Source issue:** `compass-self-architecture`
 - **Landed:** 
 
-### Spec-author consults the architect-lens for boundary-touching tasks _(archived)_
+### Spec-author consults the architect for boundary-touching tasks _(archived)_
 
 - **Scenario id:** `TRC-B2`
 - **Intent:** `INT-2`
@@ -1512,7 +1512,7 @@
 - **Source issue:** `cross-task-architectural-integrity`
 - **Landed:** 
 
-### Bootstrap - spec-author does not invoke architect-lens that doesn't exist yet _(archived)_
+### Bootstrap - spec-author does not invoke architect that doesn't exist yet _(archived)_
 
 - **Scenario id:** `TRC-X5`
 - **Intent:** `INT-2`
@@ -3220,7 +3220,7 @@
 - **Source issue:** `v2-skills-prose`
 - **Landed:** 2026-08-07
 
-### the worktree-swarm skill carries the stash rule _(archived)_
+### the worktree-multiagent skill carries the stash rule _(archived)_
 
 - **Scenario id:** `TRC-3`
 - **Intent:** `INT-1`

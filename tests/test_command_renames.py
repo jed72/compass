@@ -23,7 +23,7 @@ COMMANDS = REPO_ROOT / "commands"
 # command it was before `wireframe`.
 V2_COMMANDS = {
     "assess", "define", "refine", "plan", "breakdown", "implement",
-    "verify", "ship", "design", "intent", "position", "roundtable",
+    "verify", "ship", "design", "intent", "position", "consult",
     "status", "flow", "resume", "init",
 }
 
@@ -43,11 +43,15 @@ STUBS = {
     "distribute": "breakdown",
     "build": "implement",
     "land": "ship",
+    # ADR-023: the word Anthropic's platform docs use for consulting an
+    # advisor mid-turn. Goes at the next major version, like the two above it.
+    "roundtable": "consult",
 }
 
 INLINE_CODE = re.compile(r"`[^`]*`")
 DEAD_NAME = re.compile(
-    r"/compass:(?:frame|triage|specify|clarify|wireframe|distribute|build|land)\b")
+    r"/compass:(?:frame|triage|specify|clarify|wireframe|distribute|build|land"
+    r"|roundtable)\b")
 
 
 def test_the_command_set_carries_the_v2_names():

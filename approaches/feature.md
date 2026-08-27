@@ -8,7 +8,7 @@
   decisions), **and**
 - risk is `contained` or a low end of `cross-cutting`, **and**
 - familiarity is either greenfield-bounded or brownfield (mapped or unmapped - if
-  unmapped, a routing guardrail adds `blueprint-distillation` to define),
+  unmapped, a routing guardrail adds `behaviour-mapping` to define),
   **and**
 - no floor forces initiative.
 
