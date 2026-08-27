@@ -101,8 +101,15 @@ def test_a4_named_files_resolve():
     Scoped to filenames a document presents as shipping with the framework:
     a backticked or bare path ending in .md under a known framework directory.
     """
-    named = re.compile(r"\b((?:approaches|governance|templates|skills|agents"
-                       r"|commands|docs)/[\w./-]+\.md)\b")
+    # The lookbehind is what keeps this about OUR files. A path with a segment
+    # in front of it - `obra/superpowers/skills/...`, or the tail of a URL -
+    # names another project's file, and asserting it exists here would be
+    # wrong. Without it, a document that compares Compass to another framework
+    # cannot cite that framework's files at all. Scoping by a prose caveat
+    # instead was considered and rejected: a caveat is the thing a reader
+    # skims past, and the guard cannot read it.
+    named = re.compile(r"(?<![\w/.-])((?:approaches|governance|templates|skills"
+                       r"|agents|commands|docs)/[\w./-]+\.md)\b")
     missing = []
     for p in _prose_files():
         for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
