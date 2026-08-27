@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -97,7 +97,7 @@ import fnmatch
 import re as _re
 from compass_pkg.checks import _spec_sha256
 from compass_pkg.terminal import say
-from compass_pkg.core import CompassError, artifact_path, find_upwards, load_yaml, now_iso, resolve_task_dir, normalize_spine
+from compass_pkg.core import CompassError, artifact_path, find_upwards, load_yaml, manifest_path, normalize_spine, now_iso, resolve_issue_dir
 from compass_pkg.tdd import _read_config, _run_test
 
 
@@ -415,8 +415,8 @@ def cmd_bdd_verify(args):
     reported, so a later check can tell whether the run still describes the
     spec it claims to verify.
     """
-    task_dir = resolve_task_dir(getattr(args, "task", None))
-    task_yaml = normalize_spine(load_yaml(os.path.join(task_dir, "task.yml")) or {})
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
+    task_yaml = normalize_spine(load_yaml(manifest_path(task_dir)) or {})
     proj = _read_config(task_dir).get("project") or {}
     command = list(getattr(args, "command", None) or [])
     if not command:
@@ -499,7 +499,7 @@ def cmd_bdd_verify(args):
 
 def cmd_bdd_extract(args):
     """compass bdd extract - acceptance-criteria.md -> a runnable .feature file."""
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
     slug = os.path.basename(os.path.normpath(task_dir))
     spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     if not os.path.isfile(spec_path):

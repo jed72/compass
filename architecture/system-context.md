@@ -43,7 +43,7 @@ Logical surface: **pipeline**
 ### Router
 
 The router reads the four context dimensions (risk, familiarity, size,
-intent + role) recorded in `task.yml.assessment` and deterministically selects a
+intent + role) recorded in `manifest.yml.assessment` and deterministically selects a
 route, phase weights, and gate set by running `governance/routing-policy.yml`
 through `compass approach evaluate`. No human judgement enters after the assessment
 are recorded; the route is a pure function of the assessment.
@@ -89,7 +89,7 @@ Logical surface: **role pipeline**
 | `governance/guardrails.yml` | `compass check` reads this to run gate assertions | high |
 | `governance/strategies.md` | Consulted by agents when deciding TDD/BDD application | medium |
 | `governance/signals.yml` | `hooks/stop.sh` and `compass rework-scan` read this | medium |
-| `.compass/work/<issue>/task.yml` | The machine-readable issue spine; written by triage, read by every stage | high |
+| `.compass/work/<issue>/manifest.yml` | The manifest; written by triage, read by every stage | high |
 | `.compass/work/<task>/*.md` | Phase artefacts (spec, plan, clarifications, etc.) | high |
 | `.compass/current-task` | One-line pointer resolved by CLI and hooks | high |
 | `architecture/` (this tree) | Assess loads into `architecture-loaded.yml`; architect-lens reads | medium |
@@ -103,10 +103,10 @@ Logical surface: **role pipeline**
    enforces the `.red` marker contract; it cannot enforce triage itself, but the
    methodology makes triage mandatory.
 
-2. **The assessment is the only judgement field in `task.yml`.** Everything else in
-   `task.yml` is mechanism-produced: route, phases, gates, scenarios,
+2. **The assessment is the only judgement field in `manifest.yml`.** Everything else in
+   `manifest.yml` is mechanism-produced: route, phases, gates, scenarios,
    changed_files, evidence, follow-ups, reframes. No mechanism may write into
-   `task.yml.assessment`.
+   `manifest.yml.assessment`.
 
 3. **Guardrails are not configurable.** Projects may add their own governance
    checks, but they cannot remove or soften G1–G5. Adopters declare

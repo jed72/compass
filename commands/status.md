@@ -1,6 +1,6 @@
 ---
 description: Report on one issue, or list them all
-argument-hint: "[task-slug]"
+argument-hint: "[issue-slug]"
 allowed-tools: Read, Bash, Glob, Grep
 ---
 
@@ -30,8 +30,8 @@ So: **the board is the default. Everything else is drill-down.**
 
 ## Procedure - no argument (the board)
 
-1. **Read the issues.** List `.compass/work/*/`; `task.yml` is each issue's
-   spine. Prefer one scripted pass over per-issue tool calls - a mature repo
+1. **Read the issues.** List `.compass/work/*/`; `manifest.yml` is each issue's
+   manifest. Prefer one scripted pass over per-issue tool calls - a mature repo
    may hold hundreds, and the reader is waiting.
 
 2. **Place each issue in exactly one column**, most urgent first:
@@ -52,14 +52,14 @@ So: **the board is the default. Everything else is drill-down.**
    For **DONE**, a count is almost always enough. Nobody scans finished
    work.
 
-4. **Account for what cannot be placed.** An issue with no `task.yml`, or no
+4. **Account for what cannot be placed.** An issue with no `manifest.yml`, or no
    `status:` field, cannot honestly go in any column. Report the count on
    its own line. Do not quietly drop it and do not guess: a board that
    silently omits part of the work looks complete when it is not.
 
 5. **Lead with anything blocking a ship**, and keep the whole thing to one
    screen. If the reader wants the delivery approach, stage, gates or
-   evidence they will ask - or run `/compass:status <task-slug>`.
+   evidence they will ask - or run `/compass:status <issue-slug>`.
 
 ### Shape of a good answer
 
@@ -92,7 +92,7 @@ decision, and no Compass vocabulary leaks into it beyond issue names.
 
 Here the internals *are* the point. Report:
 
-- **Delivery approach** - from `delivery-approach.md` / `task.yml`: the
+- **Delivery approach** - from `delivery-approach.md` / `manifest.yml`: the
   nearest reference shape, the four assessment dimensions, and any policy
   rule that fired.
 - **Stage** - inferred from which artifacts exist: `delivery-approach.md`
@@ -101,7 +101,7 @@ Here the internals *are* the point. Report:
   designed; `distribution-map.md` -> broken down;
   `verification-report.md` -> verified. Cross-check the approach's
   de-scope ledger so a *collapsed* stage is not reported as *missing*.
-- **Gates** - from `verification-report.md` and `task.yml`'s `gates:`. Run
+- **Gates** - from `verification-report.md` and `manifest.yml`'s `gates:`. Run
   `compass check --issue <slug>` for the mechanical view (read-only).
   **Say when a check passes without checking anything.** "no changed_files recorded yet"
   and "0/N pass gates" are green lines that assert nothing; reading them as

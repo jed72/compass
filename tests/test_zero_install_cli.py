@@ -99,9 +99,9 @@ def test_first_triage_completes_without_installing_a_package(bare_interpreter, t
     task_dir.mkdir(parents=True)
 
     # The judgement half of triage - a human or the Needle records the
-    # assessment. Writing task.yml directly here is exactly what a session
+    # assessment. Writing manifest.yml directly here is exactly what a session
     # does; only the mechanical half runs through the CLI.
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "task": slug,
             "created": "2026-08-10",
@@ -124,7 +124,7 @@ def test_first_triage_completes_without_installing_a_package(bare_interpreter, t
         encoding="utf-8")
     (project / ".compass" / "current-task").write_text(slug + "\n", encoding="utf-8")
 
-    assert (task_dir / "task.yml").is_file()
+    assert (task_dir / "manifest.yml").is_file()
     assert (task_dir / "delivery-approach.md").is_file()
     pointer = (project / ".compass" / "current-task").read_text(encoding="utf-8")
     assert pointer.splitlines() == [slug]
@@ -186,7 +186,7 @@ def test_pre_tool_hook_enforces_acceptance_before_code_without_a_system_pyyaml(
     (project / ".compass" / "current-task").write_text("t\n", encoding="utf-8")
     (task_dir / "delivery-approach.md").write_text("# Route\n", encoding="utf-8")
     (task_dir / ".red").write_text("", encoding="utf-8")
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "schema_version": "1.1", "task": "t", "created": "2026-08-10",
             "assessment": {"risk": "contained", "familiarity": "greenfield",
@@ -238,14 +238,14 @@ def test_integrate_writes_landed_status_without_a_system_pyyaml(bare_interpreter
     slug = "swarmed-issue"
     task_dir = repo / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "task": slug, "created": "2026-08-10", "status": "active",
             "assessment": {"risk": "contained", "familiarity": "greenfield",
                           "size": "small"},
             "other_field": "must-survive-unchanged",
         }, fh, sort_keys=False)
-    before_other_field = yaml.safe_load((task_dir / "task.yml").read_text())["other_field"]
+    before_other_field = yaml.safe_load((task_dir / "manifest.yml").read_text())["other_field"]
     (task_dir / "distribution-map.md").write_text(
         "# Distribution Map\n\n## 3. mapping\n\n"
         f"| stream-1 | U1 | TRC-A1 | compass/{slug}/stream-1 |\n", encoding="utf-8")
@@ -275,7 +275,7 @@ def test_integrate_writes_landed_status_without_a_system_pyyaml(bare_interpreter
     assert "WARNING" not in result.stdout or "living spec" in result.stdout, (
         result.stdout)
 
-    written = yaml.safe_load((task_dir / "task.yml").read_text())
+    written = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert written["status"] == "landed"
     assert "land_timestamp" in written
     assert written["other_field"] == before_other_field == "must-survive-unchanged"
@@ -303,7 +303,7 @@ def test_stop_hook_scope_signal_runs_without_a_system_pyyaml(bare_interpreter, t
         "2026-08-10: Started build\n"
         "more files than Plan estimated - had to touch core module\n",
         encoding="utf-8")
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "task": slug, "created": "2026-08-10",
             "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
@@ -379,7 +379,7 @@ def test_swarm_reads_the_cap_without_a_system_pyyaml(bare_interpreter, tmp_path)
     (task_dir / "delivery-approach.md").write_text(
         "# Delivery approach - swarm-issue\n\n> **Reference shape:** initiative\n",
         encoding="utf-8")
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "task": slug,
             "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
@@ -401,8 +401,8 @@ def test_swarm_reads_the_cap_without_a_system_pyyaml(bare_interpreter, tmp_path)
         capture_output=True, text=True, env=env, timeout=30)
 
     combined = result.stdout + result.stderr
-    assert "cannot read the cap from task.yml" not in combined, combined
-    assert "fix task.yml" not in combined.lower(), combined
+    assert "cannot read the cap from manifest.yml" not in combined, combined
+    assert "fix manifest.yml" not in combined.lower(), combined
     assert result.returncode == 0, combined
 
 

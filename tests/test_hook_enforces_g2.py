@@ -47,9 +47,9 @@ def _project(*, specify="full", scenarios=0, red=True, spike=False,
     if spike:
         (task_dir / ".spike").write_text("")
     if broken_yml:
-        (task_dir / "task.yml").write_text("phases: [this is not\n  valid: yaml\n")
+        (task_dir / "manifest.yml").write_text("phases: [this is not\n  valid: yaml\n")
     elif task_yml:
-        (task_dir / "task.yml").write_text(yaml.safe_dump({
+        (task_dir / "manifest.yml").write_text(yaml.safe_dump({
             "schema_version": "1.1", "task": "t", "created": "2026-08-06",
             "assessment": {"risk": "contained", "familiarity": "greenfield",
                          "size": "small", "intent": "delivery"},
@@ -148,12 +148,12 @@ def test_scn_b2_a_test_file_is_still_editable():
 
 
 # ---------------------------------------------------------------------------
-# Failure modes - an unreadable spine must not block work
+# Failure modes - an unreadable manifest must not block work
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("kwargs,label", [
-    ({"task_yml": False}, "no task.yml at all"),
-    ({"broken_yml": True}, "unparseable task.yml"),
+    ({"task_yml": False}, "no manifest.yml at all"),
+    ({"broken_yml": True}, "unparseable manifest.yml"),
 ])
 def test_scn_f1_an_unreadable_spine_does_not_block(kwargs, label):
     """This check reads a file the hook did not previously need. If it cannot be
@@ -181,7 +181,7 @@ def test_scn_f2_g2_is_checked_before_the_red():
 
 
 def _project_v2(*, define="full", scenarios=0, red=True):
-    """An issue spine in the CURRENT vocabulary.
+    """An issue manifest in the CURRENT vocabulary.
 
     `_project` above writes `stages: {specify: ...}` - the v2 block name with
     the v1 stage key inside it. That mixture is what every test here was built
@@ -195,7 +195,7 @@ def _project_v2(*, define="full", scenarios=0, red=True):
     (task_dir / "delivery-approach.md").write_text("# Delivery approach\n")
     if red:
         write_red_record(task_dir)
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-25",
         "assessment": {"risk": "contained", "familiarity": "greenfield",
                        "size": "small", "goal": "delivery"},
@@ -211,7 +211,7 @@ def _project_v2(*, define="full", scenarios=0, red=True):
 def test_scn_a4_g2_fires_on_a_spine_in_the_current_vocabulary():
     """The guardrail must read the stage key the framework writes today.
 
-    The hook asked for `specify`, the key retired at the v2 freeze, so a spine
+    The hook asked for `specify`, the key retired at the v2 freeze, so a manifest
     saying `define: full` with no scenarios was waved through. The migration
     tool this framework ships is what turns a directory from one to the other,
     so running `compass migrate --apply` silently switched guardrail G2 off

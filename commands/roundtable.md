@@ -47,7 +47,7 @@ convened by name:
 |---|---|---|
 | `product-lens` | `/compass:roundtable product-lens` | When a product owner is in play (`intent.md` exists) |
 | `marketing-lens` | `/compass:roundtable marketing-lens` | When a marketer is in play (`positioning.md` exists) |
-| `architect-lens` | `/compass:roundtable architect-lens` | When the spine's `assessment.labels` contains `public-api`, a service name from `architecture/relations.md`, or a `lens_trigger_tag` from `architecture/invariants.yml` |
+| `architect-lens` | `/compass:roundtable architect-lens` | When the manifest's `assessment.labels` contains `public-api`, a service name from `architecture/relations.md`, or a `lens_trigger_tag` from `architecture/invariants.yml` |
 | `planner` | `/compass:roundtable planner` | On request |
 | `reviewer` | `/compass:roundtable reviewer` | On request |
 

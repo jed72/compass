@@ -258,7 +258,7 @@ def _project(tmp_path, slug="demo"):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (tmp_path / ".compass" / "current-task").write_text(slug + "\n")
-    (work / "task.yml").write_text(yaml.safe_dump({
+    (work / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": slug, "created": "2026-08-25",
         "status": "active",
         "assessment": {"risk": "contained", "familiarity": "greenfield",
@@ -282,7 +282,7 @@ def _run_ingest(project, *args):
 def test_ing_c1_the_verb_writes_a_snapshot_and_records_where_it_came_from(tmp_path):
     """ING-C1: an ingested brief says where it came from.
 
-    Two records, deliberately. The spine's block is what `compass check` can
+    Two records, deliberately. The manifest's block is what `compass check` can
     read; the snapshot is what makes the invention rule auditable afterwards,
     because nobody can check "every statement traces to the source" against a
     document that is not there.
@@ -300,9 +300,9 @@ def test_ing_c1_the_verb_writes_a_snapshot_and_records_where_it_came_from(tmp_pa
     assert snapshot.is_file(), "no intent-source.md snapshot was written"
     assert snapshot.read_text(encoding="utf-8") == src.read_text(encoding="utf-8")
 
-    spine = yaml.safe_load((work / "task.yml").read_text())
-    rec = spine.get("intent_source")
-    assert rec, "the spine has no intent_source block"
+    manifest = yaml.safe_load((work / "manifest.yml").read_text())
+    rec = manifest.get("intent_source")
+    assert rec, "the manifest has no intent_source block"
     assert rec["origin"] == str(src)
     assert rec["scheme"] == "file"
     assert len(rec["sha256"]) == 64
@@ -338,13 +338,13 @@ def test_ing_c1b_the_verb_refuses_to_overwrite_a_snapshot(tmp_path):
 def test_ing_a4c_a_missing_source_leaves_the_issue_untouched(tmp_path):
     """ING-A4's second clause: nothing is left half-created.
 
-    Asserted against the spine and the directory rather than trusting the exit
+    Asserted against the manifest and the directory rather than trusting the exit
     code - a verb that fails after writing is the case this is for.
     """
     import yaml
 
     project, work = _project(tmp_path)
-    before = yaml.safe_load((work / "task.yml").read_text())
+    before = yaml.safe_load((work / "manifest.yml").read_text())
 
     missing = tmp_path / "nope.md"
     run = _run_ingest(project, "--from", str(missing))
@@ -360,8 +360,8 @@ def test_ing_a4c_a_missing_source_leaves_the_issue_untouched(tmp_path):
         "the reader refusing:\n" + combined)
 
     assert not (work / "intent-source.md").exists()
-    assert yaml.safe_load((work / "task.yml").read_text()) == before, (
-        "the spine was modified by a failed ingest")
+    assert yaml.safe_load((work / "manifest.yml").read_text()) == before, (
+        "the manifest was modified by a failed ingest")
 
 
 def test_ing_d4d_a_bad_source_is_refused_for_the_right_reason(tmp_path):
@@ -428,7 +428,7 @@ def test_ing_a3_a_url_becomes_a_snapshot_and_a_record(tmp_path, monkeypatch):
     assert snapshot.is_file()
     assert "Search is slow" in snapshot.read_text(encoding="utf-8")
 
-    rec = yaml.safe_load((work / "task.yml").read_text())["intent_source"]
+    rec = yaml.safe_load((work / "manifest.yml").read_text())["intent_source"]
     assert rec["scheme"] == "https"
     assert rec["origin"] == landed, (
         "the record names the address that was typed rather than where the "

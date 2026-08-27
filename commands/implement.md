@@ -59,7 +59,7 @@ into real delivery work.
 3. **Refactor.** Clean up with the suite green. On a hotfix, refactor only
    if the refactor itself is low-risk.
 4. **Record the change.** For each production file you touched, add an entry
-   to `task.yml`'s `changed_files:` - its path and the scenario id(s) it
+   to `manifest.yml`'s `changed_files:` - its path and the scenario id(s) it
    traces to. This is the code-to-criterion half of the traceability
    guardrail, and `compass check` verifies it.
 5. Keep the traceability chain live as you go - code to scenario to intent -
@@ -104,7 +104,7 @@ longer believe is the failure mode.
 
 On delivery work: every scenario has a test; every test went red before
 green (a red record then a green record on file); the suite
-is green; every changed production file is recorded in `task.yml`'s
+is green; every changed production file is recorded in `manifest.yml`'s
 `changed_files:` traced to a scenario. On a spike: the question was explored
 and the findings are captured - there is no test gate, because nothing
 ships. Log progress to `devlog.md`. Next: `/compass:verify`.

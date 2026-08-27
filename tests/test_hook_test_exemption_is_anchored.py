@@ -56,7 +56,7 @@ def project(tmp_path):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (tmp_path / ".compass" / "current-task").write_text("demo\n")
-    (work / "task.yml").write_text(SPINE)
+    (work / "manifest.yml").write_text(SPINE)
     (work / "delivery-approach.md").write_text("# approach\n")
     return tmp_path
 

@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -97,8 +97,8 @@ import fnmatch
 import re as _re
 from compass_pkg.check_cmd import CHECK_FNS
 from compass_pkg.core import (CompassError, FRAMEWORK_ROOT, artifact_path,
-                              load_task, load_yaml, normalize_spine,
-                              resolve_task_dir)
+                              load_manifest, load_yaml, normalize_spine,
+                              resolve_issue_dir)
 
 
 
@@ -382,11 +382,11 @@ def _plan_stage_weight(task_slug):
 
     Read so the lint can check its own explanation for a missing design
     against the record, instead of offering a reason that may not apply.
-    Returns None when the spine cannot be read - an unreadable record is not
+    Returns None when the manifest cannot be read - an unreadable record is not
     evidence that the stage collapsed.
     """
     try:
-        task, _path = load_task(resolve_task_dir(task_slug))
+        task, _path = load_manifest(resolve_issue_dir(task_slug))
     except CompassError:
         return None
     stages = task.get("stages") or {}
@@ -414,7 +414,7 @@ def cmd_plan_lint(args):
     if args.file:
         path = args.file
     else:
-        task_dir = resolve_task_dir(args.task)
+        task_dir = resolve_issue_dir(args.task)
         path = artifact_path(task_dir, "technical-design.md")
 
     if not os.path.isfile(path):
@@ -457,14 +457,17 @@ def cmd_task_lint(args):
         path = args.file
         task = normalize_spine(load_yaml(path))
     else:
-        task_dir = resolve_task_dir(args.task)
-        task, path = load_task(task_dir)
+        task_dir = resolve_issue_dir(args.task)
+        task, path = load_manifest(task_dir)
     # built-in structural lint (always runs)
     errs = []
-    if "task" not in task:
+    # The manifest is normalised above, so this reads the CURRENT key. It
+    # read `task` while reporting `issue:` - correct only while the two were
+    # the same field under two names, and wrong the moment the rename landed.
+    if "issue" not in task:
         errs.append("missing `issue:` (the issue slug)")
     # Each block below checks the shape before reading it. This command's whole
-    # job is to report a malformed task.yml, so it must not crash on one - a
+    # job is to report a malformed manifest.yml, so it must not crash on one - a
     # scenario written as a bare string used to raise AttributeError here, and a
     # traceback tells the author nothing about what to fix.
     if "assessment" not in task:
@@ -476,7 +479,7 @@ def cmd_task_lint(args):
             # and failing the sweep for complying teaches people to stop".
             #
             # ONE FIELD, ONE STATUS. The rest of the lint still runs, because
-            # a malformed spine is malformed whether or not the work started -
+            # a malformed manifest is malformed whether or not the work started -
             # skipping the lint wholesale for a status is the mistake `cmd_ci`
             # warns against in the comment above that one.
             pass
@@ -519,7 +522,7 @@ def cmd_task_lint(args):
                     f"an attempt count of 0 or negative is out of domain (TRC-FM2)"
                 )
     # JSON Schema validation (when `jsonschema` is installed)
-    je = _jsonschema_errors(task, "task.schema.json")
+    je = _jsonschema_errors(task, "manifest.schema.json")
     schema_ran = je is not None
     if je:
         errs += je

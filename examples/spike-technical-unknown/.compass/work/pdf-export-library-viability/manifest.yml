@@ -1,5 +1,5 @@
 schema_version: '2.0'
-task: pdf-export-library-viability
+issue: pdf-export-library-viability
 created: '2026-05-12'
 assessment:
   risk: contained

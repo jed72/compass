@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -101,8 +101,8 @@ SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))  # rea
 FRAMEWORK_ROOT = os.path.dirname(SCRIPT_DIR)  # cli/.. == the compass repo root
 
 COMPASS_VERSION = "3.4.0"    # the CLI's own version
-COMPASS_SCHEMA_VERSION = "2.0"    # the task.yml schema this CLI writes
-COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced task.yml.status
+COMPASS_SCHEMA_VERSION = "2.0"    # the manifest.yml schema this CLI writes
+COMPASS_SCHEMA_VERSION_11 = "1.1"  # schema version that introduced manifest.yml.status
 
 
 class CompassError(Exception):
@@ -267,7 +267,7 @@ def exit_for_mode(failures, mode):
     return 1 if failures else 0
 
 
-def resolve_task_dir(slug=None):
+def resolve_issue_dir(slug=None):
     """Resolve an issue's working directory.
 
     Priority: explicit slug > .compass/current-task pointer > most recently
@@ -310,12 +310,40 @@ def resolve_task_dir(slug=None):
     return max(candidates, key=os.path.getmtime)
 
 
-def load_task(task_dir):
-    path = os.path.join(task_dir, "task.yml")
+# The manifest's filenames, current first and retired second. A FALLBACK the
+# lookup tries second, never a substitution for the current name.
+#
+# The retired value is here rather than inline because a blanket rename over
+# the tree has already collapsed a compatibility map to an identity once - on
+# 2026-08-25, taking the fallback with it - and did it again to this very
+# function during the manifest sweep, rewriting the pair to
+# ("manifest.yml", "manifest.yml"). `test_nir_d3` asserts the two differ, so
+# the same edit fails instead of passing silently.
+MANIFEST_NAMES = ("manifest.yml", "task" + ".yml")
+
+
+def manifest_path(task_dir):
+    """The issue's manifest, by whichever name it carries on disk.
+
+    Current name first, retired name second - the same order every other
+    renamed artifact resolves in. A project that has not run `compass migrate`
+    still reads, which ADR-006 requires and which matters more here than
+    anywhere else: `.compass/work/` is gitignored in this repository, so its
+    records have no git history to restore from.
+    """
+    for name in MANIFEST_NAMES:
+        candidate = os.path.join(task_dir, name)
+        if os.path.isfile(candidate):
+            return candidate
+    return os.path.join(task_dir, "manifest.yml")
+
+
+def load_manifest(task_dir):
+    path = manifest_path(task_dir)
     if not os.path.isfile(path):
         raise CompassError(
-            f"no task.yml in {task_dir} - has triage run? task.yml is the "
-            f"machine-readable issue spine."
+            f"no manifest.yml in {task_dir} - has the issue been assessed? "
+            f"The manifest is what every command reads."
         )
     task = load_yaml(path)
     # schema_version compatibility: a major mismatch is unsafe to silently run
@@ -331,16 +359,20 @@ def load_task(task_dir):
             raise CompassError(
                 f"{path}: schema_version is '{sv}', but this CLI handles "
                 f"'{COMPASS_SCHEMA_VERSION}' (and reads 1.x by key "
-                f"normalisation). Update Compass, or migrate the task.yml."
+                f"normalisation). Update Compass, or migrate the manifest.yml."
             )
     return normalize_spine(task), path
 
 
-# The 1.x -> 2.0 spine key map. Read-side only: every loader normalises to
+# The 1.x -> 2.0 manifest key map. Read-side only: every loader normalises to
 # the v2 canonical keys, so the rest of the CLI speaks one vocabulary and an
-# un-migrated 1.x spine (an adopter tree mid-upgrade, or the migration tool
+# un-migrated 1.x manifest (an adopter tree mid-upgrade, or the migration tool
 # reading its own input) keeps working. Writers always emit 2.0.
 SPINE_KEY_MAP = {
+    # The root key naming the issue. It was `task`, which terminology.yml
+    # bans with replacement `issue` - so half the artifact's name was retired
+    # and the other half ungoverned. Old files still load through this row.
+    "task": "issue",
     "readings": "assessment",
     "route": "delivery_approach",
     "phases": "stages",
@@ -401,9 +433,9 @@ def _stage_key_renames():
 
 
 def normalize_spine(task):
-    """Return the spine with v2 canonical keys, whatever generation it was
+    """Return the manifest with v2 canonical keys, whatever generation it was
     written in. A v2 key present alongside its v1 twin wins; the v1 key is
-    dropped either way. Idempotent on a v2 spine."""
+    dropped either way. Idempotent on a v2 manifest."""
     if not isinstance(task, dict):
         return task
     out = {}
@@ -437,7 +469,7 @@ def normalize_spine(task):
                 continue
             a2[k2] = v
         out["assessment"] = a2
-    # Follow-up states renamed with the CLI-voice slice: 1.x spines carry
+    # Follow-up states renamed with the CLI-voice slice: 1.x manifests carry
     # owed/paid; readers see outstanding/resolved. Value map, mirroring the
     # key map above; the migrate tool rewrites them on disk in its slice.
     if out.get("delivery_approach") in SHAPE_VALUE_MAP:
@@ -449,24 +481,24 @@ def normalize_spine(task):
                 f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
     # Triage used to record a `topology:` word; it now records a
     # `stream_ceiling:` number, because it cannot know a topology before the
-    # distribution map exists. A spine written before that change carries the
+    # distribution map exists. A manifest written before that change carries the
     # word and no ceiling, so the word is read as the ceiling it always
-    # implied. The recorded topology is KEPT: an archived spine says what it
+    # implied. The recorded topology is KEPT: an archived manifest says what it
     # said, and breakdown legitimately writes a topology of its own.
     if out.get("stream_ceiling") is None and "stream_ceiling" not in out:
         topo = out.get("topology")
         if isinstance(topo, str) and topo:
-            # A capped 1.x spine recorded the sentence
+            # A capped 1.x manifest recorded the sentence
             # "solo (capped to 1 worktree)"; its first word is the topology.
             out["stream_ceiling"] = TOPOLOGY_STREAM_CEILING.get(
                 topo.split(" ")[0], None)
     # The on-disk schema_version is preserved: readers must be able to say
-    # honestly what generation a spine was written in (the receipt reports
-    # legacy spines). Writers stamp the current version when they save.
+    # honestly what generation a manifest was written in (the receipt reports
+    # legacy manifests). Writers stamp the current version when they save.
     return out
 
 
-# The topology words a pre-ceiling spine could carry, and the ceiling each
+# The topology words a pre-ceiling manifest could carry, and the ceiling each
 # always implied. `swarm` is None - unbounded - for the same reason the
 # evaluator's table says so: no number for it exists anywhere in the policy.
 TOPOLOGY_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
@@ -492,7 +524,7 @@ def canonical_shape(value):
     return SHAPE_VALUE_MAP.get(str(value or ""), value)
 
 # Machine delivery-approach values -> the v2 change-type names the display
-# layer prints. The spine keeps the machine value; the terminal never
+# layer prints. The manifest keeps the machine value; the terminal never
 # shows it (the receipt is the most shareable screen Compass produces).
 SHAPE_DISPLAY = {
     "express": "quick fix",
@@ -541,14 +573,14 @@ def display_stage(value):
     return STAGE_DISPLAY.get(str(value or ""), str(value or ""))
 
 
-def save_task(task, path):
+def save_manifest(task, path):
     with open(path, "w", encoding="utf-8") as fh:
         yaml.safe_dump(task, fh, sort_keys=False, default_flow_style=False)
 
 
 # --- architecture loading (Frame mechanism) ----------------------------------
 # Inv-1: readings stays judgement-only. The load record goes to
-# architecture-loaded.yml (a separate file), never into task.yml.readings.
+# architecture-loaded.yml (a separate file), never into manifest.yml.readings.
 # Inv-7: deterministic - same inputs produce same output; sha256 per artifact
 #         lets downstream agents detect mid-task drift.
 # Inv-8: backward compat - absence of architecture/ is silent (empty record).
@@ -681,7 +713,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
         "adrs": adrs,
     }
 
-    # Write to task dir (never to task.yml.readings - Inv-1)
+    # Write to task dir (never to manifest.yml.readings - Inv-1)
     os.makedirs(task_dir, exist_ok=True)
     out_path = os.path.join(task_dir, "architecture-loaded.yml")
     with open(out_path, "w", encoding="utf-8") as fh:
@@ -776,7 +808,7 @@ def _registry(task_dir):
     148 issue directories predate the registry. A missing one is the
     ordinary case, never a fault.
     """
-    path = os.path.join(task_dir, "task.yml")
+    path = manifest_path(task_dir)
     if not os.path.isfile(path):
         return []
     try:

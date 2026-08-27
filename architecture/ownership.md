@@ -21,7 +21,7 @@ exclusively, and what it must not do.
 
 | Component | Owns | Must own exclusively |
 |---|---|---|
-| `cli/compass` | Approach evaluation, gate checking, tdd-red/green evidence, rework-scan, retro, ADR helpers | All mechanism-produced writes to issue spines and evidence directories |
+| `cli/compass` | Approach evaluation, gate checking, tdd-red/green evidence, rework-scan, retro, ADR helpers | All mechanism-produced writes to issue manifests and evidence directories |
 | `hooks/pre-tool.sh` | `.red` marker gate enforcement | The decision of whether to block a tool call |
 | `hooks/stop.sh` | Session-end signal scanning, rework nudge | Detection of scope-bloat and rework signals |
 | `commands/*.md` | Phase slash-command definitions | The user-facing pipeline protocol |
@@ -40,7 +40,7 @@ exclusively, and what it must not do.
 - The authoritative definition of what each phase produces (the phase-artifact
   contract).
 - The gate set for each route (as computed by the router and encoded in
-  `task.yml.gates`).
+  `manifest.yml.gates`).
 - The Definition of Ready (requirements review → design gate) and Definition of Done
   (verify → ship gate).
 
@@ -84,13 +84,13 @@ Each rule below names an invariant from the table in
 most likely to break it. These are the places where a plausible, well-meant
 change would quietly cross a line.
 
-### calibration must not mutate task.yml
+### calibration must not mutate manifest.yml
 
-`compass retro` is read-only over all issue spines. It aggregates reframe
+`compass retro` is read-only over all issue manifests. It aggregates reframe
 data to produce a calibration report but never writes back to any
-`.compass/work/*/task.yml`. Mutation would violate **Inv-4** (Flow advises,
+`.compass/work/*/manifest.yml`. Mutation would violate **Inv-4** (Flow advises,
 never gates). The likely way in is the reframe-debt pass: it reads every issue's
-reframe log, so writing a debt marker back into `task.yml` looks harmless.
+reframe log, so writing a debt marker back into `manifest.yml` looks harmless.
 
 ### rework-scan must not exit non-zero on detection
 
@@ -108,12 +108,12 @@ in `acceptance-criteria.md` exclusively. Emitting scenarios from the lens would 
 **Inv-5** (one spec, many lenses). A lens that emits scenarios has forked the
 spec, which is exactly what the one-spec rule exists to prevent.
 
-### No mechanism may write into task.yml.assessment
+### No mechanism may write into manifest.yml.assessment
 
-`task.yml.assessment` is the sole field the human fills with judgement (blast
+`manifest.yml.assessment` is the sole field the human fills with judgement (blast
 radius, familiarity, size, intent, role, touches). Every mechanism-produced
 load record (`architecture-loaded.yml`, `architecture-notes.md`, `evidence/`,
-etc.) lives in its own named file outside `task.yml.assessment`. Violating this
+etc.) lives in its own named file outside `manifest.yml.assessment`. Violating this
 would cross **Inv-1**. The tempting mistake is folding loaded architecture
 content into `assessment` because it informed the judgement; it did not make it.
 

@@ -3,12 +3,12 @@
 First half of the artifact-rename slice of the v2 plan: the templates carry
 the v2 filenames, two new intake templates exist, and the CLI resolves every
 per-issue artifact by its v2 name while still accepting the v1 name - the
-work archive keeps v1 filenames until the machine-spine slice migrates it,
+work archive keeps v1 filenames until the machine-manifest slice migrates it,
 and `compass check`, `analyze`, `receipt`, `next`, `flow`, and the
 derivation must read both generations in the meantime.
 
 Docstrings cite the acceptance criteria by TRC id; the criteria live in the
-issue's archived spec, indexed in its `task.yml`.
+issue's archived spec, indexed in its `manifest.yml`.
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took
@@ -25,7 +25,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT / "cli"))
 
-# The rename map this slice ships. verification-report.md, task.yml,
+# The rename map this slice ships. verification-report.md, manifest.yml,
 # distribution-map.md, positioning.md, launch-readiness.md, ui-contract.md,
 # and devlog.md keep their names - they are already plain English.
 V2_TO_V1 = {
@@ -50,7 +50,7 @@ def test_templates_carry_the_v2_names():
 
 
 def test_artifact_path_resolves_v2_names_only(tmp_path):
-    """TRC-A2 (as amended by the machine-spine slice): the runtime resolver
+    """TRC-A2 (as amended by the machine-manifest slice): the runtime resolver
     speaks v2 filenames only - the v1 fallback it carried during the
     transition retired when the archive migrated, and the old-name map
     lives in the migration module."""
@@ -65,7 +65,7 @@ def test_artifact_path_resolves_v2_names_only(tmp_path):
 
 
 def test_migration_renames_a_v1_issue_directory(tmp_path):
-    """TRC-A3 (as amended by the machine-spine slice): an un-migrated issue
+    """TRC-A3 (as amended by the machine-manifest slice): an un-migrated issue
     directory becomes resolvable by migrating it - the migration module
     owns the v1 filename map the runtime no longer consults."""
     from compass_pkg import core, migrate

@@ -15,7 +15,7 @@ Score the blast_radius, the terrain, and the magnitude of the change.
 Domain tags use touches_any and touches_common; note the blast radius too.
 A hotfix owes a backfill before the task closes.
 A checklist line tagged (backfill: BF-9) uses the renamed v1 tag, and the
-spine key backfills: [] no longer exists either.
+manifest key backfills: [] no longer exists either.
 Settle it with compass backfill pay before shipping - the verb
 renamed too.
 Guardrail G1 and strategy S7 are cited by code in prose.
@@ -59,7 +59,7 @@ Frame -> Specify was the v1 order, so -> Frame is the arrow form.
 
 # Frame
 
-A dimension reading is what the v1 spine called the judgement.
+A dimension reading is what the v1 manifest called the judgement.
 
 The path routes/ held the retired artifact.
 
@@ -68,9 +68,12 @@ Run `/compass:specify`, then `/compass:clarify`, `/compass:distribute` and
 
 # Specify
 
-The spine recorded touches: as a list of the domains a change reaches.
+The manifest recorded touches: as a list of the domains a change reaches.
 
 When a PRD exists, invoke the product-lens agent. That names the intake
 document by its retired acronym; it lived in innocent_usage.md until
 2026-08-25, when the bare acronym was found on 24 live surfaces
 including the description a user reads in the slash-command menu.
+
+Triage writes the issue spine, and every later stage fills its section of the
+spine. The task spine records the assessment; read the spine before you start.

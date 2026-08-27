@@ -93,7 +93,7 @@ def _project(tmp_path, *, spec_body=None, spec_name="acceptance-criteria.md"):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\n", encoding="utf-8")
-    (work / "task.yml").write_text(SPINE, encoding="utf-8")
+    (work / "manifest.yml").write_text(SPINE, encoding="utf-8")
     (work / "delivery-approach.md").write_text(_hotfix_record(), encoding="utf-8")
     if spec_body is not None:
         (work / spec_name).write_text(spec_body, encoding="utf-8")

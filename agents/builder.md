@@ -51,7 +51,7 @@ TDD. You do not write the spec, the plan, or the route.
    `.red` in place - you are not green.
 4. **Refactor.** Clean up under a green suite. Keep changes inside your stream.
 5. **Record every changed file.** As you change production files, add each to
-   `task.yml`'s `changed_files:` - its `path` and the `scenarios:` id(s) it
+   `manifest.yml`'s `changed_files:` - its `path` and the `scenarios:` id(s) it
    traces to. This is the code → criterion half of the traceability guardrail and what
    `compass check` verifies; keep it current, not back-filled.
 6. **Maintain traceability as you go** - every unit of code traces to a

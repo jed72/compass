@@ -34,6 +34,10 @@ shape_display:
 # The migration module consumes this section; the copy it keeps in code
 # is only the fallback for a tree with no framework install.
 artifacts:
+  # The issue's own record. `spine` was a metaphor the framework had to teach;
+  # `manifest` is what package.json and a Kubernetes manifest already are.
+  # Files written as task.yml keep loading - that is what this row is for.
+  task.yml: manifest.yml
   brief.md: intent.md
   spec.feature.md: acceptance-criteria.md
   route.md: delivery-approach.md

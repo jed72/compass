@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: requirements-review.md
 Produced by: the requirements-review stage (`/compass:refine`).
-Lives at:    .compass/work/<task-slug>/requirements-review.md
+Lives at:    .compass/work/<issue-slug>/requirements-review.md
 Role in the pipeline: the ambiguity ledger. The review QAs the criteria
 against themselves and against governance; every ambiguity found, every
 question asked, and every resolution is recorded here. Collapsed on a

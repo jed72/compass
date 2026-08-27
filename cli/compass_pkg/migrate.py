@@ -1,7 +1,7 @@
 # =============================================================================
 # The archive migration core - 1.x issue directories to schema 2.0.
 #
-# This module owns the whole v1-to-v2 on-disk mapping: the spine keys (via
+# This module owns the whole v1-to-v2 on-disk mapping: the manifest keys (via
 # core.normalize_spine) and the artifact filenames (the map below, which
 # moved here from the runtime resolver when the repository's own archive
 # migrated - the runtime resolves v2 names only; this module is what reads
@@ -14,10 +14,15 @@ import os
 
 import yaml
 
-from compass_pkg.core import CompassError, normalize_spine
+from compass_pkg.core import CompassError, manifest_path, normalize_spine
 
 # v1 filename -> v2 filename, applied inside each issue directory.
 V1_ARTIFACT_NAMES = {
+    # Spelled from parts for the same reason core.MANIFEST_NAMES is: the
+    # enforced CLI must not carry a retired name as a plain string literal,
+    # and a blanket rename over the tree has twice rewritten a compatibility
+    # pair into an identity when it could read one.
+    "task" + ".yml": "manifest.yml",
     "brief.md": "intent.md",
     "spec.feature.md": "acceptance-criteria.md",
     "route.md": "delivery-approach.md",
@@ -82,13 +87,13 @@ def colliding_artifacts(task_dir):
 
 
 def repoint_spine_references(task_dir, node, renamed):
-    """Rewrite spine values that name a file this migration renamed away.
+    """Rewrite manifest values that name a file this migration renamed away.
 
-    A spine points at its own documents in several places - `evidence:` paths,
+    A manifest points at its own documents in several places - `evidence:` paths,
     the artifact registry's `path:`, `changed_files:` - and renaming the file
     without repointing them leaves every one of those naming something that is
     no longer there. `compass check` then fails gate-evidence-present with
-    "path does not resolve" on an issue nothing is wrong with. 22 spines in
+    "path does not resolve" on an issue nothing is wrong with. 22 manifests in
     this repository were in that state, some of them naming `route.md` and
     `plan.md`, so the v2 freeze's migration left the same wreckage a cycle
     earlier.
@@ -142,9 +147,15 @@ def plan_issue_dir(task_dir):
         new_p = os.path.join(task_dir, new_name)
         if os.path.exists(old_p) and not os.path.exists(new_p):
             notes.append(f"would rename {old_name} -> {new_name}")
-    spine = os.path.join(task_dir, "task.yml")
-    if os.path.isfile(spine):
-        with open(spine, encoding="utf-8") as fh:
+    # The manifest is found AFTER the artifact renames above, because it is
+    # one of them: `manifest.yml` becomes `manifest.yml` on the same pass. Naming
+    # the old filename here meant the rename moved the file and the key
+    # rewrite then looked for something that was no longer there - so an
+    # issue migrated to the new filename kept the retired root key inside it,
+    # which is the half-migration this whole ordering exists to prevent.
+    manifest = manifest_path(task_dir)
+    if os.path.isfile(manifest):
+        with open(manifest, encoding="utf-8") as fh:
             raw = yaml.safe_load(fh) or {}
         before = copy.deepcopy(raw)          # see migrate_issue_dir
         migrated = normalize_spine(raw)
@@ -152,11 +163,11 @@ def plan_issue_dir(task_dir):
         # promises less than the apply does - which is the same class of
         # mismatch as promising more, and just as hard to trust afterwards.
         if repoint_spine_references(task_dir, migrated, renamed):
-            notes.append("would repoint the spine at the renamed files")
+            notes.append("would repoint the manifest at the renamed files")
         if str(migrated.get("schema_version", "")).split(".")[0] != "2":
             migrated["schema_version"] = "2.0"
         if migrated != before:
-            notes.append("would rewrite the spine to schema 2.0")
+            notes.append("would rewrite the manifest to schema 2.0")
     return notes
 
 
@@ -199,7 +210,7 @@ def cmd_migrate(args):
               "which is the older file.")
 
     # One directory failing must not take the report with it. The notes used
-    # to be printed after the loop, so an unparseable spine raised out of the
+    # to be printed after the loop, so an unparseable manifest raised out of the
     # whole command: every rename already performed stayed on disk, unnamed,
     # under a raw traceback. Both spellings still resolve, so the half-migrated
     # tree WORKS - which is precisely why nobody would notice.
@@ -255,7 +266,7 @@ def cmd_migrate(args):
 
 def migrate_issue_dir(task_dir):
     """Migrate one issue directory in place: rename v1-named artifacts and
-    rewrite the spine with v2 keys. Idempotent - a migrated directory is
+    rewrite the manifest with v2 keys. Idempotent - a migrated directory is
     left untouched. Returns a list of human-readable change notes."""
     notes = []
     renamed = artifact_name_map()
@@ -265,9 +276,11 @@ def migrate_issue_dir(task_dir):
         if os.path.exists(old_p) and not os.path.exists(new_p):
             os.rename(old_p, new_p)
             notes.append(f"renamed {old_name} -> {new_name}")
-    spine = os.path.join(task_dir, "task.yml")
-    if os.path.isfile(spine):
-        with open(spine, encoding="utf-8") as fh:
+    # Same reason as the dry run above: the manifest is one of the files the
+    # rename loop just moved, so it is found by its current name first.
+    manifest = manifest_path(task_dir)
+    if os.path.isfile(manifest):
+        with open(manifest, encoding="utf-8") as fh:
             raw = yaml.safe_load(fh) or {}
         # A snapshot that nothing below can reach. `normalize_spine` copies the
         # top level and SHARES every nested list and dict, so repointing - which
@@ -276,26 +289,26 @@ def migrate_issue_dir(task_dir):
         # note was appended and the file was never written.
         before = copy.deepcopy(raw)
         migrated = normalize_spine(raw)
-        # The spine points at its own documents. Repointing is part of the
+        # The manifest points at its own documents. Repointing is part of the
         # rename, not a follow-up: a record naming a file that is no longer
         # there fails `compass check` on an issue nothing is wrong with.
         if repoint_spine_references(task_dir, migrated, renamed):
-            notes.append("spine references -> the renamed files")
+            notes.append("manifest references -> the renamed files")
         if str(migrated.get("schema_version", "")).split(".")[0] != "2":
             migrated["schema_version"] = "2.0"
         if migrated != before:
-            # Serialise first, then replace atomically. `open(spine, "w")`
+            # Serialise first, then replace atomically. `open(manifest, "w")`
             # empties the file before safe_dump writes a byte, so a dump that
-            # raised - an unexpected object type in the spine will do it - left
-            # task.yml empty and the issue with no record at all. os.replace is
+            # raised - an unexpected object type in the manifest will do it - left
+            # manifest.yml empty and the issue with no record at all. os.replace is
             # atomic on every platform Compass supports.
             body = yaml.safe_dump(migrated, sort_keys=False,
                                   default_flow_style=False, allow_unicode=True)
-            tmp = spine + ".tmp"
+            tmp = manifest + ".tmp"
             with open(tmp, "w", encoding="utf-8") as fh:
                 fh.write(body)
-            os.replace(tmp, spine)
-            notes.append("spine keys and values -> schema 2.0")
+            os.replace(tmp, manifest)
+            notes.append("manifest keys and values -> schema 2.0")
     return notes
 
 

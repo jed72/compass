@@ -95,13 +95,13 @@ the natural fit). Keep it short enough to read in two minutes.
 - {{decision or guardrail violation - or "nothing"}}
 
 ## Landed since last digest
-- {{task-slug}} ({{route}}) - {{one line: what shipped}}
+- {{issue-slug}} ({{route}}) - {{one line: what shipped}}
 
 ## In flight
-- {{task-slug}} ({{route}}) - {{phase}} - {{health: healthy | stalled | off-route}}
+- {{issue-slug}} ({{route}}) - {{phase}} - {{health: healthy | stalled | off-route}}
 
 ## Blocked
-- {{task-slug}} - blocked on {{precise blocker}}; needs {{who/what}}
+- {{issue-slug}} - blocked on {{precise blocker}}; needs {{who/what}}
 
 ## Outstanding follow-ups
 - {{issue-slug}} - {{outstanding hotfix follow-up | unbacked claim | de-scoped artifact}}

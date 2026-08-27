@@ -101,7 +101,7 @@ def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
     task_dir = make_task("ge-seed", body)
     r = run_cli("approach", "evaluate", "--issue", "ge-seed", "--write")
     assert r.returncode == 0, r
-    text = (task_dir / "task.yml").read_text()
+    text = (task_dir / "manifest.yml").read_text()
     assert "accepts:" in text, r
     # verify.regression accepts exactly [test-run]
     lines = text.splitlines()
@@ -113,7 +113,7 @@ def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
 
 
 def test_task_template_gates_document_accepted_types(framework_root):
-    """TRC-R6-6 (doc half): templates/task.yml documents the accepted-types
+    """TRC-R6-6 (doc half): templates/manifest.yml documents the accepted-types
     convention in its gates block."""
-    text = (framework_root / "templates" / "task.yml").read_text()
-    assert "accepts:" in text, "templates/task.yml gates block should document accepted evidence types"
+    text = (framework_root / "templates" / "manifest.yml").read_text()
+    assert "accepts:" in text, "templates/manifest.yml gates block should document accepted evidence types"

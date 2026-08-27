@@ -35,7 +35,7 @@ def _proj(tmp_path, tasks=(), cfg="version: 1.0.0\nmode: enforced\n"):
     for slug, body in tasks:
         d = p / ".compass" / "work" / slug
         d.mkdir()
-        (d / "task.yml").write_text(body)
+        (d / "manifest.yml").write_text(body)
     return p
 
 
@@ -121,7 +121,7 @@ def test_trc_b2_a_record_with_no_spec_hash_should_not_read_as_verified(tmp_path)
     # cross-cutting, so `blocking_when` promotes the check to blocking - at
     # `contained` it correctly reports the finding as advisory, which is a
     # different behaviour and not what this scenario is about.
-    (d / "task.yml").write_text(_task("t", "standard", "2026-01-02T00:00:00Z")
+    (d / "manifest.yml").write_text(_task("t", "standard", "2026-01-02T00:00:00Z")
                                 .replace("blast_radius: contained",
                                          "blast_radius: cross-cutting")
                                 .replace("scenarios: []",
@@ -180,12 +180,12 @@ def test_trc_c3_a_project_of_hotfixes_alone_should_not_crash(tmp_path):
 
 
 def test_trc_c4_the_repairs_key_should_be_accepted_by_the_task_schema(tmp_path):
-    schema = json.loads((ROOT / "schemas" / "task.schema.json").read_text())
+    schema = json.loads((ROOT / "schemas" / "manifest.schema.json").read_text())
     assert "repairs" in schema["properties"], (
-        "task.schema.json is additionalProperties:false and does not declare "
+        "manifest.schema.json is additionalProperties:false and does not declare "
         "`repairs`, so declaring it breaks compass issue lint - which makes the "
         "change-fail metric unusable")
-    assert "repairs:" in (ROOT / "templates" / "task.yml").read_text(), (
+    assert "repairs:" in (ROOT / "templates" / "manifest.yml").read_text(), (
         "the key is not documented in the shipped task template")
     proj = _proj(tmp_path, [
         ("h1", _task("h1", "hotfix", "2026-01-04T00:00:00Z", "repairs: d1\n"))])
@@ -249,7 +249,7 @@ def test_trc_d3_normalisation_should_not_rewrite_unrelated_content(tmp_path):
     (proj / "docs").mkdir(parents=True)
     tdir = proj / ".compass" / "work" / "t"
     tdir.mkdir(parents=True)
-    (tdir / "task.yml").write_text(_task("t", "standard", "2026-01-02T00:00:00Z")
+    (tdir / "manifest.yml").write_text(_task("t", "standard", "2026-01-02T00:00:00Z")
         .replace("scenarios: []",
                  "scenarios:\n- {id: SCN-1, title: 'budget  -  actual variance "
                  "is reported', intent: INT-1, tests: ['t.py::a']}"))

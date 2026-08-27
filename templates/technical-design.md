@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: technical-design.md
 Produced by: the planning stage (`/compass:plan`); owning agent `planner`.
-Lives at:    .compass/work/<task-slug>/technical-design.md
+Lives at:    .compass/work/<issue-slug>/technical-design.md
 Role in the pipeline: the technical plan. Records the approach, the design
 decisions as ADR-style notes, the governance check against all of
 governance/, and the independent work units. On a quick fix or hotfix, the design stage

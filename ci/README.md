@@ -33,7 +33,7 @@ the other; this is guarantee 6 of `docs/safety-contract.md`.
 
 - **Governance drift** - `routing-policy.yml` or `guardrails.yml` is malformed,
   or a guardrail names a check the CLI does not implement (the integrity rule).
-- **A malformed task spine** - a `task.yml` that does not match the schema.
+- **A malformed task manifest** - a `manifest.yml` that does not match the schema.
 - **An unmet guardrail** - a task whose `compass check` fails: a scenario with
   no test, a changed file with no traced scenario, a gate marked `pass` with
   missing or wrongly-typed evidence, an unpaid backfill.

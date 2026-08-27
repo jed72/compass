@@ -4,7 +4,7 @@
 # THE MACHINE-READABLE GUARDRAIL DEFINITIONS. This file is authoritative for
 # how guardrails are *checked*. `guardrails.md` explains what each guardrail is
 # and why; this file says what evidence clears it, and `compass check` runs
-# those checks against a task's `task.yml` and `evidence/`.
+# those checks against a task's `manifest.yml` and `evidence/`.
 #
 # Note the asymmetry, and that it is deliberate: GUARDRAILS get a .yml because
 # they are checkable. STRATEGIES do not - `strategies.md` stays prose-only,
@@ -24,12 +24,12 @@ version: 1.0.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
-# task.yml and evidence/ - it does not re-run tests (that is tdd-green's job);
+# manifest.yml and evidence/ - it does not re-run tests (that is tdd-green's job);
 # it verifies the recorded state is coherent and backed by evidence.
 # -----------------------------------------------------------------------------
 checks:
   scenarios-have-tests:
-    description: "Every scenario in task.yml lists at least one test."
+    description: "Every scenario in manifest.yml lists at least one test."
   suite-passed:
     description: "evidence/green.json records the full suite passing, recently."
   changed-code-traces-to-scenario:
@@ -43,7 +43,7 @@ checks:
   human-approval-present:
     description: "An approval record exists for an irreversible change."
   backfills-paid:
-    description: "task.yml's backfills list is empty or every item is marked paid."
+    description: "manifest.yml's backfills list is empty or every item is marked paid."
   spike-conclusion-present:
     description: "A Spike has a `spike-conclusion` evidence entry with a recorded decision (discard | graduate-to-delivery | defer); graduate-to-delivery links the next task."
   spike-no-production-changes:
@@ -80,7 +80,7 @@ checks:
 # the evidence makes the *strength* of a gate's backing visible - and lets the
 # checker demand a real mechanical capture for the gates that need one.
 #
-# Evidence model: task.yml has a top-level `evidence:` REGISTRY of typed
+# Evidence model: manifest.yml has a top-level `evidence:` REGISTRY of typed
 # entries (each {id, type, path, ...}); a gate's `evidence:` is a list of
 # evidence ids referencing the registry. Multiple gates can share one entry.
 # -----------------------------------------------------------------------------

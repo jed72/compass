@@ -53,7 +53,7 @@ project line coverage                87%   (floor: 80% - met; unchanged by a
 | traceability | always | PASS | `src/api/search/filter_compiler.py` → TRC-001 → INT-1; `compass check` confirms the chain. |
 | regression | yes | PASS | The 44 pre-existing API tests in §2 still pass - the guard broke nothing. A fast fix that regressed something is just a faster outage; this did not. |
 | security | yes | PASS | The empty-filter path now compiles to an explicit "no filtering applied", not a `None` that the query builder dereferenced. No injection surface introduced - the empty case takes a constant code path, no user value reaches the query string unfiltered that did not before. |
-| clarity | deferred | n/a (deferred) | Per `delivery-approach.md` §5, Hotfix defers `clarity` to the follow-up. FU-001 promoted the reproduction into the readable TRC-001 Given/When/Then - that promoted scenario is the clarity record, and it is paid (see `task.yml` `follow-ups:`). |
+| clarity | deferred | n/a (deferred) | Per `delivery-approach.md` §5, Hotfix defers `clarity` to the follow-up. FU-001 promoted the reproduction into the readable TRC-001 Given/When/Then - that promoted scenario is the clarity record, and it is paid (see `manifest.yml` `follow-ups:`). |
 
 ## 4. Gate decision
 
@@ -83,6 +83,6 @@ project line coverage                87%   (floor: 80% - met; unchanged by a
 - [x] **No lint / format / type errors** - `ruff check src/api/search/` clean (logged in `devlog.md`).
 - [x] **Traceability intact** - code → scenario → intent holds.
 - [x] *(carried to ship)* Living docs updated - the `/search` API reference now notes that an empty `filter` object means "no filtering".
-- [x] *(carried to ship)* **Every outstanding follow-up resolved** - FU-001, FU-002, FU-003 all `paid` in `task.yml`. This is the Hotfix-defining check: `/compass:ship` refuses to close while any follow-up is `outstanding`.
+- [x] *(carried to ship)* **Every outstanding follow-up resolved** - FU-001, FU-002, FU-003 all `paid` in `manifest.yml`. This is the Hotfix-defining check: `/compass:ship` refuses to close while any follow-up is `outstanding`.
 
 Next stage: **ship** (`/compass:ship`) - ship, then pay the follow-up.

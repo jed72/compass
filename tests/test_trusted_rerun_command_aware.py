@@ -45,7 +45,7 @@ def project(tmp_path):
     task_dir.mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     (root / ".compass" / "current-task").write_text("t\n")
-    (task_dir / "task.yml").write_text(TASK_YML)
+    (task_dir / "manifest.yml").write_text(TASK_YML)
     (task_dir / "delivery-approach.md").write_text("# Route\n")
     return root, task_dir
 

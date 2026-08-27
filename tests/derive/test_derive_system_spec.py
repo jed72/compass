@@ -7,7 +7,7 @@ The derivation helper under test is `derive_system_spec(project_root)` in
 `compass _derive-system-spec --internal`.
 
 Test strategy: each test builds a synthetic project root in tmp_path,
-populates `.compass/work/*/task.yml` and `spec.feature.md` files, runs
+populates `.compass/work/*/manifest.yml` and `spec.feature.md` files, runs
 the derivation (via direct Python import of the helper function), and
 asserts on the resulting `docs/system-spec.md`.
 
@@ -93,7 +93,7 @@ def make_task_dir(root: Path, slug: str, *,
                   scenarios: Optional[List[Dict]] = None,
                   feature_text: Optional[str] = None,
                   schema_version: str = "1.1") -> Path:
-    """Create .compass/work/<slug>/ with task.yml and optionally spec.feature.md."""
+    """Create .compass/work/<slug>/ with manifest.yml and optionally spec.feature.md."""
     task_dir = root / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -110,7 +110,7 @@ def make_task_dir(root: Path, slug: str, *,
         },
         "scenarios": scenarios or [],
     }
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
     )
 
@@ -332,7 +332,7 @@ class TestTrcB2:
         assert "SCN-LAND" in spec, "Landed task's scenario should be in spec"
 
     def test_task_with_no_status_field_not_in_spec(self, tmp_path):
-        """A task.yml without the status field (schema 1.0 style) is treated as
+        """A manifest.yml without the status field (schema 1.0 style) is treated as
         active (not landed) and excluded from the derivation (Inv-8, DD-3)."""
         derive = _import_derive()
 
@@ -350,7 +350,7 @@ class TestTrcB2:
             },
             "scenarios": [make_scenario_entry("SCN-OLD", "old behaviour")],
         }
-        (task_dir / "task.yml").write_text(
+        (task_dir / "manifest.yml").write_text(
             yaml.safe_dump(task_no_status, sort_keys=False), encoding="utf-8"
         )
         (task_dir / "acceptance-criteria.md").write_text(
@@ -361,7 +361,7 @@ class TestTrcB2:
 
         spec = (tmp_path / "docs" / "system-spec.md").read_text(encoding="utf-8")
         assert "SCN-OLD" not in spec, (
-            "task.yml without status field should be treated as active (not landed)"
+            "manifest.yml without status field should be treated as active (not landed)"
         )
 
 
@@ -736,11 +736,11 @@ class TestTrcB6:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B11 - a landed task is the source-of-truth via task.yml.status
+# TRC-B11 - a landed task is the source-of-truth via manifest.yml.status
 # ---------------------------------------------------------------------------
 
 class TestTrcB11:
-    """TRC-B11: task.yml.status == 'landed' is the signal the derivation walker
+    """TRC-B11: manifest.yml.status == 'landed' is the signal the derivation walker
     uses to include a task."""
 
     def test_only_landed_tasks_contribute(self, tmp_path):
@@ -770,7 +770,7 @@ class TestTrcB11:
         assert "SCN-ACT" not in spec, "Active scenario should not be in spec"
 
     def test_task_yml_status_field_schema_valid(self, tmp_path):
-        """task.yml with status: landed validates cleanly against the schema."""
+        """manifest.yml with status: landed validates cleanly against the schema."""
         task_dir = tmp_path / ".compass" / "work" / "test-status"
         task_dir.mkdir(parents=True, exist_ok=True)
         (tmp_path / ".compass" / "current-task").write_text("test-status", encoding="utf-8")
@@ -793,7 +793,7 @@ class TestTrcB11:
             "follow_ups": [],
             "reassessments": [],
         }
-        (task_dir / "task.yml").write_text(
+        (task_dir / "manifest.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
         )
 
@@ -807,12 +807,12 @@ class TestTrcB11:
 
         result = run_cli("issue", "lint", "--issue", "test-status", cwd=str(tmp_path))
         assert result.returncode == 0, (
-            f"task.yml with status: landed should lint clean: {result.stdout}\n{result.stderr}"
+            f"manifest.yml with status: landed should lint clean: {result.stdout}\n{result.stderr}"
         )
 
     def test_derivation_walker_reads_scenarios_block(self, tmp_path):
         """The derivation walker reads the scenarios: block from each landed
-        task.yml as input to the derivation."""
+        manifest.yml as input to the derivation."""
         derive = _import_derive()
 
         scn_ids = ["SCN-W1", "SCN-W2", "SCN-W3"]

@@ -6,10 +6,10 @@
 # it links a tracking task that records the intent to fix it.
 #
 # Schema (version 1.0.0):
-#   version: 1.0.0
+#   version: 1.1.0
 #   quarantined:
 #     - test: <pytest id or path::name>   # required; equality match, not regex
-#       tracking_task: <task-slug>         # required; the task tracking the fix
+#       tracking_task: <issue-slug>         # required; the task tracking the fix
 #       reason: <one-line>                 # required; why this test is flaky
 #       added: <ISO date>                  # required; when it was quarantined
 #

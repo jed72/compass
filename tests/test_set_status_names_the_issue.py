@@ -1,7 +1,7 @@
 """`compass issue set-status` names the issue it acted on.
 
 It printed "None" instead, in both the success line and the refusal, because
-`cli/compass_pkg/task_spine.py` read `task.get("issue")` while the spine's root
+`cli/compass_pkg/manifest.py` read `task.get("issue")` while the manifest's root
 key for the slug is `task:`. The `--json` result dropped the field altogether,
 so a consumer reading it to learn which issue changed state got nothing.
 
@@ -27,11 +27,11 @@ CLI = REPO_ROOT / "cli" / "compass"
 SLUG = "an-issue-with-a-name"
 
 
-def _project(tmp_path, spine):
+def _project(tmp_path, manifest):
     d = tmp_path / ".compass" / "work" / SLUG
     d.mkdir(parents=True, exist_ok=True)
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (d / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+    (d / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     return tmp_path
 
 
@@ -97,7 +97,7 @@ def test_ssn_a2_a_landed_by_entry_still_reads_its_own_key(tmp_path):
     src = (REPO_ROOT / "cli" / "compass_pkg" / "landed_by.py").read_text()
     assert 'entry.get("issue")' in src or "entry.get('issue')" in src, (
         "landed_by.py no longer reads `issue` from a landed_by entry - the "
-        "spine-root fix has been swept across a place where `issue:` is "
+        "manifest-root fix has been swept across a place where `issue:` is "
         "genuinely the key, which breaks the pointer feature from pull "
         "request #96")
     assert hasattr(mod, "LANDED_BY_RELAXES")

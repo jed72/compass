@@ -30,7 +30,7 @@ BASELINE_CHECKS = {
     "borrowed-documents-answered",
     # Added by the per-issue review dashboard: the generated README is
     # what a reviewer approves from, so it must not be allowed to
-    # disagree with the spine it was rendered from. Joins G4 rather
+    # disagree with the manifest it was rendered from. Joins G4 rather
     # than becoming a sixth guardrail (ADR-002).
     "dashboard-current",
     "scenarios-have-tests",
@@ -66,7 +66,7 @@ BASELINE_CHECKS = {
     # read as green. Registered under G1; the guardrail count stays at five.
     "declared-tests-resolve",
     # Added by task phase-2-skills-check-and-cli-split: verifies every scenario
-    # in task.yml was accounted for by the project's BDD runner, reading the
+    # in manifest.yml was accounted for by the project's BDD runner, reading the
     # record `compass bdd verify` writes. Registered under G1; the guardrail
     # count stays at five, and the check no-ops entirely for a project that has
     # set no project.bdd_runner, which is nearly all of them.

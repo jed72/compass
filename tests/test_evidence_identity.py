@@ -11,7 +11,7 @@ clobbering, and the check that compares them.
 
 Scenario ids trace to .compass/work/tdd-green-unbound-record/
 acceptance-criteria.md - group A (the write path), B (identity), C (the check),
-D (spines written before stamping existed).
+D (manifests written before stamping existed).
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def _make_project(tmp_path: Path, scenarios: Optional[List[str]] = None) -> Path
     (task_dir / "evidence").mkdir(parents=True, exist_ok=True)
     (compass_dir / "current-task").write_text("t\n")
     (compass_dir / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-23",
         "status": "active",
         "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
@@ -65,7 +65,7 @@ def _run(proj: Path, *args: str) -> subprocess.CompletedProcess:
 
 
 def _task(proj: Path) -> Dict[str, Any]:
-    return yaml.safe_load((proj / ".compass/work/t/task.yml").read_text())
+    return yaml.safe_load((proj / ".compass/work/t/manifest.yml").read_text())
 
 
 def _record(proj: Path, name: str) -> Dict[str, Any]:
@@ -342,7 +342,7 @@ def test_c3_report_names_what_changed(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Group D - spines written before stamping existed
+# Group D - manifests written before stamping existed
 # ---------------------------------------------------------------------------
 
 def _unstamped_entry(proj: Path, ev_id: str = "EV-OLD") -> None:
@@ -351,7 +351,7 @@ def _unstamped_entry(proj: Path, ev_id: str = "EV-OLD") -> None:
     ev = proj / ".compass/work/t/evidence"
     (ev / "old.json").write_text(json.dumps(
         {"command": "pytest tests/", "exit_code": 0, "passed": True}, indent=2))
-    task_path = proj / ".compass/work/t/task.yml"
+    task_path = proj / ".compass/work/t/manifest.yml"
     task = yaml.safe_load(task_path.read_text())
     task["evidence"] = (task.get("evidence") or []) + [
         {"id": ev_id, "type": "test-run", "path": "evidence/old.json"}]

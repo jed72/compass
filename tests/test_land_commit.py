@@ -126,7 +126,7 @@ def test_persistent_noop_errors_loudly(run_cli, tmp_path):
     # a task to prove status is not flipped to landed
     task_dir = repo / ".compass" / "work" / "slug"
     task_dir.mkdir(parents=True)
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         yaml.safe_dump({"task": "slug", "status": "active"}, sort_keys=False))
     _install_autofix_hook(repo, persistent=True)
     (repo / "file.txt").write_text("NEEDS_FIX\n")
@@ -137,7 +137,7 @@ def test_persistent_noop_errors_loudly(run_cli, tmp_path):
     assert _head(repo) == h0, r
     combined = (r.stdout + r.stderr).lower()
     assert "head" in combined and ("did not advance" in combined or "not happen" in combined), r
-    status = yaml.safe_load((task_dir / "task.yml").read_text())["status"]
+    status = yaml.safe_load((task_dir / "manifest.yml").read_text())["status"]
     assert status == "active", r
 
 

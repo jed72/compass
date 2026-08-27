@@ -166,7 +166,7 @@ Sizing up incoming work: risk, familiarity, size, and goal - producing an issue 
 
 ### assessment
 
-The four-dimension judgement triage produces - risk, familiarity, size and goal, plus the domain labels. It is the only judgement field in the issue spine; everything below it is computed from it deterministically.
+The four-dimension judgement triage produces - risk, familiarity, size and goal, plus the domain labels. It is the only judgement field in the issue manifest; everything below it is computed from it deterministically.
 
 **Not:** A choice of process. The assessment is read; the delivery approach is computed from it by `compass approach evaluate`.
 
@@ -378,6 +378,16 @@ Low-level design: optional per-component detail on initiative-scale work only. E
 
 **Related:** `design-doc`
 
+### manifest
+
+The machine-readable file at the root of an issue directory, `.compass/work/<issue-slug>/manifest.yml`. It holds the assessment, the computed delivery approach, the stages and gates, the scenarios, the evidence registry and the changed files, and it points at the prose artifacts beside it. Every command reads it; `compass check` verifies the guardrails against it.
+
+**Not:** Not the prose artifacts it points at, and not "spine" - that word was a metaphor the framework had to teach, and it was glossed in 26 places because it did not land on its own. A manifest is what a package.json, a Cargo.toml or a Kubernetes manifest is: a machine-readable list of what a thing contains.
+
+**GitHub:** none
+
+**Related:** `issue`, `evidence`, `scenario`, `acceptance-criteria`
+
 ### milestone
 
 A shippable checkpoint within an initiative: a coherent bundle of delivered issues with a review point. Every milestone leaves the system releasable.
@@ -402,7 +412,7 @@ The design section answering "what tells us this works in production?": the SLIs
 
 ### plan
 
-The engineering design stage: the command /compass:plan, the machine key `plan` in a spine's stages block, the `plan-authoring` skill, the `planner` agent, and the CLI verb `compass plan lint`. Its output is technical-design.md. Every one of those already said `plan` before the command did.
+The engineering design stage: the command /compass:plan, the machine key `plan` in a manifest's stages block, the `plan-authoring` skill, the `planner` agent, and the CLI verb `compass plan lint`. Its output is technical-design.md. Every one of those already said `plan` before the command did.
 
 **Not:** NOT a schedule or a project plan - Compass has no such artifact. NOT the delivery approach either, which is computed at the assess stage and recorded in delivery-approach.md. `plan.md` was this artifact's v1 filename and is retired; a name that was retired can come back for the thing it best describes, which is what happened here.
 
@@ -436,7 +446,7 @@ A small, low-risk change on familiar ground. Produces a test and a PR - nothing 
 
 ### receipt
 
-The per-issue proof summary rendered from the spine and the evidence registry: the assessment, the delivery approach, the gates and what cleared them - one screen, shareable as-is.
+The per-issue proof summary rendered from the manifest and the evidence registry: the assessment, the delivery approach, the gates and what cleared them - one screen, shareable as-is.
 
 **Not:** Evidence - evidence is the typed records that clear gates; the receipt is the read-only summary that cites them.
 

@@ -23,7 +23,7 @@ VERB_DESCRIPTIONS = {
     'changed-file add':
         "Trace a file this issue changed to the scenario that asked for it. The traceability guardrail is maintained as the work happens rather than reconstructed at the end - a chain assembled afterwards records what someone remembered.",
     'scenario add':
-        "Add a scenario to the issue spine, mirroring the prose in acceptance-criteria.md. The spine's copy is what compass check reads, so a scenario that exists only in prose is one nothing can verify.",
+        "Add a scenario to the manifest, mirroring the prose in acceptance-criteria.md. The manifest's copy is what compass check reads, so a scenario that exists only in prose is one nothing can verify.",
     'acceptance record':
         'Close an acceptance record with what was actually observed. The pair exists so work without a natural red still leaves evidence a reader can weigh.',
     'acceptance start':
@@ -31,21 +31,21 @@ VERB_DESCRIPTIONS = {
     'adr new':
         'Create the next numbered ADR from the template and register it in the index. Numbers are never reused: a superseded decision keeps its number and its file, and the successor gets a new one.',
     'analyze':
-        "Read one issue's artifacts against each other and report where they disagree - a delivery-approach record whose stage weights contradict the spine, a claim with no scenario behind it, a document the approach earned and nobody wrote. Advisory: it blocks nothing, because a disagreement between documents is a question for a person.",
+        "Read one issue's artifacts against each other and report where they disagree - a delivery-approach record whose stage weights contradict the manifest, a claim with no scenario behind it, a document the approach earned and nobody wrote. Advisory: it blocks nothing, because a disagreement between documents is a question for a person.",
     'approach evaluate':
-        "Apply governance/routing-policy.yml to an issue's recorded assessment and write the delivery approach back into its spine: the per-stage weights, the gate set, the topology and every policy rule that fired. This is the determinism boundary - the assessment is judgement, and the same assessment with the same policy always produces the same approach.",
+        "Apply governance/routing-policy.yml to an issue's recorded assessment and write the delivery approach back into its manifest: the per-stage weights, the gate set, the topology and every policy rule that fired. This is the determinism boundary - the assessment is judgement, and the same assessment with the same policy always produces the same approach.",
     'bdd extract':
         "Turn an issue's acceptance criteria into a .feature file a BDD runner can execute, so the scenarios written as the specification are the same ones that run as the acceptance suite. Writes the file; runs nothing.",
     'check':
-        "Run the guardrails.yml checks against an issue's spine and evidence - the mechanical half of the verify gate. Every scenario has a test, the suite passed with a record on file, changed files trace to a scenario, and every gate marked pass points at evidence of an accepted type. A check that had nothing to inspect is reported apart from one that passed, so a clean run cannot be mistaken for a thorough one.",
+        "Run the guardrails.yml checks against an issue's manifest and evidence - the mechanical half of the verify gate. Every scenario has a test, the suite passed with a record on file, changed files trace to a scenario, and every gate marked pass points at evidence of an accepted type. A check that had nothing to inspect is reported apart from one that passed, so a clean run cannot be mistaken for a thorough one.",
     'ci':
-        'Run the full mechanical gate suite - the governance policy lint, then the spine lint and the guardrail checks for every issue on disk. Intended for continuous integration and required green before a release. Gate checks are skipped for an issue that has not started, and the skip is named rather than hidden.',
+        'Run the full mechanical gate suite - the governance policy lint, then the manifest lint and the guardrail checks for every issue on disk. Intended for continuous integration and required green before a release. Gate checks are skipped for an issue that has not started, and the skip is named rather than hidden.',
     'evidence add':
-        'Append a typed record to the issue spine. The type is validated at write time, because a gate that accepts the wrong kind of evidence is not a gate.',
+        'Append a typed record to the manifest. The type is validated at write time, because a gate that accepts the wrong kind of evidence is not a gate.',
     'flow':
         "The cross-issue view: what is blocked, what follow-ups are owed, and the periodic digest. Advisory by design - it never gates and never sets an issue's status, because status is inferred from the artifacts on disk.",
     'follow-up resolve':
-        "Mark an owed follow-up settled in an issue's spine. An unresolved follow-up blocks shipping, which is what makes owing one a commitment rather than a note.",
+        "Mark an owed follow-up settled in an issue's manifest. An unresolved follow-up blocks shipping, which is what makes owing one a commitment rather than a note.",
     'gate pass':
         'Mark a gate passed, validating the evidence type at write time against what guardrails.yml says that gate accepts. A mechanical gate cannot be cleared with a written note.',
     'intent ingest':
@@ -55,13 +55,13 @@ VERB_DESCRIPTIONS = {
     'issue dashboard':
         'Render the per-issue review page a reviewer opens first - what is being asked for approval, which documents exist, which were deliberately left out and why. Evidence is linked rather than reproduced. Generated, never hand-edited.',
     'issue lint':
-        'Structurally validate an issue spine against the schema and report every problem at once, naming the key that is wrong rather than the line. An issue that has not started is not asked for an assessment it cannot have.',
+        'Structurally validate an issue manifest against the schema and report every problem at once, naming the key that is wrong rather than the line. An issue that has not started is not asked for an assessment it cannot have.',
     'issue receipt':
         'Render a one-screen account of a landed issue: the four-dimension assessment, the approach computed from it, the gates it cleared and the typed evidence each was cleared with. A view over what is recorded, not a re-run of the checks.',
     'issue set-status':
         'Record an issue as queued, active, parked, landed or abandoned. Only landed makes its scenarios eligible for the derived system spec, so no other value can silently acquire that.',
     'migrate':
-        'Bring issue directories written under an older vocabulary up to the current schema - renaming artifacts, mapping spine keys forward, and repointing the spine at the files it renamed. Dry-run by default. Refuses before writing anything if two retired filenames claim the same current name.',
+        'Bring issue directories written under an older vocabulary up to the current schema - renaming artifacts, mapping manifest keys forward, and repointing the manifest at the files it renamed. Dry-run by default. Refuses before writing anything if two retired filenames claim the same current name.',
     'next':
         'Say which stage of its delivery approach an issue has reached and what comes next, reading the approach rather than guessing. Skipped and collapsed stages are passed over, because the approach already decided they do not run.',
     'plan lint':
@@ -73,7 +73,7 @@ VERB_DESCRIPTIONS = {
     'rework-scan':
         'Scan the archive for add-then-delete patterns across issues - a file added by one and removed by another inside the configured window. A signal for a person, not a gate.',
     'ship-commit':
-        "Commit an issue's recorded changed files and nothing else, so the commit matches what the spine says the issue touched. Refuses to stage anything the issue never claimed.",
+        "Commit an issue's recorded changed files and nothing else, so the commit matches what the manifest says the issue touched. Refuses to stage anything the issue never claimed.",
     'tdd-green':
         'Run a test command, assert that it PASSES, record the green and clear the red marker. The binding decides the filename, so recording one scenario cannot destroy the record another gate is citing.',
     'tdd-red':

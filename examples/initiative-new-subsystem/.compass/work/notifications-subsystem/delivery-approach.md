@@ -50,7 +50,7 @@ constraint says the table ships "reviewed forward *and* rollback". That is
 initiative-shaped care, and the floor is what guarantees the delivery approach delivers it
 regardless of how small the surrounding code looks. The same tag also makes
 **guardrail `G5`** apply: a human signs off the irreversible change before ship
-(see §6 and `task.yml` `approvals:`).
+(see §6 and `manifest.yml` `approvals:`).
 
 **Why RP-ROLE-002 fired:** a product manager wrote `intent.md`. The rule blocks
 Plan until the spec has been checked back against the brief - built-the-thing-
@@ -111,7 +111,7 @@ honest decomposition, not a de-scope.
 
 Note - not a follow-up, but a ship obligation: guardrail `G5` applies because
 the issue `labels: [migrations]`. A human signs off the irreversible schema
-change before ship. That sign-off is recorded in `task.yml` `approvals:` and
+change before ship. That sign-off is recorded in `manifest.yml` `approvals:` and
 `compass check` requires it; it is a *gate*, not a borrowed-and-outstanding item.
 
 ---

@@ -87,14 +87,14 @@ compass approach evaluate --issue <slug> --write
 It applies `governance/routing-policy.yml` to the assessment you just
 recorded - composing the candidate shape, then applying the floors, caps,
 immovable gates and blocking role rules - and folds the result back into the
-spine. Same assessment plus same policy gives the same approach, every time.
+manifest. Same assessment plus same policy gives the same approach, every time.
 
 `approaches/composition-reference.md` has the detail, for tuning the policy
 or explaining a result. `--verbose` prints which rules fired.
 
 ## Step 4 - Write `delivery-approach.md` and confirm
 
-Assess writes `.compass/work/<task-slug>/delivery-approach.md` from
+Assess writes `.compass/work/<issue-slug>/delivery-approach.md` from
 `templates/delivery-approach.md`. It contains:
 
 - the four dimension assessment, each with its one-line justification;

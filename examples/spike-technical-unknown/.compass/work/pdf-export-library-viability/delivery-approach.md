@@ -86,10 +86,10 @@ The guardrails that *could* have fired and did not, both worth recording:
   `immovable_gates` (`verify.correctness`, `verify.governance`,
   `verify.traceability`) onto *every* route's gate set, including this one -
   the policy comment says they are "for any DELIVERY approach", but the CLI
-  applies them unconditionally. On a spike they are inert: `task.yml` carries
+  applies them unconditionally. On a spike they are inert: `manifest.yml` carries
   them at `status: pending` forever, because a spike never produces anything
   for them to be about. Only `spike.conclude` is ever `pass`. This is recorded,
-  not hidden - see the comment in `task.yml`.
+  not hidden - see the comment in `manifest.yml`.
 
 ### 4c. Swarm topology
 

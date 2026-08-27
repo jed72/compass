@@ -30,7 +30,7 @@ listed as `pending_surfaces`, carrying v1 words only because nobody had
 gotten to them yet, under one rule: shrink-only, never grow back. Of
 the nine numbered slices, four actually struck a surface off it -
 slices 3, 5, 6, and 7; the other five (the freeze, the session
-instructions, the machine spine, the migrator, and the release itself)
+instructions, the machine manifest, the migrator, and the release itself)
 did work the ratchet doesn't see but the rewrite needed anyway. The
 list reached zero at slice 7b, merged as `b6017b0` in pull request #33.
 
@@ -84,7 +84,7 @@ reported accurately, then the real apply. It found a real defect: the
 migrator renamed artifacts and rewrote schema keys but never touched
 the *shape* value inside them, so an issue triaged `express` under the
 old names stayed `express` instead of becoming `quick-fix` - no test
-had checked that field on a real migrated spine. The fix landed as
+had checked that field on a real migrated manifest. The fix landed as
 commit `6b36255`, and only then was the sign-off recorded. Pull request
 #34 merged as `01df2f1`.
 
@@ -102,7 +102,7 @@ chose instead to carry it, in the open, with a reason.
 
 The reason: Compass's own YAML files needed a real emitter as well as a
 parser. `yaml.safe_dump` appears at four sites, including the issue
-spine, so a hand-built "minimal subset" reader would have needed a real
+manifest, so a hand-built "minimal subset" reader would have needed a real
 parser, a real emitter, and a 135-file conformance proof - not the
 one-session fix the execution guide estimated. Bundling made that
 unnecessary. This was one person's call, made solo, aimed at closing

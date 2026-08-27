@@ -247,7 +247,7 @@ EXPECTED_SUBCOMMANDS = {
     # and the work directory - and is safe to run twice. It exists because
     # nothing owned initialisation: /compass:init created the directories at
     # the end of a governance conversation, /compass:assess created them as a
-    # side effect of writing a spine, and four of the five role entry points
+    # side effect of writing a manifest, and four of the five role entry points
     # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
     # rather than a subcommand because there is no group it belongs under, and
     # because the five entry points call it directly.
@@ -297,7 +297,7 @@ def test_trc_f6_the_framework_should_grow_by_artifacts_and_checks_only():
 def test_trc_f7_evidence_types_agree_across_surfaces():
     """Two shipped surfaces must declare the same evidence types.
 
-    `compass analyze` writes a `coherence-check` entry, and task.schema.json
+    `compass analyze` writes a `coherence-check` entry, and manifest.schema.json
     did not accept it - so a task whose route includes verify.analyze produced
     evidence its own `compass issue lint` rejected. No task here had hit it,
     because verify.analyze only enters the gate set at critical blast radius or
@@ -309,7 +309,7 @@ def test_trc_f7_evidence_types_agree_across_surfaces():
          .get("evidence_types") or {}))
     assert declared, "guardrails.yml declares no evidence types"
 
-    schema = json.loads((ROOT / "schemas" / "task.schema.json").read_text())
+    schema = json.loads((ROOT / "schemas" / "manifest.schema.json").read_text())
 
     def enums(node):
         if isinstance(node, dict):
@@ -322,7 +322,7 @@ def test_trc_f7_evidence_types_agree_across_surfaces():
                 yield from enums(v)
 
     found = list(enums(schema))
-    assert found, "task.schema.json has no evidence-type enum"
+    assert found, "manifest.schema.json has no evidence-type enum"
     for accepted in found:
         assert accepted == declared, (
             "governance and the task schema disagree about evidence types.\n"

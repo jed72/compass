@@ -43,7 +43,7 @@ def _issue(tmp_path: Path, artifacts: Optional[List[Dict[str, Any]]] = None,
            **spine_extra: Any) -> Path:
     task_dir = tmp_path / "work" / "export-portfolio-data"
     task_dir.mkdir(parents=True, exist_ok=True)
-    spine: Dict[str, Any] = {
+    manifest: Dict[str, Any] = {
         "schema_version": "2.0", "task": "export-portfolio-data",
         "created": "2026-08-23", "status": "active",
         "assessment": {"risk": "cross-cutting", "familiarity": "brownfield-mapped",
@@ -52,9 +52,9 @@ def _issue(tmp_path: Path, artifacts: Optional[List[Dict[str, Any]]] = None,
         "evidence": [], "gates": [],
     }
     if artifacts is not None:
-        spine["artifacts"] = artifacts
-    spine.update(spine_extra)
-    (task_dir / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+        manifest["artifacts"] = artifacts
+    manifest.update(spine_extra)
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     return task_dir
 
 
@@ -142,7 +142,7 @@ def test_c4_dashboard_carries_no_raw_evidence(tmp_path):
     """TRC-C4: evidence is linked, not reproduced.
 
     Asserts an ABSENCE, which is the easiest thing to satisfy without checking
-    anything - so the fixture plants real captured output in the spine and the
+    anything - so the fixture plants real captured output in the manifest and the
     assertion looks for it. A page that renders nothing would pass a test that
     only searched for a marker.
     """
@@ -170,7 +170,7 @@ def test_c4_dashboard_carries_no_raw_evidence(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_d1_stale_dashboard_is_reported(tmp_path):
-    """TRC-D1: a dashboard that no longer matches its spine says so.
+    """TRC-D1: a dashboard that no longer matches its manifest says so.
 
     Not in the proposal. It is here because `docs/system-spec.md` is the worked
     precedent for a generated artifact in this repository, and its currency
@@ -182,16 +182,16 @@ def test_d1_stale_dashboard_is_reported(tmp_path):
     assert dashboard_is_current(str(task_dir))[0], (
         "a freshly generated dashboard reported itself stale")
 
-    # The spine changes and nobody regenerates.
-    spine = yaml.safe_load((task_dir / "task.yml").read_text())
-    spine["artifacts"].append(
+    # The manifest changes and nobody regenerates.
+    manifest = yaml.safe_load((task_dir / "manifest.yml").read_text())
+    manifest["artifacts"].append(
         {"id": "ART-ROLL", "kind": "rollback-plan", "path": "rollback-plan.md",
          "status": "draft", "reason": "an irreversible migration is in scope"})
-    (task_dir / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
 
     current, detail = dashboard_is_current(str(task_dir))
     assert not current, (
-        "the spine gained a document and the dashboard still reported itself "
+        "the manifest gained a document and the dashboard still reported itself "
         "current - so the page can disagree with its source and nothing says so")
     assert "regenerate" in detail.lower() or "compass" in detail.lower(), (
         "the report does not name how to fix it:\n" + detail)
@@ -289,11 +289,11 @@ def test_d2_stale_dashboard_fails_a_guardrail_check(tmp_path):
     from compass_pkg.dashboard import (_check_dashboard_current,
                                        render_dashboard)
     task_dir = _issue(tmp_path, artifacts=PACK)
-    spine = yaml.safe_load((task_dir / "task.yml").read_text())
+    manifest = yaml.safe_load((task_dir / "manifest.yml").read_text())
 
     # 1. No page. Nothing on disk is claiming anything, so there is nothing to
     #    check - and that is NOT a pass.
-    ok, detail = _check_dashboard_current(spine, str(task_dir))
+    ok, detail = _check_dashboard_current(manifest, str(task_dir))
     assert ok is NOTHING_TO_CHECK, (
         "an issue with no dashboard reported a real pass, so this check would "
         "clear the guardrail on the 148 issues with no registry without "
@@ -302,24 +302,24 @@ def test_d2_stale_dashboard_fails_a_guardrail_check(tmp_path):
 
     # 2. A hand-written page. Not Compass's to police, and again not a pass.
     (task_dir / "README.md").write_text("# notes I keep by hand\n")
-    ok, detail = _check_dashboard_current(spine, str(task_dir))
+    ok, detail = _check_dashboard_current(manifest, str(task_dir))
     assert ok is NOTHING_TO_CHECK, (
         "a hand-written README was judged as a generated one:\n" + str(detail))
 
     # 3. Generated and current.
     (task_dir / "README.md").write_text(render_dashboard(str(task_dir)))
-    ok, detail = _check_dashboard_current(spine, str(task_dir))
+    ok, detail = _check_dashboard_current(manifest, str(task_dir))
     assert ok is True, ("a freshly generated dashboard failed the check:\n"
                         + str(detail))
 
-    # 4. Generated, then the spine moved underneath it.
-    spine["artifacts"] = PACK + [
+    # 4. Generated, then the manifest moved underneath it.
+    manifest["artifacts"] = PACK + [
         {"id": "ART-ROLL", "kind": "rollback-plan", "path": "rollback-plan.md",
          "status": "draft", "reason": "an irreversible migration is in scope"}]
-    (task_dir / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
-    ok, detail = _check_dashboard_current(spine, str(task_dir))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
+    ok, detail = _check_dashboard_current(manifest, str(task_dir))
     assert ok is False, (
-        "the spine gained a document the page does not show, and the check "
+        "the manifest gained a document the page does not show, and the check "
         "still cleared - so the review page can disagree with the record and "
         "nothing blocks on it")
     assert "compass issue dashboard" in detail, (
@@ -437,12 +437,12 @@ def test_c7_artifact_status_can_be_moved_from_the_cli(tmp_path):
     assert run("design", "--status", "awaiting-approval").returncode == 0
 
     # An unknown kind is refused rather than silently added, the way
-    # `tdd-red --scenario` refuses an id that is not in the spine.
+    # `tdd-red --scenario` refuses an id that is not in the manifest.
     assert run("no-such-doc", "--status", "approved").returncode != 0, (
         "a status was set on a document this issue never earned")
 
-    spine = yaml.safe_load((task_dir / "task.yml").read_text())
-    by_kind = {a["kind"]: a for a in spine["artifacts"]}
+    manifest = yaml.safe_load((task_dir / "manifest.yml").read_text())
+    by_kind = {a["kind"]: a for a in manifest["artifacts"]}
     assert by_kind["prd"]["status"] == "omitted"
     assert "product owner" in by_kind["prd"]["reason"]
     assert by_kind["design"]["status"] == "awaiting-approval"

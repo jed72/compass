@@ -67,7 +67,7 @@ def test_trc_d1_mental_model_bullets_unchanged():
 # living public-surface fitness function: the public subcommand set must equal
 # the known list below, so no verb is added (or a private one exposed) without
 # a deliberate update here. framework-field-feedback (R5/R9) adds land-commit
-# and the task-spine mutators; each addition updates this set on purpose.
+# and the task-manifest mutators; each addition updates this set on purpose.
 # Leading-underscore subcommands stay private and excluded from --help (DD-4).
 # ---------------------------------------------------------------------------
 # The known set moved with the CLI-voice slice: the banned-word verbs

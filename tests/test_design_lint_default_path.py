@@ -42,7 +42,7 @@ CLEAN_DESIGN = """# Design - demo
 
 ## DD-1 - the chosen approach
 
-Chosen: read the value from the spine. Rejected: recompute it on each call,
+Chosen: read the value from the manifest. Rejected: recompute it on each call,
 which would drift from the recorded assessment.
 """
 
@@ -79,7 +79,7 @@ def _project(tmp_path: pathlib.Path, *, with_design: bool) -> pathlib.Path:
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\n", encoding="utf-8")
     (tmp_path / ".compass" / "current-task").write_text("demo\n", encoding="utf-8")
-    (work / "task.yml").write_text(SPINE, encoding="utf-8")
+    (work / "manifest.yml").write_text(SPINE, encoding="utf-8")
     if with_design:
         (work / "technical-design.md").write_text(CLEAN_DESIGN, encoding="utf-8")
     return tmp_path
@@ -149,8 +149,8 @@ def test_rcd_b3_absence_is_explained_against_the_record(tmp_path):
     when it is the thing that is wrong.
     """
     project = _project(tmp_path, with_design=False)
-    spine = project / ".compass" / "work" / "demo" / "task.yml"
-    spine.write_text(SPINE.replace("plan: collapsed", "plan: full"),
+    manifest = project / ".compass" / "work" / "demo" / "manifest.yml"
+    manifest.write_text(SPINE.replace("plan: collapsed", "plan: full"),
                      encoding="utf-8")
     run = _lint(project)
     combined = run.stdout + run.stderr

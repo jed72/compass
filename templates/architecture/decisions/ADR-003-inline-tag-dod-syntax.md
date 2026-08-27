@@ -25,8 +25,8 @@ relying on the human remembering to tick after actually doing the work.
 Two inline tag forms on the DoD line itself:
 
 ```
-- [ ] (evidence: EV-<id>) <description>   → passes if EV-<id> is in task.yml.evidence with an accepted type
-- [ ] (backfill: BF-<id>) <description>   → passes if BF-<id> is in task.yml.backfills with status: owed
+- [ ] (evidence: EV-<id>) <description>   → passes if EV-<id> is in manifest.yml.evidence with an accepted type
+- [ ] (backfill: BF-<id>) <description>   → passes if BF-<id> is in manifest.yml.backfills with status: owed
 - [ ] <description>                        → bare unchecked - fails compass check
 - [x] <description>                        → human ticked - passes
 ```

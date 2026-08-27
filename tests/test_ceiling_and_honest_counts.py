@@ -56,12 +56,12 @@ def _spine(**over):
     return d
 
 
-def _project(tmp_path, spine=None):
+def _project(tmp_path, manifest=None):
     root = tmp_path / "proj"
     (root / ".compass" / "work" / "demo").mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (root / ".compass" / "work" / "demo" / "task.yml").write_text(
-        yaml.safe_dump(spine or _spine(), sort_keys=False))
+    (root / ".compass" / "work" / "demo" / "manifest.yml").write_text(
+        yaml.safe_dump(manifest or _spine(), sort_keys=False))
     (root / ".compass" / "current-task").write_text("demo\n")
     return root
 
@@ -88,25 +88,25 @@ def test_trc_a1_evaluator_emits_a_ceiling_not_a_topology(tmp_path):
 
 def test_trc_a2_the_ceiling_is_a_number_not_a_sentence(tmp_path):
     """The bug this replaces: the evaluator wrote the string
-    "solo (capped to 1 worktree)" into the spine's topology field - a sentence
+    "solo (capped to 1 worktree)" into the manifest's topology field - a sentence
     in a machine field, which nothing downstream can compare against."""
     root = _project(tmp_path)
     subprocess.run(
         [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
         check=True)
-    spine = yaml.safe_load(
-        (root / ".compass" / "work" / "demo" / "task.yml").read_text())
+    manifest = yaml.safe_load(
+        (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
 
-    ceiling = spine.get("stream_ceiling")
+    ceiling = manifest.get("stream_ceiling")
     assert isinstance(ceiling, int), (
         f"stream_ceiling is not an integer: {ceiling!r}")
     assert ceiling == 1, (
         f"critical risk caps parallelism at one worktree, so the ceiling is "
         f"1, not {ceiling!r}")
-    assert not isinstance(spine.get("topology"), str) or not spine.get("topology"), (
-        f"triage still writes a topology decision into the spine: "
-        f"{spine.get('topology')!r} - breakdown owns that once the "
+    assert not isinstance(manifest.get("topology"), str) or not manifest.get("topology"), (
+        f"triage still writes a topology decision into the manifest: "
+        f"{manifest.get('topology')!r} - breakdown owns that once the "
         f"distribution map exists")
 
 
@@ -121,15 +121,15 @@ def test_trc_a3_an_uncapped_approach_permits_more_than_one(tmp_path):
         [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
         check=True)
-    spine = yaml.safe_load(
-        (root / ".compass" / "work" / "demo" / "task.yml").read_text())
+    manifest = yaml.safe_load(
+        (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
     # None means unbounded, which is what an uncapped swarm actually permits.
     # The assertion is "not pinned to one", not "greater than one" - an
     # earlier version asserted the latter and only passed because `swarm`
     # carried an invented ceiling of 8.
-    assert spine["stream_ceiling"] != 1, (
+    assert manifest["stream_ceiling"] != 1, (
         f"large work on contained risk permits parallel streams; the ceiling "
-        f"came out {spine['stream_ceiling']!r}")
+        f"came out {manifest['stream_ceiling']!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -257,7 +257,7 @@ def test_trc_c3_a_real_test_still_resolves(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Group E - the ceiling is derived, and an old spine still reads
+# Group E - the ceiling is derived, and an old manifest still reads
 # ---------------------------------------------------------------------------
 
 def test_trc_e1_swarm_has_no_invented_ceiling():
@@ -287,13 +287,13 @@ def test_trc_e2_a_cap_still_produces_a_number(tmp_path):
         [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60,
         check=True)
-    spine = yaml.safe_load(
-        (root / ".compass" / "work" / "demo" / "task.yml").read_text())
-    assert spine["stream_ceiling"] == 1, spine.get("stream_ceiling")
+    manifest = yaml.safe_load(
+        (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
+    assert manifest["stream_ceiling"] == 1, manifest.get("stream_ceiling")
 
 
 def test_trc_e3_an_old_spine_normalises_to_a_ceiling():
-    """A spine written before this change carries `topology: swarm` and no
+    """A manifest written before this change carries `topology: swarm` and no
     ceiling. It must still be readable - ADR-006's tolerant read side - so the
     old word normalises to the ceiling it always implied."""
     from compass_pkg.core import normalize_spine
@@ -301,18 +301,18 @@ def test_trc_e3_an_old_spine_normalises_to_a_ceiling():
     for word, expected in (("solo", 1), ("solo-or-pair", 2), ("swarm", None)):
         out = normalize_spine({"task": "old", "topology": word})
         assert "stream_ceiling" in out, (
-            f"an old spine carrying `topology: {word}` does not normalise to a "
+            f"an old manifest carrying `topology: {word}` does not normalise to a "
             f"stream_ceiling, so every reader of the new field sees None")
         assert out["stream_ceiling"] == expected, (
             f"topology {word!r} normalised to {out['stream_ceiling']!r}, "
             f"expected {expected!r}")
         assert out.get("topology") == word, (
             "normalisation destroyed the recorded topology - an archived "
-            "spine keeps what it said")
+            "manifest keeps what it said")
 
 
 def test_trc_e4_a_new_spine_is_not_overwritten():
-    """The control. A spine that already carries a ceiling must keep it, or
+    """The control. A manifest that already carries a ceiling must keep it, or
     normalisation would silently re-derive a number breakdown had refined."""
     from compass_pkg.core import normalize_spine
 

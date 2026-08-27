@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -95,7 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, FRAMEWORK_ROOT, find_compass_dir, find_upwards, load_task, load_yaml, resolve_task_dir, save_task, normalize_spine
+from compass_pkg.core import CompassError, FRAMEWORK_ROOT, find_compass_dir, find_upwards, load_manifest, load_yaml, manifest_path, normalize_spine, resolve_issue_dir, save_manifest
 
 
 _SIGNALS_ENV_VAR = "COMPASS_SIGNALS_YML"
@@ -215,7 +215,7 @@ def _read_tasks_from_root(root):
         entry_path = os.path.join(root, entry)
         if not os.path.isdir(entry_path):
             continue
-        task_yml = os.path.join(entry_path, "task.yml")
+        task_yml = manifest_path(entry_path)
         if not os.path.isfile(task_yml):
             continue
         try:
@@ -255,7 +255,7 @@ def cmd_rework_scan(args):
     public_patterns = signals["public_surface_patterns"]
     migration_paths = signals["migration_paths"]
 
-    # Read all task.yml files under root
+    # Read all manifest.yml files under root
     try:
         tasks, skipped_warnings = _read_tasks_from_root(root)
     except CompassError as exc:
@@ -425,15 +425,15 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
 # --- command: backfill pay --------------------------------------------------
 # Mark a named backfill as paid. This is the complement to the cross-task
 # check in `dod-evidence-typed`: once a backfill is paid, the target task's
-# Land check can proceed. The command writes to task.yml - the only write
+# Land check can proceed. The command writes to manifest.yml - the only write
 # path in this stream, because Flow/calibration are read-only advisors.
 
 def cmd_backfill_pay(args):
     """Flip the named follow-up to status: resolved in the issue's
-    task.yml. (Internal name unchanged - the public verb is
+    manifest.yml. (Internal name unchanged - the public verb is
     `compass follow-up resolve`.)"""
-    task_dir = resolve_task_dir(args.task)
-    task, task_path = load_task(task_dir)
+    task_dir = resolve_issue_dir(args.task)
+    task, task_path = load_manifest(task_dir)
     bf_id = args.backfill_id
     follow_ups = task.get("follow_ups") or []
     found = None
@@ -452,7 +452,7 @@ def cmd_backfill_pay(args):
         return 0
     found["status"] = "resolved"
     task["follow_ups"] = follow_ups
-    save_task(task, task_path)
+    save_manifest(task, task_path)
     target = found.get("target_task")
     target_note = (f" (cross-issue debt on '{target}' is now cleared)"
                    if target else "")

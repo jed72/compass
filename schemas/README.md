@@ -8,7 +8,7 @@ forms:
 | `governance/routing-policy.yml` | `routing-policy.schema.json` | `routing-policy.reference.yml` |
 | `governance/guardrails.yml` | `guardrails.schema.json` | `guardrails.reference.yml` |
 <!-- vocabulary-scan: allow - the row names files on disk by their real names -->
-| `.compass/work/<issue>/task.yml` | `task.schema.json` | `task.reference.yml` |
+| `.compass/work/<issue>/manifest.yml` | `manifest.schema.json` | `manifest.reference.yml` |
 
 **The `.schema.json` files are real, executable JSON Schema** (draft-07) and
 are the authority for structure. **The `.reference.yml` files are the

@@ -13,8 +13,8 @@ Compass is built in three layers. The **methodology layer** - `docs/`,
 `governance/` `.md` files, the delivery-approach reference docs, `templates/`
 - *is* the framework, in plain markdown. The **kit layer** - `cli/compass`,
 `governance/*.yml`, `schemas/` (executable JSON Schema, draft-07, validated
-against when the optional `jsonschema` library is installed), the `task.yml`
-issue spine - is the deterministic mechanism: a plain CLI that bundles the
+against when the optional `jsonschema` library is installed), the `manifest.yml`
+issue manifest - is the deterministic mechanism: a plain CLI that bundles the
 one third-party library it needs (PyYAML, at `cli/vendor/yaml/` - see
 `THIRD-PARTY-NOTICES.md`), **not** runtime-specific. The **adapter layer** wires
 both into one runtime. Porting Compass means satisfying the contract below by
@@ -35,7 +35,7 @@ adaptivity, so the runtime must produce it. Composing the delivery approach
 shell out to `compass approach evaluate` (the kit-layer CLI) rather than
 reimplement the composition, so that the same assessment plus the same policy
 yield the same approach on every runtime. The runtime records the assessment
-in the issue spine (`task.yml`), runs the evaluator, and writes the
+in the manifest (`manifest.yml`), runs the evaluator, and writes the
 human-readable approach record (`delivery-approach.md`). The approach is computed from
 context, not chosen from a menu. Genuinely exploratory work is not exempt
 from triage - it composes a **spike**.
@@ -82,9 +82,9 @@ collapse, and which are skipped - and why. Each stage emits its artifact
    The guardrail *checks* are mechanism, not judgement - so a portable
    runtime should run them via the kit-layer CLI rather than reimplement
    them: `compass check` runs the `governance/guardrails.yml` checks against
-   the issue's spine and `evidence/`, and `compass tdd-red` /
+   the issue's manifest and `evidence/`, and `compass tdd-red` /
    `compass tdd-green` run a test, assert fail/pass, and write the evidence
-   records the checks read. Gate evidence in the spine is **typed** - a
+   records the checks read. Gate evidence in the manifest is **typed** - a
    `{type, path}` record, not a bare path - and `guardrails.yml` declares
    which evidence types each gate accepts, so a mechanical gate cannot be
    cleared with a written note; `compass check` enforces that. The runtime's
@@ -99,7 +99,7 @@ collapse, and which are skipped - and why. Each stage emits its artifact
    than pointing at a discussion, and stops when it has said the thing.
    Commit messages and pull-request bodies the runtime generates carry no
    agent co-author trailer and no "Generated with" footer; `devlog.md` and
-   the spine already record provenance in a form the framework can read.
+   the manifest already record provenance in a form the framework can read.
    Like every strategy this is assessed at review, never gating.
 
 **4. Support five roles as full citizens.** Engineer, product owner/manager,
@@ -141,7 +141,7 @@ them.
 | Per-issue next-step + follow-up management | The adapter wires `compass next` (surface the next action on the current issue) and `compass follow-up resolve` (mark an owed follow-up as settled) into its issue-resumption and shipping flows |
 | Decision-record creation | `compass adr new` (creates a numbered decision record under `architecture/decisions/`) - the adapter exposes this in whatever shape its agents use for recording architectural decisions |
 
-The kit layer (`cli/compass`, `governance/*.yml`, `schemas/`, `task.yml`) is
+The kit layer (`cli/compass`, `governance/*.yml`, `schemas/`, `manifest.yml`) is
 itself runtime-neutral - an adapter does not rewrite it, it invokes it. The
 only thing the adapter owes the kit is a `.compass/current-task` pointer (or
 an explicit `--issue` slug) so the CLI can resolve which issue it is acting
@@ -173,8 +173,8 @@ already has, which is what leaves jargon nowhere to hide.
 All issue state is files, not conversation. `governance/` at the project
 root - the `.md` files and the `.yml` files the CLI runs - or the framework's
 shipped defaults if a project has not run init; per-issue artifacts in a
-`.compass/work/<task-slug>/` directory, including `task.yml` (the
-machine-readable issue spine), `evidence/` (the CLI's test and gate records),
+`.compass/work/<issue-slug>/` directory, including `manifest.yml` (the
+manifest), `evidence/` (the CLI's test and gate records),
 and - when the project ships an `architecture/` directory - two derived
 files triage writes when present: `architecture-loaded.yml` (the per-issue
 snapshot of which cross-issue architectural state was loaded) and
@@ -182,5 +182,5 @@ snapshot of which cross-issue architectural state was loaded) and
 design, *not* a parallel spec); a `.compass/current-task` pointer so the CLI
 and any hooks resolve the current issue unambiguously. A different session,
 agent, or runtime must be able to resume an issue by reading the approach
-record (`delivery-approach.md`), the spine, and the artifacts - nothing essential lives
+record (`delivery-approach.md`), the manifest, and the artifacts - nothing essential lives
 only in context.

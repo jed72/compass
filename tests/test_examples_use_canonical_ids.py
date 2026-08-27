@@ -6,7 +6,7 @@ examples, `TRC-` everywhere else - and with ids that had been renamed in one
 file and not its siblings.
 
 The second failure is the worse one. A sample whose spec cites an id its own
-spine does not carry teaches that the traceability chain is decorative, which
+manifest does not carry teaches that the traceability chain is decorative, which
 is the opposite of the lesson.
 
 Scenario ids: see docs/system-spec.md.
@@ -64,17 +64,17 @@ def test_no_sample_uses_the_retired_prefix(sample):
 
 @pytest.mark.parametrize("sample", _sample_dirs(), ids=lambda p: p.name)
 def test_every_id_cited_in_a_sample_exists_in_its_spine(sample):
-    """An id in the prose must be an id in the spine.
+    """An id in the prose must be an id in the manifest.
 
     This is what a file-by-file rename breaks: the spec keeps one spelling,
-    the spine gets another, and the chain the sample exists to demonstrate no
+    the manifest gets another, and the chain the sample exists to demonstrate no
     longer joins up.
     """
-    spine_path = sample / "task.yml"
+    spine_path = sample / "manifest.yml"
     if not spine_path.is_file():
-        pytest.skip(f"{sample.name} has no spine")
-    spine = yaml.safe_load(spine_path.read_text(encoding="utf-8")) or {}
-    declared = {s.get("id") for s in (spine.get("scenarios") or []) if s.get("id")}
+        pytest.skip(f"{sample.name} has no manifest")
+    manifest = yaml.safe_load(spine_path.read_text(encoding="utf-8")) or {}
+    declared = {s.get("id") for s in (manifest.get("scenarios") or []) if s.get("id")}
     if not declared:
         pytest.skip(f"{sample.name} declares no scenarios (a spike does not)")
 
@@ -86,7 +86,7 @@ def test_every_id_cited_in_a_sample_exists_in_its_spine(sample):
             dangling[path.name] = sorted(missing)
 
     assert not dangling, (
-        f"{sample.name}: artifact(s) cite traceability ids their own spine "
+        f"{sample.name}: artifact(s) cite traceability ids their own manifest "
         f"does not declare - the chain the sample demonstrates does not join "
-        f"up:\n  {dangling}\n  spine declares: {sorted(declared)}"
+        f"up:\n  {dangling}\n  manifest declares: {sorted(declared)}"
     )

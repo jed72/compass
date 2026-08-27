@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -95,14 +95,14 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, load_yaml, normalize_spine
+from compass_pkg.core import CompassError, find_compass_dir, load_yaml, manifest_path, normalize_spine
 from compass_pkg.rework import cmd_rework_scan
 
 
 
 # --- command: flow ----------------------------------------------------------
 # Cross-task flow view. Reads broadly; writes only when --digest is given.
-# NEVER modifies any task.yml (Inv-4: Flow advises, never gates).
+# NEVER modifies any manifest.yml (Inv-4: Flow advises, never gates).
 
 def cmd_flow(args):
     """Produce the flow board; with --digest also output a dated digest section
@@ -137,23 +137,23 @@ def cmd_flow(args):
         groups = {"active": [], "queued": [], "parked": [], "landed": [],
                   "abandoned": [], "unreadable": []}
         for slug in slugs:
-            task_yml = os.path.join(work_root, slug, "task.yml")
+            task_yml = manifest_path(os.path.join(work_root, slug))
             if not os.path.isfile(task_yml):
-                groups["unreadable"].append((slug, "?", "no task.yml"))
+                groups["unreadable"].append((slug, "?", "no manifest.yml"))
                 continue
             try:
                 t = normalize_spine(load_yaml(task_yml))
-                # The live spine key. This read `route`, retired by the
+                # The live manifest key. This read `route`, retired by the
                 # v2 rename, so every row on the board printed the
                 # placeholder instead of the computed approach.
                 route = t.get("delivery_approach", "?")
-                # Absent means active: every task.yml written before the status
+                # Absent means active: every manifest.yml written before the status
                 # field existed omits it (ADR-006).
                 status = t.get("status") or "active"
                 note = t.get("parked_reason", "") if status == "parked" else ""
                 groups.setdefault(status, []).append((slug, route, note))
             except Exception:                                   # noqa: BLE001
-                groups["unreadable"].append((slug, "?", "unreadable task.yml"))
+                groups["unreadable"].append((slug, "?", "unreadable manifest.yml"))
 
         # The board is a REPORT: every issue is listed, because a board that
         # omits part of the work looks complete when it is not. What it owes a
@@ -186,7 +186,7 @@ def cmd_flow(args):
             rep.section(heading, groups.get(key) or [], _row)
         for key in sorted(set(groups) - named):
             rep.section(key.upper(), groups[key], _row)
-        rep.section("UNPLACEABLE - no readable task.yml, so no state to report",
+        rep.section("UNPLACEABLE - no readable manifest.yml, so no state to report",
                     groups["unreadable"], _row)
         rep.data(counts=counts)
         return rep.emit()
@@ -221,7 +221,7 @@ def cmd_flow(args):
     tasks = []
     if os.path.isdir(work_root):
         for d in sorted(os.listdir(work_root)):
-            tp = os.path.join(work_root, d, "task.yml")
+            tp = manifest_path(os.path.join(work_root, d))
             if os.path.isfile(tp):
                 try:
                     data = load_yaml(tp)
@@ -242,7 +242,7 @@ def cmd_flow(args):
 # --- living system spec derivation (Stream B, DD-3, DD-4, ADR-008) ---------
 #
 # derive_system_spec(project_root) is the internal helper that produces
-# docs/system-spec.md by walking every .compass/work/*/task.yml whose
+# docs/system-spec.md by walking every .compass/work/*/manifest.yml whose
 # status == 'landed'.
 #
 # Design constraints honoured here:
@@ -250,7 +250,7 @@ def cmd_flow(args):
 #            derived file carries the DERIVED FILE header (TRC-B10).
 #   Inv-6  - all derivation inputs live on disk; no in-memory accumulation
 #            beyond the walk (TRC-B8 reconstructibility).
-#   Inv-8  - backward compat: task.yml files with no `status` field
+#   Inv-8  - backward compat: manifest.yml files with no `status` field
 #            (schema 1.0) are treated as active (not landed), so they are
 #            excluded from the derivation (TRC-B2, TRC-B11, DD-3).
 #   ADR-008 §3 - idempotent; deterministic order (land_timestamp, then
@@ -267,7 +267,7 @@ _DERIVED_HEADER = (
 
 
 def derive_system_spec(project_root: str) -> None:
-    """Derive docs/system-spec.md from all landed task.yml files.
+    """Derive docs/system-spec.md from all landed manifest.yml files.
 
     This is the sole implementation of the living-system-spec derivation
     (ADR-008).  It is invoked by ``compass _derive-system-spec --internal``
@@ -284,14 +284,14 @@ def derive_system_spec(project_root: str) -> None:
     compass_work = os.path.join(project_root, ".compass", "work")
 
     # ---- 1. Collect landed tasks -------------------------------------------
-    # Walk .compass/work/*/task.yml; keep only status == 'landed'.
+    # Walk .compass/work/*/manifest.yml; keep only status == 'landed'.
     # Tasks without a `status` field (schema 1.0) are treated as active.
     # Process order: land_timestamp ascending, then task slug ascending.
     landed = []  # list of dicts: {slug, task_dir, task, land_timestamp}
     if os.path.isdir(compass_work):
         for slug in sorted(os.listdir(compass_work)):
             task_dir = os.path.join(compass_work, slug)
-            yml_path = os.path.join(task_dir, "task.yml")
+            yml_path = manifest_path(task_dir)
             if not os.path.isfile(yml_path):
                 continue
             try:
@@ -328,7 +328,7 @@ def derive_system_spec(project_root: str) -> None:
         # Parse a date string from land_timestamp for display
         land_date = land_ts[:10] if len(land_ts) >= 10 else land_ts
 
-        # Read the scenarios block from task.yml
+        # Read the scenarios block from manifest.yml
         scenarios = task.get("scenarios") or []
         for scn in scenarios:
             if not isinstance(scn, dict):
@@ -338,7 +338,7 @@ def derive_system_spec(project_root: str) -> None:
             intent = scn.get("intent", "")
             if not intent:
                 intent = scn_id  # fall back to id if no intent
-            # A scenario may serve more than one intent, and the spine schema
+            # A scenario may serve more than one intent, and the manifest schema
             # accepts either a string or a list of them. It answers for each
             # id separately: keying on the whole list instead would invent a
             # composite intent that supersedes neither of the real ones.

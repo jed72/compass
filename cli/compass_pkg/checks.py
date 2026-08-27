@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -95,7 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml, normalize_spine
+from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml, manifest_path, normalize_spine
 from compass_pkg.tdd import _read_config
 from compass_pkg.trust import UNKNOWN, UNTRUSTED, contribution_trust, is_ci
 from compass_pkg.check_results import NOTHING_TO_CHECK  # re-exported: callers still import it from here
@@ -155,7 +155,7 @@ def _check_declared_tests_resolve(task, task_dir):
 
       * Before correctness is claimed, a declared test legitimately does not
         exist yet - TDD writes the id at Specify and the test at Build.
-      * After an issue lands, its spine is a historical record. Tests get renamed
+      * After an issue lands, its manifest is a historical record. Tests get renamed
         afterwards, and re-validating history against a moving codebase produces
         failures nobody can act on (ADR-006).
     """
@@ -195,7 +195,7 @@ def _check_declared_tests_resolve(task, task_dir):
 def _check_scenarios_have_tests(task, task_dir):
     scns = task.get("scenarios") or []
     if not scns:
-        return False, "no scenarios in task.yml"
+        return False, "no scenarios in manifest.yml"
     spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     missing_test, undocumented, documented_narr = [], [], 0
     for s in scns:
@@ -243,7 +243,7 @@ def _spec_sha256(task_dir):
 
 
 def _check_scenarios_are_executable(task, task_dir):
-    """Every scenario in task.yml was accounted for by the project's BDD runner.
+    """Every scenario in manifest.yml was accounted for by the project's BDD runner.
 
     Reads the record written by `compass bdd verify`; never runs the suite.
     `compass check` is the fast mechanical gate - it runs in CI, in hooks, and
@@ -317,7 +317,7 @@ def _check_suite_passed(task, task_dir):
     # Read test-run entries from the registry. A task may have multiple
     # test-run entries (one per scenario binding); at least one must resolve
     # to a green-recorded file (exit_code 0), and any scenario binding must be
-    # a real scenario in task.yml.
+    # a real scenario in manifest.yml.
     registry = [e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("type") == "test-run"]
     if not registry:
@@ -342,7 +342,7 @@ def _check_suite_passed(task, task_dir):
         scn = entry.get("scenario") or data.get("scenario")
         if scn and scn_ids and scn not in scn_ids:
             return False, (f"test-run evidence {entry.get('id', '?')} is bound "
-                           f"to scenario '{scn}' which is not in task.yml")
+                           f"to scenario '{scn}' which is not in manifest.yml")
         green.append(entry)
     # What this establishes, stated exactly. A test-run record holds ONE exit
     # code for ONE command; it does not enumerate the tests that ran. So a
@@ -419,7 +419,7 @@ def _check_changed_code_traces(task, task_dir):
     # an ordinary refactor. A guard that cannot fail is not a guard.
     #
     # Scoped the same way as `declared-tests-resolve`, and for the same reasons:
-    #   * A landed task's spine is a historical record. Files move afterwards,
+    #   * A landed task's manifest is a historical record. Files move afterwards,
     #     and re-validating history against a moving codebase produces failures
     #     nobody can act on (ADR-006) - so it is reported, never failed.
     #   * Before correctness is claimed the record is still being built.
@@ -465,7 +465,7 @@ def _check_changed_code_traces(task, task_dir):
 def _check_scenario_has_id_and_intent(task, task_dir):
     scns = task.get("scenarios") or []
     if not scns:
-        return False, "no scenarios in task.yml"
+        return False, "no scenarios in manifest.yml"
     ids = {s.get("id") for s in scns if isinstance(s, dict)}
     problems = []
     for i, s in enumerate(scns):
@@ -506,7 +506,7 @@ def _check_claim_traces(task, task_dir):
 def _check_gate_evidence(task, task_dir):
     gates = task.get("gates") or []
     if not gates:
-        return False, "no gates in task.yml - has the route been evaluated?"
+        return False, "no gates in manifest.yml - has the route been evaluated?"
     registry = {e.get("id"): e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("id")}
     # Load the evidence typing rules. The one extra yaml load per `check` run is
@@ -530,7 +530,7 @@ def _check_gate_evidence(task, task_dir):
             problems.append(f"{gid} uses the old inline-evidence shape "
                             f"({{type, path}}); convert to evidence ids "
                             f"referencing entries in the top-level "
-                            f"`evidence:` registry. See templates/task.yml.")
+                            f"`evidence:` registry. See templates/manifest.yml.")
             continue
         if isinstance(ev, str):
             ev = [ev]   # tolerate a bare id string as a one-element list
@@ -630,11 +630,11 @@ def _check_dod_evidence_typed(task, task_dir):
     - `- [x] ...`                  → passes (human ticked it)
     - `- [ ] (evidence: EV-id) ...` → passes if EV-id is in the evidence
                                        registry with an accepted type
-    - `- [ ] (follow-up: BF-id) ...` → passes if BF-id is in task.yml
+    - `- [ ] (follow-up: BF-id) ...` → passes if BF-id is in manifest.yml
                                        follow_ups with status: outstanding
     - `- [ ] <bare description>`   → FAILS (evidence, not assertion - G4)
 
-    Cross-issue half (TRC-E3): scan sibling task.yml files for follow-ups with
+    Cross-issue half (TRC-E3): scan sibling manifest.yml files for follow-ups with
     target_task equal to this issue's slug and status: outstanding - any such entry
     blocks this issue's Land.
     """
@@ -687,7 +687,7 @@ def _check_dod_evidence_typed(task, task_dir):
             if not entry:
                 problems.append(
                     f"DoD item references evidence id '{ev_id}' which is not "
-                    f"in task.yml evidence registry"
+                    f"in manifest.yml evidence registry"
                 )
             elif entry.get("type") not in _DOD_ACCEPTED_EVIDENCE_TYPES:
                 problems.append(
@@ -703,7 +703,7 @@ def _check_dod_evidence_typed(task, task_dir):
             if not bf_entry:
                 problems.append(
                     f"DoD item references follow-up id '{bf_id}' which is not "
-                    f"in task.yml follow-ups"
+                    f"in manifest.yml follow-ups"
                 )
             elif bf_entry.get("status") not in ("outstanding", "resolved"):
                 problems.append(
@@ -743,7 +743,7 @@ def _check_inbound_backfills(task_dir, this_slug):
         sibling = os.path.join(work_dir, entry)
         if sibling == task_dir:
             continue
-        tp = os.path.join(sibling, "task.yml")
+        tp = manifest_path(sibling)
         if not os.path.isfile(tp):
             continue
         try:

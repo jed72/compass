@@ -2,7 +2,7 @@
 TEMPLATE: rollback-plan.md
 Produced by: the design stage, on an issue whose assessment carries
              `migrations` (RP-REQUIRE-006).
-Lives at:    .compass/work/<task-slug>/rollback-plan.md
+Lives at:    .compass/work/<issue-slug>/rollback-plan.md
 
 THIS IS A REHEARSAL RECORD, NOT A PLAN. Two sources agree and they are the
 reason this template has the shape it has:

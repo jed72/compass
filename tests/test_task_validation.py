@@ -1,4 +1,4 @@
-"""`compass issue lint` against malformed task.yml files, plus schema_version
+"""`compass issue lint` against malformed manifest.yml files, plus schema_version
 compatibility checks."""
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def test_task_lint_passes_on_valid_task(run_cli, make_task):
 
 
 def test_task_lint_fails_on_missing_readings(run_cli, make_task):
-    """A task.yml without readings is not a Compass task."""
+    """A manifest.yml without readings is not a Compass task."""
     body = _valid_task_body()
     body.pop("assessment")
     make_task("no-readings", body)
@@ -111,13 +111,13 @@ def test_task_lint_with_explicit_file_path(run_cli, make_task, project):
     body = _valid_task_body()
     body["assessment"].pop("risk")
     make_task("via-file", body)
-    path = project / ".compass" / "work" / "via-file" / "task.yml"
+    path = project / ".compass" / "work" / "via-file" / "manifest.yml"
     r = run_cli("issue", "lint", "--file", str(path))
     assert r.returncode != 0, r
 
 
 # --- friction (the self-calibration signal) --------------------------------
-# TRC-A1, TRC-F3 - the optional `friction:` block on the task spine.
+# TRC-A1, TRC-F3 - the optional `friction:` block on the task manifest.
 
 
 def test_friction_block_validates(run_cli, make_task):
@@ -168,7 +168,7 @@ def test_friction_bad_source_rejected(run_cli, make_task):
 
 
 def test_friction_absent_is_valid(run_cli, make_task):
-    """TRC-F3: a 1.x task.yml with no friction key stays valid (ADR-006 no-op)."""
+    """TRC-F3: a 1.x manifest.yml with no friction key stays valid (ADR-006 no-op)."""
     body = _valid_task_body()
     body.pop("friction", None)
     make_task("friction-absent", body)

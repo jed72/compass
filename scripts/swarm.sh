@@ -9,8 +9,8 @@
 # worktree-swarm skill).
 #
 # USAGE
-#   scripts/swarm.sh <task-slug>            # read .compass/work/<slug>/distribution-map.md
-#   scripts/swarm.sh <task-slug> --dry-run  # show the plan, create nothing
+#   scripts/swarm.sh <issue-slug>            # read .compass/work/<slug>/distribution-map.md
+#   scripts/swarm.sh <issue-slug> --dry-run  # show the plan, create nothing
 #   scripts/swarm.sh --help
 #
 # WHAT IT RESPECTS
@@ -58,12 +58,12 @@ MAP="$TASK_DIR/distribution-map.md"
 ROUTE="$TASK_DIR/delivery-approach.md"
 # vocabulary-scan: allow - reads the retired artifact name for old archives
 [ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
-TASK_YML="$TASK_DIR/task.yml"
+TASK_YML="$TASK_DIR/manifest.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
 [ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for issue '$TASK_SLUG' - the design stage must produce it first." >&2; exit 1; }
 [ -f "$ROUTE" ] || { echo "swarm.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
-[ -f "$TASK_YML" ] || { echo "swarm.sh: no task.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:assess." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "swarm.sh: no manifest.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:assess." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
 # Minimal YAML reads - these keys are simple scalars in .compass/config.yml.
@@ -82,7 +82,7 @@ case "$WORKTREE_ROOT_REL" in
   *)  WORKTREE_ROOT="$(cd "$PROJECT_DIR" && cd "$(dirname "$WORKTREE_ROOT_REL")" 2>/dev/null && pwd || echo "$PROJECT_DIR/$WORKTREE_ROOT_REL")/$(basename "$WORKTREE_ROOT_REL")" ;;
 esac
 
-# --- the cap from task.yml (R4) ---------------------------------------------
+# --- the cap from manifest.yml (R4) ---------------------------------------------
 # The cap is a MACHINE FACT and must come from the structured assessment, not from
 # grepping delivery-approach.md prose - a well-formed delivery-approach.md quotes 'risk: critical'
 # and 'RP-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
@@ -99,13 +99,13 @@ try:
 except Exception as e:
     print("ERR:" + str(e)); sys.exit(0)
 if not isinstance(d, dict):
-    print("ERR:task.yml is not a mapping"); sys.exit(0)
+    print("ERR:manifest.yml is not a mapping"); sys.exit(0)
 assessment = d.get("assessment") or d.get("readings") or {}
 br = assessment.get("risk") or assessment.get("blast_radius")
 if not br:
-    print("ERR:no assessment.risk in task.yml"); sys.exit(0)
+    print("ERR:no assessment.risk in manifest.yml"); sys.exit(0)
 fired = d.get("policy_rules_fired") or d.get("fired_guardrails") or []
-# Both id spellings: an archived spine records the id that actually fired,
+# Both id spellings: an archived manifest records the id that actually fired,
 # and RG-CAP-001 is the retired spelling of RP-CAP-001.
 CAP_IDS = ("RP-CAP-001", "RG-CAP-001")
 capped = (br == "critical") or any(
@@ -116,9 +116,9 @@ PY
 case "$CAP_INFO" in
   OK:1) CAP=1 ;;
   OK:0) CAP="$MAX_WORKTREES" ;;
-  *)    echo "swarm.sh: cannot read the cap from task.yml (${CAP_INFO#ERR:})." >&2
+  *)    echo "swarm.sh: cannot read the cap from manifest.yml (${CAP_INFO#ERR:})." >&2
         echo "          The worktree cap is a machine fact in assessment.risk +" >&2
-        echo "          fired_guardrails - fix task.yml. swarm.sh does NOT fall back to" >&2
+        echo "          fired_guardrails - fix manifest.yml. swarm.sh does NOT fall back to" >&2
         echo "          grepping delivery-approach.md prose (that was the R4 false-positive)." >&2
         exit 1 ;;
 esac

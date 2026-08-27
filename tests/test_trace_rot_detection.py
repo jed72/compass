@@ -71,7 +71,7 @@ def _project(tmp_path, *, changed, status="active", correctness="pass",
     }
     if status == "landed":
         task["land_timestamp"] = "2026-08-04T00:00:00Z"
-    (task_dir / "task.yml").write_text(yaml.safe_dump(task, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(task, sort_keys=False))
     (root / "tests").mkdir(exist_ok=True)
     (root / "tests" / "test_thing.py").write_text("def test_thing():\n    pass\n")
     (task_dir / "evidence").mkdir()

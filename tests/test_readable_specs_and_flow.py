@@ -548,7 +548,7 @@ def test_trc_f1_pre_existing_specs_still_pass():
 
     failures = []
     not_startable = {"queued", "parked", "abandoned"}
-    for path in sorted(work.glob("*/task.yml")):
+    for path in sorted(work.glob("*/manifest.yml")):
         slug = path.parent.name
         if slug == in_flight:
             continue

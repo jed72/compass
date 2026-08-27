@@ -105,7 +105,7 @@ real condition. (This is the root cause, not the symptom - the symptom was the
 ## 6. Outstanding follow-ups
 
 Hotfix borrows speed from the front of the pipeline and **pays it back at
-Ship**. All three are recorded in `task.yml` under `follow-ups:` and `compass
+Ship**. All three are recorded in `manifest.yml` under `follow-ups:` and `compass
 check` fails the issue while any is `outstanding`. As of ship, all are **paid**:
 
 - [x] **FU-001** - the reproduction test promoted into a proper Given/When/Then

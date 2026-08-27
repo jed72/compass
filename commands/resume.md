@@ -1,6 +1,6 @@
 ---
 description: Pick up an issue that already has state on disk
-argument-hint: "<task-slug>"
+argument-hint: "<issue-slug>"
 allowed-tools: Read, Write, Glob, Grep
 ---
 
@@ -14,15 +14,15 @@ written precisely so the process never has to be re-derived.
 
 ## Procedure
 
-1. **Locate the issue.** Find `.compass/work/<task-slug>/`. If the slug is
+1. **Locate the issue.** Find `.compass/work/<issue-slug>/`. If the slug is
    ambiguous or missing, list the available issues and ask. Once found,
    write the slug into `.compass/current-task` - that pointer is how every
    `compass` call (and a later session) resolves to *this* issue without a
    `--issue` flag.
-2. **Read `delivery-approach.md` and `task.yml` first.**
+2. **Read `delivery-approach.md` and `manifest.yml` first.**
    `delivery-approach.md` is the human-readable contract for this issue -
    the delivery approach, the per-stage weight, the gate set, the topology,
-   the de-scope ledger; `task.yml` is its machine-readable spine, what the
+   the de-scope ledger; `manifest.yml` is its machine-readable manifest, what the
    CLI reads. Everything else is read in light of them. If
    `delivery-approach.md` carries a re-assessment revision, read the latest
    revision.

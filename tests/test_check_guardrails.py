@@ -3,7 +3,7 @@ tests, suite is green, changed code traces to a scenario, gate evidence is
 the right type, human approvals are present and structured, backfills are
 paid.
 
-Each test builds the smallest task.yml + evidence set that should pass or
+Each test builds the smallest manifest.yml + evidence set that should pass or
 fail a specific check, then asserts exit code and a (loose) message match.
 """
 
@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 
 
-# --- a baseline-correct task.yml the tests mutate one field at a time ------
+# --- a baseline-correct manifest.yml the tests mutate one field at a time ------
 
 
 def _correct_body(write_test_run=True):
@@ -111,7 +111,7 @@ def test_check_fails_when_test_run_records_failure(run_cli, make_task):
 
 
 def test_check_fails_when_test_run_bound_to_unknown_scenario(run_cli, make_task):
-    """A test-run entry with `scenario: SCN-999` (not in task.yml) must
+    """A test-run entry with `scenario: SCN-999` (not in manifest.yml) must
     fail - the binding has to resolve."""
     body = _correct_body()
     body["evidence"][0]["scenario"] = "SCN-999"   # not in scenarios

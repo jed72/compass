@@ -4,7 +4,7 @@ Covers scenarios: TRC-B1, TRC-B2, TRC-B3, TRC-B4, TRC-B5, TRC-X5, TRC-F5.
 
 Strategy: agent files are markdown with frontmatter + headed sections.
 Tests use file-existence + content-regex assertions (structural contract).
-Trigger-detection logic (TRC-B2) is tested with mocked task.yml and
+Trigger-detection logic (TRC-B2) is tested with mocked manifest.yml and
 mocked architecture files via filesystem fixtures in tmp_path.
 
 Architectural invariant: architecture-notes.md is ANNOTATIONS
@@ -168,7 +168,7 @@ def test_architect_lens_writes_architecture_notes():
 
 def test_consulted_by_spec_author():
     """TRC-B2: agents/spec-author.md must contain a step that triggers the
-    architect-lens consultation when task.yml.readings.touches matches
+    architect-lens consultation when manifest.yml.readings.touches matches
     the Q5 trigger conditions (public-api, service name, lens_trigger_tag).
     """
     spec_author = agent_file("spec-author.md")
@@ -281,9 +281,9 @@ def test_persists_notes():
     assert "architecture-notes.md" in content, (
         "architect-lens.md does not instruct writing architecture-notes.md to disk"
     )
-    # Must also reference task.yml.evidence so the artifact is registered
+    # Must also reference manifest.yml.evidence so the artifact is registered
     assert "evidence" in content.lower(), (
-        "architect-lens.md does not mention registering the notes in task.yml.evidence"
+        "architect-lens.md does not mention registering the notes in manifest.yml.evidence"
     )
 
 

@@ -35,10 +35,10 @@ what is actually true. Your deliverable is the evidence portion of
    project-guardrail budget, security-scan output when the security dimension
    applies. Paste raw output. "The tests pass" is the run, not the sentence.
 6. **Run `compass check`.** The CLI runs the `guardrails.yml` checks against
-   `task.yml` and `evidence/` - the mechanical backbone of the Verify gate. It
+   `manifest.yml` and `evidence/` - the mechanical backbone of the Verify gate. It
    exits non-zero on any failure; paste its output as evidence. This is the
    *checkable* half; the `reviewer` owns the judgement dimensions.
-7. **Update the gates in `task.yml`.** As each gate clears, set its `status` to
+7. **Update the gates in `manifest.yml`.** As each gate clears, set its `status` to
    `pass` and point its `evidence:` at the artifact that clears it
    (the green record, a coverage report, a report path). The CLI's
    `gate-evidence-present` check fails any `pass` gate whose pointer does not
@@ -66,7 +66,7 @@ what is actually true. Your deliverable is the evidence portion of
 ## Hard boundaries
 
 - You never pass a gate on a claim; only on artifacts and command output - and
-  you never mark a `task.yml` gate `pass` without an evidence pointer that
+  you never mark a `manifest.yml` gate `pass` without an evidence pointer that
   resolves (`compass check` will catch it if you do).
 - You never make the judgement call - that is the reviewer's. You supply facts.
 - You never hide a missing test, a skipped scenario, or a coverage gap; surface

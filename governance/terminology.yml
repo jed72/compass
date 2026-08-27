@@ -23,9 +23,27 @@
 # pending_surfaces to a shrink-only baseline.
 # =============================================================================
 
-version: 2.0.0-pre14
+version: 2.0.0-pre15
 
 terms:
+
+  # --- The issue's own record ------------------------------------------------
+  manifest:
+    means: >
+      The machine-readable file at the root of an issue directory,
+      `.compass/work/<issue-slug>/manifest.yml`. It holds the assessment, the
+      computed delivery approach, the stages and gates, the scenarios, the
+      evidence registry and the changed files, and it points at the prose
+      artifacts beside it. Every command reads it; `compass check` verifies
+      the guardrails against it.
+    github: none
+    not: >
+      Not the prose artifacts it points at, and not "spine" - that word was a
+      metaphor the framework had to teach, and it was glossed in 26 places
+      because it did not land on its own. A manifest is what a package.json,
+      a Cargo.toml or a Kubernetes manifest is: a machine-readable list of
+      what a thing contains.
+    related: [issue, evidence, scenario, acceptance-criteria]
 
   # --- Work hierarchy (GitHub-aligned) --------------------------------------
   initiative:
@@ -133,7 +151,7 @@ terms:
   plan:
     means: >
       The engineering design stage: the command /compass:plan, the machine
-      key `plan` in a spine's stages block, the `plan-authoring` skill, the
+      key `plan` in a manifest's stages block, the `plan-authoring` skill, the
       `planner` agent, and the CLI verb `compass plan lint`. Its output is
       technical-design.md. Every one of those already said `plan` before the
       command did.
@@ -190,7 +208,7 @@ terms:
     means: >
       The four-dimension judgement triage produces - risk, familiarity, size
       and goal, plus the domain labels. It is the only judgement field in the
-      issue spine; everything below it is computed from it deterministically.
+      issue manifest; everything below it is computed from it deterministically.
     not: >
       A choice of process. The assessment is read; the delivery approach is
       computed from it by `compass approach evaluate`.
@@ -353,7 +371,7 @@ terms:
 
   receipt:
     means: >
-      The per-issue proof summary rendered from the spine and the evidence
+      The per-issue proof summary rendered from the manifest and the evidence
       registry: the assessment, the delivery approach, the gates and what
       cleared them - one screen, shareable as-is.
     not: >
@@ -623,6 +641,9 @@ codes:
     related: [RP]
 
 banned:
+  - term: "spine / issue spine"
+    replacement: manifest
+    context: "As the name of the issue's machine-readable file. It was a metaphor the framework had to teach - 521 uses, no terms: entry, and 26 of them glossed it on use (\"the machine-readable issue spine\"), which is the sentence you write when you know a word will not land alone. `manifest` is what package.json and a Kubernetes manifest are, so a reader arrives knowing it. The file is manifest.yml and its root key is `issue:`; files written as task.yml with a `task:` key still load through cli/migrate-map.yml. 'spine' about an actual backbone, or a book, is fine."
   - term: "Frame / the Needle"
     replacement: assess
     context: "As stage/agent name and command. The command is /compass:assess; /compass:frame was removed at the v2 major version. Points at the FINAL name, not at `triage` - `triage` is itself retired now, and a ban naming a banned replacement sends a reader to a word they must rename again. 'frame' as an ordinary verb is fine."

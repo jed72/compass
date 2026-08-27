@@ -210,8 +210,8 @@ def test_trc_b3_portability_adapter_block_and_mapping_table():
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_agents_uses_compass_prefix():
-    """AGENTS.md's State on disk section uses .compass/work/<task-slug>/ (not
-    the unprefixed work/<task-slug>/)."""
+    """AGENTS.md's State on disk section uses .compass/work/<issue-slug>/ (not
+    the unprefixed work/<issue-slug>/)."""
     agents = _read("AGENTS.md")
     m = re.search(
         r"##\s+State on disk.*?(?=^##\s+|\Z)",
@@ -220,13 +220,13 @@ def test_trc_c1_agents_uses_compass_prefix():
     )
     assert m, "'State on disk' section not found in AGENTS.md"
     section = m.group(0)
-    assert ".compass/work/<task-slug>/" in section, (
-        "AGENTS.md State on disk does not use the `.compass/work/<task-slug>/` form"
+    assert ".compass/work/<issue-slug>/" in section, (
+        "AGENTS.md State on disk does not use the `.compass/work/<issue-slug>/` form"
     )
-    bare = re.search(r"(?<!\.compass/)\bwork/<task-slug>/", section)
+    bare = re.search(r"(?<!\.compass/)\bwork/<issue-slug>/", section)
     assert bare is None, (
         "AGENTS.md State on disk still contains the unprefixed "
-        "`work/<task-slug>/` form (must be `.compass/work/<task-slug>/`)"
+        "`work/<issue-slug>/` form (must be `.compass/work/<issue-slug>/`)"
     )
 
 
@@ -250,7 +250,7 @@ def test_trc_f1_no_half_fix_misleading_phrases_removed():
         re.DOTALL | re.MULTILINE,
     )
     if m:
-        bare = re.search(r"(?<!\.compass/)\bwork/<task-slug>/", m.group(0))
+        bare = re.search(r"(?<!\.compass/)\bwork/<issue-slug>/", m.group(0))
         assert bare is None, (
-            "AGENTS.md State on disk still has the unprefixed work/<task-slug>/"
+            "AGENTS.md State on disk still has the unprefixed work/<issue-slug>/"
         )

@@ -61,7 +61,7 @@ Each test file maps to a section of the safety contract:
 | `test_route_selection.py` | 1 - deterministic routing; floors and caps fire as documented |
 | `test_spike_conflict.py`  | 4 - exploration cannot silently become delivery |
 | `test_policy_integrity.py`| 2 - a declared guardrail cannot silently become advisory |
-| `test_task_validation.py` | versioning + structural validation of `task.yml` |
+| `test_task_validation.py` | versioning + structural validation of `manifest.yml` |
 | `test_check_guardrails.py`| 3 - typed gate evidence, traceability, backfills |
 |                           | 5 - human approvals for irreversible work |
 | `test_tdd_evidence.py`    | 1 + 3 - tdd-red/green honesty + registry upsert |

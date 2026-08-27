@@ -1,9 +1,9 @@
 """The install smoke test describes the framework a reader actually installed.
 
 `docs/install-smoke-test.md` is the first document a new user follows. It
-told them to run `/compass:frame` and to expect a spine carrying `readings:`,
+told them to run `/compass:frame` and to expect a manifest carrying `readings:`,
 `route:` and `schema_version: "1.0"` - all v1. In v2 the command is
-`/compass:assess`, the spine carries `assessment:` and `delivery_approach:`,
+`/compass:assess`, the manifest carries `assessment:` and `delivery_approach:`,
 and the schema version is "2.0".
 
 It survived the v2 rename because the file is not in

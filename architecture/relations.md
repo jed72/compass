@@ -7,11 +7,11 @@ date: 2026-05-24
 
 <!-- triage reads this file and includes it in architecture-loaded.yml as a
      narrative artifact. The architect-lens reads it to determine which
-     `touches:` tags in task.yml.assessment map to known component names, so
+     `touches:` tags in manifest.yml.assessment map to known component names, so
      it knows when to fire automatically at the define stage time.
 
      Format: keep component names consistent with the tags used in
-     task.yml.assessment.touches so the lens can match them.
+     manifest.yml.assessment.touches so the lens can match them.
 
      Direction: A -> B means A reads or calls B (A is the caller/reader,
      B is the callee/source). -->
@@ -28,7 +28,7 @@ components. Relations are ordered by the calling component.
 | `cli/compass` | `governance/strategies.md` | file read | strategy documentation consulted by CLI subcommands | medium |
 | `cli/compass` | `governance/signals.yml` | file read | `compass rework-scan` and `compass calibration` read signal patterns | medium |
 | `cli/compass` | `architecture/` | file read | `frame_load_architecture` reads all `*.md` files and `decisions/ADR-*.md` into `architecture-loaded.yml` | medium |
-| `cli/compass` | `.compass/work/` | file read/write | every subcommand (triage, check, tdd-red, tdd-green, rework-scan, retro) reads and writes issue spines under this directory | high |
+| `cli/compass` | `.compass/work/` | file read/write | every subcommand (triage, check, tdd-red, tdd-green, rework-scan, retro) reads and writes issue manifests under this directory | high |
 | `cli/compass` | `.compass/current-task` | file read | resolves the active issue slug for hooks and subcommands that don't receive `--issue` explicitly | high |
 | `hooks/pre-tool.sh` | `.compass/work/<task>/.red` | file read | the hook checks for the `.red` marker before allowing code-editing tool calls; absent marker → edit blocked | high |
 | `hooks/pre-tool.sh` | `.compass/current-task` | file read | resolves which issue's `.red` marker to check | high |
@@ -55,24 +55,24 @@ or cross boundary rules encoded in the ADRs.
   would introduce undeclared dependencies. The lens reads `architecture/` only.
   (Cited source: TRC-D2 and the `architect-lens` agent's hard boundaries.)
 
-- **Any mechanism must not write into `task.yml.assessment`** - assessment are the
+- **Any mechanism must not write into `manifest.yml.assessment`** - assessment are the
   human's judgement field; mechanism-produced state lives in `architecture-loaded.yml`
-  and elsewhere in `task.yml`. (See ADR-001.)
+  and elsewhere in `manifest.yml`. (See ADR-001.)
 
-- **`hooks/stop.sh` and `compass rework-scan` must not mutate `task.yml`** -
-  both are read-only over the issue spine. Detection is advisory; blocking on
+- **`hooks/stop.sh` and `compass rework-scan` must not mutate `manifest.yml`** -
+  both are read-only over the manifest. Detection is advisory; blocking on
   detection would violate ADR-003 (Flow advises, never gates) and the
   invariant behind it, Inv-4.
 
-- **`compass calibration` must not mutate `task.yml`** - calibration aggregates
-  re-assessment data read-only; it never writes back to individual issue spines
+- **`compass calibration` must not mutate `manifest.yml`** - calibration aggregates
+  re-assessment data read-only; it never writes back to individual issue manifests
   (Inv-4: Flow advises, never gates).
 
 ## Known interface contracts
 
 | Contract | Location | Notes |
 |---|---|---|
-| Issue spine schema (`task.yml`) | `cli/compass` (validated inline) | `schema_version: '1.0'`; fields: assessment, route, topology, phases, evidence, gates, scenarios, changed_files, claims, follow-ups, reframes |
+| Issue manifest schema (`manifest.yml`) | `cli/compass` (validated inline) | `schema_version: '1.0'`; fields: assessment, route, topology, phases, evidence, gates, scenarios, changed_files, claims, follow-ups, reframes |
 | Architecture load record | `cli/compass` (`frame_load_architecture`) | `schema_version: '1.0'`; fields: artifacts (path, sha256, type), adrs (id, path, title, status), loaded_at |
 | ADR frontmatter | `architecture/decisions/ADR-*.md` | Required fields: id, title, status, date, supersedes, superseded_by. Status: accepted \| proposed \| superseded. |
 | Routing policy schema | `governance/routing-policy.yml` | Consumed by `compass approach evaluate`; schema validated by `tests/test_policy_integrity.py` |

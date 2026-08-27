@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -99,7 +99,7 @@ from compass_pkg.landed_by import LANDED_BY_RELAXES, landed_by_holds, _check_lan
 from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_evidence_identity_matches, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
 from compass_pkg.borrowed_docs import _check_borrowed_documents_answered
 from compass_pkg.dashboard import _check_dashboard_current
-from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_task, load_yaml, mode_banner, reading_matches, resolve_task_dir
+from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_manifest, load_yaml, mode_banner, reading_matches, resolve_issue_dir
 
 
 
@@ -155,8 +155,8 @@ CHECK_GUIDANCE = {
     },
     "declared-tests-resolve": {
         "why": 'A scenario listing a test that is not on disk traces to nothing. The acceptance-before-code guardrail is cleared by a test that exists and runs, not by a path in a file.',
-        "fix": "For each unresolved reference, correct the path in the scenario's `tests:` list in task.yml, or write the test it names. `pytest --collect-only <path>` tells you whether a reference resolves.",
-        "do": 'Correct each `tests:` path in task.yml, or write the test it names.',
+        "fix": "For each unresolved reference, correct the path in the scenario's `tests:` list in manifest.yml, or write the test it names. `pytest --collect-only <path>` tells you whether a reference resolves.",
+        "do": 'Correct each `tests:` path in manifest.yml, or write the test it names.',
     },
     "evidence-identity-matches": {
         "why": 'A gate cites an evidence record by id. If the file has changed since, the gate is cleared by something other than what was reviewed - which is the difference between evidence and a filename.',
@@ -174,34 +174,34 @@ CHECK_GUIDANCE = {
         "do": 'Run `compass bdd verify`, or wire a runner (see examples/bdd-adapters/).',
     },
     "dashboard-current": {
-        "why": "The issue's README is the page a reviewer approves from - it states which documents exist, which one is waiting on them, and what was deliberately left out. Generated from task.yml, so once the spine moves it is an assertion the record contradicts, and a reviewer has no way to tell.",
+        "why": "The issue's README is the page a reviewer approves from - it states which documents exist, which one is waiting on them, and what was deliberately left out. Generated from manifest.yml, so once the manifest moves it is an assertion the record contradicts, and a reviewer has no way to tell.",
         "do": 'Run `compass issue dashboard`, then re-read the page.',
         "fix": "Run `compass issue dashboard` to regenerate it, then read the page again before approving anything from it. Never hand-edit it - the next regeneration discards the edit.",
     },
     "scenarios-have-tests": {
         "why": "Every scenario must have a test that exercises it - without one, the scenario is a wish, not a checkable acceptance criterion (the acceptance-before-code guardrail). EXCEPT a `verifiable: narrative` scenario (a failure-mode playbook), which is cleared by being documented - a non-empty When/Then in acceptance-criteria.md - not by a fabricated test.",
-        "do": "List at least one test under each scenario's `tests:` in task.yml.",
-        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in task.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in acceptance-criteria.md - documentation is its acceptance.",
+        "do": "List at least one test under each scenario's `tests:` in manifest.yml.",
+        "fix": "For an ordinary scenario, add at least one test reference to its `tests:` list in manifest.yml (or remove it). For a narrative scenario, mark it `verifiable: narrative` and give it a real When/Then body in acceptance-criteria.md - documentation is its acceptance.",
     },
     "suite-passed": {
         "why": "The tested-before-ship guardrail requires a recorded green test run.",
         "do": 'Run `compass tdd-green --scenario TRC-<id> -- <your test command>`.',
-        "fix": "Run `compass tdd-green --scenario TRC-<id> -- <your test command>` - it will run the test, confirm green, and record the evidence in task.yml's registry.",
+        "fix": "Run `compass tdd-green --scenario TRC-<id> -- <your test command>` - it will run the test, confirm green, and record the evidence in manifest.yml's registry.",
     },
     "changed-code-traces-to-scenario": {
         "why": "Compass requires every production change to trace back to a stated acceptance criterion (the traceability guardrail).",
         "do": 'Trace each file: `compass changed-file add <path> --scenario TRC-<id>`.',
-        "fix": "Edit task.yml: under each `changed_files:` entry, list the scenario id(s) that drove the change. Add a new scenario if the behaviour was unspecified.",
+        "fix": "Edit manifest.yml: under each `changed_files:` entry, list the scenario id(s) that drove the change. Add a new scenario if the behaviour was unspecified.",
     },
     "scenario-has-id-and-intent": {
         "why": "Each scenario needs a stable id and an intent link so claims, tests, and code can reference it.",
-        "do": 'Give each scenario in task.yml an `id:` and an `intent:`.',
-        "fix": "Add `id:` (e.g. TRC-A3) and `intent:` (the intent id from intent.md) fields to the scenario in task.yml.",
+        "do": 'Give each scenario in manifest.yml an `id:` and an `intent:`.',
+        "fix": "Add `id:` (e.g. TRC-A3) and `intent:` (the intent id from intent.md) fields to the scenario in manifest.yml.",
     },
     "claim-traces-to-scenario": {
         "why": "Public claims must trace to a scenario that backs them (traceability) - an unbacked claim is a promise the framework cannot prove.",
         "do": 'Point each claim in launch-readiness.md at a passing scenario id.',
-        "fix": "Add a backing `scenario:` field to the claim in task.yml, or remove the claim from `claims:`.",
+        "fix": "Add a backing `scenario:` field to the claim in manifest.yml, or remove the claim from `claims:`.",
     },
     "gate-evidence-present": {
         "why": "The evidence-not-assertion guardrail: a gate marked pass must point at registry evidence of the right type. A mechanical gate cannot be cleared with a written note.",
@@ -216,7 +216,7 @@ CHECK_GUIDANCE = {
     "backfills-paid": {
         "why": "Borrowed ceremony - a Hotfix follow-up or a de-scoped artifact - must be paid before an issue closes. Otherwise the audit trail has a hole.",
         "do": 'Settle each owed follow-up: `compass follow-up resolve FU-<id>`.',
-        "fix": "Complete each unpaid follow-up (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in task.yml.",
+        "fix": "Complete each unpaid follow-up (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in manifest.yml.",
     },
     "spike-conclusion-present": {
         "why": "A Spike without a recorded conclusion is just untracked work - the conclusion is what makes the exploration accountable.",
@@ -226,7 +226,7 @@ CHECK_GUIDANCE = {
     "spike-no-production-changes": {
         "why": "A Spike's safety model is that it ships nothing - graduating to delivery must be a fresh triage, not a silent merge.",
         "do": 'Move the production edits to a delivery issue; a spike ships nothing.',
-        "fix": "Empty `changed_files:` in this Spike's task.yml. If the finding is worth keeping, run `/compass:assess` to start a new delivery issue that owns the code under a real route.",
+        "fix": "Empty `changed_files:` in this Spike's manifest.yml. If the finding is worth keeping, run `/compass:assess` to start a new delivery issue that owns the code under a real route.",
     },
     "dod-evidence-typed": {
         "why": "The evidence-not-assertion guardrail: the Definition of Done is a typed gate. Every unchecked DoD box must reference typed evidence or a filed follow-up - narrative notes in devlog.md do not count.",
@@ -235,7 +235,7 @@ CHECK_GUIDANCE = {
             "For each bare unchecked DoD item: (a) add `(evidence: EV-<id>)` "
             "inline, where EV-<id> is an entry in the issue's evidence registry "
             "with an accepted type; or (b) add `(follow-up: BF-<id>)` inline and "
-            "record BF-<id> in task.yml follow-ups with status: owed; or (c) tick "
+            "record BF-<id> in manifest.yml follow-ups with status: owed; or (c) tick "
             "the box `[x]` if a human has actually done the work."
         ),
     },
@@ -469,8 +469,8 @@ def _emit_check(run, args):
 def cmd_check(args):
     gov = find_governance()
     guardrails = load_yaml(os.path.join(gov, "guardrails.yml"))
-    task_dir = resolve_task_dir(args.task)
-    task, _ = load_task(task_dir)
+    task_dir = resolve_issue_dir(args.task)
+    task, _ = load_manifest(task_dir)
     readings = task.get("assessment") or {}
     mode = load_mode()
 
@@ -545,9 +545,9 @@ def cmd_check(args):
     # summary never reports a check that inspected nothing as something it
     # verified.
     nothing_to_check = 0
-    # Reads `delivery_approach`, the live spine key. This said `route` - the
+    # Reads `delivery_approach`, the live manifest key. This said `route` - the
     # key the v2 rename retired - so it fell to its default and printed a
-    # placeholder on every run, with the real value sitting in the spine.
+    # placeholder on every run, with the real value sitting in the manifest.
     run = _CheckRun(task_dir, task, mode)
 
     # A guardrail the project's file OMITS produced no output at all: not

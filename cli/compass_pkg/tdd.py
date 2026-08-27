@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -75,7 +75,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -97,7 +97,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.terminal import say
-from compass_pkg.core import CompassError, find_upwards, load_task, load_yaml, now_iso, resolve_task_dir, save_task
+from compass_pkg.core import CompassError, find_upwards, load_manifest, load_yaml, manifest_path, now_iso, resolve_issue_dir, save_manifest
 
 
 
@@ -246,15 +246,15 @@ def _resolve_scenario(task_dir, scenario):
     if not scenario:
         return None
     try:
-        task, _ = load_task(task_dir)
+        task, _ = load_manifest(task_dir)
     except CompassError:
-        return scenario  # no task.yml yet - record the binding, can't check it
+        return scenario  # no manifest.yml yet - record the binding, can't check it
     ids = {s.get("id") for s in (task.get("scenarios") or []) if isinstance(s, dict)}
     if ids and scenario not in ids:
         raise CompassError(
             f"--scenario '{scenario}' is not a scenario id in this issue's "
-            f"task.yml (scenarios: {sorted(ids)}). Bind to a real scenario, or "
-            f"add it to task.yml first."
+            f"manifest.yml (scenarios: {sorted(ids)}). Bind to a real scenario, or "
+            f"add it to manifest.yml first."
         )
     return scenario
 
@@ -363,7 +363,7 @@ def _red_rejection_reason(code, command):
 
 
 def cmd_tdd_red(args):
-    task_dir = resolve_task_dir(args.task)
+    task_dir = resolve_issue_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
     verified_by = getattr(args, "verified_by", None)
     if verified_by and verified_by not in _VERIFIED_BY_KINDS:
@@ -472,7 +472,7 @@ def _source_tree_hash(project_root):
 
 def _tdd_state_path(task_dir):
     """Path to the CLI-internal sidecar that tracks the source-tree hash and
-    attempt counter between tdd-green invocations. Not part of task.yml schema.
+    attempt counter between tdd-green invocations. Not part of manifest.yml schema.
     """
     return os.path.join(task_dir, "evidence", ".tdd-state.json")
 
@@ -535,7 +535,7 @@ def _red_record_for(task_dir, scenario):
 
 
 def cmd_tdd_green(args):
-    task_dir = resolve_task_dir(args.task)
+    task_dir = resolve_issue_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
     verified_by = getattr(args, "verified_by", None)
     if verified_by and verified_by not in _VERIFIED_BY_KINDS:
@@ -663,7 +663,7 @@ def cmd_tdd_green(args):
     return say(args,
                f"compass tdd-green: passing suite recorded (exit 0){bound}.",
                detail=[f"evidence : {ev_path}",
-                       "registry : task.yml `evidence:` updated with the "
+                       "registry : manifest.yml `evidence:` updated with the "
                        "test-run entry",
                        "marker   : .red cleared - red -> green is on record."],
                scenario=scenario, exit_code=0, evidence=ev_path)
@@ -671,7 +671,7 @@ def cmd_tdd_green(args):
 
 def _upsert_test_run_evidence(task_dir, scenario, rel_path,
                              record_id=None, content_digest=None):
-    """Append or update a test-run entry in task.yml's evidence registry.
+    """Append or update a test-run entry in manifest.yml's evidence registry.
     Same scenario -> update in place; new -> append. This is what makes the
     green visible to `compass check`, which reads the registry, not the file.
 
@@ -682,9 +682,9 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path,
     re-reading it would leave a window in which what is registered is not what
     was recorded.
     """
-    task_path = os.path.join(task_dir, "task.yml")
+    task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
-        return  # no task.yml - Frame hasn't run; nothing to update
+        return  # no manifest.yml - Frame hasn't run; nothing to update
     try:
         task = load_yaml(task_path)
     except CompassError:
@@ -720,7 +720,7 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path,
             entry["content_digest"] = content_digest
         reg.append(entry)
     task["evidence"] = reg
-    save_task(task, task_path)
+    save_manifest(task, task_path)
 
 
 # --- compass acceptance -----------------------------------------------------
@@ -776,7 +776,7 @@ def cmd_acceptance_start(args):
             "across a changed tree (behaviour preservation)"
         )
 
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
     command = list(args.command or [])
     if not command:
         raise CompassError(
@@ -827,7 +827,7 @@ def cmd_acceptance_start(args):
 
 
 def cmd_acceptance_record(args):
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
     state = _acceptance_state(task_dir)
     if not state:
         raise CompassError(
@@ -906,6 +906,6 @@ def cmd_acceptance_record(args):
         print("  contract : the baselined command was green before the change "
               "and is green after, across a changed tree")
     print(f"  evidence : {ev_path}")
-    print("  registry : task.yml `evidence:` updated with the test-run entry")
+    print("  registry : manifest.yml `evidence:` updated with the test-run entry")
     print("  marker   : .acceptance cleared")
     return 0

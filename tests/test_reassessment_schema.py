@@ -1,7 +1,7 @@
-"""A spine the evaluator wrote passes the linter the same CLI ships.
+"""A manifest the evaluator wrote passes the linter the same CLI ships.
 
 `compass approach evaluate --write` records a re-assessment with `kind` and
-`changed` alongside the required fields. `schemas/task.schema.json` set
+`changed` alongside the required fields. `schemas/manifest.schema.json` set
 `additionalProperties: false` on that entry and declared neither, so every
 honest re-assessment left the issue failing `compass issue lint`.
 
@@ -57,7 +57,7 @@ def _project(tmp_path):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\n", encoding="utf-8")
-    (work / "task.yml").write_text(SPINE, encoding="utf-8")
+    (work / "manifest.yml").write_text(SPINE, encoding="utf-8")
     shutil.copytree(ROOT / "governance", tmp_path / "governance")
     shutil.copytree(ROOT / "schemas", tmp_path / "schemas")
     return tmp_path
@@ -76,8 +76,8 @@ def test_trc_1_a_recorded_reassessment_still_lints_clean(tmp_path):
     first = _run(project, "approach", "evaluate", "--issue", "reassessed", "--write")
     assert first.returncode == 0, first.stdout + first.stderr
 
-    spine = project / ".compass" / "work" / "reassessed" / "task.yml"
-    spine.write_text(spine.read_text().replace("size: small", "size: large", 1))
+    manifest = project / ".compass" / "work" / "reassessed" / "manifest.yml"
+    manifest.write_text(manifest.read_text().replace("size: small", "size: large", 1))
 
     again = _run(project, "approach", "evaluate", "--issue", "reassessed",
                  "--write", "--reason", "scope grew")
@@ -88,7 +88,7 @@ def test_trc_1_a_recorded_reassessment_still_lints_clean(tmp_path):
 
     lint = _run(project, "issue", "lint", "--issue", "reassessed")
     assert lint.returncode == 0, (
-        "the CLI wrote a spine its own linter rejects - recording an honest "
+        "the CLI wrote a manifest its own linter rejects - recording an honest "
         f"re-assessment should not redden the build:\n{lint.stdout}{lint.stderr}"
     )
 
@@ -99,7 +99,7 @@ def test_trc_2_the_schema_declares_both_keys_the_evaluator_writes():
     Loosening `additionalProperties` would also make the lint pass, and would
     trade one caught defect for a whole uncaught class of them.
     """
-    schema = json.loads((ROOT / "schemas" / "task.schema.json").read_text())
+    schema = json.loads((ROOT / "schemas" / "manifest.schema.json").read_text())
     entry = schema["properties"]["reassessments"]["items"]
     assert entry.get("additionalProperties") is False, (
         "the re-assessment entry must stay closed - the fix is to declare "

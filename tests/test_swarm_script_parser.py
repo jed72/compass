@@ -51,9 +51,9 @@ def _write_task_artifacts(task_dir: Path, branch_cell: str) -> None:
     (task_dir / "delivery-approach.md").write_text(
         f"# Route - {task_dir.name}\n\nReference route: Standard\n"
     )
-    # R4: the worktree cap is read from task.yml (readings.blast_radius +
+    # R4: the worktree cap is read from manifest.yml (readings.blast_radius +
     # fired_guardrails), not route.md prose - so the fixture must provide it.
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         f"task: {task_dir.name}\n"
         "readings:\n"
         "  blast_radius: contained\n"

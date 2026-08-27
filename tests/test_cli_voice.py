@@ -39,7 +39,7 @@ V2_SPINE = {
 }
 
 
-def _project(tmp_path, spine=None, approach_md="# Delivery approach\n"):
+def _project(tmp_path, manifest=None, approach_md="# Delivery approach\n"):
     root = tmp_path / "proj"
     shutil.copytree(REPO_ROOT / "governance", root / "governance")
     (root / ".compass").mkdir(parents=True)
@@ -48,8 +48,8 @@ def _project(tmp_path, spine=None, approach_md="# Delivery approach\n"):
     d = root / ".compass" / "work" / "t"
     d.mkdir(parents=True)
     (d / "delivery-approach.md").write_text(approach_md)
-    (d / "task.yml").write_text(
-        yaml.safe_dump(spine or dict(V2_SPINE), sort_keys=False))
+    (d / "manifest.yml").write_text(
+        yaml.safe_dump(manifest or dict(V2_SPINE), sort_keys=False))
     (root / ".compass" / "current-task").write_text("t\n")
     return root
 
@@ -66,7 +66,7 @@ def test_the_v2_verbs_exist_and_work(tmp_path):
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-400:]
     out = yaml.safe_load(
-        (root / ".compass" / "work" / "t" / "task.yml").read_text())
+        (root / ".compass" / "work" / "t" / "manifest.yml").read_text())
     assert out.get("delivery_approach"), "approach evaluate wrote nothing"
 
     r = _run(root, "issue", "lint", "--issue", "t")
@@ -121,13 +121,13 @@ def test_the_issue_flag_is_the_only_spelling(tmp_path):
 
 
 def test_follow_up_states_outstanding_resolved_with_1x_readable(tmp_path):
-    """TRC-4: the resolver writes 'resolved'; a 1.x spine carrying
+    """TRC-4: the resolver writes 'resolved'; a 1.x manifest carrying
     owed/paid is normalised read-side so checks still see the truth."""
     root = _project(tmp_path)
     r = _run(root, "follow-up", "resolve", "--issue", "t", "BF-1")
     assert r.returncode == 0, r.stderr[-400:]
     out = yaml.safe_load(
-        (root / ".compass" / "work" / "t" / "task.yml").read_text())
+        (root / ".compass" / "work" / "t" / "manifest.yml").read_text())
     assert out["follow_ups"][0]["status"] == "resolved", out["follow_ups"]
 
     sys.path.insert(0, str(REPO_ROOT / "cli"))

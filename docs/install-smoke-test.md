@@ -89,7 +89,7 @@ Confirm that Compass created:
 ```
 
 The exact slug may vary. The issue directory should contain at least
-`task.yml` and `delivery-approach.md`.
+`manifest.yml` and `delivery-approach.md`.
 
 Generate the review dashboard:
 

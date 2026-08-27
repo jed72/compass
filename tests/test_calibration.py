@@ -1,7 +1,7 @@
 """Re-frame recording + `compass retro`.
 
 When `compass approach evaluate --write` computes a route that differs from
-the one already recorded in task.yml, the diff is logged under
+the one already recorded in manifest.yml, the diff is logged under
 `reframes:`. `compass retro` aggregates these across every task and
 classifies the trend as up (Needle under-sizing) or down (over-sizing).
 """
@@ -42,12 +42,12 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
     task_dir = make_task("rf-task", body)
     # mutate the readings (touches=auth) so the next evaluate computes expedition
     body["assessment"]["labels"] = ["auth"]
-    (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     r = run_cli("approach", "evaluate", "--issue", "rf-task", "--write",
                 "--reason", "discovered the change touches auth")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert task["delivery_approach"] == "initiative"
     assert task["reassessments"], "expected a reframes entry"
     rf = task["reassessments"][-1]
@@ -75,7 +75,7 @@ def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
     task_dir = make_task("no-rf", body)
     r = run_cli("approach", "evaluate", "--issue", "no-rf", "--write")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert task["delivery_approach"] == "quick-fix"
     assert not task.get("reassessments"), f"expected no reframes, got: {task.get('reframes')}"
 
@@ -397,12 +397,12 @@ def test_friction_json_format(run_cli, make_task):
 
 
 def test_friction_view_writes_nothing(run_cli, make_task, project):
-    """TRC-F2: the friction view is read-only - it writes no task.yml and no
+    """TRC-F2: the friction view is read-only - it writes no manifest.yml and no
     file under governance/, and exits 0."""
     import hashlib
 
     task_dir = make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
-    task_yml = task_dir / "task.yml"
+    task_yml = task_dir / "manifest.yml"
 
     def _tree_sha(root):
         h = hashlib.sha256()
@@ -421,7 +421,7 @@ def test_friction_view_writes_nothing(run_cli, make_task, project):
     assert _tree_sha(project / "governance") == gov_before, (
         "TRC-F2 violated: --friction modified a file under governance/")
     assert hashlib.sha256(task_yml.read_bytes()).hexdigest() == task_before, (
-        "TRC-F2 violated: --friction mutated task.yml")
+        "TRC-F2 violated: --friction mutated manifest.yml")
 
 
 def test_friction_never_in_land_gate(framework_root):
@@ -476,7 +476,7 @@ def test_calibration_without_friction_unchanged(run_cli, make_task):
 
 
 def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
-    """Calibration is read-only - task.yml must be unchanged after running."""
+    """Calibration is read-only - manifest.yml must be unchanged after running."""
     import pathlib
     import hashlib
     import shutil
@@ -501,7 +501,7 @@ def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
         "more files than Plan estimated\n"
     )
 
-    task_yml = task_dir / "task.yml"
+    task_yml = task_dir / "manifest.yml"
     sha_before = hashlib.sha256(task_yml.read_bytes()).hexdigest()
 
     r = run_cli("retro")
@@ -509,6 +509,6 @@ def test_calibration_does_not_mutate_task_yml(run_cli, make_task, project):
 
     sha_after = hashlib.sha256(task_yml.read_bytes()).hexdigest()
     assert sha_before == sha_after, (
-        f"calibration mutated task.yml, but it must be read-only\n"
+        f"calibration mutated manifest.yml, but it must be read-only\n"
         f"Before SHA: {sha_before}\nAfter SHA:  {sha_after}"
     )

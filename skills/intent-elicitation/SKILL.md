@@ -101,8 +101,8 @@ That sentence is a complete section. `TBD` is not.
 | Where | What |
 |---|---|
 | `intent.md` | the reshaped document, following `templates/intent.md`'s sections |
-| `task.yml` → `intent_source.sections` | one entry per section: `name`, `from` (`source` \| `answer` \| `unanswered`), and `answer_id` where it cites one |
-| `task.yml` → `intent_source.elicitation` | every question asked, with its answer or `null` |
+| `manifest.yml` → `intent_source.sections` | one entry per section: `name`, `from` (`source` \| `answer` \| `unanswered`), and `answer_id` where it cites one |
+| `manifest.yml` → `intent_source.elicitation` | every question asked, with its answer or `null` |
 
 `intent-source.md` is never edited. It is the record `intent.md` is checked
 against, and a reviewer who wants to know whether you invented something reads
@@ -113,7 +113,7 @@ the two side by side.
 > I have written `intent.md` from the brief at `<origin>`.
 >
 > N sections came from the source, M from questions I asked, K were asked
-> about and left open. The questions and answers are recorded in the spine.
+> about and left open. The questions and answers are recorded in the manifest.
 >
 > Worth a read before the acceptance criteria are written. Specifically:
 > - **Anything I have put in your words that is not what you meant** - I

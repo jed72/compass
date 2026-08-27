@@ -1,6 +1,6 @@
 """The computed delivery approach is displayed, not a placeholder.
 
-The v2 rename moved the spine key from `route` to `delivery_approach`. Two
+The v2 rename moved the manifest key from `route` to `delivery_approach`. Two
 display sites kept reading the old key, so both fell to their default:
 
     check_cmd.py:264   f"(route: {task.get('route', '?')})"
@@ -8,7 +8,7 @@ display sites kept reading the old key, so both fell to their default:
 
 `compass check`'s header printed `route: ?` on every run, and the cross-issue
 board printed `route=?` on every row - confirmed against all 18 in-flight
-issues in this repository. The value was sitting in the spine the whole time.
+issues in this repository. The value was sitting in the manifest the whole time.
 
 Neither was caught by the vocabulary scan, which covers `cli/compass_pkg/`,
 because it skipped string literals with no whitespace as machine identifiers -
@@ -67,7 +67,7 @@ def _project(tmp_path: pathlib.Path, issues) -> pathlib.Path:
     for slug, approach, status in issues:
         work = tmp_path / ".compass" / "work" / slug
         work.mkdir(parents=True)
-        (work / "task.yml").write_text(
+        (work / "manifest.yml").write_text(
             SPINE.format(slug=slug, approach=approach, status=status),
             encoding="utf-8")
         (work / "delivery-approach.md").write_text("# approach\n", encoding="utf-8")
@@ -130,7 +130,7 @@ def test_rcd_e2_flow_board_names_approach(tmp_path):
 
 
 def test_rcd_e2b_an_unreadable_spine_is_still_surfaced(tmp_path):
-    """The control: a spine that cannot be read must not vanish from the board.
+    """The control: a manifest that cannot be read must not vanish from the board.
 
     Reading a different key could have turned an unreadable issue into a
     silently absent one, which is worse than the placeholder this change
@@ -146,13 +146,13 @@ def test_rcd_e2b_an_unreadable_spine_is_still_surfaced(tmp_path):
     project = _project(tmp_path, [("alpha", "feature", "active")])
     broken = project / ".compass" / "work" / "broken"
     broken.mkdir(parents=True)
-    (broken / "task.yml").write_text("{[not: valid yaml\n", encoding="utf-8")
+    (broken / "manifest.yml").write_text("{[not: valid yaml\n", encoding="utf-8")
 
     out = _run(project, "flow").stdout
     row = [ln for ln in out.splitlines() if "broken" in ln]
 
     assert row, f"the unreadable issue is missing from the board entirely:\n{out}"
     assert "unreadable" in row[0].lower(), (
-        f"the board lists the issue but does not say its spine could not be "
+        f"the board lists the issue but does not say its manifest could not be "
         f"read:\n  {row[0]}"
     )

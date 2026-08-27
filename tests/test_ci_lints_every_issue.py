@@ -1,4 +1,4 @@
-"""The cross-issue sweep lints every spine, and its summary says what it did.
+"""The cross-issue sweep lints every manifest, and its summary says what it did.
 
 `sweep-respects-queued` stopped `compass ci` failing issues that had been
 triaged but not yet defined - correct, because such an issue has no acceptance
@@ -8,12 +8,12 @@ validation at all, and the run still ended:
 
     compass ci: PASS - governance valid; every issue lints clean and checks green.
 
-against a spine declaring a schema version this CLI does not handle. The lint
-validates the spine's own structure, which is checkable at any stage; the
+against a manifest declaring a schema version this CLI does not handle. The lint
+validates the manifest's own structure, which is checkable at any stage; the
 justification written for the skip ("the acceptance criteria and evidence a
 check looks for do not exist yet") is true of the check and not of the lint.
 
-Two consequences. A malformed spine could sit in a repository indefinitely
+Two consequences. A malformed manifest could sit in a repository indefinitely
 without the sweep noticing, and `status: parked` became a one-word way to
 leave the sweep while it still reported everything clean.
 
@@ -33,7 +33,7 @@ CLI = ROOT / "cli" / "compass"
 
 NOT_IN_FLIGHT = ("queued", "parked", "abandoned")
 
-# A spine the CLI can read: well formed, simply not yet defined.
+# A manifest the CLI can read: well formed, simply not yet defined.
 WELL_FORMED = """schema_version: "2.0"
 task: "{slug}"
 created: "2026-08-12"
@@ -60,7 +60,7 @@ reassessments: []
 friction: []
 """
 
-# A spine the CLI cannot accept: a schema version it does not handle, and a
+# A manifest the CLI cannot accept: a schema version it does not handle, and a
 # risk outside the assessment vocabulary. `compass issue lint` rejects this
 # outright; the sweep must not report it clean.
 MALFORMED = """schema_version: "9.9"
@@ -77,13 +77,13 @@ assessment:
 """
 
 
-def _project(tmp_path, slug, status, spine):
+def _project(tmp_path, slug, status, manifest):
     work = tmp_path / ".compass" / "work" / slug
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\n", encoding="utf-8")
-    (work / "task.yml").write_text(
-        spine.format(slug=slug, status=status), encoding="utf-8")
+    (work / "manifest.yml").write_text(
+        manifest.format(slug=slug, status=status), encoding="utf-8")
     shutil.copytree(ROOT / "governance", tmp_path / "governance")
     shutil.copytree(ROOT / "schemas", tmp_path / "schemas")
     return tmp_path
@@ -103,8 +103,8 @@ def test_trc_1_a_malformed_spine_fails_the_sweep_at_any_status(tmp_path, status)
     combined = result.stdout + result.stderr
 
     assert result.returncode != 0, (
-        f"the sweep reported success on a spine its own linter rejects, "
-        f"because the issue's status is {status!r}. A malformed spine can "
+        f"the sweep reported success on a manifest its own linter rejects, "
+        f"because the issue's status is {status!r}. A malformed manifest can "
         f"then sit in a repository indefinitely.\n{combined}"
     )
 

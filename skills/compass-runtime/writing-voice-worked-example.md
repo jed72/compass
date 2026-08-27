@@ -23,7 +23,7 @@ the behaviour does not move.
 ## Whether the receipt re-runs anything
 
 `compass check` re-runs the guardrail checks live; the receipt does not. jed72
-decided the receipt reads recorded state straight out of `task.yml`, with no
+decided the receipt reads recorded state straight out of `manifest.yml`, with no
 re-execution, because a live re-run could disagree with whatever was actually
 accepted at ship time - and a receipt that could contradict its own record
 would undermine the entire point of an audit trail read from disk.

@@ -535,9 +535,9 @@ def test_pl_d5_empty_scan_habit_is_stated():
 def test_pl_g3_living_spec_title_matches_its_source_scenario():
     """TRC-G3 - the derived spec says what its source says.
 
-    The living spec derives from each landed issue's `task.yml` scenario
+    The living spec derives from each landed issue's `manifest.yml` scenario
     TITLES, not from the prose headings. A correction applied to the heading
-    and not the spine leaves the two disagreeing and the derivation faithfully
+    and not the manifest leaves the two disagreeing and the derivation faithfully
     reproducing the one nobody edited - which is what happened here, and why
     re-deriving produced byte-identical output while the spec was wrong.
     """
@@ -550,12 +550,12 @@ def test_pl_g3_living_spec_title_matches_its_source_scenario():
     needle2 = "vacu" + "ity"
     assert needle not in text and needle2 not in text, (
         "the living spec still carries a word on the everyday-words list. It is "
-        "derived - fix the source scenario title in its issue's task.yml and "
+        "derived - fix the source scenario title in its issue's manifest.yml and "
         "re-derive; editing this file is undone by the next derivation.")
-    src = REPO_ROOT / ".compass/work/identifiers-and-vocabulary-in-printed-output/task.yml"
+    src = REPO_ROOT / ".compass/work/identifiers-and-vocabulary-in-printed-output/manifest.yml"
     if src.is_file():
         assert needle not in src.read_text(encoding="utf-8"), (
-            "the SOURCE spine still says it, so the next derivation puts it back")
+            "the SOURCE manifest still says it, so the next derivation puts it back")
 
 
 def test_pl_d6_correction_rule_distinguishes_record_from_claim():

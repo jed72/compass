@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -95,9 +95,9 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import _stage_key_renames, ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, display_stage, find_governance, load_task, load_yaml, reading_matches, resolve_task_dir, save_task, shape_stages
+from compass_pkg.core import _stage_key_renames, ASSESSMENT_KEY_MAP, CompassError, canonical_shape, display_shape, display_stage, find_governance, load_manifest, load_yaml, reading_matches, resolve_issue_dir, save_manifest, shape_stages
 from compass_pkg.governance import governance_drift
-from compass_pkg.task_spine import _annotate_gate_accepts
+from compass_pkg.manifest import _annotate_gate_accepts
 
 
 
@@ -421,8 +421,8 @@ def cmd_route_evaluate(args):
             else:
                 readings[k] = v.strip()
     else:
-        task_dir = resolve_task_dir(args.task)
-        task, task_path = load_task(task_dir)
+        task_dir = resolve_issue_dir(args.task)
+        task, task_path = load_manifest(task_dir)
         readings = task.get("assessment")
         if not readings:
             raise CompassError(
@@ -490,7 +490,7 @@ def cmd_route_evaluate(args):
                              "assessment's default"],
             concerns=_concerns,
             next_step=None if args.write else
-            "nothing recorded - re-run with --write to fold this into the spine")
+            "nothing recorded - re-run with --write to fold this into the manifest")
         _e.flush()
     else:
         # Provenance first. route.md records which guardrails fired and why; it
@@ -556,7 +556,7 @@ def cmd_route_evaluate(args):
             for s in result["applicable_strategies"]:
                 print(f"    [{s['id']}] {s['strategy']}: {s['rationale']}")
 
-    # --write: fold the result back into task.yml
+    # --write: fold the result back into manifest.yml
     if args.write:
         if task is None:
             raise CompassError("--write needs an issue (use --issue or run in a "
@@ -644,7 +644,7 @@ def cmd_route_evaluate(args):
         # Triage no longer records a topology: breakdown owns it, once the
         # distribution map says whether independent work units exist.
         task.pop("topology", None)
-        save_task(task, task_path)
+        save_manifest(task, task_path)
         _annotate_gate_accepts(task_path)   # R6-6: seed accepted-type comments
         print(f"\n  wrote route, phases, gates -> {task_path}")
         if not reframed and getattr(args, "reason", None):
@@ -658,7 +658,7 @@ def cmd_route_evaluate(args):
             if not args.reason:
                 sys.stderr.write(
                     "compass: re-frame recorded with no reason. Re-run with "
-                    "--reason \"...\" or edit task.yml's last `reframes` "
+                    "--reason \"...\" or edit manifest.yml's last `reframes` "
                     "entry - the reason is the calibration signal.\n"
                 )
     return 0

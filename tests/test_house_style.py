@@ -12,7 +12,7 @@ Two rules are enforced here:
    hyphen with spaces around it. En dashes (U+2013) are deliberately left
    alone: they carry meaning in ranges such as `G1-G5` and `2-3 streams`.
 2. No agent co-author trailer in any tracked file. The human author owns the
-   change; `devlog.md` and `task.yml` already record provenance in a form the
+   change; `devlog.md` and `manifest.yml` already record provenance in a form the
    framework can read.
 
 The file list comes from `git ls-files`, which means this guard reads exactly

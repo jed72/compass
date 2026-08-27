@@ -33,7 +33,7 @@ full suite. The module run above is the proportionate check.)
 |---|---|---|
 | correctness | PASS | TRC-001 passes - `evidence/green-TRC-001.json`. |
 | governance | PASS | `G1` met (TRC-001 has a passing test it traces to). `G2` met (the scenario was written before the fix - `evidence/red-TRC-001.json` predates the edit). `G3` met - see traceability. No strategy departures: `S2` red-before-green was followed, `evidence/red-TRC-001.json` then `evidence/green-TRC-001.json`. |
-| traceability | PASS | `src/api/upload.py` → TRC-001 → INT-1. Chain intact, recorded in `task.yml`. |
+| traceability | PASS | `src/api/upload.py` → TRC-001 → INT-1. Chain intact, recorded in `manifest.yml`. |
 
 ## Gate decision
 

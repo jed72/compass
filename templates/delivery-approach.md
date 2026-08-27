@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: delivery-approach.md
 Produced by: triage (`/compass:assess`).
-Lives at:    .compass/work/<task-slug>/delivery-approach.md
+Lives at:    .compass/work/<issue-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records the assessment, the
              delivery approach the policy computed, every policy rule that
              fired, and - first-class - what was skipped and why it is safe.
@@ -40,7 +40,7 @@ line is not skippable - it runs.
 | **Size** | {{atomic \| small \| standard \| large \| product}} | {{Why this value. When unsure, estimate up.}} |
 | **Goal & role** | {{engineer \| product-owner \| product-marketer \| designer \| qa}} | {{Who invoked, and the outcome actually wanted - read `intent.md` or the intake if one exists.}} |
 
-**Labels (the spine's `touches:` field):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
+**Labels (the manifest's `touches:` field):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
 <!-- These are what the policy's hard floors key on. Be honest - a one-line
      auth change still carries the auth label. -->
 

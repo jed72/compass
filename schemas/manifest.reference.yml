@@ -1,5 +1,5 @@
-# Schema reference for: .compass/work/<task-slug>/task.yml
-# The machine-readable issue spine. `compass issue lint` enforces this.
+# Schema reference for: .compass/work/<issue-slug>/manifest.yml
+# The manifest. `compass issue lint` enforces this.
 # Notation: (required) / (optional); `type`; [enum] where the set is closed.
 
 task:            # (required) string - the issue slug, matches the directory name

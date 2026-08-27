@@ -54,7 +54,7 @@ now says it too.)
    `.compass/config.yml`; a policy cap can bound the count.
 4. **Write `technical-design.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md` (and
    `distribution-map.md` from its template when applicable) into
-   `.compass/work/<task-slug>/`.
+   `.compass/work/<issue-slug>/`.
 
 ## Hand-off
 
@@ -62,7 +62,7 @@ Close the design by handing the technical approach to a human. This is the
 last review before code is written, and the cheapest point at which to change
 the design.
 
-> I have written the design to `.compass/work/<task-slug>/technical-design.md`
+> I have written the design to `.compass/work/<issue-slug>/technical-design.md`
 > (and the distribution map to `distribution-map.md`).
 >
 > It records N design decisions, the governance check against all of

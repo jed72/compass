@@ -247,17 +247,23 @@ def test_net_new_signals_category_is_design_smell():
 # -----------------------------------------------------------------------------
 
 def test_comparison_requirements_task_still_lints_clean():
-    """A pre-existing landed task's task.yml must still lint clean on the new framework.
+    """A pre-existing landed task's manifest.yml must still lint clean on the new framework.
 
     The fixture lives under `tests/fixtures/comparison-requirements/` (a tracked
     path). The original comparison-requirements task lived under `.compass/work/`,
     which the framework repo's own .gitignore excludes - so the test must point
     at the tracked fixture, not the gitignored slug.
     """
-    fixture = REPO_ROOT / "tests" / "fixtures" / "comparison-requirements" / "task.yml"
+    # Deliberately still named task.yml, and deliberately still keyed `task:`.
+    # That is the whole point of the fixture: it is a record written before the
+    # rename to manifest.yml (ADR-022), and ADR-006 promises it keeps loading
+    # without anyone running `compass migrate`. Renaming it here would leave the
+    # promise with nothing testing it.
+    fixture = (REPO_ROOT / "tests" / "fixtures" / "comparison-requirements"
+               / ("task" + ".yml"))
     assert fixture.exists(), (
         f"Fixture missing at {fixture}. ADR-006 backward-compat test relies on "
-        f"this pre-v1.1.0-shape task.yml; constructing it is the v1-2-era fix."
+        f"this pre-v1.1.0-shape record under its retired filename."
     )
     result = subprocess.run(
         [sys.executable, "cli/compass", "issue", "lint", "--file", str(fixture)],

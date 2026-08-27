@@ -163,14 +163,14 @@ for TASK_DIR in "$WORK_DIR"/*/; do
 
   # --- 3. a hotfix with an outstanding follow-up ---------------------------
   #
-  # Both facts come from task.yml, not from the prose record. Grepping the
+  # Both facts come from manifest.yml, not from the prose record. Grepping the
   # record for a heading is how this check died twice: it looked for
   # a heading the template had already replaced, and a
   # later repair pointed it at "Outstanding follow-ups" while the template
   # writes "Owed follow-ups". Neither failure was visible - the block simply
   # stopped firing. scripts/swarm.sh makes the same argument about the
   # worktree cap and refuses to fall back to prose for exactly this reason.
-  HOTFIX_STATE="$(compass_python - "$TASK_DIR/task.yml" 2>/dev/null <<'PYSTOP'
+  HOTFIX_STATE="$(compass_python - "$TASK_DIR/manifest.yml" 2>/dev/null <<'PYSTOP'
 import sys
 import compass_pkg          # side effect: the bundled PyYAML resolves first
 import yaml
@@ -192,7 +192,7 @@ PYSTOP
   if [ "${HOTFIX_STATE%%|*}" = "hotfix" ]; then
 
     if [ "${HOTFIX_STATE#*|}" != "0" ]; then
-      WARNINGS+=("[$SLUG] HOTFIX with ${HOTFIX_STATE#*|} OUTSTANDING FOLLOW-UP(S) recorded in task.yml. The issue is not closeable until they are resolved.")
+      WARNINGS+=("[$SLUG] HOTFIX with ${HOTFIX_STATE#*|} OUTSTANDING FOLLOW-UP(S) recorded in manifest.yml. The issue is not closeable until they are resolved.")
     fi
 
     # The reproduction test must have been promoted into a real scenario.
@@ -232,7 +232,7 @@ fi
 # appears inside a block-quote (`> "..."`) or inside backtick code context,
 # where the line begins with whitespace or special characters (TRC-X3).
 #
-# Suppression rule: if task.yml contains a `reframes:` entry whose `date`
+# Suppression rule: if manifest.yml contains a `reframes:` entry whose `date`
 # field sorts lexicographically after the date prefix of the matching devlog
 # line, the nudge is suppressed - the reframe was already filed (TRC-C3).
 #
@@ -242,7 +242,7 @@ _nudge_scope_bloat() {
   local slug
   slug="$(basename "$task_dir")"
   local devlog="$task_dir/devlog.md"
-  local task_yml="$task_dir/task.yml"
+  local task_yml="$task_dir/manifest.yml"
 
   [ -f "$devlog" ] || return 0
   [ -f "$task_yml" ] || return 0
@@ -278,7 +278,7 @@ for p in phrases:
 PYEOF
 )" || return 0
 
-  # Extract the latest reframe date from task.yml (if any).
+  # Extract the latest reframe date from manifest.yml (if any).
   local latest_reframe_date
   latest_reframe_date="$(compass_python - "$task_yml" <<'PYEOF'
 import sys

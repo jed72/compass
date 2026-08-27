@@ -35,7 +35,7 @@ from typing import Any, Dict, List, Optional
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCHEMA = REPO_ROOT / "schemas" / "task.schema.json"
+SCHEMA = REPO_ROOT / "schemas" / "manifest.schema.json"
 sys.path.insert(0, str(REPO_ROOT / "cli"))
 
 
@@ -44,7 +44,7 @@ def _spine(tmp_path: Path, artifacts: Optional[List[Dict[str, Any]]] = None,
     """An issue directory with an optional registry and some files on disk."""
     task_dir = tmp_path / "work" / "t"
     task_dir.mkdir(parents=True, exist_ok=True)
-    spine: Dict[str, Any] = {
+    manifest: Dict[str, Any] = {
         "schema_version": "2.0", "task": "t", "created": "2026-08-23",
         "status": "active",
         "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
@@ -53,8 +53,8 @@ def _spine(tmp_path: Path, artifacts: Optional[List[Dict[str, Any]]] = None,
         "evidence": [], "gates": [],
     }
     if artifacts is not None:
-        spine["artifacts"] = artifacts
-    (task_dir / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+        manifest["artifacts"] = artifacts
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     for name, body in (files or {}).items():
         p = task_dir / name
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -74,7 +74,7 @@ def test_a1_entry_declares_kind_path_status_reason():
     """
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     arts = schema["properties"].get("artifacts")
-    assert arts, "the spine schema has no `artifacts` registry"
+    assert arts, "the manifest schema has no `artifacts` registry"
     item = arts["items"]
     for field in ("id", "kind", "status", "reason"):
         assert field in item["properties"], (
@@ -202,7 +202,7 @@ def test_b4_landed_issues_still_resolve():
 
     checked = 0
     for issue in sorted(work.iterdir()):
-        if not (issue / "task.yml").is_file():
+        if not (issue / "manifest.yml").is_file():
             continue
         for doc in issue.glob("*.md"):
             got = artifact_path(str(issue), doc.name)
@@ -224,7 +224,7 @@ def test_b4_landed_issues_still_resolve():
 # assembled by hand is a form.
 
 def _evaluate(tmp_path, **readings):
-    """Run the evaluator over one assessment and return the written spine."""
+    """Run the evaluator over one assessment and return the written manifest."""
     import shutil, subprocess, sys
     proj = tmp_path / "p"
     (proj / "governance").mkdir(parents=True, exist_ok=True)
@@ -238,7 +238,7 @@ def _evaluate(tmp_path, **readings):
                   "size": "standard", "goal": "delivery", "role": "engineer",
                   "labels": []}
     assessment.update(readings)
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-23",
         "status": "active", "assessment": assessment,
         "delivery_approach": None, "stages": {}, "gates": [], "evidence": [],
@@ -249,7 +249,7 @@ def _evaluate(tmp_path, **readings):
          "approach", "evaluate", "--issue", "t", "--write"],
         cwd=str(proj), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stdout + r.stderr
-    return yaml.safe_load((task_dir / "task.yml").read_text())
+    return yaml.safe_load((task_dir / "manifest.yml").read_text())
 
 
 def test_f1_evaluator_computes_the_artifact_set():
@@ -276,9 +276,9 @@ def test_f2_trivial_change_earns_almost_nothing(tmp_path):
     that. It falls out of the assessment the same way `clarify: collapsed`
     already does.
     """
-    spine = _evaluate(tmp_path, risk="trivial", size="atomic",
+    manifest = _evaluate(tmp_path, risk="trivial", size="atomic",
                       familiarity="brownfield-mapped")
-    arts = spine.get("artifacts")
+    arts = manifest.get("artifacts")
     assert arts is not None, "the evaluator wrote no artifact set"
     earned = [a for a in arts if a.get("status") != "omitted"]
     # BOTH bounds, and the lower one is not decoration. A mutation round on
@@ -306,12 +306,12 @@ def test_f3_policy_rule_adds_an_artifact(tmp_path):
     otherwise the artifact set can only ever be what the shape declares and the
     assessment's other dimensions buy nothing.
     """
-    spine = _evaluate(tmp_path, risk="critical", size="standard",
+    manifest = _evaluate(tmp_path, risk="critical", size="standard",
                       labels=["auth"])
-    arts = spine.get("artifacts") or []
+    arts = manifest.get("artifacts") or []
     kinds = {a.get("kind") for a in arts}
     assert kinds, "the evaluator wrote no artifact set for a critical change"
-    fired = [r.get("id") for r in (spine.get("policy_rules_fired") or [])]
+    fired = [r.get("id") for r in (manifest.get("policy_rules_fired") or [])]
 
     # The DOCUMENT, not the log line about it. The first version of this test
     # only asserted that a fired rule mentioned the word "artifact" in its

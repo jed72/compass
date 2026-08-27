@@ -54,7 +54,7 @@ def _project(slug="t"):
     task_dir = root / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
     (task_dir / "delivery-approach.md").write_text("# Route\n")
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": slug, "created": "2026-08-06",
         "assessment": {"risk": "contained", "familiarity": "greenfield",
                      "size": "small", "intent": "delivery"},
@@ -231,7 +231,7 @@ def test_scn_f1_evidence_is_accepted_by_check():
     try:
         _run(root, "acceptance", "start", "--kind", "validation", "--", *PASS_CMD)
         _run(root, "acceptance", "record", "--", *PASS_CMD)
-        task = yaml.safe_load((task_dir / "task.yml").read_text())
+        task = yaml.safe_load((task_dir / "manifest.yml").read_text())
         entries = [e for e in (task.get("evidence") or [])
                    if e.get("path", "").endswith("acceptance.json")]
         assert entries, f"nothing registered in the evidence registry: {task}"
@@ -257,7 +257,7 @@ def test_scn_f2_tdd_discipline_names_the_verb():
 # zero-friction-install: `compass acceptance record --scenario ...` always
 # wrote the SAME fixed file, evidence/acceptance.json, regardless of
 # --scenario. A second scenario's record silently overwrote the first's real
-# evidence, even though task.yml's registry still listed both scenarios as
+# evidence, even though manifest.yml's registry still listed both scenarios as
 # bound to that one (now wrong-for-one-of-them) file. `compass tdd-green`
 # already avoids exactly this by writing a scenario-specific copy alongside
 # the generic one; `compass acceptance record` did not.
@@ -276,7 +276,7 @@ def test_scn_g1_two_scenarios_recorded_in_sequence_do_not_overwrite_each_other()
         r2 = _run(root, "acceptance", "record", "--scenario", "TRC-TWO", "--", *PASS_CMD)
         assert r2.returncode == 0, r2.stdout + r2.stderr
 
-        task = yaml.safe_load((task_dir / "task.yml").read_text())
+        task = yaml.safe_load((task_dir / "manifest.yml").read_text())
         by_scenario = {e.get("scenario"): e.get("path")
                        for e in (task.get("evidence") or [])
                        if e.get("type") == "test-run"}

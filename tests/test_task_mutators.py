@@ -1,4 +1,4 @@
-"""R6 + R9 - schema-owning task.yml mutators and the write-time gate-evidence
+"""R6 + R9 - schema-owning manifest.yml mutators and the write-time gate-evidence
 type guard. `compass gate pass` is the shared command: it is R9's gate mutator
 whose write-time validation against gate_evidence_requirements IS the R6 fix.
 """
@@ -58,7 +58,7 @@ def test_gate_pass_rejects_wrong_type_with_accepted_list(run_cli, make_task):
     combined = r.stdout + r.stderr
     assert "verify.governance" in combined and "test-run" in combined, r
     assert "command-output" in combined, r          # the accepted list
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     g = next(x for x in task["gates"] if x["id"] == "verify.governance")
     assert g["status"] == "pending", r              # no partial write
 
@@ -69,7 +69,7 @@ def test_gate_pass_accepts_correct_type_and_flips_pass(run_cli, make_task):
     _mk_evfile(task_dir, "evidence/scan.txt")
     r = run_cli("gate", "pass", "verify.governance", "--evidence", "EV-CO")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     g = next(x for x in task["gates"] if x["id"] == "verify.governance")
     assert g["status"] == "pass" and g["evidence"] == ["EV-CO"], r
 
@@ -98,7 +98,7 @@ def test_scenario_add_appends_lint_clean_entry(run_cli, make_task):
     r = run_cli("scenario", "add", "SCN-2", "--title", "Export ledger",
                 "--intent", "INT-1", "--test", "tests/test_x.py::test_z")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     scn = next(s for s in task["scenarios"] if s["id"] == "SCN-2")
     assert scn["title"] == "Export ledger" and scn["intent"] == "INT-1"
     assert scn["tests"] == ["tests/test_x.py::test_z"], r
@@ -110,7 +110,7 @@ def test_changed_file_add_traces_to_scenario(run_cli, make_task):
     task_dir = make_task("cf-add", _body_with_gates())
     r = run_cli("changed-file", "add", "cli/compass", "--scenario", "SCN-1")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     cf = next(c for c in task["changed_files"] if c["path"] == "cli/compass")
     assert "SCN-1" in cf["scenarios"], r
 
@@ -125,7 +125,7 @@ def test_evidence_add_appends_typed_entry(run_cli, make_task):
     r = run_cli("evidence", "add", "EV-5", "--type", "command-output",
                 "--path", "evidence/scan.txt")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     e = next(x for x in task["evidence"] if x["id"] == "EV-5")
     assert e["type"] == "command-output" and e["path"] == "evidence/scan.txt", r
 
@@ -138,7 +138,7 @@ def test_scenario_add_rejects_duplicate_id(run_cli, make_task):
                 "--intent", "INT-2", "--test", "tests/test_z.py::t")
     assert r.returncode != 0, r
     assert "SCN-1" in (r.stdout + r.stderr), r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     scn = next(s for s in task["scenarios"] if s["id"] == "SCN-1")
     assert scn["intent"] == "INT-1", r              # unchanged, no clobber
 
@@ -149,5 +149,5 @@ def test_evidence_add_rejects_unknown_type(run_cli, make_task):
                 "--path", "evidence/x.txt")
     assert r.returncode != 0, r
     assert "bogus-type" in (r.stdout + r.stderr), r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert not any(e["id"] == "EV-9" for e in task["evidence"]), r

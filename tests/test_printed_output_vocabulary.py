@@ -135,7 +135,7 @@ def test_trc_b2_the_scan_can_fail():
 # ---------------------------------------------------------------------------
 
 def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
-    """The spine is written with the current stage keys, and old ones still read.
+    """The manifest is written with the current stage keys, and old ones still read.
 
     THIS TEST HELD A LINE AND THE LINE HAS MOVED. It used to assert the keys
     were `frame, specify, clarify, ...` and its message said so: "the stage
@@ -143,13 +143,13 @@ def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
     is `the-vocabulary-rename`, it landed the back-compat shim the message
     demanded, and this is the assertion on the other side of it.
 
-    What it guards now is the same thing from the far side: a spine written
+    What it guards now is the same thing from the far side: a manifest written
     today speaks the current keys, and one written before still loads.
     """
     root = tmp_path / "proj"
     (root / ".compass" / "work" / "demo").mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (root / ".compass" / "work" / "demo" / "task.yml").write_text(yaml.safe_dump({
+    (root / ".compass" / "work" / "demo" / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "demo", "created": "2026-08-13",
         "status": "active",
         "assessment": {"risk": "critical", "familiarity": "brownfield-mapped",
@@ -162,30 +162,30 @@ def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
 
-    spine = yaml.safe_load(
-        (root / ".compass" / "work" / "demo" / "task.yml").read_text())
-    assert set(spine["stages"]) == {
+    manifest = yaml.safe_load(
+        (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
+    assert set(manifest["stages"]) == {
         "assess", "define", "refine", "plan", "breakdown", "implement",
         "verify", "ship"}, (
-        f"a spine written today does not carry the current stage keys: "
-        f"{sorted(spine['stages'])}")
+        f"a manifest written today does not carry the current stage keys: "
+        f"{sorted(manifest['stages'])}")
 
-    # And the shim the old message demanded: a spine written before the rename
+    # And the shim the old message demanded: a manifest written before the rename
     # still loads, which is what makes the 91 landed issues safe (ADR-006).
     sys.path.insert(0, str(ROOT / "cli"))
     from compass_pkg.core import normalize_spine
     old_spine = {"stages": {"frame": "full", "specify": "full", "clarify": "light",
                             "plan": "full", "distribute": "solo-or-pair",
                             "build": "full", "verify": "full", "land": "full"}}
-    assert set(normalize_spine(old_spine)["stages"]) == set(spine["stages"]), (
-        "a spine written before the rename does not normalise to the same "
+    assert set(normalize_spine(old_spine)["stages"]) == set(manifest["stages"]), (
+        "a manifest written before the rename does not normalise to the same "
         "stage set as one written after it")
     # The stored approach value is already v2 - `canonical_shape` converts it
     # on write, and has since the rename. Only the STAGE keys still carry
     # retired names, which is what the rename slice will move.
-    assert spine["delivery_approach"] == "initiative", (
+    assert manifest["delivery_approach"] == "initiative", (
         f"the stored approach value changed; only the printed word should: "
-        f"{spine['delivery_approach']!r}")
+        f"{manifest['delivery_approach']!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -196,7 +196,7 @@ def _receipt_out(tmp_path, fired):
     root = tmp_path / "proj"
     (root / ".compass" / "work" / "demo").mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (root / ".compass" / "work" / "demo" / "task.yml").write_text(yaml.safe_dump({
+    (root / ".compass" / "work" / "demo" / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "demo", "created": "2026-08-13",
         "status": "landed",
         "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",

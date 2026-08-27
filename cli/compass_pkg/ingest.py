@@ -292,13 +292,13 @@ def cmd_intent_ingest(args):
     Nothing is written until the source has been read successfully, so a bad
     path leaves the issue exactly as it was.
     """
-    from compass_pkg.core import load_task, now_iso, resolve_task_dir, save_task
+    from compass_pkg.core import load_manifest, now_iso, resolve_issue_dir, save_manifest
     from compass_pkg.terminal import say
 
     # The argument first, before anything about the issue. See validate_source.
     source = validate_source(args.source)
 
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
     snapshot = os.path.join(task_dir, SNAPSHOT_NAME)
 
     # Checked BEFORE the fetch: re-ingesting must not silently replace the
@@ -316,7 +316,7 @@ def cmd_intent_ingest(args):
     with open(snapshot, "w", encoding="utf-8") as fh:
         fh.write(document.text)
 
-    task, path = load_task(task_dir)
+    task, path = load_manifest(task_dir)
     task["intent_source"] = {
         "origin": document.origin,
         "scheme": document.scheme,
@@ -327,7 +327,7 @@ def cmd_intent_ingest(args):
         # and empty means "nothing asked yet", which is different from absent.
         "elicitation": [],
     }
-    save_task(task, path)
+    save_manifest(task, path)
 
     return say(args, "compass intent ingest: read %s" % document.origin,
                detail=["snapshot -> %s" % snapshot,
@@ -393,13 +393,13 @@ def validate_intent_origins(task_dir):
     Returns (ok, detail). Detail names the section and what is wrong with it,
     because "intent.md failed validation" sends a reader nowhere.
     """
-    from compass_pkg.core import load_task
+    from compass_pkg.core import load_manifest
 
     intent = os.path.join(task_dir, "intent.md")
     if not os.path.isfile(intent):
         return True, "no intent.md yet - nothing to trace"
 
-    task, _path = load_task(task_dir)
+    task, _path = load_manifest(task_dir)
     record = task.get("intent_source") or {}
     if not record:
         return True, ("intent.md was authored here rather than ingested, so "
@@ -481,9 +481,9 @@ def describe_intent_origins(task_dir):
     row names a human - the person who wrote the brief, or the person who
     answered the question.
     """
-    from compass_pkg.core import load_task
+    from compass_pkg.core import load_manifest
 
-    task, _path = load_task(task_dir)
+    task, _path = load_manifest(task_dir)
     record = task.get("intent_source") or {}
     if not record:
         return ("intent.md was authored in this issue rather than ingested "

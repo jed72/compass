@@ -223,7 +223,7 @@ def test_trc_c3_existing_json_verb_keeps_its_keys(tmp_path):
     td.mkdir(parents=True)
     (proj / ".compass" / "current-task").write_text("t\n")
     (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
-    (td / "task.yml").write_text(yaml.safe_dump({
+    (td / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-23",
         "status": "active",
         "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
@@ -566,7 +566,7 @@ def _failing_issue(tmp_path):
     (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
     # No scenarios and no evidence: several checks fail, which is what this
     # needs. An issue that passes would exercise none of the failure path.
-    (td / "task.yml").write_text(yaml.safe_dump({
+    (td / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-24",
         "status": "active",
         "assessment": {"risk": "cross-cutting", "familiarity": "brownfield-mapped",
@@ -660,12 +660,12 @@ def test_trc_c2_check_is_silent_when_it_passes(tmp_path):
     # A spike concludes with evidence rather than the delivery guardrails, so
     # it is the cheapest issue shape that can genuinely pass.
     td = proj / ".compass" / "work" / "t"
-    spine = yaml.safe_load((td / "task.yml").read_text())
-    spine["delivery_approach"] = "spike"
-    spine["evidence"] = [{"id": "EV-1", "type": "spike-conclusion",
+    manifest = yaml.safe_load((td / "manifest.yml").read_text())
+    manifest["delivery_approach"] = "spike"
+    manifest["evidence"] = [{"id": "EV-1", "type": "spike-conclusion",
                           "path": "evidence/conclusion.md",
                           "decision": "discard"}]
-    (td / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+    (td / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
 
     r = _run_check(proj, "--quiet")
     assert r.returncode == 0, (
@@ -822,7 +822,7 @@ def report_project(tmp_path_factory):
         slug = "issue-%02d" % i
         d = work / slug
         d.mkdir()
-        (d / "task.yml").write_text(yaml.safe_dump({
+        (d / "manifest.yml").write_text(yaml.safe_dump({
             "schema_version": "2.0", "task": slug, "created": "2026-08-24",
             "status": states[i % len(states)],
             "assessment": {"risk": "contained",
@@ -961,7 +961,7 @@ def test_trc_c6_the_report_list_is_not_empty():
 # Verbs excluded from the run, each with the reason. Kept short and named -
 # an unexplained exclusion is how a guard stops covering things.
 _TAIL_EXEMPT = {
-    "_friction-capture": "private, and writes to the spine as a side effect",
+    "_friction-capture": "private, and writes to the manifest as a side effect",
     "_migrate-archive": "private, and rewrites a whole work tree",
     "_derive-system-spec": "private, and writes a tracked doc",
     "_derive-glossary": "private, and writes a tracked doc",
@@ -969,7 +969,7 @@ _TAIL_EXEMPT = {
     "ship-commit": "writes a git commit",
     "check": "measured by its own tests above, on a failing issue",
     "policy lint": "needs a governance tree of its own to say anything",
-    "issue lint": "needs a malformed spine to say anything",
+    "issue lint": "needs a malformed manifest to say anything",
     "design lint": "needs a design with placeholders to say anything",
     "next": "advisory pointer; its own suite covers it",
     "rework-scan": "its own suite covers it",
@@ -1006,7 +1006,7 @@ _TAIL_ARGV = {
                      "--intent", "INT-1"],
     "changed-file add": ["changed-file", "add", "src/a.py", "--scenario", "TRC-1"],
     "evidence add": ["evidence", "add", "EV-9", "--type", "artifact",
-                     "--path", "task.yml"],
+                     "--path", "manifest.yml"],
     # The gate's accepted evidence type is checked at write time, so the
     # record this points at has to be a test-run, not the artifact above.
     "gate pass": ["gate", "pass", "verify.correctness", "--evidence", "EV-T"],
@@ -1059,7 +1059,7 @@ def tail_project(tmp_path):
     # a red for the same binding. Written here so the verb reaches the output
     # this file is about rather than being refused before it prints anything.
     write_red_record(td, "TRC-1")
-    (td / "task.yml").write_text(yaml.safe_dump({
+    (td / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-24",
         "status": "active",
         "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",

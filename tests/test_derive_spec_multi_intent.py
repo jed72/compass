@@ -1,6 +1,6 @@
 """The system-spec deriver honours a scenario that serves several intents.
 
-`schemas/task.schema.json` says a scenario's `intent` may be "a string or a
+`schemas/manifest.schema.json` says a scenario's `intent` may be "a string or a
 list of strings (a scenario may serve more than one intent)". The deriver
 used the value directly as a dictionary key, so the list form crashed it with
 `TypeError: unhashable type: 'list'`. Nothing hit it until an issue actually
@@ -37,7 +37,7 @@ def _project(tmp_path, intent):
     intent_yaml = (
         "[" + ", ".join(intent) + "]" if isinstance(intent, list) else intent
     )
-    (work / "task.yml").write_text(
+    (work / "manifest.yml").write_text(
         "schema_version: '2.0'\n"
         "task: an-issue\n"
         "created: '2026-08-10'\n"

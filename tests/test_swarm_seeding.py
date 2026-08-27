@@ -5,7 +5,7 @@ project that commits `.compass/work/` that is enough - the task directory comes
 along with everything else. The framework repository deliberately does NOT
 commit its own (`.gitignore`: `/.compass/work/`, `/.compass/current-task`), and
 neither does any project that treats task state as local. There, a fresh
-worktree arrives with no spec, no plan, and no charter, and `resolve_task_dir`
+worktree arrives with no spec, no plan, and no charter, and `resolve_issue_dir`
 raises because there is no work directory to resolve against.
 
 That makes the documented swarm flow unusable in exactly the repository that
@@ -94,7 +94,7 @@ def seeded_project(tmp_path):
         f"  worktree_root: \"{tmp_path / 'wt'}\"\n")
 
     task_dir = compass / "work" / SLUG
-    (task_dir / "task.yml").write_text(TASK_YML)
+    (task_dir / "manifest.yml").write_text(TASK_YML)
     (task_dir / "delivery-approach.md").write_text("# Route - seed-demo\n")
     (task_dir / "distribution-map.md").write_text(MAP)
     (task_dir / "acceptance-criteria.md").write_text("# Spec - seed-demo\n")
@@ -132,7 +132,7 @@ def test_trc_e1_worktree_carries_task_dir(seeded_project):
             f"{stream}: the worktree has no task directory - a builder there "
             f"has no spec, no plan and no charter"
         )
-        for artifact in ("task.yml", "delivery-approach.md", "acceptance-criteria.md",
+        for artifact in ("manifest.yml", "delivery-approach.md", "acceptance-criteria.md",
                          "distribution-map.md"):
             assert (task_dir / artifact).is_file(), (
                 f"{stream}: {artifact} did not come across")

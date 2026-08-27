@@ -38,8 +38,8 @@ Judgement goes into the assessment. Everything after it is deterministic: the
 same assessment plus the same policy produces the same approach, every time.
 
 For a contained typo, Compass will normally choose a quick-fix-shaped approach.
-It writes the result under `.compass/work/<issue>/`, and the spine records the
-judgement it routed from. The part of `task.yml` that matters here:
+It writes the result under `.compass/work/<issue>/`, and the manifest records the
+judgement it routed from. The part of `manifest.yml` that matters here:
 
 ```yaml
 schema_version: "2.0"
@@ -173,7 +173,7 @@ A small issue typically leaves:
 ```text
 .compass/work/<issue>/
 ├── README.md
-├── task.yml
+├── manifest.yml
 ├── delivery-approach.md
 ├── acceptance-criteria.md
 ├── verification-report.md
@@ -193,7 +193,7 @@ runtime should be able to resume from these files without the original chat.
 3. **Guardrails are hard; strategies are defaults.** An approach reduces
    ceremony around a guardrail and never routes through one.
 4. **Evidence, not assertion.** A gate clears with a record a reader can open.
-5. **If it is not on disk, it did not happen.** The spine and its artefacts
+5. **If it is not on disk, it did not happen.** The manifest and its artefacts
    outlive the conversation.
 
 ## The CLI underneath
@@ -205,7 +205,7 @@ compass init               make this directory a Compass project - create .compa
 compass approach evaluate  the assessment -> the delivery approach, deterministically
 compass bdd extract        acceptance criteria -> a runnable .feature
 compass bdd verify         record which scenarios the runner actually ran
-compass check              run the guardrail checks against the spine and evidence
+compass check              run the guardrail checks against the manifest and evidence
 compass analyze            where an issue's artifacts disagree with each other
 compass retro              is triage systematically over- or under-sizing the process?
 compass ci                 the full mechanical gate suite, for continuous integration
@@ -214,7 +214,7 @@ compass tdd-green          run a test, assert it PASSES, record the green
 compass policy lint        structurally validate the governance YAML
 compass plan lint          scan a technical design for placeholder phrases
 compass intent ingest      read a brief that already exists, by path or https URL
-compass issue lint         structurally validate an issue spine
+compass issue lint         structurally validate an issue manifest
 compass issue receipt      one screen: assessment, approach, gates, evidence
 compass issue dashboard    the per-issue review page
 compass issue artifact     set a document's status in the review pack
@@ -228,7 +228,7 @@ compass next               which stage this issue reached, and what comes next
 compass follow-up resolve  settle an owed follow-up
 compass ship-commit        commit exactly the files the issue recorded
 compass gate pass          mark a gate passed, validating the evidence type
-compass scenario add       add a scenario to the spine
+compass scenario add       add a scenario to the manifest
 compass changed-file add   trace a changed file to the scenario that asked for it
 compass evidence add       append a typed evidence record
 compass migrate            bring older issue directories up to the current schema

@@ -1,11 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://compass-sdd/schemas/task.schema.json",
+  "$id": "https://compass-sdd/schemas/manifest.schema.json",
   "title": "Compass issue.yml",
-  "description": "The machine-readable issue spine. Lives at .compass/work/<issue-slug>/issue.yml. The human-readable companion is issue.reference.yml.",
+  "description": "The manifest. Lives at .compass/work/<issue-slug>/issue.yml. The human-readable companion is issue.reference.yml.",
   "type": "object",
   "required": [
-    "task",
+    "issue",
     "created"
   ],
   "additionalProperties": false,
@@ -14,9 +14,13 @@
       "type": "string",
       "description": "The Compass issue.yml schema version this file follows. The CLI warns/fails on incompatible versions. Optional in 1.0 for back-compat; recommended. '1.1' introduced the optional `status` and `land_timestamp` fields."
     },
+    "issue": {
+      "type": "string",
+      "description": "The issue slug; matches the directory name. A manifest still carrying the retired root key loads - normalize_spine maps it forward through SPINE_KEY_MAP before anything reads it, and cli/migrate-map.yml records the pair."
+    },
     "task": {
       "type": "string",
-      "description": "The issue slug; matches the directory name."
+      "description": "RETIRED. Declared only so a manifest written before the rename does not trip additionalProperties on its way to the normaliser, which maps it to `issue`. Never written."
     },
     "created": {
       "type": "string",
@@ -411,7 +415,7 @@
     },
     "follow_ups": {
       "type": "array",
-      "description": "Outstanding ceremony (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated spine still lints - readers normalise them.",
+      "description": "Outstanding ceremony (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated manifest still lints - readers normalise them.",
       "items": {
         "type": "object",
         "required": [

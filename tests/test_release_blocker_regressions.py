@@ -97,7 +97,7 @@ def test_receipt_does_not_report_a_clean_land_over_pending_gates(project):
     re-deriving the task. It printed "Verdict: landed cleanly" for a task whose
     every gate was pending with no evidence at all, because the pending branch
     set neither the failure flag nor the caveat flag."""
-    (project / ".compass" / "work" / "t" / "task.yml").write_text(
+    (project / ".compass" / "work" / "t" / "manifest.yml").write_text(
         _task_yml("t", gates=PENDING_GATES, status="landed",
                   land_timestamp="2026-08-04T00:00:00Z")
     )
@@ -117,7 +117,7 @@ def test_land_commit_refuses_to_mark_landed_with_unpassed_gates(project):
     """`status: landed` is what the receipt, `compass flow`, and the rework scan
     all read. Writing it while gates are pending backdates a claim that the work
     cleared its gates."""
-    task_path = project / ".compass" / "work" / "t" / "task.yml"
+    task_path = project / ".compass" / "work" / "t" / "manifest.yml"
     task_path.write_text(_task_yml("t", gates=PENDING_GATES))
 
     # land-commit makes a git commit, so the project has to be a repo.
@@ -151,12 +151,12 @@ def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     coherence checks clean", so the command listed its findings and then denied
     having any - while the evidence JSON recorded the real count."""
     task_dir = project / ".compass" / "work" / "t"
-    # `stages=`, not `phases=`. The base spine in `_task_yml` already sets
+    # `stages=`, not `phases=`. The base manifest in `_task_yml` already sets
     # `stages: {}`, so a `phases:` twin is dropped as the retired duplicate it
     # is - this fixture's weight never reached analyze at all, and the test
     # passed on a `"full"` default in the lookup instead. Removing that default
     # is what exposed it.
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         _task_yml("t", gates=[], stages={"define": "full"})
     )
     (task_dir / "delivery-approach.md").write_text("# Route - t\n")
@@ -285,7 +285,7 @@ def test_spike_route_still_reports_an_owed_backfill(project):
     check - and an unpaid backfill is the one piece of debt Compass promises to
     keep visible."""
     task_dir = project / ".compass" / "work" / "t"
-    (task_dir / "task.yml").write_text(_task_yml(
+    (task_dir / "manifest.yml").write_text(_task_yml(
         "t", gates=[], route="spike",
         backfills=[{"id": "BF-001",
                     "description": "Promote the probe into a real scenario",
@@ -328,7 +328,7 @@ def test_swarm_does_not_seed_evidence_or_the_red_marker(tmp_path):
     task_dir.mkdir(parents=True)
     (compass / "config.yml").write_text(
         f"version: 1.0.0\nmode: enforced\nswarm:\n  worktree_root: \"{tmp_path / 'wt'}\"\n")
-    (task_dir / "task.yml").write_text(seeding.TASK_YML)
+    (task_dir / "manifest.yml").write_text(seeding.TASK_YML)
     (task_dir / "delivery-approach.md").write_text("# Route\n")
     (task_dir / "distribution-map.md").write_text(seeding.MAP)
     (compass / "current-task").write_text(slug + "\n")

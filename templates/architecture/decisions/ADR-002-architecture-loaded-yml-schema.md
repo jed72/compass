@@ -12,7 +12,7 @@ superseded_by: ''
 When Frame loads the project's `architecture/` artifacts, it needs to expose
 the result to downstream agents (spec-author, planner, architect-lens) in a
 structured, persistent form.  The first design placed this data in
-`task.yml.readings` - the existing machine-readable task spine.  However,
+`manifest.yml.readings` - the existing machine-readable task manifest.  However,
 `readings` is the *judgement* block, where the Needle records its four-dimension
 assessment.  Mixing mechanism-produced load state into the judgement block
 violates the invariant that `readings` is the only judgement field.
@@ -45,7 +45,7 @@ between Frame time and when they read the loaded record.
 
 | Alternative | Why considered | Why rejected |
 |---|---|---|
-| `task.yml.readings.loaded_artifacts` | Single file, no extra artifact | Violates the invariant that `readings` is the judgement block only |
+| `manifest.yml.readings.loaded_artifacts` | Single file, no extra artifact | Violates the invariant that `readings` is the judgement block only |
 | Inline in `route.md` prose | Humans can read it without a separate file | Agents need structured access; prose is not machine-parseable |
 | Separate JSON sidecar | Already common in many tools | YAML is the project's standard; keeping it consistent reduces tooling friction |
 
@@ -64,6 +64,6 @@ between Frame time and when they read the loaded record.
 
 ## References
 
-- The invariant that `task.yml.readings` holds judgement only, and nothing a mechanism produced
+- The invariant that `manifest.yml.readings` holds judgement only, and nothing a mechanism produced
 - The boundary rule that a builder never writes loaded architecture content into `readings`
 - The task's `clarifications.md`, where the shape of this file was settled

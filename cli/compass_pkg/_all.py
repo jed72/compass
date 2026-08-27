@@ -23,7 +23,7 @@ from compass_pkg.policy import *  # noqa: F401,F403
 from compass_pkg.receipt import *  # noqa: F401,F403
 from compass_pkg.rework import *  # noqa: F401,F403
 from compass_pkg.routing import *  # noqa: F401,F403
-from compass_pkg.task_spine import *  # noqa: F401,F403
+from compass_pkg.manifest import *  # noqa: F401,F403
 from compass_pkg.tdd import *  # noqa: F401,F403
 from compass_pkg.init_cmd import *  # noqa: F401,F403
 from compass_pkg.terminology_cmd import *  # noqa: F401,F403

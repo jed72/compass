@@ -6,7 +6,7 @@ Four gaps, each reproduced against HEAD before this file was written:
   X, and printed "red -> green is on record" with zero red records on disk.
 - An empty `.red` file - a bare `touch` - took the hook from exit 2 to exit 0
   and unlocked every production file for the issue.
-- The hook refuses on spine-reader exit 3 and falls through on every other
+- The hook refuses on manifest-reader exit 3 and falls through on every other
   non-zero status, so an ImportError (exit 1) turned the acceptance check into
   a silent pass. Not visible from the obvious test: with no red on record the
   later check refuses first and masks it.
@@ -53,7 +53,7 @@ def _project(tmp_path, *, define="light"):
     d.mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (root / ".compass" / "current-task").write_text("demo\n")
-    (d / "task.yml").write_text(SPINE.format(define=define))
+    (d / "manifest.yml").write_text(SPINE.format(define=define))
     (d / "delivery-approach.md").write_text("# approach\n")
     subprocess.run(["git", "init", "-q", str(root)], check=True)
     (root / "src").mkdir()
@@ -234,7 +234,7 @@ def test_evg_c1_every_reader_failure_refuses(tmp_path, code):
     out = (r.stdout + r.stderr)
 
     assert r.returncode == BLOCK, (
-        f"the spine reader exited {code} and the hook allowed the edit "
+        f"the manifest reader exited {code} and the hook allowed the edit "
         f"silently. A guardrail that cannot read its own state must fail "
         f"closed:\n{out}")
     assert out.strip(), "the hook refused without saying why"

@@ -1,7 +1,7 @@
 """Register the traceability tags as pytest marks.
 
 `compass bdd extract` tags every scenario with its traceability id (`@TRC-A1`),
-which is what lets a per-scenario runner result map back to `task.yml`.
+which is what lets a per-scenario runner result map back to `manifest.yml`.
 pytest-bdd turns each tag into a pytest mark - and pytest warns about any mark
 it has not been told about, so without this an adopter's first green run is
 buried in `PytestUnknownMarkWarning` noise.

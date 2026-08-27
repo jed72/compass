@@ -56,15 +56,15 @@ def _sandbox(landed_only=True):
     (tmp / ".compass" / "work").mkdir(parents=True)
     if WORK.is_dir():
         for t in WORK.iterdir():
-            if (t / "task.yml").is_file():
+            if (t / "manifest.yml").is_file():
                 shutil.copytree(t, tmp / ".compass" / "work" / t.name)
     return tmp
 
 
 def _landed_slugs(work):
     out = set()
-    for t in sorted(p for p in work.iterdir() if (p / "task.yml").is_file()):
-        d = yaml.safe_load((t / "task.yml").read_text()) or {}
+    for t in sorted(p for p in work.iterdir() if (p / "manifest.yml").is_file()):
+        d = yaml.safe_load((t / "manifest.yml").read_text()) or {}
         if d.get("status") == "landed" and (d.get("scenarios") or []):
             out.add(t.name)
     return out
@@ -104,7 +104,7 @@ def _archive_present():
     first version of this test failed every clean clone.
     """
     return WORK.is_dir() and any(
-        (p / "task.yml").is_file() for p in WORK.iterdir() if p.is_dir())
+        (p / "manifest.yml").is_file() for p in WORK.iterdir() if p.is_dir())
 
 
 def test_trc_a2_a_current_derived_spec_should_pass():

@@ -65,12 +65,12 @@ project line coverage                85%   (floor: 80% - met)
 | Dimension | Applies on this approach? | Result | Evidence |
 |---|---|---|---|
 | correctness | always | PASS | All six scenarios in §1 pass - per-stream and combined. |
-| governance | always | PASS | `G1`: every scenario has a passing test it traces to (§2). `G2`: all six stated and the requirements review-closed before Build. `G3`: see traceability. `G4`: every gate below has a resolving evidence pointer. **`G5`: GREEN** - `migrations/0042` signed off by L. Haddad (eng lead) before ship, recorded in `task.yml` `approvals:`; forward and rollback paths reviewed. `S2` red-before-green followed in both worktrees. |
+| governance | always | PASS | `G1`: every scenario has a passing test it traces to (§2). `G2`: all six stated and the requirements review-closed before Build. `G3`: see traceability. `G4`: every gate below has a resolving evidence pointer. **`G5`: GREEN** - `migrations/0042` signed off by L. Haddad (eng lead) before ship, recorded in `manifest.yml` `approvals:`; forward and rollback paths reviewed. `S2` red-before-green followed in both worktrees. |
 | traceability | always | PASS | All five `changed_files` trace to scenario ids; every scenario traces to INT-1/2/3; `compass check` confirms every chain. |
 | regression | yes | PASS | The combined run in §2 - 65 pre-existing tests still green alongside the 6 new ones. |
 | security | full | PASS | Full pass, not scaled - greenfield code with a new table. Reviewed: the migration adds no PII column; `api.py` endpoints are tenant-scoped and a user can only read their own notifications; the idempotency key is server-trusted only for dedup, not authorization; the security-category override (DD-1) cannot be disabled by user input. No injection surface in the dispatch path. |
 | clarity | yes | PASS | Four focused modules, one responsibility each; `technical-design.md` DD-1/2/3 record the three non-obvious choices (fixed security category, once-ever dedup, write-before-deliver durability) for a future reader. The two-stream split is documented in `distribution-map.md`. |
-| claims | yes (in initiative's shape) | PASS | No product-marketer was in play - there are no public claims to back, and `task.yml` `claims:` is empty. The gate exists in initiative's set and is satisfied trivially: `compass check`'s claim-traces-to-scenario passes because there is nothing unbacked. The external launch is a separate later issue. |
+| claims | yes (in initiative's shape) | PASS | No product-marketer was in play - there are no public claims to back, and `manifest.yml` `claims:` is empty. The gate exists in initiative's set and is satisfied trivially: `compass check`'s claim-traces-to-scenario passes because there is nothing unbacked. The external launch is a separate later issue. |
 
 ## 4. Gate decision
 
@@ -102,6 +102,6 @@ project line coverage                85%   (floor: 80% - met)
 - [x] **No lint / format / type errors** - `ruff check src/notifications/` and `mypy src/notifications/` clean (run logged in `devlog.md`).
 - [x] **Traceability intact** - code → scenario → intent holds across both streams; no claims (no marketer).
 - [x] *(carried to ship)* Living docs updated to match reality - a new "Notifications" page in the architecture docs; the event-producer contract documented.
-- [x] *(carried to ship)* Every outstanding follow-up resolved - none outstanding (initiative's de-scope ledger is empty). `G5` sign-off on the migration is on record in `task.yml` `approvals:`.
+- [x] *(carried to ship)* Every outstanding follow-up resolved - none outstanding (initiative's de-scope ledger is empty). `G5` sign-off on the migration is on record in `manifest.yml` `approvals:`.
 
 Next stage: **ship** (`/compass:ship`) - orchestrated merge, then close.

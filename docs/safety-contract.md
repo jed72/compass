@@ -182,7 +182,7 @@ project guardrails, provided they preserve this contract.
 | 4 (spike containment) | Routing conflict checks and spike invariants |
 | 5 (human approval) | Structured `human-approval` evidence validated before ship |
 | 6 (process-integrity CI) | `compass ci` |
-| 7 (resumable state) | the issue spine (`templates/task.yml`), its artefacts and evidence under `.compass/` |
+| 7 (resumable state) | the manifest (`templates/manifest.yml`), its artefacts and evidence under `.compass/` |
 
 ## What adopters still own
 

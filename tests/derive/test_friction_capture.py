@@ -2,7 +2,7 @@
 
 Covers TRC-A2..A5 - Land assembles a draft `friction:` list from signals the
 CLI already computes (reframes, reframe-debt) plus an optional human note, and
-writes it into the task spine. Capture is mechanism; the human note is the only
+writes it into the task manifest. Capture is mechanism; the human note is the only
 judgement input (ADR-001). It writes the friction section and nothing that
 gates (no backfill, no gate).
 
@@ -61,7 +61,7 @@ def test_reframe_seeds_misroute_friction(run_cli, make_task, project):
     r = _capture(run_cli, "ft-reframe")
     assert r.returncode == 0, r
 
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     friction = task.get("friction") or []
     assert friction, "expected a derived friction entry from the reframe"
     e = next(x for x in friction if x["source"] == "derived")
@@ -82,7 +82,7 @@ def test_reframe_debt_seeds_derived_friction(run_cli, make_task, project):
     r = _capture(run_cli, "ft-debt")
     assert r.returncode == 0, r
 
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     friction = task.get("friction") or []
     assert any(x["source"] == "derived" for x in friction), (
         f"expected a derived friction entry from reframe-debt; got {friction}")
@@ -104,7 +104,7 @@ def test_human_note_recorded(run_cli, make_task, project):
                  "--note-category", "tooling", "--note-phase", "build")
     assert r.returncode == 0, r
 
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     friction = task.get("friction") or []
     human = [x for x in friction if x["source"] == "human"]
     derived = [x for x in friction if x["source"] == "derived"]
@@ -122,7 +122,7 @@ def test_no_friction_lands_unchanged(run_cli, make_task, project):
     r = _capture(run_cli, "ft-none")
     assert r.returncode == 0, r
 
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     # Either no friction key, or an empty list - both are valid no-op states.
     assert not task.get("friction"), (
         f"expected no friction recorded; got {task.get('friction')}")
@@ -145,7 +145,7 @@ def test_capture_adds_no_backfill_or_gate(run_cli, make_task, project):
     r = _capture(run_cli, "ft-nogate")
     assert r.returncode == 0, r
 
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert task.get("friction"), "expected friction to be recorded"
     assert not task.get("follow_ups"), "capture must not add a backfill"
     assert not task.get("gates"), "capture must not add a gate"

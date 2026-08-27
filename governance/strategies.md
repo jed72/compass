@@ -231,7 +231,7 @@ sentence that only restates the one before it.
 **No agent co-author trailer.** Commit messages and pull-request bodies never
 carry a `Co-Authored-By:` line naming an agent, and never a "Generated with"
 footer. The human author owns the change; what typed it is not part of the
-permanent record. `devlog.md` and `task.yml` already hold the provenance that
+permanent record. `devlog.md` and `manifest.yml` already hold the provenance that
 matters, in a form the framework can read.
 
 *Why a strategy and not a guardrail:* clarity is judgement. No mechanical check
@@ -326,12 +326,12 @@ moved number forces a false choice - falsify a record to keep it consistent with
 today, or leave a false claim standing because rewriting felt dishonest.
 
 - **A record of what happened keeps its number and gains a note.** A devlog
-  entry, a dry-run result, a captured command output, an archived spine. These
+  entry, a dry-run result, a captured command output, an archived manifest. These
   say what was observed at a moment. Rewriting one falsifies it: it becomes a
   transcript of something that did not happen. Annotate instead - what the figure
   was, that it has since moved, and that nothing should be quoted from there.
 - **A claim about what is true gets corrected.** A published document, a caption,
-  a README line, a registered claim in a spine. These assert something about the
+  a README line, a registered claim in a manifest. These assert something about the
   present tense. Annotating one leaves it false, and the annotation is not
   travelling with the sentence when someone quotes it.
 
@@ -701,7 +701,7 @@ at the point of use.*
 
 **A worked instance.** A findings report from the lead listed five identifiers
 the receipt printed "with nothing beside them". Rendering a receipt from a
-reconstructed spine took one command. Two of the five already printed their
+reconstructed manifest took one command. Two of the five already printed their
 meaning, and the genuinely broken case - evidence ids truncated mid-token, so
 they could not be matched to the entry defining them eight lines below - was
 not on the list at all.
@@ -760,7 +760,7 @@ conventions this repository holds itself to.
 
 The first two are checked by `tests/test_house_style.py`, and all three are strategies
 rather than guardrails. What separates them is *what the check protects*. The
-checks in `guardrails.yml` run against an adopting project's `task.yml` and
+checks in `guardrails.yml` run against an adopting project's `manifest.yml` and
 `evidence/`, and can block a ship. `tests/test_house_style.py` is one of this
 repository's own source invariants, alongside `test_release_invariants.py`. It
 never runs in an adopting project and never touches a gate. A style rule is a
