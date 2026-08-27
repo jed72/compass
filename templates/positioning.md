@@ -15,7 +15,7 @@ scenario backs the claim yet - an empty slot is a visible debt, which is
 the point.
 -->
 
-# Positioning - {{TASK_SLUG}}
+# Positioning - {{ISSUE_SLUG}}
 
 > **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
 > **Governance owner check:** consistent with the voice & positioning strategies in `governance/strategies.md`.

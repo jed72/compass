@@ -12,7 +12,7 @@ Fill every {{PLACEHOLDER}}. Keep it in the product owner's language, not
 engineering's - do not pre-solve the problem here.
 -->
 
-# Brief - {{TASK_SLUG}}
+# Brief - {{ISSUE_SLUG}}
 
 > **Author:** {{PRODUCT OWNER / MANAGER NAME}} · **Date:** {{DATE}}
 > **Governance owner check:** this brief should be consistent with the

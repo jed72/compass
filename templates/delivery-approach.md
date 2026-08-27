@@ -16,7 +16,7 @@ assessment - ask the human instead. A stage with no "safe to skip because…"
 line is not skippable - it runs.
 -->
 
-# Delivery approach - {{TASK_SLUG}}
+# Delivery approach - {{ISSUE_SLUG}}
 
 > **Issue:** {{ONE-LINE DESCRIPTION AS INVOKED}}
 > **Triaged:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first triage; bump on `--reassess`)

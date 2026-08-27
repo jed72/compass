@@ -350,3 +350,35 @@ def test_nir_d4_no_module_opens_the_manifest_by_a_hard_coded_name():
         "has not run `compass migrate` gets 'not found' instead of its file. "
         "Call manifest_path(dir) - it tries the current name, then the "
         "retired one:\n  " + "\n  ".join(offenders[:10]))
+
+
+def test_nir_c1c_the_shipped_template_writes_the_current_root_key():
+    """A new issue is born current, not born needing migration.
+
+    templates/manifest.yml is what every issue's record is copied from. It kept
+    the retired root key after the rename, so `compass approach evaluate` read a
+    fresh manifest through the compatibility map that exists for records written
+    years ago. That works, and it is still wrong: the retired key would keep
+    entering the tree, and the migration would never be finished.
+
+    The placeholder is checked with it. A template that says {{TASK_SLUG}} while
+    the key says `issue` teaches the old word in the one file an author copies.
+    """
+    template = ROOT / "templates" / "manifest.yml"
+    data = yaml.safe_load(template.read_text(encoding="utf-8"))
+    assert "issue" in data, (
+        f"{template.relative_to(ROOT)} has no `issue:` root key - every issue "
+        f"copied from it is created under the retired name. Keys: {sorted(data)[:8]}")
+    assert "task" not in data, (
+        f"{template.relative_to(ROOT)} still carries the retired `task:` root "
+        f"key, so a fresh issue is created already needing `compass migrate`")
+
+    stray = sorted(
+        p.relative_to(ROOT) for p in ROOT.rglob("*")
+        if p.is_file() and p.suffix in {".md", ".yml"}
+        and ".git" not in p.parts and ".compass" not in p.parts
+        and "{{TASK" + "_SLUG}}" in p.read_text(encoding="utf-8", errors="replace"))
+    assert not stray, (
+        "these still use the retired slug placeholder, which is the word an "
+        f"author copies out of the template:\n  " +
+        "\n  ".join(str(s) for s in stray[:10]))

@@ -14,7 +14,7 @@ Fill every {{PLACEHOLDER}}. Every pass needs evidence attached - an empty
 evidence block is an automatic fail.
 -->
 
-# Verification Report - {{TASK_SLUG}}
+# Verification Report - {{ISSUE_SLUG}}
 
 > **Stage:** test & review · **Date:** {{DATE}} · **Owning role:** QA
 > **Agents:** `verifier`, `reviewer`{{, `marketing-lens` if the claims dimension applies}}

@@ -13,7 +13,7 @@ Fill every {{PLACEHOLDER}}. A claim with no passing scenario is a no-go,
 full stop - ship refuses to close on it.
 -->
 
-# Launch Readiness - {{TASK_SLUG}}
+# Launch Readiness - {{ISSUE_SLUG}}
 
 > **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
 > **Reads from:** positioning.md (the claims), verification-report.md (the scenario results)

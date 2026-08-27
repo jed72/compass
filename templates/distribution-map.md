@@ -16,7 +16,7 @@ scenario groups (see the worktree-swarm skill).
 Fill every {{PLACEHOLDER}}.
 -->
 
-# Distribution Map - {{TASK_SLUG}}
+# Distribution Map - {{ISSUE_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** technical-design.md §4, acceptance-criteria.md
 > **Consumed by:** breakdown, `scripts/swarm.sh`, the `orchestrator` agent

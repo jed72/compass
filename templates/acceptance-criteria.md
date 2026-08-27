@@ -18,7 +18,7 @@ Fill every {{PLACEHOLDER}}. Keep the Gherkin clean: one behaviour per
 scenario, concrete Given/When/Then, no implementation detail.
 -->
 
-# Spec - {{TASK_SLUG}}
+# Spec - {{ISSUE_SLUG}}
 
 > **Phase:** define · **Last updated:** {{DATE}} · **Owning agent:** spec-author
 > **Familiarity:** {{greenfield discovery \| existing behaviour distilled first, then new scenarios}}

@@ -14,7 +14,7 @@ bottom. One entry per stage transition or notable event. Keep each entry
 short - what happened, evidence pointer, what's next.
 -->
 
-# Devlog - {{TASK_SLUG}}
+# Devlog - {{ISSUE_SLUG}}
 
 > **Issue:** {{ONE-LINE DESCRIPTION}} · **Opened:** {{DATE}}
 > Append-only. Newest at the bottom.

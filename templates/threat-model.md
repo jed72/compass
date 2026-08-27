@@ -26,7 +26,7 @@ done once at the start and never again. Re-run this when the design changes.
 Keep it under 120 lines. Delete this comment block when you fill it in.
 -->
 
-# Threat model - {{TASK_SLUG}}
+# Threat model - {{ISSUE_SLUG}}
 
 > **Date:** {{DATE}} · **Present:** {{who was in the room}}
 > **Triggered by:** {{the label that earned it - auth | payments | personal-data}}

@@ -13,7 +13,7 @@ Fill every {{PLACEHOLDER}}. Write behaviour as scenarios - the same Gherkin
 shape the spec uses - so the handoff into the define stage is mechanical.
 -->
 
-# UI Contract - {{TASK_SLUG}}
+# UI Contract - {{ISSUE_SLUG}}
 
 > **Author:** {{DESIGNER NAME}} · **Date:** {{DATE}}
 > **Feeds into:** acceptance-criteria.md (the scenarios below become spec scenarios)
