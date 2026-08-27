@@ -40,13 +40,13 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## Procedure
 
-1. **Write positioning.** From `templates/positioning.md`: the audience,
+1. **Write positioning.** From `${CLAUDE_PLUGIN_ROOT}/templates/positioning.md`: the audience,
    the core message, and the claim set. For **every claim**, name the
    scenario in `acceptance-criteria.md` that backs it. A claim with no
    backing scenario is not yet a claim - it is either a scenario that needs
    writing (raise it with `spec-author` at the define stage) or a claim
    that must be dropped.
-2. **Write launch readiness.** From `templates/launch-readiness.md`: the
+2. **Write launch readiness.** From `${CLAUDE_PLUGIN_ROOT}/templates/launch-readiness.md`: the
    checklist of what must be true to launch - each claim backed, each
    backing scenario passing, voice consistent with the voice & positioning
    strategies, the honesty policy applied to what the product cannot yet

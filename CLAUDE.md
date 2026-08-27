@@ -1,5 +1,11 @@
 # Compass - Operating Instructions for Claude Code
 
+**The rules of behaviour are in `compass-contract.md`**, which the SessionStart
+hook puts into every session in a Compass project. This file is the Claude Code
+adapter: what is specific to running Compass in this repository, on top of that
+contract. Where the two would say the same thing, this file points instead.
+
+
 You are running inside a project that uses **Compass**, an adaptive
 spec-driven development framework. This file tells you how to behave. It is
 loaded on every session.
@@ -184,32 +190,11 @@ inferred from artifacts on disk).
 
 ## Choosing agents and skills
 
-- During **triage**, load the `adaptive-routing` skill and consider the
-  `navigator` agent.
-- While **defining acceptance criteria** and in **requirements review**,
-  load `bdd-specification`; on brownfield work whose behaviour is not yet
-  written down, also load `blueprint-distillation`. The `spec-author` agent
-  owns these stages.
-- During **design**, load `plan-authoring` (which optional design sections
-  earn a place, and how they scale) and `governance-check` (how to check
-  the finished design against `governance/`). The `planner` agent owns this.
-- When **breaking down and implementing in parallel**, load
-  `worktree-swarm`. The `orchestrator` agent coordinates; `builder` agents
-  do the work, one per worktree. Each builder loads `tdd-discipline`.
-- During **test & review**, the `verifier` and `reviewer` agents run; load
-  `evidence-gates`. Load `receiving-code-review` when answering their
-  comments.
-- On an **unexpected test failure** while implementing, load
-  `systematic-debugging` - and after three failed fixes, re-assess rather
-  than attempt a fourth.
-- For any role-facing work, load `role-translation` - it is how one set of
-  acceptance criteria is read through five role perspectives. The
-  `product-lens`, `marketing-lens`, and `architect-lens` agents apply
-  specific perspectives. The `architect-lens` reads the project's
-  `architecture/` artifacts and writes `architecture-notes.md` in the issue
-  directory; `spec-author` and `planner` consult those notes rather than
-  re-invoking it.
-- `traceability` is loaded whenever an artifact is written.
+Which agent owns which stage, and which skill to load with it, is the
+`compass-runtime` skill's table - `skills/compass-runtime/SKILL.md`. It also
+carries the stage-to-command map and the shape of an issue directory on disk.
+Read it there rather than here: this file used to restate it, and the two
+drifted until one of them was naming nine agents where the other named ten.
 
 ## Roles
 
@@ -222,11 +207,9 @@ criteria, and the criteria must be checked back against it.
 
 ## Worktrees and swarms
 
-Only the `orchestrator` agent creates worktrees (`scripts/swarm.sh`) and
-integrates them (`scripts/integrate.sh`). A `builder` agent works *inside*
-an assigned worktree and never touches a sibling's. The delivery approach's
-distribution map says how many streams exist; policy can cap the count. If
-the approach is solo, there is no worktree - work on the current branch.
+Worktree rules - who may create one, who works inside one, and how the stream
+count is bounded - are in the `compass-runtime` skill and in the
+`worktree-swarm` skill that the orchestrator loads.
 
 ## Where state lives
 

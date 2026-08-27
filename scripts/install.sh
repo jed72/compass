@@ -124,14 +124,22 @@ ensure_settings() {
   [ -f "$SETTINGS" ] || echo '{}' > "$SETTINGS"
 }
 
-# --- helper: register the three hooks in settings.json ----------------------
-# Compass needs PreToolUse (pre-tool.sh), PostToolUse (post-tool.sh), and Stop
-# (stop.sh). We splice them in with jq, keyed so re-running does not duplicate.
+# --- helper: register the four hooks in settings.json -----------------------
+# Compass needs PreToolUse (pre-tool.sh), PostToolUse (post-tool.sh), Stop
+# (stop.sh) and SessionStart (session-start.sh). We splice them in with jq,
+# keyed so re-running does not duplicate.
+#
+# The matchers must match hooks/hooks.json, which is what a plugin install
+# gets. They did not: this registered Edit|Write|MultiEdit while the plugin
+# registered Bash as well, so a source install had NO shell-write enforcement
+# at all - `sed -i` and `>` redirects went unchecked. MultiEdit is no longer a
+# Claude Code tool and is gone from both.
 register_hooks() {
   ensure_settings
   local pre="$COMPASS_HOME/hooks/pre-tool.sh"
   local post="$COMPASS_HOME/hooks/post-tool.sh"
   local stop="$COMPASS_HOME/hooks/stop.sh"
+  local session="$COMPASS_HOME/hooks/session-start.sh"
 
   if ! command -v jq >/dev/null 2>&1; then
     echo ""
@@ -139,11 +147,13 @@ register_hooks() {
     echo "        Add these to $SETTINGS by hand:"
     cat <<EOF
         "hooks": {
-          "PreToolUse":  [ { "matcher": "Edit|Write|MultiEdit",
+          "PreToolUse":  [ { "matcher": "Edit|Write|Bash",
                              "hooks": [ { "type": "command", "command": "$pre" } ] } ],
-          "PostToolUse": [ { "matcher": "Edit|Write|MultiEdit",
+          "PostToolUse": [ { "matcher": "Edit|Write",
                              "hooks": [ { "type": "command", "command": "$post" } ] } ],
-          "Stop":        [ { "hooks": [ { "type": "command", "command": "$stop" } ] } ]
+          "Stop":        [ { "hooks": [ { "type": "command", "command": "$stop" } ] } ],
+          "SessionStart": [ { "matcher": "startup|clear|compact",
+                             "hooks": [ { "type": "command", "command": "$session" } ] } ]
         }
 EOF
     return 0
@@ -155,20 +165,22 @@ EOF
   local tmp
   tmp="$(mktemp)"
   jq \
-    --arg pre "$pre" --arg post "$post" --arg stop "$stop" '
+    --arg pre "$pre" --arg post "$post" --arg stop "$stop" --arg session "$session" '
     # drop any prior Compass entries so re-running does not duplicate
     def notcompass($paths): [ .hooks[]?.command ] as $cmds
       | ($cmds | map(. as $c | $paths | index($c)) | all(. == null));
     .hooks //= {} |
     .hooks.PreToolUse  = ( (.hooks.PreToolUse  // []) | map(select(notcompass([$pre])))  )
-      + [ { matcher: "Edit|Write|MultiEdit", hooks: [ { type: "command", command: $pre } ] } ] |
+      + [ { matcher: "Edit|Write|Bash", hooks: [ { type: "command", command: $pre } ] } ] |
     .hooks.PostToolUse = ( (.hooks.PostToolUse // []) | map(select(notcompass([$post]))) )
-      + [ { matcher: "Edit|Write|MultiEdit", hooks: [ { type: "command", command: $post } ] } ] |
+      + [ { matcher: "Edit|Write", hooks: [ { type: "command", command: $post } ] } ] |
     .hooks.Stop        = ( (.hooks.Stop        // []) | map(select(notcompass([$stop]))) )
-      + [ { hooks: [ { type: "command", command: $stop } ] } ]
+      + [ { hooks: [ { type: "command", command: $stop } ] } ] |
+    .hooks.SessionStart = ( (.hooks.SessionStart // []) | map(select(notcompass([$session]))) )
+      + [ { matcher: "startup|clear|compact", hooks: [ { type: "command", command: $session } ] } ]
   ' "$SETTINGS" > "$tmp"
   mv "$tmp" "$SETTINGS"
-  echo "  registered hooks in $SETTINGS (PreToolUse, PostToolUse, Stop)"
+  echo "  registered hooks in $SETTINGS (PreToolUse, PostToolUse, Stop, SessionStart)"
 }
 
 unregister_hooks() {
@@ -177,13 +189,15 @@ unregister_hooks() {
   local pre="$COMPASS_HOME/hooks/pre-tool.sh"
   local post="$COMPASS_HOME/hooks/post-tool.sh"
   local stop="$COMPASS_HOME/hooks/stop.sh"
+  local session="$COMPASS_HOME/hooks/session-start.sh"
   local tmp; tmp="$(mktemp)"
-  jq --arg pre "$pre" --arg post "$post" --arg stop "$stop" '
+  jq --arg pre "$pre" --arg post "$post" --arg stop "$stop" --arg session "$session" '
     def strip($p): map(select(([ .hooks[]?.command ] | index($p)) == null));
     if .hooks then
-      .hooks.PreToolUse  = ((.hooks.PreToolUse  // []) | strip($pre)) |
-      .hooks.PostToolUse = ((.hooks.PostToolUse // []) | strip($post)) |
-      .hooks.Stop        = ((.hooks.Stop        // []) | strip($stop))
+      .hooks.PreToolUse   = ((.hooks.PreToolUse   // []) | strip($pre)) |
+      .hooks.PostToolUse  = ((.hooks.PostToolUse  // []) | strip($post)) |
+      .hooks.Stop         = ((.hooks.Stop         // []) | strip($stop)) |
+      .hooks.SessionStart = ((.hooks.SessionStart // []) | strip($session))
     else . end
   ' "$SETTINGS" > "$tmp"
   mv "$tmp" "$SETTINGS"

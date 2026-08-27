@@ -41,7 +41,7 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## Procedure
 
-1. **Write the UI contract as scenarios.** From `templates/ui-contract.md`,
+1. **Write the UI contract as scenarios.** From `${CLAUDE_PLUGIN_ROOT}/templates/ui-contract.md`,
    capture each interaction as Given/When/Then: the state the user is in,
    the action they take, the observable result. Cover the empty state, the
    loading state, the error state, and the accessibility expectations - not

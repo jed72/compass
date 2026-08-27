@@ -38,7 +38,7 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## Procedure
 
-1. **Write the intent.** From `templates/intent.md`, capture:
+1. **Write the intent.** From `${CLAUDE_PLUGIN_ROOT}/templates/intent.md`, capture:
    - **Problem** - what is wrong or missing today, for whom.
    - **Outcome** - the change in the user's world this should create. Not
      the feature; the result.

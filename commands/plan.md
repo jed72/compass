@@ -52,7 +52,7 @@ now says it too.)
    solo, the map records what *could* have been parallel and why it wasn't.
    Stream count comes from the map; topology thresholds from
    `.compass/config.yml`; a policy cap can bound the count.
-4. **Write `technical-design.md`** from `templates/technical-design.md` (and
+4. **Write `technical-design.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md` (and
    `distribution-map.md` from its template when applicable) into
    `.compass/work/<task-slug>/`.
 
