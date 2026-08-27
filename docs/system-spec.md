@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the name needs no gloss
+### no document says a shipped rename is still pending
 
-- **Scenario id:** `NIR-A2`
+- **Scenario id:** `VOC-B1`
 - **Intent:** `INT-1`
-- **Source issue:** `name-the-issue-record`
+- **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,18 +43,18 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the freeze ceremony is paid
+### the deep dive does not claim scoped gates are immovable
 
-- **Scenario id:** `NIR-E1`
+- **Scenario id:** `VOC-C2`
 - **Intent:** `INT-2`
-- **Source issue:** `name-the-issue-record`
+- **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
 
-### the migrator moves the archive
+### project governance still wins where a project has its own
 
-- **Scenario id:** `NIR-D2`
+- **Scenario id:** `SB-C2`
 - **Intent:** `INT-3`
-- **Source issue:** `name-the-issue-record`
+- **Source issue:** `session-bootstrap`
 - **Landed:** 2026-08-27
 
 ### a URL that is not https is refused
@@ -6783,6 +6783,13 @@
 - **Source issue:** `name-the-issue-record`
 - **Landed:** 2026-08-27
 
+### the name needs no gloss _(archived)_
+
+- **Scenario id:** `NIR-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
 ### no live surface carries the retired word _(archived)_
 
 - **Scenario id:** `NIR-B1`
@@ -6809,4 +6816,172 @@
 - **Scenario id:** `NIR-D1`
 - **Intent:** `INT-3`
 - **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### the migrator moves the archive _(archived)_
+
+- **Scenario id:** `NIR-D2`
+- **Intent:** `INT-3`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### the freeze ceremony is paid _(archived)_
+
+- **Scenario id:** `NIR-E1`
+- **Intent:** `INT-2`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### the resident cost is bounded _(archived)_
+
+- **Scenario id:** `IV-A1`
+- **Intent:** `INT-2`
+- **Source issue:** `instruction-volume`
+- **Landed:** 2026-08-27
+
+### a quick fix reads what a quick fix needs _(archived)_
+
+- **Scenario id:** `IV-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `instruction-volume`
+- **Landed:** 2026-08-27
+
+### strategies is not in the per-issue read _(archived)_
+
+- **Scenario id:** `IV-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `instruction-volume`
+- **Landed:** 2026-08-27
+
+### no skill loads whole to answer one question _(archived)_
+
+- **Scenario id:** `IV-C1`
+- **Intent:** `INT-2`
+- **Source issue:** `instruction-volume`
+- **Landed:** 2026-08-27
+
+### a split skill says where its parts are _(archived)_
+
+- **Scenario id:** `IV-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `instruction-volume`
+- **Landed:** 2026-08-27
+
+### every frontmatter parses _(archived)_
+
+- **Scenario id:** `IV-D1`
+- **Intent:** `INT-3`
+- **Source issue:** `instruction-volume`
+- **Landed:** 2026-08-27
+
+### a session in a Compass project starts with the contract _(archived)_
+
+- **Scenario id:** `SB-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the contract is short enough to always carry _(archived)_
+
+- **Scenario id:** `SB-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the contract is silent outside a Compass project _(archived)_
+
+- **Scenario id:** `SB-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the contract exists once _(archived)_
+
+- **Scenario id:** `SB-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the two Claude Code documents share no sentence _(archived)_
+
+- **Scenario id:** `SB-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the runtime-neutral document is left alone _(archived)_
+
+- **Scenario id:** `SB-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the contract names every agent that exists _(archived)_
+
+- **Scenario id:** `SB-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### plugin-shipped paths resolve from any directory _(archived)_
+
+- **Scenario id:** `SB-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### a source install registers the same hook _(archived)_
+
+- **Scenario id:** `SB-D1`
+- **Intent:** `INT-1`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### the portability mapping names the new adapter feature _(archived)_
+
+- **Scenario id:** `SB-D2`
+- **Intent:** `INT-1`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### a source install enforces what the plugin enforces _(archived)_
+
+- **Scenario id:** `SB-D3`
+- **Intent:** `INT-1`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
+### an exemption carries its reason _(archived)_
+
+- **Scenario id:** `VGH-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-cannot-see-a-historical-version`
+- **Landed:** 2026-08-27
+
+### the exemption list cannot grow quietly _(archived)_
+
+- **Scenario id:** `VGH-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-cannot-see-a-historical-version`
+- **Landed:** 2026-08-27
+
+### the historical reference is exempt and still says 3.3.0 _(archived)_
+
+- **Scenario id:** `VGH-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `version-guard-cannot-see-a-historical-version`
+- **Landed:** 2026-08-27
+
+### every file the approaches index names exists _(archived)_
+
+- **Scenario id:** `VOC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `vocabulary-debt`
+- **Landed:** 2026-08-27
+
+### the deep dive names the gates the policy staples _(archived)_
+
+- **Scenario id:** `VOC-C1`
+- **Intent:** `INT-2`
+- **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
