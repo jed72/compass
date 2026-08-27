@@ -28,6 +28,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from conftest import write_red_record
+
 
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
@@ -152,7 +154,7 @@ def test_allows_when_route_md_present_and_red_marker():
         task_dir = _make_compass_project(project, slug, with_route_md=True)
 
         # Drop the .red marker so the hook's green path is satisfied
-        (task_dir / ".red").write_text("", encoding="utf-8")
+        write_red_record(task_dir)
 
         target = str(project / "src" / "app.py")
         payload = _tool_call_json(target, tool_name="Edit")
@@ -232,7 +234,7 @@ def test_verified_by_red_allows_edit():
     project = _fresh_project_dir()
     try:
         task_dir = _make_compass_project(project, "wire-ok", with_route_md=True)
-        (task_dir / ".red").write_text("")   # a verified-by red drops this marker
+        write_red_record(task_dir)   # a verified-by red drops this marker
         target = str(project / "src" / "app.py")
         result = subprocess.run(
             ["bash", str(HOOK_PATH)],

@@ -24,6 +24,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import write_red_record
+
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 HOOK_PATH = FRAMEWORK_ROOT / "hooks" / "pre-tool.sh"
 HOOKS_JSON = FRAMEWORK_ROOT / "hooks" / "hooks.json"
@@ -48,7 +50,7 @@ def _project(slug: str = "framed", *, route: bool = True, red: bool = False,
     if route:
         (task_dir / "delivery-approach.md").write_text("# Route\n\nroute: standard\n", encoding="utf-8")
     if red:
-        (task_dir / ".red").write_text("", encoding="utf-8")
+        write_red_record(task_dir)
     if spike:
         (task_dir / ".spike").write_text("", encoding="utf-8")
     return root, task_dir

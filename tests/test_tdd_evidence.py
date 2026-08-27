@@ -9,6 +9,8 @@ import shutil
 import sys
 
 import pytest
+
+from conftest import write_red_record
 import yaml
 
 _BASH = shutil.which("bash")
@@ -107,7 +109,10 @@ def test_tdd_red_records_red_on_real_failure(run_cli, make_task, project):
 
 
 def test_tdd_green_refuses_a_failing_command(run_cli, make_task):
-    make_task("tdd-honest-green", _baseline_body())
+    # A red on record, so the run reaches the command-failure path rather than
+    # being refused earlier for having no red to be the other half of.
+    task_dir = make_task("tdd-honest-green", _baseline_body())
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "tdd-honest-green",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(1)")
@@ -121,6 +126,7 @@ def test_tdd_green_refuses_a_failing_command(run_cli, make_task):
 
 def test_tdd_green_upserts_test_run_in_registry(run_cli, make_task, project):
     task_dir = make_task("tdd-upsert", _baseline_body())
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "tdd-upsert",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
@@ -138,6 +144,7 @@ def test_tdd_green_upsert_is_idempotent_for_same_scenario(run_cli, make_task,
     existing entry, not append a new one."""
     task_dir = make_task("tdd-idem", _baseline_body())
     for _ in range(2):
+        write_red_record(task_dir, "SCN-001")
         r = run_cli("tdd-green", "--issue", "tdd-idem",
                     "--scenario", "SCN-001",
                     "--", sys.executable, "-c", "import sys; sys.exit(0)")
@@ -151,6 +158,7 @@ def test_tdd_green_clears_red_marker(run_cli, make_task, project):
     task_dir = make_task("tdd-clear", _baseline_body())
     # leave a stale .red on disk first
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "tdd-clear",
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
@@ -206,6 +214,7 @@ def test_pipe_masking_records_false_green_baseline(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-mask", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r2-mask", "--scenario", "SCN-001",
                 "--", "bash", "-c", "exit 1 | tail -1")
     assert r.returncode != 0, r              # refused - not a false green
@@ -219,6 +228,7 @@ def test_pipefail_propagates_masked_failure(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-pf", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r2-pf", "--scenario", "SCN-001",
                 "--", "bash", "-c", "exit 1 | tail -1")
     assert r.returncode != 0, r
@@ -233,6 +243,7 @@ def test_direct_argv_green_unchanged(run_cli, make_task):
     (the hardening must not touch the default shell=False path)."""
     task_dir = make_task("r2-direct", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r2-direct", "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
@@ -248,6 +259,7 @@ def test_pipe_filter_final_stage_warns(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-warn", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r2-warn", "--scenario", "SCN-001",
                 "--", "bash", "-c", "echo hi | tail")
     combined = (r.stdout + r.stderr).lower()
@@ -261,6 +273,7 @@ def test_output_token_crosscheck_on_known_runner(run_cli, make_task):
         pytest.skip("bash not available")
     task_dir = make_task("r2-token", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r2-token", "--scenario", "SCN-001",
                 "--", "bash", "-c", "echo '1 failed in 0.10s'; exit 0")
     assert r.returncode != 0, r              # not a silent clean green
@@ -294,6 +307,7 @@ def test_coverage_floor_refuses_micro_run_baseline(run_cli, make_task):
 
     task_dir = make_task("r7-base", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r7-base", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
@@ -311,6 +325,7 @@ def test_micro_run_neutralises_coverage_floor(run_cli, make_task):
     """TRC-R7-2: a passing pytest micro-run records green with the floor neutralised."""
     task_dir = make_task("r7-neut", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r7-neut", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version")
     assert r.returncode == 0, r
@@ -322,6 +337,7 @@ def test_full_suite_coverage_gate_unaffected(run_cli, make_task):
     the full-suite gate's floor is respected."""
     task_dir = make_task("r7-full", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r7-full", "--scenario", "SCN-001",
                 "--", sys.executable, "-m", "pytest", "--version", "--cov-fail-under=85")
     assert r.returncode == 0, r
@@ -333,6 +349,7 @@ def test_non_pytest_micro_run_untouched(run_cli, make_task):
     """TRC-R7-4: a non-pytest command gets no coverage injection."""
     task_dir = make_task("r7-nonpy", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r7-nonpy", "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
@@ -346,6 +363,7 @@ def test_test_micro_command_knob_precedence(run_cli, make_task, project):
     (task_dir / ".red").write_text("")
     (project / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\nproject:\n  test_micro_command: \"true\"\n")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r7-knob", "--scenario", "SCN-001")
     assert r.returncode == 0, r
     assert json.loads((_rec(task_dir, "green")).read_text())["command"] == "true", r
@@ -372,6 +390,7 @@ def test_verified_by_guard_bound_to_scenario_at_verify(run_cli, make_task):
     guard to the scenario in the registry."""
     task_dir = make_task("r8-bind", _r2_body())
     (task_dir / ".red").write_text("")
+    write_red_record(task_dir, "SCN-001")
     r = run_cli("tdd-green", "--issue", "r8-bind", "--scenario", "SCN-001",
                 "--verified-by", "typecheck", "--", "true")
     assert r.returncode == 0, r

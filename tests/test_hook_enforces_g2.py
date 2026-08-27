@@ -27,6 +27,8 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
+from conftest import write_red_record
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -41,7 +43,7 @@ def _project(*, specify="full", scenarios=0, red=True, spike=False,
     (root / ".compass" / "current-task").write_text("t\n")
     (task_dir / "delivery-approach.md").write_text("# Route\n")
     if red:
-        (task_dir / ".red").write_text("")
+        write_red_record(task_dir)
     if spike:
         (task_dir / ".spike").write_text("")
     if broken_yml:
@@ -192,7 +194,7 @@ def _project_v2(*, define="full", scenarios=0, red=True):
     (root / ".compass" / "current-task").write_text("t\n")
     (task_dir / "delivery-approach.md").write_text("# Delivery approach\n")
     if red:
-        (task_dir / ".red").write_text("")
+        write_red_record(task_dir)
     (task_dir / "task.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-25",
         "assessment": {"risk": "contained", "familiarity": "greenfield",

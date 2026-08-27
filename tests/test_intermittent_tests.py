@@ -25,6 +25,8 @@ import json
 import sys
 from pathlib import Path
 
+from conftest import write_red_record
+
 import pytest
 import yaml
 
@@ -106,6 +108,7 @@ class TestTddGreenRecordsAttempts:
             "evidence": [],
         }
         task_dir = make_task("attempts-test", body)
+        write_red_record(task_dir, "SCN-001")
         r = run_cli(
             "tdd-green", "--issue", "attempts-test",
             "--scenario", "SCN-001",
@@ -201,6 +204,7 @@ class TestTddGreenRerunDetection:
         # (no source change) → attempts:2 + rerun_without_change:true.
 
         # First green (attempt 1):
+        write_red_record(task_dir, "SCN-001")
         r = run_cli(
             "tdd-green", "--issue", "rerun-test",
             "--scenario", "SCN-001",

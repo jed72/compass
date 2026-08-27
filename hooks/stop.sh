@@ -51,6 +51,22 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-pyt
 
 cat >/dev/null || true   # drain stdin; we do not need it
 
+# A warner that cannot read has nothing to warn about.
+#
+# `set -e` above means any failing `compass_python` in a command substitution
+# takes this script down with its status - so a machine with no python3 got
+# exit 127 at the end of every session. That is a crash, not a warning, and a
+# crash at session end is noise nobody can act on.
+#
+# Note the asymmetry with hooks/pre-tool.sh, which is deliberate: a hook that
+# cannot CHECK must not permit, so it refuses; a warner that cannot READ has
+# nothing to say, so it stands down. Same missing interpreter, opposite
+# correct answers.
+if ! compass_python -c "pass" >/dev/null 2>&1; then
+  echo "Compass: python3 is not available, so the end-of-session check did not run." >&2
+  exit 0
+fi
+
 # Same ancestor walk as hooks/pre-tool.sh. A bare $(pwd) assumed the session
 # started at the repository root; started anywhere else this hook found no
 # .compass/work/, exited 0, and a silent warner is exactly what a clean

@@ -641,11 +641,33 @@ PYEOF
 )"
   G2_STATUS=$?
   set -e
-  if [ "$G2_STATUS" -eq 3 ]; then
+  # EVERY non-zero status refuses, not only exit 3.
+  #
+  # Exit 3 means the vendored PyYAML could not be resolved, and it was the only
+  # status handled here. Every other one fell through with G2_VERDICT empty,
+  # which is not "block", so the check passed. An ImportError is exit 1 - so a
+  # broken vendored dependency turned the acceptance-before-code guardrail into
+  # a silent pass, and said nothing while doing it.
+  #
+  # It was invisible from the obvious test: with no red on record the
+  # red-before-green check refuses first and hides this one. It is only
+  # reachable where `G2` is the check that would have refused.
+  #
+  # Exit 3 keeps its own message because it names a specific, fixable cause;
+  # every other status says the check could not run AND names the status,
+  # because "it exited 1" is the first thing anyone debugging wants - and
+  # because a message that does not distinguish them is how exit 3's
+  # specificity was lost in the first place.
+  if [ "$G2_STATUS" -ne 0 ]; then
+    if [ "$G2_STATUS" -eq 3 ]; then
+      _g2_cause="$(cat "$G2_ERR")"
+    else
+      _g2_cause="  The spine reader exited $G2_STATUS."
+    fi
     cat >&2 <<EOF
 Compass: BLOCKED - the enforcement check could not run.
 
-$(cat "$G2_ERR")
+$_g2_cause
   This hook cannot read the issue spine, so it cannot tell whether the
   acceptance criteria exist. It refuses rather than allowing an edit it was
   unable to check - a guardrail that cannot read its own state must fail
@@ -699,9 +721,103 @@ if [ -f "$TASK_DIR/.acceptance" ]; then
 fi
 
 # --- the red-before-green check (delivery work) -----------------------------
+# The marker is the cheap question and the record is the answer.
+#
+# `.red` alone used to be enough, and `.red` is an empty file: `touch
+# .compass/work/<issue>/.red` through Bash unlocked every production file for
+# the issue. The marker is not evidence - `compass tdd-red` writes it only
+# after observing a real failure, and nothing stopped anyone else writing it
+# for no reason at all.
+#
+# So the marker stays as the fast "is there anything to look at" - this hook
+# runs on every tool call, and globbing plus parsing JSON on each one is a
+# constant cost for a check that matters at a boundary - and a record beside
+# it is what actually decides.
+#
+# WHAT THIS DOES AND DOES NOT BUY. `content_digest` is a plain sha256 over the
+# record's own fields with no secret, so anyone who can write the file can
+# compute a matching digest. This catches a record EDITED after it was
+# written; it does not catch one FABRICATED wholesale by someone who knows the
+# format. Forging goes from `touch` to writing plausible JSON with a correct
+# digest - a different order of deliberateness, not an impossibility.
+# docs/safety-contract.md states both halves.
 if [ -f "$TASK_DIR/.red" ]; then
-  # A failing test is on record for this issue. Red came before green. Allow.
-  exit 0
+  RED_VERDICT="$(compass_python - "$TASK_DIR" <<'PYEOF' 2>/dev/null
+import glob
+import hashlib
+import json
+import os
+import sys
+
+task_dir = sys.argv[1]
+records = sorted(glob.glob(os.path.join(task_dir, "evidence", "red*.json")))
+if not records:
+    print("no-record")
+    raise SystemExit(0)
+
+for path in records:
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+    except (OSError, ValueError):
+        continue
+    if doc.get("passed") is not False:
+        continue
+    stated = doc.get("content_digest")
+    if not stated:
+        # Written before records carried an identity. Accepted: refusing here
+        # would block work on an issue whose red is genuine and merely old.
+        print("ok")
+        raise SystemExit(0)
+    body = {k: v for k, v in doc.items() if k != "content_digest"}
+    actual = "sha256:" + hashlib.sha256(
+        json.dumps(body, sort_keys=True, default=str).encode("utf-8")).hexdigest()
+    if actual == stated:
+        print("ok")
+        raise SystemExit(0)
+
+print("no-valid-record")
+PYEOF
+)"
+  RED_STATUS=$?
+
+  if [ "$RED_STATUS" -ne 0 ] || [ -z "${RED_VERDICT:-}" ]; then
+    # The reader could not run. A hook that cannot check must not permit.
+    cat >&2 <<EOF
+Compass: BLOCKED - could not read the red record for issue '$TASK_SLUG'.
+
+  The .red marker is present, but the reader that verifies the record behind
+  it exited $RED_STATUS. This hook refuses rather than allowing an edit it was
+  unable to check.
+  Edit target: $TARGET  (tool: ${TOOL:-?})
+
+  Fix the install and re-try. Nothing about this issue is wrong.
+EOF
+    exit 2
+  fi
+
+  if [ "$RED_VERDICT" = "ok" ]; then
+    # An observed failure is on record for this issue. Red came before green.
+    exit 0
+  fi
+
+  cat >&2 <<EOF
+Compass: BLOCKED - the .red marker for issue '$TASK_SLUG' has no record behind it.
+
+  The marker says a failing test was observed. No matching record was found in
+  .compass/work/$TASK_SLUG/evidence/ - either there is none, or its content no
+  longer matches the digest written with it.
+
+  The marker is not the evidence. \`compass tdd-red\` writes it only after
+  running a test and watching it fail; an empty file with the same name proves
+  nothing, which is why this hook now reads what is beside it.
+
+  To proceed the Compass way:
+    compass tdd-red -- <your failing test command>
+
+  Edit target: $TARGET  (tool: ${TOOL:-?})
+EOF
+  exit 2
 fi
 
 # No .red marker → no failing test on record → block the code edit.

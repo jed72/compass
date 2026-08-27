@@ -516,6 +516,24 @@ def _save_tdd_state(task_dir, scenario, tree_hash, attempts, command=None):
         json.dump(existing, fh, indent=2)
 
 
+def _red_record_for(task_dir, scenario):
+    """The red record a green bound to `scenario` needs, or None if unbound.
+
+    Same binding, same file: `--scenario X` is answered by
+    `evidence/red-X.json` and by nothing else - not by an unbound `red.json`,
+    and not by a red recorded for a different scenario.
+
+    The looser rule, "any red on this issue", lets a red recorded for one
+    scenario clear a green for another. That is the same class of error as a
+    green with no red at all, one step quieter, and quieter is worse because
+    nothing reports it.
+    """
+    if not scenario:
+        return None
+    name = "red-" + scenario.replace("/", "_") + ".json"
+    return os.path.join(task_dir, "evidence", name)
+
+
 def cmd_tdd_green(args):
     task_dir = resolve_task_dir(args.task)
     scenario = _resolve_scenario(task_dir, getattr(args, "scenario", None))
@@ -528,6 +546,21 @@ def cmd_tdd_green(args):
     if not command:
         raise CompassError("compass tdd-green needs a test command (-- <cmd>) "
                            "or project.test_micro_command in .compass/config.yml")
+    # A bound green claims a red happened for the same scenario. Check that
+    # before running anything: the refusal is about what may be RECORDED, and
+    # refusing at the moment of writing means a bad record never exists. A
+    # check would find it afterwards, when it is already on disk and already
+    # cited by a gate.
+    red_path = _red_record_for(task_dir, scenario)
+    if red_path and not os.path.isfile(red_path):
+        raise CompassError(
+            f"compass tdd-green: no red is on record for {scenario}, so there "
+            f"is no failure for this green to be the other half of.\n"
+            f"  expected : {red_path}\n"
+            f"  Run `compass tdd-red --scenario {scenario} -- <test command>` "
+            f"first, or drop --scenario to record an unbound green."
+        )
+
     command = _neutralise_coverage(command)
     code, out, warnings = _run_test(command)
     for w in warnings:

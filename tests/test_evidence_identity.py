@@ -21,6 +21,8 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+from conftest import write_red_record
 from typing import Any, Dict, List, Optional
 
 import yaml
@@ -72,9 +74,15 @@ def _record(proj: Path, name: str) -> Dict[str, Any]:
 
 def _green(proj: Path, message: str, scenario: Optional[str] = None):
     """Record a passing run whose output is `message`, so different runs are
-    distinguishable by their content as well as by their stamps."""
+    distinguishable by their content as well as by their stamps.
+
+    A bound green needs a red for the same binding, so one is written first.
+    These tests are about record identity, not about the red-for-green rule -
+    without this they would be blocked before reaching what they measure.
+    """
     args = ["tdd-green"]
     if scenario:
+        write_red_record(proj / ".compass" / "work" / "t", scenario)
         args += ["--scenario", scenario]
     return _run(proj, *args, "--", sys.executable, "-c", f"print({message!r})")
 

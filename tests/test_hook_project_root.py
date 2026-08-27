@@ -27,6 +27,8 @@ import subprocess
 
 import pytest
 
+from conftest import write_red_record
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOK = ROOT / "hooks" / "pre-tool.sh"
 
@@ -78,7 +80,7 @@ def _project(tmp_path: pathlib.Path, *, with_work: bool = True) -> pathlib.Path:
         # it both the resolved and the unresolved case block - for completely
         # different reasons - and a test comparing exit codes passes while
         # measuring nothing. The first version of this file did exactly that.
-        (work / ".red").write_text("", encoding="utf-8")
+        write_red_record(work)
     return proj
 
 

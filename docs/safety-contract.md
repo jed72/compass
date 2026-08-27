@@ -116,6 +116,29 @@ opted in and has not been triaged is still refused, and a project the hook
 cannot read is still refused - Compass answering "allow" to a question it
 could not ask would be a guardrail switched off silently.
 
+### The red marker is checked against its record, and a record can still be written by hand
+
+The pre-tool hook refuses a code edit unless a failing test is on record for
+the issue. It used to be satisfied by the `.red` marker alone, and that marker
+is an empty file: `touch .compass/work/<issue>/.red` unlocked every production
+file for the issue.
+
+The hook now reads the red record beside the marker - `evidence/red*.json` -
+and checks that its content still matches the `content_digest` written with
+it. An empty marker with nothing behind it no longer unlocks anything.
+
+**What that does not buy.** The digest is a plain `sha256` over the record's
+own fields, with no secret, so anyone who can write the file can compute a
+matching one. It is tamper evidence, not forgery resistance: it catches a
+record edited after it was written, and it does not catch one written from
+scratch by someone who knows the format. Forging a red goes from `touch` to
+writing plausible JSON with a correct digest - a different order of
+deliberateness, not an impossibility.
+
+Records written before records carried an identity are accepted without a
+digest check. Refusing them would block work on an issue whose red is genuine
+and merely old.
+
 ### Shell-write detection is best-effort
 
 The Claude Code pre-tool hook completely covers supported file-editing tools.
