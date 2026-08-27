@@ -149,7 +149,7 @@
         "string",
         "null"
       ],
-      "description": "Whether this issue is delivered by a single agent or by several. Set at breakdown, once the distribution map says whether independent subtasks exist; assess does not write it - see subtask_ceiling. Manifests written before ADR-023 carry `orchestration` and are read through cli/migrate-map.yml."
+      "description": "Whether this issue is delivered by a single agent or by several. Set at breakdown, once the distribution map says whether independent subtasks exist; assess does not write it - see subtask_ceiling. Manifests written before ADR-023 carry the retired key name, which is read forward through cli/migrate-map.yml."
     },
     "subtask_ceiling": {
       "type": [
@@ -415,7 +415,7 @@
     },
     "follow_ups": {
       "type": "array",
-      "description": "Outstanding process weight (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated manifest still lints - readers normalise them.",
+      "description": "Work this issue deferred and still owes (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated manifest still lints - readers normalise them.",
       "items": {
         "type": "object",
         "required": [

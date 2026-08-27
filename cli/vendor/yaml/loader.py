@@ -10,8 +10,8 @@ from .resolver import *
 
 class BaseLoader(Reader, Scanner, Parser, Composer, BaseConstructor, BaseResolver):
 
-    def __init__(self, subtask):
-        Reader.__init__(self, subtask)
+    def __init__(self, stream):
+        Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)
@@ -20,8 +20,8 @@ class BaseLoader(Reader, Scanner, Parser, Composer, BaseConstructor, BaseResolve
 
 class FullLoader(Reader, Scanner, Parser, Composer, FullConstructor, Resolver):
 
-    def __init__(self, subtask):
-        Reader.__init__(self, subtask)
+    def __init__(self, stream):
+        Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)
@@ -30,8 +30,8 @@ class FullLoader(Reader, Scanner, Parser, Composer, FullConstructor, Resolver):
 
 class SafeLoader(Reader, Scanner, Parser, Composer, SafeConstructor, Resolver):
 
-    def __init__(self, subtask):
-        Reader.__init__(self, subtask)
+    def __init__(self, stream):
+        Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)
@@ -40,8 +40,8 @@ class SafeLoader(Reader, Scanner, Parser, Composer, SafeConstructor, Resolver):
 
 class Loader(Reader, Scanner, Parser, Composer, Constructor, Resolver):
 
-    def __init__(self, subtask):
-        Reader.__init__(self, subtask)
+    def __init__(self, stream):
+        Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)
@@ -54,8 +54,8 @@ class Loader(Reader, Scanner, Parser, Composer, Constructor, Resolver):
 # to ensure backwards compatibility.
 class UnsafeLoader(Reader, Scanner, Parser, Composer, Constructor, Resolver):
 
-    def __init__(self, subtask):
-        Reader.__init__(self, subtask)
+    def __init__(self, stream):
+        Reader.__init__(self, stream)
         Scanner.__init__(self)
         Parser.__init__(self)
         Composer.__init__(self)

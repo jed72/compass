@@ -156,67 +156,67 @@
       "code": "ADR-006"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 2,
       "code": "ADR-009"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 60,
       "code": "ADR-007"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 67,
       "code": "ADR-006"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 73,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 74,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 75,
       "code": "ADR-007"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 76,
       "code": "ADR-007"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 83,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 84,
       "code": "G4"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 101,
       "code": "TRC-FM1"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 108,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 109,
       "code": "ADR-006"
     },
     {
-      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
       "line": 110,
       "code": "ADR-007"
     },
@@ -1106,67 +1106,67 @@
       "code": "TRC-A1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 41,
       "code": "S3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 59,
       "code": "S3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G5"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G2"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G5"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S4"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S2"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/design.md",
+      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S3"
     },
@@ -1366,82 +1366,82 @@
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 58,
       "code": "S3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 62,
       "code": "INT-2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G4"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S4"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 84,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/design.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
       "line": 106,
       "code": "G5"
     },
@@ -1476,7 +1476,7 @@
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/prd.md",
+      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/intent.md",
       "line": 90,
       "code": "RP-ROLE-002"
     },
@@ -1981,12 +1981,12 @@
       "code": "TRC-B2"
     },
     {
-      "file": "templates/design.md",
+      "file": "templates/technical-design.md",
       "line": 210,
       "code": "TRC-A1"
     },
     {
-      "file": "templates/design.md",
+      "file": "templates/technical-design.md",
       "line": 210,
       "code": "TRC-A2"
     },

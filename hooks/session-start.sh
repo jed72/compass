@@ -26,7 +26,7 @@
 #   compass-contract.md at the framework root, and only there. CLAUDE.md and
 #   skills/compass-runtime/SKILL.md point at it. Before this, those two
 #   restated it: 46 sentences appeared verbatim in both, and they had already
-#   drifted - the skill named nine agents, having lost `architect`.
+#   drifted - the skill named nine agents, having lost `architect-lens`.  # vocabulary-scan: allow - names the file's former name, which is the point of the sentence
 # =============================================================================
 set -uo pipefail
 

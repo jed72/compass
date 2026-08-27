@@ -170,3 +170,75 @@ def test_an_unmapped_retired_key_is_not_silently_dropped():
     """TRC-F2: normalisation preserves every value it does not map."""
     out = core.normalize_spine({"issue": "x", "some_unknown_key": 7})
     assert out["some_unknown_key"] == 7
+
+
+# --- TRC-B5 (reopened) - the gate rename must reach the gate, not just a table -
+
+def test_the_gate_id_rename_is_applied_by_the_normaliser():
+    """A `gate_ids` row nothing reads is a migration that does not happen.
+
+    Found in review: the row existed in cli/migrate-map.yml and the only
+    reader was the test asserting the row existed.
+    """
+    out = core.normalize_spine(
+        {"issue": "x", "gates": [{"id": "verify.fitness", "status": "pass"}]})
+    assert out["gates"][0]["id"] == "verify.architecture"
+
+
+def test_an_archived_gate_still_has_its_evidence_type_enforced(tmp_path):
+    """The reason the row matters, stated as the failure it prevents.
+
+    `compass check` looks the accepted evidence types up by gate id. An id
+    that no longer resolves yields None, and the type requirement is skipped
+    rather than failed - so a mechanical gate clears with a written note,
+    which is the one thing it exists to refuse.
+    """
+    proj = tmp_path / "proj"
+    (proj / ".compass" / "work" / "t" / "evidence").mkdir(parents=True)
+    (proj / ".compass" / "work" / "t" / "evidence" / "note.md").write_text("a note")
+    (proj / ".compass" / "work" / "t" / "manifest.yml").write_text(
+        "schema_version: '2.0'\n"
+        "issue: t\n"
+        "assessment: {risk: cross-cutting, familiarity: brownfield-mapped, "
+        "size: small, goal: delivery, role: engineer}\n"
+        "delivery_approach: feature\n"
+        "scenarios:\n"
+        "  - {id: TRC-1, title: x, intent: INT-1, tests: [\'t.py::x\']}\n"
+        "evidence:\n"
+        "  - {id: EV-1, type: artifact, path: evidence/note.md}\n"
+        "  - {id: EV-2, type: test-run, path: evidence/note.md, scenario: TRC-1}\n"
+        "gates:\n"
+        "  - {id: verify.fitness, status: pass, evidence: [EV-1]}\n",
+        encoding="utf-8")
+    (proj / ".compass").joinpath("current-task").write_text("t", encoding="utf-8")
+
+    import subprocess
+    r = subprocess.run(
+        [sys.executable, str(ROOT / "cli" / "compass"), "check", "--issue", "t"],
+        capture_output=True, text=True, cwd=str(proj))
+    # Assert the SPECIFIC failure. A bare non-zero exit passes for any reason
+    # at all - when this test was first written it was green because the
+    # fixture had no scenarios, not because the gate was refused.
+    out = r.stdout + r.stderr
+    assert "requires evidence of type" in out, (
+        "the architecture gate cleared by a written note - the evidence-type "
+        f"requirement was skipped, not failed:\n{out}")
+
+
+# --- TRC-B3 (reopened) - the ceiling table must hold the word on disk --------
+
+def test_the_ceiling_table_names_the_word_archived_manifests_carry():
+    """Sixteen manifests on disk say `topology: swarm`. If the table does not
+    hold that word it resolves through the default, which is indistinguishable
+    from an unrecognised value - so the test that asserts `swarm -> None`
+    passes whether or not the mapping exists."""
+    assert "swarm" in core.RETIRED_ORCHESTRATION_CEILING
+    assert core.RETIRED_ORCHESTRATION_CEILING["swarm"] is None
+
+
+def test_an_unrecognised_word_is_distinguishable_from_a_mapped_one():
+    """The control the previous test needs to mean anything."""
+    mapped = core.normalize_spine({"issue": "x", "topology": "solo"})
+    unknown = core.normalize_spine({"issue": "x", "topology": "banana"})
+    assert mapped["subtask_ceiling"] == 1
+    assert unknown["subtask_ceiling"] is None

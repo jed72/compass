@@ -239,7 +239,7 @@ def cmd_flow(args):
     return 0
 
 
-# --- living system spec derivation (Subtask B, DD-3, DD-4, ADR-008) ---------
+# --- living system spec derivation (Stream B, DD-3, DD-4, ADR-008) ---------
 #
 # derive_system_spec(project_root) is the internal helper that produces
 # docs/system-spec.md by walking every .compass/work/*/manifest.yml whose

@@ -95,6 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
+from compass_pkg.core import CHECK_NAME_MAP, migrate_map_section
 from compass_pkg.landed_by import LANDED_BY_RELAXES, landed_by_holds, _check_landed_by_resolves
 from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_evidence_identity_matches, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
 from compass_pkg.borrowed_docs import _check_borrowed_documents_answered
@@ -144,7 +145,7 @@ CHECK_GUIDANCE = {
         "do": "Answer each threat with a TRC- id or `risk accepted`; rehearse the rollback.",
     },
     "command-passes": {
-        "why": 'A project guardrail with `check: command-passes` runs a real command - a architecture check, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
+        "why": 'A project guardrail with `check: command-passes` runs a real command - an architecture check, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
         "fix": 'Run the command the guardrail names and fix what it reports. If this project declares no such guardrail, nothing was checked and the pass is empty - declare one in governance/guardrails.yml with `check: command-passes` to make the gate mean something.',
         "do": 'Run the command the guardrail names, or declare one to make this gate real.',
     },
@@ -214,7 +215,7 @@ CHECK_GUIDANCE = {
         "fix": "Add a `human-approval` evidence entry to the registry with approver, role, scope, decision=approved, and timestamp. Then reference it from the relevant gate's evidence.",
     },
     "backfills-paid": {
-        "why": "Borrowed process weight - a Hotfix follow-up or a de-scoped artifact - must be paid before an issue closes. Otherwise the audit trail has a hole.",
+        "why": "Work deferred for speed - a Hotfix follow-up or a de-scoped artifact - must be done before an issue closes. Otherwise the audit trail has a hole.",
         "do": 'Settle each owed follow-up: `compass follow-up resolve FU-<id>`.',
         "fix": "Complete each unpaid follow-up (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in manifest.yml.",
     },
@@ -519,7 +520,7 @@ def cmd_check(args):
                 run.result(check_name, passed, detail)
 
         # Backfills are cross-cutting and a Spike is the route that most often
-        # OWES one - a graduating spike leaves process weight behind by design. The
+        # OWES one - a graduating spike leaves deferred work behind by design. The
         # spike branch used to return before the shared backfill block below,
         # so a Spike with an owed backfill reported "concluded and contained"
         # and the word "backfill" never appeared.
@@ -586,6 +587,16 @@ def cmd_check(args):
         run.guardrail(gid, g.get("name", ""))
         for check_name in g.get("checks", []):
             fn = CHECK_FNS.get(check_name)
+            # A project that ran /compass:init before ADR-023 has its own
+            # guardrails.yml naming the retired spelling. The check still
+            # ships; only its name moved, so say that rather than telling the
+            # author to implement a function that already exists.
+            if fn is None:
+                current = migrate_map_section(
+                    "values", {}).get("check_name", CHECK_NAME_MAP)
+                if check_name in current:
+                    check_name = current[check_name]
+                    fn = CHECK_FNS.get(check_name)
             ran += 1
             if fn is None:
                 # A declared guardrail check with no implementation is the one

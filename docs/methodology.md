@@ -212,7 +212,7 @@ software correctness.
 
 ## 9. Safe parallelism
 
-Planning identifies independent work units before choosing a orchestration:
+Planning identifies independent work units before choosing an orchestration:
 
 | Orchestration | Use |
 |---|---|

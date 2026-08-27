@@ -244,7 +244,7 @@ def _receipt_parse_orchestration_override(approach_path):
 
     An override lives in the record as a table row whose first cell is
     "Orchestration" and whose from-to cell reads like "multiagent -> single"
-    (either arrow spelling). Records written before ADR-023 say "Orchestration",
+    (either arrow spelling). Records written before ADR-023 say "Topology",
     which is why both labels are read. Returns the overridden-to value, or
     None. Tolerant by design - the record is prose, and a receipt that cannot
     parse it simply shows the computed value.

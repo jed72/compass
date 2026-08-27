@@ -2,7 +2,7 @@
 # =============================================================================
 # Compass script: integrate.sh  -  LAND THE WORKTREES BACK TOGETHER
 # =============================================================================
-# The ship-stage counterpart to multiagent.sh. It merges the per-stream branches
+# The ship-stage counterpart to multiagent.sh. It merges the per-subtask branches
 # back into the base branch in a coordinated order, runs the project's test
 # command for combined regression, reports any conflicts for the `orchestrator`
 # to resolve, and cleans up the worktrees on success. Only the `orchestrator`
@@ -23,7 +23,7 @@
 # CONFLICTS
 #   This script does NOT auto-resolve conflicts. If a merge conflicts, it
 #   aborts that merge, leaves the repo clean, reports exactly which subtask and
-#   which files conflicted, and stops. Resolving cross-stream conflicts is the
+#   which files conflicted, and stops. Resolving cross-subtask conflicts is the
 #   orchestrator's job and no one else's - the script just surfaces them.
 #
 # COMBINED REGRESSION
@@ -160,7 +160,7 @@ for i in "${!SUBTASKS[@]}"; do
     echo ""
     echo "  The merge was aborted; the repo is clean again. This is the"
     echo "  orchestrator's call to resolve - re-cut the boundary, re-sequence,"
-    echo "  or escalate to a re-frame. No one else may resolve a cross-stream"
+    echo "  or escalate to a re-frame. No one else may resolve a cross-subtask"
     echo "  conflict. Subtasks merged so far: ${MERGED[*]:-none}."
     exit 2
   fi
@@ -191,7 +191,7 @@ if [ -n "$TEST_CMD" ]; then
 else
   echo "No test command resolved (set 'test_command:' in .compass/config.yml)."
   echo "Combined regression MUST still be run by hand before ship closes -"
-  echo "per-stream green does not imply integrated green."
+  echo "per-subtask green does not imply integrated green."
 fi
 
 # --- write status: landed and derive the living system spec -----------------

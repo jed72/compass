@@ -13,14 +13,14 @@
 # Spine value renames. Read-side: the normaliser maps them on load.
 # Write-side: the migrate tool (its own slice) rewrites them on disk.
 values:
-  # Friction categories. ADR-023 retired `ceremony`; the enum keeps single
-  # tokens, so the pair became over-weight / under-weight.
   # Evidence type and check name. ADR-023 renamed the concept; six manifests
   # on disk carry the old spelling and must keep clearing their gate.
   evidence_type:
     coherence-check: consistency-check
   check_name:
     coherence-check-passes: consistency-check-passes
+  # Friction categories. ADR-023 retired `ceremony`; the enum keeps single
+  # tokens, so the pair became over-weight / under-weight.
   friction_category:
     over-ceremony: over-weight
     under-ceremony: under-weight

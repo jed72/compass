@@ -1,7 +1,7 @@
 
 # Scanner produces tokens of the following types:
-# SUBTASK-START
-# SUBTASK-END
+# STREAM-START
+# STREAM-END
 # DIRECTIVE(name, value)
 # DOCUMENT-START
 # DOCUMENT-END
@@ -56,7 +56,7 @@ class Scanner:
         #   self.prefix(l=1)     # peek the next l characters
         #   self.forward(l=1)    # read the next l characters and move the pointer.
 
-        # Had we reached the end of the subtask?
+        # Had we reached the end of the stream?
         self.done = False
 
         # The number of unclosed '{' and '['. `flow_level == 0` means block
@@ -66,7 +66,7 @@ class Scanner:
         # List of processed tokens that are not yet emitted.
         self.tokens = []
 
-        # Add the SUBTASK-START token.
+        # Add the STREAM-START token.
         self.fetch_stream_start()
 
         # Number of tokens that were emitted through the `get_token` method.
@@ -168,7 +168,7 @@ class Scanner:
         # Peek the next character.
         ch = self.peek()
 
-        # Is it the end of subtask?
+        # Is it the end of stream?
         if ch == '\0':
             return self.fetch_stream_end()
 
@@ -184,7 +184,7 @@ class Scanner:
         if ch == '.' and self.check_document_end():
             return self.fetch_document_end()
 
-        # TODO: support for BOM within a subtask.
+        # TODO: support for BOM within a stream.
         #if ch == '\uFEFF':
         #    return self.fetch_bom()    <-- issue BOMToken
 
@@ -357,13 +357,13 @@ class Scanner:
     # Fetchers.
 
     def fetch_stream_start(self):
-        # We always add SUBTASK-START as the first token and SUBTASK-END as the
+        # We always add STREAM-START as the first token and STREAM-END as the
         # last token.
 
         # Read the token.
         mark = self.get_mark()
         
-        # Add SUBTASK-START.
+        # Add STREAM-START.
         self.tokens.append(StreamStartToken(mark, mark,
             encoding=self.encoding))
         
@@ -381,7 +381,7 @@ class Scanner:
         # Read the token.
         mark = self.get_mark()
         
-        # Add SUBTASK-END.
+        # Add STREAM-END.
         self.tokens.append(StreamEndToken(mark, mark))
 
         # The steam is finished.
@@ -754,7 +754,7 @@ class Scanner:
         # If we find a line break in the block context, we set the flag
         # `allow_simple_key` on.
         # The byte order mark is stripped if it's the first character in the
-        # subtask. We do not yet support BOM inside the subtask as the
+        # stream. We do not yet support BOM inside the stream as the
         # specification requires. Any such mark will be considered as a part
         # of the document.
         #
@@ -1236,7 +1236,7 @@ class Scanner:
         ch = self.peek()
         if ch == '\0':
             raise ScannerError("while scanning a quoted scalar", start_mark,
-                    "found unexpected end of subtask", self.get_mark())
+                    "found unexpected end of stream", self.get_mark())
         elif ch in '\r\n\x85\u2028\u2029':
             line_break = self.scan_line_break()
             breaks = self.scan_flow_scalar_breaks(double, start_mark)

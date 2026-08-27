@@ -46,7 +46,7 @@ approvals:       # (optional; only when guardrail G5 applies) list of maps:
     timestamp:   #   (optional) string - ISO 8601
     evidence:    #   (optional) string
 
-follow_ups:       # (optional) list of maps - outstanding process weight:
+follow_ups:       # (optional) list of maps - work still owed:
   - id:          #   (required in entry) string
     description: #   (required in entry) string
     status:      #   (required in entry) [outstanding, resolved]

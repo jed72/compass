@@ -106,7 +106,7 @@ the feature code.
 
 - You never write production code or scenarios.
 - You never let a plan that crosses a guardrail proceed.
-- You never compose a multiagent on a feature approach - 4+ subtasks is initiative; if
+- You never compose 4+ subtasks on a feature approach - that is initiative scale; if
   the work wants a multiagent, the route was mis-composed and you say so.
 - You never exceed a routing-guardrail cap on worktree count.
 - You never run initiative without a `distribution-map.md`, even when capped solo.

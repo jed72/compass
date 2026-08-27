@@ -1016,7 +1016,7 @@ def _check_command_passes(task, task_dir):
     and report pass/fail.
 
     Behaviour:
-    - When verify.fitness is in the gate set but zero project guardrails
+    - When verify.architecture is in the gate set but zero project guardrails
       declare check: command-passes → nothing-to-check pass (DD-6).
     - For each project guardrail with check: command-passes, run
       subprocess.run(shell=True, timeout=timeout_seconds) from the project
@@ -1065,10 +1065,10 @@ def _check_command_passes(task, task_dir):
                 f"contribution cannot edit"
             )
 
-    # nothing-to-check pass (DD-6): verify.fitness in gate set, zero command-passes
+    # nothing-to-check pass (DD-6): verify.architecture in gate set, zero command-passes
     # guardrails declared → the gate has nothing to check; it passes without checking anything.
     if not cp_guardrails:
-        return NOTHING_TO_CHECK, ("verify.fitness: this project declares no guardrail "
+        return NOTHING_TO_CHECK, ("verify.architecture: this project declares no guardrail "
                          "that runs a command, so there was nothing to check "
                          "and this passed without checking anything. To add "
                          "architecture checks, declare a project guardrail with "

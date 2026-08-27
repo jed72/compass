@@ -246,7 +246,7 @@ in policy outcome or persisted meaning are not.
 4. Add role entry points.
 5. Add persistence and resumption.
 6. Add the strongest enforcement the runtime supports.
-7. Add safe parallelism, or declare a orchestration cap.
+7. Add safe parallelism, or declare an orchestration cap.
 8. Run cross-runtime conformance tests.
 9. Document install, security and known limitations.
 

@@ -417,11 +417,23 @@ def migrate_map_section(name, fallback):
     try:
         with open(migrate_map_path(), encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
-        section = data.get(name)
-        if isinstance(section, dict) and section:
-            return section
     except OSError:
-        pass
+        # No framework install beside this module - use the in-module copy.
+        return dict(fallback)
+    except yaml.YAMLError as exc:
+        # A corrupt map is not a missing map. Falling back here would migrate
+        # some manifests and not others, with nothing said; every reader of
+        # every manifest goes through this path, so it fails loudly instead.
+        raise CompassError(
+            f"{migrate_map_path()} is not valid YAML, so retired names cannot "
+            f"be migrated: {exc}")
+    if not isinstance(data, dict):
+        raise CompassError(
+            f"{migrate_map_path()} must be a mapping of section name to "
+            f"rename table; found {type(data).__name__}")
+    section = data.get(name)
+    if isinstance(section, dict) and section:
+        return section
     return dict(fallback)
 
 
@@ -485,6 +497,17 @@ def normalize_spine(task):
         for f in fups:
             if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
                 f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
+    # Gate ids. ADR-023 renamed `verify.fitness` to `verify.architecture`.
+    # This is not cosmetic: `compass check` looks a gate's accepted evidence
+    # types up BY ID, and an id that no longer resolves yields None, which
+    # skips the type requirement instead of failing it. An archived gate would
+    # then clear with a written note - the one thing a mechanical gate refuses.
+    gates = out.get("gates")
+    if isinstance(gates, list):
+        gate_renames = migrate_map_section("gate_ids", GATE_ID_MAP)
+        for g in gates:
+            if isinstance(g, dict) and g.get("id") in gate_renames:
+                g["id"] = gate_renames[g["id"]]
     # Evidence types. ADR-023 renamed `coherence-check` to `consistency-check`;
     # a manifest written before that keeps clearing its gate (ADR-006).
     ev = out.get("evidence")
@@ -510,7 +533,7 @@ def normalize_spine(task):
     # word and no ceiling, so the word is read as the ceiling it always
     # implied. The recorded word is KEPT: an archived manifest says what it
     # said, and breakdown legitimately writes an orchestration of its own.
-    if out.get("subtask_ceiling") is None and "subtask_ceiling" not in out:
+    if out.get("subtask_ceiling") is None:
         word = out.get("orchestration")
         if isinstance(word, str) and word:
             # A capped 1.x manifest recorded the sentence
@@ -532,23 +555,30 @@ def normalize_spine(task):
 # anything used them, so the route shapes now declare the number and the
 # conversion is gone from `routing`. The table stays here because archived
 # manifests still carry the words and have to keep reading.
-RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "multiagent": None}
+RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}  # vocabulary-scan: allow - names the retired words archived manifests carry (ADR-006)
 
 
 def normalize_config(cfg):
     """Return `.compass/config.yml` with the v2 canonical block names.
 
     The worktree root lived under a `swarm:` block. ADR-023 renames it to
-    `multiagent:`, and this is the one vocabulary file an adopter edits by
-    hand - so an upgrade must read their existing spelling rather than
-    require them to change it (ADR-006).
+    `multiagent:`.
+
+    NOTHING IN THE CLI CALLS THIS YET. What actually keeps an adopter's
+    config working is that the only readers - `read_cfg` in
+    scripts/multiagent.sh and scripts/integrate.sh - grep for the leaf key
+    (`worktree_root:`) and never look at the block name, so the rename is
+    invisible to them. This function exists for the first Python reader of
+    those keys; until there is one, it is a contract waiting rather than a
+    contract kept, and saying otherwise would overstate the back-compat.
     """
     if not isinstance(cfg, dict):
         return cfg
     out = dict(cfg)
-    legacy = out.pop("swarm", None)
+    legacy = out.get("swarm")
     if isinstance(legacy, dict) and not isinstance(out.get("multiagent"), dict):
         out["multiagent"] = legacy
+        out.pop("swarm", None)
     return out
 
 
@@ -563,6 +593,15 @@ FRICTION_CATEGORY_MAP = {"over-ceremony": "over-weight",
 
 # The in-module fallback for the evidence-type rename, same contract.
 EVIDENCE_TYPE_MAP = {"coherence-check": "consistency-check"}
+
+# The in-module fallback for the gate-id rename, same contract.
+GATE_ID_MAP = {"verify.fitness": "verify.architecture"}
+
+# The in-module fallback for the guardrail check rename. A project that ran
+# /compass:init before ADR-023 names the retired spelling in its own
+# guardrails.yml; the check still ships, so resolve the name rather than
+# reporting it as unimplemented.
+CHECK_NAME_MAP = {"coherence-check-passes": "consistency-check-passes"}
 
 # 1.x shape values -> the v2 change-type values (machine spelling,
 # hyphenated). Read-side via normalize_spine; the evaluator

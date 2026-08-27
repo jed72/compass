@@ -45,7 +45,7 @@ class BaseConstructor:
             return self.construct_document(self.get_node())
 
     def get_single_data(self):
-        # Ensure that the subtask contains a single document and construct it.
+        # Ensure that the stream contains a single document and construct it.
         node = self.get_single_node()
         if node is not None:
             return self.construct_document(node)

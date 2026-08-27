@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.9.0
+version: 2.10.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -133,12 +133,12 @@ routing_guardrails:
     - id: RP-REQUIRE-003
       when: { risk: [cross-cutting, critical] }
       add_gate: verify.architecture
-      rationale: "Architectural fitness checked before cross-cutting or critical changes land."
+      rationale: "Architecture checked before cross-cutting or critical changes land."
 
     - id: RP-REQUIRE-004
       when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.architecture
-      rationale: "Irreversible-surface issues have fitness checked before they ship."
+      rationale: "Irreversible-surface issues have architecture checked before they ship."
 
     # Artifacts are a routed output like gates. A dimension the shape does not
     # know about can earn a document the same way it earns a gate - which is

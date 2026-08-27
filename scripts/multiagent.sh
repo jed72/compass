@@ -266,16 +266,16 @@ for entry in "${LAUNCH_PLAN[@]}"; do
   echo "    worktree : $wt_path"
   echo "    branch   : $branch"
   echo "    assignment  : owns the scenario set assigned to $sid in distribution-map.md"
-  echo "    rule     : works ONLY inside this worktree; cross-stream needs go via the orchestrator"
+  echo "    rule     : works ONLY inside this worktree; cross-subtask needs go via the orchestrator"
   echo ""
 done
 echo "----------------------------------------------------------------"
 if [ "$SUBTASK_COUNT" -ge 4 ]; then
-  echo "Orchestration is a MULTIAGENT (4+ subtasks): an 'orchestrator' agent must also run -"
+  echo "MULTIAGENT, 4+ subtasks: an 'orchestrator' agent must also run -"
   echo "it writes no feature code, watches for subtasks converging on shared surface,"
   echo "and owns integration at ship via scripts/integrate.sh."
 else
-  echo "Orchestration is a PAIR (2-3 subtasks): no dedicated orchestrator - the lead"
+  echo "MULTIAGENT, 2-3 subtasks: no dedicated orchestrator - the lead"
   echo "builder integrates at ship via scripts/integrate.sh."
 fi
 echo ""

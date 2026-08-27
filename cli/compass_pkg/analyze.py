@@ -292,7 +292,8 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
             # cell takes anything but a pipe, because the real names are
             # phrases and one of them ("Test & review") carries an ampersand.
             # The weight cell is read whole and then cut at the first comma or
-            # space, because records write "full, subtasks unbounded by policy"
+            # space, because records write "full, streams unbounded by policy"
+            # vocabulary-scan: allow - quotes what archived records say
             # and the weight is the first word of it.
             m = _re.match(r'\|\s*([A-Za-z][^|]*?)\s*\|\s*([^|]+?)\s*\|',
                           stripped)

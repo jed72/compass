@@ -26,146 +26,146 @@ def warnings(settings=None):
         return {}
 
 #------------------------------------------------------------------------------
-def scan(subtask, Loader=Loader):
+def scan(stream, Loader=Loader):
     """
-    Scan a YAML subtask and produce scanning tokens.
+    Scan a YAML stream and produce scanning tokens.
     """
-    loader = Loader(subtask)
+    loader = Loader(stream)
     try:
         while loader.check_token():
             yield loader.get_token()
     finally:
         loader.dispose()
 
-def parse(subtask, Loader=Loader):
+def parse(stream, Loader=Loader):
     """
-    Parse a YAML subtask and produce parsing events.
+    Parse a YAML stream and produce parsing events.
     """
-    loader = Loader(subtask)
+    loader = Loader(stream)
     try:
         while loader.check_event():
             yield loader.get_event()
     finally:
         loader.dispose()
 
-def compose(subtask, Loader=Loader):
+def compose(stream, Loader=Loader):
     """
-    Parse the first YAML document in a subtask
+    Parse the first YAML document in a stream
     and produce the corresponding representation tree.
     """
-    loader = Loader(subtask)
+    loader = Loader(stream)
     try:
         return loader.get_single_node()
     finally:
         loader.dispose()
 
-def compose_all(subtask, Loader=Loader):
+def compose_all(stream, Loader=Loader):
     """
-    Parse all YAML documents in a subtask
+    Parse all YAML documents in a stream
     and produce corresponding representation trees.
     """
-    loader = Loader(subtask)
+    loader = Loader(stream)
     try:
         while loader.check_node():
             yield loader.get_node()
     finally:
         loader.dispose()
 
-def load(subtask, Loader):
+def load(stream, Loader):
     """
-    Parse the first YAML document in a subtask
+    Parse the first YAML document in a stream
     and produce the corresponding Python object.
     """
-    loader = Loader(subtask)
+    loader = Loader(stream)
     try:
         return loader.get_single_data()
     finally:
         loader.dispose()
 
-def load_all(subtask, Loader):
+def load_all(stream, Loader):
     """
-    Parse all YAML documents in a subtask
+    Parse all YAML documents in a stream
     and produce corresponding Python objects.
     """
-    loader = Loader(subtask)
+    loader = Loader(stream)
     try:
         while loader.check_data():
             yield loader.get_data()
     finally:
         loader.dispose()
 
-def full_load(subtask):
+def full_load(stream):
     """
-    Parse the first YAML document in a subtask
+    Parse the first YAML document in a stream
     and produce the corresponding Python object.
 
     Resolve all tags except those known to be
     unsafe on untrusted input.
     """
-    return load(subtask, FullLoader)
+    return load(stream, FullLoader)
 
-def full_load_all(subtask):
+def full_load_all(stream):
     """
-    Parse all YAML documents in a subtask
+    Parse all YAML documents in a stream
     and produce corresponding Python objects.
 
     Resolve all tags except those known to be
     unsafe on untrusted input.
     """
-    return load_all(subtask, FullLoader)
+    return load_all(stream, FullLoader)
 
-def safe_load(subtask):
+def safe_load(stream):
     """
-    Parse the first YAML document in a subtask
+    Parse the first YAML document in a stream
     and produce the corresponding Python object.
 
     Resolve only basic YAML tags. This is known
     to be safe for untrusted input.
     """
-    return load(subtask, SafeLoader)
+    return load(stream, SafeLoader)
 
-def safe_load_all(subtask):
+def safe_load_all(stream):
     """
-    Parse all YAML documents in a subtask
+    Parse all YAML documents in a stream
     and produce corresponding Python objects.
 
     Resolve only basic YAML tags. This is known
     to be safe for untrusted input.
     """
-    return load_all(subtask, SafeLoader)
+    return load_all(stream, SafeLoader)
 
-def unsafe_load(subtask):
+def unsafe_load(stream):
     """
-    Parse the first YAML document in a subtask
+    Parse the first YAML document in a stream
     and produce the corresponding Python object.
 
     Resolve all tags, even those known to be
     unsafe on untrusted input.
     """
-    return load(subtask, UnsafeLoader)
+    return load(stream, UnsafeLoader)
 
-def unsafe_load_all(subtask):
+def unsafe_load_all(stream):
     """
-    Parse all YAML documents in a subtask
+    Parse all YAML documents in a stream
     and produce corresponding Python objects.
 
     Resolve all tags, even those known to be
     unsafe on untrusted input.
     """
-    return load_all(subtask, UnsafeLoader)
+    return load_all(stream, UnsafeLoader)
 
-def emit(events, subtask=None, Dumper=Dumper,
+def emit(events, stream=None, Dumper=Dumper,
         canonical=None, indent=None, width=None,
         allow_unicode=None, line_break=None):
     """
-    Emit YAML parsing events into a subtask.
-    If subtask is None, return the produced string instead.
+    Emit YAML parsing events into a stream.
+    If stream is None, return the produced string instead.
     """
     getvalue = None
-    if subtask is None:
-        subtask = io.StringIO()
-        getvalue = subtask.getvalue
-    dumper = Dumper(subtask, canonical=canonical, indent=indent, width=width,
+    if stream is None:
+        stream = io.StringIO()
+        getvalue = stream.getvalue
+    dumper = Dumper(stream, canonical=canonical, indent=indent, width=width,
             allow_unicode=allow_unicode, line_break=line_break)
     try:
         for event in events:
@@ -175,23 +175,23 @@ def emit(events, subtask=None, Dumper=Dumper,
     if getvalue:
         return getvalue()
 
-def serialize_all(nodes, subtask=None, Dumper=Dumper,
+def serialize_all(nodes, stream=None, Dumper=Dumper,
         canonical=None, indent=None, width=None,
         allow_unicode=None, line_break=None,
         encoding=None, explicit_start=None, explicit_end=None,
         version=None, tags=None):
     """
-    Serialize a sequence of representation trees into a YAML subtask.
-    If subtask is None, return the produced string instead.
+    Serialize a sequence of representation trees into a YAML stream.
+    If stream is None, return the produced string instead.
     """
     getvalue = None
-    if subtask is None:
+    if stream is None:
         if encoding is None:
-            subtask = io.StringIO()
+            stream = io.StringIO()
         else:
-            subtask = io.BytesIO()
-        getvalue = subtask.getvalue
-    dumper = Dumper(subtask, canonical=canonical, indent=indent, width=width,
+            stream = io.BytesIO()
+        getvalue = stream.getvalue
+    dumper = Dumper(stream, canonical=canonical, indent=indent, width=width,
             allow_unicode=allow_unicode, line_break=line_break,
             encoding=encoding, version=version, tags=tags,
             explicit_start=explicit_start, explicit_end=explicit_end)
@@ -205,31 +205,31 @@ def serialize_all(nodes, subtask=None, Dumper=Dumper,
     if getvalue:
         return getvalue()
 
-def serialize(node, subtask=None, Dumper=Dumper, **kwds):
+def serialize(node, stream=None, Dumper=Dumper, **kwds):
     """
-    Serialize a representation tree into a YAML subtask.
-    If subtask is None, return the produced string instead.
+    Serialize a representation tree into a YAML stream.
+    If stream is None, return the produced string instead.
     """
-    return serialize_all([node], subtask, Dumper=Dumper, **kwds)
+    return serialize_all([node], stream, Dumper=Dumper, **kwds)
 
-def dump_all(documents, subtask=None, Dumper=Dumper,
+def dump_all(documents, stream=None, Dumper=Dumper,
         default_style=None, default_flow_style=False,
         canonical=None, indent=None, width=None,
         allow_unicode=None, line_break=None,
         encoding=None, explicit_start=None, explicit_end=None,
         version=None, tags=None, sort_keys=True):
     """
-    Serialize a sequence of Python objects into a YAML subtask.
-    If subtask is None, return the produced string instead.
+    Serialize a sequence of Python objects into a YAML stream.
+    If stream is None, return the produced string instead.
     """
     getvalue = None
-    if subtask is None:
+    if stream is None:
         if encoding is None:
-            subtask = io.StringIO()
+            stream = io.StringIO()
         else:
-            subtask = io.BytesIO()
-        getvalue = subtask.getvalue
-    dumper = Dumper(subtask, default_style=default_style,
+            stream = io.BytesIO()
+        getvalue = stream.getvalue
+    dumper = Dumper(stream, default_style=default_style,
             default_flow_style=default_flow_style,
             canonical=canonical, indent=indent, width=width,
             allow_unicode=allow_unicode, line_break=line_break,
@@ -245,28 +245,28 @@ def dump_all(documents, subtask=None, Dumper=Dumper,
     if getvalue:
         return getvalue()
 
-def dump(data, subtask=None, Dumper=Dumper, **kwds):
+def dump(data, stream=None, Dumper=Dumper, **kwds):
     """
-    Serialize a Python object into a YAML subtask.
-    If subtask is None, return the produced string instead.
+    Serialize a Python object into a YAML stream.
+    If stream is None, return the produced string instead.
     """
-    return dump_all([data], subtask, Dumper=Dumper, **kwds)
+    return dump_all([data], stream, Dumper=Dumper, **kwds)
 
-def safe_dump_all(documents, subtask=None, **kwds):
+def safe_dump_all(documents, stream=None, **kwds):
     """
-    Serialize a sequence of Python objects into a YAML subtask.
+    Serialize a sequence of Python objects into a YAML stream.
     Produce only basic YAML tags.
-    If subtask is None, return the produced string instead.
+    If stream is None, return the produced string instead.
     """
-    return dump_all(documents, subtask, Dumper=SafeDumper, **kwds)
+    return dump_all(documents, stream, Dumper=SafeDumper, **kwds)
 
-def safe_dump(data, subtask=None, **kwds):
+def safe_dump(data, stream=None, **kwds):
     """
-    Serialize a Python object into a YAML subtask.
+    Serialize a Python object into a YAML stream.
     Produce only basic YAML tags.
-    If subtask is None, return the produced string instead.
+    If stream is None, return the produced string instead.
     """
-    return dump_all([data], subtask, Dumper=SafeDumper, **kwds)
+    return dump_all([data], stream, Dumper=SafeDumper, **kwds)
 
 def add_implicit_resolver(tag, regexp, first=None,
         Loader=None, Dumper=Dumper):
@@ -361,8 +361,8 @@ class YAMLObjectMetaclass(type):
 
 class YAMLObject(metaclass=YAMLObjectMetaclass):
     """
-    An object that can dump itself to a YAML subtask
-    and load itself from a YAML subtask.
+    An object that can dump itself to a YAML stream
+    and load itself from a YAML stream.
     """
 
     __slots__ = ()  # no direct instantiation, so allow immutable subclasses

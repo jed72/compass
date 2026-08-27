@@ -62,9 +62,9 @@ Evidence id. Identifies one typed record in the issue's evidence registry that c
 
 ### `FU-`
 
-Follow-up id. Process weight this issue owes after an expedited ship - the hotfix's promoted scenario, a de-scoped artifact. Not "any outstanding work": a newly found defect gets its own issue named by slug. A follow-up may carry target_task, naming the issue whose ship it blocks.
+Follow-up id. Work this issue deferred to ship fast and still owes - the hotfix's promoted scenario, a de-scoped artifact. Not "any outstanding work": a newly found defect gets its own issue named by slug. A follow-up may carry target_task, naming the issue whose ship it blocks.
 
-**Refers to:** One outstanding piece of process weight this issue owes.
+**Refers to:** One piece of work this issue deferred and still owes.
 
 **Appears in:** `task.yml follow_ups[].id`, `verification-report.md`
 
