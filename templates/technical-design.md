@@ -27,7 +27,7 @@ design document.
 Fill every {{PLACEHOLDER}} in the sections you keep.
 -->
 
-# Plan - {{TASK_SLUG}}
+# Plan - {{ISSUE_SLUG}}
 
 > **Phase:** Plan · **Date:** {{DATE}} · **Owning agent:** planner
 > **Plan weight (from delivery-approach.md):** {{real technical-design.md \| technical-design.md + distribution-map.md}}

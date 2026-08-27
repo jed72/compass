@@ -12,7 +12,7 @@ before the issue fully closes.
 Fill every {{PLACEHOLDER}}.
 -->
 
-# Incident - {{TASK_SLUG}}
+# Incident - {{ISSUE_SLUG}}
 
 > **Issue type:** hotfix · **Declared:** {{DATE_TIME}} · **Declared by:** {{NAME / role}}
 > **Severity:** {{SEV1 - user-facing outage | SEV2 - degraded | SEV3 - contained}}

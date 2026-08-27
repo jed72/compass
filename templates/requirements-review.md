@@ -15,7 +15,7 @@ Fill every {{PLACEHOLDER}}. Each entry is a closed loop: question →
 resolution → who decided → what it changed.
 -->
 
-# Clarifications - {{TASK_SLUG}}
+# Clarifications - {{ISSUE_SLUG}}
 
 > **Phase:** refine · **Date:** {{DATE}} · **Owning agent:** spec-author
 > **Requirements review weight (from delivery-approach.md):** {{light pass \| full pass}}

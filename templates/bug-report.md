@@ -11,7 +11,7 @@ diagnosis belongs to the fix, not the report.
 Fill every {{PLACEHOLDER}}.
 -->
 
-# Bug report - {{TASK_SLUG}}
+# Bug report - {{ISSUE_SLUG}}
 
 > **Issue type:** bug fix · **Reported:** {{DATE}} · **Reporter:** {{NAME / role}}
 

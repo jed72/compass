@@ -21,7 +21,7 @@ schema_version: "2.0"     # the manifest schema this file follows
                           #         delivery_approach, stages, follow_ups,
                           #         reassessments). 1.x manifests are read by key
                           #         normalisation until migrated.
-task: "{{TASK_SLUG}}"
+issue: "{{ISSUE_SLUG}}"
 created: "{{DATE}}"
 status: active            # lifecycle: active (in-flight) | queued (next up,
                           # not started) | parked (stopped, resumable) |
