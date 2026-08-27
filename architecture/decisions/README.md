@@ -58,6 +58,7 @@ Rules:
 | [ADR-016](ADR-016-id-codes-are-part-of-the-frozen-vocabulary.md) | Id prefixes are part of the frozen vocabulary, and routing rule ids say routing policy rather than guardrail | accepted | ADR-012 (extends the freeze from terms to codes); ADR-006 (the read side stays tolerant) |
 | [ADR-017](ADR-017-an-identifier-is-a-key-not-jargon.md) | An identifier is a key, not jargon - attach its meaning, never delete the id | accepted | ADR-012 (amends a frozen `banned:` entry); ADR-016 (states the rule for using the prefixes it defines) |
 | [ADR-018](ADR-018-the-scan-reads-every-position-by-default.md) | The vocabulary scan reads every position by default; an exclusion must be declared and reasoned | accepted | supersedes ADR-015; ADR-012 (the freeze this enforces); ADR-014 (removing retired names made it possible) |
+| [ADR-023](ADR-023-the-vocabulary-is-measured-against-anthropics-docs.md) | Where a term has a counterpart in Anthropic's platform docs, Compass uses their word with their meaning; otherwise plain English with no competing meaning | accepted | amends ADR-012 (the freeze, which had no reference text); ADR-015 (a retired name in printed output survives a green scan); ADR-019 (redirect stubs); ADR-020 (archive migrated on read); ADR-022 (a decision record keeps the words it was decided in) |
 | [ADR-013](ADR-013-vendored-third-party-code.md) | Compass may redistribute third-party code inside the plugin, and a bundled copy takes precedence over any system copy | accepted | Inv-8 (backward compat - TRC-F4/TRC-F5 hold no behaviour change); ADR-002 (no new guardrail or routing dimension added) |
 
 ## Principle → ADR mapping
@@ -90,3 +91,4 @@ enumerate at least one alternative that was genuinely considered and rejected.
 | ADR-020 | The Archive Is Migrated Not Frozen | proposed |
 | ADR-021 | A release narrative guard retires with its release | accepted |
 | ADR-022 | The issue record is a manifest | accepted |
+| ADR-023 | The vocabulary is measured against Anthropic's platform docs | accepted |
