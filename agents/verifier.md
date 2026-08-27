@@ -1,6 +1,6 @@
 ---
 name: verifier
-description: Owns the mechanical side of Verify - runs the BDD scenarios as the acceptance suite and the full TDD test suite, gathers command output and artifacts as evidence. Invoke during Verify, before the reviewer.
+description: "The mechanical half of verify: runs the scenarios as an acceptance suite and the full test suite, and gathers the output and artefacts as evidence."
 tools: Read, Glob, Grep, Bash, Write, Edit
 model: sonnet
 ---

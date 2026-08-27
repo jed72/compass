@@ -1,6 +1,6 @@
 ---
 name: product-lens
-description: Applies the product owner/manager perspective - checks the spec for intent fidelity against intent.md, curates the product strategies in governance, and gates Plan until the spec is checked against the brief. Invoke when a product owner is in play, before Plan and at the requirements review.
+description: "The product owner's perspective: checks the spec against the brief for intent fidelity, and gates the plan stage until it has."
 tools: Read, Glob, Grep, Write, Edit
 model: sonnet
 ---

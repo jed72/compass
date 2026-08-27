@@ -1,6 +1,6 @@
 ---
 name: worktree-swarm
-description: Git worktree mechanics, decomposing work into independent streams, the orchestrator/builder protocol, integration discipline, and the critical-risk worktree cap. Triggers at the design stage (decomposition) and through breakdown, implementation, and shipping on swarm and pair topologies.
+description: How parallel streams are created, isolated and integrated across git worktrees. Load at breakdown on a swarm topology.
 ---
 
 # Worktree Swarm

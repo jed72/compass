@@ -1,6 +1,6 @@
 ---
 name: architect-lens
-description: Applies the architect perspective - reads the project's architecture artifacts and the current issue's spec and plan, produces architecture-notes.md with boundary risks, invariants to preserve, and candidate ADR titles. Invoked by /compass:roundtable architect-lens or auto-triggered by spec-author when task.yml.assessment.labels contains boundary-crossing tags.
+description: "The architect's perspective: reads the project's architecture artefacts and writes the boundary risks, invariants to preserve and candidate decision records for this issue."
 tools: Read, Glob, Grep, Write, Edit
 model: sonnet
 ---

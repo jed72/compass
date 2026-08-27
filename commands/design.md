@@ -1,5 +1,5 @@
 ---
-description: Designer entry point - wireframe the interaction and produce the UI contract, as scenarios that flow into the acceptance criteria
+description: Designer entry point - produce the UI contract as scenarios that flow into the acceptance criteria
 argument-hint: "<surface or interaction being designed>"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---

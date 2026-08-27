@@ -516,9 +516,7 @@ def test_trc_c3_the_template_worked_example_records_a_decision_in_prose():
 
 def test_trc_d1_the_clarity_dimension_names_the_tells_as_judgement():
     reviewer = (REPO_ROOT / "agents" / "reviewer.md").read_text(encoding="utf-8")
-    gates = (REPO_ROOT / "skills" / "evidence-gates" / "SKILL.md").read_text(
-        encoding="utf-8"
-    )
+    gates = _evidence_gates_text()
     reference_path = "skills/compass-runtime/writing-voice.md"
 
     for name, text in (
@@ -554,6 +552,21 @@ def test_trc_d1_the_clarity_dimension_names_the_tells_as_judgement():
 # ---------------------------------------------------------------------------
 
 REFERENCE_PATH = "skills/compass-runtime/writing-voice.md"
+
+def _evidence_gates_text():
+    """Everything the evidence-gates skill says, across its whole directory.
+
+    The skill was split so its parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the fitness-function detail and the
+    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
+    reports content missing when it has moved next door.
+
+    The strings below are unchanged; only where they are looked for widened.
+    """
+    import pathlib as _p
+    d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
+    return "\n".join(sorted(p.read_text(encoding="utf-8") for p in d.glob("*.md")))
+
 
 
 def _section_after_heading(text: str, heading: str) -> str:

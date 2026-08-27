@@ -1,5 +1,5 @@
 ---
-description: The cross-issue flow view - triage, blockers, owed follow-ups, and the periodic digest across all Compass work
+description: The cross-issue view - blockers, owed follow-ups, and the periodic digest
 argument-hint: "[--digest]"
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---

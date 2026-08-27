@@ -1,6 +1,6 @@
 ---
 name: compass-runtime
-description: The stage-to-command map for a Compass project, the per-stage agents and skills, and where issue state lives on disk. Load this when a Compass-shaped issue begins and you need to know which command runs a stage, which agent owns it, and which file it writes. The behavioural rules - never skip assessment, guardrails versus strategies, evidence not assertion - are in compass-contract.md, which the SessionStart hook already put in this session.
+description: "The stage-to-command map: which command runs each pipeline stage, what it writes, which agent owns it, and where issue state lives on disk. Load when a Compass issue begins."
 ---
 
 # Compass - the stage map
@@ -117,9 +117,10 @@ framework's shipped defaults otherwise.
 
 Before writing a devlog entry, a requirements review, or anything else this
 skill produces, read `skills/compass-runtime/writing-voice.md` - the
-principle, real before-and-after pairs from this project's own archive, and
-the tells that mark prose narrating the pipeline instead of communicating a
-decision.
+principle and the tells that mark prose narrating the pipeline instead of
+communicating a decision. `writing-voice-worked-example.md` beside it carries
+the before-and-after pairs from this project's own archive, for when the
+principle alone does not settle a sentence.
 
 ## When you are unsure
 

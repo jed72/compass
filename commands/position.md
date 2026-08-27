@@ -1,5 +1,5 @@
 ---
-description: Product marketer entry point - positioning and launch readiness, every claim traceable
+description: Marketer entry point - positioning, and the claims that will need scenarios
 argument-hint: "<what is being positioned>"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---

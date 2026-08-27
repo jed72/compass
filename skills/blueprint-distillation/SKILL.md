@@ -1,6 +1,6 @@
 ---
 name: blueprint-distillation
-description: How to reverse-engineer existing behaviour into BDD scenarios before changing it, on brownfield ground. Triggers at the define stage whenever familiarity is brownfield-unmapped (a policy floor) and is good practice on any brownfield work.
+description: How to reverse-engineer existing behaviour into scenarios before changing it. Load on brownfield work whose behaviour is not written down.
 ---
 
 # Blueprint Distillation

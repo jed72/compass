@@ -56,6 +56,21 @@ WORKED_EXAMPLE_PATH = "skills/compass-runtime/writing-voice-worked-example.md"
 STASH_SECTION_PATH = "skills/worktree-swarm/SKILL.md"
 STASH_SECTION_HEADING = "Never stash across a worktree hop"
 
+def _evidence_gates_text():
+    """Everything the evidence-gates skill says, across its whole directory.
+
+    The skill was split so its parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the fitness-function detail and the
+    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
+    reports content missing when it has moved next door.
+
+    The strings below are unchanged; only where they are looked for widened.
+    """
+    import pathlib as _p
+    d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
+    return "\n".join(sorted(p.read_text(encoding="utf-8") for p in d.glob("*.md")))
+
+
 
 def _flat(text: str) -> str:
     """Collapse every run of whitespace to one space.
@@ -180,7 +195,7 @@ def test_trc_a2_strategy_states_its_test_and_its_failure_mode():
 
 def test_trc_b1_reviewer_and_evidence_gates_point_at_the_strategy_not_repeat_it():
     reviewer = REVIEWER.read_text(encoding="utf-8")
-    gates = EVIDENCE_GATES.read_text(encoding="utf-8")
+    gates = _evidence_gates_text()
 
     strategy_heading = _strategy_entry().split("\n", 1)[0].strip()
     match = re.search(r"`(S\d+)`", strategy_heading)
@@ -240,7 +255,7 @@ def test_trc_f1_no_new_gate_guardrail_cli_verb_or_vocabulary():
     assert len(guardrails["defaults"]) == 5
 
     reviewer = REVIEWER.read_text(encoding="utf-8")
-    gates = EVIDENCE_GATES.read_text(encoding="utf-8")
+    gates = _evidence_gates_text()
     for name, text in (("agents/reviewer.md", reviewer),
                         ("skills/evidence-gates/SKILL.md", gates)):
         assert "never an automatic gate failure" in text.lower(), (

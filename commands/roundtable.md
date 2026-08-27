@@ -1,5 +1,5 @@
 ---
-description: Convene multiple roles on a question, surface the tradeoffs, record the decision
+description: Multi-role decision - bring the role perspectives to one question
 argument-hint: "<the question or decision to work through>"
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---

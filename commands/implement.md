@@ -1,5 +1,5 @@
 ---
-description: Implement via TDD - red, green, refactor - one builder per worktree
+description: Write the code, driving red-green-refactor through the CLI
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 ---
 

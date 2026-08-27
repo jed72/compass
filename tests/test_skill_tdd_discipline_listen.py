@@ -13,9 +13,26 @@ from pathlib import Path
 
 SKILL_MD = Path(__file__).parent.parent / "skills" / "tdd-discipline" / "SKILL.md"
 
+def _skill_text(skill_name):
+    """Everything the skill says, across every file in its directory.
+
+    A skill used to be one file. The long ones are now split - the parts load
+    when they are needed instead of the whole thing loading to answer one
+    question - so a guard that reads only SKILL.md reports content missing
+    when it has merely moved next door.
+
+    The strings each guard looks for are unchanged. Only where it looks has
+    widened, and deleting the content still fails.
+    """
+    import pathlib as _p
+    d = _p.Path(__file__).parent.parent / "skills" / skill_name
+    return "\n".join(sorted(
+        p.read_text(encoding="utf-8") for p in d.glob("*.md")))
+
+
 
 def _read_skill() -> str:
-    return SKILL_MD.read_text(encoding="utf-8")
+    return _skill_text("tdd-discipline")
 
 
 # --- TRC-C2 tests ---

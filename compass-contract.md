@@ -8,9 +8,15 @@ how well the ground is mapped, how big it is, and what the goal is - and the
 CLI turns them into the process. You do not choose the process. Conversation
 is exempt: answering a question, explaining code, reading to understand.
 
+**Never skip assessment.** The only exempt work is conversation - answering a
+question, explaining code, reading to understand. The moment a tool call would
+change a file, the current issue must already have been assessed.
+
 **Trigger on intent, not on the command.** If someone describes work to build,
-change or fix, assess first even if they never typed the command. If
-`.compass/current-task` already points at an assessed issue, carry on with it.
+change or fix, assess first even if they never typed the command. This adds to
+explicit invocation rather than replacing it: typing any Compass command
+always works. If `.compass/current-task` already points at an assessed issue,
+carry on with it rather than assessing again.
 
 **Guardrails are hard. Strategies are soft.** Five guardrails: every change
 lands with a passing test that covers it; acceptance criteria exist before the
@@ -21,24 +27,21 @@ scenarios - are how you satisfy those, and they bend where a guardrail does
 not.
 
 **Evidence, not assertion.** "The tests pass" clears nothing. Drive the cycle
-through the CLI: `compass tdd-red -- <test command>` runs the test, proves it
-fails and records that; `compass tdd-green -- <test command>` proves it passes
-and records that. `compass check` verifies the guardrails against what is on
-disk.
+through the CLI: `compass tdd-red -- <cmd>` proves a test fails and records it;
+`compass tdd-green -- <cmd>` proves it passes. `compass check` verifies the
+guardrails against what is on disk.
 
 **If it is not on disk, it did not happen.** Each stage writes its artefact
 under `.compass/work/<issue>/`. A later session, or another agent, picks the
 work up from those files without re-deriving anything.
 
-**Stages, in order:** assess, define acceptance criteria, refine, design, break
-down, implement, verify, ship. Each has a `/compass:*` command. The delivery
-approach written at assessment says which stages run at what weight, and why
-any was skipped. Honour it.
+**Stages, in order:** assess, define acceptance criteria, refine, plan, break
+down, implement, verify, ship - each with a `/compass:*` command. The delivery
+approach written at assessment says which run at what weight and why any was
+skipped. Honour it.
 
-**Where to look.** `compass <verb> --help` explains any verb. `/compass:status`
-and `/compass:flow` report across issues. Agents live in `agents/`, skills in
-`skills/`, and the governance in force is whichever `governance/` the CLI
-resolves - the project's own if it has one, the shipped defaults otherwise.
+**Where to look.** `compass <verb> --help` explains any verb; the
+`compass-runtime` skill has the stage map, the agents and the on-disk layout.
 
-**Write for someone with no context.** Say why before what. Never leave a
-reference a reader cannot follow. Stop once you have said it.
+**Write for someone with no context.** Why before what, no reference a reader
+cannot follow, and stop once you have said it.

@@ -1,5 +1,5 @@
 ---
-description: Pick up an existing Compass issue from disk and continue it
+description: Pick up an issue that already has state on disk
 argument-hint: "<task-slug>"
 allowed-tools: Read, Write, Glob, Grep
 ---

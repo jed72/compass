@@ -36,6 +36,21 @@ STRATEGIES = REPO_ROOT / "governance" / "strategies.md"
 VERIFY_CMD = REPO_ROOT / "commands" / "verify.md"
 EVIDENCE_GATES = REPO_ROOT / "skills" / "evidence-gates" / "SKILL.md"
 
+def _evidence_gates_text():
+    """Everything the evidence-gates skill says, across its whole directory.
+
+    The skill was split so its parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the fitness-function detail and the
+    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
+    reports content missing when it has moved next door.
+
+    The strings below are unchanged; only where they are looked for widened.
+    """
+    import pathlib as _p
+    d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
+    return "\n".join(sorted(p.read_text(encoding="utf-8") for p in d.glob("*.md")))
+
+
 
 def _flat(text: str) -> str:
     """Collapse every run of whitespace to one space.
@@ -170,7 +185,7 @@ def test_trc_a2_strategy_states_prohibition_evidence_and_cross_references_s8():
 
 def test_trc_b1_verify_guidance_points_at_the_strategy_not_repeat_it():
     verify_cmd = VERIFY_CMD.read_text(encoding="utf-8")
-    gates = EVIDENCE_GATES.read_text(encoding="utf-8")
+    gates = _evidence_gates_text()
 
     strategy_heading = _strategy_entry().split("\n", 1)[0].strip()
     match = re.search(r"`(S\d+)`", strategy_heading)
@@ -351,7 +366,7 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
 
     # The reviewer's governance dimension stays the home for this - no new
     # gate id is introduced anywhere the pointer lives.
-    gates = EVIDENCE_GATES.read_text(encoding="utf-8")
+    gates = _evidence_gates_text()
     assert "**governance**" in gates, (
         "the governance dimension (where this is assessed) must still exist "
         "in skills/evidence-gates/SKILL.md"
