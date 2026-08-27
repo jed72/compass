@@ -29,7 +29,7 @@ import compass_pkg  # noqa: E402,F401
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -44,7 +44,7 @@ import compass_pkg  # noqa: E402,F401
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -88,7 +88,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -163,7 +163,7 @@ def build_parser():
                           "labels=a,b,c)")
     pre.add_argument("--write", action="store_true",
                      help="fold the approach, stages and gates back into the "
-                          "issue's task.yml")
+                          "issue's manifest.yml")
     pre.add_argument("--reason",
                      help="when --write detects a re-assessment (the "
                           "approach's content changed), record this as the "
@@ -305,11 +305,11 @@ def build_parser():
                       help="path to the brief, or an https URL holding it")
     ping.set_defaults(func=cmd_intent_ingest, output_kind="report")
 
-    pt = sub.add_parser("issue", help="issue spine tools")
+    pt = sub.add_parser("issue", help="issue manifest tools")
     pts = pt.add_subparsers(dest="subcmd", required=True)
-    ptl = pts.add_parser("lint", help="structurally validate a task.yml")
+    ptl = pts.add_parser("lint", help="structurally validate a manifest.yml")
     issue_arg(ptl)
-    ptl.add_argument("--file", help="lint a specific task.yml file")
+    ptl.add_argument("--file", help="lint a specific manifest.yml file")
     ptl.set_defaults(func=cmd_task_lint, output_kind="report")
 
     ptr = pts.add_parser("receipt", help="render a one-screen receipt for an issue")
@@ -319,7 +319,7 @@ def build_parser():
 
     ptd = pts.add_parser("dashboard", help="render the per-issue review README from the artifact registry")
     issue_arg(ptd)
-    ptd.add_argument("--check", action="store_true", help="report whether the README matches the spine; write nothing")
+    ptd.add_argument("--check", action="store_true", help="report whether the README matches the manifest; write nothing")
     ptd.set_defaults(func=cmd_issue_dashboard, output_kind="hand-off")
 
     pta = pts.add_parser("artifact", help="set a document's status in the issue's review pack")
@@ -377,7 +377,7 @@ def build_parser():
     prs2.add_argument(
         "--root",
         default=None,
-        help="root directory to scan for task.yml files "
+        help="root directory to scan for manifest.yml files "
              "(default: .compass/work/ in the current project)",
     )
     prs2.add_argument(
@@ -429,7 +429,7 @@ def build_parser():
     pbfs = pbf.add_subparsers(dest="subcmd", required=True)
     pbfp = pbfs.add_parser(
         "resolve",
-        help="mark a follow-up resolved in an issue's task.yml"
+        help="mark a follow-up resolved in an issue's manifest.yml"
     )
     pbfp.add_argument(
         "--issue", dest="task", metavar="SLUG", required=True,
@@ -454,7 +454,7 @@ def build_parser():
                      help="optional paths to stage before committing")
     plc.set_defaults(func=cmd_land_commit, output_kind="hand-off")
 
-    # --- task-spine mutators (R9) + gate pass (R6) --------------------------
+    # --- manifest mutators (R9) + gate pass (R6) --------------------------
     pgate = sub.add_parser("gate", help="issue gate tools")
     pgs = pgate.add_subparsers(dest="subcmd", required=True)
     pgp = pgs.add_parser(
@@ -467,7 +467,7 @@ def build_parser():
 
     pscn = sub.add_parser("scenario", help="issue scenario tools")
     pscs = pscn.add_subparsers(dest="subcmd", required=True)
-    psca = pscs.add_parser("add", help="append a scenario to task.yml")
+    psca = pscs.add_parser("add", help="append a scenario to manifest.yml")
     psca.add_argument("scenario_id", help="scenario id (e.g. TRC-A1)")
     issue_arg(psca)
     psca.add_argument("--title", help="scenario title")

@@ -87,7 +87,7 @@ def _project(tmp_path, *, blast="critical", touches=None, approval=False,
     }
     if status == "landed":
         task["land_timestamp"] = "2026-08-06T00:00:00Z"
-    (task_dir / "task.yml").write_text(yaml.safe_dump(task, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(task, sort_keys=False))
     return root
 
 

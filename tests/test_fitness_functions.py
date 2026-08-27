@@ -85,7 +85,7 @@ def _make_project(
     (compass_dir / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\nallow_project_commands: true\n")
 
-    # task.yml
+    # manifest.yml
     gates = task_gates if task_gates is not None else [
         {"id": "verify.fitness", "status": "pending", "evidence": []}
     ]
@@ -112,7 +112,7 @@ def _make_project(
         "evidence": [],
         "gates": gates,
     }
-    with open(task_dir / "task.yml", "w") as f:
+    with open(task_dir / "manifest.yml", "w") as f:
         yaml.safe_dump(task_doc, f)
 
     (task_dir / "evidence").mkdir()

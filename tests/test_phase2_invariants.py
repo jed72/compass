@@ -60,7 +60,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     work = ROOT / ".compass" / "work"
     if not work.is_dir():
         return
-    slugs = sorted(p.name for p in work.iterdir() if (p / "task.yml").is_file())
+    slugs = sorted(p.name for p in work.iterdir() if (p / "manifest.yml").is_file())
     assert slugs, "no tasks on disk - this guard would be empty"
 
     # A Spike runs `spike_guardrails`, not G1-G5 - the BDD and TDD strategies
@@ -68,7 +68,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     # correctly never fires. Excluded rather than asserted over.
     spikes = set()
     for slug in slugs:
-        data = yaml.safe_load((work / slug / "task.yml").read_text()) or {}
+        data = yaml.safe_load((work / slug / "manifest.yml").read_text()) or {}
         if data.get("delivery_approach") == "spike":
             spikes.add(slug)
     slugs = [s for s in slugs if s not in spikes]
@@ -122,7 +122,7 @@ EXPECTED_SUBCOMMANDS = {
     # and the work directory - and is safe to run twice. It exists because
     # nothing owned initialisation: /compass:init created the directories at
     # the end of a governance conversation, /compass:assess created them as a
-    # side effect of writing a spine, and four of the five role entry points
+    # side effect of writing a manifest, and four of the five role entry points
     # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
     # rather than a subcommand because there is no group it belongs under, and
     # because the five entry points call it directly.

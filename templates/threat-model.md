@@ -2,7 +2,7 @@
 TEMPLATE: threat-model.md
 Produced by: the design stage, on an issue whose assessment carries `auth`,
              `payments` or `personal-data` (RP-REQUIRE-005).
-Lives at:    .compass/work/<task-slug>/threat-model.md
+Lives at:    .compass/work/<issue-slug>/threat-model.md
 
 THE FOUR QUESTIONS BELOW ARE NOT OURS. They are the Threat Modeling
 Manifesto's (threatmodelingmanifesto.org), verbatim, from a fifteen-person

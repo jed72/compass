@@ -163,7 +163,7 @@ def test_the_packaged_plugin_contains_the_bundled_copy(source_clone, bare_interp
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
     import yaml as _yaml_for_fixture_only  # test-harness use only; not the CLI's own import path
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         _yaml_for_fixture_only.safe_dump({
             "task": slug, "created": "2026-08-10",
             "assessment": {"risk": "contained", "familiarity": "greenfield",
@@ -180,4 +180,4 @@ def test_the_packaged_plugin_contains_the_bundled_copy(source_clone, bare_interp
     combined = (result.stdout + result.stderr).lower()
     assert "pip install pyyaml" not in combined, combined
     assert "is required but not installed" not in combined, combined
-    assert (task_dir / "task.yml").is_file()
+    assert (task_dir / "manifest.yml").is_file()

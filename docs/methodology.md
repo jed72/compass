@@ -151,7 +151,7 @@ Two files anchor the pack:
 
 - `README.md` is the human dashboard: route, status, decisions, approval and
   next action.
-- `task.yml` is the machine-readable spine: assessment, stage state, gates,
+- `manifest.yml` is the manifest: assessment, stage state, gates,
   traceability and evidence registry.
 
 Other artefacts are selected by the route. They may include:
@@ -253,7 +253,7 @@ Compass separates what it believes from how a runtime executes it:
 | Layer | Contains | Porting rule |
 |---|---|---|
 | Methodology | Documentation, governance prose, reference approaches and templates | Reuse unchanged. |
-| Kit | Python CLI, machine-readable policy, schemas and issue spine | Invoke unchanged. |
+| Kit | Python CLI, machine-readable policy, schemas and issue manifest | Invoke unchanged. |
 | Adapter | Runtime commands, agents, skills, hooks and installation wiring - `bin/compass` and `.claude-plugin/` in the shipped one | Rebuild for the target runtime. |
 
 The adapter produces the assessment because that requires judgement. It calls

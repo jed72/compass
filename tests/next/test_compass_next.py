@@ -1,14 +1,14 @@
 """Tests for `compass next` - TRC-C4 through C10, TRC-F6.
 
-`compass next` is a pure read-only subcommand that reads task.yml + route.md
+`compass next` is a pure read-only subcommand that reads manifest.yml + route.md
 and prints exactly one line: the next phase, the next-uncleared gate, and
 route-aware optional markers.
 
 Design decisions honoured:
   - Pure read-only (TRC-C7): no files in .compass/work/<task>/ are touched.
-  - Derives from task.yml + route.md only (TRC-C8).
+  - Derives from manifest.yml + route.md only (TRC-C8).
   - < 200 ms p95 (TRC-C10, provisional BF-1 target).
-  - Reports missing Frame when task.yml absent (TRC-C9).
+  - Reports missing Frame when manifest.yml absent (TRC-C9).
   - Reports missing route.md when it is absent (TRC-F6).
   - Reports nothing-remains on a completed task (TRC-C6).
   - Shows collapsed phases on Express routes (TRC-C5).
@@ -72,10 +72,10 @@ def make_project(tmp_path: Path) -> Path:
 
 def make_task(project: Path, slug: str, task_body: dict,
               route_md: Optional[str] = None) -> Path:
-    """Create .compass/work/<slug>/task.yml and optionally route.md."""
+    """Create .compass/work/<slug>/manifest.yml and optionally route.md."""
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
-    task_path = task_dir / "task.yml"
+    task_path = task_dir / "manifest.yml"
     with task_path.open("w") as fh:
         yaml.safe_dump(task_body, fh, sort_keys=False)
     if route_md is not None:
@@ -391,12 +391,12 @@ class TestNextIsReadOnly:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C8 - next derives its answer only from task.yml and the route
+# TRC-C8 - next derives its answer only from manifest.yml and the route
 # ---------------------------------------------------------------------------
 
 class TestNextDerivesFromTaskYmlOnly:
     def test_next_works_from_scratch_dir(self, tmp_path):
-        """TRC-C8 - moved task.yml + route.md to scratch dir gives same answer."""
+        """TRC-C8 - moved manifest.yml + route.md to scratch dir gives same answer."""
         # Build original project
         project = make_project(tmp_path)
         task_body = dict(STANDARD_TASK)
@@ -407,7 +407,7 @@ class TestNextDerivesFromTaskYmlOnly:
         assert result_original.returncode == 0
         original_output = result_original.stdout.strip()
 
-        # Build scratch project with identical task.yml + route.md
+        # Build scratch project with identical manifest.yml + route.md
         scratch = tmp_path / "scratch"
         scratch.mkdir()
         scratch_compass = scratch / ".compass"
@@ -417,9 +417,9 @@ class TestNextDerivesFromTaskYmlOnly:
             dst_gov = scratch / "governance"
             dst_gov.mkdir(exist_ok=True)
             shutil.copyfile(f, dst_gov / f.name)
-        # Copy only task.yml and route.md
-        shutil.copyfile(task_dir / "task.yml",
-                        scratch_compass / "work" / "test-task" / "task.yml")
+        # Copy only manifest.yml and route.md
+        shutil.copyfile(task_dir / "manifest.yml",
+                        scratch_compass / "work" / "test-task" / "manifest.yml")
         shutil.copyfile(task_dir / "delivery-approach.md",
                         scratch_compass / "work" / "test-task" / "delivery-approach.md")
         (scratch_compass / "config.yml").write_text(
@@ -435,7 +435,7 @@ class TestNextDerivesFromTaskYmlOnly:
             f"compass next gave different output from scratch dir.\n"
             f"  original : {original_output!r}\n"
             f"  scratch  : {scratch_output!r}\n"
-            "The command must derive its answer from task.yml + route.md only."
+            "The command must derive its answer from manifest.yml + route.md only."
         )
 
 
@@ -445,9 +445,9 @@ class TestNextDerivesFromTaskYmlOnly:
 
 class TestNextNoFrame:
     def test_no_task_yml_reports_frame_needed(self, tmp_path):
-        """TRC-C9 - when task.yml is absent, next reports Frame has not run."""
+        """TRC-C9 - when manifest.yml is absent, next reports Frame has not run."""
         project = make_project(tmp_path)
-        # Create task directory but NO task.yml
+        # Create task directory but NO manifest.yml
         task_dir = project / ".compass" / "work" / "unframed-task"
         task_dir.mkdir(parents=True)
         (project / ".compass" / "current-task").write_text("unframed-task")
@@ -457,12 +457,12 @@ class TestNextNoFrame:
             "compass next should exit non-zero when Frame has not run"
         )
         combined = result.stdout + result.stderr
-        assert "frame" in combined.lower() or "task.yml" in combined.lower(), (
-            "compass next should mention Frame or task.yml when it is absent"
+        assert "frame" in combined.lower() or "manifest.yml" in combined.lower(), (
+            "compass next should mention Frame or manifest.yml when it is absent"
         )
 
     def test_no_task_yml_exit_nonzero(self, tmp_path):
-        """TRC-C9 - exit code is non-zero when task.yml absent."""
+        """TRC-C9 - exit code is non-zero when manifest.yml absent."""
         project = make_project(tmp_path)
         task_dir = project / ".compass" / "work" / "no-frame"
         task_dir.mkdir(parents=True)

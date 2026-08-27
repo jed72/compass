@@ -17,7 +17,7 @@ release to a clean, reproducible artifact.
 compatibility promise, not the size of the change:
 
 - **major** - something a caller could call stops working. Removing a command,
-  a verb, a flag spelling or a spine key is a major bump however small the
+  a verb, a flag spelling or a manifest key is a major bump however small the
   diff, and however few people it affects. 3.0.0 removed the retired command
   and flag spellings; "no adopters yet" was the reason it was cheap, not a
   reason to call it minor.
@@ -31,8 +31,8 @@ it, and a break is paid once, at a major, with the reason recorded.
 **When a change looks like it forces a major, removing the break is a
 legitimate response; redefining the break is not.** 3.1.0 is the worked case:
 triage started recording a stream ceiling where it had recorded a topology,
-and nothing normalised the old field - so every spine written earlier read as
-`None`. That was a major. Normalising old spines on read made it a minor, and
+and nothing normalised the old field - so every manifest written earlier read as
+`None`. That was a major. Normalising old manifests on read made it a minor, and
 normalising was owed under ADR-006 regardless of what it did to the number.
 The test is whether you would make the change with the version hidden. Arguing
 that the break is tolerable is the other thing, and it is not this.
@@ -110,7 +110,7 @@ that the break is tolerable is the other thing, and it is not this.
      (`.DS_Store`, `__MACOSX`, `__pycache__`, `*.bak`, `.pytest_cache`,
      `_deltest`, `pytest-cache-files-*`).
    - **Hard-fails** if any of the worked examples under `examples/` is
-     missing its `.compass/work/<slug>/task.yml`. This was a real
+     missing its `.compass/work/<slug>/manifest.yml`. This was a real
      packaging bug in early releases: the `.compass/work` exclude was
      not root-anchored and silently stripped the example issue files.
 
@@ -176,7 +176,7 @@ catch common drift:
 | Invariant | Defender |
 |---|---|
 | All four version locations agree | `tests/test_release_invariants.py` (partial-bump guard) |
-| Pre-v1.1.0 task.yml shapes still lint clean | `tests/test_release_invariants.py` (ADR-006 backward-compat, via the `tests/fixtures/comparison-requirements/` fixture) |
+| Pre-v1.1.0 manifest.yml shapes still lint clean | `tests/test_release_invariants.py` (ADR-006 backward-compat, via the `tests/fixtures/comparison-requirements/` fixture) |
 | `signals.yml` shape stays valid | `tests/test_release_invariants.py` (`design_smell` category, etc.) |
 | Every CLI subcommand appears in the public CLI blocks | `tests/test_cli_surface_drift.py` (parses `compass --help`) |
 | `docs/install-smoke-test.md` shows the current version | `tests/test_cli_surface_drift.py` (reads `VERSION`, asserts the smoke-test matches) |

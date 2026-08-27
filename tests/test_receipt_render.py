@@ -134,7 +134,7 @@ def _landed_task(project: Path, slug: str = "alpha",
         "follow_ups": [],
         "reassessments": [],
     }
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         yaml.safe_dump(task_body, sort_keys=False), encoding="utf-8")
     (task_dir / "delivery-approach.md").write_text(
         _make_route_md(slug, readings, "standard"), encoding="utf-8")
@@ -255,7 +255,7 @@ def test_receipt_fits_one_screen(run_cli, project):
 def _active_task(project: Path, slug: str = "alpha") -> Path:
     """Build a task that has not yet landed: status=active, gates pending."""
     task_dir = _landed_task(project, slug=slug)
-    task_yml = task_dir / "task.yml"
+    task_yml = task_dir / "manifest.yml"
     body = yaml.safe_load(task_yml.read_text())
     body["status"] = "active"
     for g in body["gates"]:
@@ -304,12 +304,12 @@ def test_failed_gate_prominent(run_cli, project):
     """TRC-C3: a task with a failed gate renders the failure prominently and
     exits 0 (the receipt is a renderer; enforcement is `compass check`'s job)."""
     task_dir = _landed_task(project, slug="alpha")
-    body = yaml.safe_load((task_dir / "task.yml").read_text())
+    body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     # Mark verify.regression as fail
     for g in body["gates"]:
         if g["id"] == "verify.regression":
             g["status"] = "fail"
-    (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     result = run_cli("issue", "receipt", "--issue", "alpha")
     assert result.returncode == 0, repr(result)
@@ -332,14 +332,14 @@ def test_failed_gate_prominent(run_cli, project):
 def test_owed_backfills_surfaced(run_cli, project):
     """TRC-C4: a task with owed backfills is rendered as owing."""
     task_dir = _landed_task(project, slug="alpha")
-    body = yaml.safe_load((task_dir / "task.yml").read_text())
+    body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     body["follow_ups"] = [
         {"id": "BF-001", "description": "Promote reproduction into a scenario",
          "status": "owed"},
         {"id": "BF-002", "description": "Already paid one",
          "status": "paid"},
     ]
-    (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     result = run_cli("issue", "receipt", "--issue", "alpha")
     assert result.returncode == 0, repr(result)
@@ -389,12 +389,12 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
     """TRC-B1: the receipt labels each evidence type with its name and shows
     the type-specific minimal fields on the same row."""
     task_dir = _landed_task(project, slug="alpha")
-    body = yaml.safe_load((task_dir / "task.yml").read_text())
+    body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     body["evidence"] = [{"id": "EV-X", "type": etype, **fields}]
     # Point every gate at EV-X so the row appears in the registry.
     for g in body["gates"]:
         g["evidence"] = ["EV-X"]
-    (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     result = run_cli("issue", "receipt", "--issue", "alpha")
     assert result.returncode == 0, repr(result)
@@ -424,7 +424,7 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
     # the line hit its column cap it printed as `evidence/gr...`, which looks
     # like information and is not.
     #
-    # The path is still in the spine and still resolves - `compass check`'s
+    # The path is still in the manifest and still resolves - `compass check`'s
     # gate-evidence-present reads it. What changed is that the receipt stopped
     # printing it, and the receipt is a summary for a person rather than an
     # index for a machine.
@@ -443,14 +443,14 @@ def test_wrong_typed_evidence_flagged(run_cli, project):
     "type-mismatch" (not as a clean pass). Exit 0 - receipt reports, does not
     enforce (Q4)."""
     task_dir = _landed_task(project, slug="alpha")
-    body = yaml.safe_load((task_dir / "task.yml").read_text())
+    body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     # verify.correctness requires test-run; we clear it with an artifact.
     body["evidence"] = [{"id": "EV-Z", "type": "artifact",
                          "path": "evidence/note.md"}]
     body["gates"] = [g for g in body["gates"] if g["id"] != "verify.correctness"]
     body["gates"].insert(0, {"id": "verify.correctness",
                              "status": "pass", "evidence": ["EV-Z"]})
-    (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     result = run_cli("issue", "receipt", "--issue", "alpha")
     assert result.returncode == 0, repr(result)
@@ -472,12 +472,12 @@ def test_wrong_typed_evidence_flagged(run_cli, project):
 def test_unsupported_pass_flagged(run_cli, project):
     """TRC-C2: a pass gate with no evidence id is rendered as "unsupported"."""
     task_dir = _landed_task(project, slug="alpha")
-    body = yaml.safe_load((task_dir / "task.yml").read_text())
+    body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     for g in body["gates"]:
         if g["id"] == "verify.governance":
             g["status"] = "pass"
             g["evidence"] = []  # the bare-pass-no-evidence case
-    (task_dir / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
     result = run_cli("issue", "receipt", "--issue", "alpha")
     assert result.returncode == 0, repr(result)
@@ -496,7 +496,7 @@ def test_unsupported_pass_flagged(run_cli, project):
 
 
 def test_schema_1_0_renders(run_cli, project):
-    """TRC-D2: a schema-1.0 task.yml (pre-status field, possibly no evidence:
+    """TRC-D2: a schema-1.0 manifest.yml (pre-status field, possibly no evidence:
     list) renders without error.
 
     INT-3 / ADR-006: every new mechanism no-ops cleanly on projects that have
@@ -521,7 +521,7 @@ def test_schema_1_0_renders(run_cli, project):
         },
         "delivery_approach": "express",
     }
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         yaml.safe_dump(legacy_body, sort_keys=False))
     # No route.md, no evidence/, no gates - the absent-data path.
 

@@ -50,7 +50,7 @@ shipped governance defaults stay in force, and adopting your own is what
    with the guardrails in `governance/guardrails.md` (e.g. a project
    accessibility floor). A contract that cannot meet a guardrail is a
    tension to name now, not later.
-3. **Write `ui-contract.md`** into `.compass/work/<task-slug>/`.
+3. **Write `ui-contract.md`** into `.compass/work/<issue-slug>/`.
 
 ## How this connects to the pipeline
 

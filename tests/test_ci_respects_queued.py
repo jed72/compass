@@ -62,7 +62,7 @@ def _project(tmp_path, slug, status):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\n", encoding="utf-8")
-    (work / "task.yml").write_text(
+    (work / "manifest.yml").write_text(
         SPINE.format(slug=slug, status=status), encoding="utf-8")
     gov = tmp_path / "governance"
     gov.mkdir()

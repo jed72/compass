@@ -31,7 +31,7 @@ import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "cli"))
 
-from compass_pkg import task_spine                              # noqa: E402
+from compass_pkg import manifest                              # noqa: E402
 
 TASK = {
     "task": "demo",
@@ -40,13 +40,13 @@ TASK = {
 
 
 def _scope():
-    return task_spine._land_scope(TASK, "demo")
+    return manifest._land_scope(TASK, "demo")
 
 
 def test_rcd_d1_current_task_pointer_in_scope():
     """The pointer triage writes must not be refused by the commit that ships it."""
     owned, artifact_dir = _scope()
-    stray = task_spine._out_of_scope(
+    stray = manifest._out_of_scope(
         ["src/app.py", ".compass/current-task"], owned, artifact_dir)
 
     assert ".compass/current-task" not in stray, (
@@ -59,7 +59,7 @@ def test_rcd_d1_current_task_pointer_in_scope():
 def test_rcd_d1b_the_issues_own_artifacts_stay_in_scope():
     """The existing allowance must survive the widening."""
     owned, artifact_dir = _scope()
-    stray = task_spine._out_of_scope(
+    stray = manifest._out_of_scope(
         ["src/app.py", ".compass/work/demo/technical-design.md"], owned, artifact_dir)
 
     assert stray == [], (
@@ -75,7 +75,7 @@ def test_rcd_d2_unrelated_file_still_refused():
     would re-open the case where a formatter's output rides into the commit.
     """
     owned, artifact_dir = _scope()
-    stray = task_spine._out_of_scope(
+    stray = manifest._out_of_scope(
         ["src/app.py", "src/unrelated.py", "vendor/generated.js"],
         owned, artifact_dir)
 
@@ -97,12 +97,12 @@ def test_rcd_d2b_a_sibling_issues_artifacts_are_still_refused():
     # the artifact directory carries its trailing slash, so the earlier
     # fixture left that boundary untested - and slugs that extend one another
     # are ordinary here (rehearsal-recordings beside rehearsal-cli-defects).
-    stray = task_spine._out_of_scope(
-        [".compass/work/demo-2/task.yml",
-         ".compass/work/some-other-issue/task.yml"], owned, artifact_dir)
+    stray = manifest._out_of_scope(
+        [".compass/work/demo-2/manifest.yml",
+         ".compass/work/some-other-issue/manifest.yml"], owned, artifact_dir)
 
-    assert stray == [".compass/work/demo-2/task.yml",
-                     ".compass/work/some-other-issue/task.yml"], (
+    assert stray == [".compass/work/demo-2/manifest.yml",
+                     ".compass/work/some-other-issue/manifest.yml"], (
         "a sibling issue's artifacts were accepted into this issue's commit - "
         "the allowance widened to a prefix instead of a named set"
     )

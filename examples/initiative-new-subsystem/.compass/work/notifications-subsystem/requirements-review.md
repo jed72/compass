@@ -94,7 +94,7 @@
 - [x] **Behaviour is Given/When/Then** - all six scenarios have an observable
       `Then`; TRC-001's "5 seconds" was confirmed testable, not a wish (Q3).
 - [x] **Traceability ids assigned** - TRC-001…TRC-006, present in
-      `acceptance-criteria.md` and `task.yml`.
+      `acceptance-criteria.md` and `manifest.yml`.
 - [x] **Affected surface named** - `delivery-approach.md` and the upcoming `technical-design.md` /
       `distribution-map.md` name the module tree, the API surface, and
       `migrations/0042`.

@@ -6,7 +6,7 @@ Scenarios covered:
   TRC-D3  public-surface symbol added then removed is reported
   TRC-D4  migration created then dropped is reported
   TRC-D6  canonical fixture at tests/fixtures/rework-scan/add-then-delete-pair/
-  TRC-X2  corrupt task.yml is skipped gracefully
+  TRC-X2  corrupt manifest.yml is skipped gracefully
 
 Architectural invariants under test:
   The exit code is ALWAYS 0 when rework is detected: it is a signal, not a gate.
@@ -46,7 +46,7 @@ def run_rework_scan(root: Path, extra_args: list[str] | None = None,
 
 def write_task_yml(directory: Path, slug: str, changed_files: list[dict],
                    created: str = "2026-05-01") -> None:
-    """Write a minimal task.yml for rework-scan testing."""
+    """Write a minimal manifest.yml for rework-scan testing."""
     directory.mkdir(parents=True, exist_ok=True)
     data = {
         "slug": slug,
@@ -62,7 +62,7 @@ def write_task_yml(directory: Path, slug: str, changed_files: list[dict],
         },
         "changed_files": changed_files,
     }
-    with (directory / "task.yml").open("w", encoding="utf-8") as fh:
+    with (directory / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump(data, fh, sort_keys=False)
 
 
@@ -270,11 +270,11 @@ def test_add_then_delete_pair_fixture():
 
 
 # ---------------------------------------------------------------------------
-# TRC-X2  Corrupt task.yml is skipped gracefully
+# TRC-X2  Corrupt manifest.yml is skipped gracefully
 # ---------------------------------------------------------------------------
 
 def test_skips_malformed_task(tmp_path):
-    """TRC-X2: a malformed task.yml is skipped with a WARNING; scan completes;
+    """TRC-X2: a malformed manifest.yml is skipped with a WARNING; scan completes;
     exit code is 0.
     """
     root = tmp_path / "work"
@@ -285,10 +285,10 @@ def test_skips_malformed_task(tmp_path):
         {"path": "services/foo/handler.go", "action": "added"},
     ])
 
-    # Write a corrupt task.yml (invalid YAML)
+    # Write a corrupt manifest.yml (invalid YAML)
     bad_dir = root / "task-corrupt"
     bad_dir.mkdir(parents=True, exist_ok=True)
-    (bad_dir / "task.yml").write_text(
+    (bad_dir / "manifest.yml").write_text(
         "slug: corrupt\nchanged_files: [\n  UNCLOSED BRACKET\n",
         encoding="utf-8",
     )
@@ -296,7 +296,7 @@ def test_skips_malformed_task(tmp_path):
     proc = run_rework_scan(root, signals_yml=signals)
 
     assert proc.returncode == 0, (
-        f"TRC-X2: exit code must be 0 even when a task.yml is corrupt. "
+        f"TRC-X2: exit code must be 0 even when a manifest.yml is corrupt. "
         f"Got {proc.returncode}\n{proc.stderr}"
     )
     combined = proc.stdout + proc.stderr

@@ -2,7 +2,7 @@
 
 > **Author:** jed72 · **Date:** 2026-08-26
 > **Governance owner check:** consistent with `governance/strategies.md`.
-> This brief is the parent of six issues. Each issue's `task.yml` names the
+> This brief is the parent of six issues. Each issue's `manifest.yml` names the
 > INT ids it traces to. It lives here, not under `.compass/work/`, because it
 > is the first human-facing artefact under the `docs/compass/` convention
 > that INT-3 introduces.
@@ -37,9 +37,9 @@ Human-facing artefacts are where a reviewer would look for them.
 - INT-3 Every artefact a human reviews (intent, acceptance criteria,
   technical design, distribution map, threat model, rollback plan,
   verification report, ADRs) lives under `docs/compass/`; `.compass/work/`
-  holds only the spine, evidence and markers.
+  holds only the manifest, evidence and markers.
 - INT-4 A quick-fix issue reads one command and one skill and produces the
-  spine plus red/green evidence and nothing else; resident per-turn cost is
+  manifest plus red/green evidence and nothing else; resident per-turn cost is
   at or under Superpowers' (about 1k tokens).
 - INT-5 A green cannot be recorded without a red on record for the same
   scenario; the hook checks a digested red record rather than an empty
@@ -53,7 +53,7 @@ Human-facing artefacts are where a reviewer would look for them.
 
 - The routing engine, typed evidence and check semantics do not change
   shape; this is a product layer fix, not an engine rewrite.
-- Backward compatibility with 2.0 spines holds (ADR-006).
+- Backward compatibility with 2.0 manifests holds (ADR-006).
 - `.compass/work/` stays as the machine record; nothing that `compass check`
   reads moves out of it.
 - Claude Code only. No cross-LLM work in this cycle.
@@ -84,7 +84,7 @@ opens `docs/compass/<issue>/` and finds everything they need (INT-3).
 
 **What could make this fail?**
 INT-3 is the one with the blast radius: two locations for one issue means
-the spine must carry artefact paths and every reader (check, next, analyze,
+the manifest must carry artefact paths and every reader (check, next, analyze,
 receipt, ship-commit, the hook's exemptions, the examples, CI fixtures) must
 follow them. Doing INT-6 before INT-3 pays the debt twice. Doing INT-5 before
 INT-3 writes the red-record check against paths that are about to move.

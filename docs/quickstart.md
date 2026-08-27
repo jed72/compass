@@ -61,7 +61,7 @@ directly.
 Either way, what you have installed is three layers: the **methodology** (the
 markdown in `docs/`, `governance/*.md`, `approaches/` and `templates/`, read in
 place and never copied), the **kit** (`cli/compass`, `governance/*.yml`,
-`schemas/` and the `task.yml` spine, which is the deterministic mechanism), and
+`schemas/` and the `manifest.yml` manifest, which is the deterministic mechanism), and
 the **Claude Code adapter** (`commands/`, `agents/`, `skills/`, `hooks/`),
 whose commands call the kit underneath. `docs/methodology.md` §9 and
 `docs/portability.md` have the full picture; you do not need it to continue.
@@ -121,7 +121,7 @@ where every engineer starts - at triage.
 ```
 
 Assess reads four dimensions - that part is judgement - and records them
-in `.compass/work/add-rate-limiting/task.yml`. For this issue it scores
+in `.compass/work/add-rate-limiting/manifest.yml`. For this issue it scores
 something like: size `standard` (several files, one or two design
 decisions), risk `cross-cutting` (a misconfigured limiter degrades
 something every API consumer touches), familiarity `brownfield-mapped`, role
@@ -131,7 +131,7 @@ Then the mechanism takes over. `/compass:assess` shells out to
 `compass approach evaluate --write`, which applies `governance/routing-policy.yml`
 deterministically - composing the candidate route, applying the floors and
 caps, assembling the gate set - and folds `route`, `phases`, and `gates` back
-into `task.yml`. For this issue it lands on **Standard, with the `security`
+into `manifest.yml`. For this issue it lands on **Standard, with the `security`
 review dimension turned on because risk is cross-cutting**; no routing
 guardrail forces a heavier route. Assess then writes the human-readable
 `delivery-approach.md` alongside it. Same assessment + same policy would produce this exact
@@ -231,7 +231,7 @@ do. The fix is always the same: go write the test, then `compass tdd-red`.
 The `verifier` runs the scenarios as the acceptance suite and runs the full
 TDD suite, pasting the actual command output - "the tests pass" is the run,
 not the sentence. It also runs `compass check`, which executes the
-`governance/guardrails.yml` checks against `task.yml` and `evidence/` - every
+`governance/guardrails.yml` checks against `manifest.yml` and `evidence/` - every
 scenario lists a test, the recorded suite passed, every changed file traces to
 a scenario, every `pass` gate has resolving evidence. The `reviewer` then
 applies the route's review dimensions: `correctness`, `governance`,
@@ -402,7 +402,7 @@ the guardrails apply in full - or discarding it with the finding recorded. See
   keep the methodology and the kit untouched.
 
 When a session leaves an issue half-finished, `/compass:status` reports where
-every issue stands, and `/compass:resume <task-slug>` picks one up from disk -
+every issue stands, and `/compass:resume <issue-slug>` picks one up from disk -
 the artifacts were written precisely so the process never has to be
 re-derived. Once you are running more than one issue at a time, `/compass:flow`
 is the view across all of them - triage, blockers, and a periodic digest;

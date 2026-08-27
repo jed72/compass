@@ -3,7 +3,7 @@ TEMPLATE: distribution-map.md
 Produced by: the plan stage (`/compass:plan`) on pair/swarm-capable work;
              consumed by breakdown (`/compass:breakdown`) and the
              `orchestrator` agent.
-Lives at:    .compass/work/<task-slug>/distribution-map.md
+Lives at:    .compass/work/<issue-slug>/distribution-map.md
 Role in the pipeline: the record of what could run in parallel and why.
 The design stage produces it; `scripts/swarm.sh` reads it to create
 worktrees. Initiative-scale work writes this file even if a cap pins it
@@ -52,8 +52,8 @@ Fill every {{PLACEHOLDER}}.
 
 | Stream | Owns work unit(s) | Owns scenario ids | Branch name |
 |---|---|---|---|
-| stream-1 | {{U1}} | {{TRC-A1, TRC-A2}} | {{compass/<task-slug>/stream-1}} |
-| stream-2 | {{U2}} | {{TRC-B1}} | {{compass/<task-slug>/stream-2}} |
+| stream-1 | {{U1}} | {{TRC-A1, TRC-A2}} | {{compass/<issue-slug>/stream-1}} |
+| stream-2 | {{U2}} | {{TRC-B1}} | {{compass/<issue-slug>/stream-2}} |
 
 ## 4. Proposed worktree topology
 

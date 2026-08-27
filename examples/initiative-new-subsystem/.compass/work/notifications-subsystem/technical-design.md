@@ -77,7 +77,7 @@ branch from it), then the two streams run in parallel.
 
 | Area | Result | Evidence / note |
 |---|---|---|
-| Guardrails (`G1`-`G5` + project) | pass | `G1`/`G2`/`G3`: all six scenarios stated and the requirements review-closed before Build, each with a planned test and a TRC-id; `changed_files` will trace back. `G4`: every gate cleared with pasted evidence in `verification-report.md`. **`G5`: applies** - the issue `labels: [migrations]`; a human signs off `migrations/0042` before ship, recorded in `task.yml` `approvals:`. The plan routes that sign-off into ship explicitly. |
+| Guardrails (`G1`-`G5` + project) | pass | `G1`/`G2`/`G3`: all six scenarios stated and the requirements review-closed before Build, each with a planned test and a TRC-id; `changed_files` will trace back. `G4`: every gate cleared with pasted evidence in `verification-report.md`. **`G5`: applies** - the issue `labels: [migrations]`; a human signs off `migrations/0042` before ship, recorded in `manifest.yml` `approvals:`. The plan routes that sign-off into ship explicitly. |
 | Method strategies (`S1`-`S4` + project) | followed | `S1` BDD, `S2` TDD apply per stream. `S3` simplest-thing honoured in DD-1, DD-2, DD-3. No deviation. |
 | Product strategies | followed | The plan delivers `intent.md`'s outcome - durable, tunable, security-protected in-app notifications - and stays inside the v1 cut. "Depth for existing users" honoured: category preferences over the existing event types, no breadth grab. |
 | Voice & positioning strategies | n/a | No marketer in play for this issue - the launch is a separate later issue. `verify.claims` exists in the gate set but has no claims to check. |

@@ -32,7 +32,7 @@ CLI = ROOT / "cli" / "compass"
 STRATEGIES = ROOT / "governance" / "strategies.md"
 TERMINOLOGY = ROOT / "governance" / "terminology.yml"
 
-# A spine carrying the shapes that matter: a scenario with a title, evidence
+# A manifest carrying the shapes that matter: a scenario with a title, evidence
 # bound to it, and an identifier far longer than the receipt's column budget.
 LONG_ID = "EV-ANALYZE-signup-email-validation-20260813T194925Z"
 SCENARIO_TITLE = "an invalid email is rejected at signup"
@@ -64,12 +64,12 @@ SPINE = {
 }
 
 
-def _project(tmp_path, spine=None):
+def _project(tmp_path, manifest=None):
     root = tmp_path / "proj"
     (root / ".compass" / "work" / "demo").mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (root / ".compass" / "work" / "demo" / "task.yml").write_text(
-        yaml.safe_dump(spine if spine is not None else SPINE, sort_keys=False))
+    (root / ".compass" / "work" / "demo" / "manifest.yml").write_text(
+        yaml.safe_dump(manifest if manifest is not None else SPINE, sort_keys=False))
     (root / ".compass" / "current-task").write_text("demo\n")
     return root
 
@@ -135,7 +135,7 @@ def test_trc_a2_scenario_title_beside_id(tmp_path):
     assert "TRC-B1" in out, "the receipt no longer prints the scenario id"
     assert SCENARIO_TITLE in out, (
         f"the receipt prints the scenario id with nothing beside it. The "
-        f"spine holds its title ({SCENARIO_TITLE!r}) and the receipt is the "
+        f"manifest holds its title ({SCENARIO_TITLE!r}) and the receipt is the "
         f"artifact captioned as proof:\n{out}")
     # The title must not be reachable by accident from the id itself.
     assert SCENARIO_TITLE not in "TRC-B1", "fixture error: title inside the id"
@@ -171,17 +171,17 @@ def test_trc_a3_no_truncated_identifier(tmp_path):
 def test_trc_a4_the_check_can_fail(tmp_path):
     """The control for TRC-A2.
 
-    Without it, TRC-A2 passes against a renderer that prints the whole spine,
+    Without it, TRC-A2 passes against a renderer that prints the whole manifest,
     or one that prints nothing at all. Here the scenario has no title, so
     there is no meaning to print and the bare id is all the receipt can
     honestly show - and it must still render rather than crash.
     """
-    spine = {**SPINE, "scenarios": [{"id": "TRC-B1", "intent": "INT-1",
+    manifest = {**SPINE, "scenarios": [{"id": "TRC-B1", "intent": "INT-1",
                                      "tests": ["t"]}]}
-    out = _receipt(_project(tmp_path, spine))
+    out = _receipt(_project(tmp_path, manifest))
 
     assert "TRC-B1" in out, "the receipt dropped the id along with the title"
     assert SCENARIO_TITLE not in out, (
-        "the receipt printed a scenario title that is not in the spine - it "
+        "the receipt printed a scenario title that is not in the manifest - it "
         "is inventing meaning at render time, which is worse than printing "
         "none")

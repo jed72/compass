@@ -1,5 +1,5 @@
 schema_version: '2.0'
-task: reset-password
+issue: reset-password
 created: '2026-08-03'
 status: active
 assessment:
@@ -21,17 +21,17 @@ scenarios:
   title: a valid token should let the user set a new password
   intent: INT-1
   tests:
-  - features/steps/reset_password_steps.py
+  - reset_password_test.go
 - id: TRC-A2
   title: an expired token should be rejected
   intent: INT-2
   tests:
-  - features/steps/reset_password_steps.py
+  - reset_password_test.go
 - id: TRC-A3
   title: a password below the length floor should be rejected
   intent: INT-2
   tests:
-  - features/steps/reset_password_steps.py
+  - reset_password_test.go
 changed_files: []
 claims: []
 follow_ups: []

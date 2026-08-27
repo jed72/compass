@@ -121,7 +121,7 @@ def test_tdd_green_refuses_a_failing_command(run_cli, make_task):
     assert "FAILED" in combined or "not green" in combined.lower(), r
 
 
-# --- tdd-green upserts a test-run entry in task.yml's evidence registry ----
+# --- tdd-green upserts a test-run entry in manifest.yml's evidence registry ----
 
 
 def test_tdd_green_upserts_test_run_in_registry(run_cli, make_task, project):
@@ -131,7 +131,7 @@ def test_tdd_green_upserts_test_run_in_registry(run_cli, make_task, project):
                 "--scenario", "SCN-001",
                 "--", sys.executable, "-c", "import sys; sys.exit(0)")
     assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     runs = [e for e in task["evidence"] if e["type"] == "test-run"]
     assert len(runs) == 1, f"expected one test-run entry, got {runs}"
     assert runs[0]["scenario"] == "SCN-001"
@@ -149,7 +149,7 @@ def test_tdd_green_upsert_is_idempotent_for_same_scenario(run_cli, make_task,
                     "--scenario", "SCN-001",
                     "--", sys.executable, "-c", "import sys; sys.exit(0)")
         assert r.returncode == 0, r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     runs = [e for e in task["evidence"] if e["type"] == "test-run"]
     assert len(runs) == 1, f"expected one test-run entry after two runs, got {runs}"
 
@@ -396,7 +396,7 @@ def test_verified_by_guard_bound_to_scenario_at_verify(run_cli, make_task):
     assert r.returncode == 0, r
     green = json.loads((_rec(task_dir, "green")).read_text())
     assert green.get("verified_by") == "typecheck", r
-    task = yaml.safe_load((task_dir / "task.yml").read_text())
+    task = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert any(e.get("type") == "test-run" and e.get("scenario") == "SCN-001"
                for e in task["evidence"]), r
 

@@ -2,7 +2,7 @@
 TEMPLATE: incident.md
 Produced by: whoever declares the incident - written at intake, before or
              alongside the hotfix work it triggers.
-Lives at:    .compass/work/<task-slug>/incident.md
+Lives at:    .compass/work/<issue-slug>/incident.md
 Role in the pipeline: the intake artifact that triggers a hotfix. SRE sense
 of the word: what broke in production, the impact, the severity. The hotfix
 reproduces from this, ships expedited, and settles its follow-ups (promote

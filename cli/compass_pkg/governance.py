@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.

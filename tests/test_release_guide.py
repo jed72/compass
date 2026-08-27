@@ -216,7 +216,7 @@ def _release_file_list():
 def test_release_file_list_keeps_examples_and_drops_repo_work(tmp_path):
     """SCN-002. BSD tar has no --anchored, so the script's `./`-prefixed
     exclude patterns matched at any depth and stripped
-    `examples/*/.compass/work/<slug>/task.yml` along with the repo's own
+    `examples/*/.compass/work/<slug>/manifest.yml` along with the repo's own
     dev state."""
     paths = _release_file_list()
 
@@ -226,9 +226,9 @@ def test_release_file_list_keeps_examples_and_drops_repo_work(tmp_path):
 
     example_tasks = [p for p in paths
                      if "examples/" in p and "/.compass/work/" in p
-                     and p.endswith("task.yml")]
+                     and p.endswith("manifest.yml")]
     assert len(example_tasks) >= 5, (
-        "every worked example must keep its .compass/work/<slug>/task.yml; "
+        "every worked example must keep its .compass/work/<slug>/manifest.yml; "
         f"found {len(example_tasks)}: {example_tasks}")
 
 

@@ -6,7 +6,7 @@ go. `governance/terminology.yml` defined 53 terms and not a single code.
 
 Two of the prefixes were also wrong. `RG-` says *guardrail* for something that
 is not one of the five hard rules; Compass already made that correction once,
-renaming the spine key `fired_guardrails` to `policy_rules_fired`, and the id
+renaming the manifest key `fired_guardrails` to `policy_rules_fired`, and the id
 never followed. And four of the seven entries in the `floors:` block raise no
 minimum at all - they attach a gate - so a glossary could not define `FLOOR`
 honestly while they shared its name.
@@ -274,10 +274,10 @@ def _probe_project(tmp_path):
     integration checks out.
     """
     import shutil
-    spine = tmp_path / ".compass" / "work" / "probe"
-    spine.mkdir(parents=True)
+    manifest = tmp_path / ".compass" / "work" / "probe"
+    manifest.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (spine / "task.yml").write_text(
+    (manifest / "manifest.yml").write_text(
         'schema_version: "2.0"\ntask: "probe"\ncreated: "2026-08-13"\n'
         'status: active\nassessment:\n  risk: cross-cutting\n'
         '  familiarity: brownfield-mapped\n  size: large\n  goal: delivery\n'
@@ -293,7 +293,7 @@ def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
     Every entry in the `floors:` block was reported as `kind: floor`,
     including the four that only attach a gate. After the id rename that
     printed "[RP-REQUIRE-003] floor:" on screen and wrote the same
-    contradiction into the spine - the id saying one thing and the kind
+    contradiction into the manifest - the id saying one thing and the kind
     saying the other. Found by checking what the demo would actually show.
     """
     r = subprocess.run(
@@ -329,10 +329,10 @@ def test_the_rename_does_not_change_any_computed_approach(tmp_path):
     value, so the rename is demonstrably not opaque, and the safest reading
     is to check the output rather than the mechanism.
     """
-    spine = tmp_path / ".compass" / "work" / "probe"
-    spine.mkdir(parents=True)
+    manifest = tmp_path / ".compass" / "work" / "probe"
+    manifest.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (spine / "task.yml").write_text(
+    (manifest / "manifest.yml").write_text(
         'schema_version: "2.0"\ntask: "probe"\ncreated: "2026-08-13"\n'
         'status: active\nassessment:\n  risk: cross-cutting\n'
         '  familiarity: brownfield-mapped\n  size: large\n  goal: delivery\n'
@@ -370,13 +370,13 @@ def test_the_archive_is_untouched():
         pytest.skip("no archive on this checkout - it is gitignored")
 
     retired = []
-    for spine in archive.glob("*/task.yml"):
-        text = spine.read_text(encoding="utf-8")
+    for manifest in archive.glob("*/manifest.yml"):
+        text = manifest.read_text(encoding="utf-8")
         if "RG-" in text or "RS-" in text:
-            retired.append(spine.parent.name)
+            retired.append(manifest.parent.name)
 
     assert retired, (
-        "no archived spine records a pre-rename routing id. Either the "
+        "no archived manifest records a pre-rename routing id. Either the "
         "archive was rewritten by the rename - which it must not be, since a "
         "record keeps the id that fired - or this check is looking in the "
         "wrong place and can no longer fail."
@@ -388,7 +388,7 @@ def test_the_archive_is_untouched():
 # --------------------------------------------------------------------------
 
 def test_follow_up_surfaces_match_the_schema():
-    """The spine has said follow_ups/outstanding/resolved since the rename."""
+    """The manifest has said follow_ups/outstanding/resolved since the rename."""
     template = (ROOT / "templates" / "verification-report.md").read_text(
         encoding="utf-8")
     assert "BF-" not in template, (

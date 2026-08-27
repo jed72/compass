@@ -54,7 +54,7 @@ The rest of this command is for delivery work.
    which confirms it passes and writes the record. Link that record from the
    report rather than reproducing the run inside it.
 3. **Run `compass check`.** This is the **mechanical half** of the verify
-   gate: the CLI runs the `guardrails.yml` checks against `task.yml` and
+   gate: the CLI runs the `guardrails.yml` checks against `manifest.yml` and
    `evidence/` - every scenario has a test, the suite passed
    (a green record on file), every changed file traces to a scenario, every
    `pass` gate has resolving evidence, and so on. It exits non-zero on any
@@ -69,7 +69,7 @@ The rest of this command is for delivery work.
    part) and the applicable strategies (assessed as judgement, reported
    distinctly). On a swarm, verify per-stream first, then again on the
    combined result.
-5. **Update the gates in `task.yml`.** As each gate is cleared, the
+5. **Update the gates in `manifest.yml`.** As each gate is cleared, the
    `verifier` sets its `status` to `pass` and points its `evidence:` at the
    artifact (the scenario-bound green record, a report path). `compass check`'s
    `gate-evidence-present` check verifies every `pass` gate has a pointer
@@ -89,7 +89,7 @@ command." See `skills/compass-runtime/writing-voice.md`.
 `compass check` passes (record its output with `compass evidence add` and link
 the record - that is the mechanical half);
 every required *judgement* dimension passed with evidence; every gate in
-`task.yml` is `pass` with a resolving evidence pointer;
+`manifest.yml` is `pass` with a resolving evidence pointer;
 `verification-report.md` is written, and its **Definition of Done**
 checklist (items 1-5) is fully checked - that is the exit gate out of
 verify. Items 6-7 of that checklist are carried into ship. If anything

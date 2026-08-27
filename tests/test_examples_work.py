@@ -35,7 +35,7 @@ def _route_examples():
         if not work.is_dir():
             continue
         for t in sorted(work.iterdir()):
-            if (t / "task.yml").is_file():
+            if (t / "manifest.yml").is_file():
                 out.append((d.name, t.name))
     return out
 
@@ -93,10 +93,10 @@ def test_every_example_spec_extracts(name, slug):
         assert out.is_file(), f"{name}: no feature file written"
         n = out.read_text().count("\n  Scenario:")
         declared = len(
-            (yaml.safe_load((work / ".compass" / "work" / slug / "task.yml")
+            (yaml.safe_load((work / ".compass" / "work" / slug / "manifest.yml")
                             .read_text()) or {}).get("scenarios") or [])
         assert n == declared, (
-            f"{name}: extracted {n} scenarios but task.yml declares {declared}")
+            f"{name}: extracted {n} scenarios but manifest.yml declares {declared}")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

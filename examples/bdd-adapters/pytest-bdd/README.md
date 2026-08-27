@@ -53,7 +53,7 @@ Feature: reset-password
 ```
 
 Each scenario carries its traceability id as a tag, so a per-scenario result
-maps straight back to `task.yml`. The output is deterministic: same spec, same
+maps straight back to `manifest.yml`. The output is deterministic: same spec, same
 bytes, no timestamps and no absolute paths, so it is safe to commit and to
 diff.
 

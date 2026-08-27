@@ -47,7 +47,7 @@ def repo(tmp_path):
     task_dir.mkdir(parents=True)
     (r / ".compass" / "current-task").write_text(SLUG + "\n")
     (task_dir / "delivery-approach.md").write_text("# Route\n")
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": SLUG, "created": "2026-08-04",
         "status": "active",
         "assessment": {"risk": "contained", "familiarity": "greenfield",

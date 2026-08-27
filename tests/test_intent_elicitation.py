@@ -38,7 +38,7 @@ def _issue(tmp_path, sections, elicitation, intent_body, source="# src\n\nA.\n")
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (work / "intent-source.md").write_text(source, encoding="utf-8")
     (work / "intent.md").write_text(intent_body, encoding="utf-8")
-    (work / "task.yml").write_text(yaml.safe_dump({
+    (work / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "demo", "created": "2026-08-25",
         "status": "active",
         "intent_source": {
@@ -293,7 +293,7 @@ def test_ing_c2b_the_report_says_when_there_is_nothing_to_audit(tmp_path):
 
     work = tmp_path / ".compass" / "work" / "demo"
     work.mkdir(parents=True)
-    (work / "task.yml").write_text(
+    (work / "manifest.yml").write_text(
         'schema_version: "2.0"\ntask: demo\ncreated: "2026-08-25"\n')
     (work / "intent.md").write_text("## Problem\n\nWritten here.\n")
 

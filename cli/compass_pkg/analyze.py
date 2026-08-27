@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -96,7 +96,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.check_cmd import cmd_check
-from compass_pkg.core import COMPASS_SCHEMA_VERSION, COMPASS_VERSION, CompassError, artifact_path, exit_for_mode, find_compass_dir, load_mode, load_yaml, mode_banner, normalize_spine, now_iso, resolve_task_dir, save_task
+from compass_pkg.core import COMPASS_SCHEMA_VERSION, COMPASS_VERSION, CompassError, artifact_path, exit_for_mode, find_compass_dir, load_mode, load_yaml, manifest_path, mode_banner, normalize_spine, now_iso, resolve_issue_dir, save_manifest
 from compass_pkg.governance import cmd_policy_lint
 from compass_pkg.policy import cmd_task_lint
 
@@ -105,13 +105,13 @@ from compass_pkg.policy import cmd_task_lint
 # --- command: analyze -------------------------------------------------------
 # `compass analyze` - cross-artifact coherence check (TRC-A1…A13, F1, F4, F5)
 #
-# Reads a task's artifacts (brief.md, spec.feature.md, route.md, task.yml,
+# Reads a task's artifacts (brief.md, spec.feature.md, route.md, manifest.yml,
 # positioning.md if present) and emits a structured coherence report.
 #
 # Finding types (Inv-7 - baked in, not from signals.yml):
-#   orphaned-intent  - a scenario in spec/task.yml links to an intent id that
+#   orphaned-intent  - a scenario in spec/manifest.yml links to an intent id that
 #                      does not appear in brief.md
-#   route-disagreement - route.md and task.yml describe different phase weights
+#   route-disagreement - route.md and manifest.yml describe different phase weights
 #                        for the same phase
 #   orphan-claim     - positioning.md lists a claim id that no scenario links to
 #   missing-artifact - an artifact required by the route's non-collapsed phase
@@ -119,7 +119,7 @@ from compass_pkg.policy import cmd_task_lint
 #                      on collapsed/skipped phases are not flagged)
 #
 # Mode selection (DD-5 / ADR-007):
-#   Gate-clearing mode  - verify.analyze is in task.yml.gates:
+#   Gate-clearing mode  - verify.analyze is in manifest.yml.gates:
 #       exits non-zero on any finding; evidence type `coherence-check`;
 #       id prefix `EV-ANALYZE-<task>-<ts>`
 #   Advisory mode - verify.analyze NOT in gates:
@@ -127,8 +127,8 @@ from compass_pkg.policy import cmd_task_lint
 #       id prefix `EV-ANALYZE-ADVISORY-<task>-<ts>`
 #
 # Invariants honoured:
-#   Inv-1 / Inv-4 - strictly read-only over task.yml; never writes to
-#                   task.yml.readings or task.yml.gates
+#   Inv-1 / Inv-4 - strictly read-only over manifest.yml; never writes to
+#                   manifest.yml.readings or manifest.yml.gates
 #   Inv-7         - finding taxonomy is structural, not from signals.yml
 #   Inv-8         - no brief.md / spec.feature.md → exits 0 ("no artifacts")
 #   OQ-1 boundary - never asserts whether gate evidence exists or passes;
@@ -148,11 +148,11 @@ _KNOWN_PHASES = {
     "implement", "verify", "ship",
 }
 
-# Human-readable phase name → task.yml key (lowercase map)
-# The names a human writes in delivery-approach.md, and the spine key each one
+# Human-readable phase name → manifest.yml key (lowercase map)
+# The names a human writes in delivery-approach.md, and the manifest key each one
 # means. Both the retired and the current spelling map to the CURRENT key,
 # because a prose record written months ago still says the retired word while
-# the spine it describes has been normalised forward.
+# the manifest it describes has been normalised forward.
 _PHASE_NAME_MAP = {
     "assess": "assess", "triage": "assess", "frame": "assess",
     "define": "define", "specify": "define",
@@ -300,8 +300,8 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
                 phase = m.group(1).strip().lower()
                 weight = _re.split(r'[,\s]', m.group(2).strip().lower(), 1)[0]
                 # Through the name map, so a prose record written months ago
-                # meets the spine it describes. Without this the parser returns
-                # `distribute` while the normalised spine holds `breakdown`,
+                # meets the manifest it describes. Without this the parser returns
+                # `distribute` while the normalised manifest holds `breakdown`,
                 # the comparison finds no key in common, and every
                 # disagreement is silently skipped - the check reporting clean
                 # because the two halves stopped speaking the same language.
@@ -337,19 +337,19 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
       has_verify_analyze_gate: bool
 
     This function is strictly read-only over all issue artifacts (Inv-1 / Inv-4).
-    It never writes to task.yml or any other file; the caller (cmd_analyze)
+    It never writes to manifest.yml or any other file; the caller (cmd_analyze)
     writes the evidence record.
 
     Finding types (Inv-7):
       orphaned-intent    - scenario links to an intent not in intent.md
-      route-disagreement - delivery-approach.md phase weight differs from task.yml phases
+      route-disagreement - delivery-approach.md phase weight differs from manifest.yml phases
       orphan-claim       - positioning.md claim has no backing scenario
       missing-artifact   - a required artifact is absent (route-aware)
     """
-    task_path = os.path.join(task_dir, "task.yml")
+    task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
         raise CompassError(
-            f"no task.yml in {task_dir} - has triage run? "
+            f"no manifest.yml in {task_dir} - has triage run? "
             f"compass analyze cannot run before it."
         )
     try:
@@ -403,7 +403,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
         })
 
     # --- 2. Orphaned-intent check -------------------------------------------
-    # Scenarios in task.yml with an intent that is not in brief.md.
+    # Scenarios in manifest.yml with an intent that is not in brief.md.
     # Only when brief.md exists (no brief → no intents to check against,
     # but we may have already flagged missing-artifact above).
     if has_brief:
@@ -429,7 +429,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
             spec_scenario_intents = _parse_scenario_intents_from_spec(spec_path)
             for scn_id, intent_id in spec_scenario_intents.items():
                 if intent_id and declared_intents and intent_id not in declared_intents:
-                    # Deduplicate: only report if not already caught from task.yml
+                    # Deduplicate: only report if not already caught from manifest.yml
                     already = any(
                         f["type"] == "orphaned-intent" and f["subject"] == scn_id
                         for f in findings
@@ -446,7 +446,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                         })
 
     # --- 3. Route-disagreement check ----------------------------------------
-    # Compare route.md per-phase weights against task.yml phases.
+    # Compare route.md per-phase weights against manifest.yml phases.
     if os.path.isfile(route_md_path):
         route_md_phases = _parse_phase_weights_from_route_md(route_md_path)
         task_phases = {k.lower(): str(v).lower() for k, v in phases.items()}
@@ -460,7 +460,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                         "subject": phase.title(),
                         "detail": (
                             f"delivery-approach.md says '{phase}' is '{md_weight}' but "
-                            f"task.yml says '{task_weight}'"
+                            f"manifest.yml says '{task_weight}'"
                         ),
                     })
 
@@ -470,7 +470,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     # the scenario passes - that is compass check / verify.claims's job.)
     if has_positioning:
         claim_ids = _parse_claim_ids_from_positioning(positioning_path)
-        # Collect all scenario ids from task.yml and spec
+        # Collect all scenario ids from manifest.yml and spec
         task_scn_ids = {
             s.get("id") for s in (task.get("scenarios") or [])
             if isinstance(s, dict) and s.get("id")
@@ -480,7 +480,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
             spec_scn_ids = set(_parse_scenario_intents_from_spec(spec_path).keys())
         all_scn_ids = task_scn_ids | spec_scn_ids
 
-        # Check task.yml claims as well
+        # Check manifest.yml claims as well
         task_claims = {
             c.get("id"): c.get("scenario")
             for c in (task.get("claims") or [])
@@ -490,26 +490,26 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
         for claim_id in claim_ids:
             # An orphan claim is one with no backing scenario id
             if claim_id in task_claims:
-                # claim is in task.yml - check it has a scenario
+                # claim is in manifest.yml - check it has a scenario
                 backing = task_claims[claim_id]
                 if not backing:
                     findings.append({
                         "type": "orphan-claim",
                         "subject": claim_id,
                         "detail": (
-                            f"claim '{claim_id}' is in task.yml claims but has "
+                            f"claim '{claim_id}' is in manifest.yml claims but has "
                             f"no backing scenario"
                         ),
                     })
             else:
                 # Claim is only in positioning.md - it must name a scenario
-                # We can't check the link without task.yml.claims, so flag it
+                # We can't check the link without manifest.yml.claims, so flag it
                 findings.append({
                     "type": "orphan-claim",
                     "subject": claim_id,
                     "detail": (
                         f"claim '{claim_id}' in positioning.md has no backing "
-                        f"scenario in task.yml claims"
+                        f"scenario in manifest.yml claims"
                     ),
                 })
 
@@ -529,8 +529,8 @@ def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
     Gate-clearing: type=coherence-check, prefix EV-ANALYZE-<task>-<ts>
     Advisory:      type=command-output,  prefix EV-ANALYZE-ADVISORY-<task>-<ts>
 
-    The file is JSON; the task.yml evidence registry is NOT written here
-    (Inv-1 / Inv-4 - analyze is strictly read-only over task.yml).
+    The file is JSON; the manifest.yml evidence registry is NOT written here
+    (Inv-1 / Inv-4 - analyze is strictly read-only over manifest.yml).
     cmd_analyze calls this and then upserts into the registry separately only
     in gate-clearing mode (to let compass check clear verify.analyze).
     """
@@ -564,16 +564,16 @@ def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
 
 def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
                                        ev_type: str, rel_path: str) -> None:
-    """Upsert the analyze evidence entry into task.yml's evidence registry.
+    """Upsert the analyze evidence entry into manifest.yml's evidence registry.
 
     Only called in gate-clearing mode so compass check can locate the
     coherence-check evidence when clearing verify.analyze.
 
-    This is the ONE write to task.yml that analyze is permitted: adding an
+    This is the ONE write to manifest.yml that analyze is permitted: adding an
     entry to the top-level `evidence:` list. It does NOT write to
-    task.yml.readings or task.yml.gates (Inv-1 / Inv-4).
+    manifest.yml.readings or manifest.yml.gates (Inv-1 / Inv-4).
     """
-    task_path = os.path.join(task_dir, "task.yml")
+    task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
         return
     try:
@@ -590,25 +590,25 @@ def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
                                    e.get("type") == "coherence-check")]
     reg.append({"id": ev_id, "type": ev_type, "path": rel_path})
     task["evidence"] = reg
-    save_task(task, task_path)
+    save_manifest(task, task_path)
 
 
 def cmd_analyze(args):
     """compass analyze - cross-artifact coherence check.
 
-    Strictly read-only over task.yml (Inv-1 / Inv-4). Writes one evidence
+    Strictly read-only over manifest.yml (Inv-1 / Inv-4). Writes one evidence
     file (coherence-check or command-output type) to evidence/.
 
     Exit codes:
       0 - zero coherence findings (or advisory mode regardless of findings,
           or Inv-8 bare-repo path)
       1 - one or more coherence findings AND verify.analyze gate is present
-      2 - input error (malformed task.yml, issue not framed, etc.)
+      2 - input error (malformed manifest.yml, issue not framed, etc.)
     """
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
     project_root = os.path.dirname(os.path.dirname(task_dir))  # .compass/work/<slug>/../../
 
-    # TRC-F1: malformed task.yml → exit non-zero, stderr names the file and error
+    # TRC-F1: malformed manifest.yml → exit non-zero, stderr names the file and error
     try:
         report = _analyze_task(task_dir, project_root)
     except CompassError as exc:
@@ -684,16 +684,16 @@ _NOT_IN_FLIGHT = ("queued", "parked", "abandoned")
 def _issue_status(slug):
     """The issue's lifecycle status, or '' if it cannot be read.
 
-    An unreadable spine is not treated as not-in-flight: it falls through to
+    An unreadable manifest is not treated as not-in-flight: it falls through to
     the checks, which report the problem properly rather than skipping it.
     """
     try:
-        spine = load_yaml(os.path.join(resolve_task_dir(slug), "task.yml"))
+        manifest = load_yaml(os.path.join(resolve_issue_dir(slug), "manifest.yml"))
     except Exception:
         return ""
-    if not isinstance(spine, dict):
+    if not isinstance(manifest, dict):
         return ""
-    return (spine.get("status") or "").strip()
+    return (manifest.get("status") or "").strip()
 
 
 def cmd_ci(args):
@@ -715,7 +715,7 @@ def cmd_ci(args):
         work = os.path.join(find_compass_dir(), "work")
         if os.path.isdir(work):
             slugs = sorted(d for d in os.listdir(work)
-                           if os.path.isfile(os.path.join(work, d, "task.yml")))
+                           if os.path.isfile(manifest_path(os.path.join(work, d))))
     except CompassError:
         pass
 
@@ -724,9 +724,9 @@ def cmd_ci(args):
     for slug in slugs:
         print(f"\n[issue] {slug}")
         # The lint runs for every issue, whatever its stage. It validates the
-        # spine's own structure - schema version, required keys, vocabulary -
-        # and a malformed spine is malformed whether or not the work has
-        # started. Skipping it once let a spine the linter rejects outright
+        # manifest's own structure - schema version, required keys, vocabulary -
+        # and a malformed manifest is malformed whether or not the work has
+        # started. Skipping it once let a manifest the linter rejects outright
         # sit in a repository while the sweep reported everything clean.
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
@@ -741,7 +741,7 @@ def cmd_ci(args):
         if status in _NOT_IN_FLIGHT:
             print(f"  gate checks skipped - status is '{status}', so the "
                   f"acceptance criteria and evidence a check looks for do "
-                  f"not exist yet. The spine itself was still linted.")
+                  f"not exist yet. The manifest itself was still linted.")
             skipped += 1
             continue
         print()
@@ -773,6 +773,6 @@ def cmd_ci(args):
         counted = f"{checked} issue(s) fully checked"
         if skipped:
             counted += f", {skipped} lint-only (not in flight)"
-        print(f"compass ci: PASS - governance valid; every spine lints clean; "
+        print(f"compass ci: PASS - governance valid; every manifest lints clean; "
               f"{counted}.")
     return exit_for_mode(failures, mode)

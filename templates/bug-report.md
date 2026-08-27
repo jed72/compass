@@ -2,7 +2,7 @@
 TEMPLATE: bug-report.md
 Produced by: triage, when the issue type is a bug fix (or by whoever reports
              the defect - the reporter's words are the best evidence).
-Lives at:    .compass/work/<task-slug>/bug-report.md
+Lives at:    .compass/work/<issue-slug>/bug-report.md
 Role in the pipeline: the intake artifact for a bug fix. The failing
 reproduction test is written from this before any fix; the report is what
 the reproduction is checked against. Keep it short and observational -

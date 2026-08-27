@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -95,15 +95,15 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import artifact_path, load_yaml, resolve_task_dir, normalize_spine
+from compass_pkg.core import artifact_path, load_yaml, manifest_path, normalize_spine, resolve_issue_dir
 
 # --- command: next -----------------------------------------------------------
 # TRC-C4 through TRC-C10, TRC-F6
 #
-# `compass next` reads task.yml + route.md and prints ONE line: the next
+# `compass next` reads manifest.yml + route.md and prints ONE line: the next
 # phase, the next uncleared gate, and route-aware collapsed-phase markers.
 # It is strictly READ-ONLY over .compass/work/<task>/ - no file is written
-# or created (TRC-C7).  It derives its answer from task.yml + route.md only
+# or created (TRC-C7).  It derives its answer from manifest.yml + route.md only
 # (TRC-C8); nothing else is read.
 #
 # Output format (devlog: chosen for clarity without colour escapes):
@@ -112,12 +112,12 @@ from compass_pkg.core import artifact_path, load_yaml, resolve_task_dir, normali
 #   "all phases complete"
 # When route.md is missing:
 #   exit non-zero with a message naming route.md
-# When task.yml is missing (Frame not yet run):
+# When manifest.yml is missing (Frame not yet run):
 #   exit non-zero with a message naming Frame
 #
 # The canonical phase order Compass follows:
 # The CURRENT keys. `normalize_spine` maps a retired key forward on load, so a
-# list written in the retired spelling stops matching every spine it reads -
+# list written in the retired spelling stops matching every manifest it reads -
 # and `compass next` then reports the wrong stage rather than failing, which is
 # how it was caught.
 _PHASE_ORDER = [
@@ -177,10 +177,10 @@ def _all_gates_pass(gates: list) -> bool:
 
 
 def _current_phase_from_task(task: dict) -> str | None:
-    """Determine the current (active) phase from task.yml.
+    """Determine the current (active) phase from manifest.yml.
 
     Priority:
-      1. task.yml top-level `current_phase` field (builder sets this).
+      1. manifest.yml top-level `current_phase` field (builder sets this).
       2. Fall back to the first non-skipped phase in the phases map.
     """
     cp = task.get("current_phase")
@@ -193,16 +193,16 @@ def _current_phase_from_task(task: dict) -> str | None:
 def cmd_next(args):
     """compass next - what comes next on this issue's route?
 
-    Reads task.yml + delivery-approach.md and prints ONE line.
+    Reads manifest.yml + delivery-approach.md and prints ONE line.
     Strictly read-only (TRC-C7).
     """
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
 
-    # --- task.yml: must exist (Frame check) ---
-    task_path = os.path.join(task_dir, "task.yml")
+    # --- manifest.yml: must exist (Frame check) ---
+    task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
         sys.stdout.write(
-            "Assess has not run for this issue - task.yml is missing.\n"
+            "Assess has not run for this issue - manifest.yml is missing.\n"
             f"  Run /compass:assess to start the issue at: {task_dir}\n"
         )
         return 2

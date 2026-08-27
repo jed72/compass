@@ -81,7 +81,7 @@ def test_ioi_a2_init_is_safe_to_run_twice(tmp_path):
     config.write_text(edited, encoding="utf-8")
     issue = root / ".compass" / "work" / "an-issue"
     issue.mkdir(parents=True)
-    (issue / "task.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
+    (issue / "manifest.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
 
     run = _init(root)
     out = run.stdout + run.stderr
@@ -91,7 +91,7 @@ def test_ioi_a2_init_is_safe_to_run_twice(tmp_path):
         "init overwrote a config that was already there - every entry point "
         "calls this unconditionally, so a second run must not discard the "
         "project's own settings")
-    assert (issue / "task.yml").is_file(), (
+    assert (issue / "manifest.yml").is_file(), (
         "init removed or replaced existing work")
     assert "already" in out.lower(), (
         f"init did not report that the project was already initialised:\n{out}")

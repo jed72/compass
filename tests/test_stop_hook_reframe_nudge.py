@@ -53,7 +53,7 @@ def _make_task(project: Path, slug: str, *,
                devlog_lines: list[str] | None = None,
                reframes: list[dict] | None = None,
                route: str = "standard") -> Path:
-    """Materialise a task directory with route.md, devlog.md, and task.yml."""
+    """Materialise a task directory with route.md, devlog.md, and manifest.yml."""
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -66,7 +66,7 @@ def _make_task(project: Path, slug: str, *,
     lines = devlog_lines or []
     (task_dir / "devlog.md").write_text("\n".join(lines) + "\n")
 
-    # task.yml - needed by the hook's reframes check
+    # manifest.yml - needed by the hook's reframes check
     body: dict = {
         "task": slug,
         "created": "2026-05-20",
@@ -78,7 +78,7 @@ def _make_task(project: Path, slug: str, *,
         "route": route,
         "reframes": reframes or [],
     }
-    with (task_dir / "task.yml").open("w") as fh:
+    with (task_dir / "manifest.yml").open("w") as fh:
         yaml.safe_dump(body, fh, sort_keys=False)
 
     # Set current-task pointer

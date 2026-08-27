@@ -1,12 +1,12 @@
 # =============================================================================
-# Fixture: comparison-requirements - a pre-v1.1.0-shape landed task.yml
+# Fixture: comparison-requirements - a pre-v1.1.0-shape landed manifest.yml
 # =============================================================================
 # This is a constructed fixture for `test_release_invariants.py`'s backward-
 # compatibility tests (TRC-F7, TRC-A5). The actual comparison-requirements
 # task that landed in v1.1.0 lived under `.compass/work/` - gitignored, never
 # tracked. This fixture is what the tests test against.
 #
-# Shape: pre-v1.1.0 task.yml - no `attempts` field on evidence entries, no
+# Shape: pre-v1.1.0 manifest.yml - no `attempts` field on evidence entries, no
 # typed inline DoD tags. ADR-006 (backward compatibility) requires that the
 # current CLI lints this file cleanly. If it doesn't, the framework has
 # broken back-compat - that is exactly what these tests defend.

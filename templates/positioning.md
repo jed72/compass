@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: positioning.md
 Produced by: the product marketer via `/compass:position`.
-Lives at:    .compass/work/<task-slug>/positioning.md
+Lives at:    .compass/work/<issue-slug>/positioning.md
 Role in the pipeline: the marketer's artifact. The marketer works PARALLEL
 to the spec, not downstream of it. Every claim made here must point at a
 scenario id in acceptance-criteria.md that backs it - that is the claim→scenario

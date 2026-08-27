@@ -1,4 +1,4 @@
-"""R4 - swarm.sh derives the worktree cap from structured task.yml truth
+"""R4 - swarm.sh derives the worktree cap from structured manifest.yml truth
 (readings.blast_radius + fired_guardrails), not by grepping route.md prose
 (which false-positives on 'did-not-fire' audit notes), and counts only
 worktree-provisioning streams.
@@ -46,7 +46,7 @@ def _task(d, slug, *, risk=None, capped=False, readings=True):
         body["assessment"] = rd
     fired = ("- id: RP-CAP-001\n  kind: cap\n" if capped else "")
     import yaml
-    (td / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False) +
+    (td / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False) +
                                  ("fired_guardrails:\n" + fired if fired else "fired_guardrails: []\n"))
     return td
 
@@ -130,4 +130,4 @@ def test_missing_readings_errors_not_silent_cap(tmp_path):
     r = _run(repo, "t5")
     assert r.returncode != 0, r.stdout + r.stderr
     combined = r.stdout + r.stderr
-    assert "blast_radius" in combined or "task.yml" in combined, combined
+    assert "blast_radius" in combined or "manifest.yml" in combined, combined

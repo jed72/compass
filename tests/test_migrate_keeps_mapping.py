@@ -24,7 +24,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
 MAP = ROOT / "cli" / "migrate-map.yml"
 
-# A v1 spine: retired key names, retired approach value, retired follow-up
+# A v1 manifest: retired key names, retired approach value, retired follow-up
 # status. This is what a real archive looks like.
 V1_SPINE = """schema_version: "1.2"
 task: "legacy-issue"
@@ -78,16 +78,16 @@ def test_rcd_f4b_a_v1_archive_still_lints_after_normalisation(tmp_path):
     import yaml
     from compass_pkg.core import normalize_spine
 
-    spine = yaml.safe_load(V1_SPINE)
-    normalised = normalize_spine(spine)
+    manifest = yaml.safe_load(V1_SPINE)
+    normalised = normalize_spine(manifest)
 
     assert "assessment" in normalised, (
-        "a v1 spine's `readings:` no longer normalises to `assessment:` - the "
+        "a v1 manifest's `readings:` no longer normalises to `assessment:` - the "
         "read side of the mapping has stopped working, so every archived "
         "issue is unreadable"
     )
     assert normalised.get("delivery_approach"), (
-        "a v1 spine's `route:` no longer normalises to `delivery_approach:`"
+        "a v1 manifest's `route:` no longer normalises to `delivery_approach:`"
     )
 
 
@@ -97,7 +97,7 @@ def test_rcd_f4c_migrate_still_runs(tmp_path):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\n", encoding="utf-8")
-    (work / "task.yml").write_text(V1_SPINE, encoding="utf-8")
+    (work / "manifest.yml").write_text(V1_SPINE, encoding="utf-8")
     (work / "route.md").write_text("# the v1 approach record\n", encoding="utf-8")
 
     # `migrate` is dry by default; --apply is what executes.

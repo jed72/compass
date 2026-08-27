@@ -2,7 +2,7 @@
 #
 # Copy this to `.github/workflows/compass.yml` in your project. It runs the
 # full mechanical gate suite (`compass ci`) on every pull request and on pushes
-# to main. The job fails if governance is malformed, a task.yml is off-schema,
+# to main. The job fails if governance is malformed, a manifest.yml is off-schema,
 # or any task's guardrail checks do not pass.
 #
 # COMBINED WITH PROJECT CI
@@ -48,7 +48,7 @@ jobs:
           python-version: "3.11"
 
       - name: Compass mechanical gate suite
-        # `compass ci` exits non-zero if governance is invalid, a task.yml is
+        # `compass ci` exits non-zero if governance is invalid, a manifest.yml is
         # off-schema, or any task's guardrail checks fail. That exit code is
         # the entire integration contract.
         run: python3 "$COMPASS_CLI" ci

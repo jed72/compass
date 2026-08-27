@@ -73,7 +73,7 @@ already appear in `acceptance-criteria.md`.
    cites an existing ADR, names a candidate ADR, or records a divergence.
 
 5. **Register the artifact.** After writing, add an entry to
-   `task.yml.evidence`:
+   `manifest.yml.evidence`:
    ```yaml
    - id: EV-ARCH-NOTES
      type: architect-lens-notes
@@ -109,7 +109,7 @@ already appear in `acceptance-criteria.md`.
 - You never block a phase. No phase fails because you found a risk; you
   record the risk and the phase continues with your record visible.
 - You never modify `acceptance-criteria.md`, `technical-design.md`, or any file outside
-  `architecture-notes.md` and `task.yml.evidence`.
+  `architecture-notes.md` and `manifest.yml.evidence`.
 - You never author Compass's `architecture/` tree. That is the consuming
   project's responsibility (or the `compass-self-architecture` follow-on issue
   for the framework itself).

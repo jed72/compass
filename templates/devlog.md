@@ -3,7 +3,7 @@ TEMPLATE: devlog.md
 Produced by: opened at triage, appended to at every stage transition and
              notable event, closed at ship time. Hooks write to it too -
              `hooks/post-tool.sh` appends entries after code edits.
-Lives at:    .compass/work/<task-slug>/devlog.md
+Lives at:    .compass/work/<issue-slug>/devlog.md
 Role in the pipeline: the append-only running log. Persistence over
 conversation - if it isn't on disk, it didn't happen. A later session, or
 a different agent, reconstructs the issue's history from this file plus

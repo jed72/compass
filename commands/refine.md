@@ -95,7 +95,7 @@ review before work is designed against the spec, so the questions here are
 about decisions, not wording.
 
 > I have written the ambiguity ledger to
-> `.compass/work/<task-slug>/requirements-review.md`, and updated
+> `.compass/work/<issue-slug>/requirements-review.md`, and updated
 > `acceptance-criteria.md` where a resolution changed it.
 >
 > N ambiguities were found and resolved. The ones that changed what gets

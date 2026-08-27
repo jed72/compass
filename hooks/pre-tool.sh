@@ -25,10 +25,10 @@
 #   *code* file (not a test, not docs, not a Compass artifact):
 #     - if the current issue is a spike (a ".spike" marker exists) → ALLOW.
 #     - else, require a recorded failing test - a ".red" marker file under
-#       .compass/work/<task-slug>/. No .red marker → the edit is BLOCKED.
+#       .compass/work/<issue-slug>/. No .red marker → the edit is BLOCKED.
 #
 # THE MARKER CONVENTION  (this is the "not magic" part - read this)
-#   .compass/work/<task-slug>/.red    "a failing test currently exists for this
+#   .compass/work/<issue-slug>/.red    "a failing test currently exists for this
 #                                      issue". It is NOT a bare `touch` - it is
 #                                      written by `compass tdd-red <test-cmd>`,
 #                                      which runs the test, confirms it really
@@ -41,7 +41,7 @@
 #     2. Edit the production code - this hook sees .red and allows it.
 #     3. `compass tdd-green -- <test command>` confirms green, writes
 #        evidence/green.json, and clears .red - the hand-off to Verify.
-#   .compass/work/<task-slug>/.spike  "this issue is a spike - the red-
+#   .compass/work/<issue-slug>/.spike  "this issue is a spike - the red-
 #                                      before-green strategy is suspended".
 #                                      /compass:assess
 #                                      writes this when it composes a Spike.
@@ -299,7 +299,7 @@ is_enforced_path() {
   # author could not predict which edit would block and found out mid-change.
   if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
     local hit glob_status glob_err
-    # Same two-failures-look-alike problem as the spine read below. A reader
+    # Same two-failures-look-alike problem as the manifest read below. A reader
     # that ran and matched nothing means the path is not project-guarded. A
     # reader that could not start means we do not know whether it is - and
     # answering "not guarded" to a question we could not ask is how a broken
@@ -327,7 +327,7 @@ PYEOF
     glob_status=$?
     set -e
     if [ "$glob_status" -eq 3 ]; then
-      # Treat the path as guarded. The spine read that follows will refuse
+      # Treat the path as guarded. The manifest read that follows will refuse
       # with the install's own diagnostics, so the person gets one clear
       # message rather than a silent pass here and a puzzle later.
       MATCHED_RULE="unknown - the project's declared paths could not be read ($(head -1 "$glob_err"))"
@@ -597,10 +597,10 @@ fi
 # exempt by construction, and the .spike early exit above suspends this the
 # same way it suspends red-before-green.
 #
-# If the spine cannot be read - no task.yml, unparseable YAML, no python3, no
+# If the manifest cannot be read - no manifest.yml, unparseable YAML, no python3, no
 # PyYAML - this stays silent and the prior behaviour applies. A false block on
 # unreadable state is how a hook teaches people to bypass it.
-if [ -f "$TASK_DIR/task.yml" ] && command -v python3 >/dev/null 2>&1; then
+if [ -f "$TASK_DIR/manifest.yml" ] && command -v python3 >/dev/null 2>&1; then
   # Two failures look alike from here and must not be treated alike. A reader
   # that RAN and found nothing is ordinary - stay quiet, as below. A reader
   # that could not START means the install is broken, and a guardrail that
@@ -608,7 +608,7 @@ if [ -f "$TASK_DIR/task.yml" ] && command -v python3 >/dev/null 2>&1; then
   # compass_python exits 3 for exactly that, with the reason on stderr.
   G2_ERR="$(mktemp)"
   set +e
-  G2_VERDICT="$(compass_python - "$TASK_DIR/task.yml" 2>"$G2_ERR" <<'PYEOF'
+  G2_VERDICT="$(compass_python - "$TASK_DIR/manifest.yml" 2>"$G2_ERR" <<'PYEOF'
 import sys
 import compass_pkg
 try:
@@ -619,19 +619,19 @@ try:
         raise ValueError
 except Exception:
     # Exit 0 means ALLOW, and that is deliberate: an unreadable or missing
-    # spine falls back to the behaviour this hook had before the check
+    # manifest falls back to the behaviour this hook had before the check
     # existed, rather than inventing a block. A false block on unreadable
     # state trains people to bypass the hook, which costs more than the case
     # it would catch. Pinned by test_scn_f1. The separate status-3 path below
     # is for the check being unable to RUN (a broken install), which is a
-    # different thing from the spine being unreadable.
+    # different thing from the manifest being unreadable.
     sys.exit(0)
 stages = task.get("stages") or task.get("phases") or {}
 # BOTH spellings. `define` is the key this framework writes; `specify` is the
-# one it wrote before the v2 vocabulary freeze, and 107 archived spines still
+# one it wrote before the v2 vocabulary freeze, and 107 archived manifests still
 # say it. Reading only `specify` - which this did until 2026-08-25 - meant
 # `compass migrate --apply` silently switched the guardrail OFF for every
-# directory it converted, because the migrated spine no longer used the word
+# directory it converted, because the migrated manifest no longer used the word
 # the guardrail was looking for.
 if isinstance(stages, dict):
     weight = stages.get("define", stages.get("specify"))
@@ -662,13 +662,13 @@ PYEOF
     if [ "$G2_STATUS" -eq 3 ]; then
       _g2_cause="$(cat "$G2_ERR")"
     else
-      _g2_cause="  The spine reader exited $G2_STATUS."
+      _g2_cause="  The manifest reader exited $G2_STATUS."
     fi
     cat >&2 <<EOF
 Compass: BLOCKED - the enforcement check could not run.
 
 $_g2_cause
-  This hook cannot read the issue spine, so it cannot tell whether the
+  This hook cannot read the manifest, so it cannot tell whether the
   acceptance criteria exist. It refuses rather than allowing an edit it was
   unable to check - a guardrail that cannot read its own state must fail
   closed, or it is not a guardrail.
@@ -682,7 +682,7 @@ EOF
   rm -f "$G2_ERR"
   if [ "${G2_VERDICT:-}" = "block" ]; then
     cat >&2 <<EOF
-Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no scenarios.
+Compass: BLOCKED - the delivery approach says specify: full, but manifest.yml has no scenarios.
 
   The acceptance-before-code guardrail. No code is written that no stated,
   checkable acceptance criterion describes - and a guardrail beats a
@@ -692,7 +692,7 @@ Compass: BLOCKED - the delivery approach says specify: full, but task.yml has no
 
   To proceed the Compass way:
     1. Write the scenarios into .compass/work/$TASK_SLUG/acceptance-criteria.md.
-    2. Mirror them into task.yml's \`scenarios:\` block - each with an id, a
+    2. Mirror them into manifest.yml's \`scenarios:\` block - each with an id, a
        linked intent, and the test(s) that will exercise it:
          compass scenario add SCN-001 --title "..." --intent INT-1
     3. Re-try this edit.

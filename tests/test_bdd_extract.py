@@ -3,7 +3,7 @@
 `compass bdd extract` lifts the Gherkin out of a task's `spec.feature.md` into a
 plain `.feature` file that a real BDD runner can execute, tagging each scenario
 with its traceability id so a runner's per-scenario result maps back to
-`task.yml`.
+`manifest.yml`.
 
 Three properties matter as much as the extraction itself, and all three are
 tested here:
@@ -153,10 +153,10 @@ def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
                   text, re.M)
     assert m, text
 
-    # the reverse direction: every TRC id in task.yml appears as a tag
-    task = yaml.safe_load((demo_task / "task.yml").read_text())
+    # the reverse direction: every TRC id in manifest.yml appears as a tag
+    task = yaml.safe_load((demo_task / "manifest.yml").read_text())
     for scn in task["scenarios"]:
-        assert f"@{scn['id']}" in text, f"{scn['id']} in task.yml but not tagged"
+        assert f"@{scn['id']}" in text, f"{scn['id']} in manifest.yml but not tagged"
 
 
 # ---------------------------------------------------------------------------
@@ -336,7 +336,7 @@ EXPECTED_SUBCOMMANDS = {
     # and the work directory - and is safe to run twice. It exists because
     # nothing owned initialisation: /compass:init created the directories at
     # the end of a governance conversation, /compass:assess created them as a
-    # side effect of writing a spine, and four of the five role entry points
+    # side effect of writing a manifest, and four of the five role entry points
     # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
     # rather than a subcommand because there is no group it belongs under, and
     # because the five entry points call it directly.

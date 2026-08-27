@@ -52,7 +52,7 @@ shipped governance defaults stay in force, and adopting your own is what
    strategies, the honesty policy applied to what the product cannot yet
    do.
 3. **Write `positioning.md` and `launch-readiness.md`** into
-   `.compass/work/<task-slug>/`.
+   `.compass/work/<issue-slug>/`.
 
 ## How this shapes the delivery approach
 

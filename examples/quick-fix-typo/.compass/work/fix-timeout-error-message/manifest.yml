@@ -1,5 +1,5 @@
 schema_version: '2.0'
-task: fix-timeout-error-message
+issue: fix-timeout-error-message
 created: '2026-05-04'
 status: landed
 land_timestamp: '2026-08-04T00:00:00Z'

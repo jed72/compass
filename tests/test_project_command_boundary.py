@@ -119,7 +119,7 @@ def _make_project(tmp_path: Path,
     (compass_dir / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\n" + config_extra)
 
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0",
         "task": "test-task",
         "created": "2026-08-22",

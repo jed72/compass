@@ -6,7 +6,7 @@ spec stays the source of truth. Run the extract before the tests - the README
 shows the two commands together.
 
 Each scenario in the extracted feature carries its traceability id as a tag
-(@TRC-A1 and so on), so a pytest-bdd result maps straight back to task.yml.
+(@TRC-A1 and so on), so a pytest-bdd result maps straight back to manifest.yml.
 Select one with: pytest -m "" -k TRC-A2, or `pytest --tags TRC-A2` on runners
 that support tag expressions.
 """

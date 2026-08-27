@@ -175,7 +175,7 @@ def test_rcd_f3b_the_live_flag_still_works(tmp_path):
     work.mkdir(parents=True)
     (tmp_path / ".compass" / "config.yml").write_text(
         "version: 1.0.0\n", encoding="utf-8")
-    (work / "task.yml").write_text(
+    (work / "manifest.yml").write_text(
         'schema_version: "2.0"\ntask: "demo"\ncreated: "2026-08-13"\n'
         'status: queued\nassessment:\n  risk: contained\n'
         '  familiarity: brownfield-mapped\n  size: small\n  goal: delivery\n'

@@ -471,7 +471,7 @@ normal event, not a failure. *A route quietly outgrown is the failure.*
 
 A re-assess is also *recorded as data*. `/compass:assess --reframe` re-runs
 `compass approach evaluate --write`, which detects that the route changed and
-appends an entry to `task.yml`'s `reframes` log - `from_route`, `to_route`, the
+appends an entry to `manifest.yml`'s `reframes` log - `from_route`, `to_route`, the
 date, and the `--reason`. One entry is an anecdote; the log across every issue
 is the framework's feedback signal. `compass retro` reads it and reports
 the pattern: are re-frames mostly *up* (triage is under-sizing) or *down*

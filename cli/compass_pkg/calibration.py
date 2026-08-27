@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -95,7 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, find_compass_dir, find_governance, load_task, load_yaml, resolve_task_dir, save_task, normalize_spine
+from compass_pkg.core import CompassError, find_compass_dir, find_governance, load_manifest, load_yaml, manifest_path, normalize_spine, resolve_issue_dir, save_manifest
 
 
 
@@ -131,11 +131,11 @@ def _find_reframe_debt(tasks, work):
     qualifies as 'reframe debt' when:
       - at least one scope-bloat phrase appears as the start of a devlog line
         (column-0 anchor - same rule as the stop-hook, for consistency), AND
-      - task.yml.reframes has no entry whose date is >= the date of the
+      - manifest.yml.reframes has no entry whose date is >= the date of the
         matching devlog line.
 
     This function is strictly READ-ONLY; it never writes to any
-    task.yml or any other file.
+    manifest.yml or any other file.
     Patterns are supplied by the caller from signals.yml.
     """
     phrases = _load_scope_bloat_phrases()
@@ -329,7 +329,7 @@ def derive_friction(slug, task, work):
 
     A reframe is a Frame that mis-read the terrain; reframe-debt is a mis-frame
     absorbed without one being filed. Both are friction by definition. Pure: it
-    reads task.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
+    reads manifest.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
     entries carry no `proposed_change` - a reframe does not propose a specific
     governance change; it is the recurrence of *human*-proposed changes that the
     aggregator clusters on.
@@ -364,7 +364,7 @@ def derive_friction(slug, task, work):
 def cmd_friction_capture(args):
     """Private entry point for `compass _friction-capture --internal`, called by
     the Land procedure. Assembles the issue's `friction:` list from derived
-    signals plus an optional human note and writes it into the issue spine.
+    signals plus an optional human note and writes it into the manifest.
 
     It writes ONLY the friction section - never a follow-up or a gate. Friction
     is a strategy-class signal and must never become something that blocks Land
@@ -376,8 +376,8 @@ def cmd_friction_capture(args):
             "compass _friction-capture: the --internal flag is required - this "
             "is an in-framework entry point called by the ship procedure, not a "
             "public verb.")
-    task_dir = resolve_task_dir(getattr(args, "task", None))
-    task, path = load_task(task_dir)
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
+    task, path = load_manifest(task_dir)
     slug = os.path.basename(os.path.normpath(task_dir))
     work = os.path.join(find_compass_dir(), "work")
 
@@ -409,7 +409,7 @@ def cmd_friction_capture(args):
 
     if entries:
         task["friction"] = entries
-        save_task(task, path)
+        save_manifest(task, path)
         print(f"compass _friction-capture: recorded {len(entries)} friction "
               f"entry(ies) -> {path}")
         for e in entries:
@@ -425,8 +425,8 @@ def cmd_friction_capture(args):
 
 # --- process-impact telemetry ------------------------------------------------
 # "Earn the gate": does the ceremony a route buys correlate with shipping faster
-# or breaking less? Computed from task.yml alone - `created` and
-# `land_timestamp` are already in the spine, so no git call is needed and the
+# or breaking less? Computed from manifest.yml alone - `created` and
+# `land_timestamp` are already in the manifest, so no git call is needed and the
 # report is deterministic by construction rather than by discipline.
 #
 # The hard part is not the arithmetic, it is refusing to report what the data
@@ -616,7 +616,7 @@ def cmd_calibration(args):
     tasks = []
     if os.path.isdir(work):
         for d in sorted(os.listdir(work)):
-            tp = os.path.join(work, d, "task.yml")
+            tp = manifest_path(os.path.join(work, d))
             if os.path.isfile(tp):
                 try:
                     tasks.append((d, normalize_spine(load_yaml(tp))))
@@ -727,7 +727,7 @@ def cmd_calibration(args):
 
     # --- Reframe debt (TRC-C5) -----------------------------------------------
     # Read devlogs for scope-bloat signals that were absorbed without a reframe.
-    # Strictly read-only - no task.yml is written here.
+    # Strictly read-only - no manifest.yml is written here.
     # Patterns loaded from signals.yml at runtime (never hardcoded).
     # Inv-4: advisory only - this section reports, never gates.
     debts = _find_reframe_debt(tasks, work)
@@ -760,7 +760,7 @@ def _cmd_calibration_impact(args):
     tasks = []
     if os.path.isdir(work):
         for slug in sorted(os.listdir(work)):
-            path = os.path.join(work, slug, "task.yml")
+            path = manifest_path(os.path.join(work, slug))
             if os.path.isfile(path):
                 try:
                     tasks.append((slug, normalize_spine(load_yaml(path))))

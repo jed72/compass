@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -75,7 +75,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -96,14 +96,14 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, artifact_path, display_shape, find_compass_dir, find_upwards, load_yaml, normalize_spine
+from compass_pkg.core import CompassError, artifact_path, display_shape, find_compass_dir, find_upwards, load_yaml, manifest_path, normalize_spine
 
 
 
 # --- command: task receipt ---------------------------------------------------
 # `compass issue receipt --issue <slug>` renders a one-screen receipt of an issue:
 # assessment -> delivery approach -> gates with verdicts -> evidence registry -> overall
-# verdict. Read-only over .compass/work/<slug>/{task.yml, delivery-approach.md, evidence/}
+# verdict. Read-only over .compass/work/<slug>/{manifest.yml, delivery-approach.md, evidence/}
 # plus governance/guardrails.yml; never re-executes checks (INT-2 / ADR-005).
 # Clustered here next to cmd_task_lint so Move 5C can relocate as one block.
 
@@ -278,7 +278,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     lines = []
     schema_version = str(task.get("schema_version") or "")
     # 2.0 is the current schema; anything else (or absent) is legacy - 1.x
-    # spines are readable by normalisation but reported as legacy. ADR-006:
+    # manifests are readable by normalisation but reported as legacy. ADR-006:
     # render meaningfully on pre-feature task.ymls, do not crash.
     is_legacy = not schema_version.startswith("2.")
     # status: in 1.0 there is no status field - those tasks are treated as
@@ -337,7 +337,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     if topology_override and topology_override != topology:
         topology_shown = (f"{topology} (overridden: {topology_override} - "
                           "see the delivery approach)")
-    # Triage records a ceiling, breakdown records a topology. A spine may
+    # Triage records a ceiling, breakdown records a topology. A manifest may
     # legitimately carry either: an archived one has the topology word triage
     # used to write, and an in-flight one has only the ceiling until the
     # distribution map exists. Printing the empty slot said nothing.
@@ -348,7 +348,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         detail = ("parallel streams: unbounded by policy" if ceiling is None
                   else f"parallel streams: up to {ceiling}")
     lines.append(_receipt_truncate(f"  {shape_shown}  ({detail})"))
-    # No v1-key fallback: the spine is normalised on load (see
+    # No v1-key fallback: the manifest is normalised on load (see
     # normalize_spine), so a 1.x `fired_guardrails` has already become
     # this key by the time the receipt reads it.
     fired = task.get("policy_rules_fired") or []
@@ -447,7 +447,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         id_w = min(14, max(8, *(len(str(e.get("id", "?"))) for e in evs
                                 if isinstance(e, dict))))
         # An identifier appears with its meaning on first use (the cold-reader
-        # strategy). A scenario's meaning is its title, which the spine
+        # strategy). A scenario's meaning is its title, which the manifest
         # already holds - so print it rather than making the reader resolve
         # `TRC-B1` from somewhere else.
         titles = {s.get("id"): s.get("title")
@@ -472,11 +472,11 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
             etype = str(ev.get("type", "?"))
             extras = _RECEIPT_EVIDENCE_EXTRAS.get(etype, ())
             # What this proves, in words. A scenario's title is held in the
-            # spine, so print it rather than making the reader resolve the id.
+            # manifest, so print it rather than making the reader resolve the id.
             # What this proves, in words.
             #
             # A scenario's title says it outright, so use the title alone - the
-            # spine holds it, and making the reader resolve `TRC-B1` from
+            # manifest holds it, and making the reader resolve `TRC-B1` from
             # somewhere else is the defect this column exists to remove.
             #
             # Every other type keeps ALL its declared fields, joined on one
@@ -572,7 +572,7 @@ def cmd_task_receipt(args):
     except CompassError as exc:
         sys.stderr.write(f"{exc}\n")
         return 1
-    task = normalize_spine(load_yaml(os.path.join(task_dir, "task.yml")) or {})
+    task = normalize_spine(load_yaml(manifest_path(task_dir)) or {})
     approach_path = artifact_path(task_dir, "delivery-approach.md")
     route_readings = _receipt_parse_route_md_readings(approach_path)
     gate_requirements = _receipt_gate_requirements(project_root)

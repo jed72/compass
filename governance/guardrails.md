@@ -16,7 +16,7 @@ the project so the team can extend it.
 **This document explains; `guardrails.yml` enforces.** The companion
 `governance/guardrails.yml` is the machine-readable authority for *how each
 guardrail is checked* - it names the mechanical check behind every guardrail,
-and `compass check` runs those checks against an issue's `task.yml` and
+and `compass check` runs those checks against an issue's `manifest.yml` and
 `evidence/`. Where this prose and that file could be read to differ on a
 mechanical detail, `guardrails.yml` wins. The asymmetry is deliberate:
 guardrails get a `.yml` because they are *checkable*; strategies do not,
@@ -110,7 +110,7 @@ _(none yet - the shipped default guardrails apply as-is)_
 
 - **Mechanically, by `compass check`.** Each guardrail in `guardrails.yml`
   names the check(s) that clear it; `compass check` runs them against the
-  issue's `task.yml` and `evidence/` and reports pass/fail with specifics. This
+  issue's `manifest.yml` and `evidence/` and reports pass/fail with specifics. This
   is the backbone of the Verify gate's *checkable* dimensions.
 - **Mechanically, by the pre-tool hook**, for the red-before-green strategy in
   service of tested-before-ship - route-aware (it does not block on a Spike). The real tested-before-ship

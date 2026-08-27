@@ -1,9 +1,9 @@
 # =============================================================================
-# TEMPLATE: task.yml  -  the machine-readable issue spine
+# TEMPLATE: manifest.yml  -  the manifest
 # Produced by: triage (creates it), then every later stage fills its part.
-#              Lives at: .compass/work/<task-slug>/task.yml
+#              Lives at: .compass/work/<issue-slug>/manifest.yml
 # =============================================================================
-# task.yml is the structured counterpart to the prose artifacts
+# manifest.yml is the structured counterpart to the prose artifacts
 # (delivery-approach.md, acceptance-criteria.md, technical-design.md, …). The prose is
 # for humans; this is for the CLI. `compass approach evaluate` reads
 # `assessment` and writes `delivery_approach`/`stages`/`gates`;
@@ -16,10 +16,10 @@
 # `compass issue lint` checks it is well-formed.
 # =============================================================================
 
-schema_version: "2.0"     # the spine schema this file follows
+schema_version: "2.0"     # the manifest schema this file follows
                           # '2.0': the v2 vocabulary keys (assessment, labels,
                           #         delivery_approach, stages, follow_ups,
-                          #         reassessments). 1.x spines are read by key
+                          #         reassessments). 1.x manifests are read by key
                           #         normalisation until migrated.
 task: "{{TASK_SLUG}}"
 created: "{{DATE}}"

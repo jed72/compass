@@ -49,7 +49,7 @@ shipped governance defaults stay in force, and adopting your own is what
 2. **Check against governance.** Does this intent document hold the guardrails and
    respect the product strategies? If it pulls against a product strategy,
    name the tension now - do not pass it downstream silently.
-3. **Write `intent.md`** into `.compass/work/<task-slug>/`.
+3. **Write `intent.md`** into `.compass/work/<issue-slug>/`.
 
 ## How this shapes the delivery approach
 

@@ -1,12 +1,12 @@
 """Slice 8: `compass migrate` - the user-facing wrap around the migration
-core the machine-spine slice proved on this repository's own archive.
+core the machine-manifest slice proved on this repository's own archive.
 
 Dry-run by default with a human-readable report of what would change;
 `--apply` executes; a second apply is a no-op; and the v1-to-v2 mapping
 lives in the scan-exempt cli/migrate-map.yml, which the migrator consumes -
 so the enforced CLI never carries a v1 spelling in a literal. The 1.x
 fixtures are constructed here: nothing current serves as un-migrated
-input (the archive migrated at the machine-spine slice), per the recorded
+input (the archive migrated at the machine-manifest slice), per the recorded
 exception.
 """
 
@@ -45,7 +45,7 @@ def _v1_project(tmp_path):
     root = tmp_path / "proj"
     d = root / ".compass" / "work" / "old-one"
     d.mkdir(parents=True)
-    (d / "task.yml").write_text(yaml.safe_dump(V1_SPINE, sort_keys=False))
+    (d / "manifest.yml").write_text(yaml.safe_dump(V1_SPINE, sort_keys=False))
     (d / "route.md").write_text("# Route\n")
     (d / "brief.md").write_text("# Brief\n")
     return root
@@ -71,13 +71,13 @@ def test_dry_run_reports_and_writes_nothing(tmp_path):
     after = sorted(p.name for p in
                    (root / ".compass" / "work" / "old-one").iterdir())
     assert before == after, "dry run changed the tree"
-    spine = yaml.safe_load(
-        (root / ".compass" / "work" / "old-one" / "task.yml").read_text())
-    assert "readings" in spine, "dry run rewrote the spine"
+    manifest = yaml.safe_load(
+        (root / ".compass" / "work" / "old-one" / "manifest.yml").read_text())
+    assert "readings" in manifest, "dry run rewrote the manifest"
 
 
 def test_apply_migrates_a_v1_tree(tmp_path):
-    """TRC-2: --apply renames the v1 artifacts and rewrites the spine to
+    """TRC-2: --apply renames the v1 artifacts and rewrites the manifest to
     schema 2.0 - keys, values, and filenames."""
     root = _v1_project(tmp_path)
     r = _run(root, "migrate", "--apply")
@@ -86,10 +86,10 @@ def test_apply_migrates_a_v1_tree(tmp_path):
     assert (d / "delivery-approach.md").is_file(), "route.md did not rename"
     assert (d / "intent.md").is_file(), "brief.md did not rename"
     assert not (d / "route.md").exists()
-    spine = yaml.safe_load((d / "task.yml").read_text())
-    assert str(spine["schema_version"]) == "2.0"
-    assert "assessment" in spine and "readings" not in spine
-    assert spine["follow_ups"][0]["status"] == "outstanding", (
+    manifest = yaml.safe_load((d / "manifest.yml").read_text())
+    assert str(manifest["schema_version"]) == "2.0"
+    assert "assessment" in manifest and "readings" not in manifest
+    assert manifest["follow_ups"][0]["status"] == "outstanding", (
         "the 1.x follow-up state did not migrate")
 
 
@@ -124,7 +124,7 @@ def test_mapping_lives_in_the_exempt_data_file():
 
 
 def test_apply_migrates_the_shape_value(tmp_path):
-    """Review fix on the slice-8 PR: a migrated spine must speak the v2
+    """Review fix on the slice-8 PR: a migrated manifest must speak the v2
     change-type value, not the v1 shape name - all five cases, with
     hotfix and spike keeping their spelling. The normalizer and the
     receipt's display layer agree with the migrated output."""
@@ -135,15 +135,15 @@ def test_apply_migrates_the_shape_value(tmp_path):
     for i, (v1, v2) in enumerate(cases.items()):
         d = root / ".compass" / "work" / f"t{i}"
         d.mkdir(parents=True)
-        spine = dict(V1_SPINE); spine["task"] = f"t{i}"; spine["route"] = v1
-        (d / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+        manifest = dict(V1_SPINE); manifest["task"] = f"t{i}"; manifest["route"] = v1
+        (d / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     r = _run(root, "migrate", "--apply")
     assert r.returncode == 0, r.stderr[-400:]
     for i, (v1, v2) in enumerate(cases.items()):
-        spine = yaml.safe_load(
-            (root / ".compass" / "work" / f"t{i}" / "task.yml").read_text())
-        assert spine["delivery_approach"] == v2, (
-            f"{v1} migrated to {spine['delivery_approach']!r}, wanted {v2!r}")
+        manifest = yaml.safe_load(
+            (root / ".compass" / "work" / f"t{i}" / "manifest.yml").read_text())
+        assert manifest["delivery_approach"] == v2, (
+            f"{v1} migrated to {manifest['delivery_approach']!r}, wanted {v2!r}")
     sys.path.insert(0, str(REPO_ROOT / "cli"))
     from compass_pkg.core import display_shape, normalize_spine
     assert display_shape("quick-fix") == "quick fix", (

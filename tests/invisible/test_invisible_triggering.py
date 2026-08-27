@@ -13,7 +13,7 @@ Manual-verification note (TRC-C1 / TRC-C3 behaviour at runtime):
   These tests verify the static content that produces the agent behaviour.
   The runtime behaviour (agent actually calling /compass:assess on natural-
   language intent) requires a live agent session; that is recorded as
-  manual-review evidence in task.yml (EV-MANUAL-C1, EV-MANUAL-C3).
+  manual-review evidence in manifest.yml (EV-MANUAL-C1, EV-MANUAL-C3).
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took

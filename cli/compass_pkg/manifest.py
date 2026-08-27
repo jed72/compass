@@ -11,7 +11,7 @@
 #                            readings -> the final route, deterministically.
 #                            Same readings + same policy => same route, always.
 #   compass check            Run the governance/guardrails.yml checks against a
-#                            task's task.yml + evidence/. The checkable backbone
+#                            task's manifest.yml + evidence/. The checkable backbone
 #                            of the Verify gate.
 #   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
 #                            red + the .red marker (honestly - the marker is
@@ -29,7 +29,7 @@
 #   compass policy lint       Structurally validate routing-policy.yml and
 #                            guardrails.yml - including that every guardrail's
 #                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a task.yml.
+#   compass task lint [F]     Structurally validate a manifest.yml.
 #   compass calibration       The Needle's feedback loop - aggregate the
 #                            re-frame log across all tasks and report whether
 #                            routing is systematically over- or under-sizing.
@@ -74,7 +74,7 @@ import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every task.yml under --root (default:
+# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -96,7 +96,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.terminal import say
-from compass_pkg.core import CompassError, find_governance, load_task, load_yaml, now_iso, resolve_task_dir, save_task, normalize_spine
+from compass_pkg.core import CompassError, find_governance, load_manifest, load_yaml, manifest_path, normalize_spine, now_iso, resolve_issue_dir, save_manifest
 
 
 
@@ -184,8 +184,8 @@ def cmd_land_commit(args):
     # way.
     owned, artifact_dir, slug = set(), "\0none", None
     try:
-        _scope_dir = resolve_task_dir(getattr(args, "task", None))
-        _scope_task, _ = load_task(_scope_dir)
+        _scope_dir = resolve_issue_dir(getattr(args, "task", None))
+        _scope_task, _ = load_manifest(_scope_dir)
         slug = os.path.basename(str(_scope_dir).rstrip("/"))
         owned, artifact_dir = _land_scope(_scope_task, slug)
     except (CompassError, OSError, KeyError):
@@ -286,8 +286,8 @@ def cmd_land_commit(args):
     landed_note = ""
     if getattr(args, "task", None):
         try:
-            task_dir = resolve_task_dir(args.task)
-            task_path = os.path.join(task_dir, "task.yml")
+            task_dir = resolve_issue_dir(args.task)
+            task_path = manifest_path(task_dir)
             if os.path.isfile(task_path):
                 task = normalize_spine(load_yaml(task_path))
                 if isinstance(task, dict):
@@ -304,7 +304,7 @@ def cmd_land_commit(args):
                     else:
                         task["status"] = "landed"
                         task["land_timestamp"] = now_iso()
-                        save_task(task, task_path)
+                        save_manifest(task, task_path)
                         landed_note = "\n  issue marked landed."
         except CompassError:
             pass  # status update is best-effort; the commit already succeeded
@@ -315,8 +315,8 @@ def cmd_land_commit(args):
     return 0
 
 
-# --- commands: task-spine mutators (R9) + gate pass (R6) ---------------------
-# Thin, schema-owning mutators so the task.yml spine below `readings` is never
+# --- commands: task-manifest mutators (R9) + gate pass (R6) ---------------------
+# Thin, schema-owning mutators so the manifest.yml manifest below `readings` is never
 # hand-edited YAML. `compass gate pass` is the shared R6/R9 command: it flips a
 # gate to pass (R9) AND validates the evidence type against
 # gate_evidence_requirements at write time (R6) - so a mismatch is caught
@@ -335,8 +335,8 @@ def _load_gate_requirements():
 
 
 def cmd_gate_pass(args):
-    task_dir = resolve_task_dir(args.task)
-    task, task_path = load_task(task_dir)
+    task_dir = resolve_issue_dir(args.task)
+    task, task_path = load_manifest(task_dir)
     gates = task.get("gates") or []
     gate = next((g for g in gates
                  if isinstance(g, dict) and g.get("id") == args.gate_id), None)
@@ -371,15 +371,15 @@ def cmd_gate_pass(args):
         )
     gate["status"] = "pass"
     gate["evidence"] = list(ev_ids)
-    save_task(task, task_path)
+    save_manifest(task, task_path)
     return say(args, f"compass gate pass: {args.gate_id} -> pass "
                     f"(evidence: {', '.join(ev_ids)}).",
                gate=args.gate_id, status="pass", evidence=list(ev_ids))
 
 
 def cmd_scenario_add(args):
-    task_dir = resolve_task_dir(args.task)
-    task, task_path = load_task(task_dir)
+    task_dir = resolve_issue_dir(args.task)
+    task, task_path = load_manifest(task_dir)
     scns = task.setdefault("scenarios", [])
     if any(isinstance(s, dict) and s.get("id") == args.scenario_id for s in scns):
         raise CompassError(
@@ -392,15 +392,15 @@ def cmd_scenario_add(args):
         "intent": args.intent,
         "tests": list(args.test or []),
     })
-    save_task(task, task_path)
+    save_manifest(task, task_path)
     return say(args, f"compass scenario add: {args.scenario_id} added.",
                scenario=args.scenario_id, intent=getattr(args, "intent", None),
                tests=list(args.test or []))
 
 
 def cmd_changed_file_add(args):
-    task_dir = resolve_task_dir(args.task)
-    task, task_path = load_task(task_dir)
+    task_dir = resolve_issue_dir(args.task)
+    task, task_path = load_manifest(task_dir)
     cfs = task.setdefault("changed_files", [])
     existing = next((c for c in cfs
                      if isinstance(c, dict) and c.get("path") == args.path), None)
@@ -410,14 +410,14 @@ def cmd_changed_file_add(args):
         existing["scenarios"] = sorted(scns)
     else:
         cfs.append({"path": args.path, "scenarios": [args.scenario]})
-    save_task(task, task_path)
+    save_manifest(task, task_path)
     return say(args, f"compass changed-file add: {args.path} -> {args.scenario}.",
                path=args.path, scenario=args.scenario)
 
 
 def cmd_evidence_add(args):
-    task_dir = resolve_task_dir(args.task)
-    task, task_path = load_task(task_dir)
+    task_dir = resolve_issue_dir(args.task)
+    task, task_path = load_manifest(task_dir)
     _reqs, known = _load_gate_requirements()
     if known and args.type not in known:
         raise CompassError(
@@ -462,7 +462,7 @@ def cmd_evidence_add(args):
     if getattr(args, "scenario", None):
         entry["scenario"] = args.scenario
     reg.append(entry)
-    save_task(task, task_path)
+    save_manifest(task, task_path)
     return say(args, f"compass evidence add: {args.evidence_id} "
                     f"({args.type}) added.",
                evidence_id=args.evidence_id, type=args.type, path=args.path)
@@ -502,8 +502,8 @@ def _annotate_gate_accepts(task_path):
 
 
 # --- compass task set-status ------------------------------------------------
-# The last routine hand-edit of the spine. Before this, the terminal flip was a
-# scripted `str.replace` on task.yml - reported from the field as brittle and
+# The last routine hand-edit of the manifest. Before this, the terminal flip was a
+# scripted `str.replace` on manifest.yml - reported from the field as brittle and
 # repeated across every Land - and each new status value below would have been
 # set the same way.
 
@@ -523,8 +523,8 @@ def cmd_task_set_status(args):
             "  abandoned - will not resume"
         )
 
-    task_dir = resolve_task_dir(getattr(args, "task", None))
-    task, path = load_task(task_dir)
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
+    task, path = load_manifest(task_dir)
 
     # `land-commit` refuses to write `landed` over gates that have not passed.
     # A second door into the same field must not be an easier one, or the
@@ -534,7 +534,7 @@ def cmd_task_set_status(args):
                  if isinstance(g, dict) and g.get("status") != "pass"]
         if unmet:
             raise CompassError(
-                f"compass issue set-status: refusing to mark '{task.get('task')}' "
+                f"compass issue set-status: refusing to mark '{task.get('issue')}' "
                 f"landed - {len(unmet)} gate(s) have not passed "
                 f"({', '.join(unmet)}). Shipping is a record, not a rubber stamp. "
                 "Clear the gates and re-run."
@@ -550,8 +550,8 @@ def cmd_task_set_status(args):
     elif reason:
         task["note"] = reason
 
-    save_task(task, path)
+    save_manifest(task, path)
     detail = f" ({reason})" if reason else ""
-    return say(args, f"compass issue set-status: {task.get('task')} -> "
+    return say(args, f"compass issue set-status: {task.get('issue')} -> "
                     f"{status}{detail}.",
-               issue=task.get("task"), status=status, reason=reason or None)
+               issue=task.get("issue"), status=status, reason=reason or None)

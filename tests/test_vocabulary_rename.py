@@ -136,9 +136,9 @@ def test_trc_e2_map_guard_declines_an_empty_input():
 # ---------------------------------------------------------------------------
 
 def test_trc_b1():
-    """TRC-B1: a spine written before the rename still reads.
+    """TRC-B1: a manifest written before the rename still reads.
 
-    107 spines carry the retired keys. ADR-006 makes this
+    107 manifests carry the retired keys. ADR-006 makes this
     non-negotiable inside a major version.
     """
     from compass_pkg.core import normalize_spine
@@ -149,18 +149,18 @@ def test_trc_b1():
     got = normalize_spine(old)["stages"]
     for retired, current in STAGE_RENAMES.items():
         assert current in got, (
-            "a spine holding the retired stage key %r did not resolve to %r - "
-            "107 spines carry these:\n  %s" % (retired, current, got))
+            "a manifest holding the retired stage key %r did not resolve to %r - "
+            "107 manifests carry these:\n  %s" % (retired, current, got))
         assert retired not in got, (
             "%r survived normalisation alongside %r" % (retired, current))
     for k in STAGE_UNCHANGED:
         assert k in got, "%r must survive normalisation unchanged" % k
 
-    # A spine already speaking the new keys normalises to itself.
+    # A manifest already speaking the new keys normalises to itself.
     new = {"schema_version": "2.0", "task": "t",
            "stages": {v: "full" for v in STAGE_RENAMES.values()}}
     assert normalize_spine(new)["stages"] == new["stages"], (
-        "a spine holding the current keys did not survive normalisation")
+        "a manifest holding the current keys did not survive normalisation")
 
 
 def test_trc_b2():
@@ -206,7 +206,7 @@ def test_trc_b2():
 COMMANDS = REPO_ROOT / "commands"
 
 def _cli_stage_keys():
-    """The stage keys the CLI itself writes into a spine.
+    """The stage keys the CLI itself writes into a manifest.
 
     Read from the machinery rather than restated here. A hand-written
     `{"assess": "assess", "define": "define", ...}` map stood in this file
@@ -216,7 +216,7 @@ def _cli_stage_keys():
 
     NOT read from governance/routing-policy.yml: that file still declares the
     v1 keys (`frame`, `specify`, ...) and is migrated in its own slice. The
-    spine loader maps them forward, so what a spine HOLDS is what matters
+    manifest loader maps them forward, so what a manifest HOLDS is what matters
     here.
     """
     from compass_pkg.core import STAGE_DISPLAY
@@ -267,8 +267,8 @@ def test_trc_a1():
     assert keys, "the CLI declares no stage keys, so this checks nothing"
     missing = sorted(k for k in keys if k not in names)
     assert not missing, (
-        "the spine holds these stage keys and no command of the same name "
-        "exists: %s. The word a person types and the word the spine holds "
+        "the manifest holds these stage keys and no command of the same name "
+        "exists: %s. The word a person types and the word the manifest holds "
         "must be the same. Commands present: %s"
         % (missing, sorted(names)))
 
@@ -423,7 +423,7 @@ def test_trc_b7():
     work.mkdir(parents=True)
     (project / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (project / ".compass" / "current-task").write_text("landed\n")
-    (work / "task.yml").write_text(
+    (work / "manifest.yml").write_text(
         'schema_version: "2.0"\ntask: "landed"\ncreated: "2026-03-01"\n'
         "status: landed\ndelivery_approach: feature\n"
         "stages: {plan: full}\n")
@@ -710,14 +710,14 @@ changed_files: []
 
 
 def _archive(root, *slugs, broken=None):
-    """A work root of v1 issue directories, optionally with one broken spine."""
+    """A work root of v1 issue directories, optionally with one broken manifest."""
     work = root / ".compass" / "work"
     work.mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     for slug in slugs:
         d = work / slug
         d.mkdir()
-        d.joinpath("task.yml").write_text(
+        d.joinpath("manifest.yml").write_text(
             "task: [this is not\n  valid: yaml\n" if slug == broken
             else _V1_SPINE % slug)
         d.joinpath("plan.md").write_text("# the v1 design\n")
@@ -757,12 +757,12 @@ def test_trc_c2():
         assert (d / "technical-design.md").is_file(), (
             "%s still holds the retired filename" % slug)
         assert not (d / "plan.md").exists()
-        spine = yaml.safe_load((d / "task.yml").read_text())
-        assert set(spine["stages"]) == {"assess", "define", "refine", "plan",
+        manifest = yaml.safe_load((d / "manifest.yml").read_text())
+        assert set(manifest["stages"]) == {"assess", "define", "refine", "plan",
                                         "breakdown", "implement", "verify",
-                                        "ship"}, spine["stages"]
-        assert "phases" not in spine and "readings" not in spine
-        assert str(spine["schema_version"]).startswith("2")
+                                        "ship"}, manifest["stages"]
+        assert "phases" not in manifest and "readings" not in manifest
+        assert str(manifest["schema_version"]).startswith("2")
 
     before = {p: p.read_bytes() for p in sorted(work.rglob("*")) if p.is_file()}
     second = _migrate(project, "--apply")
@@ -805,7 +805,7 @@ def test_trc_c4():
     tell them.
 
     The notes were accumulated and printed after the loop, so an unparseable
-    spine raised out of the whole command and took the report with it: every
+    manifest raised out of the whole command and took the report with it: every
     rename already performed stayed on disk, unnamed, under a raw traceback.
     """
     import tempfile
@@ -972,15 +972,15 @@ def test_trc_b8_a_policy_floor_written_with_a_retired_stage_key_still_applies():
 
 
 def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
-    """A spine that names a renamed file must be repointed with it.
+    """A manifest that names a renamed file must be repointed with it.
 
     The migrator renamed the files and left every reference to them inside
-    `task.yml` untouched - so `evidence:` entries, artifact `path:` fields and
+    `manifest.yml` untouched - so `evidence:` entries, artifact `path:` fields and
     `changed_files:` all went on naming a document that is no longer there.
     `compass check`'s gate-evidence-present then fails with "path does not
     resolve" on an issue nothing is wrong with.
 
-    22 spines in this repository were in that state, and some of them name
+    22 manifests in this repository were in that state, and some of them name
     `route.md` and `plan.md` - retired at the v2 freeze - so the freeze's own
     migration left the same wreckage a cycle earlier and nobody looked.
     """
@@ -995,7 +995,7 @@ def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
     work.mkdir(parents=True)
     (project / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (work / "plan.md").write_text("# the v1 design\n")
-    (work / "task.yml").write_text(yaml.safe_dump({
+    (work / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": "one", "created": "2026-01-01",
         "status": "landed",
         "readings": {"blast_radius": "contained", "terrain": "brownfield-mapped",
@@ -1016,14 +1016,14 @@ def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
     assert run.returncode == 0, run.stdout + run.stderr
 
     assert (work / "technical-design.md").is_file()
-    spine = yaml.safe_load((work / "task.yml").read_text())
+    manifest = yaml.safe_load((work / "manifest.yml").read_text())
 
-    assert spine["evidence"][0]["path"] == "technical-design.md", (
+    assert manifest["evidence"][0]["path"] == "technical-design.md", (
         "the evidence record still points at the file the migration renamed "
         "away, so `compass check` fails on an issue nothing is wrong with")
-    assert spine["artifacts"][0]["path"] == "technical-design.md", (
+    assert manifest["artifacts"][0]["path"] == "technical-design.md", (
         "the artifact registry still points at the retired filename")
-    assert spine["changed_files"] == ["technical-design.md"], (
+    assert manifest["changed_files"] == ["technical-design.md"], (
         "changed_files still names the retired filename")
 
 
@@ -1043,9 +1043,9 @@ def test_trc_c6b_a_reference_to_a_file_that_is_still_there_is_left_alone():
 
     tmp = Path(tempfile.mkdtemp(prefix="compass-repoint-"))
     (tmp / "plan.md").write_text("# still here\n")
-    spine = {"evidence": [{"path": "plan.md"}]}
-    changed = repoint_spine_references(str(tmp), spine, {})
-    assert not changed and spine["evidence"][0]["path"] == "plan.md", (
+    manifest = {"evidence": [{"path": "plan.md"}]}
+    changed = repoint_spine_references(str(tmp), manifest, {})
+    assert not changed and manifest["evidence"][0]["path"] == "plan.md", (
         "a reference to a file that is still on disk was rewritten")
 
 
@@ -1116,7 +1116,7 @@ def test_trc_b3():
     """
     from compass_pkg.core import normalize_spine, shape_stages
 
-    # 1. The spine loader: a 1.x spine still reads.
+    # 1. The manifest loader: a 1.x manifest still reads.
     v1 = normalize_spine({"schema_version": "1.1", "route": "standard",
                           "readings": {"blast_radius": "contained"},
                           "phases": {"frame": "full", "specify": "light"}})
@@ -1130,7 +1130,7 @@ def test_trc_b3():
     v2 = normalize_spine({"schema_version": "2.0", "delivery_approach": "feature",
                           "stages": {"assess": "full", "define": "light"}})
     assert v2["stages"] == {"assess": "full", "define": "light"}, (
-        "the loader changed a spine that was already current")
+        "the loader changed a manifest that was already current")
 
     # 2. The policy reader: a project routing policy written before the freeze.
     assert shape_stages({"phases": {"clarify": "light"}}) == {"refine": "light"}

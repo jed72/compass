@@ -67,7 +67,7 @@ def _project(tmp_path, *, touches="", drop_g5=False):
     (proj / ".compass" / "work" / "t").mkdir(parents=True)
     shutil.copytree(GOVERNANCE, proj / "governance")
     (proj / ".compass" / "config.yml").write_text("version: 1.0.0\nmode: enforced\n")
-    (proj / ".compass" / "work" / "t" / "task.yml").write_text(
+    (proj / ".compass" / "work" / "t" / "manifest.yml").write_text(
         TASK.format(touches=touches))
     (proj / ".compass" / "current-task").write_text("t\n")
     if drop_g5:

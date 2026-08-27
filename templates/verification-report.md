@@ -3,7 +3,7 @@ TEMPLATE: verification-report.md
 Produced by: the test & review stage (`/compass:verify`); owning role QA, agents
              `verifier` (runs the suites) and `reviewer` (applies the
              review dimensions).
-Lives at:    .compass/work/<task-slug>/verification-report.md
+Lives at:    .compass/work/<issue-slug>/verification-report.md
 Role in the pipeline: the Verify output. Proves the work with EVIDENCE -
 recorded command output and artifacts a reader can open, never assertion. "It works" is not a
 gate-passing statement on any route. The route's gate set and review
@@ -127,13 +127,13 @@ guardrail applies to the checklist itself):
   rename with the schema, not before:
 
     - [ ] (evidence: EV-<id>) <description>
-        Passes when EV-<id> is in the spine's evidence registry with an
+        Passes when EV-<id> is in the manifest's evidence registry with an
         accepted type (test-run, command-output, manual-review,
         human-approval, artifact, security-review, migration-plan,
         rollback-plan, claim-review).
 
     - [ ] (follow-up: FU-<id>) <description>
-        Passes (defers) when FU-<id> is in the spine's follow-up ledger
+        Passes (defers) when FU-<id> is in the manifest's follow-up ledger
         (the follow_ups: list) with status: owed. Add target_task: <slug>
         on the entry to block that issue's shipping until this one is
         settled (compass follow-up resolve --issue <source-slug> FU-<id>).

@@ -3,7 +3,7 @@
 Unified after integration of streams 3, 4, and 6:
 
 - TRC-F4 (stream-6, canonical): Flow advises, never gates. Snapshot SHA256 of
-  every task.yml before/after running advisory commands; assert byte-identity.
+  every manifest.yml before/after running advisory commands; assert byte-identity.
 - TRC-D5 (stream-4): `compass flow --digest` includes a Rework scan section.
 - TRC-C6 (stream-3): the digest surfaces calibration's reframe-debt section.
 """
@@ -32,11 +32,11 @@ def _sha256_of_file(path: Path) -> str:
 
 
 def _snapshot_task_ymls(compass_work_dir: Path) -> Dict[str, str]:
-    """Return {relative_path: sha256} for every task.yml under compass_work_dir."""
+    """Return {relative_path: sha256} for every manifest.yml under compass_work_dir."""
     snapshots: Dict[str, str] = {}
     if not compass_work_dir.is_dir():
         return snapshots
-    for task_yml in sorted(compass_work_dir.rglob("task.yml")):
+    for task_yml in sorted(compass_work_dir.rglob("manifest.yml")):
         rel = str(task_yml.relative_to(compass_work_dir))
         snapshots[rel] = _sha256_of_file(task_yml)
     return snapshots
@@ -44,7 +44,7 @@ def _snapshot_task_ymls(compass_work_dir: Path) -> Dict[str, str]:
 
 def write_task_yml(directory: Path, slug: str, changed_files: list,
                    created: str = "2026-05-01") -> None:
-    """Write a minimal task.yml for testing (stream-4 helper)."""
+    """Write a minimal manifest.yml for testing (stream-4 helper)."""
     directory.mkdir(parents=True, exist_ok=True)
     data = {
         "slug": slug,
@@ -60,7 +60,7 @@ def write_task_yml(directory: Path, slug: str, changed_files: list,
         },
         "changed_files": changed_files,
     }
-    with (directory / "task.yml").open("w", encoding="utf-8") as fh:
+    with (directory / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump(data, fh, sort_keys=False)
 
 
@@ -96,7 +96,7 @@ def run_subprocess_cli(*args, cwd=None, env_extra=None) -> subprocess.CompletedP
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 (stream-6, canonical) - Advisory commands must not mutate task.yml
+# TRC-F4 (stream-6, canonical) - Advisory commands must not mutate manifest.yml
 # ---------------------------------------------------------------------------
 
 def test_does_not_mutate_tasks(run_cli, make_task, project):
@@ -104,7 +104,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
 
     Given multiple tasks exist in .compass/work/
     When compass retro runs (the primary advisory/reporting command)
-    Then no task.yml under .compass/work/ is modified (byte-identical after)
+    Then no manifest.yml under .compass/work/ is modified (byte-identical after)
     And no task is automatically reframed, downgraded, or blocked.
 
     This tests Inv-4 (defined in architecture/decisions/README.md): Flow reads disk
@@ -147,7 +147,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
 
     # --- Snapshot before advisory command -----------------------------------
     before = _snapshot_task_ymls(compass_work)
-    assert before, "No task.yml found before calibration - test setup failed"
+    assert before, "No manifest.yml found before calibration - test setup failed"
 
     # --- When: run the advisory command -------------------------------------
     r = run_cli("retro")
@@ -161,7 +161,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
     after = _snapshot_task_ymls(compass_work)
 
     assert before == after, (
-        "Advisory command 'compass retro' mutated task.yml files - "
+        "Advisory command 'compass retro' mutated manifest.yml files - "
         "this violates Inv-4 (Flow advises, never gates). "
         "Changed files:\n" + "\n".join(
             f"  {k}: before={before[k][:8]}... after={after[k][:8]}..."
@@ -274,7 +274,7 @@ def test_includes_reframe_debt(tmp_path):
         "delivery_approach": "standard",
         "reassessments": [],
     }
-    with (task_dir / "task.yml").open("w") as fh:
+    with (task_dir / "manifest.yml").open("w") as fh:
         yaml.safe_dump(task_body, fh, sort_keys=False)
     (compass / "current-task").write_text(slug)
     (task_dir / "devlog.md").write_text(

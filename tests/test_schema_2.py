@@ -1,16 +1,16 @@
-"""Schema 2.0 - the machine spine speaks the frozen v2 vocabulary.
+"""Schema 2.0 - the machine manifest speaks the frozen v2 vocabulary.
 
-The machine-spine slice of the v2 plan: the issue spine's keys take their
+The machine-manifest slice of the v2 plan: the manifest's keys take their
 v2 names (assessment/risk/familiarity/size/goal, labels, delivery_approach,
 stages, policy_rules_fired, follow_ups, reassessments), writers emit
-schema_version "2.0", readers accept a 1.x spine by normalising its keys on
+schema_version "2.0", readers accept a 1.x manifest by normalising its keys on
 load (the substrate the full migration tool wraps in its own slice), and
 the repository's own work archive - plus the example work dirs - migrates
 in the same change. Two transition aids retire with the archive migration:
 the artifact-name v1 fallback in the runtime resolver, and the
-templates/task.yml scan exemption.
+templates/manifest.yml scan exemption.
 
-No behaviour change: same spine, new names, the suite moved in lockstep.
+No behaviour change: same manifest, new names, the suite moved in lockstep.
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ V1_SPINE = {
 }
 
 
-def _project(tmp_path, spine):
+def _project(tmp_path, manifest):
     import shutil
     root = tmp_path / "proj"
     shutil.copytree(REPO_ROOT / "governance", root / "governance")
@@ -64,7 +64,7 @@ def _project(tmp_path, spine):
     d = root / ".compass" / "work" / "t"
     d.mkdir(parents=True)
     (d / "delivery-approach.md").write_text("# Delivery approach\n")
-    (d / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+    (d / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     (root / ".compass" / "current-task").write_text("t\n")
     return root
 
@@ -75,49 +75,49 @@ def _run(root, *args):
 
 
 def test_route_evaluate_writes_a_v2_spine(tmp_path):
-    """TRC-A1: the evaluator reads a v2 spine and folds its results back
+    """TRC-A1: the evaluator reads a v2 manifest and folds its results back
     under the v2 keys, stamping schema 2.0 - no v1 key appears in what it
     writes."""
     root = _project(tmp_path, dict(V2_SPINE))
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-500:] + r.stdout[-500:]
-    out = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
+    out = yaml.safe_load((root / ".compass" / "work" / "t" / "manifest.yml").read_text())
     assert str(out.get("schema_version")) == "2.0"
     assert out.get("delivery_approach"), "no delivery_approach recorded"
     assert out.get("stages"), "no stages recorded"
     assert "policy_rules_fired" in out
     leaked = (V1_TOP_KEYS & set(out)) | (V1_ASSESSMENT_KEYS & set(out.get("assessment", {})))
-    assert not leaked, f"v1 keys leaked into a written spine: {sorted(leaked)}"
+    assert not leaked, f"v1 keys leaked into a written manifest: {sorted(leaked)}"
 
 
 def test_a_v1_spine_is_still_readable(tmp_path):
-    """TRC-A2: a 1.x spine loads by key normalisation - the evaluator works,
-    and what it writes back is a v2 spine. This is the substrate the full
+    """TRC-A2: a 1.x manifest loads by key normalisation - the evaluator works,
+    and what it writes back is a v2 manifest. This is the substrate the full
     migration tool wraps; an un-migrated tree degrades gracefully instead
     of crashing."""
     root = _project(tmp_path, dict(V1_SPINE))
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-500:] + r.stdout[-500:]
-    out = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
+    out = yaml.safe_load((root / ".compass" / "work" / "t" / "manifest.yml").read_text())
     assert str(out.get("schema_version")) == "2.0"
     assert out.get("assessment", {}).get("risk") == "contained"
     assert not (V1_TOP_KEYS & set(out)), "normalisation left v1 top-level keys"
 
 
 def test_the_repository_archive_speaks_schema_2():
-    """TRC-A3: every spine in the repository's own work archive and in the
+    """TRC-A3: every manifest in the repository's own work archive and in the
     example work dirs carries v2 keys - the repo is a migration fixture,
     and the migration ran."""
     stale = []
-    for pattern in [".compass/work/*/task.yml",
-                    "examples/*/.compass/work/*/task.yml",
-                    "examples/bdd-adapters/*/.compass/work/*/task.yml"]:
+    for pattern in [".compass/work/*/manifest.yml",
+                    "examples/*/.compass/work/*/manifest.yml",
+                    "examples/bdd-adapters/*/.compass/work/*/manifest.yml"]:
         for p in REPO_ROOT.glob(pattern):
             d = yaml.safe_load(p.read_text()) or {}
             bad = (V1_TOP_KEYS & set(d)) | (V1_ASSESSMENT_KEYS & set(d.get("assessment", {})))
             if "readings" in d or bad:
                 stale.append(f"{p.relative_to(REPO_ROOT)}: {sorted(bad) or 'readings block'}")
-    assert not stale, "un-migrated spines:\n  " + "\n  ".join(stale[:12])
+    assert not stale, "un-migrated manifests:\n  " + "\n  ".join(stale[:12])
 
 
 def test_the_archive_carries_v2_artifact_names():
@@ -150,21 +150,21 @@ def test_the_artifact_name_fallback_is_retired():
 
 
 def test_templates_task_yml_speaks_v2_and_is_scanned():
-    """TRC-A6: the spine template carries v2 keys, and its scan exemption
+    """TRC-A6: the manifest template carries v2 keys, and its scan exemption
     is retired - the vocabulary scan covers it like any other template."""
-    t = yaml.safe_load((REPO_ROOT / "templates" / "task.yml").read_text())
+    t = yaml.safe_load((REPO_ROOT / "templates" / "manifest.yml").read_text())
     assert "assessment" in t and "readings" not in t, (
-        "templates/task.yml still carries the v1 assessment block"
+        "templates/manifest.yml still carries the v1 assessment block"
     )
     scan = yaml.safe_load(
         (REPO_ROOT / "governance" / "terminology.yml").read_text())["scan"]
-    assert "templates/task.yml" not in scan.get("exempt", []), (
-        "the templates/task.yml scan exemption should retire with schema 2.0"
+    assert "templates/manifest.yml" not in scan.get("exempt", []), (
+        "the templates/manifest.yml scan exemption should retire with schema 2.0"
     )
 
 
 def test_policy_keys_speak_v2():
-    """TRC-A7: the routing policy's machine keys follow the spine - the
+    """TRC-A7: the routing policy's machine keys follow the manifest - the
     dimension keys in shapes and rules use risk/familiarity/size/goal and
     labels, not the v1 names."""
     text = (REPO_ROOT / "governance" / "routing-policy.yml").read_text()

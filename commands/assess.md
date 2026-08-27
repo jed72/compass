@@ -58,11 +58,11 @@ means the same thing.)
 
 If `--reassess` is passed, this is a mid-flight re-assessment, not a fresh
 triage - typically because implementation revealed the assessment was
-misread. Read the existing `delivery-approach.md` and `task.yml`, re-read the
-four dimensions, update the spine's `assessment:` block, then re-run
+misread. Read the existing `delivery-approach.md` and `manifest.yml`, re-read the
+four dimensions, update the manifest's `assessment:` block, then re-run
 `compass approach evaluate --write --reason "..."` to recompute the approach.
 **Always pass `--reason`** on a re-assessment: when the CLI sees the approach
-change, it records the event in the spine's `reassessments:` log, and the
+change, it records the event in the manifest's `reassessments:` log, and the
 reason is the signal `compass retro` reads. Then write a **new
 revision** of `delivery-approach.md` (keep the prior revision visible). A
 re-assessment is a normal event. An approach quietly outgrown is the
@@ -76,15 +76,15 @@ force; if it is still a spike, leave the marker in place.
 
 ## Procedure (follows the delivery-approach rubric exactly)
 
-1. **Create the issue spine.** Pick a slug, make `.compass/work/<task-slug>/`,
-   and write `task.yml` from `${CLAUDE_PLUGIN_ROOT}/templates/task.yml` into it. This is the
-   machine-readable spine the CLI reads and writes.
+1. **Create the manifest.** Pick a slug, make `.compass/work/<issue-slug>/`,
+   and write `manifest.yml` from `${CLAUDE_PLUGIN_ROOT}/templates/manifest.yml` into it. This is the
+   machine-readable manifest the CLI reads and writes.
 1a. **Load project architecture if present.** If the project has an
     `architecture/` directory beside `governance/`, its narrative files,
     `invariants.yml` and decision records are loaded into
     `architecture-loaded.yml` in the issue directory - that file is what
     downstream agents read for architectural context. A project without one
-    keeps working. Do **not** write load state into the spine's `assessment:`
+    keeps working. Do **not** write load state into the manifest's `assessment:`
     block; that block is the judgement only.
 
     (No CLI verb wraps this yet, so it does not happen on its own - see the
@@ -96,7 +96,7 @@ force; if it is still a spike, leave the marker in place.
    rather than guessing. When size is unsure, estimate *up*. Note:
    **exploration goal** - "I cannot state this well enough to deliver it
    yet" - leads toward a **spike**, the way live-defect urgency leads toward
-   a hotfix. Write these into the spine's `assessment:` block. The assessment
+   a hotfix. Write these into the manifest's `assessment:` block. The assessment
    is the only part of the computation that is judgement - everything below
    is mechanism.
 3. **Compute the delivery approach - this is the mechanism.** Run
@@ -104,7 +104,7 @@ force; if it is still a spike, leave the marker in place.
    `routing-policy.yml` to the assessment: it composes the candidate shape,
    applies the floors, caps, immovable gates, and blocking role rules, and
    folds the resulting `delivery_approach`, `stages`, `gates` (status
-   pending), `topology`, and `policy_rules_fired` back into `task.yml`. You
+   pending), `topology`, and `policy_rules_fired` back into `manifest.yml`. You
    do not compose the approach or apply a policy rule by hand - same
    assessment + same policy => same approach, every time. If the assessment
    is a misclassification, the CLI fails loudly; re-read the dimension it
@@ -116,13 +116,13 @@ force; if it is still a spike, leave the marker in place.
    weight, gate set, and topology; and **the de-scope ledger** - every stage
    the CLI marked collapsed or skipped, each with an explicit "safe to skip
    because..." line. A stage with no justification runs.
-   `delivery-approach.md` is the human-readable face of what `task.yml`
+   `delivery-approach.md` is the human-readable face of what `manifest.yml`
    records mechanically.
 5. **Write the `.compass/current-task` pointer.** Write the slug into
    `.compass/current-task` so every later `compass` call resolves to this
    issue without an `--issue` flag.
 6. **On a spike, write the `.spike` marker.** If the CLI's approach is a
-   spike, create an empty marker file at `.compass/work/<task-slug>/.spike`.
+   spike, create an empty marker file at `.compass/work/<issue-slug>/.spike`.
    The approach-aware pre-tool hook reads this to know the TDD strategy is
    suspended for this issue (the hook does not block code edits). Do **not**
    create this marker on any other approach.
@@ -142,9 +142,9 @@ entering. See `skills/compass-runtime/writing-voice.md`.
 
 ## Gate
 
-`task.yml` exists with an `assessment:` block and a CLI-computed
+`manifest.yml` exists with an `assessment:` block and a CLI-computed
 `delivery_approach`/`stages`/`gates`; `delivery-approach.md` exists, every
 dimension has a justification, and every skipped stage has a written reason;
 `.compass/current-task` points at the slug. On a spike, the
-`.compass/work/<task-slug>/.spike` marker exists. Then start a `devlog.md`
+`.compass/work/<issue-slug>/.spike` marker exists. Then start a `devlog.md`
 entry and proceed to `/compass:define`.

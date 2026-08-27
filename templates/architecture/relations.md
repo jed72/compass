@@ -3,12 +3,12 @@
 <!-- HOW TRIAGE USES THIS FILE
      Assess reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The `architect-lens` agent reads it to determine
-     which labels in the issue spine map to known service names, so it
+     which labels in the manifest map to known service names, so it
      knows when to fire automatically as acceptance criteria are defined
      (see TRC-B2).
 
      Format: keep service names consistent with the labels you use in the
-     spine (the `touches:` field) so the agent can match them.
+     manifest (the `touches:` field) so the agent can match them.
 -->
 
 ## Service map

@@ -26,8 +26,9 @@ from __future__ import annotations
 import os
 
 from compass_pkg.check_results import NOTHING_TO_CHECK
-from compass_pkg.core import (FOUND, CompassError, load_yaml, resolve_artifact,
-                             resolve_task_dir, save_task)
+from compass_pkg.core import (FOUND, CompassError, load_yaml, manifest_path,
+                             resolve_artifact, resolve_issue_dir,
+                             save_manifest)
 
 # The line that says the page was generated, and the marker the currency check
 # reads. Kept out of the rendered body's meaning so a reader is not asked to
@@ -40,7 +41,7 @@ _STATUS_ORDER = {"awaiting-approval": 0, "draft": 1, "approved": 2,
 
 
 def _spine(task_dir):
-    path = os.path.join(task_dir, "task.yml")
+    path = manifest_path(task_dir)
     try:
         task = load_yaml(path)
     except CompassError:
@@ -142,7 +143,7 @@ def render_dashboard(task_dir):
 
 
 def dashboard_is_current(task_dir):
-    """Does the dashboard on disk match one rendered from the spine now?
+    """Does the dashboard on disk match one rendered from the manifest now?
 
     Returns (is_current, detail). A page that has drifted from its source is
     worse than no page, because it is still trusted.
@@ -160,16 +161,16 @@ def dashboard_is_current(task_dir):
                        "dashboard`, or move the hand-written page aside first")
     fresh = render_dashboard(task_dir)
     if on_disk.strip() != fresh.strip():
-        return False, ("README.md no longer matches the issue spine - "
+        return False, ("README.md no longer matches the manifest - "
                        "regenerate it with `compass issue dashboard`")
-    return True, "README.md matches the spine"
+    return True, "README.md matches the manifest"
 
 
 def _check_dashboard_current(task, task_dir):
     """The per-issue review page still matches the record it was generated from.
 
     Under G4, evidence-not-assertion: the dashboard states what documents exist,
-    what is awaiting approval and what was left out. If the spine has moved
+    what is awaiting approval and what was left out. If the manifest has moved
     since it was rendered, that page is an assertion the record contradicts -
     and it is the page a reviewer approves from, so nobody catches it.
 
@@ -188,7 +189,7 @@ def _check_dashboard_current(task, task_dir):
             return NOTHING_TO_CHECK, (
                 "README.md carries no generated marker, so it is a page "
                 "somebody wrote by hand - Compass does not judge it against "
-                "the spine")
+                "the manifest")
 
     current, detail = dashboard_is_current(task_dir)
     if not current:
@@ -200,12 +201,12 @@ def cmd_issue_dashboard(args):
     """`compass issue dashboard` - render the review page, or check it is current.
 
     `--check` writes nothing and reports whether the page still matches the
-    spine. That is the mode a currency guard calls: a generated page that has
+    manifest. That is the mode a currency guard calls: a generated page that has
     drifted is worse than no page, because it is still trusted.
     """
-    from compass_pkg.core import resolve_task_dir
+    from compass_pkg.core import resolve_issue_dir
 
-    task_dir = resolve_task_dir(getattr(args, "task", None))
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
     if getattr(args, "check", False):
         current, detail = dashboard_is_current(task_dir)
         print("compass issue dashboard: %s - %s"
@@ -236,15 +237,15 @@ def cmd_issue_artifact(args):
     """`compass issue artifact <kind> --status <s> [--reason ...]`.
 
     Refuses a kind the issue never earned, the way `tdd-red --scenario`
-    refuses a scenario id that is not in the spine - a status set on a document
+    refuses a scenario id that is not in the manifest - a status set on a document
     nobody asked for is a typo that would otherwise be stored as a decision.
 
     An omission MUST carry a reason. Without one, a document deliberately
     dropped and a document nobody got to look the same on the page, and telling
     those apart is the reason the registry exists.
     """
-    task_dir = resolve_task_dir(getattr(args, "task", None))
-    path = os.path.join(task_dir, "task.yml")
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
+    path = manifest_path(task_dir)
     task = load_yaml(path)
     arts = [a for a in (task.get("artifacts") or []) if isinstance(a, dict)]
 
@@ -268,7 +269,7 @@ def cmd_issue_artifact(args):
     if (args.reason or "").strip():
         entry["reason"] = args.reason.strip()
     task["artifacts"] = arts
-    save_task(task, path)
+    save_manifest(task, path)
     from compass_pkg.terminal import say
 
     return say(args, "compass issue artifact: %s -> %s" % (args.kind, args.status),

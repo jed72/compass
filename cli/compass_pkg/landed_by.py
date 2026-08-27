@@ -6,7 +6,7 @@ Its own module rather than more of `checks.py`, because the size cap in
 keep modules grouped the way the code already is, and this block is cohesive:
 one constant, one reader, one predicate and one check.
 
-DEPENDENCY: none beyond the standard library and this package. It reads a spine
+DEPENDENCY: none beyond the standard library and this package. It reads a manifest
 through `core.load_yaml`, which is where the bundled PyYAML is resolved; nothing
 here imports yaml directly. Stated rather than omitted so the dependency scan
 covers this file instead of listing it as unmarked.
@@ -42,14 +42,14 @@ from compass_pkg.core import CompassError, load_yaml, normalize_spine
 #: loudly when the set changes, which is the moment to think about it.
 #:
 #: What is NOT here is deliberate. `dashboard-current` still applies: the
-#: review page must match the spine whatever the spine says. `dod-evidence-typed`
+#: review page must match the manifest whatever the manifest says. `dod-evidence-typed`
 #: and `backfills-paid` still apply: an unchecked box or an owed follow-up is
 #: this issue's own business regardless of who did the work.
 LANDED_BY_RELAXES = (
     "scenarios-have-tests",
     "suite-passed",
     "scenario-has-id-and-intent",
-    # Its complaint is "no gates in task.yml - has the route been evaluated?",
+    # Its complaint is "no gates in manifest.yml - has the route been evaluated?",
     # which is the same class as the three above: this issue never went through
     # verify, because a different one did.
     #
@@ -63,9 +63,9 @@ LANDED_BY_RELAXES = (
 
 
 def _sibling_spine(task_dir, slug):
-    """Another issue's spine, read from the same work root."""
+    """Another issue's manifest, read from the same work root."""
     path = os.path.join(os.path.dirname(os.path.abspath(task_dir)),
-                        slug, "task.yml")
+                        slug, "manifest.yml")
     if not os.path.isfile(path):
         return None
     try:

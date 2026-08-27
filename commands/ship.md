@@ -48,22 +48,22 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    too - pulled from `positioning.md`, so every line in the notes is already
    a scenario-backed claim. `marketing-lens` owns their wording.
 4. **Settle owed follow-ups.** Check `delivery-approach.md`'s de-scope
-   ledger, `task.yml`'s `follow_ups:` and `claims:` lists, and the
+   ledger, `manifest.yml`'s `follow_ups:` and `claims:` lists, and the
    approach's standing obligations:
    - **Hotfix follow-up** (mandatory): `delivery-approach.md` completed
      properly (not the urgent stub); the reproduction test promoted into a
      real Given/When/Then scenario in `acceptance-criteria.md` *and*
-     `task.yml`'s `scenarios:`, traceable to the defect; a root-cause line
+     `manifest.yml`'s `scenarios:`, traceable to the defect; a root-cause line
      in the `devlog.md`. Mark the matching `follow_ups:` entry `paid` -
      `compass check` fails at ship while any is owed.
    - **Marketer claims gate** (when the product-marketer role is in play):
-     every claim in `task.yml`'s `claims:` traces to a passing scenario id.
+     every claim in `manifest.yml`'s `claims:` traces to a passing scenario id.
      Invoke `marketing-lens` to confirm; `compass check`'s
      `claim-traces-to-scenario` check is the mechanical backing. This gate
      blocks shipping per the routing policy's `role_rules`.
    - Any other de-scoped artifact the ledger marked as owed.
 5. **Run `compass check` as the final mechanical gate.** It runs every
-   `guardrails.yml` check against `task.yml` and `evidence/` - suite
+   `guardrails.yml` check against `manifest.yml` and `evidence/` - suite
    passed, traceability holds, every `pass` gate has evidence, no owed
    follow-up unpaid, and (where a human sign-off applies) the approval is
    on record. It exits non-zero on any failure; record its output and link
@@ -76,10 +76,10 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    unchecked DoD box must carry one of:
 
    - `- [ ] (evidence: EV-<id>) <description>` - passes if `EV-<id>` is in
-     `task.yml`'s evidence registry with an accepted type (`test-run`,
+     `manifest.yml`'s evidence registry with an accepted type (`test-run`,
      `command-output`, `manual-review`, `human-approval`, `artifact`, etc.).
    - `- [ ] (follow-up: FU-<id>) <description>` - passes if `FU-<id>` is in
-     `task.yml`'s `follow_ups:` with `status: owed`. The follow-up can
+     `manifest.yml`'s `follow_ups:` with `status: owed`. The follow-up can
      carry an optional `target_task: <slug>` field; when set, the named
      issue's ship check fails until this entry is paid
      (`compass follow-up resolve --issue <slug> <FU-id>` - the CLI verb renames
@@ -98,7 +98,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    more than it returned between triage and ship. Run
    `compass _friction-capture --internal` - it assembles a draft
    `friction:` list from signals the CLI already computed (recorded
-   re-assessments, absorbed assessment-debt) and writes it into `task.yml`.
+   re-assessments, absorbed assessment-debt) and writes it into `manifest.yml`.
    Then offer the author **one optional line**: *"anything the framework
    made harder than it should have been?"* - pass it with `--note "..."
    --note-category <over-ceremony|tooling|...> --note-phase <stage>`.

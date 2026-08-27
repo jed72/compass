@@ -1,5 +1,5 @@
 schema_version: '2.0'
-task: reset-password
+issue: reset-password
 created: '2026-08-03'
 status: active
 assessment:

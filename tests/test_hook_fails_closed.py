@@ -1,7 +1,7 @@
 """The pre-tool hook fails closed when it cannot read its own state.
 
 `hooks/pre-tool.sh` enforces acceptance-before-code by reading the issue
-spine through `scripts/lib/compass-python.sh`. That helper used `exec`, which
+manifest through `scripts/lib/compass-python.sh`. That helper used `exec`, which
 replaces the calling shell - including the shell holding the call site's
 `|| true`. So when the vendored PyYAML could not be resolved, the hook aborted
 under `set -euo pipefail` with exit 3 and printed nothing, and because the
@@ -89,7 +89,7 @@ def project(tmp_path):
     )
     work = dest / ".compass" / "work" / "guarded"
     work.mkdir(parents=True, exist_ok=True)
-    (work / "task.yml").write_text(SPINE, encoding="utf-8")
+    (work / "manifest.yml").write_text(SPINE, encoding="utf-8")
     (work / "delivery-approach.md").write_text(
         "# Delivery approach - guarded\n", encoding="utf-8")
     (dest / ".compass" / "current-task").write_text("guarded\n", encoding="utf-8")
@@ -170,7 +170,7 @@ def test_the_guarded_surface_decision_fails_closed_too(project):
     In this repository those globs are `hooks/*.sh` and `scripts/*.sh` - so a
     broken install stops guarding precisely the files whose breakage caused
     it. The built-in set still applies, which makes this narrower than the
-    spine read, not different in kind.
+    manifest read, not different in kind.
     """
     (project / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\n"

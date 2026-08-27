@@ -112,7 +112,7 @@ def make(tmp_path, *, runner=None, seen=None, spec_hash=None,
         cfg += f"project:\n  bdd_runner: {runner}\n"
     (proj / ".compass" / "config.yml").write_text(cfg)
     (proj / ".compass" / "current-task").write_text("t\n")
-    (task_dir / "task.yml").write_text(TASK.format(blast=blast))
+    (task_dir / "manifest.yml").write_text(TASK.format(blast=blast))
     (task_dir / "acceptance-criteria.md").write_text(SPEC)
 
     if seen is not None:

@@ -27,7 +27,7 @@ Three groups of checks:
    both the vocabulary file and that baseline in the same diff.
 
 Docstrings cite the acceptance criteria they satisfy by TRC id; the criteria
-live in this issue's archived spec, indexed in its `task.yml` (machine state,
+live in this issue's archived spec, indexed in its `manifest.yml` (machine state,
 exempt from the vocabulary scan during the transition).
 """
 from __future__ import annotations
@@ -227,7 +227,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\btouches?_(?:any|common)\b"),
         re.compile(r"\btouches:\s"),
     ],
-    # The v1 word for owed follow-up work. The DoD tag and the spine key
+    # The v1 word for owed follow-up work. The DoD tag and the manifest key
     # renamed with schema 2.0 ("(follow-up:" and "follow_ups:"); the CLI
     # verb renamed with the CLI-voice slice (`compass follow-up resolve`),
     # which re-tightened this ban to its final form - no tolerated
@@ -237,8 +237,8 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bbackfills?\b", re.IGNORECASE),
     ],
     # The v1 work-item noun in human-facing prose. Machine-state forms
-    # stay legal during the transition: task.yml, current-task, --task,
-    # task-slug and friends.
+    # stay legal during the transition: manifest.yml, current-task, --task,
+    # issue-slug and friends.
     "task": [
         # The `--task` exemption is gone: it was there because --task was a
         # live flag spelling, and ADR-014 removed it. Prose teaching it now
@@ -267,6 +267,19 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     "G1..G5 / S1..S12 codes, bare": [
         re.compile(r"(?<!`)\bG[1-5]\b(?!`)"),
         re.compile(r"(?<!`)\bS\d+\b(?!`)"),
+    ],
+    # The issue's machine-readable file, called the spine until ADR-022 renamed
+    # it to the manifest. An actual backbone, or the spine of a book, is
+    # ordinary English and must not fire - so the pattern requires a nearby
+    # Compass structural word rather than matching the bare noun. A backticked
+    # or quoted use is exempt: the migration table and the rename test both
+    # have to name the old spelling to do their job.
+    "spine / issue spine": [
+        re.compile(r"(?<![`\"'])\bspines?\b(?![`\"'])"
+                   r"(?=[^.\n]*\b(issue|manifest|task|record|artifact|evidence|"
+                   r"gate|scenario|assessment|worktree|yml|machine-readable|stages|delivery approach|changed.files|key)\b)",
+                   re.I),
+        re.compile(r"\b(issue|task)[- ]spines?\b(?![`\"'])", re.I),
     ],
     # Structural metaphor only. "the seam of a garment" is ordinary English and
     # must not fire, so the patterns require a structural noun nearby rather
@@ -369,7 +382,7 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
         #     the user at the terminal; the scan measures what the CLI
         #     *says*, and a docstring is never printed.
         #   - literals with no whitespace: a single token is a machine
-        #     identifier (a spine key, a filename, a flag), not prose.
+        #     identifier (a manifest key, a filename, a flag), not prose.
         # Before this, cli/compass was pending and the scan never ran
         # against it, so no enforcement is loosened by the exclusions.
         try:
@@ -597,6 +610,17 @@ TERM_SURFACE_EXEMPT = {
         "skills/compass-runtime/writing-voice.md",
         "scripts/verify-archive-quotes.py",),
     "Frame / the Needle": ("skills/compass-runtime/writing-voice.md",),
+    # The rename to `manifest` (ADR-022, "The issue record is a manifest").
+    # writing-voice.md quotes archived sessions that used the old word and
+    # tests/test_human_voice.py hashes those quotations against the archived
+    # files, so editing one falsifies the quote. cli/migrate-map.yml must name
+    # both spellings or nothing could migrate, and the decision record has to
+    # say what it renamed and why.
+    "spine / issue spine": (
+        "skills/compass-runtime/writing-voice.md",
+        "cli/migrate-map.yml",
+        "architecture/decisions/ADR-022-the-issue-record-is-a-manifest.md",
+    ),
     # architecture/ownership.md names the role-perspective agents by their
     # machine identifiers and reasons about them as a set; `role` is the
     # concept word and the agents are still called *-lens.

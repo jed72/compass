@@ -161,7 +161,7 @@ def test_hag_b3_an_unreadable_opted_in_project_fails_closed(tmp_path):
     issue.mkdir()
     (root / ".compass" / "current-task").write_text("an-issue\n")
     # An issue directory the hook cannot read the approach from.
-    (issue / "task.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
+    (issue / "manifest.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
 
     r = _run_hook(root, _edit(target), project_dir=root)
     assert r.returncode == BLOCK, (
@@ -180,7 +180,7 @@ def test_hag_b4_silence_is_not_bought_by_widening_the_search(tmp_path):
     outer, _ = _repo(tmp_path, "outer", compass=True, work=True)
     issue = outer / ".compass" / "work" / "an-issue"
     issue.mkdir()
-    (issue / "task.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
+    (issue / "manifest.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
     (issue / "delivery-approach.md").write_text("# approach\n")
     (outer / ".compass" / "current-task").write_text("an-issue\n")
     write_red_record(issue)          # mid-red: edits allowed in OUTER
@@ -214,7 +214,7 @@ def _compass_project(tmp_path):
     root, target = _repo(tmp_path, compass=True, work=True)
     issue = root / ".compass" / "work" / "an-issue"
     issue.mkdir()
-    (issue / "task.yml").write_text(
+    (issue / "manifest.yml").write_text(
         "schema_version: '2.0'\ntask: an-issue\ndelivery_approach: feature\n")
     (issue / "delivery-approach.md").write_text("# approach\n")
     (root / ".compass" / "current-task").write_text("an-issue\n")

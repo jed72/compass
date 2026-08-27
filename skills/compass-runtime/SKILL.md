@@ -23,7 +23,7 @@ what it explicitly does not.
 
 | Stage | Command | Artifact it writes |
 |---|---|---|
-| Assess | `/compass:assess` | `delivery-approach.md` + the spine's assessment |
+| Assess | `/compass:assess` | `delivery-approach.md` + the manifest's assessment |
 | Define acceptance criteria | `/compass:define` | `acceptance-criteria.md` |
 | Requirements review | `/compass:refine` | `requirements-review.md` (ends with the Definition of Ready) |
 | Plan | `/compass:plan` | `technical-design.md` (+ `distribution-map.md` on parallel work) |
@@ -91,9 +91,9 @@ is no worktree - work on the current branch.
 ├── config.yml                  Project config, and what initialised the project
 ├── current-task                One-line pointer to the active issue
 ├── work/
-│   └── <task-slug>/            One directory per issue
+│   └── <issue-slug>/            One directory per issue
 │       ├── delivery-approach.md The delivery-approach record (prose)
-│       ├── task.yml             The machine-readable issue spine
+│       ├── manifest.yml             The manifest
 │       ├── intent.md            Intake (if a product owner was involved)
 │       ├── ui-contract.md       Designer contracts (if a designer was involved)
 │       ├── acceptance-criteria.md  The shared artifact every role reads

@@ -10,8 +10,8 @@
 # worktree-swarm skill.
 #
 # USAGE
-#   scripts/integrate.sh <task-slug>             # integrate every stream
-#   scripts/integrate.sh <task-slug> --no-clean  # integrate but keep worktrees
+#   scripts/integrate.sh <issue-slug>             # integrate every stream
+#   scripts/integrate.sh <issue-slug> --no-clean  # integrate but keep worktrees
 #   scripts/integrate.sh --help
 #
 # ORDER
@@ -195,9 +195,9 @@ fi
 
 # --- write status: landed and derive the living system spec -----------------
 echo ""
-echo "Writing status: landed to task.yml and deriving living system spec..."
+echo "Writing status: landed to manifest.yml and deriving living system spec..."
 
-TASK_YML="$TASK_DIR/task.yml"
+TASK_YML="$TASK_DIR/manifest.yml"
 if [ -f "$TASK_YML" ]; then
   # Parenthesised into its own subshell: compass_python execs python3 in
   # place of whatever calls it, and this call - unlike the ones above that
@@ -218,13 +218,13 @@ try:
     task['land_timestamp'] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
     with open(path, 'w', encoding='utf-8') as f:
         yaml.safe_dump(task, f, sort_keys=False, default_flow_style=False)
-    print("  task.yml: status=landed, land_timestamp written.")
+    print("  manifest.yml: status=landed, land_timestamp written.")
 except Exception as exc:
     print(f"WARNING: could not write status: landed to {path}: {exc}", file=sys.stderr)
 PYEOF
   )
 else
-  echo "  WARNING: no task.yml found at $TASK_YML - skipping status write."
+  echo "  WARNING: no manifest.yml found at $TASK_YML - skipping status write."
 fi
 
 COMPASS_CLI="$COMPASS_HOME/cli/compass"

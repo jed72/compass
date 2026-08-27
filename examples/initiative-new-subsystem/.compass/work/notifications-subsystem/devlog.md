@@ -59,7 +59,7 @@
 ## 2026-03-13 16:20 - note: `G5` sign-off
 
 - **Event:** Guardrail `G5` - irreversible change. L. Haddad (eng lead) reviewed `migrations/0042` forward and rollback paths and approved in PR #618.
-- **Detail:** Recorded in `task.yml` `approvals:`. `compass check` requires this because the assessment include `labels: [migrations]`.
+- **Detail:** Recorded in `manifest.yml` `approvals:`. `compass check` requires this because the assessment include `labels: [migrations]`.
 
 ## 2026-03-13 17:00 - ship
 

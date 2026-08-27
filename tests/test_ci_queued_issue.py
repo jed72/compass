@@ -5,8 +5,8 @@ eight queued issues for not having been assessed - which is what queued means.
 
 The fix is deliberately one field for one status. `cmd_ci`'s own comment says
 why the lint must otherwise run for every issue at every stage: "a malformed
-spine is malformed whether or not the work has started. Skipping it once let a
-spine the linter rejects outright sit in a repository while the sweep reported
+manifest is malformed whether or not the work has started. Skipping it once let a
+manifest the linter rejects outright sit in a repository while the sweep reported
 everything clean." So the boundary tests below matter as much as the first one.
 
 Scenario id: CIQ-A1 in
@@ -24,11 +24,11 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CLI = REPO_ROOT / "cli" / "compass"
 
 
-def _lint(tmp_path, spine):
+def _lint(tmp_path, manifest):
     d = tmp_path / ".compass" / "work" / "demo"
     d.mkdir(parents=True, exist_ok=True)
     (tmp_path / ".compass" / "config.yml").write_text("version: 1.0.0\n")
-    (d / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+    (d / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     return subprocess.run(
         [sys.executable, str(CLI), "issue", "lint", "--issue", "demo"],
         cwd=str(tmp_path), capture_output=True, text=True, timeout=120)
@@ -67,11 +67,11 @@ def test_ciq_a1c_a_queued_issue_malformed_otherwise_still_fails(tmp_path):
     """The other boundary. The lint still runs; only one field stands down.
 
     Skipping the lint wholesale for queued issues is what `cmd_ci` warns
-    against in as many words: it "let a spine the linter rejects outright sit
+    against in as many words: it "let a manifest the linter rejects outright sit
     in a repository while the sweep reported everything clean".
     """
     run = _lint(tmp_path, dict(_BASE, status="queued", scenarios="not-a-list"))
     assert run.returncode != 0, (
-        "a queued issue with a malformed spine passed - the lint has been "
+        "a queued issue with a malformed manifest passed - the lint has been "
         "skipped for the status rather than relaxed for one field:\n"
         + run.stdout + run.stderr)

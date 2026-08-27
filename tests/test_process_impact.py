@@ -69,7 +69,7 @@ def make_project(tmp_path, tasks):
             "{id: verify.g%d, status: pass, evidence: []}" % i
             for i in range(n_gates)) + "]"
         extra = f"repairs: {repairs}\n" if repairs else ""
-        (d / "task.yml").write_text(TASK.format(
+        (d / "manifest.yml").write_text(TASK.format(
             slug=slug, created=created, landed=landed, status="landed",
             route=route, gates=gates, extra=extra))
     return proj
@@ -179,7 +179,7 @@ def test_trc_f1_the_report_should_be_deterministic(tmp_path):
 
 def test_trc_f2_it_should_advise_and_never_gate(tmp_path):
     proj = make_project(tmp_path, STD)
-    before = {p: p.read_text() for p in proj.rglob("task.yml")}
+    before = {p: p.read_text() for p in proj.rglob("manifest.yml")}
     r = run(proj, "--impact")
     assert r.returncode == 0, f"an advisory report exited non-zero:\n{r.stdout}"
     for p, text in before.items():

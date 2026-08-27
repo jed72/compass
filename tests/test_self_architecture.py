@@ -442,11 +442,11 @@ def test_policy_lint_passes():
 
 def test_lint_count_does_not_regress():
     """TRC-E4: task lint does not produce more errors than before."""
-    # This test uses the current task.yml - if it lints clean, regression is OK.
-    task_yml = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "task.yml"
+    # This test uses the current manifest.yml - if it lints clean, regression is OK.
+    task_yml = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "manifest.yml"
     if not task_yml.is_file():
-        pytest.skip("self-architecture task.yml not present - cannot regression-check")
+        pytest.skip("self-architecture manifest.yml not present - cannot regression-check")
     result = run_cli("issue", "lint", "--file", str(task_yml))
     assert result.returncode == 0, (
-        f"self-architecture task.yml no longer lints clean:\n{result.stdout}"
+        f"self-architecture manifest.yml no longer lints clean:\n{result.stdout}"
     )

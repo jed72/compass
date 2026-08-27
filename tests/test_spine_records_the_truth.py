@@ -1,4 +1,4 @@
-"""The spine must record what actually happened (reports R18, R15, R19).
+"""The manifest must record what actually happened (reports R18, R15, R19).
 
 R18 - `route evaluate --write --reason "..."` logged a re-frame only when the
 route NAME changed. Two re-frames on one task, days apart, both with an explicit
@@ -43,7 +43,7 @@ def _project(tmp_path, task=None, slug="t"):
     d.mkdir(parents=True, exist_ok=True)
     (d / "delivery-approach.md").write_text("# Route\n")
     (d / "evidence").mkdir(exist_ok=True)
-    (d / "task.yml").write_text(yaml.safe_dump(task or _base(), sort_keys=False))
+    (d / "manifest.yml").write_text(yaml.safe_dump(task or _base(), sort_keys=False))
     (root / ".compass" / "current-task").write_text(slug + "\n")
     return root
 
@@ -67,7 +67,7 @@ def _run(root, *args):
 
 
 def _task(root, slug="t"):
-    return yaml.safe_load((root / ".compass" / "work" / slug / "task.yml").read_text())
+    return yaml.safe_load((root / ".compass" / "work" / slug / "manifest.yml").read_text())
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ def test_scn_a1_content_change_is_logged(tmp_path):
     # would also change the route NAME, which the old code already logged, so it
     # would prove nothing.
     before["assessment"]["risk"] = "cross-cutting"
-    (root / ".compass" / "work" / "t" / "task.yml").write_text(
+    (root / ".compass" / "work" / "t" / "manifest.yml").write_text(
         yaml.safe_dump(before, sort_keys=False))
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write",
              "--reason", "risk re-read after discovery")
@@ -119,7 +119,7 @@ def test_scn_a3_entry_records_what_changed(tmp_path):
     root = _seeded(tmp_path)
     t = _task(root)
     t["assessment"]["risk"] = "cross-cutting"
-    (root / ".compass" / "work" / "t" / "task.yml").write_text(
+    (root / ".compass" / "work" / "t" / "manifest.yml").write_text(
         yaml.safe_dump(t, sort_keys=False))
     _run(root, "approach", "evaluate", "--issue", "t", "--write", "--reason", "why")
     entry = _task(root)["reassessments"][-1]
@@ -132,7 +132,7 @@ def test_scn_a4_entry_carries_a_kind(tmp_path):
     root = _seeded(tmp_path)
     t = _task(root)
     t["assessment"]["risk"] = "cross-cutting"
-    (root / ".compass" / "work" / "t" / "task.yml").write_text(
+    (root / ".compass" / "work" / "t" / "manifest.yml").write_text(
         yaml.safe_dump(t, sort_keys=False))
     _run(root, "approach", "evaluate", "--issue", "t", "--write",
          "--reason", "policy moved", "--kind", "policy-correction")
@@ -142,7 +142,7 @@ def test_scn_a4_entry_carries_a_kind(tmp_path):
     # and the default, when nobody says
     t2 = _task(root)
     t2["assessment"]["size"] = "large"
-    (root / ".compass" / "work" / "t" / "task.yml").write_text(
+    (root / ".compass" / "work" / "t" / "manifest.yml").write_text(
         yaml.safe_dump(t2, sort_keys=False))
     _run(root, "approach", "evaluate", "--issue", "t", "--write", "--reason", "bigger")
     assert _task(root)["reassessments"][-1].get("kind") == "judgement", _task(root)["reassessments"]
@@ -243,7 +243,7 @@ def test_scn_c2_dangling_supersession_fails(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_scn_f1_existing_task_files_unchanged(tmp_path):
-    """Every task.yml on disk predates all three changes: reframes entries with
+    """Every manifest.yml on disk predates all three changes: reframes entries with
     no `kind`, scenarios with no `superseded_by`."""
     old = _base(route="standard", reframes=[
         {"from_route": "express", "to_route": "standard",

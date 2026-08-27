@@ -42,7 +42,7 @@ def _project(config=None, *, raw_config=None):
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text("t\n")
     (task_dir / "delivery-approach.md").write_text("# Route\n")
-    (task_dir / "task.yml").write_text(yaml.safe_dump({
+    (task_dir / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "1.1", "task": "t", "created": "2026-08-06",
         "assessment": {"risk": "contained", "familiarity": "greenfield",
                      "size": "small", "intent": "delivery"},

@@ -55,7 +55,7 @@ tar_prefix_flags() {
 #
 #   * BSD tar has no `--anchored`, so the `./.compass/work` exclude patterns
 #     this script used to rely on matched at ANY depth and stripped
-#     `examples/<x>/.compass/work/<slug>/task.yml` along with the repo's own
+#     `examples/<x>/.compass/work/<slug>/manifest.yml` along with the repo's own
 #     dev state. Selecting paths in shell lets us anchor exactly.
 #   * Anything untracked shipped. A local `.mcp.json` went out in a release
 #     tarball and the noise check reported clean, because an untracked config
@@ -160,18 +160,18 @@ echo "[4] worked examples are actually present"
 required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
 for e in $required_examples; do
-  if [ ! -f "examples/$e/.compass/work"/*/task.yml ] 2>/dev/null; then
+  if [ ! -f "examples/$e/.compass/work"/*/manifest.yml ] 2>/dev/null; then
     # the glob expands; check more carefully
-    if ! find "examples/$e" -name task.yml -type f 2>/dev/null | grep -q .; then
+    if ! find "examples/$e" -name manifest.yml -type f 2>/dev/null | grep -q .; then
       missing="$missing $e"
     fi
   fi
 done
 if [ -n "$missing" ]; then
-  echo "    FAIL - missing example task.yml(s):$missing"
+  echo "    FAIL - missing example manifest.yml(s):$missing"
   exit 1
 fi
-echo "    PASS - all 5 example task.yml(s) present"
+echo "    PASS - all 5 example manifest.yml(s) present"
 
 # --- 5. clear stale artifacts and build the tarball -------------------------
 echo "[5] building tarball"
@@ -236,10 +236,10 @@ fi
 echo "    (clean - none)"
 
 # --- examples integrity check (HARD FAIL) ----------------------------------
-# The previous tarball stripped `examples/<x>/.compass/work/<slug>/task.yml`
+# The previous tarball stripped `examples/<x>/.compass/work/<slug>/manifest.yml`
 # because the .compass/work exclude was not root-anchored. Verify directly:
-# every example must have its task.yml in the tarball.
-echo "  examples integrity (every example must have its task.yml):"
+# every example must have its manifest.yml in the tarball.
+echo "  examples integrity (every example must have its manifest.yml):"
 required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
 for e in $required_examples; do
@@ -249,7 +249,7 @@ for e in $required_examples; do
   fi
 done
 if [ -n "$missing" ]; then
-  echo "    !!  missing example task.yml in tarball:$missing" >&2
+  echo "    !!  missing example manifest.yml in tarball:$missing" >&2
   echo "release.sh: FAIL - examples were not packaged correctly. Check the .compass/work exclude is root-anchored (./.compass/work, not .compass/work)." >&2
   exit 1
 fi

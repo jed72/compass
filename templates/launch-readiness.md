@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: launch-readiness.md
 Produced by: the product marketer via `/compass:position`; completed at ship time.
-Lives at:    .compass/work/<task-slug>/launch-readiness.md
+Lives at:    .compass/work/<issue-slug>/launch-readiness.md
 Role in the pipeline: the marketer's GATE artifact. The routing-policy
 role_rule for `product-marketer` requires this file and blocks shipping until
 every claim in positioning.md traces to a PASSING scenario. This is where

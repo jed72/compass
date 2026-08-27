@@ -45,8 +45,8 @@ four roles can.
 4. **Maintain traceability** - load `traceability`; each scenario traces to
    an intent (`intent.md`, the request, the defect).
 5. **Write `acceptance-criteria.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/acceptance-criteria.md`
-   into `.compass/work/<task-slug>/` - the prose spec every role reads.
-6. **Write the `scenarios:` block of `task.yml`** - the machine-readable
+   into `.compass/work/<issue-slug>/` - the prose spec every role reads.
+6. **Write the `scenarios:` block of `manifest.yml`** - the machine-readable
    index of the prose spec. Each scenario gets a stable `id`, a `title`, a
    linked `intent` id, and the `tests` that exercise it. This is what
    `compass check` reads to verify the acceptance-before-code and
@@ -76,7 +76,7 @@ implied one - a reviewer who is told what to look for finds more than one who
 is told a file is ready.
 
 > I have written the acceptance criteria to
-> `.compass/work/<task-slug>/acceptance-criteria.md`.
+> `.compass/work/<issue-slug>/acceptance-criteria.md`.
 >
 > It opens with a Summary - Goal, Approach, and Why now / what changes - so
 > you can see what this delivers before reading any scenarios. Below that are
@@ -95,13 +95,13 @@ is told a file is ready.
 > Nothing is built from it until then.
 
 Fill in the real path, counts, and group names - a prompt that still says
-`<task-slug>` has not been read by the person sending it.
+`<issue-slug>` has not been read by the person sending it.
 
 ## Gate
 
 On delivery work: `acceptance-criteria.md` exists, every scenario is
 Given/When/Then, every scenario traces to an intent, no described behaviour
-is missing a scenario, and `task.yml`'s `scenarios:` block mirrors it - each
+is missing a scenario, and `manifest.yml`'s `scenarios:` block mirrors it - each
 with an id, a linked intent, and at least one test. On a spike: the question
 and timebox are recorded. Log to `devlog.md`. Next: `/compass:refine` (or
 straight to `/compass:plan` if `delivery-approach.md` collapsed the

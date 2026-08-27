@@ -46,7 +46,7 @@ def _flat(text):
 # ---------------------------------------------------------------------------
 
 def _task_claiming_correctness(tests, *, status="active", correctness="pass"):
-    """A task.yml that has claimed correctness - the state the check fires in."""
+    """A manifest.yml that has claimed correctness - the state the check fires in."""
     body = {
         "task": "resolve-me",
         "created": "2026-08-03",
@@ -114,7 +114,7 @@ def test_trc_a1_missing_test_file_reported(run_cli, make_task, project):
 def test_trc_a2_missing_test_function_reported(run_cli, make_task, project):
     """The file existing is not enough - the named test must be in it. This is
     the case that actually bit: a test renamed during Build, never written back
-    to task.yml."""
+    to manifest.yml."""
     _real_test_file(project, func="test_present")
     task_dir = make_task("resolve-me",
                          _task_claiming_correctness(["tests/test_real.py::test_absent"]))
@@ -261,7 +261,7 @@ def test_trc_b1_second_note_appends(run_cli, make_task):
                 "--note-phase", "land")
     assert r.returncode == 0, r
 
-    got = yaml.safe_load((task_dir / "task.yml").read_text())["friction"]
+    got = yaml.safe_load((task_dir / "manifest.yml").read_text())["friction"]
     observations = [e["observation"] for e in got]
     assert "the first note" in observations, (
         "the earlier note was destroyed - this is the bug:\n" + str(got))
@@ -280,7 +280,7 @@ def test_trc_b2_derived_entries_not_duplicated(run_cli, make_task):
     run_cli("_friction-capture", "--internal", "--issue", "fric",
             "--note", "a human note", "--note-category", "tooling")
 
-    got = yaml.safe_load((task_dir / "task.yml").read_text())["friction"]
+    got = yaml.safe_load((task_dir / "manifest.yml").read_text())["friction"]
     derived = [e for e in got if e.get("observation") == "a derived observation"]
     assert len(derived) <= 1, f"derived entry duplicated: {got}"
 
@@ -295,7 +295,7 @@ def test_trc_b1_identical_note_not_appended_twice(run_cli, make_task):
             "--note", "same note", "--note-category", "tooling",
             "--note-phase", "verify")
 
-    got = yaml.safe_load((task_dir / "task.yml").read_text())["friction"]
+    got = yaml.safe_load((task_dir / "manifest.yml").read_text())["friction"]
     assert len([e for e in got if e["observation"] == "same note"]) == 1, got
 
 
@@ -306,20 +306,20 @@ def test_trc_b3_nothing_captured_stays_absent(run_cli, make_task):
     r = run_cli("_friction-capture", "--internal", "--issue", "fric")
 
     assert r.returncode == 0, r
-    body = yaml.safe_load((task_dir / "task.yml").read_text())
+    body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     assert "friction" not in body or not body["friction"], body
     assert "nothing recorded" in r.stdout.lower(), r
 
 
 def test_trc_f2_task_without_friction_key_loads(run_cli, make_task):
-    """A spine written before the friction key existed must still accept a note."""
+    """A manifest written before the friction key existed must still accept a note."""
     task_dir = _friction_task("fric", make_task)   # no friction key at all
 
     r = run_cli("_friction-capture", "--internal", "--issue", "fric",
                 "--note", "a note", "--note-category", "tooling")
 
     assert r.returncode == 0, r
-    got = yaml.safe_load((task_dir / "task.yml").read_text())["friction"]
+    got = yaml.safe_load((task_dir / "manifest.yml").read_text())["friction"]
     assert [e["observation"] for e in got] == ["a note"], got
 
 
@@ -367,13 +367,13 @@ def _pre_existing_task_slugs():
         return []
     current = (ROOT / ".compass" / "current-task")
     in_flight = current.read_text().strip() if current.is_file() else ""
-    # Same principle for issues the spine says have not started or will not
+    # Same principle for issues the manifest says have not started or will not
     # finish: 'queued', 'parked', and 'abandoned' work has no green run by
     # definition, so sweeping it would assert unstarted work is finished.
     import yaml as _yaml
     not_startable = {"queued", "parked", "abandoned"}
     slugs = []
-    for p in sorted(work.glob("*/task.yml")):
+    for p in sorted(work.glob("*/manifest.yml")):
         if p.parent.name == in_flight:
             continue
         try:

@@ -44,7 +44,7 @@ actually working on.
 
 **Re-assessing is a normal event; an unrecorded one is a lost signal.**
 `/compass:assess --reassess` re-runs the evaluator, notices the approach
-changed, and records it in the spine's `reassessments:` log. Pass
+changed, and records it in the manifest's `reassessments:` log. Pass
 `--reason "..."` so the entry says why - `compass retro` aggregates those
 across issues and reports whether assessment is systematically over- or
 under-sizing the work.
@@ -82,7 +82,7 @@ question comes up rather than at the start of every issue.
 strategy is defined, not a per-issue read.
 
 The checks are mechanical. `compass check` runs `guardrails.yml` against the
-spine and `evidence/`, and `/compass:verify` calls it. Gate evidence is
+manifest and `evidence/`, and `/compass:verify` calls it. Gate evidence is
 **typed** - a `{type, path}` record, not a bare path - and `guardrails.yml`
 says which types each gate accepts, so a mechanical gate cannot be cleared
 with a written note.
@@ -137,7 +137,7 @@ count is bounded - are in the `compass-runtime` skill and in the
 
 ## Where state lives
 
-`.compass/work/<issue>/` holds the spine, the artefacts and the evidence;
+`.compass/work/<issue>/` holds the manifest, the artefacts and the evidence;
 the `compass-runtime` skill has the tree and what each file is for.
 
 `governance/` and `architecture/` live at the project root, not under

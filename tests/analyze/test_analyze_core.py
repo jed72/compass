@@ -66,7 +66,7 @@ _AUTH_READINGS = {
 
 def _write_task(task_dir: Path, body: Dict[str, Any]) -> None:
     task_dir.mkdir(parents=True, exist_ok=True)
-    with (task_dir / "task.yml").open("w", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump(body, fh, sort_keys=False)
 
 
@@ -148,7 +148,7 @@ def test_trc_a1_coherent_artifacts_pass_cleanly(project: Path, run_cli):
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write a task.yml with an intent-linked scenario
+    # Write a manifest.yml with an intent-linked scenario
     body = _minimal_task(slug)
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     _write_task(task_dir, body)
@@ -157,7 +157,7 @@ def test_trc_a1_coherent_artifacts_pass_cleanly(project: Path, run_cli):
     _write_brief(task_dir, ["INT-1"])
     # spec.feature.md links SCN-001 -> INT-1
     _write_spec(task_dir, [{"id": "SCN-001", "intent": "INT-1"}])
-    # route.md agrees with task.yml
+    # route.md agrees with manifest.yml
     _write_route_md(task_dir, "express")
 
     (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
@@ -210,17 +210,17 @@ def test_trc_a2_orphaned_scenario_flagged(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 - route disagreement between route.md and task.yml is flagged
+# TRC-A3 - route disagreement between route.md and manifest.yml is flagged
 # ---------------------------------------------------------------------------
 
 def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
-    """TRC-A3: route.md says 'Clarify: full' but task.yml says 'clarify: collapsed' → non-zero."""
+    """TRC-A3: route.md says 'Clarify: full' but manifest.yml says 'clarify: collapsed' → non-zero."""
     slug = "route-disagree-task"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
     body = _minimal_task(slug)
-    # task.yml says clarify: collapsed
+    # manifest.yml says clarify: collapsed
     body["stages"]["refine"] = "collapsed"
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     # Gate mode so findings → non-zero
@@ -232,7 +232,7 @@ def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
 
     _write_brief(task_dir, ["INT-1"])
     _write_spec(task_dir, [{"id": "SCN-001", "intent": "INT-1"}])
-    # route.md says Clarify: full (disagrees with task.yml's collapsed)
+    # route.md says Clarify: full (disagrees with manifest.yml's collapsed)
     _write_route_md(task_dir, "express", phases={
         "Frame": "full", "Specify": "light", "Clarify": "full",
         "Plan": "collapsed", "Distribute": "skipped", "Build": "full",
@@ -568,7 +568,7 @@ def test_trc_a10_legitimately_omitted_artifact_not_flagged(project: Path, run_cl
     assert "intent.md" not in combined or "missing" not in combined.lower(), \
         f"Hotfix route must not flag missing brief.md:\n{result}"
     # Should not flag orphaned scenarios either (spec links INT-1 but no brief - that's OK on hotfix)
-    # The key assertion: no route-disagreement finding (route.md and task.yml agree on hotfix)
+    # The key assertion: no route-disagreement finding (route.md and manifest.yml agree on hotfix)
     assert "route-disagreement" not in combined.lower(), \
         f"No route-disagreement expected for consistent hotfix:\n{result}"
 
@@ -614,7 +614,7 @@ def test_trc_a11_no_evidence_findings(project: Path, run_cli):
 
 def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
     """TRC-A12: the routing-policy floor RP-REQUIRE-001 adds verify.analyze to a
-    task with touches=[auth]; the evaluator writes it to task.yml.gates."""
+    task with touches=[auth]; the evaluator writes it to manifest.yml.gates."""
     slug = "auth-task"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
@@ -634,9 +634,9 @@ def test_trc_a12_gate_promotion_driven_by_policy(project: Path, run_cli):
     result = run_cli("approach", "evaluate", "--write")
     assert result.returncode == 0, f"route evaluate --write failed:\n{result}"
 
-    # Load the updated task.yml
+    # Load the updated manifest.yml
     import yaml as _yaml
-    with (task_dir / "task.yml").open("r", encoding="utf-8") as fh:
+    with (task_dir / "manifest.yml").open("r", encoding="utf-8") as fh:
         updated = _yaml.safe_load(fh)
 
     gate_ids = [g["id"] for g in updated.get("gates", []) if isinstance(g, dict)]
@@ -690,17 +690,17 @@ def test_trc_a13_latency_under_3s(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - analyze on a malformed task.yml exits non-zero with structured error
+# TRC-F1 - analyze on a malformed manifest.yml exits non-zero with structured error
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_malformed_task_yml(project: Path, run_cli):
-    """TRC-F1: task.yml with YAML parse error → exit non-zero, stderr names the file."""
+    """TRC-F1: manifest.yml with YAML parse error → exit non-zero, stderr names the file."""
     slug = "malformed-task"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
     # Write invalid YAML
-    (task_dir / "task.yml").write_text(
+    (task_dir / "manifest.yml").write_text(
         "task: malformed-task\nreadings: {blast_radius: [broken yaml\n",
         encoding="utf-8",
     )
@@ -709,8 +709,8 @@ def test_trc_f1_malformed_task_yml(project: Path, run_cli):
 
     result = run_cli("analyze")
     assert result.returncode != 0, f"Expected non-zero exit for malformed YAML:\n{result}"
-    assert "task.yml" in result.stderr or "task.yml" in result.stdout, \
-        f"Expected task.yml path in error output:\n{result}"
+    assert "manifest.yml" in result.stderr or "manifest.yml" in result.stdout, \
+        f"Expected manifest.yml path in error output:\n{result}"
     # No partial evidence left behind
     ev_dir = task_dir / "evidence"
     partial = list(ev_dir.glob("EV-ANALYZE-*")) if ev_dir.exists() else []
@@ -723,11 +723,11 @@ def test_trc_f1_malformed_task_yml(project: Path, run_cli):
 # ---------------------------------------------------------------------------
 
 def test_trc_f4_unframed_task(project: Path, run_cli):
-    """TRC-F4: slug with no task.yml → exit non-zero, stderr names Frame is needed."""
-    # Point current-task at a slug that has no task.yml
+    """TRC-F4: slug with no manifest.yml → exit non-zero, stderr names Frame is needed."""
+    # Point current-task at a slug that has no manifest.yml
     slug = "unframed-task"
     (project / ".compass" / "current-task").write_text(slug, encoding="utf-8")
-    # Do NOT create the task directory or task.yml
+    # Do NOT create the task directory or manifest.yml
 
     result = run_cli("analyze")
     assert result.returncode != 0, f"Expected non-zero exit for unframed task:\n{result}"
@@ -749,11 +749,11 @@ def test_trc_f4_unframed_task(project: Path, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F5 - a hand-edit to task.yml made by a tool is caught by analyze
+# TRC-F5 - a hand-edit to manifest.yml made by a tool is caught by analyze
 # ---------------------------------------------------------------------------
 
 def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
-    """TRC-F5: task.yml route field hand-edited to disagree with route.md →
+    """TRC-F5: manifest.yml route field hand-edited to disagree with route.md →
     route-disagreement finding (gate mode → non-zero exit)."""
     slug = "hand-edited-task"
     task_dir = project / ".compass" / "work" / slug
@@ -761,7 +761,7 @@ def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
 
     body = _minimal_task(slug)
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
-    # Hand-edit: task.yml says 'expedition' phases but route.md says 'express' phases.
+    # Hand-edit: manifest.yml says 'expedition' phases but route.md says 'express' phases.
     # That constitutes a route disagreement (a tool hand-edited the route field).
     body["delivery_approach"] = "expedition"
     body["stages"] = {
@@ -777,7 +777,7 @@ def test_trc_f5_hand_edited_route_caught(project: Path, run_cli):
     _write_task(task_dir, body)
     _write_brief(task_dir, ["INT-1"])
     _write_spec(task_dir, [{"id": "SCN-001", "intent": "INT-1"}])
-    # route.md says express with express phases - disagrees with task.yml's expedition phases
+    # route.md says express with express phases - disagrees with manifest.yml's expedition phases
     _write_route_md(task_dir, "express", phases={
         "Frame": "full", "Specify": "light", "Clarify": "collapsed",
         "Plan": "collapsed", "Distribute": "skipped", "Build": "full",
@@ -833,7 +833,7 @@ def test_the_parser_reads_the_table_the_template_writes(tmp_path):
     has written `| Stage | Weight | Notes |` for as long as it has existed. No
     match meant no rows, no rows meant an empty weight map, and the comparison
     below skips any stage missing from either side - so the check reported
-    "no coherence findings" on a record that contradicted its spine in every
+    "no coherence findings" on a record that contradicted its manifest in every
     row. 28 of the 51 parseable records in this repository were in that state.
 
     Three separate things had to be fixed and each one alone still returns

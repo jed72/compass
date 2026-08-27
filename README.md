@@ -137,7 +137,7 @@ compass init               make this directory a Compass project - create .compa
 compass approach evaluate  the assessment -> the delivery approach, deterministically
 compass bdd extract        acceptance criteria -> a runnable .feature
 compass bdd verify         record which scenarios the runner actually ran
-compass check              run the guardrail checks against the spine and evidence
+compass check              run the guardrail checks against the manifest and evidence
 compass analyze            where an issue's artifacts disagree with each other
 compass retro              is triage systematically over- or under-sizing the process?
 compass ci                 the full mechanical gate suite, for continuous integration
@@ -146,7 +146,7 @@ compass tdd-green          run a test, assert it PASSES, record the green
 compass policy lint        structurally validate the governance YAML
 compass plan lint          scan a technical design for placeholder phrases
 compass intent ingest      read a brief that already exists, by path or https URL
-compass issue lint         structurally validate an issue spine
+compass issue lint         structurally validate an issue manifest
 compass issue receipt      one screen: assessment, approach, gates, evidence
 compass issue dashboard    the per-issue review page
 compass issue artifact     set a document's status in the review pack
@@ -160,7 +160,7 @@ compass next               which stage this issue reached, and what comes next
 compass follow-up resolve  settle an owed follow-up
 compass ship-commit        commit exactly the files the issue recorded
 compass gate pass          mark a gate passed, validating the evidence type
-compass scenario add       add a scenario to the spine
+compass scenario add       add a scenario to the manifest
 compass changed-file add   trace a changed file to the scenario that asked for it
 compass evidence add       append a typed evidence record
 compass migrate            bring older issue directories up to the current schema
@@ -179,7 +179,7 @@ agents/       distinct contexts - navigator, spec-author, planner, builder,
 skills/       loadable procedures - adaptive-routing, bdd-specification,
               tdd-discipline, worktree-swarm, intent-elicitation and the rest
 hooks/        pre-tool.sh, post-tool.sh, stop.sh - mechanical enforcement
-cli/compass   the kit: routing, checks and the issue spine
+cli/compass   the kit: routing, checks and the manifest
 bin/compass   the shim that puts the kit on your PATH
 governance/   guardrails, strategies, routing policy, frozen vocabulary
 approaches/   the reference shapes, and the artefacts each one earns

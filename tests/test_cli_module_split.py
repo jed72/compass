@@ -271,6 +271,24 @@ def test_trc_f2_no_function_should_be_renamed_merged_or_split_by_this_task():
     }
     before -= DELIBERATELY_REMOVED
 
+    # Functions a later issue renamed on purpose, old name -> new name. This
+    # guard's own message says a rename belongs in a follow-up task against a
+    # smaller file; name-the-issue-record (ADR-022, "The issue record is a
+    # manifest") is that task, and it renamed the three readers of the issue
+    # record when the file became manifest.yml. The mapping is not a waiver:
+    # the new name still has to exist, so a rename that loses a function fails
+    # here exactly as before.
+    DELIBERATELY_RENAMED = {
+        "resolve_task_dir": "resolve_issue_dir",
+        "load_task": "load_manifest",
+        "save_task": "save_manifest",
+    }
+    missing_new = sorted(n for n in DELIBERATELY_RENAMED.values() if n not in after)
+    assert not missing_new, (
+        "a rename is recorded in DELIBERATELY_RENAMED but the new name does "
+        f"not exist: {missing_new}")
+    before -= set(DELIBERATELY_RENAMED)
+
     assert before <= after, (
         "this task moves code and does nothing else, but functions that "
         "existed before the split are missing.\n"

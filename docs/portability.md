@@ -9,7 +9,7 @@ reimplement the policy engine.
 | Layer | Responsibility | Representative files | Porting rule |
 |---|---|---|---|
 | Methodology | Defines the flow, roles, artefacts, guardrails and strategies. | `docs/`, `approaches/`, templates, governance Markdown | Reuse. |
-| Kit | Computes routes, validates state and writes mechanical evidence. | `cli/`, governance YAML, schemas, `task.yml` | Invoke. |
+| Kit | Computes routes, validates state and writes mechanical evidence. | `cli/`, governance YAML, schemas, `manifest.yml` | Invoke. |
 | Adapter | Maps Compass into a particular agent runtime. | commands, agents, skills, hooks, runtime instructions and install wiring | Rebuild. |
 
 The boundary follows the determinism model:
@@ -59,7 +59,7 @@ user does not type an explicit Compass command.
 Before the first delivery change it must:
 
 1. assess risk, familiarity, size, intent and role;
-2. record the assessment in the issue spine;
+2. record the assessment in the manifest;
 3. call `compass approach evaluate --write`; and
 4. present the human-readable approach for approval.
 
@@ -94,7 +94,7 @@ operations. At minimum:
 | Surface calibration signals | `compass retro`, `compass rework-scan`, `compass flow` |
 
 Schema-owning state changes should also use kit commands where one exists,
-rather than editing `task.yml` ad hoc.
+rather than editing `manifest.yml` ad hoc.
 
 ### 4. Preserve the safety contract
 
@@ -135,7 +135,7 @@ Nothing essential may live only in conversation. The adapter must maintain:
 ```text
 .compass/current-task
 .compass/work/<issue>/README.md
-.compass/work/<issue>/task.yml
+.compass/work/<issue>/manifest.yml
 .compass/work/<issue>/delivery-approach.md
 .compass/work/<issue>/evidence/
 ```
@@ -228,7 +228,7 @@ portable contract itself.
 A port is conforming when the same assessed issue and policy produce:
 
 - the same computed approach;
-- a schema-compatible `task.yml`;
+- a schema-compatible `manifest.yml`;
 - the same required artefact and gate set;
 - equivalent typed evidence and approval records;
 - the same `compass check` verdict; and

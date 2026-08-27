@@ -27,7 +27,7 @@
 #   6. Every script and hook referenced in the repo exists and is executable.
 #   7. The five reference shape docs exist and the rubric references them.
 #   8. The kit layer is present: the CLI, the machine-readable governance,
-#      the schemas, and the task.yml template - and `compass policy lint`
+#      the schemas, and the manifest.yml template - and `compass policy lint`
 #      passes if python3 and the CLI are runnable.
 #
 # This script is deliberately dependency-free (pure bash + coreutils + grep).
@@ -186,7 +186,7 @@ done
 say ""
 
 # --- 8. the kit layer -------------------------------------------------------
-say "8. Kit layer - CLI, machine-readable governance, schemas, issue spine"
+say "8. Kit layer - CLI, machine-readable governance, schemas, issue manifest"
 # 8a. the CLI exists and is executable
 if [ -f "cli/compass" ]; then
   if [ -x "cli/compass" ]; then ok "exec cli/compass  <- exists, executable"
@@ -203,7 +203,7 @@ done
 if [ -d "schemas" ]; then
   ok "dir  schemas/"
   # vocabulary-scan: allow - the loop iterates schema basenames on disk
-  for s in routing-policy guardrails task; do
+  for s in routing-policy guardrails manifest; do
     if [ -f "schemas/$s.schema.json" ]; then ok "schema $s.schema.json"
     else fail "missing executable schema: schemas/$s.schema.json"; fi
     if [ -f "schemas/$s.reference.yml" ]; then ok "ref    $s.reference.yml"
@@ -213,8 +213,8 @@ else
   fail "missing directory: schemas/"
 fi
 # 8d. the issue manifest template
-if [ -f "templates/task.yml" ]; then ok "file templates/task.yml"
-else fail "missing issue manifest template: templates/task.yml"; fi
+if [ -f "templates/manifest.yml" ]; then ok "file templates/manifest.yml"
+else fail "missing issue manifest template: templates/manifest.yml"; fi
 # 8e. run `compass policy lint` if python3 and the CLI are runnable. PyYAML
 # is bundled inside the plugin (cli/vendor/yaml/), so there is no longer a
 # "missing dependency" branch to distinguish from a real failure - a lint

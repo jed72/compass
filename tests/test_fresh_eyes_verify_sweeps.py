@@ -323,7 +323,7 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # 53 -> 57 at 3.0.0: traceability, intent, navigator and assessment. Each
     # named something already load-bearing and undefined - the most-used id
     # prefix in the repository, a live command, a live agent, and the only
-    # judgement field in the spine. ADR-016 records the decision.
+    # judgement field in the manifest. ADR-016 records the decision.
     #
     # 58 -> 57 on 2026-08-25, the vocabulary rename. `triage` was renamed to
     # `assess` (net zero) and `prd` was DROPPED: both were defined as live
@@ -337,7 +337,13 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # kind, a CLI verb and a role, and was the only overloaded word here with
     # no entry, which is how it stayed ambiguous. `plan` took the engineering
     # half. TRC-A3 requires both.
-    assert len(terminology["terms"]) == 59, (
+    #
+    # 59 -> 60 on 2026-08-27: `manifest`. The central artifact was named twice
+    # and governed neither way - prose called it the issue spine, the file was
+    # task.yml, the module was task_spine.py, and `spine` had no entry here at
+    # all while `task` was already banned. ADR-022 ("The issue record is a
+    # manifest") records the decision and the measurements behind it.
+    assert len(terminology["terms"]) == 60, (
         "governance/terminology.yml gained or lost a term without this count "
         "moving. A vocabulary change is a decision (ADR-012); make it one."
     )

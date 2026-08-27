@@ -36,7 +36,7 @@ def _issue(root, slug, *, status="landed", record=False, landed_by=None,
            delivered=None):
     d = root / ".compass" / "work" / slug
     d.mkdir(parents=True, exist_ok=True)
-    spine = {
+    manifest = {
         "schema_version": "2.0", "task": slug, "created": "2026-01-01",
         "status": status,
         "assessment": {"risk": "contained", "familiarity": "greenfield",
@@ -47,15 +47,15 @@ def _issue(root, slug, *, status="landed", record=False, landed_by=None,
         "follow_ups": [],
     }
     if record:
-        spine.update(_FULL_RECORD)
+        manifest.update(_FULL_RECORD)
         ev = d / "evidence"
         ev.mkdir(exist_ok=True)
         (ev / "green.json").write_text('{"exit_code": 0, "passed": true}')
     if landed_by:
-        spine["landed_by"] = landed_by
+        manifest["landed_by"] = landed_by
     if delivered:
-        spine["delivered"] = list(delivered)
-    (d / "task.yml").write_text(yaml.safe_dump(spine, sort_keys=False))
+        manifest["delivered"] = list(delivered)
+    (d / "manifest.yml").write_text(yaml.safe_dump(manifest, sort_keys=False))
     return d
 
 
@@ -323,7 +323,7 @@ def _archive_or_skip():
 
 
 def _spine(slug):
-    return yaml.safe_load((ARCHIVE / slug / "task.yml").read_text())
+    return yaml.safe_load((ARCHIVE / slug / "manifest.yml").read_text())
 
 
 def test_del_c1_the_delivered_issues_are_landed_with_a_pointer():
@@ -338,11 +338,11 @@ def test_del_c1_the_delivered_issues_are_landed_with_a_pointer():
                  "evaluator-prints-code-before-meaning",
                  "tdd-green-scenario-overwrites-the-record",
                  "landed-issues-trace-rot-is-unchecked"):
-        spine = _spine(slug)
-        assert spine.get("status") == "landed", (
+        manifest = _spine(slug)
+        assert manifest.get("status") == "landed", (
             "%s is %r - it was delivered, and `abandoned` reads as gave up"
-            % (slug, spine.get("status")))
-        assert spine.get("landed_by"), (
+            % (slug, manifest.get("status")))
+        assert manifest.get("landed_by"), (
             "%s is landed with no record of its own and no `landed_by` to say "
             "where the record is" % slug)
 
@@ -356,11 +356,11 @@ def test_del_c3_an_issue_that_was_decided_against_stays_abandoned():
     pointing the other way, which is not an improvement.
     """
     _archive_or_skip()
-    spine = _spine("publish-the-archive")
-    assert spine.get("status") == "abandoned", (
+    manifest = _spine("publish-the-archive")
+    assert manifest.get("status") == "abandoned", (
         "publish-the-archive is %r - the work was deliberately not done, and "
-        "that is what abandoned means" % spine.get("status"))
-    assert not spine.get("landed_by"), (
+        "that is what abandoned means" % manifest.get("status"))
+    assert not manifest.get("landed_by"), (
         "publish-the-archive carries a `landed_by` - nothing delivered it")
 
 
@@ -401,7 +401,7 @@ def test_del_a4_an_absorbed_issue_that_was_never_assessed_still_lints(tmp_path):
 
     d = p / ".compass" / "work" / "absorbed"
     d.mkdir(parents=True, exist_ok=True)
-    (d / "task.yml").write_text(yaml.safe_dump({
+    (d / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "absorbed", "created": "2026-01-01",
         "status": "landed", "landed_by": [{"issue": "doer"}],
     }, sort_keys=False))
@@ -421,7 +421,7 @@ def test_del_a4b_an_ordinary_issue_still_needs_its_assessment(tmp_path):
     p = _project(tmp_path)
     d = p / ".compass" / "work" / "ordinary"
     d.mkdir(parents=True, exist_ok=True)
-    (d / "task.yml").write_text(yaml.safe_dump({
+    (d / "manifest.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "ordinary", "created": "2026-01-01",
         "status": "active",
     }, sort_keys=False))

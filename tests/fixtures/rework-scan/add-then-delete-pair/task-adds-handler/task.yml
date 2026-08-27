@@ -1,16 +1,16 @@
 # Fixture: task-adds-handler
-# Purpose: pairs with ../task-removes-handler/task.yml as a regression input
+# Purpose: pairs with ../task-removes-handler/manifest.yml as a regression input
 # for `compass rework-scan`. When scanned together, within the default
 # window_days, the scanner must report exactly one rework instance (a five-file
 # add by this task, undone by the sibling).
 #
 # The fixture is synthetic - service names, paths, and filenames are
 # illustrative. The load-bearing structure for the scan is:
-#   - identical `path` strings between the two task.yml files,
+#   - identical `path` strings between the two manifest.yml files,
 #   - opposing `action:` values (`added` here, `deleted` in the sibling),
 #   - both tasks within the configured window of each other.
 #
-# Minimal valid task.yml shape - only the fields the scanner reads.
+# Minimal valid manifest.yml shape - only the fields the scanner reads.
 
 slug: task-adds-handler
 route: standard

@@ -52,7 +52,7 @@ def _repo(tmp_path):
     work.mkdir(parents=True)
     (root / ".compass" / "config.yml").write_text("version: 1.0.0\n")
     (root / ".compass" / "current-task").write_text("demo\n")
-    (work / "task.yml").write_text(
+    (work / "manifest.yml").write_text(
         'schema_version: "2.0"\ntask: demo\ncreated: "2026-08-14"\n'
         'status: active\ndelivery_approach: feature\n'
         'assessment:\n  risk: contained\n  familiarity: brownfield-mapped\n'

@@ -1,4 +1,4 @@
-"""Tests for integrate.sh writing status: landed to task.yml (TRC-B11).
+"""Tests for integrate.sh writing status: landed to manifest.yml (TRC-B11).
 
 The charter note for TRC-B11 suggests a shell-test-runner fixture that runs
 integrate.sh on a synthetic task directory with a fake green test command.
@@ -36,13 +36,13 @@ def _load_compass_module():
 # ---------------------------------------------------------------------------
 
 class TestIntegrateSh:
-    """TRC-B11: after successful Land, task.yml has status: landed.
+    """TRC-B11: after successful Land, manifest.yml has status: landed.
 
     We test this in two layers:
     1. The derive_system_spec function correctly reads status: landed from
-       task.yml (already covered in TestTrcB11 in test_derive_system_spec.py).
+       manifest.yml (already covered in TestTrcB11 in test_derive_system_spec.py).
     2. scripts/integrate.sh contains the invocation of _derive-system-spec
-       --internal AND writes status: landed to task.yml after combined
+       --internal AND writes status: landed to manifest.yml after combined
        regression passes.
     """
 
@@ -60,12 +60,12 @@ class TestIntegrateSh:
         )
 
     def test_integrate_sh_writes_status_landed(self):
-        """integrate.sh must write status: landed to the task's task.yml."""
+        """integrate.sh must write status: landed to the task's manifest.yml."""
         assert INTEGRATE_SH.is_file(), f"integrate.sh not found at {INTEGRATE_SH}"
         content = INTEGRATE_SH.read_text(encoding="utf-8")
         assert "status: landed" in content or "status:landed" in content or \
                "landed" in content, (
-            "integrate.sh must write status: landed to the task's task.yml"
+            "integrate.sh must write status: landed to the task's manifest.yml"
         )
 
     def test_derive_invocation_comes_after_regression(self):
@@ -96,10 +96,10 @@ class TestIntegrateSh:
 
 
 class TestStatusLandedWrite:
-    """Unit tests for writing status: landed to task.yml."""
+    """Unit tests for writing status: landed to manifest.yml."""
 
     def test_task_yml_with_status_landed_validates(self, tmp_path):
-        """A task.yml with status: landed validates against the schema."""
+        """A manifest.yml with status: landed validates against the schema."""
         task_dir = tmp_path / ".compass" / "work" / "test-land"
         task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -122,7 +122,7 @@ class TestStatusLandedWrite:
             "follow_ups": [],
             "reassessments": [],
         }
-        (task_dir / "task.yml").write_text(
+        (task_dir / "manifest.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
         )
 
@@ -146,12 +146,12 @@ class TestStatusLandedWrite:
             timeout=10,
         )
         assert result.returncode == 0, (
-            f"task.yml with status: landed should lint clean: "
+            f"manifest.yml with status: landed should lint clean: "
             f"{result.stdout}\n{result.stderr}"
         )
 
     def test_task_yml_status_active_validates(self, tmp_path):
-        """A task.yml with status: active validates against the schema."""
+        """A manifest.yml with status: active validates against the schema."""
         task_dir = tmp_path / ".compass" / "work" / "test-active"
         task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -173,7 +173,7 @@ class TestStatusLandedWrite:
             "follow_ups": [],
             "reassessments": [],
         }
-        (task_dir / "task.yml").write_text(
+        (task_dir / "manifest.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
         )
 
@@ -196,12 +196,12 @@ class TestStatusLandedWrite:
             timeout=10,
         )
         assert result.returncode == 0, (
-            f"task.yml with status: active should lint clean: "
+            f"manifest.yml with status: active should lint clean: "
             f"{result.stdout}\n{result.stderr}"
         )
 
     def test_task_yml_invalid_status_rejected(self, tmp_path):
-        """A task.yml with an invalid status value fails JSON schema validation."""
+        """A manifest.yml with an invalid status value fails JSON schema validation."""
         # Only matters if jsonschema is installed
         try:
             import jsonschema
@@ -222,7 +222,7 @@ class TestStatusLandedWrite:
                 "size": "small",
             },
         }
-        (task_dir / "task.yml").write_text(
+        (task_dir / "manifest.yml").write_text(
             yaml.safe_dump(task, sort_keys=False), encoding="utf-8"
         )
 
@@ -245,5 +245,5 @@ class TestStatusLandedWrite:
             timeout=10,
         )
         assert result.returncode != 0, (
-            "task.yml with status: invalid-status should fail lint"
+            "manifest.yml with status: invalid-status should fail lint"
         )

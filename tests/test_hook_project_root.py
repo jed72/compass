@@ -72,7 +72,7 @@ def _project(tmp_path: pathlib.Path, *, with_work: bool = True) -> pathlib.Path:
     if with_work:
         work = compass / "work" / "demo"
         work.mkdir(parents=True)
-        (work / "task.yml").write_text(SPINE.format(slug="demo"), encoding="utf-8")
+        (work / "manifest.yml").write_text(SPINE.format(slug="demo"), encoding="utf-8")
         (work / "delivery-approach.md").write_text("# approach\n", encoding="utf-8")
         (compass / "current-task").write_text("demo\n", encoding="utf-8")
         # The `.red` marker matters to the test, not just to the fixture: it
@@ -213,7 +213,7 @@ def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
     outer = tmp_path / "outer"
     (outer / ".compass" / "work" / "someone-elses").mkdir(parents=True)
     (outer / ".compass" / "config.yml").write_text("version: 1.0.0\n", encoding="utf-8")
-    (outer / ".compass" / "work" / "someone-elses" / "task.yml").write_text(
+    (outer / ".compass" / "work" / "someone-elses" / "manifest.yml").write_text(
         SPINE.format(slug="someone-elses"), encoding="utf-8")
     (outer / ".compass" / "work" / "someone-elses" / "delivery-approach.md").write_text(
         "# approach\n", encoding="utf-8")

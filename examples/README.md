@@ -1,7 +1,7 @@
 # Compass - Worked Examples
 
 Five completed Compass issues, one per reference shape. Each is a real-shaped
-`.compass/work/<task-slug>/` directory exactly as it would look *after the issue
+`.compass/work/<issue-slug>/` directory exactly as it would look *after the issue
 finished* - the artifacts, the evidence, the gates, all filled in.
 
 The framework's docs tell you what Compass *is*. These show you what it *looks
@@ -13,7 +13,7 @@ Each example is self-contained and verifiable. From inside any example's issue
 directory:
 
 ```
-compass issue lint --file task.yml         # the spine is well-formed
+compass issue lint --file manifest.yml         # the manifest is well-formed
 compass approach evaluate --issue <slug>   # the assessment composes to the claimed shape
 compass check --issue <slug>                 # the guardrail checks pass (see the Spike note)
 ```
@@ -34,7 +34,7 @@ report. The artifact set is four files and an `evidence/` pair, and that is
 *correct* - quick fix adapts test surface, never test existence, so the red and
 green records are still there. Their filenames follow the binding: a run
 recorded `--scenario TRC-001` writes `evidence/green-TRC-001.json`, and a run
-with no binding writes `evidence/green.json`. The `task.yml` is the new 1.0 shape: a
+with no binding writes `evidence/green.json`. The `manifest.yml` is the new 1.0 shape: a
 top-level `evidence:` registry of two typed entries (a `test-run` and an
 `artifact`), and each `pass` gate references them by id - `verify.correctness`
 points at the `test-run`, governance and traceability at the `artifact`.
@@ -65,7 +65,7 @@ a live crash on a new mobile build.
 **What it demonstrates:** reproduce-first (the failing regression test *is* the
 spec - `evidence/red-TRC-001.json` reproduces the crash before any fix), the compressed
 front of the pipeline, the *uncompressed* Verify gate, and the **mandatory
-follow-up**. `task.yml`'s `follow-ups:` lists three outstanding items; `delivery-approach.md` §6 and
+follow-up**. `manifest.yml`'s `follow-ups:` lists three outstanding items; `delivery-approach.md` §6 and
 the `devlog.md` ship entry show all three **paid** - which is what makes this a
 closed issue and not an open one. `compass check` enforces it.
 
@@ -81,10 +81,10 @@ per-category preferences, a security category that mute cannot suppress.
 and two routing guardrails *firing visibly*. The assessment include
 `labels: [migrations]`, so **RP-FLOOR-003** raises the candidate from Standard
 to initiative ("domain risk overrides size") - you can see it in
-`task.yml`'s `fired_guardrails` and in `delivery-approach.md` §3. A product owner is
+`manifest.yml`'s `fired_guardrails` and in `delivery-approach.md` §3. A product owner is
 involved, so **RP-ROLE-002** requires `intent.md` and blocks Plan until the spec
 is checked against it for intent fidelity. The `migrations` tag also makes
-guardrail `G5` apply - `task.yml`'s `evidence:` registry carries a typed
+guardrail `G5` apply - `manifest.yml`'s `evidence:` registry carries a typed
 `human-approval` entry (approver, role, scope, decision, timestamp,
 conditions) for the irreversible schema change, and the JSON record it points
 at lives under `evidence/approval-migration-0042.json`. Full set: `intent.md`
@@ -106,7 +106,7 @@ suspends the TDD strategy (the hook does not block edits). There is no
 `technical-design.md` and no `verification-report.md`; the `devlog.md` ends in a written
 **conclusion** ("viable with caveats") and a **graduate-or-discard decision**
 (graduate - re-assess into a real delivery issue; the scratch branch is *not*
-merged). `task.yml`'s `evidence:` registry carries a single
+merged). `manifest.yml`'s `evidence:` registry carries a single
 `spike-conclusion` entry with `decision: graduate-to-delivery` and a
 `next_task:` link to the fresh delivery issue.
 
@@ -130,7 +130,7 @@ pipeline - and it is safe because nothing lands from a spike.
 If you read them in approach-weight order - `quick-fix-typo`, `feature-api-change`,
 `hotfix-regression`, `initiative-new-subsystem`, `spike-technical-unknown` -
 you watch the same eight-phase pipeline and the same artifact vocabulary
-stretch and compress around a constant spine. That constancy is the point: a
+stretch and compress around a constant manifest. That constancy is the point: a
 person who has read one Compass issue can read any other. The *weight* changes;
 the *shape* does not.
 

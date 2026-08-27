@@ -10,7 +10,7 @@ This is Compass's two differentiators made demonstrable in plain text - **per-is
 compass issue receipt --issue <slug>
 ```
 
-Optionally `--workdir <path>` to point the receipt at a project rooted somewhere other than the current working directory. The command is **read-only**: it parses `task.yml`, `delivery-approach.md`, `evidence/`, and `governance/guardrails.yml`, prints the receipt to stdout, and mutates nothing on disk.
+Optionally `--workdir <path>` to point the receipt at a project rooted somewhere other than the current working directory. The command is **read-only**: it parses `manifest.yml`, `delivery-approach.md`, `evidence/`, and `governance/guardrails.yml`, prints the receipt to stdout, and mutates nothing on disk.
 
 ## Example
 
@@ -73,11 +73,11 @@ Owed follow-ups are surfaced in their own *Follow-ups* section and counted in th
 
 - It does not re-run guardrail checks. For that, use `compass check`. The receipt reports what was actually recorded at ship time time, which is the audit-trail-from-disk property that makes the chain meaningful (ADR-005).
 - It does not change exit codes based on the recorded state. The receipt exits **0** on a successful render, regardless of whether the issue landed cleanly, with caveats, or failed - those are *content*, not render failures. The non-zero exit is reserved for "render itself failed" (e.g. the issue does not exist). Use `compass check` if you need exit-code-driven enforcement in CI.
-- It does not modify anything on disk - no caches, no temporary files, no edits to `task.yml`. `tests/test_receipt_render.py::test_receipt_is_read_only` is the regression net.
+- It does not modify anything on disk - no caches, no temporary files, no edits to `manifest.yml`. `tests/test_receipt_render.py::test_receipt_is_read_only` is the regression net.
 
 ## Backward compatibility
 
-The receipt renders `task.yml` files produced before this feature landed - including schema-1.0 (pre-`status` field) and issues with empty `evidence: []`. Sections backed by absent data are labelled `(not recorded)` rather than crashing; the header notes "schema 1.0 (legacy)" when the issue pre-dates schema 1.1. This is ADR-006 in action.
+The receipt renders `manifest.yml` files produced before this feature landed - including schema-1.0 (pre-`status` field) and issues with empty `evidence: []`. Sections backed by absent data are labelled `(not recorded)` rather than crashing; the header notes "schema 1.0 (legacy)" when the issue pre-dates schema 1.1. This is ADR-006 in action.
 
 ## Source
 

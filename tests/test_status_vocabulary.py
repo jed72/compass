@@ -1,6 +1,6 @@
 """A task must be able to say it stopped (reports R22, R16 part 2, R9-followup).
 
-`task.yml`'s status enum was `['active', 'landed']`. Real work gets parked -
+`manifest.yml`'s status enum was `['active', 'landed']`. Real work gets parked -
 deprioritised, blocked on a decision, superseded by a change of direction - and
 the schema had no way to say so. The only valid options were to lie by omission
 (`active`) or outright (`landed`), so a parked task and one genuinely in flight
@@ -11,7 +11,7 @@ active ones close.
 The board shipped already; what it could not answer was "what's next up",
 because nothing on disk said so. And with no `compass issue set-status`, every
 status change - including each new value here - was a hand-edited `str.replace`
-on the spine.
+on the manifest.
 
 Scenarios: .compass/work/status-vocabulary/acceptance-criteria.md (SCN-A1..F2).
 """
@@ -28,7 +28,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
-SCHEMA = ROOT / "schemas" / "task.schema.json"
+SCHEMA = ROOT / "schemas" / "manifest.schema.json"
 
 NEW_STATUSES = ["queued", "parked", "abandoned"]
 
@@ -63,7 +63,7 @@ def _project(tmp_path, tasks):
         d = root / ".compass" / "work" / slug
         d.mkdir(parents=True)
         (d / "delivery-approach.md").write_text("# Route\n")
-        (d / "task.yml").write_text(yaml.safe_dump(body, sort_keys=False))
+        (d / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
     (root / ".compass" / "current-task").write_text(next(iter(tasks)) + "\n")
     return root
 
@@ -109,7 +109,7 @@ def test_scn_b1_set_status_writes_the_field(tmp_path):
     r = _run(root, "issue", "set-status", "parked", "--issue", "t",
              "--reason", "blocked on a pricing decision")
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
-    body = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
+    body = yaml.safe_load((root / ".compass" / "work" / "t" / "manifest.yml").read_text())
     assert body["status"] == "parked", body
     assert body.get("parked_reason") == "blocked on a pricing decision", body
     assert body.get("parked_at"), "a parked task should record when"
@@ -128,7 +128,7 @@ def test_scn_b3_set_status_landed_respects_gates(tmp_path):
     into the same field must not be an easier one."""
     root = _project(tmp_path, {"t": _task(gates_pass=False)})
     r = _run(root, "issue", "set-status", "landed", "--issue", "t")
-    body = yaml.safe_load((root / ".compass" / "work" / "t" / "task.yml").read_text())
+    body = yaml.safe_load((root / ".compass" / "work" / "t" / "manifest.yml").read_text())
     assert body.get("status") != "landed", (
         f"marked landed over a pending gate:\n{r.stdout}{r.stderr}")
     assert "verify.correctness" in (r.stdout + r.stderr)
@@ -184,7 +184,7 @@ def test_scn_c3_derivation_only_from_landed(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_scn_f1_absent_status_is_active(tmp_path):
-    """Every task.yml written before this change omits status entirely."""
+    """Every manifest.yml written before this change omits status entirely."""
     root = _project(tmp_path, {"t": _task()})
     assert _run(root, "issue", "lint", "--issue", "t").returncode == 0
     r = _run(root, "flow")
