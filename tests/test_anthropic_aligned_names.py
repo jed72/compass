@@ -56,6 +56,11 @@ def _live_files():
             # not shipped surfaces - they are allowed to quote the old names.
             if "analysis" in path.parts or "proposals" in path.parts:
                 continue
+            # Derived at ship from the scenarios landed issues recorded, which
+            # keep the names they landed under. Exempt from the vocabulary
+            # scan for the same reason.
+            if path.name == "system-spec.md":
+                continue
             yield path
     for name in ("README.md", "CLAUDE.md", "AGENTS.md"):
         path = REPO_ROOT / name
