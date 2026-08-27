@@ -128,9 +128,12 @@ them.
 
 No floor matches - no domain tag on the floor list, risk is not
 `critical`, familiarity is mapped. No cap is relevant. The immovable gates
-(`verify.correctness`, `verify.governance`, `verify.regression`,
-`verify.claims`) are stapled on; `verify.claims` is `n/a` here because no
-marketer is in play. No `role_rules` fire - only an engineer.
+(`verify.correctness`, `verify.governance`, `verify.traceability`) are
+stapled on. `verify.regression` is in this approach's own gate set rather
+than stapled - it is approach-scoped, and a quick fix does not run it, which
+is the point of a quick fix. `verify.claims` is role-scoped and does not
+appear at all here, because no marketer is in play. No `role_rules` fire -
+only an engineer.
 
 ### Final `delivery-approach.md`
 

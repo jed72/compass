@@ -4,10 +4,10 @@ This file is the portable expression of Compass. `CLAUDE.md` is the Claude
 Code adapter; this file is the same intent without runtime-specific syntax,
 for any other agent runtime (Codex, Amp, Cursor, OpenCode, a custom harness).
 
-It speaks the frozen v2 vocabulary (`governance/terminology.yml`); commands,
-filenames, and machine keys keep their v1 names until their rename slices
-ship, and wherever a live v1 name is unavoidable it appears as code, exactly
-as the machinery spells it today.
+It speaks the frozen v2 vocabulary (`governance/terminology.yml`). The
+commands, filenames and machine keys carry their v2 names - the rename slices
+have shipped - and where a name still reads oddly it appears as code, exactly
+as the machinery spells it.
 
 Compass is built in three layers. The **methodology layer** - `docs/`,
 `governance/` `.md` files, the delivery-approach reference docs, `templates/`

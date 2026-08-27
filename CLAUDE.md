@@ -20,14 +20,13 @@ the mental model and a worked end-to-end example, and
 things it explicitly does not claim). They are short, and they ground
 everything below.
 
-A note on names while v2 is in flight: this file speaks the frozen v2
-vocabulary (`governance/terminology.yml` - the build enforces it). The
-commands, artifact filenames, and machine keys now carry their v2 names;
-the CLI's own verbs keep their v1 names until their rename slice ships.
-Wherever a live v1 name is unavoidable it appears as code, exactly as the
-machinery spells it today. The `compass-runtime` skill carries the full
-mapping from each pipeline stage to its current command, and each retired
-command name remains as a redirect stub for one major version.
+A note on names: this file speaks the frozen v2 vocabulary
+(`governance/terminology.yml` - the build enforces it). The commands, the CLI's
+verbs, the artifact filenames and the machine keys all carry their v2 names;
+the rename slices have shipped. Where a name still reads oddly it appears as
+code, exactly as the machinery spells it. The `compass-runtime` skill carries
+the mapping from each pipeline stage to its command, and each retired name
+remains as a redirect stub for one major version.
 
 ---
 
