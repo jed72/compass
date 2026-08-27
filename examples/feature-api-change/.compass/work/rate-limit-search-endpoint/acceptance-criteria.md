@@ -1,7 +1,7 @@
 # Spec - rate-limit-search-endpoint
 
 > **Phase:** define · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
-> **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
+> **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no behaviour-mapping needed.
 
 ## How each role reads this file
 

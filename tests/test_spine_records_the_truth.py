@@ -12,7 +12,7 @@ R15 - `evidence add --type test-run --path run.txt` was accepted, and `check`
 failed later with "test-run evidence unreadable", because `test-run` means a
 JSON run record and not a raw log. Nothing said so at write time.
 
-R19 - `blueprint-distillation` names silent supersession as an anti-pattern and
+R19 - `behaviour-mapping` names silent supersession as an anti-pattern and
 asks for the link to be recorded. The schema rejected `superseded_by`, so a
 skill instructed authors to record something the validator forbade.
 
@@ -221,7 +221,7 @@ def test_scn_c1_superseded_by_validates(tmp_path):
     root = _project(tmp_path, _base(scenarios=scenarios))
     r = _run(root, "issue", "lint", "--issue", "t")
     assert r.returncode == 0, (
-        f"the schema still forbids what blueprint-distillation requires:\n"
+        f"the schema still forbids what behaviour-mapping requires:\n"
         f"{r.stdout}{r.stderr}")
 
 

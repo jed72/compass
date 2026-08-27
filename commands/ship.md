@@ -46,7 +46,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    the change touched in line with reality. If the change is launch-visible
    (the product-marketer role is in play), draft the release notes here
    too - pulled from `positioning.md`, so every line in the notes is already
-   a scenario-backed claim. `marketing-lens` owns their wording.
+   a scenario-backed claim. `product-marketer` owns their wording.
 4. **Settle owed follow-ups.** Check `delivery-approach.md`'s de-scope
    ledger, `manifest.yml`'s `follow_ups:` and `claims:` lists, and the
    approach's standing obligations:
@@ -58,7 +58,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
      `compass check` fails at ship while any is owed.
    - **Marketer claims gate** (when the product-marketer role is in play):
      every claim in `manifest.yml`'s `claims:` traces to a passing scenario id.
-     Invoke `marketing-lens` to confirm; `compass check`'s
+     Invoke `product-marketer` to confirm; `compass check`'s
      `claim-traces-to-scenario` check is the mechanical backing. This gate
      blocks shipping per the routing policy's `role_rules`.
    - Any other de-scoped artifact the ledger marked as owed.

@@ -112,14 +112,14 @@ issue. It identifies conflicts the specification or design must resolve.
 
 ## Resolving disagreement
 
-Use `/compass:roundtable` when a decision crosses roles, such as:
+Use `/compass:consult` when a decision crosses roles, such as:
 
 - a scope cut that invalidates a launch claim;
 - a security constraint that changes the interaction;
 - an architectural boundary that changes the proposed behaviour; or
 - a coverage gap that changes the planned work.
 
-The roundtable records the decision and its trade-offs. A guardrail always
+The consult records the decision and its trade-offs. A guardrail always
 beats a strategy. Conflicts between strategies are resolved by the delivery
 approach or a human decision.
 

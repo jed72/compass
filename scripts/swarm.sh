@@ -6,7 +6,7 @@
 # git worktree per independent stream under the configured worktree_root, one
 # branch per stream, and prints the launch plan - one `builder` agent per
 # worktree. Only the `orchestrator` agent runs this (see CLAUDE.md, the
-# worktree-swarm skill).
+# worktree-multiagent skill).
 #
 # USAGE
 #   scripts/swarm.sh <issue-slug>            # read .compass/work/<slug>/distribution-map.md

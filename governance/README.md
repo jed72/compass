@@ -61,7 +61,7 @@ When two pieces of governance disagree:
 2. **Guardrail vs guardrail** should not happen - if it does, the guardrail
    set has a bug; fix the set, do not improvise around it.
 3. **Strategy vs strategy** is resolved by context: triage picks based on
-   the route at triage, or a human picks (often via `/compass:roundtable`).
+   the route at triage, or a human picks (often via `/compass:consult`).
    A strategy losing a context call is normal - that is what "soft" means.
 
 This replaces the old "constitution supremacy." There is no single supreme

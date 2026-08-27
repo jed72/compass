@@ -19,7 +19,7 @@ four roles can.
   acceptance criteria for code. Honour it.
 - Load the `bdd-specification` skill.
 - If `delivery-approach.md` assesses familiarity as `brownfield-unmapped`,
-  also load `blueprint-distillation` - reverse-engineer the *current*
+  also load `behaviour-mapping` - reverse-engineer the *current*
   behaviour into scenarios **before** writing the scenarios for the change. A
   policy floor forces this; you cannot safely change what you have not first
   described.

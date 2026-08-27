@@ -33,20 +33,20 @@ rebuilds that layer and reuses everything under it.
 
 ```
 commands/        the stage interface (the /compass: namespace)
-agents/          navigator, spec-author, planner, orchestrator, builder,
-                 verifier, reviewer, product-lens, marketing-lens,
-                 architect-lens
+agents/          router, spec-author, planner, orchestrator, builder,
+                 verifier, reviewer, product-owner, product-marketer,
+                 architect
 skills/          adaptive-routing, bdd-specification, tdd-discipline,
-                 intent-elicitation, worktree-swarm, governance-check,
+                 intent-interview, worktree-multiagent, governance-check,
                  traceability, evidence-gates, role-translation
 hooks/           pre-tool.sh, post-tool.sh, stop.sh, session-start.sh
 bin/compass      the shim that puts the kit on PATH
 .claude-plugin/  the plugin manifest and marketplace entry
 ```
 
-`architect-lens` is the one to watch when porting: it is an advisory
+`architect` is the one to watch when porting: it is an advisory
 perspective over the pipeline rather than a sixth entry-point role, so a port
-that maps roles one-to-one will either lose architect-lens or promote it into
+that maps roles one-to-one will either lose architect or promote it into
 a role it was deliberately not made.
 
 A conforming adapter must satisfy the following requirements.

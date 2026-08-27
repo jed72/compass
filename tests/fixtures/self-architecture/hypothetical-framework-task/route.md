@@ -2,7 +2,7 @@
 
 > This is a minimal fixture for TRC-C3 testing. It represents a hypothetical
 > framework task that touches the public-api surface, which should trigger
-> architect-lens consultation citing Compass's own ADRs.
+> architect consultation citing Compass's own ADRs.
 
 ## 1. The four dimension readings
 

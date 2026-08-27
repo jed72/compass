@@ -7,7 +7,7 @@
 # command for combined regression, reports any conflicts for the `orchestrator`
 # to resolve, and cleans up the worktrees on success. Only the `orchestrator`
 # agent runs this (the lead builder on a pair) - see CLAUDE.md and the
-# worktree-swarm skill.
+# worktree-multiagent skill.
 #
 # USAGE
 #   scripts/integrate.sh <issue-slug>             # integrate every stream
@@ -17,7 +17,7 @@
 # ORDER
 #   Streams are merged in the order they appear in distribution-map.md §3.
 #   The map is expected to list shared foundations first (stream-zero pattern,
-#   see the worktree-swarm skill) so dependents merge onto a base that already
+#   see the worktree-multiagent skill) so dependents merge onto a base that already
 #   has what they need.
 #
 # CONFLICTS

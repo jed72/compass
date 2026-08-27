@@ -3,7 +3,7 @@
 A user's first Compass command should work in a repository that has never used
 Compass. Four of the five role entry points wrote into `.compass/work/<slug>/`
 while assuming somebody else had created it - `commands/intent.md` and
-`commands/position.md` named the path, `wireframe.md` and `roundtable.md` did
+`commands/position.md` named the path, `wireframe.md` and `consult.md` did
 not mention it at all.
 
 These are checks on the COMMAND PROSE, because the commands are instructions to
@@ -29,7 +29,7 @@ COMMANDS = REPO_ROOT / "commands"
 # point that produces the UI contract, and commands/wireframe.md is the
 # retired redirect stub that points at it. A stub does no work, so it has
 # nothing to initialise for - it is in MUST_NOT_INITIALISE below.
-ENTRY_POINTS = ["assess", "intent", "design", "position", "roundtable"]
+ENTRY_POINTS = ["assess", "intent", "design", "position", "consult"]
 
 # Commands that report on existing state, and the retired stubs that only
 # forward a caller to the current name. Creating a directory because someone

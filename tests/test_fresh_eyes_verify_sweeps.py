@@ -320,7 +320,7 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # says a vocabulary change was intended - the same shape as
     # EXPECTED_VERSION in test_version_consistency.
     #
-    # 53 -> 57 at 3.0.0: traceability, intent, navigator and assessment. Each
+    # 53 -> 57 at 3.0.0: traceability, intent, router and assessment. Each
     # named something already load-bearing and undefined - the most-used id
     # prefix in the repository, a live command, a live agent, and the only
     # judgement field in the manifest. ADR-016 records the decision.

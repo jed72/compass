@@ -174,10 +174,10 @@ what the result means, so this list is a map rather than a manual.
 
 ```
 commands/     the stage interface, under the /compass: namespace
-agents/       distinct contexts - navigator, spec-author, planner, builder,
-              verifier, reviewer, product-lens, marketing-lens, architect-lens
+agents/       distinct contexts - router, spec-author, planner, builder,
+              verifier, reviewer, product-owner, product-marketer, architect
 skills/       loadable procedures - adaptive-routing, bdd-specification,
-              tdd-discipline, worktree-swarm, intent-elicitation and the rest
+              tdd-discipline, worktree-multiagent, intent-interview and the rest
 hooks/        pre-tool.sh, post-tool.sh, stop.sh - mechanical enforcement
 cli/compass   the kit: routing, checks and the manifest
 bin/compass   the shim that puts the kit on your PATH

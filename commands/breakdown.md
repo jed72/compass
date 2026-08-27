@@ -32,7 +32,7 @@ policy `caps`):
 
 - Read `distribution-map.md` - it is the source of truth for stream count
   and which scenarios each stream owns.
-- Load the `worktree-swarm` skill.
+- Load the `worktree-multiagent` skill.
 - Invoke the `orchestrator` agent. **Only the orchestrator** creates
   worktrees and integrates them.
 

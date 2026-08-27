@@ -17,7 +17,7 @@ the point.
 
 # Positioning - {{ISSUE_SLUG}}
 
-> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
+> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `product-marketer`
 > **Governance owner check:** consistent with the voice & positioning strategies in `governance/strategies.md`.
 
 ---

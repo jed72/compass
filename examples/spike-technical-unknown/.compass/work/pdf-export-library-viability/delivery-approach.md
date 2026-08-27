@@ -54,7 +54,7 @@ The guardrails that *could* have fired and did not, both worth recording:
   you cannot "explore" an irreversible change.
 - **RP-FLOOR-002** (`familiarity: brownfield-unmapped`) did not fire - familiarity is
   `greenfield`, not unmapped brownfield. (On a brownfield-unmapped spike it
-  *would* fire and force a full define with blueprint-distillation, even on a
+  *would* fire and force a full define with behaviour-mapping, even on a
   Spike - a useful thing to know the policy does.)
 
 ---

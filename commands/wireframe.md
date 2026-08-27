@@ -1,6 +1,6 @@
 ---
-description: Retired name for /compass:design - a redirect stub, removed at the next major version
-argument-hint: "<the arguments you meant for /compass:design>"
+description: Retired - use /compass:design
+argument-hint: "<arguments for /compass:design>"
 allowed-tools: Read
 ---
 

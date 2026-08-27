@@ -31,7 +31,7 @@ The rest of this command is for delivery work.
 - Invoke the `verifier` agent (runs the suites) and the `reviewer` agent
   (applies the review dimensions).
 - If the product-marketer role is in play, the `claims` dimension applies -
-  `marketing-lens` reviews here too.
+  `product-marketer` reviews here too.
 - If this issue is itself a sweep, rename, or cleanup touching many files,
   verify it the way `governance/strategies.md` `S9` describes: a fresh agent
   that has not seen the change, not its author.

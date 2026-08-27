@@ -6,7 +6,7 @@ date: 2026-05-24
 # Compass - Component Relations
 
 <!-- triage reads this file and includes it in architecture-loaded.yml as a
-     narrative artifact. The architect-lens reads it to determine which
+     narrative artifact. The architect reads it to determine which
      `touches:` tags in manifest.yml.assessment map to known component names, so
      it knows when to fire automatically at the define stage time.
 
@@ -35,13 +35,13 @@ components. Relations are ordered by the calling component.
 | `hooks/stop.sh` | `governance/signals.yml` | file read | reads scope-bloat and rework signal patterns at session end | medium |
 | `hooks/stop.sh` | `.compass/work/<task>/devlog.md` | file read | scans the session's devlog for rework signals before the session closes | medium |
 | `hooks/stop.sh` | `.compass/current-task` | file read | resolves the active issue for devlog location | medium |
-| `architect-lens` (agent) | `architecture/` | file read | reads `system-context.md`, `relations.md`, `ownership.md`, `invariants.yml` (if present), and all `decisions/ADR-*.md` to build its consultation context | medium |
-| `architect-lens` (agent) | `.compass/work/<task>/acceptance-criteria.md` | file read | reads scenarios the issue must satisfy | medium |
-| `architect-lens` (agent) | `.compass/work/<task>/design.md` | file read | reads the technical approach to annotate | medium |
-| `architect-lens` (agent) | `.compass/work/<task>/architecture-loaded.yml` | file read | reads triage's load record if present | medium |
-| `architect-lens` (agent) | `.compass/work/<task>/architecture-notes.md` | file write | writes its output (annotations, boundary risks, candidate ADR titles) | medium |
+| `architect` (agent) | `architecture/` | file read | reads `system-context.md`, `relations.md`, `ownership.md`, `invariants.yml` (if present), and all `decisions/ADR-*.md` to build its consultation context | medium |
+| `architect` (agent) | `.compass/work/<task>/acceptance-criteria.md` | file read | reads scenarios the issue must satisfy | medium |
+| `architect` (agent) | `.compass/work/<task>/design.md` | file read | reads the technical approach to annotate | medium |
+| `architect` (agent) | `.compass/work/<task>/architecture-loaded.yml` | file read | reads triage's load record if present | medium |
+| `architect` (agent) | `.compass/work/<task>/architecture-notes.md` | file write | writes its output (annotations, boundary risks, candidate ADR titles) | medium |
 | `agents/spec-author.md` | `architecture/decisions/ADR-*.md` | via `architecture-loaded.yml` | reads ADR summaries (id, title, status) to avoid re-litigating closed decisions | low |
-| `agents/planner.md` | `.compass/work/<task>/architecture-notes.md` | file read | planner reads architect-lens output to compose `design.md §2` design decisions | medium |
+| `agents/planner.md` | `.compass/work/<task>/architecture-notes.md` | file read | planner reads architect output to compose `design.md §2` design decisions | medium |
 | `templates/architecture/` | n/a | reference only | templates are never read by the CLI; they are human-referenced when an adopter bootstraps their own `architecture/` tree | n/a |
 
 ## Prohibited relations
@@ -49,11 +49,11 @@ components. Relations are ordered by the calling component.
 The following relations must never be created. They would violate invariants
 or cross boundary rules encoded in the ADRs.
 
-- **`architect-lens` must not read any directory other than `architecture/`** -
+- **`architect` must not read any directory other than `architecture/`** -
   the lens reads exactly `architecture/` at the project root. Reading any
   sibling or adjacent directory that might contain draft or provisional content
   would introduce undeclared dependencies. The lens reads `architecture/` only.
-  (Cited source: TRC-D2 and the `architect-lens` agent's hard boundaries.)
+  (Cited source: TRC-D2 and the `architect` agent's hard boundaries.)
 
 - **Any mechanism must not write into `manifest.yml.assessment`** - assessment are the
   human's judgement field; mechanism-produced state lives in `architecture-loaded.yml`

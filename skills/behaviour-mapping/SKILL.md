@@ -1,5 +1,5 @@
 ---
-name: blueprint-distillation
+name: behaviour-mapping
 description: How to reverse-engineer existing behaviour into scenarios before changing it. Load on brownfield work whose behaviour is not written down.
 ---
 

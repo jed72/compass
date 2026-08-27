@@ -30,7 +30,7 @@ now says it too.)
 - Invoke the `planner` agent - it owns this stage.
 - If an `intent.md` exists, this is where the **intent-fidelity gate** lands: the
   spec must be checked against `intent.md` before the design completes. Invoke
-  `product-lens` to run it.
+  `product-owner` to run it.
 
 ## Procedure
 

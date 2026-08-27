@@ -45,7 +45,7 @@ shipped governance defaults stay in force, and adopting your own is what
 - Read `.compass/config.yml` for genuine project knobs (test command, swarm
   worktree root). Routing rules are not here - they live in
   `routing-policy.yml`.
-- For a non-trivial or ambiguous issue, invoke the `navigator` agent to read
+- For a non-trivial or ambiguous issue, invoke the `router` agent to read
   the four dimensions.
 - If a `intent.md`, `ui-contract.md`, or `positioning.md` already exists for
   this issue, read it - intent is the *outcome wanted*, not just the literal

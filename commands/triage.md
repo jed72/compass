@@ -1,6 +1,6 @@
 ---
-description: Retired name for /compass:assess - a redirect stub, removed at the next major version
-argument-hint: "<the arguments you meant for /compass:assess>"
+description: Retired - use /compass:assess
+argument-hint: "<arguments for /compass:assess>"
 allowed-tools: Read
 ---
 

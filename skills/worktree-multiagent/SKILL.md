@@ -1,5 +1,5 @@
 ---
-name: worktree-swarm
+name: worktree-multiagent
 description: How parallel streams are created, isolated and integrated across git worktrees. Load at breakdown on a swarm topology.
 ---
 

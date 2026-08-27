@@ -31,7 +31,7 @@ one, and is written repo-first so it stays openable: read it at
 | `obra/superpowers/skills/using-git-worktrees/SKILL.md` | 167 |
 | `obra/superpowers/RELEASE-NOTES.md` (v6.2.0 and v6.3.0 sections) | - |
 
-On the Compass side: `skills/worktree-swarm/SKILL.md` (139),
+On the Compass side: `skills/worktree-multiagent/SKILL.md` (139),
 `agents/orchestrator.md` (74), `agents/builder.md` (102),
 `scripts/swarm.sh` (13,353 bytes), `scripts/integrate.sh` (11,144 bytes),
 and the archive of 28 issues whose breakdown stage was a swarm.
@@ -101,7 +101,7 @@ campaigns with published numbers.
 
 ## The mechanism walk
 
-Fifteen mechanisms, each marked against `worktree-swarm`,
+Fifteen mechanisms, each marked against `worktree-multiagent`,
 `agents/orchestrator.md` and `agents/builder.md`.
 
 | # | Mechanism | Verdict | One-line reason |
@@ -197,13 +197,13 @@ it does not need a new one.
 
 | # | Mechanism | Where it lives | Rough cost |
 |---|---|---|---|
-| 1 | Charter as a file path | `skills/worktree-swarm` (the dispatch rule), `agents/orchestrator.md` | Prose only. ~1 hour. |
+| 1 | Charter as a file path | `skills/worktree-multiagent` (the dispatch rule), `agents/orchestrator.md` | Prose only. ~1 hour. |
 | 3 | Review package as a file | A new review-package script under `scripts/` (does not exist yet); `agents/verifier.md` reads the path it prints | A script plus a test. ~half a day. |
 | 2 | Base SHA per stream | `manifest.yml` - a `base_sha` on each stream in the topology block; written by `swarm.sh`, read by the review package | Schema field, script change, migration row. ~half a day. |
 | 4 | No coaching the reviewer | `agents/orchestrator.md` and `agents/reviewer.md`; ideally a `governance/strategies.md` entry beside `S9` | Prose, plus a strategy id. ~2 hours. |
 | 5+13 | Fix loop, cap, scoped re-review | `manifest.yml` gains a `review_rounds:` list; `agents/reviewer.md` gains the re-review mode; `compass check` gains a check that a tripped breaker carries an adjudication | The big one. Schema, CLI check, two agent prompts, tests. **2-3 days.** |
-| 8 | Model scaled to the work | `skills/worktree-swarm`, agent frontmatter guidance | Prose. ~1 hour. |
-| 9 | Batch small same-shape work | `skills/worktree-swarm` decomposition heuristics | Prose. ~1 hour. |
+| 8 | Model scaled to the work | `skills/worktree-multiagent`, agent frontmatter guidance | Prose. ~1 hour. |
+| 9 | Batch small same-shape work | `skills/worktree-multiagent` decomposition heuristics | Prose. ~1 hour. |
 | 10 | Workers spawn no subagents | `agents/builder.md` hard boundaries | Prose. ~30 minutes. |
 | 12 | Decisions surfaced as a list | `agents/orchestrator.md` hand-off; the verification report template | Prose plus a template section. ~2 hours. |
 | 14 | Point the final review at the follow-up ledger | `agents/reviewer.md`; `/compass:verify` | Prose. ~1 hour. |

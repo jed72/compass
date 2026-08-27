@@ -11,7 +11,7 @@ solo - the map is the
 record of what could have been parallel and why it wasn't.
 
 Independence has two tests, both must hold: disjoint code AND disjoint
-scenario groups (see the worktree-swarm skill).
+scenario groups (see the worktree-multiagent skill).
 
 Fill every {{PLACEHOLDER}}.
 -->

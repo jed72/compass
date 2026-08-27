@@ -7,7 +7,7 @@ Compass repository and nowhere else, so an adopter's session got nothing.
 It also existed twice. Measured sentence by sentence before the change:
 `CLAUDE.md` and `skills/compass-runtime/SKILL.md` shared 46 sentences
 verbatim - 39% of `CLAUDE.md` - and they had already drifted, with
-`compass-runtime` naming nine agents and omitting `architect-lens`.
+`compass-runtime` naming nine agents and omitting `architect`.
 
 `AGENTS.md` is deliberately NOT part of this. It shares no sentence with
 either, because it is the runtime-neutral expression for Codex, Amp and
@@ -202,7 +202,7 @@ def test_sb_b3_the_runtime_neutral_document_is_untouched():
 
 def test_sb_b4_the_contract_does_not_carry_a_stale_agent_roster():
     """The measured drift: compass-runtime named nine agents, omitting
-    architect-lens, and nobody noticed.
+    architect, and nobody noticed.
 
     A roster maintained in prose drifts again. Either the contract names every
     shipped agent, or it names none and points at where they are listed.

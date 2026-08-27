@@ -6,7 +6,7 @@ date: 2026-05-24
 # Compass - Service Ownership
 
 <!-- triage reads this file and includes it in architecture-loaded.yml as a
-     narrative artifact. The architect-lens uses ownership information to
+     narrative artifact. The architect uses ownership information to
      flag when a proposed change crosses component boundaries - a common source
      of undetected coupling and rework.
 
@@ -67,11 +67,11 @@ exclusively, and what it must not do.
 - The approach-awareness of strategy enforcement (the spike approach suspends TDD;
   other delivery delivery approach do not).
 
-### Role Pipeline (agents/*.md + commands/roundtable.md)
+### Role Pipeline (agents/*.md + commands/consult.md)
 
 **Must own:**
 - Each role's entry-point command and the artifact it produces.
-- The `architect-lens` agent's annotation protocol (`architecture-notes.md`
+- The `architect` agent's annotation protocol (`architecture-notes.md`
   with five headed sections, no Given/When/Then).
 - The lens-first / planner-second order of operations.
 
@@ -100,7 +100,7 @@ and continues. Exiting non-zero would make rework-scan a blocking gate,
 violating **Inv-4**. Detection is not the same as a verdict, and a scan that
 can fail a build will be tuned until it stops detecting anything.
 
-### architect-lens must not emit Gherkin scenarios
+### architect must not emit Gherkin scenarios
 
 `architecture-notes.md` contains annotations, candidate ADR titles, and
 boundary-risk flags. It never contains Given/When/Then scenarios. Scenarios live
@@ -140,7 +140,7 @@ mechanism - the CLI must read the file).
 ## Cross-component dependency rules
 
 A change that affects any of the following cross-component pairs must trigger
-an architect-lens consultation (via `/compass:roundtable architect-lens`) or
+an architect consultation (via `/compass:consult architect`) or
 explicitly note why the consultation is not needed:
 
 | Caller component | Callee component | Risk |

@@ -65,7 +65,7 @@ is for. The same split is written from the other side in
 - Read `governance/` - the spec is QA'd against the guardrails and the
   applicable strategies here.
 - If a non-engineering role is in play, this is where they review: invoke
-  `product-lens` (intent fidelity against `intent.md`) and/or `marketing-lens`
+  `product-owner` (intent fidelity against `intent.md`) and/or `product-marketer`
   (every planned claim has a candidate scenario).
 
 ## Procedure

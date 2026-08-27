@@ -86,7 +86,7 @@ So:
 ```
 
 Re-score the dimensions honestly. If familiarity is genuinely unmapped,
-`RP-FLOOR-002` will force `blueprint-distillation`, and writing the current
+`RP-FLOOR-002` will force `behaviour-mapping`, and writing the current
 behaviour down is very often the thing that ends the bug hunt. A re-assess here
 is the system working; a fourth guess is not.
 

@@ -95,7 +95,7 @@ has() { # needle  haystack(newline-separated)
 # --- 3. agents referenced by commands exist ---------------------------------
 say "3. Agent references in commands/"
 # Match the patterns the command files actually use, e.g. "the `builder` agent",
-# "`orchestrator` agent", "invoke the `navigator` agent".
+# "`orchestrator` agent", "invoke the `router` agent".
 REFS="$(grep -rohE '`[a-z][a-z-]+`[[:space:]]+agent' commands/ 2>/dev/null \
         | sed -E 's/`([a-z-]+)`.*/\1/' | sort -u || true)"
 if [ -z "$REFS" ]; then

@@ -3,10 +3,10 @@
 The twelve pending skills and the ten agent definitions are rewritten in
 the frozen v2 vocabulary; `skills/` leaves both pending lists and
 `agents/` enters `scan.surfaces` as an enforced, never-pending surface -
-the same shape as the root instruction files. The worktree-swarm skill
+the same shape as the root instruction files. The worktree-multiagent skill
 gains the queued "never stash across a worktree hop" rule, and the lens
 ban pattern is tuned so agent identifiers (machine names like
-`product-lens`, which keep their spelling until an agent-rename decision)
+`product-owner`, which keep their spelling until an agent-rename decision)
 no longer collide with the banned role-perspective concept word.
 """
 from __future__ import annotations
@@ -54,10 +54,10 @@ def test_agents_surface_is_enforced_never_pending():
 def test_worktree_swarm_carries_the_stash_rule():
     """TRC-3: the lesson moved from the slice-3a issue's devlog into the
     skill where future sessions will read it."""
-    text = (REPO_ROOT / "skills" / "worktree-swarm" / "SKILL.md").read_text(
+    text = (REPO_ROOT / "skills" / "worktree-multiagent" / "SKILL.md").read_text(
         encoding="utf-8").lower()
     assert "never stash across a worktree hop" in text, (
-        "the worktree-swarm skill does not state the stash rule")
+        "the worktree-multiagent skill does not state the stash rule")
     assert "destroys the stashed work" in text, (
         "the stash rule is stated without its reason - a rule with no why "
         "gets deleted by the first person it inconveniences")
@@ -72,7 +72,7 @@ def test_lens_ban_catches_concept_not_identifiers():
     concept = "read the spec through the marketing lens before shipping"
     assert any(p.search(concept) for p in patterns), (
         "the lens ban no longer catches the role-perspective concept")
-    identifier = "invoke the product-lens agent when a PRD exists"
+    identifier = "invoke the product-owner agent when a PRD exists"
     assert not any(p.search(identifier) for p in patterns), (
         "a hyphenated agent identifier is flagged - those names are "
         "machine vocabulary until an agent-rename decision retires them")

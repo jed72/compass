@@ -34,7 +34,7 @@ shipped governance defaults stay in force, and adopting your own is what
 - Read `governance/strategies.md` - the product owner curates the product
   strategies there, and `intent.md` must be consistent with them (and with the
   guardrails in `governance/guardrails.md`).
-- Invoke the `product-lens` agent.
+- Invoke the `product-owner` agent.
 
 ## Procedure
 

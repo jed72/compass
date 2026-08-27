@@ -1,5 +1,5 @@
 ---
-name: marketing-lens
+name: product-marketer
 description: "The product marketer's perspective: every public claim must trace to a passing scenario. Owns the positioning and launch-readiness artefacts and the claims gate."
 tools: Read, Glob, Grep, Write, Edit
 model: sonnet
