@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### a landed_by entry still reads its own key
+### the name needs no gloss
 
-- **Scenario id:** `SSN-A2`
+- **Scenario id:** `NIR-A2`
 - **Intent:** `INT-1`
-- **Source issue:** `set-status-does-not-name-the-issue`
-- **Landed:** 2026-08-26
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,19 +43,19 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### no document claims more than governance does
+### the freeze ceremony is paid
 
-- **Scenario id:** `DOC-A2`
+- **Scenario id:** `NIR-E1`
 - **Intent:** `INT-2`
-- **Source issue:** `docs-slimming-pass`
-- **Landed:** 2026-08-26
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
 
-### a retired guard says what stopped being covered
+### the migrator moves the archive
 
-- **Scenario id:** `DOC-A4`
+- **Scenario id:** `NIR-D2`
 - **Intent:** `INT-3`
-- **Source issue:** `docs-slimming-pass`
-- **Landed:** 2026-08-26
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
 
 ### a URL that is not https is refused
 
@@ -6741,9 +6741,23 @@
 - **Source issue:** `docs-slimming-pass`
 - **Landed:** 2026-08-26
 
+### no document claims more than governance does _(archived)_
+
+- **Scenario id:** `DOC-A2`
+- **Intent:** `INT-2`
+- **Source issue:** `docs-slimming-pass`
+- **Landed:** 2026-08-26
+
 ### a guard taught a new shape can still fail _(archived)_
 
 - **Scenario id:** `DOC-A3`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-slimming-pass`
+- **Landed:** 2026-08-26
+
+### a retired guard says what stopped being covered _(archived)_
+
+- **Scenario id:** `DOC-A4`
 - **Intent:** `INT-3`
 - **Source issue:** `docs-slimming-pass`
 - **Landed:** 2026-08-26
@@ -6754,3 +6768,45 @@
 - **Intent:** `INT-1`
 - **Source issue:** `set-status-does-not-name-the-issue`
 - **Landed:** 2026-08-26
+
+### a landed_by entry still reads its own key _(archived)_
+
+- **Scenario id:** `SSN-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `set-status-does-not-name-the-issue`
+- **Landed:** 2026-08-26
+
+### the term is governed like every other _(archived)_
+
+- **Scenario id:** `NIR-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### no live surface carries the retired word _(archived)_
+
+- **Scenario id:** `NIR-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### the old name survives only where history needs it _(archived)_
+
+- **Scenario id:** `NIR-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### the file, the CLI and the module agree _(archived)_
+
+- **Scenario id:** `NIR-C1`
+- **Intent:** `INT-2`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
+
+### a file written under the old name still loads _(archived)_
+
+- **Scenario id:** `NIR-D1`
+- **Intent:** `INT-3`
+- **Source issue:** `name-the-issue-record`
+- **Landed:** 2026-08-27
