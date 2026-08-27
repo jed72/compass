@@ -112,10 +112,59 @@ fi
 # installed from the plugin cache, and Compass self-hosts, so its own tree has
 # a .compass/ of its own. That would enforce the framework's issue against the
 # user's edits.
-INVOKED_FROM="$(pwd)"
-if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
-  PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-else
+# The edited file's own path comes first, because it is the only input that
+# names the tree being changed. Compass creates git worktrees itself at
+# breakdown, so on any multiagent approach the session directory and the
+# edited file are in DIFFERENT trees. Resolving from the session read the
+# wrong `.compass/` in both directions: it blocked a builder who HAD recorded
+# a red in its worktree, and - worse - a red recorded in the session's tree
+# unlocked production edits in every worktree, including ones whose builder
+# had no failing test at all. That is the fail-open the comment below refuses
+# for the parent walk, reached by another route, and it appeared only on the
+# orchestration where the work is most consequential.
+#
+# With no target - a Bash call names no file - the session is still the best
+# available answer, so CLAUDE_PROJECT_DIR remains the authority there.
+SESSION_DIR="$(pwd)"
+
+# Resolve the project a path belongs to. The edited file's own path decides,
+# because it is the only input naming the tree being changed: Compass creates
+# git worktrees at breakdown, so on a multiagent approach the session and the
+# edited file are in DIFFERENT trees. Resolving from the session read the
+# wrong `.compass/` both ways - it blocked a builder who HAD recorded a red in
+# its worktree, and a red in the session unlocked production edits in every
+# worktree, including ones with no failing test at all.
+#
+# Called twice: once now, for the tools that name a file directly, and again
+# once a Bash command's target has been extracted further down. A Bash call
+# that names no file keeps the session as its answer, which is the best one
+# available.
+resolve_project() {
+  _from="$SESSION_DIR"
+  if [ -n "${1:-}" ]; then
+    case "$1" in
+      /*) _dir="$(dirname "$1")" ;;
+      # A relative path from the host is relative to the PROJECT, not to
+      # wherever the hook happens to be running. Resolving it against the
+      # session sent it climbing out of the project entirely - and into the
+      # framework's own .compass/, whose red then allowed the edit.
+      *)  _dir="$(dirname "${CLAUDE_PROJECT_DIR:-$SESSION_DIR}/$1")" ;;
+    esac
+    # The file may not exist yet - a Write creates one - so climb to the
+    # nearest ancestor that does. Falling back to the session instead would
+    # resolve a different project whenever the session sits outside the tree
+    # being edited, which is the case this exists for.
+    while [ -n "$_dir" ] && [ "$_dir" != "/" ] && [ ! -d "$_dir" ]; do
+      _dir="$(dirname "$_dir")"
+    done
+    [ -d "$_dir" ] && _from="$_dir"
+  fi
+  INVOKED_FROM="$_from"
+  if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ -z "${1:-}" ]; then
+    PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+    return 0
+  fi
+  PROJECT_RESOLVED=1
   PROJECT_DIR=""
   _search="$INVOKED_FROM"
   while [ -n "$_search" ]; do
@@ -136,7 +185,13 @@ else
     [ "$_search" = "/" ] && break
     _search="$(dirname "$_search")"
   done
-fi
+  if [ -z "$PROJECT_DIR" ]; then
+    PROJECT_RESOLVED=0
+    # Provisional, so path classification still has something to compare
+    # against. Nothing is permitted on the strength of it.
+    PROJECT_DIR="$INVOKED_FROM"
+  fi
+}
 
 # Whether the walk found anything is recorded, not acted on yet. The refusal
 # lives further down, at the point the hook actually needs issue state - a
@@ -150,12 +205,20 @@ fi
 # genuinely unfindable; the missing-.compass/work/ branch further down says
 # the useful thing.
 PROJECT_RESOLVED=1
-if [ -z "$PROJECT_DIR" ]; then
-  PROJECT_RESOLVED=0
-  # Provisional, so path classification below still has something to compare
-  # against. Nothing is permitted on the strength of it.
-  PROJECT_DIR="$INVOKED_FROM"
+
+# Bash keeps the session as its project: its target is extracted much later,
+# by a classifier that resolves candidates against PROJECT_DIR, and re-running
+# resolution inside that loop broke every write shape it guards. So the
+# worktree fix covers the tools that name a file directly - Edit, Write,
+# MultiEdit - which is where a builder in a worktree actually works. A Bash
+# redirect inside a worktree still resolves from the session; that gap is
+# recorded on the issue rather than closed by guesswork here.
+if [ "${TOOL:-}" = "Bash" ]; then
+  resolve_project ""
+else
+  resolve_project "${TARGET:-}"
 fi
+
 
 # --- classify a target file -------------------------------------------------
 # A "code file" here means: a production-impacting file whose change must be
