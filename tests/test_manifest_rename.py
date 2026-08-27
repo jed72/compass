@@ -135,6 +135,9 @@ OLD_NAME_ALLOWED = (
     "skills/compass-runtime/writing-voice.md",
     # Derived from governance/terminology.yml, which must name what it bans.
     "docs/glossary.md",
+    # Lists the retired names that must never be printed, so it has to spell
+    # them - the same reason the ban list itself is allowed to.
+    "tests/test_printed_output_coverage.py",
 )
 
 

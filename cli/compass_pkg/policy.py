@@ -439,11 +439,11 @@ def cmd_plan_lint(args):
         findings = _plan_lint_findings(fh.read())
 
     if not findings:
-        print(f"compass design lint: PASS - no placeholders found in {path}")
+        print(f"compass plan lint: PASS - no placeholders found in {path}")
         return 0
 
     noun = "placeholder" if len(findings) == 1 else "placeholders"
-    print(f"compass design lint: {len(findings)} possible {noun} in {path} [advisory]")
+    print(f"compass plan lint: {len(findings)} possible {noun} in {path} [advisory]")
     for lineno, phrase in findings:
         print(f"  line {lineno}: {phrase}")
     print("\n  Advisory, not a gate - this exits 0. Assess these as judgement in "

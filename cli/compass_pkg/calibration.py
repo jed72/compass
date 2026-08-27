@@ -281,7 +281,7 @@ def _aggregate_friction(tasks, threshold):
 
 
 def _cmd_calibration_friction(args, tasks):
-    """The `compass calibration --friction` view. Read-only; exit 0 always
+    """The `compass retro --friction` view. Read-only; exit 0 always
     (Inv: friction advises, never gates - like rework-scan and flow)."""
     threshold = _load_friction_threshold()
     agg = _aggregate_friction(tasks, threshold)
@@ -752,7 +752,7 @@ def cmd_calibration(args):
 
 
 def _cmd_calibration_impact(args):
-    """compass calibration --impact. Advisory: always exits 0, writes nothing."""
+    """compass retro --impact. Advisory: always exits 0, writes nothing."""
     try:
         work = os.path.join(find_compass_dir(), "work")
     except CompassError:
