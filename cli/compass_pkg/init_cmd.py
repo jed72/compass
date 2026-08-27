@@ -26,6 +26,7 @@ a project exists, so it must not reach for anything that assumes one - in
 particular not core.find_compass_dir(), which raises when there is no
 .compass/ and is exactly the case this verb handles.
 """
+import datetime
 import os
 
 from compass_pkg.terminal import say
@@ -49,6 +50,14 @@ version: 1.0.0
 # advisory : checks report every failure clearly but exit 0 - nothing blocks.
 # enforced : checks exit non-zero on any failure - the gate is real.
 mode: enforced
+
+# What created this project, and when. The hook reads these so that its first
+# refusal in a project somebody's entry point initialised can say where Compass
+# came from - a user who never ran `init` themselves should not meet an
+# unexplained block.
+initialised:
+  by: "{by}"
+  at: "{at}"
 
 project:
   # Shown in artifact headers and the devlog.
@@ -90,12 +99,16 @@ def resolve_project_root():
         search = parent
 
 
-def ensure_initialised(project_root):
+def ensure_initialised(project_root, by="compass init"):
     """Create .compass/ if it is not there. Returns (created, compass_dir).
 
     Idempotent on purpose. Every entry-point command calls this without
     checking first, so a second run must not touch a config the project has
     edited or anything under work/.
+
+    `by` names what did the initialising - the verb itself, or the entry-point
+    command that called it. It is written into the config so the hook's first
+    refusal can explain where Compass came from.
     """
     compass_dir = os.path.join(project_root, ".compass")
     work_dir = os.path.join(compass_dir, "work")
@@ -105,15 +118,17 @@ def ensure_initialised(project_root):
 
     os.makedirs(work_dir, exist_ok=True)
     if not os.path.exists(config):
+        stamp = datetime.date.today().isoformat()
         with open(config, "w", encoding="utf-8") as fh:
-            fh.write(CONFIG_TEMPLATE)
+            fh.write(CONFIG_TEMPLATE.format(by=by, at=stamp))
 
     return created, compass_dir
 
 
 def cmd_init(args):
     root = resolve_project_root()
-    created, compass_dir = ensure_initialised(root)
+    created, compass_dir = ensure_initialised(
+        root, by=getattr(args, "by", None) or "compass init")
 
     if created:
         return say(

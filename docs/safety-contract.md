@@ -102,6 +102,20 @@ Teams should retain their normal CI controls. Binding evidence to code and
 specification identity would strengthen this guarantee; the current contract
 does not claim it.
 
+### Compass enforces nothing in a project that has not opted in
+
+The hooks are installed at user scope and run in every repository on the
+machine. A repository with no `.compass/` directory has never opted into
+Compass, so both hooks pass through silently there: no refusal, no output,
+nothing. `.compass/` is created by `compass init`, which the five entry-point
+commands run, so a project opts in the moment someone runs a Compass command
+in it.
+
+The boundary is the directory, not the state of the work. A project that has
+opted in and has not been triaged is still refused, and a project the hook
+cannot read is still refused - Compass answering "allow" to a question it
+could not ask would be a guardrail switched off silently.
+
 ### Shell-write detection is best-effort
 
 The Claude Code pre-tool hook completely covers supported file-editing tools.

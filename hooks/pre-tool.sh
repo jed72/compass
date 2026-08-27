@@ -468,6 +468,24 @@ else
   is_enforced_path "$TARGET" || exit 0
 fi
 
+
+# Say when and how this project opted into Compass, if the record is there.
+# `compass init` writes `initialised: {by, at}` into .compass/config.yml. A
+# user whose project was initialised by an entry point never ran init
+# themselves, so an unexplained refusal is their first sight of Compass.
+compass_say_how_this_project_opted_in() {
+  _cfg="$COMPASS_DIR/config.yml"
+  [ -f "$_cfg" ] || return 0
+  _by="$(sed -n 's/^  by: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$_cfg" | head -1)"
+  _at="$(sed -n 's/^  at: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$_cfg" | head -1)"
+  [ -n "$_by" ] || return 0
+  if [ -n "$_at" ]; then
+    echo "  This project was initialised by $_by on $_at, which is when it opted into Compass." >&2
+  else
+    echo "  This project was initialised by $_by, which is when it opted into Compass." >&2
+  fi
+}
+
 # --- find the current issue -------------------------------------------------
 # The current issue is named by the .compass/current-task pointer (written by
 # /compass:assess and /compass:resume). The pointer is what makes this reliable
@@ -481,17 +499,40 @@ fi
 # silently. That is the same failure fixed one layer down in 2.1.0, where a
 # missing vendored library made this hook exit 3 and the runtime read it as
 # permission.
+# A repository with no .compass/ has never opted into Compass, and this hook
+# is installed at user scope - it runs in every repository on the machine.
+# Refusing there meant someone trying Compass on one project lost the ability
+# to edit code in every other one, and the message told them to fix a working
+# directory that was already correct.
+#
+# .compass/ is the opt-in, and only `compass init` creates it - run by the
+# five entry-point commands, so it appears the moment a user runs a Compass
+# command deliberately. That is what makes silence safe here rather than
+# fail-open: a repository without it has genuinely never been asked.
+#
+# The distinction that matters, and the one this change could get wrong:
+# "no .compass/ anywhere" is a guest. "There is a project and I could not read
+# it" is Compass unable to tell what it is enforcing, and that still refuses -
+# answering "allow" to a question it could not ask is a guardrail switched off
+# silently.
 if [ "$PROJECT_RESOLVED" -eq 0 ]; then
-  echo "Compass: could not locate a Compass project - no .compass/ directory at or above $INVOKED_FROM" >&2
-  echo "  Start Claude Code inside the project, or set CLAUDE_PROJECT_DIR to its root." >&2
-  echo "  Refusing this edit rather than allowing it unchecked." >&2
-  exit 2
+  exit 0
 fi
 
 COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
+
+# An EXPLICIT root (CLAUDE_PROJECT_DIR) with no .compass/ is the same guest,
+# reached by the other branch: the runtime sets that variable for every
+# repository, so taking it as "this is a Compass project" was what made the
+# marketplace install refuse edits everywhere.
+if [ ! -d "$COMPASS_DIR" ]; then
+  exit 0
+fi
+
 if [ ! -d "$WORK_DIR" ]; then
   echo "Compass: no .compass/work/ in $PROJECT_DIR - triage has not run. Run /compass:assess before changing code." >&2
+  compass_say_how_this_project_opted_in
   exit 2
 fi
 
@@ -512,6 +553,7 @@ fi
 
 if [ -z "${TASK_DIR:-}" ]; then
   echo "Compass: no issue under $PROJECT_DIR/.compass/work/ - triage has not run for this change." >&2
+  compass_say_how_this_project_opted_in
   exit 2
 fi
 

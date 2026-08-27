@@ -70,7 +70,12 @@ else
     _search="$(dirname "$_search")"
   done
   if [ -z "$PROJECT_DIR" ]; then
-    echo "Compass: could not locate a Compass project at or above $INVOKED_FROM - no end-of-session check ran." >&2
+    # A repository that never opted into Compass hears nothing. This hook is
+    # installed at user scope, so it runs at the end of every session on the
+    # machine, and a warner with nothing to warn about should be silent.
+    # It never blocked - it always exits 0 - but it spoke, which is enough to
+    # make Compass look like it has installed itself into someone's unrelated
+    # work.
     exit 0
   fi
 fi
