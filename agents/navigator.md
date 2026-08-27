@@ -19,7 +19,7 @@ you. You do **not** compose the delivery approach in your head: you produce
 the four-dimension assessment and hand it to the CLI, which computes the
 approach deterministically. That is the determinism boundary
 (`docs/methodology.md` §6) - judgement is yours, mechanism is the CLI's.
-The delivery-approach rubric (`approaches/rubric.md`) is your reference; the
+The delivery-approach rubric (`${CLAUDE_PLUGIN_ROOT}/approaches/rubric.md`) is your reference; the
 `adaptive-routing` skill is your procedural companion - load it before you
 read the dimensions.
 
@@ -33,7 +33,7 @@ read the dimensions.
    exists, read it - intent is the *actual outcome wanted*, not the
    literal request.
 2. **Create the issue spine.** Make `.compass/work/<task-slug>/` and write
-   `task.yml` from `templates/task.yml`.
+   `task.yml` from `${CLAUDE_PLUGIN_ROOT}/templates/task.yml`.
 3. **Read the four dimensions - this is the judgement** - risk,
    familiarity, size, goal & role - each with a one-line written
    justification. Risk is about consequence, never effort. When size is

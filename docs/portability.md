@@ -39,7 +39,7 @@ agents/          navigator, spec-author, planner, orchestrator, builder,
 skills/          adaptive-routing, bdd-specification, tdd-discipline,
                  intent-elicitation, worktree-swarm, governance-check,
                  traceability, evidence-gates, role-translation
-hooks/           pre-tool.sh, post-tool.sh, stop.sh
+hooks/           pre-tool.sh, post-tool.sh, stop.sh, session-start.sh
 bin/compass      the shim that puts the kit on PATH
 .claude-plugin/  the plugin manifest and marketplace entry
 ```
@@ -100,6 +100,16 @@ rather than editing `task.yml` ad hoc.
 
 The adapter must call `compass check` at verify and before ship, honour its
 exit code and preserve required human approvals.
+
+**Getting the contract into a session.** Compass's rules of behaviour live in
+`compass-contract.md`, and on Claude Code a `SessionStart` hook injects it at
+startup, on clear and on compact, so the model has it without choosing to load
+anything. That is an adapter feature, not a portable one: a runtime with no
+session-start event has to reach the same outcome another way - a system
+prompt, an always-loaded instruction file, or the equivalent of `CLAUDE.md`.
+What must not change is that the contract exists once. Restating it per
+runtime is how the Claude Code adapter ended up with two copies that drifted
+until one named nine agents and the other ten.
 
 BDD and TDD are default strategies. When the runtime supports pre-action hooks,
 the adapter should enforce red-before-green mechanically and make the hook

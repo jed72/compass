@@ -16,14 +16,14 @@ test gate but a findings check: *did we answer the question?* It runs none of
 the review dimensions (a spike ships nothing), and its one gate is "the
 question is answered - or explicitly answered with 'inconclusive, here is
 why' - and the finding is written down." If the approach is a spike, follow
-`approaches/spike.md`'s conclude step instead of the delivery procedure below.
+`${CLAUDE_PLUGIN_ROOT}/approaches/spike.md`'s conclude step instead of the delivery procedure below.
 The rest of this command is for delivery work.
 
 ## Setup
 
 - Read `delivery-approach.md` for the gate set and which review dimensions
   apply. The dimension set scales with the approach (see the table in the
-  delivery-approach rubric, `approaches/rubric.md`); `correctness`,
+  delivery-approach rubric, `${CLAUDE_PLUGIN_ROOT}/approaches/rubric.md`); `correctness`,
   `governance`, and `traceability` are always on for delivery work - they
   are the default guardrails in review form. The routing policy's
   `immovable_gates` are stapled on regardless.
@@ -75,7 +75,7 @@ The rest of this command is for delivery work.
    `gate-evidence-present` check verifies every `pass` gate has a pointer
    that resolves - a gate marked pass with no evidence fails the check.
 6. **Write `verification-report.md`** from
-   `templates/verification-report.md`: each dimension, each gate, the
+   `${CLAUDE_PLUGIN_ROOT}/templates/verification-report.md`: each dimension, each gate, the
    evidence, pass/fail.
 
 ## Voice

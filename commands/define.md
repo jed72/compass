@@ -44,7 +44,7 @@ four roles can.
    stage.
 4. **Maintain traceability** - load `traceability`; each scenario traces to
    an intent (`intent.md`, the request, the defect).
-5. **Write `acceptance-criteria.md`** from `templates/acceptance-criteria.md`
+5. **Write `acceptance-criteria.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/acceptance-criteria.md`
    into `.compass/work/<task-slug>/` - the prose spec every role reads.
 6. **Write the `scenarios:` block of `task.yml`** - the machine-readable
    index of the prose spec. Each scenario gets a stable `id`, a `title`, a
@@ -66,7 +66,7 @@ On a spike, this stage is **collapsed into the question**: the spike's spec
 is "what do we need to learn, and what would a useful answer look like?" -
 not Given/When/Then acceptance criteria, because a spike has no acceptance
 criteria to be (its output is knowledge, not behaviour). Record the question
-and the timebox; the BDD strategy does not apply here. See `approaches/spike.md`.
+and the timebox; the BDD strategy does not apply here. See `${CLAUDE_PLUGIN_ROOT}/approaches/spike.md`.
 
 ## Hand-off
 

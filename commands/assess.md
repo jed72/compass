@@ -36,7 +36,7 @@ shipped governance defaults stay in force, and adopting your own is what
 ## Setup
 
 - Load the `adaptive-routing` skill - it is the procedural companion to the
-  delivery-approach rubric (`approaches/rubric.md`).
+  delivery-approach rubric (`${CLAUDE_PLUGIN_ROOT}/approaches/rubric.md`).
 - Read `governance/routing-policy.md` for the *why*. The machine-readable
   `governance/routing-policy.yml` is what `compass approach evaluate` actually
   runs: triage is bound by its **policy floors, caps, immovable gates, and
@@ -77,7 +77,7 @@ force; if it is still a spike, leave the marker in place.
 ## Procedure (follows the delivery-approach rubric exactly)
 
 1. **Create the issue spine.** Pick a slug, make `.compass/work/<task-slug>/`,
-   and write `task.yml` from `templates/task.yml` into it. This is the
+   and write `task.yml` from `${CLAUDE_PLUGIN_ROOT}/templates/task.yml` into it. This is the
    machine-readable spine the CLI reads and writes.
 1a. **Load project architecture if present.** Call
     `frame_load_architecture(project_root, task_dir)` - the internal CLI
@@ -114,7 +114,7 @@ force; if it is still a spike, leave the marker in place.
    assessment + same policy => same approach, every time. If the assessment
    is a misclassification, the CLI fails loudly; re-read the dimension it
    rejected.
-4. **Write `delivery-approach.md`** from `templates/delivery-approach.md`
+4. **Write `delivery-approach.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/delivery-approach.md`
    into the issue directory, from the CLI's output. It must contain: the four
    dimensions with justifications; the computed approach; every policy rule
    the CLI reported as fired (with its rationale); the final per-stage

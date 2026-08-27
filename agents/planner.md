@@ -10,7 +10,7 @@ when the work parallelises, `distribution-map.md`.
 
 Load two skills, and keep their jobs apart:
 
-- **`plan-authoring`** - how to *write* the plan. `templates/technical-design.md` offers
+- **`plan-authoring`** - how to *write* the plan. `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md` offers
   five optional sections (a Summary, an interaction diagram, a structure
   diagram, named design patterns, and the shape of the change in code) so a
   reviewer can see a design before it is built. The skill carries the rule for

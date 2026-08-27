@@ -79,7 +79,7 @@ is for. The same split is written from the other side in
    `acceptance-criteria.md`) or record it as an open question with an owner.
    An unresolved ambiguity is not allowed to silently pass into design.
 4. **Write `requirements-review.md`** from
-   `templates/requirements-review.md`: the ambiguity ledger, each entry
+   `${CLAUDE_PLUGIN_ROOT}/templates/requirements-review.md`: the ambiguity ledger, each entry
    resolved or assigned.
 
 ## Reassessment trigger
