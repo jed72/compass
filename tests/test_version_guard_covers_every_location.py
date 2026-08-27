@@ -66,6 +66,20 @@ def test_trc_1_every_published_location_reports_the_declared_version():
             # and so every match on it was dropped. Setting both banners to
             # 9.9.9 left the test green. Match the neighbouring token
             # instead, so only a genuinely foreign version is skipped.
+            # An explicit, individually-justified exemption for a version the
+            # file TALKS ABOUT rather than publishes - `compass design lint
+            # shipped in 3.3.0` is a fact about when a redirect started, and
+            # bumping it would make the sentence false. The marker carries its
+            # reason on the line it exempts, and
+            # tests/test_version_guard_exemptions.py counts them so the list
+            # cannot grow into the wide skip pattern this guard's history
+            # warns about.
+            line_start = text.rfind("\n", 0, m.start()) + 1
+            line_end = text.find("\n", m.end())
+            line = text[line_start:line_end if line_end != -1 else len(text)]
+            if "version-guard: allow" in line:
+                continue
+
             before = text[max(0, m.start() - 24):m.start()]
             after = text[m.end():m.end() + 12]
             if "PyYAML" in before or "python" in before.lower():
