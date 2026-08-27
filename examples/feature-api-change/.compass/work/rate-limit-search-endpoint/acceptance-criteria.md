@@ -24,7 +24,7 @@
 
 ## Scenario group A - Rate limiting behaviour
 
-**Independence note:** single group. All five scenarios exercise the one new middleware; per `technical-design.md` §4 they share code surface and are built as one solo stream.
+**Independence note:** single group. All five scenarios exercise the one new middleware; per `technical-design.md` §4 they share code surface and are built as one solo subtask.
 
 ### Scenario: Requests under the limit pass through unchanged
 <!-- traceability id: TRC-001 · serves: INT-1 -->

@@ -749,7 +749,7 @@ conventions this repository holds itself to.
 
 - **No em dashes.** Where an em dash would go, write a plain hyphen with spaces
   around it. En dashes stay: they do real work in ranges like `G1-G5` and
-  `2-3 streams`.
+  `2-3 subtasks`.
 - **No agent co-author trailer**, which is the cold-reader strategy's fourth rule stated as the thing
   this repository enforces on itself rather than merely prefers.
 - **Conventional commits.** A commit subject opens with a type and an optional

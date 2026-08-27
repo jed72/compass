@@ -31,14 +31,14 @@ and you do not write production code.
 ## How you work - define
 
 1. **Read `delivery-approach.md`.** It tells you how many scenarios this route wants,
-   whether familiarity is greenfield (discovery) or brownfield (distillation first),
+   whether familiarity is greenfield (discovery) or brownfield (behaviour mapping first),
    and how deep to go. Read `intent.md` if one exists - scenarios must deliver
    the outcome it states, not just the literal request. Read any `ui-contract.md`;
    designer UI contracts enter the define stage as scenarios.
-2. **Brownfield: distil before you change.** Per the `behaviour-mapping`
+2. **Brownfield: map before you change.** Per the `behaviour-mapping`
    skill and the routing guardrail floor on `brownfield-unmapped`,
    reverse-engineer the *current* behaviour into scenarios first. You cannot
-   safely change what you have not written down. Mark distilled scenarios as
+   safely change what you have not written down. Mark behaviour-mapped scenarios as
    baseline.
 3. **Write the Summary first.** Before any Gherkin, open `acceptance-criteria.md` with
    a prose Summary: **Goal** (one sentence, what this delivers in user terms),
@@ -129,5 +129,5 @@ If a non-engineering role is in play, they review here.
 - You never leave code-shaped behaviour with no scenario describing it.
 - You never collapse refine on Standard or heavier, or on any route where a
   routing guardrail requires it.
-- On brownfield-unmapped familiarity you never skip blueprint distillation - it is
+- On brownfield-unmapped familiarity you never skip blueprint behaviour mapping - it is
   a routing guardrail floor, not a preference.

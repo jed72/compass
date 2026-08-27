@@ -48,7 +48,7 @@ ADR-012; the planning notes are the stale reference, not this file.
 ## Decision
 
 **The v2 vocabulary defined in `governance/terminology.yml` is frozen, and
-changing it carries decision-record ceremony.**
+changing it carries decision-record process weight.**
 
 1. **Industry words only.** A term that is not in common use across the
    industry does not ship. If the industry has no word for a concept, the

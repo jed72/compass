@@ -27,7 +27,7 @@ what it explicitly does not.
 | Define acceptance criteria | `/compass:define` | `acceptance-criteria.md` |
 | Requirements review | `/compass:refine` | `requirements-review.md` (ends with the Definition of Ready) |
 | Plan | `/compass:plan` | `technical-design.md` (+ `distribution-map.md` on parallel work) |
-| Break down the work | `/compass:breakdown` | worktrees + stream charters |
+| Break down the work | `/compass:breakdown` | worktrees + subtask assignments |
 | Implement | `/compass:implement` | code + the red and green records (named by binding) |
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
 | Ship | `/compass:ship` | the integration commit + settled follow-ups |
@@ -76,12 +76,12 @@ and a reader knows where their evidence went without guessing.
 The full set is in `agents/`. Read there rather than trusting a list in prose:
 this one has been wrong before.
 
-## Worktrees and swarms
+## Worktrees and multiagent
 
-Only the `orchestrator` agent creates worktrees (`scripts/swarm.sh`) and
+Only the `orchestrator` agent creates worktrees (`scripts/multiagent.sh`) and
 integrates them (`scripts/integrate.sh`). A `builder` works *inside* its
 assigned worktree and never touches a sibling's. The approach's distribution
-map says how many streams exist; policy can cap the count. On solo work there
+map says how many subtasks exist; policy can cap the count. On solo work there
 is no worktree - work on the current branch.
 
 ## Where state lives
@@ -99,7 +99,7 @@ is no worktree - work on the current branch.
 │       ├── acceptance-criteria.md  The shared artifact every role reads
 │       ├── requirements-review.md  (ends with the Definition of Ready gate)
 │       ├── technical-design.md  The design
-│       ├── distribution-map.md  Swarm topology (initiative-scale work)
+│       ├── distribution-map.md  Multiagent orchestration (initiative-scale work)
 │       ├── positioning.md       Marketer messaging (if in play)
 │       ├── launch-readiness.md  Marketer claims gate (if in play)
 │       ├── verification-report.md  (ends with the Definition of Done gate)

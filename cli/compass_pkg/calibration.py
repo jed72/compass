@@ -424,7 +424,7 @@ def cmd_friction_capture(args):
 
 
 # --- process-impact telemetry ------------------------------------------------
-# "Earn the gate": does the ceremony a route buys correlate with shipping faster
+# "Earn the gate": does the process weight a route buys correlate with shipping faster
 # or breaking less? Computed from manifest.yml alone - `created` and
 # `land_timestamp` are already in the manifest, so no git call is needed and the
 # report is deterministic by construction rather than by discipline.
@@ -595,7 +595,7 @@ def render_impact(r):
         out.append("  verdict. This is single-project observational data: the")
         out.append("  variables are not controlled, and a heavier route is chosen")
         out.append("  BECAUSE work looks riskier, so slower lead times on heavy")
-        out.append("  routes may reflect the work rather than the ceremony.")
+        out.append("  routes may reflect the work rather than the process weight.")
     return "\n".join(out)
 
 

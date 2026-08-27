@@ -48,7 +48,7 @@ this correction once, renaming the spine key `fired_guardrails` to
 
 The `R` survives deliberately. `route` is banned as *the computed process
 shape*; `routing` was never banned and is thoroughly alive. The sentence that
-holds is: the navigator does the routing and produces a delivery approach.
+holds is: the router does the routing and produces a delivery approach.
 
 **Floors and gate-adders are distinguished.** A floor is a lower bound on
 process weight. Only three of the seven entries in the `floors:` block do

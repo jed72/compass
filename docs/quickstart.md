@@ -99,7 +99,7 @@ root:
    defaults. It does not make you author anything: the defaults are real,
    in-force content from the moment they land. Adding project guardrails and
    strategies is accretion, done whenever the team is ready.
-2. **Creates `.compass/config.yml`** - route defaults, swarm thresholds,
+2. **Creates `.compass/config.yml`** - route defaults, multiagent thresholds,
    worktree ceilings. The defaults are sane; `init` confirms them with you.
 3. **Creates `.compass/work/`** - where every issue's state will live. Note
    that `.compass/work/` **is committed**. It is the audit trail, not scratch.
@@ -189,7 +189,7 @@ The `planner` agent writes a real `technical-design.md`: the technical approach,
 design decision recorded ADR-style (token bucket vs. sliding window - what was
 chosen, what was rejected, why), and a governance check run against all of
 `governance/` - guardrails, strategies, and the routing policy. The work here
-is one or two streams, not four, so the distribution map is a short list, not a
+is one or two subtasks, not four, so the distribution map is a short list, not a
 full `distribution-map.md`. The gate: the governance check passed - every
 guardrail cleared with evidence - and you record its result and link it.
 
@@ -250,7 +250,7 @@ issue does not advance - you fix it, or it goes back.
 /compass:ship
 ```
 
-Solo topology, so shipping commits on the current branch, runs regression across the
+Solo orchestration, so shipping commits on the current branch, runs regression across the
 result, updates any living docs the change touched, and checks the de-scope
 ledger for owed follow-ups (Standard owed none here). A final `devlog.md` entry
 records what landed and how it was verified. The issue is closed.

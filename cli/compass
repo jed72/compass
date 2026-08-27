@@ -203,7 +203,7 @@ def build_parser():
 
     pan = sub.add_parser(
         "analyze",
-        help="cross-artifact coherence check - orphaned scenarios, route "
+        help="cross-artifact consistency check - orphaned scenarios, route "
              "disagreements, and orphan claims (advisory or gate-clearing "
              "depending on whether verify.analyze is in the issue's gate set)",
     )

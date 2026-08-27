@@ -156,67 +156,67 @@
       "code": "ADR-006"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 2,
       "code": "ADR-009"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 60,
       "code": "ADR-007"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 67,
       "code": "ADR-006"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 73,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 74,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 75,
       "code": "ADR-007"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 76,
       "code": "ADR-007"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 83,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 84,
       "code": "G4"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 101,
       "code": "TRC-FM1"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 108,
       "code": "ADR-002"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 109,
       "code": "ADR-006"
     },
     {
-      "file": "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
+      "file": "architecture/decisions/ADR-009-architecture-checks-are-project-guardrails.md",
       "line": 110,
       "code": "ADR-007"
     },

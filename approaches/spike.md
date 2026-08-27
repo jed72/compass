@@ -56,7 +56,7 @@ One gate, at Conclude: the question is answered (or explicitly answered with
 "inconclusive - here is why"), and the finding is written down. That is it.
 Spike has no test gate because it ships nothing.
 
-## Swarm topology
+## Multiagent orchestration
 
 Solo. No worktree.
 

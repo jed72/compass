@@ -189,7 +189,7 @@ def test_trc_b2():
     # a ninth near-synonym beside an existing type.
     expected = {"test-run", "command-output", "manual-review", "human-approval",
                 "security-review", "migration-plan", "rollback-plan",
-                "claim-review", "spike-conclusion", "coherence-check",
+                "claim-review", "spike-conclusion", "consistency-check",
                 "artifact"}
     assert set(types) == expected, (
         "the evidence type list changed. This issue amends one description and "

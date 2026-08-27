@@ -46,7 +46,7 @@ severity, worst first:
    The fix is to run triage retroactively and reconcile.
 
 2. **Route outgrown** - the devlog shows the issue drifting past its route
-   (a "Standard" issue that has sprouted a fourth work stream; an "quick-fix"
+   (a "Standard" issue that has sprouted a fourth work subtask; an "quick-fix"
    issue still open after days). The fix is `/compass:assess --reframe`, not
    pushing on. A route quietly outgrown is the failure mode Compass exists to
    prevent - flow management is where it gets caught when the issue itself
@@ -54,7 +54,7 @@ severity, worst first:
 
 3. **Stalled** - an in-progress phase with no `devlog.md` movement for longer
    than the route's expected cadence (quick-fix: hours; Standard: a day or two;
-   initiative: longer, but each stream should still show movement). A stall is
+   initiative: longer, but each subtask should still show movement). A stall is
    almost always a hidden blocker. Name the likely cause from the artifacts.
 
 4. **Owed follow-up sitting** - an issue past Verify with an unpaid Hotfix

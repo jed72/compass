@@ -15,7 +15,7 @@
 | Dimension | Value | One-line justification |
 |---|---|---|
 | **Risk:** | contained | Nothing ships from this. The exploration code is throwaway on a scratch branch. Worst case if the spike is wrong: we learn the wrong thing and re-spike - no production impact. |
-| **Familiarity:** | greenfield | There is no PDF export today and no prior art in the codebase. There is nothing to distil - the spike *is* the mapping of this familiarity. |
+| **Familiarity:** | greenfield | There is no PDF export today and no prior art in the codebase. There is nothing to map - the spike *is* the mapping of this familiarity. |
 | **Size:** | small | A timeboxed two-day investigation: render three representative report layouts, check fidelity, measure speed and memory. Not a large effort - it is a *bounded* one. |
 | **Goal & role** | engineer / **exploration** | An engineer who cannot yet frame the real feature - the open question ("is this library viable?") has to be answered before a delivery delivery approach can be composed. Exploration intent is what selects Spike. |
 
@@ -91,10 +91,10 @@ The guardrails that *could* have fired and did not, both worth recording:
   for them to be about. Only `spike.conclude` is ever `pass`. This is recorded,
   not hidden - see the comment in `manifest.yml`.
 
-### 4c. Swarm topology
+### 4c. Multiagent orchestration
 
-- Topology: solo
-- Stream count: n/a (solo)
+- Orchestration: solo
+- Subtask count: n/a (solo)
 - Orchestrator agent: n/a
 
 ---
@@ -130,7 +130,7 @@ output to protect.
 
 ## 6. Outstanding follow-ups
 
-- [x] None outstanding. A Spike owes nothing - it borrows no ceremony because it lands
+- [x] None outstanding. A Spike owes nothing - it borrows no process weight because it lands
   nothing. Its exit is graduate-or-discard, not a follow-up. (Contrast Hotfix,
   which always owes one: Hotfix *ships* and borrows from the front of the
   pipeline; a spike ships nothing, so there is nothing to repay.)

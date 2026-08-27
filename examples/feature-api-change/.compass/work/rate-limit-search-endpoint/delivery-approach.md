@@ -56,10 +56,10 @@ No routing guardrail fired. Candidate route stands.
 - Review dimensions applied: correctness, governance, traceability, regression, clarity, security.
 - Immovable gates stapled on: verify.correctness, verify.governance, verify.traceability. `verify.regression` is part of Standard's own shape. No `verify.claims` - no marketer in play.
 
-### 4c. Swarm topology
+### 4c. Multiagent orchestration
 
-- Topology: solo
-- Stream count: n/a - Plan §4 found the three work units share the middleware surface; splitting them would create a merge conflict, not parallelism.
+- Orchestration: solo
+- Subtask count: n/a - Plan §4 found the three work units share the middleware surface; splitting them would create a merge conflict, not parallelism.
 - Orchestrator agent: n/a (solo)
 
 ---
@@ -69,7 +69,7 @@ No routing guardrail fired. Candidate route stands.
 | Phase / check | Action | Safe to skip / collapse because… |
 |---|---|---|
 | Breakdown | skipped | The three work units (middleware, route wiring, config) all touch `rate_limit.py` or depend on it. They are not independent - disjoint code is one of the two independence tests and it fails. Solo is correct, not a shortcut. |
-| Dedicated orchestrator agent | skipped | Standing Standard de-scope: at solo/≤3 streams the lead builder integrates; a separate orchestrator is overhead. |
+| Dedicated orchestrator agent | skipped | Standing Standard de-scope: at solo/≤3 subtasks the lead builder integrates; a separate orchestrator is overhead. |
 
 Note what is *not* in this ledger: refine is not skipped - a feature's spec is a feature set, and there was real ambiguity to resolve (`requirements-review.md`). The requirements review is *light*, never absent, on a feature.
 
@@ -77,7 +77,7 @@ Note what is *not* in this ledger: refine is not skipped - a feature's spec is a
 
 ## 6. Outstanding follow-ups
 
-- [x] None outstanding. Standard runs its pipeline in order; it borrows no ceremony from the front.
+- [x] None outstanding. Standard runs its pipeline in order; it borrows no process weight from the front.
 
 ---
 

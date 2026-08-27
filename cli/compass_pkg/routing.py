@@ -104,12 +104,12 @@ from compass_pkg.manifest import _annotate_gate_accepts
 # How many parallel subtasks each route shape permits is stated by the policy
 # as a number, so a cap can be compared against it directly. A null ceiling
 # means UNBOUNDED, not that the number is unknown.
-# Nothing in routing-policy.yml or .compass/config.yml states a swarm width -
+# Nothing in routing-policy.yml or .compass/config.yml states a multiagent width -
 # the only cap the policy carries is RP-CAP-001's max_worktrees: 1, and the
 # config file says in as many words that the worktree cap is a routing
 # concern it does not hold. An earlier draft wrote 8 here; that is a
 # configurable-looking number frozen into a literal, and it would have
-# misreported the day anyone set a real cap. A ceiling on a swarm can only
+# misreported the day anyone set a real cap. A ceiling on a multiagent can only
 # come from a cap, or from the distribution map at breakdown.
 # Route shapes declare `subtask_ceiling` as a number since ADR-023. The word
 # -> number lookup that used to live here is gone; `core` keeps its own copy
@@ -477,8 +477,8 @@ def cmd_route_evaluate(args):
             outcome="%s - %d gate(s), %s"
                     % (display_shape(result["delivery_approach"]),
                        len(result["gates"]),
-                       "unbounded parallel streams" if _ceiling is None
-                       else "up to %d parallel stream(s)" % _ceiling),
+                       "unbounded parallel subtasks" if _ceiling is None
+                       else "up to %d parallel subtask(s)" % _ceiling),
             # Only if it is actually there. `delivery-approach.md` is written
             # by the triage command, not by the evaluator, so a first evaluate
             # was telling the reader to open a file that did not exist.

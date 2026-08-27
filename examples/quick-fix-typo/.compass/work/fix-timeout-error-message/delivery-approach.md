@@ -56,10 +56,10 @@ No routing guardrail fired. Candidate route stands.
 - Review dimensions applied: correctness, governance, traceability
 - Immovable gates stapled on: verify.correctness, verify.governance, verify.traceability - these *are* quick fix's whole gate set; `verify.regression` is route-scoped and quick fix does not run it.
 
-### 4c. Swarm topology
+### 4c. Multiagent orchestration
 
-- Topology: solo
-- Stream count: n/a (solo)
+- Orchestration: solo
+- Subtask count: n/a (solo)
 - Orchestrator agent: n/a
 
 ---
@@ -70,7 +70,7 @@ No routing guardrail fired. Candidate route stands.
 |---|---|---|
 | Refine | collapsed | The spec is a single scenario triage certified unambiguous - the corrected message is quoted verbatim in the `Then`. Nothing to QA against itself. |
 | Plan | collapsed to one-liner | Size `small` on mapped familiarity. No design decision: there is exactly one place the string lives and one correct value for it. |
-| Breakdown | skipped | One stream of work. A worktree would be pure overhead. |
+| Breakdown | skipped | One subtask of work. A worktree would be pure overhead. |
 
 **One-line edit note (quick fix collapsed Plan):** edit the timeout branch in `src/api/upload.py` - replace the generic string with one that names the configured `MAX_UPLOAD_MB` limit.
 
@@ -78,7 +78,7 @@ No routing guardrail fired. Candidate route stands.
 
 ## 6. Outstanding follow-ups
 
-- [x] None outstanding. quick fix borrows no ceremony from the front of the pipeline - its de-scopes are collapses, not loans.
+- [x] None outstanding. quick fix borrows no process weight from the front of the pipeline - its de-scopes are collapses, not loans.
 
 ---
 

@@ -244,7 +244,7 @@ def _receipt_parse_orchestration_override(approach_path):
 
     An override lives in the record as a table row whose first cell is
     "Orchestration" and whose from-to cell reads like "multiagent -> single"
-    (either arrow spelling). Records written before ADR-023 say "Topology",
+    (either arrow spelling). Records written before ADR-023 say "Orchestration",
     which is why both labels are read. Returns the overridden-to value, or
     None. Tolerant by design - the record is prose, and a receipt that cannot
     parse it simply shows the computed value.
@@ -257,6 +257,8 @@ def _receipt_parse_orchestration_override(approach_path):
         if not stripped.startswith("|"):
             continue
         cells = [c.strip() for c in stripped.strip("|").split("|")]
+        # Reads the retired label too: a record written before ADR-023 says
+        # "Topology" (ADR-006).
         if len(cells) >= 2 and cells[0].lower() in ("orchestration", "topology"):
             m = _re.search(r"(?:->|\u2192)\s*([a-z][a-z-]*)", cells[1])
             if m:
@@ -681,7 +683,7 @@ def cmd_adr_new(args):
     if os.path.exists(full_path):
         raise CompassError(
             f"{full_path} already exists. If you are in a concurrent worktree, "
-            f"this is expected - rename one side when the streams integrate."
+            f"this is expected - rename one side when the subtasks integrate."
         )
 
     title_words = slug.replace("-", " ").title()
@@ -717,5 +719,5 @@ def cmd_adr_new(args):
                        "NOTE: if another worktree creates ADRs at the same "
                        "time, the",
                        "      numbers will collide - renumber when the "
-                       "streams integrate."],
+                       "subtasks integrate."],
                path=full_path, index=readme_path)

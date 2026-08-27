@@ -11,7 +11,7 @@ date: 2026-05-24
      of undetected coupling and rework.
 
      Keep this file current. Stale ownership is worse than no ownership file:
-     the lens will flag risks against the wrong surface. -->
+     the role will flag risks against the wrong surface. -->
 
 ## Component ownership
 
@@ -25,7 +25,7 @@ exclusively, and what it must not do.
 | `hooks/pre-tool.sh` | `.red` marker gate enforcement | The decision of whether to block a tool call |
 | `hooks/stop.sh` | Session-end signal scanning, rework nudge | Detection of scope-bloat and rework signals |
 | `commands/*.md` | Phase slash-command definitions | The user-facing pipeline protocol |
-| `agents/*.md` | Role and lens agent definitions | Agent instructions and hard boundary statements |
+| `agents/*.md` | Role and role agent definitions | Agent instructions and hard boundary statements |
 | `governance/` | Routing policy, guardrails, strategies, signals | The machine-readable governance files that the CLI runs |
 | `architecture/` (this tree) | Compass's own architectural record | The ADRs and narrative files that describe the framework itself |
 | `templates/` | Worked examples for adopters | The template shapes adopters copy; not consumed by the CLI |
@@ -73,7 +73,7 @@ exclusively, and what it must not do.
 - Each role's entry-point command and the artifact it produces.
 - The `architect` agent's annotation protocol (`architecture-notes.md`
   with five headed sections, no Given/When/Then).
-- The lens-first / planner-second order of operations.
+- The role-first / planner-second order of operations.
 
 ---
 
@@ -104,8 +104,8 @@ can fail a build will be tuned until it stops detecting anything.
 
 `architecture-notes.md` contains annotations, candidate ADR titles, and
 boundary-risk flags. It never contains Given/When/Then scenarios. Scenarios live
-in `acceptance-criteria.md` exclusively. Emitting scenarios from the lens would violate
-**Inv-5** (one spec, many lenses). A lens that emits scenarios has forked the
+in `acceptance-criteria.md` exclusively. Emitting scenarios from the role would violate
+**Inv-5** (one spec, many roles). A role that emits scenarios has forked the
 spec, which is exactly what the one-spec rule exists to prevent.
 
 ### No mechanism may write into manifest.yml.assessment

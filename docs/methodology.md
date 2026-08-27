@@ -47,7 +47,7 @@ The result is written to `delivery-approach.md`, including:
 - the recorded assessment;
 - the computed approach;
 - the stages, artefacts and gates that apply;
-- the allowed delivery topology; and
+- the allowed delivery orchestration; and
 - anything omitted, with the reason it is safe to omit.
 
 De-scoping is therefore a visible decision rather than an accidental gap.
@@ -83,7 +83,7 @@ starting points, not selectable levels.
 |---|---|
 | Quick fix | One scenario, focused implementation and verification; design and breakdown normally collapse. |
 | Feature | A small scenario set, proportionate design, solo or paired implementation and normal verification. |
-| Initiative | Product intent, architecture and delivery planning at full weight; detailed design, test strategy and parallel streams where useful. |
+| Initiative | Product intent, architecture and delivery planning at full weight; detailed design, test strategy and parallel subtasks where useful. |
 | Hotfix | Reproduce before changing code, restore service safely, then complete the owed specification and evidence. |
 | Spike | Time-boxed exploration with no production delivery; conclude, discard, defer or reassess into a delivery approach. |
 
@@ -108,7 +108,7 @@ Guardrails are few, checkable and blocking:
 4. Gates clear with evidence rather than assertion.
 5. A human approves irreversible or critical-risk work.
 
-An approach may reduce ceremony but cannot route around a guardrail.
+An approach may reduce process weight but cannot route around a guardrail.
 
 ### Strategies
 
@@ -137,7 +137,7 @@ easier to understand:
 | Component dependencies | C4 component or focused dependency diagram |
 
 These are strategies, not mandatory sections. A diagram that adds no
-information is ceremony; a diagram that makes a difficult relationship clear
+information is process weight; a diagram that makes a difficult relationship clear
 is valuable design work.
 
 The conflict rule is simple: a guardrail beats a strategy. Competing strategies
@@ -212,21 +212,21 @@ software correctness.
 
 ## 9. Safe parallelism
 
-Planning identifies independent work units before choosing a topology:
+Planning identifies independent work units before choosing a orchestration:
 
-| Topology | Use |
+| Orchestration | Use |
 |---|---|
-| Solo | One stream on the current branch. |
-| Pair | Two or three isolated streams with a clear integration owner. |
-| Swarm | Four or more isolated streams plus an orchestrator responsible for integration. |
+| Solo | One subtask on the current branch. |
+| Pair | Two or three isolated subtasks with a clear integration owner. |
+| Multiagent | Four or more isolated subtasks plus an orchestrator responsible for integration. |
 
-Parallelism is useful only when streams have separable scenarios and code
+Parallelism is useful only when subtasks have separable scenarios and code
 surfaces. The route may cap parallelism for critical work even when the issue
 is large.
 
-The reference adapter uses Git worktrees so each stream can run failing tests
+The reference adapter uses Git worktrees so each subtask can run failing tests
 without destabilising its siblings. A different runtime must provide
-equivalent isolation or reduce the topology.
+equivalent isolation or reduce the orchestration.
 
 ## 10. Reassessment and calibration
 
@@ -240,7 +240,7 @@ Across issues, Compass exposes advisory signals:
 - `compass retro` shows whether routes are commonly increased or reduced;
 - `compass rework-scan` identifies configured cross-issue churn patterns;
 - `compass flow` surfaces status, blockers and follow-ups; and
-- friction records highlight recurring over-ceremony, under-ceremony or
+- friction records highlight recurring over-weight, under-weight or
   tooling problems.
 
 These signals never tune governance automatically and do not gate delivery.
@@ -264,7 +264,7 @@ See [Portability](portability.md) for the adapter conformance contract.
 ## 12. Design principles
 
 1. Compute the process; do not select it from a menu.
-2. Adapt ceremony and strategy, never the guardrail outcome.
+2. Adapt process weight and strategy, never the guardrail outcome.
 3. Keep judgement explicit and mechanism deterministic.
 4. Make de-scoping a written decision.
 5. Use one shared specification across roles.

@@ -75,7 +75,7 @@ safeguard. But they still have to be reconciled, and the pipeline has specific
 moments for it:
 
 - **At refine**, the non-engineering roles review the spec together. This is
-  where intent-lens, claims-lens, and contracts-lens disagreements surface
+  where intent-role, claims-role, and contracts-role disagreements surface
   while the spec is still cheap to change. An ambiguity one perspective sees is logged
   in `requirements-review.md` with its resolution.
 - **At the gates**, the roles become review dimensions - `claims` is the

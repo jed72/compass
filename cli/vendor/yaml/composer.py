@@ -14,7 +14,7 @@ class Composer:
         self.anchors = {}
 
     def check_node(self):
-        # Drop the STREAM-START event.
+        # Drop the SUBTASK-START event.
         if self.check_event(StreamStartEvent):
             self.get_event()
 
@@ -27,22 +27,22 @@ class Composer:
             return self.compose_document()
 
     def get_single_node(self):
-        # Drop the STREAM-START event.
+        # Drop the SUBTASK-START event.
         self.get_event()
 
-        # Compose a document if the stream is not empty.
+        # Compose a document if the subtask is not empty.
         document = None
         if not self.check_event(StreamEndEvent):
             document = self.compose_document()
 
-        # Ensure that the stream contains no more documents.
+        # Ensure that the subtask contains no more documents.
         if not self.check_event(StreamEndEvent):
             event = self.get_event()
-            raise ComposerError("expected a single document in the stream",
+            raise ComposerError("expected a single document in the subtask",
                     document.start_mark, "but found another document",
                     event.start_mark)
 
-        # Drop the STREAM-END event.
+        # Drop the SUBTASK-END event.
         self.get_event()
 
         return document

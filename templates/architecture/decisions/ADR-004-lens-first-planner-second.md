@@ -36,7 +36,7 @@ Order of operations:
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Planner first, lens annotates | Planner already owns plan.md | Lens would need to edit a file it doesn't own; blurs responsibility |
-| Parallel, human merges | No ordering dependency | Human merge step adds ceremony; ordering is cheap and makes the dependency explicit |
+| Parallel, human merges | No ordering dependency | Human merge step adds process weight; ordering is cheap and makes the dependency explicit |
 | Lens has authority over plan | Strong architectural enforcement | Planner remains the single owner of plan.md; lens is advisory, not authoritative |
 
 ## Consequences

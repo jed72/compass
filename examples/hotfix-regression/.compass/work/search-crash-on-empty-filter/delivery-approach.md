@@ -74,10 +74,10 @@ trust at stake.
 - Review dimensions applied: correctness, governance, traceability, regression, security. `clarity` deferred to the follow-up (FU-001's promoted scenario carries the readable record).
 - Immovable gates stapled on: verify.correctness, verify.governance, verify.traceability - all already in Hotfix's shape. `verify.regression` is part of Hotfix's own set: a fast fix that breaks something else is just a faster outage.
 
-### 4c. Swarm topology
+### 4c. Multiagent orchestration
 
-- Topology: solo
-- Stream count: n/a (solo)
+- Orchestration: solo
+- Subtask count: n/a (solo)
 - Orchestrator agent: n/a
 
 ---
@@ -88,8 +88,8 @@ trust at stake.
 |---|---|---|
 | Refine | collapsed | The reproduction test *is* the clarification - a bug that reliably reproduces is unambiguous. Not skipped silently: the reproduction does refine's job. |
 | Plan | collapsed to a root-cause note | Size `small`, mapped familiarity - there is no design decision, only a missing guard to add. The root cause is named below so this is a *decision*, not a skip. |
-| Breakdown | skipped | One stream, one owner. Parallelism on a hotfix is coordination cost with no payoff. |
-| `clarity` review dimension | **deferred, not dropped** | Hotfix defers `clarity` to the follow-up: FU-001 promotes the reproduction into a readable Given/When/Then scenario, which is where the clarity record lands. Deferred ceremony is outstanding ceremony - see §6. |
+| Breakdown | skipped | One subtask, one owner. Parallelism on a hotfix is coordination cost with no payoff. |
+| `clarity` review dimension | **deferred, not dropped** | Hotfix defers `clarity` to the follow-up: FU-001 promotes the reproduction into a readable Given/When/Then scenario, which is where the clarity record lands. Deferred process weight is outstanding process weight - see §6. |
 
 **One-line edit note (Hotfix collapsed Plan - root cause, not symptom):**
 `filter_compiler.py` calls `.items()` on the `filter` value without first

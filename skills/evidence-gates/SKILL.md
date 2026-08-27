@@ -95,9 +95,9 @@ One checklist per dimension, in `skills/evidence-gates/review-dimensions.md`. Re
 4. The gate passes only if every applicable dimension passes. One no-pass sends
    the work back - to Build, or to a re-assess. A gate is not "mostly passed."
 
-## Architectural fitness functions and the verify.fitness gate
+## Architectural architecture checks and the verify.fitness gate
 
-In `skills/evidence-gates/fitness-functions.md`. It applies only where a project has declared a fitness function.
+In `skills/evidence-gates/architecture-checks.md`. It applies only where a project has declared a architecture check.
 
 ## Coverage, and the anti-patterns
 

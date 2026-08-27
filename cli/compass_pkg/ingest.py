@@ -323,9 +323,9 @@ def cmd_intent_ingest(args):
         "sha256": document.sha256,
         "ingested_at": now_iso(),
         "snapshot": SNAPSHOT_NAME,
-        # Filled by the elicitation skill as it asks and is answered. Present
+        # Filled by the interview skill as it asks and is answered. Present
         # and empty means "nothing asked yet", which is different from absent.
-        "elicitation": [],
+        "interview": [],
     }
     save_manifest(task, path)
 
@@ -422,7 +422,7 @@ def validate_intent_origins(task_dir):
     for entry in record.get("sections") or []:
         if isinstance(entry, dict) and entry.get("name"):
             declared[str(entry["name"]).strip().lower()] = entry
-    answers = {str(e.get("id")): e for e in (record.get("elicitation") or [])
+    answers = {str(e.get("id")): e for e in (record.get("interview") or record.get("elicitation") or [])  # vocabulary-scan: allow - reads the retired key for back-compat (ADR-006)
                if isinstance(e, dict) and e.get("id")}
 
     problems = []
@@ -490,7 +490,7 @@ def describe_intent_origins(task_dir):
                 "from an existing brief, so there is no source to attribute "
                 "it to. Nothing to audit.")
 
-    answers = {str(e.get("id")): e for e in (record.get("elicitation") or [])
+    answers = {str(e.get("id")): e for e in (record.get("interview") or record.get("elicitation") or [])  # vocabulary-scan: allow - reads the retired key for back-compat (ADR-006)
                if isinstance(e, dict) and e.get("id")}
 
     lines = [

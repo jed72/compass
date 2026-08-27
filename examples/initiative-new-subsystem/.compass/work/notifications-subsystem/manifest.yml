@@ -12,7 +12,7 @@ assessment:
   labels:
   - migrations
 delivery_approach: initiative
-topology: swarm
+orchestration: multiagent
 policy_rules_fired:
 - id: RP-FLOOR-003
   kind: floor
@@ -31,7 +31,7 @@ stages:
   define: full
   refine: full
   plan: full
-  breakdown: swarm
+  breakdown: multiagent
   implement: full
   verify: full
   ship: full

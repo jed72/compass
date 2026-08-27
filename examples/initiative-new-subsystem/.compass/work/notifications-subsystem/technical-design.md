@@ -14,17 +14,17 @@ event into a notification and routes it), `store.py` (the durable store),
 `migrations/0042_notifications.sql`, holds both notifications and per-user
 preferences.
 
-The build splits along the two scenario groups. **Stream-1** owns dispatch +
+The build splits along the two scenario groups. **Subtask-1** owns dispatch +
 store (group A): an event arrives, `dispatch.py` asks `preferences.py` whether
 the category is allowed, and on yes writes through `store.py` with the
-producer's idempotency key. **Stream-2** owns preferences (group B):
+producer's idempotency key. **Subtask-2** owns preferences (group B):
 `preferences.py` is a pure resolver - `(user, category) → deliver | suppress`,
-with the security category hard-wired to `deliver`. The two streams share only
+with the security category hard-wired to `deliver`. The two subtasks share only
 the migration (both read the table) and `api.py` (both add endpoints) - the
 orchestrator owns that shared surface.
 
-Order: the shared `migrations/0042` lands first as a foundation (both streams
-branch from it), then the two streams run in parallel.
+Order: the shared `migrations/0042` lands first as a foundation (both subtasks
+branch from it), then the two subtasks run in parallel.
 
 ## 2. Design decisions (ADR-style)
 
@@ -78,7 +78,7 @@ branch from it), then the two streams run in parallel.
 | Area | Result | Evidence / note |
 |---|---|---|
 | Guardrails (`G1`-`G5` + project) | pass | `G1`/`G2`/`G3`: all six scenarios stated and the requirements review-closed before Build, each with a planned test and a TRC-id; `changed_files` will trace back. `G4`: every gate cleared with pasted evidence in `verification-report.md`. **`G5`: applies** - the issue `labels: [migrations]`; a human signs off `migrations/0042` before ship, recorded in `manifest.yml` `approvals:`. The plan routes that sign-off into ship explicitly. |
-| Method strategies (`S1`-`S4` + project) | followed | `S1` BDD, `S2` TDD apply per stream. `S3` simplest-thing honoured in DD-1, DD-2, DD-3. No deviation. |
+| Method strategies (`S1`-`S4` + project) | followed | `S1` BDD, `S2` TDD apply per subtask. `S3` simplest-thing honoured in DD-1, DD-2, DD-3. No deviation. |
 | Product strategies | followed | The plan delivers `intent.md`'s outcome - durable, tunable, security-protected in-app notifications - and stays inside the v1 cut. "Depth for existing users" honoured: category preferences over the existing event types, no breadth grab. |
 | Voice & positioning strategies | n/a | No marketer in play for this issue - the launch is a separate later issue. `verify.claims` exists in the gate set but has no claims to check. |
 | Routing policy | pass | The plan skips nothing `delivery-approach.md` kept - initiative's de-scope ledger is empty and the plan keeps it empty. RP-FLOOR-003 (the `migrations` floor) is honoured, not dodged: the migration is treated as the irreversible thing it is, with a forward+rollback review and a `G5` sign-off. RP-ROLE-002's Plan block was cleared before this file was written (`intent.md` intent-fidelity check, 2026-03-06). |
@@ -95,7 +95,7 @@ branch from it), then the two streams run in parallel.
 scenario groups (A vs B) and *near*-disjoint code: their only overlap is
 `api.py` (different endpoints) and `migrations/0042` (the shared U0 foundation,
 landed first). That overlap is real but small and bounded, which is precisely
-the orchestrator's job to police → **swarm, 2 streams**. `distribution-map.md`
+the orchestrator's job to police → **multiagent, 2 subtasks**. `distribution-map.md`
 written.
 
 ---
@@ -106,4 +106,4 @@ written.
 - [x] Governance check passes - every guardrail clears with evidence; `G5`'s ship sign-off is routed in; no strategy deviation to record.
 - [x] Parallel work is possible - `distribution-map.md` written next.
 
-Next stage: **breakdown** (`/compass:breakdown`) - runs `scripts/swarm.sh` with the distribution map.
+Next stage: **breakdown** (`/compass:breakdown`) - runs `scripts/multiagent.sh` with the distribution map.

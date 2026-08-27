@@ -143,7 +143,7 @@ def test_floor_g5_domains_force_expedition(run_cli, domain):
 
 def test_floor_brownfield_unmapped_requires_specify(run_cli):
     """RP-FLOOR-002: brownfield-unmapped forces Specify phase to full and
-    requires blueprint-distillation skill."""
+    requires the behaviour-mapping skill."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-unmapped",
@@ -154,7 +154,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
     fired = [f["id"] for f in data["policy_rules_fired"]]
     assert "RP-FLOOR-002" in fired
     assert data["stages"].get("define") == "full"
-    assert "blueprint-distillation" in data["required_skills"]
+    assert "behaviour-mapping" in data["required_skills"]
 
 
 # --- caps: critical blast radius caps worktrees to 1 ----------------------

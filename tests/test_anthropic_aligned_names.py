@@ -52,6 +52,10 @@ def _live_files():
         if not root.is_dir():
             continue
         for path in root.rglob("*.md"):
+            # docs/analysis/ and docs/proposals/ are gitignored working notes,
+            # not shipped surfaces - they are allowed to quote the old names.
+            if "analysis" in path.parts or "proposals" in path.parts:
+                continue
             yield path
     for name in ("README.md", "CLAUDE.md", "AGENTS.md"):
         path = REPO_ROOT / name

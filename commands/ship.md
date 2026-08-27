@@ -6,12 +6,12 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 # /compass:ship
 
 Ship closes the issue: integrate the work, prove the combination, update the
-living docs, and pay back every borrowed bit of ceremony. An issue with an
+living docs, and pay back every borrowed bit of process weight. An issue with an
 unsettled follow-up is an open issue - ship refuses to close it.
 
 ## Setup
 
-- Read `delivery-approach.md` for the topology and the list of owed
+- Read `delivery-approach.md` for the orchestration and the list of owed
   follow-ups.
 - Read `verification-report.md` - shipping does not run on unverified work.
 
@@ -26,7 +26,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
 
 ## Procedure
 
-1. **Integrate.** Solo topology: commit on the current branch with
+1. **Integrate.** Solo orchestration: commit on the current branch with
    `compass ship-commit -m "<message>"` - it is robust to auto-fixing
    pre-commit hooks (which otherwise silently no-op the commit and leave
    HEAD unmoved), retries once after re-staging the hooks' fixes, and
@@ -36,11 +36,11 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    changed and why, for someone who was not in the conversation; no
    `Co-Authored-By:` trailer for any agent and no "Generated with" footer.
    The same applies to a pull-request body.
-   Pair or swarm: the `orchestrator` (or lead builder on a pair) runs
+   Pair or multiagent: the `orchestrator` (or lead builder on a pair) runs
    `scripts/integrate.sh` - an orchestrated merge of all worktrees. The
    orchestrator is the only agent allowed to resolve cross-stream conflicts.
 2. **Combined regression.** Run regression across the *combined* result. On
-   a swarm this is non-negotiable - per-stream green does not imply
+   a multiagent this is non-negotiable - per-stream green does not imply
    integrated green. Record the run and link the record.
 3. **Update living docs.** Bring READMEs, architecture notes, and any docs
    the change touched in line with reality. If the change is launch-visible
@@ -94,14 +94,14 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    `status: owed`, `compass check` fails at ship even if this issue's own
    DoD section is clean. Pay the upstream follow-up first.
 6. **Capture process friction (advisory - never a gate).** With the gate
-   already cleared in step 5, record where Compass's *own* ceremony cost
+   already cleared in step 5, record where Compass's *own* process weight cost
    more than it returned between triage and ship. Run
    `compass _friction-capture --internal` - it assembles a draft
    `friction:` list from signals the CLI already computed (recorded
    re-assessments, absorbed assessment-debt) and writes it into `manifest.yml`.
    Then offer the author **one optional line**: *"anything the framework
    made harder than it should have been?"* - pass it with `--note "..."
-   --note-category <over-ceremony|tooling|...> --note-phase <stage>`.
+   --note-category <over-weight|tooling|...> --note-phase <stage>`.
    **Recording nothing is a valid, common outcome.** This step never blocks
    shipping: it runs after the gate, writes only the `friction:` section
    (no follow-up, no gate), and `compass retro --friction` later
@@ -120,5 +120,5 @@ for delivery work; on a spike, follow the graduate-or-discard step in
   unbacked marketing claim, no de-scoped artifact left owed.
 
 If a follow-up cannot be completed now, the issue stays open and
-`/compass:status` keeps flagging it. Borrowed ceremony is a debt with a due
+`/compass:status` keeps flagging it. Borrowed process weight is a debt with a due
 date, and the due date is "before the issue closes."

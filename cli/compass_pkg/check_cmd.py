@@ -118,7 +118,7 @@ CHECK_FNS = {
     "backfills-paid": _check_backfills_paid,
     "spike-conclusion-present": _check_spike_conclusion_present,
     "spike-no-production-changes": _check_spike_no_production_changes,
-    "coherence-check-passes": _check_coherence_check_passes,
+    "consistency-check-passes": _check_coherence_check_passes,
     "no-trusted-rerun": _check_no_trusted_rerun,
     "command-passes": _check_command_passes,
     "evidence-identity-matches": _check_evidence_identity_matches,
@@ -144,7 +144,7 @@ CHECK_GUIDANCE = {
         "do": "Answer each threat with a TRC- id or `risk accepted`; rehearse the rollback.",
     },
     "command-passes": {
-        "why": 'A project guardrail with `check: command-passes` runs a real command - a fitness function, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
+        "why": 'A project guardrail with `check: command-passes` runs a real command - a architecture check, a linter, a scanner - and the gate is cleared by that command exiting zero, not by anyone saying it would.',
         "fix": 'Run the command the guardrail names and fix what it reports. If this project declares no such guardrail, nothing was checked and the pass is empty - declare one in governance/guardrails.yml with `check: command-passes` to make the gate mean something.',
         "do": 'Run the command the guardrail names, or declare one to make this gate real.',
     },
@@ -214,7 +214,7 @@ CHECK_GUIDANCE = {
         "fix": "Add a `human-approval` evidence entry to the registry with approver, role, scope, decision=approved, and timestamp. Then reference it from the relevant gate's evidence.",
     },
     "backfills-paid": {
-        "why": "Borrowed ceremony - a Hotfix follow-up or a de-scoped artifact - must be paid before an issue closes. Otherwise the audit trail has a hole.",
+        "why": "Borrowed process weight - a Hotfix follow-up or a de-scoped artifact - must be paid before an issue closes. Otherwise the audit trail has a hole.",
         "do": 'Settle each owed follow-up: `compass follow-up resolve FU-<id>`.',
         "fix": "Complete each unpaid follow-up (writing the deferred artifact, promoting the reproduction scenario, etc.) and set its `status: paid` in manifest.yml.",
     },
@@ -239,10 +239,10 @@ CHECK_GUIDANCE = {
             "the box `[x]` if a human has actually done the work."
         ),
     },
-    "coherence-check-passes": {
-        "why": "Evidence, not assertion: verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `coherence-check` evidence entry.",
+    "consistency-check-passes": {
+        "why": "Evidence, not assertion: verify.analyze requires a recorded `compass analyze` run with zero coherence findings, backed by a `consistency-check` evidence entry.",
         "do": 'Run `compass analyze` and settle what it reports.',
-        "fix": "Run `compass analyze` - when verify.analyze is in the gate set it exits non-zero on findings, writes a `coherence-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, approach disagreements, or orphan claims first.",
+        "fix": "Run `compass analyze` - when verify.analyze is in the gate set it exits non-zero on findings, writes a `consistency-check` evidence record, and clears the gate only when there are zero findings. Resolve any reported orphaned scenarios, approach disagreements, or orphan claims first.",
     },
 }
 
@@ -519,7 +519,7 @@ def cmd_check(args):
                 run.result(check_name, passed, detail)
 
         # Backfills are cross-cutting and a Spike is the route that most often
-        # OWES one - a graduating spike leaves ceremony behind by design. The
+        # OWES one - a graduating spike leaves process weight behind by design. The
         # spike branch used to return before the shared backfill block below,
         # so a Spike with an owed backfill reported "concluded and contained"
         # and the word "backfill" never appeared.

@@ -105,7 +105,7 @@ In `skills/tdd-discipline/no-natural-red.md`.
 
 In `skills/tdd-discipline/test-surface-and-worktrees.md` - how test surface
 scales with risk, what your tests are telling you, and the worktree rules for
-swarm topologies.
+multiagent orchestrations.
 
 ## Anti-patterns
 

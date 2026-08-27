@@ -62,9 +62,9 @@ Evidence id. Identifies one typed record in the issue's evidence registry that c
 
 ### `FU-`
 
-Follow-up id. Ceremony this issue owes after an expedited ship - the hotfix's promoted scenario, a de-scoped artifact. Not "any outstanding work": a newly found defect gets its own issue named by slug. A follow-up may carry target_task, naming the issue whose ship it blocks.
+Follow-up id. Process weight this issue owes after an expedited ship - the hotfix's promoted scenario, a de-scoped artifact. Not "any outstanding work": a newly found defect gets its own issue named by slug. A follow-up may carry target_task, naming the issue whose ship it blocks.
 
-**Refers to:** One outstanding piece of ceremony this issue owes.
+**Refers to:** One outstanding piece of process weight this issue owes.
 
 **Appears in:** `task.yml follow_ups[].id`, `verification-report.md`
 
@@ -170,7 +170,7 @@ The four-dimension judgement triage produces - risk, familiarity, size and goal,
 
 **Not:** A choice of process. The assessment is read; the delivery approach is computed from it by `compass approach evaluate`.
 
-**Related:** `assess`, `delivery-approach`, `navigator`
+**Related:** `assess`, `delivery-approach`, `router`
 
 ### backlog
 
@@ -396,14 +396,6 @@ A shippable checkpoint within an initiative: a coherent bundle of delivered issu
 
 **Related:** `initiative`, `issue`
 
-### navigator
-
-The agent that runs triage: reads the four assessment dimensions, hands them to the CLI, and writes the delivery-approach record. It assesses; it does not choose a process.
-
-**Not:** A decision-maker about ceremony. The approach is computed from the assessment by `compass approach evaluate`, which is the determinism boundary.
-
-**Related:** `assess`, `assessment`, `delivery-approach`
-
 ### operability
 
 The design section answering "what tells us this works in production?": the SLIs/SLOs the change affects, the alerts that watch them, runbook updates where the ops surface changes. Required by the ops-surface label rule; always present on initiatives.
@@ -475,6 +467,14 @@ The recorded way back if the change misbehaves in production.
 How the change reaches users safely: feature flags, canary or incremental rollout, and the rollback plan. Required by label rule on user-facing work; always present on initiatives.
 
 **Related:** `feature-flag`, `canary`, `rollback-plan`
+
+### router
+
+The agent that runs assess: reads the four assessment dimensions, hands them to the CLI, and writes the delivery-approach record. It assesses; it does not choose a process. Named for what it does - Anthropic's platform docs call this shape "Routing", classifying input and directing it to a specialised path - and for the file it runs, routing-policy.yml.
+
+**Not:** A decision-maker about process weight. The approach is computed from the assessment by `compass approach evaluate`, which is the determinism boundary.
+
+**Related:** `assess`, `assessment`, `delivery-approach`
 
 ### runbook
 

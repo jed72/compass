@@ -378,7 +378,7 @@ _TYPED_EVIDENCE_ROWS = [
     ("spike-conclusion", {"path": "evidence/spike.json", "decision": "graduate-to-delivery",
                           "next_task": "delivery-slug"},
      "spike-conclusion"),
-    ("coherence-check",  {"path": "evidence/coherence.json"}, "coherence-check"),
+    ("consistency-check", {"path": "evidence/consistency.json"}, "consistency-check"),
     ("artifact",         {"path": "evidence/note.md"}, "artifact"),
 ]
 

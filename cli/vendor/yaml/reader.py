@@ -1,4 +1,4 @@
-# This module contains abstractions for the input stream. You don't have to
+# This module contains abstractions for the input subtask. You don't have to
 # looks further, there are no pretty code.
 #
 # We define two classes here.
@@ -13,7 +13,7 @@
 #   reader.peek(length=1) - return the next `length` characters
 #   reader.forward(length=1) - move the current position to `length` characters.
 #   reader.index - the number of the current character.
-#   reader.line, stream.column - the line and the column of the current character.
+#   reader.line, subtask.column - the line and the column of the current character.
 
 __all__ = ['Reader', 'ReaderError']
 
@@ -56,9 +56,9 @@ class Reader(object):
 
     # Yeah, it's ugly and slow.
 
-    def __init__(self, stream):
+    def __init__(self, subtask):
         self.name = None
-        self.stream = None
+        self.subtask = None
         self.stream_pointer = 0
         self.eof = True
         self.buffer = ''
@@ -69,17 +69,17 @@ class Reader(object):
         self.index = 0
         self.line = 0
         self.column = 0
-        if isinstance(stream, str):
+        if isinstance(subtask, str):
             self.name = "<unicode string>"
-            self.check_printable(stream)
-            self.buffer = stream+'\0'
-        elif isinstance(stream, bytes):
+            self.check_printable(subtask)
+            self.buffer = subtask+'\0'
+        elif isinstance(subtask, bytes):
             self.name = "<byte string>"
-            self.raw_buffer = stream
+            self.raw_buffer = subtask
             self.determine_encoding()
         else:
-            self.stream = stream
-            self.name = getattr(stream, 'name', "<file>")
+            self.subtask = subtask
+            self.name = getattr(subtask, 'name', "<file>")
             self.eof = False
             self.raw_buffer = None
             self.determine_encoding()
@@ -112,7 +112,7 @@ class Reader(object):
             length -= 1
 
     def get_mark(self):
-        if self.stream is None:
+        if self.subtask is None:
             return Mark(self.name, self.index, self.line, self.column,
                     self.buffer, self.pointer)
         else:
@@ -157,7 +157,7 @@ class Reader(object):
                             'strict', self.eof)
                 except UnicodeDecodeError as exc:
                     character = self.raw_buffer[exc.start]
-                    if self.stream is not None:
+                    if self.subtask is not None:
                         position = self.stream_pointer-len(self.raw_buffer)+exc.start
                     else:
                         position = exc.start
@@ -175,7 +175,7 @@ class Reader(object):
                 break
 
     def update_raw(self, size=4096):
-        data = self.stream.read(size)
+        data = self.subtask.read(size)
         if self.raw_buffer is None:
             self.raw_buffer = data
         else:

@@ -485,6 +485,25 @@ def normalize_spine(task):
         for f in fups:
             if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
                 f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
+    # Evidence types. ADR-023 renamed `coherence-check` to `consistency-check`;
+    # a manifest written before that keeps clearing its gate (ADR-006).
+    ev = out.get("evidence")
+    if isinstance(ev, list):
+        ev_renames = migrate_map_section("values", {}).get(
+            "evidence_type", EVIDENCE_TYPE_MAP)
+        for entry in ev:
+            if isinstance(entry, dict) and entry.get("type") in ev_renames:
+                entry["type"] = ev_renames[entry["type"]]
+    # Friction categories. ADR-023 retired `ceremony`, and the enum holds
+    # single tokens, so the pair became over-weight / under-weight. A manifest
+    # written before that keeps loading (ADR-006).
+    friction = out.get("friction")
+    if isinstance(friction, list):
+        renames = migrate_map_section("values", {}).get(
+            "friction_category", FRICTION_CATEGORY_MAP)
+        for entry in friction:
+            if isinstance(entry, dict) and entry.get("category") in renames:
+                entry["category"] = renames[entry["category"]]
     # Assess used to record an orchestration word; it now records a
     # `subtask_ceiling:` number, because it cannot know the shape before the
     # distribution map exists. A manifest written before that change carries the
@@ -505,7 +524,7 @@ def normalize_spine(task):
 
 
 # The orchestration words a pre-ceiling manifest could carry, and the ceiling
-# each always implied. `swarm` is None - unbounded - for the same reason the
+# each always implied. `multiagent` is None - unbounded - for the same reason the
 # evaluator's table said so: no number for it exists anywhere in the policy.
 #
 # This table is why ADR-023 could retire the words rather than rename them.
@@ -513,7 +532,7 @@ def normalize_spine(task):
 # anything used them, so the route shapes now declare the number and the
 # conversion is gone from `routing`. The table stays here because archived
 # manifests still carry the words and have to keep reading.
-RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
+RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "multiagent": None}
 
 
 def normalize_config(cfg):
@@ -536,6 +555,14 @@ def normalize_config(cfg):
 # 1.x follow-up states -> their v2 spellings, applied read-side by
 # normalize_spine above.
 FOLLOW_UP_STATUS_MAP = {"owed": "outstanding", "paid": "resolved"}
+
+# The in-module fallback for the friction rename, used when no framework
+# install is present to read cli/migrate-map.yml from.
+FRICTION_CATEGORY_MAP = {"over-ceremony": "over-weight",
+                         "under-ceremony": "under-weight"}
+
+# The in-module fallback for the evidence-type rename, same contract.
+EVIDENCE_TYPE_MAP = {"coherence-check": "consistency-check"}
 
 # 1.x shape values -> the v2 change-type values (machine spelling,
 # hyphenated). Read-side via normalize_spine; the evaluator

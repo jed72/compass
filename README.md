@@ -67,7 +67,7 @@ everything. Compass adapts the depth without abandoning discipline.
 | **Quick fix** | One clear criterion, a focused change and evidence that it works. |
 | **Feature** | Behavioural specification in Gherkin, proportionate technical design and review. |
 | **Initiative** | intent document, architecture and delivery plan, with detailed design and test strategy only where useful. |
-| **Hotfix** | Reproduce first, fix safely, then pay back the ceremony borrowed for speed. |
+| **Hotfix** | Reproduce first, fix safely, then pay back the process weight borrowed for speed. |
 | **Spike** | Time-boxed exploration. Record the learning; ship nothing directly. |
 
 These are reference shapes, not fixed levels. A one-file authentication change

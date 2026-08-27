@@ -119,7 +119,7 @@ floor list (`auth`, `payments`, `personal-data`, `migrations`, `public-api`).
 Standard size, contained risk, mapped familiarity. The candidate is
 **Standard**, plainly: a small feature set of scenarios, a light-to-full
 Refine pass, a real `technical-design.md` with the design decisions recorded, solo or
-pair topology, two gates at Verify. No deviation from the reference shape is
+pair orchestration, two gates at Verify. No deviation from the reference shape is
 warranted - risk is only `contained`, so `security` stays scaled
 rather than full and `clarity` and `regression` are on as Standard always has
 them.
@@ -143,12 +143,12 @@ The routing-guardrails section reads, in full:
 
 That line is itself the record - silence is not allowed; "nothing fired" is
 written down. The route is Standard, unmodified. The de-scope ledger is short:
-the dedicated orchestrator agent is skipped (≤3 streams, the lead builder
+the dedicated orchestrator agent is skipped (≤3 subtasks, the lead builder
 integrates) and the full distribution map is reduced to a short list. Both
 carry their standing justifications.
 
 This is the boring case, and the boring case matters: most work is Standard,
-and Standard should feel like the default working shape, not a ceremony.
+and Standard should feel like the default working shape, not a process weight.
 
 ---
 
@@ -196,7 +196,7 @@ Then a **cap** fires - and this is the subtle part. `when: { risk:
 critical }` → `max_worktrees: 1`. So this is an initiative route that is
 *capped to a single worktree*. It is heavy - full BDD discovery, full refine,
 a full `technical-design.md`, every gate - and **solo**. That is not a contradiction. The
-cap encodes a real tradeoff: parallelism is speed, but a swarm has
+cap encodes a real tradeoff: parallelism is speed, but a multiagent has
 coordination risk, and on a critical change the coordination risk costs more
 than the speed saves.
 
@@ -208,11 +208,11 @@ that into a project guardrail, it is checked as a guardrail and blocks.)
 ### Final `delivery-approach.md`
 
 initiative, single worktree. The routing-guardrails section records both
-floors and the cap, each with its rationale. The topology section (§4c of the
+floors and the cap, each with its rationale. The orchestration section (§4c of the
 route template) records the worktree count as **cap-driven** - not as a
 de-scope. This distinction matters: the de-scope ledger is for things the
 route *chose* to skip; a cap removing a worktree is a routing guardrail, and
-guardrail-driven reductions go in the topology section, never the ledger.
+guardrail-driven reductions go in the orchestration section, never the ledger.
 initiative's de-scope ledger is empty by definition, and a capped initiative
 is still an initiative.
 
@@ -233,7 +233,7 @@ map is the record of *what could have been parallel and why it wasn't* - here,
 |---|---|---|
 | risk | `cross-cutting` | Notifications touch many features; a delivery failure degrades something many users see. Recovery needs coordination, but it is not data-loss or money - not `critical`. |
 | Familiarity | `greenfield` | Net-new code; no existing behaviour to preserve. |
-| Size | `product` | A new subsystem - three delivery channels, a preferences model, a delivery log. 2+ weeks, many independent work streams. |
+| Size | `product` | A new subsystem - three delivery channels, a preferences model, a delivery log. 2+ weeks, many independent work subtasks. |
 | Intent & role | `engineer` | An engineering lead, though a designer and a product owner may well join (preferences are a user-facing surface; the subsystem serves a stated outcome). |
 
 Domain tags: possibly `labels: [personal-data]` if the preferences or
@@ -247,7 +247,7 @@ is the textbook **initiative** case, and it composes there with no help from
 the routing guardrails. Full BDD discovery from the brief; scenarios grouped by
 independence - email delivery, in-app delivery, webhook delivery, preferences,
 the delivery log are plausibly disjoint surfaces; a full `technical-design.md` plus a real
-`distribution-map.md`; a swarm across git worktrees, one `builder` per stream,
+`distribution-map.md`; a multiagent across git worktrees, one `builder` per subtask,
 an `orchestrator` that writes no feature code; all gates, all dimensions, plus
 a per-worktree mid-route checkpoint.
 
@@ -255,18 +255,18 @@ a per-worktree mid-route checkpoint.
 
 The `risk: critical` floor does *not* fire - this is `cross-cutting`,
 not `critical`. So the critical-risk cap does *not* apply either: the
-swarm is not pinned to one worktree. Stream count comes from the distribution
+multiagent is not pinned to one worktree. Subtask count comes from the distribution
 map, bounded by `.compass/config.yml`'s `max_worktrees` (default 6). If the
-map identifies five independent streams, the swarm runs five worktrees.
+map identifies five independent subtasks, the multiagent runs five worktrees.
 
 This is the contrast with Case 3 worth holding onto: Case 3 was *heavy and
 solo* (critical risk, capped); Case 4 is *heavy and parallel*
 (cross-cutting risk, uncapped). Same initiative reference shape,
-genuinely different topology - because the dimensions read differently.
+genuinely different orchestration - because the dimensions read differently.
 
 ### Final `delivery-approach.md`
 
-initiative at full weight, swarm topology, empty de-scope ledger (initiative's
+initiative at full weight, multiagent orchestration, empty de-scope ledger (initiative's
 ledger is empty by definition - it is what the other routes are measured
 against). If a designer and product owner did join, their `role_rules` would
 fire: `intent.md` required and the intent-fidelity gate before Plan; the
@@ -319,7 +319,7 @@ anyway.
 
 The methodology's own guard applies here: a fix that turns out to be
 `standard`+ in size is *not* a Hotfix - it is an incident. Route it
-initiative, put someone in incident command, use the swarm if it helps. The
+initiative, put someone in incident command, use the multiagent if it helps. The
 Assess scores size precisely so that distinction holds.
 
 ### Final `delivery-approach.md`
@@ -331,7 +331,7 @@ reproduction test promoted into a real Given/When/Then scenario in
 `acceptance-criteria.md` traceable to the defect, and a root-cause line in the
 `devlog.md`. `/compass:status` flags the unpaid follow-up; `/compass:ship`
 refuses to close the issue; the `stop.sh` hook makes it loud at session end.
-Borrowed ceremony is a debt with a due date, and the due date is "before the
+Borrowed process weight is a debt with a due date, and the due date is "before the
 issue closes."
 
 ---
@@ -482,7 +482,7 @@ see `docs/methodology.md` §6.
 The triggers are concrete:
 
 - **Implementation reveals under-read size.** A "small" change is unspooling into a
-  multi-module refactor. The `builder` agent stops and flags it; the Navigator
+  multi-module refactor. The `builder` agent stops and flags it; the Router
   re-scores. This is why the routing skill says, when size is genuinely
   unclear, estimate *up* - collapsing a phase that turned out easy is cheap;
   discovering mid-implementation that the approach was too light is expensive.

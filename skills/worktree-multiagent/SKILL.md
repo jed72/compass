@@ -1,45 +1,45 @@
 ---
 name: worktree-multiagent
-description: How parallel streams are created, isolated and integrated across git worktrees. Load at breakdown on a swarm topology.
+description: How parallel subtasks are created, isolated and integrated across git worktrees. Load at breakdown on a multiagent orchestration.
 ---
 
-# Worktree Swarm
+# Worktree Multiagent
 
 Parallelism in Compass is **decided in Plan** (the distribution map) and
-**executed in breakdown** (the worktree topology). This skill covers both
-halves: how to decompose work correctly, and how to run and land the swarm
+**executed in breakdown** (the worktree orchestration). This skill covers both
+halves: how to decompose work correctly, and how to run and land the multiagent
 without the parallelism costing more than it saves.
 
-## Topology - what runs when
+## Orchestration - what runs when
 
-| Topology | Streams | Setup | Who integrates |
+| Orchestration | Subtasks | Setup | Who integrates |
 |---|---|---|---|
 | **Solo** | 1 | No worktree; current branch. Breakdown is a no-op. | The builder, trivially. |
-| **Pair** | 2–3 | One worktree per stream; one `builder` each; no dedicated orchestrator. | The lead builder. |
-| **Swarm** | 4+ | One worktree per stream; one `builder` each; plus one `orchestrator`. | The orchestrator. |
+| **Pair** | 2–3 | One worktree per subtask; one `builder` each; no dedicated orchestrator. | The lead builder. |
+| **Multiagent** | 4+ | One worktree per subtask; one `builder` each; plus one `orchestrator`. | The orchestrator. |
 
-Assess's size and risk assessment set the default topology; the
-distribution map sets the stream count; `.compass/config.yml` thresholds and the
+Assess's size and risk assessment set the default orchestration; the
+distribution map sets the subtask count; `.compass/config.yml` thresholds and the
 routing-guardrail caps bound it.
 
 ## The critical-risk cap
 
 The standing cap: **`critical` risk pins `max_worktrees` to 1.** A
-critical change runs solo even on initiative. This is deliberate - a swarm buys
+critical change runs solo even on initiative. This is deliberate - a multiagent buys
 speed but carries coordination risk, and on a critical change the coordination
 risk costs more than the speed saves. An initiative that is heavy *and* solo is
 not a contradiction; it is the cap working. The initiative still writes a
 `distribution-map.md` - it is the record of what could have been parallel and
 why it wasn't.
 
-## Decomposing work into independent streams (Plan)
+## Decomposing work into independent subtasks (Plan)
 
-A stream is a unit of work that can run start-to-finish without waiting on,
-colliding with, or reaching into another stream. Independence has two tests,
+A subtask is a unit of work that can run start-to-finish without waiting on,
+colliding with, or reaching into another subtask. Independence has two tests,
 and both must hold:
 
-1. **Disjoint code.** The streams touch non-overlapping files and interfaces.
-2. **Disjoint scenarios.** The streams satisfy non-overlapping scenario groups
+1. **Disjoint code.** The subtasks touch non-overlapping files and interfaces.
+2. **Disjoint scenarios.** The subtasks satisfy non-overlapping scenario groups
    from `acceptance-criteria.md`.
 
 Independence is *determined*, not guessed - you derive it from the scenario
@@ -52,14 +52,14 @@ Practical decomposition heuristics:
 - **Cut along boundaries the architecture already has** - module boundaries,
   service boundaries, layers. Cutting across one of them creates a shared
   surface and a guaranteed collision.
-- **Shared surface = shared stream, or sequenced streams.** If two units both
-  need to change the same interface, either fold them into one stream or
+- **Shared surface = shared subtask, or sequenced subtasks.** If two units both
+  need to change the same interface, either fold them into one subtask or
   sequence them (one lands, then the other branches from the result). Do not
   pretend they are parallel.
-- **Pull shared foundations forward.** If three streams all need a new shared
-  type or utility, that is a stream-zero that lands first, not a thing three
-  streams each invent.
-- **Be honest about the count.** Four shaky streams are worse than two clean
+- **Pull shared foundations forward.** If three subtasks all need a new shared
+  type or utility, that is a subtask-zero that lands first, not a thing three
+  subtasks each invent.
+- **Be honest about the count.** Four shaky subtasks are worse than two clean
   ones. The map records *what could be parallel* - if the honest answer is
   "less than it looks," that is the map's job to say.
 
@@ -70,37 +70,37 @@ its own checked-out branch, its own files, sharing one `.git`. That isolation
 is what lets a builder run a full red→green TDD cycle, including a failing
 suite, without destabilising siblings.
 
-- `scripts/swarm.sh` creates one worktree per stream and launches one `builder`
+- `scripts/multiagent.sh` creates one worktree per subtask and launches one `builder`
   agent in each. Only the `orchestrator` runs it.
 - `scripts/integrate.sh` lands the worktrees back together. Only the
   `orchestrator` runs it.
-- A builder lives inside exactly one worktree for the life of the stream.
+- A builder lives inside exactly one worktree for the life of the subtask.
 
 ## The orchestrator / builder protocol
 
 **The orchestrator** writes no feature code. Its job is coordination, collision
 detection, and integration:
 
-- Hands each builder a charter: its worktree, its scenario group, its slice of
+- Hands each builder a assignment: its worktree, its scenario group, its slice of
   the plan.
-- Monitors streams during Build for convergence on shared surface - shared
+- Monitors subtasks during Build for convergence on shared surface - shared
   files, shared interfaces, a scenario whose implementation reaches outside its
   group.
-- Intervenes *before* a collision: re-sequences streams, re-cuts a boundary, or
+- Intervenes *before* a collision: re-sequences subtasks, re-cuts a boundary, or
   escalates to a re-assess if the distribution map was wrong.
 - Is the **only** agent permitted to make a cross-stream change.
 
-**A builder** owns its stream and nothing else:
+**A builder** owns its subtask and nothing else:
 
 - Works only inside its assigned worktree. Never touches a sibling's.
 - Routes every cross-stream need through the orchestrator - "I need to change
-  an interface another stream owns" is an orchestrator message, never a reach
+  an interface another subtask owns" is an orchestrator message, never a reach
   across.
 - Runs full TDD inside its worktree (see `tdd-discipline`).
 
 ## Integration discipline (ship)
 
-1. Confirm every stream is independently green - the `verifier` has per-stream
+1. Confirm every subtask is independently green - the `verifier` has per-stream
    evidence.
 2. The orchestrator runs `scripts/integrate.sh` to merge worktrees in a
    coordinated order (foundations first, dependents after).
@@ -121,12 +121,12 @@ inside a temporary worktree that is then removed
 destroys the stashed work along with the worktree. Learned the hard way during a CI fix - the
 change survived only because it had been committed elsewhere first. If
 work must move between worktrees, commit it (a WIP commit on the
-stream's branch is fine and can be amended); the branch is durable, the
+subtask's branch is fine and can be amended); the branch is durable, the
 stash is not.
 
 ## Anti-patterns
 
-- **Optimistic decomposition** - declaring streams independent because you want
+- **Optimistic decomposition** - declaring subtasks independent because you want
   parallelism, not because the code and scenarios are disjoint. The collision
   surfaces at integration, where it is most expensive.
 - **The reaching builder** - a builder editing a sibling's worktree "just to

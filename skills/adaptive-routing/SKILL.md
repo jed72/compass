@@ -96,7 +96,7 @@ skips earns a row in the de-scope ledger, and each row needs an explicit
   scenario is unambiguous" is only valid if the scenario really is unambiguous.
 - Cap-driven reductions are **not** de-scopes. If the `critical` risk
   cap pins an initiative to one worktree, record that as cap-driven in the
-  topology section, not in the de-scope ledger. The ledger is for things the
+  orchestration section, not in the de-scope ledger. The ledger is for things the
   route chose to skip, not things a guardrail removed.
 - initiative's ledger is empty by definition. If you are writing de-scope rows
   on an initiative route, you have mis-composed.

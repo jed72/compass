@@ -3,7 +3,7 @@
 > **Phase:** Verify · **Date:** 2026-04-24 · **Owning role:** QA
 > **Agents:** verifier, reviewer
 > **Route (from delivery-approach.md):** Standard · **Gate count:** 1 (the Standard Verify gate; the mid-Build checkpoint was logged in `devlog.md`)
-> **Topology:** solo
+> **Orchestration:** solo
 
 ---
 

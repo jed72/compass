@@ -131,7 +131,7 @@ else
     # the edit. A fail-open path inside the fix that exists to close one.
     #
     # -e, not -d: in a git worktree .git is a file, and Compass creates
-    # worktrees itself for swarm topologies.
+    # worktrees itself for multiagent orchestrations.
     [ -e "$_search/.git" ] && break
     [ "$_search" = "/" ] && break
     _search="$(dirname "$_search")"

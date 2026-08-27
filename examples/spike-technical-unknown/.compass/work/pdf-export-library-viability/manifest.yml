@@ -9,7 +9,7 @@ assessment:
   role: engineer
   labels: []
 delivery_approach: spike
-topology: solo
+orchestration: solo
 policy_rules_fired: []
 stages:
   assess: light

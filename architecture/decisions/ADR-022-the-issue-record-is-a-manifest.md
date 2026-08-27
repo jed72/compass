@@ -34,7 +34,7 @@ term readers arrive knowing is not explained on use, and this one was
 explained 26 times.
 
 `terminology.yml` states that the vocabulary is frozen and that changing it
-carries the same ceremony as a decision record. This is that record. The file
+carries the same process weight as a decision record. This is that record. The file
 is at `2.0.0-pre14`, so the 60th term goes in **before** 2.0.0 is cut - riding
 that release rather than opening a second migration event, which is the
 pattern ADR-012 already broke once by freezing the vocabulary "for years" and

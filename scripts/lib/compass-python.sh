@@ -3,7 +3,7 @@
 # compass-python.sh - the shell face of the one YAML-resolution mechanism
 # =============================================================================
 # Every shell script that embeds a Python reader (hooks/pre-tool.sh,
-# hooks/stop.sh, scripts/integrate.sh, scripts/swarm.sh) sources this file and
+# hooks/stop.sh, scripts/integrate.sh, scripts/multiagent.sh) sources this file and
 # calls compass_python instead of python3 directly, for exactly one reason:
 # the bundled PyYAML at cli/vendor/yaml/ has to be the copy every one of these
 # readers resolves, not whatever (if anything) is ambient on the machine.

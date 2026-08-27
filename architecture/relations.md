@@ -11,7 +11,7 @@ date: 2026-05-24
      it knows when to fire automatically at the define stage time.
 
      Format: keep component names consistent with the tags used in
-     manifest.yml.assessment.touches so the lens can match them.
+     manifest.yml.assessment.touches so the role can match them.
 
      Direction: A -> B means A reads or calls B (A is the caller/reader,
      B is the callee/source). -->
@@ -50,9 +50,9 @@ The following relations must never be created. They would violate invariants
 or cross boundary rules encoded in the ADRs.
 
 - **`architect` must not read any directory other than `architecture/`** -
-  the lens reads exactly `architecture/` at the project root. Reading any
+  the role reads exactly `architecture/` at the project root. Reading any
   sibling or adjacent directory that might contain draft or provisional content
-  would introduce undeclared dependencies. The lens reads `architecture/` only.
+  would introduce undeclared dependencies. The role reads `architecture/` only.
   (Cited source: TRC-D2 and the `architect` agent's hard boundaries.)
 
 - **Any mechanism must not write into `manifest.yml.assessment`** - assessment are the
@@ -72,7 +72,7 @@ or cross boundary rules encoded in the ADRs.
 
 | Contract | Location | Notes |
 |---|---|---|
-| Issue manifest schema (`manifest.yml`) | `cli/compass` (validated inline) | `schema_version: '1.0'`; fields: assessment, route, topology, phases, evidence, gates, scenarios, changed_files, claims, follow-ups, reframes |
+| Issue manifest schema (`manifest.yml`) | `cli/compass` (validated inline) | `schema_version: '1.0'`; fields: assessment, route, orchestration, phases, evidence, gates, scenarios, changed_files, claims, follow-ups, reframes |
 | Architecture load record | `cli/compass` (`frame_load_architecture`) | `schema_version: '1.0'`; fields: artifacts (path, sha256, type), adrs (id, path, title, status), loaded_at |
 | ADR frontmatter | `architecture/decisions/ADR-*.md` | Required fields: id, title, status, date, supersedes, superseded_by. Status: accepted \| proposed \| superseded. |
 | Routing policy schema | `governance/routing-policy.yml` | Consumed by `compass approach evaluate`; schema validated by `tests/test_policy_integrity.py` |

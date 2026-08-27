@@ -3,7 +3,7 @@
 > **Phase:** Verify · **Date:** 2026-05-11 · **Owning role:** QA
 > **Agents:** verifier, reviewer
 > **Route (from delivery-approach.md):** Hotfix · **Gate count:** full Verify gate
-> **Topology:** solo
+> **Orchestration:** solo
 
 <!-- Hotfix compresses the phases BEFORE Verify. It does NOT compress Verify.
      This report is the same weight it would be on Standard - that is the

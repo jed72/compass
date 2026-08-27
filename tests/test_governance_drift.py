@@ -48,7 +48,7 @@ GOV_FILES = ("routing-policy.yml", "guardrails.yml")
 STALE_DROP_FLOORS = ["RP-REQUIRE-001", "RP-REQUIRE-002", "RP-REQUIRE-003",
                      "RP-REQUIRE-004"]
 STALE_DROP_CHECKS = ["declared-tests-resolve", "dod-evidence-typed",
-                     "coherence-check-passes", "no-trusted-rerun",
+                     "consistency-check-passes", "no-trusted-rerun",
                      "command-passes"]
 
 

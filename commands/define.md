@@ -30,8 +30,8 @@ four roles can.
 
 ## Procedure
 
-1. **Discovery or distillation.** Greenfield: discover scenarios from the
-   intent document or request. Brownfield-unmapped: distil current behaviour
+1. **Discovery or behaviour mapping.** Greenfield: discover scenarios from the
+   intent document or request. Brownfield-unmapped: map current behaviour
    first, then
    add the change scenarios.
 2. **Write scenarios** as Given/When/Then - happy path, the realistic edges,

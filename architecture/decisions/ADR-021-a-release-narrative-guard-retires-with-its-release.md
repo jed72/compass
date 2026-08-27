@@ -12,7 +12,7 @@ superseded_by: ''
 `tests/test_v1_2_narrative.py` was written when v1.2.0 shipped. Its 13 checks
 proved that release's new surface had reached the public documents: the
 `architect-lens` agent, the `architecture/` directory, `signals.yml`,
-`quarantine.yml` and the fitness functions, the trigger-on-intent rule, and the
+`quarantine.yml` and the architecture checks, the trigger-on-intent rule, and the
 typed inline Definition of Done tags. Each check named a heading, a table row or
 a paragraph and asserted the words were still there.
 
@@ -52,7 +52,7 @@ Those six facts are now unguarded in the documents. Deleting a paragraph naming
 **What is still covered elsewhere**, so it is not lost with the file:
 
 - `tests/test_architect_lens.py` proves the agent exists, has valid
-  frontmatter, and is invocable from `/compass:roundtable`. The agent itself is
+  frontmatter, and is invocable from `/compass:consult`. The agent itself is
   guarded; only its mentions in prose are not.
 - `tests/cross_cutting/test_stream_d_invariants.py` requires
   `agents/architect-lens.md` to be present in the shipped agent set.

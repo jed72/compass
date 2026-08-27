@@ -3,14 +3,14 @@ name: behaviour-mapping
 description: How to reverse-engineer existing behaviour into scenarios before changing it. Load on brownfield work whose behaviour is not written down.
 ---
 
-# Blueprint Distillation
+# Blueprint Behaviour mapping
 
 The rule behind this skill is simple: **you cannot safely change behaviour you
 have not first written down.** On `brownfield-unmapped` familiarity the routing
-policy makes this a routing guardrail floor - distillation runs before any new
+policy makes this a routing guardrail floor - behaviour mapping runs before any new
 scenario, before any change. This skill is how you do it well.
 
-## What distillation produces
+## What behaviour mapping produces
 
 A set of Given/When/Then scenarios that describe what the code **currently
 does** - not what it should do, not what the ticket wants, what it *does today*.
@@ -24,32 +24,32 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
 
 ## The procedure
 
-1. **Bound the surface.** You are not distilling the whole system - only the
+1. **Bound the surface.** You are not behaviour mapping the whole system - only the
    behaviour the upcoming change will touch, plus its immediate risk.
    Use the route's `touches:` tags and the plan's intended change site to draw
-   the boundary. Distilling too wide wastes the route; too narrow misses the
+   the boundary. Behaviour mapping too wide wastes the route; too narrow misses the
    regression you are about to cause.
 2. **Find the interfaces.** Identify the inputs and outputs of the bounded surface -
    the function signatures, the endpoints, the events, the stored state. These
    are where your `When` and `Then` will attach.
 3. **Read behaviour, not intent.** Trace what the code actually does for each
    input class. Resist writing what you think it *should* do - that is the new
-   spec's job, and conflating them is the central distillation mistake.
+   spec's job, and conflating them is the central behaviour mapping mistake.
 4. **Characterise with tests where the code is opaque.** When you cannot read
    the behaviour confidently, write a *characterisation test*: assert whatever
    the code currently returns, even if it looks wrong, and let the green tell
    you the truth. A characterisation test that documents a bug is still
-   correct distillation - it captures reality.
+   correct behaviour mapping - it captures reality.
 5. **Write the baseline scenarios.** One behaviour per scenario, same quality
    bar as any BDD scenario (see `bdd-specification`). Name them as the current
    outcome. Mark them baseline.
-6. **Flag the surprises.** Distillation almost always uncovers behaviour nobody
+6. **Flag the surprises.** Behaviour mapping almost always uncovers behaviour nobody
    knew about - undocumented edge cases, latent bugs, dead branches. Record each
    in `requirements-review.md`: is it load-bearing behaviour to preserve, or a bug to
    fix as part of this change? That decision is made deliberately, not by
    accident of what the new code happens to do.
 
-## Distilled vs. desired - keep them separate
+## Behaviour-mapped vs. desired - keep them separate
 
 The most important discipline here. `acceptance-criteria.md` will end up holding two
 kinds of scenario:
@@ -65,17 +65,17 @@ pass at Verify; that is the proof you preserved what you meant to.
 ## When the behaviour is genuinely a mess
 
 Sometimes the current behaviour is inconsistent - the same input class does
-different things depending on undocumented state. Distill it honestly anyway:
+different things depending on undocumented state. Behaviour mapping it honestly anyway:
 write the scenarios that capture the inconsistency. The mess, written down, is
 something you can decide about. The mess, undescribed, is something that will
 surprise you at Verify or in production.
 
 ## Anti-patterns
 
-- **Distilling the ideal.** Writing scenarios for what the code should do and
-  calling it distillation. Now you have no regression net and a spec that lies
+- **Behaviour mapping the ideal.** Writing scenarios for what the code should do and
+  calling it behaviour mapping. Now you have no regression net and a spec that lies
   about the present.
-- **Boiling the ocean.** Distilling far beyond the change's risk. The
+- **Boiling the ocean.** Behaviour mapping far beyond the change's risk. The
   route did not budget for it and it delays the actual work.
 - **Skipping it because "I understand this code."** Understanding it is not the
   bar - *it being written down* is the bar. The floor is about the artifact, not

@@ -108,10 +108,10 @@ plug into the same pipeline. The acceptance-criteria file is the shared
 substrate read through five role perspectives - do not reduce it to an
 engineering-only artifact.
 
-**5. Support solo / pair / swarm topologies.** On larger delivery
+**5. Support solo / pair / multiagent orchestrations.** On larger delivery
 approaches, design produces a distribution map and the breakdown stage
 parallelises across isolated workspaces (git worktrees in the reference
-implementation), one agent per stream, with a coordinating orchestrator that
+implementation), one agent per subtask, with a coordinating orchestrator that
 owns integration at ship time. A runtime without worktrees must provide
 equivalent isolation or cap itself at solo/pair.
 

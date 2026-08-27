@@ -1,6 +1,6 @@
 
 # Emitter expects events obeying the following grammar:
-# stream ::= STREAM-START document* STREAM-END
+# subtask ::= SUBTASK-START document* SUBTASK-END
 # document ::= DOCUMENT-START node DOCUMENT-END
 # node ::= SCALAR | sequence | mapping
 # sequence ::= SEQUENCE-START node* SEQUENCE-END
@@ -35,13 +35,13 @@ class Emitter:
         'tag:yaml.org,2002:' : '!!',
     }
 
-    def __init__(self, stream, canonical=None, indent=None, width=None,
+    def __init__(self, subtask, canonical=None, indent=None, width=None,
             allow_unicode=None, line_break=None):
 
-        # The stream should have the methods `write` and possibly `flush`.
-        self.stream = stream
+        # The subtask should have the methods `write` and possibly `flush`.
+        self.subtask = subtask
 
-        # Encoding can be overridden by STREAM-START.
+        # Encoding can be overridden by SUBTASK-START.
         self.encoding = None
 
         # Emitter is a state machine with a stack of states to handle nested
@@ -155,11 +155,11 @@ class Emitter:
 
     # States.
 
-    # Stream handlers.
+    # Subtask handlers.
 
     def expect_stream_start(self):
         if isinstance(self.event, StreamStartEvent):
-            if self.event.encoding and not hasattr(self.stream, 'encoding'):
+            if self.event.encoding and not hasattr(self.subtask, 'encoding'):
                 self.encoding = self.event.encoding
             self.write_stream_start()
             self.state = self.expect_first_document_start
@@ -217,7 +217,7 @@ class Emitter:
             if self.event.explicit:
                 self.write_indicator('...', True)
                 self.write_indent()
-            self.flush_stream()
+            self.flush_subtask()
             self.state = self.expect_document_start
         else:
             raise EmitterError("expected DocumentEndEvent, but got %s"
@@ -785,17 +785,17 @@ class Emitter:
 
     # Writers.
 
-    def flush_stream(self):
-        if hasattr(self.stream, 'flush'):
-            self.stream.flush()
+    def flush_subtask(self):
+        if hasattr(self.subtask, 'flush'):
+            self.subtask.flush()
 
     def write_stream_start(self):
         # Write BOM if needed.
         if self.encoding and self.encoding.startswith('utf-16'):
-            self.stream.write('\uFEFF'.encode(self.encoding))
+            self.subtask.write('\uFEFF'.encode(self.encoding))
 
     def write_stream_end(self):
-        self.flush_stream()
+        self.flush_subtask()
 
     def write_indicator(self, indicator, need_whitespace,
             whitespace=False, indention=False):
@@ -809,7 +809,7 @@ class Emitter:
         self.open_ended = False
         if self.encoding:
             data = data.encode(self.encoding)
-        self.stream.write(data)
+        self.subtask.write(data)
 
     def write_indent(self):
         indent = self.indent or 0
@@ -822,7 +822,7 @@ class Emitter:
             self.column = indent
             if self.encoding:
                 data = data.encode(self.encoding)
-            self.stream.write(data)
+            self.subtask.write(data)
 
     def write_line_break(self, data=None):
         if data is None:
@@ -833,23 +833,23 @@ class Emitter:
         self.column = 0
         if self.encoding:
             data = data.encode(self.encoding)
-        self.stream.write(data)
+        self.subtask.write(data)
 
     def write_version_directive(self, version_text):
         data = '%%YAML %s' % version_text
         if self.encoding:
             data = data.encode(self.encoding)
-        self.stream.write(data)
+        self.subtask.write(data)
         self.write_line_break()
 
     def write_tag_directive(self, handle_text, prefix_text):
         data = '%%TAG %s %s' % (handle_text, prefix_text)
         if self.encoding:
             data = data.encode(self.encoding)
-        self.stream.write(data)
+        self.subtask.write(data)
         self.write_line_break()
 
-    # Scalar streams.
+    # Scalar subtasks.
 
     def write_single_quoted(self, text, split=True):
         self.write_indicator('\'', True)
@@ -870,7 +870,7 @@ class Emitter:
                         self.column += len(data)
                         if self.encoding:
                             data = data.encode(self.encoding)
-                        self.stream.write(data)
+                        self.subtask.write(data)
                     start = end
             elif breaks:
                 if ch is None or ch not in '\n\x85\u2028\u2029':
@@ -890,14 +890,14 @@ class Emitter:
                         self.column += len(data)
                         if self.encoding:
                             data = data.encode(self.encoding)
-                        self.stream.write(data)
+                        self.subtask.write(data)
                         start = end
             if ch == '\'':
                 data = '\'\''
                 self.column += 2
                 if self.encoding:
                     data = data.encode(self.encoding)
-                self.stream.write(data)
+                self.subtask.write(data)
                 start = end + 1
             if ch is not None:
                 spaces = (ch == ' ')
@@ -940,7 +940,7 @@ class Emitter:
                     self.column += len(data)
                     if self.encoding:
                         data = data.encode(self.encoding)
-                    self.stream.write(data)
+                    self.subtask.write(data)
                     start = end
                 if ch is not None:
                     if ch in self.ESCAPE_REPLACEMENTS:
@@ -954,7 +954,7 @@ class Emitter:
                     self.column += len(data)
                     if self.encoding:
                         data = data.encode(self.encoding)
-                    self.stream.write(data)
+                    self.subtask.write(data)
                     start = end+1
             if 0 < end < len(text)-1 and (ch == ' ' or start >= end)    \
                     and self.column+(end-start) > self.best_width and split:
@@ -964,7 +964,7 @@ class Emitter:
                 self.column += len(data)
                 if self.encoding:
                     data = data.encode(self.encoding)
-                self.stream.write(data)
+                self.subtask.write(data)
                 self.write_indent()
                 self.whitespace = False
                 self.indention = False
@@ -973,7 +973,7 @@ class Emitter:
                     self.column += len(data)
                     if self.encoding:
                         data = data.encode(self.encoding)
-                    self.stream.write(data)
+                    self.subtask.write(data)
             end += 1
         self.write_indicator('"', False)
 
@@ -1025,7 +1025,7 @@ class Emitter:
                         self.column += len(data)
                         if self.encoding:
                             data = data.encode(self.encoding)
-                        self.stream.write(data)
+                        self.subtask.write(data)
                     start = end
             else:
                 if ch is None or ch in ' \n\x85\u2028\u2029':
@@ -1033,7 +1033,7 @@ class Emitter:
                     self.column += len(data)
                     if self.encoding:
                         data = data.encode(self.encoding)
-                    self.stream.write(data)
+                    self.subtask.write(data)
                     if ch is None:
                         self.write_line_break()
                     start = end
@@ -1069,7 +1069,7 @@ class Emitter:
                     data = text[start:end]
                     if self.encoding:
                         data = data.encode(self.encoding)
-                    self.stream.write(data)
+                    self.subtask.write(data)
                     if ch is None:
                         self.write_line_break()
                     start = end
@@ -1087,7 +1087,7 @@ class Emitter:
             self.column += len(data)
             if self.encoding:
                 data = data.encode(self.encoding)
-            self.stream.write(data)
+            self.subtask.write(data)
         self.whitespace = False
         self.indention = False
         spaces = False
@@ -1108,7 +1108,7 @@ class Emitter:
                         self.column += len(data)
                         if self.encoding:
                             data = data.encode(self.encoding)
-                        self.stream.write(data)
+                        self.subtask.write(data)
                     start = end
             elif breaks:
                 if ch not in '\n\x85\u2028\u2029':
@@ -1129,7 +1129,7 @@ class Emitter:
                     self.column += len(data)
                     if self.encoding:
                         data = data.encode(self.encoding)
-                    self.stream.write(data)
+                    self.subtask.write(data)
                     start = end
             if ch is not None:
                 spaces = (ch == ' ')

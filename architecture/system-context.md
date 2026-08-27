@@ -19,7 +19,7 @@ date: 2026-05-24
 Compass is an adaptive spec-driven development framework that runs inside
 Claude Code. Its primary purpose is to reduce the cost of doing things right:
 writing testable acceptance criteria before building, routing issues to the
-appropriate level of ceremony, and producing an auditable evidence trail that
+appropriate level of process weight, and producing an auditable evidence trail that
 proves work landed safely.
 
 Compass governs its own development using the same mechanisms it supplies to
@@ -76,7 +76,7 @@ Compass has five roles - engineer, product owner, designer, marketer, QA - all
 of whom are full pipeline citizens. Each role has entry-point slash commands
 (`/compass:intent`, `/compass:position`, `/compass:design`,
 `/compass:consult`) and dedicated agent files in `agents/`. The architect
-lens (`agents/architect.md`) is an advisory lens over the role pipeline,
+role (`agents/architect.md`) is an advisory role over the role pipeline,
 not a sixth full role.
 
 Logical surface: **role pipeline**
@@ -110,7 +110,7 @@ Logical surface: **role pipeline**
 
 3. **Guardrails are not configurable.** Projects may add their own governance
    checks, but they cannot remove or soften G1–G5. Adopters declare
-   architectural fitness functions as project guardrails using the generic
+   architectural architecture checks as project guardrails using the generic
    `command-passes` check (see ADR-009); the `verify.fitness` gate is promoted
    to blocking by routing floors `RP-REQUIRE-003/007` when the issue's blast
    radius or domain tags warrant it.

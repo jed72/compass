@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.7.0
+version: 2.9.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -60,7 +60,7 @@ routing_strategies:
     - "A non-engineering role in play usually pulls the route heavier (more
        artifacts, more assessed strategies) - a bias, not a floor."
     - "Prefer the lightest route that still clears every routing guardrail and
-       the applicable gates. Ceremony is a cost; spend it where it buys safety."
+       the applicable gates. Process weight is a cost; spend it where it buys safety."
 
   # role_defaults - advisory artifacts a role's involvement suggests. The
   # BLOCKING versions live under routing_guardrails.role_rules.
@@ -112,7 +112,7 @@ routing_guardrails:
     - id: RP-FLOOR-002
       when: { familiarity: brownfield-unmapped }
       require_phase: define
-      require_skill: blueprint-distillation
+      require_skill: behaviour-mapping
       rationale: "You cannot safely change behaviour you have not first written down."
 
     - id: RP-FLOOR-003
@@ -123,12 +123,12 @@ routing_guardrails:
     - id: RP-REQUIRE-001
       when: { risk: critical }
       add_gate: verify.analyze
-      rationale: "Cross-artifact coherence checked before high-care work lands."
+      rationale: "Cross-artifact consistency checked before high-care work lands."
 
     - id: RP-REQUIRE-002
       when: { labels_any: [auth, payments, personal-data, migrations] }
       add_gate: verify.analyze
-      rationale: "Irreversible-surface issues have coherence checked before they ship."
+      rationale: "Irreversible-surface issues have consistency checked before they ship."
 
     - id: RP-REQUIRE-003
       when: { risk: [cross-cutting, critical] }

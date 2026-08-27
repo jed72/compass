@@ -50,3 +50,15 @@ We wrote the product requirements down before starting.
 
 The spine of the book was cracked, and she felt a shiver run down her spine. A
 hardback's spine carries the title.
+
+## ADR-023 - the ordinary senses these bans must NOT catch
+
+`upstream` and `downstream` are ordinary English and share five letters with the
+retired unit-of-work word. The pattern's lookbehind is the only thing keeping
+them out, so they are pinned here: 40 such uses were counted in scanned prose
+when the ban was written, and every one of them is legitimate.
+
+The intake sits upstream of the acceptance criteria.
+Downstream agents read the artifact the stage before them wrote.
+Pay the upstream cost once rather than the downstream cost repeatedly.
+An upstream role hands work to the downstream one.

@@ -268,12 +268,12 @@ def _capped(values, label, where=None):
 class Emitter:
     """Collects what a verb wants to say, and renders it in one mode."""
 
-    def __init__(self, mode=DEFAULT_MODE, evidence_out=None, stream=None):
+    def __init__(self, mode=DEFAULT_MODE, evidence_out=None, subtask=None):
         self.mode = mode if mode in MODES else DEFAULT_MODE
         self.evidence_out = evidence_out
         self._out = []
         self._doc = None
-        self._stream = stream
+        self._subtask = subtask
 
     # -- the two contracts --------------------------------------------------
 
@@ -399,7 +399,7 @@ class Emitter:
         mark_handled()
         text = self.rendered()
         if text:
-            print(text, file=self._stream or sys.stdout)
+            print(text, file=self._subtask or sys.stdout)
         return text
 
 

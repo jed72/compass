@@ -269,7 +269,7 @@ or a value, and it is easier to change now than after four call sites exist.
 **On PlantUML.** Both diagrams above are Mermaid, which renders natively in
 GitHub and in every modern IDE viewer. PlantUML is the documented fallback for
 the shapes Mermaid cannot express - component diagrams with lifelines, state
-charts with guards, deployment topology. Reach for it only then: it needs a
+charts with guards, deployment orchestration. Reach for it only then: it needs a
 rendering path the reader may not have, so some readers will see source
 instead of a picture.
 
@@ -291,7 +291,7 @@ takes their published result at face value. Compass already has two
 review moments that earn their cost: **the requirements review**, which QAs the spec against
 governance and records an ambiguity ledger, and the **reviewer** agent at Verify.
 The four-scan self-review in the `bdd-specification` skill gets the ergonomic
-benefit without the ceremony, because the author fixes their own cheap mistakes
+benefit without the process weight, because the author fixes their own cheap mistakes
 rather than routing them through a critic.
 
 **No user-story format as the spec.** "As a [role], I want [feature], so that
@@ -303,7 +303,7 @@ fine *upstream* of Compass, in a brief or a ticket; they are not the spec.
 
 **No single-audience declaration.** A common convention is to write "assume the
 reader is a junior engineer with no context". Compass does not, because its
-five-lens model is a stronger reader model than any single persona: the same
+five-role model is a stronger reader model than any single persona: the same
 spec is read for intent fidelity, for claims, for tests, for coverage, and for UI
 behaviour. the cold-reader strategy (`S7`) already assumes zero prior context without having to name someone
 to imagine.
@@ -326,5 +326,5 @@ lint`.
   self-review, and what makes a scenario runnable.
 - `skills/governance-check/SKILL.md` - where `compass plan lint` fits in the
   strategies walk.
-- `architecture/decisions/ADR-004-one-spec-many-lenses.md` - why the spec is one
+- `architecture/decisions/ADR-004-one-spec-many-lenses.md` - why the spec is one <!-- vocabulary-scan: allow - the record's own filename; ADR-004 keeps the word its decision was about, so a citation must name the real file -->
   artifact rather than one per role.

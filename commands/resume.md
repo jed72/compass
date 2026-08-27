@@ -21,7 +21,7 @@ written precisely so the process never has to be re-derived.
    `--issue` flag.
 2. **Read `delivery-approach.md` and `manifest.yml` first.**
    `delivery-approach.md` is the human-readable contract for this issue -
-   the delivery approach, the per-stage weight, the gate set, the topology,
+   the delivery approach, the per-stage weight, the gate set, the orchestration,
    the de-scope ledger; `manifest.yml` is its machine-readable manifest, what the
    CLI reads. Everything else is read in light of them. If
    `delivery-approach.md` carries a re-assessment revision, read the latest

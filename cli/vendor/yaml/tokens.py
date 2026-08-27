@@ -29,7 +29,7 @@ class DocumentEndToken(Token):
     id = '<document end>'
 
 class StreamStartToken(Token):
-    id = '<stream start>'
+    id = '<subtask start>'
     def __init__(self, start_mark=None, end_mark=None,
             encoding=None):
         self.start_mark = start_mark
@@ -37,7 +37,7 @@ class StreamStartToken(Token):
         self.encoding = encoding
 
 class StreamEndToken(Token):
-    id = '<stream end>'
+    id = '<subtask end>'
 
 class BlockSequenceStartToken(Token):
     id = '<block sequence start>'

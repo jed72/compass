@@ -81,7 +81,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 | Rule type | Rule | What it changed | Rationale (quoted from the policy) |
 |---|---|---|---|
-| {{floor \| cap \| immovable_gate \| role_rule}} | {{e.g. the auth label}} | {{e.g. "Candidate quick fix raised to initiative-scale ceremony."}} | {{"…"}} |
+| {{floor \| cap \| immovable_gate \| role_rule}} | {{e.g. the auth label}} | {{e.g. "Candidate quick fix raised to initiative-scale process weight."}} | {{"…"}} |
 
 <!-- If nothing fired: "No hard policy rule fired. The candidate stands." -->
 
@@ -94,10 +94,10 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 | Stage | Weight | Notes |
 |---|---|---|
 | Assess | Full | Always. This document is the output. |
-| Define acceptance criteria | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. distilling existing behaviour first; how deep}} |
+| Define acceptance criteria | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. behaviour mapping existing behaviour first; how deep}} |
 | Requirements review | {{collapsed \| light pass \| full pass \| skipped (spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
 | Design | {{one-line edit note \| real technical-design.md \| technical-design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
-| Break down the work | {{skipped (solo) \| pair \| swarm}} | {{stream count comes from the distribution map}} |
+| Break down the work | {{skipped (solo) \| pair \| multiagent}} | {{subtask count comes from the distribution map}} |
 | Implement | {{test surface target}} | {{scaled to risk - see the TDD skill}} |
 | Test & review | {{gate count}} | {{which review dimensions - section 4b}} |
 | Ship | {{trivial commit \| coordinated merge}} | {{which follow-ups are owed - section 6}} |
@@ -108,13 +108,13 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 - Review dimensions applied: {{list - correctness, governance, traceability are always on for delivery work; a spike runs none of these}}
 - Immovable gates stapled on (from routing-policy.md): {{verify.correctness, verify.governance, verify.regression, verify.claims, …}}
 
-### 4c. Swarm topology
+### 4c. Multiagent orchestration
 
-- Topology: {{solo \| pair (2-3 streams) \| swarm (4+ streams)}}
-- Stream count: {{N - from distribution-map.md, or "n/a (solo)"}}
-- Worktree root: {{from .compass/config.yml `swarm.worktree_root`, default ../.compass-worktrees}}
+- Orchestration: {{solo \| pair (2-3 subtasks) \| multiagent (4+ subtasks)}}
+- Subtask count: {{N - from distribution-map.md, or "n/a (solo)"}}
+- Worktree root: {{from .compass/config.yml `multiagent.worktree_root`, default ../.compass-worktrees}}
 - Cap in effect: {{e.g. "critical risk → max_worktrees: 1" - from a hard cap in routing-policy.yml - or "none"}}
-- Orchestrator agent: {{yes (swarm) \| no - lead builder integrates (pair) \| n/a (solo)}}
+- Orchestrator agent: {{yes (multiagent) \| no - lead builder integrates (pair) \| n/a (solo)}}
 
 ---
 
@@ -131,7 +131,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 |---|---|---|
 | {{e.g. Requirements review}} | {{collapsed \| skipped}} | {{e.g. "The acceptance criteria are a single scenario certified unambiguous at triage - nothing to review."}} |
 | {{e.g. Design}} | {{collapsed to one-liner}} | {{e.g. "atomic size on familiar ground - no design decision; the design is 'edit src/foo.ts'."}} |
-| {{e.g. Break down the work}} | {{skipped}} | {{e.g. "One stream of work - parallelism would be pure overhead."}} |
+| {{e.g. Break down the work}} | {{skipped}} | {{e.g. "One subtask of work - parallelism would be pure overhead."}} |
 
 **One-line edit note (quick fix / hotfix collapsed design only):** {{which file(s) to edit, or root-cause note}}
 
@@ -141,7 +141,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 ## 6. Owed follow-ups
 
-<!-- Ceremony borrowed from the front of the pipeline that must be settled
+<!-- Process weight borrowed from the front of the pipeline that must be settled
      at ship time before the issue can close. A hotfix always owes one;
      other work owes whatever the de-scope ledger marked. A spike owes
      nothing - it ships nothing; its exit is graduate or discard. -->

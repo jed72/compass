@@ -145,14 +145,14 @@ launch artefacts alongside them.
 
 A different session or runtime should be able to resume by reading this state.
 
-### 7. Provide safe delivery topology
+### 7. Provide safe delivery orchestration
 
-The adapter must support solo delivery. Pair and swarm approaches require
+The adapter must support solo delivery. Pair and multiagent approaches require
 isolated workspaces plus a single integration owner.
 
 The reference adapter uses Git worktrees. A runtime may use another mechanism,
-but each stream must be able to run a failing test cycle without destabilising
-the others. If equivalent isolation is unavailable, cap the topology and state
+but each subtask must be able to run a failing test cycle without destabilising
+the others. If equivalent isolation is unavailable, cap the orchestration and state
 the limitation.
 
 ## Conformance mapping
@@ -246,7 +246,7 @@ in policy outcome or persisted meaning are not.
 4. Add role entry points.
 5. Add persistence and resumption.
 6. Add the strongest enforcement the runtime supports.
-7. Add safe parallelism, or declare a topology cap.
+7. Add safe parallelism, or declare a orchestration cap.
 8. Run cross-runtime conformance tests.
 9. Document install, security and known limitations.
 

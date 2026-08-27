@@ -118,6 +118,37 @@ def _rename_gates(names):
     return {renames.get(n, n) for n in names}
 
 
+def _check_renames() -> dict:
+    """Retired check name -> current check name, from the same rename table.
+
+    A renamed check is the same mechanism under a new name, exactly as a
+    renamed gate is; a check with no row here is genuinely new and still fails.
+    """
+    import yaml
+
+    path = REPO_ROOT / "cli" / "migrate-map.yml"
+    if not path.is_file():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return dict((data.get("values") or {}).get("check_name") or {})
+
+
+def _rename_checks(names):
+    renames = _check_renames()
+    return {renames.get(n, n) for n in names}
+
+
+def _evidence_type_renames() -> dict:
+    """Retired evidence type -> current one, from the same rename table."""
+    import yaml
+
+    path = REPO_ROOT / "cli" / "migrate-map.yml"
+    if not path.is_file():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return dict((data.get("values") or {}).get("evidence_type") or {})
+
+
 def _guardrails_on_main() -> dict | None:
     """guardrails.yml as it stands on main, or None if main is not reachable.
 
@@ -159,12 +190,18 @@ def _mechanism(data: dict) -> dict:
     return {
         "top_level_keys": sorted(data.keys()),
         "check_names": sorted(data.get("checks", {})),
-        "evidence_types": sorted(data.get("evidence_types", {})),
+        # Evidence types normalise through the rename table before comparison,
+        # for the same reason gate ids and check names do: a rename is the same
+        # mechanism under a new name, an addition is not.
+        "evidence_types": sorted(
+            _evidence_type_renames().get(t, t)
+            for t in (data.get("evidence_types") or {})),
         # Gate ids are normalised through the shipped rename table before the
         # comparison, so a rename reads as the same mechanism and only an
         # undeclared addition shows up as a difference. See _gate_renames.
         "gate_evidence_requirements": {
-            _gate_renames().get(gate, gate): sorted(types)
+            _gate_renames().get(gate, gate): sorted(
+                _evidence_type_renames().get(t, t) for t in types)
             for gate, types in (data.get("gate_evidence_requirements") or {}).items()
         },
         "defaults": rules(data.get("defaults")),
@@ -181,7 +218,7 @@ def test_no_new_check_names_added():
     current_content = yaml.safe_load(guardrails_path.read_text(encoding="utf-8"))
     current_checks = set(current_content.get("checks", {}).keys())
 
-    new_checks = current_checks - BASELINE_CHECKS
+    new_checks = current_checks - _rename_checks(BASELINE_CHECKS)
     assert not new_checks, (
         f"guardrails.yml gained new checks: {new_checks}. A new check is new\n"
         "mechanism: add it here deliberately, with the change that introduces it."
@@ -238,15 +275,16 @@ def test_guardrails_gains_no_mechanism_on_this_branch():
         b, a = before[field], after[field]
         if field == "check_names":
             added = set(a) - set(b)
-            assert added <= BASELINE_CHECKS, (
+            assert added <= _rename_checks(BASELINE_CHECKS), (
                 f"guardrails.yml gained undeclared check(s): "
                 f"{sorted(added - BASELINE_CHECKS)}.\n"
                 "A new check is new mechanism (ADR-002). Declare it in "
                 "BASELINE_CHECKS above, with a comment naming the change that "
                 "introduces it, so the addition is visible in review."
             )
-            assert set(b) - set(a) == set(), (
-                f"guardrails.yml removed check(s): {sorted(set(b) - set(a))}. "
+            assert _rename_checks(set(b)) - set(a) == set(), (
+                f"guardrails.yml removed check(s): "
+                f"{sorted(_rename_checks(set(b)) - set(a))}. "
                 "Removing a check silently weakens every adopting project."
             )
             continue
@@ -260,13 +298,13 @@ def test_guardrails_gains_no_mechanism_on_this_branch():
                 assert b[gid]["checked_at"] == a[gid]["checked_at"], (
                     f"{gid} changed when it is checked: "
                     f"{b[gid]['checked_at']} -> {a[gid]['checked_at']}")
-                gained = set(a[gid]["checks"]) - set(b[gid]["checks"])
+                gained = set(a[gid]["checks"]) - _rename_checks(set(b[gid]["checks"]))
                 assert gained <= BASELINE_CHECKS, (
                     f"{gid} gained undeclared check(s): "
                     f"{sorted(gained - BASELINE_CHECKS)}")
-                assert set(b[gid]["checks"]) - set(a[gid]["checks"]) == set(), (
-                    f"{gid} lost check(s): "
-                    f"{sorted(set(b[gid]['checks']) - set(a[gid]['checks']))}")
+                lost = _rename_checks(set(b[gid]["checks"])) - set(a[gid]["checks"])
+                assert lost == set(), (
+                    f"{gid} lost check(s): {sorted(lost)}")
             continue
         assert b == a, (
             f"guardrails.yml changed mechanism in {field!r} relative to main.\n"

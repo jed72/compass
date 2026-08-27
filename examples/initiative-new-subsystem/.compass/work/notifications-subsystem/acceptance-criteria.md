@@ -1,7 +1,7 @@
 # Spec - notifications-subsystem
 
 > **Phase:** define · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
-> **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `intent.md`, not distilled from existing behaviour.
+> **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `intent.md`, not behaviour-mapped from existing behaviour.
 
 ## How each role reads this file
 
@@ -28,7 +28,7 @@
 **Independence note:** group A owns the dispatch pipeline and the durable store -
 `dispatch.py`, `store.py`. It is separable from group B: a notification can
 be created, stored, and delivered without any preference logic (the default is
-"deliver"). Group A became swarm **stream-1**.
+"deliver"). Group A became multiagent **subtask-1**.
 
 ### Scenario: An in-app event produces a notification for the target user
 <!-- traceability id: TRC-001 · serves: INT-1 -->
@@ -73,7 +73,7 @@ is separable from group A: preference resolution is a pure decision ("should
 this category reach this user?") that group A *calls*, but does not implement.
 The two groups share only `migrations/0042` (the table both read) and `api.py`
 (the surface) - that shared surface is what the orchestrator polices. Group B
-became swarm **stream-2**.
+became multiagent **subtask-2**.
 
 ### Scenario: A user mutes a category and stops receiving that category
 <!-- traceability id: TRC-004 · serves: INT-3 -->
@@ -114,7 +114,7 @@ Scenario: A muted category does not suppress a security notification
 
 <!-- This is the brief's hardest constraint made into a scenario: mute must not
      be able to suppress the things a user must not miss. It sits in group B's
-     surface (preferences.py) - stream-2 owns it. -->
+     surface (preferences.py) - subtask-2 owns it. -->
 
 ---
 

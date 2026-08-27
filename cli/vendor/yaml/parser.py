@@ -2,7 +2,7 @@
 # The following YAML grammar is LL(1) and is parsed by a recursive descent
 # parser.
 #
-# stream            ::= STREAM-START implicit_document? explicit_document* STREAM-END
+# subtask            ::= SUBTASK-START implicit_document? explicit_document* SUBTASK-END
 # implicit_document ::= block_node DOCUMENT-END*
 # explicit_document ::= DIRECTIVE* DOCUMENT-START block_node? DOCUMENT-END*
 # block_node_or_indentless_sequence ::=
@@ -40,7 +40,7 @@
 #
 # FIRST sets:
 #
-# stream: { STREAM-START }
+# subtask: { SUBTASK-START }
 # explicit_document: { DIRECTIVE DOCUMENT-START }
 # implicit_document: FIRST(block_node)
 # block_node: { ALIAS TAG ANCHOR SCALAR BLOCK-SEQUENCE-START BLOCK-MAPPING-START FLOW-SEQUENCE-START FLOW-MAPPING-START }
@@ -120,13 +120,13 @@ class Parser:
         self.current_event = None
         return value
 
-    # stream    ::= STREAM-START implicit_document? explicit_document* STREAM-END
+    # subtask    ::= SUBTASK-START implicit_document? explicit_document* SUBTASK-END
     # implicit_document ::= block_node DOCUMENT-END*
     # explicit_document ::= DIRECTIVE* DOCUMENT-START block_node? DOCUMENT-END*
 
     def parse_stream_start(self):
 
-        # Parse the stream start.
+        # Parse the subtask start.
         token = self.get_token()
         event = StreamStartEvent(token.start_mark, token.end_mark,
                 encoding=token.encoding)
@@ -179,7 +179,7 @@ class Parser:
             self.states.append(self.parse_document_end)
             self.state = self.parse_document_content
         else:
-            # Parse the end of the stream.
+            # Parse the end of the subtask.
             token = self.get_token()
             event = StreamEndEvent(token.start_mark, token.end_mark)
             assert not self.states

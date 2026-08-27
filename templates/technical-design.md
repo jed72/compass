@@ -76,7 +76,7 @@ does.}}
      Mermaid renders natively in GitHub and every modern IDE viewer, so it is
      the default. Reach for PlantUML only when Mermaid genuinely cannot
      express the shape - component-with-lifelines, state charts with guards,
-     deployment topology. -->
+     deployment orchestration. -->
 
 ```mermaid
 sequenceDiagram
@@ -242,7 +242,7 @@ read - or "the existing dashboards cover it", said deliberately.}}
 | U1 | {{group A - TRC-A1, TRC-A2}} | {{files / modules}} | {{U2, U3 - or "shares surface with U2"}} |
 | U2 | {{group B - TRC-B1}} | {{…}} | {{…}} |
 
-**Parallelism assessment:** {{"U1 and U2 are genuinely independent → candidate pair/swarm" - or "all units share surface → solo"}}
+**Parallelism assessment:** {{"U1 and U2 are genuinely independent → candidate pair/multiagent" - or "all units share surface → solo"}}
 
 ---
 

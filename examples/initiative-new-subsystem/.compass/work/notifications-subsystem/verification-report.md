@@ -3,7 +3,7 @@
 > **Phase:** Verify · **Date:** 2026-03-13 · **Owning role:** QA
 > **Agents:** verifier, reviewer
 > **Route (from delivery-approach.md):** initiative · **Gate count:** all (full set)
-> **Topology:** swarm - verified per-stream, then combined after integration
+> **Orchestration:** multiagent - verified per-stream, then combined after integration
 
 ---
 
@@ -11,23 +11,23 @@
 
 | Scenario id | Title | Result | Evidence |
 |---|---|---|---|
-| TRC-001 | An in-app event produces a notification for the target user | PASS | §2 (stream-1) |
-| TRC-002 | A notification is delivered once, even if the event is retried | PASS | §2 (stream-1) |
-| TRC-003 | Notifications survive a worker restart | PASS | §2 (stream-1) |
-| TRC-004 | A user mutes a category and stops receiving that category | PASS | §2 (stream-2) |
-| TRC-005 | A user with no saved preferences gets the safe defaults | PASS | §2 (stream-2) |
-| TRC-006 | A muted category does not suppress a security notification | PASS | §2 (stream-2) |
+| TRC-001 | An in-app event produces a notification for the target user | PASS | §2 (subtask-1) |
+| TRC-002 | A notification is delivered once, even if the event is retried | PASS | §2 (subtask-1) |
+| TRC-003 | Notifications survive a worker restart | PASS | §2 (subtask-1) |
+| TRC-004 | A user mutes a category and stops receiving that category | PASS | §2 (subtask-2) |
+| TRC-005 | A user with no saved preferences gets the safe defaults | PASS | §2 (subtask-2) |
+| TRC-006 | A muted category does not suppress a security notification | PASS | §2 (subtask-2) |
 
 ## 2. Test suite evidence
 
-**Stream-1 (dispatch + store) - command run:** `pytest tests/notifications/test_dispatch.py`
+**Subtask-1 (dispatch + store) - command run:** `pytest tests/notifications/test_dispatch.py`
 
 ```
 tests/notifications/test_dispatch.py ...                                 [100%]
 =========================== 3 passed in 1.12s =============================
 ```
 
-**Stream-2 (preferences) - command run:** `pytest tests/notifications/test_preferences.py`
+**Subtask-2 (preferences) - command run:** `pytest tests/notifications/test_preferences.py`
 
 ```
 tests/notifications/test_preferences.py ...                              [100%]
@@ -100,7 +100,7 @@ project line coverage                85%   (floor: 80% - met)
 - [x] **TDD suite green** - §2 shows per-stream runs and the 71-test combined run, output pasted.
 - [x] **Coverage meets the guardrail floor** - 85% project, floor 80% - §2.
 - [x] **No lint / format / type errors** - `ruff check src/notifications/` and `mypy src/notifications/` clean (run logged in `devlog.md`).
-- [x] **Traceability intact** - code → scenario → intent holds across both streams; no claims (no marketer).
+- [x] **Traceability intact** - code → scenario → intent holds across both subtasks; no claims (no marketer).
 - [x] *(carried to ship)* Living docs updated to match reality - a new "Notifications" page in the architecture docs; the event-producer contract documented.
 - [x] *(carried to ship)* Every outstanding follow-up resolved - none outstanding (initiative's de-scope ledger is empty). `G5` sign-off on the migration is on record in `manifest.yml` `approvals:`.
 

@@ -1,6 +1,6 @@
 # Delivery approach - Initiative
 
-> Big, cross-cutting, or greenfield. Full weight, every gate, agent swarm
+> Big, cross-cutting, or greenfield. Full weight, every gate, agent multiagent
 > across worktrees.
 
 ## Assess composes toward initiative when
@@ -22,9 +22,9 @@ launch's worth of work.
 | Assess | Full, plus explicit `touches:` tagging - initiative is where domain floors most often fire. |
 | Define | **Full BDD discovery.** Greenfield: scenario discovery from the brief. Brownfield: `behaviour-mapping` of current behaviour *then* the new scenarios. Scenarios are grouped by independence - this grouping seeds the distribution map. |
 | Refine | **Full pass.** Self-QA, governance QA, and an explicit ambiguity ledger. Non-engineering roles review here. |
-| Plan | **Full `technical-design.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work streams. |
-| Breakdown | **Swarm.** `scripts/swarm.sh` creates one git worktree per stream; one `builder` agent per worktree; one `orchestrator` agent that writes no feature code. |
-| Build | Full TDD inside each worktree, in parallel. The orchestrator watches for streams converging on shared surface and intervenes before they collide. |
+| Plan | **Full `technical-design.md` + `distribution-map.md`.** Architecture, every design decision recorded as an ADR-style note, governance check, and the mapping of scenario groups → independent work subtasks. |
+| Breakdown | **Multiagent.** `scripts/multiagent.sh` creates one git worktree per subtask; one `builder` agent per worktree; one `orchestrator` agent that writes no feature code. |
+| Build | Full TDD inside each worktree, in parallel. The orchestrator watches for subtasks converging on shared surface and intervenes before they collide. |
 | Verify | **All gates, all dimensions.** Per-stream verification, then combined verification after integration. |
 | Ship | `scripts/integrate.sh`: orchestrated merge of all worktrees, full regression across the combined result, living-docs update, every owed follow-up resolved. |
 
@@ -35,9 +35,9 @@ All gates. Review dimensions: `correctness`, `governance`, `traceability`,
 `immovable_gate` from the routing policy. Plus a mid-route checkpoint gate
 per worktree.
 
-## Swarm topology
+## Multiagent orchestration
 
-Swarm: 4+ streams, capped by the routing-guardrail `caps` in
+Multiagent: 4+ subtasks, capped by the routing-guardrail `caps` in
 `governance/routing-policy.yml` (recorded in `delivery-approach.md` by the CLI). Note the
 standing cap - **`critical` risk caps worktrees at 1** even on
 initiative, because coordination risk on a critical change outweighs the

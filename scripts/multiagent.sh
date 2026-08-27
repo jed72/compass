@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Compass script: swarm.sh  -  CREATE WORKTREES, ONE PER INDEPENDENT STREAM
+# Compass script: multiagent.sh  -  CREATE WORKTREES, ONE PER INDEPENDENT SUBTASK
 # =============================================================================
 # The breakdown-stage tool. Given an issue's distribution-map.md, it creates one
-# git worktree per independent stream under the configured worktree_root, one
-# branch per stream, and prints the launch plan - one `builder` agent per
+# git worktree per independent subtask under the configured worktree_root, one
+# branch per subtask, and prints the launch plan - one `builder` agent per
 # worktree. Only the `orchestrator` agent runs this (see CLAUDE.md, the
 # worktree-multiagent skill).
 #
 # USAGE
-#   scripts/swarm.sh <issue-slug>            # read .compass/work/<slug>/distribution-map.md
-#   scripts/swarm.sh <issue-slug> --dry-run  # show the plan, create nothing
-#   scripts/swarm.sh --help
+#   scripts/multiagent.sh <issue-slug>            # read .compass/work/<slug>/distribution-map.md
+#   scripts/multiagent.sh <issue-slug> --dry-run  # show the plan, create nothing
+#   scripts/multiagent.sh --help
 #
 # WHAT IT RESPECTS
-#   - .compass/config.yml  swarm.worktree_root   (default ../.compass-worktrees)
-#   - .compass/config.yml  swarm.max_worktrees   (default 6) - hard ceiling
+#   - .compass/config.yml  multiagent.worktree_root   (default ../.compass-worktrees)
+#   - .compass/config.yml  multiagent.max_worktrees   (default 6) - hard ceiling
 #   - any adaptivity `cap` recorded in delivery-approach.md, in particular the STANDING CAP:
 #       critical risk => max_worktrees: 1.
-#     If the cap is below the stream count, the cap WINS and swarm.sh refuses to
-#     over-provision - it tells you to fold/sequence streams in the map first.
+#     If the cap is below the subtask count, the cap WINS and multiagent.sh refuses to
+#     over-provision - it tells you to fold/sequence subtasks in the map first.
 #
 # IDEMPOTENT & SAFE
-#   - A worktree/branch that already exists for a stream is left as-is (reported
+#   - A worktree/branch that already exists for a subtask is left as-is (reported
 #     as "exists"), not recreated.
 #   - It never deletes anything - teardown is integrate.sh's job on success.
 #   - On any inconsistency (map missing, count over cap, dirty repo) it stops
@@ -46,12 +46,12 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY_RUN=1 ;;
     -h|--help) grep -E '^# (USAGE|  scripts)' "$0" | sed 's/^# //'; exit 0 ;;
-    -*) echo "swarm.sh: unknown flag: $1" >&2; exit 1 ;;
+    -*) echo "multiagent.sh: unknown flag: $1" >&2; exit 1 ;;
     *)  TASK_SLUG="$1" ;;
   esac
   shift
 done
-[ -n "$TASK_SLUG" ] || { echo "swarm.sh: need an issue slug. See --help." >&2; exit 1; }
+[ -n "$TASK_SLUG" ] || { echo "multiagent.sh: need an issue slug. See --help." >&2; exit 1; }
 
 TASK_DIR="$PROJECT_DIR/.compass/work/$TASK_SLUG"
 MAP="$TASK_DIR/distribution-map.md"
@@ -61,9 +61,9 @@ ROUTE="$TASK_DIR/delivery-approach.md"
 TASK_YML="$TASK_DIR/manifest.yml"
 CONFIG="$PROJECT_DIR/.compass/config.yml"
 
-[ -f "$MAP" ]   || { echo "swarm.sh: no distribution-map.md for issue '$TASK_SLUG' - the design stage must produce it first." >&2; exit 1; }
-[ -f "$ROUTE" ] || { echo "swarm.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
-[ -f "$TASK_YML" ] || { echo "swarm.sh: no manifest.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:assess." >&2; exit 1; }
+[ -f "$MAP" ]   || { echo "multiagent.sh: no distribution-map.md for issue '$TASK_SLUG' - the design stage must produce it first." >&2; exit 1; }
+[ -f "$ROUTE" ] || { echo "multiagent.sh: no delivery-approach.md for issue '$TASK_SLUG' - triage must run first." >&2; exit 1; }
+[ -f "$TASK_YML" ] || { echo "multiagent.sh: no manifest.yml for issue '$TASK_SLUG' - the worktree cap is read from structured assessment, not delivery-approach.md prose. Run /compass:assess." >&2; exit 1; }
 
 # --- config: worktree_root + max_worktrees ----------------------------------
 # Minimal YAML reads - these keys are simple scalars in .compass/config.yml.
@@ -86,7 +86,7 @@ esac
 # The cap is a MACHINE FACT and must come from the structured assessment, not from
 # grepping delivery-approach.md prose - a well-formed delivery-approach.md quotes 'risk: critical'
 # and 'RP-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
-# prose grep false-positived on exactly those, capping a non-critical swarm to 1.
+# prose grep false-positived on exactly those, capping a non-critical multiagent to 1.
 # The standing cap (RP-CAP-001): critical risk => max_worktrees 1. We read
 # it from assessment.risk and policy_rules_fired. Absent assessment is a hard
 # error - never a silent cap, never a fall back to prose.
@@ -116,31 +116,33 @@ PY
 case "$CAP_INFO" in
   OK:1) CAP=1 ;;
   OK:0) CAP="$MAX_WORKTREES" ;;
-  *)    echo "swarm.sh: cannot read the cap from manifest.yml (${CAP_INFO#ERR:})." >&2
+  *)    echo "multiagent.sh: cannot read the cap from manifest.yml (${CAP_INFO#ERR:})." >&2
         echo "          The worktree cap is a machine fact in assessment.risk +" >&2
-        echo "          fired_guardrails - fix manifest.yml. swarm.sh does NOT fall back to" >&2
+        echo "          fired_guardrails - fix manifest.yml. multiagent.sh does NOT fall back to" >&2
         echo "          grepping delivery-approach.md prose (that was the R4 false-positive)." >&2
         exit 1 ;;
 esac
 # Never exceed the config ceiling regardless.
 [ "$CAP" -gt "$MAX_WORKTREES" ] && CAP="$MAX_WORKTREES"
 
-# --- parse streams from the distribution map --------------------------------
+# --- parse subtasks from the distribution map --------------------------------
 # The map's §3 table has rows like:
-#   | stream-1 | U1 | TRC-A1, TRC-A2 | compass/<slug>/stream-1 |
-# We pull (stream id, branch name) pairs from any table row whose first cell
-# starts with "stream-". This is intentionally forgiving so a hand-filled map
+#   | subtask-1 | U1 | TRC-A1, TRC-A2 | compass/<slug>/subtask-1 |
+# We pull (subtask id, branch name) pairs from any table row whose first cell
+# starts with "subtask-". This is intentionally forgiving so a hand-filled map
 # still parses.
-STREAMS=()
+SUBTASKS=()
 BRANCHES=()
 while IFS= read -r line; do
-  # row must look like a markdown table row mentioning a stream id
+  # row must look like a markdown table row mentioning a subtask id
   case "$line" in
-    \|*stream-*) ;;
+    \|*subtask-*) ;;
+    # A map written before ADR-023 says stream-N. Read both (ADR-006).  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
+    \|*stream-*) ;;  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
     *) continue ;;
   esac
-  # R4: count only worktree-provisioning streams. A map may mark an
-  # integration/verify stream as non-provisioning - exclude it from the cap
+  # R4: count only worktree-provisioning subtasks. A map may mark an
+  # integration/verify subtask as non-provisioning - exclude it from the cap
   # arithmetic and from worktree creation.
   case "$line" in
     *"not a parallel worktree"*|*"not a worktree"*|*"non-provisioning"*|*"integration/verify"*) continue ;;
@@ -150,51 +152,51 @@ while IFS= read -r line; do
   sid="$(echo "${c1:-}" | xargs 2>/dev/null || true)"
   # Trim whitespace AND strip leading/trailing markdown punctuation (`, *).
   # The map's branch-name cell is often wrapped in backticks for readability
-  # (`compass/<slug>/stream-N`) or bold (**...**); the parser must treat the
+  # (`compass/<slug>/subtask-N`) or bold (**...**); the parser must treat the
   # cell as a clean git ref, not the literal-with-markdown string. Bare names
   # round-trip unchanged. Markdown *inside* a ref name is out of scope -
   # git ref-validation rejects such names anyway.
   branch="$(echo "${c4:-}" | xargs 2>/dev/null | sed -E 's/^[`*]+//; s/[`*]+$//' || true)"
-  case "$sid" in stream-*) ;; *) continue ;; esac
+  case "$sid" in subtask-*|stream-*) ;; *) continue ;; esac  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
   # default branch name if the map left it blank
   [ -n "$branch" ] || branch="compass/$TASK_SLUG/$sid"
-  STREAMS+=("$sid")
+  SUBTASKS+=("$sid")
   BRANCHES+=("$branch")
 done < "$MAP"
 
-STREAM_COUNT="${#STREAMS[@]}"
-if [ "$STREAM_COUNT" -eq 0 ]; then
-  echo "swarm.sh: distribution-map.md lists no streams (no 'stream-N' rows in §3)." >&2
-  echo "          If the route is solo, breakdown is a no-op - do not run swarm.sh." >&2
+SUBTASK_COUNT="${#SUBTASKS[@]}"
+if [ "$SUBTASK_COUNT" -eq 0 ]; then
+  echo "multiagent.sh: distribution-map.md lists no subtasks (no 'subtask-N' rows in §3; 'stream-N' is also read, for maps written before the rename)." >&2  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
+  echo "          If the route is solo, breakdown is a no-op - do not run multiagent.sh." >&2
   exit 1
 fi
 
 # --- enforce the cap --------------------------------------------------------
-if [ "$STREAM_COUNT" -gt "$CAP" ]; then
-  echo "swarm.sh: the distribution map has $STREAM_COUNT streams but the cap is $CAP." >&2
+if [ "$SUBTASK_COUNT" -gt "$CAP" ]; then
+  echo "multiagent.sh: the distribution map has $SUBTASK_COUNT subtasks but the cap is $CAP." >&2
   echo "          The cap wins. Do not over-provision worktrees - go back to" >&2
-  echo "          distribution-map.md and fold or sequence streams down to $CAP," >&2
+  echo "          distribution-map.md and fold or sequence subtasks down to $CAP," >&2
   echo "          recording it as cap-driven (not as a de-scope). Then re-run." >&2
   exit 1
 fi
 
 # --- repo sanity ------------------------------------------------------------
 git -C "$PROJECT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-  || { echo "swarm.sh: $PROJECT_DIR is not a git repository." >&2; exit 1; }
+  || { echo "multiagent.sh: $PROJECT_DIR is not a git repository." >&2; exit 1; }
 BASE_BRANCH="$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)"
 
-echo "Compass swarm - issue '$TASK_SLUG'"
+echo "Compass multiagent - issue '$TASK_SLUG'"
 echo "  base branch:    $BASE_BRANCH"
 echo "  worktree root:  $WORKTREE_ROOT"
-echo "  streams:        $STREAM_COUNT   (config max $MAX_WORKTREES, route cap $CAP)"
+echo "  subtasks:        $SUBTASK_COUNT   (config max $MAX_WORKTREES, route cap $CAP)"
 echo ""
 
 # --- create the worktrees ---------------------------------------------------
 mkdir -p "$WORKTREE_ROOT"
 LAUNCH_PLAN=()
 
-for i in "${!STREAMS[@]}"; do
-  sid="${STREAMS[$i]}"
+for i in "${!SUBTASKS[@]}"; do
+  sid="${SUBTASKS[$i]}"
   branch="${BRANCHES[$i]}"
   wt_path="$WORKTREE_ROOT/$TASK_SLUG-$sid"
 
@@ -217,10 +219,10 @@ for i in "${!STREAMS[@]}"; do
   # commits .compass/work/ gets the issue directory for free; one that treats
   # issue state as local - as this framework repo does, see .gitignore - does
   # not, and its builder lands in a worktree with no spec, no plan, and no
-  # charter. `compass next`, `compass check`, and `compass tdd-red` all fail
+  # assignment. `compass next`, `compass check`, and `compass tdd-red` all fail
   # there, because resolve_task_dir has no work directory to resolve against.
   #
-  # NON-DESTRUCTIVE ON PURPOSE. swarm.sh is documented as idempotent, and the
+  # NON-DESTRUCTIVE ON PURPOSE. multiagent.sh is documented as idempotent, and the
   # second run is the one where a builder has work to lose - a devlog entry, a
   # recorded red. An existing issue directory is left exactly as it is.
   if [ "$DRY_RUN" -eq 0 ] && [ -d "$wt_path" ]; then
@@ -263,20 +265,20 @@ for entry in "${LAUNCH_PLAN[@]}"; do
   echo "  builder for $sid"
   echo "    worktree : $wt_path"
   echo "    branch   : $branch"
-  echo "    charter  : owns the scenario set assigned to $sid in distribution-map.md"
+  echo "    assignment  : owns the scenario set assigned to $sid in distribution-map.md"
   echo "    rule     : works ONLY inside this worktree; cross-stream needs go via the orchestrator"
   echo ""
 done
 echo "----------------------------------------------------------------"
-if [ "$STREAM_COUNT" -ge 4 ]; then
-  echo "Topology is a SWARM (4+ streams): an 'orchestrator' agent must also run -"
-  echo "it writes no feature code, watches for streams converging on shared surface,"
+if [ "$SUBTASK_COUNT" -ge 4 ]; then
+  echo "Orchestration is a MULTIAGENT (4+ subtasks): an 'orchestrator' agent must also run -"
+  echo "it writes no feature code, watches for subtasks converging on shared surface,"
   echo "and owns integration at ship via scripts/integrate.sh."
 else
-  echo "Topology is a PAIR (2-3 streams): no dedicated orchestrator - the lead"
+  echo "Orchestration is a PAIR (2-3 subtasks): no dedicated orchestrator - the lead"
   echo "builder integrates at ship via scripts/integrate.sh."
 fi
 echo ""
 [ "$DRY_RUN" -eq 1 ] && echo "(dry run - nothing was created)"
-echo "When every stream is independently green, land them with:"
+echo "When every subtask is independently green, land them with:"
 echo "  scripts/integrate.sh $TASK_SLUG"

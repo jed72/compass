@@ -17,15 +17,15 @@ into real delivery work.
 ## Setup
 
 - Read `delivery-approach.md` for the test-surface target (scaled to risk)
-  and the topology.
+  and the orchestration.
 - Read `acceptance-criteria.md` - scenarios become the acceptance suite and
   seed the TDD cycle. Read `technical-design.md` for the approach.
 - Load the `tdd-discipline` skill.
-- Invoke the `builder` agent - **one per worktree** on a pair or swarm
-  topology, each owning its scenario set from the distribution map. On solo
+- Invoke the `builder` agent - **one per worktree** on a pair or multiagent
+  orchestration, each owning its scenario set from the distribution map. On solo
   work, one builder on the current branch.
-- On a swarm, the `orchestrator` is already watching: it detects when two
-  streams are converging on shared surface and intervenes *before* they
+- On a multiagent, the `orchestrator` is already watching: it detects when two
+  subtasks are converging on shared surface and intervenes *before* they
   collide. Cross-stream changes go through the orchestrator, never builder
   to builder.
 - **Capture the regression baseline first (a shipped strategy).** If
