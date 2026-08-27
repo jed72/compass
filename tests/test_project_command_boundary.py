@@ -131,7 +131,7 @@ def _make_project(tmp_path: Path,
                        "tests": ["tests/test_project_command_boundary.py::test_stub"]}],
         "changed_files": [],
         "evidence": [],
-        "gates": [{"id": "verify.fitness", "status": "pending", "evidence": []}],
+        "gates": [{"id": "verify.architecture", "status": "pending", "evidence": []}],
     }))
     return tmp_path
 

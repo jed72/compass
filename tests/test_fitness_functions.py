@@ -1,5 +1,5 @@
 """
-Tests for architectural fitness functions (command-passes + verify.fitness).
+Tests for architectural fitness functions (command-passes + verify.architecture).
 TRC-B1, TRC-B2, TRC-B3, TRC-B6, TRC-B7, TRC-FM1.
 """
 
@@ -87,7 +87,7 @@ def _make_project(
 
     # manifest.yml
     gates = task_gates if task_gates is not None else [
-        {"id": "verify.fitness", "status": "pending", "evidence": []}
+        {"id": "verify.architecture", "status": "pending", "evidence": []}
     ]
     task_doc: Dict[str, Any] = {
         "schema_version": "1.1",
@@ -222,15 +222,15 @@ class TestCommandPassesFailure:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3: verify.fitness is advisory by default
+# TRC-B3: verify.architecture is advisory by default
 # ---------------------------------------------------------------------------
 
 class TestVerifyFitnessAdvisory:
-    """TRC-B3: verify.fitness is advisory by default (not in gate set when
+    """TRC-B3: verify.architecture is advisory by default (not in gate set when
     no promotion floor fires)."""
 
     def test_fitness_not_in_gates_for_contained_blast_radius(self, tmp_path):
-        """route evaluate with contained blast_radius does NOT add verify.fitness."""
+        """route evaluate with contained blast_radius does NOT add verify.architecture."""
         import shutil
         gov_dst = tmp_path / "governance"
         gov_dst.mkdir(parents=True, exist_ok=True)
@@ -250,13 +250,13 @@ class TestVerifyFitnessAdvisory:
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
         data = json.loads(result.stdout)
-        assert "verify.fitness" not in data["gates"], (
-            f"verify.fitness should NOT be in gates for contained risk, "
+        assert "verify.architecture" not in data["gates"], (
+            f"verify.architecture should NOT be in gates for contained risk, "
             f"got: {data['gates']}"
         )
 
     def test_command_passes_still_reported_but_advisory_ok(self, tmp_path):
-        """When verify.fitness is not in gates, failing command-passes does not
+        """When verify.architecture is not in gates, failing command-passes does not
         block the check at the gate level (though it will report the check failure)."""
         # A project with a command-passes guardrail that fails
         project_guardrails = [
@@ -269,7 +269,7 @@ class TestVerifyFitnessAdvisory:
                 "checked_at": ["verify"],
             }
         ]
-        # task gates do NOT include verify.fitness
+        # task gates do NOT include verify.architecture
         task_gates = [
             {"id": "verify.correctness", "status": "pending", "evidence": []},
         ]
@@ -280,33 +280,33 @@ class TestVerifyFitnessAdvisory:
             risk="contained",  # no floor fires
         )
         # command-passes check still runs (it's in G4 defaults),
-        # but verify.fitness gate is not in gate set
+        # but verify.architecture gate is not in gate set
         result = _run_cli("check", "--verbose", "--issue", "test-task", cwd=project_root)
-        # The key invariant: verify.fitness gate should not be mentioned as blocking
+        # The key invariant: verify.architecture gate should not be mentioned as blocking
         # (it's not in the task's gates list)
-        assert "verify.fitness" not in result.stdout or \
+        assert "verify.architecture" not in result.stdout or \
                "not in gate set" in result.stdout or \
                "nothing to check" in result.stdout.lower(), (
-            f"Unexpected verify.fitness blocking mention:\n{result.stdout}"
+            f"Unexpected verify.architecture blocking mention:\n{result.stdout}"
         )
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6: nothing-to-check pass - no project guardrails → verify.fitness clears
+# TRC-B6: nothing-to-check pass - no project guardrails → verify.architecture clears
 # ---------------------------------------------------------------------------
 
 class TestNothingToCheckPass:
-    """TRC-B6: when verify.fitness is in the gate set but no project guardrails
+    """TRC-B6: when verify.architecture is in the gate set but no project guardrails
     declare command-passes, the check passes without checking anything."""
 
     def test_no_project_guardrails_passes_with_nothing_to_check(self, tmp_path):
-        """With empty project: section and verify.fitness in gate set,
+        """With empty project: section and verify.architecture in gate set,
         command-passes passes without checking anything and reports the nothing to check message."""
         project_root, task_dir = _make_project(
             tmp_path,
             project_guardrails=[],  # no project guardrails
             task_gates=[
-                {"id": "verify.fitness", "status": "pending", "evidence": []}
+                {"id": "verify.architecture", "status": "pending", "evidence": []}
             ],
         )
         result = _run_cli("check", "--verbose", "--issue", "test-task", cwd=project_root)
@@ -330,7 +330,7 @@ class TestNothingToCheckPass:
             tmp_path,
             project_guardrails=[],
             task_gates=[
-                {"id": "verify.fitness", "status": "pending", "evidence": []}
+                {"id": "verify.architecture", "status": "pending", "evidence": []}
             ],
         )
         result = _run_cli("check", "--verbose", "--issue", "test-task", cwd=project_root)

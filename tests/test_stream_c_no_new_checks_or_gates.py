@@ -84,9 +84,38 @@ BASELINE_GATES = {
     "verify.clarity",
     "spike.conclude",
     "verify.analyze",
-    # Added with project-declared fitness functions:
+    # Added with project-declared architecture checks. Recorded under the name
+    # it had when it was added; `_rename_gates` maps it forward, so this entry
+    # does not need rewriting each time the vocabulary moves.
     "verify.fitness",
 }
+
+
+def _gate_renames() -> dict:
+    """Retired gate id -> current gate id, from the shipped rename table.
+
+    This guard's question is "did mechanism appear that nothing declared", not
+    "did a name change". Reading `cli/migrate-map.yml` separates the two: a
+    renamed gate has a row there and is the same mechanism under a new name,
+    while a genuinely new gate has no row and still fails below.
+
+    Hard-coding the current names instead would make this guard pass today and
+    go blind to the next rename, which is the failure ADR-015 records - a check
+    that quietly stops reading what it was pointed at.
+    """
+    import yaml
+
+    path = REPO_ROOT / "cli" / "migrate-map.yml"
+    if not path.is_file():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return dict(data.get("gate_ids") or {})
+
+
+def _rename_gates(names):
+    """`names` with every retired gate id mapped to its current spelling."""
+    renames = _gate_renames()
+    return {renames.get(n, n) for n in names}
 
 
 def _guardrails_on_main() -> dict | None:
@@ -131,8 +160,11 @@ def _mechanism(data: dict) -> dict:
         "top_level_keys": sorted(data.keys()),
         "check_names": sorted(data.get("checks", {})),
         "evidence_types": sorted(data.get("evidence_types", {})),
+        # Gate ids are normalised through the shipped rename table before the
+        # comparison, so a rename reads as the same mechanism and only an
+        # undeclared addition shows up as a difference. See _gate_renames.
         "gate_evidence_requirements": {
-            gate: sorted(types)
+            _gate_renames().get(gate, gate): sorted(types)
             for gate, types in (data.get("gate_evidence_requirements") or {}).items()
         },
         "defaults": rules(data.get("defaults")),
@@ -164,7 +196,7 @@ def test_no_new_gate_names_added():
     current_content = yaml.safe_load(guardrails_path.read_text(encoding="utf-8"))
     current_gates = set(current_content.get("gate_evidence_requirements", {}).keys())
 
-    new_gates = current_gates - BASELINE_GATES
+    new_gates = current_gates - _rename_gates(BASELINE_GATES)
     assert not new_gates, (
         f"guardrails.yml gained new gates: {new_gates}. A new gate is new\n"
         "mechanism: add it here deliberately, with the change that introduces it."

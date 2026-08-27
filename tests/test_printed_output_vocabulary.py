@@ -245,13 +245,13 @@ def test_trc_e1_shared_effect_printed_once():
     """Two pairs do this, not one.
 
     RP-REQUIRE-001/002 both add verify.analyze and RP-REQUIRE-003/004 both add
-    verify.fitness. The rules are NOT merged - they fire on different
+    verify.architecture. The rules are NOT merged - they fire on different
     conditions and both conditions are worth seeing - so each still prints
     with its own rationale.
     """
     out = _evaluate()
 
-    for gate in ("verify.analyze", "verify.fitness"):
+    for gate in ("verify.analyze", "verify.architecture"):
         effect_lines = [ln for ln in out.splitlines()
                         if ln.strip().startswith("-") and gate in ln]
         assert len(effect_lines) == 1, (

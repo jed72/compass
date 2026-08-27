@@ -14,5 +14,5 @@ expected:
   delivery_approach: initiative
   fired_guardrail_ids: [RP-FLOOR-003]
   conflict: false
-  stream_ceiling: null   # swarm is unbounded; only a cap produces a number
+  subtask_ceiling: null   # swarm is unbounded; only a cap produces a number
   has_gate: verify.security

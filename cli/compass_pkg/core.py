@@ -379,6 +379,12 @@ SPINE_KEY_MAP = {
     "fired_guardrails": "policy_rules_fired",
     "backfills": "follow_ups",
     "reframes": "reassessments",
+    # ADR-023. Anthropic's platform docs split single-agent work from
+    # multiagent work, and fan out "independent subtasks"; `topology` and
+    # `stream` were Compass-only words for both. Manifests written before the
+    # rename keep loading through these two rows (ADR-006).
+    "topology": "orchestration",
+    "stream_ceiling": "subtask_ceiling",
 }
 ASSESSMENT_KEY_MAP = {
     "blast_radius": "risk",
@@ -479,29 +485,52 @@ def normalize_spine(task):
         for f in fups:
             if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
                 f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
-    # Triage used to record a `topology:` word; it now records a
-    # `stream_ceiling:` number, because it cannot know a topology before the
+    # Assess used to record an orchestration word; it now records a
+    # `subtask_ceiling:` number, because it cannot know the shape before the
     # distribution map exists. A manifest written before that change carries the
     # word and no ceiling, so the word is read as the ceiling it always
-    # implied. The recorded topology is KEPT: an archived manifest says what it
-    # said, and breakdown legitimately writes a topology of its own.
-    if out.get("stream_ceiling") is None and "stream_ceiling" not in out:
-        topo = out.get("topology")
-        if isinstance(topo, str) and topo:
+    # implied. The recorded word is KEPT: an archived manifest says what it
+    # said, and breakdown legitimately writes an orchestration of its own.
+    if out.get("subtask_ceiling") is None and "subtask_ceiling" not in out:
+        word = out.get("orchestration")
+        if isinstance(word, str) and word:
             # A capped 1.x manifest recorded the sentence
-            # "solo (capped to 1 worktree)"; its first word is the topology.
-            out["stream_ceiling"] = TOPOLOGY_STREAM_CEILING.get(
-                topo.split(" ")[0], None)
+            # "solo (capped to 1 worktree)"; its first word is the one to read.
+            out["subtask_ceiling"] = RETIRED_ORCHESTRATION_CEILING.get(
+                word.split(" ")[0], None)
     # The on-disk schema_version is preserved: readers must be able to say
     # honestly what generation a manifest was written in (the receipt reports
     # legacy manifests). Writers stamp the current version when they save.
     return out
 
 
-# The topology words a pre-ceiling manifest could carry, and the ceiling each
-# always implied. `swarm` is None - unbounded - for the same reason the
-# evaluator's table says so: no number for it exists anywhere in the policy.
-TOPOLOGY_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
+# The orchestration words a pre-ceiling manifest could carry, and the ceiling
+# each always implied. `swarm` is None - unbounded - for the same reason the
+# evaluator's table said so: no number for it exists anywhere in the policy.
+#
+# This table is why ADR-023 could retire the words rather than rename them.
+# They were already only being converted to these three numbers before
+# anything used them, so the route shapes now declare the number and the
+# conversion is gone from `routing`. The table stays here because archived
+# manifests still carry the words and have to keep reading.
+RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
+
+
+def normalize_config(cfg):
+    """Return `.compass/config.yml` with the v2 canonical block names.
+
+    The worktree root lived under a `swarm:` block. ADR-023 renames it to
+    `multiagent:`, and this is the one vocabulary file an adopter edits by
+    hand - so an upgrade must read their existing spelling rather than
+    require them to change it (ADR-006).
+    """
+    if not isinstance(cfg, dict):
+        return cfg
+    out = dict(cfg)
+    legacy = out.pop("swarm", None)
+    if isinstance(legacy, dict) and not isinstance(out.get("multiagent"), dict):
+        out["multiagent"] = legacy
+    return out
 
 
 # 1.x follow-up states -> their v2 spellings, applied read-side by

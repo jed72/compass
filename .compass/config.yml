@@ -126,11 +126,12 @@ project:
   #                     extracted and the steps are bound.
   # bdd_run_command: pytest tests/
 
-swarm:
-  # The worktree root, relative to the project. Each stream gets a subdir.
-  # The swarm/pair/solo decision and the worktree CAP are routing concerns -
-  # they come from route_shapes.topology and routing_guardrails.caps in
-  # governance/routing-policy.yml, not from here.
+multiagent:
+  # The worktree root, relative to the project. Each subtask gets a subdir.
+  # How many subtasks may run at once is a routing concern - it comes from
+  # route_shapes.subtask_ceiling and routing_guardrails.caps in
+  # governance/routing-policy.yml, not from here. Who integrates them is
+  # decided at breakdown from the subtask count, not from a value here.
   worktree_root: "../.compass-worktrees"
 
 artifacts:

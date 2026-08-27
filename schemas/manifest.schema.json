@@ -144,19 +144,19 @@
       ],
       "description": "The final delivery approach; filled by `compass approach evaluate --write`."
     },
-    "topology": {
+    "orchestration": {
       "type": [
         "string",
         "null"
       ],
-      "description": "Set at breakdown, once the distribution map says whether independent work units exist. Assess does not write it - see stream_ceiling."
+      "description": "Whether this issue is delivered by a single agent or by several. Set at breakdown, once the distribution map says whether independent subtasks exist; assess does not write it - see subtask_ceiling. Manifests written before ADR-023 carry `topology` and are read through cli/migrate-map.yml."
     },
-    "stream_ceiling": {
+    "subtask_ceiling": {
       "type": [
         "integer",
         "null"
       ],
-      "description": "How many parallel streams this delivery approach permits, written by `compass approach evaluate`. A ceiling, not a decision: the evaluator has no concept of a work unit."
+      "description": "How many parallel subtasks this delivery approach permits, written by `compass approach evaluate`. A ceiling, not a decision: the evaluator has no concept of a work unit."
     },
     "policy_rules_fired": {
       "type": "array",

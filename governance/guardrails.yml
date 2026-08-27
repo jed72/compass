@@ -26,7 +26,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.14.0
+version: 1.15.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -117,7 +117,7 @@ checks:
       unstamped record cannot be checked against its citation.
 
   command-passes:
-    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.fitness is in the gate set and zero project guardrails declare command-passes, it passes without checking anything (no declarations means there are no fitness functions to run)."
+    description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.architecture is in the gate set and zero project guardrails declare command-passes, it passes without checking anything (no declarations means there are no architecture checks to run)."
 
 # -----------------------------------------------------------------------------
 # Evidence types - what KINDS of evidence a gate can be cleared with. Without
@@ -179,7 +179,7 @@ gate_evidence_requirements:
   verify.clarity: [manual-review, artifact]       # inherently judgement - and now visibly so
   spike.conclude: [spike-conclusion]              # SPECIFIC: a generic artifact will not do
   verify.analyze: [coherence-check]              # SPECIFIC: advisory command-output does NOT clear this gate
-  verify.fitness: [test-run, command-output]    # fitness checks: command-output from command-passes, or a test-run
+  verify.architecture: [test-run, command-output]    # architecture checks: command-output from command-passes, or a test-run
 
 # -----------------------------------------------------------------------------
 # DEFAULT GUARDRAILS - G1–G5. Shipped active. The floor under every route.

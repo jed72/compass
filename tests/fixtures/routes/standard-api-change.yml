@@ -12,5 +12,5 @@ expected:
   delivery_approach: feature
   fired_guardrail_ids: []
   conflict: false
-  stream_ceiling: 2
+  subtask_ceiling: 2
   has_gate: verify.regression

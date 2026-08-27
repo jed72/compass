@@ -275,7 +275,7 @@ def test_trc_f6_the_framework_should_grow_by_artifacts_and_checks_only():
         gates.update(shape.get("gates", []))
     known = {"verify.correctness", "verify.governance", "verify.traceability",
              "verify.regression", "verify.security", "verify.clarity",
-             "verify.claims", "verify.analyze", "verify.fitness",
+             "verify.claims", "verify.analyze", "verify.architecture",
              "spike.conclude"}
     assert gates <= known, f"new gate id(s): {sorted(gates - known)}"
 
