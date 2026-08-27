@@ -26,6 +26,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import write_red_record
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PRE_TOOL = REPO_ROOT / "hooks" / "pre-tool.sh"
 STOP = REPO_ROOT / "hooks" / "stop.sh"
@@ -181,7 +183,7 @@ def test_hag_b4_silence_is_not_bought_by_widening_the_search(tmp_path):
     (issue / "task.yml").write_text("schema_version: '2.0'\ntask: an-issue\n")
     (issue / "delivery-approach.md").write_text("# approach\n")
     (outer / ".compass" / "current-task").write_text("an-issue\n")
-    (issue / ".red").write_text("")          # mid-red: edits allowed in OUTER
+    write_red_record(issue)          # mid-red: edits allowed in OUTER
 
     inner = outer / "vendor" / "submodule"
     inner.mkdir(parents=True)
@@ -228,7 +230,7 @@ def test_hag_d1_a_compass_project_still_blocks_without_a_red(tmp_path):
 
 def test_hag_d1b_a_compass_project_allows_under_a_red(tmp_path):
     root, target, issue = _compass_project(tmp_path)
-    (issue / ".red").write_text("")
+    write_red_record(issue)
     r = _run_hook(root, _edit(target), project_dir=root)
     assert r.returncode == ALLOW, (
         "a project with a red on record was blocked:\n" + r.stdout + r.stderr)

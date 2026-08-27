@@ -82,6 +82,47 @@ def project(tmp_path: Path) -> Path:
     return tmp_path
 
 
+def write_red_record(task_dir, scenario=None, *, valid=True):
+    """Write a red record and its marker, the way `compass tdd-red` does.
+
+    Fixtures used to write a bare `.red` file, because the hook was satisfied
+    by its existence. It now reads the record beside it and checks the digest,
+    so a fixture that wants to model "a failure is on record" has to write one.
+
+    `valid=False` writes a record whose content no longer matches its digest -
+    for tests that model an edited record.
+    """
+    import hashlib
+
+    evidence = Path(task_dir) / "evidence"
+    evidence.mkdir(parents=True, exist_ok=True)
+    name = "red-" + scenario.replace("/", "_") if scenario else "red"
+
+    payload = {
+        "command": "pytest -q",
+        "scenario": scenario,
+        "exit_code": 1,
+        "passed": False,
+        "timestamp": "2026-08-27T00:00:00+00:00",
+        "log_excerpt": "1 failed",
+        "record_id": "fixture0000000000",
+    }
+    body = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+    payload["content_digest"] = "sha256:" + hashlib.sha256(body).hexdigest()
+    if not valid:
+        payload["exit_code"] = 0        # edited after stamping
+    (evidence / f"{name}.json").write_text(json.dumps(payload, indent=2),
+                                           encoding="utf-8")
+    (Path(task_dir) / ".red").write_text("", encoding="utf-8")
+    return evidence / f"{name}.json"
+
+
+@pytest.fixture
+def red_record():
+    """Fixture form of write_red_record, for tests that take fixtures."""
+    return write_red_record
+
+
 @pytest.fixture
 def make_task(project: Path):
     """Return a callable that materialises a task directory with a task.yml.

@@ -30,6 +30,8 @@ from pathlib import Path
 
 import pytest
 
+from conftest import write_red_record
+
 ROOT = Path(__file__).resolve().parent.parent
 HOOK = ROOT / "hooks" / "pre-tool.sh"
 
@@ -42,7 +44,7 @@ def _project(*, red: bool = False) -> Path:
     (root / ".compass" / "current-task").write_text("t\n", encoding="utf-8")
     (task_dir / "delivery-approach.md").write_text("# Route\n", encoding="utf-8")
     if red:
-        (task_dir / ".red").write_text("", encoding="utf-8")
+        write_red_record(task_dir)
     return root
 
 

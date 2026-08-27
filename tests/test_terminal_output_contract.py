@@ -29,6 +29,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from conftest import write_red_record
+
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -1053,6 +1055,10 @@ def tail_project(tmp_path):
         "```gherkin\nScenario: a thing happens\n  Given a start\n"
         "  When it runs\n  Then it works\n```\n")
     (td / "delivery-approach.md").write_text("# Delivery approach - t\n")
+    # `tdd-green` is measured with `--scenario TRC-1`, and a bound green needs
+    # a red for the same binding. Written here so the verb reaches the output
+    # this file is about rather than being refused before it prints anything.
+    write_red_record(td, "TRC-1")
     (td / "task.yml").write_text(yaml.safe_dump({
         "schema_version": "2.0", "task": "t", "created": "2026-08-24",
         "status": "active",
