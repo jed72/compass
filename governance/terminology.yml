@@ -836,13 +836,19 @@ scan:
   # ---------------------------------------------------------------------------
   position_exemptions:
     - id: PX-1
-      positions: [source comments, python docstrings]
+      positions: [source comments, python docstrings, shell comments]
       reason: >
         The parser discards them, so no string here can be printed, logged or
         rendered - there is no path from a comment to a user. They are also
         where the history lives: a comment explaining that a key used to be
         called something else is the record, and banning the old name there
         would delete the explanation.
+
+        Shell comments were added on 2026-08-27, for the second half of that
+        reason rather than the first. The position was covered for Python and
+        not for shell, so a truthful sentence in hooks/*.sh or scripts/*.sh
+        failed the scan while the same sentence in a .py file passed. Nothing
+        about a shell comment reaches a user either.
     - id: PX-2
       positions: [yaml keys, json keys, json enum values]
       reason: >

@@ -558,30 +558,6 @@ def normalize_spine(task):
 RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}  # vocabulary-scan: allow - names the retired words archived manifests carry (ADR-006)
 
 
-def normalize_config(cfg):
-    """Return `.compass/config.yml` with the v2 canonical block names.
-
-    The worktree root lived under a `swarm:` block. ADR-023 renames it to
-    `multiagent:`.
-
-    NOTHING IN THE CLI CALLS THIS YET. What actually keeps an adopter's
-    config working is that the only readers - `read_cfg` in
-    scripts/multiagent.sh and scripts/integrate.sh - grep for the leaf key
-    (`worktree_root:`) and never look at the block name, so the rename is
-    invisible to them. This function exists for the first Python reader of
-    those keys; until there is one, it is a contract waiting rather than a
-    contract kept, and saying otherwise would overstate the back-compat.
-    """
-    if not isinstance(cfg, dict):
-        return cfg
-    out = dict(cfg)
-    legacy = out.get("swarm")
-    if isinstance(legacy, dict) and not isinstance(out.get("multiagent"), dict):
-        out["multiagent"] = legacy
-        out.pop("swarm", None)
-    return out
-
-
 # 1.x follow-up states -> their v2 spellings, applied read-side by
 # normalize_spine above.
 FOLLOW_UP_STATUS_MAP = {"owed": "outstanding", "paid": "resolved"}

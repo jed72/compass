@@ -116,14 +116,26 @@ def test_route_shapes_declare_a_ceiling_not_a_word():
 
 # --- TRC-B8 - who integrates is decided by the count ----------------------
 
-def test_breakdown_stage_weight_carries_no_retired_word():
+BREAKDOWN_WEIGHTS = {"skipped", "multiagent"}
+
+
+def test_breakdown_stage_weight_is_one_of_the_allowed_values():
     """TRC-B8: `stages.breakdown` said solo / solo-or-pair / swarm, which is
-    the same vocabulary the shapes are losing."""
+    the vocabulary the shapes lost.
+
+    Stated as membership of the allowed set, not absence from the retired one.
+    A guard that lists what is forbidden passes on any value nobody thought of
+    - the first version of this test accepted `banana` - so it could not tell a
+    correct rename from a wrong one.
+    """
     policy = _yaml(ROOT / "governance" / "routing-policy.yml")
     for name, shape in policy["route_shapes"].items():
         weight = shape.get("stages", {}).get("breakdown")
-        assert weight not in RETIRED_SHAPE_WORDS, (
-            f"{name} breakdown weight is {weight!r}")
+        assert weight in BREAKDOWN_WEIGHTS, (
+            f"{name} declares breakdown weight {weight!r}; the allowed values "
+            f"are {sorted(BREAKDOWN_WEIGHTS)}. Breakdown is skipped on one "
+            f"unit of work and multiagent on more; how many, and so who "
+            f"integrates, is the subtask ceiling's job.")
 
 
 # --- TRC-B5 - the gate id -------------------------------------------------
@@ -159,9 +171,20 @@ def test_the_config_names_multiagent_work_by_its_new_name():
 
 
 def test_a_config_still_using_the_swarm_block_is_read():
-    """TRC-B7: an adopter's config is not rewritten by an upgrade."""
-    cfg = core.normalize_config({"swarm": {"worktree_root": "../wt"}})
-    assert cfg["multiagent"]["worktree_root"] == "../wt"
+    """TRC-B7: an adopter's config is not rewritten by an upgrade.
+
+    The behaviour lives in the shell, not in Python. `read_cfg` in
+    scripts/multiagent.sh and scripts/integrate.sh greps for the leaf key and
+    never reads the block name, so the rename is invisible to the only
+    consumers. A Python `normalize_config` existed briefly and was deleted:
+    nothing called it, so it asserted a guarantee it did not provide.
+    """
+    for rel in ("scripts/multiagent.sh", "scripts/integrate.sh"):
+        body = (ROOT / rel).read_text(encoding="utf-8")
+        assert 'grep -E "^[[:space:]]*$1:"' in body, (
+            f"{rel} no longer reads the config by leaf key, so an adopter's "
+            f"swarm: block is no longer read - the compat has moved and "
+            f"nothing replaced it")
 
 
 # --- TRC-F2 - a rename that drops data fails loudly -----------------------

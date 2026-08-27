@@ -117,6 +117,7 @@ framework's shipped defaults otherwise.
 
 Before writing a devlog entry, a requirements review, or anything else this
 skill produces, read `skills/compass-runtime/writing-voice.md` - the
+skill produces, read `text-sweeps.md` - what a text sweep must not touch.
 principle and the tells that mark prose narrating the pipeline instead of
 communicating a decision. `writing-voice-worked-example.md` beside it carries
 the before-and-after pairs from this project's own archive, for when the
