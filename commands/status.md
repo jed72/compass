@@ -1,5 +1,5 @@
 ---
-description: Show the Compass board - what's blocked, in progress, next up, and done
+description: Report on one issue, or list them all
 argument-hint: "[task-slug]"
 allowed-tools: Read, Bash, Glob, Grep
 ---

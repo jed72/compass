@@ -362,7 +362,7 @@ def test_pl_c12_claims_gate_states_traceability_not_truth():
         "guardrails.yml does not say claim-traces-to-scenario checks "
         "traceability rather than truth"
     )
-    skill = (REPO_ROOT / "skills" / "evidence-gates" / "SKILL.md").read_text(encoding="utf-8")
+    skill = _evidence_gates_text()
     s_norm = " ".join(skill.replace("*", "").split()).lower()
     assert "cannot check that what the claim says is true" in s_norm, (
         "the evidence-gates skill does not tell the reviewer the check cannot "
@@ -589,6 +589,21 @@ def test_pl_d6_correction_rule_distinguishes_record_from_claim():
 # issue is current. The day this one lands, it would have been reading a
 # different issue or nothing at all.
 RECEIPT_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "receipt-fixture-project"
+
+def _evidence_gates_text():
+    """Everything the evidence-gates skill says, across its whole directory.
+
+    The skill was split so its parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the fitness-function detail and the
+    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
+    reports content missing when it has moved next door.
+
+    The strings below are unchanged; only where they are looked for widened.
+    """
+    import pathlib as _p
+    d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
+    return "\n".join(sorted(p.read_text(encoding="utf-8") for p in d.glob("*.md")))
+
 
 
 def _fixture_receipt() -> str:

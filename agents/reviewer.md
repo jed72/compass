@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Owns the judgement side of Verify - applies the review dimensions (correctness, governance, traceability, regression, security, clarity, claims) to the evidence and the change, and renders the gate decision. Invoke during Verify, after the verifier.
+description: "The judgement half of verify: applies the review dimensions the approach carries and renders the gate decision."
 tools: Read, Glob, Grep, Bash, Write, Edit
 model: opus
 ---

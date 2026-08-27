@@ -12,6 +12,21 @@ from pathlib import Path
 GUARDRAILS_YML = Path(__file__).parent.parent / "governance" / "guardrails.yml"
 EVIDENCE_GATES = Path(__file__).parent.parent / "skills" / "evidence-gates" / "SKILL.md"
 
+def _evidence_gates_text():
+    """Everything the evidence-gates skill says, across its whole directory.
+
+    The skill was split so its parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the fitness-function detail and the
+    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
+    reports content missing when it has moved next door.
+
+    The strings below are unchanged; only where they are looked for widened.
+    """
+    import pathlib as _p
+    d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
+    return "\n".join(sorted(p.read_text(encoding="utf-8") for p in d.glob("*.md")))
+
+
 
 def test_guardrails_coverage_floor_has_caveat():
     """governance/guardrails.yml coverage-floor example must carry the floor-never-target caveat."""
@@ -30,7 +45,7 @@ def test_guardrails_coverage_floor_has_caveat():
 
 def test_evidence_gates_has_coverage_caveat():
     """skills/evidence-gates/SKILL.md must also carry the coverage caveat paragraph."""
-    text = EVIDENCE_GATES.read_text(encoding="utf-8")
+    text = _evidence_gates_text()
     text_lower = text.lower()
     assert "coverage" in text_lower, (
         "evidence-gates/SKILL.md must mention coverage."

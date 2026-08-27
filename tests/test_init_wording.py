@@ -52,12 +52,22 @@ def test_ioi_c3b_zero_project_setup_is_not_claimed_bare():
     """
     text = _read("CLAUDE.md")
     paragraphs = text.split("\n\n")
-    claims = [p for p in paragraphs if re.search(r"zero project setup", p, re.I)]
-    assert claims, "CLAUDE.md no longer makes the zero-project-setup claim at all"
+    # Either wording of the claim. It was "triage works with zero project
+    # setup"; compressing CLAUDE.md restated it as "nothing to configure and
+    # no gate to clear". Both say the same thing to a reader, and both need
+    # the qualifier - what must not happen is the claim standing bare.
+    claim = re.compile(r"zero project setup|nothing to configure", re.I)
+    claims = [p for p in paragraphs if claim.search(p)]
+    assert claims, (
+        "CLAUDE.md no longer claims a project needs no setup, in any wording - "
+        "this check is now passing over nothing")
 
     for para in claims:
-        assert re.search(r"in the sense that matters|nothing for you to "
-                         r"configure|initialis", para, re.I), (
+        # The qualifier is whatever tells the reader that `.compass/` IS
+        # created, just not by them: "initialised for you", or naming the
+        # command that creates it. What fails is the claim standing alone.
+        assert re.search(r"in the sense that matters|initialis|"
+                         r"creates `?\.compass/|compass init", para, re.I), (
             "CLAUDE.md claims zero project setup with nothing in the same "
             "paragraph to say that `.compass/` is created for the user on "
             "their first command:\n" + para)

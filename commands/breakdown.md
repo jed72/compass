@@ -1,5 +1,5 @@
 ---
-description: Break down the work - set up git worktrees and the agent swarm, one stream per independent unit
+description: Break the work into independent streams and set up a worktree for each
 allowed-tools: Read, Write, Edit, Bash, Glob
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: Root-cause-first debugging - instrument at boundaries, compare against a working case, test one hypothesis at a time, and fix through a failing test. Includes the escape clause - three failed fixes means the framing is wrong, not that a fourth fix is needed. Triggers during Build on an unexpected test failure, and any time a fix does not hold.
+description: "How to debug from evidence rather than guesses: read the failure, form one hypothesis, test it. Load on an unexpected test failure, and after three failed fixes re-assess instead of trying a fourth."
 ---
 
 # Systematic Debugging

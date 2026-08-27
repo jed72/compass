@@ -257,14 +257,19 @@ class TestArchitectureDocumentation:
         )
 
     def test_evidence_gates_skill_mentions_fitness_functions(self):
-        """skills/evidence-gates/SKILL.md must describe the fitness-functions
-        pattern citing ADR-009."""
-        skill = FRAMEWORK_ROOT / "skills" / "evidence-gates" / "SKILL.md"
-        assert skill.is_file()
-        text = skill.read_text(encoding="utf-8")
+        """The evidence-gates skill must describe the fitness-functions
+        pattern citing ADR-009.
+
+        Reads the whole skill directory: the detail lives in
+        fitness-functions.md since the skill was split, and it applies only
+        where a project has declared a fitness function.
+        """
+        skill_dir = FRAMEWORK_ROOT / "skills" / "evidence-gates"
+        assert skill_dir.is_dir()
+        text = "\n".join(sorted(q.read_text(encoding="utf-8") for q in skill_dir.glob("*.md")))
         assert "fitness" in text.lower(), (
-            "evidence-gates SKILL.md must mention fitness functions"
+            "the evidence-gates skill must mention fitness functions"
         )
         assert "ADR-009" in text, (
-            "evidence-gates SKILL.md must cite ADR-009"
+            "the evidence-gates skill must cite ADR-009"
         )

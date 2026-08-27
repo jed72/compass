@@ -79,22 +79,17 @@ force; if it is still a spike, leave the marker in place.
 1. **Create the issue spine.** Pick a slug, make `.compass/work/<task-slug>/`,
    and write `task.yml` from `${CLAUDE_PLUGIN_ROOT}/templates/task.yml` into it. This is the
    machine-readable spine the CLI reads and writes.
-1a. **Load project architecture if present.** Call
-    `frame_load_architecture(project_root, task_dir)` - the internal CLI
-    helper. It scans `architecture/` at the project root (sibling to
-    `governance/`), reads any narrative files (`system-context.md`,
-    `relations.md`, `ownership.md`) and the optional structured file
-    (`invariants.yml`), collects any `ADR-*.md` files from
-    `architecture/decisions/`, and writes the result to
-    `.compass/work/<task-slug>/architecture-loaded.yml`. If `architecture/`
-    does not exist the file is written with empty `artifacts: []` and
-    `adrs: []` - no error (backward compat). If `invariants.yml` exists but
-    is not valid YAML, triage fails loudly with the file path and parse error
-    in the message - a malformed structured artifact is never silently
-    swallowed. `architecture-loaded.yml` is the **downstream agents' input**
-    for all architectural context in this session; see `docs/methodology.md`
-    for the contract. **Do not write load state into the spine's
-    `assessment:`** - that block is the judgement only.
+1a. **Load project architecture if present.** If the project has an
+    `architecture/` directory beside `governance/`, its narrative files,
+    `invariants.yml` and decision records are loaded into
+    `architecture-loaded.yml` in the issue directory - that file is what
+    downstream agents read for architectural context. A project without one
+    keeps working. Do **not** write load state into the spine's `assessment:`
+    block; that block is the judgement only.
+
+    (No CLI verb wraps this yet, so it does not happen on its own - see the
+    `architecture-load-has-no-verb` issue.)
+
 2. **Read the four dimensions - this is the judgement** - risk, familiarity,
    size, goal & role, plus the `labels:` domain tags. Each gets a value and a
    one-line justification. If a value cannot be justified, ask the user

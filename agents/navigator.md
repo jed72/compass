@@ -1,6 +1,6 @@
 ---
 name: navigator
-description: Runs the triage stage - reads the four assessment dimensions into task.yml, runs the CLI to compute the delivery approach, and writes delivery-approach.md. Invoke at the start of every issue that changes code, specs, or product artifacts.
+description: "Runs the assess stage: reads the four dimensions into the spine, runs the CLI to compute the delivery approach, and writes the delivery-approach record."
 tools: Read, Glob, Grep, Write, Edit, Bash
 model: opus
 ---

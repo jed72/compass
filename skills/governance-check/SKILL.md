@@ -1,6 +1,6 @@
 ---
 name: governance-check
-description: How to check a plan, spec, or change against the guardrails (hard, evidence), the strategies (soft, assessed), and the routing policy. Triggers during Plan (the formal check) and any time a change needs to be measured against governance.
+description: How to check a finished design against the guardrails and strategies in force. Load at the plan stage.
 ---
 
 # Governance Check

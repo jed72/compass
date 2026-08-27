@@ -1,6 +1,6 @@
 ---
 name: plan-authoring
-description: How to write a technical-design.md a reviewer can see the change in - choosing between the optional sections (Summary, sequence diagram, structural diagram, named patterns, illustrative code, cross-cutting concerns), scaling them by route, and the self-review before hand-off. Triggers during Plan.
+description: "How to write a technical design: which optional sections earn a place, and the self-review owed before handing it over. Load at the plan stage."
 ---
 
 # Plan Authoring

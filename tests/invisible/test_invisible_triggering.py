@@ -27,6 +27,9 @@ from __future__ import annotations
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+# The rule moved out of the adapter file and into the contract the
+# SessionStart hook injects, so it now reaches an adopter's session too.
+CONTRACT = REPO_ROOT / "compass-contract.md"
 
 CLAUDE_MD = REPO_ROOT / "CLAUDE.md"
 AGENTS = {
@@ -39,15 +42,14 @@ AGENTS = {
 # The exact paragraph that DD-6 requires (from plan.md §DD-6). The wording
 # moved to the frozen v2 vocabulary in the session-instructions rename
 # slice; the rule it pins is unchanged.
-DD6_HEADING = "**Trigger triage on intent, not just the literal command.**"
+DD6_HEADING = "**Trigger on intent, not on the command.**"
 DD6_CONTENT = (
-    "When the user describes intent to build, change, or fix code"
-    " - even if they do not type `/compass:assess` - "
-    "invoke `/compass:assess` before any artifact-changing tool call."
+    "If someone describes work to build,\nchange or fix, assess first even "
+    "if they never typed the command."
 )
 
 # The existing paragraph that must remain untouched (additive-only check)
-EXISTING_PARAGRAPH = "**Never skip triage.**"
+EXISTING_PARAGRAPH = "**Never skip assessment.**"
 
 # The phrase that must NOT appear as a re-frame trigger when a task is already
 # active (TRC-F3 guard: invisible triggering must not re-frame an active task)
@@ -67,37 +69,37 @@ class TestCLAUDEMdInvisibleTriggering:
     """TRC-C1 / TRC-C2 / TRC-C3 - CLAUDE.md carries the intent-trigger rule."""
 
     def test_claude_md_exists(self):
-        """CLAUDE.md must exist."""
+        """compass-contract.md must exist."""
         assert CLAUDE_MD.is_file(), f"CLAUDE.md not found at {CLAUDE_MD}"
 
     def test_intent_trigger_heading_present(self):
-        """TRC-C1 / TRC-C3 - CLAUDE.md must contain the DD-6 trigger heading."""
-        content = CLAUDE_MD.read_text(encoding="utf-8")
+        """TRC-C1 / TRC-C3 - compass-contract.md must contain the DD-6 trigger heading."""
+        content = CONTRACT.read_text(encoding="utf-8")
         assert DD6_HEADING in content, (
-            f"CLAUDE.md is missing the intent-trigger heading:\n  {DD6_HEADING!r}\n"
+            f"compass-contract.md is missing the intent-trigger heading:\n  {DD6_HEADING!r}\n"
             "Add the DD-6 paragraph per plan.md §DD-6."
         )
 
     def test_intent_trigger_content_present(self):
-        """TRC-C1 / TRC-C3 - CLAUDE.md must contain the DD-6 trigger body."""
-        content = CLAUDE_MD.read_text(encoding="utf-8")
+        """TRC-C1 / TRC-C3 - compass-contract.md must contain the DD-6 trigger body."""
+        content = CONTRACT.read_text(encoding="utf-8")
         assert DD6_CONTENT in content, (
-            "CLAUDE.md is missing the intent-trigger body text. "
+            "compass-contract.md is missing the intent-trigger body text. "
             "Add the DD-6 paragraph per plan.md §DD-6."
         )
 
     def test_explicit_invocation_still_works(self):
-        """TRC-C2 - CLAUDE.md must state that explicit invocation always works."""
-        content = CLAUDE_MD.read_text(encoding="utf-8")
-        assert "Explicit invocation of any Compass command always works" in content, (
-            "CLAUDE.md must clarify that explicit invocation still works "
+        """TRC-C2 - compass-contract.md must state that explicit invocation always works."""
+        content = CONTRACT.read_text(encoding="utf-8")
+        assert "typing any Compass command\nalways works" in content, (
+            "compass-contract.md must clarify that explicit invocation still works "
             "(TRC-C2 / BR-011 additive-not-replacement). "
             "Add the clarifying phrase per plan.md §DD-6."
         )
 
     def test_existing_never_skip_frame_preserved(self):
         """TRC-C2 - the existing 'Never skip Frame' paragraph is untouched."""
-        content = CLAUDE_MD.read_text(encoding="utf-8")
+        content = CONTRACT.read_text(encoding="utf-8")
         assert EXISTING_PARAGRAPH in content, (
             f"The existing paragraph {EXISTING_PARAGRAPH!r} is missing from "
             "CLAUDE.md. The DD-6 edit must be ADDITIVE - do not replace existing text."
@@ -105,7 +107,7 @@ class TestCLAUDEMdInvisibleTriggering:
 
     def test_never_skip_frame_comes_before_trigger_rule(self):
         """The new rule is added AFTER the existing paragraph, not before."""
-        content = CLAUDE_MD.read_text(encoding="utf-8")
+        content = CONTRACT.read_text(encoding="utf-8")
         existing_pos = content.find(EXISTING_PARAGRAPH)
         trigger_pos = content.find(DD6_HEADING)
         assert existing_pos != -1, "Existing 'Never skip Frame' paragraph not found."
@@ -120,8 +122,8 @@ class TestCLAUDEMdNoReframe:
     """TRC-F3 - invisible triggering must NOT instruct re-framing an active task."""
 
     def test_no_re_frame_trigger_phrases(self):
-        """TRC-F3 - CLAUDE.md must not instruct re-running Frame on an active task."""
-        content = CLAUDE_MD.read_text(encoding="utf-8").lower()
+        """TRC-F3 - compass-contract.md must not instruct re-running Frame on an active task."""
+        content = CONTRACT.read_text(encoding="utf-8").lower()
         # Check around the intent-trigger paragraph specifically
         trigger_idx = content.find("trigger triage on intent")
         if trigger_idx == -1:

@@ -21,7 +21,23 @@ import re
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 STRATEGIES = ROOT / "governance" / "strategies.md"
 VERIFY_COMMAND = ROOT / "commands" / "verify.md"
-EVIDENCE_GATES = ROOT / "skills" / "evidence-gates" / "SKILL.md"
+EVIDENCE_GATES_DIR = ROOT / "skills" / "evidence-gates"
+
+
+class _SkillDir:
+    """Reads a whole skill. The long skills are split, so a guard that
+    reads only SKILL.md reports content missing when it moved next door.
+    The strings looked for are unchanged."""
+
+    def __init__(self, d):
+        self._d = d
+
+    def read_text(self, *a, **k):
+        return "\n".join(sorted(
+            p.read_text(encoding="utf-8") for p in self._d.glob("*.md")))
+
+
+EVIDENCE_GATES = _SkillDir(EVIDENCE_GATES_DIR)
 
 
 def _flat(text: str) -> str:

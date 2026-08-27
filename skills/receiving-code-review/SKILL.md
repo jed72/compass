@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: How to answer a reviewer - verify each suggestion against the code before acting on it, push back with technical reasoning when the reviewer is wrong, and treat "implement this properly" as a question about scope. Triggers whenever review feedback arrives, during Verify and on any pull request.
+description: "How to answer review comments: verify each against the code before acting, push back with reasoning rather than preference, and record what you did with each one."
 ---
 
 # Receiving Code Review

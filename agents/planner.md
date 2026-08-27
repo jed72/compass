@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Owns the design stage - writes the design, runs the governance check, builds the distribution map, and decides the topology. Invoke after the requirements review, before breakdown. Trigger triage on intent - if the user describes a planning or scoping request without typing /compass:assess, run triage before any artifact-changing action.
+description: "Owns the plan stage: writes the technical design, runs the governance check, and decides the parallel topology."
 tools: Read, Glob, Grep, Write, Edit
 model: opus
 ---
@@ -18,6 +18,16 @@ Load two skills, and keep their jobs apart:
   before hand-off. Delete the sections you do not use.
 - **`governance-check`** - how to *check* the finished plan against
   `governance/`. Load it before you finalise.
+
+
+## Assessment comes first
+
+Trigger triage on intent, not just the literal command: if the request
+describes work to build, change or fix, make sure the current issue has
+been assessed before any artifact-changing action. Explicit invocation of
+any Compass command always works. If `.compass/current-task` already points
+at an assessed issue, proceed with its recorded delivery approach rather
+than assessing again.
 
 ## What you own
 

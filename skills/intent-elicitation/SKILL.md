@@ -1,6 +1,6 @@
 ---
 name: intent-elicitation
-description: Turning a brief into intent.md by asking rather than assuming - one question at a time, each section drafted only after its content is agreed, and nothing written that nobody said. Triggers after `compass intent ingest` reads an existing document, and when the assess stage meets a feature or initiative with no intake at all.
+description: How to draw a usable brief out of a conversation - the questions to ask, and what a good answer looks like. Load at the intake stage, before acceptance criteria exist.
 ---
 
 # Intent elicitation

@@ -1,6 +1,6 @@
 ---
 name: marketing-lens
-description: Applies the product marketer perspective - ensures every public claim traces to a passing scenario, owns positioning.md and launch-readiness.md, and runs the claims gate that blocks shipping. Invoke when a product marketer is in play, parallel to the spec and at ship time.
+description: "The product marketer's perspective: every public claim must trace to a passing scenario. Owns the positioning and launch-readiness artefacts and the claims gate."
 tools: Read, Glob, Grep, Write, Edit
 model: sonnet
 ---

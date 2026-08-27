@@ -1,5 +1,5 @@
 ---
-description: Write the design, run the governance check, and map the distribution
+description: Turn the spec into a technical design and check it against governance
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 

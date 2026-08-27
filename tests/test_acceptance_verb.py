@@ -244,7 +244,7 @@ def test_scn_f2_tdd_discipline_names_the_verb():
     """An author meets this problem inside the TDD skill, so that is where the
     honest path has to be named - otherwise --verified-by stays the only option
     they can see."""
-    text = (ROOT / "skills" / "tdd-discipline" / "SKILL.md").read_text(encoding="utf-8")
+    text = "\n".join(sorted(q.read_text(encoding="utf-8") for q in (ROOT / "skills" / "tdd-discipline" / "SKILL.md").parent.glob("*.md")))
     assert "compass acceptance" in text, (
         "tdd-discipline does not mention the acceptance verb, so an author with "
         "a config or refactor change will still reach for a grep-shaped red")

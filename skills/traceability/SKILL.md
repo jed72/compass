@@ -1,6 +1,6 @@
 ---
 name: traceability
-description: Maintaining the code→scenario→intent and claim→scenario chains continuously, so the chain becomes the audit trail. Triggers whenever an artifact is written - while the acceptance criteria are defined, Build, Verify, and any role-facing work.
+description: How code, scenarios, claims and intents point at each other, and how to keep the chain intact as you work. Load whenever an artifact is written.
 ---
 
 # Traceability

@@ -1,6 +1,6 @@
 ---
 name: role-translation
-description: The "one spec, many roles" mechanism - how the same acceptance-criteria.md is read by the PM (intent), the marketer (claims), the engineer (tests), QA (coverage), and the designer (contracts). Triggers on any role-facing work and whenever a non-engineering role enters the pipeline.
+description: How one set of acceptance criteria is read through five role perspectives. Load for any role-facing work.
 ---
 
 # Role Translation
