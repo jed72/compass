@@ -1,7 +1,7 @@
 """Cross-cutting release invariants.
 
 These tests assert the hard-line invariants that must hold across releases:
-- TRC-F1: verify.fitness is route-promoted only, never tier-menu
+- TRC-F1: verify.architecture is route-promoted only, never tier-menu
 - TRC-F2: every new check is mechanical - no runtime model call
 - TRC-F3: no sixth guardrail (G1-G5 unchanged)
 - TRC-F4: routing dimensions stay at four (reading_vocabulary unchanged)
@@ -86,31 +86,31 @@ def test_no_fifth_routing_dimension_added():
 
 
 # -----------------------------------------------------------------------------
-# TRC-F1 - verify.fitness is route-promoted only, never tier-menu.
+# TRC-F1 - verify.architecture is route-promoted only, never tier-menu.
 # Mechanical assertion: only the routing policy floors can introduce it.
 # -----------------------------------------------------------------------------
 
 def test_verify_fitness_only_introduced_via_routing_floors():
-    """verify.fitness is not in any route_shape's gates list - it is only
+    """verify.architecture is not in any route_shape's gates list - it is only
     added by the RP-REQUIRE-003/007 floors (route-promoted, never tier-menu).
     """
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     for shape_name, shape in policy["route_shapes"].items():
-        assert "verify.fitness" not in shape.get("gates", []), (
-            f"verify.fitness must not be baked into route_shape '{shape_name}'.gates - "
+        assert "verify.architecture" not in shape.get("gates", []), (
+            f"verify.architecture must not be baked into route_shape '{shape_name}'.gates - "
             "it is route-promoted by floor only, so routing stays per-task."
         )
 
 
 def test_verify_fitness_promotion_floors_exist():
-    """RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.fitness."""
+    """RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.architecture."""
     policy = yaml.safe_load((REPO_ROOT / "governance/routing-policy.yml").read_text())
     floors = policy["routing_guardrails"]["floors"]
     by_id = {f["id"]: f for f in floors}
-    assert "RP-REQUIRE-003" in by_id, "RP-REQUIRE-003 (verify.fitness on cross-cutting/critical) must exist"
-    assert "RP-REQUIRE-004" in by_id, "RP-REQUIRE-004 (verify.fitness on irreversible touches) must exist"
-    assert by_id["RP-REQUIRE-003"]["add_gate"] == "verify.fitness"
-    assert by_id["RP-REQUIRE-004"]["add_gate"] == "verify.fitness"
+    assert "RP-REQUIRE-003" in by_id, "RP-REQUIRE-003 (verify.architecture on cross-cutting/critical) must exist"
+    assert "RP-REQUIRE-004" in by_id, "RP-REQUIRE-004 (verify.architecture on irreversible touches) must exist"
+    assert by_id["RP-REQUIRE-003"]["add_gate"] == "verify.architecture"
+    assert by_id["RP-REQUIRE-004"]["add_gate"] == "verify.architecture"
 
 
 # -----------------------------------------------------------------------------
@@ -157,7 +157,7 @@ def test_no_project_guardrails_declared_in_framework_repo():
 # TRC-F6 - net-new top-level concept count is bounded.
 # The legitimate additions, cumulative across releases:
 #   1.1.0 - 1 strategy id: S5 (intermittency is failure)
-#         - 1 gate name: verify.fitness
+#         - 1 gate name: verify.architecture
 #         - 2 check names: no-trusted-rerun, command-passes
 #         - 1 evidence-record field: attempts (+rerun_without_change paired)
 #         - 1 signal category: design_smell
@@ -224,13 +224,13 @@ def test_default_method_strategy_set_is_the_known_set():
 
 
 def test_net_new_gates_is_one():
-    """gate_evidence_requirements gained exactly verify.fitness (no other new gate)."""
+    """gate_evidence_requirements gained exactly verify.architecture (no other new gate)."""
     data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
     gates = set(data["gate_evidence_requirements"].keys())
     legitimate = {"verify.correctness", "verify.regression", "verify.security",
                   "verify.governance", "verify.traceability", "verify.claims",
                   "verify.clarity", "spike.conclude", "verify.analyze",
-                  "verify.fitness"}
+                  "verify.architecture"}
     extra = gates - legitimate
     assert not extra, f"gate_evidence_requirements gained unexpected gates: {extra}"
 

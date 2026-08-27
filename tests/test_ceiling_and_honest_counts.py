@@ -79,10 +79,10 @@ def test_trc_a1_evaluator_emits_a_ceiling_not_a_topology(tmp_path):
          "--write"], cwd=str(root), capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"{r.stdout}{r.stderr}"
 
-    assert not re.search(r"^\s*topology\s*:", r.stdout, re.M), (
+    assert not re.search(r"^\s*(topology|orchestration)\s*:", r.stdout, re.M), (
         f"the evaluator still prints a topology decision at triage, before "
         f"any work unit is known:\n{r.stdout}")
-    assert re.search(r"parallel streams|stream ceiling|permits", r.stdout, re.I), (
+    assert re.search(r"parallel subtasks|subtask ceiling|permits", r.stdout, re.I), (
         f"the evaluator does not report the parallelism it permits:\n{r.stdout}")
 
 
@@ -98,15 +98,15 @@ def test_trc_a2_the_ceiling_is_a_number_not_a_sentence(tmp_path):
     manifest = yaml.safe_load(
         (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
 
-    ceiling = manifest.get("stream_ceiling")
+    ceiling = manifest.get("subtask_ceiling")
     assert isinstance(ceiling, int), (
-        f"stream_ceiling is not an integer: {ceiling!r}")
+        f"subtask_ceiling is not an integer: {ceiling!r}")
     assert ceiling == 1, (
         f"critical risk caps parallelism at one worktree, so the ceiling is "
         f"1, not {ceiling!r}")
-    assert not isinstance(manifest.get("topology"), str) or not manifest.get("topology"), (
-        f"triage still writes a topology decision into the manifest: "
-        f"{manifest.get('topology')!r} - breakdown owns that once the "
+    assert not isinstance(manifest.get("orchestration"), str) or not manifest.get("orchestration"), (
+        f"assess still writes an orchestration into the manifest: "
+        f"{manifest.get('orchestration')!r} - breakdown owns that once the "
         f"distribution map exists")
 
 
@@ -127,9 +127,9 @@ def test_trc_a3_an_uncapped_approach_permits_more_than_one(tmp_path):
     # The assertion is "not pinned to one", not "greater than one" - an
     # earlier version asserted the latter and only passed because `swarm`
     # carried an invented ceiling of 8.
-    assert manifest["stream_ceiling"] != 1, (
+    assert manifest["subtask_ceiling"] != 1, (
         f"large work on contained risk permits parallel streams; the ceiling "
-        f"came out {manifest['stream_ceiling']!r}")
+        f"came out {manifest['subtask_ceiling']!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -270,14 +270,22 @@ def test_trc_e1_swarm_has_no_invented_ceiling():
     So eight was a configurable-looking number frozen into a literal, and it
     would have misreported the day anyone set a real cap.
     """
-    from compass_pkg.routing import _SHAPE_STREAM_CEILING
+    # ADR-023 moved these numbers out of a lookup in `routing` and into the
+    # route shapes themselves, because the words they were keyed by retired.
+    # The property under test is unchanged: the unbounded shape must carry no
+    # invented number.
+    import yaml
 
-    assert _SHAPE_STREAM_CEILING["swarm"] is None, (
-        f"`swarm` carries an invented ceiling of "
-        f"{_SHAPE_STREAM_CEILING['swarm']!r}. Unbounded is the honest value: "
-        f"the policy states no number, so only a cap can produce one")
-    assert _SHAPE_STREAM_CEILING["solo"] == 1
-    assert _SHAPE_STREAM_CEILING["solo-or-pair"] == 2
+    shapes = yaml.safe_load(
+        (ROOT / "governance" / "routing-policy.yml").read_text()
+    )["route_shapes"]
+
+    assert shapes["expedition"]["subtask_ceiling"] is None, (
+        f"the unbounded shape carries an invented ceiling of "
+        f"{shapes['expedition']['subtask_ceiling']!r}. Unbounded is the honest "
+        f"value: the policy states no number, so only a cap can produce one")
+    assert shapes["express"]["subtask_ceiling"] == 1
+    assert shapes["standard"]["subtask_ceiling"] == 2
 
 
 def test_trc_e2_a_cap_still_produces_a_number(tmp_path):
@@ -289,7 +297,7 @@ def test_trc_e2_a_cap_still_produces_a_number(tmp_path):
         check=True)
     manifest = yaml.safe_load(
         (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
-    assert manifest["stream_ceiling"] == 1, manifest.get("stream_ceiling")
+    assert manifest["subtask_ceiling"] == 1, manifest.get("subtask_ceiling")
 
 
 def test_trc_e3_an_old_spine_normalises_to_a_ceiling():
@@ -300,15 +308,15 @@ def test_trc_e3_an_old_spine_normalises_to_a_ceiling():
 
     for word, expected in (("solo", 1), ("solo-or-pair", 2), ("swarm", None)):
         out = normalize_spine({"task": "old", "topology": word})
-        assert "stream_ceiling" in out, (
+        assert "subtask_ceiling" in out, (
             f"an old manifest carrying `topology: {word}` does not normalise to a "
-            f"stream_ceiling, so every reader of the new field sees None")
-        assert out["stream_ceiling"] == expected, (
-            f"topology {word!r} normalised to {out['stream_ceiling']!r}, "
+            f"subtask_ceiling, so every reader of the new field sees None")
+        assert out["subtask_ceiling"] == expected, (
+            f"topology {word!r} normalised to {out['subtask_ceiling']!r}, "
             f"expected {expected!r}")
-        assert out.get("topology") == word, (
-            "normalisation destroyed the recorded topology - an archived "
-            "manifest keeps what it said")
+        assert out.get("orchestration") == word, (
+            "normalisation destroyed the recorded word - an archived manifest "
+            "keeps what it said, under the current key name")
 
 
 def test_trc_e4_a_new_spine_is_not_overwritten():
@@ -316,5 +324,5 @@ def test_trc_e4_a_new_spine_is_not_overwritten():
     normalisation would silently re-derive a number breakdown had refined."""
     from compass_pkg.core import normalize_spine
 
-    out = normalize_spine({"task": "t", "topology": "swarm", "stream_ceiling": 3})
-    assert out["stream_ceiling"] == 3, out["stream_ceiling"]
+    out = normalize_spine({"task": "t", "topology": "swarm", "subtask_ceiling": 3})
+    assert out["subtask_ceiling"] == 3, out["subtask_ceiling"]

@@ -12,7 +12,7 @@ assessment:
   labels:
   - public-api
 delivery_approach: standard
-topology: solo-or-pair
+orchestration: multiagent
 policy_rules_fired:
 - id: RP-FLOOR-003
   kind: floor

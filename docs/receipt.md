@@ -31,7 +31,7 @@ Assessment
 
 Approach
 --------
-  feature  (topology: solo-or-pair)
+  feature  (orchestration: multiagent)
   policy rules fired:
     Domain risk overrides size. A one-line auth change is not small (RP-FLOOR-003)
     Architectural fitness checked before cross-cutting or critical changes land (RP-REQUIRE-003)
