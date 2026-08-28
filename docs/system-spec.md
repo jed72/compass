@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A call naming no file still resolves from the session
+### A revival condition nobody can observe is refused
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-1`
-- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### Retiring a frozen term is recorded as a decision
+### The revival condition is readable from the record alone
 
-- **Scenario id:** `TRC-D3`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-2`
-- **Source issue:** `anthropic-aligned-vocabulary`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
-### A key rename that silently drops data fails the build
+### Orphaning Inv-8 fails the change
 
-- **Scenario id:** `TRC-F2`
+- **Scenario id:** `TRC-F3`
 - **Intent:** `INT-3`
-- **Source issue:** `anthropic-aligned-vocabulary`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
-### a URL that is not https is refused
+### Every link in the decisions index resolves
 
-- **Scenario id:** `ING-D4`
+- **Scenario id:** `TRC-B2`
 - **Intent:** `INT-4`
-- **Source issue:** `ingest-an-existing-brief`
-- **Landed:** 2026-08-25
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
-### the guard fails when handed nothing
+### The release that carries the removal says so
 
-- **Scenario id:** `TRC-E2`
+- **Scenario id:** `TRC-D6`
 - **Intent:** `INT-5`
-- **Source issue:** `the-vocabulary-rename`
-- **Landed:** 2026-08-25
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
 ### the hook still blocks a code file inside the project
 
@@ -85,12 +85,12 @@
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
-### the same assessment computes the same artifact set every time
+### A record that only restates the existing schedule is refused
 
-- **Scenario id:** `TRC-F4`
+- **Scenario id:** `TRC-F1`
 - **Intent:** `INT-6`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
 ### A configured test_micro_command takes precedence when present
 
@@ -6097,6 +6097,13 @@
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
+### the same assessment computes the same artifact set every time _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-6`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
 ### a stage hand-off fits on one screen _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -6496,6 +6503,13 @@
 - **Source issue:** `the-vocabulary-rename`
 - **Landed:** 2026-08-25
 
+### the guard fails when handed nothing _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-5`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
 ### the coherence check reads the stage table the template writes _(archived)_
 
 - **Scenario id:** `TRC-E3`
@@ -6597,6 +6611,13 @@
 ### a redirect is followed, and provenance names where it landed _(archived)_
 
 - **Scenario id:** `ING-D3`
+- **Intent:** `INT-4`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a URL that is not https is refused _(archived)_
+
+- **Scenario id:** `ING-D4`
 - **Intent:** `INT-4`
 - **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
@@ -7154,6 +7175,13 @@
 - **Source issue:** `anthropic-aligned-vocabulary`
 - **Landed:** 2026-08-28
 
+### Retiring a frozen term is recorded as a decision _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-2`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
 ### A decision record keeps the words it was decided in _(archived)_
 
 - **Scenario id:** `TRC-D4`
@@ -7165,6 +7193,13 @@
 
 - **Scenario id:** `TRC-F1`
 - **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A key rename that silently drops data fails the build _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-3`
 - **Source issue:** `anthropic-aligned-vocabulary`
 - **Landed:** 2026-08-28
 
@@ -7215,4 +7250,102 @@
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
 - **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
+
+### A call naming no file still resolves from the session _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
+
+### The decision names an observable quantity _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Publication is refused as evidence of adoption _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The record says what it adds beyond the release _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-6`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The supersession is navigable in both directions _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-4`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Inv-8 resolves to a record that is not superseded _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### ADR-006 is not superseded _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Inv-8's two promises are stated separately _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The archive rule is untouched _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The retired slash commands no longer exist _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The hidden CLI alias no longer resolves _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Read-side migration survives, for the archive's reason _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The vocabulary has one value per concept again _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### A stale exemption fails the build _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
