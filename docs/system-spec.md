@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### no document says a shipped rename is still pending
+### A call naming no file still resolves from the session
 
-- **Scenario id:** `VOC-B1`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-1`
-- **Source issue:** `vocabulary-debt`
-- **Landed:** 2026-08-27
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,19 +43,19 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the deep dive does not claim scoped gates are immovable
+### Retiring a frozen term is recorded as a decision
 
-- **Scenario id:** `VOC-C2`
+- **Scenario id:** `TRC-D3`
 - **Intent:** `INT-2`
-- **Source issue:** `vocabulary-debt`
-- **Landed:** 2026-08-27
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
 
-### project governance still wins where a project has its own
+### A key rename that silently drops data fails the build
 
-- **Scenario id:** `SB-C2`
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-3`
-- **Source issue:** `session-bootstrap`
-- **Landed:** 2026-08-27
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
 
 ### a URL that is not https is refused
 
@@ -6930,6 +6930,13 @@
 - **Source issue:** `session-bootstrap`
 - **Landed:** 2026-08-27
 
+### project governance still wins where a project has its own _(archived)_
+
+- **Scenario id:** `SB-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
 ### a source install registers the same hook _(archived)_
 
 - **Scenario id:** `SB-D1`
@@ -6979,9 +6986,233 @@
 - **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
 
+### no document says a shipped rename is still pending _(archived)_
+
+- **Scenario id:** `VOC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `vocabulary-debt`
+- **Landed:** 2026-08-27
+
 ### the deep dive names the gates the policy staples _(archived)_
 
 - **Scenario id:** `VOC-C1`
 - **Intent:** `INT-2`
 - **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
+
+### the deep dive does not claim scoped gates are immovable _(archived)_
+
+- **Scenario id:** `VOC-C2`
+- **Intent:** `INT-2`
+- **Source issue:** `vocabulary-debt`
+- **Landed:** 2026-08-27
+
+### A retired concept word is reported by the vocabulary scan _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### Every retired concept word has a ban entry naming its replacement _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The scanned surfaces are free of the retired concept words _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### An ordinary use of a retired word is not reported _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A new manifest records orchestration rather than topology _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### An existing manifest written with topology still loads _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A retired topology word is read as the ceiling it always implied _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The parallel-work ceiling is named for the unit it counts _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The architecture gate is named for what it checks _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A route shape declares a ceiling rather than an orchestration _(archived)_
+
+- **Scenario id:** `TRC-B6`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The project config names multiagent work by its new name _(archived)_
+
+- **Scenario id:** `TRC-B7`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### Who integrates is decided by the number of subtasks _(archived)_
+
+- **Scenario id:** `TRC-B8`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A rename is not reported as new mechanism _(archived)_
+
+- **Scenario id:** `TRC-B9`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A renamed command is invocable under its new name _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A retired command name still resolves _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The three role agents are named after their role _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The lens carve-out is removed once the identifiers are gone _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The assessment agent is named for what it does _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A renamed skill is discoverable under its new name _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The glossary defines each term this rename introduces _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-2`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The glossary is regenerated rather than hand-edited _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-2`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A decision record keeps the words it was decided in _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A replacement that misreads the source meaning is rejected _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A ban with no working pattern is caught before it ships _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A loose pattern that reports neighbouring text fails the suite _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### No printed string names a retired verb or value _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `printed-output-guard-coverage`
+- **Landed:** 2026-08-28
+
+### The walk reaches far more than the two commands it replaces _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `printed-output-guard-coverage`
+- **Landed:** 2026-08-28
+
+### A planted retired name is reported _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `printed-output-guard-coverage`
+- **Landed:** 2026-08-28
+
+### A red in the worktree allows an edit in the worktree _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
+
+### A red in the session does not unlock a worktree _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
