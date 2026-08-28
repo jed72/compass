@@ -2,7 +2,7 @@
 
 The content specification is the ratified verb map in the slice's issue
 archive: approach evaluate, follow-up resolve (states outstanding ->
-resolved), retro, design lint, issue lint/receipt/set-status, ship-commit,
+resolved), retro, plan lint, issue lint/receipt/set-status, ship-commit,
 and the new terminology verb. Retired verbs and the tolerated --task and
 --reading flag spellings were removed at the major version (ADR-014); what
 remains of those contracts is asserted in tests/test_no_deprecation_stubs.py,

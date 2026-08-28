@@ -448,10 +448,11 @@ def test_trc_b7():
 def test_trc_a4():
     """TRC-A4: the planning stage answers to `plan` in the CLI too.
 
-    `commands/design.md` was renamed to `commands/plan.md`, but the CLI verb
-    stayed `compass design lint`. That leaves the same word meaning the
-    engineering design in the CLI and the designer's UI contract in the slash
-    command, in one release - which is the exact ambiguity this rename exists
+    `commands/design.md` was renamed to `commands/plan.md` while the CLI verb
+    stayed `compass design lint` - the same word meaning the engineering
+    design in the CLI and the designer's UI contract in the slash command, in
+    one release. The verb moved to `plan` with a hidden `design` alias, and
+    4.0.0 removed the alias - which is the exact ambiguity this rename exists
     to remove.
     """
     import subprocess

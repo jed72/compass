@@ -3,8 +3,9 @@
 These are invariants of *this repository*, not framework guardrails. They run
 in this repo's pytest suite alongside `test_release_invariants.py`, never
 against an adopting project's task, and never as a `compass check` gate.
-Strategy S7 in `governance/strategies.md` is the reasoning; this file is the
-mechanical half of the one house-style rule that has a mechanical half.
+`governance/strategies.md` is the reasoning: `S7` for the agent-attribution
+rule, and the Voice and writing strategies block for the em dash. This file is
+the mechanical half of both.
 
 Two rules are enforced here:
 
@@ -54,7 +55,11 @@ FORBIDDEN_TRAILERS = (
     "Generated with [" + "Claude Code]",
 )
 
-# No file is exempt from this scan.
+# No file is exempt from this scan for containing a trailer.
+#
+# `assets/` and LICENSE are skipped below, by SKIP_PREFIXES and SKIP_EXACT,
+# for unrelated reasons - one is binary and the other is verbatim licence
+# text. Neither is an exemption from this rule.
 #
 # CLAUDE.md was, briefly, because a rewrite of its house-rules section spelled
 # the trailer out in full. That exempted every line of the file an agent edits
@@ -287,6 +292,22 @@ def test_house_style_is_documented():
     assert "Co-Authored-By" in strategies, (
         "Strategy S7 must state the no-agent-co-author-trailer rule, which "
         "test_no_agent_coauthor_trailer_in_tracked_files enforces."
+    )
+
+    # The em dash rule has a written home too, and nothing checked it: this
+    # test asserted the trailer rule twice and the em dash rule never, so
+    # deleting the Voice and writing strategies block left it green while
+    # test_no_em_dash's own failure message pointed readers at a section that
+    # no longer existed.
+    assert "No em dashes" in strategies, (
+        "governance/strategies.md must state the no-em-dash rule, which "
+        "test_no_em_dash_in_tracked_files enforces and whose failure message "
+        "sends the reader here"
+    )
+    assert "En dashes stay" in strategies, (
+        "governance/strategies.md must keep the en-dash carve-out. Without "
+        "it the rule reads as banning both, and a range like G1-G5 gets "
+        "'corrected' into something that means nothing"
     )
 
     land = (REPO_ROOT / "commands/ship.md").read_text(encoding="utf-8")

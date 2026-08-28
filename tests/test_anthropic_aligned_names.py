@@ -90,7 +90,7 @@ def test_no_agent_file_keeps_a_retired_name():
         assert not (AGENTS / f"{old}.md").exists(), f"{old}.md still present"
 
 
-# --- TRC-C1 / TRC-C2 - the command and its stub ---------------------------
+# --- TRC-C1 / TRC-C2 - the command, and the absence of its stub -----------
 
 def test_the_renamed_command_exists():
     """TRC-C1."""
@@ -133,9 +133,12 @@ def test_no_live_surface_points_at_a_retired_name():
     alone, not for the page.
     """
     retired = set(RENAMED_AGENTS) | set(RENAMED_SKILLS) | set(RENAMED_COMMANDS)
-    # Per name, never per page. Exempting a whole file would excuse all eight
-    # retired identifiers on it when only one has a reason to be there, and
-    # the page would stop being guarded without anyone deciding that.
+    # Per name where a name is what needs excusing. Exempting a whole page
+    # excuses all eight retired identifiers when only one has a reason to be
+    # there, and the page stops being guarded without anyone deciding that.
+    # `glossary.md` is the one page excused for all eight, because it is
+    # generated wholesale from the vocabulary and every banned word in it
+    # arrived from its source.
     allowed = {
         # The upgrade table names the removed command beside its replacement,
         # because a reader whose script broke has to find their spelling here.

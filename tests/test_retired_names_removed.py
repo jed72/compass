@@ -21,6 +21,7 @@ import json
 import re
 import subprocess
 import sys
+import pathlib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -82,26 +83,25 @@ def test_the_hidden_cli_alias_no_longer_resolves():
         f"`compass design` failed, but not as an unknown verb - the error was:"
         f"\n{out[-400:]}")
 
-    # NOT asserted: that the error names `plan`. argparse prints the whole
-    # choice list on an invalid choice, so `"plan" in out` is satisfied
-    # mechanically for as long as `plan` exists and says nothing about
-    # whether the reader was helped. The redirect a broken caller actually
-    # gets is the upgrade table in docs/releasing.md, which TRC-D6 checks.
-    assert "plan" in out.split("invalid choice")[0] or "plan" in out, (
-        "the parser no longer defines `plan`, so the replacement this "
-        "removal points at does not exist")
+    # Deliberately NOT asserted: that the error names `plan`. argparse prints
+    # the whole choice list on an invalid choice, so any such check is
+    # satisfied mechanically for as long as `plan` parses, and says nothing
+    # about whether the reader was helped. They are not: what a broken caller
+    # actually gets is a list of 30 verbs. The redirect is the upgrade table
+    # in docs/releasing.md, which TRC-D6 checks. That `plan` parses at all is
+    # established by the --help check below.
 
-    # `hidden` keeps a verb out of --help while it still parses. The stale-
-    # entry check lives in cli/compass itself, beside the subtraction, rather
-    # than here: reading the source for a `hidden = {...}` literal missed the
-    # `set()` spelling entirely and the assertion never ran. What is checked
-    # here is that the guard is wired in and reachable.
-    source = CLI.read_text(encoding="utf-8")
-    assert "hidden - set(sub.choices)" in source, (
-        "cli/compass no longer checks `hidden` against the parser's verbs. "
-        "That set is only ever subtracted from the advertised list, so an "
-        "entry naming a verb that does not parse removes nothing and reports "
-        "nothing")
+    # `hidden` keeps a verb out of --help while it still parses. The real
+    # stale-entry check lives in cli/compass beside the subtraction, where it
+    # compares against the parser's own verbs and runs for every caller - an
+    # earlier version here searched this file's source for a `hidden = {...}`
+    # literal, missed the `set()` spelling, and never executed.
+    #
+    # The guard is EXERCISED, not grepped. A source-text check for the
+    # subtraction passed with the `raise` beneath it deleted - the assignment
+    # alone is not a guard, and reading source text near a thing rather than
+    # running it is the defect this whole scenario exists to close.
+    _assert_hidden_guard_rejects_a_verb_that_does_not_parse()
 
     # The advertised set and the parsed set agree, apart from the internal
     # underscore-prefixed verbs which are deliberately not public. This is
@@ -171,6 +171,40 @@ def test_the_vocabulary_has_one_value_per_concept_again():
         f"scan.exempt entr(ies) exclude no scanned file: {', '.join(empty)}. "
         f"The scan only applies exemptions to files under scan.surfaces, so "
         f"an entry outside every surface removes nothing")
+
+
+
+def _assert_hidden_guard_rejects_a_verb_that_does_not_parse():
+    """Run a copy of the CLI whose `hidden` set names a verb that is not one.
+
+    `hidden` is only ever subtracted from the advertised verb list, so a stale
+    entry removes nothing and prints nothing. `cli/compass` guards that by
+    comparing the set against the parser's own verbs. This proves the guard
+    fires, rather than proving a line of source is still written.
+    """
+    import shutil
+    import tempfile
+
+    source = CLI.read_text(encoding="utf-8")
+    assert "hidden = set()" in source, (
+        "cli/compass no longer defines `hidden` in a shape this can plant a "
+        "bad entry into, so the guard below is untested")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        stage = pathlib.Path(tmp) / "cli"
+        shutil.copytree(CLI.parent, stage)
+        (stage / "compass").write_text(
+            source.replace("hidden = set()", 'hidden = {"nosuchverb"}', 1),
+            encoding="utf-8")
+        r = subprocess.run([sys.executable, str(stage / "compass"), "--help"],
+                           capture_output=True, text=True, timeout=60)
+    out = r.stdout + r.stderr
+    assert r.returncode != 0, (
+        "the `hidden` set named a verb the parser does not define and the CLI "
+        "ran anyway. A stale entry there is silent: it is only ever "
+        "subtracted from the advertised list, so it removes nothing")
+    assert "nosuchverb" in out, (
+        f"the CLI refused, but did not name the offending entry:\n{out[-400:]}")
 
 
 def _load_cli_modules():
@@ -300,6 +334,16 @@ def test_a_stale_exemption_fails_the_build():
             f"scan.exempt names {entry}, which excludes no file the scan "
             f"would visit. The exemption covers nothing and reads as coverage")
 
+    # A ceiling, because the shrink-only claim was not enforced by anything:
+    # adding a path to BOTH the exempt list and this allowance left the suite
+    # green, and the list grew from six to seven unnoticed. Raising this
+    # number is now a deliberate edit with a diff someone reviews.
+    assert len(KNOWN_INERT_EXEMPTIONS) <= 6, (
+        f"KNOWN_INERT_EXEMPTIONS has grown to {len(KNOWN_INERT_EXEMPTIONS)}. "
+        f"It is a ratchet: it may shrink as `exemptions-that-exclude-nothing` "
+        f"settles each entry, and must never grow. A new exemption that "
+        f"excludes nothing is a defect, not an allowance")
+
     # The ratchet only shrinks. An entry that starts excluding something, or
     # is deleted, must leave this list.
     stale_allowances = [e for e in KNOWN_INERT_EXEMPTIONS
@@ -335,8 +379,12 @@ def test_the_release_that_carries_the_removal_says_so():
     body = notes.read_text(encoding="utf-8")
     for name, replacement in sorted(RETIRED_COMMANDS.items()):
         stem = name[:-3]
+        # The scan marker lives inside the second cell - it has to stay on
+        # the line, and a third cell in a two-column table is dropped by
+        # renderers - so allow anything between the replacement and the
+        # closing pipe.
         row = re.compile(
-            r"^\|\s*`?/compass:%s`?\s*\|\s*`?%s`?\s*\|"
+            r"^\|\s*`?/compass:%s`?\s*\|\s*`?%s`?[^|]*\|"
             % (re.escape(stem), re.escape(replacement)), re.M)
         assert row.search(body), (
             f"docs/releasing.md has no upgrade row pairing `/compass:{stem}` "
@@ -345,7 +393,7 @@ def test_the_release_that_carries_the_removal_says_so():
 
     # The removed CLI verb needs the same row.
     verb_row = re.compile(r"^\|\s*`?compass design lint`?\s*\|"
-                          r"\s*`?compass plan lint`?\s*\|", re.M)
+                          r"\s*`?compass plan lint`?[^|]*\|", re.M)
     assert verb_row.search(body), (
         "docs/releasing.md has no upgrade row for `compass design lint`")
 
@@ -403,3 +451,59 @@ def test_no_dead_redirect_machinery_survives_the_removal():
     assert "keeps working until the next major version" not in policy, (
         "a printed message still promises a retired spelling keeps working "
         "until the next major version. This IS that major version")
+
+
+# ---------------------------------------------------------------------------
+# TRC-D8 - every list of the governance files names all of them
+# ---------------------------------------------------------------------------
+
+# Surfaces that enumerate the prose files in `governance/`. Each one either
+# tells a reader to copy them, tells a check to run against them, or tells a
+# script to require them - so a list that is missing a file is a broken
+# promise rather than a typo.
+# `docs/releasing.md` is deliberately absent: it is a release note that
+# mentions the new file, not a list of the whole set.
+GOVERNANCE_ENUMERATIONS = (
+    "commands/init.md",
+    "docs/quickstart.md",
+    "governance/README.md",
+    "scripts/validate.sh",
+    "CLAUDE.md",
+)
+
+
+def test_every_list_of_the_governance_files_names_all_of_them():
+    """Adding a governance file means updating every list that enumerates them.
+
+    `governance/strategies-rationale.md` was added by this change, and
+    `strategies.md` links to it. Three separate places tell a project which
+    governance files to copy, and none of them named it - so every project
+    running `/compass:init` would have got a `strategies.md` whose pointer
+    resolved to nothing. Four more places enumerate the same set for other
+    reasons and had the same gap.
+
+    Checked by globbing `governance/*.md` rather than against a hardcoded
+    list, so the next file added here is caught the same way.
+    """
+    prose = sorted(p.name for p in (REPO_ROOT / "governance").glob("*.md"))
+    assert len(prose) >= 4, (
+        f"only {len(prose)} prose files found in governance/ - the glob has "
+        f"stopped matching and this check is passing over almost nothing")
+
+    missing = []
+    for rel in GOVERNANCE_ENUMERATIONS:
+        path = REPO_ROOT / rel
+        assert path.is_file(), f"{rel} does not exist, so this list is stale"
+        body = path.read_text(encoding="utf-8")
+        for name in prose:
+            if name == "README.md":
+                continue        # the index itself, not one of the listed files
+            if name not in body:
+                missing.append(f"{rel}: does not name {name}")
+
+    assert not missing, (
+        "these surfaces enumerate the governance files and leave one out:\n  "
+        + "\n  ".join(missing)
+        + "\nA reader following the incomplete list copies or checks a subset, "
+          "and any link from one governance file to a missing one resolves to "
+          "nothing.")

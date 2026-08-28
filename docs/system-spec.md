@@ -64,9 +64,9 @@
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
-### Nothing is left over from the removal
+### Every list of the governance files names all of them
 
-- **Scenario id:** `TRC-D7`
+- **Scenario id:** `TRC-D8`
 - **Intent:** `INT-5`
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
@@ -7353,6 +7353,13 @@
 ### The release that carries the removal says so _(archived)_
 
 - **Scenario id:** `TRC-D6`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Nothing is left over from the removal _(archived)_
+
+- **Scenario id:** `TRC-D7`
 - **Intent:** `INT-5`
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28

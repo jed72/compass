@@ -35,10 +35,13 @@ CLI verb. If a script or a session calls any of these, change it:
 
 | Removed | Use instead |
 |---|---|
-| `/compass:triage` | `/compass:assess` | <!-- vocabulary-scan: allow - the upgrade table must name the removed spelling beside its replacement, or a reader whose script broke cannot match the error they got to the row that fixes it -->
-| `/compass:wireframe` | `/compass:design` | <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it -->
-| `/compass:roundtable` | `/compass:consult` | <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it -->
-| `compass design lint` | `compass plan lint` | <!-- vocabulary-scan: allow - the upgrade table records the removed verb beside its replacement; a reader whose script broke needs the spelling they typed to appear here -->
+| `/compass:triage` | `/compass:assess` <!-- vocabulary-scan: allow - the upgrade table must name the removed spelling beside its replacement, or a reader whose script broke cannot match the error they got to the row that fixes it --> |
+| `/compass:wireframe` | `/compass:design` <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it --> |
+| `/compass:roundtable` | `/compass:consult` <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it --> |
+| `compass design lint` | `compass plan lint` <!-- vocabulary-scan: allow - the upgrade table records the removed verb beside its replacement; a reader whose script broke needs the spelling they typed to appear here --> |
+**Also new: `governance/strategies-rationale.md`.** `strategies.md` links to
+it, so a project that copied `governance/` under 3.x should copy this file
+too - otherwise that link resolves to nothing.
 
 Nothing else went. The read-side rename tables stay, so an issue directory
 written under an older vocabulary still loads and `compass migrate` still

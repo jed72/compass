@@ -8,8 +8,9 @@
 
 `governance/strategies.md` states the strategies. This file holds the incidents
 behind the ones whose shape only makes sense once you know what went wrong.
-It is read when a rule looks arbitrary, never per issue. Rules live in
-`CLAUDE.md` and `compass-contract.md`; nothing here is a rule.
+It is read when a rule looks arbitrary, never per issue. The rules themselves
+live in `CLAUDE.md`, `compass-contract.md`, `governance/guardrails.md` and
+`governance/strategies.md`; nothing on this page is one.
 
 ## The two house rules were one sentence until they were not
 
@@ -23,14 +24,17 @@ They were a single sentence until 2026-08-27, when five pull requests in a row
 shipped with the footer on them. Half a rule in the middle of a paragraph is a
 rule that gets half-followed, so both now stand on their own.
 
-They are house rules, not guardrails: `strategies.md` assesses them, and in
+They are house rules, not guardrails: the `reviewer` agent assesses them at
+Verify, and in
 this repository's vocabulary a guardrail is the hard, blocking kind that
 `guardrails.md` holds.
 
-**1. No em dash. Ever.** `CLAUDE.md` states it and `S7` in
-`governance/strategies.md` carries the detail, including the one carve-out:
-en dashes stay, because they do real work in ranges. Not restated here - two
-statements of one rule drift apart, which is what `S14` is about.
+**1. No em dash. Ever.** `CLAUDE.md` states it; the *Voice and writing
+strategies* block at the foot of `governance/strategies.md` carries the one
+carve-out, that en dashes stay because they do real work in ranges. Stated in
+two places already, so it is not stated a third time here - correcting one
+copy of a rule and not the others is the failure `S14` (correct every place at
+once) names.
 **Checked:** `tests/test_house_style.py` fails the build on one.
 
 **2. No agent attribution, in any form.** A commit message or pull-request
@@ -42,10 +46,12 @@ assembled from fragments there so the guard does not match its own source.
 
 **Checked, but only where the text is a file in this repository:**
 `tests/test_house_style.py::test_no_agent_coauthor_trailer_in_tracked_files`
-scans every tracked file, with no exemptions. There was briefly one, for
-`CLAUDE.md`, after a rewrite spelled the trailer out in full there - which
-blinded the file an agent edits most often to all three forbidden strings.
-Stating the rule without quoting it was the cheaper fix.
+scans every tracked prose file. Two are skipped for reasons that have
+nothing to do with this rule: `assets/` is binary and `LICENSE` is verbatim
+Apache-2.0. No file is skipped for containing the trailer. One briefly was -
+`CLAUDE.md`, after a rewrite spelled it out in full - which blinded the file
+an agent edits most often to all three forbidden strings. Stating the rule
+without quoting it was the cheaper fix.
 
 **Not checked anywhere:** the commit message you are about to write, and the
 pull-request body you are about to send. Neither is a tracked file, and CI
@@ -64,8 +70,9 @@ Two traps, both of which caught this project already:
 
 ## Strategy evidence
 
-Each section below is the evidence behind one strategy in
-`governance/strategies.md`.
+Each section below is the evidence behind one rule - a strategy in
+`governance/strategies.md`, or the integrity rule in
+`governance/guardrails.md`.
 The directive stays there; what convinced anyone lives here.
 
 ## Regression baseline (`S6`)
@@ -203,7 +210,7 @@ reported a count for the repository and missed a use in a Python file.
 answerable, unlike "is the proof real?". A check for the first was built and
 then removed, not because the distinction was wrong but because declaring it
 required contradicting a recorded decision that this repository holds no rules
-of its own. See `declare-a-project-guardrail-or-do-not`. Run once by hand, the
+of its own. See the issue `declare-a-project-guardrail-or-do-not` in `.compass/work/`. Run once by hand, the
 question found twenty of thirty-eight checks with no proof on record at all,
 and a registered claim saying otherwise was false. There was nothing there.
 

@@ -58,17 +58,32 @@ def _markdown_files():
 # for the same reason the vocabulary scan honours it: a page that RECORDS a
 # removal has to name the removed spelling, or a reader whose script broke
 # cannot match the error they got to the row that fixes it. Recording is not
-# teaching. The marker is per line and carries its own reason, so
-# `grep -rn "vocabulary-scan: allow" .` still enumerates every exemption in
-# the repository - which a path-prefix skip could never do.
-ALLOW_MARKER = "vocabulary-scan: allow"
+# teaching.
+#
+# The REASON is mandatory, and the pattern is the vocabulary scan's own so the
+# two cannot drift. A bare `vocabulary-scan: allow` with nothing after it would
+# be a skip pattern with extra steps - any line in any live document could
+# silence this guard, with no reason and no count. That is the defect this
+# change removed from two other guards; it is not re-introduced here.
+#
+# Counted as well as reasoned, but counted in ONE place: the ceiling lives in
+# `tests/test_docs_prose.py::test_the_allow_marker_list_stays_short`, which
+# reads the same surfaces. Two ceilings would be two numbers to keep in step.
+# `grep -rn "vocabulary-scan: allow" .` enumerates every marker with its
+# reason.
+#
+# A LETTER after the dash, not merely a non-space. `\\S` is satisfied by the
+# `-->` that closes an HTML comment, so `<!-- vocabulary-scan: allow -->`
+# supplied its own "reason" and any line in any document could silence both
+# guards with a bare marker.
+ALLOW_MARKER_RE = re.compile(r"vocabulary-scan:\s*allow\s*-\s*[A-Za-z]")
 
 
 def _invocations(text):
     """Yield every `compass <word>` inside a code span or fenced block."""
     for fence in FENCE_RE.findall(text):
         for line in fence.splitlines():
-            if ALLOW_MARKER in line:
+            if ALLOW_MARKER_RE.search(line):
                 continue
             line = line.lstrip("$ ").strip()
             if line.startswith("compass "):
@@ -76,7 +91,7 @@ def _invocations(text):
     # Code spans are matched without their surrounding line, so an exempt
     # line is skipped by removing it before the spans are read.
     outside = "\n".join(l for l in FENCE_RE.sub("", text).splitlines()
-                        if ALLOW_MARKER not in l)
+                        if not ALLOW_MARKER_RE.search(l))
     for span in CODE_SPAN_RE.findall(outside):
         span = span.strip()
         if span.startswith("compass "):

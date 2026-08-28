@@ -298,6 +298,15 @@ def test_d2_repairs_change_only_retired_names():
     order, fenced code blocks, table rows, list items. All 59 were identical
     across the repair. A repair that drops a step, merges a table row or edits
     a code example fails this; one that renames a stage does not.
+
+    Two entries were re-baselined at 4.0.0, deliberately and in one change:
+    `governance/strategies.md` (list_items 32 -> 88, one heading level added)
+    and `governance/guardrails.md` (10 -> 22), when both were cut from prose
+    to directives and their incidents moved to `strategies-rationale.md`. The
+    fingerprint is a snapshot of a sanctioned state, not of the original text,
+    so a sanctioned restructure moves it - visibly, in the same commit. The
+    other 57 are untouched, and a NEW structural change to any of the 59 still
+    fails.
     """
     import json
     snap = json.loads(

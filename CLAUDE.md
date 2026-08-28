@@ -42,6 +42,8 @@ and the things it does not claim.
 - `governance/routing-policy.yml` and `governance/guardrails.yml` are what the
   CLI runs. The prose companions - `guardrails.md`, `routing-policy.md`,
   `strategies.md` - explain why, and are read when a question comes up.
+  `strategies-rationale.md` holds the incidents behind the strategies, and is
+  read only when a rule looks arbitrary.
 - `compass check` runs `guardrails.yml` against the manifest and `evidence/`.
   `/compass:verify` calls it.
 - Gate evidence is **typed** - a `{type, path}` record, not a bare path.

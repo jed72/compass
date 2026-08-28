@@ -584,9 +584,7 @@ def build_parser():
     # Empty since 4.0.0, which removed the one entry it held (`design`, a
     # second name for `plan`). Kept rather than deleted because the mechanism
     # is what a future retirement needs; ADR-024 records why nothing is
-    # carried in it today. Note that a stale entry here is SILENT - the set is
-    # only ever subtracted from the public list - so anything added must be a
-    # verb that actually parses.
+    # carried in it today.
     hidden = set()
     # A stale entry here is otherwise silent: `hidden` is only ever subtracted
     # from the advertised list, so naming a verb that does not parse removes

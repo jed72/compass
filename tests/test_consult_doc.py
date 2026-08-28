@@ -1,4 +1,4 @@
-"""Roundtable doc - Reassessment trigger section.
+"""Consult doc - Reassessment trigger section.
 
 TRC-C4: commands/consult.md contains a "Reassessment trigger" section that
 documents the requirement to run /compass:assess --reassess after boundary
@@ -16,13 +16,13 @@ from __future__ import annotations
 from pathlib import Path
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
-ROUNDTABLE_DOC = FRAMEWORK_ROOT / "commands" / "consult.md"
+CONSULT_DOC = FRAMEWORK_ROOT / "commands" / "consult.md"
 
 
 def test_reframe_trigger_documented():
     """TRC-C4: consult.md has a Reassessment trigger section with required content."""
-    assert ROUNDTABLE_DOC.is_file(), f"commands/consult.md not found at {ROUNDTABLE_DOC}"
-    text = ROUNDTABLE_DOC.read_text(encoding="utf-8")
+    assert CONSULT_DOC.is_file(), f"commands/consult.md not found at {CONSULT_DOC}"
+    text = CONSULT_DOC.read_text(encoding="utf-8")
 
     # Section must exist
     assert "Reassessment trigger" in text, (

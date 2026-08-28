@@ -145,8 +145,8 @@ terms:
       both, and a reader following the wrong one wrote a UI contract where a
       technical design was wanted and was told it worked. Also NOT the CLI
       verb: the placeholder scan is `compass plan lint`. Its retired spelling
-      still runs, until the next major version, and is absent from --help
-      (ADR-019).
+      was kept as a hidden second name through 3.x and removed at 4.0.0
+      (ADR-024); it is now an unknown verb.
     related: [plan, technical-design, delivery-approach]
   plan:
     means: >

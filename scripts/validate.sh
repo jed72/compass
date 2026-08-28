@@ -67,6 +67,7 @@ for d in docs governance approaches templates commands \
 done
 for f in CLAUDE.md AGENTS.md README.md docs/methodology.md \
          approaches/rubric.md governance/guardrails.md governance/strategies.md \
+         governance/strategies-rationale.md \
          governance/routing-policy.md .compass/config.yml; do
   if [ -f "$f" ]; then ok "file $f"; else fail "missing file: $f"; fi
 done

@@ -10,9 +10,10 @@ point of this directory.
   work and what it prefers. A strategy *biases* a decision; it does not block
   it. See `strategies.md`.
 
-A third file, `routing-policy.md`, applies the same split to triage
-itself: routing guardrails *bound* what triage may do, routing strategies
-*bias* what it does by default.
+A third file, `routing-policy.md`, applies the same split to assessment
+itself: routing guardrails *bound* what it may do, routing strategies *bias*
+what it does by default. A fourth, `strategies-rationale.md`, holds the
+incidents behind the strategies and states no rule of its own.
 
 This replaces the older single "constitution." The constitution model jammed
 soft preferences, hard limits, and routing rules into one document under one
@@ -92,7 +93,8 @@ stale, contradictory strategies is its own kind of mess. So:
 |---|---|---|
 | `guardrails.md` | The 5 shipped default guardrails + a project-guardrails section | Hard, checkable, blocking |
 | `strategies.md` | The shipped default method strategies (incl. BDD and TDD) + a project-strategies section | Soft, assessed, accretive |
-| `routing-policy.md` | Routing guardrails (bound triage) + routing strategies (bias triage) | Both, applied to routing |
+| `routing-policy.md` | Routing guardrails (bound assessment) + routing strategies (bias it) | Both, applied to routing |
+| `strategies-rationale.md` | The incidents and worked examples behind the strategies | Neither - evidence, read when a rule looks arbitrary |
 | `signals.yml` | Advisory patterns: scope-bloat phrases the stop-hook nudges on, the rework-scan window, public-surface patterns | Soft signals - *not* guardrails; advisory only |
 | `quarantine.yml` | Records of intermittent tests explicitly quarantined with a tracking issue | Pairs with the `no-trusted-rerun` rule on evidence-not-assertion (see `strategies.md` §6) |
 
