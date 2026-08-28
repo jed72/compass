@@ -1,6 +1,6 @@
 # How test surface scales with risk, working in a worktree, and listening to your tests
 
-Split out of `SKILL.md`: reference for how much test to write and what the tests are telling you, plus the worktree rules that apply only on a swarm.
+Split out of `SKILL.md`: reference for how much test to write and what the tests are telling you, plus the worktree rules that apply only on a multiagent.
 
 ## How test surface scales with risk
 
@@ -22,12 +22,12 @@ An approach may never go *below* a project coverage-floor guardrail in
 `governance/guardrails.md`. It may require *more* for higher risk; it may
 never require less.
 
-## Working inside a worktree (swarm topologies)
+## Working inside a worktree (multiagent orchestrations)
 
-On a swarm you run the full cycle - including a red, failing suite - inside
+On a multiagent you run the full cycle - including a red, failing suite - inside
 your own git worktree. That isolation is the point: your red does not
-destabilise a sibling. Keep every change inside your stream. If a test you need
-to write reaches into another stream's surface, that is a signal for the
+destabilise a sibling. Keep every change inside your subtask. If a test you need
+to write reaches into another subtask's surface, that is a signal for the
 orchestrator, not a reason to reach across.
 
 ## Listen to your tests

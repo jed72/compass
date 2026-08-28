@@ -103,7 +103,7 @@ from compass_pkg.policy import cmd_task_lint
 
 
 # --- command: analyze -------------------------------------------------------
-# `compass analyze` - cross-artifact coherence check (TRC-A1…A13, F1, F4, F5)
+# `compass analyze` - cross-artifact consistency check (TRC-A1…A13, F1, F4, F5)
 #
 # Reads a task's artifacts (brief.md, spec.feature.md, route.md, manifest.yml,
 # positioning.md if present) and emits a structured coherence report.
@@ -120,7 +120,7 @@ from compass_pkg.policy import cmd_task_lint
 #
 # Mode selection (DD-5 / ADR-007):
 #   Gate-clearing mode  - verify.analyze is in manifest.yml.gates:
-#       exits non-zero on any finding; evidence type `coherence-check`;
+#       exits non-zero on any finding; evidence type `consistency-check`;
 #       id prefix `EV-ANALYZE-<task>-<ts>`
 #   Advisory mode - verify.analyze NOT in gates:
 #       exits 0 even on findings; evidence type `command-output`;
@@ -165,7 +165,7 @@ _PHASE_NAME_MAP = {
     # The PROSE names, which are what the shipped template actually writes in
     # its stage table and therefore what every real record on disk says. Only
     # the one-word keys above were here, so five of the eight rows in a
-    # template-shaped record matched nothing and the coherence check compared
+    # template-shaped record matched nothing and the consistency check compared
     # three stages while reporting on all of them.
     "define acceptance criteria": "define",
     "acceptance criteria": "define",
@@ -293,6 +293,7 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
             # phrases and one of them ("Test & review") carries an ampersand.
             # The weight cell is read whole and then cut at the first comma or
             # space, because records write "full, streams unbounded by policy"
+            # vocabulary-scan: allow - quotes what archived records say
             # and the weight is the first word of it.
             m = _re.match(r'\|\s*([A-Za-z][^|]*?)\s*\|\s*([^|]+?)\s*\|',
                           stripped)
@@ -526,7 +527,7 @@ def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
                              is_gate_mode: bool) -> str:
     """Write the analyze evidence file and return the file path (relative to task_dir).
 
-    Gate-clearing: type=coherence-check, prefix EV-ANALYZE-<task>-<ts>
+    Gate-clearing: type=consistency-check, prefix EV-ANALYZE-<task>-<ts>
     Advisory:      type=command-output,  prefix EV-ANALYZE-ADVISORY-<task>-<ts>
 
     The file is JSON; the manifest.yml evidence registry is NOT written here
@@ -537,7 +538,7 @@ def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
     ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     if is_gate_mode:
         ev_id = f"EV-ANALYZE-{task_slug}-{ts}"
-        ev_type = "coherence-check"
+        ev_type = "consistency-check"
     else:
         ev_id = f"EV-ANALYZE-ADVISORY-{task_slug}-{ts}"
         ev_type = "command-output"
@@ -567,7 +568,7 @@ def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
     """Upsert the analyze evidence entry into manifest.yml's evidence registry.
 
     Only called in gate-clearing mode so compass check can locate the
-    coherence-check evidence when clearing verify.analyze.
+    consistency-check evidence when clearing verify.analyze.
 
     This is the ONE write to manifest.yml that analyze is permitted: adding an
     entry to the top-level `evidence:` list. It does NOT write to
@@ -585,19 +586,19 @@ def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
     reg = task.get("evidence") or []
     if not isinstance(reg, list):
         return
-    # Remove any previous coherence-check entry (replace with fresh run)
+    # Remove any previous consistency-check entry (replace with fresh run)
     reg = [e for e in reg if not (isinstance(e, dict) and
-                                   e.get("type") == "coherence-check")]
+                                   e.get("type") == "consistency-check")]
     reg.append({"id": ev_id, "type": ev_type, "path": rel_path})
     task["evidence"] = reg
     save_manifest(task, task_path)
 
 
 def cmd_analyze(args):
-    """compass analyze - cross-artifact coherence check.
+    """compass analyze - cross-artifact consistency check.
 
     Strictly read-only over manifest.yml (Inv-1 / Inv-4). Writes one evidence
-    file (coherence-check or command-output type) to evidence/.
+    file (consistency-check or command-output type) to evidence/.
 
     Exit codes:
       0 - zero coherence findings (or advisory mode regardless of findings,

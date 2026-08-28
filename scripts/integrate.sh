@@ -2,32 +2,32 @@
 # =============================================================================
 # Compass script: integrate.sh  -  LAND THE WORKTREES BACK TOGETHER
 # =============================================================================
-# The ship-stage counterpart to swarm.sh. It merges the per-stream branches
+# The ship-stage counterpart to multiagent.sh. It merges the per-subtask branches
 # back into the base branch in a coordinated order, runs the project's test
 # command for combined regression, reports any conflicts for the `orchestrator`
 # to resolve, and cleans up the worktrees on success. Only the `orchestrator`
 # agent runs this (the lead builder on a pair) - see CLAUDE.md and the
-# worktree-swarm skill.
+# worktree-multiagent skill.
 #
 # USAGE
-#   scripts/integrate.sh <issue-slug>             # integrate every stream
+#   scripts/integrate.sh <issue-slug>             # integrate every subtask
 #   scripts/integrate.sh <issue-slug> --no-clean  # integrate but keep worktrees
 #   scripts/integrate.sh --help
 #
 # ORDER
-#   Streams are merged in the order they appear in distribution-map.md §3.
-#   The map is expected to list shared foundations first (stream-zero pattern,
-#   see the worktree-swarm skill) so dependents merge onto a base that already
+#   Subtasks are merged in the order they appear in distribution-map.md §3.
+#   The map is expected to list shared foundations first (subtask-zero pattern,
+#   see the worktree-multiagent skill) so dependents merge onto a base that already
 #   has what they need.
 #
 # CONFLICTS
 #   This script does NOT auto-resolve conflicts. If a merge conflicts, it
-#   aborts that merge, leaves the repo clean, reports exactly which stream and
-#   which files conflicted, and stops. Resolving cross-stream conflicts is the
+#   aborts that merge, leaves the repo clean, reports exactly which subtask and
+#   which files conflicted, and stops. Resolving cross-subtask conflicts is the
 #   orchestrator's job and no one else's - the script just surfaces them.
 #
 # COMBINED REGRESSION
-#   After all streams merge cleanly, the project's test command runs once
+#   After all subtasks merge cleanly, the project's test command runs once
 #   against the integrated result. Per-stream green does not imply integrated
 #   green - proving the combination is the whole point of ship. If combined
 #   regression fails, worktrees are NOT cleaned up (you will need them) and the
@@ -90,20 +90,21 @@ case "$WORKTREE_ROOT_REL" in
   *)  WORKTREE_ROOT="$PROJECT_DIR/$WORKTREE_ROOT_REL" ;;
 esac
 
-# --- parse streams + branches (same parser shape as swarm.sh) ---------------
-STREAMS=(); BRANCHES=()
+# --- parse subtasks + branches (same parser shape as multiagent.sh) ---------------
+SUBTASKS=(); BRANCHES=()
 while IFS= read -r line; do
-  case "$line" in \|*stream-*) ;; *) continue ;; esac
+  # A map written before ADR-023 says stream-N. Read both (ADR-006).  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
+  case "$line" in \|*subtask-*|\|*stream-*) ;; *) continue ;; esac  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
   IFS='|' read -r _ c1 c2 c3 c4 _rest <<<"$line"
   sid="$(echo "${c1:-}" | xargs 2>/dev/null || true)"
   branch="$(echo "${c4:-}" | xargs 2>/dev/null || true)"
-  case "$sid" in stream-*) ;; *) continue ;; esac
+  case "$sid" in subtask-*|stream-*) ;; *) continue ;; esac  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
   [ -n "$branch" ] || branch="compass/$TASK_SLUG/$sid"
-  STREAMS+=("$sid"); BRANCHES+=("$branch")
+  SUBTASKS+=("$sid"); BRANCHES+=("$branch")
 done < "$MAP"
 
-if [ "${#STREAMS[@]}" -eq 0 ]; then
-  echo "integrate.sh: no streams in distribution-map.md. If the route is solo," >&2
+if [ "${#SUBTASKS[@]}" -eq 0 ]; then
+  echo "integrate.sh: no subtasks in distribution-map.md. If the route is solo," >&2
   echo "              ship integrates with a plain commit - integrate.sh is not needed." >&2
   exit 1
 fi
@@ -121,18 +122,18 @@ fi
 
 echo "Compass integrate - issue '$TASK_SLUG'"
 echo "  base branch:   $BASE_BRANCH"
-echo "  streams:       ${#STREAMS[@]}  (merged in map order)"
+echo "  subtasks:       ${#SUBTASKS[@]}  (merged in map order)"
 echo "  test command:  ${TEST_CMD:-<none resolved - combined regression cannot run automatically>}"
 echo ""
 
-# --- merge each stream in order ---------------------------------------------
+# --- merge each subtask in order ---------------------------------------------
 MERGED=()
-for i in "${!STREAMS[@]}"; do
-  sid="${STREAMS[$i]}"
+for i in "${!SUBTASKS[@]}"; do
+  sid="${SUBTASKS[$i]}"
   branch="${BRANCHES[$i]}"
 
   if ! git -C "$PROJECT_DIR" show-ref --verify --quiet "refs/heads/$branch"; then
-    echo "  $sid: branch '$branch' does not exist - skipping (was the swarm ever created?)."
+    echo "  $sid: branch '$branch' does not exist - skipping (was the multiagent ever created?)."
     continue
   fi
 
@@ -159,8 +160,8 @@ for i in "${!STREAMS[@]}"; do
     echo ""
     echo "  The merge was aborted; the repo is clean again. This is the"
     echo "  orchestrator's call to resolve - re-cut the boundary, re-sequence,"
-    echo "  or escalate to a re-frame. No one else may resolve a cross-stream"
-    echo "  conflict. Streams merged so far: ${MERGED[*]:-none}."
+    echo "  or escalate to a re-frame. No one else may resolve a cross-subtask"
+    echo "  conflict. Subtasks merged so far: ${MERGED[*]:-none}."
     exit 2
   fi
 done
@@ -182,7 +183,7 @@ if [ -n "$TEST_CMD" ]; then
   else
     echo "----------------------------------------------------------------"
     echo "Combined regression FAILED. Per-stream green did not survive integration."
-    echo "Worktrees are LEFT IN PLACE so you can fix the stream that broke."
+    echo "Worktrees are LEFT IN PLACE so you can fix the subtask that broke."
     echo "The merge commits are on $BASE_BRANCH - revert or fix forward; do not"
     echo "clean up until combined regression is green."
     exit 1
@@ -190,7 +191,7 @@ if [ -n "$TEST_CMD" ]; then
 else
   echo "No test command resolved (set 'test_command:' in .compass/config.yml)."
   echo "Combined regression MUST still be run by hand before ship closes -"
-  echo "per-stream green does not imply integrated green."
+  echo "per-subtask green does not imply integrated green."
 fi
 
 # --- write status: landed and derive the living system spec -----------------
@@ -243,7 +244,7 @@ fi
 echo ""
 if [ "$CLEAN" -eq 1 ]; then
   echo "Cleaning up worktrees:"
-  for sid in "${STREAMS[@]}"; do
+  for sid in "${SUBTASKS[@]}"; do
     wt_path="$WORKTREE_ROOT/$TASK_SLUG-$sid"
     if [ -d "$wt_path" ]; then
       git -C "$PROJECT_DIR" worktree remove --force "$wt_path" 2>/dev/null \

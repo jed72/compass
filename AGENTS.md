@@ -108,10 +108,10 @@ plug into the same pipeline. The acceptance-criteria file is the shared
 substrate read through five role perspectives - do not reduce it to an
 engineering-only artifact.
 
-**5. Support solo / pair / swarm topologies.** On larger delivery
+**5. Support solo / pair / multiagent orchestrations.** On larger delivery
 approaches, design produces a distribution map and the breakdown stage
 parallelises across isolated workspaces (git worktrees in the reference
-implementation), one agent per stream, with a coordinating orchestrator that
+implementation), one agent per subtask, with a coordinating orchestrator that
 owns integration at ship time. A runtime without worktrees must provide
 equivalent isolation or cap itself at solo/pair.
 
@@ -134,7 +134,7 @@ them.
 | Assess | A routine that produces the assessment, then *calls the kit* (`compass approach evaluate`) to compose the delivery approach |
 | The kit-layer CLI | A shell-out, not a reimplementation - the adapter runs `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
 | CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the retrospective signal), `compass rework-scan` (cross-issue rework signal), and `compass flow` (cross-issue view; `--digest` writes a dated digest combining rework-scan and calibration) |
-| Subagents (`navigator`, `spec-author`, `planner`, `orchestrator`, `builder`, `verifier`, `reviewer`, `product-lens`, `marketing-lens`, `architect-lens`) | Distinct agent contexts or personas. The 10th - `architect-lens` - applies the architect perspective (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, decision records) at triage and annotates the design via `architecture-notes.md`. Consulted by `spec-author` and `planner`; never writes feature code |
+| Subagents (`router`, `spec-author`, `planner`, `orchestrator`, `builder`, `verifier`, `reviewer`, `product-owner`, `product-marketer`, `architect`) | Distinct agent contexts or personas. The 10th - `architect` - applies the architect perspective (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, decision records) at triage and annotates the design via `architecture-notes.md`. Consulted by `spec-author` and `planner`; never writes feature code |
 | Skills | Loadable procedural-knowledge modules |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise |
 | Role entry points | Distinct session-start modes |

@@ -81,7 +81,7 @@ rather than reinventing delivery.
 ## Affected roles
 
 - product-owner - this brief; reviews the spec for intent fidelity before Plan.
-- engineer - owns the build (swarm across two streams).
+- engineer - owns the build (multiagent across two subtasks).
 - *Not* product-marketer on this issue - the external launch is a separate,
   later issue; this one ships the capability.
 

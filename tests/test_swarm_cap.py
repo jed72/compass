@@ -1,4 +1,4 @@
-"""R4 - swarm.sh derives the worktree cap from structured manifest.yml truth
+"""R4 - multiagent.sh derives the worktree cap from structured manifest.yml truth
 (readings.blast_radius + fired_guardrails), not by grepping route.md prose
 (which false-positives on 'did-not-fire' audit notes), and counts only
 worktree-provisioning streams.
@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
-SWARM = FRAMEWORK_ROOT / "scripts" / "swarm.sh"
+SWARM = FRAMEWORK_ROOT / "scripts" / "multiagent.sh"
 
 
 def _git(cwd, *a):
@@ -106,7 +106,7 @@ def test_critical_reading_caps_to_one(tmp_path):
     _map(td, "t3", 4)
     r = _run(repo, "t3")
     assert r.returncode != 0, r.stdout + r.stderr
-    assert "4 streams but the cap is 1" in (r.stdout + r.stderr), r.stdout + r.stderr
+    assert "4 subtasks but the cap is 1" in (r.stdout + r.stderr), r.stdout + r.stderr
 
 
 def test_non_worktree_stream_excluded_from_count(tmp_path):

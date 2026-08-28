@@ -9,7 +9,7 @@ superseded_by: ''
 
 ## Context
 
-The architect-lens and the planner both produce design-decision content.
+The architect and the planner both produce design-decision content.
 When a task introduces a new service interaction, both need to weigh in.
 The question is: who runs first, and who reads whom?
 
@@ -19,11 +19,11 @@ run without reading each other, merged by a human).
 
 ## Decision
 
-The architect-lens runs first; the planner reads and cites.
+The architect runs first; the planner reads and cites.
 
 Order of operations:
 1. Architect-lens runs at the define stage (auto-triggered) or via
-   `/compass:roundtable architect-lens`.  It writes `architecture-notes.md`.
+   `/compass:consult architect`.  It writes `architecture-notes.md`.
 2. Planner runs at Plan.  It reads `architecture-notes.md` and writes
    `plan.md §2` DDs that either cite an existing ADR, name a candidate ADR
    to author at Build, or explicitly justify divergence.
@@ -36,7 +36,7 @@ Order of operations:
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Planner first, lens annotates | Planner already owns plan.md | Lens would need to edit a file it doesn't own; blurs responsibility |
-| Parallel, human merges | No ordering dependency | Human merge step adds ceremony; ordering is cheap and makes the dependency explicit |
+| Parallel, human merges | No ordering dependency | Human merge step adds process weight; ordering is cheap and makes the dependency explicit |
 | Lens has authority over plan | Strong architectural enforcement | Planner remains the single owner of plan.md; lens is advisory, not authoritative |
 
 ## Consequences

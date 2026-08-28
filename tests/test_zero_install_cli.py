@@ -10,7 +10,7 @@ before it proves anything else. If the precondition ever holds - if the
 than passing on an interpreter that was never actually bare (DD-6).
 
 TRC-A3 through TRC-A6 exercise the four shell surfaces that embed their own
-Python reader (plus TRC-A7 for the fifth, `scripts/swarm.sh`) by prepending
+Python reader (plus TRC-A7 for the fifth, `scripts/multiagent.sh`) by prepending
 the bare interpreter's `bin/` to `PATH` and running the script the way a
 person on such a machine actually would - `python3` on `PATH` resolves to the
 bare one, which is exactly how these scripts find Python in real life.
@@ -43,7 +43,7 @@ CLI_PATH = FRAMEWORK_ROOT / "cli" / "compass"
 PRE_TOOL_HOOK = FRAMEWORK_ROOT / "hooks" / "pre-tool.sh"
 STOP_HOOK = FRAMEWORK_ROOT / "hooks" / "stop.sh"
 INTEGRATE_SH = FRAMEWORK_ROOT / "scripts" / "integrate.sh"
-SWARM_SH = FRAMEWORK_ROOT / "scripts" / "swarm.sh"
+SWARM_SH = FRAMEWORK_ROOT / "scripts" / "multiagent.sh"
 VALIDATE_SH = FRAMEWORK_ROOT / "scripts" / "validate.sh"
 
 # Scoped to PyYAML, the dependency this issue removes - not to jsonschema,

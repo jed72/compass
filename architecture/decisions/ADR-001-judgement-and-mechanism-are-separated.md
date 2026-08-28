@@ -67,7 +67,7 @@ inputs: same output.
 **Negative:**
 - Every framework task now requires a human to fill in four dimensions before
   any code-changing tool call. This is friction. On small or obvious tasks, it
-  can feel like ceremony. The framework accepts this cost deliberately - the
+  can feel like process weight. The framework accepts this cost deliberately - the
   calibration signal is worth more than the saved seconds per task.
 - Mechanism-produced state living outside `task.yml.readings` means the schema
   has multiple sections with different write-authorities. New contributors

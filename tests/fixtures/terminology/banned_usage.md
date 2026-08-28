@@ -8,7 +8,7 @@
 
 Run /compass:frame to start; the Frame phase hands its judgement to the Needle.
 The readings feed the computed route, recorded in route.md after route evaluate runs.
-An Express task skips ceremony; an Expedition spans several streams.
+An Express task skips process weight; an Expedition spans several subtasks.
 The pipeline runs Frame → Specify → Clarify → Distribute → Land.
 Read the spec through the product lens before the Land phase begins.
 Score the blast_radius, the terrain, and the magnitude of the change.
@@ -70,10 +70,28 @@ Run `/compass:specify`, then `/compass:clarify`, `/compass:distribute` and
 
 The manifest recorded touches: as a list of the domains a change reaches.
 
-When a PRD exists, invoke the product-lens agent. That names the intake
+When a PRD exists, invoke the product-owner agent. That names the intake
 document by its retired acronym; it lived in innocent_usage.md until
 2026-08-25, when the bare acronym was found on 24 live surfaces
 including the description a user reads in the slash-command menu.
 
 Triage writes the issue spine, and every later stage fills its section of the
 spine. The task spine records the assessment; read the spine before you start.
+
+## ADR-023 - measured against Anthropic's platform documentation
+
+Each line below is a use the ban must catch. They exist so a pattern that
+stops matching fails this fixture rather than passing a green scan.
+
+Breakdown creates one stream per builder, and the streams run in parallel.
+The delivery approach permits a swarm, so several swarms could in principle run.
+The topology is decided at breakdown, and the topologies differ by approach.
+Each builder reads its charter; the charters name the scenarios they own.
+A quick fix carries little ceremony, and the heavier ceremonies cost time.
+Brownfield work begins with distillation - distilling behaviour before changing it.
+The distilled scenarios describe what the code already does.
+Run the coherence check before shipping; a coherence-check failure blocks.
+A fitness function is declared by the project, and fitness functions are checked.
+Invoke the navigator to assess; the navigators own that stage.
+Convene a roundtable when roles disagree, or several roundtables.
+Intent elicitation draws the outcome out of the person.

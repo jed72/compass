@@ -426,7 +426,7 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
 # Mark a named backfill as paid. This is the complement to the cross-task
 # check in `dod-evidence-typed`: once a backfill is paid, the target task's
 # Land check can proceed. The command writes to manifest.yml - the only write
-# path in this stream, because Flow/calibration are read-only advisors.
+# path in this subtask, because Flow/calibration are read-only advisors.
 
 def cmd_backfill_pay(args):
     """Flip the named follow-up to status: resolved in the issue's

@@ -7,6 +7,12 @@ supersedes: ''
 superseded_by: ''
 ---
 
+> **Vocabulary note (ADR-023, 2026-08-27):** what this record calls a
+> *fitness function* is now called an **architecture check**, and the gate it
+> promotes is `verify.architecture` rather than `verify.fitness`. The record
+> keeps the words it was decided in; only the names have moved.
+
+
 ## Context
 
 Architectural fitness functions are a way for a team to declare the structural

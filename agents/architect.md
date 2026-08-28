@@ -1,5 +1,5 @@
 ---
-name: architect-lens
+name: architect
 description: "The architect's perspective: reads the project's architecture artefacts and writes the boundary risks, invariants to preserve and candidate decision records for this issue."
 tools: Read, Glob, Grep, Write, Edit
 model: sonnet
@@ -76,7 +76,7 @@ already appear in `acceptance-criteria.md`.
    `manifest.yml.evidence`:
    ```yaml
    - id: EV-ARCH-NOTES
-     type: architect-lens-notes
+     type: architect-notes
      path: .compass/work/<task>/architecture-notes.md
    ```
    This ensures the notes persist as typed evidence, not just a chat message
@@ -89,13 +89,13 @@ already appear in `acceptance-criteria.md`.
 - You do not write or modify `technical-design.md`. The planner owns that file.
 - You do not block any phase. The perspective is advisory; the planner and
   spec-author decide how to act on your findings.
-- You do not re-invoke yourself. The order is: architect-lens runs first
-  (at the define stage or via roundtable), planner reads the notes second.
+- You do not re-invoke yourself. The order is: architect runs first
+  (at the define stage or via consult), planner reads the notes second.
 
 ## How you behave per route
 
 - **quick-fix / Hotfix** - invoked only if explicitly requested via
-  `/compass:roundtable architect-lens`. Not auto-triggered on light routes.
+  `/compass:consult architect`. Not auto-triggered on light routes.
 - **Standard / initiative** - auto-triggered by spec-author when the Q5
   trigger conditions are met (see `agents/spec-author.md`). Produces a
   full `architecture-notes.md` per the five sections above.

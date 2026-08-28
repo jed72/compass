@@ -20,7 +20,7 @@ idea survives other people.
 ## The quick version of what it does
 
 In case you've not seen it. Most spec-driven setups run every change through the
-same steps. What actually happens then is that people do the full ceremony on the
+same steps. What actually happens then is that people do the full process weight on the
 big, scary change and quietly skip it on the typo, because doing the whole routine
 for a one-line fix is daft and everyone knows it. So the process ends up covering
 the changes that were never going to hurt you, and getting skipped on some that

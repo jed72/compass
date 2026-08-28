@@ -976,23 +976,23 @@ def _check_no_trusted_rerun(task, task_dir):
 
 
 def _check_coherence_check_passes(task, task_dir):
-    """G4 extension (ADR-007 / DD-2): verify.analyze requires a coherence-check
+    """G4 extension (ADR-007 / DD-2): verify.analyze requires a consistency-check
     evidence entry with zero findings. Only runs when verify.analyze is in the
     issue's gate set. If the gate is absent, this check trivially passes (the
-    issue is not subject to the coherence-check requirement)."""
+    issue is not subject to the consistency-check requirement)."""
     gates = task.get("gates") or []
     gate_ids = [g.get("id") for g in gates if isinstance(g, dict)]
     if "verify.analyze" not in gate_ids:
-        return True, "verify.analyze not in gate set - coherence check not required"
-    # Gate is present: look for a coherence-check typed evidence entry
+        return True, "verify.analyze not in gate set - consistency check not required"
+    # Gate is present: look for a consistency-check typed evidence entry
     registry = {e.get("id"): e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("id")}
     coherence_entries = [e for e in registry.values()
-                         if e.get("type") == "coherence-check"]
+                         if e.get("type") == "consistency-check"]
     if not coherence_entries:
-        return False, ("no coherence-check evidence on record - run "
+        return False, ("no consistency-check evidence on record - run "
                        "`compass analyze` to produce the required "
-                       "coherence-check evidence for verify.analyze")
+                       "consistency-check evidence for verify.analyze")
     # Check that the most recent entry records zero findings
     entry = coherence_entries[-1]
     path = entry.get("path")
@@ -1003,12 +1003,12 @@ def _check_coherence_check_passes(task, task_dir):
                 data = json.load(open(full, encoding="utf-8"))
                 n = data.get("finding_count", None)
                 if n is not None and n != 0:
-                    return False, (f"coherence-check evidence records "
+                    return False, (f"consistency-check evidence records "
                                    f"{n} finding(s) - resolve them before "
                                    f"clearing verify.analyze")
             except (OSError, json.JSONDecodeError):
                 pass  # readable but corrupt - gate-evidence-present catches it
-    return True, "coherence-check evidence on record - verify.analyze gate cleared"
+    return True, "consistency-check evidence on record - verify.analyze gate cleared"
 
 
 def _check_command_passes(task, task_dir):
@@ -1016,7 +1016,7 @@ def _check_command_passes(task, task_dir):
     and report pass/fail.
 
     Behaviour:
-    - When verify.fitness is in the gate set but zero project guardrails
+    - When verify.architecture is in the gate set but zero project guardrails
       declare check: command-passes → nothing-to-check pass (DD-6).
     - For each project guardrail with check: command-passes, run
       subprocess.run(shell=True, timeout=timeout_seconds) from the project
@@ -1065,13 +1065,13 @@ def _check_command_passes(task, task_dir):
                 f"contribution cannot edit"
             )
 
-    # nothing-to-check pass (DD-6): verify.fitness in gate set, zero command-passes
+    # nothing-to-check pass (DD-6): verify.architecture in gate set, zero command-passes
     # guardrails declared → the gate has nothing to check; it passes without checking anything.
     if not cp_guardrails:
-        return NOTHING_TO_CHECK, ("verify.fitness: this project declares no guardrail "
+        return NOTHING_TO_CHECK, ("verify.architecture: this project declares no guardrail "
                          "that runs a command, so there was nothing to check "
                          "and this passed without checking anything. To add "
-                         "fitness functions, declare a project guardrail with "
+                         "architecture checks, declare a project guardrail with "
                          "`check: command-passes`")
 
     # The opt-in, read AFTER the trust decision above. Running a declared

@@ -33,7 +33,7 @@ distinct *is* the check:
 intent, and claim → scenario? A break is a no-pass. See the `traceability` skill.
 
 **regression** - Does the evidence show nothing previously passing now fails?
-On a swarm, this is per-stream at the checkpoint gates and *combined* at ship time -
+On a multiagent, this is per-stream at the checkpoint gates and *combined* at ship time -
 per-stream green does not imply integrated green.
 
 **security** - Full on initiative and Hotfix, scaled to risk on

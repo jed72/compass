@@ -66,7 +66,10 @@ def test_rcd_f1_no_retired_slash_commands():
     # addition rather than a silent one. They go at the next major version
     # (ADR-019), the same way the v1 stubs above went at 3.0.0 - which is what
     # this check enforces, one cycle at a time.
-    CURRENT_STUBS = {"triage.md", "wireframe.md"}
+    # `roundtable.md` is the third, added deliberately under ADR-023: the
+    # command is now `consult`, the word Anthropic's platform docs use for
+    # consulting an advisor mid-turn.
+    CURRENT_STUBS = {"triage.md", "wireframe.md", "roundtable.md"}
     redirects = [
         p.name for p in COMMANDS.glob("*.md")
         if "retired name" in p.read_text(encoding="utf-8").lower()

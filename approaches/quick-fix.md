@@ -34,7 +34,7 @@ One gate, at Verify. Review dimensions: `correctness`, `governance`,
 `traceability`. (Per `router.md`; a routing guardrail may add more - e.g. a
 `touches:` tag could staple on `security` - but never removes these three.)
 
-## Swarm topology
+## Multiagent orchestration
 
 Solo. No worktree. Breakdown is a no-op.
 
@@ -44,7 +44,7 @@ Solo. No worktree. Breakdown is a no-op.
 |---|---|---|
 | Refine | collapsed | The spec is a single scenario triage has certified unambiguous. Nothing to clarify. |
 | Plan | collapsed to a one-liner | No design decision and no new architecture - size `atomic`/`small` on mapped familiarity means the plan is "edit this file." |
-| Breakdown | skipped | One stream of work. Parallelism would be pure overhead. |
+| Breakdown | skipped | One subtask of work. Parallelism would be pure overhead. |
 
 These justifications are copied into the issue's `delivery-approach.md` so the skip is
 auditable per-issue, not just per-route.

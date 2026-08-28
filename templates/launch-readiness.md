@@ -15,7 +15,7 @@ full stop - ship refuses to close on it.
 
 # Launch Readiness - {{ISSUE_SLUG}}
 
-> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `marketing-lens`
+> **Author:** {{PRODUCT MARKETER NAME}} · **Date:** {{DATE}} · **Owning agent:** `product-marketer`
 > **Reads from:** positioning.md (the claims), verification-report.md (the scenario results)
 > **Gates:** ship - per the routing-policy.md role_rule and the `verify.claims` immovable gate.
 

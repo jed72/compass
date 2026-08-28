@@ -11,7 +11,7 @@
 | Dimension | Value | One-line justification |
 |---|---|---|
 | **Risk:** | contained | A new, self-contained subsystem with its own table and module tree. Other code calls *into* it; it does not reach back into theirs. If it misbehaves, notifications are wrong - the rest of the product is not. |
-| **Familiarity:** | greenfield | There is no notifications capability today (`intent.md` Problem). Nothing to distil - the scenarios are discovered from the brief, not reverse-engineered. |
+| **Familiarity:** | greenfield | There is no notifications capability today (`intent.md` Problem). Nothing to map - the scenarios are discovered from the brief, not reverse-engineered. |
 | **Size:** | standard | On its own, the *code* is standard-sized - a module tree, an API surface, one new table, ~a week. **The route is not standard, though** - see §3. |
 | **Goal & role** | product-owner | A product manager invoked this with a `intent.md`. The intent is the outcome in that brief, not just "add notifications" - and the role pulls RP-ROLE-002 into play. |
 
@@ -69,9 +69,9 @@ checks, and initiative runs both. That check is recorded at the foot of
 | Assess | Full | This document, with explicit `touches:` tagging - initiative is where domain floors most often fire, and one did. |
 | Define | Full BDD discovery | Greenfield - six scenarios discovered from `intent.md`, grouped by independence into two groups (A: delivery & dispatch, B: preferences). The grouping seeds the distribution map. |
 | Refine | Full pass | Self-QA, governance QA, explicit ambiguity ledger. The product owner reviewed here. See `requirements-review.md`. |
-| Plan | Full `technical-design.md` + `distribution-map.md` | Architecture, every design decision as an ADR note, governance check, scenario-group → stream mapping. **Was blocked** by RP-ROLE-002 until the intent-fidelity check passed. |
-| Breakdown | Swarm | `scripts/swarm.sh` created two worktrees from `distribution-map.md` - stream-1 (dispatch/store), stream-2 (preferences). One `builder` each, plus an `orchestrator`. |
-| Build | Full TDD per stream | Two builders, parallel, red→green→refactor in their own worktrees. The orchestrator watched the shared `migrations/0042` and `api.py` surface. |
+| Plan | Full `technical-design.md` + `distribution-map.md` | Architecture, every design decision as an ADR note, governance check, scenario-group → subtask mapping. **Was blocked** by RP-ROLE-002 until the intent-fidelity check passed. |
+| Breakdown | Multiagent | `scripts/multiagent.sh` created two worktrees from `distribution-map.md` - subtask-1 (dispatch/store), subtask-2 (preferences). One `builder` each, plus an `orchestrator`. |
+| Build | Full TDD per subtask | Two builders, parallel, red→green→refactor in their own worktrees. The orchestrator watched the shared `migrations/0042` and `api.py` surface. |
 | Verify | All gates, all dimensions | Per-stream verification, then combined verification after integration. See `verification-report.md`. |
 | Ship | Full | `scripts/integrate.sh` - orchestrated merge, full combined regression, living docs, `G5` human sign-off on the migration. |
 
@@ -81,10 +81,10 @@ checks, and initiative runs both. That check is recorded at the foot of
 - Review dimensions applied: correctness, governance, traceability, regression, security (full, not scaled - it is greenfield code with a new table), clarity, claims.
 - Immovable gates stapled on: verify.correctness, verify.governance, verify.traceability - all already in initiative's shape. `verify.claims` is in initiative's shape too; no marketer was in play, so it is satisfied trivially (no claims to back), but the gate still exists.
 
-### 4c. Swarm topology
+### 4c. Multiagent orchestration
 
-- Topology: swarm (2 streams)
-- Stream count: 2 - from `distribution-map.md`. Two genuinely independent scenario groups; below the 4+ that "swarm" usually implies, but it runs the swarm machinery (worktrees + orchestrator) because the two streams share the migration and the API surface and need the orchestrator to police that.
+- Orchestration: multiagent (2 subtasks)
+- Subtask count: 2 - from `distribution-map.md`. Two genuinely independent scenario groups; below the 4+ that "multiagent" usually implies, but it runs the multiagent machinery (worktrees + orchestrator) because the two subtasks share the migration and the API surface and need the orchestrator to police that.
 - Worktree root: `../.compass-worktrees` (from `.compass/config.yml`)
 - Cap in effect: none - risk is `contained`, so the `critical → max_worktrees: 1` cap does not apply. `config.yml` `max_worktrees` is 6; 2 is well under it.
 - Orchestrator agent: yes - owns the shared migration/API surface during Build and the integration at ship.
@@ -98,7 +98,7 @@ against - it collapses and skips nothing. There is no "safe to skip because…"
 line here because nothing is skipped.
 
 The only reduction in play is *cap-driven*, and there isn't even one of those:
-no cap applied (§4c). The stream count is 2 not 4+ because the *work* only
+no cap applied (§4c). The subtask count is 2 not 4+ because the *work* only
 decomposes into two independent groups (`distribution-map.md` §2) - that is the
 honest decomposition, not a de-scope.
 
@@ -106,7 +106,7 @@ honest decomposition, not a de-scope.
 
 ## 6. Outstanding follow-ups
 
-- [x] None outstanding. initiative borrows no ceremony from the front of the pipeline -
+- [x] None outstanding. initiative borrows no process weight from the front of the pipeline -
   it runs every phase at full weight in order, so there is nothing to pay back.
 
 Note - not a follow-up, but a ship obligation: guardrail `G5` applies because

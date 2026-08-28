@@ -379,6 +379,12 @@ SPINE_KEY_MAP = {
     "fired_guardrails": "policy_rules_fired",
     "backfills": "follow_ups",
     "reframes": "reassessments",
+    # ADR-023. Anthropic's platform docs split single-agent work from
+    # multiagent work, and fan out "independent subtasks"; `topology` and
+    # `stream` were Compass-only words for both. Manifests written before the
+    # rename keep loading through these two rows (ADR-006).
+    "topology": "orchestration",
+    "stream_ceiling": "subtask_ceiling",
 }
 ASSESSMENT_KEY_MAP = {
     "blast_radius": "risk",
@@ -411,11 +417,23 @@ def migrate_map_section(name, fallback):
     try:
         with open(migrate_map_path(), encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
-        section = data.get(name)
-        if isinstance(section, dict) and section:
-            return section
     except OSError:
-        pass
+        # No framework install beside this module - use the in-module copy.
+        return dict(fallback)
+    except yaml.YAMLError as exc:
+        # A corrupt map is not a missing map. Falling back here would migrate
+        # some manifests and not others, with nothing said; every reader of
+        # every manifest goes through this path, so it fails loudly instead.
+        raise CompassError(
+            f"{migrate_map_path()} is not valid YAML, so retired names cannot "
+            f"be migrated: {exc}")
+    if not isinstance(data, dict):
+        raise CompassError(
+            f"{migrate_map_path()} must be a mapping of section name to "
+            f"rename table; found {type(data).__name__}")
+    section = data.get(name)
+    if isinstance(section, dict) and section:
+        return section
     return dict(fallback)
 
 
@@ -479,34 +497,87 @@ def normalize_spine(task):
         for f in fups:
             if isinstance(f, dict) and f.get("status") in FOLLOW_UP_STATUS_MAP:
                 f["status"] = FOLLOW_UP_STATUS_MAP[f["status"]]
-    # Triage used to record a `topology:` word; it now records a
-    # `stream_ceiling:` number, because it cannot know a topology before the
+    # Gate ids. ADR-023 renamed `verify.fitness` to `verify.architecture`.
+    # This is not cosmetic: `compass check` looks a gate's accepted evidence
+    # types up BY ID, and an id that no longer resolves yields None, which
+    # skips the type requirement instead of failing it. An archived gate would
+    # then clear with a written note - the one thing a mechanical gate refuses.
+    gates = out.get("gates")
+    if isinstance(gates, list):
+        gate_renames = migrate_map_section("gate_ids", GATE_ID_MAP)
+        for g in gates:
+            if isinstance(g, dict) and g.get("id") in gate_renames:
+                g["id"] = gate_renames[g["id"]]
+    # Evidence types. ADR-023 renamed `coherence-check` to `consistency-check`;
+    # a manifest written before that keeps clearing its gate (ADR-006).
+    ev = out.get("evidence")
+    if isinstance(ev, list):
+        ev_renames = migrate_map_section("values", {}).get(
+            "evidence_type", EVIDENCE_TYPE_MAP)
+        for entry in ev:
+            if isinstance(entry, dict) and entry.get("type") in ev_renames:
+                entry["type"] = ev_renames[entry["type"]]
+    # Friction categories. ADR-023 retired `ceremony`, and the enum holds
+    # single tokens, so the pair became over-weight / under-weight. A manifest
+    # written before that keeps loading (ADR-006).
+    friction = out.get("friction")
+    if isinstance(friction, list):
+        renames = migrate_map_section("values", {}).get(
+            "friction_category", FRICTION_CATEGORY_MAP)
+        for entry in friction:
+            if isinstance(entry, dict) and entry.get("category") in renames:
+                entry["category"] = renames[entry["category"]]
+    # Assess used to record an orchestration word; it now records a
+    # `subtask_ceiling:` number, because it cannot know the shape before the
     # distribution map exists. A manifest written before that change carries the
     # word and no ceiling, so the word is read as the ceiling it always
-    # implied. The recorded topology is KEPT: an archived manifest says what it
-    # said, and breakdown legitimately writes a topology of its own.
-    if out.get("stream_ceiling") is None and "stream_ceiling" not in out:
-        topo = out.get("topology")
-        if isinstance(topo, str) and topo:
+    # implied. The recorded word is KEPT: an archived manifest says what it
+    # said, and breakdown legitimately writes an orchestration of its own.
+    if out.get("subtask_ceiling") is None:
+        word = out.get("orchestration")
+        if isinstance(word, str) and word:
             # A capped 1.x manifest recorded the sentence
-            # "solo (capped to 1 worktree)"; its first word is the topology.
-            out["stream_ceiling"] = TOPOLOGY_STREAM_CEILING.get(
-                topo.split(" ")[0], None)
+            # "solo (capped to 1 worktree)"; its first word is the one to read.
+            out["subtask_ceiling"] = RETIRED_ORCHESTRATION_CEILING.get(
+                word.split(" ")[0], None)
     # The on-disk schema_version is preserved: readers must be able to say
     # honestly what generation a manifest was written in (the receipt reports
     # legacy manifests). Writers stamp the current version when they save.
     return out
 
 
-# The topology words a pre-ceiling manifest could carry, and the ceiling each
-# always implied. `swarm` is None - unbounded - for the same reason the
-# evaluator's table says so: no number for it exists anywhere in the policy.
-TOPOLOGY_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
+# The orchestration words a pre-ceiling manifest could carry, and the ceiling
+# each always implied. `multiagent` is None - unbounded - for the same reason the
+# evaluator's table said so: no number for it exists anywhere in the policy.
+#
+# This table is why ADR-023 could retire the words rather than rename them.
+# They were already only being converted to these three numbers before
+# anything used them, so the route shapes now declare the number and the
+# conversion is gone from `routing`. The table stays here because archived
+# manifests still carry the words and have to keep reading.
+RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}  # vocabulary-scan: allow - names the retired words archived manifests carry (ADR-006)
 
 
 # 1.x follow-up states -> their v2 spellings, applied read-side by
 # normalize_spine above.
 FOLLOW_UP_STATUS_MAP = {"owed": "outstanding", "paid": "resolved"}
+
+# The in-module fallback for the friction rename, used when no framework
+# install is present to read cli/migrate-map.yml from.
+FRICTION_CATEGORY_MAP = {"over-ceremony": "over-weight",
+                         "under-ceremony": "under-weight"}
+
+# The in-module fallback for the evidence-type rename, same contract.
+EVIDENCE_TYPE_MAP = {"coherence-check": "consistency-check"}
+
+# The in-module fallback for the gate-id rename, same contract.
+GATE_ID_MAP = {"verify.fitness": "verify.architecture"}
+
+# The in-module fallback for the guardrail check rename. A project that ran
+# /compass:init before ADR-023 names the retired spelling in its own
+# guardrails.yml; the check still ships, so resolve the name rather than
+# reporting it as unimplemented.
+CHECK_NAME_MAP = {"coherence-check-passes": "consistency-check-passes"}
 
 # 1.x shape values -> the v2 change-type values (machine spelling,
 # hyphenated). Read-side via normalize_spine; the evaluator

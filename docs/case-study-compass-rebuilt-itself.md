@@ -1,7 +1,7 @@
 # Compass turned its own delivery process on itself - here's what the record shows
 
 Compass is an open-source framework that right-sizes software process: it
-looks at a change, decides how much ceremony it needs, and proves what
+looks at a change, decides how much process weight it needs, and proves what
 shipped with an audit trail instead of a promise. In August 2026 its
 maintainer used it to rewrite Compass's own vocabulary, rename its own
 commands, and migrate its own issue archive to a new schema - as

@@ -198,12 +198,40 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     ],
     # The role-perspective concept, in any casing. Tuned at the
     # skills-prose slice: a hyphen-preceded "lens" is an agent identifier
-    # (product-lens, architect-lens, marketing-lens) - machine vocabulary
+    # (product-owner, architect, product-marketer) - machine vocabulary
     # that keeps its spelling until an agent-rename decision - and is no
     # longer flagged. The concept word alone still is.
+    # The carve-out for a hyphen-preceded "lens" is gone: it existed only
+    # while the agents were still called product-lens, marketing-lens and
+    # architect-lens, and ADR-023 renamed them after their roles. The bare
+    # pattern now catches the identifiers too, which is the point.
     "lens": [
-        re.compile(r"(?<!-)\blens(?:es)?\b", re.IGNORECASE),
+        re.compile(r"\blens(?:es)?\b", re.IGNORECASE),
     ],
+    # ADR-023. Three of these need a tuned pattern because the word has an
+    # ordinary sense the ban must not touch; the rest are unambiguous.
+    #
+    # `stream`: the lookbehind is what makes `upstream` and `downstream`
+    # invisible. Measured before the ban was written - 40 upstream/downstream
+    # uses in scanned prose, 116 of the unit-of-work sense, and zero uses of
+    # the data-flow sense ("event stream", "output stream"). So the lookbehind
+    # is the whole of the ambiguity.
+    "stream": [
+        re.compile(r"(?<![a-z-])streams?\b", re.IGNORECASE),
+    ],
+    # `topology` and `ceremony` keep their ordinary senses, which is why the
+    # ban entries say so; the patterns are plain because those senses do not
+    # appear in this repository's prose.
+    "swarm": [re.compile(r"\bswarms?\b", re.IGNORECASE)],
+    "topology": [re.compile(r"\btopolog(?:y|ies)\b", re.IGNORECASE)],
+    "charter": [re.compile(r"\bcharters?\b", re.IGNORECASE)],
+    "ceremony": [re.compile(r"\bceremon(?:y|ies)\b", re.IGNORECASE)],
+    "distillation": [re.compile(r"\bdistil(?:l)?(?:ation|ing|ed|s)?\b", re.IGNORECASE)],
+    "coherence check": [re.compile(r"\bcoherence[- ]check", re.IGNORECASE)],
+    "fitness function": [re.compile(r"\bfitness[- ]functions?\b", re.IGNORECASE)],
+    "navigator": [re.compile(r"\bnavigators?\b", re.IGNORECASE)],
+    "roundtable": [re.compile(r"\broundtables?\b", re.IGNORECASE)],
+    "elicitation": [re.compile(r"\belicit(?:ation|ing|ed|s)?\b", re.IGNORECASE)],
     # The v1 risk dimension, prose or key form.
     "blast radius": [
         re.compile(r"\bblast[\s_-]radius\b", re.IGNORECASE),
@@ -621,10 +649,19 @@ TERM_SURFACE_EXEMPT = {
         "cli/migrate-map.yml",
         "architecture/decisions/ADR-022-the-issue-record-is-a-manifest.md",
     ),
-    # architecture/ownership.md names the role-perspective agents by their
-    # machine identifiers and reasons about them as a set; `role` is the
-    # concept word and the agents are still called *-lens.
-    "lens": ("architecture/",),
+    # ADR-004's decision IS the word - it is titled "one spec, many lenses" -
+    # so the record keeps it (ADR-023). The broad "architecture/" prefix this
+    # replaced was only needed while the agents were still called *-lens.
+    "lens": ("architecture/decisions/ADR-004-one-spec-many-lenses.md",),
+    # writing-voice.md quotes archived devlogs verbatim and names real issue
+    # directories. tests/test_human_voice.py hashes those quotations against
+    # the archived files, so editing one falsifies the quote - the same reason
+    # `spine / issue spine` is exempt there.
+    "stream": ("skills/compass-runtime/writing-voice.md",),
+    "swarm": ("skills/compass-runtime/writing-voice.md",),
+    # ADR-009 is titled "fitness functions are project guardrails"; same rule.
+    "fitness function": (
+        "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",),
 }
 
 

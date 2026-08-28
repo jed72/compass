@@ -101,19 +101,19 @@ from compass_pkg.manifest import _annotate_gate_accepts
 
 
 
-# How many parallel streams each route shape permits. The policy states this
-# as a topology word; here it becomes the number a cap can be compared
-# against. `solo-or-pair` permits two - that is what "or pair" means.
-#
-# `swarm` is None because it is UNBOUNDED, not because the number is unknown.
-# Nothing in routing-policy.yml or .compass/config.yml states a swarm width -
+# How many parallel subtasks each route shape permits is stated by the policy
+# as a number, so a cap can be compared against it directly. A null ceiling
+# means UNBOUNDED, not that the number is unknown.
+# Nothing in routing-policy.yml or .compass/config.yml states a multiagent width -
 # the only cap the policy carries is RP-CAP-001's max_worktrees: 1, and the
 # config file says in as many words that the worktree cap is a routing
 # concern it does not hold. An earlier draft wrote 8 here; that is a
 # configurable-looking number frozen into a literal, and it would have
-# misreported the day anyone set a real cap. A ceiling on a swarm can only
+# misreported the day anyone set a real cap. A ceiling on a multiagent can only
 # come from a cap, or from the distribution map at breakdown.
-_SHAPE_STREAM_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}
+# Route shapes declare `subtask_ceiling` as a number since ADR-023. The word
+# -> number lookup that used to live here is gone; `core` keeps its own copy
+# for reading archived manifests, which still carry the words.
 
 
 def evaluate_route(readings, policy):
@@ -319,12 +319,12 @@ def evaluate_route(readings, policy):
         for fl_gate in floor_gates:  # gates added by a floor's add_gate (ADR-007)
             if fl_gate not in gates:
                 gates.append(fl_gate)
-    # A CEILING, not a decision. Triage cannot know the topology: the
+    # A CEILING, not a decision. Assess cannot know the orchestration: the
     # evaluator has no concept of a work unit, `routing-policy.yml` says
-    # nothing about independence or streams, and the distribution map that
+    # nothing about independence or subtasks, and the distribution map that
     # decides parallelism is written at design - three stages later. So the
-    # evaluator reports how many parallel streams this approach PERMITS, and
-    # breakdown sets the actual topology once the map exists.
+    # evaluator reports how many parallel subtasks this approach PERMITS, and
+    # breakdown sets the actual orchestration once the map exists.
     #
     # It stays a number so a cap can be compared against it. The previous code
     # wrote the sentence "solo (capped to 1 worktree)" into a machine field.
@@ -365,15 +365,14 @@ def evaluate_route(readings, policy):
             "reason": why or "added by a policy rule",
         })
 
-    stream_ceiling = _SHAPE_STREAM_CEILING.get(
-        str(shape.get("topology", "solo")), 1)
+    subtask_ceiling = shape.get("subtask_ceiling", 1)
     if max_worktrees is not None:
-        stream_ceiling = (max_worktrees if stream_ceiling is None
-                          else min(stream_ceiling, max_worktrees))
+        subtask_ceiling = (max_worktrees if subtask_ceiling is None
+                           else min(subtask_ceiling, max_worktrees))
 
     # --- soft advisory strategies (R10) -------------------------------------
     # These BIAS/ASSESS only - they never alter the route, gates, weight, or
-    # topology. Surfaced for the Needle and the reviewer (e.g. regression-
+    # subtask ceiling. Surfaced for the Needle and the reviewer (e.g. regression-
     # baseline on shared/critical surface). A strategy, not a guardrail.
     applicable_strategies = []
     for adv in strategies.get("advisory_strategies", []):
@@ -392,7 +391,7 @@ def evaluate_route(readings, policy):
         "stages": phases,
         "gates": gates,
         "artifacts": artifacts,
-        "stream_ceiling": stream_ceiling,
+        "subtask_ceiling": subtask_ceiling,
         "required_artifacts": required_artifacts,
         "required_skills": sorted(required_skills),
         "blocked_phases": blocked_phases,
@@ -452,7 +451,7 @@ def cmd_route_evaluate(args):
         _fired = [str(f["rationale"]).rstrip().rstrip(".")
                   + " (%s, %s)" % (f["id"], f["kind"])
                   for f in result["policy_rules_fired"]]
-        _ceiling = result["stream_ceiling"]
+        _ceiling = result["subtask_ceiling"]
         _concerns = []
         # Policy drift is a CONCERN, not provenance. The plain "which policy
         # file did I read" line is detail and lives under --verbose, but a
@@ -478,8 +477,8 @@ def cmd_route_evaluate(args):
             outcome="%s - %d gate(s), %s"
                     % (display_shape(result["delivery_approach"]),
                        len(result["gates"]),
-                       "unbounded parallel streams" if _ceiling is None
-                       else "up to %d parallel stream(s)" % _ceiling),
+                       "unbounded parallel subtasks" if _ceiling is None
+                       else "up to %d parallel subtask(s)" % _ceiling),
             # Only if it is actually there. `delivery-approach.md` is written
             # by the triage command, not by the evaluator, so a first evaluate
             # was telling the reader to open a file that did not exist.
@@ -535,11 +534,11 @@ def cmd_route_evaluate(args):
                     print(f"        - {c}")
         else:
             print("  policy rules fired: none")
-        ceiling = result["stream_ceiling"]
+        ceiling = result["subtask_ceiling"]
         permits = ("unbounded by policy" if ceiling is None
                    else f"up to {ceiling}")
-        print(f"  parallel streams: {permits} (a ceiling - breakdown sets the "
-              f"topology once the distribution map exists)")
+        print(f"  parallel subtasks: {permits} (a ceiling - breakdown sets "
+              f"the orchestration once the distribution map exists)")
         print("  per-stage weight:")
         for p, w in result["stages"].items():
             print(f"    {display_stage(p):<11}: {w}")
@@ -569,7 +568,7 @@ def cmd_route_evaluate(args):
         prior = {
             "delivery_approach": task.get("delivery_approach"),
             "stages": task.get("stages"),
-            "stream_ceiling": task.get("stream_ceiling"),
+            "subtask_ceiling": task.get("subtask_ceiling"),
             "gates": sorted(g.get("id") for g in (task.get("gates") or [])
                             if isinstance(g, dict)),
             "policy_rules_fired": sorted(
@@ -579,7 +578,7 @@ def cmd_route_evaluate(args):
         now = {
             "delivery_approach": result["delivery_approach"],
             "stages": result["stages"],
-            "stream_ceiling": result.get("stream_ceiling"),
+            "subtask_ceiling": result.get("subtask_ceiling"),
             "gates": sorted(result.get("gates") or []),
             "policy_rules_fired": sorted(
                 f.get("id") for f in (result["policy_rules_fired"] or [])
@@ -640,16 +639,16 @@ def cmd_route_evaluate(args):
         task["artifacts"] = merged
         # ensure the evidence registry exists at the top level
         task.setdefault("evidence", [])
-        task["stream_ceiling"] = result["stream_ceiling"]
-        # Triage no longer records a topology: breakdown owns it, once the
-        # distribution map says whether independent work units exist.
-        task.pop("topology", None)
+        task["subtask_ceiling"] = result["subtask_ceiling"]
+        # Assess never records an orchestration: breakdown owns it, once the
+        # distribution map says whether independent subtasks exist.
+        task.pop("orchestration", None)
         save_manifest(task, task_path)
         _annotate_gate_accepts(task_path)   # R6-6: seed accepted-type comments
         print(f"\n  wrote route, phases, gates -> {task_path}")
         if not reframed and getattr(args, "reason", None):
             print("  no route change detected - the --reason was NOT recorded. "
-                  "The route, phases, gates, topology and fired guardrails are "
+                  "The route, phases, gates, ceiling and fired guardrails are "
                   "all identical to what was already on record.")
         if reframed:
             print(f"  RE-FRAME recorded ({task['reassessments'][-1]['kind']}): "

@@ -351,7 +351,7 @@ def test_friction_groups_recurring_by_category_and_target(run_cli, make_task):
     r = run_cli("retro", "--friction")
     assert r.returncode == 0, r
     out = r.stdout
-    assert "over-ceremony" in out, r          # grouped by category
+    assert "over-weight" in out, r            # grouped by category
     assert PC_CLARIFY in out, r               # grouped by proposed_change target
     assert "3" in out, r                      # contributing count
 

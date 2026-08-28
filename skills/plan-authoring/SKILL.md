@@ -50,7 +50,7 @@ Compass artifacts themselves. Use it.
 
 **Reach for PlantUML only when Mermaid genuinely cannot express the shape** -
 component diagrams with lifelines, state charts with guards, deployment
-topology. PlantUML needs a rendering path the reader may not have, so the cost
+orchestration. PlantUML needs a rendering path the reader may not have, so the cost
 of using it is that some readers see source instead of a picture. Pay that
 cost when the diagram is worth it, not by default.
 
@@ -102,7 +102,7 @@ self-review in `bdd-specification`.
 ## Anti-patterns
 
 - **The padded plan** - all six optional sections filled on a change that
-  needed one. Ceremony is a cost; a long plan is read less carefully than a
+  needed one. Process weight is a cost; a long plan is read less carefully than a
   short one.
 - **The decorative diagram** - a diagram that restates the paragraph above it.
   Cut one.

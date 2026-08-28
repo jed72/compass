@@ -64,7 +64,7 @@ verifier gathered, `acceptance-criteria.md`, `technical-design.md`, the `governa
   `S8` names the calibration sample it is read against.
 - **claims** - when the product-marketer role is in play: does every public
   claim trace to a passing scenario? This is an immovable gate; coordinate with
-  `marketing-lens`.
+  `product-marketer`.
 
 `correctness`, `governance`, and `traceability` run on *every* delivery approach -
 they are the default guardrails in review form. The route can add dimensions;

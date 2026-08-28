@@ -32,8 +32,8 @@ Rules:
   and ADR-007 gains `supersedes: ADR-003`. The chain is navigable in both
   directions.
 - The `compass adr new <slug>` subcommand assigns the next sequential number
-  and registers the file here. On a swarm with concurrent worktrees, two
-  streams may produce the same number - the orchestrator resolves the conflict
+  and registers the file here. On a multiagent with concurrent worktrees, two
+  subtasks may produce the same number - the orchestrator resolves the conflict
   at integration by renumbering one side (see ADR-001 for the decision context
   that informs this).
 
@@ -49,15 +49,16 @@ Rules:
 | [ADR-006](ADR-006-backward-compat-is-non-negotiable.md) | Backward compat is non-negotiable | accepted | Inv-8 (backward compat for projects without new surfaces) |
 | [ADR-007](ADR-007-conditional-gate-promotion-via-floors.md) | Gates may be conditionally promoted from advisory to blocking via routing-policy floors; advisory gates write evidence but do not block Land | proposed | RG-FLOOR-004/005, verify.analyze (advisory-by-default lifecycle) |
 | [ADR-008](ADR-008-cross-task-derived-artifacts.md) | Cross-task derived artifacts are generated from landed task scenarios at Land time; the derivation is reconstructible, idempotent, and never a source-of-truth | proposed | Inv-5, Inv-6, Inv-8 (living spec, derived at Land, silent overwrite contract) |
-| [ADR-009](ADR-009-fitness-functions-are-project-guardrails.md) | Architectural fitness functions are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; nothing-to-check pass on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
+| [ADR-009](ADR-009-architecture-checks-are-project-guardrails.md) | Architectural architecture checks are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; nothing-to-check pass on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
 | [ADR-010](ADR-010-governance-layers-rather-than-copies.md) | Project governance should layer over framework defaults rather than copy them | proposed | Inv-8 (backward compat - a file with no `extends:` must keep working); supersedes nothing, complements the drift-detection work |
 | [ADR-011](ADR-011-enforced-file-types-are-project-configurable.md) | Which file types require a red is project-configurable via enforcement.code_globs, adding to the built-in set; a project may add but never remove | accepted | Inv-8 (backward compat - a project that configures nothing keeps today's behaviour); same floor-plus-opt-in shape as ADR-010 |
-| [ADR-012](ADR-012-the-v2-vocabulary-freeze.md) | The v2 vocabulary is frozen - industry words only, enforced by the build; post-freeze changes carry decision-record ceremony | accepted | governance/terminology.yml + tests/test_terminology.py (the ratchet); ADR-006 (break paid once behind a major version) |
+| [ADR-012](ADR-012-the-v2-vocabulary-freeze.md) | The v2 vocabulary is frozen - industry words only, enforced by the build; post-freeze changes carry decision-record process weight | accepted | governance/terminology.yml + tests/test_terminology.py (the ratchet); ADR-006 (break paid once behind a major version) |
 | [ADR-014](ADR-014-retired-names-are-removed-at-the-major-version.md) | Retired names are removed at the major version rather than carried as redirects | accepted | Inv-8 (backward compat - the break is paid once, behind a major version, per ADR-006); enables ADR-015 |
 | [ADR-015](ADR-015-the-vocabulary-scan-covers-code-positions.md) | The vocabulary scan covers code positions, not only prose | superseded by ADR-018 | ADR-012 (the v2 vocabulary freeze - the scan is its enforcement); depends on ADR-014 |
 | [ADR-016](ADR-016-id-codes-are-part-of-the-frozen-vocabulary.md) | Id prefixes are part of the frozen vocabulary, and routing rule ids say routing policy rather than guardrail | accepted | ADR-012 (extends the freeze from terms to codes); ADR-006 (the read side stays tolerant) |
 | [ADR-017](ADR-017-an-identifier-is-a-key-not-jargon.md) | An identifier is a key, not jargon - attach its meaning, never delete the id | accepted | ADR-012 (amends a frozen `banned:` entry); ADR-016 (states the rule for using the prefixes it defines) |
 | [ADR-018](ADR-018-the-scan-reads-every-position-by-default.md) | The vocabulary scan reads every position by default; an exclusion must be declared and reasoned | accepted | supersedes ADR-015; ADR-012 (the freeze this enforces); ADR-014 (removing retired names made it possible) |
+| [ADR-023](ADR-023-the-vocabulary-is-measured-against-anthropics-docs.md) | Where a term has a counterpart in Anthropic's platform docs, Compass uses their word with their meaning; otherwise plain English with no competing meaning | accepted | amends ADR-012 (the freeze, which had no reference text); ADR-015 (a retired name in printed output survives a green scan); ADR-019 (redirect stubs); ADR-020 (archive migrated on read); ADR-022 (a decision record keeps the words it was decided in) |
 | [ADR-013](ADR-013-vendored-third-party-code.md) | Compass may redistribute third-party code inside the plugin, and a bundled copy takes precedence over any system copy | accepted | Inv-8 (backward compat - TRC-F4/TRC-F5 hold no behaviour change); ADR-002 (no new guardrail or routing dimension added) |
 
 ## Principle → ADR mapping
@@ -90,3 +91,4 @@ enumerate at least one alternative that was genuinely considered and rejected.
 | ADR-020 | The Archive Is Migrated Not Frozen | proposed |
 | ADR-021 | A release narrative guard retires with its release | accepted |
 | ADR-022 | The issue record is a manifest | accepted |
+| ADR-023 | The vocabulary is measured against Anthropic's platform docs | accepted |

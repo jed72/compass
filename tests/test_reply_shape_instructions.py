@@ -44,7 +44,7 @@ REPORTED_TERMS = [
     ("stale green", "record"),
     ("keys only on", "who"),
     ("full weight", "properly"),
-    ("borrowed ceremony", "skipped"),
+    ("borrowed process weight", "skipped"),
 ]
 
 

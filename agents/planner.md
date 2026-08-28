@@ -1,6 +1,6 @@
 ---
 name: planner
-description: "Owns the plan stage: writes the technical design, runs the governance check, and decides the parallel topology."
+description: "Owns the plan stage: writes the technical design, runs the governance check, and decides the parallel orchestration."
 tools: Read, Glob, Grep, Write, Edit
 model: opus
 ---
@@ -42,15 +42,15 @@ the feature code.
    tells you whether Plan is a one-line "edit this file" note, a real `technical-design.md`,
    or a plan plus a full distribution map.
    Also read `architecture-notes.md` in the issue directory if it exists. This
-   file is the architect-lens's output from an earlier invocation (typically at
-   define or via `/compass:roundtable architect-lens`). If the file is present,
+   file is the architect's output from an earlier invocation (typically at
+   define or via `/compass:consult architect`). If the file is present,
    your Design Decisions in `technical-design.md` §2 must each either:
    - **cite** an existing ADR (referenced via `architecture/decisions/ADR-N-*`),
    - **name** a candidate ADR to author at Build, or
-   - **explicitly justify divergence** from the architect-lens's findings.
+   - **explicitly justify divergence** from the architect's findings.
    If `architecture-notes.md` is absent, record that absence in the plan as a
-   recordable absence ("No architect-lens notes were available for this issue")
-   - not a silent skip. The planner never re-invokes the architect-lens; the
+   recordable absence ("No architect notes were available for this issue")
+   - not a silent skip. The planner never re-invokes the architect; the
    order of operations is perspective first, planner second (DD-5 in technical-design.md).
 2. **Write the technical plan.** State the approach. State every design
    decision explicitly - on initiative, as ADR-style notes. Name dependencies
@@ -70,12 +70,12 @@ the feature code.
 4. **Build the distribution map.** Identify independent work units -
    units that touch disjoint code *and* satisfy disjoint scenarios can run in
    parallel. Independence is determined from the scenario file and the plan,
-   not guessed. Load the `worktree-swarm` skill for the decomposition craft.
-5. **Decide topology.** Solo, pair, or swarm. Assess's size and blast
-   radius assessment set the default; your distribution map sets the stream
+   not guessed. Load the `worktree-multiagent` skill for the decomposition craft.
+5. **Decide orchestration.** Solo, pair, or multiagent. Assess's size and blast
+   radius assessment set the default; your distribution map sets the subtask
    count; `.compass/config.yml` thresholds and the routing guardrail caps bound
    it. **The `critical` risk cap pins worktrees at 1** - an initiative
-   can be heavy and solo, and that is intentional. Record the topology decision
+   can be heavy and solo, and that is intentional. Record the orchestration decision
    and its constraints in `distribution-map.md`.
 6. **Run `compass plan lint` before you commit the plan.** It reports phrases
    that mean the plan is not finished - `TBD`, `TODO`, "implement later", "add
@@ -91,13 +91,13 @@ the feature code.
 ## How you behave per route
 
 - **quick-fix** - Plan collapses to a one-line "edit which file(s)" note; the
-  Navigator already put it in `delivery-approach.md`. No `technical-design.md`, no distribution map.
+  Router already put it in `delivery-approach.md`. No `technical-design.md`, no distribution map.
 - **Standard** - a real `technical-design.md` with the one or two design decisions stated
   and the governance check run. If the work splits into 2–3 clean independent
-  units, a short distribution list (not the full mapping ceremony).
+  units, a short distribution list (not the full mapping process weight).
 - **initiative** - full `technical-design.md` plus full `distribution-map.md`. Architecture,
   every design decision as an ADR-style note, scenario groups mapped to
-  independent streams. Write the map even if a cap forces the route solo - it
+  independent subtasks. Write the map even if a cap forces the route solo - it
   is the record of what could have been parallel and why it wasn't.
 - **Hotfix** - Plan collapses to a one-line *root-cause* note (root cause, not
   symptom - a symptom fix owes a follow-up initiative).
@@ -106,7 +106,7 @@ the feature code.
 
 - You never write production code or scenarios.
 - You never let a plan that crosses a guardrail proceed.
-- You never compose a swarm on a feature approach - 4+ streams is initiative; if
-  the work wants a swarm, the route was mis-composed and you say so.
+- You never compose 4+ subtasks on a feature approach - that is initiative scale; if
+  the work wants a multiagent, the route was mis-composed and you say so.
 - You never exceed a routing-guardrail cap on worktree count.
 - You never run initiative without a `distribution-map.md`, even when capped solo.

@@ -212,7 +212,7 @@ terms:
     not: >
       A choice of process. The assessment is read; the delivery approach is
       computed from it by `compass approach evaluate`.
-    related: [assess, delivery-approach, navigator]
+    related: [assess, delivery-approach, router]
   traceability:
     means: >
       The chain that makes a change accountable: code traces to a TRC- id,
@@ -245,13 +245,15 @@ terms:
       finance self-serve" is the intent, and it may need filters and
       permissions the request never mentioned.
     related: [first-slice, scenario, traceability]
-  navigator:
+  router:
     means: >
-      The agent that runs triage: reads the four assessment dimensions, hands
+      The agent that runs assess: reads the four assessment dimensions, hands
       them to the CLI, and writes the delivery-approach record. It assesses;
-      it does not choose a process.
+      it does not choose a process. Named for what it does - Anthropic's
+      platform docs call this shape "Routing", classifying input and directing
+      it to a specialised path - and for the file it runs, routing-policy.yml.
     not: >
-      A decision-maker about ceremony. The approach is computed from the
+      A decision-maker about process weight. The approach is computed from the
       assessment by `compass approach evaluate`, which is the determinism
       boundary.
     related: [assess, assessment, delivery-approach]
@@ -562,11 +564,11 @@ codes:
     related: [quality-gate, evidence]
   FU:
     means: >
-      Follow-up id. Ceremony this issue owes after an expedited ship - the
+      Follow-up id. Work this issue deferred to ship fast and still owes - the
       hotfix's promoted scenario, a de-scoped artifact. Not "any outstanding
       work": a newly found defect gets its own issue named by slug. A
       follow-up may carry target_task, naming the issue whose ship it blocks.
-    referent: One outstanding piece of ceremony this issue owes.
+    referent: One piece of work this issue deferred and still owes.
     appears_in: ["task.yml follow_ups[].id", verification-report.md]
     related: [follow-up, definition-of-done]
   BF:
@@ -674,6 +676,44 @@ banned:
   - term: "lens"
     replacement: role
     context: "As the role-perspective concept."
+  # --- ADR-023: measured against Anthropic's platform documentation ---------
+  # Each entry below replaces a Compass-only word with the word Anthropic's
+  # docs use for the same thing, or with plain English where they have no
+  # counterpart. `ratchet` was on the candidate list and was deliberately kept
+  # (maintainer ruling, 2026-08-27).
+  - term: "swarm"
+    replacement: multiagent
+    context: "As the name for several agents working in parallel. Anthropic's docs call this multiagent orchestration; `swarm` is also the name of another vendor's agent framework, so it points a reader somewhere else entirely. Ordinary use about bees is fine."
+  - term: "topology"
+    replacement: orchestration
+    context: "As the manifest key and the word for whether work runs single-agent or multiagent. The key is `orchestration:` and its values are `single` and `multiagent`. `topology` in its ordinary network or mathematical sense is fine."
+  - term: "stream"
+    replacement: subtask
+    context: "As one independent unit of parallel work. Anthropic's docs fan out 'independent subtasks', and a subtask is a unit of work while a stream is a flow of data - the two are not the same shape. `upstream` and `downstream` are ordinary English and are NOT banned; the pattern skips them."
+  - term: "charter"
+    replacement: assignment
+    context: "As what a builder is handed - its worktree, its scenarios, its approach. Plain English, because Anthropic's nearest term (`agent definition`) means the model, system prompt and tools, which is a different thing."
+  - term: "ceremony"
+    replacement: process weight
+    context: "As the weight of process a delivery approach carries. Agile teams already own this word for a meeting - a standup is a ceremony - so 'pay back the ceremony borrowed for speed' reads as a missed meeting. Ordinary use about an actual ceremony is fine."
+  - term: "distillation"
+    replacement: behaviour mapping
+    context: "As reverse-engineering existing behaviour into scenarios. To anyone working near AI, distillation means training a smaller model from a larger one, so the wrong reading arrives first. The skill is `behaviour-mapping`, which also matches the `brownfield-mapped` familiarity value it serves."
+  - term: "coherence check"
+    replacement: consistency check
+    context: "As what `compass analyze` does across artifacts. Plain English; `coherent` about an argument is fine."
+  - term: "fitness function"
+    replacement: architecture check
+    context: "As a project-declared architectural rule. NOT renamed to `eval`: an eval measures model output against success criteria in Anthropic's docs, while this checks code structure, so borrowing the word would import a meaning it does not have. The gate is `verify.architecture`."
+  - term: "navigator"
+    replacement: router
+    context: "As the agent that reads the assessment and computes the delivery approach. It runs routing-policy.yml, and Anthropic's docs name this shape Routing."
+  - term: "roundtable"
+    replacement: consult
+    context: "As the command that convenes several roles on a question. An advisor in Anthropic's docs is one you consult mid-turn. /compass:roundtable is a redirect stub for one major version."
+  - term: "elicitation"
+    replacement: interview
+    context: "As the act of drawing intent out of a person. Anthropic's onboarding documentation runs an interview; the skill is `intent-interview`."
   - term: "blast radius"
     replacement: risk
     context: "As the assessment dimension (blast_radius key and prose)."
@@ -796,13 +836,19 @@ scan:
   # ---------------------------------------------------------------------------
   position_exemptions:
     - id: PX-1
-      positions: [source comments, python docstrings]
+      positions: [source comments, python docstrings, shell comments]
       reason: >
         The parser discards them, so no string here can be printed, logged or
         rendered - there is no path from a comment to a user. They are also
         where the history lives: a comment explaining that a key used to be
         called something else is the record, and banning the old name there
         would delete the explanation.
+
+        Shell comments were added on 2026-08-27, for the second half of that
+        reason rather than the first. The position was covered for Python and
+        not for shell, so a truthful sentence in hooks/*.sh or scripts/*.sh
+        failed the scan while the same sentence in a .py file passed. Nothing
+        about a shell comment reaches a user either.
     - id: PX-2
       positions: [yaml keys, json keys, json enum values]
       reason: >
@@ -822,6 +868,8 @@ scan:
     # a silent one.
     - commands/triage.md
     - commands/wireframe.md
+    # Names its own retired command, which is the stub's whole job (ADR-023).
+    - commands/roundtable.md
     - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
                            # pointers and the migrate tool must name v1
                            # spellings; they live here so the enforced CLI

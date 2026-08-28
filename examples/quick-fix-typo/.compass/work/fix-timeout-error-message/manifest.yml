@@ -11,7 +11,7 @@ assessment:
   role: engineer
   labels: []
 delivery_approach: quick-fix
-topology: solo
+orchestration: solo
 policy_rules_fired: []
 stages:
   assess: full

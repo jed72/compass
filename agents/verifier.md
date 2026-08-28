@@ -28,7 +28,7 @@ what is actually true. Your deliverable is the evidence portion of
    actually exercises the changed code (no silently skipped tests, no coverage
    gaps below any project guardrail floor in `governance/guardrails.md`).
 4. **Run regression** when the route includes the regression dimension
-   (Standard and heavier): nothing previously passing now fails. On a swarm,
+   (Standard and heavier): nothing previously passing now fails. On a multiagent,
    the orchestrator runs *combined* regression at ship time - you run per-stream
    regression at the per-stream gate.
 5. **Gather artifacts** - coverage reports, performance numbers against any

@@ -123,12 +123,12 @@ def _range_is_readable(*revs) -> bool:
 # skill fails here even when git history is unavailable.
 _PRE_ISSUE_SKILLS = {
     "skills/adaptive-routing", "skills/bdd-specification",
-    "skills/blueprint-distillation", "skills/compass-runtime",
+    "skills/behaviour-mapping", "skills/compass-runtime",
     "skills/evidence-gates", "skills/flow-management",
     "skills/governance-check", "skills/plan-authoring",
     "skills/receiving-code-review", "skills/role-translation",
     "skills/systematic-debugging", "skills/tdd-discipline",
-    "skills/traceability", "skills/worktree-swarm",
+    "skills/traceability", "skills/worktree-multiagent",
 }
 
 PRINCIPLE = (
@@ -194,7 +194,7 @@ def test_trc_a1_the_reference_lives_under_an_existing_skill_and_opens_with_the_p
     }
     # The set comparison that stood here compared the WHOLE skill directory
     # set against the pre-issue tree, so any skill added for any unrelated
-    # reason failed it - `intent-elicitation` did, on 2026-08-25. The rule was
+    # reason failed it - `intent-interview` did, on 2026-08-25. The rule was
     # never "no skill may be added". It is "the reference must not live in a
     # skill invented to hold it", and the assertion below says exactly that,
     # with or without git history. Removed rather than narrowed, because two
@@ -216,7 +216,7 @@ def test_trc_a1_the_reference_lives_under_an_existing_skill_and_opens_with_the_p
         "the principle must appear as a single line, verbatim: " + PRINCIPLE
     )
 
-    assert "skills/worktree-swarm/SKILL.md" in text
+    assert "skills/worktree-multiagent/SKILL.md" in text
     assert "Never stash across a worktree hop" in text, (
         "the reference must name that section as the calibration sample "
         "of the register it is asking for"

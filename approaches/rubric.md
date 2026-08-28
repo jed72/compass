@@ -37,7 +37,7 @@ be `critical`.
 |---|---|
 | `greenfield` | Net-new code with no existing behaviour to preserve. |
 | `brownfield-mapped` | Existing code, and its current behaviour is already captured in scenarios (or trivially readable). |
-| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `blueprint-distillation` here - you cannot safely change what you have not first described. |
+| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `behaviour-mapping` here - you cannot safely change what you have not first described. |
 
 ### Size - *how much work is this, honestly?*
 
@@ -47,7 +47,7 @@ be `critical`.
 | `small` | 1–3 files, a known solution pattern, no new architecture. |
 | `standard` | Several files, 1–3 days, one or two design decisions. |
 | `large` | Multi-module, 1–2 weeks, real architecture, plausibly parallelisable. |
-| `product` | A new system or subsystem, 2+ weeks, many independent work streams. |
+| `product` | A new system or subsystem, 2+ weeks, many independent work subtasks. |
 
 Size is the only dimension a person reliably over- or under-estimates.
 When unsure, triage estimates *up* - it is cheaper to collapse a phase
@@ -100,7 +100,7 @@ Assess writes `.compass/work/<issue-slug>/delivery-approach.md` from
 - the four dimension assessment, each with its one-line justification;
 - the composed candidate route;
 - every routing guardrail that fired and what it changed;
-- the final route: per-phase weight, the gate set, the swarm topology;
+- the final route: per-phase weight, the gate set, the multiagent orchestration;
 - **the de-scope ledger** - every phase or check that is collapsed or skipped,
   each with an explicit "safe to skip because…" line. A phase with no
   justification cannot be skipped; if triage cannot justify a skip, the

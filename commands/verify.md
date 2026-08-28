@@ -31,7 +31,7 @@ The rest of this command is for delivery work.
 - Invoke the `verifier` agent (runs the suites) and the `reviewer` agent
   (applies the review dimensions).
 - If the product-marketer role is in play, the `claims` dimension applies -
-  `marketing-lens` reviews here too.
+  `product-marketer` reviews here too.
 - If this issue is itself a sweep, rename, or cleanup touching many files,
   verify it the way `governance/strategies.md` `S9` describes: a fresh agent
   that has not seen the change, not its author.
@@ -67,7 +67,7 @@ The rest of this command is for delivery work.
    The `governance` dimension checks the work against `governance/`: the
    guardrails (hard, evidence-backed - `compass check` is the mechanical
    part) and the applicable strategies (assessed as judgement, reported
-   distinctly). On a swarm, verify per-stream first, then again on the
+   distinctly). On a multiagent, verify per-stream first, then again on the
    combined result.
 5. **Update the gates in `manifest.yml`.** As each gate is cleared, the
    `verifier` sets its `status` to `pass` and points its `evidence:` at the

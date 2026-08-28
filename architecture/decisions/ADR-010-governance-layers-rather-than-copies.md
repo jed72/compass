@@ -48,7 +48,7 @@ routing_guardrails:
       ...
   waived:
     - id: RG-FLOOR-006        # deliberate, recorded, reviewable
-      reason: "no fitness functions declared yet; revisit at Q3"
+      reason: "no architecture checks declared yet; revisit at Q3"
 ```
 
 A new framework floor then applies to every project automatically. Drift stops

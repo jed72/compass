@@ -54,7 +54,7 @@ delivered, that is a **spike**, and a spike is assessed like anything else.
 
 `/compass:init` is optional and is not what creates the project: the five
 entry points - `/compass:assess`, `/compass:intent`, `/compass:design`,
-`/compass:position`, `/compass:roundtable` - run `compass init` first, which
+`/compass:position`, `/compass:consult` - run `compass init` first, which
 creates `.compass/` if it is absent and says so. It creates project state
 only, never `governance/`. The shipped guardrails and strategies are active
 from the first command, so there is nothing to configure and no gate to clear
@@ -124,16 +124,16 @@ drifted until one of them was naming nine agents where the other named ten.
 
 Compass has five roles, four of them non-engineering, all full pipeline
 citizens. If a session opens with a role entry point - `/compass:intent`,
-`/compass:position`, `/compass:design`, `/compass:roundtable` - adopt that
+`/compass:position`, `/compass:design`, `/compass:consult` - adopt that
 role's vocabulary and artifacts. Do not collapse a product owner's intake
 into an engineering issue; the intake is upstream of the acceptance
 criteria, and the criteria must be checked back against it.
 
-## Worktrees and swarms
+## Worktrees and multiagent
 
-Worktree rules - who may create one, who works inside one, and how the stream
+Worktree rules - who may create one, who works inside one, and how the subtask
 count is bounded - are in the `compass-runtime` skill and in the
-`worktree-swarm` skill that the orchestrator loads.
+`worktree-multiagent` skill that the orchestrator loads.
 
 ## Where state lives
 

@@ -18,7 +18,7 @@ criteria → at least one executable specification each**.
    has already reset once today, hits a rate limit. Concrete examples ground
    abstract wishes in observable events.
 
-3. **Distil into acceptance criteria.** Each example suggests a criterion:
+3. **Map into acceptance criteria.** Each example suggests a criterion:
    "Given a valid, unexpired reset token, the user can set a new password."
    At this step you are also applying the ubiquitous language - the shared
    vocabulary of the domain that every role (engineer, product owner, QA,

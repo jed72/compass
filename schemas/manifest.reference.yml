@@ -15,7 +15,7 @@ assessment:        # (required) map - the four-dimension JUDGEMENT assessment (F
   touches:       # (optional) list of strings - domain tags (auth, payments, …)
 
 route:           # (optional until approach evaluate) string - the final route name
-topology:        # (optional until approach evaluate) string - solo | pair | swarm | …
+orchestration:        # (optional until approach evaluate) string - solo | pair | multiagent | …
 fired_guardrails:# (optional) list of maps {id, kind, rationale, changed[]}
 phases:          # (optional until approach evaluate) map of phase -> weight string
 
@@ -46,7 +46,7 @@ approvals:       # (optional; only when guardrail G5 applies) list of maps:
     timestamp:   #   (optional) string - ISO 8601
     evidence:    #   (optional) string
 
-follow_ups:       # (optional) list of maps - outstanding ceremony:
+follow_ups:       # (optional) list of maps - work still owed:
   - id:          #   (required in entry) string
     description: #   (required in entry) string
     status:      #   (required in entry) [outstanding, resolved]

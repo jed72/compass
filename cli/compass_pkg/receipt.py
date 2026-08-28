@@ -239,14 +239,15 @@ def _receipt_wrap_ids(head, ids, width=_RECEIPT_LINE_CAP):
     return out
 
 
-def _receipt_parse_topology_override(approach_path):
-    """Find a recorded topology override in the delivery-approach record.
+def _receipt_parse_orchestration_override(approach_path):
+    """Find a recorded orchestration override in the delivery-approach record.
 
     An override lives in the record as a table row whose first cell is
-    "Topology" and whose from-to cell reads like "swarm -> solo" (either
-    arrow spelling). Returns the overridden-to value, or None. Tolerant by
-    design - the record is prose, and a receipt that cannot parse it
-    simply shows the computed topology.
+    "Orchestration" and whose from-to cell reads like "multiagent -> single"
+    (either arrow spelling). Records written before ADR-023 say "Topology",
+    which is why both labels are read. Returns the overridden-to value, or
+    None. Tolerant by design - the record is prose, and a receipt that cannot
+    parse it simply shows the computed value.
     """
     import re as _re
     if not approach_path or not os.path.isfile(approach_path):
@@ -256,7 +257,9 @@ def _receipt_parse_topology_override(approach_path):
         if not stripped.startswith("|"):
             continue
         cells = [c.strip() for c in stripped.strip("|").split("|")]
-        if len(cells) >= 2 and cells[0].lower() == "topology":
+        # Reads the retired label too: a record written before ADR-023 says
+        # "Topology" (ADR-006).
+        if len(cells) >= 2 and cells[0].lower() in ("orchestration", "topology"):
             m = _re.search(r"(?:->|\u2192)\s*([a-z][a-z-]*)", cells[1])
             if m:
                 return m.group(1)
@@ -264,7 +267,7 @@ def _receipt_parse_topology_override(approach_path):
 
 
 def _receipt_render(task, slug, route_readings, gate_requirements=None,
-                    topology_override=None):
+                    orchestration_override=None):
     """Render the one-screen receipt for an issue. Returns a string.
 
     Sections (TRC-A1 order):
@@ -332,21 +335,22 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     lines.append("--------")
     route_name = task.get("delivery_approach")
     shape_shown = display_shape(route_name) if route_name else "(not recorded)"
-    topology = task.get("topology") or ""
-    topology_shown = topology
-    if topology_override and topology_override != topology:
-        topology_shown = (f"{topology} (overridden: {topology_override} - "
-                          "see the delivery approach)")
-    # Triage records a ceiling, breakdown records a topology. A manifest may
-    # legitimately carry either: an archived one has the topology word triage
-    # used to write, and an in-flight one has only the ceiling until the
+    orchestration = task.get("orchestration") or ""
+    orchestration_shown = orchestration
+    if orchestration_override and orchestration_override != orchestration:
+        orchestration_shown = (
+            f"{orchestration} (overridden: {orchestration_override} - "
+            "see the delivery approach)")
+    # Assess records a ceiling, breakdown records an orchestration. A manifest
+    # may legitimately carry either: an archived one has the word assess used
+    # to write, and an in-flight one has only the ceiling until the
     # distribution map exists. Printing the empty slot said nothing.
-    if topology_shown:
-        detail = f"topology: {topology_shown}"
+    if orchestration_shown:
+        detail = f"orchestration: {orchestration_shown}"
     else:
-        ceiling = task.get("stream_ceiling")
-        detail = ("parallel streams: unbounded by policy" if ceiling is None
-                  else f"parallel streams: up to {ceiling}")
+        ceiling = task.get("subtask_ceiling")
+        detail = ("parallel subtasks: unbounded by policy" if ceiling is None
+                  else f"parallel subtasks: up to {ceiling}")
     lines.append(_receipt_truncate(f"  {shape_shown}  ({detail})"))
     # No v1-key fallback: the manifest is normalised on load (see
     # normalize_spine), so a 1.x `fired_guardrails` has already become
@@ -577,7 +581,7 @@ def cmd_task_receipt(args):
     route_readings = _receipt_parse_route_md_readings(approach_path)
     gate_requirements = _receipt_gate_requirements(project_root)
     print(_receipt_render(task, slug, route_readings, gate_requirements,
-                          _receipt_parse_topology_override(approach_path)))
+                          _receipt_parse_orchestration_override(approach_path)))
     return 0
 
 
@@ -679,7 +683,7 @@ def cmd_adr_new(args):
     if os.path.exists(full_path):
         raise CompassError(
             f"{full_path} already exists. If you are in a concurrent worktree, "
-            f"this is expected - rename one side when the streams integrate."
+            f"this is expected - rename one side when the subtasks integrate."
         )
 
     title_words = slug.replace("-", " ").title()
@@ -715,5 +719,5 @@ def cmd_adr_new(args):
                        "NOTE: if another worktree creates ADRs at the same "
                        "time, the",
                        "      numbers will collide - renumber when the "
-                       "streams integrate."],
+                       "subtasks integrate."],
                path=full_path, index=readme_path)

@@ -9,11 +9,11 @@ with the skill.
 
 Go phase by phase, not route by route:
 
-- **Define** - scenario count and discovery depth; distillation if brownfield.
+- **Define** - scenario count and discovery depth; behaviour mapping if brownfield.
 - **Refine** - full / light / collapsed. Collapsed is permitted *only* when the
   spec is a single unambiguous scenario *and* no routing guardrail requires the requirements review.
 - **Plan** - one-liner / real `technical-design.md` / plan + distribution map.
-- **Breakdown** - solo / pair / swarm, stream count from the distribution map.
+- **Breakdown** - solo / pair / multiagent, subtask count from the distribution map.
 - **Build** - test-surface target, scaled to risk.
 - **Verify** - which review dimensions, how many gates (see the router's
   dimensions-by-route table).
@@ -42,7 +42,7 @@ What is different about a Spike composition:
 - **The TDD strategy (red-before-green) is suspended.** Red-before-green is the wrong
   discipline for code written precisely to learn something and likely thrown
   away. The route-aware pre-tool hook does not block on a Spike - it reads a
-  `.compass/work/<task>/.spike` marker file. **The Navigator writes that marker
+  `.compass/work/<task>/.spike` marker file. **The Router writes that marker
   when it composes a spike**; without it the hook will still block.
 - **The define stage collapses to the question, the requirements review is skipped, design collapses to a
   timebox.** A spike has no acceptance criteria - its output is knowledge.

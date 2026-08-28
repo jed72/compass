@@ -6,7 +6,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 # /compass:plan
 
 Design turns the spec into a technical approach, checks it against
-governance, and - on larger work - decides the parallel topology.
+governance, and - on larger work - decides the parallel orchestration.
 Parallelism is *decided here* and *executed at breakdown*.
 
 (The designer's entry point is `/compass:design` - it produces the UI
@@ -30,7 +30,7 @@ now says it too.)
 - Invoke the `planner` agent - it owns this stage.
 - If an `intent.md` exists, this is where the **intent-fidelity gate** lands: the
   spec must be checked against `intent.md` before the design completes. Invoke
-  `product-lens` to run it.
+  `product-owner` to run it.
 
 ## Procedure
 
@@ -50,7 +50,7 @@ now says it too.)
    feature a short list of 2-3 units is enough; on an initiative write the
    full `distribution-map.md` from its template - even if a cap forces it
    solo, the map records what *could* have been parallel and why it wasn't.
-   Stream count comes from the map; topology thresholds from
+   Subtask count comes from the map; orchestration thresholds from
    `.compass/config.yml`; a policy cap can bound the count.
 4. **Write `technical-design.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md` (and
    `distribution-map.md` from its template when applicable) into

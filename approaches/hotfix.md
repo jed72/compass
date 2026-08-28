@@ -36,7 +36,7 @@ Full Verify gate. Review dimensions: `correctness`, `governance`,
 follow-up. The gate is *not* lighter than Standard's - Hotfix compresses the
 phases *before* Verify, never Verify itself.
 
-## Swarm topology
+## Multiagent orchestration
 
 Solo. No worktree.
 
@@ -64,8 +64,8 @@ flags it; `/compass:ship` refuses to close it.
   - even at 3am.
 - Compress the Verify gate. The phases before Verify are compressed; Verify is
   not. A fast fix that isn't verified is just a faster outage.
-- Close without the follow-up. Borrowed ceremony is a debt with a due date, and
+- Close without the follow-up. Borrowed process weight is a debt with a due date, and
   the due date is "before the issue closes."
 - Be used for a fix that is actually `standard`+ in size. That is an
   incident: route it initiative, put someone in incident command, and use the
-  swarm if it helps.
+  multiagent if it helps.

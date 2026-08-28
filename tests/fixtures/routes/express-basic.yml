@@ -13,5 +13,5 @@ expected:
   delivery_approach: quick-fix
   fired_guardrail_ids: []
   conflict: false
-  stream_ceiling: 1
+  subtask_ceiling: 1
   has_gate: verify.correctness

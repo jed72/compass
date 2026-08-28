@@ -79,7 +79,7 @@ architect-lens is the canonical example: it reads `architecture/` and produces
 - The `governance/signals.yml` file was introduced using this pattern: it is
   a new artifact type the CLI consumes, not a new guardrail or dimension.
 - The architect-lens was introduced using this pattern.
-- Future capabilities (distillation, review automation) should follow the same
+- Future capabilities (behaviour mapping, review automation) should follow the same
   pattern.
 
 ## References

@@ -7,7 +7,7 @@ date: 2026-05-24
 
 <!-- triage reads this file at the start of every issue and includes it (with
      its SHA-256 fingerprint) in .compass/work/<task>/architecture-loaded.yml.
-     Downstream agents - spec-author, planner, and the architect-lens - read
+     Downstream agents - spec-author, planner, and the architect - read
      architecture-loaded.yml to get persistent architectural context that
      survives session boundaries and context compaction.
 
@@ -19,7 +19,7 @@ date: 2026-05-24
 Compass is an adaptive spec-driven development framework that runs inside
 Claude Code. Its primary purpose is to reduce the cost of doing things right:
 writing testable acceptance criteria before building, routing issues to the
-appropriate level of ceremony, and producing an auditable evidence trail that
+appropriate level of process weight, and producing an auditable evidence trail that
 proves work landed safely.
 
 Compass governs its own development using the same mechanisms it supplies to
@@ -75,8 +75,8 @@ Logical surface: **strategies**
 Compass has five roles - engineer, product owner, designer, marketer, QA - all
 of whom are full pipeline citizens. Each role has entry-point slash commands
 (`/compass:intent`, `/compass:position`, `/compass:design`,
-`/compass:roundtable`) and dedicated agent files in `agents/`. The architect
-lens (`agents/architect-lens.md`) is an advisory lens over the role pipeline,
+`/compass:consult`) and dedicated agent files in `agents/`. The architect
+role (`agents/architect.md`) is an advisory role over the role pipeline,
 not a sixth full role.
 
 Logical surface: **role pipeline**
@@ -92,7 +92,7 @@ Logical surface: **role pipeline**
 | `.compass/work/<issue>/manifest.yml` | The manifest; written by triage, read by every stage | high |
 | `.compass/work/<task>/*.md` | Phase artefacts (spec, plan, clarifications, etc.) | high |
 | `.compass/current-task` | One-line pointer resolved by CLI and hooks | high |
-| `architecture/` (this tree) | Assess loads into `architecture-loaded.yml`; architect-lens reads | medium |
+| `architecture/` (this tree) | Assess loads into `architecture-loaded.yml`; architect reads | medium |
 | `templates/` | Worked examples and starting shapes for adopter artefacts | low |
 | Claude Code session | The execution environment; not a file dependency | n/a |
 
@@ -110,7 +110,7 @@ Logical surface: **role pipeline**
 
 3. **Guardrails are not configurable.** Projects may add their own governance
    checks, but they cannot remove or soften G1–G5. Adopters declare
-   architectural fitness functions as project guardrails using the generic
+   architectural architecture checks as project guardrails using the generic
    `command-passes` check (see ADR-009); the `verify.fitness` gate is promoted
    to blocking by routing floors `RP-REQUIRE-003/007` when the issue's blast
    radius or domain tags warrant it.
@@ -121,7 +121,7 @@ Logical surface: **role pipeline**
 
 5. **The `architecture/` tree is advisory.** A project may operate Compass
    without an `architecture/` directory. Assess degrades gracefully to an
-   empty load record. The architect-lens degrades gracefully to heuristic
+   empty load record. The architect degrades gracefully to heuristic
    analysis with a `WARNING:` prefix. Neither absence causes a phase to fail.
 
 ## Open questions

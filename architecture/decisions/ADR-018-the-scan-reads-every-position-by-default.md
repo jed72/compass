@@ -138,7 +138,7 @@ the consumer, not the file.
 ## Postscript - the class appeared inside the issue that named it
 
 A test written for this issue asserted `stream_ceiling > 1` and passed because
-of an invented value (`swarm: 8`) that nothing in the policy supported - an
+of an invented value (`multiagent: 8`) that nothing in the policy supported - an
 assertion passing for the wrong reason, written after the document explaining
 that outputs assert outcomes they never established.
 

@@ -2,7 +2,7 @@
 # =============================================================================
 # Compass script: validate.sh  -  SELF-CHECK FOR THE FRAMEWORK REPO
 # =============================================================================
-# A coherence check for the Compass repository ITSELF - not for a project using
+# A consistency check for the Compass repository ITSELF - not for a project using
 # Compass. It verifies the directory structure is intact and that the adapter
 # layer's internal references resolve: commands referencing skills, agents, and
 # templates that actually exist; no dangling pointers.
@@ -95,7 +95,7 @@ has() { # needle  haystack(newline-separated)
 # --- 3. agents referenced by commands exist ---------------------------------
 say "3. Agent references in commands/"
 # Match the patterns the command files actually use, e.g. "the `builder` agent",
-# "`orchestrator` agent", "invoke the `navigator` agent".
+# "`orchestrator` agent", "invoke the `router` agent".
 REFS="$(grep -rohE '`[a-z][a-z-]+`[[:space:]]+agent' commands/ 2>/dev/null \
         | sed -E 's/`([a-z-]+)`.*/\1/' | sort -u || true)"
 if [ -z "$REFS" ]; then
@@ -165,7 +165,7 @@ for ref in $REFS; do
 done
 # Also assert the canonical set is present regardless of references.
 for f in hooks/pre-tool.sh hooks/post-tool.sh hooks/stop.sh \
-         scripts/install.sh scripts/swarm.sh scripts/integrate.sh scripts/validate.sh; do
+         scripts/install.sh scripts/multiagent.sh scripts/integrate.sh scripts/validate.sh; do
   [ -f "$f" ] || fail "expected file missing: $f"
 done
 say ""

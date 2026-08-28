@@ -51,7 +51,7 @@ one client's bulk job degraded latency for everyone.
 `requirements-review.md` with the Definition of Ready ticked, a real `technical-design.md` with
 two ADR-style design decisions, a full `verification-report.md` with the
 Definition of Done and pasted test output. It also shows breakdown being
-*skipped for a reason* (the work units share code surface, so a swarm would
+*skipped for a reason* (the work units share code surface, so a multiagent would
 manufacture a merge conflict, not parallelism).
 
 **One-line lesson:** the normal case - every phase runs, the two checklist
@@ -77,7 +77,7 @@ back at the end - a Hotfix with an outstanding follow-up is an open issue, full 
 **Issue:** build the in-app notifications subsystem - durable delivery,
 per-category preferences, a security category that mute cannot suppress.
 
-**What it demonstrates:** full weight, every gate, a swarm across worktrees -
+**What it demonstrates:** full weight, every gate, a multiagent across worktrees -
 and two routing guardrails *firing visibly*. The assessment include
 `labels: [migrations]`, so **RP-FLOOR-003** raises the candidate from Standard
 to initiative ("domain risk overrides size") - you can see it in
@@ -88,8 +88,8 @@ guardrail `G5` apply - `manifest.yml`'s `evidence:` registry carries a typed
 `human-approval` entry (approver, role, scope, decision, timestamp,
 conditions) for the irreversible schema change, and the JSON record it points
 at lives under `evidence/approval-migration-0042.json`. Full set: `intent.md`
-with an Internal FAQ, `distribution-map.md` with the two-stream swarm
-topology, per-stream *and* combined verification.
+with an Internal FAQ, `distribution-map.md` with the two-stream multiagent
+orchestration, per-stream *and* combined verification.
 
 **One-line lesson:** the router is governed too - a domain tag can overrule a
 size reading, and the heavy route is heavy on purpose.

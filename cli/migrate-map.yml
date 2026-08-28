@@ -13,6 +13,17 @@
 # Spine value renames. Read-side: the normaliser maps them on load.
 # Write-side: the migrate tool (its own slice) rewrites them on disk.
 values:
+  # Evidence type and check name. ADR-023 renamed the concept; six manifests
+  # on disk carry the old spelling and must keep clearing their gate.
+  evidence_type:
+    coherence-check: consistency-check
+  check_name:
+    coherence-check-passes: consistency-check-passes
+  # Friction categories. ADR-023 retired `ceremony`; the enum keeps single
+  # tokens, so the pair became over-weight / under-weight.
+  friction_category:
+    over-ceremony: over-weight
+    under-ceremony: under-weight
   follow_up_status:
     owed: outstanding
     paid: resolved
@@ -65,3 +76,23 @@ stage_keys:
   distribute: breakdown
   build: implement
   land: ship
+
+# Gate ids. `verify.fitness` is printed by `compass check` on every run, so it
+# is a surface a reader learns the vocabulary from, not private plumbing -
+# which is why ADR-023 renamed it with the concept rather than leaving it.
+# Roughly a hundred archived manifests carry the old id.
+gate_ids:
+  verify.fitness: verify.architecture
+
+# Manifest keys renamed by ADR-023, to the words Anthropic's platform docs use.
+# The read side applies these through core.SPINE_KEY_MAP; this section is the
+# data a reader and the migration tool share.
+manifest_keys:
+  topology: orchestration
+  stream_ceiling: subtask_ceiling
+
+# `.compass/config.yml` block names. This is the one vocabulary file an adopter
+# edits by hand, so their existing spelling is read rather than required to
+# change.
+config_keys:
+  swarm: multiagent

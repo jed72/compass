@@ -105,7 +105,7 @@ EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
 EXPECTED_GATE_IDS = {
     "verify.correctness", "verify.governance", "verify.traceability",
     "verify.regression", "verify.security", "verify.clarity", "verify.claims",
-    "verify.analyze", "verify.fitness", "spike.conclude",
+    "verify.analyze", "verify.architecture", "spike.conclude",
 }
 
 EXPECTED_READING_KEYS = {

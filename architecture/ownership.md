@@ -6,12 +6,12 @@ date: 2026-05-24
 # Compass - Service Ownership
 
 <!-- triage reads this file and includes it in architecture-loaded.yml as a
-     narrative artifact. The architect-lens uses ownership information to
+     narrative artifact. The architect uses ownership information to
      flag when a proposed change crosses component boundaries - a common source
      of undetected coupling and rework.
 
      Keep this file current. Stale ownership is worse than no ownership file:
-     the lens will flag risks against the wrong surface. -->
+     the role will flag risks against the wrong surface. -->
 
 ## Component ownership
 
@@ -25,7 +25,7 @@ exclusively, and what it must not do.
 | `hooks/pre-tool.sh` | `.red` marker gate enforcement | The decision of whether to block a tool call |
 | `hooks/stop.sh` | Session-end signal scanning, rework nudge | Detection of scope-bloat and rework signals |
 | `commands/*.md` | Phase slash-command definitions | The user-facing pipeline protocol |
-| `agents/*.md` | Role and lens agent definitions | Agent instructions and hard boundary statements |
+| `agents/*.md` | Role and role agent definitions | Agent instructions and hard boundary statements |
 | `governance/` | Routing policy, guardrails, strategies, signals | The machine-readable governance files that the CLI runs |
 | `architecture/` (this tree) | Compass's own architectural record | The ADRs and narrative files that describe the framework itself |
 | `templates/` | Worked examples for adopters | The template shapes adopters copy; not consumed by the CLI |
@@ -67,13 +67,13 @@ exclusively, and what it must not do.
 - The approach-awareness of strategy enforcement (the spike approach suspends TDD;
   other delivery delivery approach do not).
 
-### Role Pipeline (agents/*.md + commands/roundtable.md)
+### Role Pipeline (agents/*.md + commands/consult.md)
 
 **Must own:**
 - Each role's entry-point command and the artifact it produces.
-- The `architect-lens` agent's annotation protocol (`architecture-notes.md`
+- The `architect` agent's annotation protocol (`architecture-notes.md`
   with five headed sections, no Given/When/Then).
-- The lens-first / planner-second order of operations.
+- The role-first / planner-second order of operations.
 
 ---
 
@@ -100,12 +100,12 @@ and continues. Exiting non-zero would make rework-scan a blocking gate,
 violating **Inv-4**. Detection is not the same as a verdict, and a scan that
 can fail a build will be tuned until it stops detecting anything.
 
-### architect-lens must not emit Gherkin scenarios
+### architect must not emit Gherkin scenarios
 
 `architecture-notes.md` contains annotations, candidate ADR titles, and
 boundary-risk flags. It never contains Given/When/Then scenarios. Scenarios live
-in `acceptance-criteria.md` exclusively. Emitting scenarios from the lens would violate
-**Inv-5** (one spec, many lenses). A lens that emits scenarios has forked the
+in `acceptance-criteria.md` exclusively. Emitting scenarios from the role would violate
+**Inv-5** (one spec, many roles). A role that emits scenarios has forked the
 spec, which is exactly what the one-spec rule exists to prevent.
 
 ### No mechanism may write into manifest.yml.assessment
@@ -140,7 +140,7 @@ mechanism - the CLI must read the file).
 ## Cross-component dependency rules
 
 A change that affects any of the following cross-component pairs must trigger
-an architect-lens consultation (via `/compass:roundtable architect-lens`) or
+an architect consultation (via `/compass:consult architect`) or
 explicitly note why the consultation is not needed:
 
 | Caller component | Callee component | Risk |

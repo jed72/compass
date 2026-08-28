@@ -160,7 +160,7 @@ def cmd_land_commit(args):
     # Confirm we are in a git work tree.
     inside = _git(["rev-parse", "--is-inside-work-tree"], cwd)
     if inside.returncode != 0:
-        raise CompassError("compass land-commit: not inside a git repository.")
+        raise CompassError("compass ship-commit: not inside a git repository.")
 
     # Stage any explicitly named paths.
     for f in files:
@@ -169,7 +169,7 @@ def cmd_land_commit(args):
     # Nothing staged → explicit error, never a retry loop (TRC-R5-F2).
     if _git(["diff", "--cached", "--quiet"], cwd).returncode == 0:
         raise CompassError(
-            "compass land-commit: nothing staged to land. Stage the artifacts "
+            "compass ship-commit: nothing staged to land. Stage the artifacts "
             "first (e.g. `git add <paths>`), then re-run."
         )
 
@@ -202,7 +202,7 @@ def cmd_land_commit(args):
     stray = _out_of_scope(staged_now, owned, artifact_dir) if owned else []
     if stray:
         raise CompassError(
-            "compass land-commit: refusing to commit - "
+            "compass ship-commit: refusing to commit - "
             f"{len(stray)} staged path(s) are outside issue '{slug}'s declared "
             "scope:\n  " + "\n  ".join(stray[:20])
             + ("\n  ... and %d more" % (len(stray) - 20) if len(stray) > 20 else "")
@@ -267,7 +267,7 @@ def cmd_land_commit(args):
     if head_after == head_before:
         log = ((c1.stdout or "") + (c1.stderr or ""))[-800:]
         raise CompassError(
-            "compass land-commit: HEAD did not advance"
+            "compass ship-commit: HEAD did not advance"
             + (" after a retry" if retried else "")
             + " - the land did NOT happen. A pre-commit hook may be aborting "
             "the commit repeatedly; resolve it and re-run.\n"
@@ -310,7 +310,7 @@ def cmd_land_commit(args):
             pass  # status update is best-effort; the commit already succeeded
 
     suffix = " (after one retry)" if retried else ""
-    print(f"compass land-commit: committed{suffix}. "
+    print(f"compass ship-commit: committed{suffix}. "
           f"HEAD {head_before[:8]} -> {head_after[:8]}" + landed_note)
     return 0
 

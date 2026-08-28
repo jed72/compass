@@ -99,7 +99,7 @@ root:
    defaults. It does not make you author anything: the defaults are real,
    in-force content from the moment they land. Adding project guardrails and
    strategies is accretion, done whenever the team is ready.
-2. **Creates `.compass/config.yml`** - route defaults, swarm thresholds,
+2. **Creates `.compass/config.yml`** - route defaults, multiagent thresholds,
    worktree ceilings. The defaults are sane; `init` confirms them with you.
 3. **Creates `.compass/work/`** - where every issue's state will live. Note
    that `.compass/work/` **is committed**. It is the audit trail, not scratch.
@@ -189,7 +189,7 @@ The `planner` agent writes a real `technical-design.md`: the technical approach,
 design decision recorded ADR-style (token bucket vs. sliding window - what was
 chosen, what was rejected, why), and a governance check run against all of
 `governance/` - guardrails, strategies, and the routing policy. The work here
-is one or two streams, not four, so the distribution map is a short list, not a
+is one or two subtasks, not four, so the distribution map is a short list, not a
 full `distribution-map.md`. The gate: the governance check passed - every
 guardrail cleared with evidence - and you record its result and link it.
 
@@ -250,7 +250,7 @@ issue does not advance - you fix it, or it goes back.
 /compass:ship
 ```
 
-Solo topology, so shipping commits on the current branch, runs regression across the
+Solo orchestration, so shipping commits on the current branch, runs regression across the
 result, updates any living docs the change touched, and checks the de-scope
 ledger for owed follow-ups (Standard owed none here). A final `devlog.md` entry
 records what landed and how it was verified. The issue is closed.
@@ -271,7 +271,7 @@ the spec, with intent.
 /compass:intent "Let finance pull their month-end numbers without filing a data request"
 ```
 
-The `product-lens` agent adopts the product owner's vocabulary - outcomes and
+The `product-owner` agent adopts the product owner's vocabulary - outcomes and
 users, not files and functions - and writes `intent.md`: the **problem**
 (finance cannot self-serve; every month-end is a data request and a wait), the
 **outcome** (finance gets their numbers directly), the **success signals**
@@ -303,7 +303,7 @@ weight is the framework working, not overhead.
 
 `/compass:define` writes `acceptance-criteria.md` against the brief - every success
 signal in the brief should have a scenario that delivers it. At
-`/compass:refine`, the `product-lens` agent reviews: it walks every success
+`/compass:refine`, the `product-owner` agent reviews: it walks every success
 signal and finds the scenario behind it, flagging **drift** (a scenario that
 solves the literal request but misses the outcome), **gaps** (a signal with no
 scenario), and **scope creep** (scenarios beyond the brief with no recorded
@@ -317,7 +317,7 @@ decision).
 
 Per the routing policy's `role_rules`, when a product owner is in play the
 spec **must be checked against `intent.md` before Plan completes**. The
-`product-lens` agent runs that check. If the spec drifts from the brief -
+`product-owner` agent runs that check. If the spec drifts from the brief -
 well-formed scenarios that nonetheless miss the outcome - Plan does not
 proceed; the spec goes back. Well-formed and faithful are different tests, and
 this gate is where the difference is enforced.
@@ -341,7 +341,7 @@ of a finished engineering process.
 /compass:position "The finance self-serve export"
 ```
 
-The `marketing-lens` agent adopts the marketer's vocabulary - claims, voice,
+The `product-marketer` agent adopts the marketer's vocabulary - claims, voice,
 audience - reads the voice & positioning strategies in
 `governance/strategies.md` (the ones the marketer curates), reads
 `acceptance-criteria.md` if it exists yet, and writes two artifacts:
@@ -364,7 +364,7 @@ traces to a passing scenario**. `verify.claims` is an immovable gate; no route
 removes it.
 
 So the marketer's gate is felt at the very end. At `/compass:ship`, the
-`marketing-lens` agent walks `launch-readiness.md`. Every row must be green: a
+`product-marketer` agent walks `launch-readiness.md`. Every row must be green: a
 claim, a backing scenario, that scenario passing at Verify. A red row - a
 claim whose scenario is missing, failing, or skipped - and ship refuses to
 close the issue. The marketer's only moves at that point are to soften the

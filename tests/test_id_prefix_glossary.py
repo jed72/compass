@@ -109,12 +109,12 @@ def _prefixes_in_use() -> set[str]:
 # Group A - the missing terms
 # --------------------------------------------------------------------------
 
-@pytest.mark.parametrize("term", ["traceability", "intent", "navigator"])
+@pytest.mark.parametrize("term", ["traceability", "intent", "router"])
 def test_the_missing_terms_are_defined(term):
     """Each names something load-bearing and none was in the vocabulary.
 
     `TRC-` is the most-used prefix in the repository and names traceability.
-    `/compass:intent` is a live command. `navigator` is a live agent, and the
+    `/compass:intent` is a live command. `router` is a live agent, and the
     word that replaced the banned one.
     """
     assert term in _terms(), (
@@ -348,7 +348,7 @@ def test_the_rename_does_not_change_any_computed_approach(tmp_path):
     assert r.returncode == 0, r.stdout + r.stderr
     out = r.stdout
     assert "initiative" in out, f"the computed approach changed:\n{out}"
-    assert "verify.fitness" in out, (
+    assert "verify.architecture" in out, (
         f"the fitness gate is no longer added on a cross-cutting change - the "
         f"rename changed behaviour:\n{out}"
     )

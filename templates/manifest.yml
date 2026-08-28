@@ -9,7 +9,7 @@
 # `assessment` and writes `delivery_approach`/`stages`/`gates`;
 # `compass check` reads the rest and verifies the guardrail checks.
 #
-# It is NOT extra ceremony you hand-author. Each stage's command/agent fills
+# It is NOT extra process weight you hand-author. Each stage's command/agent fills
 # its section as a by-product of doing the stage - triage writes the
 # assessment, the acceptance stage adds scenarios, implementation adds
 # changed_files, and so on. On a quick fix this file stays tiny.
@@ -42,7 +42,7 @@ assessment:
   labels: []                                 # domain labels: [auth, payments, …]
 
 delivery_approach: null      # filled by the evaluator (--write)
-topology: null               # filled by the evaluator
+orchestration: null               # filled by the evaluator
 policy_rules_fired: []       # filled by the evaluator - [{id, kind, rationale, changed}]
 stages: {}                   # filled by the evaluator - {frame: full, specify: light, …}
 
@@ -113,7 +113,7 @@ claims: []
 # zero.
 # repairs: the-issue-this-fixes
 
-# --- follow_ups (owed ceremony - e.g. a hotfix's, or a de-scoped artifact) --
+# --- follow_ups (owed process weight - e.g. a hotfix's, or a de-scoped artifact) --
 # `compass check` fails while any follow-up is owed. Shipping refuses to
 # close the issue.
 follow_ups: []
@@ -136,13 +136,13 @@ reassessments: []
 #    date: "{{ISO date}}"
 
 # --- friction (the framework's self-calibration signal) ---------------------
-# Optional. Written at ship time. Records where Compass's own ceremony cost
+# Optional. Written at ship time. Records where Compass's own process weight cost
 # more than it returned; soft, advisory; it never gates shipping. Assembled
 # by `compass _friction-capture` and aggregated by `compass retro
 # --friction`.
 friction: []
 #  - phase: plan
-#    category: over-ceremony     # over-ceremony | under-ceremony | mis-route |
+#    category: over-weight     # over-weight | under-weight | mis-route |
 #                                # missing-strategy | tooling | docs | other
 #    observation: "The full requirements review added a gate the change didn't need."
 #    proposed_change: "routing-policy.yml: lower the review weight for size=small."

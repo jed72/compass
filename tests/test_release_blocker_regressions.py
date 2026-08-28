@@ -11,7 +11,7 @@ detects the defect rather than merely describing it.
 Covered:
   SCN-01  scripts/validate.sh must not fail on untracked files
   SCN-02  the hook must enforce inside a repo whose own path contains "test"
-  SCN-03  scripts/swarm.sh must not copy evidence/ or .red into a worktree
+  SCN-03  scripts/multiagent.sh must not copy evidence/ or .red into a worktree
   SCN-08  the CI workflow must install Python before running a Python tool
   SCN-10  a Spike route must still report an owed backfill
   SCN-11  `compass ship-commit` must refuse to mark landed over unpassed gates
@@ -343,12 +343,12 @@ def test_swarm_does_not_seed_evidence_or_the_red_marker(tmp_path):
     git(repo, "commit", "-q", "-m", "init")
 
     result = subprocess.run(
-        ["bash", str(ROOT / "scripts" / "swarm.sh"), slug],
+        ["bash", str(ROOT / "scripts" / "multiagent.sh"), slug],
         cwd=str(repo), capture_output=True, text=True, timeout=180,
     )
     worktrees = sorted((tmp_path / "wt").glob("*/.compass/work/" + slug))
     assert worktrees, (
-        f"swarm.sh created no seeded worktree:\n{result.stdout}\n{result.stderr}"
+        f"multiagent.sh created no seeded worktree:\n{result.stdout}\n{result.stderr}"
     )
     for wt_task in worktrees:
         assert not (wt_task / ".red").exists(), (

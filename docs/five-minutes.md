@@ -53,7 +53,7 @@ assessment:
 ```
 
 Those four dimensions are the only judgement in the routing. Everything after
-them - the stages, the gates, the topology - is computed. Run
+them - the stages, the gates, the orchestration - is computed. Run
 `compass approach evaluate --verbose` against that assessment and it prints:
 
 ```text
@@ -62,7 +62,7 @@ them - the stages, the gates, the topology - is computed. Run
   candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix
   policy rules fired: none
-  parallel streams: up to 1 (a ceiling - breakdown sets the topology once the distribution map exists)
+  parallel subtasks: up to 1 (a ceiling - breakdown sets the orchestration once the distribution map exists)
   per-stage weight:
     assess     : full
     define     : light
@@ -188,10 +188,10 @@ runtime should be able to resume from these files without the original chat.
 
 1. **Assess the work, do not choose a process.** Four dimensions are judgement;
    the approach is computed from them.
-2. **The approach decides the ceremony.** Which stages run at what weight,
+2. **The approach decides the process weight.** Which stages run at what weight,
    which artefacts are earned, which gates apply.
 3. **Guardrails are hard; strategies are defaults.** An approach reduces
-   ceremony around a guardrail and never routes through one.
+   process weight around a guardrail and never routes through one.
 4. **Evidence, not assertion.** A gate clears with a record a reader can open.
 5. **If it is not on disk, it did not happen.** The manifest and its artefacts
    outlive the conversation.

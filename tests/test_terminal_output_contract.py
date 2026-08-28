@@ -242,7 +242,7 @@ def test_trc_c3_existing_json_verb_keeps_its_keys(tmp_path):
     # never existed - a compatibility assertion against invented names checks
     # nothing and would have failed for the wrong reason.
     for key in ("candidate_route", "candidate_via", "delivery_approach",
-                "gates", "stages", "policy_rules_fired", "stream_ceiling"):
+                "gates", "stages", "policy_rules_fired", "subtask_ceiling"):
         assert key in doc, (
             "`approach evaluate --json` lost the key %r, which shipped before "
             "this change and is public surface (ADR-006). Keys present: %s"

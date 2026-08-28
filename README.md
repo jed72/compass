@@ -67,7 +67,7 @@ everything. Compass adapts the depth without abandoning discipline.
 | **Quick fix** | One clear criterion, a focused change and evidence that it works. |
 | **Feature** | Behavioural specification in Gherkin, proportionate technical design and review. |
 | **Initiative** | intent document, architecture and delivery plan, with detailed design and test strategy only where useful. |
-| **Hotfix** | Reproduce first, fix safely, then pay back the ceremony borrowed for speed. |
+| **Hotfix** | Reproduce first, fix safely, then pay back the process weight borrowed for speed. |
 | **Spike** | Time-boxed exploration. Record the learning; ship nothing directly. |
 
 These are reference shapes, not fixed levels. A one-file authentication change
@@ -174,10 +174,10 @@ what the result means, so this list is a map rather than a manual.
 
 ```
 commands/     the stage interface, under the /compass: namespace
-agents/       distinct contexts - navigator, spec-author, planner, builder,
-              verifier, reviewer, product-lens, marketing-lens, architect-lens
+agents/       distinct contexts - router, spec-author, planner, builder,
+              verifier, reviewer, product-owner, product-marketer, architect
 skills/       loadable procedures - adaptive-routing, bdd-specification,
-              tdd-discipline, worktree-swarm, intent-elicitation and the rest
+              tdd-discipline, worktree-multiagent, intent-interview and the rest
 hooks/        pre-tool.sh, post-tool.sh, stop.sh - mechanical enforcement
 cli/compass   the kit: routing, checks and the manifest
 bin/compass   the shim that puts the kit on your PATH

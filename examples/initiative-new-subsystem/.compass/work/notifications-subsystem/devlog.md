@@ -11,7 +11,7 @@
 - **Route:** initiative - see `delivery-approach.md` revision 1.
 - **Assessment:** risk contained, familiarity greenfield, size standard, intent & role product-owner/delivery, touches [migrations].
 - **Routing guardrails fired:** RP-FLOOR-003 (touches migrations → candidate raised standard→expedition); RP-ROLE-002 (product-owner → intent.md required, Plan blocked until intent-fidelity check).
-- **Outstanding follow-ups:** none - initiative borrows no ceremony. (`G5` applies because of the `migrations` tag - a ship sign-off, not a follow-up.)
+- **Outstanding follow-ups:** none - initiative borrows no process weight. (`G5` applies because of the `migrations` tag - a ship sign-off, not a follow-up.)
 - **Next:** define.
 
 ## 2026-03-05 16:30 - define
@@ -28,13 +28,13 @@
 
 ## 2026-03-07 10:00 - Plan
 
-- **Event:** Full `technical-design.md` + `distribution-map.md`. Three design decisions recorded - DD-1 (fixed security category), DD-2 (idempotency key), DD-3 (write-before-deliver durability). Governance check passed, including how `G5`'s migration sign-off is routed into ship. Two independent streams + a shared U0 foundation (`migrations/0042`).
+- **Event:** Full `technical-design.md` + `distribution-map.md`. Three design decisions recorded - DD-1 (fixed security category), DD-2 (idempotency key), DD-3 (write-before-deliver durability). Governance check passed, including how `G5`'s migration sign-off is routed into ship. Two independent subtasks + a shared U0 foundation (`migrations/0042`).
 - **Artifact:** `technical-design.md`, `distribution-map.md`.
 - **Next:** breakdown.
 
 ## 2026-03-08 09:30 - breakdown
 
-- **Event:** `scripts/swarm.sh` ran. U0 (`migrations/0042_notifications.sql`) landed on the integration branch first. Two worktrees created - `stream-1` (dispatch/store), `stream-2` (preferences) - one `builder` each, plus the `orchestrator` watching the shared `api.py` surface.
+- **Event:** `scripts/multiagent.sh` ran. U0 (`migrations/0042_notifications.sql`) landed on the integration branch first. Two worktrees created - `subtask-1` (dispatch/store), `subtask-2` (preferences) - one `builder` each, plus the `orchestrator` watching the shared `api.py` surface.
 - **Artifact:** worktrees under `../.compass-worktrees`.
 - **Next:** Build (parallel).
 
@@ -46,12 +46,12 @@
 
 ## 2026-03-11 15:20 - note: orchestrator intervention
 
-- **Event:** The orchestrator flagged stream-1 and stream-2 both about to add a route to `api.py` with the same path prefix in incompatible ways.
-- **Detail:** Resolved before collision - the orchestrator had stream-2 rebase onto stream-1's `api.py` router skeleton, then both added their own endpoints under it. This is the swarm machinery doing the job a pair (no orchestrator) could not.
+- **Event:** The orchestrator flagged subtask-1 and subtask-2 both about to add a route to `api.py` with the same path prefix in incompatible ways.
+- **Detail:** Resolved before collision - the orchestrator had subtask-2 rebase onto subtask-1's `api.py` router skeleton, then both added their own endpoints under it. This is the multiagent machinery doing the job a pair (no orchestrator) could not.
 
 ## 2026-03-13 14:50 - Verify
 
-- **Event:** Per-stream verification (stream-1: 3 green, stream-2: 3 green), then `scripts/integrate.sh` merged both onto the integration branch and the orchestrator ran the combined regression - 71 passed. All seven initiative gates GREEN. `ruff` + `mypy` clean. Coverage 85% (floor 80%).
+- **Event:** Per-stream verification (subtask-1: 3 green, subtask-2: 3 green), then `scripts/integrate.sh` merged both onto the integration branch and the orchestrator ran the combined regression - 71 passed. All seven initiative gates GREEN. `ruff` + `mypy` clean. Coverage 85% (floor 80%).
 - **Artifact:** `verification-report.md` - Definition of Done ticked.
 - **Evidence:** per-stream + combined runs in `verification-report.md` §2; `evidence/green-TRC-001.json`.
 - **Next:** ship.
@@ -64,7 +64,7 @@
 ## 2026-03-13 17:00 - ship
 
 - **Event:** issue closed.
-- **What landed:** The `src/notifications/` subsystem - `dispatch.py`, `store.py`, `preferences.py`, `api.py` - and `migrations/0042_notifications.sql`. Orchestrated merge of both streams; combined regression clean.
+- **What landed:** The `src/notifications/` subsystem - `dispatch.py`, `store.py`, `preferences.py`, `api.py` - and `migrations/0042_notifications.sql`. Orchestrated merge of both subtasks; combined regression clean.
 - **How verified:** `verification-report.md` gate decision - all seven gates GREEN; `G5` approval on record.
 - **Follow-ups resolved:** none outstanding.
 - **Follow-up issues filed:** none outstanding by this issue. (The external launch - positioning, claims, a marketer - is the separate already-planned next issue, not a follow-up this issue generated.)

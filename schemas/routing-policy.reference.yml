@@ -60,4 +60,4 @@ route_shapes:          # (required) map - the machine mirror of the 5 reference 
     weight:            #     (required) integer - the force_minimum_route ladder position
     phases:            #     (required) map of phase name -> weight string
     gates:             #     (required) list of gate id strings
-    topology:          #     (required) string
+    subtask_ceiling:  #     (required) integer or null

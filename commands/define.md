@@ -19,7 +19,7 @@ four roles can.
   acceptance criteria for code. Honour it.
 - Load the `bdd-specification` skill.
 - If `delivery-approach.md` assesses familiarity as `brownfield-unmapped`,
-  also load `blueprint-distillation` - reverse-engineer the *current*
+  also load `behaviour-mapping` - reverse-engineer the *current*
   behaviour into scenarios **before** writing the scenarios for the change. A
   policy floor forces this; you cannot safely change what you have not first
   described.
@@ -30,8 +30,8 @@ four roles can.
 
 ## Procedure
 
-1. **Discovery or distillation.** Greenfield: discover scenarios from the
-   intent document or request. Brownfield-unmapped: distil current behaviour
+1. **Discovery or behaviour mapping.** Greenfield: discover scenarios from the
+   intent document or request. Brownfield-unmapped: map current behaviour
    first, then
    add the change scenarios.
 2. **Write scenarios** as Given/When/Then - happy path, the realistic edges,

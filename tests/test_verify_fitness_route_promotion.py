@@ -1,5 +1,5 @@
 """
-Tests for TRC-B4, TRC-B5, TRC-B8 - verify.fitness route promotion and
+Tests for TRC-B4, TRC-B5, TRC-B8 - verify.architecture route promotion and
 architecture documentation.
 """
 from __future__ import annotations
@@ -46,15 +46,15 @@ def _setup_gov(tmp_path: Path) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4: verify.fitness promoted when blast_radius is cross-cutting or critical
+# TRC-B4: verify.architecture promoted when blast_radius is cross-cutting or critical
 # ---------------------------------------------------------------------------
 
 class TestVerifyFitnessPromotionBlastRadius:
-    """TRC-B4: verify.fitness is promoted to blocking when blast_radius reaches
+    """TRC-B4: verify.architecture is promoted to blocking when blast_radius reaches
     cross-cutting or critical."""
 
     def test_cross_cutting_blast_radius_adds_verify_fitness(self, tmp_path):
-        """route evaluate on risk=cross-cutting includes verify.fitness
+        """route evaluate on risk=cross-cutting includes verify.architecture
         in the gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
@@ -69,13 +69,13 @@ class TestVerifyFitnessPromotionBlastRadius:
             f"route evaluate failed: {result.stderr}"
         )
         data = json.loads(result.stdout)
-        assert "verify.fitness" in data["gates"], (
-            f"Expected verify.fitness in gates for cross-cutting blast_radius, "
+        assert "verify.architecture" in data["gates"], (
+            f"Expected verify.architecture in gates for cross-cutting blast_radius, "
             f"got: {data['gates']}"
         )
 
     def test_critical_blast_radius_adds_verify_fitness(self, tmp_path):
-        """route evaluate on risk=critical includes verify.fitness."""
+        """route evaluate on risk=critical includes verify.architecture."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -87,7 +87,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         )
         assert result.returncode == 0, f"route evaluate failed: {result.stderr}"
         data = json.loads(result.stdout)
-        assert "verify.fitness" in data["gates"]
+        assert "verify.architecture" in data["gates"]
 
     def test_fired_guardrails_names_floor_rg_floor_006(self, tmp_path):
         """When cross-cutting fires RP-REQUIRE-003, it appears in fired_guardrails."""
@@ -108,7 +108,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         )
 
     def test_contained_blast_radius_does_not_add_verify_fitness(self, tmp_path):
-        """risk=contained does NOT promote verify.fitness."""
+        """risk=contained does NOT promote verify.architecture."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -120,23 +120,23 @@ class TestVerifyFitnessPromotionBlastRadius:
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)
-        assert "verify.fitness" not in data["gates"], (
-            f"verify.fitness should NOT be in gates for contained, "
+        assert "verify.architecture" not in data["gates"], (
+            f"verify.architecture should NOT be in gates for contained, "
             f"got: {data['gates']}"
         )
 
 
 # ---------------------------------------------------------------------------
-# TRC-B5: verify.fitness promoted when touches includes an irreversible domain
+# TRC-B5: verify.architecture promoted when touches includes an irreversible domain
 # ---------------------------------------------------------------------------
 
 class TestVerifyFitnessPromotionTouches:
-    """TRC-B5: verify.fitness is promoted to blocking when touches lists an
+    """TRC-B5: verify.architecture is promoted to blocking when touches lists an
     irreversible domain."""
 
     @pytest.mark.parametrize("domain", ["auth", "payments", "personal-data", "migrations"])
     def test_irreversible_domain_adds_verify_fitness(self, tmp_path, domain):
-        """touches: [<domain>] causes verify.fitness to be added to gate set."""
+        """touches: [<domain>] causes verify.architecture to be added to gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -151,8 +151,8 @@ class TestVerifyFitnessPromotionTouches:
             f"route evaluate failed for domain={domain}: {result.stderr}"
         )
         data = json.loads(result.stdout)
-        assert "verify.fitness" in data["gates"], (
-            f"Expected verify.fitness for touches=[{domain}], "
+        assert "verify.architecture" in data["gates"], (
+            f"Expected verify.architecture for touches=[{domain}], "
             f"got gates: {data['gates']}"
         )
 
@@ -176,7 +176,7 @@ class TestVerifyFitnessPromotionTouches:
         )
 
     def test_safe_domain_does_not_add_verify_fitness(self, tmp_path):
-        """A non-irreversible domain does not promote verify.fitness."""
+        """A non-irreversible domain does not promote verify.architecture."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -189,8 +189,8 @@ class TestVerifyFitnessPromotionTouches:
         )
         assert result.returncode == 0
         data = json.loads(result.stdout)
-        assert "verify.fitness" not in data["gates"], (
-            f"verify.fitness should NOT appear for touches=public-api, "
+        assert "verify.architecture" not in data["gates"], (
+            f"verify.architecture should NOT appear for touches=public-api, "
             f"got: {data['gates']}"
         )
 
@@ -228,8 +228,15 @@ class TestArchitectureDocumentation:
             "ADR-009 must have status: proposed"
         )
 
-    def test_adr_009_covers_command_passes_and_verify_fitness(self):
-        """ADR-009 must mention command-passes and verify.fitness."""
+    def test_adr_009_covers_command_passes_and_the_architecture_gate(self):
+        """ADR-009 must mention command-passes and the gate it promotes.
+
+        The gate is accepted under whichever spelling ADR-009 itself uses.
+        ADR-023 renamed it to `verify.architecture` and deliberately did not
+        edit the accepted records that carry the old spelling: a decision
+        record is evidence of what was decided and in what words, so it keeps
+        them. Accepting either name is what lets both rules hold at once.
+        """
         adr_file = (
             self.DECISIONS_DIR
             / "ADR-009-fitness-functions-are-project-guardrails.md"
@@ -238,7 +245,8 @@ class TestArchitectureDocumentation:
             pytest.skip("ADR-009 not yet created")
         text = adr_file.read_text(encoding="utf-8")
         assert "command-passes" in text, "ADR-009 must mention command-passes"
-        assert "verify.fitness" in text, "ADR-009 must mention verify.fitness"
+        assert ("verify.architecture" in text or "verify.fitness" in text), (
+            "ADR-009 must name the gate it promotes, under either spelling")
 
     def test_adr_009_in_decisions_readme(self):
         """ADR-009 must be listed in architecture/decisions/README.md."""

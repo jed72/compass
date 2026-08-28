@@ -30,7 +30,7 @@ it, and a break is paid once, at a major, with the reason recorded.
 
 **When a change looks like it forces a major, removing the break is a
 legitimate response; redefining the break is not.** 3.1.0 is the worked case:
-triage started recording a stream ceiling where it had recorded a topology,
+triage started recording a subtask ceiling where it had recorded an orchestration,
 and nothing normalised the old field - so every manifest written earlier read as
 `None`. That was a major. Normalising old manifests on read made it a minor, and
 normalising was owed under ADR-006 regardless of what it did to the number.

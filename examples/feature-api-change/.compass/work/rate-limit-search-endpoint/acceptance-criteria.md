@@ -1,7 +1,7 @@
 # Spec - rate-limit-search-endpoint
 
 > **Phase:** define · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
-> **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no blueprint-distillation needed.
+> **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no behaviour-mapping needed.
 
 ## How each role reads this file
 
@@ -24,7 +24,7 @@
 
 ## Scenario group A - Rate limiting behaviour
 
-**Independence note:** single group. All five scenarios exercise the one new middleware; per `technical-design.md` §4 they share code surface and are built as one solo stream.
+**Independence note:** single group. All five scenarios exercise the one new middleware; per `technical-design.md` §4 they share code surface and are built as one solo subtask.
 
 ### Scenario: Requests under the limit pass through unchanged
 <!-- traceability id: TRC-001 · serves: INT-1 -->

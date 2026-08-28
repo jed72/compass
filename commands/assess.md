@@ -42,10 +42,10 @@ shipped governance defaults stay in force, and adopting your own is what
   runs: triage is bound by its **policy floors, caps, immovable gates, and
   blocking role rules** (hard) and biased by its **default shapes and
   tie-breaking biases** (soft). You do not apply these by hand; the CLI does.
-- Read `.compass/config.yml` for genuine project knobs (test command, swarm
+- Read `.compass/config.yml` for genuine project knobs (test command, multiagent
   worktree root). Routing rules are not here - they live in
   `routing-policy.yml`.
-- For a non-trivial or ambiguous issue, invoke the `navigator` agent to read
+- For a non-trivial or ambiguous issue, invoke the `router` agent to read
   the four dimensions.
 - If a `intent.md`, `ui-contract.md`, or `positioning.md` already exists for
   this issue, read it - intent is the *outcome wanted*, not just the literal
@@ -104,7 +104,7 @@ force; if it is still a spike, leave the marker in place.
    `routing-policy.yml` to the assessment: it composes the candidate shape,
    applies the floors, caps, immovable gates, and blocking role rules, and
    folds the resulting `delivery_approach`, `stages`, `gates` (status
-   pending), `topology`, and `policy_rules_fired` back into `manifest.yml`. You
+   pending), `orchestration`, and `policy_rules_fired` back into `manifest.yml`. You
    do not compose the approach or apply a policy rule by hand - same
    assessment + same policy => same approach, every time. If the assessment
    is a misclassification, the CLI fails loudly; re-read the dimension it
@@ -113,7 +113,7 @@ force; if it is still a spike, leave the marker in place.
    into the issue directory, from the CLI's output. It must contain: the four
    dimensions with justifications; the computed approach; every policy rule
    the CLI reported as fired (with its rationale); the final per-stage
-   weight, gate set, and topology; and **the de-scope ledger** - every stage
+   weight, gate set, and orchestration; and **the de-scope ledger** - every stage
    the CLI marked collapsed or skipped, each with an explicit "safe to skip
    because..." line. A stage with no justification runs.
    `delivery-approach.md` is the human-readable face of what `manifest.yml`

@@ -29,7 +29,7 @@ Reads each scenario asking: *does this deliver the outcome in `intent.md`?*
   request but misses the outcome is drift.
 - Enters *upstream* of the spec - `intent.md` exists before the scenarios - and
   gates Plan: per the routing policy's blocking `role_rules`, the spec must be
-  checked against the brief before Plan starts. Applied by the `product-lens`
+  checked against the brief before Plan starts. Applied by the `product-owner`
   agent.
 
 ### Product marketer - the **claims** perspective
@@ -39,7 +39,7 @@ scenario exists and passes?*
   scenario. `launch-readiness.md` is the ledger: claim → scenario → status.
 - Works *parallel* to the spec and gates shipping - `verify.claims` is an immovable
   gate; no claim ships on a missing, red, or skipped scenario. Applied by the
-  `marketing-lens` agent.
+  `product-marketer` agent.
 
 ### Engineer - the **tests** perspective
 Reads each scenario asking: *how does this become a test, and what TDD cycle
@@ -75,7 +75,7 @@ safeguard. But they still have to be reconciled, and the pipeline has specific
 moments for it:
 
 - **At refine**, the non-engineering roles review the spec together. This is
-  where intent-lens, claims-lens, and contracts-lens disagreements surface
+  where intent-role, claims-role, and contracts-role disagreements surface
   while the spec is still cheap to change. An ambiguity one perspective sees is logged
   in `requirements-review.md` with its resolution.
 - **At the gates**, the roles become review dimensions - `claims` is the
@@ -85,7 +85,7 @@ moments for it:
   guardrail always beats a strategy - so a perspective whose concern is a guardrail
   (the claims gate, traceability) wins over a perspective leaning on a strategy.
   Strategy-vs-strategy is resolved by route context (triage's call) or by a
-  human, often at `/compass:roundtable` - each non-engineering role curates its
+  human, often at `/compass:consult` - each non-engineering role curates its
   own strategies (product, voice & positioning) but none of them outranks a
   guardrail. A conflict that governance does not resolve is a
   `requirements-review.md` entry and, if needed, a re-assess.
@@ -94,7 +94,7 @@ moments for it:
 
 A role is not a consultation; it is an entry point that *changes the route*.
 When `/compass:intent`, `/compass:position`, or `/compass:design` opens a
-session - or `/compass:roundtable` convenes several - triage reads the role
+session - or `/compass:consult` convenes several - triage reads the role
 as the fourth dimension. A non-engineering role almost always pulls the route
 heavier: it adds artifacts (`intent.md`, `positioning.md`, `ui-contract.md`) and
 gates (the intent check, the claims gate). That weight is the framework working

@@ -11,7 +11,7 @@ terms - it is whether the sentence performs a process or reports on one.
 
 **The calibration sample.** Before writing anything in this register, read the
 "Never stash across a worktree hop" section of
-`skills/worktree-swarm/SKILL.md`. It tells a real incident - a stash popped
+`skills/worktree-multiagent/SKILL.md`. It tells a real incident - a stash popped
 inside a temporary worktree destroyed work when the worktree was removed - in
 plain sentences, with no stage name announced and no field left to do the
 talking. That is the voice every surface below is asking for.
@@ -148,14 +148,14 @@ words were jargon. Someone a day inside the vocabulary cannot see them.
 | "a stale green on record" | "I have no idea what a stale green is - is it green or not?" | the tool checks a recorded result, not the tests, and the record can be old |
 | "keys only on the define stage's weight, with no role condition" | "pretty meaningless to me" | it asks how much work the step is doing and never asks who is involved |
 | "at full weight" | "what is 'at full weight'?" | when that step is being done properly rather than skipped |
-| "borrowed ceremony" | "a meaningless sentence to me" | the list of steps that were skipped earlier and have to be gone back and done |
+| "borrowed process weight" | "a meaningless sentence to me" | the list of steps that were skipped earlier and have to be gone back and done |
 
 **The four families these come from**, so the next leak is recognisable before a
 reader has to ask:
 
 - **stage weights** - full, light, collapsed, skipped. Say what actually happens
   to the step.
-- **borrowed ceremony** - the follow-ups list. Say what is outstanding and why.
+- **borrowed process weight** - the follow-ups list. Say what is outstanding and why.
 - **evidence types** - `test-run`, `command-output`, `manual-review`,
   `human-approval`. Say what the thing is: a recorded test run, the output of a
   command, someone's written review, a person's sign-off.

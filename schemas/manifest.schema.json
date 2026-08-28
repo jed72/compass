@@ -144,19 +144,19 @@
       ],
       "description": "The final delivery approach; filled by `compass approach evaluate --write`."
     },
-    "topology": {
+    "orchestration": {
       "type": [
         "string",
         "null"
       ],
-      "description": "Set at breakdown, once the distribution map says whether independent work units exist. Assess does not write it - see stream_ceiling."
+      "description": "Whether this issue is delivered by a single agent or by several. Set at breakdown, once the distribution map says whether independent subtasks exist; assess does not write it - see subtask_ceiling. Manifests written before ADR-023 carry the retired key name, which is read forward through cli/migrate-map.yml."
     },
-    "stream_ceiling": {
+    "subtask_ceiling": {
       "type": [
         "integer",
         "null"
       ],
-      "description": "How many parallel streams this delivery approach permits, written by `compass approach evaluate`. A ceiling, not a decision: the evaluator has no concept of a work unit."
+      "description": "How many parallel subtasks this delivery approach permits, written by `compass approach evaluate`. A ceiling, not a decision: the evaluator has no concept of a work unit."
     },
     "policy_rules_fired": {
       "type": "array",
@@ -203,7 +203,7 @@
             "enum": [
               "artifact",
               "claim-review",
-              "coherence-check",
+              "consistency-check",
               "command-output",
               "human-approval",
               "manual-review",
@@ -360,7 +360,7 @@
             "items": {
               "type": "string"
             },
-            "description": "Optional. Scenario id(s) that replace this one. blueprint-distillation names silent supersession as an anti-pattern: a target scenario replacing a distilled baseline is a recorded decision, not a silent overwrite. Without the link a reader cannot tell a baseline that failed because the change landed as intended from one that failed because something broke."
+            "description": "Optional. Scenario id(s) that replace this one. behaviour-mapping names silent supersession as an anti-pattern: a target scenario replacing a behaviour-mapped baseline is a recorded decision, not a silent overwrite. Without the link a reader cannot tell a baseline that failed because the change landed as intended from one that failed because something broke."
           }
         }
       }
@@ -415,7 +415,7 @@
     },
     "follow_ups": {
       "type": "array",
-      "description": "Outstanding ceremony (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated manifest still lints - readers normalise them.",
+      "description": "Work this issue deferred and still owes (e.g. a hotfix's). `compass check` fails while any is unresolved. The v2 states are outstanding/resolved; the 1.x spellings (owed/paid) stay schema-legal so an unmigrated manifest still lints - readers normalise them.",
       "items": {
         "type": "object",
         "required": [
@@ -488,14 +488,14 @@
           },
           "changed": {
             "type": "object",
-            "description": "What the recomputation actually moved - route, phases, gates, topology - each as a from/to pair. Written by the evaluator as the audit detail behind the reason."
+            "description": "What the recomputation actually moved - route, phases, gates, orchestration - each as a from/to pair. Written by the evaluator as the audit detail behind the reason."
           }
         }
       }
     },
     "friction": {
       "type": "array",
-      "description": "Optional. Written at ship. Records where Compass's own ceremony cost more than it returned between triage and ship, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates ship. Absent on issues that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
+      "description": "Optional. Written at ship. Records where Compass's own process weight cost more than it returned between triage and ship, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates ship. Absent on issues that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
       "items": {
         "type": "object",
         "required": [
@@ -519,8 +519,8 @@
           },
           "category": {
             "enum": [
-              "over-ceremony",
-              "under-ceremony",
+              "over-weight",
+              "under-weight",
               "mis-route",
               "missing-strategy",
               "tooling",

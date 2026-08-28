@@ -7,6 +7,12 @@ supersedes: ''
 superseded_by: ''
 ---
 
+> **Vocabulary note (ADR-023, 2026-08-27):** the concept this record calls a
+> *lens* is now called a **role**, and the three agents it describes are named
+> after their roles: `product-owner`, `product-marketer`, `architect`. The
+> record keeps the word it was decided in; only the name has moved.
+
+
 ## Context
 
 Compass has five roles - engineer, product owner, designer, marketer, QA -

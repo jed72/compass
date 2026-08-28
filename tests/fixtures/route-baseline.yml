@@ -13,7 +13,6 @@
     role: engineer
     labels: []
   expected_route: spike
-  expected_topology: solo
   expected_phases:
     assess: light
     define: collapsed
@@ -25,7 +24,7 @@
     ship: graduate-or-discard
   expected_gates:
   - spike.conclude
-  expected_stream_ceiling: 1
+  expected_subtask_ceiling: 1
 - name: express
   assessment:
     risk: trivial
@@ -35,7 +34,6 @@
     role: engineer
     labels: []
   expected_route: quick-fix
-  expected_topology: solo
   expected_phases:
     assess: full
     define: light
@@ -49,7 +47,7 @@
   - verify.correctness
   - verify.governance
   - verify.traceability
-  expected_stream_ceiling: 1
+  expected_subtask_ceiling: 1
 - name: standard
   assessment:
     risk: contained
@@ -59,13 +57,12 @@
     role: engineer
     labels: []
   expected_route: feature
-  expected_topology: solo-or-pair
   expected_phases:
     assess: full
     define: full
     refine: light
     plan: full
-    breakdown: solo-or-pair
+    breakdown: multiagent
     implement: full
     verify: full
     ship: full
@@ -76,7 +73,7 @@
   - verify.regression
   - verify.clarity
   - verify.security
-  expected_stream_ceiling: 2
+  expected_subtask_ceiling: 2
 - name: hotfix
   assessment:
     risk: contained
@@ -87,7 +84,6 @@
     role: engineer
     labels: []
   expected_route: hotfix
-  expected_topology: solo
   expected_phases:
     assess: light
     define: reproduce-first
@@ -103,7 +99,7 @@
   - verify.traceability
   - verify.regression
   - verify.security
-  expected_stream_ceiling: 1
+  expected_subtask_ceiling: 1
 - name: expedition
   assessment:
     risk: cross-cutting
@@ -113,13 +109,12 @@
     role: engineer
     labels: []
   expected_route: initiative
-  expected_topology: swarm
   expected_phases:
     assess: full
     define: full
     refine: full
     plan: full
-    breakdown: swarm
+    breakdown: multiagent
     implement: full
     verify: full
     ship: full
@@ -131,5 +126,5 @@
   - verify.security
   - verify.clarity
   - verify.claims
-  - verify.fitness
-  expected_stream_ceiling: null
+  - verify.architecture
+  expected_subtask_ceiling: null

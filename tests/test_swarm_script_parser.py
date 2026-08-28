@@ -1,4 +1,4 @@
-"""TRC-1 - scripts/swarm.sh strips markdown punctuation from branch-name cells.
+"""TRC-1 - scripts/multiagent.sh strips markdown punctuation from branch-name cells.
 
 The distribution-map.md §3 table has a fourth cell for the branch name. Users
 may format that cell with backticks or bold for readability - the parser must
@@ -17,14 +17,14 @@ import pytest
 
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
-SWARM_SH = FRAMEWORK_ROOT / "scripts" / "swarm.sh"
+SWARM_SH = FRAMEWORK_ROOT / "scripts" / "multiagent.sh"
 
 
 def _init_project(project: Path) -> None:
     """Create a minimal git project at `project` with one commit on the default branch."""
     project.mkdir(parents=True, exist_ok=True)
     subprocess.run(["git", "init", "-q"], cwd=project, check=True)
-    (project / "README.md").write_text("scaffold for swarm.sh test")
+    (project / "README.md").write_text("scaffold for multiagent.sh test")
     subprocess.run(
         ["git", "-C", str(project), "add", "README.md"], check=True
     )
@@ -40,9 +40,9 @@ def _init_project(project: Path) -> None:
 
 
 def _write_task_artifacts(task_dir: Path, branch_cell: str) -> None:
-    """Write minimal route.md + distribution-map.md so swarm.sh runs.
+    """Write minimal route.md + distribution-map.md so multiagent.sh runs.
 
-    swarm.sh requires route.md to be present (Frame's output) and reads
+    multiagent.sh requires route.md to be present (Frame's output) and reads
     distribution-map.md to parse the streams. The route content is not deeply
     inspected beyond a grep for "Blast radius: critical" (which we don't set),
     so a stub is enough.
@@ -93,10 +93,10 @@ def _write_task_artifacts(task_dir: Path, branch_cell: str) -> None:
 )
 def test_strips_markdown_from_branch_cell(tmp_path, input_cell, expected_branch):
     """Given a distribution-map row whose branch-name cell carries markdown
-    formatting, when swarm.sh parses it, the branch name passed downstream
+    formatting, when multiagent.sh parses it, the branch name passed downstream
     is the markdown-stripped ref name.
     """
-    assert SWARM_SH.is_file(), f"swarm.sh not found at {SWARM_SH}"
+    assert SWARM_SH.is_file(), f"multiagent.sh not found at {SWARM_SH}"
 
     project = tmp_path / "project"
     _init_project(project)
@@ -112,7 +112,7 @@ def test_strips_markdown_from_branch_cell(tmp_path, input_cell, expected_branch)
         text=True,
     )
     assert result.returncode == 0, (
-        f"swarm.sh exited {result.returncode}\n"
+        f"multiagent.sh exited {result.returncode}\n"
         f"stdout:\n{result.stdout}\n"
         f"stderr:\n{result.stderr}"
     )

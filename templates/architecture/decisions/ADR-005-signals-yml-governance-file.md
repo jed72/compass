@@ -12,7 +12,7 @@ superseded_by: ''
 Three framework mechanisms needed configurable patterns:
 - The stop-hook's scope-bloat phrase detector (reframe nudge).
 - The rework scanner's time window and public-surface patterns.
-- Eventually, the architect-lens's trigger tags.
+- Eventually, the architect's trigger tags.
 
 The patterns needed to be project-overridable (different projects have
 different migration path conventions, public surface patterns, etc.) and
@@ -65,7 +65,7 @@ Projects override by editing their own `governance/signals.yml`.
 - A third file for new adopters to become aware of.
 
 **Neutral / follow-on:**
-- Lens-trigger tags (when the architect-lens becomes more sophisticated) will be added as a new key in `signals.yml`, not a new file.
+- Lens-trigger tags (when the architect becomes more sophisticated) will be added as a new key in `signals.yml`, not a new file.
 
 ## References
 

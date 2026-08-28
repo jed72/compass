@@ -21,7 +21,7 @@ scenario, concrete Given/When/Then, no implementation detail.
 # Spec - {{ISSUE_SLUG}}
 
 > **Phase:** define · **Last updated:** {{DATE}} · **Owning agent:** spec-author
-> **Familiarity:** {{greenfield discovery \| existing behaviour distilled first, then new scenarios}}
+> **Familiarity:** {{greenfield discovery \| existing behaviour behaviour-mapped first, then new scenarios}}
 
 ## Summary
 
@@ -83,7 +83,7 @@ today. If nothing observable changes, say so plainly and explain what does.}}
 ## Scenario group A - {{NAME, e.g. "Export generation"}}
 
 <!-- A group is a set of scenarios that touch disjoint code/surface from the
-     other groups. Independent groups can become parallel streams in the
+     other groups. Independent groups can become parallel subtasks in the
      distribution map. If everything is one group, that is fine - say so. -->
 
 **Independence note:** {{what makes this group separable from the others - or "single group, no parallelism expected"}}

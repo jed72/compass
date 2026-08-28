@@ -281,7 +281,7 @@ def _aggregate_friction(tasks, threshold):
 
 
 def _cmd_calibration_friction(args, tasks):
-    """The `compass calibration --friction` view. Read-only; exit 0 always
+    """The `compass retro --friction` view. Read-only; exit 0 always
     (Inv: friction advises, never gates - like rework-scan and flow)."""
     threshold = _load_friction_threshold()
     agg = _aggregate_friction(tasks, threshold)
@@ -424,7 +424,7 @@ def cmd_friction_capture(args):
 
 
 # --- process-impact telemetry ------------------------------------------------
-# "Earn the gate": does the ceremony a route buys correlate with shipping faster
+# "Earn the gate": does the process weight a route buys correlate with shipping faster
 # or breaking less? Computed from manifest.yml alone - `created` and
 # `land_timestamp` are already in the manifest, so no git call is needed and the
 # report is deterministic by construction rather than by discipline.
@@ -595,7 +595,7 @@ def render_impact(r):
         out.append("  verdict. This is single-project observational data: the")
         out.append("  variables are not controlled, and a heavier route is chosen")
         out.append("  BECAUSE work looks riskier, so slower lead times on heavy")
-        out.append("  routes may reflect the work rather than the ceremony.")
+        out.append("  routes may reflect the work rather than the process weight.")
     return "\n".join(out)
 
 
@@ -752,7 +752,7 @@ def cmd_calibration(args):
 
 
 def _cmd_calibration_impact(args):
-    """compass calibration --impact. Advisory: always exits 0, writes nothing."""
+    """compass retro --impact. Advisory: always exits 0, writes nothing."""
     try:
         work = os.path.join(find_compass_dir(), "work")
     except CompassError:

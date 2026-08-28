@@ -35,9 +35,9 @@ Extend the routing-policy floor schema with a new optional property `add_gate: <
 
 The OR semantics from the originating requirement are expressed as two separate floor entries - consistent with the existing policy that each floor has a single `when:` clause.
 
-When a route is below the promotion threshold and `compass analyze` is invoked, the analyze report writes as advisory evidence: a typed `command-output` entry with id prefix `EV-ANALYZE-ADVISORY-<task>-<timestamp>`. Advisory evidence does not satisfy `gate-evidence-present` for `verify.analyze` (because `gate_evidence_requirements` for `verify.analyze` accepts only the typed `coherence-check` evidence type), so an advisory run cannot accidentally clear the gate if the route is later re-framed and the gate is added.
+When a route is below the promotion threshold and `compass analyze` is invoked, the analyze report writes as advisory evidence: a typed `command-output` entry with id prefix `EV-ANALYZE-ADVISORY-<task>-<timestamp>`. Advisory evidence does not satisfy `gate-evidence-present` for `verify.analyze` (because `gate_evidence_requirements` for `verify.analyze` accepts only the typed `consistency-check` evidence type), so an advisory run cannot accidentally clear the gate if the route is later re-framed and the gate is added.
 
-`verify.analyze`'s mechanical check is `coherence-check-passes`, registered as a `CHECK_FN` under guardrail G4 - not as a new guardrail. The five-guardrail count stays at five (ADR-002 honoured).
+`verify.analyze`'s mechanical check is `consistency-check-passes`, registered as a `CHECK_FN` under guardrail G4 - not as a new guardrail. The five-guardrail count stays at five (ADR-002 honoured).
 
 ## Alternatives considered
 
@@ -46,7 +46,7 @@ When a route is below the promotion threshold and `compass analyze` is invoked, 
 | Add `verify.analyze` directly to each `route_shapes.*.gates` list that should have it | Avoids extending the floor schema | Duplicates the gate-promotion logic across multiple shape definitions; couples the shape definitions to the floor's condition; if `RG-FLOOR-003`'s irreversible-surface conditions ever change, the gate list must be updated in two places |
 | Have the route evaluator infer `verify.analyze` from `touches`/`blast_radius` readings without a floor rule | Smallest schema change | Fails `TRC-A12` (the gate must be driven by routing-policy, not hard-coded in the CLI); violates ADR-001 (evaluator's job is to apply, not encode) |
 | Add `verify.analyze` as a sixth guardrail (G6) | Most direct enforcement | ADR-002 explicitly rejects guardrail growth as the mechanism for new checks. The framework grows by adding artifacts and lenses; `verify.analyze` is a CHECK_FN under G4 |
-| Add `verify.analyze` as an immovable gate (always on, every route) | Simplest mental model | Violates the per-task computed routing principle and the "advisory by default" requirement - promoting a check to a gate globally imposes ceremony irrespective of route, exactly what the adaptive-routing pattern exists to avoid |
+| Add `verify.analyze` as an immovable gate (always on, every route) | Simplest mental model | Violates the per-task computed routing principle and the "advisory by default" requirement - promoting a check to a gate globally imposes process weight irrespective of route, exactly what the adaptive-routing pattern exists to avoid |
 
 ## Consequences
 

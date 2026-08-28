@@ -1,4 +1,4 @@
-"""`scripts/swarm.sh` must seed each worktree with the task's artifacts.
+"""`scripts/multiagent.sh` must seed each worktree with the task's artifacts.
 
 A worktree created by `git worktree add` contains only what git tracks. In a
 project that commits `.compass/work/` that is enough - the task directory comes
@@ -9,7 +9,7 @@ worktree arrives with no spec, no plan, and no charter, and `resolve_issue_dir`
 raises because there is no work directory to resolve against.
 
 That makes the documented swarm flow unusable in exactly the repository that
-documents it. This was found by running `scripts/swarm.sh` for a real task and
+documents it. This was found by running `scripts/multiagent.sh` for a real task and
 then looking inside the worktree it made.
 
 Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-E1..E3).
@@ -23,7 +23,7 @@ import sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-SWARM = ROOT / "scripts" / "swarm.sh"
+SWARM = ROOT / "scripts" / "multiagent.sh"
 SLUG = "seed-demo"
 
 MAP = """# Distribution Map - seed-demo
@@ -166,7 +166,7 @@ def test_trc_e2_seeded_worktree_resolves_task(seeded_project):
 # ---------------------------------------------------------------------------
 
 def test_trc_e3_reseeding_is_non_destructive(seeded_project):
-    """swarm.sh documents itself as idempotent: an existing worktree is left
+    """multiagent.sh documents itself as idempotent: an existing worktree is left
     as-is. A seeding step that copied unconditionally would break that on the
     second run - the run where a builder has work to lose."""
     repo, wt_root = seeded_project
@@ -179,5 +179,5 @@ def test_trc_e3_reseeding_is_non_destructive(seeded_project):
     assert result.returncode == 0, result.stdout + result.stderr
 
     assert "builder entry that must survive" in devlog.read_text(), (
-        "re-running swarm.sh overwrote a builder's devlog entry"
+        "re-running multiagent.sh overwrote a builder's devlog entry"
     )

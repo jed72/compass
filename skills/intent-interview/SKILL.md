@@ -1,9 +1,9 @@
 ---
-name: intent-elicitation
+name: intent-interview
 description: How to draw a usable brief out of a conversation - the questions to ask, and what a good answer looks like. Load at the intake stage, before acceptance criteria exist.
 ---
 
-# Intent elicitation
+# Intent interview
 
 There are two ways an issue gets an `intent.md`, and this skill covers both.
 
@@ -43,7 +43,7 @@ forgotten.
 
 **Read the source first, and count what it already answers.** If it carries the
 problem, the outcome, the non-goals, the success signals and a first slice,
-then there is nothing to elicit. Reshape it into the template's sections,
+then there is nothing to draw out. Reshape it into the template's sections,
 record every section as `from: source`, and hand it over.
 
 A person who arrives with a complete brief and gets interrogated about it
@@ -82,7 +82,7 @@ replaced.
 
 When a question is declined:
 
-- record it in `elicitation` with `answer: null` - the question was asked, and
+- record it in `interview` with `answer: null` - the question was asked, and
   that is worth knowing
 - record the section as `from: unanswered`
 - write, in the section itself, that it was asked and not supplied
@@ -102,7 +102,7 @@ That sentence is a complete section. `TBD` is not.
 |---|---|
 | `intent.md` | the reshaped document, following `templates/intent.md`'s sections |
 | `manifest.yml` → `intent_source.sections` | one entry per section: `name`, `from` (`source` \| `answer` \| `unanswered`), and `answer_id` where it cites one |
-| `manifest.yml` → `intent_source.elicitation` | every question asked, with its answer or `null` |
+| `manifest.yml` → `intent_source.interview` | every question asked, with its answer or `null` |
 
 `intent-source.md` is never edited. It is the record `intent.md` is checked
 against, and a reviewer who wants to know whether you invented something reads

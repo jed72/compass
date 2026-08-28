@@ -52,7 +52,7 @@ of line count.
 
 The mirror of floors. Where a floor stops triage going too light, a cap
 stops it going too heavy in a way that adds risk. The default cap - critical
-risk caps worktrees at 1 - encodes a real tradeoff: a swarm is speed,
+risk caps worktrees at 1 - encodes a real tradeoff: a multiagent is speed,
 but it is also coordination risk, and on a critical change the coordination
 risk costs more than the speed saves.
 
@@ -71,7 +71,7 @@ The shipped defaults (see `routing-policy.yml` for the live, id-tagged set):
 
 - **floors** - `RP-FLOOR-001` critical risk → at least initiative,
   never skip clarify/verify/land; `RP-FLOOR-002` brownfield-unmapped familiarity →
-  define runs full-weight with `blueprint-distillation`; `RP-FLOOR-003`
+  define runs full-weight with `behaviour-mapping`; `RP-FLOOR-003`
   touching auth/payments/personal-data/migrations → at least initiative.
 - **caps** - `RP-CAP-001` critical risk caps worktrees at 1.
 - **immovable_gates** - `RP-GATE-001..003`: `verify.correctness`,
@@ -122,7 +122,7 @@ routing_strategies:
        it adds artifacts and assessed strategies - but this is a bias, not a
        floor. A marketer glancing at a tiny change need not trigger an initiative."
     - "Prefer the lightest route that still clears the routing guardrails and
-       the applicable gates. Ceremony is a cost; spend it where it buys safety."
+       the applicable gates. Process weight is a cost; spend it where it buys safety."
 
   # Advisory role defaults (the blocking versions are routing guardrails above).
   role_defaults:
