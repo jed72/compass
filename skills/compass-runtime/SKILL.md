@@ -39,7 +39,10 @@ Cross-issue: `/compass:status` (one issue or a flat list), `/compass:flow`
 (multi-role decisions). `/compass:init` is optional, and it is not what
 creates the project: the entry points above run `compass init` for you.
 
-Each retired command name remains as a redirect stub for one major version.
+Retired command names are removed at the next major version rather than
+carried as redirects, so a retired name is an unknown command rather than a
+pointer. `docs/releasing.md` lists what each release removed, beside the name
+that replaced it (ADR-024).
 
 **The binding decides the filename.** `compass tdd-red --scenario TRC-x` and
 `compass tdd-green --scenario TRC-x` write `evidence/red-TRC-x.json` and

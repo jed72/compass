@@ -464,9 +464,12 @@ def test_trc_a4():
         "`compass plan lint` is not a verb: " + (run.stderr or run.stdout))
 
 
-# Files that may name `/compass:design` without saying which design they mean:
-# the two redirect stubs, whose whole body is a pointer.
-_DESIGN_REF_EXEMPT = {"commands/wireframe.md", "commands/triage.md"}
+# Files that may name `/compass:design` without saying which design they mean.
+# Empty since 4.0.0: the two entries were the `wireframe` and `triage` redirect
+# stubs, whose whole body was a pointer, and both were removed. An exemption
+# naming a deleted file exempts nothing while reading as coverage, so it goes
+# with the file rather than lingering.
+_DESIGN_REF_EXEMPT: set[str] = set()
 
 # `design` names the designer's command AND, until this rename, the
 # engineering stage. A reference that does not say which one it means is the

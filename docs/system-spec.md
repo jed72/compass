@@ -64,9 +64,9 @@
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
-### The release that carries the removal says so
+### Nothing is left over from the removal
 
-- **Scenario id:** `TRC-D6`
+- **Scenario id:** `TRC-D7`
 - **Intent:** `INT-5`
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
@@ -7346,6 +7346,13 @@
 ### A stale exemption fails the build _(archived)_
 
 - **Scenario id:** `TRC-D5`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The release that carries the removal says so _(archived)_
+
+- **Scenario id:** `TRC-D6`
 - **Intent:** `INT-5`
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28

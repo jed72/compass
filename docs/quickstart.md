@@ -95,8 +95,8 @@ root:
 `init` is exempt from triage - it changes no application code. It:
 
 1. **Copies `governance/`** into the project - `guardrails.md`,
-   `strategies.md`, `routing-policy.md` - so the team can extend the shipped
-   defaults. It does not make you author anything: the defaults are real,
+   `strategies.md`, `strategies-rationale.md`, `routing-policy.md` - so the
+   team can extend the shipped defaults. It does not make you author anything: the defaults are real,
    in-force content from the moment they land. Adding project guardrails and
    strategies is accretion, done whenever the team is ready.
 2. **Creates `.compass/config.yml`** - route defaults, multiagent thresholds,

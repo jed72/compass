@@ -284,8 +284,7 @@ def build_parser():
              "(advisory; always exits 0)")
     issue_arg(ppll)
     ppll.add_argument("--file", help="lint a specific technical-design.md file")
-    ppll.set_defaults(func=cmd_plan_lint, output_kind="report",
-                      retired_verb=None)
+    ppll.set_defaults(func=cmd_plan_lint, output_kind="report")
 
     # The intake document. A NEW top-level group: `/compass:intent` has always
     # been a slash command, and the CLI never had a verb for it. Adding one is a
@@ -589,6 +588,19 @@ def build_parser():
     # only ever subtracted from the public list - so anything added must be a
     # verb that actually parses.
     hidden = set()
+    # A stale entry here is otherwise silent: `hidden` is only ever subtracted
+    # from the advertised list, so naming a verb that does not parse removes
+    # nothing and reports nothing. Checked against the parser rather than by
+    # reading this file's source, so it survives any reformatting of the line
+    # above and fires for every caller.
+    unknown = hidden - set(sub.choices)
+    if unknown:
+        raise CompassError(
+            "cli/compass: the `hidden` verb set names %s, which the parser "
+            "does not define. Every name in `hidden` must be a real verb - "
+            "the set exists to keep a verb out of --help, not to list "
+            "spellings that no longer exist."
+            % ", ".join(sorted(unknown)))
     public_names = [k for k in sub.choices
                     if not k.startswith("_") and k not in hidden]
     sub.metavar = "{" + ",".join(public_names) + "}"

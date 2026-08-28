@@ -7,13 +7,13 @@ is right for a version location and wrong for a historical reference:
     # `compass design lint` shipped in 3.3.0, so it keeps working until the
     # next major version rather than breaking an adopter's script mid-major
 
-That sentence is true and must not be bumped. It records when the redirect
-started, which is what tells a reader how long ADR-006 obliges it to survive.
-Bumping it to make a release pass would make it false, and the redirect would
-look removable a major version early.
+That comment is gone: 4.0.0 removed the alias it described, and the comment
+went with it. It is quoted here because it is the shape this mechanism exists
+for - a published file stating a version it does not publish - and that
+situation will recur.
 
 The comment was written during 3.3.0 development, when the declared version WAS
-3.3.0, so the guard passed on a coincidence. Every release from then on hits it.
+3.3.0, so the guard passed on a coincidence. Every release from then on hit it.
 
 The fix is an explicit, individually-justified exemption - the shape
 `docs/releasing.md` already uses for the vocabulary scan - not a wider skip
@@ -27,6 +27,8 @@ Scenario ids: VGH-A1, VGH-A2 in
 .compass/work/version-guard-cannot-see-a-historical-version/acceptance-criteria.md
 """
 from __future__ import annotations
+
+import pytest
 
 import re
 from pathlib import Path
@@ -55,8 +57,17 @@ def _exempt_lines():
 
 
 def test_vgh_a1_every_exemption_carries_a_reason():
-    """A marker with no reason is a skip pattern with extra steps."""
-    bare = [f"{rel}:{n}" for rel, n, reason in _exempt_lines() if not reason.strip()]
+    """A marker with no reason is a skip pattern with extra steps.
+
+    Skips rather than passes when there is nothing to check. The published
+    surfaces have carried zero exemptions since 4.0.0 removed the one real
+    instance, and a green tick over an empty list is indistinguishable from a
+    scan that found every exemption sound.
+    """
+    exemptions = _exempt_lines()
+    if not exemptions:
+        pytest.skip("no version-guard exemptions in the published surfaces")
+    bare = [f"{rel}:{n}" for rel, n, reason in exemptions if not reason.strip()]
     assert not bare, (
         "these version-guard exemptions say nothing about why the version "
         f"beside them is not a published one: {', '.join(bare)}")
@@ -71,6 +82,8 @@ def test_vgh_a2_the_exemption_list_stays_short():
     than the file.
     """
     exemptions = _exempt_lines()
+    if not exemptions:
+        pytest.skip("no version-guard exemptions in the published surfaces")
     assert len(exemptions) <= 2, (
         f"{len(exemptions)} version-guard exemptions now exist:\n  "
         + "\n  ".join(f"{rel}:{n} - {reason}" for rel, n, reason in exemptions)

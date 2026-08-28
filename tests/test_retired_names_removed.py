@@ -81,25 +81,37 @@ def test_the_hidden_cli_alias_no_longer_resolves():
     assert "invalid choice" in out or "unrecognized" in out, (
         f"`compass design` failed, but not as an unknown verb - the error was:"
         f"\n{out[-400:]}")
-    assert "plan" in out, (
-        "the unknown-verb error does not name `plan`, so a reader whose "
-        "script breaks is not told what to call it now")
 
-    # The `hidden` set is only ever subtracted from the advertised verb list,
-    # so an entry naming a verb that no longer exists is silent. Checked here
-    # because nothing else would notice.
+    # NOT asserted: that the error names `plan`. argparse prints the whole
+    # choice list on an invalid choice, so `"plan" in out` is satisfied
+    # mechanically for as long as `plan` exists and says nothing about
+    # whether the reader was helped. The redirect a broken caller actually
+    # gets is the upgrade table in docs/releasing.md, which TRC-D6 checks.
+    assert "plan" in out.split("invalid choice")[0] or "plan" in out, (
+        "the parser no longer defines `plan`, so the replacement this "
+        "removal points at does not exist")
+
+    # `hidden` keeps a verb out of --help while it still parses. The stale-
+    # entry check lives in cli/compass itself, beside the subtraction, rather
+    # than here: reading the source for a `hidden = {...}` literal missed the
+    # `set()` spelling entirely and the assertion never ran. What is checked
+    # here is that the guard is wired in and reachable.
     source = CLI.read_text(encoding="utf-8")
-    match = re.search(r"^\s*hidden = \{(.*?)\}", source, re.M)
-    if match:
-        assert not match.group(1).strip(), (
-            f"the `hidden` set still names {match.group(1).strip()}, but the "
-            f"verb it hides is gone. A stale entry here is invisible: the set "
-            f"is only ever subtracted from the public verb list")
+    assert "hidden - set(sub.choices)" in source, (
+        "cli/compass no longer checks `hidden` against the parser's verbs. "
+        "That set is only ever subtracted from the advertised list, so an "
+        "entry naming a verb that does not parse removes nothing and reports "
+        "nothing")
 
-    # Nothing parses that --help does not advertise, apart from the internal
-    # underscore-prefixed verbs, which are deliberately not public.
+    # The advertised set and the parsed set agree, apart from the internal
+    # underscore-prefixed verbs which are deliberately not public. This is
+    # the property the removed alias used to violate.
     code, out = _run("--help")
     assert code == 0, out
+    advertised = re.search(r"\{([a-z0-9,_-]+)\}", out)
+    assert advertised, f"could not read the verb list from --help:\n{out[:400]}"
+    assert "design" not in advertised.group(1).split(","), (
+        "`design` is still advertised as a verb")
 
 
 # ---------------------------------------------------------------------------
@@ -148,12 +160,17 @@ def test_the_vocabulary_has_one_value_per_concept_again():
         "terminology.yml still describes a redirect stub that no longer "
         "exists:\n  " + "\n  ".join(stale))
 
-    # Every exemption must still cover something. An entry matching nothing
-    # exempts nothing, and a scan reporting clean over it looks identical to
-    # a scan that ran.
-    empty = [e for e in _exempt_paths(text) if not _matches_anything(e)]
+    # Every exemption must still exclude something. An entry that excludes
+    # nothing exempts nothing, and a scan reporting clean over it looks
+    # identical to a scan that ran.
+    scanned = _scanned_files()
+    empty = [e for e in _exempt_paths(text)
+             if e not in KNOWN_INERT_EXEMPTIONS
+             and not _excludes_anything(e, scanned)]
     assert not empty, (
-        f"scan.exempt entr(ies) match no file: {', '.join(empty)}")
+        f"scan.exempt entr(ies) exclude no scanned file: {', '.join(empty)}. "
+        f"The scan only applies exemptions to files under scan.surfaces, so "
+        f"an entry outside every surface removes nothing")
 
 
 def _load_cli_modules():
@@ -177,52 +194,59 @@ def _load_cli_modules():
     return core, analyze
 
 
-def _deliberately_absent(entry: str) -> bool:
-    """Is this path one the repository intentionally does not ship?
+# Exemptions that exclude nothing TODAY, with the reason each is kept.
+# `scan.exempt` entries are only ever applied to files gathered from
+# `scan.surfaces`, and none of these six sits under a declared surface - so
+# each one excludes zero files. They are not deleted here because two other
+# guards assert two of them stay present (`tests/test_docs_prose.py` and
+# `tests/test_cli_voice.py`), which makes removing them a change with its own
+# reasoning. Filed as `exemptions-that-exclude-nothing`.
+#
+# This is a ratchet, in the same shape as `scan.pending_surfaces`: the set may
+# shrink and must never grow. A NEW entry that excludes nothing fails below.
+KNOWN_INERT_EXEMPTIONS = frozenset({
+    "docs/proposals/",
+    "docs/system-spec.md",
+    "cli/migrate-map.yml",
+    "docs/analysis/",
+    "tests/",
+    ".compass/work/",
+})
 
-    `docs/proposals/`, `docs/analysis/` and `.compass/work/` are gitignored -
-    present in a working clone, absent from a packaged export or a fresh
-    checkout. An exemption naming one of those is not stale; it covers files
-    that exist wherever the scan actually runs.
 
-    Read from `.gitignore` rather than hardcoded, and rooted comparisons only,
-    so this cannot quietly start excusing a path nobody ignores. `.gitignore`
-    is tracked, so it is present in an export too - which is the whole reason
-    this check can run there.
+def _scanned_files() -> set:
+    """Every file the vocabulary scan would actually visit.
+
+    Imported from the scan's own test rather than reimplemented, so the two
+    cannot drift. This is the question that matters: an exemption excludes
+    something only if the scan was going to read it.
     """
-    ignore = REPO_ROOT / ".gitignore"
-    if not ignore.is_file():
-        return False
-    for line in ignore.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "*" in line:
-            continue
-        pattern = line.lstrip("/")
-        if pattern and (entry.startswith(pattern) or pattern.startswith(entry)):
-            return True
-    return False
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_terminology_scan", REPO_ROOT / "tests" / "test_terminology.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    cfg = mod._terminology()["scan"]
+    out = set()
+    for surface in cfg["surfaces"]:
+        for f in mod._surface_files(surface):
+            out.add(str(f.relative_to(REPO_ROOT)))
+    return out
 
 
-def _matches_anything(entry: str) -> bool:
-    """Does this exemption still cover at least one file?
+def _excludes_anything(entry: str, scanned: set) -> bool:
+    """Does this exemption keep the scan away from at least one real file?
 
-    Entries are PREFIXES, not paths - the scan tests
-    `rel.startswith(exempt)`, so `docs/proposals/` covers a directory and
-    `templates/architecture/decisions/ADR-0` covers the sample records
-    ADR-001 through ADR-005. Checking for a file at the literal path would
-    call every prefix entry stale.
+    Matched the way the scan matches - `rel.startswith(entry)` - so this
+    agrees with the thing it is checking rather than with an idea of it.
 
-    A gitignored path counts as covered. This guard has to give the same
-    answer in a working clone and in a packaged export, or it fails on
-    continuous integration for a reason that has nothing to do with the
-    exemption being stale.
+    An earlier version asked whether any file existed under the prefix
+    anywhere in the repository. That is a different question and a much
+    weaker one: it walked ignored directories and `.git/`, and it answered
+    yes for `dis` (from `dist/`) and for invented paths under gitignored
+    roots, so fabricated entries passed.
     """
-    if (REPO_ROOT / entry).exists():
-        return True
-    if _deliberately_absent(entry):
-        return True
-    return any(str(p.relative_to(REPO_ROOT)).startswith(entry)
-               for p in REPO_ROOT.rglob("*") if p.is_file())
+    return any(f.startswith(entry) for f in scanned)
 
 
 def _exempt_paths(text: str) -> list[str]:
@@ -266,10 +290,24 @@ def test_a_stale_exemption_fails_the_build():
         "moved or the reader above has stopped matching it, and this check is "
         "passing over nothing")
 
+    scanned = _scanned_files()
+    assert scanned, "no scanned files were gathered - this check is passing over nothing"
+
     for entry in paths:
-        assert _matches_anything(entry), (
-            f"scan.exempt names {entry}, which matches no file in the "
-            f"repository. The exemption covers nothing and reads as coverage")
+        if entry in KNOWN_INERT_EXEMPTIONS:
+            continue
+        assert _excludes_anything(entry, scanned), (
+            f"scan.exempt names {entry}, which excludes no file the scan "
+            f"would visit. The exemption covers nothing and reads as coverage")
+
+    # The ratchet only shrinks. An entry that starts excluding something, or
+    # is deleted, must leave this list.
+    stale_allowances = [e for e in KNOWN_INERT_EXEMPTIONS
+                        if e not in paths or _excludes_anything(e, scanned)]
+    assert not stale_allowances, (
+        f"KNOWN_INERT_EXEMPTIONS still allows {sorted(stale_allowances)}, "
+        f"which no longer needs allowing. Remove it - the list may shrink "
+        f"and must never grow")
 
 
 # ---------------------------------------------------------------------------
@@ -288,15 +326,28 @@ def test_the_release_that_carries_the_removal_says_so():
         assert "4.0.0" in found, (
             f"{rel} does not carry 4.0.0 - it has {sorted(found)}")
 
-    # The removals are named where someone upgrading would look.
+    # The removals are named where someone upgrading would look - as a ROW
+    # pairing the removed spelling with its replacement, not as a loose word.
+    # `stem in body` passed with the whole upgrade row deleted, because
+    # "triage" also appears in this file's 3.1.0 release history.
     notes = REPO_ROOT / "docs" / "releasing.md"
     assert notes.is_file(), "docs/releasing.md is missing"
     body = notes.read_text(encoding="utf-8")
-    for name in sorted(RETIRED_COMMANDS):
+    for name, replacement in sorted(RETIRED_COMMANDS.items()):
         stem = name[:-3]
-        assert stem in body, (
-            f"docs/releasing.md does not name `{stem}` among the removals. A "
-            f"reader whose script breaks has nowhere to find out why")
+        row = re.compile(
+            r"^\|\s*`?/compass:%s`?\s*\|\s*`?%s`?\s*\|"
+            % (re.escape(stem), re.escape(replacement)), re.M)
+        assert row.search(body), (
+            f"docs/releasing.md has no upgrade row pairing `/compass:{stem}` "
+            f"with `{replacement}`. A reader whose script breaks has nowhere "
+            f"to match the error they got to the name that replaced it")
+
+    # The removed CLI verb needs the same row.
+    verb_row = re.compile(r"^\|\s*`?compass design lint`?\s*\|"
+                          r"\s*`?compass plan lint`?\s*\|", re.M)
+    assert verb_row.search(body), (
+        "docs/releasing.md has no upgrade row for `compass design lint`")
 
 
 def _versions_in(blob) -> set[str]:
@@ -317,3 +368,38 @@ def _versions_in(blob) -> set[str]:
         elif isinstance(node, str) and re.fullmatch(r"\d+\.\d+\.\d+", node):
             found.add(node)
     return found
+
+
+# ---------------------------------------------------------------------------
+# TRC-D7 - nothing is left over from the removal
+# ---------------------------------------------------------------------------
+
+def test_no_dead_redirect_machinery_survives_the_removal():
+    """A redirect with no caller is worse than no redirect.
+
+    `cmd_plan_lint` carried a branch that printed "this verb is now
+    `compass plan lint`" whenever `args.retired_verb` was set. Its only
+    setter was the `design` alias, so removing the alias made the branch
+    unreachable - and left a message telling the reader the retired spelling
+    "keeps working until the next major version", which is the version that
+    removed it.
+
+    Checked rather than deleted-and-forgotten because the next person to
+    reach for a redirect inherits whatever is left here.
+    """
+    policy = (REPO_ROOT / "cli" / "compass_pkg" / "policy.py").read_text(
+        encoding="utf-8")
+    cli = CLI.read_text(encoding="utf-8")
+
+    assert "retired_verb" not in policy, (
+        "cli/compass_pkg/policy.py still branches on `retired_verb`, but "
+        "nothing sets it - the alias that did was removed at 4.0.0. An "
+        "unreachable redirect carrying a stale promise is left for whoever "
+        "wires it up next")
+    assert "retired_verb" not in cli, (
+        "cli/compass still sets `retired_verb`, which no longer has a reader")
+
+    # And no shipped message promises a removed spelling still works.
+    assert "keeps working until the next major version" not in policy, (
+        "a printed message still promises a retired spelling keeps working "
+        "until the next major version. This IS that major version")

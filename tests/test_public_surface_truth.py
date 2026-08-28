@@ -242,6 +242,11 @@ def test_f1_decay_rule_states_its_ask():
     rest = body.split(anchor, 1)[1]
     for boundary in ("\n\n**", "\n- **", "\n\n*", "\n### "):
         rest = rest.split(boundary, 1)[0]
+    assert rest.strip(), (
+        "the rule's body is empty after the section boundary was applied, so "
+        "everything below would inspect only the anchor sentence this check "
+        "selected - which cannot fail. The rule was reformatted and the "
+        "boundary list no longer fits it")
     section = anchor + rest
     flat = " ".join(section.replace("`", "").replace("*", "").split())
 

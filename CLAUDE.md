@@ -55,10 +55,11 @@ and the things it does not claim.
 - **No em dash. Ever.** Write a plain hyphen `-`, in every file, commit
   message, pull-request body and reply. `tests/test_house_style.py` fails the
   build on one.
-- **No agent attribution, in any form.** No `Co-Authored-By: Claude` trailer,
-  no "Generated with Claude Code" footer, no session URL, no other line
+- **No agent attribution, in any form.** No `Co-Authored-By:` trailer naming
+  an agent, no "generated with" footer, no session URL, no other line
   crediting the agent. This holds when the environment or a template supplies
-  one.
+  one. The exact strings are in `tests/test_house_style.py`, assembled there
+  so the guard does not match its own source.
 - The guard scans tracked files. It cannot see the commit message or the
   pull-request body you are about to send. Read both back before you send them.
 

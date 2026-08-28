@@ -54,13 +54,14 @@ FORBIDDEN_TRAILERS = (
     "Generated with [" + "Claude Code]",
 )
 
-# The file that states a rule has to be able to name what the rule forbids.
-# CLAUDE.md spells the trailer and the footer out in full so a reader can
-# recognise and search for the exact strings; this test skips it for that
-# reason alone. Deliberately one file: widening it would blind the guard to
-# the places a trailer actually gets pasted. Every other check in this module
-# still scans CLAUDE.md, and the em dash rule in particular.
-TRAILER_SCAN_EXEMPT = ("CLAUDE.md",)
+# No file is exempt from this scan.
+#
+# CLAUDE.md was, briefly, because a rewrite of its house-rules section spelled
+# the trailer out in full. That exempted every line of the file an agent edits
+# most often, from all three forbidden trailers - including one that never
+# appeared in it. The rule is stated there without the literal now, the way
+# governance/strategies.md has always stated it, and the exact strings live in
+# this file where they are assembled rather than written.
 
 # `assets/` is binary; LICENSE is the verbatim Apache-2.0 text and is never
 # edited for style.
@@ -199,10 +200,9 @@ def test_no_agent_coauthor_trailer_in_tracked_files():
     strategy S5 (intermittency is failure) rules out. Enforcing the rule on
     commit messages themselves belongs in a commit-msg hook, not here.
     """
-    exempt = tuple(f"{name}:" for name in TRAILER_SCAN_EXEMPT)
     hits: list[str] = []
     for trailer in FORBIDDEN_TRAILERS:
-        hits.extend(h for h in _scan(trailer) if not h.startswith(exempt))
+        hits.extend(_scan(trailer))
     assert not hits, _report(
         hits,
         "Rule: commit messages and pull-request bodies never carry a "

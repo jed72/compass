@@ -635,13 +635,13 @@ def test_trc_b2_assess_refine_and_verify_point_at_the_reference():
     """The three commands whose output a person reads most name the writing
     reference; no other command does.
 
-    `triage.md` became `assess.md` on 2026-08-25. The file that still carries
-    the old name is a redirect stub - a pointer with no procedure and no voice
-    section - so it is excluded rather than expected to carry one.
+    `triage.md` became `assess.md` on 2026-08-25, and the redirect stub that
+    carried the old name was removed at 4.0.0 - so there is nothing to
+    exclude any more. Every command file is a real command.
     """
     command_dir = REPO_ROOT / "commands"
     included = ["assess.md", "refine.md", "verify.md"]
-    stubs = {"triage.md", "wireframe.md"}
+    stubs: set[str] = set()   # empty since 4.0.0 removed the redirect stubs
     for name in included:
         text = (command_dir / name).read_text(encoding="utf-8")
         section = _section_after_heading(text, "Voice")

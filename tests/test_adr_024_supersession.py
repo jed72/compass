@@ -104,8 +104,12 @@ def test_publication_is_refused_as_evidence_of_adoption():
     assert "unknown" in body, (
         "the record does not say the population is unknown. 'Empty' and "
         "'non-empty' are both claims; 'unknown' is the honest one")
-    assert "adr-014" in body, (
-        "the record does not say ADR-014 made the same error in the opposite "
+    # Scoped to the Context and shaped as the claim. A bare "adr-014" is
+    # satisfied by the References list at the foot of the record, so it
+    # survived deleting the sentence this was written for.
+    context = _flat(_section(_body("ADR-024"), "Context")).lower()
+    assert re.search(r"adr-014[^.]*(empty|opposite|pre-publication)", context), (
+        "the Context does not say ADR-014 made the same error in the opposite "
         "direction. Correcting one half leaves the record contradicting "
         "itself about the other")
 
@@ -113,11 +117,12 @@ def test_publication_is_refused_as_evidence_of_adoption():
 def test_the_revival_condition_is_readable_from_the_record_alone():
     body = _flat(_body("ADR-024")).lower()
 
-    assert re.search(r"\bif\b|\bonce\b|\bwhen\b", body), (
-        "the record states no condition, so a reader cannot tell what would "
-        "bring full migration compatibility back")
-    assert "redirect" in body or "stub" in body, (
-        "the record never names the thing the condition would revive")
+    # Anchored on the condition itself. `\bif\b|\bonce\b|\bwhen\b` over the
+    # whole record was satisfied by any incidental "when" - one neutral
+    # sentence elsewhere defeated it.
+    assert re.search(r"if the population is observed[^.]*redirect", body), (
+        "the record states no revival condition a reader can point at, so "
+        "they cannot tell what would bring full migration compatibility back")
     assert "compass migrate" in body, (
         "the record does not say what an adopter can rely on today. The "
         "question this issue asked was what Compass owes them, and an answer "
@@ -161,10 +166,18 @@ def test_the_supersession_is_navigable_in_both_directions():
 
 def test_every_link_in_the_decisions_index_resolves():
     body = INDEX.read_text(encoding="utf-8")
+    links = re.findall(r"\[([^\]]+)\]\((ADR-[^)]+\.md)\)", body)
+    # A floor, because `broken` is empty both when every link resolves and
+    # when the reader matched nothing at all - a change of link style would
+    # otherwise pass this over an empty list.
+    assert len(links) >= 15, (
+        f"only {len(links)} ADR links were read from the index, which has far "
+        f"more - the link pattern has stopped matching and this check is "
+        f"passing over almost nothing")
     broken = []
-    for m in re.finditer(r"\[([^\]]+)\]\((ADR-[^)]+\.md)\)", body):
-        if not (DECISIONS / m.group(2)).is_file():
-            broken.append(m.group(2))
+    for _, target in links:
+        if not (DECISIONS / target).is_file():
+            broken.append(target)
     assert not broken, (
         "the decisions index links to record(s) that do not exist: "
         + ", ".join(sorted(set(broken))))
@@ -218,7 +231,8 @@ def test_inv_8_s_two_promises_are_stated_separately():
     # "two promises" alone also occurs where the record describes ADR-019's
     # framing, so the loose alternation passed after both sentences asserting
     # the difference were deleted. Require the assertion itself.
-    assert re.search(r"not the same claim|two different claims", lower), (
+    assert re.search(r"not the same claim", lower) and re.search(
+            r"two different claims", lower), (
         "the record does not say the no-op promise and migration "
         "compatibility are different claims. ADR-019's framing ran them "
         "together, which is how one was used to justify the other")

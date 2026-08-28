@@ -105,9 +105,9 @@ EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
 # terminology; the set below is the surface after that deliberate move.
 # The vocabulary rename moved the planning verb BACK to `plan` on
 # 2026-08-25: `design` now means the designer's stage everywhere else,
-# and one word cannot mean two stages in one release. `design` is kept
-# alongside it - it shipped in 3.3.0, so it keeps working until the next
-# major version (ADR-006, ADR-019). Both spellings, one handler.
+# and one word cannot mean two stages in one release. `design` was kept
+# alongside it as a hidden second spelling through 3.x, and was removed at
+# 4.0.0 (ADR-024). One name, one handler.
 # `intent` added 2026-08-25: `compass intent ingest` reads a brief that
 # already exists, by path or https URL, so a team arriving with one does
 # not retype it. A new top-level group rather than a subverb - there was

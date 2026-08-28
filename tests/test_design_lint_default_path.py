@@ -4,7 +4,7 @@ The verb and the artifact have both been renamed twice, and the default path
 was left behind at every step:
 
   v1                   `compass plan lint`   ->  plan.md
-  v2                   `compass design lint` ->  design.md
+  v2                   `compass plan lint`   ->  design.md
   2026-08-25           `compass plan lint`   ->  technical-design.md
 
 The first time, the path stayed at `plan.md` while the advice underneath
@@ -99,7 +99,7 @@ def test_rcd_b1_defaults_to_design_md(tmp_path):
     combined = result.stdout + result.stderr
 
     assert "no such file" not in combined.lower(), (
-        f"`compass design lint` could not find the technical-design.md sitting in the "
+        f"`compass plan lint` could not find the technical-design.md sitting in the "
         f"issue directory, so its default path is not the live artifact "
         f"name:\n{combined}"
     )

@@ -214,8 +214,8 @@ read - or "the existing dashboards cover it", said deliberately.}}
 
 ## 7. Governance check
 
-<!-- Run against ALL of governance/ - guardrails.md, strategies.md, and
-     routing-policy.md. A failed guardrail here blocks the phase - fix the
+<!-- Run against ALL of governance/ - guardrails.md, strategies.md,
+     strategies-rationale.md, and routing-policy.md. A failed guardrail here blocks the phase - fix the
      plan, do not note the violation and move on. A strategy not followed is
      a recorded judgement, not an automatic block. This is the
      `governance-check` skill's output. Keep the evidence side and the

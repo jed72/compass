@@ -122,6 +122,9 @@ in `guardrails.yml`, it belongs in `strategies.md`.
 - Adding a project guardrail with a new check means adding that check's
   implementation to the CLI (`CHECK_FNS`) in the same change.
 
+Why it is enforced rather than warned about:
+`governance/strategies-rationale.md`, under "The integrity rule".
+
 ---
 
 ## Amendment log

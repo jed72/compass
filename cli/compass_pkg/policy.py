@@ -404,13 +404,6 @@ def cmd_plan_lint(args):
     # `technical-design.md` with no fallback, which broke it on every issue
     # that landed holding `design.md`. Every other artifact reader in the CLI
     # goes through the resolver; this one now does too.
-    if getattr(args, "retired_verb", None):
-        print("compass %s lint: this verb is now `compass plan lint` - the "
-              "planning stage took the name its machine key already used, and "
-              "`design` is the designer's stage. `%s` keeps working until the "
-              "next major version."
-              % (args.retired_verb, args.retired_verb), file=sys.stderr)
-
     if args.file:
         path = args.file
     else:

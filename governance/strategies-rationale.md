@@ -1,5 +1,11 @@
 # Strategies - the rationale behind rules that look arbitrary
 
+> **Version:** 0.1.0 · **Last amended:** 2026-08-28
+> Bump the version when a section is added, removed or rewritten. The
+> companion `strategies.md` carries its own version; the two move
+> independently, because a rule can be reworded without its evidence
+> changing and evidence can be added without the rule moving.
+
 `governance/strategies.md` states the strategies. This file holds the incidents
 behind the ones whose shape only makes sense once you know what went wrong.
 It is read when a rule looks arbitrary, never per issue. Rules live in
@@ -7,33 +13,39 @@ It is read when a rule looks arbitrary, never per issue. Rules live in
 
 ## The two house rules were one sentence until they were not
 
-Relocated from `CLAUDE.md` on 2026-08-28, where 380 words of incident sat in a
-file every session reads. The rules stayed there; this is what produced them.
+The rules themselves stay in `CLAUDE.md`. What moved here on 2026-08-28 is the
+account of where they came from, which every session was reading and no
+session needed.
 
-### Two hard rules, and one of them is not checked for you
+### Where each rule is checked, and where it is not
 
-These were a single sentence inside the paragraph above until 2026-08-27,
-when five pull requests in a row shipped with the footer on them. Half a rule
-in the middle of a paragraph is a rule that gets half-followed, so both now
-stand on their own.
+They were a single sentence until 2026-08-27, when five pull requests in a row
+shipped with the footer on them. Half a rule in the middle of a paragraph is a
+rule that gets half-followed, so both now stand on their own.
 
-**1. No em dash. Ever.** Write a plain hyphen `-` where an em dash would go,
-in every file, commit message, pull-request body and reply.
+They are house rules, not guardrails: `strategies.md` assesses them, and in
+this repository's vocabulary a guardrail is the hard, blocking kind that
+`guardrails.md` holds.
+
+**1. No em dash. Ever.** `CLAUDE.md` states it and `S7` in
+`governance/strategies.md` carries the detail, including the one carve-out:
+en dashes stay, because they do real work in ranges. Not restated here - two
+statements of one rule drift apart, which is what `S14` is about.
 **Checked:** `tests/test_house_style.py` fails the build on one.
 
 **2. No agent attribution, in any form.** A commit message or pull-request
 body never carries a co-author trailer naming the agent, a "generated with"
 footer, a session URL, or any other line crediting it. This holds even when
 the environment or a tool's default template supplies one - it does, and this
-rule overrides it. **`CLAUDE.md` spells out the exact strings**, so a reader
-can recognise and search for them; they are deliberately not repeated here.
+rule overrides it. The exact strings live in `tests/test_house_style.py`,
+assembled from fragments there so the guard does not match its own source.
 
 **Checked, but only where the text is a file in this repository:**
 `tests/test_house_style.py::test_no_agent_coauthor_trailer_in_tracked_files`
-scans every tracked file. `CLAUDE.md` is the single exemption, because the
-file that states a rule has to be able to name what the rule forbids. It is
-one file on purpose: a second would double the blind spot, and this page does
-not need the literal text to explain why the rule exists.
+scans every tracked file, with no exemptions. There was briefly one, for
+`CLAUDE.md`, after a rewrite spelled the trailer out in full there - which
+blinded the file an agent edits most often to all three forbidden strings.
+Stating the rule without quoting it was the cheaper fix.
 
 **Not checked anywhere:** the commit message you are about to write, and the
 pull-request body you are about to send. Neither is a tracked file, and CI
@@ -50,9 +62,10 @@ Two traps, both of which caught this project already:
 
 ---
 
-# Strategy evidence
+## Strategy evidence
 
-Each section is the evidence behind one strategy in `governance/strategies.md`.
+Each section below is the evidence behind one strategy in
+`governance/strategies.md`.
 The directive stays there; what convinced anyone lives here.
 
 ## Regression baseline (`S6`)
@@ -60,7 +73,7 @@ The directive stays there; what convinced anyone lives here.
 The field case: a new emission silently broke a live solve. A pre-change demo
 baseline surfaced it immediately.
 
-## Cold reader, the code-after-meaning pairs (`S7`)
+## Cold reader: pairs where the code arrived before its meaning (`S7`)
 
 Pairs from this project's own output, not invented.
 
@@ -72,7 +85,7 @@ instead of:
 > Each piece of test evidence now records which scenario it proves, so two
 > records can no longer end up sharing one identifier (`EV-T`).
 
-<!-- vocabulary-scan: allow - a deliberate example of the defect this rule forbids; correcting it would delete the example. -->
+<!-- vocabulary-scan: allow - the next line is a deliberate example of the defect S7 forbids, a bare identifier with no meaning attached; correcting it would delete the example. -->
 > the G5 guard kicked in
 
 instead of:
@@ -93,8 +106,9 @@ instead of:
 > the case where the meaning arrives after the code, and the reader has already
 > met it unexplained (`TRC-C7`)
 
-The test: read the sentence and stop at the first comma. If the reader has
-learned nothing yet, the code came too early.
+The test for the rule these pairs illustrate - `S7`'s "an identifier carries
+its meaning on first use" - is to read the sentence and stop at the first
+comma. If the reader has learned nothing yet, the code came too early.
 
 ## Fresh eyes (`S9`)
 
@@ -108,7 +122,7 @@ The nearest document that mentions a fact is often a summary of it, one step
 removed, and a summary can be checked in good faith while the claim it
 summarises has already changed meaning.
 
-ADR-013's Context once described an install failure in the past tense, with a
+ADR-013 (vendored third-party code) once described, in its Context, an install failure in the past tense, with a
 specific timing figure attached, reading as a report of a real outside user,
 which this repository has never had. It was verified against
 `.compass/work/plain-language-3-2-0/technical-design.md`, the document it was
@@ -130,7 +144,7 @@ existed for, because a filter dropped every candidate line, and setting both
 version banners to a wrong value left it green. No amount of reading found
 that. Breaking it did, in seconds.
 
-**Seven checks that asserted nothing**, in `plain-language-3-2-0`, every test
+**Seven checks that asserted nothing**, in the `plain-language-3-2-0` issue, every test
 green and every scenario looking done before proving began. Not one was a
 defect in the code. All seven were tests.
 
@@ -219,8 +233,9 @@ shape a day's work.
 
 ## Titles (`S13`)
 
-"This forbids narrative, not length" was found on the rule's first real use,
-where it pushed against a description that needed the room.
+`S13`'s "trim the story, never the substance" was found on the rule's first
+real use, where a title was cut for length and lost the fact that made it
+findable. Shortening is not the goal; dropping the narrative is.
 
 ## Correct every place at once (`S14`)
 

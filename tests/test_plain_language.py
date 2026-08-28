@@ -212,9 +212,18 @@ def test_pl_c1_strategy_states_the_order_with_four_real_pairs():
         "the ordering rule is not stated - S7 says an identifier carries its "
         "meaning on first use, but never which comes first"
     )
+    # Scoped to S7's own section. Counting across the whole rationale file
+    # let four "instead of" phrases from any other strategy's evidence stand
+    # in for S7's pairs - the same loose match these guards exist to catch.
     rationale = (REPO_ROOT / "governance" / "strategies-rationale.md").read_text(
         encoding="utf-8")
-    section = " ".join(rationale.replace("*", "").split())
+    parts = re.split(r"(?m)^## ", rationale)
+    s7 = [p for p in parts if p.split("\n", 1)[0].strip().endswith("(`S7`)")]
+    assert s7, (
+        "governance/strategies-rationale.md has no `## ... (`S7`)` section, "
+        "so the pairs this counts have no home and it would count them from "
+        "an unrelated strategy")
+    section = " ".join(s7[0].replace("*", "").split())
     pairs = section.lower().count("instead of")
     assert pairs >= 4, (
         f"the rule shows {pairs} before-and-after pairs; it needs at least 4, "
