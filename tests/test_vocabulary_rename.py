@@ -233,22 +233,18 @@ def _command_names():
     return {p.stem for p in COMMANDS.glob("*.md")}
 
 
-def _is_stub(name):
-    """A retired name that points and stops, rather than doing the work.
+def _is_removed(name):
+    """A retired name that no longer ships at all.
 
-    TRC-A1 and TRC-A2 say a retired name must not be a live command; TRC-B4
-    says it must still answer. Both are right and the first was written too
-    bluntly - the file existing is not the same as the command being live. A
-    stub is identified by what it does: it names its replacement, it says it is
-    retired, and it is short enough that it plainly carries no procedure.
+    Through 3.x these names were redirect stubs - a file that named its
+    replacement and did nothing else. 4.0.0 removed them at the major-version
+    boundary ADR-019 scheduled them for, so the check is now absence.
+
+    Inverted rather than deleted: a guard removed alongside its subject
+    leaves nothing asserting the subject stays gone, and the next rename
+    re-adds a stub with no test objecting.
     """
-    p = COMMANDS / ("%s.md" % name)
-    if not p.is_file():
-        return False
-    text = p.read_text(encoding="utf-8")
-    return ("retired" in text.lower()
-            and "/compass:" in text
-            and len(text.splitlines()) < 40)
+    return not (COMMANDS / ("%s.md" % name)).is_file()
 
 
 def test_trc_a1():
@@ -280,10 +276,10 @@ def test_trc_a1():
         "naming different things is the defect this issue opened on")
     assert "intent.md" in intent, (
         "`/compass:intent` does not name intent.md as what it writes")
-    assert _is_stub("triage"), (
-        "`/compass:triage` is still a live command rather than a stub. It "
-        "produces an `assessment:` block, and the command for that is "
-        "`/compass:assess`; the old name may point at it and nothing more.")
+    assert _is_removed("triage"), (
+        "`/compass:triage` still ships. It produces an `assessment:` block, "
+        "and the command for that is `/compass:assess`; the retired name was "
+        "removed at 4.0.0 (ADR-019, ADR-024).")
 
 
 def test_trc_a2():
@@ -292,9 +288,9 @@ def test_trc_a2():
     names = _command_names()
     for want in ("design", "plan"):
         assert want in names, "no `/compass:%s` command: %s" % (want, sorted(names))
-    assert _is_stub("wireframe"), (
-        "`/compass:wireframe` is still a live command rather than a stub - the "
-        "designer's entry point is `/compass:design` again")
+    assert _is_removed("wireframe"), (
+        "`/compass:wireframe` still ships - the designer's entry point is "
+        "`/compass:design`, and the retired name was removed at 4.0.0")
 
     design = (COMMANDS / "design.md").read_text(encoding="utf-8")
     plan = (COMMANDS / "plan.md").read_text(encoding="utf-8")
@@ -311,27 +307,26 @@ def test_trc_a2():
 
 
 def test_trc_b4():
-    """TRC-B4: a retired command answers with a pointer, not as unknown.
+    """TRC-B4: a retired command no longer answers at all.
 
-    `design` is deliberately excluded: it is retired for one stage and live for
-    another, and a stub pointing at `/compass:plan` would take the designer's
-    command away a second time.
+    Through 3.x each of these was a redirect stub, and this scenario checked
+    it pointed at its replacement. 4.0.0 removed them, so the scenario now
+    checks the opposite - and checks that the replacement it used to name is
+    still the live command, which is the half that still matters to a reader
+    whose script broke.
+
+    `design` is deliberately excluded: it is retired for one stage and live
+    for another, and was never a stub.
     """
     names = _command_names()
     for retired, replacement in RETIRED_COMMANDS.items():
-        stub = COMMANDS / ("%s.md" % retired)
-        assert stub.is_file(), (
-            "`/compass:%s` was removed rather than left as a redirect stub. "
-            "governance/terminology.yml says a retired name 'is a redirect "
-            "stub for one major version'." % retired)
-        text = stub.read_text(encoding="utf-8")
-        assert replacement in text, (
-            "the `%s` stub does not name its replacement %r"
+        assert not (COMMANDS / ("%s.md" % retired)).is_file(), (
+            "`/compass:%s` still ships. It was a redirect stub through 3.x "
+            "and was removed at 4.0.0 (ADR-019, ADR-024)." % retired)
+        assert replacement in names, (
+            "`/compass:%s` is gone but its replacement `/compass:%s` does "
+            "not exist, so the rename left a reader nowhere to go"
             % (retired, replacement))
-        assert len(text.splitlines()) < 40, (
-            "the `%s` stub is %d lines - a stub points, it does not carry a "
-            "copy of the command that replaced it"
-            % (retired, len(text.splitlines())))
 
     assert "design" in names, "the design command vanished"
     design = (COMMANDS / "design.md").read_text(encoding="utf-8")
@@ -406,7 +401,7 @@ def test_trc_b6():
 
 
 def test_trc_b7():
-    """TRC-B7: `compass design lint` still reads a landed issue's design.
+    """TRC-B7: `compass plan lint` still reads a landed issue's design.
 
     Every other artifact reader goes through `artifact_path`, which knows both
     names. This one joined the filename itself, so it reported "no such file"
@@ -431,8 +426,12 @@ def test_trc_b7():
     (work / "design.md").write_text(
         "# Design - landed\n\n## DD-1\n\nChosen: this. Rejected: that.\n")
 
+    # `compass design lint` was the spelling when this was written; the alias
+    # was removed at 4.0.0 and the verb is `plan`. The defect guarded here -
+    # joining the filename instead of going through `artifact_path` - is a
+    # property of the reader, not of which name invoked it.
     run = subprocess.run([sys.executable, str(REPO_ROOT / "cli" / "compass"),
-                          "design", "lint"],
+                          "plan", "lint"],
                          cwd=str(project), capture_output=True, text=True,
                          timeout=120)
     combined = run.stdout + run.stderr
@@ -449,10 +448,11 @@ def test_trc_b7():
 def test_trc_a4():
     """TRC-A4: the planning stage answers to `plan` in the CLI too.
 
-    `commands/design.md` was renamed to `commands/plan.md`, but the CLI verb
-    stayed `compass design lint`. That leaves the same word meaning the
-    engineering design in the CLI and the designer's UI contract in the slash
-    command, in one release - which is the exact ambiguity this rename exists
+    `commands/design.md` was renamed to `commands/plan.md` while the CLI verb
+    stayed `compass design lint` - the same word meaning the engineering
+    design in the CLI and the designer's UI contract in the slash command, in
+    one release. The verb moved to `plan` with a hidden `design` alias, and
+    4.0.0 removed the alias - which is the exact ambiguity this rename exists
     to remove.
     """
     import subprocess
@@ -465,9 +465,12 @@ def test_trc_a4():
         "`compass plan lint` is not a verb: " + (run.stderr or run.stdout))
 
 
-# Files that may name `/compass:design` without saying which design they mean:
-# the two redirect stubs, whose whole body is a pointer.
-_DESIGN_REF_EXEMPT = {"commands/wireframe.md", "commands/triage.md"}
+# Files that may name `/compass:design` without saying which design they mean.
+# Empty since 4.0.0: the two entries were the `wireframe` and `triage` redirect
+# stubs, whose whole body was a pointer, and both were removed. An exemption
+# naming a deleted file exempts nothing while reading as coverage, so it goes
+# with the file rather than lingering.
+_DESIGN_REF_EXEMPT: set[str] = set()
 
 # `design` names the designer's command AND, until this rename, the
 # engineering stage. A reference that does not say which one it means is the

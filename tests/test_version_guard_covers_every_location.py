@@ -67,9 +67,11 @@ def test_trc_1_every_published_location_reports_the_declared_version():
             # 9.9.9 left the test green. Match the neighbouring token
             # instead, so only a genuinely foreign version is skipped.
             # An explicit, individually-justified exemption for a version the
-            # file TALKS ABOUT rather than publishes - `compass design lint
-            # shipped in 3.3.0` is a fact about when a redirect started, and
-            # bumping it would make the sentence false. The marker carries its
+            # file TALKS ABOUT rather than publishes. The instance this was
+            # written for was a comment in cli/compass recording that the
+            # `compass design lint` alias shipped in 3.3.0; 4.0.0 removed the
+            # alias and the comment with it, so the published surfaces carry
+            # no exemption today. The mechanism stays for the next one.
             # reason on the line it exempts, and
             # tests/test_version_guard_exemptions.py counts them so the list
             # cannot grow into the wide skip pattern this guard's history

@@ -235,7 +235,19 @@ def test_f1_decay_rule_states_its_ask():
         "expects it. If it moved or was reworded, this check has stopped "
         "reading the thing it was written for")
     # The anchor sentence IS the imperative, so it stays in the section.
-    section = anchor + body.split(anchor, 1)[1].split("\n\n**", 1)[0]
+    # Bounded by the next bullet as well as the next bold paragraph: the rule
+    # is a list item now, and stopping only at a blank-line-then-bold ran on
+    # through the rest of the strategy and into the following heading, so the
+    # bare-code check below was reporting on codes the rule never mentions.
+    rest = body.split(anchor, 1)[1]
+    for boundary in ("\n\n**", "\n- **", "\n\n*", "\n### "):
+        rest = rest.split(boundary, 1)[0]
+    assert rest.strip(), (
+        "the rule's body is empty after the section boundary was applied, so "
+        "everything below would inspect only the anchor sentence this check "
+        "selected - which cannot fail. The rule was reformatted and the "
+        "boundary list no longer fits it")
+    section = anchor + rest
     flat = " ".join(section.replace("`", "").replace("*", "").split())
 
     # Suffixes allowed: the rule says "fixed on the way past", and a check
@@ -286,6 +298,15 @@ def test_d2_repairs_change_only_retired_names():
     order, fenced code blocks, table rows, list items. All 59 were identical
     across the repair. A repair that drops a step, merges a table row or edits
     a code example fails this; one that renames a stage does not.
+
+    Two entries were re-baselined at 4.0.0, deliberately and in one change:
+    `governance/strategies.md` (list_items 32 -> 88, one heading level added)
+    and `governance/guardrails.md` (10 -> 22), when both were cut from prose
+    to directives and their incidents moved to `strategies-rationale.md`. The
+    fingerprint is a snapshot of a sanctioned state, not of the original text,
+    so a sanctioned restructure moves it - visibly, in the same commit. The
+    other 57 are untouched, and a NEW structural change to any of the 59 still
+    fails.
     """
     import json
     snap = json.loads(

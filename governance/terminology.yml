@@ -145,8 +145,8 @@ terms:
       both, and a reader following the wrong one wrote a UI contract where a
       technical design was wanted and was told it worked. Also NOT the CLI
       verb: the placeholder scan is `compass plan lint`. Its retired spelling
-      still runs, until the next major version, and is absent from --help
-      (ADR-019).
+      was kept as a hidden second name through 3.x and removed at 4.0.0
+      (ADR-024); it is now an unknown verb.
     related: [plan, technical-design, delivery-approach]
   plan:
     means: >
@@ -651,10 +651,10 @@ banned:
     context: "As stage/agent name and command. The command is /compass:assess; /compass:frame was removed at the v2 major version. Points at the FINAL name, not at `triage` - `triage` is itself retired now, and a ban naming a banned replacement sends a reader to a word they must rename again. 'frame' as an ordinary verb is fine."
   - term: "Triage"
     replacement: assess
-    context: "As the stage name and command. The stage produces an `assessment:` block, the flag is --assessment and the policy section is assessment_vocabulary - a command called triage producing an assessment is the defect this replaced. Triage also means sorting BETWEEN cases by urgency, which is what `compass flow` does, not this stage. The command is /compass:assess; /compass:triage is a redirect stub for one major version. 'triage' as an ordinary verb, about sorting between things, is fine."
+    context: "As the stage name and command. The stage produces an `assessment:` block, the flag is --assessment and the policy section is assessment_vocabulary - a command called triage producing an assessment is the defect this replaced. Triage also means sorting BETWEEN cases by urgency, which is what `compass flow` does, not this stage. The command is /compass:assess; /compass:triage was removed at 4.0.0. 'triage' as an ordinary verb, about sorting between things, is fine."
   - term: "Wireframe"
     replacement: design
-    context: "As the designer's command. The designer's entry point is /compass:design again - it held that name before, and 'design' reads as UI work to most people. /compass:wireframe is a redirect stub for one major version. 'wireframe' as an ordinary noun is fine."
+    context: "As the designer's command. The designer's entry point is /compass:design again - it held that name before, and 'design' reads as UI work to most people. /compass:wireframe was removed at 4.0.0. 'wireframe' as an ordinary noun is fine."
   - term: "reading / readings"
     replacement: assessment
     context: "As the four-dimension judgement. Ordinary uses of the word are fine."
@@ -669,7 +669,7 @@ banned:
     context: "Route name."
   - term: "Specify / Clarify / Distribute / Land"
     replacement: "define acceptance criteria / requirements review / break down the work / ship"
-    context: "As stage names and commands. The commands are /compass:define, /compass:refine, /compass:breakdown, /compass:ship (the planning stage's command is /compass:plan, and Build's is /compass:implement); the retired names are redirect stubs for one major version. Capitalised/heading/command usage only; ordinary verbs fine. NOTE: `plan` is NOT retired - it is the planning stage's machine key, skill (plan-authoring), agent (planner) and, since 2026-08-25, its command. A name that was retired can come back; ADR-014 removes retired names, it does not reserve them."
+    context: "As stage names and commands. The commands are /compass:define, /compass:refine, /compass:breakdown, /compass:ship (the planning stage's command is /compass:plan, and Build's is /compass:implement); the retired names were removed at 4.0.0. Capitalised/heading/command usage only; ordinary verbs fine. NOTE: `plan` is NOT retired - it is the planning stage's machine key, skill (plan-authoring), agent (planner) and, since 2026-08-25, its command. A name that was retired can come back; ADR-014 removes retired names, it does not reserve them."
   - term: "PRD / prd.md"
     replacement: intent.md
     context: "As the intake document. /compass:intent writes intent.md - the command and its output had never agreed, and the ids the document sources are INT-. The wider industry name is in Anthropic's AI-Native SDLC playbook, which calls the same artifact intent.md. 'product requirements' as ordinary prose is fine."
@@ -710,7 +710,7 @@ banned:
     context: "As the agent that reads the assessment and computes the delivery approach. It runs routing-policy.yml, and Anthropic's docs name this shape Routing."
   - term: "roundtable"
     replacement: consult
-    context: "As the command that convenes several roles on a question. An advisor in Anthropic's docs is one you consult mid-turn. /compass:roundtable is a redirect stub for one major version."
+    context: "As the command that convenes several roles on a question. An advisor in Anthropic's docs is one you consult mid-turn. /compass:roundtable was removed at 4.0.0."
   - term: "elicitation"
     replacement: interview
     context: "As the act of drawing intent out of a person. Anthropic's onboarding documentation runs an interview; the skill is `intent-interview`."
@@ -860,16 +860,6 @@ scan:
   exempt:
     - docs/proposals/      # history stays honest
     - docs/system-spec.md  # derived at ship time; hand-editing forbidden
-    # A redirect stub's whole job is to name the retired command and point at
-    # its replacement. It cannot do that without saying the retired word, and
-    # it is the one surface where saying it is the service rather than the
-    # defect. Same rationale as the mapping data below, and the same shape:
-    # named individually, so a THIRD stub is a deliberate addition rather than
-    # a silent one.
-    - commands/triage.md
-    - commands/wireframe.md
-    # Names its own retired command, which is the stub's whole job (ADR-023).
-    - commands/roundtable.md
     - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
                            # pointers and the migrate tool must name v1
                            # spellings; they live here so the enforced CLI
@@ -904,7 +894,7 @@ scan:
       why: >-
         A ban must name the term it retires and a rename table must name both
         spellings, so these blocks carry every retired word by necessity.
-        `scan:` names the exempt paths, two of which are the redirect stubs.
+        `scan:` names the exempt paths.
         Everything else in the file - `terms:`, `codes:`, `id_prefixes:` - is
         read like any other surface.
 

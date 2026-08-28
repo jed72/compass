@@ -117,7 +117,7 @@ from compass_pkg._all import *  # noqa: F401,F403
 # what `compass --version` and the release-consistency test read, and a
 # grep for the constant should find it at the CLI's front door. The
 # assert makes the duplication impossible to drift.
-COMPASS_VERSION = "3.4.0"
+COMPASS_VERSION = "4.0.0"
 assert COMPASS_VERSION == _core.COMPASS_VERSION, (
     "cli/compass and compass_pkg/core.py disagree about the version")
 
@@ -269,25 +269,22 @@ def build_parser():
     pll.set_defaults(func=cmd_policy_lint, output_kind="report")
 
     # The planning stage's verb. It answers to `plan`, the word its machine
-    # key, skill, agent and slash command all use; `design` now means the
-    # DESIGNER's stage everywhere else, and one word meaning two stages in one
-    # release is the ambiguity this rename exists to remove.
+    # key, skill, agent and slash command all use; `design` means the
+    # DESIGNER's stage everywhere else, and one word meaning two stages was
+    # the ambiguity this rename removed.
     #
-    # `compass design lint` shipped in 3.3.0, so it keeps working until the  # version-guard: allow - when the redirect started, not a version this file publishes
-    # next major version rather than breaking an adopter's script mid-major
-    # (ADR-006, and ADR-019 which records why this rename carries redirects at
-    # all). It does the work and says once, on stderr, what to call it.
-    for verb in ("plan", "design"):
-        ppl = sub.add_parser(verb, help="technical-design.md tools")
-        ppls = ppl.add_subparsers(dest="subcmd", required=True)
-        ppll = ppls.add_parser(
-            "lint",
-            help="scan a technical-design.md for placeholder phrases "
-                 "(advisory; always exits 0)")
-        issue_arg(ppll)
-        ppll.add_argument("--file", help="lint a specific technical-design.md file")
-        ppll.set_defaults(func=cmd_plan_lint, output_kind="report",
-                          retired_verb=None if verb == "plan" else verb)
+    # `compass design lint` was a second name for this verb through 3.x. It
+    # was removed at 4.0.0, the major-version boundary ADR-019 scheduled it
+    # for, and ADR-024 records why that machinery is not carried further.
+    ppl = sub.add_parser("plan", help="technical-design.md tools")
+    ppls = ppl.add_subparsers(dest="subcmd", required=True)
+    ppll = ppls.add_parser(
+        "lint",
+        help="scan a technical-design.md for placeholder phrases "
+             "(advisory; always exits 0)")
+    issue_arg(ppll)
+    ppll.add_argument("--file", help="lint a specific technical-design.md file")
+    ppll.set_defaults(func=cmd_plan_lint, output_kind="report")
 
     # The intake document. A NEW top-level group: `/compass:intent` has always
     # been a slash command, and the CLI never had a verb for it. Adding one is a
@@ -580,13 +577,28 @@ def build_parser():
         if not a.dest.startswith("_")
     ]
     # Verbs that still work but are no longer taught. A retired spelling that
-    # shipped in a released version cannot simply stop working - ADR-006 makes
-    # backward compatibility non-negotiable inside a major version - but it
-    # must not appear in `--help` either, or every teaching surface has to
-    # document a name the reader should not use. So: it parses, it runs, it
-    # says once what to call it now, and it is absent from the advertised set.
-    # Removed at the next major version (ADR-019).
-    hidden = {"design"}  # renamed to `plan` on 2026-08-25
+    # shipped in a released version cannot simply stop working inside a major
+    # version - ADR-006 - but it must not appear in `--help` either, or every
+    # teaching surface has to document a name the reader should not use.
+    #
+    # Empty since 4.0.0, which removed the one entry it held (`design`, a
+    # second name for `plan`). Kept rather than deleted because the mechanism
+    # is what a future retirement needs; ADR-024 records why nothing is
+    # carried in it today.
+    hidden = set()
+    # A stale entry here is otherwise silent: `hidden` is only ever subtracted
+    # from the advertised list, so naming a verb that does not parse removes
+    # nothing and reports nothing. Checked against the parser rather than by
+    # reading this file's source, so it survives any reformatting of the line
+    # above and fires for every caller.
+    unknown = hidden - set(sub.choices)
+    if unknown:
+        raise CompassError(
+            "cli/compass: the `hidden` verb set names %s, which the parser "
+            "does not define. Every name in `hidden` must be a real verb - "
+            "the set exists to keep a verb out of --help, not to list "
+            "spellings that no longer exist."
+            % ", ".join(sorted(unknown)))
     public_names = [k for k in sub.choices
                     if not k.startswith("_") and k not in hidden]
     sub.metavar = "{" + ",".join(public_names) + "}"

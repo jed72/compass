@@ -52,6 +52,26 @@ def _evidence_gates_text():
 
 
 
+
+def _rationale_section(s_number: str) -> str:
+    """The rationale file's section for one strategy, isolated from the rest.
+
+    `governance/strategies.md` states the rules; the incidents and worked
+    examples that justify them are in `governance/strategies-rationale.md`,
+    one `## ...(`Sn`)` section each. Both halves are required - a rule with no
+    incident behind it is an assertion.
+
+    Scoped to the one section on purpose. Searching the whole file would let a
+    phrase in an unrelated strategy's evidence satisfy this one, which is the
+    same loose-match failure these guards exist to catch.
+    """
+    text = (REPO_ROOT / "governance" / "strategies-rationale.md").read_text(
+        encoding="utf-8")
+    for sec in re.split(r"(?m)^## ", text)[1:]:
+        if "`%s`" % s_number in sec.split("\n", 1)[0]:
+            return _flat(sec).lower()
+    return ""
+
 def _flat(text: str) -> str:
     """Collapse every run of whitespace to one space.
 
@@ -157,11 +177,13 @@ def test_trc_a2_strategy_states_prohibition_evidence_and_cross_references_s8():
         "the strategy must name the implementer's summary as the thing not trusted"
     )
 
-    # The evidence: two leaked cleanups here, both reported complete by their author.
-    assert "two" in flat_lower and "leak" in flat_lower, (
+    # The evidence: two leaked cleanups here, both reported complete by their
+    # author. It sits in strategies-rationale.md, next to the rule it backs.
+    rationale = _rationale_section("S9")
+    assert "two" in rationale and "leak" in rationale, (
         "the strategy must name two leaked cleanups as its evidence"
     )
-    assert "reported complete" in flat_lower or "reported it complete" in flat_lower, (
+    assert "reported complete" in rationale or "reported it complete" in rationale, (
         "the strategy must say both leaks were reported complete by the agent that made them"
     )
 
@@ -268,7 +290,9 @@ def test_trc_c2_strategy_carries_adr_013_worked_example_and_summary_caution():
     flat_lower = flat.lower()
 
     # The caution: the nearest document is often a summary of the fact,
-    # one step removed from the thing itself.
+    # one step removed from the thing itself. It travels with the worked
+    # example in strategies-rationale.md.
+    flat_lower = flat_lower + " " + _rationale_section("S9")
     assert "often a summary" in flat_lower, (
         "the strategy must say the nearest document that mentions a fact "
         "is often a summary of it"

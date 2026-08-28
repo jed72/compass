@@ -236,7 +236,7 @@ The chosen shape for an issue: which artifacts exist, which gates apply, solo or
 
 The DESIGNER's stage and its command, /compass:design. It produces the UI contract (ui-contract.md) - scenarios written Given/When/Then that flow into the acceptance criteria, not mockup annotations. The word reads as UI work to most people, which is why the designer has it.
 
-**Not:** NOT the engineering design. That is the plan stage (/compass:plan), whose output is technical-design.md. Until 2026-08-25 `design` meant both, and a reader following the wrong one wrote a UI contract where a technical design was wanted and was told it worked. Also NOT the CLI verb: the placeholder scan is `compass plan lint`. Its retired spelling still runs, until the next major version, and is absent from --help (ADR-019).
+**Not:** NOT the engineering design. That is the plan stage (/compass:plan), whose output is technical-design.md. Until 2026-08-25 `design` meant both, and a reader following the wrong one wrote a UI contract where a technical design was wanted and was told it worked. Also NOT the CLI verb: the placeholder scan is `compass plan lint`. Its retired spelling was kept as a hidden second name through 3.x and removed at 4.0.0 (ADR-024); it is now an unknown verb.
 
 **Related:** `plan`, `technical-design`, `delivery-approach`
 

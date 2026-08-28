@@ -970,7 +970,7 @@ _TAIL_EXEMPT = {
     "check": "measured by its own tests above, on a failing issue",
     "policy lint": "needs a governance tree of its own to say anything",
     "issue lint": "needs a malformed manifest to say anything",
-    "design lint": "needs a design with placeholders to say anything",
+    "plan lint": "needs a design with placeholders to say anything",
     "next": "advisory pointer; its own suite covers it",
     "rework-scan": "its own suite covers it",
     "follow-up resolve": "needs an owed follow-up planted first",

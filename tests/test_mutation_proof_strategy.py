@@ -40,6 +40,26 @@ class _SkillDir:
 EVIDENCE_GATES = _SkillDir(EVIDENCE_GATES_DIR)
 
 
+
+def _rationale_section(s_number: str) -> str:
+    """The rationale file's section for one strategy, isolated from the rest.
+
+    `governance/strategies.md` states the rules; the incidents and worked
+    examples that justify them are in `governance/strategies-rationale.md`,
+    one `## ...(`Sn`)` section each. Both halves are required - a rule with no
+    incident behind it is an assertion.
+
+    Scoped to the one section on purpose. Searching the whole file would let a
+    phrase in an unrelated strategy's evidence satisfy this one, which is the
+    same loose-match failure these guards exist to catch.
+    """
+    text = (ROOT / "governance" / "strategies-rationale.md").read_text(
+        encoding="utf-8")
+    for sec in re.split(r"(?m)^## ", text)[1:]:
+        if "`%s`" % s_number in sec.split("\n", 1)[0]:
+            return _flat(sec).lower()
+    return ""
+
 def _flat(text: str) -> str:
     """Whitespace-collapsed, so an assertion about what the prose says does
     not break when a paragraph is re-wrapped. Three assertions in this
@@ -88,9 +108,17 @@ def test_trc_1_the_strategy_states_the_method_and_the_reason():
         "the result. Scattered mentions of those words are not the method."
     )
 
-    # The reason, which is the part that makes the rule stick.
-    assert "passing test" in flat, (
-        "the strategy must say what a passing test does and does not prove"
+    # The reason, which is the part that makes the rule stick. It sits in
+    # strategies-rationale.md, next to the rule it backs.
+    flat = flat + " " + _rationale_section("S10")
+    # Not a bare "passing test" substring: the phrase also occurs in the
+    # unrelated 2.1.0 count below, so that check survived deleting the very
+    # sentence it was written for. Assert the proposition instead.
+    assert re.search(r"passing test proves[^.]*runs\.\s*it does not prove[^.]*"
+                     r"connected", flat), (
+        "the strategy must say what a passing test does and does not prove - "
+        "that it shows the guard runs, not that it is connected to the thing "
+        "it names"
     )
     assert "record" in flat, (
         "the strategy must require the result to be recorded, not just done"

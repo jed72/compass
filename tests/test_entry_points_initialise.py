@@ -25,17 +25,14 @@ COMMANDS = REPO_ROOT / "commands"
 # Settled in requirements-review.md AMB-1: the five ways a user can arrive
 # first. Every other command needs an issue a previous command created.
 #
-# `design` rather than `wireframe`: commands/design.md is the designer entry
-# point that produces the UI contract, and commands/wireframe.md is the
-# retired redirect stub that points at it. A stub does no work, so it has
-# nothing to initialise for - it is in MUST_NOT_INITIALISE below.
+# `design` is the designer entry point that produces the UI contract.
+# `wireframe` was the retired redirect stub pointing at it, and was removed
+# at 4.0.0 - so it is no longer in either list below.
 ENTRY_POINTS = ["assess", "intent", "design", "position", "consult"]
 
-# Commands that report on existing state, and the retired stubs that only
-# forward a caller to the current name. Creating a directory because someone
-# ran a read - or typed an old command name - is the silent-creation failure
-# by another route.
-MUST_NOT_INITIALISE = ["status", "flow", "wireframe"]
+# Commands that report on existing state. Creating a directory because
+# someone ran a read is the silent-creation failure by another route.
+MUST_NOT_INITIALISE = ["status", "flow"]
 
 INIT_CALL = re.compile(r"compass init\b")
 

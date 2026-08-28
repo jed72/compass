@@ -41,6 +41,26 @@ POINTER_SURFACES = (
 )
 
 
+
+def _rationale_section(s_number: str) -> str:
+    """The rationale file's section for one strategy, isolated from the rest.
+
+    `governance/strategies.md` states the rules; the incidents and worked
+    examples that justify them are in `governance/strategies-rationale.md`,
+    one `## ...(`Sn`)` section each. Both halves are required - a rule with no
+    incident behind it is an assertion.
+
+    Scoped to the one section on purpose. Searching the whole file would let a
+    phrase in an unrelated strategy's evidence satisfy this one, which is the
+    same loose-match failure these guards exist to catch.
+    """
+    text = (ROOT / "governance" / "strategies-rationale.md").read_text(
+        encoding="utf-8")
+    for sec in re.split(r"(?m)^## ", text)[1:]:
+        if "`%s`" % s_number in sec.split("\n", 1)[0]:
+            return _flat(sec).lower()
+    return ""
+
 def _flat(text: str) -> str:
     """Whitespace-collapsed, so an assertion about what the prose says does
     not break when a paragraph is re-wrapped."""
@@ -96,7 +116,9 @@ def test_rr_6_strategy_states_method_and_reason():
         "instruction that disagree"
     )
 
-    # The reason, which is the part that makes the rule stick.
+    # The reason, which is the part that makes the rule stick. The worked
+    # instance lives in strategies-rationale.md beside the rule it backs.
+    lower = lower + " " + _rationale_section("S11")
     assert "changed the outcome" in lower or "changed two" in lower, (
         "the strategy must say why it exists - that measuring has actually "
         "changed decisions, not that it is good practice in the abstract"

@@ -44,7 +44,7 @@ STUBS = {
     "build": "implement",
     "land": "ship",
     # ADR-023: the word Anthropic's platform docs use for consulting an
-    # advisor mid-turn. Goes at the next major version, like the two above it.
+    # advisor mid-turn. Went at 4.0.0, like the two above it.
     "roundtable": "consult",
 }
 
@@ -59,7 +59,10 @@ def test_the_command_set_carries_the_v2_names():
     names = {p.stem for p in COMMANDS.glob("*.md")}
     missing = V2_COMMANDS - names
     assert not missing, f"missing v2 command files: {sorted(missing)}"
-    stray = names - V2_COMMANDS - set(STUBS)
+    # STUBS is NOT subtracted any more. Every name in it was removed at 4.0.0,
+    # so a file bearing one is a stub that has come back - which is exactly
+    # what this check should report rather than excuse.
+    stray = names - V2_COMMANDS
     assert not stray, f"unexpected command files: {sorted(stray)}"
     for name in sorted(V2_COMMANDS):
         text = (COMMANDS / f"{name}.md").read_text(encoding="utf-8")
@@ -89,9 +92,14 @@ def test_the_vocabulary_carries_the_command_names_and_a_version_bump():
     bans = {b["term"]: b for b in doc["banned"]}
     frame = bans["Frame / the Needle"]
     joined = frame.get("replacement", "") + frame.get("context", "")
-    assert "triage" in joined, (
-        "the Frame ban entry does not name /compass:triage as the command "
-        "replacement")
+    # The ban points at `assess`, the FINAL name. It mentions triage only to
+    # explain why it does not send a reader there - so asserting "triage" is
+    # present passed on the sentence that contradicts the assertion's own
+    # message. Assert what the entry is actually for.
+    assert "assess" in joined, (
+        "the Frame ban entry does not name assess as the replacement. It has "
+        "to point at the current name: a ban naming a banned replacement "
+        "sends a reader to a word they must rename again")
     stages = bans["Specify / Clarify / Distribute / Land"]
     joined = stages.get("replacement", "") + stages.get("context", "")
     for cmd in ("define", "refine", "breakdown", "ship"):

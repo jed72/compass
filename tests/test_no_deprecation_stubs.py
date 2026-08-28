@@ -27,15 +27,18 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
 COMMANDS = ROOT / "commands"
 
-# The v1 pipeline commands, removed at 3.0.0 and never to reappear.
-# `plan.md` is NOT here any more: `plan` was a retired v1 command and became
-# the planning stage's live command again on 2026-08-25. A removed name is not
+# Retired pipeline commands, removed at a major version and never to reappear.
+# `plan.md` is NOT here: `plan` was a retired v1 command and became the
+# planning stage's live command again on 2026-08-25. A removed name is not
 # reserved for ever - it is free to be reused for the thing it best describes.
-# `triage.md` and `wireframe.md` are not here either: they are THIS cycle's
-# stubs, and they go at the next major version under ADR-019.
+#
+# The first six went at 3.0.0. The last three were redirect stubs through 3.x
+# and went at 4.0.0, the boundary ADR-019 scheduled them for; ADR-024 records
+# why the redirects were not carried further.
 RETIRED_COMMANDS = (
     "build.md", "clarify.md", "distribute.md", "frame.md",
     "land.md", "specify.md",
+    "triage.md", "wireframe.md", "roundtable.md",
 )
 
 # The retired verbs and verb pairs. Each used to exit 2 with a one-line
@@ -62,18 +65,14 @@ def test_rcd_f1_no_retired_slash_commands():
     # And nothing new has quietly taken their place: no shipped command may
     # describe itself as a retired name. Checked by content as well as by
     # filename, so a rename of the stub file does not slip past.
-    # The stubs THIS cycle ships, named individually so a third is a deliberate
-    # addition rather than a silent one. They go at the next major version
-    # (ADR-019), the same way the v1 stubs above went at 3.0.0 - which is what
-    # this check enforces, one cycle at a time.
-    # `roundtable.md` is the third, added deliberately under ADR-023: the
-    # command is now `consult`, the word Anthropic's platform docs use for
-    # consulting an advisor mid-turn.
-    CURRENT_STUBS = {"triage.md", "wireframe.md", "roundtable.md"}
+    #
+    # No exemptions. 4.0.0 removed the last three stubs, so every command file
+    # is covered - which is what this check was always working towards, one
+    # major version at a time. Re-introducing a stub means adding a name here
+    # deliberately, and this comment is where the argument for it goes.
     redirects = [
         p.name for p in COMMANDS.glob("*.md")
         if "retired name" in p.read_text(encoding="utf-8").lower()
-        and p.name not in CURRENT_STUBS
     ]
     assert not redirects, (
         f"command file(s) still describe themselves as a retired name: "

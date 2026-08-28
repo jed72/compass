@@ -39,8 +39,8 @@ it is exempt from triage.
 
 2. **Copy `governance/` into the project.** Place the shipped `governance/`
    files at the project root: the prose `guardrails.md`, `strategies.md`,
-   `routing-policy.md`, `README.md`, **and the machine-readable
-   `guardrails.yml` and `routing-policy.yml`** - the latter two are what
+   `strategies-rationale.md`, `routing-policy.md`, `README.md`, **and the
+   machine-readable `guardrails.yml` and `routing-policy.yml`** - the latter two are what
    the `compass` CLI runs (`compass approach evaluate`, `compass check`,
    `compass policy lint`). These arrive with their defaults already active
    and in force - they are not empty templates. The `cli/` and `schemas/`
@@ -48,6 +48,9 @@ it is exempt from triage.
    CLI walks up to find a project-local `governance/`, falling back to the
    shipped defaults. The five default guardrails and the default method
    strategies are real content from the moment they land.
+   `strategies-rationale.md` holds the incidents behind the rules in
+   `strategies.md`, which links to it - copying one without the other leaves
+   that link pointing at nothing.
 
 3. **Walk the team through extending them** - additively, in each role's
    own language, a few questions at a time. Nothing here is required to be

@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### no document says a shipped rename is still pending
+### A revival condition nobody can observe is refused
 
-- **Scenario id:** `VOC-B1`
+- **Scenario id:** `TRC-F2`
 - **Intent:** `INT-1`
-- **Source issue:** `vocabulary-debt`
-- **Landed:** 2026-08-27
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the deep dive does not claim scoped gates are immovable
+### The revival condition is readable from the record alone
 
-- **Scenario id:** `VOC-C2`
+- **Scenario id:** `TRC-A3`
 - **Intent:** `INT-2`
-- **Source issue:** `vocabulary-debt`
-- **Landed:** 2026-08-27
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
-### project governance still wins where a project has its own
+### Orphaning Inv-8 fails the change
 
-- **Scenario id:** `SB-C2`
+- **Scenario id:** `TRC-F3`
 - **Intent:** `INT-3`
-- **Source issue:** `session-bootstrap`
-- **Landed:** 2026-08-27
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
-### a URL that is not https is refused
+### Every link in the decisions index resolves
 
-- **Scenario id:** `ING-D4`
+- **Scenario id:** `TRC-B2`
 - **Intent:** `INT-4`
-- **Source issue:** `ingest-an-existing-brief`
-- **Landed:** 2026-08-25
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
-### the guard fails when handed nothing
+### Every list of the governance files names all of them
 
-- **Scenario id:** `TRC-E2`
+- **Scenario id:** `TRC-D8`
 - **Intent:** `INT-5`
-- **Source issue:** `the-vocabulary-rename`
-- **Landed:** 2026-08-25
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
 ### the hook still blocks a code file inside the project
 
@@ -85,12 +85,12 @@
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
-### the same assessment computes the same artifact set every time
+### A record that only restates the existing schedule is refused
 
-- **Scenario id:** `TRC-F4`
+- **Scenario id:** `TRC-F1`
 - **Intent:** `INT-6`
-- **Source issue:** `the-human-front-door`
-- **Landed:** 2026-08-23
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
 
 ### A configured test_micro_command takes precedence when present
 
@@ -6097,6 +6097,13 @@
 - **Source issue:** `the-human-front-door`
 - **Landed:** 2026-08-23
 
+### the same assessment computes the same artifact set every time _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-6`
+- **Source issue:** `the-human-front-door`
+- **Landed:** 2026-08-23
+
 ### a stage hand-off fits on one screen _(archived)_
 
 - **Scenario id:** `TRC-A1`
@@ -6496,6 +6503,13 @@
 - **Source issue:** `the-vocabulary-rename`
 - **Landed:** 2026-08-25
 
+### the guard fails when handed nothing _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-5`
+- **Source issue:** `the-vocabulary-rename`
+- **Landed:** 2026-08-25
+
 ### the coherence check reads the stage table the template writes _(archived)_
 
 - **Scenario id:** `TRC-E3`
@@ -6597,6 +6611,13 @@
 ### a redirect is followed, and provenance names where it landed _(archived)_
 
 - **Scenario id:** `ING-D3`
+- **Intent:** `INT-4`
+- **Source issue:** `ingest-an-existing-brief`
+- **Landed:** 2026-08-25
+
+### a URL that is not https is refused _(archived)_
+
+- **Scenario id:** `ING-D4`
 - **Intent:** `INT-4`
 - **Source issue:** `ingest-an-existing-brief`
 - **Landed:** 2026-08-25
@@ -6930,6 +6951,13 @@
 - **Source issue:** `session-bootstrap`
 - **Landed:** 2026-08-27
 
+### project governance still wins where a project has its own _(archived)_
+
+- **Scenario id:** `SB-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `session-bootstrap`
+- **Landed:** 2026-08-27
+
 ### a source install registers the same hook _(archived)_
 
 - **Scenario id:** `SB-D1`
@@ -6979,9 +7007,359 @@
 - **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
 
+### no document says a shipped rename is still pending _(archived)_
+
+- **Scenario id:** `VOC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `vocabulary-debt`
+- **Landed:** 2026-08-27
+
 ### the deep dive names the gates the policy staples _(archived)_
 
 - **Scenario id:** `VOC-C1`
 - **Intent:** `INT-2`
 - **Source issue:** `vocabulary-debt`
 - **Landed:** 2026-08-27
+
+### the deep dive does not claim scoped gates are immovable _(archived)_
+
+- **Scenario id:** `VOC-C2`
+- **Intent:** `INT-2`
+- **Source issue:** `vocabulary-debt`
+- **Landed:** 2026-08-27
+
+### A retired concept word is reported by the vocabulary scan _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### Every retired concept word has a ban entry naming its replacement _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The scanned surfaces are free of the retired concept words _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### An ordinary use of a retired word is not reported _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A new manifest records orchestration rather than topology _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### An existing manifest written with topology still loads _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A retired topology word is read as the ceiling it always implied _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The parallel-work ceiling is named for the unit it counts _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The architecture gate is named for what it checks _(archived)_
+
+- **Scenario id:** `TRC-B5`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A route shape declares a ceiling rather than an orchestration _(archived)_
+
+- **Scenario id:** `TRC-B6`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The project config names multiagent work by its new name _(archived)_
+
+- **Scenario id:** `TRC-B7`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### Who integrates is decided by the number of subtasks _(archived)_
+
+- **Scenario id:** `TRC-B8`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A rename is not reported as new mechanism _(archived)_
+
+- **Scenario id:** `TRC-B9`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A renamed command is invocable under its new name _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A retired command name still resolves _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The three role agents are named after their role _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The lens carve-out is removed once the identifiers are gone _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The assessment agent is named for what it does _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A renamed skill is discoverable under its new name _(archived)_
+
+- **Scenario id:** `TRC-C6`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The glossary defines each term this rename introduces _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-2`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### The glossary is regenerated rather than hand-edited _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-2`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### Retiring a frozen term is recorded as a decision _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-2`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A decision record keeps the words it was decided in _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A replacement that misreads the source meaning is rejected _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A key rename that silently drops data fails the build _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-3`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A ban with no working pattern is caught before it ships _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### A loose pattern that reports neighbouring text fails the suite _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-1`
+- **Source issue:** `anthropic-aligned-vocabulary`
+- **Landed:** 2026-08-28
+
+### No printed string names a retired verb or value _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `printed-output-guard-coverage`
+- **Landed:** 2026-08-28
+
+### The walk reaches far more than the two commands it replaces _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `printed-output-guard-coverage`
+- **Landed:** 2026-08-28
+
+### A planted retired name is reported _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `printed-output-guard-coverage`
+- **Landed:** 2026-08-28
+
+### A red in the worktree allows an edit in the worktree _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
+
+### A red in the session does not unlock a worktree _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
+
+### A call naming no file still resolves from the session _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `pre-tool-hook-misses-worktree-red`
+- **Landed:** 2026-08-28
+
+### The decision names an observable quantity _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Publication is refused as evidence of adoption _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The record says what it adds beyond the release _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-6`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The supersession is navigable in both directions _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-4`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Inv-8 resolves to a record that is not superseded _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### ADR-006 is not superseded _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Inv-8's two promises are stated separately _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The archive rule is untouched _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The retired slash commands no longer exist _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The hidden CLI alias no longer resolves _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Read-side migration survives, for the archive's reason _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The vocabulary has one value per concept again _(archived)_
+
+- **Scenario id:** `TRC-D4`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### A stale exemption fails the build _(archived)_
+
+- **Scenario id:** `TRC-D5`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The release that carries the removal says so _(archived)_
+
+- **Scenario id:** `TRC-D6`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Nothing is left over from the removal _(archived)_
+
+- **Scenario id:** `TRC-D7`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
