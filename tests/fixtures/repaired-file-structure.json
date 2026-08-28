@@ -1,15 +1,4 @@
 {
-  "agents/product-marketer.md": {
-    "fences": 0,
-    "heading_levels": [
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 11,
-    "table_rows": 0
-  },
   "agents/orchestrator.md": {
     "fences": 0,
     "heading_levels": [
@@ -33,6 +22,17 @@
       2
     ],
     "list_items": 22,
+    "table_rows": 0
+  },
+  "agents/product-marketer.md": {
+    "fences": 0,
+    "heading_levels": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 11,
     "table_rows": 0
   },
   "agents/product-owner.md": {
@@ -759,7 +759,7 @@
       2,
       2
     ],
-    "list_items": 10,
+    "list_items": 22,
     "table_rows": 3
   },
   "governance/routing-policy.md": {
@@ -789,6 +789,7 @@
       3,
       3,
       3,
+      2,
       3,
       3,
       3,
@@ -801,7 +802,7 @@
       3,
       2
     ],
-    "list_items": 32,
+    "list_items": 88,
     "table_rows": 0
   },
   "skills/adaptive-routing/SKILL.md": {

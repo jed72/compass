@@ -235,7 +235,14 @@ def test_f1_decay_rule_states_its_ask():
         "expects it. If it moved or was reworded, this check has stopped "
         "reading the thing it was written for")
     # The anchor sentence IS the imperative, so it stays in the section.
-    section = anchor + body.split(anchor, 1)[1].split("\n\n**", 1)[0]
+    # Bounded by the next bullet as well as the next bold paragraph: the rule
+    # is a list item now, and stopping only at a blank-line-then-bold ran on
+    # through the rest of the strategy and into the following heading, so the
+    # bare-code check below was reporting on codes the rule never mentions.
+    rest = body.split(anchor, 1)[1]
+    for boundary in ("\n\n**", "\n- **", "\n\n*", "\n### "):
+        rest = rest.split(boundary, 1)[0]
+    section = anchor + rest
     flat = " ".join(section.replace("`", "").replace("*", "").split())
 
     # Suffixes allowed: the rule says "fixed on the way past", and a check

@@ -198,14 +198,23 @@ def test_pl_c6_baseline_records_count_and_reach():
 # ---------------------------------------------------------------------------
 
 def test_pl_c1_strategy_states_the_order_with_four_real_pairs():
-    """TRC-C1 - meaning leads, code follows, with pairs from real output."""
+    """TRC-C1 - meaning leads, code follows, with pairs from real output.
+
+    The rule is stated in strategies.md; the pairs that prove it live in
+    strategies-rationale.md, which is where the worked examples moved when
+    strategies.md was cut to directives. Both halves are still required - the
+    rule without pairs is an assertion, and the pairs without the rule are an
+    anecdote.
+    """
     doc = (REPO_ROOT / "governance" / "strategies.md").read_text(encoding="utf-8")
     doc = " ".join(doc.replace("*", "").split())
     assert "plain words come first" in doc.lower(), (
         "the ordering rule is not stated - S7 says an identifier carries its "
         "meaning on first use, but never which comes first"
     )
-    section = doc[doc.lower().index("plain words come first"):][:4000]
+    rationale = (REPO_ROOT / "governance" / "strategies-rationale.md").read_text(
+        encoding="utf-8")
+    section = " ".join(rationale.replace("*", "").split())
     pairs = section.lower().count("instead of")
     assert pairs >= 4, (
         f"the rule shows {pairs} before-and-after pairs; it needs at least 4, "
@@ -576,8 +585,12 @@ def test_pl_d6_correction_rule_distinguishes_record_from_claim():
         assert why in doc, (
             f"S14 does not say why ({why!r}) - without the reason the rule is a "
             f"convention someone will reverse")
-    assert "sixteen checks" in doc, (
-        "S14 states the rule without the real instance it came from")
+    rationale = " ".join((REPO_ROOT / "governance" / "strategies-rationale.md")
+                         .read_text(encoding="utf-8").split()).lower()
+    assert "sixteen checks" in rationale, (
+        "S14's rule has no real instance behind it - the sixteen-checks case "
+        "moved to strategies-rationale.md with the other evidence, and if it "
+        "is in neither file the rule is unsupported")
 
 
 # A purpose-built issue on disk, not the one being worked on. These tests assert
