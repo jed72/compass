@@ -129,9 +129,9 @@ role's vocabulary and artifacts. Do not collapse a product owner's intake
 into an engineering issue; the intake is upstream of the acceptance
 criteria, and the criteria must be checked back against it.
 
-## Worktrees and swarms
+## Worktrees and multiagent
 
-Worktree rules - who may create one, who works inside one, and how the stream
+Worktree rules - who may create one, who works inside one, and how the subtask
 count is bounded - are in the `compass-runtime` skill and in the
 `worktree-multiagent` skill that the orchestrator loads.
 
