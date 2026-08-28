@@ -49,7 +49,7 @@ Rules:
 | [ADR-006](ADR-006-backward-compat-is-non-negotiable.md) | Backward compat is non-negotiable | accepted | Inv-8 (backward compat for projects without new surfaces) |
 | [ADR-007](ADR-007-conditional-gate-promotion-via-floors.md) | Gates may be conditionally promoted from advisory to blocking via routing-policy floors; advisory gates write evidence but do not block Land | proposed | RG-FLOOR-004/005, verify.analyze (advisory-by-default lifecycle) |
 | [ADR-008](ADR-008-cross-task-derived-artifacts.md) | Cross-task derived artifacts are generated from landed task scenarios at Land time; the derivation is reconstructible, idempotent, and never a source-of-truth | proposed | Inv-5, Inv-6, Inv-8 (living spec, derived at Land, silent overwrite contract) |
-| [ADR-009](ADR-009-architecture-checks-are-project-guardrails.md) | Architectural architecture checks are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; nothing-to-check pass on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
+| [ADR-009](ADR-009-fitness-functions-are-project-guardrails.md) | Architectural fitness functions are project guardrails, not framework guardrails | proposed | Inv-2 (five guardrails), Inv-8 (backward compat; nothing-to-check pass on zero declarations), ADR-007 reuse (verify.fitness floor promotion) |
 | [ADR-010](ADR-010-governance-layers-rather-than-copies.md) | Project governance should layer over framework defaults rather than copy them | proposed | Inv-8 (backward compat - a file with no `extends:` must keep working); supersedes nothing, complements the drift-detection work |
 | [ADR-011](ADR-011-enforced-file-types-are-project-configurable.md) | Which file types require a red is project-configurable via enforcement.code_globs, adding to the built-in set; a project may add but never remove | accepted | Inv-8 (backward compat - a project that configures nothing keeps today's behaviour); same floor-plus-opt-in shape as ADR-010 |
 | [ADR-012](ADR-012-the-v2-vocabulary-freeze.md) | The v2 vocabulary is frozen - industry words only, enforced by the build; post-freeze changes carry decision-record process weight | accepted | governance/terminology.yml + tests/test_terminology.py (the ratchet); ADR-006 (break paid once behind a major version) |
@@ -59,6 +59,7 @@ Rules:
 | [ADR-017](ADR-017-an-identifier-is-a-key-not-jargon.md) | An identifier is a key, not jargon - attach its meaning, never delete the id | accepted | ADR-012 (amends a frozen `banned:` entry); ADR-016 (states the rule for using the prefixes it defines) |
 | [ADR-018](ADR-018-the-scan-reads-every-position-by-default.md) | The vocabulary scan reads every position by default; an exclusion must be declared and reasoned | accepted | supersedes ADR-015; ADR-012 (the freeze this enforces); ADR-014 (removing retired names made it possible) |
 | [ADR-023](ADR-023-the-vocabulary-is-measured-against-anthropics-docs.md) | Where a term has a counterpart in Anthropic's platform docs, Compass uses their word with their meaning; otherwise plain English with no competing meaning | accepted | amends ADR-012 (the freeze, which had no reference text); ADR-015 (a retired name in printed output survives a green scan); ADR-019 (redirect stubs); ADR-020 (archive migrated on read); ADR-022 (a decision record keeps the words it was decided in) |
+| [ADR-024](ADR-024-what-compass-owes-an-unobserved-adopter.md) | What Compass owes an unobserved adopter: a migration path, not a redirect - retired names are removed at the major version and redirects are not carried on an inferred adopter population | accepted | supersedes ADR-019 (which inferred a non-empty population from publication); ADR-006 (the principle, untouched - the break is paid at a major version); ADR-020 (the read-side rename tables stay because the archive needs them); Inv-8 (the no-op promise is carried forward and separated from migration compatibility) |
 | [ADR-013](ADR-013-vendored-third-party-code.md) | Compass may redistribute third-party code inside the plugin, and a bundled copy takes precedence over any system copy | accepted | Inv-8 (backward compat - TRC-F4/TRC-F5 hold no behaviour change); ADR-002 (no new guardrail or routing dimension added) |
 
 ## Principle → ADR mapping
@@ -87,8 +88,9 @@ Consequences, References.
 
 A decision without alternatives is an assertion, not a record. Every ADR must
 enumerate at least one alternative that was genuinely considered and rejected.
-| ADR-019 | Retired Names Carry Redirects Once There Are Adopters | proposed |
+| ADR-019 | Retired Names Carry Redirects Once There Are Adopters | superseded by ADR-024 |
 | ADR-020 | The Archive Is Migrated Not Frozen | proposed |
 | ADR-021 | A release narrative guard retires with its release | accepted |
 | ADR-022 | The issue record is a manifest | accepted |
 | ADR-023 | The vocabulary is measured against Anthropic's platform docs | accepted |
+| ADR-024 | What Compass owes an unobserved adopter | accepted |

@@ -112,6 +112,16 @@ RETIRED_CLI = __import__("re").compile(
     r"|compass design lint")
 
 
+# A line carrying the repository's `vocabulary-scan: allow` marker is exempt,
+# for the same reason the vocabulary scan honours it: a page that RECORDS a
+# removal has to name the removed spelling, or a reader whose script broke
+# cannot match the error they got to the row that fixes it. Recording is not
+# teaching. The marker is per line and carries its own reason, so
+# `grep -rn "vocabulary-scan: allow" .` still enumerates every exemption in
+# the repository - which a path-prefix skip could never do.
+ALLOW_MARKER = "vocabulary-scan: allow"
+
+
 def test_no_live_doc_teaches_a_retired_cli_spelling():
     """Extension from the docs-prose review: code spans are scan-exempt,
     so a retired CLI verb inside backticks or a fenced example survives
@@ -130,7 +140,7 @@ def test_no_live_doc_teaches_a_retired_cli_spelling():
             continue
         for lineno, line in enumerate(
                 path.read_text(encoding="utf-8").splitlines(), 1):
-            if RETIRED_CLI.search(line):
+            if RETIRED_CLI.search(line) and ALLOW_MARKER not in line:
                 rel = path.relative_to(REPO_ROOT)
                 hits.append(f"{rel}:{lineno}: {line.strip()[:70]}")
     assert not hits, (

@@ -28,6 +28,24 @@ ADR-006 is the other half of this: backward compatibility is non-negotiable
 *within* a major, so a new mechanism no-ops on projects that have not adopted
 it, and a break is paid once, at a major, with the reason recorded.
 
+### What 4.0.0 removed
+
+Three slash commands that had been redirect stubs since 3.x, and one hidden
+CLI verb. If a script or a session calls any of these, change it:
+
+| Removed | Use instead |
+|---|---|
+| `/compass:triage` | `/compass:assess` | <!-- vocabulary-scan: allow - the upgrade table must name the removed spelling beside its replacement, or a reader whose script broke cannot match the error they got to the row that fixes it -->
+| `/compass:wireframe` | `/compass:design` | <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it -->
+| `/compass:roundtable` | `/compass:consult` | <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it -->
+| `compass design lint` | `compass plan lint` | <!-- vocabulary-scan: allow - the upgrade table records the removed verb beside its replacement; a reader whose script broke needs the spelling they typed to appear here -->
+
+Nothing else went. The read-side rename tables stay, so an issue directory
+written under an older vocabulary still loads and `compass migrate` still
+brings one forward - that is ADR-020's promise about the archive, and it is
+unaffected. ADR-024 records why the redirects were not carried past this
+boundary.
+
 **When a change looks like it forces a major, removing the break is a
 legitimate response; redefining the break is not.** 3.1.0 is the worked case:
 triage started recording a subtask ceiling where it had recorded an orchestration,

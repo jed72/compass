@@ -87,7 +87,7 @@ def _project(tmp_path: pathlib.Path, *, with_design: bool) -> pathlib.Path:
 
 def _lint(project: pathlib.Path):
     return subprocess.run(
-        [sys.executable, str(CLI), "design", "lint"],
+        [sys.executable, str(CLI), "plan", "lint"],
         cwd=str(project), capture_output=True, text=True, timeout=120,
     )
 

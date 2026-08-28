@@ -79,16 +79,33 @@ def test_vgh_a2_the_exemption_list_stays_short():
           "that rather than raising this number.")
 
 
-def test_vgh_a3_the_historical_reference_is_exempt_and_still_says_3_3_0():
-    """The case this exists for, pinned so a later edit cannot quietly bump it."""
-    text = (ROOT / "cli" / "compass").read_text(encoding="utf-8")
-    line = next((l for l in text.splitlines()
-                 if "design lint" in l and "shipped in" in l), None)
-    assert line, (
-        "cli/compass no longer records when `compass design lint` shipped - "
-        "that date is what says how long ADR-006 obliges the redirect to live")
-    assert "3.3.0" in line, (
-        f"the shipped-in version has been changed: {line.strip()}")
-    assert MARKER.search(line), (
-        "the historical reference carries no version-guard exemption, so the "
-        "partial-bump guard will read it as a stale version location")
+def test_vgh_a3_the_marker_still_recognises_the_shape_it_documents():
+    """The mechanism, exercised directly, because it currently has no user.
+
+    This scenario used to pin the real instance: a comment in `cli/compass`
+    recording that `compass design lint` shipped in 3.3.0, which said how long
+    ADR-006 obliged that redirect to live. 4.0.0 removed the alias, and the
+    comment went with it - so the published surfaces now carry ZERO
+    exemptions, and `test_vgh_a1` and `test_vgh_a2` above both pass over an
+    empty list.
+
+    That is worth saying out loud rather than leaving as a quiet green. The
+    situation the mechanism exists for - a published file talking about a
+    version it does not publish - will recur, so the marker is kept and
+    tested against the shape it documents instead of against an instance.
+    """
+    documented = ("    # `compass design lint` shipped in 3.3.0 "
+                  "<!-- version-guard: allow - when the redirect started -->")
+    m = MARKER.search(documented)
+    assert m, (
+        "the marker pattern no longer matches the shape the module docstring "
+        "documents, so a real exemption written that way would be read as a "
+        "stale version location")
+    assert m.group("reason") == "when the redirect started", (
+        f"the reason was captured as {m.group('reason')!r}")
+
+    bare = "x = 1  # version-guard: allow -"
+    m2 = MARKER.search(bare)
+    assert m2 and not m2.group("reason").strip(), (
+        "a marker with no reason is no longer detected as bare, so "
+        "test_vgh_a1 above would stop catching one")

@@ -54,14 +54,30 @@ def _markdown_files():
     ]
 
 
+# A line carrying the repository's `vocabulary-scan: allow` marker is exempt,
+# for the same reason the vocabulary scan honours it: a page that RECORDS a
+# removal has to name the removed spelling, or a reader whose script broke
+# cannot match the error they got to the row that fixes it. Recording is not
+# teaching. The marker is per line and carries its own reason, so
+# `grep -rn "vocabulary-scan: allow" .` still enumerates every exemption in
+# the repository - which a path-prefix skip could never do.
+ALLOW_MARKER = "vocabulary-scan: allow"
+
+
 def _invocations(text):
     """Yield every `compass <word>` inside a code span or fenced block."""
     for fence in FENCE_RE.findall(text):
         for line in fence.splitlines():
+            if ALLOW_MARKER in line:
+                continue
             line = line.lstrip("$ ").strip()
             if line.startswith("compass "):
                 yield from INVOCATION_RE.findall(line)[:1]
-    for span in CODE_SPAN_RE.findall(FENCE_RE.sub("", text)):
+    # Code spans are matched without their surrounding line, so an exempt
+    # line is skipped by removing it before the spans are read.
+    outside = "\n".join(l for l in FENCE_RE.sub("", text).splitlines()
+                        if ALLOW_MARKER not in l)
+    for span in CODE_SPAN_RE.findall(outside):
         span = span.strip()
         if span.startswith("compass "):
             yield from INVOCATION_RE.findall(span)[:1]

@@ -35,7 +35,7 @@ def _plan_lint(tmp_path, body, name="technical-design.md"):
     plan = tmp_path / name
     plan.write_text(body)
     result = subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "design", "lint", "--file", str(plan)],
+        [sys.executable, str(COMPASS_CLI), "plan", "lint", "--file", str(plan)],
         capture_output=True, text=True, timeout=30,
     )
     return result
@@ -149,7 +149,7 @@ def test_trc_c2_missing_file_is_an_error_not_a_silent_pass(tmp_path):
     """Advisory means "does not block on findings", not "never fails". Being
     pointed at a file that is not there is a usage error and must be visible."""
     result = subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "design", "lint",
+        [sys.executable, str(COMPASS_CLI), "plan", "lint",
          "--file", str(tmp_path / "nope.md")],
         capture_output=True, text=True, timeout=30,
     )
@@ -219,7 +219,7 @@ def test_plan_lint_is_clean_on_this_tasks_own_plan():
     if not plan.exists():          # the task directory is not shipped to adopters
         return
     result = subprocess.run(
-        [sys.executable, str(COMPASS_CLI), "design", "lint", "--file", str(plan)],
+        [sys.executable, str(COMPASS_CLI), "plan", "lint", "--file", str(plan)],
         capture_output=True, text=True, timeout=30,
     )
     assert result.returncode == 0

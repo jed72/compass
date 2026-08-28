@@ -73,7 +73,7 @@ def test_the_v2_verbs_exist_and_work(tmp_path):
     assert r.returncode == 0, r.stderr[-400:]
     r = _run(root, "issue", "receipt", "--issue", "t")
     assert r.returncode == 0, r.stderr[-400:]
-    r = _run(root, "design", "lint", "--help")
+    r = _run(root, "plan", "lint", "--help")
     assert r.returncode == 0
     r = _run(root, "retro")
     assert r.returncode == 0, r.stderr[-400:]

@@ -95,13 +95,19 @@ def test_the_renamed_command_exists():
     assert (COMMANDS / "consult.md").is_file()
 
 
-def test_the_retired_command_name_still_resolves():
-    """TRC-C2: a stub, not a deletion (ADR-019)."""
-    stub = COMMANDS / "roundtable.md"
-    assert stub.is_file(), "the retired name was deleted rather than stubbed"
-    body = stub.read_text(encoding="utf-8")
-    assert "/compass:consult" in body, "the stub does not name its replacement"
-    assert "major version" in body, "the stub does not say how long it lasts"
+def test_the_retired_command_name_no_longer_resolves():
+    """TRC-C2: removed at 4.0.0, the boundary ADR-019 scheduled it for.
+
+    This asserted the opposite through 3.x, when `roundtable.md` was a
+    redirect stub. Inverted rather than deleted so something still objects if
+    a stub reappears; ADR-024 records why the redirect was not carried on.
+    """
+    assert not (COMMANDS / "roundtable.md").is_file(), (
+        "`/compass:roundtable` still ships. It was a redirect stub through "
+        "3.x and was removed at 4.0.0")
+    assert (COMMANDS / "consult.md").is_file(), (
+        "the retired name is gone but `/compass:consult` does not exist, so "
+        "the rename left a reader nowhere to go")
 
 
 # --- TRC-C6 - the skills --------------------------------------------------
@@ -123,8 +129,10 @@ def test_no_live_surface_points_at_a_retired_name():
     """
     retired = set(RENAMED_AGENTS) | set(RENAMED_SKILLS) | set(RENAMED_COMMANDS)
     allowed = {
-        # Naming its own retired command is the stub's whole job.
-        COMMANDS / "roundtable.md",
+        # The upgrade table. A reader whose script broke needs the retired
+        # name spelled out next to its replacement, and this is the one page
+        # that exists to tell them.
+        REPO_ROOT / "docs" / "releasing.md",
         # Generated from governance/terminology.yml. Hand-editing a derived
         # page is how a derivation silently stops matching its source - the
         # terminology file records its drift guard catching exactly that - so

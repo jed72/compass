@@ -1,10 +1,10 @@
 ---
 id: ADR-019
 title: Retired names carry redirects once there are adopters
-status: accepted
+status: superseded
 date: 2026-08-25
 supersedes: 'ADR-014'
-superseded_by: ''
+superseded_by: 'ADR-024'
 ---
 
 ## Context
