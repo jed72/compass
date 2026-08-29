@@ -548,7 +548,14 @@ def cmd_task_set_status(args):
             task["parked_reason"] = reason
         task["parked_at"] = now_iso()
     elif reason:
-        task["note"] = reason
+        # `status_reason`, not `note`. The schema forbids undeclared keys, and
+        # `note` was never declared - so for four of the five statuses this
+        # command accepts, `--reason` wrote a manifest that failed
+        # `compass issue lint`, and `compass ci` then failed for the whole
+        # repository. The name also has to say what it records: a bare `note`
+        # does not say which transition it belongs to, where `parked_reason`
+        # beside it does.
+        task["status_reason"] = reason
 
     save_manifest(task, path)
     detail = f" ({reason})" if reason else ""
