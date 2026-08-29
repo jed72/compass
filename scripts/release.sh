@@ -69,7 +69,6 @@ release_file_list() {
     | grep -Ev '^\.github/' \
     | grep -Ev '^\.gitignore$|^\.gitattributes$' \
     | grep -Ev '^dist/' \
-    | grep -Ev '^commands/roles/' \
     | grep -Ev '^\.compass/(work|flow)/' \
     | grep -Ev '^\.compass/current-task$' \
     | sed 's,^,./,'
@@ -244,7 +243,7 @@ required_examples="quick-fix-typo feature-api-change hotfix-regression initiativ
 missing=""
 for e in $required_examples; do
   # vocabulary-scan: allow - greps a real path inside the tarball listing
-  if ! printf '%s\n' "$TAR_LIST" | grep -q "examples/$e/\.compass/work/.*/task\.yml"; then
+  if ! printf '%s\n' "$TAR_LIST" | grep -q "examples/$e/\.compass/work/.*/manifest\.yml"; then
     missing="$missing $e"
   fi
 done
@@ -255,7 +254,7 @@ if [ -n "$missing" ]; then
 fi
 for e in $required_examples; do
   # vocabulary-scan: allow - greps a real path inside the tarball listing
-  tf="$(printf '%s\n' "$TAR_LIST" | grep "examples/$e/\.compass/work/.*/task\.yml" | head -1)"
+  tf="$(printf '%s\n' "$TAR_LIST" | grep "examples/$e/\.compass/work/.*/manifest\.yml" | head -1)"
   echo "    OK $tf"
 done
 
