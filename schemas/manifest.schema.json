@@ -556,6 +556,10 @@
       "type": "string",
       "description": "Optional. Why a parked issue was set aside - the thing a reader needs to decide whether to resume it."
     },
+    "status_reason": {
+      "type": "string",
+      "description": "Optional. Why the status was last changed, for any status other than parked - a re-opening, an abandonment, a landing out of the usual order. Written by `compass issue set-status --reason`. Parking has its own key because a parked issue is the one a reader most often has to decide about."
+    },
     "parked_at": {
       "type": "string",
       "description": "Optional. ISO-8601 timestamp recording when the issue was parked."
