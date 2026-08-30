@@ -565,7 +565,19 @@ def cmd_route_evaluate(args):
         # was updated went from 7 gates to 9 under the same route name and
         # logged nothing, taking its `--reason` with it. Route weight is not the
         # only thing that matters about a route.
+        # The four readings, compared against what the LAST `--write` computed
+        # from. They cannot be read out of the manifest: by the time this runs
+        # the manifest already holds the corrected readings, so there would be
+        # nothing to differ from. `evaluated_assessment` is what closes that -
+        # each write records the assessment it evaluated, and the next write
+        # compares against it.
+        #
+        # Without this, correcting a reading was discarded whenever the route
+        # absorbed it - and a correction the route absorbed is the cheapest
+        # evidence there is that sizing was wrong, which is exactly what
+        # `compass retro` aggregates.
         prior = {
+            "assessment": task.get("evaluated_assessment"),
             "delivery_approach": task.get("delivery_approach"),
             "stages": task.get("stages"),
             "subtask_ceiling": task.get("subtask_ceiling"),
@@ -576,6 +588,7 @@ def cmd_route_evaluate(args):
                 if isinstance(f, dict)),
         }
         now = {
+            "assessment": task.get("assessment"),
             "delivery_approach": result["delivery_approach"],
             "stages": result["stages"],
             "subtask_ceiling": result.get("subtask_ceiling"),
@@ -591,7 +604,11 @@ def cmd_route_evaluate(args):
         # to sharpen.
         changed = {k: {"from": prior[k], "to": now[k]}
                    for k in prior if prior[k] and prior[k] != now[k]}
-        reframed = bool(prior["delivery_approach"]) and bool(changed)
+        # A previous write is still required - materialising an approach that
+        # was never computed is not a re-assessment, and logging it would put
+        # noise into the signal the log exists to sharpen.
+        evaluated_before = bool(prior["delivery_approach"]) or bool(prior["assessment"])
+        reframed = evaluated_before and bool(changed)
         if reframed:
             reason = args.reason or "(reason not given - fill this in)"
             # The kind keeps calibration honest. Logging a governance-driven
@@ -608,6 +625,13 @@ def cmd_route_evaluate(args):
                 "date": datetime.date.today().isoformat(),
             })
         task["schema_version"] = "2.0"
+        # What this write computed from. Read by the NEXT write to notice a
+        # corrected reading; never read by anything else.
+        # A COPY, not the same object. Assigning the reference makes PyYAML
+        # emit an anchor alias (`evaluated_assessment: *id001`), so both keys
+        # load as one dict and the comparison above can never see a
+        # difference - the field would be written and be useless.
+        task["evaluated_assessment"] = dict(task.get("assessment") or {})
         task["delivery_approach"] = result["delivery_approach"]
         task["policy_rules_fired"] = result["policy_rules_fired"]
         task["stages"] = result["stages"]
