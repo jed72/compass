@@ -88,8 +88,18 @@ def test_remaining_docs_are_enforced():
               "docs/security.md", "docs/quickstart.md",
               "docs/portability.md", "docs/routing-deep-dive.md"):
         assert f in scan["surfaces"], f"{f} is not a scanned surface"
-    assert any(e.startswith("docs/system-spec") for e in scan["exempt"]), (
-        "docs/system-spec.md must stay exempt - it is derived at ship time")
+    # Asserted as "not scanned", which is the property that matters, rather
+    # than as "exempt". The exemption did no work: `scan.exempt` is applied
+    # only to files gathered from `scan.surfaces`, and this file is under
+    # none of them - so it was already unscanned, and the entry read as
+    # coverage that had been granted.
+    reachable = [sfc for sfc in scan["surfaces"]
+                 if "docs/system-spec.md".startswith(sfc.rstrip("/") + "/")
+                 or sfc == "docs/system-spec.md"]
+    assert not reachable, (
+        f"docs/system-spec.md is now reachable from {reachable} and would be "
+        f"scanned. It is derived at ship time from landed scenarios, so it "
+        f"carries whatever words those scenarios used")
 
 
 def test_install_refusal_points_at_plugin_dir():
@@ -130,11 +140,8 @@ RETIRED_CLI = __import__("re").compile(
 # Counted as well as reasoned: `MAX_ALLOW_MARKERS` is a ceiling, so the list
 # cannot grow quietly. `grep -rn "vocabulary-scan: allow" .` enumerates every
 # one with the reason someone wrote for it.
-# A LETTER after the dash, not merely a non-space. `\\S` is satisfied by
-# the `-->` that closes an HTML comment, so `<!-- vocabulary-scan: allow -->`
-# supplied its own "reason" and any line in any document could silence
-# both guards with a bare marker.
-ALLOW_MARKER_RE = re.compile(r"vocabulary-scan:\s*allow\s*-\s*[A-Za-z]")
+# Imported rather than defined: see tests/allow_marker.py.
+from allow_marker import ALLOW_MARKER_RE  # noqa: E402
 MAX_ALLOW_MARKERS = 14
 
 

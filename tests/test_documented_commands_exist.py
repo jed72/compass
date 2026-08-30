@@ -72,11 +72,8 @@ def _markdown_files():
 # `grep -rn "vocabulary-scan: allow" .` enumerates every marker with its
 # reason.
 #
-# A LETTER after the dash, not merely a non-space. `\\S` is satisfied by the
-# `-->` that closes an HTML comment, so `<!-- vocabulary-scan: allow -->`
-# supplied its own "reason" and any line in any document could silence both
-# guards with a bare marker.
-ALLOW_MARKER_RE = re.compile(r"vocabulary-scan:\s*allow\s*-\s*[A-Za-z]")
+# Imported rather than defined: see tests/allow_marker.py.
+from allow_marker import ALLOW_MARKER_RE  # noqa: E402
 
 
 def _invocations(text):
