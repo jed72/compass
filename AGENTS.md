@@ -120,7 +120,7 @@ commands round out the contract, and a portable runtime should call them
 rather than reinvent them. `compass ci` runs the full mechanical gate suite
 (`policy lint` + `issue lint` + `check` for every issue) and aggregates exit
 codes - the CI integration is "run `compass ci`, honour the exit code" (see
-`ci/README.md`). `compass retro` aggregates the `reframes` log across
+`ci/README.md`). `compass retro` aggregates the `reassessments` log across
 issues and reports whether triage is systematically over- or under-sizing
 the process - the framework's own retrospective signal. The adapter wires
 these into the runtime's CI and reporting surfaces; it does not re-derive

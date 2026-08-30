@@ -30,7 +30,7 @@ human first.
 ## The flow toolkit
 
 Flow management reads artifacts; it also has one CLI command of its own.
-`compass retro` aggregates the `reframes` log across every issue and
+`compass retro` aggregates the `reassessments` log across every issue and
 reports whether triage is systematically over- or under-sizing routes - the
 framework's own feedback loop. It is read-only and never gates. Run it as part
 of triage and fold its signal into the digest: "are we right-sizing process?"
@@ -47,7 +47,7 @@ severity, worst first:
 
 2. **Route outgrown** - the devlog shows the issue drifting past its route
    (a "Standard" issue that has sprouted a fourth work subtask; an "quick-fix"
-   issue still open after days). The fix is `/compass:assess --reframe`, not
+   issue still open after days). The fix is `/compass:assess --reassess`, not
    pushing on. A route quietly outgrown is the failure mode Compass exists to
    prevent - flow management is where it gets caught when the issue itself
    missed it.

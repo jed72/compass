@@ -53,9 +53,6 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## `--reassess`
 
-(The retired spelling `--reframe` is accepted for one major version and
-means the same thing.)
-
 If `--reassess` is passed, this is a mid-flight re-assessment, not a fresh
 triage - typically because implementation revealed the assessment was
 misread. Read the existing `delivery-approach.md` and `manifest.yml`, re-read the
