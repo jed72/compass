@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### The grandfather list is empty
+### The reason is not discarded
 
 - **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
-- **Source issue:** `exemptions-that-exclude-nothing`
+- **Source issue:** `reassessment-log-drops-reading-only-changes`
 - **Landed:** 2026-08-30
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,11 +43,11 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### A file that must not be scanned is checked directly
+### A first write records no re-assessment
 
 - **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
-- **Source issue:** `exemptions-that-exclude-nothing`
+- **Source issue:** `reassessment-log-drops-reading-only-changes`
 - **Landed:** 2026-08-30
 
 ### Orphaning Inv-8 fails the change
@@ -7495,4 +7495,25 @@
 - **Scenario id:** `TRC-A1`
 - **Intent:** `INT-1`
 - **Source issue:** `exemptions-that-exclude-nothing`
+- **Landed:** 2026-08-30
+
+### The grandfather list is empty _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `exemptions-that-exclude-nothing`
+- **Landed:** 2026-08-30
+
+### A file that must not be scanned is checked directly _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `exemptions-that-exclude-nothing`
+- **Landed:** 2026-08-30
+
+### A corrected reading is logged when the approach does not move _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `reassessment-log-drops-reading-only-changes`
 - **Landed:** 2026-08-30
