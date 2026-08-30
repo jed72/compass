@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A revival condition nobody can observe is refused
+### The grandfather list is empty
 
-- **Scenario id:** `TRC-F2`
+- **Scenario id:** `TRC-A2`
 - **Intent:** `INT-1`
-- **Source issue:** `what-compass-owes-an-unobserved-adopter`
-- **Landed:** 2026-08-28
+- **Source issue:** `exemptions-that-exclude-nothing`
+- **Landed:** 2026-08-30
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,12 +43,12 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### The revival condition is readable from the record alone
+### A file that must not be scanned is checked directly
 
-- **Scenario id:** `TRC-A3`
+- **Scenario id:** `TRC-B1`
 - **Intent:** `INT-2`
-- **Source issue:** `what-compass-owes-an-unobserved-adopter`
-- **Landed:** 2026-08-28
+- **Source issue:** `exemptions-that-exclude-nothing`
+- **Landed:** 2026-08-30
 
 ### Orphaning Inv-8 fails the change
 
@@ -7273,6 +7273,13 @@
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
+### The revival condition is readable from the record alone _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-2`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
 ### The record says what it adds beyond the release _(archived)_
 
 - **Scenario id:** `TRC-A4`
@@ -7363,3 +7370,129 @@
 - **Intent:** `INT-5`
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
+
+### A revival condition nobody can observe is refused _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-1`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### The examples check names the file that exists _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `release-gate-greps-the-old-manifest-filename`
+- **Landed:** 2026-08-30
+
+### A reason on any status leaves the manifest valid _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `set-status-reason-writes-an-invalid-manifest`
+- **Landed:** 2026-08-30
+
+### The recorded reason says which transition it belongs to _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `set-status-reason-writes-an-invalid-manifest`
+- **Landed:** 2026-08-30
+
+### A check that cannot pass is refused _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `release-gate-greps-the-old-manifest-filename`
+- **Landed:** 2026-08-30
+
+### A key the schema forbids is refused _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `set-status-reason-writes-an-invalid-manifest`
+- **Landed:** 2026-08-30
+
+### No shipped document teaches a flag the CLI rejects _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `reframe-is-documented-but-does-not-exist`
+- **Landed:** 2026-08-30
+
+### Nothing promises the retired spelling still works _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `reframe-is-documented-but-does-not-exist`
+- **Landed:** 2026-08-30
+
+### A guard that reads no flags is refused _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `reframe-is-documented-but-does-not-exist`
+- **Landed:** 2026-08-30
+
+### No shipped document names a slash command that does not exist _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `stale-command-names-in-shipped-prose`
+- **Landed:** 2026-08-30
+
+### The safety contract names one start version _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `stale-command-names-in-shipped-prose`
+- **Landed:** 2026-08-30
+
+### A guard that reads no commands is refused _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-1`
+- **Source issue:** `stale-command-names-in-shipped-prose`
+- **Landed:** 2026-08-30
+
+### A marker with no reason is refused _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `allow-marker-supplies-its-own-reason`
+- **Landed:** 2026-08-30
+
+### A marker with a real reason still exempts _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `allow-marker-supplies-its-own-reason`
+- **Landed:** 2026-08-30
+
+### The guards that honour the marker share its definition _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `allow-marker-supplies-its-own-reason`
+- **Landed:** 2026-08-30
+
+### The action check reads the rule body, not its own anchor _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `decay-rule-imperative-check-cannot-fail`
+- **Landed:** 2026-08-30
+
+### The rule still passes when it does state an action _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `decay-rule-imperative-check-cannot-fail`
+- **Landed:** 2026-08-30
+
+### No exemption excludes nothing _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `exemptions-that-exclude-nothing`
+- **Landed:** 2026-08-30
