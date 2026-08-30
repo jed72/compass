@@ -352,16 +352,28 @@ def test_a_stale_exemption_fails_the_build():
 # ---------------------------------------------------------------------------
 
 def test_the_release_that_carries_the_removal_says_so():
+    # The MAJOR is what this scenario is about, not the exact release. Pinning
+    # `== "4.0.0"` made the check fail on 4.0.1 and on every release after the
+    # one it was written for - a guard with an expiry date nobody set.
+    #
+    # What ADR-006 forbids is removing a public name inside a major version.
+    # 4.x is where these removals are allowed to have happened; which 4.x is
+    # current says nothing about that.
     version = (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    assert version == "4.0.0", (
-        f"VERSION is {version}. Removing a public command name under a 3.x "
-        f"number is a break inside a major version, which ADR-006 forbids")
+    major = version.split(".")[0]
+    assert major == "4", (
+        f"VERSION is {version}. The retired names were removed at 4.0.0, so a "
+        f"tree that has them removed must be on 4.x or later - removing a "
+        f"public command name under a 3.x number is a break inside a major "
+        f"version, which ADR-006 forbids")
 
     for rel in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):
         blob = json.loads((REPO_ROOT / rel).read_text(encoding="utf-8"))
         found = _versions_in(blob)
-        assert "4.0.0" in found, (
-            f"{rel} does not carry 4.0.0 - it has {sorted(found)}")
+        assert version in found, (
+            f"{rel} does not carry the declared version {version} - it has "
+            f"{sorted(found)}. A partial bump ships a manifest that disagrees "
+            f"with the CLI it installs")
 
     # The removals are named where someone upgrading would look - as a ROW
     # pairing the removed spelling with its replacement, not as a loose word.
