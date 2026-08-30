@@ -464,14 +464,14 @@ Compass routes the familiarity.
 Routing happens at triage, but the familiarity reading can turn out wrong, and the
 honest response is not to push on with a route you no longer believe.
 
-`/compass:assess --reframe` re-scores the four dimensions mid-issue, writes a
+`/compass:assess --reassess` re-scores the four dimensions mid-issue, writes a
 **new revision** of `delivery-approach.md` (the prior revision is kept visible under a
 "Superseded" heading), and records what changed and why. A re-assess is a
 normal event, not a failure. *A route quietly outgrown is the failure.*
 
-A re-assess is also *recorded as data*. `/compass:assess --reframe` re-runs
+A re-assess is also *recorded as data*. `/compass:assess --reassess` re-runs
 `compass approach evaluate --write`, which detects that the route changed and
-appends an entry to `manifest.yml`'s `reframes` log - `from_route`, `to_route`, the
+appends an entry to `manifest.yml`'s `reassessments` log - `from_route`, `to_route`, the
 date, and the `--reason`. One entry is an anecdote; the log across every issue
 is the framework's feedback signal. `compass retro` reads it and reports
 the pattern: are re-frames mostly *up* (triage is under-sizing) or *down*

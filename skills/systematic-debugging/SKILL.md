@@ -82,7 +82,7 @@ when the behaviour was never actually written down.
 So:
 
 ```
-/compass:assess --reframe --reason "three fixes failed; the familiarity was misread"
+/compass:assess --reassess --reason "three fixes failed; the familiarity was misread"
 ```
 
 Re-score the dimensions honestly. If familiarity is genuinely unmapped,

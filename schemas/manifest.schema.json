@@ -455,7 +455,7 @@
     },
     "reassessments": {
       "type": "array",
-      "description": "Append-only log of re-assessments (compass approach evaluate --reframe). Feeds triage's calibration signal.",
+      "description": "Append-only log of re-assessments, written by `compass approach evaluate --write --reason`. Feeds the assessment calibration signal that `compass retro` reads.",
       "items": {
         "type": "object",
         "required": [
@@ -555,6 +555,11 @@
     "parked_reason": {
       "type": "string",
       "description": "Optional. Why a parked issue was set aside - the thing a reader needs to decide whether to resume it."
+    },
+    "evaluated_assessment": {
+      "type": "object",
+      "description": "Optional. The assessment `compass approach evaluate --write` last computed from. Written by that command and read only by the next run of it, to notice a corrected dimension when the computed approach absorbs the correction. Not a second source of truth: `assessment` holds the four dimensions, and this is a copy of what was last evaluated.",
+      "additionalProperties": true
     },
     "status_reason": {
       "type": "string",

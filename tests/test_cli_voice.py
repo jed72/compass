@@ -204,9 +204,15 @@ def test_cli_surface_enforced_and_widened():
         "cli/compass is still in the committed baseline")
     assert "cli/compass_pkg/" in scan["surfaces"], (
         "the scan surface was not widened to cli/compass_pkg/")
-    assert any(e.startswith("cli/migrate-map") for e in scan["exempt"]), (
-        "cli/migrate-map.yml is not exempt - the pointer data would be "
-        "scanned")
+    # Asserted as "not scanned" rather than "exempt": the exemption excluded
+    # nothing, because `scan.exempt` only applies to files under
+    # `scan.surfaces` and this file is under none of them.
+    reachable = [sfc for sfc in scan["surfaces"]
+                 if "cli/migrate-map.yml".startswith(sfc.rstrip("/") + "/")
+                 or sfc == "cli/migrate-map.yml"]
+    assert not reachable, (
+        f"cli/migrate-map.yml is now reachable from {reachable} and would be "
+        f"scanned - the v1-to-v2 pointer data must name v1 spellings")
     assert (REPO_ROOT / "cli" / "migrate-map.yml").is_file(), (
         "cli/migrate-map.yml does not exist")
 

@@ -68,8 +68,8 @@ def test_trc_a2_three_failed_fixes_should_send_the_engineer_back_to_frame():
         "the escape clause does not tell the engineer to stop fixing")
     assert re.search(r"fram|architect|route", window, re.I), (
         "the escape clause does not point at the framing as the suspect")
-    assert re.search(r"--?reframe", body), (
-        "the skill never names `compass frame --reassess` as the mechanism - "
+    assert re.search(r"--reassess", body), (
+        "the skill never names `/compass:assess --reassess` as the mechanism - "
         "without it the escape clause is advice with no next step")
 
 
