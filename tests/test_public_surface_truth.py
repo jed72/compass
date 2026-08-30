@@ -66,7 +66,8 @@ def test_a2_contract_title_carries_no_version():
 
 def test_a2b_contract_states_the_version_it_applies_from():
     body = (REPO_ROOT / "docs" / "safety-contract.md").read_text(encoding="utf-8")
-    m = re.search(r"applies from (?:version )?[`]?(\d+)\.(\d+)\.(\d+)", body, re.I)
+    m = re.search(r"applies from (?:Compass |version )?[`]?(\d+)\.(\d+)\.(\d+)",
+                  body, re.I)
     assert m, ("the contract does not state the version it applies from. The "
                "title no longer carries one, so the body must")
     stated = tuple(int(x) for x in m.groups())
@@ -250,12 +251,25 @@ def test_f1_decay_rule_states_its_ask():
     section = anchor + rest
     flat = " ".join(section.replace("`", "").replace("*", "").split())
 
-    # Suffixes allowed: the rule says "fixed on the way past", and a check
-    # that misses that is failing on word form rather than on meaning.
-    assert re.search(r"\b(correct|fix|replace|update|rewrite)(?:s|ed|ing)?\b",
-                     flat, re.I), (
-        "the decay rule never states the action it asks for. A rule a reader "
-        "cannot act on has not landed")
+    # The rule has two halves and they need different checks.
+    #
+    # The ACTION is the anchor itself - "Correct a retired name in a comment
+    # you were touching anyway" - and the assertion above already pins that
+    # sentence verbatim. Searching the section for an action verb therefore
+    # matched text this check had selected: the body could be replaced with
+    # anything and it still passed, which was verified by blanking it.
+    #
+    # The BOUND is the body, and nothing guarded it. Without "no sweep, no
+    # obligation to go looking" the rule reads as an instruction to hunt down
+    # every retired name in the repository, which is the opposite of what it
+    # asks and a great deal more work.
+    body_only = " ".join(rest.replace("`", "").replace("*", "").split())
+    assert re.search(r"no sweep|no obligation|way past|touching anyway",
+                     body_only, re.I), (
+        f"the decay rule no longer bounds what it asks for. Its body reads "
+        f"{body_only[:120]!r}. Without the limit, 'correct a retired name' "
+        f"reads as an instruction to sweep the repository for every one of "
+        f"them")
     bare = re.findall(r"\b([GS]\d+)\b(?!\s*[-\u2013\u2014:(])", flat)
     assert not bare, (
         f"the decay rule uses short codes without expanding them: {bare}. A "

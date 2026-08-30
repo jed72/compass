@@ -9,9 +9,9 @@ major-version change and a documented migration path.
 
 ## Guarantees
 
-This contract applies from version 3.3.0. Where a guarantee changes, the
-version it changed in is named beside it rather than left for a reader to infer
-from the git history.
+Where a guarantee has changed since 1.0.0, the version it changed in is named
+beside it rather than left for a reader to infer from the git history. A
+guarantee with no version beside it has held since the contract began.
 
 
 ### 1. Routing is deterministic after assessment
