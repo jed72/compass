@@ -238,14 +238,7 @@ def _load_cli_modules():
 #
 # This is a ratchet, in the same shape as `scan.pending_surfaces`: the set may
 # shrink and must never grow. A NEW entry that excludes nothing fails below.
-KNOWN_INERT_EXEMPTIONS = frozenset({
-    "docs/proposals/",
-    "docs/system-spec.md",
-    "cli/migrate-map.yml",
-    "docs/analysis/",
-    "tests/",
-    ".compass/work/",
-})
+KNOWN_INERT_EXEMPTIONS: frozenset[str] = frozenset()
 
 
 def _scanned_files() -> set:

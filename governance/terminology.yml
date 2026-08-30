@@ -858,13 +858,6 @@ scan:
         beside them - descriptions, titles, rationales - is scanned.
 
   exempt:
-    - docs/proposals/      # history stays honest
-    - docs/system-spec.md  # derived at ship time; hand-editing forbidden
-    - cli/migrate-map.yml  # the v1-to-v2 mapping DATA: the retired-verb
-                           # pointers and the migrate tool must name v1
-                           # spellings; they live here so the enforced CLI
-                           # never carries one in a string literal
-    - docs/analysis/
     - architecture/decisions/   # ADRs may quote v1 terms
     # Same rationale one level down, narrowly: the shipped SAMPLE decision
     # records (ADR-001..005) are history in sample form, and the README is
@@ -875,8 +868,6 @@ scan:
     # concept's rename slice lands.
     - templates/architecture/decisions/ADR-0
     - templates/architecture/decisions/README.md
-    - tests/               # the tests themselves
-    - .compass/work/       # task archive
   # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
   # its surface from this list; removed surfaces must stay clean forever.
   # A meta-test asserts this list only ever shrinks.

@@ -665,7 +665,9 @@ TERM_SURFACE_EXEMPT = {
 }
 
 
-ALLOW_MARKER_RE = re.compile(r"vocabulary-scan:\s*allow\s*-\s*\S")
+# Imported rather than defined: see tests/allow_marker.py for why a letter
+# is required and why three copies of this rule drifted apart.
+from allow_marker import ALLOW_MARKER_RE  # noqa: E402
 
 
 def _scan_files(files: list[Path]) -> list[str]:
@@ -1141,9 +1143,21 @@ def test_rcd_g4_archive_exempt_and_unedited():
     selling point is an audit trail cannot rewrite its own audit trail to
     make a check pass.
     """
-    exempt = _terminology()["scan"]["exempt"]
-    assert any(e.rstrip("/") == ".compass/work" for e in exempt), (
-        f"the issue archive is not exempt from the vocabulary scan: {exempt}"
+    # Asserted as "not scanned" rather than "exempt". The exemption excluded
+    # nothing: `scan.exempt` is applied only to files gathered from
+    # `scan.surfaces`, and the archive is under none of them - so the entry
+    # read as protection that had been granted while granting none. What the
+    # archive actually needs is to stay outside every scanned surface, and
+    # that is what is checked.
+    surfaces = _terminology()["scan"]["surfaces"]
+    reachable = [s for s in surfaces
+                 if ".compass/work/".startswith(s.rstrip("/") + "/")
+                 or s.rstrip("/") == ".compass/work"]
+    assert not reachable, (
+        f"the issue archive is reachable from scanned surface(s) {reachable}, "
+        f"so the scan would read it. Historical records are allowed to say "
+        f"what they said - a project whose selling point is an audit trail "
+        f"cannot rewrite its own audit trail to make a check pass"
     )
 
 
