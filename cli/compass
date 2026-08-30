@@ -117,7 +117,7 @@ from compass_pkg._all import *  # noqa: F401,F403
 # what `compass --version` and the release-consistency test read, and a
 # grep for the constant should find it at the CLI's front door. The
 # assert makes the duplication impossible to drift.
-COMPASS_VERSION = "4.0.0"
+COMPASS_VERSION = "4.0.1"
 assert COMPASS_VERSION == _core.COMPASS_VERSION, (
     "cli/compass and compass_pkg/core.py disagree about the version")
 
@@ -274,7 +274,7 @@ def build_parser():
     # the ambiguity this rename removed.
     #
     # `compass design lint` was a second name for this verb through 3.x. It
-    # was removed at 4.0.0, the major-version boundary ADR-019 scheduled it
+    # was removed at 4.0.0, the major-version boundary ADR-019 scheduled it  # version-guard: allow - when the alias was removed, not a version this file publishes
     # for, and ADR-024 records why that machinery is not carried further.
     ppl = sub.add_parser("plan", help="technical-design.md tools")
     ppls = ppl.add_subparsers(dest="subcmd", required=True)
@@ -581,7 +581,7 @@ def build_parser():
     # version - ADR-006 - but it must not appear in `--help` either, or every
     # teaching surface has to document a name the reader should not use.
     #
-    # Empty since 4.0.0, which removed the one entry it held (`design`, a
+    # Empty since 4.0.0, which removed the one entry it held (`design`, a  # version-guard: allow - when the entry went, not a version this file publishes
     # second name for `plan`). Kept rather than deleted because the mechanism
     # is what a future retirement needs; ADR-024 records why nothing is
     # carried in it today.
