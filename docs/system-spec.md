@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A recorded rehearsal passes whatever words surround it
+### CLAUDE.md tells a session to write plain English with no idiom or metaphor
 
-- **Scenario id:** `RGN-1`
+- **Scenario id:** `PE-1`
 - **Intent:** `INT-1`
-- **Source issue:** `rehearsal-guard-fails-on-a-neighbour`
+- **Source issue:** `claude-md-plain-english`
 - **Landed:** 2026-09-11
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -7747,4 +7747,11 @@
 - **Scenario id:** `QRL-1`
 - **Intent:** `INT-1`
 - **Source issue:** `queued-issues-read-as-landed`
+- **Landed:** 2026-09-11
+
+### A recorded rehearsal passes whatever words surround it _(archived)_
+
+- **Scenario id:** `RGN-1`
+- **Intent:** `INT-1`
+- **Source issue:** `rehearsal-guard-fails-on-a-neighbour`
 - **Landed:** 2026-09-11
