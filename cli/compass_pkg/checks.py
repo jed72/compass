@@ -96,6 +96,7 @@ import re as _re
 import fnmatch
 import re as _re
 from compass_pkg.core import CompassError, artifact_location, artifact_path, find_compass_dir, find_governance, load_yaml, manifest_path, normalize_spine
+from compass_pkg.manifest import TERMINAL_STATUSES
 from compass_pkg.tdd import _read_config
 from compass_pkg.trust import UNKNOWN, UNTRUSTED, contribution_trust, is_ci
 from compass_pkg.check_results import NOTHING_TO_CHECK  # re-exported: callers still import it from here
@@ -159,8 +160,14 @@ def _check_declared_tests_resolve(task, task_dir):
         afterwards, and re-validating history against a moving codebase produces
         failures nobody can act on (ADR-006).
     """
-    if (task.get("status") or "active") != "active":
-        return True, "issue is landed - declared test ids are a historical record"
+    # Scoped to the TERMINAL statuses, not to "not active". The vocabulary has
+    # five, and `queued` and `parked` are issues still being worked on - on
+    # those the hole this check exists to close was open again, and the PASS
+    # line said "issue is landed" about a manifest that said otherwise.
+    status = (task.get("status") or "active").strip()
+    if status in TERMINAL_STATUSES:
+        return True, ("issue is %s - declared test ids are a historical record"
+                      % status)
 
     gates = {g.get("id"): g.get("status") for g in (task.get("gates") or [])}
     if gates.get("verify.correctness") != "pass":

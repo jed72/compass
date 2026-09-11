@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### The shipped examples show the new layout
+### A recorded rehearsal passes whatever words surround it
 
-- **Scenario id:** `TRC-E4`
+- **Scenario id:** `RGN-1`
 - **Intent:** `INT-1`
-- **Source issue:** `docs-compass-artifacts`
+- **Source issue:** `rehearsal-guard-fails-on-a-neighbour`
 - **Landed:** 2026-09-11
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -7686,6 +7686,13 @@
 - **Source issue:** `docs-compass-artifacts`
 - **Landed:** 2026-09-11
 
+### The shipped examples show the new layout _(archived)_
+
+- **Scenario id:** `TRC-E4`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
 ### A quick fix reads one command and one skill _(archived)_
 
 - **Scenario id:** `TRC-F1`
@@ -7726,4 +7733,18 @@
 - **Scenario id:** `TRC-G3`
 - **Intent:** `INT-4`
 - **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A bare pytest run passes on a clean checkout _(archived)_
+
+- **Scenario id:** `BPF-1`
+- **Intent:** `INT-1`
+- **Source issue:** `bare-pytest-fails-on-two-tests`
+- **Landed:** 2026-09-11
+
+### An issue still in flight has its declared tests checked _(archived)_
+
+- **Scenario id:** `QRL-1`
+- **Intent:** `INT-1`
+- **Source issue:** `queued-issues-read-as-landed`
 - **Landed:** 2026-09-11

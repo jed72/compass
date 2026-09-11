@@ -509,6 +509,13 @@ def _annotate_gate_accepts(task_path):
 
 TASK_STATUSES = ("active", "queued", "parked", "landed", "abandoned")
 
+#: The two of those whose work is over. A finished issue's manifest records
+#: what was true then, and re-validating it against a codebase that has moved
+#: produces failures nobody can act on (ADR-006). The other three are issues
+#: still in flight, whatever the board calls them - a check that scopes itself
+#: to "not active" silently stops running on `queued` and `parked`.
+TERMINAL_STATUSES = ("landed", "abandoned")
+
 
 def cmd_task_set_status(args):
     status = args.status
