@@ -158,6 +158,55 @@ output - devlog entries, requirements reviews, replies to the person driving
 it - should read the way that reference asks: what happened, what is
 needed, never which stage is running.
 
+### Plain English
+
+These rules apply to everything a runtime writes for a person: a reply, a
+devlog entry, a commit message, a code comment, a PR description, a document.
+The reader has no context and must get the point on the first read.
+
+- Lead with the point: the finding first, then the evidence.
+- Use the active voice. Name the actor, then the action.
+- Use a simple tense: present, past or future.
+- Put one point in each sentence. A sentence much past 25 words is usually
+  two points.
+- Use the same word for the same thing every time, including the v2 terms in
+  `governance/terminology.yml`.
+- Do not use an idiom or a metaphor. Say what happens instead: not "the
+  direction of travel", but what is changing and towards what.
+- Describe how things are now, not the story of how they got there.
+- Never cite what the reader cannot see, such as "Option 2", an internal review
+  number, or an id without its name.
+- State the confidence: "this fails" for a thing checked, "I have not checked
+  this" for a thing not checked.
+- Use a vertical list for a set of items, conditions or steps.
+- Use "must" for a requirement, "can" for a possibility and "do not" for a
+  prohibition.
+- Use British English, except "artifact". It is also a manifest key and a
+  command name, so prose spells it the same way.
+
+Use the shorter word:
+
+| Not | Use |
+|---|---|
+| utilise, leverage | use |
+| obtain, acquire | get |
+| provide, supply | give |
+| indicate, denote | show |
+| validate | check |
+| modify, alter | change |
+| require | need |
+| ensure | make sure |
+| perform, execute | do |
+| facilitate | help |
+| attempt | try |
+| sufficient | enough |
+| currently | now |
+| subsequently | then |
+| prior to | before |
+| in order to | to |
+| due to the fact that | because |
+| with regard to | about |
+
 ### Reporting to the person driving the runtime
 
 Read a report back for terms of art before sending it; afterwards is too late,

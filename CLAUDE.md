@@ -105,18 +105,55 @@ loud in this conversation.
 
 ### Plain English
 
-For everything you write, the reader has no context.
+This covers everything you write: a reply, a commit message, a code comment,
+a PR description, a document. The reader has no context and must get the point
+on the first read.
 
-- Lead with the point, then the evidence.
-- Active voice, simple tense.
-- One point per sentence, ideally under about 25 words.
-- Use the same word for the same thing every time.
-- No idiom or metaphor. Say what happens instead: not "low-hanging fruit",
-  but what is easy and why.
-- Describe how things are now, not how they got there.
-- Never cite what the reader cannot see, such as a bare id.
-- Say whether you checked: "this fails", or "I have not checked this".
-- British English, and the shorter word: use, not utilise.
+- Lead with the point. Give the finding first, then the evidence. Do not build
+  up to it.
+- Use the active voice. Name the actor, then the action.
+- Use a simple tense: present, past or future.
+- Put one point in each sentence, ideally under about 25 words. A longer
+  sentence is usually two points.
+- Use the same word for the same thing every time. Do not change the word for
+  variety.
+- Do not use an idiom or a metaphor. Say what happens instead. "Low-hanging
+  fruit", "the direction of travel" and "a cliff" each hide a claim that a
+  plain sentence would state.
+- Describe how things are now, not the story of how they got there. Do not
+  write what you tried first or what it taught you.
+- Never cite what the reader cannot see: "Option 2", "per the review", or an id
+  without its name. Say what a linked PR or issue is.
+- State your confidence. Write "this fails" when you checked, and "I have not
+  checked this" when you did not.
+- Use a vertical list for a set of items, conditions or steps.
+- Use "must" for a requirement, "can" for a possibility and "do not" for a
+  prohibition.
+- Use British English, except "artifact". It is also a manifest key and a
+  command name, so prose spells it the same way.
+
+Use the shorter word:
+
+| Not | Use |
+|---|---|
+| utilise, leverage | use |
+| obtain, acquire | get |
+| provide, supply | give |
+| indicate, denote | show |
+| validate | check |
+| modify, alter | change |
+| require | need |
+| ensure | make sure |
+| perform, execute | do |
+| facilitate | help |
+| attempt | try |
+| sufficient | enough |
+| currently | now |
+| subsequently | then |
+| prior to | before |
+| in order to | to |
+| due to the fact that | because |
+| with regard to | about |
 
 ### Reporting to a person
 
