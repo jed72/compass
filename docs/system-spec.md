@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### The reason is not discarded
+### The shipped examples show the new layout
 
-- **Scenario id:** `TRC-A2`
+- **Scenario id:** `TRC-E4`
 - **Intent:** `INT-1`
-- **Source issue:** `reassessment-log-drops-reading-only-changes`
-- **Landed:** 2026-08-30
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### A first write records no re-assessment
+### A reading command still does not create anything
 
-- **Scenario id:** `TRC-B1`
+- **Scenario id:** `TRC-B4`
 - **Intent:** `INT-2`
-- **Source issue:** `reassessment-log-drops-reading-only-changes`
-- **Landed:** 2026-08-30
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
 
-### Orphaning Inv-8 fails the change
+### A registered path that climbs out of the project
 
-- **Scenario id:** `TRC-F3`
+- **Scenario id:** `TRC-G4`
 - **Intent:** `INT-3`
-- **Source issue:** `what-compass-owes-an-unobserved-adopter`
-- **Landed:** 2026-08-28
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
 
-### Every link in the decisions index resolves
+### An older install is not locked out by the move
 
-- **Scenario id:** `TRC-B2`
+- **Scenario id:** `TRC-E5`
 - **Intent:** `INT-4`
-- **Source issue:** `what-compass-owes-an-unobserved-adopter`
-- **Landed:** 2026-08-28
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
 
-### Every list of the governance files names all of them
+### The resident cost is measured and pinned
 
-- **Scenario id:** `TRC-D8`
+- **Scenario id:** `TRC-F5`
 - **Intent:** `INT-5`
-- **Source issue:** `what-compass-owes-an-unobserved-adopter`
-- **Landed:** 2026-08-28
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
 
 ### the hook still blocks a code file inside the project
 
@@ -85,12 +85,12 @@
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
-### A record that only restates the existing schedule is refused
+### The framework's own documents are off the adopter's path
 
-- **Scenario id:** `TRC-F1`
+- **Scenario id:** `TRC-F4`
 - **Intent:** `INT-6`
-- **Source issue:** `what-compass-owes-an-unobserved-adopter`
-- **Landed:** 2026-08-28
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
 
 ### A configured test_micro_command takes precedence when present
 
@@ -7294,6 +7294,13 @@
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
+### Every link in the decisions index resolves _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-4`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
 ### Inv-8 resolves to a record that is not superseded _(archived)_
 
 - **Scenario id:** `TRC-B3`
@@ -7371,10 +7378,31 @@
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
+### Every list of the governance files names all of them _(archived)_
+
+- **Scenario id:** `TRC-D8`
+- **Intent:** `INT-5`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### A record that only restates the existing schedule is refused _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-6`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
 ### A revival condition nobody can observe is refused _(archived)_
 
 - **Scenario id:** `TRC-F2`
 - **Intent:** `INT-1`
+- **Source issue:** `what-compass-owes-an-unobserved-adopter`
+- **Landed:** 2026-08-28
+
+### Orphaning Inv-8 fails the change _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-3`
 - **Source issue:** `what-compass-owes-an-unobserved-adopter`
 - **Landed:** 2026-08-28
 
@@ -7517,3 +7545,185 @@
 - **Intent:** `INT-1`
 - **Source issue:** `reassessment-log-drops-reading-only-changes`
 - **Landed:** 2026-08-30
+
+### The reason is not discarded _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `reassessment-log-drops-reading-only-changes`
+- **Landed:** 2026-08-30
+
+### A first write records no re-assessment _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `reassessment-log-drops-reading-only-changes`
+- **Landed:** 2026-08-30
+
+### A registered document outside the issue directory resolves _(archived)_
+
+- **Scenario id:** `TRC-A1`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A registered path is anchored to the project, not to the caller _(archived)_
+
+- **Scenario id:** `TRC-A2`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### An issue with no registry resolves exactly as it does today _(archived)_
+
+- **Scenario id:** `TRC-A3`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The schema says where a registered path is measured from _(archived)_
+
+- **Scenario id:** `TRC-A4`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A written document lands under a dated issue directory _(archived)_
+
+- **Scenario id:** `TRC-B1`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### Machine state stays where the CLI keeps it _(archived)_
+
+- **Scenario id:** `TRC-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### Creating the docs directory is reported, never silent _(archived)_
+
+- **Scenario id:** `TRC-B3`
+- **Intent:** `INT-1`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A reader finds a relocated document _(archived)_
+
+- **Scenario id:** `TRC-C1`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### No reader builds its own path to a document _(archived)_
+
+- **Scenario id:** `TRC-C2`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A missed reader is caught by the test, not by a user _(archived)_
+
+- **Scenario id:** `TRC-C3`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The verification report is found where the registry says _(archived)_
+
+- **Scenario id:** `TRC-C4`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A missed reader turns a guardrail check red, never green _(archived)_
+
+- **Scenario id:** `TRC-C5`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The pre-tool hook accepts a relocated delivery-approach record _(archived)_
+
+- **Scenario id:** `TRC-D1`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The pre-tool hook still blocks when assessment really has not run _(archived)_
+
+- **Scenario id:** `TRC-D2`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The stop hook reads the three documents it warns about _(archived)_
+
+- **Scenario id:** `TRC-D3`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### Migration moves the documents and writes the registry _(archived)_
+
+- **Scenario id:** `TRC-E1`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The dry run changes nothing _(archived)_
+
+- **Scenario id:** `TRC-E2`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### An unmigrated issue keeps working untouched _(archived)_
+
+- **Scenario id:** `TRC-E3`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A quick fix reads one command and one skill _(archived)_
+
+- **Scenario id:** `TRC-F1`
+- **Intent:** `INT-5`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A quick fix writes only the delivery-approach record _(archived)_
+
+- **Scenario id:** `TRC-F2`
+- **Intent:** `INT-5`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### Two skills merge into their neighbours _(archived)_
+
+- **Scenario id:** `TRC-F3`
+- **Intent:** `INT-6`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A document registered at a path that does not exist _(archived)_
+
+- **Scenario id:** `TRC-G1`
+- **Intent:** `INT-3`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A half-finished migration is not mistaken for a finished one _(archived)_
+
+- **Scenario id:** `TRC-G2`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The same document in both places _(archived)_
+
+- **Scenario id:** `TRC-G3`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
