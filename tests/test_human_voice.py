@@ -618,12 +618,22 @@ def test_trc_b1_claude_md_and_agents_md_carry_the_voice_paragraph():
         # same words to every run, which is satisfying the letter and defeating
         # the purpose - so the cap was raised in the open instead.
         #
-        # 260 is the current content plus a small margin, not a round number
-        # chosen to stop this failing again. If a later change needs more, it
-        # should come back here and say why.
+        # RAISED 260 -> 560 on 2026-09-11, deliberately, by jed72.
+        #
+        # The section now also carries the maintainer's plain-English rules:
+        # lead with the point, no idiom or metaphor, one word for one thing,
+        # "must" / "can" / "do not", and the table of shorter words. The same
+        # reasoning applies as for the reply shape: a writing rule only works
+        # if it is in front of the writer, and a skill a session may never
+        # load is not. A 116-word version fitted under 260 by dropping the
+        # table and half the rules.
+        #
+        # 560 is the larger of the two sections (AGENTS.md, 546 words) plus a
+        # small margin, not a round number chosen to stop this failing again.
+        # If a later change needs more, it must come back here and say why.
         words = len(section.split())
-        assert words <= 260, (
-            f"{name}'s voice paragraph is {words} words; must be <=260"
+        assert words <= 560, (
+            f"{name}'s voice paragraph is {words} words; must be <=560"
         )
         assert "### Pair" not in section, (
             f"{name} must not copy the before/after pairs"
