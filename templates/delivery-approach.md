@@ -1,7 +1,7 @@
 <!--
 TEMPLATE: delivery-approach.md
 Produced by: triage (`/compass:assess`).
-Lives at:    .compass/work/<issue-slug>/delivery-approach.md
+Lives at:    docs/compass/<created>-<issue-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records the assessment, the
              delivery approach the policy computed, every policy rule that
              fired, and - first-class - what was skipped and why it is safe.

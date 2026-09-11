@@ -16,9 +16,11 @@
 # and nothing else in checks.py touches them - the same reason the review
 # page's currency check lives beside the page.
 #
-# DEPENDENCY: none. Python 3 standard library only - os and re. The YAML parser
-# the rest of the package uses travels inside the plugin, so there is nothing
-# to install either way.
+# DEPENDENCY: the resolver in compass_pkg.core, plus os and re from the
+# standard library. It asks the resolver where each document is rather than
+# joining a filename to the issue directory, because both may live under
+# `docs/compass/<created>-<slug>/`. The YAML parser the rest of the package
+# uses travels inside the plugin, so there is nothing to install either way.
 # =============================================================================
 """Reading the threat model and the rollback plan for what each is for."""
 from __future__ import annotations
@@ -27,6 +29,7 @@ import os
 import re
 
 from compass_pkg.check_results import NOTHING_TO_CHECK
+from compass_pkg.core import artifact_path
 
 # The shape the two borrowed templates write, and what "answered" means in
 # each. A threat is answered by a scenario id or an explicit accepted risk; a
@@ -58,8 +61,8 @@ def _check_borrowed_documents_answered(task, task_dir):
     neither document, and a guard reporting a clean result for work it never
     looked at is the failure this repository keeps finding.
     """
-    threat = os.path.join(task_dir, "threat-model.md")
-    rollback = os.path.join(task_dir, "rollback-plan.md")
+    threat = artifact_path(task_dir, "threat-model.md")
+    rollback = artifact_path(task_dir, "rollback-plan.md")
     if not os.path.isfile(threat) and not os.path.isfile(rollback):
         return NOTHING_TO_CHECK, ("neither a threat model nor a rollback plan "
                                   "on this issue - the assessment earned "

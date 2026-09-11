@@ -12,7 +12,7 @@ An earlier fix narrowed this from the absolute path to the basename, after
 anyone who cloned under `/Users/testuser/` found enforcement switched off
 entirely. That narrowed the class without closing it.
 
-Spec: .compass/work/pr-50-review-findings/acceptance-criteria.md.
+Spec: docs/compass/2026-08-13-pr-50-review-findings/acceptance-criteria.md.
 """
 from __future__ import annotations
 

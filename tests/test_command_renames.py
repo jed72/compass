@@ -25,6 +25,11 @@ V2_COMMANDS = {
     "assess", "define", "refine", "plan", "breakdown", "implement",
     "verify", "ship", "design", "intent", "position", "consult",
     "status", "flow", "resume", "init",
+    # docs-compass-artifacts: the quick-fix approach's single-command entry
+    # point. It inlines assess, define, implement, verify and ship for a small,
+    # safe change rather than delegating to the five stage commands, so the
+    # light path costs one command file and one skill instead of thirteen files.
+    "quick-fix",
 }
 
 # Retired name -> its v2 replacement. Each remains on disk as a redirect
@@ -55,7 +60,7 @@ DEAD_NAME = re.compile(
 
 
 def test_the_command_set_carries_the_v2_names():
-    """TRC-1: all sixteen v2 commands exist, each with an H1 naming itself."""
+    """TRC-1: every shipped command exists, each with an H1 naming itself."""
     names = {p.stem for p in COMMANDS.glob("*.md")}
     missing = V2_COMMANDS - names
     assert not missing, f"missing v2 command files: {sorted(missing)}"

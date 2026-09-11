@@ -14,7 +14,7 @@ asserts what the prose surfaces carry (TRC-A1..A4, B1..B3, C1..C3, D1, F3);
 (TRC-D2, D3, F1, F2), by running it as a subprocess over fixtures.
 
 Criteria: docs/system-spec.md
-Design:   .compass/work/human-voice/technical-design.md (DD-4 names what each function
+Design:   docs/compass/2026-08-09-human-voice/technical-design.md (DD-4 names what each function
           asserts; DD-7 recorded the original reason the archive-dependent
           half of TRC-A2 and TRC-C2 skipped rather than failed when
           `.compass/work/` is absent, as it always is in continuous
@@ -60,8 +60,12 @@ REFERENCE = REPO_ROOT / "skills" / "compass-runtime" / "writing-voice.md"
 WORKED_EXAMPLE = (
     REPO_ROOT / "skills" / "compass-runtime" / "writing-voice-worked-example.md"
 )
-ORIGINAL = REPO_ROOT / ".compass" / "work" / "make-receipt-render" / "requirements-review.md"
-ORIGINAL_CITE = ".compass/work/make-receipt-render/requirements-review.md"
+# The archive moved: `compass migrate` relocated every issue's documents to
+# `docs/compass/<created>-<slug>/`. Built from segments, which is why the
+# citation sweep that rewrote ORIGINAL_CITE did not reach this line.
+ORIGINAL = (REPO_ROOT / "docs" / "compass"
+            / "2026-05-26-make-receipt-render" / "requirements-review.md")
+ORIGINAL_CITE = "make-receipt-render/requirements-review.md"
 
 
 def _load_quote_verification_module():
@@ -257,8 +261,14 @@ def test_trc_a2_every_pair_quotes_a_real_archive_passage():
     kinds_seen = set()
     for pair in pairs:
         assert pair["source"], f"pair with no Source: line: {pair}"
-        assert pair["source"].startswith(".compass/work/"), (
-            f"pair cites a path outside .compass/work/: {pair['source']}"
+        # `<slug>/<document>.md`, not a repository path. An issue's documents
+        # are not distributed, so prose naming a repo-relative path to one
+        # claims a file the reader does not have. `scripts/verify-archive-
+        # quotes.py` turns this into a real path where the archive is present.
+        assert "/" in pair["source"] and not pair["source"].startswith(
+            (".compass/", "docs/", "/")), (
+            f"pair cites a repository path rather than an issue and a "
+            f"document: {pair['source']}"
         )
         assert pair["before"], f"pair with no Before: quote: {pair}"
         filename = pair["source"].rsplit("/", 1)[-1]

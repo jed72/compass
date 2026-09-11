@@ -14,7 +14,7 @@ biases the aggregate toward corrections large enough to change the route -
 which are the ones already visible.
 
 Scenario ids: TRC-A1, TRC-A2, TRC-B1 in
-.compass/work/reassessment-log-drops-reading-only-changes/acceptance-criteria.md
+docs/compass/2026-08-28-reassessment-log-drops-reading-only-changes/acceptance-criteria.md
 """
 from __future__ import annotations
 

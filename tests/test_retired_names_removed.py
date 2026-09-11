@@ -13,7 +13,7 @@ not frozen. They are kept for the archive's sake, not for an adopter's, and
 TRC-D3 holds the decision record to saying so.
 
 Scenario ids: TRC-D1..D6 in
-.compass/work/what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
+docs/compass/2026-08-28-what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
 """
 from __future__ import annotations
 

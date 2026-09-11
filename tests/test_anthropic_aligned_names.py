@@ -17,12 +17,26 @@ type instead.
 | `skills/blueprint-distillation` | `skills/behaviour-mapping` | distillation means model distillation to this audience |
 | `skills/worktree-swarm` | `skills/worktree-multiagent` | swarm is another vendor's framework name |
 
-Scenario ids: .compass/work/anthropic-aligned-vocabulary/acceptance-criteria.md
+Scenario ids: docs/compass/2026-08-27-anthropic-aligned-vocabulary/acceptance-criteria.md
 """
 
 from __future__ import annotations
 
 from pathlib import Path
+
+import sys as _sys
+import pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "cli"))
+from compass_pkg.core import is_issue_document as _own_archive
+
+#: An issue's own documents live at `docs/compass/<created>-<slug>/` since
+#: `compass migrate` relocated them out of `.compass/work/`, which every scan
+#: here already skipped. They record the vocabulary and file layout in force
+#: when they were written, so enforcing today's surface over them reports the
+#: account as a defect. Applied at the repository root only: the worked
+#: examples' documents moved too and stay scanned, because an adopter reads
+#: them to learn the pipeline.
+
 
 REPO_ROOT = Path(__file__).parent.parent
 AGENTS = REPO_ROOT / "agents"
@@ -57,6 +71,8 @@ def _live_files():
             # docs/analysis/ and docs/proposals/ are gitignored working notes,
             # not shipped surfaces - they are allowed to quote the old names.
             if "analysis" in path.parts or "proposals" in path.parts:
+                continue
+            if _own_archive(path.relative_to(REPO_ROOT)):
                 continue
             # Derived at ship from the scenarios landed issues recorded, which
             # keep the names they landed under. Exempt from the vocabulary

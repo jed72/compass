@@ -1,6 +1,6 @@
 ---
 name: systematic-debugging
-description: "How to debug from evidence rather than guesses: read the failure, form one hypothesis, test it. Load on an unexpected test failure, and after three failed fixes re-assess instead of trying a fourth."
+description: "How to debug from evidence rather than guesses: read the failure, form one hypothesis, test it. Load on an unexpected test failure."
 ---
 
 # Systematic Debugging

@@ -66,7 +66,7 @@ def _reference_with_one_pair(before_text: str) -> str:
         "# Writing voice\n\n"
         "Some prose that is not a pair.\n\n"
         "### Pair 1 - a fixture pair\n\n"
-        "Source: `.compass/work/fixture-issue/devlog.md`\n\n"
+        "Source: `fixture-issue/devlog.md`\n\n"
         "Before:\n\n"
         f"> {before_text}\n\n"
         "After:\n\n"
@@ -75,7 +75,7 @@ def _reference_with_one_pair(before_text: str) -> str:
     )
 
 
-def _manifest_for(before_text: str, source: str = ".compass/work/fixture-issue/devlog.md") -> dict:
+def _manifest_for(before_text: str, source: str = "fixture-issue/devlog.md") -> dict:
     """The same {span id: entry} shape `verify()`'s `manifest=` parameter
     takes - what `load_manifest()` returns after reading the manifest file
     off disk, not the raw {"entries": [...]} shape the file itself uses."""
@@ -98,7 +98,7 @@ def test_trc_1_fabricated_quote_fails_when_archive_is_absent(tmp_path):
 
     empty_archive_root = tmp_path / "no-archive-here"
     empty_archive_root.mkdir()
-    # No .compass/work/fixture-issue/devlog.md under this root at all -
+    # No fixture-issue/devlog.md under this root at all -
     # simulates continuous integration exactly, where .compass/work/ is
     # gitignored and therefore never checked out.
 

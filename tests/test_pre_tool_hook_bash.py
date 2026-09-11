@@ -11,7 +11,7 @@ docs/safety-contract.md. Blocking on suspicion would block `make`, `npm test`,
 and every unrecognised command, and an enforcement people disable protects
 nothing at all.
 
-Scenarios: .compass/work/hook-bash-write-bypass/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: docs/compass/2026-08-04-hook-bash-write-bypass/acceptance-criteria.md (SCN-A1..F2).
 """
 from __future__ import annotations
 

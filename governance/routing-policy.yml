@@ -17,7 +17,7 @@
 # framework for everyone - see routing-policy.md.
 # =============================================================================
 
-version: 2.10.0
+version: 2.11.0
 # -----------------------------------------------------------------------------
 # ROUTING STRATEGIES - soft. They BIAS the candidate route. The evaluator uses
 # them in composition (step 1); a later guardrail can override the result.
@@ -234,10 +234,18 @@ route_shapes:
     stages: { assess: full, define: light, refine: collapsed, plan: collapsed, breakdown: skipped, implement: full, verify: light, ship: light }
     gates: [verify.correctness, verify.governance, verify.traceability]
     subtask_ceiling: 1
-    # The floor the guardrails already impose, and nothing more: a stated
-    # criterion before the code (G2) and a recorded green after it (G1).
-    # Both light. A variable rename earns these two and no review pack.
-    artifacts: { acceptance-criteria: light, verification-report: light }
+    # No document beyond `delivery-approach.md`, which assess writes on every
+    # approach. The two that used to sit here - a light acceptance-criteria.md
+    # and a light verification-report.md - carried the same floor the
+    # guardrails already impose: a stated criterion before the code (G2) and a
+    # recorded green after it (G1). Both of those are machine-readable records
+    # `compass check` reads directly - the manifest's `scenarios:` block and a
+    # test-run evidence record - so the documents were a second, hand-written
+    # copy of facts that exist either way. What is left is the one document
+    # assess writes on every approach, now tracked in the pack rather than
+    # only on disk - so "a quick fix writes delivery-approach.md and nothing
+    # else" is a routed decision a check can read, not a convention.
+    artifacts: { delivery-approach: light }
   standard:
     weight: 2
     stages: { assess: full, define: full, refine: light, plan: full, breakdown: multiagent, implement: full, verify: full, ship: full }

@@ -571,7 +571,7 @@
     },
     "artifacts": {
       "type": "array",
-      "description": "The issue's artifact registry: which documents this issue produced, where they are, and WHY each exists - or why it was deliberately not written. The reason is the point. A filename with no reason is a directory listing, so `reason` is required on every entry including the omitted ones. The CLI resolves a registered `path` first and the old flat filename second, so issues written before this registry keep working.",
+      "description": "The issue's artifact registry: which documents this issue produced, where they are, and WHY each exists - or why it was deliberately not written. The reason is the point. A filename with no reason is a directory listing, so `reason` is required on every entry including the omitted ones. The CLI resolves a registered `path` first and the flat filename beside the manifest second, so an issue with no registry keeps working. An entry written before paths became project-relative holds a bare filename, which no longer resolves from the registry - the flat filename still finds it and the CLI says that is how it was found, so an unmigrated entry is visible rather than silent. `compass migrate` rewrites them.",
       "items": {
         "type": "object",
         "required": [
@@ -591,7 +591,7 @@
           },
           "path": {
             "type": "string",
-            "description": "Path relative to the issue directory. Absent on an omitted entry, which has no document."
+            "description": "Where the document is, as a path measured from the PROJECT ROOT - not from the issue directory. That is what lets a human-facing document live under `docs/compass/<date>-<slug>/` while the manifest stays under `.compass/work/<slug>/`. A path that resolves outside the project is refused rather than read. Absent on an omitted entry, which has no document. NOTE: the `evidence:` registry is the other way round - its paths stay relative to the issue directory, because evidence does not move."
           },
           "status": {
             "enum": [

@@ -14,7 +14,7 @@ It is generated, never hand-edited, and guarded for staleness the way
 derived spec went stale twice on 2026-08-23; a generated page nobody checks is
 trusted anyway, which is worse than no page.
 
-Scenario ids trace to .compass/work/the-human-front-door/acceptance-criteria.md.
+Scenario ids trace to docs/compass/2026-08-23-the-human-front-door/acceptance-criteria.md.
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took

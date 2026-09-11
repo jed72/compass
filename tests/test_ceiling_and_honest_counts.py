@@ -20,7 +20,7 @@ it is neither.
   It does not establish which scenarios that run exercised - `green.json`
   holds one exit code for one command and never enumerates the tests.
 
-Scenario ids: see .compass/work/dry-run-2-rulings/acceptance-criteria.md.
+Scenario ids: see docs/compass/2026-08-14-dry-run-2-rulings/acceptance-criteria.md.
 """
 
 # These read `compass approach evaluate`'s DETAIL - the provenance line,

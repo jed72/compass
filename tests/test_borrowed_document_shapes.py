@@ -18,7 +18,7 @@ borrowing rather than the author's taste:
                        First Law of Documentation
 
 Scenario ids trace to
-.compass/work/adaptive-artifact-composition/acceptance-criteria.md.
+docs/compass/2026-08-23-adaptive-artifact-composition/acceptance-criteria.md.
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took

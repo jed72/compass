@@ -863,7 +863,7 @@ def reading_matches(when, assessment):
 # The archive speaks the v2 filenames; the v1 fallback this function once
 # carried retired when the repository's own archive migrated. The old-name
 # map lives in compass_pkg.migrate, which is what reads un-migrated trees.
-# The four answers a lookup can give. OMITTED and UNRESOLVABLE both mean "no
+# The five answers a lookup can give. OMITTED and UNRESOLVABLE both mean "no
 # document here" and they mean opposite things - one is a decision, the other is
 # a broken record. Collapsing them is how a document stops being read while the
 # review page reports it as deliberately left out.
@@ -871,6 +871,111 @@ FOUND = "found"
 OMITTED = "omitted"
 UNRESOLVABLE = "unresolvable"
 ABSENT = "absent"
+#: A registered path resolved to somewhere outside the project. A manifest is
+#: an ordinary file in the repository, so a `path` in it is data a contributor
+#: can write, and since these paths are now measured from the project root
+#: rather than from the issue directory, nothing about the shape of the string
+#: bounds where it lands. Reading is all a caller does with the answer, so the
+#: worst case is narrow - but a refusal costs one comparison and removes the
+#: argument. REFUSED never falls back to the flat filename: a rescue would mean
+#: the refusal fires only when it changes nothing, which is a check that cannot
+#: fail.
+REFUSED = "refused"
+
+
+def _registered_path(task_dir, rel):
+    """Resolve a registry `path` against the project root.
+
+    A path in the `artifacts:` registry is measured from the PROJECT ROOT, so
+    an entry can name `docs/compass/<date>-<slug>/technical-design.md` while the
+    manifest stays under `.compass/work/<slug>/`. That is the whole reason human
+    documents can live where a reviewer expects them.
+
+    Returns (path, refused). `refused` is True when the result is not inside the
+    project, and the caller must not fall back.
+
+    THE ANCHOR IS NOT THE CALLER. The project root is derived from `task_dir`,
+    which is `<project>/.compass/work/<slug>`, and NOT from the working
+    directory: `compass` runs from anywhere inside a project, and a document's
+    location is a property of the issue rather than of where someone happened to
+    type the command.
+
+    THE `evidence:` REGISTRY IS NOT THIS. Evidence stays under the issue
+    directory and its paths stay relative to it. The two registries are
+    different keys read by different code; reading evidence paths from the
+    project root would break every gate in a repository at once.
+    """
+    if os.path.isabs(rel):
+        # An absolute path is not project-relative by definition. Treat it the
+        # same as an escape rather than honouring it: there is no legitimate
+        # reason for an issue's document to be addressed absolutely, and
+        # honouring it is the widest possible version of the hole below.
+        return rel, True
+    # Found the same way `find_compass_dir` finds it, but walking up from the
+    # ISSUE rather than from the working directory. Counting three levels up
+    # from task_dir would give the same answer for the usual
+    # `<project>/.compass/work/<slug>` and the wrong one everywhere else - a
+    # git worktree, a test fixture, or a project that nests its work root
+    # differently. A wrong project root does not raise; it silently resolves
+    # every registered path against the wrong tree.
+    task_dir = os.path.abspath(task_dir)
+    project = find_upwards(task_dir, ".compass")
+    if project is None:
+        # No `.compass/` above this directory. Nothing to anchor to, so treat
+        # the issue directory as the root rather than inventing one further up:
+        # answering against an arbitrary ancestor is how a resolver reaches
+        # into a tree it was never pointed at.
+        project = task_dir
+    resolved = os.path.normpath(os.path.join(project, rel))
+    inside = (resolved == project
+              or resolved.startswith(project + os.sep))
+    return resolved, not inside
+
+
+# Where an issue's documents live is a naming rule rather than a reader, so
+# it has its own module. Re-exported here because every existing caller
+# imports these from core.
+from compass_pkg.issue_layout import (  # noqa: E402
+    DOCS_ROOT, docs_dir_for, is_issue_document)
+
+
+def docs_dir(task_dir):
+    """The project-relative directory this issue's human documents live in.
+
+    The reader half: looks up the slug and the manifest's `created:` date, then
+    asks `issue_layout` for the name. The rule itself holds no reader, which is
+    what keeps the two modules from importing each other.
+    """
+    slug = os.path.basename(os.path.normpath(task_dir))
+    created = ""
+    path = manifest_path(task_dir)
+    if os.path.isfile(path):
+        try:
+            created = str((load_yaml(path) or {}).get("created") or "").strip()
+        except Exception:                            # noqa: BLE001
+            created = ""
+    return docs_dir_for(created, slug)
+
+
+def artifact_location(task_dir, name):
+    """Where a document is, or where it was looked for - project-relative.
+
+    For a check line to say WHICH file it read. "Nothing to evidence" and
+    "everything is typed" are the same green line to a reader, and the first of
+    them is what a check that never found the document says, so the path is the
+    only thing that tells the two apart.
+
+    Project-relative because an absolute path in a check line is noise, and
+    differs between machines for the same issue.
+    """
+    path = artifact_path(task_dir, name)
+    project = os.path.dirname(find_compass_dir() or "") or os.getcwd()
+    try:
+        rel = os.path.relpath(path, project)
+    except ValueError:                               # a different drive on Windows
+        rel = path
+    rel = rel.replace(os.sep, "/")
+    return rel if os.path.isfile(path) else "%s - not there" % rel
 
 
 def _registry(task_dir):
@@ -967,7 +1072,13 @@ def artifact_path(task_dir, name):
     kind = name[:-3] if name.endswith(".md") else name
     entry = _entry_for(task_dir, kind)
     if entry and entry.get("path"):
-        registered = os.path.join(task_dir, entry["path"])
+        registered, refused = _registered_path(task_dir, entry["path"])
+        if refused:
+            # No fallback. This function owes its callers a path, and the only
+            # honest path for a refused entry is the one the framework would
+            # write - not a file that happens to sit beside the manifest, which
+            # would let a refused entry read as a clean hit.
+            return os.path.join(task_dir, name)
         if os.path.isfile(registered):
             return registered
     # Current name first, then the retired one - the same order, through the
@@ -1005,8 +1116,25 @@ def resolve_artifact(task_dir, kind):
                 entry.get("reason") or "omitted, with no reason recorded")
 
     if entry is not None and entry.get("path"):
-        registered = os.path.join(task_dir, entry["path"])
+        registered, refused = _registered_path(task_dir, entry["path"])
+        if refused:
+            # Deliberately before the flat-filename fallback. Rescuing a
+            # refused entry with the file beside the manifest would mean the
+            # refusal only ever fires when there is nothing to find, so it
+            # could never fail on the case it exists for.
+            return (REFUSED, None,
+                    "%s names %s, which resolves outside the project. A "
+                    "registered path is measured from the project root and may "
+                    "not leave it."
+                    % (entry.get("id", "the entry"), entry["path"]))
         if os.path.isfile(registered):
+            if flat is not None:
+                # Both copies exist. The registry decides, and the reason names
+                # the other one so somebody deletes it - a second copy of a
+                # document nobody knows about is the one that gets read next.
+                return FOUND, registered, (
+                    "the registered path - note there is also a stale %s beside "
+                    "the manifest" % os.path.basename(flat))
             return FOUND, registered, "the registered path"
         if flat is not None:
             return FOUND, flat, (

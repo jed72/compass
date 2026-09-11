@@ -15,7 +15,7 @@ nothing. Nine markers in scanned markdown are HTML comments, so this is the
 normal shape in prose.
 
 Scenario ids: TRC-A1, TRC-A2, TRC-B1 in
-.compass/work/allow-marker-supplies-its-own-reason/acceptance-criteria.md
+docs/compass/2026-08-28-allow-marker-supplies-its-own-reason/acceptance-criteria.md
 """
 from __future__ import annotations
 

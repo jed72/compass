@@ -117,15 +117,31 @@ for TASK_DIR in "$WORK_DIR"/*/; do
   TASK_DIR="${TASK_DIR%/}"
   SLUG="$(basename "$TASK_DIR")"
 
-  ROUTE="$TASK_DIR/delivery-approach.md"
-  # An archive written before the artifact rename still uses the old name.
-  # vocabulary-scan: allow - names the retired filename on purpose
-  [ -f "$ROUTE" ] || ROUTE="$TASK_DIR/route.md"
-  SPEC="$TASK_DIR/acceptance-criteria.md"
-  # An archive written before the artifact rename still uses the old name.
-  # vocabulary-scan: allow - names the retired filename on purpose
-  [ -f "$SPEC" ] || SPEC="$TASK_DIR/spec.feature.md"
-  VREPORT="$TASK_DIR/verification-report.md"
+  # ASKED, NOT GUESSED. Each of these three may sit beside the manifest or
+  # under `docs/compass/<created>-<slug>/`, and only the issue's artifact
+  # registry knows which. The resolver answers - the same one `compass check`
+  # uses - and it already falls back to the retired filename for an archive
+  # that predates the artifact rename and to the flat filename for an issue
+  # that has not migrated, so both older generations still resolve without a
+  # second list of names here.
+  #
+  # A path is printed for every kind whatever the outcome; a kind with no
+  # document resolves to where it WOULD be, so the `[ -f ... ]` tests below
+  # keep working unchanged and an unreadable install leaves them all empty,
+  # which reads as "nothing written" - the same as this hook's behaviour
+  # before it could ask.
+  eval "$(compass_python - "$TASK_DIR" 2>/dev/null <<'PYEOF'
+import shlex
+import sys
+import compass_pkg                      # noqa: F401 - puts vendor on sys.path
+from compass_pkg.core import artifact_path
+for var, name in (("ROUTE", "delivery-approach.md"),
+                  ("SPEC", "acceptance-criteria.md"),
+                  ("VREPORT", "verification-report.md")):
+    print("%s=%s" % (var, shlex.quote(artifact_path(sys.argv[1], name))))
+PYEOF
+)" || true
+  : "${ROUTE:=}" "${SPEC:=}" "${VREPORT:=}"
   RED_MARKER="$TASK_DIR/.red"
 
   # --- 1. the delivery-approach record missing on in-progress work ----------

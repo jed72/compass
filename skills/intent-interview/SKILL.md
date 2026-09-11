@@ -131,3 +131,10 @@ You are asking someone about their own product. Ask short questions and let
 them talk. Do not explain the framework, do not narrate which section you are
 on, and do not thank them for each answer. See
 `skills/compass-runtime/writing-voice.md`.
+
+## Speaking to a role that is not yours
+
+In `skills/intent-interview/role-translation.md`. Read it when the person you
+are interviewing works in a different discipline from the artifact you are
+about to write - it is how one role's words become another's without either
+losing what they meant. It was a skill of its own until the two were merged.

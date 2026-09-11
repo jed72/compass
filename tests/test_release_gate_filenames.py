@@ -13,7 +13,7 @@ sees a failure, and a check that cannot pass hides because a release-time gate
 is only exercised at release time. Both look exactly like a check that ran.
 
 Scenario ids: TRC-A1, TRC-F1 in
-.compass/work/release-gate-greps-the-old-manifest-filename/acceptance-criteria.md
+docs/compass/2026-08-28-release-gate-greps-the-old-manifest-filename/acceptance-criteria.md
 """
 from __future__ import annotations
 

@@ -13,7 +13,7 @@ Four gaps, each reproduced against HEAD before this file was written:
 - `stop.sh` exited 127 without python3 instead of degrading.
 
 Scenario ids: EVG-A1..A3, B1..B3, C1..C3, D1, D2 in
-.compass/work/evidence-gaps/acceptance-criteria.md
+docs/compass/2026-08-26-evidence-gaps/acceptance-criteria.md
 """
 from __future__ import annotations
 

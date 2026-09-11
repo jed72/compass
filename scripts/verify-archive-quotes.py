@@ -71,7 +71,12 @@ MANIFEST = REPO_ROOT / "skills" / "compass-runtime" / "archive-quote-manifest.js
 # untouched. These are not "### Pair N" blocks in writing-voice.md - they
 # are fixed strings the test already asserts against the original file
 # directly - so they are named here rather than parsed from anywhere.
-WORKED_EXAMPLE_SOURCE = ".compass/work/make-receipt-render/requirements-review.md"
+# A source names the ISSUE and the document, not a repository path: an
+# issue's documents are not distributed, so a repo-relative citation in
+# shipped prose resolves for whoever wrote it and for nobody else.
+# `_archive_path` below turns this into a real path when the archive is
+# present.
+WORKED_EXAMPLE_SOURCE = "make-receipt-render/requirements-review.md"
 WORKED_EXAMPLE_SPANS = [
     {
         "id": "worked-example-original-heading",
@@ -201,6 +206,37 @@ def _matches_archive(mode: str, quoted: str, archive_text: str) -> bool:
     return quoted in archive_text
 
 
+def _archive_path(archive_root, source):
+    """Turn an issue-relative source into a real path.
+
+    A source names `<slug>/<document>.md`. The documents live under
+    `docs/compass/<created>-<slug>/`, and the date is not in the source
+    because prose that names a repository path claims the file is
+    distributed - and an issue's documents are not.
+
+    Returns None when the archive is absent, which is the ordinary case in
+    continuous integration and in a fresh clone.
+    """
+    slug, _, name = source.partition("/")
+    if not name:
+        return None
+    # Two homes, because the split is by what reads the file. A devlog is
+    # machine state and stays beside the manifest; a review document moved to
+    # `docs/compass/<created>-<slug>/`. The source says neither, so a citation
+    # does not go stale when a document moves again.
+    beside = archive_root / ".compass" / "work" / slug / name
+    if beside.is_file():
+        return beside
+    root = archive_root / "docs" / "compass"
+    if root.is_dir():
+        for d in sorted(root.iterdir()):
+            if d.is_dir() and d.name.endswith("-" + slug):
+                candidate = d / name
+                if candidate.is_file():
+                    return candidate
+    return None
+
+
 def verify(
     archive_root: Path = REPO_ROOT,
     span_ids: list[str] | None = None,
@@ -269,8 +305,8 @@ def verify(
             )
             continue
 
-        cited = archive_root / span["source"]
-        if not cited.is_file():
+        cited = _archive_path(archive_root, span["source"])
+        if cited is None:
             unverified.append(span["id"])
             continue
 
@@ -325,8 +361,8 @@ def update_manifest(
                 f"there is no file to verify the quote against."
             )
             continue
-        cited = archive_root / span["source"]
-        if not cited.is_file():
+        cited = _archive_path(archive_root, span["source"])
+        if cited is None:
             problems.append(f"{span['id']}: archive file not found: {span['source']}")
             continue
         archive_text = cited.read_text(encoding="utf-8")

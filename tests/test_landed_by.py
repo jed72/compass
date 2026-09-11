@@ -11,7 +11,7 @@ whenever a check is inconvenient, and six of these nine scenarios exist to prove
 the relaxation only fires when the record genuinely exists somewhere else.
 
 Scenario ids: DEL-A1..A2, B1..B5, C1..C2 in
-.compass/work/no-status-for-work-done-elsewhere/acceptance-criteria.md
+docs/compass/2026-08-24-no-status-for-work-done-elsewhere/acceptance-criteria.md
 """
 from __future__ import annotations
 

@@ -29,7 +29,7 @@ shipped governance defaults stay in force, and adopting your own is what
 
 - Adopt the product owner's vocabulary - outcomes and users, not files and
   functions.
-- Load `role-translation` - `intent.md` is one role's perspective on the work
+- Load `intent-interview` and read its `role-translation.md` - `intent.md` is one role's perspective on the work
   the spec will serve.
 - Read `governance/strategies.md` - the product owner curates the product
   strategies there, and `intent.md` must be consistent with them (and with the
@@ -49,7 +49,9 @@ shipped governance defaults stay in force, and adopting your own is what
 2. **Check against governance.** Does this intent document hold the guardrails and
    respect the product strategies? If it pulls against a product strategy,
    name the tension now - do not pass it downstream silently.
-3. **Write `intent.md`** into `.compass/work/<issue-slug>/`.
+3. **Write `intent.md`** into `docs/compass/<created>-<issue-slug>/`, then
+   register it with `compass issue artifact intent --status draft --path
+   <that path>`. Say so in one line if you created `docs/compass/`.
 
 ## How this shapes the delivery approach
 

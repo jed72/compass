@@ -45,7 +45,7 @@ evidence:
   path: evidence/security-scan.txt
 - id: EV-V1
   type: artifact
-  path: verification-report.md
+  path: ../../../docs/compass/2026-03-02-notifications-subsystem/verification-report.md
 - id: EV-A1
   type: human-approval
   path: evidence/approval-migration-0042.json
@@ -149,4 +149,40 @@ changed_files:
 claims: []
 follow_ups: []
 reassessments: []
-stream_ceiling: null
+subtask_ceiling: null
+artifacts:
+- id: ART-ACCEPTANCE_CRITERIA
+  kind: acceptance-criteria
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/acceptance-criteria.md
+- id: ART-DELIVERY_APPROACH
+  kind: delivery-approach
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md
+- id: ART-DISTRIBUTION_MAP
+  kind: distribution-map
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/distribution-map.md
+- id: ART-INTENT
+  kind: intent
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/intent.md
+- id: ART-REQUIREMENTS_REVIEW
+  kind: requirements-review
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/requirements-review.md
+- id: ART-TECHNICAL_DESIGN
+  kind: technical-design
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/technical-design.md
+- id: ART-VERIFICATION_REPORT
+  kind: verification-report
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-03-02-notifications-subsystem/verification-report.md

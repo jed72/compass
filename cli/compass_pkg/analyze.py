@@ -369,7 +369,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     brief_path = artifact_path(task_dir, "intent.md")
     spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     route_md_path = artifact_path(task_dir, "delivery-approach.md")
-    positioning_path = os.path.join(task_dir, "positioning.md")
+    positioning_path = artifact_path(task_dir, "positioning.md")
 
     has_brief = os.path.isfile(brief_path)
     has_spec = os.path.isfile(spec_path)

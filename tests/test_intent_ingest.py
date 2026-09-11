@@ -6,7 +6,7 @@ say clearly when it cannot. Reshaping the document into `intent.md` is the
 session's job, not this module's - see `technical-design.md` DD-1.
 
 Scenario ids: ING-A1, A2, A4, D2 in
-.compass/work/ingest-an-existing-brief/acceptance-criteria.md
+docs/compass/2026-08-24-ingest-an-existing-brief/acceptance-criteria.md
 """
 from __future__ import annotations
 

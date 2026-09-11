@@ -36,8 +36,8 @@ already appear in `acceptance-criteria.md`.
    - `architecture/invariants.yml` (machine-readable invariants, if present)
    - `architecture/decisions/` (existing ADRs - skim their status)
 2. **Read the issue artifacts.** Read:
-   - `.compass/work/<task>/acceptance-criteria.md` (the scenarios the issue must satisfy)
-   - `.compass/work/<task>/technical-design.md` (the technical approach)
+   - the issue's `acceptance-criteria.md` (the scenarios the issue must satisfy)
+   - the issue's `technical-design.md` (the technical approach)
    - `.compass/work/<task>/architecture-loaded.yml` (triage's load record, if present)
 3. **Degrade gracefully when architecture/ is absent.** If there is no
    `architecture/` directory, write `architecture-notes.md` with the first

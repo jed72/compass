@@ -12,7 +12,7 @@ around it. A scenario like "the reasoning is sound" would be unwritable, so
 each one names something a reader could point at.
 
 Scenario ids: TRC-A1..A4, B1..B3, C1..C3, F1..F3 in
-.compass/work/what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
+docs/compass/2026-08-28-what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
 """
 from __future__ import annotations
 

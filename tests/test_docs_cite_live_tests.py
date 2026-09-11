@@ -14,7 +14,7 @@ the very file it retires. Those are illustrations, not coverage claims. The
 release guide is the one document where every test path is an instruction to
 run something and a claim that something is defended.
 
-Scenario id: DOC-A4 in .compass/work/docs-slimming-pass/acceptance-criteria.md
+Scenario id: DOC-A4 in docs/compass/2026-08-26-docs-slimming-pass/acceptance-criteria.md
 """
 from __future__ import annotations
 

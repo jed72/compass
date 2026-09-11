@@ -55,7 +55,7 @@ TDD. You do not write the spec, the plan, or the route.
    traces to. This is the code → criterion half of the traceability guardrail and what
    `compass check` verifies; keep it current, not back-filled.
 6. **Maintain traceability as you go** - every unit of code traces to a
-   scenario, every scenario to an intent. Load the `traceability` skill; update
+   scenario, every scenario to an intent. Load `evidence-gates` and read its `traceability.md`; update
    the chain continuously, not at the end.
 7. **Log.** Append a `devlog.md` entry for meaningful decisions and surprises.
 8. **Hand off with evidence.** When your scenarios are green, the `verifier`

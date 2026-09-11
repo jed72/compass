@@ -74,7 +74,7 @@ and you do not write production code.
    it. Record the absence in `devlog.md` as a recordable absence, not a
    silent skip.
 6. **Seed traceability.** Every scenario carries an intent reference. Load the
-   `traceability` skill - the chain starts here.
+   `evidence-gates` skill and its `traceability.md` - the chain starts here.
 7. **Write the `scenarios:` block of `manifest.yml`.** Alongside the prose
    `acceptance-criteria.md`, record each scenario in the manifest: a stable `id`, a
    `title`, the linked `intent` id, and the `tests` that exercise it. The prose

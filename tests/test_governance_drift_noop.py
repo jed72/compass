@@ -9,7 +9,7 @@ which is current, or which has never run `/compass:init`, or which is AHEAD of
 the framework, is a detector that gets switched off - and then it detects
 nothing at all.
 
-Spec: .compass/work/governance-drift-detection/acceptance-criteria.md (TRC-F1..F6).
+Spec: docs/compass/2026-08-03-governance-drift-detection/acceptance-criteria.md (TRC-F1..F6).
 """
 from __future__ import annotations
 

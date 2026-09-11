@@ -14,7 +14,7 @@ either, because it is the runtime-neutral expression for Codex, Amp and
 Cursor, and other runtimes are this cycle's non-goal.
 
 Scenario ids: SB-A1..A3, SB-B1..B4, SB-C1, SB-C2, SB-D1, SB-D2 in
-.compass/work/session-bootstrap/acceptance-criteria.md
+docs/compass/2026-08-26-session-bootstrap/acceptance-criteria.md
 """
 from __future__ import annotations
 

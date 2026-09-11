@@ -91,7 +91,7 @@ would take, not as work this decision commits to.
 
 - `tests/test_v1_2_narrative.py`, deleted by this decision. Its content is in
   the history at the commit that references this ADR.
-- `.compass/work/docs-slimming-pass/bug-report.md` states the question this
+- `docs/compass/2026-08-26-docs-slimming-pass/bug-report.md` states the question this
   decision answers, with the full list of 49 failing drift guards.
 - `governance/strategies.md` `S10` - a guard is accepted on a demonstrated
   failure. The mirror of that rule is that retiring one needs a demonstrated

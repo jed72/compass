@@ -1,9 +1,7 @@
----
-name: traceability
-description: How code, scenarios, claims and intents point at each other, and how to keep the chain intact as you work. Load whenever an artifact is written.
----
-
 # Traceability
+
+Merged in from the `traceability` skill. It was a skill of its own, which meant its description was resident on every turn for a subject that is read while writing an artifact - so it moved here, beside the gates it feeds, and nothing it taught was cut.
+
 
 Traceability is **the traceability guardrail**. Two chains, maintained on every route,
 updated *as you go* - not reconstructed at the end:

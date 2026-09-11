@@ -28,7 +28,7 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## Setup
 
-- Load `role-translation` - the whole point of a consult is one question
+- Load `intent-interview` and read its `role-translation.md` - the whole point of a consult is one question
   read through several roles without flattening any of them.
 - Read the relevant issue artifacts so the discussion is grounded in what
   is actually on disk: `delivery-approach.md`, `intent.md`,

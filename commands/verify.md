@@ -78,6 +78,14 @@ The rest of this command is for delivery work.
    `${CLAUDE_PLUGIN_ROOT}/templates/verification-report.md`: each dimension, each gate, the
    evidence, pass/fail.
 
+   **Where it goes.** `docs/compass/<created>-<issue-slug>/verification-report.md`, where the
+   date is the manifest's `created:` field - not today's. Then register it:
+   `compass issue artifact verification-report --status draft --path <that path>`. The CLI
+   refuses a path that climbs out of the project, so the record is checked
+   rather than claimed. If you had to create `docs/compass/`, **say so in one
+   line** - a directory appearing with nothing said is how it gets deleted by
+   hand or committed by accident.
+
 ## Voice
 
 A verification report is evidence a person reads, not a status board. Say

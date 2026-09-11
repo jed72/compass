@@ -14,7 +14,7 @@ naming a path that is not there is a broken record, not a decision, and
 reporting it as "omitted" is how a document stops being read while the page says
 it was left out on purpose.
 
-Scenario ids trace to .compass/work/the-human-front-door/acceptance-criteria.md.
+Scenario ids trace to docs/compass/2026-08-23-the-human-front-door/acceptance-criteria.md.
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took

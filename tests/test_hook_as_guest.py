@@ -14,7 +14,7 @@ repository with no `.compass/` has genuinely never been asked to use Compass.
 Fail-closed behaviour inside an opted-in project is unchanged.
 
 Scenario ids: HAG-A1, HAG-A2, HAG-B1..B4, HAG-C1, HAG-C3, HAG-C4, HAG-D1 in
-.compass/work/hook-as-guest/acceptance-criteria.md
+docs/compass/2026-08-26-hook-as-guest/acceptance-criteria.md
 """
 from __future__ import annotations
 

@@ -10,7 +10,7 @@ runs is an example nobody can trust.** So an adapter ships only with CI that
 runs it, and a test that skips because a runner is absent says so rather than
 reporting success.
 
-Spec: .compass/work/bdd-adapters-and-skill-length/acceptance-criteria.md (TRC-A1..A4,
+Spec: docs/compass/2026-08-03-bdd-adapters-and-skill-length/acceptance-criteria.md (TRC-A1..A4,
       TRC-B1, TRC-B2, TRC-C1).
 """
 from __future__ import annotations
@@ -89,8 +89,16 @@ def test_trc_a1_each_runner_should_have_a_worked_project():
         cfg = yaml.safe_load((d / ".compass" / "config.yml").read_text())
         assert (cfg.get("project") or {}).get("bdd_runner"), (
             f"{name}: config declares no bdd_runner")
-        assert (d / ".compass" / "work" / "reset-password"
-                / "acceptance-criteria.md").is_file(), f"{name}: no spec"
+        # Asked for through the resolver: an issue's documents live under
+        # `docs/compass/<created>-<slug>/` and the manifest's registry says
+        # where. Testing for a file beside the manifest asserts the old layout.
+        import sys as _sys
+        _sys.path.insert(0, str(ROOT / "cli"))
+        from compass_pkg.core import FOUND, resolve_artifact
+        task_dir = d / ".compass" / "work" / "reset-password"
+        state, _path, reason = resolve_artifact(str(task_dir),
+                                                "acceptance-criteria")
+        assert state == FOUND, f"{name}: no spec ({state}: {reason})"
 
 
 @pytest.mark.parametrize("name", sorted(EXPECTED))

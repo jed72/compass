@@ -6,8 +6,8 @@ asks Compass consumers to take. And it must run the test suite, so that a
 failing test can stop a merge rather than only failing on a contributor's
 machine.
 
-Traces to: .compass/work/sha-pin-workflow-actions/acceptance-criteria.md SCN-001,
-and .compass/work/ci-runs-test-suite/acceptance-criteria.md SCN-001.
+Traces to: docs/compass/2026-05-20-sha-pin-workflow-actions/acceptance-criteria.md SCN-001,
+and docs/compass/2026-07-29-ci-runs-test-suite/acceptance-criteria.md SCN-001.
 """
 from __future__ import annotations
 

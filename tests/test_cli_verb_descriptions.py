@@ -11,7 +11,7 @@ examples of tool usage" with "design better tool interfaces". This is the half
 of that Compass can act on without guessing.
 
 Scenario id: CLIV-A1 in
-.compass/work/cli-verbs-do-not-describe-themselves/acceptance-criteria.md
+docs/compass/2026-08-26-cli-verbs-do-not-describe-themselves/acceptance-criteria.md
 """
 from __future__ import annotations
 

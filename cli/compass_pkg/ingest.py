@@ -393,9 +393,9 @@ def validate_intent_origins(task_dir):
     Returns (ok, detail). Detail names the section and what is wrong with it,
     because "intent.md failed validation" sends a reader nowhere.
     """
-    from compass_pkg.core import load_manifest
+    from compass_pkg.core import artifact_path, load_manifest
 
-    intent = os.path.join(task_dir, "intent.md")
+    intent = artifact_path(task_dir, "intent.md")
     if not os.path.isfile(intent):
         return True, "no intent.md yet - nothing to trace"
 

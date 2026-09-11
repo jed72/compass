@@ -7,7 +7,7 @@ command - but a reader who took them to mean no `.compass/` directory is
 created was misled once the entry points began initialising for them.
 
 Scenario ids: IOI-C1, IOI-C3 in
-.compass/work/init-is-the-opt-in/acceptance-criteria.md
+docs/compass/2026-08-26-init-is-the-opt-in/acceptance-criteria.md
 """
 from __future__ import annotations
 

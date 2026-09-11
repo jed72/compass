@@ -32,6 +32,13 @@ what it explicitly does not.
 | Test & review | `/compass:verify` | `verification-report.md` (ends with the Definition of Done) |
 | Ship | `/compass:ship` | the integration commit + settled follow-ups |
 
+When assess computes a **quick fix**, the eight rows above collapse into one
+command: `/compass:quick-fix` carries the whole light path - assess, the one
+scenario, red-green, the check, the commit - inlined in a single file, and it
+is read with the `quick-fix` skill and nothing else. It is the same pipeline
+at its lightest weight, not a way around it: if `compass approach evaluate`
+returns anything heavier, the rows above are what runs.
+
 Cross-issue: `/compass:status` (one issue or a flat list), `/compass:flow`
 (the managed cross-issue view - advisory, never gating). Role entry points:
 `/compass:intent` (product owner), `/compass:position` (marketer),
@@ -41,8 +48,9 @@ creates the project: the entry points above run `compass init` for you.
 
 Retired command names are removed at the next major version rather than
 carried as redirects, so a retired name is an unknown command rather than a
-pointer. `docs/releasing.md` lists what each release removed, beside the name
-that replaced it (ADR-024).
+pointer (ADR-024). `governance/terminology.yml` names each retired word beside
+the one that replaced it, and `docs/glossary.md` says the same in prose; the
+current verbs are whatever `compass --help` lists.
 
 **The binding decides the filename.** `compass tdd-red --scenario TRC-x` and
 `compass tdd-green --scenario TRC-x` write `evidence/red-TRC-x.json` and
@@ -70,11 +78,13 @@ and a reader knows where their evidence went without guessing.
 - **An unexpected test failure while implementing** - load
   `systematic-debugging`, and after three failed fixes re-assess rather than
   attempt a fourth.
-- **Role-facing work** - load `role-translation`, which is how one set of
+- **Role-facing work** - load `intent-interview` and read its
+  `role-translation.md`, which is how one set of
   acceptance criteria is read through five role perspectives. The
   `product-owner`, `product-marketer` and `architect` agents apply specific
   ones.
-- `traceability` is loaded whenever an artifact is written.
+- `evidence-gates` carries `traceability.md`, read whenever an artifact is
+  written.
 
 The full set is in `agents/`. Read there rather than trusting a list in prose:
 this one has been wrong before.

@@ -12,7 +12,7 @@ discipline; the validator below is what makes the discipline checkable rather
 than aspirational.
 
 Scenario ids: ING-B1..B4 in
-.compass/work/ingest-an-existing-brief/acceptance-criteria.md
+docs/compass/2026-08-24-ingest-an-existing-brief/acceptance-criteria.md
 """
 from __future__ import annotations
 

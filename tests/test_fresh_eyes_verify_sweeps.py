@@ -16,7 +16,7 @@ repeating it.
 
 Criteria: docs/system-spec.md
 (Requirements review and design collapsed on this quick fix - see
-`.compass/work/fresh-eyes-verify-sweeps/delivery-approach.md` §5.)
+`docs/compass/2026-08-11-fresh-eyes-verify-sweeps/delivery-approach.md` §5.)
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took

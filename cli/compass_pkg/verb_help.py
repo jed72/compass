@@ -52,6 +52,8 @@ VERB_DESCRIPTIONS = {
         'Read a brief that already exists - a local path or an https URL - write a snapshot of it and record where it came from. Fetches over https only: a document altered in transit would shape the acceptance criteria and everything after them. It does NOT write intent.md; reshaping the document is judgement, and happens in the session with questions asked where the source is thin.',
     'issue artifact':
         "Set a document's status in the issue's review pack. Refuses a document the issue never earned, and an omission must carry a reason - an omission with no reason is indistinguishable from a document nobody got to.",
+    'issue artifact-path':
+        "Print where one of an issue's documents is, resolved through the artifact registry, and exit 0. Exit non-zero and print nothing when it is not there - a caller in bash reads the exit code before it reads the string. The two hooks call this: they are shell and cannot import the resolver, and a second path-resolution implementation in bash is how the shell half and the Python half stop agreeing about where a document lives.",
     'issue dashboard':
         'Render the per-issue review page a reviewer opens first - what is being asked for approval, which documents exist, which were deliberately left out and why. Evidence is linked rather than reproduced. Generated, never hand-edited.',
     'issue lint':

@@ -42,10 +42,19 @@ four roles can.
 3. **Group by independence.** On larger work, group scenarios by which touch
    disjoint surface - this grouping seeds the distribution map at the design
    stage.
-4. **Maintain traceability** - load `traceability`; each scenario traces to
+4. **Maintain traceability** - load `evidence-gates` and read its
+   `traceability.md`; each scenario traces to
    an intent (`intent.md`, the request, the defect).
-5. **Write `acceptance-criteria.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/acceptance-criteria.md`
-   into `.compass/work/<issue-slug>/` - the prose spec every role reads.
+5. **Write `acceptance-criteria.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/acceptance-criteria.md` -
+   the prose spec every role reads.
+
+   **Where it goes.** `docs/compass/<created>-<issue-slug>/acceptance-criteria.md`, where the
+   date is the manifest's `created:` field - not today's. Then register it:
+   `compass issue artifact acceptance-criteria --status draft --path <that path>`. The CLI
+   refuses a path that climbs out of the project, so the record is checked
+   rather than claimed. If you had to create `docs/compass/`, **say so in one
+   line** - a directory appearing with nothing said is how it gets deleted by
+   hand or committed by accident.
 6. **Write the `scenarios:` block of `manifest.yml`** - the machine-readable
    index of the prose spec. Each scenario gets a stable `id`, a `title`, a
    linked `intent` id, and the `tests` that exercise it. This is what
@@ -76,7 +85,7 @@ implied one - a reviewer who is told what to look for finds more than one who
 is told a file is ready.
 
 > I have written the acceptance criteria to
-> `.compass/work/<issue-slug>/acceptance-criteria.md`.
+> `docs/compass/<created>-<issue-slug>/acceptance-criteria.md`.
 >
 > It opens with a Summary - Goal, Approach, and Why now / what changes - so
 > you can see what this delivers before reading any scenarios. Below that are

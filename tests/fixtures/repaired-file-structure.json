@@ -102,7 +102,6 @@
     "table_rows": 10
   },
   "approaches/quick-fix.md": {
-    "fences": 0,
     "heading_levels": [
       1,
       2,
@@ -110,10 +109,12 @@
       2,
       2,
       2,
+      2,
       2
     ],
-    "list_items": 9,
-    "table_rows": 15
+    "fences": 0,
+    "table_rows": 15,
+    "list_items": 9
   },
   "approaches/rubric.md": {
     "fences": 2,
@@ -317,7 +318,7 @@
     "list_items": 0,
     "table_rows": 0
   },
-  "examples/bdd-adapters/behave/.compass/work/reset-password/acceptance-criteria.md": {
+  "examples/bdd-adapters/behave/docs/compass/2026-08-03-reset-password/acceptance-criteria.md": {
     "fences": 6,
     "heading_levels": [
       1,
@@ -332,7 +333,7 @@
     "list_items": 0,
     "table_rows": 9
   },
-  "examples/bdd-adapters/cucumber-js/.compass/work/reset-password/acceptance-criteria.md": {
+  "examples/bdd-adapters/cucumber-js/docs/compass/2026-08-03-reset-password/acceptance-criteria.md": {
     "fences": 6,
     "heading_levels": [
       1,
@@ -347,7 +348,7 @@
     "list_items": 0,
     "table_rows": 9
   },
-  "examples/bdd-adapters/godog/.compass/work/reset-password/acceptance-criteria.md": {
+  "examples/bdd-adapters/godog/docs/compass/2026-08-03-reset-password/acceptance-criteria.md": {
     "fences": 6,
     "heading_levels": [
       1,
@@ -362,7 +363,7 @@
     "list_items": 0,
     "table_rows": 9
   },
-  "examples/bdd-adapters/pytest-bdd/.compass/work/reset-password/acceptance-criteria.md": {
+  "examples/bdd-adapters/pytest-bdd/docs/compass/2026-08-03-reset-password/acceptance-criteria.md": {
     "fences": 6,
     "heading_levels": [
       1,
@@ -376,43 +377,6 @@
     ],
     "list_items": 0,
     "table_rows": 9
-  },
-  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/acceptance-criteria.md": {
-    "fences": 10,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      3,
-      3,
-      3,
-      3,
-      3,
-      2,
-      2
-    ],
-    "list_items": 5,
-    "table_rows": 11
-  },
-  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/delivery-approach.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      2,
-      3,
-      3,
-      3,
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 12,
-    "table_rows": 20
   },
   "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/devlog.md": {
     "fences": 0,
@@ -432,7 +396,44 @@
     "list_items": 30,
     "table_rows": 0
   },
-  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/requirements-review.md": {
+  "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/acceptance-criteria.md": {
+    "fences": 10,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      3,
+      2,
+      2
+    ],
+    "list_items": 5,
+    "table_rows": 11
+  },
+  "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/delivery-approach.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 12,
+    "table_rows": 20
+  },
+  "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/requirements-review.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -447,7 +448,7 @@
     "list_items": 26,
     "table_rows": 0
   },
-  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md": {
+  "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -462,7 +463,7 @@
     "list_items": 13,
     "table_rows": 12
   },
-  "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md": {
+  "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/verification-report.md": {
     "fences": 4,
     "heading_levels": [
       1,
@@ -476,7 +477,22 @@
     "list_items": 10,
     "table_rows": 24
   },
-  "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/acceptance-criteria.md": {
+  "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/devlog.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 25,
+    "table_rows": 0
+  },
+  "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/acceptance-criteria.md": {
     "fences": 2,
     "heading_levels": [
       1,
@@ -490,7 +506,7 @@
     "list_items": 5,
     "table_rows": 6
   },
-  "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md": {
+  "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -509,22 +525,7 @@
     "list_items": 14,
     "table_rows": 22
   },
-  "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/devlog.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 25,
-    "table_rows": 0
-  },
-  "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md": {
+  "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md": {
     "fences": 4,
     "heading_levels": [
       1,
@@ -537,45 +538,6 @@
     ],
     "list_items": 10,
     "table_rows": 18
-  },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/acceptance-criteria.md": {
-    "fences": 12,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      3,
-      3,
-      3,
-      2,
-      3,
-      3,
-      2,
-      3,
-      2
-    ],
-    "list_items": 5,
-    "table_rows": 13
-  },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      2,
-      3,
-      3,
-      3,
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 14,
-    "table_rows": 20
   },
   "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/devlog.md": {
     "fences": 0,
@@ -595,7 +557,46 @@
     "list_items": 34,
     "table_rows": 0
   },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/distribution-map.md": {
+  "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/acceptance-criteria.md": {
+    "fences": 12,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2,
+      3,
+      3,
+      2,
+      3,
+      2
+    ],
+    "list_items": 5,
+    "table_rows": 13
+  },
+  "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 14,
+    "table_rows": 20
+  },
+  "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/distribution-map.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -609,7 +610,7 @@
     "list_items": 11,
     "table_rows": 14
   },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md": {
+  "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -625,7 +626,7 @@
     "list_items": 33,
     "table_rows": 0
   },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md": {
+  "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -641,7 +642,7 @@
     "list_items": 18,
     "table_rows": 12
   },
-  "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md": {
+  "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md": {
     "fences": 8,
     "heading_levels": [
       1,
@@ -655,7 +656,21 @@
     "list_items": 10,
     "table_rows": 26
   },
-  "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/acceptance-criteria.md": {
+  "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/devlog.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 22,
+    "table_rows": 0
+  },
+  "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/acceptance-criteria.md": {
     "fences": 2,
     "heading_levels": [
       1,
@@ -668,7 +683,7 @@
     "list_items": 5,
     "table_rows": 6
   },
-  "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/delivery-approach.md": {
+  "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/delivery-approach.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -687,21 +702,7 @@
     "list_items": 12,
     "table_rows": 21
   },
-  "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/devlog.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 22,
-    "table_rows": 0
-  },
-  "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/verification-note.md": {
+  "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md": {
     "fences": 2,
     "heading_levels": [
       1,
@@ -713,7 +714,20 @@
     "list_items": 0,
     "table_rows": 13
   },
-  "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md": {
+  "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/devlog.md": {
+    "fences": 0,
+    "heading_levels": [
+      1,
+      2,
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 27,
+    "table_rows": 0
+  },
+  "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -731,19 +745,6 @@
     ],
     "list_items": 17,
     "table_rows": 23
-  },
-  "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/devlog.md": {
-    "fences": 0,
-    "heading_levels": [
-      1,
-      2,
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 27,
-    "table_rows": 0
   },
   "governance/guardrails.md": {
     "fences": 0,
@@ -820,6 +821,21 @@
     "list_items": 20,
     "table_rows": 0
   },
+  "skills/evidence-gates/traceability.md": {
+    "fences": 2,
+    "heading_levels": [
+      1,
+      2,
+      3,
+      3,
+      2,
+      2,
+      2,
+      2
+    ],
+    "list_items": 19,
+    "table_rows": 0
+  },
   "skills/flow-management/SKILL.md": {
     "fences": 2,
     "heading_levels": [
@@ -842,7 +858,7 @@
     "list_items": 19,
     "table_rows": 0
   },
-  "skills/role-translation/SKILL.md": {
+  "skills/intent-interview/role-translation.md": {
     "fences": 0,
     "heading_levels": [
       1,
@@ -858,21 +874,6 @@
       2
     ],
     "list_items": 17,
-    "table_rows": 0
-  },
-  "skills/traceability/SKILL.md": {
-    "fences": 2,
-    "heading_levels": [
-      1,
-      2,
-      3,
-      3,
-      2,
-      2,
-      2,
-      2
-    ],
-    "list_items": 19,
     "table_rows": 0
   },
   "skills/worktree-multiagent/SKILL.md": {

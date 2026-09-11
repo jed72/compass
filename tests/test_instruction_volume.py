@@ -17,7 +17,7 @@ The ceilings below are the issue's success signals. They are deliberately not
 "whatever it is today plus a bit": a ceiling that tracks the tree cannot fail.
 
 Scenario ids: IV-A1, IV-A2, IV-B1, IV-C1 in
-.compass/work/instruction-volume/acceptance-criteria.md
+docs/compass/2026-08-27-instruction-volume/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -62,20 +62,18 @@ def _resident_breakdown():
 # What a quick fix reads, following the instructions. Listed rather than
 # derived: deriving it from the instructions is the thing under test, and a
 # measurement that reads its own subject cannot fail.
+#
+# This was thirteen files and 11,203 words - the contract, CLAUDE.md, the
+# runtime map, five stage commands, the approach rubric and three skills.
+# `docs-compass-artifacts` replaced the middle of that with one command that
+# inlines the light path end to end and one skill carrying its share of the
+# three. The five stage commands and three skills still exist and are read on
+# the feature and initiative routes; a quick fix no longer opens them.
 QUICK_FIX_READS = [
     "compass-contract.md",
-    "skills/compass-runtime/SKILL.md",
-    "commands/assess.md",
-    "commands/define.md",
-    "commands/implement.md",
-    "commands/verify.md",
-    "commands/ship.md",
-    "approaches/rubric.md",
-    "approaches/quick-fix.md",
-    "skills/adaptive-routing/SKILL.md",
-    "skills/tdd-discipline/SKILL.md",
-    "skills/evidence-gates/SKILL.md",
     "CLAUDE.md",
+    "commands/quick-fix.md",
+    "skills/quick-fix/SKILL.md",
 ]
 
 
