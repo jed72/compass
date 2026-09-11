@@ -36,8 +36,35 @@ from compass_pkg.core import artifact_path
 # rollback is answered by a rehearsal that happened.
 _TRC_ID = re.compile(r"\bTRC-[A-Za-z0-9-]+\b")
 _RISK_ACCEPTED = re.compile(r"risk\s+accepted", re.IGNORECASE)
-_NOT_REHEARSED = re.compile(
-    r"\b(not\s+yet|never|none|tbd|todo|n/?a|pending|planned)\b", re.IGNORECASE)
+#: A date in the section. The template asks for "a date, a target, an outcome,
+#: a duration", and the date is the part that separates a record from an
+#: intention: "we rehearsed it" with no date is a claim.
+_REHEARSAL_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
+
+#: A section that OPENS by denying the rehearsal. Read from the opening
+#: statement rather than scanned across the whole section, because a section
+#: recording a real rehearsal mentions these words in other roles - a table
+#: column headed "Planned", a collision count of "none" - and failing on those
+#: teaches the author to reword around the guard instead of rehearsing
+#: anything.
+_DENIES_REHEARSAL = re.compile(
+    r"\b(not\s+yet|never\s+rehearsed|no\s+rehearsal|tbd|todo|n/?a|pending)\b",
+    re.IGNORECASE)
+
+
+def _opening_claim(section):
+    """The section's first real statement, ignoring HTML comments and blanks.
+
+    The template's guidance lives in a comment block, and it contains the words
+    an author is told to write when the rehearsal has NOT happened. Reading it
+    as the claim would fail every document written from the template.
+    """
+    text = re.sub(r"<!--.*?-->", " ", section, flags=re.S)
+    for line in text.splitlines():
+        line = line.strip()
+        if line and not line.startswith(("|", "#")):
+            return line
+    return ""
 
 
 def _check_borrowed_documents_answered(task, task_dir):
@@ -93,11 +120,14 @@ def _check_borrowed_documents_answered(task, task_dir):
             findings.append(
                 "rollback-plan.md: no section records when the rollback was "
                 "rehearsed")
-        elif not section.strip() or _NOT_REHEARSED.search(section):
+        elif (not section.strip()
+                or _DENIES_REHEARSAL.search(_opening_claim(section))
+                or not _REHEARSAL_DATE.search(section)):
             findings.append(
                 "rollback-plan.md: the rehearsal section records no rehearsal "
                 "- SWEBOK: a rollback is rehearsed before the deploy, and a "
-                "plan nobody has run is a guess")
+                "plan nobody has run is a guess. Record the date you ran it, "
+                "against what, and what happened")
 
     if findings:
         return False, "; ".join(findings)

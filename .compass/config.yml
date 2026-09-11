@@ -92,7 +92,7 @@ project:
   # `compass tdd-red`/`compass tdd-green` as the test command, and used by
   # scripts/integrate.sh for combined regression. If unset, the hooks fall
   # back to detecting npm/Make/pytest conventions.
-  test_command: ""   # e.g. "npm test", "pytest -q", "go test ./..."
+  test_command: "pytest -q"   # e.g. "npm test", "pytest -q", "go test ./..."
 
   # --- executable BDD (all optional) ----------------------------------------
   # `compass bdd extract` lifts the Gherkin out of a task's acceptance-criteria.md
