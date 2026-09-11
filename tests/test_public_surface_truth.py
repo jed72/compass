@@ -364,3 +364,42 @@ def test_d2_repairs_change_only_retired_names():
     assert not drift, (
         "the vocabulary repair changed document structure, not just wording:\n  "
         + "\n  ".join(drift))
+
+
+# --- shipped prose cites only what a reader has ------------------------------
+
+def test_shipped_prose_names_no_path_that_is_not_distributed():
+    """A citation into a gitignored tree resolves for the maintainer and for
+    nobody else.
+
+    `test_a4_named_files_resolve` above checks a named file exists ON THIS
+    MACHINE. That passes for a path under `docs/compass/<dated-slug>/`, which
+    is an issue's own record and deliberately not committed - so the citation
+    reads as good locally and is dead for every reader, and only continuous
+    integration says so.
+
+    Checked with `git check-ignore`, because the question is what git
+    distributes, not what happens to be on disk.
+    """
+    import subprocess
+
+    named = re.compile(r"(?<![\w/.-])((?:approaches|governance|templates|skills"
+                       r"|agents|commands|docs)/[\w./-]+\.md)\b")
+    cited = {}
+    for p in _prose_files():
+        for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            for path in named.findall(line):
+                cited.setdefault(path, []).append(
+                    f"{p.relative_to(REPO_ROOT)}:{n}")
+    assert cited, "no citations found at all - this check is inspecting nothing"
+
+    r = subprocess.run(["git", "check-ignore", "--stdin"],
+                       input="\n".join(sorted(cited)), cwd=str(REPO_ROOT),
+                       capture_output=True, text=True)
+    ignored = [p for p in r.stdout.splitlines() if p.strip()]
+    offenders = [f"{p} (cited by {', '.join(cited[p])})"
+                 for p in ignored if p in cited]
+    assert not offenders, (
+        "shipped prose cites files git does not distribute, so they resolve "
+        "for whoever wrote them and for nobody else:\n  "
+        + "\n  ".join(offenders))

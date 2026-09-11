@@ -22,52 +22,52 @@
   "entries": [
     {
       "id": "pair-1",
-      "source": ".compass/work/cross-task-architectural-integrity/devlog.md",
+      "source": "cross-task-architectural-integrity/devlog.md",
       "sha256": "cb949bb06807e4f749a84f10dfcd4dcee540b33f5e3e2cf44c139f5d9de4332a"
     },
     {
       "id": "pair-2",
-      "source": ".compass/work/cross-task-architectural-integrity/devlog.md",
+      "source": "cross-task-architectural-integrity/devlog.md",
       "sha256": "00f1a36150523f08c7594a27bad2e46cef59a5e3157397376c250d3b3b07a1b6"
     },
     {
       "id": "pair-3",
-      "source": ".compass/work/swarm-script-strips-markdown/devlog.md",
+      "source": "swarm-script-strips-markdown/devlog.md",
       "sha256": "550f30b72f8b51c53135f8f1115d2c4316680af07794f3db1de212647fa74232"
     },
     {
       "id": "pair-4",
-      "source": ".compass/work/compass-self-architecture/devlog.md",
+      "source": "compass-self-architecture/devlog.md",
       "sha256": "06e784032d8f718500d0a81c5f786ca217b5cac49ba6bfc405c102c63398d6e6"
     },
     {
       "id": "pair-5",
-      "source": ".compass/work/compass-self-architecture/devlog.md",
+      "source": "compass-self-architecture/devlog.md",
       "sha256": "4ffcc645e3b6fda8294fb1d16c2acb8404247071f54eb05de851273a0cb62249"
     },
     {
       "id": "pair-6",
-      "source": "docs/compass/2026-06-04-friction-loop/requirements-review.md",
+      "source": "friction-loop/requirements-review.md",
       "sha256": "a8b8150b0ca91f64e6118766c7b994d6a29d1485e7a3041a6c34cea6f7d86060"
     },
     {
       "id": "pair-7",
-      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
+      "source": "make-receipt-render/requirements-review.md",
       "sha256": "ef09a3adcdf901877c2f22958c4dc8b535ab4d3b0c56932e54bd8cfb2b999a37"
     },
     {
       "id": "pair-8",
-      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
+      "source": "make-receipt-render/requirements-review.md",
       "sha256": "cd1fd7769b009f25cb01125909ca1806451e90272694a6c107655a705f01c687"
     },
     {
       "id": "worked-example-original-heading",
-      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
+      "source": "make-receipt-render/requirements-review.md",
       "sha256": "b667dbfaa6b93050228806bc73f24711b4369921d498d0f8e1290228c84dd32b"
     },
     {
       "id": "worked-example-original-decided-by",
-      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
+      "source": "make-receipt-render/requirements-review.md",
       "sha256": "8b7e81ea749db8c834712a4018ef06afa3ae0406c6f089d3afd3fa8523dac367"
     }
   ]

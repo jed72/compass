@@ -21,5 +21,5 @@ Before any sweep:
    `tests/test_rename_tables_and_data_paths.py` guards this.
 
 If the change can be applied file by file, do that instead. The full account
-is in `docs/compass/2026-08-27-anthropic-aligned-vocabulary/technical-design.md` (DD-9).
+is in `anthropic-aligned-vocabulary/technical-design.md` (DD-9).
 

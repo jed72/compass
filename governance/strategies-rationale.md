@@ -132,7 +132,7 @@ summarises has already changed meaning.
 ADR-013 (vendored third-party code) once described, in its Context, an install failure in the past tense, with a
 specific timing figure attached, reading as a report of a real outside user,
 which this repository has never had. It was verified against
-`docs/compass/2026-08-14-plain-language-3-2-0/technical-design.md`, the document it was
+`plain-language-3-2-0/technical-design.md`, the document it was
 lifted from, which put the same point in the present tense as a description of
 what any newcomer meets - not against the primary record for whether this
 happened to a real person, which does not exist, because it did not happen.

@@ -24,7 +24,7 @@ who wrote them, and nobody else. The bar every "after" had to clear: read it alo
 
 ### Pair 1 - a stage announcement reads like a log line
 
-Source: `.compass/work/cross-task-architectural-integrity/devlog.md`
+Source: `cross-task-architectural-integrity/devlog.md`
 
 Before:
 
@@ -38,7 +38,7 @@ What changed: says what actually exists (six worktrees, on a named commit) inste
 
 ### Pair 2 - a status line drops the two facts that matter
 
-Source: `.compass/work/cross-task-architectural-integrity/devlog.md`
+Source: `cross-task-architectural-integrity/devlog.md`
 
 Before:
 
@@ -52,7 +52,7 @@ What changed: keeps the two facts a reader actually needs (all green, evidence s
 
 ### Pair 3 - "ready for the next command" is not news
 
-Source: `.compass/work/swarm-script-strips-markdown/devlog.md`
+Source: `swarm-script-strips-markdown/devlog.md`
 
 Before:
 
@@ -66,7 +66,7 @@ What changed: tells the reader the thing they actually want to know - that it is
 
 ### Pair 4 - a bare command name is not a sentence
 
-Source: `.compass/work/compass-self-architecture/devlog.md`
+Source: `compass-self-architecture/devlog.md`
 
 Before:
 
@@ -80,7 +80,7 @@ What changed: says why the pass was light in the same breath as what ran, instea
 
 ### Pair 5 - a field label does the talking
 
-Source: `.compass/work/compass-self-architecture/devlog.md`
+Source: `compass-self-architecture/devlog.md`
 
 Before:
 
@@ -94,7 +94,7 @@ What changed: says the two things a person actually wants to know - merged, and 
 
 ### Pair 6 - "resolved" is a checkbox, not a decision
 
-Source: `docs/compass/2026-06-04-friction-loop/requirements-review.md`
+Source: `friction-loop/requirements-review.md`
 
 Before:
 
@@ -108,7 +108,7 @@ What changed: gives the actual number and the reasoning behind it, not a word co
 
 ### Pair 7 - the "Decided by" field that hides the decision
 
-Source: `docs/compass/2026-05-26-make-receipt-render/requirements-review.md`
+Source: `make-receipt-render/requirements-review.md`
 
 Before:
 
@@ -122,7 +122,7 @@ What changed: says who decided and whether it was contested, in a sentence, with
 
 ### Pair 8 - a label-and-value row instead of a next step
 
-Source: `docs/compass/2026-05-26-make-receipt-render/requirements-review.md`
+Source: `make-receipt-render/requirements-review.md`
 
 Before:
 

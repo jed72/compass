@@ -65,7 +65,7 @@ WORKED_EXAMPLE = (
 # citation sweep that rewrote ORIGINAL_CITE did not reach this line.
 ORIGINAL = (REPO_ROOT / "docs" / "compass"
             / "2026-05-26-make-receipt-render" / "requirements-review.md")
-ORIGINAL_CITE = "docs/compass/2026-05-26-make-receipt-render/requirements-review.md"
+ORIGINAL_CITE = "make-receipt-render/requirements-review.md"
 
 
 def _load_quote_verification_module():
@@ -261,12 +261,14 @@ def test_trc_a2_every_pair_quotes_a_real_archive_passage():
     kinds_seen = set()
     for pair in pairs:
         assert pair["source"], f"pair with no Source: line: {pair}"
-        # Two locations, because `compass migrate` moved an issue's documents
-        # to `docs/compass/<created>-<slug>/`. A devlog is machine state and
-        # stays under `.compass/work/`; a review document is now under
-        # `docs/compass/`. Both are the archive, so both are quotable.
-        assert pair["source"].startswith((".compass/work/", "docs/compass/")), (
-            f"pair cites a path outside the archive: {pair['source']}"
+        # `<slug>/<document>.md`, not a repository path. An issue's documents
+        # are not distributed, so prose naming a repo-relative path to one
+        # claims a file the reader does not have. `scripts/verify-archive-
+        # quotes.py` turns this into a real path where the archive is present.
+        assert "/" in pair["source"] and not pair["source"].startswith(
+            (".compass/", "docs/", "/")), (
+            f"pair cites a repository path rather than an issue and a "
+            f"document: {pair['source']}"
         )
         assert pair["before"], f"pair with no Before: quote: {pair}"
         filename = pair["source"].rsplit("/", 1)[-1]
