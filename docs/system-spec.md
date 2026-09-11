@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### CLAUDE.md tells a session to write plain English with no idiom or metaphor
+### CLAUDE.md and AGENTS.md carry the full plain-English rules
 
-- **Scenario id:** `PE-1`
+- **Scenario id:** `PFR-1`
 - **Intent:** `INT-1`
-- **Source issue:** `claude-md-plain-english`
+- **Source issue:** `plain-english-full-rules`
 - **Landed:** 2026-09-11
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -7754,4 +7754,11 @@
 - **Scenario id:** `RGN-1`
 - **Intent:** `INT-1`
 - **Source issue:** `rehearsal-guard-fails-on-a-neighbour`
+- **Landed:** 2026-09-11
+
+### CLAUDE.md tells a session to write plain English with no idiom or metaphor _(archived)_
+
+- **Scenario id:** `PE-1`
+- **Intent:** `INT-1`
+- **Source issue:** `claude-md-plain-english`
 - **Landed:** 2026-09-11
