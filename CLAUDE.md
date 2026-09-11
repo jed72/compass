@@ -103,6 +103,21 @@ changed. Read `skills/compass-runtime/writing-voice.md` before a devlog entry,
 a requirements review, or a line of dialogue - and before you say anything out
 loud in this conversation.
 
+### Plain English
+
+For everything you write, the reader has no context.
+
+- Lead with the point, then the evidence.
+- Active voice, simple tense.
+- One point per sentence, ideally under about 25 words.
+- Use the same word for the same thing every time.
+- No idiom or metaphor. Say what happens instead: not "low-hanging fruit",
+  but what is easy and why.
+- Describe how things are now, not how they got there.
+- Never cite what the reader cannot see, such as a bare id.
+- Say whether you checked: "this fails", or "I have not checked this".
+- British English, and the shorter word: use, not utilise.
+
 ### Reporting to a person
 
 Before you report, read the message back for terms of art - that is the
