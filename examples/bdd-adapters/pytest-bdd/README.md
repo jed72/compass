@@ -34,11 +34,11 @@ project that edits nothing has opted into nothing.
 compass bdd extract --issue reset-password
 ```
 
-This reads `.compass/work/reset-password/acceptance-criteria.md` and writes
+This reads `docs/compass/2026-08-03-reset-password/acceptance-criteria.md` and writes
 `.compass/work/reset-password/acceptance-criteria.feature`:
 
 ```gherkin
-# Derived from .compass/work/reset-password/acceptance-criteria.md by `compass bdd extract`.
+# Derived from docs/compass/2026-08-03-reset-password/acceptance-criteria.md by `compass bdd extract`.
 # Do not hand-edit - your edits are overwritten on the next extract.
 # Edit the source spec instead.
 

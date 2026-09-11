@@ -26,9 +26,9 @@ from __future__ import annotations
 import os
 
 from compass_pkg.check_results import NOTHING_TO_CHECK
-from compass_pkg.core import (FOUND, CompassError, load_yaml, manifest_path,
-                             resolve_artifact, resolve_issue_dir,
-                             save_manifest)
+from compass_pkg.core import (FOUND, CompassError, _registered_path, docs_dir,
+                             load_yaml, manifest_path, resolve_artifact,
+                             resolve_issue_dir, save_manifest)
 
 # The line that says the page was generated, and the marker the currency check
 # reads. Kept out of the rendered body's meaning so a reader is not asked to
@@ -233,6 +233,31 @@ ARTIFACT_STATUSES = ("draft", "awaiting-approval", "approved", "superseded",
                      "omitted")
 
 
+def cmd_issue_artifact_path(args):
+    """`compass issue artifact-path <kind>` - where a document is, one answer.
+
+    Exists for the two hooks. They are shell, so they cannot import the
+    resolver, and a second path-resolution implementation in bash is exactly
+    how the shell half and the Python half stop agreeing about where a
+    document lives - the defect this verb is part of fixing, reproduced inside
+    the fix.
+
+    Prints the absolute path and exits 0 when the document is there. Exits
+    non-zero, printing nothing to stdout, when it is not: a caller in bash
+    reads the exit code before it reads the string, and printing a plausible
+    path for a document that does not exist is how a hook concludes assessment
+    ran when it did not.
+    """
+    task_dir = resolve_issue_dir(getattr(args, "task", None))
+    kind = args.kind[:-3] if args.kind.endswith(".md") else args.kind
+    state, path, reason = resolve_artifact(task_dir, kind)
+    if state != FOUND:
+        raise CompassError(
+            "%s: %s (%s)" % (kind, state, reason))
+    print(path)
+    return 0
+
+
 def cmd_issue_artifact(args):
     """`compass issue artifact <kind> --status <s> [--reason ...]`.
 
@@ -264,6 +289,21 @@ def cmd_issue_artifact(args):
             "omitting %r needs --reason. An omission with no reason is "
             "indistinguishable from a document nobody got to, and telling "
             "those apart is the whole point of recording it." % args.kind)
+
+    rel = (getattr(args, "path", None) or "").strip()
+    if rel:
+        # Refused here rather than only at read time. The registry is an
+        # ordinary file in the repository, so a path in it is data someone can
+        # write; catching an escape when the entry is READ means the bad entry
+        # is already recorded and the refusal arrives later, somewhere else.
+        resolved, refused = _registered_path(task_dir, rel)
+        if refused:
+            raise CompassError(
+                "%r resolves outside the project (%s). A registry path is "
+                "measured from the project root, and an issue's document "
+                "lives inside the repository - write it under %s and register "
+                "that." % (rel, resolved, docs_dir(task_dir)))
+        entry["path"] = rel.replace(os.sep, "/")
 
     entry["status"] = args.status
     if (args.reason or "").strip():

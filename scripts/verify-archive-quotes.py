@@ -71,7 +71,11 @@ MANIFEST = REPO_ROOT / "skills" / "compass-runtime" / "archive-quote-manifest.js
 # untouched. These are not "### Pair N" blocks in writing-voice.md - they
 # are fixed strings the test already asserts against the original file
 # directly - so they are named here rather than parsed from anywhere.
-WORKED_EXAMPLE_SOURCE = ".compass/work/make-receipt-render/requirements-review.md"
+# `compass migrate` relocated every issue's documents to
+# `docs/compass/<created>-<slug>/`. A devlog stays under `.compass/work/`
+# because it is machine state; a review document does not.
+WORKED_EXAMPLE_SOURCE = (
+    "docs/compass/2026-05-26-make-receipt-render/requirements-review.md")
 WORKED_EXAMPLE_SPANS = [
     {
         "id": "worked-example-original-heading",

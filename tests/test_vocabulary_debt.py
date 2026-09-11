@@ -15,7 +15,7 @@ What remained:
   and traceability - regression is approach-scoped and claims is role-scoped.
 
 Scenario ids: VOC-A1, VOC-B1, VOC-C1, VOC-C2 in
-.compass/work/vocabulary-debt/acceptance-criteria.md
+docs/compass/2026-08-26-vocabulary-debt/acceptance-criteria.md
 """
 from __future__ import annotations
 

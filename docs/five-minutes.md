@@ -218,6 +218,7 @@ compass issue lint         structurally validate an issue manifest
 compass issue receipt      one screen: assessment, approach, gates, evidence
 compass issue dashboard    the per-issue review page
 compass issue artifact     set a document's status in the review pack
+compass issue artifact-path  where one of an issue's documents is
 compass issue set-status   queued | active | parked | landed | abandoned
 compass acceptance start   open an honest record where there is no natural red
 compass acceptance record  close it with what was observed

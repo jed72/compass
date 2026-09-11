@@ -13,7 +13,7 @@ inverts: every position is scanned, and an exclusion has to be declared, has
 to name the positions it covers, and has to say why a string in that position
 cannot reach a user.
 
-Scenario ids: see .compass/work/dry-run-2-rulings/acceptance-criteria.md
+Scenario ids: see docs/compass/2026-08-14-dry-run-2-rulings/acceptance-criteria.md
 (group D).
 """
 from __future__ import annotations

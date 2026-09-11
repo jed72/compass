@@ -14,7 +14,7 @@ identifiers rather than prose. And `tests/test_documented_commands_exist.py`
 reads `compass <verb>`, never `/compass:<name>`.
 
 Scenario ids: TRC-A1, TRC-B1, TRC-F1 in
-.compass/work/stale-command-names-in-shipped-prose/acceptance-criteria.md
+docs/compass/2026-08-28-stale-command-names-in-shipped-prose/acceptance-criteria.md
 """
 from __future__ import annotations
 

@@ -324,9 +324,12 @@ def build_parser():
     pta.add_argument("--status", required=True, choices=list(ARTIFACT_STATUSES),
                      help="new status")
     pta.add_argument("--reason", help="why - required when omitting")
+    pta.add_argument("--path", help="where the document was written, relative to the project root (e.g. docs/compass/2026-09-08-my-issue/technical-design.md)")
     issue_arg(pta)
     pta.set_defaults(func=cmd_issue_artifact, output_kind="hand-off")
 
+    ptap = pts.add_parser("artifact-path", help="print where one of an issue's documents is; non-zero when it is not there")
+    ptap.add_argument("kind", help="document kind, e.g. delivery-approach"); issue_arg(ptap); ptap.set_defaults(func=cmd_issue_artifact_path, output_kind="hand-off")
     ptss = pts.add_parser("set-status",
                           help="set an issue's lifecycle status (queued|active|parked|landed|abandoned)")
     ptss.add_argument("status", help="the new status")
@@ -500,7 +503,7 @@ def build_parser():
                       help="the work root to examine (default: .compass/work)")
     pmig.add_argument("--apply", action="store_true",
                       help="execute the changes the dry run reports")
-    pmig.set_defaults(func=cmd_migrate, output_kind="report")
+    pmig.add_argument("--i-have-a-copy", action="store_true", help="proceed where git cannot restore the work root, because you have taken a copy"); pmig.set_defaults(func=cmd_migrate, output_kind="report")
 
     pinit = sub.add_parser(
         "init",

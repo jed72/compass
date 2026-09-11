@@ -94,7 +94,7 @@ What changed: says the two things a person actually wants to know - merged, and 
 
 ### Pair 6 - "resolved" is a checkbox, not a decision
 
-Source: `.compass/work/friction-loop/requirements-review.md`
+Source: `docs/compass/2026-06-04-friction-loop/requirements-review.md`
 
 Before:
 
@@ -108,7 +108,7 @@ What changed: gives the actual number and the reasoning behind it, not a word co
 
 ### Pair 7 - the "Decided by" field that hides the decision
 
-Source: `.compass/work/make-receipt-render/requirements-review.md`
+Source: `docs/compass/2026-05-26-make-receipt-render/requirements-review.md`
 
 Before:
 
@@ -122,7 +122,7 @@ What changed: says who decided and whether it was contested, in a sentence, with
 
 ### Pair 8 - a label-and-value row instead of a next step
 
-Source: `.compass/work/make-receipt-render/requirements-review.md`
+Source: `docs/compass/2026-05-26-make-receipt-render/requirements-review.md`
 
 Before:
 

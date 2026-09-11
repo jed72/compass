@@ -13,7 +13,7 @@ tests, `issue lint` has tests, and no test set a status with a reason and then
 linted the result. The pairing that breaks was the pairing nobody made.
 
 Scenario ids: TRC-A1, TRC-A2, TRC-F1 in
-.compass/work/set-status-reason-writes-an-invalid-manifest/acceptance-criteria.md
+docs/compass/2026-08-28-set-status-reason-writes-an-invalid-manifest/acceptance-criteria.md
 """
 from __future__ import annotations
 

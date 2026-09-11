@@ -3,6 +3,13 @@
 > The change is small, safe, and on mapped ground. Stay out of the way.
 > Still tested before it lands.
 
+## Running it
+
+`/compass:quick-fix` is the entry point. It inlines every stage below into one
+command file, read with the `quick-fix` skill, so the light path costs one
+command and one skill rather than five commands and three skills. The per-stage
+weights in this document are what that command implements.
+
 ## Assess composes toward quick fix when
 
 - size is `atomic` or `small`, **and**

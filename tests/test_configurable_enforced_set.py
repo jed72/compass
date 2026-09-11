@@ -17,7 +17,7 @@ Nothing removes framework enforcement: Compass's model is that project rules
 ratchet up, and a key that exempted `*.py` would be a disable switch wearing the
 clothes of configuration.
 
-Scenarios: .compass/work/configurable-enforced-set/acceptance-criteria.md
+Scenarios: docs/compass/2026-08-06-configurable-enforced-set/acceptance-criteria.md
 """
 from __future__ import annotations
 

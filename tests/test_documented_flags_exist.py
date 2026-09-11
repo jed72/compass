@@ -11,7 +11,7 @@ A reader who follows that gets `unrecognized arguments` and no way to tell
 whether the tool or the instruction is wrong.
 
 Scenario ids: TRC-A1, TRC-A2, TRC-F1 in
-.compass/work/reframe-is-documented-but-does-not-exist/acceptance-criteria.md
+docs/compass/2026-08-28-reframe-is-documented-but-does-not-exist/acceptance-criteria.md
 """
 from __future__ import annotations
 

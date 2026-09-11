@@ -23,6 +23,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PROSE_ROOTS = ("approaches", "skills", "agents", "commands", "templates",
                "docs", "governance", "architecture")
 EXEMPT = ("architecture/decisions/", "templates/architecture/decisions/",
+          "docs/compass/",
           "docs/proposals/", "docs/analysis/", "docs/system-spec.md")
 
 
@@ -312,6 +313,18 @@ def test_d2_repairs_change_only_retired_names():
     order, fenced code blocks, table rows, list items. All 59 were identical
     across the repair. A repair that drops a step, merges a table row or edits
     a code example fails this; one that renames a stage does not.
+
+    Twenty-two more moved with the same issue, and none of their fingerprints
+    changed: the shipped examples' documents were relocated from
+    `.compass/work/<slug>/` to `docs/compass/<created>-<slug>/` by
+    `compass migrate`. Only the key moved. A relocation that also edited a
+    document would still show here, because the fingerprint travelled with it.
+
+    A third entry moved for a different reason: `approaches/quick-fix.md`
+    gained one `##` section, "Running it", naming the single-command entry
+    point `/compass:quick-fix`. Seven headings to eight, everything else
+    identical. Re-baselined here in the same change that added the section, so
+    the snapshot stays a record of a sanctioned state.
 
     Two entries were re-baselined at 4.0.0, deliberately and in one change:
     `governance/strategies.md` (list_items 32 -> 88, one heading level added)

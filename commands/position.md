@@ -28,7 +28,7 @@ shipped governance defaults stay in force, and adopting your own is what
 ## Setup
 
 - Adopt the marketer's vocabulary - claims, voice, audience.
-- Load `role-translation` - positioning is the claims perspective on the
+- Load `intent-interview` and read its `role-translation.md` - positioning is the claims perspective on the
   shared spec.
 - Read `governance/strategies.md` - the marketer curates the voice &
   positioning strategies there; voice, claims discipline, and the honesty
@@ -51,8 +51,17 @@ shipped governance defaults stay in force, and adopting your own is what
    backing scenario passing, voice consistent with the voice & positioning
    strategies, the honesty policy applied to what the product cannot yet
    do.
-3. **Write `positioning.md` and `launch-readiness.md`** into
-   `.compass/work/<issue-slug>/`.
+3. **Write `positioning.md` and `launch-readiness.md`.**
+
+   **Where it goes.** `docs/compass/<created>-<issue-slug>/positioning.md`, where the
+   date is the manifest's `created:` field - not today's. Then register it:
+   `compass issue artifact positioning --status draft --path <that path>`. The CLI
+   refuses a path that climbs out of the project, so the record is checked
+   rather than claimed. If you had to create `docs/compass/`, **say so in one
+   line** - a directory appearing with nothing said is how it gets deleted by
+   hand or committed by accident.
+   `launch-readiness.md` goes to the same directory and is registered the
+   same way, with `--path` naming its own file.
 
 ## How this shapes the delivery approach
 

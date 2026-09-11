@@ -113,9 +113,17 @@ def repoint_spine_references(task_dir, node, renamed):
         if not isinstance(value, str):
             return value, False
         head, sep, tail = value.rpartition("/")
-        if tail in renamed and resolves(tail):
-            return head + sep + renamed[tail], True
-        return value, False
+        if tail not in renamed or not resolves(tail):
+            return value, False
+        # THE WHOLE PATH, NOT THE TAIL. A manifest names files outside its own
+        # directory too - `changed_files:` lists repository paths - and
+        # `commands/plan.md` is a shipped command file, not this issue's
+        # design. Deciding on the filename alone rewrote it to
+        # `commands/technical-design.md`, which does not exist, and nothing
+        # failed until `compass check` reported a traced path that had gone.
+        if head and not os.path.isfile(os.path.join(task_dir, value)):
+            return value, False
+        return head + sep + renamed[tail], True
 
     changed = False
     if isinstance(node, dict):
@@ -168,7 +176,42 @@ def plan_issue_dir(task_dir):
             migrated["schema_version"] = "2.0"
         if migrated != before:
             notes.append("would rewrite the manifest to schema 2.0")
+    notes.extend(plan_relocations(task_dir))
     return notes
+
+
+def _work_root_is_recoverable(root):
+    """Could `git reset --hard` put back what `--apply` is about to move?
+
+    Only where the work root is TRACKED. In a project using Compass it is, and
+    the reset is a complete undo. In this framework's own repository
+    `.compass/work/` is gitignored, so git has nothing to restore and a reset
+    undoes everything EXCEPT the thing that moved.
+
+    Returns (recoverable, why). `recoverable` is True when git holds a copy, or
+    when there is no git repository at all - outside a repository there is no
+    undo to promise and no false promise to correct, and refusing there would
+    stop the verb working in a plain directory.
+    """
+    import subprocess
+    try:
+        inside = subprocess.run(
+            ["git", "rev-parse", "--is-inside-work-tree"],
+            capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return True, "git is not available, so there is no undo to promise"
+    if inside.returncode != 0 or inside.stdout.strip() != "true":
+        return True, "not a git repository"
+    try:
+        tracked = subprocess.run(["git", "ls-files", "--", root],
+                                 capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return True, "git could not be asked"
+    if tracked.returncode == 0 and tracked.stdout.strip():
+        return True, "the work root is tracked, so `git reset --hard` restores it"
+    return False, ("%s is not tracked by git - it is gitignored, so "
+                   "`git reset --hard` would restore everything except the "
+                   "documents this moves" % root)
 
 
 def cmd_migrate(args):
@@ -187,6 +230,17 @@ def cmd_migrate(args):
               "nothing to examine.")
         return 0
     apply_mode = bool(getattr(args, "apply", False))
+    # Checked before anything is read, let alone written. A refusal that
+    # arrives after the first directory has moved has protected nothing.
+    if apply_mode and not getattr(args, "i_have_a_copy", False):
+        recoverable, why = _work_root_is_recoverable(root)
+        if not recoverable:
+            raise CompassError(
+                "this would move documents that cannot be put back: %s.\n\n"
+                "Nothing was changed. Take a copy first:\n"
+                "    cp -R %s <somewhere outside the repository>\n\n"
+                "then re-run with --i-have-a-copy. The flag says you have "
+                "the copy; it does not switch the check off." % (why, root))
     dirs = [e for e in sorted(os.listdir(root))
             if os.path.isdir(os.path.join(root, e))]
 
@@ -264,6 +318,374 @@ def cmd_migrate(args):
     return 0
 
 
+# --- relocating human documents to docs/compass/ ----------------------------
+#
+# Machine state stays where the CLI reads it. `evidence/`, the markers, the TDD
+# state file, the manifest and the devlog do not move; moving `evidence/` would
+# break every gate in a repository at once, and the devlog is appended to by
+# the CLI. Everything else an issue directory holds is a document written for a
+# person, and it goes to `docs/compass/<created>-<slug>/`.
+STAYS_BESIDE_THE_MANIFEST = {
+    "manifest.yml", "devlog.md", "README.md", "architecture-loaded.yml",
+    ".red", ".spike", ".acceptance", ".tdd-state.json",
+}
+
+#: The one document whose absence beside the manifest STOPS WORK rather than
+#: degrading a warning. `hooks/pre-tool.sh` reads it to decide whether
+#: assessment ran, and an install that predates the artifact registry has no
+#: way to look anywhere else - so moving it locks that project out of every
+#: code edit. A pointer is left in its place; see `_compatibility_pointer`.
+BLOCKING_DOCUMENT = "delivery-approach.md"
+
+#: How the pointer opens. Read to tell a pointer from a real record, so that a
+#: second run relocates the record and never the pointer.
+POINTER_MARKER = "<!-- compass: moved -->"
+
+
+def _kind_of(name):
+    return name[:-3] if name.endswith(".md") else name
+
+
+def _relocations(task_dir):
+    """(kind, filename, destination) for every document that should move.
+
+    NOTHING MOVES WITHOUT A MANIFEST. The registry is what records where a
+    document went, so a directory with no `manifest.yml` has nowhere to record
+    it - and a document moved with nothing pointing at it is not relocated, it
+    is lost. Such a directory is not an issue anyway; the v1 rename above still
+    applies to it and the file stays where the rename left it.
+
+    Two sources, because a migration can be interrupted halfway:
+
+      * a document still beside the manifest - move it, then register it;
+      * a document already under `docs/compass/` that the registry does not
+        name - leave it where it is and register it.
+
+    The second is TRC-G2's half-finished migration. Without it the only way out
+    of an interrupted run is to edit the manifest by hand.
+    """
+    from compass_pkg.core import docs_dir
+
+    if not os.path.isfile(manifest_path(task_dir)):
+        return [], []
+
+    project = _project_root(task_dir)
+    dest_rel = docs_dir(task_dir)
+    dest_abs = os.path.join(project, dest_rel)
+
+    registry = {}
+    manifest = manifest_path(task_dir)
+    if os.path.isfile(manifest):
+        try:
+            with open(manifest, encoding="utf-8") as fh:
+                data = yaml.safe_load(fh) or {}
+            for entry in (data.get("artifacts") or []):
+                if isinstance(entry, dict) and entry.get("kind"):
+                    registry[entry["kind"]] = entry
+        except Exception:                            # noqa: BLE001
+            registry = {}
+
+    moves, adoptions = [], []
+    if os.path.isdir(task_dir):
+        for name in sorted(os.listdir(task_dir)):
+            if name in STAYS_BESIDE_THE_MANIFEST or not name.endswith(".md"):
+                continue
+            full = os.path.join(task_dir, name)
+            if not os.path.isfile(full):
+                continue
+            if _is_pointer(full):
+                # Left by an earlier run of this migration. Moving it would
+                # overwrite the record it points at, with itself.
+                continue
+            moves.append((_kind_of(name), name,
+                          os.path.join(dest_rel, name).replace(os.sep, "/")))
+
+    moved_names = {name for _k, name, _r in moves}
+    if os.path.isdir(dest_abs):
+        for name in sorted(os.listdir(dest_abs)):
+            if not name.endswith(".md") or name in moved_names:
+                continue
+            kind = _kind_of(name)
+            entry = registry.get(kind)
+            if entry is not None and entry.get("path"):
+                continue                    # already registered - nothing to do
+            adoptions.append((kind, name,
+                              os.path.join(dest_rel, name).replace(os.sep, "/")))
+    return moves, adoptions
+
+
+def _project_root(task_dir):
+    """The project `docs/compass/` is measured from.
+
+    Walked up to `.compass/` the way the resolver does, rather than counted
+    three levels from the issue directory: counting gives the same answer for
+    the usual layout and a silently wrong one in a worktree or a fixture, and a
+    wrong root here MOVES FILES into a tree nobody pointed at.
+    """
+    from compass_pkg.core import find_upwards
+
+    task_dir = os.path.abspath(task_dir)
+    return find_upwards(task_dir, ".compass") or task_dir
+
+
+def _repoint_evidence(task_dir, filename, project_rel):
+    """Repoint `evidence:` entries that named a document we just moved.
+
+    An evidence entry can cite a document - a `verification-report.md` recorded
+    as `artifact` evidence behind a gate is the common one. Its `path` is
+    measured from the ISSUE DIRECTORY and stays that way: the evidence registry
+    is a different key read by different code, and re-anchoring it to the
+    project root would break every gate in a repository at once.
+
+    So the entry is rewritten as a relative path from the issue directory to
+    the document's new home - `../../../docs/compass/...`. Not pretty, and
+    correct: `compass check` joins the issue directory to it, which is exactly
+    what that resolves against. Leaving it alone instead would fail the gate on
+    an issue nothing is wrong with, which is what this whole issue is about.
+    """
+    manifest = manifest_path(task_dir)
+    if not os.path.isfile(manifest):
+        return False
+    with open(manifest, encoding="utf-8") as fh:
+        data = yaml.safe_load(fh) or {}
+    records = [e for e in (data.get("evidence") or []) if isinstance(e, dict)]
+    project = _project_root(task_dir)
+    from_issue = os.path.relpath(os.path.join(project, project_rel),
+                                 os.path.abspath(task_dir)).replace(os.sep, "/")
+    # Matched by WHERE THE PATH RESOLVES, not by how it is spelled. Manifests
+    # on disk carry both spellings: `technical-design.md`, measured from the
+    # issue directory, and `.compass/work/<slug>/technical-design.md`, measured
+    # from the project root. A repoint that compared the string to the bare
+    # filename rewrote the first and left the second dangling, which fails the
+    # gate on an issue nothing is wrong with.
+    source = os.path.abspath(os.path.join(task_dir, filename))
+    changed = False
+    for entry in records:
+        raw = (entry.get("path") or "").strip()
+        if not raw:
+            continue
+        candidates = {os.path.abspath(os.path.join(os.path.abspath(task_dir), raw)),
+                      os.path.abspath(os.path.join(project, raw))}
+        if source in candidates:
+            entry["path"] = from_issue
+            changed = True
+    if not changed:
+        return False
+    data["evidence"] = records
+    body = yaml.safe_dump(data, sort_keys=False, default_flow_style=False,
+                          allow_unicode=True)
+    tmp = manifest + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write(body)
+    os.replace(tmp, manifest)
+    return True
+
+
+def _pointer_owed(task_dir):
+    """The registered path of a delivery-approach record with nothing at its
+    old name, or None.
+
+    The pointer used to be written only by the run that did the move, so every
+    tree an earlier version migrated is still locked out and reports "nothing
+    to do" - there is nothing left to move. Written on the state of the tree
+    instead: registered elsewhere, old name empty, no pointer.
+    """
+    if os.path.exists(os.path.join(task_dir, BLOCKING_DOCUMENT)):
+        return None
+    manifest = manifest_path(task_dir)
+    if not os.path.isfile(manifest):
+        return None
+    try:
+        with open(manifest, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+    except Exception:                                # noqa: BLE001
+        return None
+    kind = BLOCKING_DOCUMENT[:-3]
+    for entry in (data.get("artifacts") or []):
+        if not isinstance(entry, dict) or entry.get("kind") != kind:
+            continue
+        rel = (entry.get("path") or "").strip()
+        # Only when the record is really there. Writing a pointer to a file
+        # that does not exist would replace one wrong answer with another.
+        if rel and os.path.isfile(os.path.join(_project_root(task_dir), rel)):
+            return rel
+    return None
+
+
+def _is_pointer(path):
+    """Is this file a compatibility pointer rather than a real document?"""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return POINTER_MARKER in fh.read(400)
+    except OSError:
+        return False
+
+
+def _compatibility_pointer(task_dir, name, rel):
+    """Leave a pointer where the delivery-approach record used to be.
+
+    An adopter's `hooks/pre-tool.sh` is a copy installed before the artifact
+    registry existed. It tests for this file beside the manifest and blocks
+    every code edit in the project when it is missing. Nothing in this
+    framework can reach that copy; the migration is the only part of the system
+    running on their machine when the documents move, so the compatibility has
+    to come from here.
+
+    A POINTER, NOT A COPY. Two copies of a record drift, and the stale one is
+    indistinguishable from the real one. This says where the record went and
+    nothing else, so a person who opens it is not misled and a reader that uses
+    the registry never sees it.
+    """
+    with open(os.path.join(task_dir, name), "w", encoding="utf-8") as fh:
+        fh.write(
+            "%s\n"
+            "# Moved\n"
+            "\n"
+            "This issue's %s is now at:\n"
+            "\n"
+            "    %s\n"
+            "\n"
+            "The manifest's `artifacts:` registry names that path, and every\n"
+            "current reader asks the registry. This file is here only so a\n"
+            "Compass installed before the registry existed still finds\n"
+            "something at the old name instead of blocking every code edit.\n"
+            "\n"
+            "Delete it once every install reading this project is current.\n"
+            % (POINTER_MARKER, name, rel))
+
+
+def _register(task_dir, kind, rel):
+    """Point the registry entry for `kind` at `rel`, adding one if needed."""
+    manifest = manifest_path(task_dir)
+    if not os.path.isfile(manifest):
+        return False
+    with open(manifest, encoding="utf-8") as fh:
+        data = yaml.safe_load(fh) or {}
+    arts = [a for a in (data.get("artifacts") or []) if isinstance(a, dict)]
+    entry = next((a for a in arts if a.get("kind") == kind), None)
+    if entry is None:
+        entry = {"id": "ART-" + kind.upper().replace("-", "_"), "kind": kind,
+                 "status": "draft",
+                 "reason": "found on disk when the documents were relocated"}
+        arts.append(entry)
+    if entry.get("path") == rel:
+        return False
+    entry["path"] = rel
+    data["artifacts"] = arts
+    body = yaml.safe_dump(data, sort_keys=False, default_flow_style=False,
+                          allow_unicode=True)
+    tmp = manifest + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as fh:
+        fh.write(body)
+    os.replace(tmp, manifest)
+    return True
+
+
+def _evidence_cites(task_dir, filename):
+    manifest = manifest_path(task_dir)
+    if not os.path.isfile(manifest):
+        return False
+    try:
+        with open(manifest, encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+    except Exception:                                # noqa: BLE001
+        return False
+    return any((e.get("path") or "").strip() == filename
+               for e in (data.get("evidence") or []) if isinstance(e, dict))
+
+
+def plan_relocations(task_dir):
+    """Dry-run notes for the relocation half. Writes nothing."""
+    moves, adoptions = _relocations(task_dir)
+    notes = ["would move %s -> %s, and register it" % (name, rel)
+             for _kind, name, rel in moves]
+    notes += ["would repoint the evidence entry that cites %s" % name
+              for _kind, name, _rel in moves
+              if _evidence_cites(task_dir, name)]
+    notes += ["would register %s, already under docs/compass/ and not in the "
+              "registry" % rel for _kind, _name, rel in adoptions]
+    # Reported here as well as performed in the apply, or the dry run promises
+    # less than the apply does.
+    repair = _pointer_owed(task_dir)
+    if repair:
+        notes.append("would leave a pointer at %s, which an earlier run moved "
+                     "away without one" % BLOCKING_DOCUMENT)
+    return notes
+
+
+def relocate_documents(task_dir):
+    """Move this issue's human documents under docs/compass/ and register
+    each one. Idempotent: a relocated issue reports nothing."""
+    moves, adoptions = _relocations(task_dir)
+    repair = _pointer_owed(task_dir)
+    if not moves and not adoptions and not repair:
+        return []
+    project = _project_root(task_dir)
+    notes = []
+    for kind, name, rel in moves:
+        dest = os.path.join(project, rel)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        if os.path.exists(dest):
+            # Both places. Not a move we can make silently - the two files may
+            # differ, and picking one would keep whichever happened to be
+            # there. Registering the destination and leaving the original is
+            # the honest half: the reader gets a definite answer and the stray
+            # copy is still on disk to compare.
+            _register(task_dir, kind, rel)
+            notes.append("%s is in both places - registered %s and left the "
+                         "copy beside the manifest for you to compare"
+                         % (name, rel))
+            continue
+        os.replace(os.path.join(task_dir, name), dest)
+        _register(task_dir, kind, rel)
+        note = "moved %s -> %s, and registered it" % (name, rel)
+        if name == BLOCKING_DOCUMENT:
+            _compatibility_pointer(task_dir, name, rel)
+            note += (", and left a pointer at %s so an install that predates "
+                     "the artifact registry is not locked out" % name)
+        if _repoint_evidence(task_dir, name, rel):
+            note += " (and repointed the evidence entry that cited it)"
+        notes.append(note)
+    for kind, _name, rel in adoptions:
+        if _register(task_dir, kind, rel):
+            notes.append("registered %s, which was already under docs/compass/"
+                         % rel)
+    if repair:
+        _compatibility_pointer(task_dir, BLOCKING_DOCUMENT, repair)
+        notes.append("left a pointer at %s, which an earlier run moved away "
+                     "without one - an install predating the artifact registry "
+                     "blocks every code edit while it is missing"
+                     % BLOCKING_DOCUMENT)
+    if notes and _regenerate_dashboard(task_dir):
+        notes.append("re-rendered README.md, which is generated from the "
+                     "registry this run rewrote")
+    return notes
+
+
+def _regenerate_dashboard(task_dir):
+    """Re-render the issue's review page, if it has one.
+
+    `README.md` is generated from the artifact registry, and `dashboard-current`
+    fails when the two disagree. Writing a `path:` into every entry is exactly
+    such a disagreement, so a migration that skipped this would leave a check
+    red on every issue that has a review page - and a migration whose only
+    visible effect is turning checks red is one nobody runs a second time.
+    """
+    page_path = os.path.join(task_dir, "README.md")
+    if not os.path.isfile(page_path):
+        return False
+    try:
+        from compass_pkg.dashboard import render_dashboard
+        page = render_dashboard(task_dir)
+    except Exception:                                # noqa: BLE001
+        # A page that could not be re-rendered is a failure to report, not a
+        # reason to abandon a move that has already happened on disk.
+        return False
+    with open(page_path, "w", encoding="utf-8") as fh:
+        fh.write(page)
+    return True
+
+
 def migrate_issue_dir(task_dir):
     """Migrate one issue directory in place: rename v1-named artifacts and
     rewrite the manifest with v2 keys. Idempotent - a migrated directory is
@@ -309,6 +731,11 @@ def migrate_issue_dir(task_dir):
                 fh.write(body)
             os.replace(tmp, manifest)
             notes.append("manifest keys and values -> schema 2.0")
+    # Last, on purpose. The renames above put every document under its current
+    # filename, and the manifest is repointed at those names - so relocation
+    # moves files whose names are already settled and writes one registry
+    # entry per document rather than racing the rename.
+    notes.extend(relocate_documents(task_dir))
     return notes
 
 

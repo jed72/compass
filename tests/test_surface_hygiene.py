@@ -13,7 +13,7 @@ Two pieces of tidying that the Superpowers comparison surfaced:
     Clarify does the work that needs a decision. Writing the split down in both
     places is the fix.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md
+Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md
       (TRC-D1..D4, TRC-F7).
 """
 from __future__ import annotations
@@ -58,11 +58,35 @@ SKIPPED_DIRS = {".git", "__pycache__", ".compass", "dist", "node_modules",
                 "proposals", "analysis"}
 
 
+def _is_issue_archive(path):
+    """A document belonging to one issue's own record.
+
+    `.compass` is skipped above because an issue's documents record what
+    Compass looked like when they were written, and rewriting history to match
+    the present destroys their value. `docs-compass-artifacts` moved those same
+    documents to `docs/compass/<created>-<slug>/`, so the exemption travels
+    with them - the reason for it did not change, only the location.
+
+    Scoped to the per-issue SUBDIRECTORIES, not to `docs/compass/` itself.
+    Two hand-written documents sit flat in that directory - a cross-issue
+    intake and a spike conclusion - and they are live prose that must stay
+    scanned. Exempting the whole directory would quietly stop covering them.
+    """
+    parts = path.parts
+    try:
+        i = parts.index("docs")
+    except ValueError:
+        return False
+    return (len(parts) > i + 3 and parts[i + 1] == "compass")
+
+
 def _repo_files():
     for path in ROOT.rglob("*"):
         if not path.is_file() or path.suffix not in SEARCHED_SUFFIXES:
             continue
         if any(part in SKIPPED_DIRS for part in path.parts):
+            continue
+        if _is_issue_archive(path.relative_to(ROOT)):
             continue
         yield path
 
@@ -177,13 +201,22 @@ def test_trc_f7_skill_count_unchanged_on_net():
     expected = {
         "adaptive-routing", "bdd-specification", "behaviour-mapping",
         "compass-runtime", "evidence-gates", "flow-management",
-        "governance-check", "plan-authoring", "role-translation",
-        "tdd-discipline", "traceability", "worktree-multiagent",
+        "governance-check", "plan-authoring",
+        "tdd-discipline", "worktree-multiagent",
         "receiving-code-review", "systematic-debugging",   # phase-2 task
         # ingest-an-existing-brief: turning a brief that already exists into
         # intent.md by asking rather than assuming. A skill rather than a
         # mechanism, per the plan's P0-C - "the discipline is the skill".
         "intent-interview",
+        # docs-compass-artifacts removed two skills by MERGING them into the
+        # skill each was always read beside, so their descriptions stopped
+        # being resident on every turn: traceability into evidence-gates and
+        # role-translation into intent-interview. Both subjects are still on
+        # disk as skills/evidence-gates/traceability.md and
+        # skills/intent-interview/role-translation.md.
+        # The same issue added one: quick-fix, the inlined light path, so a
+        # quick fix reads one command and one skill instead of five and three.
+        "quick-fix",
     }
     assert present == expected, (
         "the skill set changed without this allowlist being updated.\n"
@@ -192,3 +225,25 @@ def test_trc_f7_skill_count_unchanged_on_net():
     )
     assert len(present) == len(expected), (
         f"expected {len(expected)} skills, found {len(present)}")
+
+
+def test_the_archive_exemption_is_scoped_to_per_issue_directories():
+    """The control for `_is_issue_archive`.
+
+    An exemption that quietly widened to all of `docs/compass/` would stop
+    covering the two hand-written documents sitting flat in it - a cross-issue
+    intake and a spike conclusion - which are live prose, not an issue's own
+    record.
+    """
+    P = pathlib.Path
+    assert _is_issue_archive(P("docs/compass/2026-08-03-a-slug/technical-design.md"))
+    for live in ("docs/compass/2026-08-26-first-hour-intent.md",
+                 "docs/methodology.md",
+                 "skills/quick-fix/SKILL.md"):
+        assert not _is_issue_archive(P(live)), (
+            f"{live} is exempt from the scan, and it is not an issue's record")
+
+    # The two flat documents exist. An exemption checked against filenames that
+    # have gone would prove nothing.
+    flat = sorted(p.name for p in (ROOT / "docs" / "compass").glob("*.md"))
+    assert flat, "docs/compass/ holds no flat documents - this check is moot"

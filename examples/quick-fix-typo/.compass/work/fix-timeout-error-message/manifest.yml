@@ -29,7 +29,7 @@ evidence:
   scenario: TRC-001
 - id: EV-V1
   type: artifact
-  path: verification-note.md
+  path: ../../../docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md
 gates:
 - id: verify.correctness
   status: pass
@@ -56,4 +56,20 @@ changed_files:
 claims: []
 follow_ups: []
 reassessments: []
-stream_ceiling: 1
+subtask_ceiling: 1
+artifacts:
+- id: ART-ACCEPTANCE_CRITERIA
+  kind: acceptance-criteria
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-05-04-fix-timeout-error-message/acceptance-criteria.md
+- id: ART-DELIVERY_APPROACH
+  kind: delivery-approach
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-05-04-fix-timeout-error-message/delivery-approach.md
+- id: ART-VERIFICATION_NOTE
+  kind: verification-note
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md

@@ -1,6 +1,6 @@
 # Requirements review, in the target register: make-receipt-render
 
-This is a rewrite of `.compass/work/make-receipt-render/requirements-review.md`,
+This is a rewrite of `docs/compass/2026-05-26-make-receipt-render/requirements-review.md`,
 one real requirements review from the archive, cited here so both versions can
 be read side by side. The original is untouched - it stays exactly as it was
 written, bolded label rows and all, because a rewritten "before" would teach

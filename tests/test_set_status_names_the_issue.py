@@ -10,7 +10,7 @@ is blocked, usually with several issues in flight, and "refusing to mark 'None'
 landed" cannot tell them which one refused.
 
 Scenario ids: SSN-A1, SSN-A2 in
-.compass/work/set-status-does-not-name-the-issue/acceptance-criteria.md
+docs/compass/2026-08-26-set-status-does-not-name-the-issue/acceptance-criteria.md
 """
 from __future__ import annotations
 

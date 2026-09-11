@@ -299,7 +299,7 @@ def test_coverage_floor_refuses_micro_run_baseline(run_cli, make_task):
     `compass tdd-red` then recorded that as a failing test. The guarantee this
     test protects is unharmed by the narrowing: where pytest-cov cannot load
     there is no coverage floor to refuse anything. See TRC-G1..G3 in
-    .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md.
+    docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md.
     """
     import importlib.util
     cov_loadable = (not os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD")

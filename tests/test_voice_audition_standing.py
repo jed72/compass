@@ -20,7 +20,7 @@ traceability id, which breaks the very chain this strategy is about.
 
 Criteria: docs/system-spec.md
 (Requirements review and design collapsed on this quick fix - see
-`.compass/work/voice-audition-standing/delivery-approach.md` §5.)
+`docs/compass/2026-08-10-voice-audition-standing/delivery-approach.md` §5.)
 """
 from __future__ import annotations
 

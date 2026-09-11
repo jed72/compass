@@ -82,6 +82,14 @@ is for. The same split is written from the other side in
    `${CLAUDE_PLUGIN_ROOT}/templates/requirements-review.md`: the ambiguity ledger, each entry
    resolved or assigned.
 
+   **Where it goes.** `docs/compass/<created>-<issue-slug>/requirements-review.md`, where the
+   date is the manifest's `created:` field - not today's. Then register it:
+   `compass issue artifact requirements-review --status draft --path <that path>`. The CLI
+   refuses a path that climbs out of the project, so the record is checked
+   rather than claimed. If you had to create `docs/compass/`, **say so in one
+   line** - a directory appearing with nothing said is how it gets deleted by
+   hand or committed by accident.
+
 ## Reassessment trigger
 
 If the review reveals the spec is bigger or more ambiguous than the
@@ -95,7 +103,7 @@ review before work is designed against the spec, so the questions here are
 about decisions, not wording.
 
 > I have written the ambiguity ledger to
-> `.compass/work/<issue-slug>/requirements-review.md`, and updated
+> `docs/compass/<created>-<issue-slug>/requirements-review.md`, and updated
 > `acceptance-criteria.md` where a resolution changed it.
 >
 > N ambiguities were found and resolved. The ones that changed what gets

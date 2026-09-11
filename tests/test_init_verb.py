@@ -8,7 +8,7 @@ without creating it. There was no `init` verb, so initialisation could be
 described but not checked.
 
 Scenario ids: IOI-A1, IOI-A2 in
-.compass/work/init-is-the-opt-in/acceptance-criteria.md
+docs/compass/2026-08-26-init-is-the-opt-in/acceptance-criteria.md
 """
 from __future__ import annotations
 

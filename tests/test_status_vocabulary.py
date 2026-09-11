@@ -13,7 +13,7 @@ because nothing on disk said so. And with no `compass issue set-status`, every
 status change - including each new value here - was a hand-edited `str.replace`
 on the manifest.
 
-Scenarios: .compass/work/status-vocabulary/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: docs/compass/2026-08-06-status-vocabulary/acceptance-criteria.md (SCN-A1..F2).
 """
 from __future__ import annotations
 

@@ -38,6 +38,16 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Where published surfaces live. Derived by walking these rather than listing
 # files: a hardcoded list is a second thing to keep in step with the repository,
 # and its failure mode is silent - a file added later is simply never read.
+import sys as _sys
+import pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "cli"))
+from compass_pkg.core import is_issue_document as _own_archive
+
+#: An issue's own documents, at `docs/compass/<created>-<slug>/` since
+#: `compass migrate` moved them out of `.compass/work/`. They describe the
+#: evidence path in force when they were written, so enforcing today's wording
+#: over them reports the account as a defect.
+
 PUBLISHED_DIRS = ["docs", "commands", "agents", "skills", "examples", "ci",
                   "templates", "architecture", "governance"]
 PUBLISHED_FILES = ["CLAUDE.md", "README.md", "AGENTS.md"]
@@ -93,7 +103,9 @@ def _published_surfaces() -> Dict[str, str]:
     for d in PUBLISHED_DIRS:
         root = REPO_ROOT / d
         if root.is_dir():
-            paths.extend(p for p in root.rglob("*") if p.suffix in SUFFIXES)
+            paths.extend(p for p in root.rglob("*")
+                         if p.suffix in SUFFIXES
+                         and not _own_archive(p.relative_to(REPO_ROOT)))
     paths.extend(REPO_ROOT / f for f in PUBLISHED_FILES)
     for p in paths:
         if not p.is_file():

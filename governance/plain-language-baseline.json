@@ -1041,62 +1041,62 @@
       "code": "S2"
     },
     {
-      "file": "examples/bdd-adapters/behave/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/behave/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 35,
       "code": "TRC-A1"
     },
     {
-      "file": "examples/bdd-adapters/behave/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/behave/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 46,
       "code": "TRC-A2"
     },
     {
-      "file": "examples/bdd-adapters/behave/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/behave/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 57,
       "code": "TRC-A3"
     },
     {
-      "file": "examples/bdd-adapters/cucumber-js/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/cucumber-js/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 35,
       "code": "TRC-A1"
     },
     {
-      "file": "examples/bdd-adapters/cucumber-js/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/cucumber-js/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 46,
       "code": "TRC-A2"
     },
     {
-      "file": "examples/bdd-adapters/cucumber-js/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/cucumber-js/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 57,
       "code": "TRC-A3"
     },
     {
-      "file": "examples/bdd-adapters/godog/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/godog/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 35,
       "code": "TRC-A1"
     },
     {
-      "file": "examples/bdd-adapters/godog/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/godog/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 46,
       "code": "TRC-A2"
     },
     {
-      "file": "examples/bdd-adapters/godog/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/godog/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 57,
       "code": "TRC-A3"
     },
     {
-      "file": "examples/bdd-adapters/pytest-bdd/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/pytest-bdd/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 35,
       "code": "TRC-A1"
     },
     {
-      "file": "examples/bdd-adapters/pytest-bdd/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/pytest-bdd/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 46,
       "code": "TRC-A2"
     },
     {
-      "file": "examples/bdd-adapters/pytest-bdd/.compass/work/reset-password/acceptance-criteria.md",
+      "file": "examples/bdd-adapters/pytest-bdd/docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
       "line": 57,
       "code": "TRC-A3"
     },
@@ -1106,157 +1106,157 @@
       "code": "TRC-A1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 41,
       "code": "S3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 59,
       "code": "S3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G5"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G2"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 66,
       "code": "G5"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S4"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S2"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/technical-design.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/technical-design.md",
       "line": 67,
       "code": "S3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/requirements-review.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/requirements-review.md",
       "line": 25,
       "code": "S1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/requirements-review.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/requirements-review.md",
       "line": 25,
       "code": "S2"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/requirements-review.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/requirements-review.md",
       "line": 43,
       "code": "S3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/requirements-review.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/requirements-review.md",
       "line": 73,
       "code": "INT-1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/requirements-review.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/requirements-review.md",
       "line": 73,
       "code": "INT-2"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/verification-report.md",
       "line": 54,
       "code": "G1"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/verification-report.md",
       "line": 54,
       "code": "G3"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/verification-report.md",
       "line": 54,
       "code": "G4"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/verification-report.md",
       "line": 54,
       "code": "G5"
     },
     {
-      "file": "examples/feature-api-change/.compass/work/rate-limit-search-endpoint/verification-report.md",
+      "file": "examples/feature-api-change/docs/compass/2026-04-21-rate-limit-search-endpoint/verification-report.md",
       "line": 54,
       "code": "S2"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/acceptance-criteria.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/acceptance-criteria.md",
       "line": 21,
       "code": "FU-001"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 32,
       "code": "RP-SHAPE-002"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 48,
       "code": "RP-FLOOR-001"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 62,
       "code": "FU-002"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 74,
       "code": "FU-001"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 111,
       "code": "FU-001"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 115,
       "code": "FU-003"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/delivery-approach.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
       "line": 130,
       "code": "FU-002"
     },
@@ -1291,157 +1291,157 @@
       "code": "FU-003"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md",
       "line": 52,
       "code": "G1"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md",
       "line": 52,
       "code": "G2"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md",
       "line": 52,
       "code": "G4"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md",
       "line": 52,
       "code": "S2"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md",
       "line": 53,
       "code": "INT-1"
     },
     {
-      "file": "examples/hotfix-regression/.compass/work/search-crash-on-empty-filter/verification-report.md",
+      "file": "examples/hotfix-regression/docs/compass/2026-05-11-search-crash-on-empty-filter/verification-report.md",
       "line": 74,
       "code": "FU-001"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 18,
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 43,
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 46,
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 52,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 55,
       "code": "RP-ROLE-002"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 72,
       "code": "RP-ROLE-002"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 76,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 112,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/delivery-approach.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/delivery-approach.md",
       "line": 122,
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 58,
       "code": "S3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 62,
       "code": "INT-2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G4"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 80,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S4"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 81,
       "code": "S3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 84,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/technical-design.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/technical-design.md",
       "line": 106,
       "code": "G5"
     },
@@ -1476,77 +1476,77 @@
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/intent.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/intent.md",
       "line": 90,
       "code": "RP-ROLE-002"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 22,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 60,
       "code": "S3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 91,
       "code": "INT-1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 91,
       "code": "INT-2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 91,
       "code": "INT-3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 103,
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/requirements-review.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/requirements-review.md",
       "line": 105,
       "code": "RP-ROLE-002"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 68,
       "code": "G1"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 68,
       "code": "G2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 68,
       "code": "G3"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 68,
       "code": "G4"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 68,
       "code": "G5"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 68,
       "code": "S2"
     },
     {
-      "file": "examples/initiative-new-subsystem/.compass/work/notifications-subsystem/verification-report.md",
+      "file": "examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/verification-report.md",
       "line": 105,
       "code": "G5"
     },
@@ -1571,52 +1571,52 @@
       "code": "INT-1"
     },
     {
-      "file": "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/verification-note.md",
+      "file": "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md",
       "line": 35,
       "code": "G1"
     },
     {
-      "file": "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/verification-note.md",
+      "file": "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md",
       "line": 35,
       "code": "G2"
     },
     {
-      "file": "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/verification-note.md",
+      "file": "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md",
       "line": 35,
       "code": "G3"
     },
     {
-      "file": "examples/quick-fix-typo/.compass/work/fix-timeout-error-message/verification-note.md",
+      "file": "examples/quick-fix-typo/docs/compass/2026-05-04-fix-timeout-error-message/verification-note.md",
       "line": 35,
       "code": "S2"
     },
     {
-      "file": "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md",
+      "file": "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md",
       "line": 35,
       "code": "RP-SHAPE-001"
     },
     {
-      "file": "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md",
+      "file": "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md",
       "line": 51,
       "code": "RP-FLOOR-003"
     },
     {
-      "file": "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md",
+      "file": "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md",
       "line": 55,
       "code": "RP-FLOOR-002"
     },
     {
-      "file": "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md",
+      "file": "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md",
       "line": 73,
       "code": "S2"
     },
     {
-      "file": "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md",
+      "file": "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md",
       "line": 83,
       "code": "G1"
     },
     {
-      "file": "examples/spike-technical-unknown/.compass/work/pdf-export-library-viability/delivery-approach.md",
+      "file": "examples/spike-technical-unknown/docs/compass/2026-05-12-pdf-export-library-viability/delivery-approach.md",
       "line": 83,
       "code": "G3"
     },

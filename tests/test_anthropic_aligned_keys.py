@@ -18,7 +18,7 @@ and using the number, so the shapes now declare the number and the conversion
 goes. The table survives in `core` because archived manifests still carry the
 words.
 
-Scenario ids: .compass/work/anthropic-aligned-vocabulary/acceptance-criteria.md
+Scenario ids: docs/compass/2026-08-27-anthropic-aligned-vocabulary/acceptance-criteria.md
 """
 
 from __future__ import annotations

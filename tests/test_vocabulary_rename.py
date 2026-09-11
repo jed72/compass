@@ -16,7 +16,7 @@ switches to it - see design.md D2. These tests are written so the accept phase
 can be green on its own.
 
 Scenario ids trace to
-.compass/work/the-vocabulary-rename/acceptance-criteria.md.
+docs/compass/2026-08-24-the-vocabulary-rename/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -490,6 +490,26 @@ _SKIP_DIRS = {".git", "tests", "node_modules"}
 # learn the pipeline, so a wrong command name there teaches the wrong command.
 _SKIP_ROOTS = {".compass"}
 _SKIP_DOCS = {"docs/proposals", "docs/analysis"}
+
+
+def _is_own_issue_archive(rel):
+    """This repository's own issue documents, at `docs/compass/<date>-<slug>/`.
+
+    `.compass` is skipped at the root above because an issue's documents record
+    the vocabulary in force when they were written, and rewriting them to match
+    the present destroys the account. `docs-compass-artifacts` relocated those
+    same documents here, so the exemption travels with them.
+
+    ROOT ONLY, for the same reason `_SKIP_ROOTS` is root-only: the worked
+    examples' documents moved too, to `examples/<x>/docs/compass/...`, and
+    those ARE a shipped surface an adopter reads to learn the pipeline. A
+    retired command name there teaches the wrong command.
+
+    The per-issue SUBDIRECTORY, not `docs/compass/` itself: two hand-written
+    documents sit flat in it and are live prose.
+    """
+    parts = rel.parts
+    return (len(parts) > 3 and parts[0] == "docs" and parts[1] == "compass")
 # Generated from governance/terminology.yml - fix the source, not the output.
 _GENERATED = {"docs/system-spec.md", "docs/glossary.md"}
 
@@ -503,6 +523,8 @@ def _shipped_docs():
         if str(rel) in _GENERATED:
             continue
         if any(str(rel).startswith(d + "/") for d in _SKIP_DOCS):
+            continue
+        if _is_own_issue_archive(rel):
             continue
         yield rel, path
 
@@ -727,6 +749,21 @@ def _archive(root, *slugs, broken=None):
     return root
 
 
+def _resolve(task_dir, kind):
+    """The resolver's answer for one document kind.
+
+    `compass migrate` renames a retired filename AND relocates the document to
+    `docs/compass/<created>-<slug>/`, registering the path. So "the rename
+    happened" is proved by the resolver finding the document, not by a file
+    sitting beside the manifest - that is the location this change moves it
+    out of.
+    """
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent / "cli"))
+    from compass_pkg.core import resolve_artifact
+    return resolve_artifact(str(task_dir), kind)
+
+
 def _migrate(project, *flags):
     import subprocess
     import sys
@@ -757,8 +794,10 @@ def test_trc_c2():
 
     for slug in ("one", "two"):
         d = work / slug
-        assert (d / "technical-design.md").is_file(), (
-            "%s still holds the retired filename" % slug)
+        state, _path, reason = _resolve(d, "technical-design")
+        assert state == "found", (
+            "%s still holds the retired filename: technical-design resolves "
+            "as %s (%s)" % (slug, state, reason))
         assert not (d / "plan.md").exists()
         manifest = yaml.safe_load((d / "manifest.yml").read_text())
         assert set(manifest["stages"]) == {"assess", "define", "refine", "plan",
@@ -832,7 +871,13 @@ def test_trc_c4():
         assert slug in combined, (
             "the report does not name %r, which it did migrate - so a reader "
             "cannot tell what was changed:\n%s" % (slug, combined))
-        assert (work / slug / "technical-design.md").is_file()
+        # Renamed AND relocated: `migrate` moves a human document to
+        # `docs/compass/<created>-<slug>/` and registers the path, so what
+        # proves the rename is the resolver finding it, not a file beside the
+        # manifest.
+        state, path, reason = _resolve(work / slug, "technical-design")
+        assert state == "found", (
+            "%s: technical-design resolves as %s (%s)" % (slug, state, reason))
 
     # Re-running finishes the remainder rather than starting over: the two good
     # directories are already done and report nothing, and the broken one is
@@ -1018,14 +1063,28 @@ def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
         cwd=str(project), capture_output=True, text=True, timeout=120)
     assert run.returncode == 0, run.stdout + run.stderr
 
-    assert (work / "technical-design.md").is_file()
+    state, _path, reason = _resolve(work, "technical-design")
+    assert state == "found", (
+        "technical-design resolves as %s (%s) after the rename" % (state, reason))
     manifest = yaml.safe_load((work / "manifest.yml").read_text())
 
-    assert manifest["evidence"][0]["path"] == "technical-design.md", (
-        "the evidence record still points at the file the migration renamed "
-        "away, so `compass check` fails on an issue nothing is wrong with")
-    assert manifest["artifacts"][0]["path"] == "technical-design.md", (
-        "the artifact registry still points at the retired filename")
+    # Both records are repointed twice in one run: at the renamed filename, and
+    # then at where the document was relocated to. The two registries are
+    # measured from different places on purpose - `artifacts:` from the project
+    # root, `evidence:` from the issue directory - so the same document is
+    # named two different ways, and re-anchoring the evidence registry would
+    # break every gate in a repository at once.
+    assert manifest["artifacts"][0]["path"] == (
+        "docs/compass/2026-01-01-one/technical-design.md"), (
+        "the artifact registry does not name the relocated document: %r"
+        % manifest["artifacts"][0]["path"])
+    assert manifest["evidence"][0]["path"] == (
+        "../../../docs/compass/2026-01-01-one/technical-design.md"), (
+        "the evidence record still points at the file the migration moved "
+        "away, so `compass check` fails on an issue nothing is wrong with: %r"
+        % manifest["evidence"][0]["path"])
+    assert not (work / "technical-design.md").exists(), (
+        "the document is still beside the manifest as well")
     assert manifest["changed_files"] == ["technical-design.md"], (
         "changed_files still names the retired filename")
 
@@ -1159,3 +1218,28 @@ def test_trc_b3():
                     "land"):
         assert retired in migrate.stage_key_map(), (
             "the stage key %r dropped out of the migration map" % retired)
+
+
+def test_the_own_archive_exemption_does_not_reach_the_examples():
+    """The control. The worked examples' documents moved to
+    `examples/<x>/docs/compass/` in the same change, and they stay scanned:
+    an adopter reads them to learn the pipeline, so a retired command name
+    there teaches the wrong command.
+    """
+    from pathlib import Path as P
+    assert _is_own_issue_archive(P("docs/compass/2026-08-03-a-slug/plan.md"))
+    for scanned in ("examples/quick-fix-typo/docs/compass/2026-05-04-x/a.md",
+                    "docs/compass/2026-08-26-first-hour-intent.md",
+                    "docs/methodology.md"):
+        assert not _is_own_issue_archive(P(scanned)), (
+            f"{scanned} is exempt from the vocabulary scan, and should not be")
+
+    # The examples really are there, so this is not checked against a path
+    # that has gone.
+    got = sorted(REPO_ROOT.glob("examples/*/docs/compass/*/*.md"))
+    assert got, "no example documents under docs/compass - the check is moot"
+    scanned = {rel for rel, _p in _shipped_docs()}
+    assert any(str(p.relative_to(REPO_ROOT)) in {str(r) for r in scanned}
+               for p in got), (
+        "no example document reaches the scan, so the root-only scoping is "
+        "not doing what it says")

@@ -3,7 +3,7 @@ TEMPLATE: verification-report.md
 Produced by: the test & review stage (`/compass:verify`); owning role QA, agents
              `verifier` (runs the suites) and `reviewer` (applies the
              review dimensions).
-Lives at:    .compass/work/<issue-slug>/verification-report.md
+Lives at:    docs/compass/<created>-<issue-slug>/verification-report.md
 Role in the pipeline: the Verify output. Proves the work with EVIDENCE -
 recorded command output and artifacts a reader can open, never assertion. "It works" is not a
 gate-passing statement on any route. The route's gate set and review

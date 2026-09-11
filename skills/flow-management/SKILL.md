@@ -1,6 +1,6 @@
 ---
 name: flow-management
-description: Cross-issue flow management for Compass - triage heuristics, the blocker protocol, and the periodic digest format. Triggers on /compass:flow and whenever someone asks about the state of work across more than one issue.
+description: How work is prioritised across issues, the blocker protocol, and the periodic digest. Load when a question spans more than one issue.
 ---
 
 # Flow Management

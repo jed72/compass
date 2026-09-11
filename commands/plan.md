@@ -52,9 +52,16 @@ now says it too.)
    solo, the map records what *could* have been parallel and why it wasn't.
    Subtask count comes from the map; orchestration thresholds from
    `.compass/config.yml`; a policy cap can bound the count.
-4. **Write `technical-design.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md` (and
-   `distribution-map.md` from its template when applicable) into
-   `.compass/work/<issue-slug>/`.
+4. **Write `technical-design.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md`,
+   and `distribution-map.md` from its template when applicable.
+
+   **Where it goes.** `docs/compass/<created>-<issue-slug>/technical-design.md`, where the
+   date is the manifest's `created:` field - not today's. Then register it:
+   `compass issue artifact technical-design --status draft --path <that path>`. The CLI
+   refuses a path that climbs out of the project, so the record is checked
+   rather than claimed. If you had to create `docs/compass/`, **say so in one
+   line** - a directory appearing with nothing said is how it gets deleted by
+   hand or committed by accident.
 
 ## Hand-off
 
@@ -62,7 +69,8 @@ Close the design by handing the technical approach to a human. This is the
 last review before code is written, and the cheapest point at which to change
 the design.
 
-> I have written the design to `.compass/work/<issue-slug>/technical-design.md`
+> I have written the design to
+> `docs/compass/<created>-<issue-slug>/technical-design.md`
 > (and the distribution map to `distribution-map.md`).
 >
 > It records N design decisions, the governance check against all of

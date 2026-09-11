@@ -37,4 +37,10 @@ claims: []
 follow_ups: []
 reassessments: []
 friction: []
-stream_ceiling: 1
+subtask_ceiling: 1
+artifacts:
+- id: ART-ACCEPTANCE_CRITERIA
+  kind: acceptance-criteria
+  status: draft
+  reason: found on disk when the documents were relocated
+  path: docs/compass/2026-08-03-reset-password/acceptance-criteria.md

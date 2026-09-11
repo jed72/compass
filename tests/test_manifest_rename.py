@@ -17,7 +17,7 @@ still loads, because `.compass/work/` is gitignored in this repository and
 176 records have no git history behind them.
 
 Scenario ids: NIR-A1, NIR-A2, NIR-B1, NIR-B2, NIR-C1, NIR-D1, NIR-D2, NIR-E1
-in .compass/work/name-the-issue-record/acceptance-criteria.md
+in docs/compass/2026-08-27-name-the-issue-record/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -27,6 +27,20 @@ import sys
 from pathlib import Path
 
 import yaml
+
+import sys as _sys
+import pathlib as _pathlib
+_sys.path.insert(0, str(_pathlib.Path(__file__).resolve().parent.parent / "cli"))
+from compass_pkg.core import is_issue_document as _own_archive
+
+#: An issue's own documents live at `docs/compass/<created>-<slug>/` since
+#: `compass migrate` relocated them out of `.compass/work/`, which every scan
+#: here already skipped. They record the vocabulary and file layout in force
+#: when they were written, so enforcing today's surface over them reports the
+#: account as a defect. Applied at the repository root only: the worked
+#: examples' documents moved too and stay scanned, because an adopter reads
+#: them to learn the pipeline.
+
 
 ROOT = Path(__file__).resolve().parent.parent
 CLI = ROOT / "cli" / "compass"
@@ -86,6 +100,8 @@ def test_nir_a2_the_name_is_not_glossed_where_it_is_used():
                 hits.append(f"{rel}:{n}: {line.strip()[:70]}")
     for d in ("commands", "skills", "agents", "docs"):
         for p in sorted((ROOT / d).rglob("*.md")):
+            if _own_archive(p.relative_to(ROOT)):
+                continue
             for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
                 if GLOSS.search(line):
                     hits.append(f"{p.relative_to(ROOT)}:{n}: {line.strip()[:70]}")
@@ -113,6 +129,11 @@ OLD_NAME_ALLOWED = (
     "governance/terminology.yml",       # the ban must name what it bans
     "architecture/decisions/",          # the decision record
     ".compass/",                        # the archive and this issue's own record
+    # The same archive, in the place `compass migrate` moved it to. An issue's
+    # documents name the vocabulary in force when they were written, and this
+    # entry sits beside `.compass/` because it is the same reason, not a new
+    # one. Root-anchored, so an examples document is still drift.
+    "docs/compass/",
     "tests/test_manifest_rename.py",    # this file
     # The vocabulary machinery has to name the word to ban it: the ban
     # pattern lives in the first, and the last two are the fixtures that

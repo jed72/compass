@@ -25,7 +25,7 @@ correct they are. Splitting them keeps real enforcement everywhere:
   * the PATH is checkable only where the archive exists, so that half skips
     with a stated reason rather than passing on an empty tree.
 
-Scenario id: TRC-E4, .compass/work/the-vocabulary-rename/acceptance-criteria.md
+Scenario id: TRC-E4, docs/compass/2026-08-24-the-vocabulary-rename/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ CITATION_LABEL = re.compile(
 # Untracked planning directories, and the archive itself - a record may cite a
 # sibling record that has since been renamed, and ADR-020 migrates the archive
 # mechanically rather than hand-editing its prose.
-SKIP_PREFIXES = (".compass/", "docs/proposals", "docs/analysis",
+SKIP_PREFIXES = (".compass/", "docs/compass/", "docs/proposals", "docs/analysis",
                  # This file. Its controls quote a citation that must NOT
                  # resolve, which is the only way to prove the guard can fail.
                  "tests/test_archive_citations_resolve.py")

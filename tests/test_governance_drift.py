@@ -21,7 +21,7 @@ Two properties matter as much as the detection:
     that considered RP-REQUIRE-003 and rejected it is in a different state from
     one that has never heard of it.
 
-Spec: .compass/work/governance-drift-detection/acceptance-criteria.md (TRC-A1..A3,
+Spec: docs/compass/2026-08-03-governance-drift-detection/acceptance-criteria.md (TRC-A1..A3,
       TRC-B1..B8).
 """
 from __future__ import annotations

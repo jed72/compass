@@ -13,7 +13,7 @@ Measured before any threshold here was written, on 2026-08-23:
   37 test files asserting a literal string in stdout - 130 assertions
 
 Scenario ids trace to
-.compass/work/the-terminal-output-contract/acceptance-criteria.md.
+docs/compass/2026-08-23-the-terminal-output-contract/acceptance-criteria.md.
 """
 
 # The vocabulary rename landed on 2026-08-25: the assess and plan stages took
@@ -970,6 +970,10 @@ _TAIL_EXEMPT = {
     "check": "measured by its own tests above, on a failing issue",
     "policy lint": "needs a governance tree of its own to say anything",
     "issue lint": "needs a malformed manifest to say anything",
+    # Prints one bare path on stdout and nothing else, on purpose: the two
+    # hooks read it in a command substitution, and a hand-off tail in the
+    # middle of that would end up in the variable.
+    "issue artifact-path": "prints a bare path for a shell caller to consume",
     "plan lint": "needs a design with placeholders to say anything",
     "next": "advisory pointer; its own suite covers it",
     "rework-scan": "its own suite covers it",

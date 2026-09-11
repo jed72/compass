@@ -10,7 +10,7 @@ manifest the linter rejects outright sit in a repository while the sweep reporte
 everything clean." So the boundary tests below matter as much as the first one.
 
 Scenario id: CIQ-A1 in
-.compass/work/ci-fails-a-queued-issue-for-being-queued/acceptance-criteria.md
+docs/compass/2026-08-26-ci-fails-a-queued-issue-for-being-queued/acceptance-criteria.md
 """
 from __future__ import annotations
 

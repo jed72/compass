@@ -1,9 +1,7 @@
----
-name: role-translation
-description: How one set of acceptance criteria is read through five role perspectives. Load for any role-facing work.
----
-
 # Role Translation
+
+Merged in from the `role-translation` skill. It was a skill of its own, which meant its description was resident on every turn for a subject that is read when a non-engineering role is in play - so it moved here, beside the intake it serves, and nothing it taught was cut.
+
 
 Compass is not an engineering framework with hooks bolted on for other people.
 The four non-engineering roles are full pipeline citizens. The mechanism that

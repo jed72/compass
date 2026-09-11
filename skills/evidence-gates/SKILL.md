@@ -95,10 +95,18 @@ One checklist per dimension, in `skills/evidence-gates/review-dimensions.md`. Re
 4. The gate passes only if every applicable dimension passes. One no-pass sends
    the work back - to Build, or to a re-assess. A gate is not "mostly passed."
 
-## Architectural architecture checks and the verify.fitness gate
+## Architecture checks and the verify.architecture gate
 
-In `skills/evidence-gates/architecture-checks.md`. It applies only where a project has declared a architecture check.
+In `skills/evidence-gates/architecture-checks.md`. It applies only where a project has declared an architecture check.
 
 ## Coverage, and the anti-patterns
 
 In `skills/evidence-gates/coverage-and-anti-patterns.md`.
+
+## Traceability - the chain a gate is checked against
+
+In `skills/evidence-gates/traceability.md`. Read it whenever you write an
+artifact: it is how code, scenarios, claims and intents point at each other,
+and `verify.traceability` is checked against exactly that chain. It was a skill
+of its own until the two were merged, which is why it reads as a whole subject
+rather than a note.

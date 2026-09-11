@@ -47,27 +47,27 @@
     },
     {
       "id": "pair-6",
-      "source": ".compass/work/friction-loop/requirements-review.md",
+      "source": "docs/compass/2026-06-04-friction-loop/requirements-review.md",
       "sha256": "a8b8150b0ca91f64e6118766c7b994d6a29d1485e7a3041a6c34cea6f7d86060"
     },
     {
       "id": "pair-7",
-      "source": ".compass/work/make-receipt-render/requirements-review.md",
+      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
       "sha256": "ef09a3adcdf901877c2f22958c4dc8b535ab4d3b0c56932e54bd8cfb2b999a37"
     },
     {
       "id": "pair-8",
-      "source": ".compass/work/make-receipt-render/requirements-review.md",
+      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
       "sha256": "cd1fd7769b009f25cb01125909ca1806451e90272694a6c107655a705f01c687"
     },
     {
       "id": "worked-example-original-heading",
-      "source": ".compass/work/make-receipt-render/requirements-review.md",
+      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
       "sha256": "b667dbfaa6b93050228806bc73f24711b4369921d498d0f8e1290228c84dd32b"
     },
     {
       "id": "worked-example-original-decided-by",
-      "source": ".compass/work/make-receipt-render/requirements-review.md",
+      "source": "docs/compass/2026-05-26-make-receipt-render/requirements-review.md",
       "sha256": "8b7e81ea749db8c834712a4018ef06afa3ae0406c6f089d3afd3fa8523dac367"
     }
   ]

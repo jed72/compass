@@ -12,7 +12,7 @@ that each entry point tells the agent to initialise, and that the commands
 which only read state do not.
 
 Scenario ids: IOI-B1, IOI-C2, IOI-D2 in
-.compass/work/init-is-the-opt-in/acceptance-criteria.md
+docs/compass/2026-08-26-init-is-the-opt-in/acceptance-criteria.md
 """
 from __future__ import annotations
 

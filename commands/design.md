@@ -29,7 +29,7 @@ shipped governance defaults stay in force, and adopting your own is what
 
 - Adopt the designer's vocabulary - surfaces, states, interactions, the
   user's path through them.
-- Load `role-translation` - the UI contract is the interaction perspective
+- Load `intent-interview` and read its `role-translation.md` - the UI contract is the interaction perspective
   on the shared spec.
 - Load `bdd-specification` - the contract is written in the same
   Given/When/Then form as the rest of the spec, so it composes cleanly when
@@ -50,7 +50,9 @@ shipped governance defaults stay in force, and adopting your own is what
    with the guardrails in `governance/guardrails.md` (e.g. a project
    accessibility floor). A contract that cannot meet a guardrail is a
    tension to name now, not later.
-3. **Write `ui-contract.md`** into `.compass/work/<issue-slug>/`.
+3. **Write `ui-contract.md`** into `docs/compass/<created>-<issue-slug>/`,
+   then register it with `compass issue artifact ui-contract --status draft
+   --path <that path>`. Say so in one line if you created `docs/compass/`.
 
 ## How this connects to the pipeline
 

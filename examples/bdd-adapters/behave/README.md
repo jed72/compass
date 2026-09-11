@@ -24,7 +24,7 @@ project:
 compass bdd extract --issue reset-password --out features/reset-password.feature
 ```
 
-Reads `.compass/work/reset-password/acceptance-criteria.md` and writes plain Gherkin,
+Reads `docs/compass/2026-08-03-reset-password/acceptance-criteria.md` and writes plain Gherkin,
 with each scenario tagged `@TRC-*` so a per-scenario result maps back to
 `manifest.yml`. Deterministic: same spec, same bytes.
 

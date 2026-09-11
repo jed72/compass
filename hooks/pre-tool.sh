@@ -623,11 +623,41 @@ fi
 TASK_SLUG="$(basename "$TASK_DIR")"
 
 # The delivery-approach record must exist - code work without a computed
-# approach is process laundering. Both filename generations are accepted:
-# the archive predating the artifact rename still uses the retired filename.
-# An issue directory written before the artifact rename still resolves here.
-# vocabulary-scan: allow - names the retired filename on purpose
-if [ ! -f "$TASK_DIR/delivery-approach.md" ] && [ ! -f "$TASK_DIR/route.md" ]; then
+# approach is process laundering.
+#
+# ASKED, NOT GUESSED. The record may sit beside the manifest or under
+# `docs/compass/<created>-<slug>/`, and which one is a property of the issue's
+# artifact registry rather than of the filename. Testing for a file beside the
+# manifest was right until documents could move; after that it reads "the
+# record is missing" for every migrated issue and blocks EVERY code edit in the
+# project. So the resolver answers, and it is the same resolver `compass check`
+# uses - a second implementation in bash is how the two halves stop agreeing.
+#
+# Both filename generations still resolve: the resolver falls back to the
+# retired name for an archive that predates the artifact rename, and to the
+# flat filename for an issue that has not migrated.
+ROUTE_PROBE_ERR="$(mktemp)"
+set +e
+compass_python - "$TASK_DIR" 2>"$ROUTE_PROBE_ERR" <<'PYEOF'
+import sys
+import compass_pkg                      # noqa: F401 - puts vendor on sys.path
+from compass_pkg.core import FOUND, resolve_artifact
+state, _path, _reason = resolve_artifact(sys.argv[1], "delivery-approach")
+sys.exit(0 if state == FOUND else 1)
+PYEOF
+ROUTE_PROBE_STATUS=$?
+set -e
+if [ "$ROUTE_PROBE_STATUS" -eq 3 ]; then
+  # The reader could not start. That is a broken install, not an answer, and
+  # answering "assessment ran" to a question we could not ask is how this hook
+  # switches itself off. Fail closed and say why.
+  echo "Compass: could not run the bundled reader for issue '$TASK_SLUG' - the install is incomplete:" >&2
+  cat "$ROUTE_PROBE_ERR" >&2
+  rm -f "$ROUTE_PROBE_ERR"
+  exit 2
+fi
+rm -f "$ROUTE_PROBE_ERR"
+if [ "$ROUTE_PROBE_STATUS" -ne 0 ]; then
   echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:assess." >&2
   exit 2
 fi

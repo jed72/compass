@@ -20,6 +20,20 @@
 /.compass/flow/
 /.compass/current-task
 
+# The framework's own issue documents, relocated out of `.compass/work/` by
+# `compass migrate`. Same rule as the patterns above and for the same reason:
+# in a project that USES Compass these ARE committed - they are the audit
+# trail a reviewer opens - and only the framework repo ignores its own.
+#
+# ROOT-ANCHORED, so `examples/<x>/docs/compass/...` stays tracked. Those
+# documents are shipped surface: an adopter reads them to learn the pipeline.
+#
+# The two hand-written files sitting flat in `docs/compass/` are already
+# tracked and stay tracked - `.gitignore` does not affect a tracked file.
+# They are not an issue's record: one is a cross-issue intake, the other a
+# spike conclusion.
+/docs/compass/*/
+
 *.log
 
 # OS / editor noise

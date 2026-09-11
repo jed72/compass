@@ -15,7 +15,7 @@ the tests below skip locally when it is absent.
 A skipped test proves nothing, which is why TRC-B4 checks that the CI job
 actually exists rather than trusting that someone will add it.
 
-Spec: .compass/work/executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-B1..B4).
+Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-B1..B4).
 """
 from __future__ import annotations
 

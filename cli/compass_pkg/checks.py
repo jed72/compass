@@ -95,7 +95,7 @@ import re as _re
 
 import fnmatch
 import re as _re
-from compass_pkg.core import CompassError, artifact_path, find_compass_dir, find_governance, load_yaml, manifest_path, normalize_spine
+from compass_pkg.core import CompassError, artifact_location, artifact_path, find_compass_dir, find_governance, load_yaml, manifest_path, normalize_spine
 from compass_pkg.tdd import _read_config
 from compass_pkg.trust import UNKNOWN, UNTRUSTED, contribution_trust, is_ci
 from compass_pkg.check_results import NOTHING_TO_CHECK  # re-exported: callers still import it from here
@@ -580,7 +580,11 @@ def _parse_dod_lines(task_dir):
     This is the correct backward-compat behaviour (TRC-X4): no file → no
     items → check passes.
     """
-    report_path = os.path.join(task_dir, "verification-report.md")
+    # Through the resolver, not a join. The report may live under
+    # `docs/compass/<created>-<slug>/`, and a reader that builds its own path
+    # to it does not fail when it moves - it finds nothing, returns no items,
+    # and `dod-evidence-typed` passes on every issue in the repository.
+    report_path = artifact_path(task_dir, "verification-report.md")
     if not os.path.isfile(report_path):
         return []
     with open(report_path, "r", encoding="utf-8") as fh:
@@ -725,9 +729,18 @@ def _check_dod_evidence_typed(task, task_dir):
     if problems:
         return False, "; ".join(problems)
 
+    # Name the file, both ways. "Nothing to evidence" and "everything is
+    # typed" are the same green line to a reader, and the first of them is
+    # what a check that never found the report says - so the report's path is
+    # the only thing that tells them apart. `_report_location` says where it
+    # looked when there is nothing there.
+    where = artifact_location(task_dir, "verification-report.md")
     if item_count == 0:
-        return True, "DoD section is empty or absent - nothing to evidence"
-    return True, f"all {item_count} DoD item(s) are typed or human-ticked"
+        return True, ("DoD section is empty or absent - nothing to evidence "
+                      "(read %s)" % where)
+    return True, ("all %d DoD item(s) are typed or human-ticked (read %s)"
+                  % (item_count, where))
+
 
 
 def _check_inbound_backfills(task_dir, this_slug):
