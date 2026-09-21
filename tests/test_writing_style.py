@@ -413,6 +413,16 @@ def _register(rule: Rule) -> Rule:
 # would be a second list to correct, which is exactly what `S14` refuses.
 from test_terminology import BAN_PATTERNS  # noqa: E402
 
+# The one definition of the per-line scan exemption marker (allow_marker.py),
+# reused for the same reason BAN_PATTERNS is: a retired-word citation that
+# governance/terminology.yml's own scan already accepts - a real command name
+# retired at a major version, quoted so a reader whose script broke can find
+# the row that fixes it - is not a fresh breach for this sweep to invent a
+# second opinion about. This module checks the marker only on the span's own
+# line: every citation it currently guards carries an inline marker in the
+# same table cell or sentence, not a marker on a preceding line.
+from allow_marker import ALLOW_MARKER_RE  # noqa: E402
+
 # The four reasons the terminology scan misses most retired words
 # (audit 5.1) are surface gaps this module's reader already closes: it reads
 # comments, it reads tests/, and its patterns are not narrowed to a single
@@ -436,6 +446,8 @@ _RETIRED_WORD_STRUCTURAL_SKIP = "tests/fixtures/terminology/"
 
 def _find_retired_word(span: ProseSpan) -> list[Finding]:
     if span.path.startswith(_RETIRED_WORD_STRUCTURAL_SKIP):
+        return []
+    if ALLOW_MARKER_RE.search(span.text):
         return []
     findings = []
     for term, patterns in BAN_PATTERNS.items():
@@ -586,6 +598,11 @@ _register(Rule(
             "as \"1. Assess the work\", \"2. Define acceptance\" and "
             "\"4. Implement with evidence\" above it - an identifier "
             "(section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/releasing.md", "## Supply-chain stance",
+            "\"supply chain\" is the standard security term for this "
+            "section's subject, not the verb \"supply\" the word table "
+            "retires"),
     ),
 ))
 
@@ -804,7 +821,7 @@ _register(Rule(
 # ---------------------------------------------------------------------------
 
 _REFERENCE_RE = re.compile(
-    r"`?((?:[\w][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
+    r"`?((?:[\w.][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
 
 
 def _reference_exempt(text: str, match: re.Match) -> bool:
