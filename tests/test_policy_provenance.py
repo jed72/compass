@@ -1,18 +1,19 @@
-"""Policy provenance in the audit trail (task governance-drift-detection).
+"""Policy provenance in the audit trail (issue governance-drift-detection).
 
-`route.md` records which guardrails fired and why. It said nothing about WHICH
-POLICY produced those answers - so a reader six months later could not tell
-whether a light route reflected the terrain or stale governance.
+`delivery-approach.md` records which guardrails fired and why. It said
+nothing about WHICH POLICY produced those answers - so a reader six months
+later could not tell whether a light delivery approach reflected the
+assessment or stale governance.
 
-Spec: docs/compass/2026-08-03-governance-drift-detection/acceptance-criteria.md (TRC-C1..C3).
+Spec: governance-drift-detection/acceptance-criteria.md (`TRC-C1`..`TRC-C3`).
 """
 
-# The plain "which policy file did I read" line is provenance and moved to
-# --verbose on 2026-08-24, when the evaluator came under the terminal output
-# contract. POLICY DRIFT did not move: a project running a policy missing
-# rules the framework ships gets a lighter approach than it should, and a
-# reader cannot tell that from a genuinely light one - so it is a concern on
-# the first screen. The drift test below asserts the default view, deliberately.
+# The "which policy file" line is provenance and prints under --verbose.
+# POLICY DRIFT prints in the default view, because a project running a
+# policy missing rules the framework ships gets a lighter approach than it
+# should, and a reader cannot tell that from a genuinely light one - so it
+# is a concern on the first screen. The drift test below asserts the
+# default view, deliberately.
 from __future__ import annotations
 
 import pathlib
@@ -57,7 +58,7 @@ def _evaluate(proj):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - route evaluate reports which policy it read
+# `TRC-C1` - approach evaluate reports which policy it read
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_route_evaluate_should_report_which_policy_it_read(tmp_path):
@@ -72,7 +73,7 @@ def test_trc_c1_route_evaluate_should_report_which_policy_it_read(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 - a drifted project's route output says so
+# `TRC-C2` - a drifted project's approach output says so
 # ---------------------------------------------------------------------------
 
 def test_trc_c2_a_drifted_projects_route_output_should_say_so(tmp_path):
@@ -87,7 +88,7 @@ def test_trc_c2_a_drifted_projects_route_output_should_say_so(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C3 - the route template carries a provenance field
+# `TRC-C3` - the delivery-approach template carries a provenance field
 # ---------------------------------------------------------------------------
 
 def test_trc_c3_the_route_template_should_carry_a_provenance_field():
