@@ -16,8 +16,8 @@
 #
 # ORDER
 #   Subtasks are merged in the order they appear in distribution-map.md §3.
-#   The map is expected to list shared foundations first (subtask-zero pattern,
-#   see the worktree-multiagent skill) so dependents merge onto a base that already
+#   The map must list shared foundations first (subtask-zero pattern, see the
+#   worktree-multiagent skill) so dependents merge onto a base that already
 #   has what they need.
 #
 # CONFLICTS
@@ -28,7 +28,7 @@
 #
 # COMBINED REGRESSION
 #   After all subtasks merge cleanly, the project's test command runs once
-#   against the integrated result. Per-stream green does not imply integrated
+#   against the integrated result. Per-subtask green does not imply integrated
 #   green - proving the combination is the whole point of ship. If combined
 #   regression fails, worktrees are NOT cleaned up (you will need them) and the
 #   script exits non-zero.
@@ -200,12 +200,11 @@ echo "Writing status: landed to manifest.yml and deriving living system spec..."
 
 TASK_YML="$TASK_DIR/manifest.yml"
 if [ -f "$TASK_YML" ]; then
-  # Parenthesised into its own subshell: compass_python execs python3 in
-  # place of whatever calls it, and this call - unlike the ones above that
-  # already sit inside `$(...)` - is a plain statement, not a captured
-  # substitution. Without the subshell, exec would replace integrate.sh
-  # itself and nothing after this block (worktree cleanup, the final
-  # summary) would ever run.
+  # Parenthesised into its own subshell: this call - unlike the ones above
+  # that already sit inside `$(...)` - is a plain statement, not a captured
+  # substitution. compass_python forks python3; it does not replace the
+  # calling shell, so worktree cleanup and the final summary below still run
+  # whatever this block does.
   ( compass_python - <<PYEOF
 import compass_pkg
 import yaml, datetime, sys

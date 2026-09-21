@@ -3,21 +3,17 @@
 # Compass hook: post-tool.sh  -  DEVLOG APPENDER
 # =============================================================================
 # Runs as a Claude Code PostToolUse hook, after an Edit/Write/MultiEdit tool
-# call completes. It does ONE lightweight thing: appends a short line to the
-# current issue's devlog.md, so "persistence over conversation" holds without
-# the agent having to remember to log every touch.
+# call completes. It does one thing: appends a short line to the current
+# issue's devlog.md, so "persistence over conversation" holds without the
+# agent having to remember to log every touch.
 #
-# WHAT IT DOES NOT DO (any more)
-#   It does not run the test suite, and it does not clear the .red marker. That
-#   is now `compass tdd-green`'s job - and the CLI does it honestly: it runs the
-#   test, confirms it passes, writes evidence/green.json, and only then clears
-#   .red. A hook quietly running a discovered test command and clearing the
-#   marker was the brittle, trust-based version; the CLI replaces it with an
-#   evidence-backed one. This hook stays out of that.
+# It does not run tests or clear .red. `compass tdd-green` does that, because
+# it runs the test and writes evidence/green.json before it clears the
+# marker.
 #
 # THE CURRENT ISSUE
 #   Named by the .compass/current-task pointer (written by /compass:assess and
-#   /compass:resume); most-recently-modified is only the fallback.
+#   /compass:resume); most recently changed is only the fallback.
 #
 # WIRING  (.claude/settings.json)
 #   {
@@ -39,12 +35,9 @@
 set -euo pipefail
 
 INPUT="$(cat || true)"
-# Same ancestor walk as hooks/pre-tool.sh. A bare $(pwd) assumed the session
-# started at the repository root; started anywhere else this hook found no
-# .compass/work/, exited 0, and a silent warner is exactly what a clean
-# session looks like. Every gate-state warning disappeared with no trace.
-#
-# A warner must not refuse - it says so rather than blocking - but it says so.
+# Find the project with the same ancestor walk as hooks/pre-tool.sh, so the
+# devlog line is written from any subdirectory. The hook never blocks. When
+# it finds no project it prints a note on stderr and exits 0.
 INVOKED_FROM="$(pwd)"
 if [ -n "${CLAUDE_PROJECT_DIR:-}" ]; then
   PROJECT_DIR="$CLAUDE_PROJECT_DIR"
