@@ -603,6 +603,10 @@ _register(Rule(
             "\"supply chain\" is the standard security term for this "
             "section's subject, not the verb \"supply\" the word table "
             "retires"),
+        Exemption(
+            "docs/security.md", "supply-chain requirements",
+            "\"supply chain\" is the standard security term, not the verb "
+            "\"supply\" the word table retires"),
     ),
 ))
 
