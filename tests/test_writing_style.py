@@ -52,14 +52,15 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 474
+PENDING_PATHS_HIGH_WATER = 428
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
 # contract a migration would rename. Mirrors the key list the behaviour
 # comparison blanks (`DD-3`), so the two halves cannot disagree about what
 # prose is.
-PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help"})
+PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
+                        "means", "not", "context", "why", "reason", "also"})
 
 # Files this issue does not touch, matched by exact path or by directory
 # prefix (a trailing slash). `docs/system-spec.md` is derived and regenerated
@@ -433,9 +434,71 @@ HYPHEN_WIDENING: dict[str, tuple[re.Pattern, ...]] = {
 # hold banned words, not a per-quote exemption for prose believed correct.
 _RETIRED_WORD_STRUCTURAL_SKIP = "tests/fixtures/terminology/"
 
+# governance/terminology.yml's own `scan.exempt` already excuses
+# architecture/decisions/ - "ADRs may quote v1 terms" - because ADR-023
+# rules that an accepted record keeps the words it was decided in. The
+# retired-word rule honours the same exemption its own governance already
+# grants; the idiom rule (PBW-A5) does not, because an ADR's idiom is
+# ordinary prose, not the vocabulary the decision was made in.
+_ADR_VOCABULARY_SKIP = "architecture/decisions/"
+
+_TERMINOLOGY_PATH_STR = "governance/terminology.yml"
+# terminology.yml's own `scan.exempt_regions` already names these four
+# top-level blocks as the ones that "carry every retired word by
+# necessity" - a ban must name the term it retires, and a rename table must
+# name both spellings. PBW-D2 holds the retired-word and idiom sweeps to
+# that same exemption for this one file, computed from the blocks'
+# real line spans rather than a line range that would go stale on edit.
+_TERMINOLOGY_EXEMPT_BLOCKS = frozenset(
+    {"banned", "retired_machine_names", "retired_machine_name_exempt", "scan"})
+
+
+def _leading_banner_start(lines: list[str], key_line_index: int) -> int:
+    """The first line of the `# ===...` banner immediately above a key, or
+    the key's own line index when there is no such banner. `blocks:` in
+    `governance/terminology.yml`'s own `scan.exempt_regions` names a region
+    by its key, but the key never explains itself - the comment banner
+    directly above it does, and that banner exists BECAUSE the block below
+    needs the retired words it names. Stopping the exempt range at the key
+    line would flag the explanation and exempt only the list it explains."""
+    i = key_line_index
+    while i > 0 and (lines[i - 1].strip() == "" or lines[i - 1].lstrip().startswith("#")):
+        i -= 1
+    return i
+
+
+@lru_cache(maxsize=1)
+def _terminology_exempt_line_ranges() -> tuple[tuple[int, int], ...]:
+    path = REPO_ROOT / _TERMINOLOGY_PATH_STR
+    if not path.is_file():
+        return ()
+    text = path.read_text(encoding="utf-8")
+    node = yaml.compose(text)
+    if not isinstance(node, yaml.MappingNode):
+        return ()
+    lines = text.splitlines()
+    ranges = []
+    for key_node, value_node in node.value:
+        if (isinstance(key_node, yaml.ScalarNode)
+                and key_node.value in _TERMINOLOGY_EXEMPT_BLOCKS):
+            start = _leading_banner_start(lines, key_node.start_mark.line)
+            ranges.append((start + 1, value_node.end_mark.line + 1))
+    return tuple(ranges)
+
+
+def _in_terminology_exempt_block(span: ProseSpan) -> bool:
+    if span.path != _TERMINOLOGY_PATH_STR:
+        return False
+    return any(start <= span.line <= end
+               for start, end in _terminology_exempt_line_ranges())
+
 
 def _find_retired_word(span: ProseSpan) -> list[Finding]:
     if span.path.startswith(_RETIRED_WORD_STRUCTURAL_SKIP):
+        return []
+    if span.path.startswith(_ADR_VOCABULARY_SKIP):
+        return []
+    if _in_terminology_exempt_block(span):
         return []
     findings = []
     for term, patterns in BAN_PATTERNS.items():
@@ -450,8 +513,44 @@ def _find_retired_word(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A1", "No retired v1 word survives in prose, a comment "
-               "or a test docstring", _find_retired_word))
+_register(Rule(
+    "PBW-A1", "No retired v1 word survives in prose, a comment "
+    "or a test docstring", _find_retired_word,
+    exemptions=(
+        # test_terminology.py's own broad bare-word pattern for the ship
+        # stage's retired spelling matches the ordinary verb too. The author
+        # already marked this exact sentence "vocabulary-scan: allow" for
+        # that scan; this sweep reuses the same BAN_PATTERNS (DD-1) but does
+        # not read that marker, so the false positive needs its own named
+        # exemption.
+        Exemption("approaches/spike.md", "Land production code",
+                   "ordinary verb, already marked vocabulary-scan: allow "
+                   "for the same reason."),
+        Exemption("governance/routing-policy.yml", "full-plus-backfill",
+                   "a machine stage-weight enum value, already marked "
+                   "vocabulary-scan: allow for the same reason."),
+        # Each of these five terminology.yml `not:` entries states what a
+        # v2 term is NOT, which cannot be written without naming the
+        # retired word it replaced - already marked vocabulary-scan: allow
+        # for test_terminology.py's own scan, which this sweep does not
+        # read.
+        Exemption("governance/terminology.yml",
+                   "A 'task' - that word survives only as machine state",
+                   "a not: field naming the retired word on purpose."),
+        Exemption("governance/terminology.yml",
+                   "NOT triage. Triage means sorting BETWEEN cases",
+                   "a not: field naming the retired word on purpose."),
+        Exemption("governance/terminology.yml",
+                   "what makes an issue ready. v1 called this \"Clarify\"",
+                   "a not: field naming the retired word on purpose."),
+        Exemption("governance/terminology.yml",
+                   "v1 called this a 'backfill', with states 'owed'",
+                   "a not: field naming the retired word on purpose."),
+        Exemption("governance/terminology.yml",
+                   "recorded, the derived system spec is regenerated. v1 called this \"Land\"",
+                   "a not: field naming the retired word on purpose."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -525,8 +624,110 @@ def _find_word_table(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A2", "The shorter word stands where the word is not an "
-               "identifier", _find_word_table))
+_register(Rule(
+    "PBW-A2", "The shorter word stands where the word is not an "
+    "identifier", _find_word_table,
+    exemptions=(
+        # `Verify` is one of the eight stage names section 4 protects. The
+        # exemption function already carves out "the `verify` stage" and a
+        # gate id such as `verify.analyze`, but not a bare table-cell label
+        # or a phrase naming the stage or its gate directly - both name the
+        # stage, not the plain-English verb the word table replaces with
+        # "check".
+        Exemption("approaches/README.md", "but verify adds the security",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/composition-reference.md",
+                   "**Verify** - which review dimensions",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/composition-reference.md",
+                   "Feature, but Verify also runs",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/feature.md",
+                   "| Verify | **Two review points**",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/hotfix.md",
+                   "All Verify gates, no exceptions",
+                   "names the Verify stage and the Verify gate, not the verb."),
+        Exemption("approaches/hotfix.md",
+                   "Full Verify gate. Review dimensions",
+                   "names the Verify gate, not the verb."),
+        Exemption("approaches/hotfix.md", "never Verify itself",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/hotfix.md",
+                   "Compress the Verify gate. The stages before Verify are "
+                   "compressed; Verify is",
+                   "names the Verify gate and stage, not the verb."),
+        Exemption("approaches/initiative.md",
+                   "| Verify | **All gates, all dimensions.**",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/quick-fix.md", "| Verify | Light gate",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/quick-fix.md",
+                   "One review point, at Verify, clearing three gates",
+                   "names the Verify stage, not the verb."),
+        Exemption("approaches/rubric.md", "Owns the Verify gate",
+                   "names the Verify gate, not the verb."),
+        Exemption("approaches/spike.md", "| Verify | **= Conclude.**",
+                   "names the Verify stage, not the verb."),
+        Exemption("architecture/ownership.md", "(verify → ship gate)",
+                   "names the Verify stage, not the verb."),
+        Exemption("architecture/system-context.md",
+                   "implement → verify → ship",
+                   "names the Verify stage, not the verb."),
+        Exemption("governance/guardrails.md",
+                   "Checked at Verify and again at ship time",
+                   "names the Verify stage, not the verb."),
+        Exemption("governance/guardrails.md",
+                   "`verifier` and `reviewer` agents** at Verify",
+                   "names the Verify stage, not the verb."),
+        Exemption("governance/signals.yml",
+                   "reviewer agent at Verify - judgement",
+                   "names the Verify stage, not the verb."),
+        Exemption("governance/guardrails.yml", "compass bdd verify",
+                   "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("governance/guardrails.yml", "checked_at: [verify]",
+                   "an example YAML value inside a comment, not the verb."),
+        Exemption("governance/guardrails.yml", "attempts: <int>",
+                   "attempts: <int> names the evidence field, not the verb "
+                   "\"attempt\"."),
+        # The first half of a hyphenated compound noun about a chain of
+        # suppliers is not the plain verb the word table replaces with
+        # "give". The exemption function does not check for a hyphen right
+        # after the match.
+        Exemption("architecture/decisions/ADR-013-vendored-third-party-code.md",
+                   "it is a supply-chain",
+                   "\"supply\" opens the compound noun \"supply-chain\", "
+                   "not the verb."),
+        # An id prefix (ADR-016) reuses the spelling of the plain verb the
+        # word table replaces with "need". The match is the second half of
+        # the hyphenated identifier, so the backtick before its first half
+        # does not sit immediately before the match.
+        Exemption("architecture/decisions/"
+                   "ADR-016-id-codes-are-part-of-the-frozen-vocabulary.md",
+                   "They become `RP-REQUIRE-*`",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("architecture/decisions/"
+                   "ADR-016-id-codes-are-part-of-the-frozen-vocabulary.md",
+                   "define `RP-FLOOR` and `RP-REQUIRE` honestly",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("architecture/decisions/README.md",
+                   "RP-REQUIRE-001/002, verify.analyze",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("architecture/system-context.md",
+                   "added by `RP-REQUIRE-003` and `RP-REQUIRE-004`",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("governance/routing-policy.yml",
+                   "six of the entries below carry RP-REQUIRE ids",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("governance/strategies-rationale.md",
+                   "[RP-REQUIRE-003] requirement:",
+                   "RP-REQUIRE is an id prefix, not the verb; this is a "
+                   "quoted literal string a test matched."),
+        Exemption("governance/terminology.yml",
+                   "the result. RP-REQUIRE attaches a gate",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -575,7 +776,23 @@ def _find_spelling(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A3", "The spelling is British", _find_spelling))
+_register(Rule(
+    "PBW-A3", "The spelling is British", _find_spelling,
+    exemptions=(
+        # An evidence-id prefix carries the gate's own American spelling as
+        # a machine identifier, not the ordinary word it is spelt like. The
+        # exemption function recognises a backtick right before the match,
+        # but the backtick here opens two segments earlier, so the
+        # identifier is not caught. Swapping the one lowercase letter that
+        # separates the two spellings is a no-op in the all-caps form
+        # (only a lowercase instance matches), which is why the sweep's own
+        # reported replacement reads identical to the original.
+        Exemption("architecture/decisions/"
+                   "ADR-007-conditional-gate-promotion-via-floors.md",
+                   "EV-ANALYZE-ADVISORY",
+                   "evidence-id prefix, a machine identifier."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -634,14 +851,21 @@ _IDIOM_PATTERNS: tuple[tuple[re.Pattern, str], ...] = tuple(
 )
 
 
-def _idiom_exempt(text: str, match: re.Match) -> bool:
+def _idiom_exempt(path: str, text: str, match: re.Match) -> bool:
     """"code smell" is the one kept phrase this table would otherwise flag -
     every other kept term (drift, stale, ratchet, in flight, lightweight) is
-    simply absent from IDIOM_TABLE, so no pattern exists to exempt it from."""
+    simply absent from IDIOM_TABLE, so no pattern exists to exempt it from.
+    One idiom-table entry names a retired v1 risk dimension too; inside
+    architecture/decisions/ it is always the dimension name an accepted
+    record was decided in (ADR-023), never the idiom, so it takes the same
+    exemption PBW-A1 already gives that directory."""
     if match.group(0).lower() in ("smell", "smells"):
         before = text[:match.start()].rstrip().lower()
         if before.endswith("code"):
             return True
+    if (match.group(0).lower() == "blast radius"
+            and path.startswith(_ADR_VOCABULARY_SKIP)):
+        return True
     return False
 
 
@@ -652,10 +876,16 @@ def _find_idiom(span: ProseSpan) -> list[Finding]:
         # on the idiom table above - the same structural skip PBW-A1 uses
         # applies here for the same reason.
         return []
+    if _in_terminology_exempt_block(span):
+        # PBW-D2: the same four blocks that must keep naming every banned
+        # word also carry idiom-table words as part of what they ban or
+        # rename - an idiom this table replaces, quoted inside a `context:`
+        # explaining why a word was retired.
+        return []
     findings = []
     for pattern, replacement in _IDIOM_PATTERNS:
         for match in pattern.finditer(span.text):
-            if _idiom_exempt(span.text, match):
+            if _idiom_exempt(span.path, span.text, match):
                 continue
             findings.append(Finding(
                 span.path, span.line,
@@ -709,8 +939,18 @@ _BARE_CODE_RE = re.compile(
     r"\b(?:G[1-5]|S\d+|TRC-\w+|DD-\d+|R\d+|MP-\d+|Inv-\d+|BR-\d+|AMB-\d+|"
     r"U-\d+|review finding \d+|probe \d+|slice \d+[a-z]?|Phase \d+)\b")
 
+# architecture/decisions/README.md's Index and Principle-to-ADR tables are
+# reference lookups keyed by id - the same shape as terminology.yml's own
+# codes: section, where the code IS the row's key and its meaning sits in
+# the adjacent cell. The "plain words, then the code in brackets" house
+# form is a prose rule; a two-column table row is not prose in that sense,
+# and every one of this rule's findings in this file is a table row.
+_BARE_CODE_TABLE_SKIP = "architecture/decisions/README.md"
+
 
 def _find_bare_code(span: ProseSpan) -> list[Finding]:
+    if span.path == _BARE_CODE_TABLE_SKIP:
+        return []
     findings = []
     for match in _BARE_CODE_RE.finditer(span.text):
         start = match.start()
@@ -728,12 +968,40 @@ _register(Rule(
     "PBW-A7", "A bare code carries its meaning or goes", _find_bare_code,
     exemptions=(
         Exemption(
+            "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
+            "the G5 guard kicked in",
+            "a verbatim quote of the bad phrasing the ADR exists to fix; "
+            "explaining it would destroy the example."),
+        Exemption(
+            "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
+            "what a G5 guard was",
+            "restates the same verbatim quote."),
+        # That id's own meaning is not documented anywhere this sweep can
+        # check, so it is quoted as originally written (test_pl_x3 in
+        # tests/test_plain_language.py pins its presence) rather than
+        # guessed at.
+        Exemption(
+            "architecture/decisions/ADR-015-the-vocabulary-scan-covers-code-positions.md",
+            "`RCD-G5` needs that to be demonstrated",
+            "RCD-G5's meaning is unverified; quoted as originally written, "
+            "pinned by test_pl_x3."),
+        Exemption(
+            "architecture/decisions/ADR-015-the-vocabulary-scan-covers-code-positions.md",
+            "mutation proof. `RCD-G5` needs the",
+            "RCD-G5's meaning is unverified; quoted as originally written, "
+            "pinned by test_pl_x3."),
+        Exemption(
             "scripts/voice-tells.py", "TRC-F2",
             "found while building this sweep, not by the audit: the file is "
             "outside the audit's 474 files and outside every batch's "
             "pending list, so no batch owns the fix and this subtask cannot "
             "edit it (outside its own code surface). Filed separately as "
             "voice-tells-cites-trc-f2-with-no-plain-words."),
+        Exemption(
+            "governance/terminology.yml",
+            "it prints 'G5 A human signs off",
+            "a verbatim quote of `compass check`'s real printed output, "
+            "itself the house-form example this ban describes."),
     ),
 ))
 
@@ -766,8 +1034,92 @@ def _find_missing_reference(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A8", "Every file and command a comment names exists",
-               _find_missing_reference))
+_register(Rule(
+    "PBW-A8", "Every file and command a comment names exists",
+    _find_missing_reference,
+    exemptions=(
+        # The reference regex needs a word character to open the first path
+        # segment, so it drops the leading dot from a citation of a file
+        # under a dotdir and then checks a path that was never meant to
+        # exist at the repo root - the tracked file sits one character to
+        # the left of what got checked. Found while building this sweep,
+        # not by the audit: the same gap can fire on any dotdir citation
+        # repository-wide, so it is filed separately as
+        # writing-style-sweep-drops-the-leading-dot-on-a-dotdir-citation.
+        Exemption("approaches/composition-reference.md",
+                   ".compass/config.yml",
+                   "the sweep drops the leading dot; the file is tracked."),
+        Exemption("approaches/feature.md", ".compass/config.yml",
+                   "the sweep drops the leading dot; the file is tracked."),
+        Exemption("architecture/decisions/"
+                   "ADR-011-enforced-file-types-are-project-configurable.md",
+                   ".compass/config.yml",
+                   "the sweep drops the leading dot; the file is tracked."),
+        Exemption("governance/strategies.md", ".compass/config.yml",
+                   "the sweep drops the leading dot; the file is tracked."),
+        # These two stub files existed only for the 3.x cycle and were
+        # removed at the next major version, per this ADR's own rule - a
+        # historical reference, not a stale one.
+        Exemption("architecture/decisions/"
+                   "ADR-019-retired-names-carry-redirects-once-there-are-adopters.md",
+                   "commands/triage.md",
+                   "historical: removed at the next major version, as this "
+                   "ADR's own rule says."),
+        Exemption("architecture/decisions/"
+                   "ADR-019-retired-names-carry-redirects-once-there-are-adopters.md",
+                   "commands/wireframe.md",
+                   "historical: removed at the next major version, as this "
+                   "ADR's own rule says."),
+        # The retired narrative-guard test module is the file this ADR
+        # decides to delete; every mention of it names the file being
+        # retired, not a live reference.
+        Exemption("architecture/decisions/"
+                   "ADR-021-a-release-narrative-guard-retires-with-its-release.md",
+                   "tests/test_v1_2_narrative.py",
+                   "the file this ADR retires; the citation is historical."),
+        # The manifest schema's pre-rename filename was the schema's name
+        # before this ADR renamed it; the citation describes the pre-rename
+        # state on purpose.
+        Exemption("architecture/decisions/ADR-022-the-issue-record-is-a-manifest.md",
+                   "schemas/task.schema.json",
+                   "names the schema's pre-rename filename; historical."),
+        # A per-issue relative filename convention inside
+        # .compass/work/<issue>/, not a repo-root path - the reference
+        # regex cannot tell the two apart, since both look like
+        # "dir/file.ext".
+        Exemption("architecture/decisions/ADR-005-state-lives-on-disk.md",
+                   "evidence/green.json",
+                   "names the per-issue evidence filename convention, not "
+                   "a repo-root path."),
+        Exemption("governance/guardrails.yml", "evidence/green.json",
+                   "names the per-issue evidence filename convention, not "
+                   "a repo-root path."),
+        # A hypothetical example test in a commented-out sample entry - it
+        # was never meant to exist.
+        Exemption("governance/quarantine.yml",
+                   "tests/api/test_export.py",
+                   "a hypothetical example path in a commented-out sample."),
+        Exemption("governance/strategies-rationale.md",
+                   "tests/__pycache__/x.pyc",
+                   "a hypothetical example path; the extension list stops "
+                   "the match one character short of the real suffix."),
+        # A rejected alternative's hypothetical path - it does not exist
+        # because the alternative was never built, which is the point of
+        # naming it in the Alternatives table.
+        Exemption("architecture/decisions/ADR-008-cross-task-derived-artifacts.md",
+                   ".compass/cache/system-spec.json",
+                   "a rejected alternative's hypothetical path; it was "
+                   "never built."),
+        # A pinned test in test_fresh_eyes_verify_sweeps.py needs this exact
+        # path as the ADR-013 evidence trail's own citation, and the
+        # sentence around it already says "not in this repository" - the
+        # file was never meant to be tracked here.
+        Exemption("governance/strategies-rationale.md",
+                   "plain-language-3-2-0/technical-design.md",
+                   "a pinned citation of another issue's document; the "
+                   "sentence already says it is not in this repository."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -1389,6 +1741,115 @@ def test_pbw_e4_the_behaviour_comparison_reports_a_planted_change(tmp_path):
     # A path outside tests/ passed to --allow-pinned-test is refused.
     result = _run_compare(repo, base3, "--allow-pinned-test", "src/mod.py")
     assert result.returncode != 0
+
+
+def test_pbw_e4_a_yaml_comment_is_not_behaviour(tmp_path):
+    """A whole-line `#` comment is the same prose position
+    `tests/test_writing_style.py`'s `_yaml_spans` reads, so rewording one is
+    not a behaviour change - but a `rationale:`-sibling key's real value
+    still is. `PBW-E4`, `PBW-D2`."""
+    repo = _sandbox_repo(tmp_path)
+    (repo / "policy.yml").write_text(
+        "# old comment explaining the rule below\n"
+        "rule: keep\n")
+    _commit(repo, "base")
+    base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                           capture_output=True, text=True, check=True).stdout.strip()
+
+    # Comment-only change - exit 0.
+    (repo / "policy.yml").write_text(
+        "# new comment, reworded for clarity\n"
+        "rule: keep\n")
+    _commit(repo, "comment reworded")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # The non-prose value changes too - exit non-zero, naming the file.
+    (repo / "policy.yml").write_text(
+        "# new comment, reworded for clarity\n"
+        "rule: change\n")
+    _commit(repo, "rule value changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "policy.yml" in result.stdout
+
+    # governance/terminology.yml's own prose keys (means, not, context, why,
+    # reason) are not the general PROSE_KEYS - rewording one is still not a
+    # behaviour change.
+    (repo / "terms.yml").write_text(
+        "terms:\n"
+        "  issue:\n"
+        "    means: old wording about an issue\n"
+        "    not: old wording about what it is not\n"
+        "    related: [manifest]\n")
+    _commit(repo, "terms base")
+    base_terms = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                                 capture_output=True, text=True,
+                                 check=True).stdout.strip()
+    (repo / "terms.yml").write_text(
+        "terms:\n"
+        "  issue:\n"
+        "    means: new wording, reworded entirely, about an issue\n"
+        "    not: new wording, reworded entirely, about what it is not\n"
+        "    related: [manifest]\n")
+    _commit(repo, "terms reworded")
+    result = _run_compare(repo, base_terms)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # A multi-line folded block scalar under a PROSE_KEYS key: rewording
+    # every continuation line is not a behaviour change...
+    (repo / "block.yml").write_text(
+        "checks:\n"
+        "  a-check:\n"
+        "    description: >\n"
+        "      Old wording, spread\n"
+        "      across two lines.\n"
+        "    checks: [x]\n")
+    _commit(repo, "block base")
+    base2 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                            capture_output=True, text=True, check=True).stdout.strip()
+    (repo / "block.yml").write_text(
+        "checks:\n"
+        "  a-check:\n"
+        "    description: >\n"
+        "      New wording entirely, now spread\n"
+        "      across three\n"
+        "      lines instead.\n"
+        "    checks: [x]\n")
+    _commit(repo, "block reworded")
+    result = _run_compare(repo, base2)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # ...but the sibling `checks:` list is still a real change.
+    (repo / "block.yml").write_text(
+        "checks:\n"
+        "  a-check:\n"
+        "    description: >\n"
+        "      New wording entirely, now spread\n"
+        "      across three\n"
+        "      lines instead.\n"
+        "    checks: [y]\n")
+    _commit(repo, "block checks changed")
+    result = _run_compare(repo, base2)
+    assert result.returncode != 0
+    assert "block.yml" in result.stdout
+
+    # A run of whole-line comments collapsing from many short lines to
+    # fewer, longer ones is still not a behaviour change.
+    (repo / "comments.yml") .write_text(
+        "# first old line\n"
+        "# second old line\n"
+        "# third old line\n"
+        "rule: keep\n")
+    _commit(repo, "comments base")
+    base3 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                            capture_output=True, text=True, check=True).stdout.strip()
+    (repo / "comments.yml").write_text(
+        "# one reworded comment covering the same ground\n"
+        "rule: keep\n")
+    _commit(repo, "comments collapsed")
+    result = _run_compare(repo, base3)
+    assert result.returncode == 0, result.stdout + result.stderr
 
 
 # ---------------------------------------------------------------------------

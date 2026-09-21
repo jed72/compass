@@ -7,10 +7,16 @@ supersedes: ''
 superseded_by: ''
 ---
 
+> **Vocabulary note (ADR-023, 2026-08-27):** this record's *task* is now an
+> **issue**; the *Frame* stage is now **assess**; *Land* is now **ship**; a
+> *re-frame* is now a **reassessment**; the *task spine* is now the
+> **manifest**; `compass calibration` is now `compass retro`. The record
+> keeps the words it was decided in; only the names have moved.
+
 ## Context
 
 Compass has two layers of cross-task visibility: per-task gates (checked by
-`compass check` at Verify and Land, which can block a task) and cross-task
+`compass check` at `Verify` and `Land`, which can block a task) and cross-task
 signals (surfaced by `/compass:flow`, `compass rework-scan`, and
 `compass calibration`, which aggregate patterns across tasks).
 
@@ -28,7 +34,7 @@ start.
 Flow (and all cross-task signal mechanisms) advises but never gates.
 
 `/compass:flow`, `compass rework-scan`, and `compass calibration` are
-read-only over `.compass/work/*/task.yml`. They read disk and report; they do
+read-only over `.compass/work/<issue>/task.yml`. They read disk and report; they do
 not write task state, do not set gates to blocked, do not trigger re-frames.
 
 A rework signal from `compass rework-scan` writes a report to
@@ -76,8 +82,7 @@ retroactively gate a completed Verify.
 
 ## References
 
-- Invariant Inv-4 (Flow advises; it never gates or mutates), defined in `architecture/decisions/README.md`
+- The invariant that Flow advises and never gates or mutates (Inv-4), defined in `architecture/decisions/README.md`
 - Boundary rule: `compass rework-scan` exits 0 whether or not it detects anything (`architecture/ownership.md`)
 - Boundary rule: `compass calibration` is read-only over every task spine (`architecture/ownership.md`)
-- `docs/methodology.md` §"Beyond the per-task pipeline"
-- `CLAUDE.md` §"Beyond the per-task pipeline"
+- `docs/methodology.md` §10 "Reassessment and calibration"

@@ -331,9 +331,24 @@ def test_d2_repairs_change_only_retired_names():
     and `governance/guardrails.md` (10 -> 22), when both were cut from prose
     to directives and their incidents moved to `strategies-rationale.md`. The
     fingerprint is a snapshot of a sanctioned state, not of the original text,
-    so a sanctioned restructure moves it - visibly, in the same commit. The
-    other 57 are untouched, and a NEW structural change to any of the 59 still
-    fails.
+    so a sanctioned restructure moves it - visibly, in the same commit.
+
+    Four more moved in the writing-style rewrite: `approaches/hotfix.md`
+    (list_items 12 -> 11) and `governance/routing-policy.md` (18 -> 17) each
+    lost a bullet that was really a continuation line of the one above it,
+    once the idiom or sentence break that put it on its own dashed line was
+    removed. `governance/guardrails.md` (heading_levels ten entries -> nine,
+    table_rows 3 -> 0) lost its placeholder amendment-log heading and table -
+    git is the log, so a rendered `{{DATE}}`/`{{NAME}}` table taught nothing.
+    `governance/strategies.md` (list_items 88 -> 89) gained one: "TDD serves
+    two purposes. Governance: ... Design feedback: ..." was two run-on
+    bullets, each naming one purpose inline; splitting the run-on into a
+    parent bullet with two nested ones is the same "one point in one
+    sentence, a vertical list for a set of items" rule the rest of this
+    batch applied, not a change of meaning.
+
+    The other 53 are untouched, and a NEW structural change to any of the 59
+    still fails.
     """
     import json
     snap = json.loads(

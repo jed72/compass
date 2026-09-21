@@ -45,7 +45,7 @@ opens**, which is not.
 
 So the choice is not "edit the archive or leave it honest". It is: migrate it
 deliberately with the pointers repaired and checked, or leave it half-migrated
-with the pointers rotting and no measurement of how many.
+with the pointers broken and no measurement of how many.
 
 ## Decision
 
@@ -54,7 +54,7 @@ with the pointers rotting and no measurement of how many.
 
 Three parts, and the third is what makes the first safe:
 
-1. **The migration is mechanical.** `compass migrate` performs it - the same
+1. **The migration is mechanical.** `compass migrate` does it - the same
    verb an adopter runs, over the same map. Nothing is hand-edited, so the
    change is reviewable as a diff and reproducible by re-running the tool.
    Prose inside a record is not touched: a devlog entry that says "we called
@@ -73,7 +73,7 @@ Three parts, and the third is what makes the first safe:
 
 **Good.** The tree stops carrying two vocabularies. `_flat_names` and
 `normalize_spine` remain, and remain necessary - they exist for an adopter's
-tree, not for this one - but they stop being load-bearing for the framework's
+tree, not for this one - but they stop being needed for the framework's
 own records, so a defect in them is no longer invisible here.
 
 **Good.** 26 broken citations are repaired, and the guard means the count
@@ -81,7 +81,7 @@ cannot climb again without a test failing. Before this, the only way to learn
 the number was to go and measure it, which is how it reached 26.
 
 **Good.** `compass migrate` is exercised on a real 110-directory tree rather
-than only on fixtures. TRC-C4 - a migration that stops partway - was written
+than only on fixtures. `TRC-C4` - a migration that stops partway - was written
 because the archive is large enough for a partial run to be a real outcome.
 
 **Cost, accepted.** Filenames in the archive change, so a link from outside
@@ -93,7 +93,7 @@ publishes it.
 **Cost, accepted.** A record's prose may now name a file whose name has
 changed - a devlog saying "written to plan.md". That is left alone
 deliberately: it is what the author wrote at the time, and the citation guard
-only requires paths to resolve, not prose to be retrofitted.
+only needs paths to resolve, not prose to be retrofitted.
 
 ## Alternatives considered
 

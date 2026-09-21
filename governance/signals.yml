@@ -18,16 +18,17 @@ scope_bloat_phrases:
   - "USER TO APPLY"
 
 # Advisory patterns assessed by the reviewer agent at Verify - judgement,
-# never a gate. A match is a nudge to the reviewer to investigate a potential
-# design smell; it does not fail any check. Projects extend by editing their
+# never a gate. A match is a prompt to the reviewer to investigate a
+# potential sign of a design problem; it does not fail any check. Projects
+# extend by editing their
 # own copy of signals.yml.
 design_smell:
   - "tests dominated by mocking or setup"
   - "assertions on internal method calls"
   - "single test asserts more than one behaviour"
 
-# The framework's self-calibration signal (see commands/land.md, `compass
-# calibration --friction`). `recurrence_threshold` is the number of distinct
+# The framework's self-calibration signal (see `commands/ship.md`, `compass
+# retro --friction`). `recurrence_threshold` is the number of distinct
 # issues that must independently propose the same change before it is surfaced
 # as a recurring pattern - below it, an item is noise, not a trend. Read at
 # runtime, never hardcoded; advisory only, never a gate.

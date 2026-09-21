@@ -12,12 +12,14 @@ Comparison, per file type:
   never enter an abstract syntax tree, so stripping the docstring is the
   whole of the work.
 - Shell: the file with `#` comment text removed.
-- YAML: every line with a `PROSE_KEYS` key's value blanked - the same key
-  list the writing-style sweeps treat as prose, so the two halves cannot
-  disagree about what prose is. Read as text, not parsed: `import yaml`
-  outside `cli/compass_pkg/`, `cli/compass` or a `compass_python` heredoc
-  does not resolve through this repository's one shared PyYAML mechanism
-  (`tests/test_bundled_pyyaml.py`), and this script is none of those three.
+- YAML: every line with a `PROSE_KEYS` key's value blanked, and every
+  whole-line `#` comment blanked too - the same two positions
+  `tests/test_writing_style.py`'s `_yaml_spans` reads as prose, so the two
+  halves cannot disagree about what prose is. Read as text, not parsed:
+  `import yaml` outside `cli/compass_pkg/`, `cli/compass` or a
+  `compass_python` heredoc does not resolve through this repository's one
+  shared PyYAML mechanism (`tests/test_bundled_pyyaml.py`), and this script
+  is none of those three.
 - JSON: parsed structure, with `description` values blanked.
 - Markdown: the contents of every fenced code block and every link target.
   A markdown file has no other behaviour.
@@ -38,7 +40,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help"})
+PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
+                        "means", "not", "context", "why", "reason", "also"})
 _YAML_KEY_RE = re.compile(r"^(\s*-?\s*)([\w.\-]+)\s*:\s?(.*)$")
 
 
@@ -90,19 +93,41 @@ def _strip_shell_comments(text: str) -> str:
     return "\n".join(lines)
 
 
+_YAML_COMMENT_LINE_RE = re.compile(r"^\s*#")
+
+
+def _line_indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
 def _blank_yaml_prose(text: str) -> str:
-    """Every line, with a `PROSE_KEYS` key's value blanked. Read as text
-    rather than parsed - see the module docstring for why - so a folded or
-    literal block scalar's continuation lines are not distinguished from an
-    ordinary value; a rewrite that turns a block scalar into a flow scalar,
-    or the reverse, is read as a behaviour change here even when the prose
-    sweeps would call it identical. That is the conservative direction: a
-    difference this misses would be the more expensive event."""
+    """Every line, with a `PROSE_KEYS` key's value blanked - continuation
+    lines of a folded or literal block scalar included, collapsed to the one
+    blanked key line, since a differing line count would otherwise read a
+    reworded paragraph as changed even when every non-prose byte is
+    identical. Matches what `_yaml_spans` reads as prose, so the two halves
+    cannot disagree about what prose is. Read as text rather than parsed -
+    see the module docstring for why - so a value's own indentation still
+    governs where its continuation ends."""
     lines = []
+    block_indent: int | None = None
+    in_comment_run = False
     for line in text.splitlines():
+        if block_indent is not None:
+            if line.strip() == "" or _line_indent(line) > block_indent:
+                continue  # one line already stands for the whole block
+            block_indent = None
+        is_comment = bool(_YAML_COMMENT_LINE_RE.match(line))
+        if is_comment:
+            if not in_comment_run:
+                lines.append("#")
+                in_comment_run = True
+            continue  # a run of comment lines also collapses to one
+        in_comment_run = False
         match = _YAML_KEY_RE.match(line)
         if match and match.group(2) in PROSE_KEYS:
             lines.append(f"{match.group(1)}{match.group(2)}:")
+            block_indent = _line_indent(line)
         else:
             lines.append(line)
     return "\n".join(lines)

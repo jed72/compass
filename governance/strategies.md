@@ -7,7 +7,7 @@ judges whether a strategy was followed - there is no pass/fail artifact), and
 *biases* a decision. It does not block one. A guardrail always beats a strategy.
 
 **No strategy fails `compass check`.** None is mechanically checkable; each is
-assessed by the `reviewer` agent at Verify under the review dimension tagged
+assessed by the `reviewer` agent at `verify` under the review dimension tagged
 beneath its heading, and a strategy not followed is a note and a conversation.
 
 The evidence behind these rules - the incidents, measurements and worked
@@ -15,12 +15,10 @@ examples - is in `governance/strategies-rationale.md`. It is read when a rule
 looks arbitrary, not per issue.
 
 This file ships with a small set of **default method strategies** - the way
-Compass works out of the box. Below them are **practice strategies**, about how
+Compass works by default. Below them are **practice strategies**, about how
 people write and verify. Below both is a **project strategies** section that
 starts empty and grows as the team forms opinions. An empty project section is
 a valid, complete state - see `README.md` on gradient-not-threshold.
-
-> **Version:** 0.11.0 · **Last amended:** 2026-08-28
 
 ---
 
@@ -35,10 +33,11 @@ first two, and a project can refine any of them.
 **Acceptance criteria are Given/When/Then scenarios, and those same scenarios
 are the acceptance check at Verify.**
 
-- This is the shipped-on way to satisfy the acceptance-before-code guardrail.
+- This is the shipped-on way to satisfy "acceptance defined before it is
+  built" (`G2`).
 - The scenario file is the shared artifact every role reads - see
   `docs/roles-guide.md`.
-- **`G2` does not require a Gherkin scenario.** It requires acceptance stated
+- **`G2` does not need a Gherkin scenario.** It needs acceptance stated
   and checkable.
 
 ### TDD: red, green, refactor (`S2`)
@@ -46,20 +45,21 @@ are the acceptance check at Verify.**
 **Write the failing test first, watch it fail for the right reason, write the
 minimal code to pass, then refactor.**
 
-- This is the shipped-on way to satisfy the tested-before-ship guardrail. The
+- This is the shipped-on way to satisfy "tested before it lands" (`G1`). The
   pre-tool hook enforces red-before-green by default.
-- TDD serves two purposes. Governance: red-before-green makes
-  tested-before-ship checkable - there is a test, and it was there first.
-- Design feedback: a hard-to-write test is the design speaking. A test that is
-  painful to set up, or needs elaborate mocking, is a design problem. TDD is
-  less about testing and more about good design.
+- TDD serves two purposes:
+  - Governance: red-before-green makes "tested before it lands" checkable -
+    there is a test, and it was there first.
+  - Design feedback: a hard-to-write test is the design speaking. A test
+    that is painful to set up, or needs elaborate mocking, is a design
+    problem. TDD is less about testing and more about good design.
 - Suspended on a **spike**, so exploration is not throttled.
 - **A spike cannot suspend `G1`.** Anything a spike graduates into production
   must be tested before it lands.
 
 ### Simplest thing that satisfies the guardrail (`S3`)
 
-**Prefer the simplest change that clears the guardrails and the route's gates.**
+**Prefer the simplest change that clears the guardrails and the delivery approach's gates.**
 
 - Not the cleverest, not the most general, not the most future-proof.
 - Complexity is added in response to a demonstrated need, not in anticipation
@@ -70,7 +70,7 @@ minimal code to pass, then refactor.**
 **Decisions, specs, approaches and rationale live in files, not only in a chat
 transcript.**
 
-- `.compass/work/<task>/`, `governance/`, `docs/`.
+- `.compass/work/<issue>/`, `governance/`, `docs/`.
 - A later session, or a different agent, resumes from disk.
 - If it is not written down, it did not happen.
 
@@ -88,7 +88,7 @@ trusted as a pass.**
   fields from evidence records and refuses to clear silently when a rerun is
   unaccounted for.
 
-*Pairs with the evidence-not-assertion guardrail.*
+*Pairs with "evidence, not assertion" (`G4`).*
 
 ### Regression baseline: green before, re-run after, on shared surface (`S6`)
 
@@ -100,13 +100,13 @@ it after.**
 
 - Applies when `risk` is cross-cutting or critical.
 - Record both runs as `test-run` evidence on `verify.regression`.
-- This is tested-before-ship applied to the non-regression of untouched
-  behaviour: it catches a high-consequence break in code you did not mean to
-  change.
-- The designated suite is a project knob -
+- This is "tested before it lands" (`G1`) applied to the non-regression of
+  untouched behaviour: it catches a high-consequence break in code you did
+  not mean to change.
+- The designated suite is a project setting -
   `project.regression_baseline_suite` in `.compass/config.yml`, falling back to
   `project.test_command`.
-- Build prompts for the baseline up front, not as an afterthought.
+- The implement stage prompts for the baseline up front, not as an afterthought.
   `compass approach evaluate` surfaces it under `applicable_strategies` when
   the assessment matches (`RP-ADV-001`).
 - It adds no guardrail and no new gate, and does not block shipping when
@@ -163,8 +163,8 @@ against the calibration sample before it ships.**
 - The sample is `skills/compass-runtime/writing-voice-worked-example.md`,
   paired with the "Never stash across a worktree hop" section of
   `skills/worktree-multiagent/SKILL.md`.
-- The audition does not lapse when that cycle ends. It applies to any future
-  slice that writes prose.
+- The audition does not lapse. It applies to any future slice that writes
+  prose.
 - The test: read it aloud - would you say this sentence to a colleague at your
   desk?
 - An "after" that shortens form-speak while dropping the facts the "before"
@@ -181,13 +181,13 @@ tells list is in `skills/compass-runtime/writing-voice.md`.*
 
 *Assessed under the `governance` dimension.*
 
-**Any sweep, rename or cleanup touching many files is verified by a fresh agent
+**Any sweep, rename or cleanup touching many files is checked by a fresh agent
 that has not seen the change.**
 
 - Given only the stated goal, that agent greps independently and reports the
   residuals it finds, each with file and line.
 - It does not read the implementer's summary, and it does not trust it.
-- **Verify against the primary record for the claim**, not the nearest document
+- **Check against the primary record for the claim**, not the nearest document
   that mentions it. The primary record is the artifact that would be wrong if
   the claim were false: a pull request's file list for what a change touched, a
   commit for what a commit says, the code for what the code does.
@@ -219,14 +219,14 @@ in `commands/verify.md`.*
 - **When a presence check fails, establish whether the rule is absent or the
   matcher is brittle** before touching either.
 - **Never loosen a matcher to cure a false negative.**
-- **A matcher change stales every proof downstream of it.** Re-prove.
-- **Assert what must hold, not the words it is currently written in.**
+- **A matcher change makes every proof downstream of it out of date.** Re-prove.
+- **Assert what must hold, not the words it is now written in.**
 - **Clear any bytecode cache between steps**, and re-run after restoring to
   confirm green before recording the proof.
 - **For a search, a result of zero is not believed until the search has been
   run against a case it must find.** Run it against one string you know is
   there and watch it come back. `git grep -n -i -E '\bseam\b'` returned
-  nothing here because `git grep -E` does not honour `\b`.
+  nothing in this repository because `git grep -E` does not honour `\b`.
 
 *Why a strategy and not a guardrail:* nothing mechanical can tell whether an
 author actually broke the subject. A check demanding proof of a real mutation
@@ -330,8 +330,8 @@ superseded version is corrected in the same change.**
 - **Re-read the summary last, before calling the artifact finished.**
 - **Nothing checks this rule. It depends on a person noticing.**
 
-*Pairs with the claim rules in a publication script: say what held, not how
-many of it there were. Any count a tool produces is a number that moves.*
+*Pairs with the claim rules a release announcement follows: say what held,
+not a count. Any count a tool produces is a number that moves.*
 
 ---
 
@@ -369,8 +369,8 @@ many of it there were. Any count a tool produces is a number that moves.*
 conventions this repository holds itself to.
 
 - **No em dashes.** Where an em dash would go, write a plain hyphen with spaces
-  around it. En dashes stay: they do real work in ranges like `G1-G5` and
-  `2-3 subtasks`.
+  around it. En dashes stay: they do real work in ranges like `G1`–`G5` and
+  `2–3 subtasks`.
 - **No agent co-author trailer**, which is `S7`'s last rule stated as the thing
   this repository enforces on itself rather than merely prefers.
 - **Conventional commits.** A commit subject opens with a type and an optional
@@ -395,9 +395,9 @@ message must *say*; how you format the subject line is yours.
 
 ## How strategies are used
 
-- **Assess** reads routing strategies (`routing-policy.md`) to pick a default
-  route shape.
-- **The `reviewer` agent** assesses, at Verify, whether the work followed the
+- **`compass approach evaluate`** applies the routing strategies
+  (`routing-policy.md`) to compute a default delivery approach.
+- **The `reviewer` agent** assesses, at `verify`, whether the work followed the
   applicable strategies, and reports that as judgement, distinct from the
   evidence-backed guardrail checks.
 - **`/compass:consult`** is where strategy-versus-strategy tensions get resolved.

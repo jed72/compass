@@ -44,7 +44,8 @@ worth carrying. Both halves are kept:
 
 - **Slash commands** retire to a stub: a file under 40 lines whose whole body
   names the replacement and tells the session to stop. It does not do the
-  work. `commands/triage.md` and `commands/wireframe.md` are this cycle's two.
+  work. `commands/triage.md` and `commands/wireframe.md` were the 3.x
+  cycle's two stubs, removed at the next major version per the rule below.
 - **CLI verbs** retire to a working alias, not a pointer. A slash command is
   read by a session that can be redirected; a CLI verb is called by scripts
   and CI, where failing with advice is still failing. `compass design lint`
@@ -57,8 +58,8 @@ worth carrying. Both halves are kept:
 - **Every retired name is named individually**, in `CURRENT_STUBS`
   (`tests/test_no_deprecation_stubs.py`) and in the `hidden` set in
   `cli/compass`. A third stub is a deliberate addition, not a silent one.
-- **They go at the next major version.** The same removal ADR-014 performed at
-  3.0.0, one cycle later, for this cycle's names.
+- **They go at the next major version.** The same removal ADR-014 did at
+  3.0.0, one cycle later, for the 3.x cycle's names.
 
 ## Consequences
 

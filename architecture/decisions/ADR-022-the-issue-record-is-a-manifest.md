@@ -29,16 +29,15 @@ Measured before the change:
 | issue directories on disk | 176 |
 
 **The 26 glossed uses are the argument.** "The machine-readable issue spine"
-is the sentence you write when you know the word will not land on its own. A
-term readers arrive knowing is not explained on use, and this one was
-explained 26 times.
+is a term that needs explaining every time. A term readers arrive knowing is
+not explained on use, and this one was explained 26 times.
 
 `terminology.yml` states that the vocabulary is frozen and that changing it
-carries the same process weight as a decision record. This is that record. The file
-is at `2.0.0-pre14`, so the 60th term goes in **before** 2.0.0 is cut - riding
-that release rather than opening a second migration event, which is the
-pattern ADR-012 already broke once by freezing the vocabulary "for years" and
-seeing a second rename land three weeks later.
+needs a decision record. This is that record. The file is at `2.0.0-pre14`,
+so the 60th term goes in **before** 2.0.0 is cut. That ships it in the
+release already under way, rather than opening a second migration event.
+ADR-012 already broke that pattern once, by freezing the vocabulary "for
+years" and seeing a second rename land three weeks later.
 
 ## Decision
 
@@ -57,8 +56,8 @@ seeing a second rename land three weeks later.
 stages, gates, scenarios, evidence and changed files, and points at the prose
 artifacts beside it. That is what a manifest is, and engineers have already
 met the word in that exact sense - `package.json`, `Cargo.toml`, a Kubernetes
-manifest. The brief's constraint was that the replacement must be a term teams
-already understand rather than a metaphor Compass has to teach, and the
+manifest. The replacement must be a term teams already understand rather
+than a metaphor Compass has to teach, and the
 mechanical form of that test is: **the word can be used in a sentence with no
 apposition after it.** "Written into the issue manifest" stands. "Written into
 the issue spine" reaches for a definition, and 26 sentences took it.
@@ -74,7 +73,7 @@ name the vocabulary bans. A half-renamed noun teaches a reader that Compass's
 names are approximate, which is worse than either end state.
 
 **Keep the module and helpers, rename only the artifact.** Rejected once the
-cost was measured: the review guessed "a few hundred call sites" and the
+cost was measured: the estimate was "a few hundred call sites" and the
 actual figure is **105** - `resolve_task_dir` 45, `load_task` 28, `save_task`
 23, `task_spine` 9. At 105 the argument for leaving them collapses, and the
 alternative is `load_task` reading a manifest, which is this decision's own
@@ -95,31 +94,31 @@ keeps working (ADR-006).
 **The archive is migrated, not frozen** (ADR-020). `compass migrate` renames
 the file and maps the key on the same pass.
 
-**The migration was rehearsed against a copy of the real archive before the
-tree was touched**, because `.compass/work/` is gitignored in this repository
-and its 176 records have no git history to restore from. That rehearsal found
-three defects that would each have left the tree half-migrated:
+**The migration was rehearsed on a copy of the archive first**, because
+`.compass/work/` is gitignored in this repository and its 176 records have no
+git history to restore from. The rehearsal found three defects that would
+each have left the tree half-migrated:
 
-1. `schemas/task.schema.json` still required `task` and forbade `issue`, so
+1. `schemas/task.schema.json` still needed `task` and forbade `issue`, so
    every old file stopped loading the moment the key map changed.
 2. `compass migrate` named `task.yml` *after* the rename loop had moved it, so
    it wrote `manifest.yml` files that still carried `task:` inside.
 3. The reader hard-coded the old filename, so nothing could read what the
    migrator had just written.
 
-All three were found on the copy. None reached the real archive. The ordering
-that produced that - tables and read side, then migrator, then sweep, then
-module - is the safety argument and is recorded in the issue's design.
+All three were found on the copy. None reached the real archive.
 
 **`spine` is now banned** and covered by the vocabulary scan, which it never
 was. It survives only in `cli/migrate-map.yml` (which must name both
-spellings and is exempt from the scan for that reason), in the ban itself, in
-this record, and in source comments explaining the change.
+spellings and is exempt from the scan for that reason), in the `banned:`
+entry that names what it bans, in this record, in source comments explaining
+the change, and in an archived "before" example in
+`skills/compass-runtime/writing-voice.md` that is quoted verbatim.
 
 ## References
 
-- `.compass/work/name-the-issue-record/` - the issue, its measurements and its
-  verification.
+- The `name-the-issue-record` issue holds the measurements and verification
+  behind this decision.
 - ADR-006 - backward compatibility within a major version.
 - ADR-012 - the vocabulary freeze this record amends.
 - ADR-020 - the archive is migrated, not frozen.

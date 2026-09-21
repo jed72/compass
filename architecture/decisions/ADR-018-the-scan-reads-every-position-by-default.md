@@ -30,16 +30,16 @@ literal and a fenced transcript are all read by people; a comment is not.
 
 ### The same shape, outside the scan
 
-This is not only a scanning defect. Inside the session that produced this
-record, `compass ship-commit` rejected `-F`, a shell fallback printed
-"committed", and `HEAD` had not moved. The commit was reported as done and was
-not done.
+This is not only a scanning defect. `compass ship-commit` once rejected `-F`,
+a shell fallback printed "committed", and `HEAD` had not moved. The fix made
+the success path depend on `HEAD` actually moving. The commit had been
+reported as done and was not done.
 
 A **check that reports success while checking nothing** and a **command that
-reports success while doing nothing** are the same defect wearing different
-clothes: an output that asserts an outcome it never established. Four
-instances of the first were found in one release; this is the first recorded
-instance of the second. Naming the class is what stops the fifth.
+reports success while doing nothing** are the same defect in two places: an
+output that asserts an outcome it never established. Four instances of the
+first were found in one release; this is the first recorded instance of the
+second. Naming the class is what stops the fifth.
 
 The tell is the same in both: the success path is reached without the work
 being observed. The remedy is the same too - make the success path depend on
@@ -64,7 +64,7 @@ Two exemptions exist:
   else *is* the record, and banning the old name there would delete the
   explanation.
 - **`PX-2` - YAML keys, JSON keys, JSON enum values.** These are the machine
-  contract. A spine on disk, a policy file and a schema all agree on them, so
+  contract. A manifest on disk, a policy file and a schema all agree on them, so
   a rename is a migration with a back-compat shim rather than a text sweep.
   The prose beside them - `description:`, `title:`, `rationale:` - is scanned.
 
@@ -78,7 +78,7 @@ missed. The default was the actual defect: three separate authors each reached
 the same wrong conclusion because the structure invited it.
 
 **Good.** Where a genuine machine value must keep a retired name - the
-`full-plus-backfill` stage weight, which every spine on disk reads - the
+`full-plus-backfill` stage weight, which every manifest on disk reads - the
 resolution is a per-line marker carrying its reason, visible to anyone reading
 the file.
 
@@ -102,9 +102,9 @@ a guard rather than by review.
 **Known limit, stated.** The prose ban patterns are capitalisation-scoped on
 purpose: *"before critical changes land"* is correct English and must not
 fire. So a lowercase machine value such as `expedition` sitting in a YAML
-value is **not** caught by this scan. It is caught downstream, by the
-printed-output guard on the evaluator, which is stricter because everything it
-sees is going to a screen. Two guards with different thresholds, deliberately.
+value is **not** caught by this scan. It is caught downstream, by `tests/test_printed_output_vocabulary.py`, which
+is stricter because everything it sees is going to a screen. Two guards with
+different thresholds, deliberately.
 
 ## Alternatives considered
 
@@ -135,15 +135,8 @@ the consumer, not the file.
   26 split was produced before this decision was taken, and it is what made
   the shape of the exemptions obvious.
 
-## Postscript - the class appeared inside the issue that named it
-
-A test written for this issue asserted `stream_ceiling > 1` and passed because
-of an invented value (`multiagent: 8`) that nothing in the policy supported - an
-assertion passing for the wrong reason, written after the document explaining
-that outputs assert outcomes they never established.
-
-Recorded here because it is the strongest evidence in this record and it
-arrived after the record was written. It means this is not legacy debt being
-cleaned up: it is a live tendency that reproduces under someone actively
-thinking about it, which is why the remedy is a standing habit - ask what
-would have to be true for this assertion to fail - rather than a sweep.
+**Further evidence.** A test written for this issue asserted
+`stream_ceiling > 1` and passed because of an invented value (`multiagent: 8`)
+that nothing in the policy supported - the same defect class, found again
+after this record was written. The remedy is a standing habit - ask what
+would have to be true for an assertion to fail - rather than a sweep.

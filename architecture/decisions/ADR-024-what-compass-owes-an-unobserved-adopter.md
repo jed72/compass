@@ -50,7 +50,7 @@ paid for every cycle.
 **What Compass owes an unobserved adopter is a migration path, not a
 redirect.** `compass migrate` brings an issue directory written under an older
 vocabulary forward, and the read-side rename tables it depends on stay. Those
-tables are kept because **ADR-020** requires them - the archive is migrated,
+tables are kept because **ADR-020** needs them - the archive is migrated,
 not frozen - and not because of any promise to adopters. That distinction is
 the point of this record: the same code serves two populations, and only one
 of them was ever in dispute.
@@ -74,9 +74,9 @@ proxy.
   two different claims and this record separates them: the no-op promise
   continues unchanged and is not weakened here.
 - There is no install telemetry and this record does not add any. Building it
-  is out of scope. The observation named above is one nobody performs today
-  because nothing collects it - it is unperformed, not impossible, and saying
-  which matters more than naming it.
+  is out of scope. Nothing collects install counts today, so the observation
+  named above is unperformed, not impossible. That distinction matters more
+  than naming the observation.
 - Anyone reading ADR-019 now arrives here.
 
 ## Alternatives considered
@@ -87,8 +87,8 @@ removes *these* names and touches nothing else. ADR-019 decided the rule for
 renames **inside a major version**, and decided it on the wrong inference. Left
 standing, the first future rename inside 4.x rebuilds the stubs, the alias and
 the two-valued vocabulary on the same reasoning, and the release will have
-bought one cycle. What this record adds beyond the schedule is exactly that
-rule, and nothing else.
+delayed the problem by one major version. What this record adds beyond the
+schedule is exactly that rule, and nothing else.
 
 **Remove the names inside 3.x.** Faster, and rejected outright: it needs
 ADR-006 superseded, which is a far larger decision than this one, for a saving
@@ -100,15 +100,15 @@ every cycle by the project, and the benefit is owed to a population nobody has
 been shown to be collecting. The condition above puts the trigger before the
 machinery rather than after it.
 
-**Delete the read-side rename tables too.** The intake for this work counted
+**Delete the read-side rename tables too.** An earlier proposal counted
 them as compat cost. Rejected on the facts: they are what lets an archived
 manifest load, so removing them breaks ADR-020's promise about the archive
 whatever is decided about adopters.
 
 ## References
 
-- `.compass/work/what-compass-owes-an-unobserved-adopter/` - the issue, its
-  acceptance criteria and its verification.
+- The `what-compass-owes-an-unobserved-adopter` issue holds the acceptance
+  criteria and verification behind this decision.
 - ADR-006 - backward compatibility is non-negotiable within a major version.
   Untouched; this record supersedes the interpretation, not the principle.
 - ADR-014 - retired names are removed at the major version. Its reasoning made

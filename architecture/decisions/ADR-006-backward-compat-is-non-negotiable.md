@@ -7,6 +7,12 @@ supersedes: ''
 superseded_by: ''
 ---
 
+> **Vocabulary note (ADR-023, 2026-08-27):** this record's *task-spine* is
+> now the **manifest**; the *architect-lens* is now the **architect** role;
+> `task.yml` is now `manifest.yml`; a *backfill* is now a **follow-up**; the
+> *Frame* stage is now **assess**. The record keeps the words it was decided
+> in; only the names have moved.
+
 ## Context
 
 Compass is used by projects at different stages of adoption. Some projects have
@@ -47,20 +53,20 @@ Specifically:
   backfills) → treated as if the field has its default/absent value.
 
 Mandatory adoption of a new capability is a breaking change. Breaking changes
-require a major version bump and an explicit migration guide.
+need a major version bump and an explicit migration guide.
 
 ## Alternatives considered
 
 | Alternative | Why considered | Why rejected |
 |---|---|---|
-| Fail loudly when prerequisites are absent, forcing adoption | Ensures every project that upgrades Compass also sets up the full capability; prevents "partial adoption" drift | A team upgrading Compass for an unrelated fix (e.g. a bug fix in `compass check`) should not be forced to also set up `architecture/` before their tasks can Frame. Mandatory adoption converts an upgrade into a migration, blocking adoption entirely for teams that can't do both at once. |
+| Fail loudly when prerequisites are absent, forcing adoption | Makes sure every project that upgrades Compass also sets up the full capability; prevents "partial adoption" drift | A team upgrading Compass for an unrelated fix (e.g. a bug fix in `compass check`) should not be forced to also set up `architecture/` before their tasks can Frame. Mandatory adoption converts an upgrade into a migration, blocking adoption entirely for teams that can't do both at once. |
 | Produce a deprecation warning but still exit 0 | Communicates the gap without blocking | A warning that appears on every task for months while a team works on unrelated features becomes noise, is dismissed, and eventually turns off the signal that was meant to prompt adoption. No-op clean is more honest - the capability is simply absent, not degraded. |
 
 ## Consequences
 
 **Positive:**
 - Compass upgrades are safe to apply incrementally. A team can upgrade to a
-  new Compass version on one task, verify nothing breaks, then adopt the new
+  new Compass version on one task, check nothing breaks, then adopt the new
   capability at their own pace.
 - The no-op contract is testable: each mechanism's "absent prerequisites" path
   has an explicit test, for example
@@ -80,18 +86,17 @@ require a major version bump and an explicit migration guide.
   extra design work that is easy to skip under deadline pressure.
 
 **Neutral / follow-on:**
-- The `architecture/` tree itself follows this rule: Compass's own `architecture/`
-  was absent until this task. Every Compass-framework task between the first
-  task (cross-task-architectural-integrity) and this task ran with
-  `frame_load_architecture` returning an empty record. None of those tasks
-  failed.
+- The `architecture/` tree itself follows this rule: Compass's own
+  `architecture/` was absent before 2026-05-24, and
+  `frame_load_architecture` returned an empty record on every issue before
+  then. None of those issues failed.
 - ADR supersession follows the same backward-compat principle: a superseded
   ADR's `superseded_by` field is set, but the file is not deleted. Projects
   that indexed the old ADR can still find the record and follow the chain.
 
 ## References
 
-- Invariant Inv-8 (every new mechanism no-ops on projects that have not adopted it), defined in `architecture/decisions/README.md`
-- The boundary rules in `architecture/ownership.md`, every one of which would break Inv-8 if crossed
+- The invariant that every new mechanism no-ops on projects that have not adopted it (Inv-8), defined in `architecture/decisions/README.md`
+- The boundary rules in `architecture/ownership.md`, every one of which would break the no-op invariant (Inv-8) if crossed
 - `tests/test_frame_loads_architecture.py::test_noop_when_absent` (proves Frame no-ops when `architecture/` is absent)
 - `docs/safety-contract.md` (the seven things Compass 1.0 guarantees)

@@ -5,12 +5,10 @@ evidence, never a claim), **blocking** (a failed guardrail stops the work),
 and **sticky** (slow to add, slower to remove). A guardrail always beats a
 strategy.
 
-This file ships with five **default guardrails** active. A project may *add*
-guardrails below them; it should not weaken them. `/compass:init` copies this
-file into the project so the team can extend it.
-
-> **Version:** 0.3.0 · **Last amended:** {{DATE}}
-> Bump the version and log amendments at the foot of this file.
+This file ships with five **default guardrails** active. A project can *add*
+guardrails below them; it can also remove one, and `compass check` reports
+the omission. `/compass:init` copies this file into the project so the team
+can extend it.
 
 **This document explains; `guardrails.yml` enforces.** The companion
 `governance/guardrails.yml` is the machine-readable authority for *how each
@@ -23,8 +21,8 @@ mechanical detail, `guardrails.yml` wins.
 
 ## The default guardrails
 
-These five ship on. They are the floor under every route, including the
-lightest.
+These five ship on. They are the floor under every delivery approach,
+including the lightest.
 
 ### Tested before it lands (`G1`)
 
@@ -72,7 +70,7 @@ before it lands.**
 
 - Applies to anything that can lose data, move money, or breach auth or
   privacy.
-- No route removes this.
+- No delivery approach removes this.
 
 The routing policy (`routing-policy.md`) is what makes sure such changes are
 *routed* to where the checkpoint happens; this guardrail is what makes the
@@ -107,7 +105,7 @@ _(none yet - the shipped default guardrails apply as-is)_
   approach-aware and does not block on a spike.
 - **The `verifier` and `reviewer` agents** at Verify, for the parts that remain
   judgement. `verification-report.md` records each with its evidence.
-- **`compass approach evaluate`** at Assess applies the routing guardrails
+- **`compass approach evaluate`** at Assess applies the routing rules
   deterministically - see `routing-policy.md` and `routing-policy.yml`.
 
 A guardrail with no way to produce evidence is not a guardrail yet - it is a
@@ -124,11 +122,3 @@ in `guardrails.yml`, it belongs in `strategies.md`.
 
 Why it is enforced rather than warned about:
 `governance/strategies-rationale.md`, under "The integrity rule".
-
----
-
-## Amendment log
-
-| Date | Change | By |
-|---|---|---|
-| {{DATE}} | Guardrails adopted from the shipped defaults (the five defaults). | {{NAME}} |
