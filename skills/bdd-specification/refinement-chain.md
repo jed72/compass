@@ -48,7 +48,7 @@ consistently - the spec is the contract between all five roles.
 
 **User stories** ("As a [role], I want [feature], so that [outcome]") are
 refused as a per-role spec format in Compass - see
-`architecture/decisions/ADR-004-one-spec-many-lenses.md`. The rationale: a
+`architecture/decisions/ADR-004-one-spec-many-lenses.md`. <!-- vocabulary-scan: allow - the record's own filename; ADR-004 keeps the word its decision was about, so a citation must name the real file -->The rationale: a
 user story format embeds a single role's
 perspective into the spec, which means one role's spec and another role's
 spec diverge. Compass uses one `acceptance-criteria.md` that all five roles read

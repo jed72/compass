@@ -652,12 +652,12 @@ TERM_SURFACE_EXEMPT = {
     # ADR-004's decision IS the word - it is titled "one spec, many lenses" -
     # so the record keeps it (ADR-023). The broad "architecture/" prefix this
     # replaced was only needed while the agents were still called *-lens.
-    # refinement-chain.md cites the ADR by its real filename, which carries
-    # the word as part of the identifier, not as prose.
-    "lens": (
-        "architecture/decisions/ADR-004-one-spec-many-lenses.md",
-        "skills/bdd-specification/refinement-chain.md",
-    ),
+    # A file that merely CITES the record carries a line-level
+    # `vocabulary-scan: allow` marker instead - see
+    # skills/bdd-specification/refinement-chain.md. A file-wide entry would
+    # also excuse a future prose use of the word in that file, silently, and
+    # the marker is greppable where a path prefix is not.
+    "lens": ("architecture/decisions/ADR-004-one-spec-many-lenses.md",),
     # writing-voice.md quotes archived devlogs verbatim and names real issue
     # directories. tests/test_human_voice.py hashes those quotations against
     # the archived files, so editing one falsifies the quote - the same reason
@@ -665,12 +665,11 @@ TERM_SURFACE_EXEMPT = {
     "stream": ("skills/compass-runtime/writing-voice.md",),
     "swarm": ("skills/compass-runtime/writing-voice.md",),
     # ADR-009 is titled "fitness functions are project guardrails"; same rule.
-    # architecture-checks.md cites the ADR by its real filename and quotes
-    # its title verbatim, both of which carry the word as an identifier or a
-    # quote, not as prose.
+    # skills/evidence-gates/architecture-checks.md cites the filename and
+    # quotes the title verbatim, and carries a line-level marker on each - the
+    # same reason as "lens" above.
     "fitness function": (
         "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
-        "skills/evidence-gates/architecture-checks.md",
     ),
 }
 

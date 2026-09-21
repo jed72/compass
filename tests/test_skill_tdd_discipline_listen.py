@@ -75,17 +75,19 @@ def test_tdd_discipline_has_behaviour_not_implementation_antipattern():
     assert "implementation" in text_lower, (
         "tdd-discipline must contain 'implementation'."
     )
-    # Must have the concept together. The anti-pattern can be named as an
-    # instruction ("test behaviour, not implementation") or as the mistake
-    # itself ("testing implementation, not behaviour") - both state the same
-    # rule.
+    # Must have the concept together, in the phrasing the skill uses:
+    # "Testing implementation, not behaviour" (anti-patterns.md). Only the
+    # American spelling stands beside it.
+    #
+    # NARROWED from seven alternatives to two. The widest of the seven was a
+    # bare "testing implementation", which passed if those two words appeared
+    # anywhere in the skill at all - and they do, in prose that never states
+    # the rule. A check that accepts every phrasing anyone might write cannot
+    # fail, so it stops holding the property it names. If the skill's wording
+    # changes again, this assertion changes with it, in the same commit as the
+    # prose (DD-6).
     assert (
-        "test behaviour" in text_lower
-        or "behaviour, not implementation" in text_lower
-        or "behavior, not implementation" in text_lower
-        or "test behavior" in text_lower
-        or "testing implementation" in text_lower
-        or "implementation, not behaviour" in text_lower
+        "implementation, not behaviour" in text_lower
         or "implementation, not behavior" in text_lower
     ), (
         "tdd-discipline must contain an anti-pattern about testing behaviour not implementation."
