@@ -3,9 +3,9 @@
 This project uses Compass. Follow this in every session.
 
 **Assess before you change anything.** Before editing code, specs or product
-artifacts, run `/compass:assess`. You read four things - how risky the work is,
-how familiar the code is, how big it is, and what the goal is - and the CLI
-computes the delivery approach from them. You do not choose the process.
+artifacts, run `/compass:assess`. You read four things - risk, familiarity,
+size, goal - and the CLI computes the delivery approach from them. You do
+not choose the process.
 
 **Never skip assessment.** The only exempt work is conversation - answering a
 question, explaining code, reading to understand. The moment a tool call would

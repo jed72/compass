@@ -607,6 +607,18 @@ _register(Rule(
             "docs/security.md", "supply-chain requirements",
             "\"supply chain\" is the standard security term, not the verb "
             "\"supply\" the word table retires"),
+        Exemption(
+            "compass-contract.md", "7. verify",
+            "\"verify\" here is the stage name, one word per line in the "
+            "stage list, in the same form as \"1. assess\" and \"6. "
+            "implement\" beside it - an identifier (section 4), not the "
+            "verb the word table retires"),
+        Exemption(
+            "docs/safety-contract.md", "Human approvals are required",
+            "tests/test_g5_trigger.py pins this exact phrase and is not "
+            "named for this unit in DD-6 - changing the assertion is not "
+            "this batch's to make, so the word-table finding is left "
+            "unapplied here and reported instead"),
     ),
 ))
 
