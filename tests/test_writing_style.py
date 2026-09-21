@@ -576,9 +576,18 @@ _SHORTER_WORD_TABLE_EXEMPTIONS: tuple[Exemption, ...] = tuple(
     for row in _SHORTER_WORD_TABLE_ROWS
 )
 
-_register(Rule("PBW-A2", "The shorter word stands where the word is not an "
-               "identifier", _find_word_table,
-               exemptions=_SHORTER_WORD_TABLE_EXEMPTIONS))
+_register(Rule(
+    "PBW-A2", "The shorter word stands where the word is not an "
+    "identifier", _find_word_table,
+    exemptions=_SHORTER_WORD_TABLE_EXEMPTIONS + (
+        Exemption(
+            "docs/five-minutes.md", "## 5. Verify and ship",
+            "\"Verify\" here is the stage name, in the same heading form "
+            "as \"1. Assess the work\", \"2. Define acceptance\" and "
+            "\"4. Implement with evidence\" above it - an identifier "
+            "(section 4), not the verb the word table retires"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
