@@ -619,11 +619,30 @@ _register(Rule(
             "column, beside \"Assess\", \"Define\" and \"Plan\" - an "
             "identifier (section 4), not the verb the word table retires"),
         Exemption(
+            "docs/quickstart.md", "### Verify",
+            "\"Verify\" here is the stage name, in the same heading form as "
+            "the \"### Assess\", \"### Define\" and \"### Implement\" "
+            "headings in the same walkthrough - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/quickstart.md", "verify, ship -",
+            "\"verify\" here is one stage name in a list of stage names "
+            "(implement, verify, ship) - an identifier (section 4), not "
+            "the verb the word table retires"),
+        Exemption(
             "docs/safety-contract.md", "Human approvals are required",
             "tests/test_g5_trigger.py pins this exact phrase and is not "
             "named for this unit in DD-6 - changing the assertion is not "
             "this batch's to make, so the word-table finding is left "
             "unapplied here and reported instead"),
+        Exemption(
+            "docs/quickstart.md", "does **not** modify your PATH",
+            "tests/test_plugin_doc_drift.py::"
+            "test_trc_a2_quickstart_drops_install_sh_path_claim pins this "
+            "exact phrase and is not named for this unit in DD-6 - "
+            "changing the assertion is not this batch's to make, so the "
+            "word-table finding is left unapplied here and reported "
+            "instead"),
     ),
 ))
 
@@ -796,8 +815,18 @@ def _find_citation(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A6", "No citation points at a path git does not "
-               "distribute", _find_citation))
+_register(Rule(
+    "PBW-A6", "No citation points at a path git does not distribute",
+    _find_citation,
+    exemptions=(
+        Exemption(
+            "docs/quickstart.md",
+            ".compass/work/add-rate-limiting/manifest.yml",
+            "the walkthrough's own hypothetical issue - it shows the "
+            "reader where their own file will be, not a citation of a "
+            "document that already exists in this repository"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -838,6 +867,11 @@ _register(Rule(
             "--scenario TRC-G3",
             "the literal CLI command a person typed, inside backticks - "
             "rewording it to add plain words would misquote what was run"),
+        Exemption(
+            "docs/quickstart.md", "`--scenario TRC-x`",
+            "a placeholder scenario id, the same shape as `<test cmd>` "
+            "elsewhere on this page - not a real code pointing at meaning "
+            "kept outside the file"),
     ),
 ))
 
@@ -879,6 +913,22 @@ _register(Rule(
             "every path under obra/superpowers/ is inside the Superpowers "
             "repository, not this one - the file itself says so and gives "
             "the github.com URL each path resolves against"),
+        Exemption(
+            "docs/quickstart.md",
+            ".compass/work/add-rate-limiting/manifest.yml",
+            "the walkthrough's own hypothetical issue, not a real path in "
+            "this repository - see the PBW-A6 exemption above for the "
+            "same line"),
+        Exemption(
+            "docs/quickstart.md", "evidence/green-TRC-x.json",
+            "the filename `compass tdd-green` would write for the "
+            "placeholder scenario id `TRC-x`, not a file this repository "
+            "ships"),
+        Exemption(
+            "docs/quickstart.md", "evidence/green.json",
+            "the filename `compass tdd-green` writes with no scenario "
+            "bound, shown here as an example of the naming rule, not a "
+            "file this repository ships"),
     ),
 ))
 
@@ -1051,23 +1101,36 @@ def _find_count_claim(span: ProseSpan) -> list[Finding]:
     if span.path not in _REGISTRY_FILES:
         return []
     findings = []
+    # Several rows can share one pattern - four files all claim a hook count
+    # with the identical "\b(\w+)\s+hooks?\b" regex. Matching every row against
+    # every span would report this file's own correctly-registered claim as
+    # belonging to the other three files' rows too. So: match each pattern at
+    # most once per span, against the row registered for THIS file if one
+    # exists, and only fall through to "no row for this file" when it does not.
+    seen_patterns: set[re.Pattern] = set()
     for row in COUNT_REGISTRY:
+        if row.pattern in seen_patterns:
+            continue
+        own_row = next(
+            (r for r in COUNT_REGISTRY
+             if r.pattern is row.pattern and r.file == span.path), None)
         for match in row.pattern.finditer(span.text):
             stated = _as_number(match.group(1))
             if stated is None:
                 continue
-            if span.path != row.file:
+            if own_row is None:
                 findings.append(Finding(
                     span.path, span.line,
                     f'counted claim "{match.group(0)}" about "{row.name}" '
                     f'has no row in the registry for this file'))
                 continue
-            actual = row.source()
+            actual = own_row.source()
             if stated != actual:
                 findings.append(Finding(
                     span.path, span.line,
                     f'"{match.group(0)}" states {stated}, the source counts '
                     f'{actual}'))
+        seen_patterns.add(row.pattern)
     return findings
 
 
