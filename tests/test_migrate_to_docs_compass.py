@@ -1,6 +1,6 @@
 """Moving an issue's documents out from beside its manifest.
 
-Scenario group E of `docs-compass-artifacts`, plus TRC-G2.
+Scenario group E of `docs-compass-artifacts`, plus `TRC-G2`.
 
 `compass migrate` already renames v1 filenames and rewrites manifests to schema
 2.0. This adds the relocation: human documents move to
@@ -66,7 +66,7 @@ def _old_style_issue(tmp_path, slug=SLUG, created=CREATED, registry=None):
 
 
 def _is_pointer(path):
-    """The compatibility pointer TRC-E5 leaves, told apart from a real
+    """The compatibility pointer `TRC-E5` leaves, told apart from a real
     document by the marker the migration writes into it."""
     return "<!-- compass: moved -->" in path.read_text(encoding="utf-8")
 
@@ -81,7 +81,7 @@ def _tree(root):
     return sorted(p.relative_to(root).as_posix() for p in root.rglob("*"))
 
 
-# --- TRC-E1 ------------------------------------------------------------------
+# --- `TRC-E1` ------------------------------------------------------------------
 
 def test_trc_e1_migration_moves_documents_and_writes_the_registry(tmp_path):
     work = _old_style_issue(tmp_path)
@@ -93,7 +93,7 @@ def test_trc_e1_migration_moves_documents_and_writes_the_registry(tmp_path):
         assert (docs / name).is_file(), (
             f"{name} was not moved to {docs}:\n{r.stdout}")
         if name == BLOCKING_DOCUMENT:
-            # TRC-E5 leaves a pointer at this one name, so that an install
+            # `TRC-E5` leaves a pointer at this one name, so that an install
             # predating the artifact registry is not locked out. A pointer is
             # not a copy: it holds the new path and nothing else.
             assert _is_pointer(work / name), (
@@ -179,7 +179,7 @@ def test_trc_e1_migration_is_idempotent(tmp_path):
         "a second apply changed the tree:\n" + r.stdout)
 
 
-# --- TRC-E2 ------------------------------------------------------------------
+# --- `TRC-E2` ------------------------------------------------------------------
 
 def test_trc_e2_the_dry_run_changes_nothing(tmp_path):
     work = _old_style_issue(tmp_path)
@@ -209,7 +209,7 @@ def test_trc_e2_the_dry_run_reports_every_move_the_apply_makes(tmp_path):
         f"the dry run does not say where the documents would go:\n{dry}")
 
 
-# --- TRC-E3 ------------------------------------------------------------------
+# --- `TRC-E3` ------------------------------------------------------------------
 
 def test_trc_e3_an_unmigrated_issue_keeps_working(tmp_path):
     """No registry at all - the 148 issue directories that predate it.
@@ -231,7 +231,7 @@ def test_trc_e3_an_unmigrated_issue_keeps_working(tmp_path):
         f"compass check tells an unmigrated issue to migrate:\n{r.stdout}")
 
 
-# --- TRC-G2 ------------------------------------------------------------------
+# --- `TRC-G2` ------------------------------------------------------------------
 
 def test_trc_g2_a_half_finished_migration_is_visible(tmp_path):
     """Documents moved, registry not written.
@@ -278,16 +278,15 @@ def test_trc_g2_the_offer_is_taken_up_by_apply(tmp_path):
         f"apply did not adopt the document it offered to register: {entry}")
 
 
-# --- TRC-E4 ------------------------------------------------------------------
+# --- `TRC-E4` ------------------------------------------------------------------
 
 #: The five worked examples the scenario names. `examples/bdd-adapters/` holds
 #: four adapter reference fixtures rather than worked examples: each is a
 #: minimal `reset-password` issue that shows how one BDD runner is wired, and
 #: none of them has ever had gates or a recorded green, so `compass check`
-#: fails on all four and did before this change. They still have to adopt the
-#: new layout - they hold documents an adopter reads - so the layout check
-#: below covers every example issue and only the `compass check` clause is
-#: scoped to the five.
+#: fails on all four and did before this change. They hold documents an
+#: adopter reads, so the layout check below covers every example issue.
+#: Only the `compass check` clause is scoped to the five.
 WORKED_EXAMPLES = ("feature-api-change", "hotfix-regression",
                    "initiative-new-subsystem", "quick-fix-typo",
                    "spike-technical-unknown")
@@ -380,7 +379,7 @@ def _git(project, *args):
 def test_apply_refuses_when_the_move_could_not_be_undone(tmp_path):
     """`--apply` moves files. The undo has to exist first.
 
-    `rollback-plan.md` says the way back is `git reset --hard` on a clean tree.
+    The way back is `git reset --hard` on a clean tree.
     That holds only where the work root is TRACKED, which is the case in a
     project using Compass. In this framework's own repository `.compass/work/`
     is gitignored, so git has nothing to restore and the reset is a complete
@@ -410,7 +409,8 @@ def test_apply_refuses_when_the_move_could_not_be_undone(tmp_path):
 
 
 def test_the_refusal_can_be_overridden_once_a_copy_exists(tmp_path):
-    """A refusal with no way past it is a wall, not a checkpoint.
+    """A refusal with no override blocks a maintainer who has already taken
+    a copy.
 
     The maintainer who has taken a copy says so and proceeds. The flag names
     what it asserts rather than switching a safety check off.
@@ -480,7 +480,7 @@ def test_a_repository_path_is_not_rewritten_by_the_filename_rename(tmp_path):
         f"the rename rewrote paths outside the issue directory: {got}")
 
 
-# --- TRC-E5 ------------------------------------------------------------------
+# --- `TRC-E5` ------------------------------------------------------------------
 
 #: What an older install's pre-tool hook tests for. It has no registry reader,
 #: so the only thing that satisfies it is a file at this name.
@@ -552,7 +552,7 @@ def test_trc_e5_a_second_run_does_not_move_the_pointer(tmp_path):
     """The pointer sits at the name the migration moves from.
 
     Without care, the next run finds `delivery-approach.md` beside the manifest
-    and relocates it over the real record - the migration eating its own
+    and relocates it over the real record - the migration overwriting its own
     compatibility file, and the record with it.
     """
     work = _old_style_issue(tmp_path)
