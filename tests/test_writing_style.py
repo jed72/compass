@@ -703,6 +703,17 @@ _register(Rule(
             "task-b is 10 days later - outside the window",
             "the same fixture directory name as the exemptions above."),
         Exemption(
+            "tests/test_public_surface_truth.py",
+            '"written by Frame".',
+            "a verbatim quote of the defect this test checks for - the "
+            "literal text architecture/system-context.md carried, not "
+            "live prose use of a retired stage name."),
+        Exemption(
+            "tests/test_public_surface_truth.py",
+            'user meeting "has Frame run?" is being told to run a stage that does not',
+            "a verbatim quote of the class of defect this test checks for, "
+            "not live prose use of a retired stage name."),
+        Exemption(
             "tests/test_hook_fails_closed.py",
             "cli/vendor/yaml moved away  -> exit 3, zero bytes on both streams",
             "'streams' names stdout/stderr, an ordinary English use, not "
