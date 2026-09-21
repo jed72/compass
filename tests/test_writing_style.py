@@ -781,6 +781,12 @@ _register(Rule(
             "pre-rename shape on purpose (ADR-006, ADR-022) - the test "
             "exists to prove this old shape still loads, so the name "
             "cannot be reworded without breaking the point of the test."),
+        Exemption(
+            "tests/test_human_voice.py",
+            "retired stage name. `--task` no longer parses (ADR-014 removed",
+            "names the real, retired CLI flag spelling `--task` this test "
+            "asserts a teaching artifact must not use - an identifier "
+            "(section 4), not a v1-vocabulary use of the word."),
     ),
 ))
 

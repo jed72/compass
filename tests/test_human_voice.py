@@ -6,7 +6,7 @@ review artifacts read as filled forms. This file pins what a test can pin
 about a voice fix: presence, structure, and bounds. It cannot pin whether a
 sentence sounds human - that stays the maintainer's ear at the clarity gate
 (`verify.clarity`), the same way `tests/test_house_style.py` pins the
-mechanical half of strategy S7 and leaves the rest to review.
+mechanical half of strategy `S7` and leaves the rest to review.
 
 Two test files split the issue's behaviour in two, on purpose: this one
 asserts what the prose surfaces carry (TRC-A1..A4, B1..B3, C1..C3, D1, F3);
@@ -14,37 +14,20 @@ asserts what the prose surfaces carry (TRC-A1..A4, B1..B3, C1..C3, D1, F3);
 (TRC-D2, D3, F1, F2), by running it as a subprocess over fixtures.
 
 Criteria: docs/system-spec.md
-Design:   docs/compass/2026-08-09-human-voice/technical-design.md (DD-4 names what each function
-          asserts; DD-7 recorded the original reason the archive-dependent
-          half of TRC-A2 and TRC-C2 skipped rather than failed when
-          `.compass/work/` is absent, as it always is in continuous
-          integration - that directory is gitignored).
-
-          DD-7's skip has since been superseded by issue
-          archive-quote-verification: a plain skip meant a fabricated or
-          altered quote passed the build every time continuous integration
-          ran it, since it never had the archive to check against. Both
-          TRC-A2 and TRC-C2 now call `scripts/verify-archive-quotes.py`'s
-          `verify()`, which checks a quote's live text against a committed
-          hash manifest (`skills/compass-runtime/archive-quote-manifest.json`)
-          in every environment, and additionally against the real archive
-          file wherever it is present. A skip only remains for the case
-          that check leaves genuinely unverified: the hash still matches,
-          but there is no file here to compare it against directly - and
-          that skip now names, by id, exactly which spans it means.
-          See `tests/test_archive_quote_manifest.py` for how that check
-          itself is proven to fail on a fabricated quote in an archive-less
-          environment - hermetically, with a synthetic reference, manifest,
-          and archive root, rather than by chance of what this machine
-          happens to have checked out.
+Design:   human-voice/technical-design.md (DD-4 names
+          what each function asserts). `TRC-A2` and `TRC-C2` check quotes through
+          `scripts/verify-archive-quotes.py` against the committed hash
+          manifest (`skills/compass-runtime/archive-quote-manifest.json`).
+          They skip only when the hash matches and no archive file is
+          present to compare against directly, and the skip names the spans
+          it means, by id. See `tests/test_archive_quote_manifest.py` for
+          how that check itself is proven to fail on a fabricated quote in
+          an archive-less environment, hermetically, with a synthetic
+          reference, manifest, and archive root.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006, backward compatibility).
 from __future__ import annotations
 
 import importlib.util
@@ -61,8 +44,7 @@ WORKED_EXAMPLE = (
     REPO_ROOT / "skills" / "compass-runtime" / "writing-voice-worked-example.md"
 )
 # The archive moved: `compass migrate` relocated every issue's documents to
-# `docs/compass/<created>-<slug>/`. Built from segments, which is why the
-# citation sweep that rewrote ORIGINAL_CITE did not reach this line.
+# `docs/compass/<created>-<slug>/`. Built from segments, not a literal path.
 ORIGINAL = (REPO_ROOT / "docs" / "compass"
             / "2026-05-26-make-receipt-render" / "requirements-review.md")
 ORIGINAL_CITE = "make-receipt-render/requirements-review.md"
@@ -144,9 +126,8 @@ PRINCIPLE = (
 def _script_tells() -> list[str]:
     """The three findable tells, read straight from scripts/voice-tells.py.
 
-    Review finding (verification-report.md 5.4/5.5, #6): TRC-D2 asks that
-    the reference marks the same three the check greps - "one list, not
-    two" - and hardcoding a second copy here is exactly the way that could
+    `TRC-D2` asks that the reference marks the same three the check greps -
+    one list, not two - so a hardcoded second copy here would let the two
     drift silently. `voice-tells.py` has a hyphen in its name, so it is
     loaded by path rather than imported as a package.
     """
@@ -228,12 +209,12 @@ def test_trc_a1_the_reference_lives_under_an_existing_skill_and_opens_with_the_p
 
 
 # ---------------------------------------------------------------------------
-# Shared pair parsing - both TRC-A2 and TRC-A4 read the same "### Pair N"
+# Shared pair parsing - both `TRC-A2` and `TRC-A4` read the same "### Pair N"
 # blocks, so the parser lives once here.
 # ---------------------------------------------------------------------------
 
 # Which of the three archive artifact kinds a cited path names. Anything
-# else is real but does not count toward the "covers at least two kinds"
+# else is real but does not count towards the "covers at least two kinds"
 # requirement.
 _KINDS = {
     "devlog.md": "devlog",
@@ -294,10 +275,10 @@ def test_trc_a2_every_pair_quotes_a_real_archive_passage():
     )
 
 
-# The nine tells, exactly as TRC-A3 names them. The three findable ones are
+# The nine tells, exactly as `TRC-A3` names them. The three findable ones are
 # read from scripts/voice-tells.py's own TELLS constant (see _script_tells
 # above), so the reference's marked set and the check's grepped set cannot
-# drift apart - the two lists TRC-D2 asks be one.
+# drift apart - the two lists `TRC-D2` asks be one.
 FINDABLE_TELLS = _script_tells()
 JUDGEMENT_TELLS = [
     '"successfully" suffixed to a completed verb',
@@ -315,11 +296,10 @@ def test_trc_a3_the_tells_list_names_all_nine_and_marks_the_findable_ones():
     for tell in FINDABLE_TELLS + JUDGEMENT_TELLS:
         assert tell in text, f"tell not named in the reference: {tell!r}"
 
-    # Review finding (verification-report.md 5.4, #2): the old version of
-    # this check restated the loop above and never tied a specific tell to
-    # its marker, so the reference could mark the wrong three findable and
-    # still pass. Split the tells section into its nine numbered entries
-    # and check each tell's own entry, not just the file as a whole.
+    # Split the tells section into its nine numbered entries and check each
+    # tell's own entry, not just the file as a whole - checking the file as
+    # a whole would let the reference mark the wrong three findable and
+    # still pass.
     section = text.split("## The tells", 1)[1]
     entries = re.split(r"(?m)^\d+\.\s", section)[1:]
     assert len(entries) == 9, (
@@ -393,8 +373,7 @@ def _flat(text: str) -> str:
 
     Phrase assertions below are about what the prose says, not about where
     its lines happen to break, so they match against this rather than the
-    raw text. Re-wrapping a paragraph broke three of them before this
-    existed. It also closes the other half of the same hole: a negative
+    raw text. It also closes the other half of the same hole: a negative
     assertion against raw text passes when the banned phrase is merely
     wrapped across two lines.
     """
@@ -421,10 +400,9 @@ def test_trc_c1_the_worked_example_rewrites_a_named_archive_artifact():
             f"rewrite: {phrase!r}"
         )
 
-    # Review finding (verification-report.md 5.5, #14): a bare count of
-    # "jed72" across the whole file is a loose proxy - four mentions
-    # clustered in one section would still pass it. Check each of the four
-    # decision sections individually instead.
+    # Check each of the four decision sections individually - a bare count
+    # of "jed72" across the whole file is a loose proxy: four mentions
+    # clustered in one section would still pass it.
     sections = re.split(r"(?m)^## ", text)[1:]
     assert len(sections) == 4, (
         f"expected four decision sections, found {len(sections)}"
@@ -437,11 +415,10 @@ def test_trc_c1_the_worked_example_rewrites_a_named_archive_artifact():
 
 
 def test_trc_c1_the_worked_example_does_not_misstate_or_embellish_its_source():
-    """Review finding (verification-report.md 5.2, must-fix 1; 5.5 findings
-    1, 4, 11). The exhibit invites a reader to compare it with the cited
-    original, so it must say only what that original says - no fact the
-    source lacks, no colour dressed as a fact, and no name for a command or
-    a stage that is not the one Compass uses today."""
+    """The exhibit invites a reader to compare it with the cited original,
+    so it must say only what that original says - no fact the source
+    lacks, no colour dressed as a fact, and no name for a command or a
+    stage that is not the one Compass uses today."""
     flat = _flat(_worked_example_text())
 
     # The original says only that `compass status` does not exist at HEAD;
@@ -457,9 +434,8 @@ def test_trc_c1_the_worked_example_does_not_misstate_or_embellish_its_source():
     assert "accident of drafting" not in flat
 
     # A new teaching artifact should not teach a retired flag spelling or a
-    # retired stage name. `--task` was a tolerated alias when this was
-    # written; ADR-014 removed it entirely, so teaching it is now teaching a
-    # flag that does not parse.
+    # retired stage name. `--task` no longer parses (ADR-014 removed
+    # retired names).
     assert "--task <slug>" not in flat, (
         "--issue is the CLI's only spelling; --task was removed at the major "
         "version and no longer parses"
@@ -475,7 +451,7 @@ def test_trc_c2_the_rewritten_original_is_unmodified_and_cited():
         "the rewrite must say where the original lives"
     )
 
-    # As with TRC-A2 above: checked against a committed hash manifest in
+    # As with `TRC-A2` above: checked against a committed hash manifest in
     # every environment (issue archive-quote-verification), and directly
     # against the real file wherever the archive is present. A hash
     # mismatch or a direct mismatch is a hard failure, never a skip; the
@@ -507,9 +483,9 @@ def test_trc_c3_the_template_worked_example_records_a_decision_in_prose():
             f"the worked example must not carry a findable tell: {tell!r}"
         )
 
-    # Review finding (verification-report.md 5.4, #1): every assertion
-    # above is negative, so an entirely empty section would still pass.
-    # TRC-C3's actual Then names four things the paragraph must carry.
+    # Every assertion above is negative, so an entirely empty section would
+    # still pass them. `TRC-C3`'s actual Then names four things the paragraph
+    # must carry.
     assert "was unclear" in section, (
         "the worked example must state what was unclear"
     )
@@ -544,7 +520,7 @@ def test_trc_d1_the_clarity_dimension_names_the_tells_as_judgement():
             f"gate failure"
         )
 
-        # TRC-B3: these two surfaces may name only the three tells the check
+        # `TRC-B3`: these two surfaces may name only the three tells the check
         # greps, never the full nine-item list. "accordingly" is excluded
         # from this check - it is a single ordinary word, not a distinctive
         # phrase, and would false-positive on innocent prose.
@@ -564,14 +540,12 @@ def test_trc_d1_the_clarity_dimension_names_the_tells_as_judgement():
 REFERENCE_PATH = "skills/compass-runtime/writing-voice.md"
 
 def _evidence_gates_text():
-    """Everything the evidence-gates skill says, across its whole directory.
+    """Reads SKILL.md and its sibling files.
 
-    The skill was split so its parts load when needed - the review-dimension
-    checklists, the evidence vocabulary, the fitness-function detail and the
-    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
-    reports content missing when it has moved next door.
-
-    The strings below are unchanged; only where they are looked for widened.
+    The evidence-gates skill's parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the architecture-check detail and
+    the coverage notes are siblings of SKILL.md, not inside it. A guard
+    reading only SKILL.md would report them missing.
     """
     import pathlib as _p
     d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
@@ -599,38 +573,19 @@ def test_trc_b1_claude_md_and_agents_md_carry_the_voice_paragraph():
         assert REFERENCE_PATH in section, (
             f"{name}'s voice paragraph must name the reference by path"
         )
-        # RAISED 120 -> 260 on 2026-08-23, deliberately, by jed72.
+        # The cap exists because these files load on every run, so every
+        # word costs attention every time.
         #
-        # The cap exists because these files are loaded on every run, so every
-        # word costs attention every time - that reasoning still holds and the
-        # cap is still a cap. What changed is what the section has to carry.
+        # The section carries two things a writer must have in front of
+        # them, not left in a skill a session may never load: the
+        # four-part reply shape from `agent-speech-is-unchecked`, and the
+        # maintainer's plain-English rules - lead with the point, no idiom
+        # or metaphor, one word for one thing, "must" / "can" / "do not",
+        # and the table of shorter words.
         #
-        # `agent-speech-is-unchecked` found that the one surface the
-        # plain-language rule governs with no check is what the assistant says,
-        # and that the fix - a four-part reply shape, its rules, and the moment
-        # to apply it - only works if it reaches the speaker at the moment of
-        # speaking. A rule that lives only in a skill a session may never load
-        # is exactly the failure that issue was filed about: it had been ruled
-        # on for eight days and reached no session.
-        #
-        # The shape does not fit in the 19 words the old cap left. Making it a
-        # sibling `## ` section would have passed this check while adding the
-        # same words to every run, which is satisfying the letter and defeating
-        # the purpose - so the cap was raised in the open instead.
-        #
-        # RAISED 260 -> 560 on 2026-09-11, deliberately, by jed72.
-        #
-        # The section now also carries the maintainer's plain-English rules:
-        # lead with the point, no idiom or metaphor, one word for one thing,
-        # "must" / "can" / "do not", and the table of shorter words. The same
-        # reasoning applies as for the reply shape: a writing rule only works
-        # if it is in front of the writer, and a skill a session may never
-        # load is not. A 116-word version fitted under 260 by dropping the
-        # table and half the rules.
-        #
-        # 560 is the larger of the two sections (AGENTS.md, 546 words) plus a
-        # small margin, not a round number chosen to stop this failing again.
-        # If a later change needs more, it must come back here and say why.
+        # 560 is the larger of the two sections (AGENTS.md, 546 words) plus
+        # a small margin, not a round number. A later change that needs
+        # more words must raise the cap here, and say why.
         words = len(section.split())
         assert words <= 560, (
             f"{name}'s voice paragraph is {words} words; must be <=560"
@@ -653,15 +608,10 @@ def test_trc_b1_claude_md_and_agents_md_carry_the_voice_paragraph():
 
 def test_trc_b2_assess_refine_and_verify_point_at_the_reference():
     """The three commands whose output a person reads most name the writing
-    reference; no other command does.
-
-    `triage.md` became `assess.md` on 2026-08-25, and the redirect stub that
-    carried the old name was removed at 4.0.0 - so there is nothing to
-    exclude any more. Every command file is a real command.
-    """
+    reference; no other command does. Every command file is a real command."""
     command_dir = REPO_ROOT / "commands"
     included = ["assess.md", "refine.md", "verify.md"]
-    stubs: set[str] = set()   # empty since 4.0.0 removed the redirect stubs
+    stubs: set[str] = set()
     for name in included:
         text = (command_dir / name).read_text(encoding="utf-8")
         section = _section_after_heading(text, "Voice")
@@ -717,19 +667,19 @@ def test_trc_b3_the_full_tells_list_appears_in_exactly_one_file():
 # ---------------------------------------------------------------------------
 
 def test_trc_f3_no_new_guardrail_gate_check_or_cli_verb():
-    # This issue's inventory (technical-design.md section 9) never touches these
-    # paths at all - the direct proof is that git sees no change to them.
+    # Checks that the human-voice commits (519300b..1f00637) did not touch
+    # these paths - the direct proof is that git sees no change to them.
     # tests/test_stream_c_no_new_checks_or_gates.py and
     # tests/test_cli_surface_drift.py are the standing nets for the same
     # invariant on every other change; this asserts the stronger claim that
     # this issue specifically never opened these files.
     #
-    # Scoped to this issue's own committed range (519300b..1f00637), not the
-    # working tree against a moving HEAD: a later issue legitimately touching
-    # cli/ (zero-friction-install bundles PyYAML there) would otherwise trip
-    # this human-voice-specific assertion on someone else's uncommitted work.
-    # The historical range is immutable, so the guarantee this test makes -
-    # human-voice itself never touched these paths - is unchanged.
+    # Scoped to this committed range, not the working tree against a moving
+    # HEAD: a later issue legitimately touching cli/ (zero-friction-install
+    # bundles PyYAML there) would otherwise trip this human-voice-specific
+    # assertion on someone else's uncommitted work. The historical range is
+    # immutable, so the guarantee this test makes - human-voice itself never
+    # touched these paths - is unchanged.
     untouched = ["governance/guardrails.yml", "governance/terminology.yml", "cli/"]
     # A pinned range is only immutable if the history is present. CI checks
     # out a shallow clone, where these objects are absent and git exits 128,
