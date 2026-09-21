@@ -6,9 +6,10 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 
 # /compass:quick-fix
 
-The change is small, safe, and on ground the code already describes. This one
+The change is small, safe, and in code whose behaviour is already written
+down. This one
 file is the whole path - assess, state the criterion, build it test-first,
-verify, ship. Load `quick-fix` alongside it and read nothing else.
+check the result, ship. Load `quick-fix` alongside it and read nothing else.
 
 **Issue:** $ARGUMENTS
 
@@ -25,7 +26,7 @@ Stop and run the full pipeline if any of these is true:
   a designer brings artifacts this path does not write.
 
 Guessing low here is the failure this path is most prone to. When unsure,
-size up: collapsing a stage that turned out easy is cheap, discovering
+choose the larger size: collapsing a stage that turned out easy is cheap, discovering
 mid-build that the process was too light is not.
 
 ## 1. Assess
@@ -77,16 +78,17 @@ machine-readable entry the CLI reads back.
 ## 2. State the one criterion
 
 One Given/When/Then scenario, and it is the spec. It must be genuinely
-unambiguous - the requirements review is collapsed on exactly that strength,
-so if the scenario needs a conversation to interpret, the approach was wrong.
+unambiguous - the requirements review is collapsed only because the scenario
+is unambiguous, so if the scenario needs a conversation to interpret, the
+approach was wrong.
 
 Write it into the manifest's `scenarios:` block: a stable id, a title, the
 `intent` it serves, and the `tests` that will exercise it. That block is what
-`compass check` reads for the criterion-before-code guardrail. Put the same
+`compass check` reads for the acceptance-before-code guardrail. Put the same
 scenario in `delivery-approach.md` so a person can read it without opening
 the manifest.
 
-No scenario is never a valid state. One is the minimum, not zero.
+Zero scenarios is never valid; one is the minimum.
 
 ## 3. Build it test-first
 
@@ -112,7 +114,7 @@ clears the marker. Refactor with the suite green.
 
 For each production file you touched, add an entry to the manifest's
 `changed_files:` - the path and the scenario id it traces to. That is the
-code-to-criterion half of traceability, and `compass check` verifies it.
+code-to-criterion half of traceability, and `compass check` checks it.
 
 ## 4. Verify
 
@@ -151,8 +153,8 @@ pointers are the record.
 compass ship-commit --issue <slug> -m "<message>"
 ```
 
-It commits on the current branch and errors if HEAD did not move, so shipping
-cannot falsely believe it happened. Write the message for someone who was not
+It commits on the current branch and errors if HEAD did not move, so a commit
+that did not happen cannot count as shipped. Write the message for someone who was not
 in the conversation: what changed and why, no agent attribution trailer and no
 "generated with" footer.
 
@@ -160,16 +162,18 @@ Add one line to `devlog.md`: what changed, and what proved it.
 
 ## Stop and re-assess when
 
-The change unspools - a second file, then a third, then a decision you did not
-expect. That is the assessment having been misread, and the move is
+The change grows - a second file, then a third, then a decision you did not
+expect. The assessment was wrong, and the move is
 `compass approach evaluate` again with the real dimensions, not pushing on
 with a process you no longer believe. Three consecutive fixes that did not
 hold means the same thing: stop.
 
 ## Gate
 
-`delivery-approach.md` exists with justified dimensions and a de-scope ledger;
-the manifest carries one scenario with an id, an intent and a test; a red
-record and a green record are both on file for it; every changed file traces
-to it; `compass check` passes; the three gates are `pass` with evidence that
-resolves; the commit is made and the devlog line written.
+- `delivery-approach.md` exists with justified dimensions and a de-scope ledger;
+- the manifest carries one scenario with an id, an intent and a test;
+- a red record and a green record are both on file for it;
+- every changed file traces to it;
+- `compass check` passes;
+- the three gates are `pass` with evidence that resolves;
+- the commit is made and the devlog line written.

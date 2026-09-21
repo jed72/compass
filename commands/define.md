@@ -7,16 +7,21 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 Define turns intent into Given/When/Then acceptance criteria. This is the
 **shared artifact** - the product owner reads it for intent fidelity, the
-marketer for claims, the engineer for tests, QA for coverage. Write it so all
-four roles can.
+marketer for claims, the engineer for tests, the designer for the UI
+contract, QA for coverage. Write it so all five roles can.
 
 ## Setup
 
 - Read `delivery-approach.md`. Its weight for this stage tells you how deep
-  to go: one scenario (quick fix), a small feature set (feature), full BDD
-  discovery (initiative), or - on a **spike** - collapsed into *the question*
-  (what do we need to learn, and what would a useful answer look like), not
-  acceptance criteria for code. Honour it.
+  to go:
+  - one scenario (quick fix);
+  - a small feature set (feature);
+  - full BDD discovery (initiative);
+  - on a **spike** - collapsed into *the question* (what do we need to
+    learn, and what would a useful answer look like), not acceptance
+    criteria for code.
+
+  Honour it.
 - Load the `bdd-specification` skill.
 - If `delivery-approach.md` assesses familiarity as `brownfield-unmapped`,
   also load `behaviour-mapping` - reverse-engineer the *current*
@@ -38,9 +43,9 @@ four roles can.
    the failure modes that matter. Depth scales with the delivery approach,
    but never to zero: "no scenario" is never a valid state. On a quick fix
    the single scenario must be genuinely unambiguous, because the
-   requirements review is collapsed on the strength of that.
+   requirements review is collapsed only because the scenario is unambiguous.
 3. **Group by independence.** On larger work, group scenarios by which touch
-   disjoint surface - this grouping seeds the distribution map at the design
+   disjoint surface - this grouping seeds the distribution map at the plan
    stage.
 4. **Maintain traceability** - load `evidence-gates` and read its
    `traceability.md`; each scenario traces to
@@ -58,7 +63,7 @@ four roles can.
 6. **Write the `scenarios:` block of `manifest.yml`** - the machine-readable
    index of the prose spec. Each scenario gets a stable `id`, a `title`, a
    linked `intent` id, and the `tests` that exercise it. This is what
-   `compass check` reads to verify the acceptance-before-code and
+   `compass check` reads to check the acceptance-before-code and
    traceability guardrails; implementation then traces `changed_files` to
    these ids. On a spike, there are no scenarios - the block stays empty.
 
@@ -73,8 +78,8 @@ and the TDD red. Write that test now; the proper scenario is promoted into
 
 On a spike, this stage is **collapsed into the question**: the spike's spec
 is "what do we need to learn, and what would a useful answer look like?" -
-not Given/When/Then acceptance criteria, because a spike has no acceptance
-criteria to be (its output is knowledge, not behaviour). Record the question
+not Given/When/Then acceptance criteria: a spike has no acceptance
+criteria, because its output is knowledge, not behaviour. Record the question
 and the timebox; the BDD strategy does not apply here. See `${CLAUDE_PLUGIN_ROOT}/approaches/spike.md`.
 
 ## Hand-off
@@ -108,10 +113,15 @@ Fill in the real path, counts, and group names - a prompt that still says
 
 ## Gate
 
-On delivery work: `acceptance-criteria.md` exists, every scenario is
-Given/When/Then, every scenario traces to an intent, no described behaviour
-is missing a scenario, and `manifest.yml`'s `scenarios:` block mirrors it - each
-with an id, a linked intent, and at least one test. On a spike: the question
+On delivery work:
+- `acceptance-criteria.md` exists;
+- every scenario is Given/When/Then;
+- every scenario traces to an intent;
+- no described behaviour is missing a scenario;
+- `manifest.yml`'s `scenarios:` block mirrors it - each with an id, a linked
+  intent, and at least one test.
+
+On a spike: the question
 and timebox are recorded. Log to `devlog.md`. Next: `/compass:refine` (or
 straight to `/compass:plan` if `delivery-approach.md` collapsed the
 requirements review - and it is skipped entirely on a spike).

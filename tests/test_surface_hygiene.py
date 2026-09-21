@@ -137,10 +137,12 @@ def test_trc_d3_bdd_skill_documents_the_split():
         "the skill never says what work the requirements review does that "
         "the inline self-review does not"
     )
-    # and which routes run each
-    assert "express" in text and re.search(r"standard", text), (
-        "the skill does not say which routes run the inline self-review and "
-        "which run Clarify"
+    # and which delivery approaches run each. "Express" and "Standard" were
+    # the v1 names for quick fix and feature; the skills-prose slice renamed
+    # them, so the file now states the same split in v2 words.
+    assert "quick fix" in text and re.search(r"feature", text), (
+        "the skill does not say which delivery approaches run the inline "
+        "self-review and which run the requirements review"
     )
 
 

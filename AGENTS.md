@@ -44,7 +44,7 @@ record (`delivery-approach.md`). The approach is computed from context, not
 chosen from a menu. Genuinely exploratory work is not exempt from
 assessment - it composes a **spike**.
 
-**Trigger triage on intent, not just on the literal command.** When the user
+**Assess the work when the request describes it, not only when the command is typed.** When the user
 describes intent to build, change, or fix code - even when they do not type
 the adapter's assess command - the adapter must assess before any
 artifact-changing tool call. Explicit invocation always works regardless. If

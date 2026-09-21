@@ -3,7 +3,7 @@ name: behaviour-mapping
 description: How to reverse-engineer existing behaviour into scenarios before changing it. Load on brownfield work whose behaviour is not written down.
 ---
 
-# Blueprint Behaviour mapping
+# Behaviour mapping
 
 The rule behind this skill is simple: **you cannot safely change behaviour you
 have not first written down.** On `brownfield-unmapped` familiarity the routing
@@ -12,11 +12,11 @@ scenario, before any change. This skill is how you do it well.
 
 ## What behaviour mapping produces
 
-A set of Given/When/Then scenarios that describe what the code **currently
-does** - not what it should do, not what the ticket wants, what it *does today*.
+A set of Given/When/Then scenarios that describe what the code **does
+now** - not what it should do, not what the ticket wants, what it *does today*.
 These go into `acceptance-criteria.md` marked as baseline scenarios. They become:
 
-- the regression safety net - the thing the Verifier runs to prove you did not
+- the regression baseline - the thing the Verifier runs to prove you did not
   break what was working;
 - the starting point the new scenarios are written against;
 - the first time this corner of the system has been described in the shared
@@ -26,9 +26,9 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
 
 1. **Bound the surface.** You are not behaviour mapping the whole system - only the
    behaviour the upcoming change will touch, plus its immediate risk.
-   Use the route's `touches:` tags and the plan's intended change site to draw
-   the boundary. Behaviour mapping too wide wastes the route; too narrow misses the
-   regression you are about to cause.
+   Use the manifest's `labels:` and the plan's intended change site to draw
+   the boundary. Behaviour mapping too wide wastes the time the delivery
+   approach allowed; too narrow misses the regression you are about to cause.
 2. **Find the interfaces.** Identify the inputs and outputs of the bounded surface -
    the function signatures, the endpoints, the events, the stored state. These
    are where your `When` and `Then` will attach.
@@ -37,7 +37,7 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
    spec's job, and conflating them is the central behaviour mapping mistake.
 4. **Characterise with tests where the code is opaque.** When you cannot read
    the behaviour confidently, write a *characterisation test*: assert whatever
-   the code currently returns, even if it looks wrong, and let the green tell
+   the code returns now, even if it looks wrong, and let the green tell
    you the truth. A characterisation test that documents a bug is still
    correct behaviour mapping - it captures reality.
 5. **Write the baseline scenarios.** One behaviour per scenario, same quality
@@ -45,7 +45,8 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
    outcome. Mark them baseline.
 6. **Flag the surprises.** Behaviour mapping almost always uncovers behaviour nobody
    knew about - undocumented edge cases, latent bugs, dead branches. Record each
-   in `requirements-review.md`: is it load-bearing behaviour to preserve, or a bug to
+   in `requirements-review.md`: is it behaviour other code depends on and
+   must preserve, or a bug to
    fix as part of this change? That decision is made deliberately, not by
    accident of what the new code happens to do.
 
@@ -54,29 +55,29 @@ These go into `acceptance-criteria.md` marked as baseline scenarios. They become
 The most important discipline here. `acceptance-criteria.md` will end up holding two
 kinds of scenario:
 
-- **Baseline** - what the code does now. The regression net.
+- **Baseline** - what the code does now. The regression baseline.
 - **Target** - what the change will make it do. The new acceptance criteria.
 
 Keep them labelled and distinct. When the change ships, some baseline scenarios
 are *intentionally* superseded by target scenarios - that is a recorded
 decision, not a silent overwrite. The baseline you are *not* changing must still
-pass at Verify; that is the proof you preserved what you meant to.
+pass at the verify stage; that is the proof you preserved what you meant to.
 
 ## When the behaviour is genuinely a mess
 
 Sometimes the current behaviour is inconsistent - the same input class does
-different things depending on undocumented state. Behaviour mapping it honestly anyway:
+different things depending on undocumented state. Map it honestly anyway:
 write the scenarios that capture the inconsistency. The mess, written down, is
 something you can decide about. The mess, undescribed, is something that will
-surprise you at Verify or in production.
+surprise you at the verify stage or in production.
 
 ## Anti-patterns
 
 - **Behaviour mapping the ideal.** Writing scenarios for what the code should do and
-  calling it behaviour mapping. Now you have no regression net and a spec that lies
+  calling it behaviour mapping. Now you have no regression baseline and a spec that lies
   about the present.
-- **Boiling the ocean.** Behaviour mapping far beyond the change's risk. The
-  route did not budget for it and it delays the actual work.
+- **Mapping too much.** Behaviour mapping far beyond the change's risk. The
+  delivery approach did not allow for it and it delays the actual work.
 - **Skipping it because "I understand this code."** Understanding it is not the
   bar - *it being written down* is the bar. The floor is about the artifact, not
   your confidence.

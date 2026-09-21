@@ -26,19 +26,19 @@ this skill teaches.
 | **3. Structure** (class/module diagram) | New components, changed relationships, or a contract the work units assume. | The change adds no new boundary. |
 | **4. Design patterns invoked** | A real named pattern is genuinely being applied *and* you can say what it buys this change. | You cannot name it, or cannot say what it buys. |
 | **5. The shape of the change** (code) | The shape of an interface, type, or API is itself a decision worth arguing with. | The shape is obvious from section 1. |
-| **5a. Cross-cutting concerns** | The change touches security, privacy, or what you can see in production. *Design Docs at Google* names these three as concerns of the design rather than documents of their own. | It touches none of them - or a label earned a full threat-model.md or rollback-plan.md, in which case link that rather than summarising it here. |
+| **5a. Cross-cutting concerns** | The change touches security, privacy, or what you can see in production. *Design Docs at Google* (<https://www.industrialempathy.com/posts/design-docs-at-google/>) names these three as concerns of the design rather than documents of their own. | It touches none of them - or a label earned a full threat-model.md or rollback-plan.md, in which case link that rather than summarising it here. |
 
 **Delete the sections you do not use.** An empty optional heading is worse
 than an absent one: it reads as an omission rather than a decision, and the
 next author fills it in to be safe.
 
-## Scaling by route
+## Scaling by delivery approach
 
 - **quick-fix** - none of them. quick-fix writes no `technical-design.md` at all; the plan is
   a one-line edit note in `delivery-approach.md`.
 - **feature** - the ones that add clarity. Typically one diagram, and one of
   the other three. Reaching for all six on a feature approach is a sign the
-  route was under-read, not a sign of thoroughness.
+  assessment was too low, not a sign of thoroughness.
 - **initiative** - all of them, freely, where the work warrants it. Here the
   plan *is* the design document, and a reviewer is expected to spend real time
   in it.
@@ -97,7 +97,7 @@ self-review in `bdd-specification`.
    applied by a work unit in section 8, and carries its reason.
 4. **Magic-number scan** - every threshold, timeout, or budget in the plan has
    a stated source: the spec, an ADR, or a measurement. A number with no
-   source is a decision someone will have to re-make during Build, alone.
+   source is a decision someone will have to re-make during implementation, alone.
 
 ## Anti-patterns
 
@@ -107,7 +107,7 @@ self-review in `bdd-specification`.
 - **The decorative diagram** - a diagram that restates the paragraph above it.
   Cut one.
 - **The implementation in section 5** - section 5 sketches a contract. If you
-  are writing the body, you are doing Build's work in a document nobody will
+  are writing the body, you are doing the implement stage's work in a document nobody will
   run.
 - **The undisagreeable plan** - prose that describes what will happen without
   exposing a single choice. If a reviewer cannot find anything to push back

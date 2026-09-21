@@ -5,14 +5,15 @@ description: Scoring the four dimensions, red-green-refactor, and what clears a 
 
 # Quick fix
 
-What `/compass:quick-fix` needs to know, and nothing else. The heavier routes
+What `/compass:quick-fix` needs to know, and nothing else. The heavier
+delivery approaches
 read fuller versions of all three subjects; this is the light path's share of
 them.
 
 ## Scoring the four dimensions
 
 A value and a one-line justification each. If a value cannot be justified,
-ask - an unjustified reading is worse than a question.
+ask - an unjustified value is worse than a question.
 
 ### Risk - if this goes wrong, how bad and how wide?
 
@@ -24,7 +25,7 @@ ask - an unjustified reading is worse than a question.
 | `critical` | Failure can lose data, lose money, breach auth or privacy, or cannot be cleanly rolled back. |
 
 Risk is about consequence, never effort. A one-character change can be
-critical, and that is the reading this path most often gets wrong.
+critical, and that is the value this path most often gets wrong.
 
 ### Familiarity - new code or existing code, and how well described?
 
@@ -93,7 +94,7 @@ genuinely fail first - a sanctioned red is not an exemption from red.
 ## What clears a gate
 
 Evidence, never assertion. The test is simple: **could someone who does not
-trust you verify it from what you recorded?** If they would have to take your
+trust you check it from what you recorded?** If they would have to take your
 word, it is an assertion and it clears nothing.
 
 | Assertion - clears nothing | Evidence - clears the gate |
@@ -102,22 +103,26 @@ word, it is an assertion and it clears nothing.
 | "No regressions." | The suite run, before and after, showing nothing that was green is now red. |
 | "I checked the guardrails." | `compass check`'s recorded output. |
 
-Real evidence is **reproducible** (it carries the command), **current** (from
-this change, not a remembered earlier run), **complete** (the whole output, not
-a hand-picked green line - a run with skipped tests is not a green run), and
-**honest about gaps** (a scenario you could not run is reported, not omitted).
+Real evidence has four properties:
+
+- **reproducible** - it carries the command;
+- **current** - from this change, not a remembered earlier run;
+- **complete** - the whole output, not a hand-picked green line (a run with
+  skipped tests is not a green run);
+- **honest about gaps** - a scenario you could not run is reported, not
+  omitted.
 
 A quick fix carries three gates and they are the same three on every approach:
 
 - **correctness** - the change satisfies the scenario. The scenario-bound
   green record is the evidence.
 - **traceability** - the changed files name the scenario, and the scenario
-  names an intent. `compass check` verifies the chain.
+  names an intent. `compass check` checks the chain.
 - **governance** - the guardrails hold. `compass check` is the mechanical
   part; recording its output is what makes it evidence.
 
 A gate is not "mostly passed". One unmet dimension sends the work back, to the
-build or to a fresh reading of the four dimensions.
+implement step or to a new assessment of the four dimensions.
 
 ### The check that inspected nothing
 
@@ -126,10 +131,10 @@ build or to a fresh reading of the four dimensions.
 Those lines are honest and they are not progress. Read what each check
 actually inspected before treating a green run as a cleared gate.
 
-## What a quick fix may not do
+## What a quick fix must not do
 
 - **Skip the test.** The approach adapts test surface, never test existence.
 - **Skip the scenario.** One is the minimum. Zero is never a valid state.
-- **Be used to get a change in past a heavier reading.** The recorded
+- **Be used to get a change in past a heavier assessment.** The recorded
   assessment and the CLI's computed approach make that visible, which is what
   they are for.

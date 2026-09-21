@@ -1,6 +1,6 @@
 # Anti-patterns, and when red does not become green
 
-Split out of `SKILL.md`: read when something has gone wrong, not while it is going right.
+Read when something has gone wrong, not while it is going right.
 
 ## Anti-patterns
 
@@ -8,15 +8,15 @@ Split out of `SKILL.md`: read when something has gone wrong, not while it is goi
   pass. The test never proved anything; it only documented what the code
   already did. This is the single thing the hook exists to prevent.
 - **The assertion-free test.** A test that runs the code but asserts nothing,
-  or asserts something trivially true. It is green theatre.
+  or asserts something trivially true. It is green without testing anything.
 - **The test that never went red.** If you did not watch it fail, you do not
   know it can.
-- **Refactoring in green's clothing.** Changing behaviour during the refactor
+- **Behaviour change during refactor.** Changing behaviour during the refactor
   step. Behaviour changes start at red.
 - **Skipping refactor under deadline.** The mess compounds. Refactor is
-  part of the cycle, not an optional third act - even a hotfix refactors,
+  part of the cycle, not optional - even a hotfix refactors,
   when the refactor is itself low-risk.
-- **Test behaviour, not implementation.** Writing assertions that are coupled
+- **Testing implementation, not behaviour.** Writing assertions that are coupled
   to how the code works internally - checking which methods were called, which
   internal variables were set, or which collaborators were invoked in which
   order. The test should observe *what* the code does from outside, not *how*
@@ -32,4 +32,4 @@ If a test is failing for a reason you did not predict, stop cycling and load
 each time is not the TDD cycle - it is the reflex the cycle exists to replace.
 That skill also carries the escape clause: three consecutive failed fixes means
 the assessment was wrong, and the next move is `/compass:assess
---reassess`, not a fourth attempt.
+--reassess`, not a fourth try.

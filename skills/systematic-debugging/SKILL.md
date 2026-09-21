@@ -7,13 +7,13 @@ description: "How to debug from evidence rather than guesses: read the failure, 
 
 A test failed and you did not expect it to. The reflex is to change something
 plausible and re-run. That reflex is why debugging sessions get long: each
-attempted fix is a guess, guesses do not accumulate into understanding, and the
+fix you try is a guess, guesses do not accumulate into understanding, and the
 fourth one lands on a system you no longer have a model of.
 
 This is the method that replaces the reflex. It is four phases and one escape
 clause, and the escape clause is the part Compass adds.
 
-## Phase 1 - Root cause investigation
+## Root cause investigation (phase 1)
 
 **Read, do not infer.** The single biggest cost in debugging is reasoning about
 what the code *should* do instead of observing what it *does*.
@@ -29,7 +29,7 @@ what the code *should* do instead of observing what it *does*.
 You leave this phase when you can point at the line where correct becomes
 incorrect. Not before.
 
-## Phase 2 - Pattern analysis
+## Pattern analysis (phase 2)
 
 **Find a working case and compare.** Almost every bug has a neighbour that
 works: a sibling test, an earlier commit, a different input, another
@@ -39,7 +39,7 @@ Run the working case and the failing case side by side, and write down the
 delta. Keep narrowing it until one difference remains. That difference is not
 always the cause, but it is the only honest place to start hypothesising.
 
-## Phase 3 - Single-hypothesis test
+## Single-hypothesis test (phase 3)
 
 **One hypothesis, stated out loud, with a test that can falsify it.**
 
@@ -52,11 +52,11 @@ always the cause, but it is the only honest place to start hypothesising.
 Changing two things at once is what makes a debugging session unrecoverable.
 You stop being able to attribute the result, and both changes stay in the code.
 
-## Phase 4 - Fix through a failing test
+## Fix through a failing test (phase 4)
 
 **Write the regression test first, watch it go red, then fix it.**
 
-This is the same red-green discipline Build already runs (`compass tdd-red`,
+This is the same red-green discipline the implement stage already runs (`compass tdd-red`,
 then `compass tdd-green`) - see `tdd-discipline`. It matters more here, not
 less: a bug fixed without a test that failed for the bug's reason is a bug you
 cannot prove you fixed, and one that returns without anyone noticing.
@@ -66,7 +66,7 @@ phase 1.
 
 ## The escape clause - three failed fixes means the framing is wrong
 
-**After three consecutive fixes that did not hold, stop fixing.** Do not attempt
+**After three consecutive fixes that did not hold, stop fixing.** Do not try
 a fourth.
 
 Three failures in a row is not bad luck. It means the model you are debugging
@@ -74,9 +74,9 @@ against does not match the system - and continuing to make changes against a
 wrong model damages code that was not broken. The question stops being "what is
 the bug" and becomes "why do I keep being wrong about this".
 
-In Compass terms that is a **routing** signal, not just a debugging one. An issue
+In Compass terms that is a **re-assessment** signal, not just a debugging one. An issue
 whose fixes keep failing is usually an issue whose risk, familiarity or
-size was misread at triage - most often familiarity scored `brownfield-mapped`
+size was misread at the assess stage - most often familiarity scored `brownfield-mapped`
 when the behaviour was never actually written down.
 
 So:
@@ -97,7 +97,7 @@ is the system working; a fourth guess is not.
   change, you are not testing anything.
 - **Debugging by diff.** "It worked before this commit" locates a change, not a
   cause. Use it to build a hypothesis, not to skip phase 1.
-- **The silent fourth fix.** Attempting one more after three failures because
+- **The silent fourth fix.** Trying one more after three failures because
   this one *feels* right. Feeling right is what the previous three felt like.
 - **Fixing the symptom.** Making the test pass without understanding why it
   failed. On a hotfix this is an explicit, recorded follow-up; anywhere
