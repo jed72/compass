@@ -5,13 +5,12 @@ writes into documents, and what the assistant says. The first two have checks.
 The third cannot have one - nothing mechanical reads a conversation - so what is
 checked here is the *instruction*, not the reply.
 
-BE CLEAR ABOUT WHAT THAT BUYS. A session can carry all four headings and write
+What this does not check: a session can carry all four headings and write
 jargon underneath every one of them, and nothing in this file would notice. What
 these tests establish is that the rule exists where the speaker reads it, and
 that two shipped instructions do not tell a session opposite things.
 
-Scenario ids trace to .compass/work/agent-speech-is-unchecked/
-acceptance-criteria.md.
+Scenario ids trace to agent-speech-is-unchecked/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -52,11 +51,8 @@ REPORTED_TERMS = [
 def _tell_seven(prose: str) -> str:
     """Just tell #7's own entry, not its neighbours.
 
-    An earlier version read a fixed 700-character window from the start of the
-    tell, which ran into tell #8 - "restating the request before *answering*
-    it". So a check for the word "answer" passed on a neighbouring entry while
-    tell #7 itself was untouched. The window now ends where the next numbered
-    tell begins.
+    Ends at the next numbered tell, so a word in tell #8 cannot satisfy a
+    check on tell #7.
     """
     idx = prose.index("headings inside conversation")
     rest = prose[idx:]
@@ -69,16 +65,13 @@ def _tell_seven(prose: str) -> str:
 # ---------------------------------------------------------------------------
 
 def test_a1_reply_shape_is_in_the_always_loaded_instructions():
-    """TRC-A1: the always-loaded instructions state the four-part reply shape.
+    """`TRC-A1`: the always-loaded instructions state the four-part reply shape.
 
-    Not only the skill. A rule about speaking applies to every reply, including
-    those in a session that never loads the skill - and this ruling spent eight
-    days recorded in a place no session reads, which is the defect being fixed.
+    Not only the skill. A rule about speaking applies to every reply,
+    including those in a session that never loads the skill.
     """
-    # Read the bullet list itself, not the whole file. Mutation MP-1 renamed a
-    # bullet and this passed anyway, because the same phrase appears in the
-    # sentence explaining why the shape works - so the test was confirming that
-    # the words exist somewhere, not that they are the shape.
+    # Read the bullet list: the same phrase appears in the sentence that
+    # explains the shape.
     text = ALWAYS_LOADED.read_text(encoding="utf-8")
     bullets = " ".join(
         l.strip() for l in text.splitlines() if l.lstrip().startswith("- **"))
@@ -91,7 +84,7 @@ def test_a1_reply_shape_is_in_the_always_loaded_instructions():
 
 
 def test_a2_the_three_rules_are_stated():
-    """TRC-A2: the shape carries its three rules.
+    """`TRC-A2`: the shape carries its three rules.
 
     The shape without them is four headings over the same buried prose.
     """
@@ -105,7 +98,7 @@ def test_a2_the_three_rules_are_stated():
 
 
 def test_a3_length_tension_is_resolved():
-    """TRC-A3: the length tension is resolved rather than left open.
+    """`TRC-A3`: the length tension is resolved rather than left open.
 
     "Keep each section short" collides with a change that genuinely has a lot in
     it. If the instruction does not say what to cut, the next reader cuts
@@ -118,11 +111,11 @@ def test_a3_length_tension_is_resolved():
 
 
 # ---------------------------------------------------------------------------
-# Group B - the terms that leak
+# Group B - the terms a cold reader cannot read
 # ---------------------------------------------------------------------------
 
 def test_b1_leaky_terms_have_plain_forms():
-    """TRC-B1: the list gives each term a plain-English form beside it."""
+    """`TRC-B1`: the list gives each term a plain-English form beside it."""
     prose = _prose(VOICE_SKILL)
     assert re.search(r"plain", prose, re.IGNORECASE), (
         "the voice skill carries no list of terms with plain forms")
@@ -132,7 +125,7 @@ def test_b1_leaky_terms_have_plain_forms():
 
 
 def test_b2_list_covers_the_six_reported_terms():
-    """TRC-B2: every term the cold reader named has a plain form, and the plain
+    """`TRC-B2`: every term the cold reader named has a plain form, and the plain
     form is not the term restated.
 
     A list that names a term and then explains it in the same vocabulary has
@@ -160,11 +153,10 @@ def test_b2_list_covers_the_six_reported_terms():
 # ---------------------------------------------------------------------------
 
 def test_c1_rule_is_attached_to_a_moment():
-    """TRC-C1: the rule names when to apply it.
+    """`TRC-C1`: the rule names when to apply it.
 
-    This project has learned that a rule with no moment attached is advice, and
-    that a judgement has not landed until it reaches the actor at the moment of
-    acting. This issue exists because a ruling was recorded and reached none.
+    A rule with no moment attached is advice: a judgement must reach the
+    actor at the moment of acting.
     """
     prose = _prose(ALWAYS_LOADED).lower()
     assert "before you report" in prose, (
@@ -182,7 +174,7 @@ def test_c1_rule_is_attached_to_a_moment():
 # ---------------------------------------------------------------------------
 
 def test_d1_tell_seven_distinguishes_label_from_answer():
-    """TRC-D1: the headings tell separates a label from an answer.
+    """`TRC-D1`: the headings tell separates a label from an answer.
 
     Tell #7 is real and is not being deleted - "## Summary" over a summary is
     still worth catching. What it lacked is the line separating that from a
@@ -201,7 +193,7 @@ def test_d1_tell_seven_distinguishes_label_from_answer():
 
 
 def test_d2_instructions_do_not_contradict_each_other():
-    """TRC-D2: a session following every instruction can satisfy them all.
+    """`TRC-D2`: a session following every instruction can satisfy them all.
 
     This asserts an absence, which is the easiest thing to satisfy without
     checking anything - so it asserts a positive fact instead: the file that
@@ -229,7 +221,7 @@ def test_d2_instructions_do_not_contradict_each_other():
 
 
 def test_a4_portable_instructions_carry_the_shape():
-    """TRC-A4: the runtime-neutral instructions carry the shape too.
+    """`TRC-A4`: the runtime-neutral instructions carry the shape too.
 
     `AGENTS.md` is the portable expression of Compass for any other agent
     runtime, and its voice section already covers "replies to the person driving
