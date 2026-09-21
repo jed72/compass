@@ -146,7 +146,7 @@ def test_dod_check_registered(run_cli):
 def test_guardrail_count_unchanged():
     """`TRC-F2`: No sixth guardrail has been added.
 
-    governance/guardrails.md must list exactly five guardrails (G1..`G5`).
+    governance/guardrails.md must list exactly five guardrails (`G1`..`G5`).
     governance/guardrails.yml must have no guardrail entries beyond `G1`..`G5`
     in its `defaults:` block.
 

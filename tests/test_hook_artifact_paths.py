@@ -172,7 +172,7 @@ def test_the_verb_exits_non_zero_when_the_document_is_absent(tmp_path):
         + r.stdout + r.stderr)
 
 
-# --- TRC-D1 ------------------------------------------------------------------
+# --- `TRC-D1` ------------------------------------------------------------------
 
 def test_trc_d1_the_hook_accepts_a_relocated_delivery_approach_record(tmp_path):
     project = _project(tmp_path)
@@ -186,7 +186,7 @@ def test_trc_d1_the_hook_accepts_a_relocated_delivery_approach_record(tmp_path):
         f"complete:\n{r.stderr}")
 
 
-# --- TRC-D2 ------------------------------------------------------------------
+# --- `TRC-D2` ------------------------------------------------------------------
 
 def test_trc_d2_the_hook_still_blocks_with_no_record_anywhere(tmp_path):
     """The control. Reading the registry must not stop the hook firing."""
@@ -215,7 +215,7 @@ def test_trc_d2_a_moved_document_the_registry_does_not_know_about_blocks(tmp_pat
         f"one:\n{r.stderr}")
 
 
-# --- TRC-D3 ------------------------------------------------------------------
+# --- `TRC-D3` ------------------------------------------------------------------
 
 def test_trc_d3_the_stop_hook_reads_relocated_documents(tmp_path):
     project = _project(tmp_path, gate_decision="FAIL")

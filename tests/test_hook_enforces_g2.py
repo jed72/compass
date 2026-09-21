@@ -10,8 +10,9 @@ point where it could still be true.
 
 The asymmetry is the point: `S2`, a *strategy*, got a real-time blocking hook.
 `G2`, a *guardrail*, which by the framework's own conflict rule beats a
-strategy, got a post-hoc report. `compass check` does catch it, at verify,
-after the code exists - which is the ordering `G2` exists to prevent.
+strategy, got a post-hoc report. `compass check` does catch it, at the
+verify stage, after the code exists - which is the ordering `G2` exists to
+prevent.
 
 Only `define: full` triggers this, and routing-policy.yml gives that to
 standard and initiative (`expedition`) only. A hotfix (reproduce-first) and a

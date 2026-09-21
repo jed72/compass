@@ -102,7 +102,7 @@ def _committed_files(repo):
 
 
 def test_scn_b1_unrelated_dirty_file_is_not_swept_into_the_land_commit(repo):
-    """The concurrent-agent case: another file is modified but not staged."""
+    """The concurrent-agent case: another file is changed but not staged."""
     _install_autofixing_hook(repo)
     (repo / "src" / "owned.py").write_text("x = 2\n")
     (repo / "src" / "other.py").write_text("y = 999  # another agent's work\n")

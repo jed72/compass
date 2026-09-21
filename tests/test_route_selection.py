@@ -1,19 +1,16 @@
-"""Route selection: the deterministic core.
+"""Delivery-approach selection: the deterministic core.
 
 These tests prove that `compass approach evaluate` is a pure function: given
-readings + the shipped routing-policy.yml, it produces the documented route,
-fires the documented floors/caps, and permits the documented parallelism.
+assessment values + the shipped routing-policy.yml, it produces the
+documented delivery approach, fires the documented floors/caps, and permits
+the documented parallelism.
 
 The bulk of the proof is the YAML-driven parameterised test at the bottom -
 each fixture in tests/fixtures/routes/ declares an input + expected output.
 """
 
-# The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
-# `define`, `clarify` -> `refine`, `distribute` -> `breakdown`, `build` ->
-# `implement`, `land` -> `ship`. `plan` and `verify` did not. Spines written
-# before that still load, because `normalize_spine` maps them forward
-# (ADR-006), so what changed is the CANONICAL form these tests assert -
-# not what the routing computes. Re-pointed, not relaxed.
+# These tests assert the current stage keys. Older manifests still load
+# through `normalize_spine` (ADR-006).
 from __future__ import annotations
 
 import json
@@ -73,13 +70,13 @@ def test_expedition_route_for_large_magnitude(run_cli):
     assert r.returncode == 0, r
     data = json.loads(r.stdout)
     assert data["delivery_approach"] == "initiative"
-    # swarm is unbounded by policy: no number for it exists in
+    # No policy bounds multiagent work: no number for it exists in
     # routing-policy.yml or .compass/config.yml, so only a cap makes one.
     assert data["subtask_ceiling"] is None
 
 
 def test_hotfix_route_for_live_defect(run_cli):
-    """RP-SHAPE-002: urgency=live-defect + small magnitude == hotfix."""
+    """RP-SHAPE-002: urgency=live-defect + small size == hotfix."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -125,7 +122,7 @@ def test_floor_critical_blast_radius_forces_expedition(run_cli):
 
 @pytest.mark.parametrize("domain", ["auth", "payments", "personal-data", "migrations"])
 def test_floor_g5_domains_force_expedition(run_cli, domain):
-    """RP-FLOOR-003: touching any G5 domain forces at least expedition."""
+    """RP-FLOOR-003: touching any `G5` domain forces at least expedition."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-mapped",
@@ -142,8 +139,8 @@ def test_floor_g5_domains_force_expedition(run_cli, domain):
 
 
 def test_floor_brownfield_unmapped_requires_specify(run_cli):
-    """RP-FLOOR-002: brownfield-unmapped forces Specify phase to full and
-    requires the behaviour-mapping skill."""
+    """RP-FLOOR-002: brownfield-unmapped forces the define stage to full and
+    needs the behaviour-mapping skill."""
     r = run_cli("approach", "evaluate", "--json",
                 *_reading_args({"risk": "contained",
                                 "familiarity": "brownfield-unmapped",
@@ -157,7 +154,7 @@ def test_floor_brownfield_unmapped_requires_specify(run_cli):
     assert "behaviour-mapping" in data["required_skills"]
 
 
-# --- caps: critical blast radius caps worktrees to 1 ----------------------
+# --- caps: critical risk caps worktrees to 1 -------------------------------
 
 
 def test_cap_critical_caps_worktrees_to_one(run_cli):
@@ -195,16 +192,18 @@ def test_candidate_and_final_route_both_recorded(run_cli):
     assert data["candidate_via"], "candidate_via must say WHY the candidate was picked"
 
 
-# --- TRC-F3: regression baseline - adaptive routing is unchanged ----------
+# --- `TRC-F3`: regression baseline - adaptive routing is unchanged ----------
 
 
 def test_existing_combinations_unchanged(run_cli):
-    """TRC-F3: The five reference routes still compose the same way.
+    """`TRC-F3`: The five reference delivery approaches still compose the same
+    way.
 
     Loads tests/fixtures/route-baseline.yml (captured at HEAD fb092c0 before
     the cross-task-architectural-integrity work started) and asserts that for
-    each reading combination, `compass approach evaluate --json` still produces:
-      - the same route name (expected_route)
+    each assessment combination, `compass approach evaluate --json` still
+    produces:
+      - the same delivery-approach name (expected_route)
       - the same permitted parallelism (expected_subtask_ceiling)
       - the same per-phase weights (expected_phases)
       - the same gate set (expected_gates)
@@ -229,11 +228,10 @@ def test_existing_combinations_unchanged(run_cli):
         name = entry.get("name", "?")
         readings = entry["assessment"]
         expected_route = entry["expected_route"]
-        # The baseline recorded a topology. Triage no longer decides one -
-        # it emits a ceiling, and breakdown sets the topology once the
-        # distribution map exists. The baseline's values were translated
-        # through the mapping each topology word always implied
-        # (solo=1, solo-or-pair=2, swarm=8), not re-captured from the code.
+        # The baseline records a topology. `compass approach evaluate` now
+        # emits a subtask ceiling and breakdown sets the orchestration, so
+        # the baseline values were translated (solo=1, solo-or-pair=2,
+        # swarm=8).
         expected_ceiling = entry["expected_subtask_ceiling"]
         expected_phases = entry["expected_phases"]
         expected_gates = set(entry["expected_gates"])

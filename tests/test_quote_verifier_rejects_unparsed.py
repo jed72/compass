@@ -8,7 +8,7 @@ quote it could not parse at all.
 its blockquote pattern - a line written `>text` without the space is enough.
 Downstream, `sha256_text(span["quoted"] or "")` hashed the empty string and
 `_matches_archive("substring", "", archive_text)` reduced to `"" in
-archive_text`, which is always true. So the span verified clean, and
+archive_text`, which is always true. So the span checked clean, and
 `--update` would record `sha256("")` for it against a file it never matched.
 
 That contradicted the script's own promise: `update_manifest` documents that

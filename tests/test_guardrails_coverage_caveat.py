@@ -1,4 +1,4 @@
-"""TRC-C5 - the coverage-floor example carries the floor-never-target caveat.
+"""`TRC-C5` - the coverage-floor example carries the floor-never-target caveat.
 
 Serves: INT-7
 Spec:

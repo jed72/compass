@@ -2,7 +2,7 @@
 
 These are invariants of *this repository*, not framework guardrails. They run
 in this repo's pytest suite alongside `test_release_invariants.py`, never
-against an adopting project's task, and never as a `compass check` gate.
+against an adopting project's issue, and never as a `compass check` gate.
 `governance/strategies.md` is the reasoning: `S7` for the agent-attribution
 rule, and the Voice and writing strategies block for the em dash. This file is
 the mechanical half of both.
@@ -111,7 +111,7 @@ def _walk(root: Path) -> list[str]:
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in WALK_PRUNE]
         rel_dir = Path(dirpath).relative_to(root)
-        # The framework's own task state is gitignored; the examples' is not.
+        # The framework's own issue state is gitignored; the examples' is not.
         if rel_dir.parts[:2] == (".compass", "work"):
             dirnames[:] = []
             continue

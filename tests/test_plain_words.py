@@ -71,9 +71,12 @@ def test_ff_5b_the_vocabulary_bans_it():
         "the vocabulary does not ban 'vacuous'/'vacuity', so nothing stops it "
         "returning the next time someone needs a word for this")
 
-# Files that must name the banned words to ban them.
+# Files that must name the banned words to ban them. test_writing_style.py
+# quotes a use of the words verbatim in a named exemption, so its sweep can
+# tell that use from an ordinary occurrence.
 _NAMES_THE_BAN = {"test_plain_words.py", "test_terminology.py",
-                  "terminology.yml", "banned_usage.md"}
+                  "terminology.yml", "banned_usage.md",
+                  "test_writing_style.py"}
 
 
 def test_ff_5c_not_in_comments_test_names_or_docstrings_either():
