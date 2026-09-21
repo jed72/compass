@@ -1,26 +1,13 @@
 """No retired vocabulary name reaches a screen.
 
-`compass approach evaluate` is the screen the demo recording holds longest,
-and it printed both vocabularies at once: `FINAL APPROACH : initiative` four
-lines above `route raised standard -> expedition`, so a viewer saw two
-different answers to the same question.
+The fix is at the print boundary: the machine keys are unchanged, so no
+retired name can be printed whatever the underlying key is called.
 
-They survived because the vocabulary scan treats a whitespace-free identifier
-as a machine name, and a stage key is whitespace-free. The fix here is at the
-print boundary - the machine keys are unchanged, so no retired name can be
-printed whatever the underlying key is called. Renaming the keys needs a
-back-compat shim and belongs to the rename slice.
-
-Scenario ids: see .compass/work/identifiers-and-vocabulary-in-printed-output/
+Scenario ids: see identifiers-and-vocabulary-in-printed-output/
 acceptance-criteria.md (groups B, C, E).
 """
 
-# These read `compass approach evaluate`'s DETAIL - the provenance line,
-# the per-stage weights, the full gate list, the effect lines under each
-# fired rule. That detail moved to --verbose on 2026-08-24 when the
-# evaluator came under the terminal output contract; the computation is
-# unchanged. The assertions are re-pointed rather than rewritten, because
-# what they assert still holds - only where it is printed changed.
+# These tests read the detail `compass approach evaluate --verbose` prints.
 from __future__ import annotations
 
 import pathlib
@@ -43,7 +30,7 @@ from test_terminology import BAN_PATTERNS                       # noqa: E402
 # land" and "the standard of proof" are correct English, and banning them
 # outright would force governance prose to contort around the guard. They stay
 # covered by layer 1, whose patterns fire on the capitalised and heading forms
-# that indicate the retired *name* rather than the ordinary word.
+# that show the retired *name* rather than the ordinary word.
 STRICT_RETIRED = ("expedition", "express", "frame", "specify", "clarify",
                   "distribute", "route")
 
@@ -84,7 +71,7 @@ def _prose_hits(text):
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - the evaluator speaks one vocabulary
+# `TRC-B1` - the evaluator speaks one vocabulary
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_evaluator_prints_no_retired_name():
@@ -102,11 +89,11 @@ def test_trc_b1_evaluator_prints_no_retired_name():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B2 - the guard can fail
+# `TRC-B2` - the guard can fail
 # ---------------------------------------------------------------------------
 
 def test_trc_b2_the_scan_can_fail():
-    """The control. Without it, TRC-B1 passes against a scan matching nothing.
+    """The control. Without it, `TRC-B1` passes against a scan matching nothing.
 
     The line below is the real output this issue exists to remove, quoted
     exactly. Both layers are exercised: `expedition` is a machine value that
@@ -131,20 +118,14 @@ def test_trc_b2_the_scan_can_fail():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3 - the machine contract is untouched
+# `TRC-B3` - the machine contract is untouched
 # ---------------------------------------------------------------------------
 
 def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
     """The manifest is written with the current stage keys, and old ones still read.
 
-    THIS TEST HELD A LINE AND THE LINE HAS MOVED. It used to assert the keys
-    were `frame, specify, clarify, ...` and its message said so: "the stage
-    KEYS moved - that is the rename slice's work, not this issue's". That slice
-    is `the-vocabulary-rename`, it landed the back-compat shim the message
-    demanded, and this is the assertion on the other side of it.
-
-    What it guards now is the same thing from the far side: a manifest written
-    today speaks the current keys, and one written before still loads.
+    A manifest written today uses the current stage keys, and one written
+    before still loads (ADR-006).
     """
     root = tmp_path / "proj"
     (root / ".compass" / "work" / "demo").mkdir(parents=True)
@@ -170,8 +151,7 @@ def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
         f"a manifest written today does not carry the current stage keys: "
         f"{sorted(manifest['stages'])}")
 
-    # And the shim the old message demanded: a manifest written before the rename
-    # still loads, which is what makes the 91 landed issues safe (ADR-006).
+    # A manifest written before the rename still loads (ADR-006).
     sys.path.insert(0, str(ROOT / "cli"))
     from compass_pkg.core import normalize_spine
     old_spine = {"stages": {"frame": "full", "specify": "full", "clarify": "light",
@@ -181,15 +161,14 @@ def test_trc_b3_spine_keys_are_the_current_ones(tmp_path):
         "a manifest written before the rename does not normalise to the same "
         "stage set as one written after it")
     # The stored approach value is already v2 - `canonical_shape` converts it
-    # on write, and has since the rename. Only the STAGE keys still carry
-    # retired names, which is what the rename slice will move.
+    # on write.
     assert manifest["delivery_approach"] == "initiative", (
         f"the stored approach value changed; only the printed word should: "
         f"{manifest['delivery_approach']!r}")
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - a routing rule is not a guardrail
+# `TRC-C1` - a routing rule is not a guardrail
 # ---------------------------------------------------------------------------
 
 def _receipt_out(tmp_path, fired):
@@ -218,9 +197,7 @@ def _receipt_out(tmp_path, fired):
 def test_trc_c1_receipt_says_policy_rules(tmp_path):
     """Both branches of the conditional, which is why this exists.
 
-    An earlier fix renamed the evaluator's label and missed the receipt. The
-    receipt has TWO sites - the list and the "none" case - and a fix that
-    catches one reads as complete.
+    The receipt has two sites: the list and the "none" case.
     """
     with_rules = _receipt_out(tmp_path / "a", [
         {"id": "RP-FLOOR-002", "kind": "floor",
@@ -238,7 +215,7 @@ def test_trc_c1_receipt_says_policy_rules(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-E1 - a shared effect prints once
+# `TRC-E1` - a shared effect prints once
 # ---------------------------------------------------------------------------
 
 def test_trc_e1_shared_effect_printed_once():

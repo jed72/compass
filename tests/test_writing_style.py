@@ -703,6 +703,12 @@ _register(Rule(
             "task-b is 10 days later - outside the window",
             "the same fixture directory name as the exemptions above."),
         Exemption(
+            "tests/test_printed_output_vocabulary.py",
+            "only layer 2 catches, and `Land` capitalised is a prose form that only",
+            "a verbatim quote of the defect this test checks for - the "
+            "capitalised retired stage name the prose scan must still "
+            "catch, not live prose use of it."),
+        Exemption(
             "tests/test_public_surface_truth.py",
             '"written by Frame".',
             "a verbatim quote of the defect this test checks for - the "
@@ -1129,6 +1135,11 @@ _register(Rule(
             "tests/test_pre_tool_hook.py",
             "a verified-by red drops this marker",
             "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_printed_output_vocabulary.py",
+            "RP-REQUIRE-001/002 both add verify.analyze and RP-REQUIRE-003/004 both add",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
     ),
 ))
 
