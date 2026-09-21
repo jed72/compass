@@ -530,6 +530,22 @@ _register(Rule(
     "PBW-A1", "No retired v1 word survives in prose, a comment "
     "or a test docstring", _find_retired_word,
     exemptions=(
+        # PBW-F7's <!-- absorbed: "..." --> markers quote a merge-base
+        # sentence verbatim so a reader can see what the rewrite carried
+        # forward - the same reason ADR quotes and voice-tells fixtures are
+        # exempt elsewhere in this file. HTML comments are not blanked by
+        # _markdown_spans, so the quoted retired word is read as prose
+        # unless named here.
+        Exemption(
+            "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
+            "lens annotates), and parallel (both",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - not a v1-vocabulary use of \"lens\"."),
+        Exemption(
+            "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
+            "no lens consultation applied",
+            "the same absorbed-into marker mechanism as the entry above, "
+            "for the sentence naming the pre-rename note text."),
         Exemption(
             "docs/compass/2026-08-27-sdd-loop-spike.md",
             "cross-task-architectural-integrity",
@@ -1233,6 +1249,11 @@ _register(Rule(
             "for the claim'); the audit's human review ruled this instance "
             "keeps the word (section 9, batch 6, scripts/verify-archive-"
             "quotes.py note on L27-28)."),
+        Exemption(
+            "templates/architecture/relations.md",
+            "A change that modifies a",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - not a new use of the retired word."),
     ),
 ))
 
@@ -1424,6 +1445,11 @@ _register(Rule(
             "example the section exists to show, and "
             "tests/test_reply_shape_instructions.py:125-152 requires the "
             "literal word on its row."),
+        Exemption(
+            "templates/requirements-review.md",
+            "> a knob.",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - not a new use of the retired idiom."),
     ),
 ))
 
@@ -1723,6 +1749,19 @@ _register(Rule(
             "it prints 'G5 A human signs off",
             "a verbatim quote of `compass check`'s real printed output, "
             "itself the house-form example this ban describes."),
+        Exemption(
+            "templates/architecture/decisions/ADR-005-signals-yml-governance-file.md",
+            "- Plan DD-1 (signals.yml as a separate file)",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - the code is explained where it is "
+            "used, not where this marker quotes it."),
+        Exemption(
+            "templates/architecture/relations.md",
+            "(see TRC-B2).",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - the code is explained where it is "
+            "used (line 8, \"the scenario that added automatic "
+            "triggering, `TRC-B2`\"), not where this marker quotes it."),
     ),
 ))
 
