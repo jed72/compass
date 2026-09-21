@@ -4,31 +4,30 @@
 # =============================================================================
 # Enforces the red-before-green strategy mechanically - in service of the
 # guardrail that every change lands with a passing automated test covering it.
-# Note the distinction, because it is the whole point of Compass's governance
-# model:
 #
 #   * The GUARDRAIL is the hard line: no code ships without a passing test it
-#     traces to. It is checked at the test-and-review stage and at ship time,
-#     with evidence.
+#     traces to. It is checked at the verify stage and at ship time, with
+#     evidence.
 #   * Red-before-green is a STRATEGY - the strong, shipped-on *way* to satisfy
 #     that guardrail. This hook enforces the strategy, and a strategy is aware
 #     of the delivery approach.
 #
-# This hook therefore BLOCKS code edits with no failing test on record - EXCEPT
-# on a spike, where the strategy is deliberately suspended so exploration is
-# not throttled. A spike still cannot cross the guardrail: nothing ships from a
-# spike without graduating (re-assessing) into a real delivery approach first,
-# where this hook applies in full.
+# This hook therefore BLOCKS code edits with no failing test on record -
+# EXCEPT on a spike, where the strategy is deliberately suspended so
+# exploratory edits are not blocked. A spike still cannot cross the
+# guardrail: nothing ships from a spike without being reassessed
+# (`/compass:assess --reassess`) into a delivery approach first, where this
+# hook applies in full.
 #
 # WHAT IT DOES
 #   Runs as a Claude Code PreToolUse hook. On a tool call that edits or writes a
 #   *code* file (not a test, not docs, not a Compass artifact):
 #     - if the current issue is a spike (a ".spike" marker exists) → ALLOW.
-#     - else, require a recorded failing test - a ".red" marker file under
+#     - else, need a recorded failing test - a ".red" marker file under
 #       .compass/work/<issue-slug>/. No .red marker → the edit is BLOCKED.
 #
-# THE MARKER CONVENTION  (this is the "not magic" part - read this)
-#   .compass/work/<issue-slug>/.red    "a failing test currently exists for this
+# THE MARKER CONVENTION
+#   .compass/work/<issue-slug>/.red    "a failing test exists for this
 #                                      issue". It is NOT a bare `touch` - it is
 #                                      written by `compass tdd-red <test-cmd>`,
 #                                      which runs the test, confirms it really
@@ -37,10 +36,10 @@
 #                                      drops the .red marker. So the marker
 #                                      means "a real, observed failure is on
 #                                      record", not "someone touched a file".
-#     1. Build: `compass tdd-red -- <your failing test command>`.
+#     1. The implement stage: `compass tdd-red -- <your failing test command>`.
 #     2. Edit the production code - this hook sees .red and allows it.
 #     3. `compass tdd-green -- <test command>` confirms green, writes
-#        evidence/green.json, and clears .red - the hand-off to Verify.
+#        evidence/green.json, and clears .red - the hand-off to the verify stage.
 #   .compass/work/<issue-slug>/.spike  "this issue is a spike - the red-
 #                                      before-green strategy is suspended".
 #                                      /compass:assess
@@ -48,12 +47,12 @@
 #   Markers are deliberately plain files so they are inspectable and auditable;
 #   the evidence/*.json records next to them are the audit trail.
 #
-# ESCAPE HATCH
+# EXEMPTIONS
 #   Test files, docs, config, and .compass/ artifacts are never blocked - you
-#   must be able to write the failing test in the first place. A spike
-#   is the *intentional* escape hatch for exploratory work. There is no env var
-#   to disable the check on delivery work: that would not be suspending a
-#   strategy, it would be crossing the tested-before-ship guardrail.
+#   must be able to write the failing test in the first place. A spike is the
+#   deliberate exemption for exploratory work. There is no env var to disable
+#   the check on delivery work: that would not be suspending a strategy, it
+#   would be crossing the tested-before-ship guardrail.
 #
 # WIRING  (.claude/settings.json)
 #   {
@@ -77,9 +76,9 @@
 set -euo pipefail
 
 # shellcheck source=../scripts/lib/compass-python.sh
-# The one shared mechanism (DD-2): compass_python() below reaches the bundled
-# PyYAML the same way cli/compass does, rather than this hook inventing its
-# own answer to "where is the vendored copy".
+# The shared loader in scripts/lib/compass-python.sh: compass_python() below
+# reaches the bundled PyYAML the same way cli/compass does, rather than this
+# hook inventing its own answer to "where is the vendored copy".
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-python.sh"
 
 # --- read the tool call from stdin ------------------------------------------
@@ -98,56 +97,39 @@ else
 fi
 
 # --- resolve the project this hook is enforcing -----------------------------
-# CLAUDE_PROJECT_DIR is authoritative when the host sets it. When it does not
-# - and it does not always - fall back to the nearest ancestor of the working
-# directory that contains a .compass/ directory, the way git finds its repo.
+# The resolution order, and why each step exists:
+#   1. The edited file's own path, when the tool call names one. It is the
+#      only input that names the tree being changed - Compass creates git
+#      worktrees at breakdown, so on a multiagent approach the session
+#      directory and the edited file can be in different trees, and resolving
+#      from the session reads the wrong project either way: it can miss a red
+#      recorded in the edited tree, or borrow one recorded in the session's
+#      tree.
+#   2. CLAUDE_PROJECT_DIR, when the tool call names no file (a Bash call with
+#      no write target). The session is the best answer there.
+#   3. The ancestor walk from that starting point up to the nearest
+#      .compass/ directory, bounded by .git so the walk does not cross into
+#      another repository.
 #
-# The previous fallback was a bare $(pwd), which assumed the session started
-# at the repository root. Started anywhere else, the hook looked for .compass/
-# in the wrong place, found none, and blocked every edit while reporting that
-# triage had not run - when it had. Two faults: the resolution, and a
-# diagnostic naming a cause that was not the cause.
+# Not resolved from this script's own location: the hook is installed from
+# the plugin cache, and Compass self-hosts, so its own tree has a .compass/
+# of its own. Resolving from there would enforce the framework's own issue
+# against the user's edits.
 #
-# Deliberately NOT resolved from this script's own location: the hook is
-# installed from the plugin cache, and Compass self-hosts, so its own tree has
-# a .compass/ of its own. That would enforce the framework's issue against the
-# user's edits.
-# The edited file's own path comes first, because it is the only input that
-# names the tree being changed. Compass creates git worktrees itself at
-# breakdown, so on any multiagent approach the session directory and the
-# edited file are in DIFFERENT trees. Resolving from the session read the
-# wrong `.compass/` in both directions: it blocked a builder who HAD recorded
-# a red in its worktree, and - worse - a red recorded in the session's tree
-# unlocked production edits in every worktree, including ones whose builder
-# had no failing test at all. That is the fail-open the comment below refuses
-# for the parent walk, reached by another route, and it appeared only on the
-# orchestration where the work is most consequential.
-#
-# With no target - a Bash call names no file - the session is still the best
-# available answer, so CLAUDE_PROJECT_DIR remains the authority there.
+# resolve_project() runs twice: once here, for a tool that names a file
+# directly, and again once a Bash command's target has been extracted
+# further down.
 SESSION_DIR="$(pwd)"
 
-# Resolve the project a path belongs to. The edited file's own path decides,
-# because it is the only input naming the tree being changed: Compass creates
-# git worktrees at breakdown, so on a multiagent approach the session and the
-# edited file are in DIFFERENT trees. Resolving from the session read the
-# wrong `.compass/` both ways - it blocked a builder who HAD recorded a red in
-# its worktree, and a red in the session unlocked production edits in every
-# worktree, including ones with no failing test at all.
-#
-# Called twice: once now, for the tools that name a file directly, and again
-# once a Bash command's target has been extracted further down. A Bash call
-# that names no file keeps the session as its answer, which is the best one
-# available.
 resolve_project() {
   _from="$SESSION_DIR"
   if [ -n "${1:-}" ]; then
     case "$1" in
       /*) _dir="$(dirname "$1")" ;;
       # A relative path from the host is relative to the PROJECT, not to
-      # wherever the hook happens to be running. Resolving it against the
-      # session sent it climbing out of the project entirely - and into the
-      # framework's own .compass/, whose red then allowed the edit.
+      # wherever the hook happens to be running. Resolved against the
+      # session, a relative path can leave the project and reach the
+      # framework's own .compass/, whose red would allow the edit.
       *)  _dir="$(dirname "${CLAUDE_PROJECT_DIR:-$SESSION_DIR}/$1")" ;;
     esac
     # The file may not exist yet - a Write creates one - so climb to the
@@ -172,12 +154,9 @@ resolve_project() {
       PROJECT_DIR="$_search"
       break
     fi
-    # The repository is the outer bound of a project. A directory holding
-    # .git and no .compass/ has not been triaged, and the honest answer is
-    # to refuse rather than borrow a parent's answer: an unbounded walk
-    # would resolve a stranger's issue - a monorepo sibling, or a stray
-    # .compass/ in $HOME - and if that issue happened to be mid-red, ALLOW
-    # the edit. A fail-open path inside the fix that exists to close one.
+    # Stop at the repository root. A walk past it can reach another
+    # project's .compass/ (a monorepo sibling, a stray one in $HOME) and
+    # allow the edit if that issue has a red on record.
     #
     # -e, not -d: in a git worktree .git is a file, and Compass creates
     # worktrees itself for multiagent orchestrations.
@@ -197,22 +176,17 @@ resolve_project() {
 # lives further down, at the point the hook actually needs issue state - a
 # read-only Bash call is allowed without a project at all, and refusing here
 # would make the cheap path expensive and wrong.
-# An EXPLICIT root is taken at its word. `.compass/` does not exist until
-# triage runs, so treating its absence as "I could not find your project"
-# tells the author on their very first edit to fix a working directory that
-# is already correct - the same misdiagnosis this resolution work exists to
-# remove, one branch earlier. Only the walk failing means the project is
-# genuinely unfindable; the missing-.compass/work/ branch further down says
-# the useful thing.
+#
+# Trust an explicit CLAUDE_PROJECT_DIR without checking for .compass/. The
+# missing-.compass/work/ branch below gives the useful message.
 PROJECT_RESOLVED=1
 
 # Bash keeps the session as its project: its target is extracted much later,
-# by a classifier that resolves candidates against PROJECT_DIR, and re-running
-# resolution inside that loop broke every write shape it guards. So the
-# worktree fix covers the tools that name a file directly - Edit, Write,
-# MultiEdit - which is where a builder in a worktree actually works. A Bash
-# redirect inside a worktree still resolves from the session; that gap is
-# recorded on the issue rather than closed by guesswork here.
+# by a classifier that resolves candidates against PROJECT_DIR, and
+# re-running resolution inside that loop would break every write shape it
+# guards. So the worktree fix covers the tools that name a file directly -
+# Edit, Write, MultiEdit - which is where a builder in a worktree actually
+# works. A Bash redirect inside a worktree still resolves from the session.
 if [ "${TOOL:-}" = "Bash" ]; then
   resolve_project ""
 else
@@ -230,8 +204,8 @@ fi
 # This is a function rather than a straight-line sequence because a single
 # tool call can name more than one path: a Bash command may redirect into one
 # file and copy over another. Both branches share this one implementation so
-# the rules cannot drift apart - a path exempt for an Edit is exempt for a
-# shell redirect, by construction.
+# the rules cannot differ - a path exempt for an Edit is exempt for a shell
+# redirect, by construction.
 #
 # Returns 0 (true) if a change to $1 must be preceded by a failing test.
 MATCHED_RULE=""
@@ -240,13 +214,9 @@ is_enforced_path() {
 
   # CONTAINMENT FIRST: only guard what is inside the project Compass governs.
   #
-  # Without this, the extension rules below fired on any .py/.ts/.go file
-  # anywhere on the machine - a scratch file in a session temp directory, a
-  # throwaway script in a detached worktree. Neither can reach `main` by any
-  # path, and the refusal told the author to write a failing test or re-run
-  # triage as a spike, neither of which is a coherent action for such a file.
-  # A guardrail issuing unactionable instructions teaches people to look for
-  # the bypass. Reported from the field.
+  # Without this, the extension rules below would fire on any .py/.ts/.go file
+  # on the machine, such as a scratch file in a temp directory, and demand a
+  # failing test for a file that cannot reach main.
   #
   # The target is resolved first, because a Bash redirect yields a RELATIVE
   # path: comparing `src/app.py` against an absolute project directory would
@@ -277,24 +247,19 @@ is_enforced_path() {
   # Exempt: test files - you have to be able to write the red. Tune these globs
   # to the project's test conventions.
   #
-  # Matched against the BASENAME and the project-relative path, never the
-  # absolute one. Matching `*test*` against an absolute path also matches every
-  # ancestor directory, so a repository living under any path containing "test"
-  # or "spec" - /Users/testuser/..., .../latest/... - had red-before-green
-  # silently disabled for the entire tree. Enforcement that turns itself off
-  # based on where you cloned the repo is worse than no enforcement, because it
-  # still reports that it is on.
+  # Match the basename and the project-relative path, never the absolute
+  # path: matching `*test*` against an absolute path also matches every
+  # ancestor directory, so a repository living under any path containing
+  # "test" or "spec" - /Users/testuser/..., .../latest/... - would have
+  # red-before-green silently disabled for the entire tree.
   rel="$target"
   case "$target" in
     "$PROJECT_DIR"/*) rel="${target#"$PROJECT_DIR"/}" ;;
   esac
   base="$(basename "$target")"
-  # ANCHORED, not a substring match. `*test*` called latest.py, inspector.py
-  # and protest.py tests, and silently skipped both guardrail checks for them -
-  # on the allow path, which prints nothing. An earlier fix narrowed this from
-  # the absolute path to the basename after a clone under /Users/testuser/
-  # switched enforcement off entirely; that narrowed the class without closing
-  # it.
+  # Match anchored patterns, never `*test*`: a bare substring match would call
+  # latest.py, inspector.py and protest.py tests, and silently skip both
+  # guardrail checks for them on the allow path, which prints nothing.
   #
   # The conventions covered: pytest/go (test_x, x_test), jest/vitest
   # (x.test.ts, x.spec.js), JUnit/RSpec class names (XTest.java, XSpec.rb),
@@ -353,13 +318,12 @@ is_enforced_path() {
   # This ADDS to the set above. There is deliberately no key that removes
   # framework enforcement: Compass's model is that project rules ratchet UP - a
   # project guardrail may exceed a floor, never fall short of one - and a key
-  # that exempted `*.py` would be a disable switch wearing the clothes of
-  # configuration. The first inconvenient red is when someone would reach for
-  # it.
+  # that exempted `*.py` would switch enforcement off, and someone would add
+  # it the first time a red got in the way.
   #
-  # Why this exists: the guarded surface was folklore. `.github/workflows/ci.yml`
-  # was guarded and `docker-compose.yml` was not, with no visible rule, so an
-  # author could not predict which edit would block and found out mid-change.
+  # Why this exists: without a declared list an author cannot predict which
+  # edit will block (`.github/workflows/ci.yml` is guarded, `docker-compose.yml`
+  # is not).
   if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
     local hit glob_status glob_err
     # Same two-failures-look-alike problem as the manifest read below. A reader
@@ -449,15 +413,14 @@ bash_write_targets() {
     # this whole branch exists for, since `python3 -c` and a `python3 - <<PY`
     # heredoc are the easiest way to edit a file without an Edit tool call.
     #
-    # Two things this deliberately does NOT do, both reported from the field
-    # within hours of shipping the looser version:
-    #   - `open(path)` with no mode is a READ. Treating it as a write blocked
-    #     read-only verification commands - the hook stopping an author from
-    #     checking their own work, which inverts what it is for.
-    #   - The path must come from the write call itself. Scanning the whole
-    #     command lifted paths out of heredoc bodies, so writing a document
-    #     that merely *named* a migration demanded a failing test for the
-    #     migration. Every artifact that discusses code paths hit this.
+    # Two things this deliberately does NOT do:
+    #   - `open(path)` with no mode is a READ, not a write. Treating it as a
+    #     write would block read-only verification commands - the hook
+    #     stopping an author from checking their own work, which inverts what
+    #     it is for.
+    #   - The path must come from the write call itself, not from scanning
+    #     the whole command. Lifting paths out of a heredoc body would demand
+    #     a failing test for a migration that a document merely *named*.
     # A missed write is recoverable; a false block trains people to bypass the
     # hook, and nothing recovers from that.
 
@@ -466,14 +429,14 @@ bash_write_targets() {
       | grep -oE "open\([[:space:]]*['\"][^'\"]+['\"][[:space:]]*,[[:space:]]*['\"][^'\"]*[waxWAX+][^'\"]*['\"]" \
       | sed -E "s/^open\([[:space:]]*['\"]([^'\"]+)['\"].*/\1/" || true
 
-    # pathlib. Covers both `Path(PATH).write_text(...)` and the commoner
+    # pathlib. Covers both `Path(TARGET).write_text(...)` and the commoner
     # two-step form, where the write happens on a variable:
-    #     p = pathlib.Path(PATH)
+    #     p = pathlib.Path(TARGET)
     #     p.write_text(...)
-    # So when the command contains a pathlib write at all, every Path(...)
-    # argument in it is a candidate - except one used immediately for a read,
-    # which keeps "read a source file, generate a doc from it" from being
-    # blocked on the file it only read.
+    # When the command contains a pathlib write at all, every Path(...)
+    # argument in it is a candidate. The one exception is a Path(...) used
+    # immediately for a read, which keeps "read a source file, generate a doc
+    # from it" from being blocked on the file it only read.
     case "$cmd" in
       *write_text\(*|*write_bytes\(*)
         printf '%s\n' "$cmd" \
@@ -550,34 +513,13 @@ compass_say_how_this_project_opted_in() {
 }
 
 # --- find the current issue -------------------------------------------------
-# The current issue is named by the .compass/current-task pointer (written by
-# /compass:assess and /compass:resume). The pointer is what makes this reliable
-# when more than one issue is in flight - "most recently modified directory"
-# is only the fallback, and it is ambiguous, so it warns. If there is no issue
-# all, triage has not run - CLAUDE.md's one rule is "Never skip triage".
-# This is the first point that needs issue state, so it is the first point at
-# which an unresolved project matters. Unresolved means the hook cannot tell
-# what it is enforcing, so it refuses: an enforcement path that answers
-# "allow" to a question it could not ask is a guardrail switched off
-# silently. That is the same failure fixed one layer down in 2.1.0, where a
-# missing vendored library made this hook exit 3 and the runtime read it as
-# permission.
-# A repository with no .compass/ has never opted into Compass, and this hook
-# is installed at user scope - it runs in every repository on the machine.
-# Refusing there meant someone trying Compass on one project lost the ability
-# to edit code in every other one, and the message told them to fix a working
-# directory that was already correct.
-#
-# .compass/ is the opt-in, and only `compass init` creates it - run by the
-# five entry-point commands, so it appears the moment a user runs a Compass
-# command deliberately. That is what makes silence safe here rather than
-# fail-open: a repository without it has genuinely never been asked.
-#
-# The distinction that matters, and the one this change could get wrong:
-# "no .compass/ anywhere" is a guest. "There is a project and I could not read
-# it" is Compass unable to tell what it is enforcing, and that still refuses -
-# answering "allow" to a question it could not ask is a guardrail switched off
-# silently.
+# No .compass/ found: this repository never opted in, so allow (exit 0). A
+# project exists but cannot be read: refuse (the branches below). This hook
+# is installed at user scope - it runs in every repository on the machine -
+# and .compass/ is the opt-in, created only by `compass init`, which the five
+# entry-point commands run. A repository without it has genuinely never been
+# asked, which is what makes exit 0 safe here rather than a guardrail
+# switched off silently.
 if [ "$PROJECT_RESOLVED" -eq 0 ]; then
   exit 0
 fi
@@ -586,9 +528,8 @@ COMPASS_DIR="$PROJECT_DIR/.compass"
 WORK_DIR="$COMPASS_DIR/work"
 
 # An EXPLICIT root (CLAUDE_PROJECT_DIR) with no .compass/ is the same guest,
-# reached by the other branch: the runtime sets that variable for every
-# repository, so taking it as "this is a Compass project" was what made the
-# marketplace install refuse edits everywhere.
+# reached by the other branch: the runtime sets CLAUDE_PROJECT_DIR in every
+# repository, so its presence does not mean Compass is in use.
 if [ ! -d "$COMPASS_DIR" ]; then
   exit 0
 fi
@@ -599,6 +540,12 @@ if [ ! -d "$WORK_DIR" ]; then
   exit 2
 fi
 
+# The current issue is named by the .compass/current-task pointer (written by
+# /compass:assess and /compass:resume). The pointer is what makes this
+# reliable when more than one issue is in flight - "most recently changed
+# directory" is only the fallback, and it is ambiguous, so it warns. If there
+# is no issue at all, the assess stage has not run for this change, and the
+# hook refuses below.
 TASK_DIR=""
 POINTER="$COMPASS_DIR/current-task"
 if [ -f "$POINTER" ]; then
@@ -608,7 +555,7 @@ if [ -f "$POINTER" ]; then
   fi
 fi
 if [ -z "$TASK_DIR" ]; then
-  # fallback: most recently modified - ambiguous, so say so.
+  # fallback: most recently changed - ambiguous, so say so.
   TASK_DIR="$(ls -dt "$WORK_DIR"/*/ 2>/dev/null | head -n1 || true)"
   TASK_DIR="${TASK_DIR%/}"
   [ -n "$TASK_DIR" ] && echo "Compass: no .compass/current-task pointer - falling back to the most recently modified issue ($(basename "$TASK_DIR")). Write .compass/current-task to be unambiguous." >&2
@@ -664,35 +611,31 @@ fi
 
 # --- approach-aware: red-before-green is suspended on a spike ----------------
 # /compass:assess writes a .spike marker when it computes a spike. On a
-# spike, exploration is not throttled - the red-before-green strategy is
+# spike, exploratory edits are not blocked - the red-before-green strategy is
 # suspended. The tested-before-ship guardrail is NOT: nothing ships from a
-# spike without graduating into a real delivery approach, where this hook
-# applies in full.
+# spike without being reassessed (`/compass:assess --reassess`) into a
+# delivery approach, where this hook applies in full.
 if [ -f "$TASK_DIR/.spike" ]; then
   exit 0
 fi
 
 # --- the guardrail: acceptance defined before it is built --------------------
-# The check below enforces red-before-green, which serves the guardrail that
-# every change lands with a passing test. Nothing enforced the OTHER guardrail
-# - acceptance stated and checkable before the code - at the point where it can
-# still be true. So an approach asking for full acceptance criteria could go
-# straight from triage to implementation with no spec at all: every edit
-# allowed, because a red was on record and red-before-green was satisfied.
-# `compass check` catches it at the test-and-review stage, after the code
-# exists, which is the ordering the acceptance guardrail exists to prevent.
+# This check enforces the acceptance-before-code guardrail before the code
+# exists. `compass check` sees the same gap only at the verify stage, after
+# the code is written.
 #
 # A guardrail beats a strategy, so this runs BEFORE the red check: you cannot
 # write a red for a scenario that does not exist yet.
 #
-# Only `specify: full` triggers it, which routing-policy.yml gives to feature
-# and initiative work. A hotfix (reproduce-first) and a spike (collapsed) are
-# exempt by construction, and the .spike early exit above suspends this the
-# same way it suspends red-before-green.
+# Only `define: full` (or the retired `specify: full`) triggers it, which
+# routing-policy.yml gives to feature and initiative work. A hotfix
+# (reproduce-first) and a spike (collapsed) are exempt by construction, and
+# the .spike early exit above suspends this the same way it suspends
+# red-before-green.
 #
-# If the manifest cannot be read - no manifest.yml, unparseable YAML, no python3, no
-# PyYAML - this stays silent and the prior behaviour applies. A false block on
-# unreadable state is how a hook teaches people to bypass it.
+# A false block on unreadable state is how a hook teaches people to bypass it,
+# so if the manifest cannot be read - no manifest.yml, unparseable YAML, no
+# python3, no PyYAML - the hook skips this check and goes on to the red check.
 if [ -f "$TASK_DIR/manifest.yml" ] && command -v python3 >/dev/null 2>&1; then
   # Two failures look alike from here and must not be treated alike. A reader
   # that RAN and found nothing is ordinary - stay quiet, as below. A reader
@@ -715,17 +658,16 @@ except Exception:
     # manifest falls back to the behaviour this hook had before the check
     # existed, rather than inventing a block. A false block on unreadable
     # state trains people to bypass the hook, which costs more than the case
-    # it would catch. Pinned by test_scn_f1. The separate status-3 path below
-    # is for the check being unable to RUN (a broken install), which is a
-    # different thing from the manifest being unreadable.
+    # it would catch. Pinned by
+    # tests/test_hook_enforces_g2.py::test_scn_f1_an_unreadable_spine_does_not_block.
+    # The separate status-3 path below is for the check being unable to RUN (a
+    # broken install), which is a different thing from the manifest being
+    # unreadable.
     sys.exit(0)
 stages = task.get("stages") or task.get("phases") or {}
-# BOTH spellings. `define` is the key this framework writes; `specify` is the
-# one it wrote before the v2 vocabulary freeze, and 107 archived manifests still
-# say it. Reading only `specify` - which this did until 2026-08-25 - meant
-# `compass migrate --apply` silently switched the guardrail OFF for every
-# directory it converted, because the migrated manifest no longer used the word
-# the guardrail was looking for.
+# Read both: `define` is the current key, and archived manifests still carry
+# the pre-v2 `specify`. Reading one key only would switch the guardrail off
+# for every migrated manifest.
 if isinstance(stages, dict):
     weight = stages.get("define", stages.get("specify"))
     if weight == "full" and not (task.get("scenarios") or []):
@@ -734,23 +676,11 @@ PYEOF
 )"
   G2_STATUS=$?
   set -e
-  # EVERY non-zero status refuses, not only exit 3.
-  #
-  # Exit 3 means the vendored PyYAML could not be resolved, and it was the only
-  # status handled here. Every other one fell through with G2_VERDICT empty,
-  # which is not "block", so the check passed. An ImportError is exit 1 - so a
-  # broken vendored dependency turned the acceptance-before-code guardrail into
-  # a silent pass, and said nothing while doing it.
-  #
-  # It was invisible from the obvious test: with no red on record the
-  # red-before-green check refuses first and hides this one. It is only
-  # reachable where `G2` is the check that would have refused.
-  #
-  # Exit 3 keeps its own message because it names a specific, fixable cause;
-  # every other status says the check could not run AND names the status,
-  # because "it exited 1" is the first thing anyone debugging wants - and
-  # because a message that does not distinguish them is how exit 3's
-  # specificity was lost in the first place.
+  # Refuse on every non-zero status. Exit 3 (the vendored PyYAML is missing)
+  # prints its own cause; any other status prints the status number, because
+  # "it exited 1" is the first thing anyone debugging wants. A test exercising
+  # this check's success path also needs a `.red` marker in place, because the
+  # red-before-green check further down still runs and refuses without one.
   if [ "$G2_STATUS" -ne 0 ]; then
     if [ "$G2_STATUS" -eq 3 ]; then
       _g2_cause="$(cat "$G2_ERR")"
@@ -803,8 +733,8 @@ fi
 # Prometheus rule, a runbook, a dead-code removal. `compass acceptance start`
 # declares what the acceptance IS before the change (a validator that must pass,
 # or a green suite that must stay green) and writes this marker. Without it,
-# authors satisfied this hook by faking reds that grep a file for a string,
-# which is worse than either alternative.
+# the only way past this hook is a fake red, such as a test that greps a file
+# for a string.
 #
 # It is a SEPARATE marker on purpose. `.red` means "a real failure was observed
 # here"; overloading it would make the framework's most honest artifact
@@ -814,18 +744,10 @@ if [ -f "$TASK_DIR/.acceptance" ]; then
 fi
 
 # --- the red-before-green check (delivery work) -----------------------------
-# The marker is the cheap question and the record is the answer.
-#
-# `.red` alone used to be enough, and `.red` is an empty file: `touch
-# .compass/work/<issue>/.red` through Bash unlocked every production file for
-# the issue. The marker is not evidence - `compass tdd-red` writes it only
-# after observing a real failure, and nothing stopped anyone else writing it
-# for no reason at all.
-#
-# So the marker stays as the fast "is there anything to look at" - this hook
+# `.red` is an empty file that `touch` can create, so the marker alone proves
+# nothing. The hook checks the marker first because it is cheap - this hook
 # runs on every tool call, and globbing plus parsing JSON on each one is a
-# constant cost for a check that matters at a boundary - and a record beside
-# it is what actually decides.
+# constant cost - then reads the record in evidence/ to decide.
 #
 # WHAT THIS DOES AND DOES NOT BUY. `content_digest` is a plain sha256 over the
 # record's own fields with no secret, so anyone who can write the file can

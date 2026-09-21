@@ -343,3 +343,55 @@ def test_no_maturity_assessment_added():
             assert "maturity" not in n and "self-assess" not in n and "capability-ladder" not in n, (
                 f"{d}/{f.name} suggests a maturity/capability ladder was introduced - refused per proposal §Out of scope."
             )
+
+
+# -----------------------------------------------------------------------------
+# PBW-D7 - scripts/release.sh --help stays inside its printed range
+# -----------------------------------------------------------------------------
+
+def test_release_help_prints_the_whole_header_and_nothing_else():
+    """PBW-D7: `--help` prints a fixed line range of scripts/release.sh's own
+    header comment. The range must bound the header exactly - not stop short
+    of its closing marker, and not spill past it - or a rewritten header
+    silently prints a truncated or padded result."""
+    import re
+
+    script = REPO_ROOT / "scripts" / "release.sh"
+    text = script.read_text(encoding="utf-8")
+    lines = text.splitlines()
+
+    marker_lines = [i + 1 for i, line in enumerate(lines)
+                     if re.match(r"^#\s*=+\s*$", line)]
+    assert len(marker_lines) >= 2, (
+        "scripts/release.sh must open and close its header with a "
+        "'# ====' rule; none found to bound --help's printed range against."
+    )
+    header_start, header_end = marker_lines[0], marker_lines[-1]
+
+    help_source = next(
+        (l for l in lines if "sed -n" in l and "$0" in l), None)
+    assert help_source is not None, (
+        "scripts/release.sh must have a --help branch reading its own "
+        "header with `sed -n '<a>,<b>p'`."
+    )
+    match = re.search(r"sed -n '(\d+),(\d+)p'", help_source)
+    assert match, f"could not parse the printed range out of: {help_source!r}"
+    printed_start, printed_end = int(match.group(1)), int(match.group(2))
+
+    assert (printed_start, printed_end) == (header_start, header_end), (
+        f"--help prints lines {printed_start}-{printed_end}, but the header "
+        f"comment runs {header_start}-{header_end}. The rewritten header "
+        "must fit the printed range, or the printed range must change with "
+        "it (PBW-D7)."
+    )
+
+    result = subprocess.run(
+        ["bash", str(script), "--help"],
+        cwd=REPO_ROOT, capture_output=True, text=True, check=True)
+    expected = "\n".join(
+        re.sub(r"^# ?", "", l) for l in lines[header_start - 1:header_end]
+    ) + "\n"
+    assert result.stdout == expected, (
+        "scripts/release.sh --help must print the whole header comment "
+        "(lines %d-%d, '# ' stripped) and nothing else." % (header_start, header_end)
+    )

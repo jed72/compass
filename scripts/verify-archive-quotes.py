@@ -6,37 +6,34 @@
 # skills/compass-runtime/writing-voice.md quotes the real project archive
 # verbatim, citing the archive path for every pair, and invites a reader to
 # check each quote against that path. But the archive lives under
-# .compass/work/, which is permanently gitignored (along with docs/proposals/
-# and docs/analysis/) - so continuous integration never has it, and a naive
-# check that compares a quote against its cited file has nothing to compare
-# against there. Silently skipping in that case (the original design) means
-# a fabricated or altered quote passes the build every time continuous
-# integration runs it - the one place the check actually needs to hold.
+# .compass/work/ and docs/compass/, both gitignored, so continuous
+# integration never has it. A check that skips when the file is absent would
+# pass a fabricated quote on every continuous integration run.
 #
-# This script closes that gap in two parts:
+# This script handles that case in two parts:
 #
 #   1. A committed manifest (skills/compass-runtime/archive-quote-manifest.json)
 #      records, per quoted span, its source path and a sha256 of the exact
-#      quoted text - a fingerprint, not a copy of the text. verify() always
+#      quoted text - a fingerprint, not a copy of the text. `verify()` always
 #      checks a span's live text against its manifest hash, in every
 #      environment, archive or no archive. A changed hash is a hard failure:
-#      this is what catches drift after the archive was last checked,
-#      without needing the archive itself.
-#   2. Where the archive IS present, verify() also compares the quote
+#      this catches an edit made after the archive was last checked, without
+#      needing the archive itself.
+#   2. Where the archive IS present, `verify()` also compares the quote
 #      directly against the real file - the strongest check there is, and
-#      the one the manifest can never fully replace (S9: verify against the
-#      primary record, not the nearest thing that mentions it). A mismatch
-#      there is also a hard failure, never a skip.
+#      the one the manifest can never fully replace. A mismatch there is
+#      also a hard failure, never a skip: verify against the primary
+#      record, not the nearest thing that mentions it (`S9`).
 #
 # The only case that is not a hard failure is a hash that still matches with
 # no file to check it against directly - the manifest has confirmed the
-# quote is unchanged since someone with the archive last verified it, but
+# quote is unchanged since someone with the archive last checked it, but
 # this run could not re-confirm that itself. That case is returned as
 # `unverified`, named by span id, so a caller (a pytest test, typically)
 # can report it loudly rather than pass in silence.
 #
 # USAGE
-#   scripts/verify-archive-quotes.py            verify every quoted span in
+#   scripts/verify-archive-quotes.py            check every quoted span in
 #                                                the real writing-voice.md
 #                                                against the real manifest;
 #                                                exit 1 on any failure.
@@ -88,7 +85,7 @@ WORKED_EXAMPLE_SPANS = [
         "id": "worked-example-original-decided-by",
         "source": WORKED_EXAMPLE_SOURCE,
         # The retired name below is what the archived file actually says.
-        # Rewriting it would have this script verify a sentence nobody wrote,
+        # Rewriting it would have this script check a sentence nobody wrote,
         # which is the failure the whole guard exists to catch.
         "quoted": "**Decided by:** jed72 (engineer) via Clarify reasoning",
         "mode": "substring",
@@ -191,7 +188,7 @@ def load_manifest(manifest_path: Path | None = None) -> dict:
     """{span id: {"source": ..., "sha256": ...}}, read from the manifest
     file. An absent file reads as an empty manifest - every span then fails
     with "no manifest entry", which is the honest outcome: nothing has ever
-    verified it."""
+    checked it."""
     path = manifest_path if manifest_path is not None else MANIFEST
     if not path.is_file():
         return {}
@@ -243,13 +240,13 @@ def verify(
     reference_text: str | None = None,
     manifest: dict | None = None,
 ) -> tuple[list[str], list[str]]:
-    """Verify every current quoted span (or only those in `span_ids`)
+    """Check every current quoted span (or only those in `span_ids`)
     against the manifest, and against the real archive file where present.
 
     Returns (failures, unverified):
       failures    human-readable strings, each naming the span and exactly
                   what did not match. Any failure is a hard failure - the
-                  caller should not treat it as a pass.
+                  caller must not treat it as a pass.
       unverified  span ids that matched their manifest hash but could not
                   be checked directly, because the archive file is not
                   present at `archive_root`. Not a failure - the manifest
@@ -280,10 +277,10 @@ def verify(
             )
             continue
 
-        # A span whose quoted block did not parse has no text to verify.
-        # Coercing it to "" made the hash the hash of nothing and the
-        # substring check without checking anything true, so an unreadable quote reported
-        # clean - in the one script whose job is proving quotes are real.
+        # A span whose quoted block did not parse has no text to check.
+        # Do not coerce it to "": the hash of "" and a substring check for
+        # "" both pass, so an unreadable quote would report clean - in the
+        # one script whose job is proving quotes are real.
         if not span.get("quoted"):
             failures.append(
                 f"{span['id']}: the reference's Before: block did not parse, "
@@ -344,10 +341,10 @@ def update_manifest(
     entries = []
     problems = []
     for span in spans:
-        # Same rule as verify(): a span that did not parse has no text to
-        # record a hash for. Coercing it to "" wrote sha256("") into the
-        # manifest against a file the quote was never matched in, which is
-        # precisely the hand-edit this manifest exists to rule out.
+        # Same rule as `verify()`: a span that did not parse has no text to
+        # record a hash for. Do not coerce it to "": the hash of "" and a
+        # substring check for "" both pass, so an unreadable quote would
+        # report clean.
         if not span.get("quoted"):
             problems.append(
                 f"{span['id']}: the reference's Before: block did not parse, "

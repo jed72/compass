@@ -25,7 +25,8 @@
 #
 # IDEMPOTENT: re-running is safe. Existing Compass symlinks are refreshed;
 # existing non-Compass files are never clobbered (the script stops and tells
-# you). Hook registration is keyed by a marker so it is added exactly once.
+# you). Hook registration removes any entry whose command is one of this
+# repo's hook paths, then adds each hook once.
 # =============================================================================
 
 set -euo pipefail
@@ -73,7 +74,7 @@ echo ""
 # Each of commands/agents/skills is installed as a subdirectory named
 # "compass" so it cannot collide with anything else the user has - the
 # resolved Claude Code path is ~/.claude/<name>/compass/<file>. The "compass"
-# destination dir is also what supplies the slash-command namespace, so the
+# destination dir is also what gives the slash-command namespace, so the
 # repo's flat commands/*.md resolve as /compass:assess (not /compass:compass:…).
 # The repo layout is uniform: commands/*.md, agents/*.md, skills/*/SKILL.md -
 # all installed the same way. (The plugin path uses the plugin name for the
@@ -88,7 +89,7 @@ install_component() {
   mkdir -p "$dest_parent"
 
   if [ -e "$dest" ] || [ -L "$dest" ]; then
-    # Only refresh something we own - a symlink, or a dir we previously copied
+    # Only refresh something we own - a symlink, or a dir we copied before
     # (marked with .compass-installed). Never clobber the user's own files.
     if [ -L "$dest" ] || [ -f "$dest/.compass-installed" ]; then
       rm -rf "$dest"
@@ -118,7 +119,7 @@ uninstall_component() {
   fi
 }
 
-# --- helper: ensure a settings.json exists ----------------------------------
+# --- helper: make sure a settings.json exists --------------------------------
 ensure_settings() {
   mkdir -p "$CLAUDE_ROOT"
   [ -f "$SETTINGS" ] || echo '{}' > "$SETTINGS"
@@ -130,10 +131,9 @@ ensure_settings() {
 # keyed so re-running does not duplicate.
 #
 # The matchers must match hooks/hooks.json, which is what a plugin install
-# gets. They did not: this registered Edit|Write|MultiEdit while the plugin
-# registered Bash as well, so a source install had NO shell-write enforcement
-# at all - `sed -i` and `>` redirects went unchecked. MultiEdit is no longer a
-# Claude Code tool and is gone from both.
+# gets. Without Bash in the matcher, a source install does not check shell
+# writes (`sed -i`, `>` redirects). MultiEdit is not a Claude Code tool, so
+# neither file registers it.
 register_hooks() {
   ensure_settings
   local pre="$COMPASS_HOME/hooks/pre-tool.sh"

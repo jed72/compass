@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 419
+PENDING_PATHS_HIGH_WATER = 340
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -625,6 +625,22 @@ _register(Rule(
         Exemption("governance/terminology.yml",
                    "recorded, the derived system spec is regenerated. v1 called this \"Land\"",
                    "a not: field naming the retired word on purpose."),
+        # Both comments carry their own "# vocabulary-scan: allow" marker
+        # for governance/terminology.yml's scanner, which this sweep does
+        # not read (it reuses BAN_PATTERNS, not the marker). The retired
+        # spelling in the quote below is deliberate: it is the pre-ADR-023
+        # map syntax these lines read for back-compat, not a live use of
+        # the retired word.
+        Exemption(
+            "scripts/integrate.sh", "stream-N",
+            "reads the pre-ADR-023 map spelling for back-compat; already "
+            "marked '# vocabulary-scan: allow', which this sweep does not "
+            "read."),
+        Exemption(
+            "scripts/multiagent.sh", "stream-N",
+            "reads the pre-ADR-023 map spelling for back-compat; already "
+            "marked '# vocabulary-scan: allow', which this sweep does not "
+            "read."),
     ),
 ))
 
@@ -975,6 +991,14 @@ _register(Rule(
         Exemption("governance/terminology.yml",
                    "the result. RP-REQUIRE attaches a gate",
                    "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "scripts/verify-archive-quotes.py",
+            "verify against the primary",
+            "restates strategy S9's own defining sentence "
+            "(governance/strategies.md: 'Verify against the primary record "
+            "for the claim'); the audit's human review ruled this instance "
+            "keeps the word (section 9, batch 6, scripts/verify-archive-"
+            "quotes.py note on L27-28)."),
     ),
 ))
 
@@ -1489,6 +1513,85 @@ _register(Rule(
                    "plain-language-3-2-0/technical-design.md",
                    "a pinned citation of another issue's document; the "
                    "sentence already says it is not in this repository."),
+        # The regex this rule matches on starts at `[\w]`, so it cannot
+        # include a leading `.` or `$`. Each entry below names a real
+        # citation the regex mis-slices, found while fixing batch 6
+        # (`scripts/` and `hooks/`); none is a broken reference in the text.
+        Exemption(
+            "hooks/post-tool.sh", "evidence/green.json",
+            "a per-issue relative path under .compass/work/<issue>/evidence/, "
+            "not a path this repository tracks."),
+        Exemption(
+            "hooks/post-tool.sh", "claude/settings.json",
+            "the regex does not match a leading '.'; the real path is "
+            ".claude/settings.json, an adopter's own settings file."),
+        Exemption(
+            "hooks/post-tool.sh", "CLAUDE_PROJECT_DIR/hooks/post-tool.sh",
+            "the regex does not match a leading '$'; "
+            "$CLAUDE_PROJECT_DIR/hooks/post-tool.sh is a real path once the "
+            "shell variable expands."),
+        Exemption(
+            "hooks/pre-tool.sh", "evidence/red.json",
+            "a per-issue relative path under .compass/work/<issue>/evidence/, "
+            "not a path this repository tracks."),
+        Exemption(
+            "hooks/pre-tool.sh", "evidence/green.json",
+            "a per-issue relative path under .compass/work/<issue>/evidence/, "
+            "not a path this repository tracks."),
+        Exemption(
+            "hooks/pre-tool.sh", "claude/settings.json",
+            "the regex does not match a leading '.'; the real path is "
+            ".claude/settings.json, an adopter's own settings file."),
+        Exemption(
+            "hooks/pre-tool.sh", "CLAUDE_PROJECT_DIR/hooks/pre-tool.sh",
+            "the regex does not match a leading '$'; "
+            "$CLAUDE_PROJECT_DIR/hooks/pre-tool.sh is a real path once the "
+            "shell variable expands."),
+        Exemption(
+            "hooks/pre-tool.sh", "src/app.py",
+            "an illustrative example path in a comment, not a citation of a "
+            "file in this repository."),
+        Exemption(
+            "hooks/pre-tool.sh", "compass/config.yml",
+            "the regex does not match a leading '.'; the real path is "
+            ".compass/config.yml, which is tracked."),
+        Exemption(
+            "hooks/pre-tool.sh", "github/workflows/ci.yml",
+            "a generic illustrative filename pair (with docker-compose.yml), "
+            "not a citation of a file in this repository; kept per the "
+            "audit's own replacement text."),
+        Exemption(
+            "hooks/stop.sh", "claude/settings.json",
+            "the regex does not match a leading '.'; the real path is "
+            ".claude/settings.json, an adopter's own settings file."),
+        Exemption(
+            "hooks/stop.sh", "CLAUDE_PROJECT_DIR/hooks/stop.sh",
+            "the regex does not match a leading '$'; "
+            "$CLAUDE_PROJECT_DIR/hooks/stop.sh is a real path once the "
+            "shell variable expands."),
+        Exemption(
+            "scripts/install.sh", "claude/settings.json",
+            "the regex does not match a leading '.'; the real path is "
+            ".claude/settings.json (or ~/.claude/settings.json), the "
+            "install destination, not a path this repository tracks."),
+        Exemption(
+            "scripts/install.sh", "claude-plugin/plugin.json",
+            "the regex does not match a leading '.'; the real path is "
+            ".claude-plugin/plugin.json, which is tracked."),
+        Exemption(
+            "scripts/integrate.sh", "lib/compass-python.sh",
+            "a shellcheck `source=` directive, resolved relative to the "
+            "sourcing file's own directory (scripts/), not to the "
+            "repository root; the real file is scripts/lib/compass-python.sh."),
+        Exemption(
+            "scripts/multiagent.sh", "compass/config.yml",
+            "the regex does not match a leading '.'; the real path is "
+            ".compass/config.yml, which is tracked."),
+        Exemption(
+            "scripts/multiagent.sh", "lib/compass-python.sh",
+            "a shellcheck `source=` directive, resolved relative to the "
+            "sourcing file's own directory (scripts/), not to the "
+            "repository root; the real file is scripts/lib/compass-python.sh."),
     ),
 ))
 
