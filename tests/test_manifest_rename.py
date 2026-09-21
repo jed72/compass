@@ -163,12 +163,22 @@ OLD_NAME_ALLOWED = (
 
 
 def test_nir_b2_the_old_name_survives_only_where_history_needs_it():
+    # The scan reads tracked files, because the question it asks is what the
+    # repository ships. `tests/test_house_style.py` argues this in its module
+    # docstring: a guard that reads the working tree answers differently on
+    # every machine, since it sees whatever each contributor happens to keep on
+    # disk, and it passes in continuous integration where those files are
+    # absent. `git grep` searches the content of tracked files only, so an
+    # untracked working note is neither read nor reported.
+    #
+    # `OLD_NAME_ALLOWED` keeps its `.compass/` and `docs/compass/` entries even
+    # though this repository does not track either directory. An adopting
+    # project commits its issue records, and there the old name is history the
+    # entries exist to permit.
     out = subprocess.run(
-        ["grep", "-rIl", "--exclude-dir=.git", "--exclude-dir=__pycache__",
-         r"\bspine\b", "."],
+        ["git", "grep", "-lI", "-e", r"\bspine\b"],
         cwd=str(ROOT), capture_output=True, text=True)
-    files = [f[2:] if f.startswith("./") else f
-             for f in out.stdout.splitlines() if f.strip()]
+    files = [f for f in out.stdout.splitlines() if f.strip()]
 
     stray = [f for f in files
              if not any(f.startswith(a) or f == a for a in OLD_NAME_ALLOWED)]
