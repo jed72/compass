@@ -26,12 +26,14 @@ compatibility promise, not the size of the change:
 
 ADR-006 is the other half of this: backward compatibility is non-negotiable
 *within* a major, so a new mechanism no-ops on projects that have not adopted
-it, and a break is paid once, at a major, with the reason recorded.
+it, and a breaking change happens once, at a major version, with the reason
+recorded.
 
-### What 4.0.0 removed
+### What changed at 4.0.0
 
-Three slash commands that had been redirect stubs since 3.x, and one hidden
-CLI verb. If a script or a session calls any of these, change it:
+4.0.0 removed three slash commands that had been redirect stubs since 3.x,
+and one hidden CLI verb. If a script or a session calls any of these,
+change it:
 
 | Removed | Use instead |
 |---|---|
@@ -39,24 +41,24 @@ CLI verb. If a script or a session calls any of these, change it:
 | `/compass:wireframe` | `/compass:design` <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it --> |
 | `/compass:roundtable` | `/compass:consult` <!-- vocabulary-scan: allow - the upgrade table names the removed spelling so a broken caller can find it --> |
 | `compass design lint` | `compass plan lint` <!-- vocabulary-scan: allow - the upgrade table records the removed verb beside its replacement; a reader whose script broke needs the spelling they typed to appear here --> |
-**Also new: `governance/strategies-rationale.md`.** `strategies.md` links to
-it, so a project that copied `governance/` under 3.x should copy this file
-too - otherwise that link resolves to nothing.
 
-Nothing else went. The read-side rename tables stay, so an issue directory
-written under an older vocabulary still loads and `compass migrate` still
-brings one forward - that is ADR-020's promise about the archive, and it is
-unaffected. ADR-024 records why the redirects were not carried past this
-boundary.
+Also new: `governance/strategies-rationale.md`. `strategies.md` links to
+it, so a project that copied `governance/` under 3.x needs this file too -
+otherwise that link resolves to nothing.
+
+The read-side rename tables are unaffected: an issue directory written
+under an older vocabulary still loads, and `compass migrate` still brings
+one forward (ADR-020). ADR-024 records why the redirects were not carried
+past this boundary.
 
 **When a change looks like it forces a major, removing the break is a
-legitimate response; redefining the break is not.** 3.1.0 is the worked case:
-triage started recording a subtask ceiling where it had recorded an orchestration,
-and nothing normalised the old field - so every manifest written earlier read as
-`None`. That was a major. Normalising old manifests on read made it a minor, and
-normalising was owed under ADR-006 regardless of what it did to the number.
-The test is whether you would make the change with the version hidden. Arguing
-that the break is tolerable is the other thing, and it is not this.
+legitimate response; redefining the break is not.** In 3.1.0, the assess
+stage started recording a subtask ceiling where it had recorded an
+orchestration, and nothing normalised the old field - so every manifest
+written earlier read as `None`. That was a major. Normalising old manifests
+on read made it a minor, and normalising was owed under ADR-006 regardless
+of what it did to the number. The test is whether you would make the change
+with the version hidden.
 
 1. **Bump the version** in every location that carries it. There are seven:
 
@@ -78,19 +80,10 @@ that the break is tolerable is the other thing, and it is not this.
    is part of the procedure even though it ships nowhere. Bumping the seven
    without it leaves the suite red.
 
-   This table said six for two releases while there were seven, and then
-   seven while the procedure needed eight edits. Do not trust the count
-   here alone: `tests/test_version_guard_covers_every_location.py` derives
-   the set from the files themselves and fails if the guard has no case for
-   one of them, precisely so a stale table cannot let a partial bump
-   through.
-
-   Then update `EXPECTED_VERSION` in `tests/test_version_consistency.py`.
-   That constant is hardcoded on purpose: reading it from `VERSION` would
-   make the guard self-maintaining but blind to a release where nothing
-   was bumped at all. (There used to be an `OLD_VERSIONS` set to extend
-   here too. Nothing read it, and a missing comma had silently corrupted
-   it, so it was removed rather than repaired.)
+   Do not trust the count in this table alone:
+   `tests/test_version_guard_covers_every_location.py` derives the set
+   from the files themselves and fails if the guard has no case for one
+   of them, precisely so a stale table cannot let a partial bump through.
 
    A partial bump ships a plugin whose manifest disagrees with the CLI it
    installs, so do not skip running the suite after this step. The last
@@ -103,13 +96,13 @@ that the break is tolerable is the other thing, and it is not this.
 
 3. **`make test`** - must be green. The full test suite, including:
    - `tests/test_cli_surface_drift.py` (every CLI subcommand documented
-     in the public CLI surface blocks - added in v1.2-era Issue B)
+     in the public CLI surface blocks)
    - `tests/test_release_invariants.py` (the partial-version-bump guard
      + the `comparison-requirements` ADR-006 backward-compat fixture +
      `signals.yml` shape invariants)
-   - All other existing tests (route selection, guardrail checks,
-     evidence handling, Spike safety, CI exit codes, calibration,
-     architecture coherence, etc.)
+   - All other existing tests (delivery-approach selection, guardrail
+     checks, evidence handling, Spike safety, CI exit codes, the
+     retrospective signal, architecture consistency, etc.)
 
    If any of the drift-guard tests fail, **do not bump VERSION further.**
    A failed drift-guard means a public-facing artifact has not been
@@ -131,26 +124,23 @@ that the break is tolerable is the other thing, and it is not this.
      (`.DS_Store`, `__MACOSX`, `__pycache__`, `*.bak`, `.pytest_cache`,
      `_deltest`, `pytest-cache-files-*`).
    - **Hard-fails** if any of the worked examples under `examples/` is
-     missing its `.compass/work/<slug>/manifest.yml`. This was a real
-     packaging bug in early releases: the `.compass/work` exclude was
-     not root-anchored and silently stripped the example issue files.
+     missing its `.compass/work/<slug>/manifest.yml`. An exclude that is
+     not root-anchored strips the example issue files.
 
 6. **Inspect the tarball.** `tar -tzf dist/compass-<version>.tar.gz | less`
-   - eyeballs are still useful even when the script's checks have
-   passed.
+   - read the list even when the script's checks have passed.
 
 7. **Distribute ONLY the tarball from step 5.** <!-- vocabulary-scan: allow - ordinary verb, and the sentence is an instruction about distribution rather than the retired stage --> Do not zip the source
    tree from Finder, GitHub's "Download ZIP," or any other tool. Those
    zip the live working tree, including `__MACOSX`, `.DS_Store`,
    `.pytest_cache`, any `.bak` file, and any other dev noise. The
    release script is the one place the artifact is guaranteed clean -
-   every other path round-trips through dirt.
+   every other path includes local noise files.
 
-   The previous two RC reviewers both flagged the same dirty zip; the
-   fix is operational, not in code: ship `dist/compass-<version>.tar.gz`
-   and only that.
+   A dirty zip has shipped before; the fix is operational, not in code:
+   ship `dist/compass-<version>.tar.gz` and only that.
 
-8. **Verify the tarball OUT OF THE SOURCE TREE.** The final smoke test:
+8. **Check the tarball OUT OF THE SOURCE TREE.** The final smoke test:
 
    ```bash
    cp dist/compass-<version>.tar.gz /tmp/
@@ -161,12 +151,12 @@ that the break is tolerable is the other thing, and it is not this.
    python3 cli/compass ci
    ```
 
-   All four commands must succeed against the extracted release. This is
-   the v1 reviewer's recommendation: "run against the generated tarball,
-   not the dirty source directory."
+   All four commands must succeed against the extracted release. Running
+   them against the source tree instead would miss a packaging bug that
+   only shows up once the tarball is unpacked somewhere else.
 
 9. **Tag and publish.** The release-script run, the out-of-tree smoke
-   test, and the four-locations version bump are the gate; tagging is
+   test, and the seven-locations version bump are the gate; tagging is
    the consequence.
 
 ---
@@ -185,7 +175,7 @@ release-time touchpoints:
   small enough that this is realistic.
 
 A release does not loosen these rules; if anything, a new release is
-the moment to re-verify them.
+the moment to re-check them.
 
 ---
 
@@ -196,7 +186,7 @@ catch common drift:
 
 | Invariant | Defender |
 |---|---|
-| All four version locations agree | `tests/test_release_invariants.py` (partial-bump guard) |
+| All seven version locations agree | `tests/test_release_invariants.py` (partial-bump guard) |
 | Pre-v1.1.0 manifest.yml shapes still lint clean | `tests/test_release_invariants.py` (ADR-006 backward-compat, via the `tests/fixtures/comparison-requirements/` fixture) |
 | `signals.yml` shape stays valid | `tests/test_release_invariants.py` (`design_smell` category, etc.) |
 | Every CLI subcommand appears in the public CLI blocks | `tests/test_cli_surface_drift.py` (parses `compass --help`) |
@@ -206,13 +196,3 @@ catch common drift:
 
 These tests are not formalities - they are what makes a Compass
 release credibly reproducible. Run them; honour them.
-
----
-
-## Historical note
-
-The release-procedure substance above is preserved from the
-1.0.0-rc.1 → 1.0.0 release checklist (see commit history). The
-rc.1-era readiness status table and the per-release "owed items" list
-that lived in that file are *resolved history* and live in git -
-this file is now generic guidance.

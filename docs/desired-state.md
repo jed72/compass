@@ -2,18 +2,15 @@
 
 **What this is.** The standing description of where Compass is going, written
 as observable statements that are true or false on any given day. Not a plan
-(plans change), not a vision (visions blur) - a target condition. Each
-iteration cycle: score every statement, find the biggest gap, let the gap
-choose the next work. When every statement holds, we are there.
+(plans change), not a vision - a target condition. Each iteration cycle:
+score every statement, find the biggest gap, let the gap choose the next
+work. When every statement holds, Compass has reached the target.
 
 **How to use it.** Re-read before each release. Score each statement
 true / partly / false, with a line of evidence (or the honest absence of
 any). Never argue a statement into "true" - if it needs arguing, it is
-false. Amend the statements only deliberately, with the same weight as an
-ADR; drifting the target to match the product is how targets die.
-
-*Written 2026-08-03, against v1.7 + the v2 plan. Graduates to `docs/` root
-when the v2 branch merges.*
+false. Change a statement only through the same review as an ADR. Do not
+change a statement to match the product.
 
 ---
 
@@ -42,7 +39,7 @@ changed, and remembers why.
 in under fifteen minutes without reading a manual. The five worked
 examples are the manual.
 
-**D6.** Nobody routes around Compass. The moment someone quietly does a
+**D6.** Nobody bypasses Compass. The moment someone quietly does a
 change *outside* the framework because the framework would slow them
 down, a statement here has failed - find which one.
 
@@ -51,16 +48,20 @@ down, a statement here has failed - find which one.
 **D7.** A bug fix produces exactly: a bug report note, a failing-then-
 passing test, a PR. Nothing else exists. A typo fix produces even less.
 
-**D8.** An initiative produces: an intent document that was iterated and reviewed
-before design started, with an explicit first slice (the 80/20 cut); a
-design a reviewer can *see* (diagrams, named patterns, illustrative
-code); work broken into slices that each leave the system releasable;
-flagged incremental PRs; a rollout plan with a way back; and named
-SLOs where the ops surface changes.
+**D8.** An initiative produces:
 
-**D9.** Requirements are living, not ceremonial. An intent document gets outside
-opinion before it hardens; changing it mid-initiative is a normal,
-recorded event, not a failure.
+- an intent document that was iterated and reviewed before design started,
+  with an explicit first slice (the 80/20 cut);
+- a design a reviewer can *see* (diagrams, named patterns, illustrative
+  code);
+- work broken into slices that each leave the system releasable;
+- flagged incremental PRs;
+- a rollout plan with a way back;
+- named SLOs where the ops surface changes.
+
+**D9.** Requirements can change during the work, and each change is
+recorded, not treated as a failure. An intent document gets outside
+review before it is approved.
 
 **D10.** Acceptance criteria are executable. The scenario a human reviewed
 and the test the machine runs are the same artifact, not two artifacts
@@ -76,26 +77,26 @@ conversation.
 same policy, same process - every time, reproducibly. The typo and the
 payments rewrite share one framework and nothing else.
 
-**D13.** The hard rules cannot be talked past. Tested-before-ship,
-acceptance-before-build, traceability, evidence-not-assertion, human
-sign-off on the irreversible - each is cleared by a check that can fail,
-never by a sentence that persuades.
+**D13.** No argument clears a hard rule; only a check that can fail clears
+it. Tested-before-ship, acceptance-before-build, traceability,
+evidence-not-assertion, human sign-off on the irreversible - each is
+cleared this way.
 
 **D14.** State is earned, not asserted. An issue moves to done because the
-evidence exists; a board column never lies; a drag past a failing gate is
-refused with the reason in plain English.
+evidence exists; a board column always shows the real workflow state; a
+drag past a failing gate is refused with the reason in plain English.
 
 **D15.** Every shipped change has a receipt: what was asked, how it was
 sized, what was checked, what proved it. One screen, generated from the
 mechanism, readable by a non-engineer.
 
 **D16.** Compass is built with Compass, and it shows. The framework's own
-repo is the reference implementation: its PRDs, receipts, and friction
-log are public and current.
+repo is the reference implementation: its intent documents, receipts, and
+friction log are public and current.
 
 **D17.** The framework watches itself. When its sizing is consistently
 wrong, or a gate consistently fails to earn its cost, Compass surfaces
-that with data - and the policy gets changed by a human, on evidence.
+that with data - and a human changes the policy, on evidence.
 
 ## 4. Its place in the world
 
@@ -105,7 +106,7 @@ their delivery better.
 
 **D19.** The comparison question has a crisp answer. "Why not Superpowers/
 Spec-Kit/OpenSpec?" - *because none of them right-size the process, and
-none of them can prove what they shipped.* The moat (deterministic
+none of them can prove what they shipped.* The advantage (deterministic
 sizing + evidence you can fail) has not been traded away for any feature,
 however tempting.
 
@@ -124,12 +125,12 @@ a worse one:
 
 - No sixth hard rule; new rigour arrives as checks on the existing five,
   or as strategies.
-- No judgement moved past the human: triage and policy changes stay
+- No judgement moved past the human: assessment and policy changes stay
   human; the mechanism stays deterministic.
 - No invented vocabulary, ever again. If the industry has no word for it,
   question the concept before coining the word.
-- No feature that makes the small change heavier. The typo fix is
-  sacred; it is the proof the adaptivity is real.
+- No feature that makes the small change heavier. The typo fix must stay
+  as light as it is now; it is the proof the adaptivity is real.
 - No claim without a receipt - in the product, or in how we talk about
   the product.
 
@@ -142,8 +143,8 @@ At each release, or fortnightly - whichever comes first:
    statements blocking others (D2 blocks D5; D16 blocks D18) get the next
    cycle's work. Everything else waits.
 3. Friction logged during the cycle counts as evidence - a statement can
-   regress, and saying so out loud is the point.
+   regress, and record the regression.
 4. Once a year, challenge the statements themselves. Amending the target
-   is allowed; drifting it is not.
+   is allowed; changing it quietly is not.
 
 The test of the whole endeavour is D6. Everything else serves it.

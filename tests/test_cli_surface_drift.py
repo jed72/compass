@@ -79,19 +79,6 @@ def test_trc_a1_readme_cli_block_tracks_compass_help():
     )
 
 
-def test_trc_a2_five_minutes_cli_block_tracks_compass_help():
-    """docs/five-minutes.md's CLI surface block names every subcommand."""
-    subs = _subcommands_from_help()
-    block = _cli_block_in("docs/five-minutes.md")
-    missing = sorted(
-        s for s in subs if not re.search(rf"(?<![\w-])compass {re.escape(s)}(?![\w-])", block)
-    )
-    assert not missing, (
-        f"docs/five-minutes.md CLI block is missing {missing} from compass --help's subcommands. "
-        f"Full subcommand set: {sorted(subs)}.\n\nBlock content:\n{block}"
-    )
-
-
 def _sub_verbs(parent):
     """Parse `compass <parent> --help` and return the set of sub-verb names."""
     result = subprocess.run(
@@ -106,15 +93,16 @@ def _sub_verbs(parent):
 
 
 def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
-    """README.md and docs/five-minutes.md CLI blocks name every `compass
-    issue` sub-verb (lint, receipt, ...) - the group was `task` before the
-    CLI-voice slice renamed it. The earlier tests cover top-level verbs;
-    this one covers the sub-verbs under `issue` so a new one cannot ship
-    undocumented behind a top-level no-op (e.g. `compass issue receipt`
-    adding to existing `compass issue lint`).
+    """README.md's CLI block names every `compass issue` sub-verb (lint,
+    receipt, ...) - the group was `task` before the CLI-voice slice renamed
+    it. The earlier tests cover top-level verbs; this one covers the
+    sub-verbs under `issue` so a new one cannot ship undocumented behind a
+    top-level no-op (e.g. `compass issue receipt` adding to existing
+    `compass issue lint`). docs/five-minutes.md carries no CLI block of its
+    own - it points readers at README's.
     """
     sub_verbs = _sub_verbs("issue")
-    for doc_file in ("README.md", "docs/five-minutes.md"):
+    for doc_file in ("README.md",):
         block = _cli_block_in(doc_file)
         missing = sorted(
             v for v in sub_verbs
@@ -144,10 +132,10 @@ def test_trc_b1_agents_adapter_section_names_new_cross_task_kit_calls():
     """AGENTS.md's adapter contract section names every new cross-task kit call."""
     text = (ROOT / "AGENTS.md").read_text()
     m = re.search(
-        r"##\s+What a runtime adapter must provide.*?(?=^##\s+|\Z)",
+        r"##\s+What a runtime adapter must give.*?(?=^##\s+|\Z)",
         text, re.DOTALL | re.MULTILINE,
     )
-    assert m, "'What a runtime adapter must provide' section not found in AGENTS.md"
+    assert m, "'What a runtime adapter must give' section not found in AGENTS.md"
     section = m.group(0)
     missing = [s for s in _new_cross_task_commands() if s not in section]
     assert not missing, (

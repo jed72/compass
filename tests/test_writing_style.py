@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 474
+PENDING_PATHS_HIGH_WATER = 452
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -413,6 +413,16 @@ def _register(rule: Rule) -> Rule:
 # would be a second list to correct, which is exactly what `S14` refuses.
 from test_terminology import BAN_PATTERNS  # noqa: E402
 
+# The one definition of the per-line scan exemption marker (allow_marker.py),
+# reused for the same reason BAN_PATTERNS is: a retired-word citation that
+# governance/terminology.yml's own scan already accepts - a real command name
+# retired at a major version, quoted so a reader whose script broke can find
+# the row that fixes it - is not a fresh breach for this sweep to invent a
+# second opinion about. This module checks the marker only on the span's own
+# line: every citation it now guards carries an inline marker in the
+# same table cell or sentence, not a marker on a preceding line.
+from allow_marker import ALLOW_MARKER_RE  # noqa: E402
+
 # The four reasons the terminology scan misses most retired words
 # (audit 5.1) are surface gaps this module's reader already closes: it reads
 # comments, it reads tests/, and its patterns are not narrowed to a single
@@ -437,6 +447,8 @@ _RETIRED_WORD_STRUCTURAL_SKIP = "tests/fixtures/terminology/"
 def _find_retired_word(span: ProseSpan) -> list[Finding]:
     if span.path.startswith(_RETIRED_WORD_STRUCTURAL_SKIP):
         return []
+    if ALLOW_MARKER_RE.search(span.text):
+        return []
     findings = []
     for term, patterns in BAN_PATTERNS.items():
         widened = tuple(patterns) + HYPHEN_WIDENING.get(term, ())
@@ -450,8 +462,23 @@ def _find_retired_word(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A1", "No retired v1 word survives in prose, a comment "
-               "or a test docstring", _find_retired_word))
+_register(Rule(
+    "PBW-A1", "No retired v1 word survives in prose, a comment "
+    "or a test docstring", _find_retired_word,
+    exemptions=(
+        Exemption(
+            "docs/compass/2026-08-27-sdd-loop-spike.md",
+            "cross-task-architectural-integrity",
+            "the real slug of a filed, landed issue - an identifier "
+            "(section 4), not a v1-vocabulary use of \"task\""),
+        Exemption(
+            "docs/compass/2026-08-27-sdd-loop-spike.md",
+            "task-reviewer-prompt.md",
+            "the literal filename of a file inside the Superpowers "
+            "repository, cited so the reference stays openable - not "
+            "this project's vocabulary"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -525,8 +552,138 @@ def _find_word_table(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A2", "The shorter word stands where the word is not an "
-               "identifier", _find_word_table))
+# CLAUDE.md and AGENTS.md each carry the maintainer's own "Use the shorter
+# word" reference table - the rule's documentation, not prose that breaks the
+# rule. Its rows name the very words the rule retires, so the table cannot
+# pass this sweep by rewording (PBW-F4 refuses a rewrite that would). Each
+# row is its own named exemption (PBW-E3): the quote is the whole row, so a
+# later row sharing one short word from an earlier row cannot exempt
+# unrelated prose elsewhere in the same file.
+_SHORTER_WORD_TABLE_ROWS: tuple[str, ...] = (
+    "| utilise, leverage | use |",
+    "| obtain, acquire | get |",
+    "| provide, supply | give |",
+    "| indicate, denote | show |",
+    "| validate | check |",
+    "| modify, alter | change |",
+    "| require | need |",
+    "| ensure | make sure |",
+    "| perform, execute | do |",
+    "| facilitate | help |",
+    "| attempt | try |",
+    "| sufficient | enough |",
+    "| currently | now |",
+    "| subsequently | then |",
+    "| prior to | before |",
+    "| in order to | to |",
+    "| due to the fact that | because |",
+    "| with regard to | about |",
+)
+
+_SHORTER_WORD_TABLE_EXEMPTIONS: tuple[Exemption, ...] = tuple(
+    Exemption(path, row,
+              "the \"Use the shorter word\" table names the retired word as "
+              "documentation of the rule, not as prose that breaks it")
+    for path in ("CLAUDE.md", "AGENTS.md")
+    for row in _SHORTER_WORD_TABLE_ROWS
+)
+
+_register(Rule(
+    "PBW-A2", "The shorter word stands where the word is not an "
+    "identifier", _find_word_table,
+    exemptions=_SHORTER_WORD_TABLE_EXEMPTIONS + (
+        Exemption(
+            "docs/five-minutes.md", "## 5. Verify and ship",
+            "\"Verify\" here is the stage name, in the same heading form "
+            "as \"1. Assess the work\", \"2. Define acceptance\" and "
+            "\"4. Implement with evidence\" above it - an identifier "
+            "(section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/releasing.md", "## Supply-chain stance",
+            "\"supply chain\" is the standard security term for this "
+            "section's subject, not the verb \"supply\" the word table "
+            "retires"),
+        Exemption(
+            "docs/security.md", "supply-chain requirements",
+            "\"supply chain\" is the standard security term, not the verb "
+            "\"supply\" the word table retires"),
+        Exemption(
+            "compass-contract.md", "7. verify",
+            "\"verify\" here is the stage name, one word per line in the "
+            "stage list, in the same form as \"1. assess\" and \"6. "
+            "implement\" beside it - an identifier (section 4), not the "
+            "verb the word table retires"),
+        Exemption(
+            "docs/methodology.md", "| `/compass:verify` | Verify |",
+            "\"Verify\" is the stage name in the stage-mapping table's own "
+            "column, beside \"Assess\", \"Define\" and \"Plan\" - an "
+            "identifier (section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/quickstart.md", "### Verify",
+            "\"Verify\" here is the stage name, in the same heading form as "
+            "the \"### Assess\", \"### Define\" and \"### Implement\" "
+            "headings in the same walkthrough - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/quickstart.md", "verify, ship -",
+            "\"verify\" here is one stage name in a list of stage names "
+            "(implement, verify, ship) - an identifier (section 4), not "
+            "the verb the word table retires"),
+        Exemption(
+            "docs/safety-contract.md", "Human approvals are required",
+            "tests/test_g5_trigger.py pins this exact phrase and is not "
+            "named for this unit in DD-6 - changing the assertion is not "
+            "this batch's to make, so the word-table finding is left "
+            "unapplied here and reported instead"),
+        Exemption(
+            "docs/quickstart.md", "does **not** modify your PATH",
+            "tests/test_plugin_doc_drift.py::"
+            "test_trc_a2_quickstart_drops_install_sh_path_claim pins this "
+            "exact phrase and is not named for this unit in DD-6 - "
+            "changing the assertion is not this batch's to make, so the "
+            "word-table finding is left unapplied here and reported "
+            "instead"),
+        Exemption(
+            "docs/routing-deep-dive.md", "but verify also runs the",
+            "\"verify\" is the stage name here, matching \"feature\" and "
+            "the other lowercase reference-shape names beside it - an "
+            "identifier (section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "[refine, verify, ship]",
+            "the literal `never_skip` policy value quoted from "
+            "governance/routing-policy.yml:109 - an identifier (section "
+            "4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "implement expedited; verify",
+            "\"verify\" is the stage name in a list of stage names, "
+            "matching \"implement\" and \"ship\" beside it - an "
+            "identifier (section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "at full verify weight",
+            "\"verify\" is the stage name - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "not skipped; verify and ship",
+            "\"verify\" is the stage name in a list of stage names, "
+            "matching \"ship\" beside it - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "*before* verify and never verify",
+            "\"verify\" is the stage name, twice - an identifier "
+            "(section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "spike. verify becomes",
+            "\"verify\" is the stage name - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md",
+            "**Verify** runs **at full weight",
+            "\"Verify\" is the stage name, bold as one item in the "
+            "stage-by-stage list beside \"Plan\", \"Breakdown\", "
+            "\"Implement\" and \"Ship\" - an identifier (section 4), "
+            "not the verb the word table retires"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -697,8 +854,18 @@ def _find_citation(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A6", "No citation points at a path git does not "
-               "distribute", _find_citation))
+_register(Rule(
+    "PBW-A6", "No citation points at a path git does not distribute",
+    _find_citation,
+    exemptions=(
+        Exemption(
+            "docs/quickstart.md",
+            ".compass/work/add-rate-limiting/manifest.yml",
+            "the walkthrough's own hypothetical issue - it shows the "
+            "reader where their own file will be, not a citation of a "
+            "document that already exists in this repository"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -734,6 +901,16 @@ _register(Rule(
             "pending list, so no batch owns the fix and this subtask cannot "
             "edit it (outside its own code surface). Filed separately as "
             "voice-tells-cites-trc-f2-with-no-plain-words."),
+        Exemption(
+            "docs/case-study-compass-rebuilt-itself.md",
+            "--scenario TRC-G3",
+            "the literal CLI command a person typed, inside backticks - "
+            "rewording it to add plain words would misquote what was run"),
+        Exemption(
+            "docs/quickstart.md", "`--scenario TRC-x`",
+            "a placeholder scenario id, the same shape as `<test cmd>` "
+            "elsewhere on this page - not a real code pointing at meaning "
+            "kept outside the file"),
     ),
 ))
 
@@ -743,7 +920,7 @@ _register(Rule(
 # ---------------------------------------------------------------------------
 
 _REFERENCE_RE = re.compile(
-    r"`?((?:[\w][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
+    r"`?((?:[\w.][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
 
 
 def _reference_exempt(text: str, match: re.Match) -> bool:
@@ -766,8 +943,33 @@ def _find_missing_reference(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A8", "Every file and command a comment names exists",
-               _find_missing_reference))
+_register(Rule(
+    "PBW-A8", "Every file and command a comment names exists",
+    _find_missing_reference,
+    exemptions=(
+        Exemption(
+            "docs/compass/2026-08-27-sdd-loop-spike.md", "obra/superpowers",
+            "every path under obra/superpowers/ is inside the Superpowers "
+            "repository, not this one - the file itself says so and gives "
+            "the github.com URL each path resolves against"),
+        Exemption(
+            "docs/quickstart.md",
+            ".compass/work/add-rate-limiting/manifest.yml",
+            "the walkthrough's own hypothetical issue, not a real path in "
+            "this repository - see the PBW-A6 exemption above for the "
+            "same line"),
+        Exemption(
+            "docs/quickstart.md", "evidence/green-TRC-x.json",
+            "the filename `compass tdd-green` would write for the "
+            "placeholder scenario id `TRC-x`, not a file this repository "
+            "ships"),
+        Exemption(
+            "docs/quickstart.md", "evidence/green.json",
+            "the filename `compass tdd-green` writes with no scenario "
+            "bound, shown here as an example of the naming rule, not a "
+            "file this repository ships"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -938,23 +1140,36 @@ def _find_count_claim(span: ProseSpan) -> list[Finding]:
     if span.path not in _REGISTRY_FILES:
         return []
     findings = []
+    # Several rows can share one pattern - four files all claim a hook count
+    # with the identical "\b(\w+)\s+hooks?\b" regex. Matching every row against
+    # every span would report this file's own correctly-registered claim as
+    # belonging to the other three files' rows too. So: match each pattern at
+    # most once per span, against the row registered for THIS file if one
+    # exists, and only fall through to "no row for this file" when it does not.
+    seen_patterns: set[re.Pattern] = set()
     for row in COUNT_REGISTRY:
+        if row.pattern in seen_patterns:
+            continue
+        own_row = next(
+            (r for r in COUNT_REGISTRY
+             if r.pattern is row.pattern and r.file == span.path), None)
         for match in row.pattern.finditer(span.text):
             stated = _as_number(match.group(1))
             if stated is None:
                 continue
-            if span.path != row.file:
+            if own_row is None:
                 findings.append(Finding(
                     span.path, span.line,
                     f'counted claim "{match.group(0)}" about "{row.name}" '
                     f'has no row in the registry for this file'))
                 continue
-            actual = row.source()
+            actual = own_row.source()
             if stated != actual:
                 findings.append(Finding(
                     span.path, span.line,
                     f'"{match.group(0)}" states {stated}, the source counts '
                     f'{actual}'))
+        seen_patterns.add(row.pattern)
     return findings
 
 
