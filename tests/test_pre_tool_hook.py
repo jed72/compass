@@ -1,23 +1,24 @@
-"""TRC-F1 - Frame remains mandatory, unchanged.
+"""`TRC-F1` - assessment remains mandatory, unchanged.
 
-pre-tool.sh blocks an Edit on a production file when the current task has no
-route.md (i.e. Frame did not complete).
+pre-tool.sh blocks an Edit on a production file when the current issue has no
+delivery-approach.md (i.e. assessment did not complete).
 
 The hook reads the hook context from stdin as JSON (Claude Code PreToolUse
-format) and inspects the .compass/current-task pointer to find the task
-directory. If the task directory lacks route.md, it exits 2 and writes a
-message to stderr naming the missing route.md.
+format) and inspects the .compass/current-task pointer to find the issue
+directory. If the issue directory lacks delivery-approach.md, it exits 2 and
+writes a message to stderr naming the missing delivery-approach.md.
 
 This test creates a synthetic Compass project in a tmp directory, sets up
-.compass/current-task pointing at a task without route.md, then invokes
-hooks/pre-tool.sh with the synthetic tool call JSON.
+.compass/current-task pointing at an issue without delivery-approach.md, then
+invokes hooks/pre-tool.sh with the synthetic tool call JSON.
 
 IMPORTANT NOTE on path design:
-  hooks/pre-tool.sh exempts any target file whose path matches *test* or
-  *Test* (so you can always write the failing test before any red is on record).
-  This means the project directory and target file path must not contain the
-  word "test" as a substring. We use tempfile.mkdtemp with a "compass-fixture-"
-  prefix and place the target at "src/app.py" to avoid this exemption.
+  hooks/pre-tool.sh exempts a target file whose basename or project-relative
+  path matches an anchored test pattern (so you can always write the failing
+  test before any red is on record). This means the project directory and
+  target file path must not contain the word "test" as a substring. We use
+  tempfile.mkdtemp with a "compass-fixture-" prefix and place the target at
+  "src/app.py" to avoid this exemption.
 """
 from __future__ import annotations
 
@@ -43,7 +44,7 @@ HOOK_PATH = FRAMEWORK_ROOT / "hooks" / "pre-tool.sh"
 def _make_compass_project(root: Path, slug: str, *, with_route_md: bool) -> Path:
     """Scaffold a minimal Compass project under root.
 
-    Returns the task directory path.
+    Returns the issue directory path.
     """
     compass_dir = root / ".compass"
     work_dir = compass_dir / "work"
@@ -53,7 +54,7 @@ def _make_compass_project(root: Path, slug: str, *, with_route_md: bool) -> Path
     # .compass/current-task points at our slug
     (compass_dir / "current-task").write_text(slug, encoding="utf-8")
 
-    # Optionally create route.md
+    # Optionally create delivery-approach.md
     if with_route_md:
         (task_dir / "delivery-approach.md").write_text(
             "# Route\n\nroute: express\n", encoding="utf-8"
@@ -82,27 +83,28 @@ def _tool_call_json(file_path: str, tool_name: str = "Edit") -> str:
 def _fresh_project_dir() -> Path:
     """Return a new temp directory whose absolute path contains no 'test' substring.
 
-    hooks/pre-tool.sh exempts any path matching *test* or *Test* (that is the
-    escape hatch so engineers can always write the failing test). pytest's
-    tmp_path fixture always includes the test function name in the path (e.g.
-    ".../pytest-0/test_blocks_without_frame0/"), which contains "test". We
-    therefore create our own directory whose path is clean.
+    hooks/pre-tool.sh exempts a path matching an anchored test pattern - that
+    is the exemption so engineers can always write the failing test.
+    pytest's tmp_path fixture always includes the test function name in the
+    path (e.g. ".../pytest-0/test_blocks_without_frame0/"), which contains
+    "test". We therefore create our own directory whose path is clean.
     """
     d = tempfile.mkdtemp(prefix="compass-fix-")
     return Path(d)
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1: hook blocks when route.md is absent
+# `TRC-F1`: hook blocks when delivery-approach.md is absent
 # ---------------------------------------------------------------------------
 
 def test_blocks_without_frame():
-    """Frame is still required - hook exits 2 and names missing route.md.
+    """Assessment is still required - hook exits 2 and names missing
+    delivery-approach.md.
 
-    Given a fresh task with no route.md
-    When any tool attempts to Edit a file under the project source (a .py file)
+    Given a fresh issue with no delivery-approach.md
+    When any tool tries to Edit a file under the project source (a .py file)
     Then hooks/pre-tool.sh blocks the edit (exit code 2)
-    And the block message names the missing route.md
+    And the block message names the missing delivery-approach.md
     """
     assert HOOK_PATH.is_file(), f"pre-tool.sh not found at {HOOK_PATH}"
 
@@ -132,7 +134,7 @@ def test_blocks_without_frame():
             f"Expected exit 2 (block), got {result.returncode}.\n"
             f"stdout: {result.stdout}\nstderr: {result.stderr}"
         )
-        # Block message must name route.md
+        # Block message must name delivery-approach.md
         assert "delivery-approach.md" in result.stderr, (
             f"Expected 'delivery-approach.md' in stderr.\nstderr: {result.stderr}"
         )
@@ -141,7 +143,8 @@ def test_blocks_without_frame():
 
 
 def test_allows_when_route_md_present_and_red_marker():
-    """Hook allows the edit when route.md exists and the .red marker is set.
+    """Hook allows the edit when delivery-approach.md exists and the .red
+    marker is set.
 
     This is the complementary positive case - confirms the hook's basic
     allow-path still works after the F1 regression check.
@@ -184,7 +187,7 @@ def test_hook_exits_zero_for_non_code_file():
         slug = "no-frame-slug"
         _make_compass_project(project, slug, with_route_md=False)
 
-        # Markdown files are always exempt regardless of task state
+        # Markdown files are always exempt regardless of issue state
         target = str(project / "README.md")
         payload = _tool_call_json(target, tool_name="Edit")
 
@@ -205,15 +208,16 @@ def test_hook_exits_zero_for_non_code_file():
 
 
 # ---------------------------------------------------------------------------
-# R8 - a first-class "verified-by" red (TRC-R8-1, R8-2 hook side)
-# The hook gates on the .red marker; R8 widens HOW a red is recorded
-# (tdd-red --verified-by), not how the hook reads it. These guard the marker
-# contract the verified-by red plugs into.
+# A red recorded with `tdd-red --verified-by` (`TRC-R8-1`, `TRC-R8-2` hook
+# side). The hook gates on the .red marker; this widens HOW a red is
+# recorded, not how the hook reads it. These guard the marker contract the
+# verified-by red plugs into.
 # ---------------------------------------------------------------------------
 
 def test_no_red_blocks_wiring_change_baseline():
-    """TRC-R8-1 (baseline): with a framed task but no .red marker, the hook
-    blocks a production edit - the gap a verified-by red exists to fill honestly."""
+    """`TRC-R8-1` (baseline): with an assessed issue but no .red marker, the
+    hook blocks a production edit - the gap a verified-by red exists to fill
+    honestly."""
     project = _fresh_project_dir()
     try:
         _make_compass_project(project, "wire-slug", with_route_md=True)
@@ -229,7 +233,7 @@ def test_no_red_blocks_wiring_change_baseline():
 
 
 def test_verified_by_red_allows_edit():
-    """TRC-R8-2 (hook side): a recorded red (the .red marker a verified-by red
+    """`TRC-R8`-2 (hook side): a recorded red (the .red marker a verified-by red
     drops) allows the production edit."""
     project = _fresh_project_dir()
     try:

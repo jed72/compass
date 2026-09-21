@@ -1097,6 +1097,27 @@ _register(Rule(
             "/ `compass tdd-green` write typed test-run evidence the verify gates accept.",
             "names the verify stage's gates, the same identifier-adjacent "
             "use as \"All Verify gates\" in approaches/hotfix.md."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "A red recorded with `tdd-red --verified-by` (`TRC-R8-1`, `TRC-R8-2` hook",
+            "names the real `--verified-by` CLI flag (cli/compass_pkg/"
+            "tdd.py), an identifier, not the verb the word table retires."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "verified-by red plugs into.",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "hook blocks a production edit - the gap a verified-by red exists to fill",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "-2 (hook side): a recorded red (the .red marker a verified-by red",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "a verified-by red drops this marker",
+            "the same `--verified-by` flag name as the exemption above."),
     ),
 ))
 
@@ -1632,6 +1653,13 @@ _register(Rule(
                    "the docstring's own point: this path does not exist - "
                    "it is the wrong rewrite the bug produced, named to "
                    "explain the defect."),
+        Exemption("tests/test_pre_tool_hook.py",
+                   '"src/app.py" to avoid this exemption.',
+                   "the fixture target path the test creates under a temp "
+                   "directory, not a file this repository ships."),
+        Exemption("tests/test_pre_tool_hook.py",
+                   '"src/app.py" - no "test" component anywhere in the path.',
+                   "the same fixture target path as the exemption above."),
         # A rejected alternative's hypothetical path - it does not exist
         # because the alternative was never built, which is the point of
         # naming it in the Alternatives table.
