@@ -1,7 +1,7 @@
 """Regression tests for six release-blocking defects that shipped with only a
 manual check behind them.
 
-Each fix below was verified by hand at the time - a temp project built, a
+Each fix below was checked by hand at the time - a temp project built, a
 command run, the output read - and then had nothing left on disk that would
 notice it breaking again. That is the shape of defect this repository keeps
 finding in itself: a correct outcome with no standing assertion behind it. Each
@@ -13,18 +13,14 @@ Covered:
   SCN-02  the hook must enforce inside a repo whose own path contains "test"
   SCN-03  scripts/multiagent.sh must not copy evidence/ or .red into a worktree
   SCN-08  the CI workflow must install Python before running a Python tool
-  SCN-10  a Spike route must still report an owed backfill
+  SCN-10  a spike must still report an owed follow-up
   SCN-11  `compass ship-commit` must refuse to mark landed over unpassed gates
   SCN-12  `compass issue receipt` must not print "landed cleanly" over pending gates
   SCN-13  `compass analyze` must not report 0 findings after listing findings
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import json
@@ -93,10 +89,10 @@ PENDING_GATES = [
 # ---------------------------------------------------------------------------
 
 def test_receipt_does_not_report_a_clean_land_over_pending_gates(project):
-    """The receipt is the audit artefact - what someone reads instead of
-    re-deriving the task. It printed "Verdict: landed cleanly" for a task whose
-    every gate was pending with no evidence at all, because the pending branch
-    set neither the failure flag nor the caveat flag."""
+    """The receipt is the audit artifact - what someone reads instead of
+    re-deriving the issue. It printed "Verdict: landed cleanly" for an issue
+    whose every gate was pending with no evidence at all, because the pending
+    branch set neither the failure flag nor the caveat flag."""
     (project / ".compass" / "work" / "t" / "manifest.yml").write_text(
         _task_yml("t", gates=PENDING_GATES, status="landed",
                   land_timestamp="2026-08-04T00:00:00Z")
@@ -110,7 +106,7 @@ def test_receipt_does_not_report_a_clean_land_over_pending_gates(project):
 
 
 # ---------------------------------------------------------------------------
-# SCN-11 - land-commit must not write `landed` over unpassed gates
+# SCN-11 - ship-commit must not write `landed` over unpassed gates
 # ---------------------------------------------------------------------------
 
 def test_land_commit_refuses_to_mark_landed_with_unpassed_gates(project):
@@ -120,7 +116,7 @@ def test_land_commit_refuses_to_mark_landed_with_unpassed_gates(project):
     task_path = project / ".compass" / "work" / "t" / "manifest.yml"
     task_path.write_text(_task_yml("t", gates=PENDING_GATES))
 
-    # land-commit makes a git commit, so the project has to be a repo.
+    # ship-commit makes a git commit, so the project has to be a repo.
     for args in (("init", "-q", "-b", "main"), ("config", "user.email", "t@example.com"),
                  ("config", "user.name", "T"), ("add", "-A"),
                  ("commit", "-q", "-m", "init")):
@@ -148,25 +144,19 @@ def test_land_commit_refuses_to_mark_landed_with_unpassed_gates(project):
 
 def test_analyze_summary_agrees_with_the_findings_it_listed(project):
     """In advisory mode the summary line was hardcoded to "PASS - 0 finding(s),
-    coherence checks clean", so the command listed its findings and then denied
-    having any - while the evidence JSON recorded the real count."""
+    consistency checks clean", so the command listed its findings and then
+    denied having any - while the evidence JSON recorded the real count."""
     task_dir = project / ".compass" / "work" / "t"
-    # `stages=`, not `phases=`. The base manifest in `_task_yml` already sets
-    # `stages: {}`, so a `phases:` twin is dropped as the retired duplicate it
-    # is - this fixture's weight never reached analyze at all, and the test
-    # passed on a `"full"` default in the lookup instead. Removing that default
-    # is what exposed it.
+    # Uses `stages=`: the base manifest already sets `stages: {}`, so a
+    # `phases:` key is dropped as a retired duplicate.
     (task_dir / "manifest.yml").write_text(
         _task_yml("t", gates=[], stages={"define": "full"})
     )
     (task_dir / "delivery-approach.md").write_text("# Route - t\n")
     (task_dir / "acceptance-criteria.md").write_text("# Spec - t\n\n## Summary\n\n**Goal:** x\n")
 
-    # Re-pointed on 2026-08-24: `analyze` came under the terminal output
-    # contract, so its verdict is now the FIRST line and its findings are a
-    # counted section rather than a "findings: N" line. The intent is unchanged
-    # and this now asserts it directly - the two counts must be the same number
-    # - rather than only checking the summary does not say zero.
+    # The verdict is the first line and the findings are a counted section;
+    # the two counts must match.
     import re as _re
 
     result = _compass(project, "analyze", "--issue", "t")
@@ -255,7 +245,7 @@ def test_hook_still_enforces_inside_a_repo_whose_path_contains_test(tmp_path):
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
     (root / ".compass" / "current-task").write_text("t\n")
-    (task_dir / "delivery-approach.md").write_text("# Route\n")   # framed, but no .red
+    (task_dir / "delivery-approach.md").write_text("# Route\n")   # assessed, but no .red
 
     payload = json.dumps({
         "tool_name": "Edit",
@@ -275,14 +265,14 @@ def test_hook_still_enforces_inside_a_repo_whose_path_contains_test(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# SCN-10 - a Spike suspends the TDD strategy, not the backfill ledger
+# SCN-10 - a spike suspends the TDD strategy, not the follow-up ledger
 # ---------------------------------------------------------------------------
 
 def test_spike_route_still_reports_an_owed_backfill(project):
-    """`compass check` returns early on a Spike, because most delivery checks do
-    not apply there. The owed-backfill check was inside that early return, so a
-    Spike could carry an unpaid backfill indefinitely and still report a clean
-    check - and an unpaid backfill is the one piece of debt Compass promises to
+    """`compass check` returns early on a spike, because most delivery checks do
+    not apply there. The owed-follow-up check was inside that early return, so a
+    spike could carry an unpaid follow-up indefinitely and still report a clean
+    check - and an unpaid follow-up is the one piece of debt Compass promises to
     keep visible."""
     task_dir = project / ".compass" / "work" / "t"
     (task_dir / "manifest.yml").write_text(_task_yml(
