@@ -1,29 +1,23 @@
-"""Acceptance tests for richer plans (task executable-bdd-and-richer-plans).
+"""Acceptance tests for richer plans (issue executable-bdd-and-richer-plans).
 
-Compass's plan template was Approach + design decisions + governance check +
-work units. That is enough to coordinate work, but it does not let a reviewer
-*see* the shape of a change before it is built. This task adds five optional
-sections - a Summary preamble, a sequence diagram, a structural diagram, named
-design patterns, and illustrative code - each carrying its own rule for when it
-earns a place, governed by a new `plan-authoring` skill.
+The technical-design template carries five optional sections - a Summary
+preamble, a sequence diagram, a structural diagram, named design patterns,
+and illustrative code - each with its own rule for when it earns a place,
+governed by a new `plan-authoring` skill.
 
 The sections are OPTIONAL by design. A plan that uses all five on a one-line
-change is worse than one that uses none: ceremony is a cost. So these tests
-check two things in tension - that the sections exist and are usable, and that
-the template and skill tell an author when NOT to use them.
+change is worse than one that uses none: process weight is a cost. So these
+tests check two things in tension - that the sections exist and are usable,
+and that the template and skill tell an author when NOT to use them.
 
 Every assertion below reads a shipped file. The precedent is
 tests/test_plugin_doc_drift.py and tests/test_readable_specs_and_flow.py.
 
-Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-C1..C6).
+Spec: executable-bdd-and-richer-plans/acceptance-criteria.md (`TRC-C1`..`TRC-C6`).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006).
 from __future__ import annotations
 
 import pathlib
@@ -54,7 +48,7 @@ def _section(text, pattern):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - the template offers the five optional sections
+# `TRC-C1` - the template offers the five optional sections
 # ---------------------------------------------------------------------------
 
 FIVE_SECTIONS = {
@@ -95,7 +89,7 @@ def test_trc_c1_template_offers_five_optional_sections():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 - each optional section states its own inclusion rule
+# `TRC-C2` - each optional section states its own inclusion rule
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("name,pattern", list(FIVE_SECTIONS.items()))
@@ -115,7 +109,7 @@ def test_trc_c2_each_section_states_inclusion_rule(name, pattern):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C3 - the existing sections survive unchanged
+# `TRC-C3` - the existing sections survive unchanged
 # ---------------------------------------------------------------------------
 
 def test_trc_c3_existing_sections_survive():
@@ -138,7 +132,7 @@ def test_trc_c3_existing_sections_survive():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C4 - the planner's section choice scales with the route
+# `TRC-C4` - the planner's section choice scales with the delivery approach
 # ---------------------------------------------------------------------------
 
 def test_trc_c4_selection_rules_scale_by_route():
@@ -172,7 +166,7 @@ def _route_rule(text, route):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C5 - a named pattern must come with a stated reason
+# `TRC-C5` - a named pattern must come with a stated reason
 # ---------------------------------------------------------------------------
 
 def test_trc_c5_named_pattern_requires_reason():
@@ -195,7 +189,7 @@ def test_trc_c5_named_pattern_requires_reason():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C6 - the writing guide carries a worked plan
+# `TRC-C6` - the writing guide carries a worked plan
 # ---------------------------------------------------------------------------
 
 def test_trc_c6_writing_guide_has_worked_plan():
