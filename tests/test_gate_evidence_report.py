@@ -1,13 +1,10 @@
-"""R6 - gate-evidence type mismatches are reported in one enumerated pass, and
-route evaluate seeds the gates block with each gate's accepted evidence types.
+"""Gate-evidence type mismatches are reported in one enumerated pass, and
+`compass approach evaluate` seeds the gates block with each gate's accepted
+evidence types.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import yaml
@@ -35,8 +32,8 @@ def _mk(task_dir, rel):
 
 
 def test_mismatch_surfaces_at_check_baseline(run_cli, make_task):
-    """TRC-R6-1 (baseline): a wrong-type gate-evidence is reported by check with
-    the gate id, accepted types, and the actual type."""
+    """`TRC-R6-1` (baseline): `compass check` reports a wrong-type gate
+    evidence with the gate id, accepted types, and the actual type."""
     body = _body(
         [{"id": "verify.governance", "status": "pass", "evidence": ["EV-T"]}],
         [{"id": "EV-T", "type": "test-run", "path": "evidence/green.json"}],
@@ -50,8 +47,8 @@ def test_mismatch_surfaces_at_check_baseline(run_cli, make_task):
 
 
 def test_check_accumulates_both_gate_problems_baseline(run_cli, make_task):
-    """TRC-R6-2 (baseline): two wrong-type gates → both appear (check does not
-    stop at the first)."""
+    """`TRC-R6-2` (baseline): two wrong-type gates → both appear (check does
+    not stop at the first)."""
     body = _body(
         [{"id": "verify.governance", "status": "pass", "evidence": ["EV-T"]},
          {"id": "verify.claims", "status": "pass", "evidence": ["EV-MR"]}],
@@ -68,8 +65,8 @@ def test_check_accumulates_both_gate_problems_baseline(run_cli, make_task):
 
 
 def test_two_bad_gates_show_two_enumerated_failures(run_cli, make_task):
-    """TRC-R6-5: the two mismatches are enumerated one per line (not collapsed
-    behind each other into one dense string)."""
+    """`TRC-R6-5`: the two mismatches are enumerated one per line (not
+    collapsed behind each other into one dense string)."""
     body = _body(
         [{"id": "verify.governance", "status": "pass", "evidence": ["EV-T"]},
          {"id": "verify.claims", "status": "pass", "evidence": ["EV-MR"]}],
@@ -91,8 +88,8 @@ def test_two_bad_gates_show_two_enumerated_failures(run_cli, make_task):
 
 
 def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
-    """TRC-R6-6: route evaluate --write annotates each gate with its accepted
-    evidence types."""
+    """`TRC-R6-6`: `compass approach evaluate --write` annotates each gate
+    with its accepted evidence types."""
     body = {
         "task": "ge-seed", "created": "2026-06-22",
         "assessment": {"risk": "contained", "familiarity": "brownfield-mapped",
@@ -113,7 +110,7 @@ def test_seeded_gates_carry_accepted_type_comments(run_cli, make_task):
 
 
 def test_task_template_gates_document_accepted_types(framework_root):
-    """TRC-R6-6 (doc half): templates/manifest.yml documents the accepted-types
+    """`TRC-R6-6` (doc half): templates/manifest.yml documents the accepted-types
     convention in its gates block."""
     text = (framework_root / "templates" / "manifest.yml").read_text()
     assert "accepts:" in text, "templates/manifest.yml gates block should document accepted evidence types"

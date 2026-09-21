@@ -61,7 +61,7 @@ def _manifest(*, register):
                    "verify": "full", "ship": "full"},
         "artifacts": artifacts, "evidence": [], "gates": [],
         # A stated criterion, so the acceptance-before-code guardrail is
-        # satisfied and the only thing these tests can trip on is where the
+        # satisfied and the only thing these tests can fail on is where the
         # delivery-approach record lives.
         "scenarios": [{"id": "MV-1", "title": "it works", "intent": "INT-1",
                        "tests": ["tests/test_x.py::test_mv_1"]}],
@@ -80,10 +80,9 @@ def _project(tmp_path, *, documents=True, register=True, red=True,
     (work / "manifest.yml").write_text(_manifest(register=register),
                                        encoding="utf-8")
     if red:
-        # A REAL red, written by the CLI. The hook reads the record beside the
-        # marker and rejects a marker with nothing behind it - which is the
-        # point of the marker - so an empty file here would make these tests
-        # measure that rejection instead of where the delivery-approach record
+        # A REAL red, written by the CLI. The hook rejects a marker with no
+        # record beside it. An empty file here would make these tests
+        # measure that rejection, not where the delivery-approach record
         # lives.
         r = subprocess.run(
             [sys.executable, str(COMPASS_CLI), "tdd-red", "--issue", SLUG,

@@ -1,21 +1,23 @@
-"""The hook must enforce G2, not only the strategy that serves G1 (report R23).
+"""The hook must enforce `G2` (acceptance defined before it is built), not only
+the strategy that serves `G1` (tested before it lands - no code reaches main
+unless it traces to a declared test and a green test run is on record).
 
 `hooks/pre-tool.sh` blocks a code edit until a failing test is on record -
-strategy S2, in service of guardrail G1. Nothing blocked a code edit when the
-route said `specify: full` and no spec existed, so guardrail G2 - acceptance
-defined before it is built - had no enforcement at the point where it could
-still be true.
+strategy `S2` (red, green, refactor), in service of guardrail `G1`. Nothing
+blocked a code edit when the delivery approach said `define: full` and no
+requirements review existed, so guardrail `G2` had no enforcement at the
+point where it could still be true.
 
-The asymmetry is the point: S2, a *strategy*, got a real-time blocking hook. G2,
-a *guardrail*, which by the framework's own conflict rule beats a strategy, got
-a post-hoc report. `compass check` does catch it, at Verify, after the code
-exists - which is the ordering G2 exists to prevent.
+The asymmetry is the point: `S2`, a *strategy*, got a real-time blocking hook.
+`G2`, a *guardrail*, which by the framework's own conflict rule beats a
+strategy, got a post-hoc report. `compass check` does catch it, at verify,
+after the code exists - which is the ordering `G2` exists to prevent.
 
-Only `specify: full` triggers this, and routing-policy.yml gives that to
-standard and expedition only. A Hotfix (reproduce-first) and a Spike (collapsed)
-are exempt by construction rather than by special case.
+Only `define: full` triggers this, and routing-policy.yml gives that to
+standard and initiative (`expedition`) only. A hotfix (reproduce-first) and a
+spike (collapsed) are exempt by construction rather than by special case.
 
-Scenarios: docs/compass/2026-08-06-hook-enforces-g2/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: hook-enforces-g2/acceptance-criteria.md (SCN-A1..F2).
 """
 from __future__ import annotations
 
@@ -71,13 +73,13 @@ def _run(project, target="src/app.py", tool="Edit"):
 
 
 # ---------------------------------------------------------------------------
-# Group A - G2 is enforced where it can still be true
+# Group A - `G2` is enforced where it can still be true
 # ---------------------------------------------------------------------------
 
 def test_scn_a1_full_specify_with_no_scenarios_blocks_a_code_edit():
-    """The reporter's case: a red was on record, so S2 was satisfied and every
-    edit was allowed - while the route asked for a full Specify that never
-    happened."""
+    """The reporter's case: a red was on record, so `S2` was satisfied and
+    every edit was allowed - while the delivery approach asked for a full
+    define stage that never happened."""
     project = _project(specify="full", scenarios=0, red=True)
     try:
         result = _run(project)
@@ -100,8 +102,9 @@ def test_scn_a2_scenarios_present_allows_the_edit():
 
 @pytest.mark.parametrize("specify", ["light", "collapsed", "reproduce-first"])
 def test_scn_a3_routes_without_a_full_specify_are_unaffected(specify):
-    """Express (light), Spike (collapsed) and Hotfix (reproduce-first) are
-    exempt by construction - a Hotfix writes its reproduction before any spec."""
+    """Quick fix (`express`, light), spike (collapsed) and hotfix
+    (reproduce-first) are exempt by construction - a hotfix writes its
+    reproduction before any requirements review."""
     project = _project(specify=specify, scenarios=0, red=True)
     try:
         result = _run(project)
@@ -138,7 +141,7 @@ def test_scn_b1_the_message_names_the_guardrail_and_the_remedy():
 
 
 def test_scn_b2_a_test_file_is_still_editable():
-    """G2 must not stop you writing the spec's tests, any more than S2 does."""
+    """`G2` must not stop you writing the spec's tests, any more than `S2` does."""
     project = _project(specify="full", scenarios=0, red=False)
     try:
         result = _run(project, target="tests/test_app.py")
@@ -156,8 +159,8 @@ def test_scn_b2_a_test_file_is_still_editable():
     ({"broken_yml": True}, "unparseable manifest.yml"),
 ])
 def test_scn_f1_an_unreadable_spine_does_not_block(kwargs, label):
-    """This check reads a file the hook did not previously need. If it cannot be
-    read the hook must fall back to its prior behaviour, not invent a block -
+    """This check reads a file the hook did not need before. If it cannot be
+    read the hook must fall back to its earlier behaviour, not invent a block -
     a false block on unreadable state trains people to bypass the hook."""
     project = _project(specify="full", scenarios=0, red=True, **kwargs)
     try:
@@ -169,7 +172,7 @@ def test_scn_f1_an_unreadable_spine_does_not_block(kwargs, label):
 
 
 def test_scn_f2_g2_is_checked_before_the_red():
-    """With neither a spec nor a red, the G2 message is the useful one: you
+    """With neither a spec nor a red, the `G2` message is the useful one: you
     cannot write a red for a scenario that does not exist yet."""
     project = _project(specify="full", scenarios=0, red=False)
     try:
@@ -212,9 +215,9 @@ def test_scn_a4_g2_fires_on_a_spine_in_the_current_vocabulary():
     """The guardrail must read the stage key the framework writes today.
 
     The hook asked for `specify`, the key retired at the v2 freeze, so a manifest
-    saying `define: full` with no scenarios was waved through. The migration
+    saying `define: full` with no scenarios was allowed. The migration
     tool this framework ships is what turns a directory from one to the other,
-    so running `compass migrate --apply` silently switched guardrail G2 off
+    so running `compass migrate --apply` silently switched guardrail `G2` off
     for every issue it touched.
     """
     project = _project_v2(define="full", scenarios=0, red=True)
@@ -231,8 +234,8 @@ def test_scn_a4_g2_fires_on_a_spine_in_the_current_vocabulary():
 def test_scn_a5_a_spine_with_scenarios_still_passes_in_the_current_vocabulary():
     """The control: reading the current key must not block everything.
 
-    Without this, the check above is satisfied by a hook that blocks whatever
-    it is handed, which would pass while checking nothing.
+    Without this, a hook that blocks whatever it is handed would satisfy the
+    check above, which would pass while checking nothing.
     """
     project = _project_v2(define="full", scenarios=2, red=True)
     try:

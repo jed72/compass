@@ -1,30 +1,24 @@
-"""G5 must apply to every change its own statement describes (field report R20).
+"""`G5` applies whenever a change can lose data, move money, or breach auth
+or privacy - the four consequences its statement names - not only when a
+listed domain matches (`auth`, `payments`, `personal-data`, `migrations`).
+A change that added backup and restore for Postgres and object storage, and
+removed a committed default credential, read `blast_radius: critical`
+because it could lose data, but `G5` reported "not applicable" because none
+of the four listed domains matched by name. The routing floors also read
+`blast_radius`, so the delivery approach stayed heavy - initiative, nine
+gates - while the human checkpoint was dropped without a message. It still
+looked well-governed.
 
-G5's statement names four consequences - a change that can lose data, move
-money, or breach auth or privacy gets a human checkpoint. Its trigger named four
-domains (`auth`, `payments`, `personal-data`, `migrations`). Those are not the
-same set, so a change that could lose data skipped the data-loss checkpoint.
+`critical` is defined in the router rubric as "can this lose data, lose
+money, breach auth/privacy, or resist a clean rollback" - the same four
+consequences `G5`'s statement names. The definitions already agreed; only
+the trigger did not.
 
-The reporter's task added backup and restore for Postgres and object storage and
-removed committed default credentials. It read `blast_radius: critical`
-precisely because it could lose data, and G5 reported "not applicable for these
-readings - skipped". The routing floors all read blast radius, so the route
-stayed heavy - Expedition, nine gates - while the human checkpoint quietly
-vanished. It still looked well-governed.
-
-`critical` is defined in the router rubric as "can this lose data, lose money,
-breach auth/privacy, or resist a clean rollback" - the same four consequences
-G5's statement names. The definitions already agreed; only the trigger did not.
-
-Scenarios: docs/compass/2026-08-06-g5-trigger-matches-statement/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: g5-trigger-matches-statement/acceptance-criteria.md (SCN-A1..F2).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import shutil
@@ -171,9 +165,10 @@ def test_scn_b3_any_of_composes_with_siblings_as_an_and():
 # ---------------------------------------------------------------------------
 
 def test_scn_c1_a_landed_task_is_reported_not_failed(tmp_path):
-    """A widened trigger applies to work in flight. Re-failing a task that
-    landed under the narrower one demands a checkpoint for a decision already
-    taken, which nobody can act on (ADR-006)."""
+    """A widened trigger applies to issues already under way. Re-failing an
+    issue that landed under the narrower one demands a checkpoint for a
+    decision already taken, which nobody can act on (ADR-006, backward
+    compatibility is non-negotiable)."""
     root = _project(tmp_path, blast="critical", touches=["infra"],
                     status="landed")
     result = _check(root)

@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 339
+PENDING_PATHS_HIGH_WATER = 263
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -1006,6 +1006,11 @@ _register(Rule(
             "for the claim'); the audit's human review ruled this instance "
             "keeps the word (section 9, batch 6, scripts/verify-archive-"
             "quotes.py note on L27-28)."),
+        Exemption(
+            "tests/test_governance_drift.py",
+            "that considered RP-REQUIRE-003 and rejected it",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
     ),
 ))
 

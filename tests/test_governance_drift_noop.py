@@ -1,15 +1,15 @@
-"""Invariants for governance drift detection (task governance-drift-detection).
+"""Invariants for governance drift detection (issue governance-drift-detection).
 
-This task has critical blast radius, and the one unacceptable outcome is
-changing how routes are computed. A drift detector that alters routing is worse
-than the silent drift it was built to find.
+This issue has critical risk, and the one unacceptable outcome is changing
+how delivery approaches are computed. A drift detector that changes routing
+is worse than the silent drift it was built to find.
 
 The other properties here are about trust. A detector that fires on a project
 which is current, or which has never run `/compass:init`, or which is AHEAD of
 the framework, is a detector that gets switched off - and then it detects
 nothing at all.
 
-Spec: docs/compass/2026-08-03-governance-drift-detection/acceptance-criteria.md (TRC-F1..F6).
+Spec: governance-drift-detection/acceptance-criteria.md (`TRC-F1`..`TRC-F6`).
 """
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def _lint(proj):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a project with current governance sees no drift report
+# `TRC-F1` - a project with current governance sees no drift report
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_a_project_with_current_governance_should_see_no_drift_report(tmp_path):
@@ -55,7 +55,7 @@ def test_trc_f1_a_project_with_current_governance_should_see_no_drift_report(tmp
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 - a project with no local governance is not compared to itself
+# `TRC-F2` - a project with no local governance is not compared to itself
 # ---------------------------------------------------------------------------
 
 def test_trc_f2_a_project_with_no_local_governance_should_not_be_compared_to_itself(tmp_path):
@@ -70,7 +70,7 @@ def test_trc_f2_a_project_with_no_local_governance_should_not_be_compared_to_its
 
 
 # ---------------------------------------------------------------------------
-# TRC-F3 - a project AHEAD of the framework is not drift
+# `TRC-F3` - a project AHEAD of the framework is not drift
 # ---------------------------------------------------------------------------
 
 def test_trc_f3_a_project_ahead_of_the_framework_should_not_be_reported_as_drifted(tmp_path):
@@ -99,7 +99,7 @@ def test_trc_f3_a_project_ahead_of_the_framework_should_not_be_reported_as_drift
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 - an unreadable framework policy degrades gracefully
+# `TRC-F4` - an unreadable framework policy degrades gracefully
 # ---------------------------------------------------------------------------
 
 def test_trc_f4_an_unreadable_framework_policy_should_not_break_the_lint(tmp_path):
@@ -130,16 +130,18 @@ def test_trc_f4_an_unreadable_framework_policy_should_not_break_the_lint(tmp_pat
 
 
 # ---------------------------------------------------------------------------
-# TRC-F5 - no computed route changes. THE guard on this task's blast radius.
+# `TRC-F5` - no computed delivery approach changes. THE guard on this issue's
+# critical risk.
 # ---------------------------------------------------------------------------
 
 def test_trc_f5_drift_detection_should_not_change_any_computed_route():
     """Every routing fixture must evaluate identically after this change.
 
-    This task touches `route evaluate`. The one outcome worse than silent drift
-    is a drift detector that alters routing, so this re-runs the whole fixture
-    corpus and compares the computed route, gates, topology and fired guardrails
-    against what the fixture declares.
+    This issue touches `compass approach evaluate`. The one outcome worse
+    than silent drift is a drift detector that changes routing, so this
+    re-runs the whole fixture corpus and compares the computed delivery
+    approach, gates, topology and fired guardrails against what the fixture
+    declares.
     """
     fixtures = sorted(FIXTURES.glob("*.yml"))
     assert fixtures, "no routing fixtures found - this guard would be empty"
@@ -210,8 +212,8 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
                 assert gate in got["gates"], (
                     f"{path.name}: gate {gate} is gone; gates={got['gates']}")
 
-        # A fixture that asserts nothing is a green tick over an unrun check -
-        # the exact failure mode this task exists to stop.
+        # A fixture that asserts nothing passes without checking anything -
+        # the exact failure mode this issue exists to stop.
         assert checked, f"{path.name}: no expectation was actually compared"
         total_checks += checked
 
@@ -221,42 +223,28 @@ def test_trc_f5_drift_detection_should_not_change_any_computed_route():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F6 - grew by artifacts and checks only
+# `TRC-F6` - grew by artifacts and checks only
 # ---------------------------------------------------------------------------
 
 EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
-# The CLI-voice slice renamed the banned-word verbs (route -> approach,
-# plan -> design, task -> issue, backfill -> follow-up) and added
-# terminology; the set below is the surface after that deliberate move.
-# The vocabulary rename moved the planning verb BACK to `plan` on
-# 2026-08-25: `design` now means the designer's stage everywhere else,
-# and one word cannot mean two stages in one release. `design` was kept
-# alongside it as a hidden second spelling through 3.x, and was removed at
-# 4.0.0 (ADR-024). One name, one handler.
-# `intent` added 2026-08-25: `compass intent ingest` reads a brief that
-# already exists, by path or https URL, so a team arriving with one does
-# not retype it. A new top-level group rather than a subverb - there was
-# no `intent` verb before, only the slash command.
+# Each verb below is in the set for its own reason. `plan` is the planning
+# stage's live command. `intent` reads a brief that already exists, by path
+# or https URL, so a team arriving with one does not retype it - a
+# top-level group rather than a subverb, because no subverb owns it.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
     "tdd-green", "policy", "plan", "intent", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
-    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
-    # `init` added 2026-08-26: `compass init` creates .compass/ - the config
-    # and the work directory - and is safe to run twice. It exists because
-    # nothing owned initialisation: /compass:init created the directories at
-    # the end of a governance conversation, /compass:assess created them as a
-    # side effect of writing a manifest, and four of the five role entry points
-    # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
-    # rather than a subcommand because there is no group it belongs under, and
-    # because the five entry points call it directly.
+    "migrate",                    # the 1.x-to-2.0 tree migrator
+    # `init` creates `.compass/config.yml` and `.compass/work/`, and is safe
+    # to run twice. It exists because no other command owns initialisation,
+    # and the five entry points call it directly.
     "init",
-    # `acceptance` (R13) is the one honest path for a change with no natural
+    # `acceptance` is the recorded path for a change with no natural
     # behavioural red - config, docs, a behaviour-preserving refactor. It is a
     # GROUP (`start`, `record`), so later kinds add a subcommand rather than a
-    # verb. Added deliberately: the alternative was leaving authors to fake a
-    # red that greps a file for a string, which is what the field reported.
+    # verb.
     "acceptance",
 }
 
@@ -291,18 +279,19 @@ def test_trc_f6_the_framework_should_grow_by_artifacts_and_checks_only():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F7 - the evidence types the CLI writes are accepted by the task schema
+# `TRC-F7` - the evidence types the CLI writes are accepted by the manifest schema
 # ---------------------------------------------------------------------------
 
 def test_trc_f7_evidence_types_agree_across_surfaces():
     """Two shipped surfaces must declare the same evidence types.
 
-    `compass analyze` writes a `coherence-check` entry, and manifest.schema.json
-    did not accept it - so a task whose route includes verify.analyze produced
-    evidence its own `compass issue lint` rejected. No task here had hit it,
-    because verify.analyze only enters the gate set at critical blast radius or
-    on irreversible surface. The same disease this whole task is about: two
-    governance surfaces disagreeing, with nothing checking.
+    `compass analyze` writes a `consistency-check` entry, and
+    manifest.schema.json did not accept it - so an issue whose delivery
+    approach includes verify.analyze produced evidence its own `compass
+    issue lint` rejected. No issue here had hit it, because verify.analyze
+    only enters the gate set at critical risk or on irreversible surface.
+    The same defect this issue fixes: two governance surfaces disagreeing,
+    with nothing checking.
     """
     declared = set(
         (yaml.safe_load((GOVERNANCE / "guardrails.yml").read_text())
