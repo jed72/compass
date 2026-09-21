@@ -738,6 +738,16 @@ _register(Rule(
             "(cli/compass_pkg/calibration.py:411, a local variable named "
             "`task`), not a v1-vocabulary use of the word."),
         Exemption(
+            "tests/test_release_invariants.py",
+            "added by the RP-REQUIRE-003 and RP-REQUIRE-004 floors.",
+            "RP-REQUIRE is an id prefix, not the verb - the same false "
+            "match as the RP-REQUIRE exemptions above."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.architecture.",
+            "RP-REQUIRE is an id prefix, not the verb - the same false "
+            "match as the RP-REQUIRE exemptions above."),
+        Exemption(
             "tests/test_governance_drift_noop.py",
             "approach, gates, topology and fired guardrails against what the fixture",
             "names the fixture's real `topology` dict key the assertions "
@@ -763,6 +773,14 @@ _register(Rule(
             "(cli/compass_pkg/core.py), itself marked "
             "\"vocabulary-scan: allow\" as the retired words archived "
             "manifests carry (ADR-006) - not a live use of the word."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "Deliberately still named task.yml, and deliberately still "
+            "keyed `task:`.",
+            "the literal filename and key of a fixture kept under its "
+            "pre-rename shape on purpose (ADR-006, ADR-022) - the test "
+            "exists to prove this old shape still loads, so the name "
+            "cannot be reworded without breaking the point of the test."),
     ),
 ))
 
@@ -1152,6 +1170,24 @@ _register(Rule(
             "RP-REQUIRE-001/002 both add verify.analyze and RP-REQUIRE-003/004 both add",
             "the same rule-id false match as the RP-REQUIRE exemptions "
             "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "added by the RP-REQUIRE-003 and RP-REQUIRE-004 floors.",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "RP-REQUIRE-003 and RP-REQUIRE-004 are present and use "
+            "add_gate: verify.architecture.",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "A landed issue's test-run evidence (no attempts field) must "
+            "still clear `G4`",
+            "\"attempts\" names the literal `attempts` field on a TDD "
+            "evidence record (cli/compass_pkg/tdd.py), an identifier, not "
+            "the verb the word table retires."),
     ),
 ))
 
@@ -1401,6 +1437,12 @@ _register(Rule(
             "a quote of the hook's actual printed message "
             "(hooks/pre-tool.sh:538), not a citation of a document - the "
             "sweep cannot tell quoted output from a path reference."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "templates/ or .compass/work/.",
+            "names the gitignored directory itself, as the thing a "
+            "user-story artifact must not appear under - not a citation "
+            "of a document a reader must open."),
     ),
 ))
 

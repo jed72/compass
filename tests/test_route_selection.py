@@ -21,11 +21,12 @@ import pytest
 from conftest import load_route_fixtures
 
 
-# --- happy-path: each reference route selects for representative readings --
+# --- happy-path: each fixture selects the documented delivery approach for
+# representative assessment values --
 
 
 def _reading_args(readings: dict) -> list[str]:
-    """Translate a readings dict into --assessment key=value CLI args."""
+    """Translate an assessment dict into --assessment key=value CLI args."""
     args = []
     for k, v in readings.items():
         if isinstance(v, list):
@@ -228,10 +229,9 @@ def test_existing_combinations_unchanged(run_cli):
         name = entry.get("name", "?")
         readings = entry["assessment"]
         expected_route = entry["expected_route"]
-        # The baseline records a topology. `compass approach evaluate` now
-        # emits a subtask ceiling and breakdown sets the orchestration, so
-        # the baseline values were translated (solo=1, solo-or-pair=2,
-        # swarm=8).
+        # The baseline records an orchestration shape. `compass approach
+        # evaluate` now emits a subtask ceiling, so the baseline values were
+        # translated (solo=1, solo-or-pair=2, swarm=8).
         expected_ceiling = entry["expected_subtask_ceiling"]
         expected_phases = entry["expected_phases"]
         expected_gates = set(entry["expected_gates"])
@@ -287,8 +287,9 @@ def test_existing_combinations_unchanged(run_cli):
 @pytest.mark.parametrize("fixture", load_route_fixtures(),
                          ids=lambda f: f["__file__"])
 def test_route_fixture(run_cli, fixture):
-    """One row per YAML in tests/fixtures/routes/. Each declares readings +
-    expected route/floors/conflict; the CLI's --json output must match."""
+    """One row per YAML in tests/fixtures/routes/. Each declares assessment
+    values plus the expected delivery approach, floor, or conflict; the
+    CLI's --json output must match."""
     args = _reading_args(fixture["assessment"])
     r = run_cli("approach", "evaluate", "--json", *args)
     expected = fixture["expected"]
