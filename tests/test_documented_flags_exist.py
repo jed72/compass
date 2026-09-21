@@ -1,17 +1,15 @@
 """Every flag a shipped document teaches is one the CLI accepts (issue
 reframe-is-documented-but-does-not-exist).
 
-`tests/test_documented_commands_exist.py` checks that every documented
-`compass <verb>` is a real subcommand. It stops at the verb, so six shipped
-surfaces taught `--reframe` - a flag no version of the CLI has ever parsed -
-and nothing objected. `commands/assess.md` went further and promised the
-spelling was "accepted for one major version".
+Every flag a shipped document teaches must parse, because a reader who
+follows a documented flag the CLI rejects gets `unrecognized arguments` and
+no way to tell whether the tool or the instruction is wrong.
+`tests/test_documented_commands_exist.py` checks the verb; this checks the
+flags, since six shipped surfaces once taught `--reframe`, a flag no
+version of the CLI has ever parsed, and nothing objected.
 
-A reader who follows that gets `unrecognized arguments` and no way to tell
-whether the tool or the instruction is wrong.
-
-Scenario ids: TRC-A1, TRC-A2, TRC-F1 in
-docs/compass/2026-08-28-reframe-is-documented-but-does-not-exist/acceptance-criteria.md
+Scenario ids: `TRC-A1`, `TRC-A2`, `TRC-F1` in
+reframe-is-documented-but-does-not-exist/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -76,7 +74,7 @@ def _taught_flags():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - no shipped document teaches a flag the CLI rejects
+# `TRC-A1` - no shipped document teaches a flag the CLI rejects
 # ---------------------------------------------------------------------------
 
 def _slash_flags():
@@ -129,7 +127,7 @@ def test_no_shipped_document_teaches_a_flag_the_cli_rejects():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - nothing promises the retired spelling still works
+# `TRC-A2` - nothing promises the retired spelling still works
 # ---------------------------------------------------------------------------
 
 def test_nothing_promises_the_retired_spelling_still_works():
@@ -144,12 +142,12 @@ def test_nothing_promises_the_retired_spelling_still_works():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a guard that reads no flags is refused
+# `TRC-F1` - a guard that reads no flags is refused
 # ---------------------------------------------------------------------------
 
 def test_a_guard_that_reads_no_flags_is_refused():
-    """Floors, because `bad` is empty both when every flag is real and when
-    the reader matched nothing at all."""
+    """A lower bound, because `bad` is empty both when every flag is real
+    and when the reader matched nothing at all."""
     docs = _documents()
     assert len(docs) >= 40, (
         f"only {len(docs)} shipped documents were gathered - the globs have "

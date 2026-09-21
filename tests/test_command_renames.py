@@ -1,12 +1,9 @@
-"""Slice 5a of the v2 rename: the command files speak the ratified v2 names.
+"""The command files speak the v2 names.
 
-The content specification is the ratified command table in the slice's issue
-archive (machine state, exempt from the vocabulary scan). The eight pipeline
-commands become triage, define, refine, design, breakdown, implement, verify,
-ship; the designer entry point becomes wireframe; the seven retired names
-remain as redirect stubs for one major version; the vocabulary file is
-amended in the same diff; and no live instruction surface may point at a
-retired name.
+The eight pipeline commands are assess, define, refine, plan, breakdown,
+implement, verify, ship; the designer entry point is design; the retired
+names were removed at 4.0.0; the vocabulary file names them; and no live
+instruction surface may point at a retired name.
 """
 from __future__ import annotations
 
@@ -18,9 +15,6 @@ import yaml
 REPO_ROOT = Path(__file__).parent.parent
 COMMANDS = REPO_ROOT / "commands"
 
-# Updated 2026-08-25 by `the-vocabulary-rename`: `triage` -> `assess`, the
-# planning stage's command -> `plan`, and `design` back to the designer, whose
-# command it was before `wireframe`.
 V2_COMMANDS = {
     "assess", "define", "refine", "plan", "breakdown", "implement",
     "verify", "ship", "design", "intent", "position", "consult",
@@ -32,13 +26,13 @@ V2_COMMANDS = {
     "quick-fix",
 }
 
-# Retired name -> its v2 replacement. Each remains on disk as a redirect
-# stub so an adopter's muscle memory gets a pointer, not a dead command.
-# NOTE `plan` is absent, and `frame` points at the FINAL name. `plan` was a
-# retired v1 command and is live again - ADR-014 removes retired names, it does
-# not reserve them - and `frame`'s replacement is `assess`, because `triage`
-# is itself retired now. A stub naming a retired replacement sends a reader to
-# a word they must rename again.
+# Retired name -> its replacement. The mapping stays so the test can assert
+# no retired name is used. NOTE `plan` is absent, and `frame` points at the
+# FINAL name. `plan` was a retired v1 command and is live again - ADR-014
+# removes retired names, it does not reserve them - and `frame`'s
+# replacement is `assess`, because `triage` is itself retired now. A stub
+# naming a retired replacement sends a reader to a word they must rename
+# again.
 STUBS = {
     "frame": "assess",
     "triage": "assess",
@@ -60,13 +54,12 @@ DEAD_NAME = re.compile(
 
 
 def test_the_command_set_carries_the_v2_names():
-    """TRC-1: every shipped command exists, each with an H1 naming itself."""
+    """`TRC-1`: every shipped command exists, each with an H1 naming itself."""
     names = {p.stem for p in COMMANDS.glob("*.md")}
     missing = V2_COMMANDS - names
     assert not missing, f"missing v2 command files: {sorted(missing)}"
-    # STUBS is NOT subtracted any more. Every name in it was removed at 4.0.0,
-    # so a file bearing one is a stub that has come back - which is exactly
-    # what this check should report rather than excuse.
+    # STUBS is not subtracted: a file bearing one of these names is a stub
+    # that has come back, and this check must report it.
     stray = names - V2_COMMANDS
     assert not stray, f"unexpected command files: {sorted(stray)}"
     for name in sorted(V2_COMMANDS):
@@ -75,18 +68,14 @@ def test_the_command_set_carries_the_v2_names():
             f"{name}.md lacks an H1 naming /compass:{name}")
 
 
-# The redirect-stub contract used to be asserted here: each retired command
-# name existed as a short stub pointing at its v2 replacement. ADR-014 deleted
-# those stubs at the major version. The replacement assertion - that no such
-# stub exists, by filename and by content - is
-# tests/test_no_deprecation_stubs.py (RCD-F1).
+# tests/test_no_deprecation_stubs.py asserts that no stub exists (RCD-F1).
 
 
 def test_the_vocabulary_carries_the_command_names_and_a_version_bump():
-    """TRC-3: terminology.yml is amended in the same diff that lands the
+    """`TRC-3`: terminology.yml is amended in the same diff that lands the
     names - version bumped past 2.0.0-pre5, the banned command entries name
-    their exact replacement commands, and the ruling's reading of the naming
-    rule (anti-jargon, not grammatical purity) is recorded."""
+    their exact replacement commands, and the recorded naming rule (anti-jargon,
+    not grammatical purity) is present."""
     text = (REPO_ROOT / "governance" / "terminology.yml").read_text(
         encoding="utf-8")
     doc = yaml.safe_load(text)
@@ -98,9 +87,9 @@ def test_the_vocabulary_carries_the_command_names_and_a_version_bump():
     frame = bans["Frame / the Needle"]
     joined = frame.get("replacement", "") + frame.get("context", "")
     # The ban points at `assess`, the FINAL name. It mentions triage only to
-    # explain why it does not send a reader there - so asserting "triage" is
-    # present passed on the sentence that contradicts the assertion's own
-    # message. Assert what the entry is actually for.
+    # explain why it does not send a reader there, so an assertion that
+    # "triage" is present would pass on the sentence that explains why the
+    # ban does not point there. Assert what the entry is actually for.
     assert "assess" in joined, (
         "the Frame ban entry does not name assess as the replacement. It has "
         "to point at the current name: a ban naming a banned replacement "
@@ -116,7 +105,7 @@ def test_the_vocabulary_carries_the_command_names_and_a_version_bump():
 
 
 def test_commands_and_manifests_are_enforced_surfaces():
-    """TRC-4: commands/ and .claude-plugin/ leave pending_surfaces in the
+    """`TRC-4`: commands/ and .claude-plugin/ leave pending_surfaces in the
     vocabulary file and the committed baseline in the same diff. Their
     cleanliness is then enforced by the existing terminology scan."""
     from test_terminology import PENDING_BASELINE
@@ -133,10 +122,8 @@ def test_commands_and_manifests_are_enforced_surfaces():
 
 
 def test_no_live_surface_points_at_a_dead_command_name():
-    """TRC-5: the surfaces that drive live sessions carry no retired command
-    name - the stubs excepted (they are the pointer), and the not-yet-renamed
-    skills and docs excepted until their own slices (the stubs keep those
-    references functional meanwhile)."""
+    """`TRC-5`: the surfaces that drive live sessions carry no retired command
+    name."""
     surfaces: list[Path] = [
         REPO_ROOT / "CLAUDE.md",
         REPO_ROOT / "AGENTS.md",
@@ -162,7 +149,7 @@ def test_no_live_surface_points_at_a_dead_command_name():
 
 
 def test_the_ruling_conditions_hold():
-    """TRC-6: define's one-line description leads with 'Acceptance criteria';
+    """`TRC-6`: define's one-line description leads with 'Acceptance criteria';
     design's says it produces the UI contract; and the UI-contract
     template's producer line points at /compass:design."""
     def description(name: str) -> str:

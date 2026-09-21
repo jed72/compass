@@ -12,8 +12,7 @@ Read from the lockfile rather than by running `npm audit`: the check has to
 work in a clean checkout with no network and no `node_modules`, which is where
 CI and every contributor start.
 
-Scenario ids: see .compass/work/cucumber-13-drops-vulnerable-uuid/
-acceptance-criteria.md.
+Scenario ids: see cucumber-13-drops-vulnerable-uuid/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -57,8 +56,8 @@ def test_cu_1b_the_adapter_still_declares_a_runnable_suite():
 
     Deleting the dependency block entirely would satisfy the assertions above
     while destroying the thing the example exists for. The end-to-end proof
-    that it still runs is `tests/test_bdd_adapters_all.py`, which executes the
-    documented commands and requires three passing scenarios; this is the
+    that it still runs is `tests/test_bdd_adapters_all.py`, which runs the
+    documented commands and needs three passing scenarios; this is the
     cheap structural half that runs without npm installed.
     """
     manifest = json.loads(

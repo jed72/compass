@@ -8,7 +8,7 @@ tests/fixtures/cli-surface-baseline.json, captured from the UNSPLIT file before
 any code moved. That ordering matters: a baseline captured afterwards would
 describe whatever the refactor happened to produce, and would prove nothing.
 
-Spec: docs/compass/2026-08-03-cli-module-split/acceptance-criteria.md (TRC-A1..A3, B1..B4, F1, F2).
+Spec: cli-module-split/acceptance-criteria.md (TRC-A1..A3, B1..B4, F1, F2).
 """
 from __future__ import annotations
 
@@ -54,54 +54,13 @@ def _imports_of(path):
 def test_trc_a1_the_entry_point_should_be_thin():
     assert PKG.is_dir(), "cli/compass_pkg does not exist"
     lines = len(CLI.read_text(encoding="utf-8").splitlines())
-    # 500, not the 400 this scenario first said. That number was invented
-    # without measuring; the argparse tree alone is ~380 lines and is
-    # irreducibly one thing, so 400 would have forced splitting the parser
-    # for no reason but the threshold. 454 from 6,201 is a 93% reduction,
-    # which is what "thin" was reaching for. Relaxed again to 560 at the
-    # CLI-voice slice, and saying so: the parser gained the terminology verb
-    # and the issue-flag registration (--issue; the tolerated --task spelling
-    # was removed at the major version by ADR-014)
-    # on every issue-scoped verb - all irreducibly parser. Still 91% below
-    # the pre-split file.
-    #
-    # RAISED 560 -> 575 on 2026-08-23 by jed72, adding `compass issue
-    # dashboard`. A new public verb costs about four lines of parser
-    # registration, and registering parsers is what this file is FOR - the cap
-    # exists to keep *logic* out, not to cap the verb count.
-    #
-    # It was not raised before looking for slack. The cap surfaced eighteen
-    # copies of one identical `--issue` line, which is real duplication and is
-    # now `issue_arg()` in core.py. That was worth doing on its own and bought
-    # no lines: a helper call and an add_argument call are one line each, so
-    # deduplicating a one-liner cannot shrink the file. Recorded because the
-    # obvious assumption - dedupe to get under a line cap - is wrong here, and
-    # the next person will reach for it too.
-    #
-    # RAISED 575 -> 620 on 2026-08-23, adding the terminal output contract: one
-    # call that attaches five flags to every verb, and an `output_kind=` on
-    # each of the 34 `set_defaults` registrations. The declaration is per-verb
-    # ON PURPOSE - deriving it centrally would mean no verb could ever lack
-    # one, and the guard that checks for it could never fail.
-    #
-    # Recorded because the raise before this one was three days ago and left
-    # exactly THREE lines of headroom: the file was at 572 against a cap of
-    # 575. A cap that is re-raised every time a verb is added is measuring
-    # something other than what it means to measure - it says "the entry point
-    # should hold the shebang, the parser and main()", and 47 parser
-    # registrations ARE the parser. Filed as
-    # `entry-point-cap-measures-the-wrong-thing` rather than nudged again.
-    #
-    # RAISED 620 -> 640 on 2026-08-26 by jed72, adding `compass init` and its
-    # `--by` flag. The prediction above came true within the day: 620 left two
-    # lines of headroom, so the init verb had to be registered as a single
-    # 160-character line to fit, and adding one flag to it broke the cap again.
-    # Contorting a parser registration to satisfy a threshold is the threshold
-    # measuring the wrong thing, which is what the filed issue says. Raised
-    # with room rather than nudged to exactly fit, and the raise is recorded
-    # here so a reader can see it was deliberate. The cap still holds the
-    # property it exists for: main(), the shebang and the parser stay here and
-    # logic does not, which the three assertions below check directly.
+    # The cap holds the property it exists for: main(), the shebang and the
+    # parser stay in this file, and logic does not - registering a new verb
+    # costs a few lines of parser and is not what the cap exists to stop. A
+    # cap re-raised every time a verb is added would be measuring the verb
+    # count rather than that property, which is filed as
+    # `entry-point-cap-measures-the-wrong-thing`. The three assertions below
+    # check the property directly.
     assert lines < 640, (
         f"cli/compass is still {lines} lines (was {BASELINE['line_count']}). "
         f"The entry point should hold the shebang, the parser and main().")
@@ -150,11 +109,9 @@ def test_trc_b1_the_public_verb_surface_should_be_identical():
     """The verb surface matches the recorded baseline.
 
     The baseline was captured at the module split to prove that refactor moved
-    no verb. It is not frozen for ever: a slice that deliberately adds or
+    no verb. It is not frozen for ever: a change that deliberately adds or
     renames a verb updates it in the same commit, so the diff shows the
-    decision. `plan` was added on 2026-08-25 when the planning verb took the
-    name its machine key already used; `design` stays beside it as the retired
-    spelling until the next major version.
+    decision.
     """
     out = subprocess.run([sys.executable, str(CLI), "--help"],
                          capture_output=True, text=True, check=True).stdout
@@ -171,12 +128,10 @@ def test_trc_b1_the_public_verb_surface_should_be_identical():
 def test_trc_b2_the_whole_test_suite_should_pass_unchanged():
     """Asserted by the suite this test is part of.
 
-    RETIRED as a live guard. It diffed `main...HEAD` for edited test files,
-    which was the right question while the split was in flight and the wrong
-    one afterwards: every later branch that adds a test file trips it. The
-    split has landed, so the diff it wants no longer exists. Kept as a
-    documented no-op rather than deleted, so the scenario it serves still has
-    a test and the reason is on record.
+    This test is a no-op kept so the scenario still has a test; the suite
+    passing is the evidence. A guard that diffs `main...HEAD` for edited
+    test files would trip on every later branch that adds a test file, so
+    it does not run.
     """
     return
     r = subprocess.run(["git", "diff", "--name-only",
@@ -247,10 +202,10 @@ def test_trc_f2_no_function_should_be_renamed_merged_or_split_by_this_task():
     """Compares the top-level function set against a baseline captured before
     the split.
 
-    Scoped to the functions that existed THEN. A later task legitimately adds
-    functions - process-impact added five - and asserting an exact set makes
-    every future branch fail. What this task promised was that it renamed,
-    merged or split nothing, and that is what a subset check asserts.
+    Scoped to the functions that existed THEN. A later issue legitimately
+    adds functions, and asserting an exact set makes every future branch
+    fail. What this issue promised was that it renamed, merged or split
+    nothing, and that is what a subset check asserts.
     """
     after = _top_level_functions(CLI)
     for m in _modules():
@@ -264,7 +219,7 @@ def test_trc_f2_no_function_should_be_renamed_merged_or_split_by_this_task():
     DELIBERATELY_REMOVED = {
         # Left with no callers when `compass check` moved to the terminal
         # output contract (2026-08-24) and the rendering moved into
-        # _verbose_lines. Its formatting had already drifted from the live
+        # _verbose_lines. Its formatting already differed from the live
         # renderer, so keeping it meant keeping dead code that disagreed with
         # the code that replaced it.
         "_print_check_result",
@@ -272,9 +227,9 @@ def test_trc_f2_no_function_should_be_renamed_merged_or_split_by_this_task():
     before -= DELIBERATELY_REMOVED
 
     # Functions a later issue renamed on purpose, old name -> new name. This
-    # guard's own message says a rename belongs in a follow-up task against a
+    # guard's own message says a rename belongs in a follow-up issue against a
     # smaller file; name-the-issue-record (ADR-022, "The issue record is a
-    # manifest") is that task, and it renamed the three readers of the issue
+    # manifest") is that issue, and it renamed the three readers of the issue
     # record when the file became manifest.yml. The mapping is not a waiver:
     # the new name still has to exist, so a rename that loses a function fails
     # here exactly as before.

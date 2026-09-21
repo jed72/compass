@@ -5,24 +5,20 @@ exists, and nothing records that a document was deliberately *not* written - so
 a reviewer cannot tell a considered omission from a gap.
 
 The registry records both. Its value is the reason, not the filename, which is
-why the schema requires one on every entry including the omitted ones.
+why the schema needs one on every entry including the omitted ones.
 
-THE RISK IN THIS CHANGE IS NOT THE REGISTRY. It is the 88 issues already landed
+The risk in this change is not the registry; it is the issues already landed
 without one. The resolver reads a registered path first and the old flat
-filename second, and the case that matters is when neither works: an entry
+filename second. The case that matters is when neither works: an entry
 naming a path that is not there is a broken record, not a decision, and
-reporting it as "omitted" is how a document stops being read while the page says
-it was left out on purpose.
+reporting it as "omitted" is how a document stops being read while the page
+says it was left out on purpose.
 
-Scenario ids trace to docs/compass/2026-08-23-the-human-front-door/acceptance-criteria.md.
+Scenario ids trace to the-human-front-door/acceptance-criteria.md.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import json
@@ -67,7 +63,7 @@ def _spine(tmp_path: Path, artifacts: Optional[List[Dict[str, Any]]] = None,
 # ---------------------------------------------------------------------------
 
 def test_a1_entry_declares_kind_path_status_reason():
-    """TRC-A1: a registered artifact declares its kind, path, status and reason.
+    """`TRC-A1`: a registered artifact declares its kind, path, status and reason.
 
     Checked against the schema rather than an example, so the contract is the
     thing that travels with the framework rather than this repository's habits.
@@ -84,7 +80,7 @@ def test_a1_entry_declares_kind_path_status_reason():
 
 
 def test_a2_omitted_artifact_records_its_reason():
-    """TRC-A2: an omitted artifact records why it was omitted.
+    """`TRC-A2`: an omitted artifact records why it was omitted.
 
     This is the half that makes omission visible. A document absent because
     nobody thought of it and one absent for a stated reason look identical in a
@@ -98,7 +94,7 @@ def test_a2_omitted_artifact_records_its_reason():
 
 
 def test_a3_schema_refuses_an_entry_with_no_reason():
-    """TRC-A3: the schema refuses an entry that explains nothing.
+    """`TRC-A3`: the schema refuses an entry that explains nothing.
 
     An entry with no reason is a filename in a list. The reason is the whole
     value of the registry, so it is required rather than conventional.
@@ -119,7 +115,7 @@ def test_a3_schema_refuses_an_entry_with_no_reason():
 # ---------------------------------------------------------------------------
 
 def test_b1_registered_path_wins(tmp_path):
-    """TRC-B1: a registered path resolves ahead of the flat filename."""
+    """`TRC-B1`: a registered path resolves ahead of the flat filename."""
     from compass_pkg.core import artifact_path
     task_dir = _spine(
         tmp_path,
@@ -133,10 +129,10 @@ def test_b1_registered_path_wins(tmp_path):
 
 
 def test_b2_no_registry_falls_back_to_flat_filename(tmp_path):
-    """TRC-B2: an issue with no registry still resolves its artifacts.
+    """`TRC-B2`: an issue with no registry still resolves its artifacts.
 
-    148 issue directories are in this state. It is the ordinary case, not a
-    fault.
+    Most issue directories in this repository are in this state. It is the
+    ordinary case, not a fault.
     """
     from compass_pkg.core import artifact_path, resolve_artifact, FOUND
     task_dir = _spine(tmp_path, artifacts=None, files={"design.md": "flat"})
@@ -149,7 +145,7 @@ def test_b2_no_registry_falls_back_to_flat_filename(tmp_path):
 
 
 def test_b3_unresolvable_artifact_is_reported(tmp_path):
-    """TRC-B3: an entry naming a path that is not there is reported, and is not
+    """`TRC-B3`: an entry naming a path that is not there is reported, and is not
     reported as omitted.
 
     Both mean "no document here" and they mean opposite things: one is a
@@ -172,7 +168,7 @@ def test_b3_unresolvable_artifact_is_reported(tmp_path):
 
 
 def test_b3_omitted_is_reported_as_a_decision(tmp_path):
-    """TRC-B3, the other side: an omission carries its reason and is not
+    """`TRC-B3`, the other side: an omission carries its reason and is not
     confused with a broken record."""
     from compass_pkg.core import resolve_artifact, OMITTED
     task_dir = _spine(
@@ -188,10 +184,10 @@ def test_b3_omitted_is_reported_as_a_decision(tmp_path):
 
 
 def test_b4_landed_issues_still_resolve():
-    """TRC-B4: every issue already in this repository still resolves.
+    """`TRC-B4`: every issue already in this repository still resolves.
 
     The compatibility claim, checked against the real archive rather than a
-    fixture. 148 issue directories have no registry; if any of their
+    fixture. Most issue directories have no registry; if any of their
     documents stops resolving, the fallback is wrong.
     """
     from compass_pkg.core import artifact_path
@@ -219,9 +215,9 @@ def test_b4_landed_issues_still_resolve():
 #
 # The registry records WHICH documents an issue has. What it should have is not
 # a human's list - it is computed from the assessment, exactly like the stages,
-# the gates and the topology. Judgement produces the assessment; the mechanism
-# produces everything downstream. That is the framework, and an artifact set
-# assembled by hand is a form.
+# the gates and the orchestration. Judgement produces the assessment; the
+# mechanism produces everything downstream. That is the framework, and an
+# artifact set assembled by hand is a checklist someone fills in.
 
 def _evaluate(tmp_path, **readings):
     """Run the evaluator over one assessment and return the written manifest."""
@@ -253,10 +249,10 @@ def _evaluate(tmp_path, **readings):
 
 
 def test_f1_evaluator_computes_the_artifact_set():
-    """TRC-F1: `compass approach evaluate` writes the artifact set.
+    """`TRC-F1`: `compass approach evaluate` writes the artifact set.
 
-    Beside `stages`, `gates` and `topology` - the four outputs one judgement
-    already produces. This is the fifth.
+    Beside `stages`, `gates` and `subtask_ceiling` - the three outputs one
+    judgement already produces. This is the fourth.
     """
     policy = yaml.safe_load(
         (REPO_ROOT / "governance" / "routing-policy.yml").read_text(encoding="utf-8"))
@@ -270,7 +266,7 @@ def test_f1_evaluator_computes_the_artifact_set():
 
 
 def test_f2_trivial_change_earns_almost_nothing(tmp_path):
-    """TRC-F2: a trivial, atomic, mapped change earns almost nothing.
+    """`TRC-F2`: a trivial, atomic, mapped change earns almost nothing.
 
     A variable rename does not need a review pack, and nothing special-cases
     that. It falls out of the assessment the same way `clarify: collapsed`
@@ -281,10 +277,9 @@ def test_f2_trivial_change_earns_almost_nothing(tmp_path):
     arts = manifest.get("artifacts")
     assert arts is not None, "the evaluator wrote no artifact set"
     earned = [a for a in arts if a.get("status") != "omitted"]
-    # BOTH bounds, and the lower one is not decoration. A mutation round on
-    # 2026-08-23 emptied the artifact set entirely and this test still passed,
-    # because "at most two documents" is satisfied by no documents at all. A
-    # trivial change earns a small pack, not an absent one.
+    # BOTH bounds, and the lower one is not decoration. "At most two
+    # documents" is also true of no documents, so the test checks the lower
+    # bound too. A trivial change earns a small pack, not an absent one.
     assert earned, (
         "a trivial atomic change earned NO documents. The smallest real pack "
         "is one - what changed and why - and an issue with nothing written "
@@ -299,12 +294,12 @@ def test_f2_trivial_change_earns_almost_nothing(tmp_path):
 
 
 def test_f3_policy_rule_adds_an_artifact(tmp_path):
-    """TRC-F3: a policy rule adds an artifact the way it adds a gate.
+    """`TRC-F3`: a policy rule adds an artifact the way it adds a gate.
 
-    `RP-REQUIRE-003` already adds `verify.fitness` on cross-cutting risk. The
-    same mechanism has to be able to say "this work earns a threat model",
-    otherwise the artifact set can only ever be what the shape declares and the
-    assessment's other dimensions buy nothing.
+    `RP-REQUIRE-003` already adds `verify.architecture` on cross-cutting
+    risk. The same mechanism has to be able to say "this work earns a
+    threat model", otherwise the artifact set can only ever be what the
+    shape declares and the assessment's other dimensions buy nothing.
     """
     manifest = _evaluate(tmp_path, risk="critical", size="standard",
                       labels=["auth"])
@@ -313,11 +308,9 @@ def test_f3_policy_rule_adds_an_artifact(tmp_path):
     assert kinds, "the evaluator wrote no artifact set for a critical change"
     fired = [r.get("id") for r in (manifest.get("policy_rules_fired") or [])]
 
-    # The DOCUMENT, not the log line about it. The first version of this test
-    # only asserted that a fired rule mentioned the word "artifact" in its
-    # change log, and a mutation on 2026-08-23 that stopped the artifacts being
-    # composed at all left that log line untouched - so the test passed while
-    # the mechanism it names did nothing.
+    # The DOCUMENT, not the log line about it. A rule's change log can name
+    # "artifact" even when nothing composes the artifact set, so the check
+    # below reads the composed document rather than the log line.
     assert "threat-model" in kinds, (
         "auth was in the labels and risk was critical, and no threat model "
         "was earned. Rules fired: %s. Documents earned: %s"
@@ -332,17 +325,17 @@ def test_f3_policy_rule_adds_an_artifact(tmp_path):
 
 
 def test_f4_artifact_set_is_deterministic(tmp_path):
-    """TRC-F4: same assessment, same artifact set, every time.
+    """`TRC-F4`: same assessment, same artifact set, every time.
 
     The determinism boundary is the whole point: judgement produces the
     assessment, and everything downstream is mechanism. An artifact set that
-    varied between runs would be a fifth output that is not actually routed.
+    varied between runs would be a fourth output that is not actually routed.
     """
     a = _evaluate(tmp_path / "one", risk="cross-cutting", size="large")
     b = _evaluate(tmp_path / "two", risk="cross-cutting", size="large")
     # Non-empty first. Two runs that both produce nothing agree perfectly, so
     # equality alone is a comparison that holds however broken the evaluator
-    # is - found by mutation on 2026-08-23.
+    # is.
     assert a.get("artifacts"), (
         "the evaluator produced no artifacts at all, so the equality below "
         "would compare two empty lists and report determinism")

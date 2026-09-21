@@ -1,31 +1,21 @@
 """A citation into the issue archive must open.
 
-Compass's whole claim is an audit trail: a document says where its evidence
-is, and a reader follows the path. A path that does not resolve is not a weak
-citation - it is no citation at all, and it looks exactly like a good one.
+Two checks hold this, because only one can run in CI: the NAME is checkable
+anywhere, so a citation must not spell a filename this framework has
+retired; the PATH is checkable only where the archive exists, so that half
+skips with a stated reason rather than passing on an empty tree.
+`.compass/work/` is gitignored, so in a clean checkout the path half cannot
+resolve however correct it is.
 
-This went unnoticed because nothing checked it. The v2 vocabulary freeze
-migrated the archive, renaming `spec.feature.md` to `acceptance-criteria.md`
-in every issue directory, and left 22 test modules citing the old name in
-their provenance line. Each of those reads:
+The v2 vocabulary freeze renamed `spec.feature.md` to `acceptance-criteria.md` <!-- vocabulary-scan: allow - names the retired filename this guard refuses -->
+in every issue directory and left 22 test modules citing the old name in
+their provenance line, each reading:
 
-    Spec: .compass/work/<slug>/spec.feature.md (TRC-A1..A3, ...)
+    Spec: .compass/work/<slug>/spec.feature.md (TRC-A1..A3, ...) <!-- vocabulary-scan: allow - names the retired filename this guard refuses -->
 
-and none of them opens. ADR-014 said the archive would never be edited, which
-would have avoided this; ADR-020 supersedes that and migrates the archive
-deliberately, with this guard as the condition - the cost is paid once,
-visibly, rather than accumulating unmeasured.
+ADR-020 migrates the archive deliberately, with this guard as the condition.
 
-TWO CHECKS, BECAUSE ONLY ONE OF THEM CAN RUN IN CI. `.compass/work/` is
-gitignored, so in a clean checkout those paths cannot resolve no matter how
-correct they are. Splitting them keeps real enforcement everywhere:
-
-  * the NAME is checkable anywhere - a citation must not spell a filename this
-    framework has retired, and that is what all 22 of the originals got wrong.
-  * the PATH is checkable only where the archive exists, so that half skips
-    with a stated reason rather than passing on an empty tree.
-
-Scenario id: TRC-E4, docs/compass/2026-08-24-the-vocabulary-rename/acceptance-criteria.md
+Scenario id: `TRC-E4`, the-vocabulary-rename/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -142,11 +132,10 @@ def _unopenable():
 def test_trc_e4_no_citation_names_a_retired_filename():
     """Runs everywhere, including a clean checkout with no archive.
 
-    A citation naming `spec.feature.md`, `plan.md`, `route.md`, `design.md`,
-    `prd.md`, `brief.md` or `clarifications.md` is pointing at a filename this
+    A citation naming `spec.feature.md`, `plan.md`, `route.md`, `design.md`, <!-- vocabulary-scan: allow - names the retired filenames this guard refuses -->
+    `prd.md`, `brief.md` or `clarifications.md` is pointing at a filename this <!-- vocabulary-scan: allow - names the retired filenames this guard refuses -->
     framework renamed away. That is checkable from the path alone, so it is
-    the half that holds in CI - and it is what all 22 of the original broken
-    citations got wrong.
+    the half that holds in CI.
     """
     import sys
 
@@ -175,7 +164,7 @@ def test_trc_e4_every_citation_into_the_archive_opens():
     so in a clean checkout these paths cannot resolve however correct they
     are, and asserting they do would fail CI for a reason nobody can fix.
     SKIPPED rather than passed: a check that quietly clears on an empty tree
-    reads as coverage and verifies nothing.
+    reads as coverage and checks nothing.
 
     The failure names the citation and every file making it, because the fix
     is always the same shape - the record moved, and the pointer did not - and
@@ -203,10 +192,9 @@ def test_trc_e4b_the_guard_catches_a_path_that_does_not_exist():
     """The control: prove the guard can fail.
 
     Without this, a rule change that stopped matching citations entirely would
-    leave the test above green while checking nothing - which is the failure
-    this repository found four of in one release (`governance/strategies.md`
-    S10: a guard is accepted on a demonstrated failure, not on a passing
-    test).
+    leave the test above green while checking nothing - the failure `S10` in
+    governance/strategies.md guards against: a guard is accepted on a
+    demonstrated failure, not on a passing test.
     """
     line = "Spec: .compass/work/no-such-issue-here/spec.feature.md (TRC-A1)."
     assert CITATION_LABEL.search(line), "the label rule no longer sees a citation"
@@ -220,8 +208,8 @@ def test_trc_e4c_the_guard_ignores_a_path_a_test_builds():
     """A fixture path is not a citation, and must not be reported as one.
 
     `make_task([".compass/work/demo/technical-design.md"])` names a directory
-    the test creates. Reporting it would flood the real findings with noise
-    and train a reader to skip the failure.
+    the test creates. Reporting it would mix false reports in with real
+    ones, so a reader learns to skip the failure.
     """
     fixture = '    task = make_task([".compass/work/demo/technical-design.md"])'
     assert CITATION.search(fixture), "the fixture line does not contain a path"
@@ -230,11 +218,11 @@ def test_trc_e4c_the_guard_ignores_a_path_a_test_builds():
 
 
 def test_trc_e4d_every_illustrative_path_carries_a_reason():
-    """The exemption list is not a place to park a broken citation.
+    """The exemption list is not a way to hide a broken citation.
 
     Each entry says why the path is not a record, in a sentence a reader can
-    disagree with. An empty or one-word reason is how a list like this turns
-    into a blanket.
+    disagree with. An empty or one-word reason is how a list like this ends
+    up exempting everything.
     """
     for path, why in ILLUSTRATIVE.items():
         assert len(why.split()) >= 6, (

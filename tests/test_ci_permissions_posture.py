@@ -11,8 +11,8 @@ adopters to copy lives under `ci/`, and it is the file the advice is actually
 about: a guard scoped to `.github/workflows/` alone would pass while the
 published example went unfixed.
 
-Scenario ids trace to .compass/work/project-commands-are-a-trust-boundary/
-acceptance-criteria.md - group D, and TRC-E2 from group E.
+Scenario ids trace to project-commands-are-a-trust-boundary/
+acceptance-criteria.md - group D, and `TRC-E2` from group E.
 """
 from __future__ import annotations
 
@@ -64,8 +64,8 @@ def _declares_permissions(path: Path) -> bool:
 
 
 def test_d1_reference_workflow_declares_permissions():
-    """TRC-D1: the workflow Compass ships for adopters declares the token
-    permissions it needs, and they are the narrowest the job requires.
+    """`TRC-D1`: the workflow Compass ships for adopters declares the token
+    permissions it needs, and they are the narrowest the job needs.
 
     Advice a project does not follow in the example it publishes is advice
     nobody follows.
@@ -87,7 +87,7 @@ def test_d1_reference_workflow_declares_permissions():
 
 
 def test_d2_every_workflow_declares_permissions():
-    """TRC-D2: Compass's own workflow follows the posture it recommends, and
+    """`TRC-D2`: Compass's own workflow follows the posture it recommends, and
     this check fails if ANY workflow file in the repository declares none."""
     files = _workflow_files()
     assert files, "no workflow files found - this guard is reading nothing"
@@ -100,12 +100,12 @@ def test_d2_every_workflow_declares_permissions():
 
 
 def test_d2_guard_covers_the_shipped_reference_workflow():
-    """TRC-D2, the part that is easy to get wrong.
+    """`TRC-D2`, the part that is easy to get wrong.
 
     The guard above is only worth having if it reads the published reference
     as well as the workflows that run here. Scoping it to the conventional
-    directory would leave the file adopters copy unchecked - the
-    instance-not-the-class mistake.
+    directory would leave the file adopters copy unchecked - fixing one
+    file and missing the rest of the set.
     """
     assert REFERENCE_WORKFLOW in _workflow_files(), (
         "the shipped reference workflow is not in the set this guard reads, "
@@ -113,7 +113,7 @@ def test_d2_guard_covers_the_shipped_reference_workflow():
 
 
 def test_d3_guide_states_what_the_project_must_configure():
-    """TRC-D3: the security guide says what Compass refuses on its own, what
+    """`TRC-D3`: the security guide says what Compass refuses on its own, what
     the project must configure itself, and which of the two is the boundary."""
     guide = SECURITY_GUIDE.read_text()
 
@@ -131,17 +131,16 @@ def test_d3_guide_states_what_the_project_must_configure():
 
 
 def test_e2_contract_covers_the_opt_in_case():
-    """TRC-E2: the safety contract's guarantee about declared guardrails still
+    """`TRC-E2`: the safety contract's guarantee about declared guardrails still
     holds once a guardrail can be disabled by configuration.
 
     The answer is that it is not silent, not that the guarantee bends.
     """
     contract = SAFETY_CONTRACT.read_text()
 
-    # Either shape. The contract carried its guarantees as `2. **Title**` list
-    # items and carries them as `### 2. Title` headings since the docs were
-    # slimmed on 2026-08-26. What this test needs is guarantee 2's body, not
-    # the markup around its title.
+    # The contract can write a guarantee as a `2. **Title**` list item or a
+    # `### 2. Title` heading; this test reads guarantee 2's body in either
+    # shape, not the markup around its title.
     m = re.search(r"(?:^|\n)(?:###\s+2\.|2\.\s+\*\*)\s*A declared guardrail "
                    r"cannot silently", contract)
     assert m, (
@@ -159,13 +158,13 @@ def test_e2_contract_covers_the_opt_in_case():
 
 
 def test_d3_guide_does_not_overclaim_the_refusal():
-    """TRC-D3: the guide must not describe the refusal as unforgeable.
+    """`TRC-D3`: the guide must not describe the refusal as unforgeable.
 
-    It nearly did. On a `pull_request` event the contribution controls its own
-    workflow file, so it controls the environment Compass reads - the cheap
-    forgeries fail, but a determined one can still write a payload outside the
-    checkout. A guide that promised more than that would be the same defect
-    this issue exists to fix, one layer up.
+    On a `pull_request` event the contribution controls its own workflow
+    file, so it controls the environment Compass reads - the cheap
+    forgeries fail, but a determined one can still write a payload outside
+    the checkout. A guide that promised more than that would be the same
+    defect this issue exists to fix, in the guide.
     """
     prose = " ".join(SECURITY_GUIDE.read_text().split())
 

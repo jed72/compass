@@ -1,8 +1,8 @@
 """Published surfaces describe where a TDD record is actually written.
 
-`compass tdd-green --scenario TRC-x` writes `evidence/green-TRC-x.json`. A run
-with no binding writes `evidence/green.json`. Both are real; naming only the
-second is what misleads, because the skills tell you to bind.
+`compass tdd-green --scenario` `TRC-x` writes `evidence/green-<scenario>.json`.
+A run with no binding writes `evidence/green.json`. Both are real; naming
+only the second is what misleads, because the skills tell you to bind.
 
 THE GUARD CHECKS THE CLAIM, NOT THE FILE. The shared path is still exactly what
 an unbound run writes, so forbidding it would force the documentation to stop
@@ -11,12 +11,9 @@ naming a real thing. The rule is:
     where a text claims a verb WRITES the shared record, the claim must be
     qualified as the unbound case.
 
-**An earlier version checked this per file** - a file naming the shared record
-had to mention the bound one somewhere. Mutation MP-1 killed it: once a file
-has been corrected it contains the bound form, so the old claim could be
-reintroduced anywhere else in that file and the guard stayed green. It was
-checking whether the file had ever been fixed, not whether the sentence was
-right.
+**The guard checks each claim, not each file:** a file-level rule stays
+green once a corrected file contains the bound form anywhere, even where
+the unqualified claim is reintroduced elsewhere in the same file.
 
 The window is the matching line plus one either side, because this repository's
 prose is hard-wrapped and a qualifier routinely lands on the next line.
@@ -24,7 +21,7 @@ prose is hard-wrapped and a qualifier routinely lands on the next line.
 What it still cannot do: a qualified claim can still describe the behaviour
 incorrectly. This catches an unqualified claim, not a wrong one.
 
-Scenario ids trace to .compass/work/docs-describe-the-old-evidence-path/
+Scenario ids trace to docs-describe-the-old-evidence-path/
 acceptance-criteria.md.
 """
 from __future__ import annotations
@@ -45,8 +42,8 @@ from compass_pkg.core import is_issue_document as _own_archive
 
 #: An issue's own documents, at `docs/compass/<created>-<slug>/` since
 #: `compass migrate` moved them out of `.compass/work/`. They describe the
-#: evidence path in force when they were written, so enforcing today's wording
-#: over them reports the account as a defect.
+#: evidence path in force when they were written, so enforcing today's
+#: wording over them would report their historical wording as a defect.
 
 PUBLISHED_DIRS = ["docs", "commands", "agents", "skills", "examples", "ci",
                   "templates", "architecture", "governance"]
@@ -129,7 +126,7 @@ def _cli_sources() -> Dict[str, str]:
 # ---------------------------------------------------------------------------
 
 def test_a1_no_surface_claims_the_shared_path_unconditionally():
-    """TRC-A1: no published surface names the shared record without ever
+    """`TRC-A1`: no published surface names the shared record without ever
     mentioning the bound one."""
     surfaces = _published_surfaces()
     assert surfaces, (
@@ -145,7 +142,7 @@ def test_a1_no_surface_claims_the_shared_path_unconditionally():
 
 
 def test_a2_docs_state_the_binding_rule():
-    """TRC-A2: the documentation for the green verb states which record a bound
+    """`TRC-A2`: the documentation for the green verb states which record a bound
     run writes and which an unbound run writes.
 
     Removing a false claim is not the same as making the true one available.
@@ -159,7 +156,7 @@ def test_a2_docs_state_the_binding_rule():
 
 
 def test_a3_worked_example_matches_what_runs():
-    """TRC-A3: a transcript shows the path a reader will actually see.
+    """`TRC-A3`: a transcript shows the path a reader will actually see.
 
     A transcript that disagrees with the screen is worse than no transcript,
     because a reader trusts it over their own output.
@@ -174,11 +171,11 @@ def test_a3_worked_example_matches_what_runs():
 
 
 # ---------------------------------------------------------------------------
-# Group B - the description does not drift again
+# Group B - the description stays correct
 # ---------------------------------------------------------------------------
 
 def test_b1_guard_catches_a_reintroduced_claim():
-    """TRC-B1: the guard fails when a surface reintroduces the old claim.
+    """`TRC-B1`: the guard fails when a surface reintroduces the old claim.
 
     Tested against the checker directly rather than by editing a real file, so
     the guard's own logic is pinned rather than the corpus's current state. A
@@ -200,10 +197,10 @@ def test_b1_guard_catches_a_reintroduced_claim():
     # And it must not fire on text that mentions neither.
     assert not names_shared_without_bound("nothing about evidence here")
 
-    # The case a file-level rule misses, found by mutation MP-1: a file that
-    # has ALREADY been corrected contains the bound form somewhere, so the old
-    # claim can be reintroduced anywhere else in it and a file-level check stays
-    # green. The claim has to be caught where it is made.
+    # The case a file-level rule misses: a file that has ALREADY been
+    # corrected contains the bound form somewhere, so the old claim can be
+    # reintroduced anywhere else in it and a file-level check stays green.
+    # The claim has to be caught where it is made.
     already_corrected_then_rebroken = (
         "`compass tdd-green` writes `evidence/green.json`.\n"
         "\n"
@@ -218,7 +215,7 @@ def test_b1_guard_catches_a_reintroduced_claim():
 # ---------------------------------------------------------------------------
 
 def test_c1_cli_banner_describes_what_is_written():
-    """TRC-C1: every CLI module's banner says something true about the records
+    """`TRC-C1`: every CLI module's banner says something true about the records
     the TDD verbs write.
 
     One text, copied into thirteen modules. Reading all of them rather than a

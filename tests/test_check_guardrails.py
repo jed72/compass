@@ -1,18 +1,14 @@
-"""`compass check` enforcing the default guardrails G1-G5: scenarios have
+"""`compass check` enforcing the default guardrails `G1`-`G5`: scenarios have
 tests, suite is green, changed code traces to a scenario, gate evidence is
-the right type, human approvals are present and structured, backfills are
+the right type, human approvals are present and structured, follow-ups are
 paid.
 
 Each test builds the smallest manifest.yml + evidence set that should pass or
 fail a specific check, then asserts exit code and a (loose) message match.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail, which the command prints only
+# under --verbose.
 from __future__ import annotations
 
 import json
@@ -67,7 +63,7 @@ def _make_green(task_dir, scenario="SCN-001"):
                   fh)
 
 
-# --- G1 scenarios-have-tests + suite-passed --------------------------------
+# --- `G1` scenarios-have-tests + suite-passed --------------------------------
 
 
 def test_check_fails_when_scenarios_have_no_tests(run_cli, make_task):
@@ -123,7 +119,7 @@ def test_check_fails_when_test_run_bound_to_unknown_scenario(run_cli, make_task)
     assert "SCN-999" in combined, r
 
 
-# --- G3 traceability (changed_files -> scenario) ---------------------------
+# --- `G3` traceability (changed_files -> scenario) ---------------------------
 
 
 def test_check_fails_on_changed_file_without_scenario(run_cli, make_task):
@@ -158,7 +154,7 @@ def test_check_passes_when_changed_file_traces_to_real_scenario(run_cli, make_ta
     assert "PASS" in r.stdout, r
 
 
-# --- G3 claim traceability -------------------------------------------------
+# --- `G3` claim traceability -------------------------------------------------
 
 
 def test_check_fails_when_claim_references_unknown_scenario(run_cli, make_task):
@@ -171,7 +167,7 @@ def test_check_fails_when_claim_references_unknown_scenario(run_cli, make_task):
     assert "claim-traces-to-scenario" in r.stdout, r
 
 
-# --- G4 gate evidence types ------------------------------------------------
+# --- `G4` gate evidence types ------------------------------------------------
 
 
 def test_check_fails_on_wrong_evidence_type_for_gate(run_cli, make_task):
@@ -203,15 +199,15 @@ def test_check_passes_with_correct_evidence_type(run_cli, make_task, project):
     }
     task_dir = make_task("right-type", body)
     _make_green(task_dir)
-    # Once a task claims verify.correctness, `declared-tests-resolve` requires
+    # Once an issue claims verify.correctness, `declared-tests-resolve` needs
     # the test it names to exist - claiming a scenario passes while pointing at
     # a test nobody wrote is the thing that check was added to catch. The
-    # fixture has to model a task that is genuinely in that state.
+    # fixture has to model an issue that is genuinely in that state.
     (project / "tests").mkdir(parents=True, exist_ok=True)
     (project / "tests" / "test_x.py").write_text("def test_y():\n    assert True\n")
-    # Same reasoning for `changed-code-traces-to-scenario`: a task claiming
-    # correctness over a file that is not on disk is trace rot, so the fixture
-    # must have the file it says it changed.
+    # Same reasoning for `changed-code-traces-to-scenario`: an issue claiming
+    # correctness over a file that is not on disk has a broken trace, so the
+    # fixture must have the file it says it changed.
     (project / "src").mkdir(parents=True, exist_ok=True)
     (project / "src" / "x.py").write_text("x = 1\n")
     r = run_cli("check", "--verbose", "--issue", "right-type")
@@ -249,12 +245,12 @@ def test_check_fails_on_evidence_id_not_in_registry(run_cli, make_task):
     assert "EV-NOPE" in combined, r
 
 
-# --- G5 human approvals ----------------------------------------------------
+# --- `G5` human approvals ----------------------------------------------------
 
 
 def test_check_fails_on_g5_touched_task_with_no_approval(run_cli, make_task):
     """Touching auth without a human-approval evidence entry => check fails
-    on the G5 check."""
+    on the `G5` check."""
     body = _correct_body()
     body["assessment"]["labels"] = ["auth"]
     body["delivery_approach"] = "expedition"
@@ -299,13 +295,13 @@ def test_check_passes_on_complete_g5_approval(run_cli, make_task):
     task_dir = make_task("g5-ok", body)
     _make_green(task_dir)
     r = run_cli("check", "--verbose", "--issue", "g5-ok")
-    # the approval check should pass - overall result depends on the other
-    # checks all passing (they do, in this baseline task), so we just check
+    # the approval check must pass - overall result depends on the other
+    # checks all passing (they do, in this baseline issue), so we just check
     # the approval check passes its own line.
     assert "PASS human-approval-present" in r.stdout, r
 
 
-# --- backfills (cross-cutting) ---------------------------------------------
+# --- follow-ups: the backfills-paid check (cross-cutting) <!-- vocabulary-scan: allow - names the real check id --> ---
 
 
 def test_check_fails_on_unpaid_backfill(run_cli, make_task):
@@ -344,12 +340,12 @@ def test_check_fails_when_scenario_has_no_intent(run_cli, make_task):
 
 
 # ---------------------------------------------------------------------------
-# Group E - Typed Definition of Done (TRC-E1..E5, TRC-X4)
+# Group E - Typed Definition of Done (TRC-E1..E5, `TRC-X4`)
 # ---------------------------------------------------------------------------
 
 def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
                         extra_backfills=None):
-    """Create a task + green evidence + verification-report.md with the
+    """Create an issue + green evidence + verification-report.md with the
     given DoD lines.  Returns (task_dir, project_root)."""
     body = _correct_body()
     if extra_evidence:
@@ -371,8 +367,8 @@ def _make_task_with_dod(make_task, slug, dod_lines, extra_evidence=None,
 
 
 def test_dod_unbacked_fails(run_cli, make_task):
-    """TRC-E1: A bare unchecked DoD box with no evidence or backfill tag
-    blocks Land - the check must fail."""
+    """`TRC-E1`: A bare unchecked DoD box with no evidence or follow-up tag
+    blocks ship - the check must fail."""
     task_dir = _make_task_with_dod(
         make_task,
         "e1-bare-unchecked",
@@ -386,8 +382,8 @@ def test_dod_unbacked_fails(run_cli, make_task):
 
 
 def test_dod_with_evidence_passes(run_cli, make_task):
-    """TRC-E2: An unchecked DoD line tagged (evidence: EV-A1) passes when
-    EV-A1 is in the task's evidence registry with an accepted type."""
+    """`TRC-E2`: An unchecked DoD line tagged (evidence: EV-A1) passes when
+    EV-A1 is in the issue's evidence registry with an accepted type."""
     task_dir = _make_task_with_dod(
         make_task,
         "e2-evidence-tag",
@@ -400,14 +396,15 @@ def test_dod_with_evidence_passes(run_cli, make_task):
         ],
     )
     r = run_cli("check", "--verbose", "--issue", "e2-evidence-tag")
-    # The DoD check itself should pass for this line
+    # The DoD check itself must pass for this line
     combined = r.stdout + r.stderr
     assert "PASS dod-evidence-typed" in combined, r
 
 
 def test_owed_backfill_chains(run_cli, make_task):
-    """TRC-E3: backfill chain.
-    Part A: T1's DoD line tagged (backfill: BF-1) passes T1's check.
+    """`TRC-E3`: follow-up chain.
+    Part A: T1's DoD line tagged with the legacy (backfill: BF-1) spelling, <!-- vocabulary-scan: allow - the legacy tag this test deliberately exercises -->
+            kept on purpose, passes T1's check.
     Part B: T2's compass check fails because T1 has BF-1 status=owed
             with target_task=T2.
     """
@@ -426,8 +423,8 @@ def test_owed_backfill_chains(run_cli, make_task):
     assert "PASS dod-evidence-typed" in combined_t1, (
         "T1's DoD check should pass when backfill is tagged and recorded", r_t1)
 
-    # ---- Part B: T2 fails because T1 has an owed backfill targeting T2 ----
-    # Make T2 as a minimal passing task (no DoD issues itself)
+    # ---- Part B: T2 fails because T1 has an owed follow-up targeting T2 ----
+    # Make T2 as a minimal passing issue (no DoD issues itself)
     task_dir_t2 = _make_task_with_dod(
         make_task,
         "e3-t2",
@@ -442,7 +439,7 @@ def test_owed_backfill_chains(run_cli, make_task):
 
 
 def test_narrative_not_evidence(run_cli, make_task):
-    """TRC-E4: A bare unchecked DoD line fails even when devlog.md contains
+    """`TRC-E4`: A bare unchecked DoD line fails even when devlog.md contains
     'USER TO APPLY' - narrative notes do NOT clear the typed DoD check."""
     task_dir = _make_task_with_dod(
         make_task,
@@ -458,12 +455,12 @@ def test_narrative_not_evidence(run_cli, make_task):
     assert r.returncode != 0, r
     combined = r.stdout + r.stderr
     assert "dod-evidence-typed" in combined, r
-    # The failure message should cite G4 (evidence, not assertion)
+    # The failure message should cite `G4` (evidence, not assertion)
     assert "G4" in combined or "evidence" in combined.lower(), r
 
 
 def test_human_approval_clears_dod(run_cli, make_task):
-    """TRC-E5: A DoD line with (evidence: EV-A1) where EV-A1 is of type
+    """`TRC-E5`: A DoD line with (evidence: EV-A1) where EV-A1 is of type
     human-approval passes - human-approval is an accepted DoD evidence type."""
     task_dir = _make_task_with_dod(
         make_task,
@@ -482,8 +479,8 @@ def test_human_approval_clears_dod(run_cli, make_task):
 
 
 def test_empty_dod_passes(run_cli, make_task):
-    """TRC-X4: A task with no DoD section (or empty DoD) passes the typed
-    DoD check - backward compat for tasks that predate the typed check."""
+    """`TRC-X4`: An issue with no DoD section (or empty DoD) passes the typed
+    DoD check - backward compat for issues that predate the typed check."""
     # Case 1: no verification-report.md at all
     body = _correct_body()
     task_dir = make_task("x4-no-report", body)

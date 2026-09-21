@@ -1,4 +1,4 @@
-"""The pytest-bdd reference adapter (task executable-bdd-and-richer-plans).
+"""The pytest-bdd reference adapter (issue executable-bdd-and-richer-plans).
 
 `compass bdd extract` produces a .feature file. On its own that proves the
 extractor works, not that the output is *usable*. The worked project under
@@ -12,10 +12,10 @@ with the reasoning in pytest.ini. Under those runs pytest-bdd never loads. So
 the adapter gets its own CI job, with autoload on and pytest-bdd installed, and
 the tests below skip locally when it is absent.
 
-A skipped test proves nothing, which is why TRC-B4 checks that the CI job
+A skipped test proves nothing, which is why `TRC-B4` checks that the CI job
 actually exists rather than trusting that someone will add it.
 
-Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-B1..B4).
+Spec: executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-B1..B4).
 """
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def _run_adapter(cwd):
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - the adapter runs an extracted feature end to end
+# `TRC-B1` - the adapter runs an extracted feature end to end
 # ---------------------------------------------------------------------------
 
 @pytest_bdd_missing
@@ -82,7 +82,7 @@ def test_trc_b1_adapter_runs_green_end_to_end(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-B2 - the README shows every step of the wire-up
+# `TRC-B2` - the README shows every step of the wire-up
 # ---------------------------------------------------------------------------
 
 def test_trc_b2_readme_shows_full_wireup():
@@ -111,7 +111,7 @@ def test_trc_b2_readme_shows_full_wireup():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3 - a scenario with no step definition fails loudly
+# `TRC-B3` - a scenario with no step definition fails loudly
 # ---------------------------------------------------------------------------
 
 @pytest_bdd_missing
@@ -155,7 +155,7 @@ def test_trc_b3_unbound_step_fails_loudly(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4 - the adapter is proved by a run, never by a skip
+# `TRC-B4` - the adapter is proved by a run, never by a skip
 # ---------------------------------------------------------------------------
 
 def test_trc_b4_ci_runs_adapter_not_skips_it():

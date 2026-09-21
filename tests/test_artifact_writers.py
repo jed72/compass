@@ -30,7 +30,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 COMPASS_CLI = ROOT / "cli" / "compass"
 
-#: Read and written by the CLI. Stays beside the manifest, named by TRC-B2.
+#: Read and written by the CLI. Stays beside the manifest, named by `TRC-B2`.
 MACHINE_STATE = {
     "manifest.yml", "devlog.md", "evidence", ".red", ".spike",
     ".tdd-state.json", "README.md",
@@ -80,7 +80,7 @@ def _cli(project, *args):
                           cwd=str(project))
 
 
-# --- TRC-B1 -----------------------------------------------------------------
+# --- `TRC-B1` -----------------------------------------------------------------
 
 def test_trc_b1_the_docs_directory_is_named_from_the_created_date(tmp_path):
     """`docs/compass/<created>-<slug>`, computed in one place.
@@ -100,7 +100,7 @@ def test_trc_b1_the_docs_directory_is_named_from_the_created_date(tmp_path):
 
 
 def test_trc_b1_the_write_date_is_not_used(tmp_path):
-    """The alternative that was rejected, pinned so it cannot creep back.
+    """The write date is not used, and this test keeps it that way.
 
     Using the day the document is written puts two documents of the same issue
     in two directories when the first is written either side of midnight.
@@ -165,7 +165,7 @@ def test_trc_b1_a_path_outside_the_project_is_refused_at_write_time(tmp_path):
         "the refusal still wrote the path, so the check ran after the damage")
 
 
-# --- TRC-B2 -----------------------------------------------------------------
+# --- `TRC-B2` -----------------------------------------------------------------
 
 def test_trc_b2_machine_state_is_named_as_staying(tmp_path):
     """The templates say where each document lives, and the machine-state
@@ -243,7 +243,7 @@ def test_trc_b2_the_split_covers_every_template():
         "checks above are asserting nothing"
 
 
-# --- TRC-B3 -----------------------------------------------------------------
+# --- `TRC-B3` -----------------------------------------------------------------
 
 def test_trc_b3_creating_the_docs_directory_is_reported():
     """A directory appearing with nothing said is how it gets deleted by hand
@@ -280,7 +280,7 @@ def test_trc_b3_creating_the_docs_directory_is_reported():
         "they created it:\n  " + "\n  ".join(missing))
 
 
-# --- TRC-B4 -----------------------------------------------------------------
+# --- `TRC-B4` -----------------------------------------------------------------
 
 @pytest.mark.parametrize("verb", ["check", "next", "analyze"])
 def test_trc_b4_a_reading_command_creates_nothing(tmp_path, verb):

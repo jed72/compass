@@ -1,21 +1,21 @@
 """The cross-issue sweep lints every manifest, and its summary says what it did.
 
-`sweep-respects-queued` stopped `compass ci` failing issues that had been
-triaged but not yet defined - correct, because such an issue has no acceptance
-criteria and correctly so. But the `continue` was placed above `cmd_task_lint`
-as well as `cmd_check`, so a not-yet-started issue got no structural
-validation at all, and the run still ended:
+`compass ci` lints every manifest, queued ones included, because structure
+is checkable at any stage; its summary counts the issues it fully checked.
+An issue that has been assessed but not yet defined has no acceptance
+criteria yet, which is true of the check and not of the lint - so a
+`continue` placed above both `cmd_task_lint` and `cmd_check` let a
+not-yet-started issue skip the lint too, and the run still ended:
 
     compass ci: PASS - governance valid; every issue lints clean and checks green.
 
-against a manifest declaring a schema version this CLI does not handle. The lint
-validates the manifest's own structure, which is checkable at any stage; the
-justification written for the skip ("the acceptance criteria and evidence a
-check looks for do not exist yet") is true of the check and not of the lint.
+against a manifest declaring a schema version this CLI does not handle.
 
-Two consequences. A malformed manifest could sit in a repository indefinitely
-without the sweep noticing, and `status: parked` became a one-word way to
-leave the sweep while it still reported everything clean.
+Two consequences:
+- a malformed manifest could sit in a repository indefinitely without the
+  sweep noticing;
+- `status: parked` became a one-word way to leave the sweep while it still
+  reported everything clean.
 
 Scenario ids: see docs/system-spec.md.
 """
@@ -113,9 +113,9 @@ def test_trc_1_a_malformed_spine_fails_the_sweep_at_any_status(tmp_path, status)
 def test_trc_2_a_well_formed_queued_issue_still_passes(tmp_path, status):
     """The control.
 
-    Without this, TRC-1 would pass against a sweep that simply failed
+    Without this, `TRC-1` would pass against a sweep that simply failed
     everything - which would undo `sweep-respects-queued` and put back the
-    defect that framing work early makes the build red.
+    defect that assessing work early makes the build red.
     """
     project = _project(tmp_path / status, "fine", status, WELL_FORMED)
     result = _run_ci(project)
@@ -131,9 +131,9 @@ def test_trc_2_a_well_formed_queued_issue_still_passes(tmp_path, status):
 def test_trc_3_the_summary_reports_what_was_and_was_not_checked(tmp_path):
     """The last line is the one a CI reader actually reads.
 
-    It used to assert "every issue lints clean and checks green" whatever the
-    run had skipped. A skip line further up does not repair that, because the
-    skip line is the part nobody scrolls back for.
+    The last line must not claim every issue was checked when some were
+    skipped. A skip line further up does not repair that, because the skip
+    line is the part nobody scrolls back for.
     """
     project = _project(tmp_path, "fine", "queued", WELL_FORMED)
     result = _run_ci(project)

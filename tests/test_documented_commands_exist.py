@@ -1,10 +1,10 @@
 """Every `compass <subcommand>` shown in the docs must be a real subcommand.
 
-Two skills told the reader to run `compass frame --reassess`. There is no
-`frame` subcommand - re-framing is the slash command `/compass:frame
---reassess`. The instruction was followed-shaped and unrunnable, which is worse
-than no instruction: the reader tries it, gets an argparse error, and loses
-confidence in the rest of the page.
+An instruction to run `compass frame --reassess` looked runnable and was
+not: there is no `frame` subcommand, and reassessment is the slash command
+`/compass:assess --reassess`. Which is worse than no instruction: the
+reader tries it, gets an argparse error, and loses confidence in the rest
+of the page.
 
 This scans code spans and fenced blocks (not prose, where "compass" is the
 framework's name rather than a command) across every documented surface.
@@ -60,11 +60,10 @@ def _markdown_files():
 # cannot match the error they got to the row that fixes it. Recording is not
 # teaching.
 #
-# The REASON is mandatory, and the pattern is the vocabulary scan's own so the
-# two cannot drift. A bare `vocabulary-scan: allow` with nothing after it would
-# be a skip pattern with extra steps - any line in any live document could
-# silence this guard, with no reason and no count. That is the defect this
-# change removed from two other guards; it is not re-introduced here.
+# The REASON is mandatory, and the pattern is the vocabulary scan's own, so
+# the two stay identical. A bare `vocabulary-scan: allow` with nothing after
+# it would be an unconditional skip - any line in any live document could
+# silence this guard, with no reason and no count.
 #
 # Counted as well as reasoned, but counted in ONE place: the ceiling lives in
 # `tests/test_docs_prose.py::test_the_allow_marker_list_stays_short`, which

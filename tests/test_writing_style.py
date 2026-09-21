@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 339
+PENDING_PATHS_HIGH_WATER = 279
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -531,6 +531,10 @@ _register(Rule(
     "or a test docstring", _find_retired_word,
     exemptions=(
         Exemption(
+            "tests/test_frame_loads_architecture.py", "# noqa: S102",
+            "a flake8 noqa suppression code (exec-builtin), not a "
+            "strategy id; found while fixing batch 7, not by the audit."),
+        Exemption(
             "docs/compass/2026-08-27-sdd-loop-spike.md",
             "cross-task-architectural-integrity",
             "the real slug of a filed, landed issue - an identifier "
@@ -810,6 +814,18 @@ _register(Rule(
             "(implement, verify, ship) - an identifier (section 4), not "
             "the verb the word table retires"),
         Exemption(
+            "tests/test_command_renames.py",
+            "implement, verify, ship; the designer entry point is design;",
+            "\"verify\" is one stage name in the list of eight pipeline "
+            "commands, the same shape as the docs/quickstart.md exemption "
+            "above; found while fixing batch 7, not by the audit."),
+        Exemption(
+            "tests/test_command_renames.py",
+            "point. It inlines assess, define, implement, verify and ship for a small,",
+            "\"verify\" is one stage name in a list of stage names, the "
+            "same shape as the docs/quickstart.md exemption above; found "
+            "while fixing batch 7, not by the audit."),
+        Exemption(
             "docs/safety-contract.md", "Human approvals are required",
             "tests/test_g5_trigger.py pins this exact phrase and is not "
             "named for this unit in DD-6 - changing the assertion is not "
@@ -911,6 +927,10 @@ _register(Rule(
             "- the match lands mid-flag-name on the \"verified\" substring, "
             "not the standalone verb the word table means to catch."),
         Exemption(
+            "tests/test_acceptance_verb.py", "--verified-by",
+            "the same real CLI flag false match as skills/quick-fix/SKILL.md "
+            "above; found while fixing batch 7, not by the audit."),
+        Exemption(
             "skills/tdd-discipline/no-natural-red.md", "terraform validate",
             "a third-party command's real name (Terraform's own CLI verb), "
             "not the English verb the word table means to catch - Compass "
@@ -966,6 +986,9 @@ _register(Rule(
                    "names the Verify stage, not the verb."),
         Exemption("governance/guardrails.yml", "compass bdd verify",
                    "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("tests/test_bdd_optin_noop.py", "compass bdd verify",
+                   "compass bdd verify is a CLI verb, not the plain verb; "
+                   "found while fixing batch 7, not by the audit."),
         Exemption("governance/guardrails.yml", "checked_at: [verify]",
                    "an example YAML value inside a comment, not the verb."),
         Exemption("governance/guardrails.yml", "attempts: <int>",
@@ -1012,6 +1035,26 @@ _register(Rule(
                    "the derived text of the same terminology.yml line - "
                    "RP-REQUIRE is an id prefix, not the verb the word table "
                    "retires."),
+        Exemption("tests/test_artifact_registry.py",
+                   "`RP-REQUIRE-003` already adds",
+                   "RP-REQUIRE-003 is a policy rule id, not the verb the "
+                   "word table retires; found while fixing batch 7, not by "
+                   "the audit."),
+        Exemption("tests/test_allow_marker_needs_a_reason.py",
+                   "(allow-marker-supplies-its-own-reason)",
+                   "the issue's own slug, an identifier (section 4), not "
+                   "the verb the word table retires; found while fixing "
+                   "batch 7, not by the audit."),
+        Exemption("tests/test_fresh_eyes_verify_sweeps.py",
+                   "(issue fresh-eyes-verify-sweeps)",
+                   "the issue's own slug, an identifier (section 4), not "
+                   "the verb the word table retires; found while fixing "
+                   "batch 7, not by the audit."),
+        Exemption("tests/test_allow_marker_needs_a_reason.py",
+                   "allow-marker-supplies-its-own-reason/acceptance-criteria.md",
+                   "the issue's own slug, an identifier (section 4), not "
+                   "the verb the word table retires; found while fixing "
+                   "batch 7, not by the audit."),
         Exemption(
             "scripts/verify-archive-quotes.py",
             "verify against the primary",
@@ -1248,6 +1291,19 @@ _register(Rule(
             "the walkthrough's own hypothetical issue - it shows the "
             "reader where their own file will be, not a citation of a "
             "document that already exists in this repository"),
+        Exemption(
+            "tests/test_archive_citations_resolve.py",
+            ".compass/work/demo/technical-design.md",
+            "the comment quotes a fixture path a test builds "
+            "(`make_task([...])`), not a citation of a real record; found "
+            "while fixing batch 7, not by the audit."),
+        Exemption(
+            "tests/test_bdd_optin_noop.py",
+            ".compass/work/, so running it here would fail",
+            "names the gitignored directory generically, to explain why "
+            "the test builds a synthetic project - not a citation of one "
+            "document a reader cannot open; found while fixing batch 7, "
+            "not by the audit."),
     ),
 ))
 
@@ -1289,6 +1345,10 @@ _register(Rule(
     "PBW-A7", "A bare code carries its meaning or goes", _find_bare_code,
     exemptions=(
         Exemption(
+            "tests/test_frame_loads_architecture.py", "# noqa: S102",
+            "a flake8 noqa suppression code (exec-builtin), not a "
+            "strategy id; found while fixing batch 7, not by the audit."),
+        Exemption(
             "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
             "the G5 guard kicked in",
             "a verbatim quote of the bad phrasing the ADR exists to fix; "
@@ -1328,6 +1388,17 @@ _register(Rule(
             "a placeholder scenario id, the same shape as `<test cmd>` "
             "elsewhere on this page - not a real code pointing at meaning "
             "kept outside the file"),
+        Exemption(
+            "tests/test_evidence_path_docs.py",
+            "`compass tdd-green --scenario TRC-x` writes",
+            "a placeholder scenario id, the same shape as the "
+            "docs/quickstart.md exemption above; found while fixing batch "
+            "7, not by the audit."),
+        Exemption(
+            "tests/test_evidence_path_docs.py",
+            "writes `evidence/green-TRC-x.json`",
+            "the placeholder filename the same placeholder scenario id "
+            "produces; found while fixing batch 7, not by the audit."),
         Exemption(
             "governance/terminology.yml",
             "it prints 'G5 A human signs off",
@@ -1431,6 +1502,11 @@ _register(Rule(
             "this repository - see the PBW-A6 exemption above for the "
             "same line"),
         Exemption(
+            "tests/test_archive_citations_resolve.py",
+            ".compass/work/demo/technical-design.md",
+            "the comment quotes a fixture path a test builds, not a real "
+            "path - see the PBW-A6 exemption above for the same line."),
+        Exemption(
             "docs/quickstart.md", "evidence/green-TRC-x.json",
             "the filename `compass tdd-green` would write for the "
             "placeholder scenario id `TRC-x`, not a file this repository "
@@ -1454,6 +1530,14 @@ _register(Rule(
         Exemption(
             "commands/consult.md", "architecture/invariants.yml",
             "the same conditional artifact reference as agents/architect.md."),
+        Exemption(
+            "tests/test_architect_lens.py", "architecture/invariants.yml",
+            "the same conditional artifact reference as agents/architect.md; "
+            "found while fixing batch 7, not by the audit."),
+        Exemption(
+            "tests/test_frame_loads_architecture.py", "architecture/invariants.yml",
+            "the same conditional artifact reference as agents/architect.md; "
+            "found while fixing batch 7, not by the audit."),
         # The reference regex needs a word character to open the first path
         # segment, so it drops the leading dot from a citation of a file
         # under a dotdir and then checks a path that was never meant to
@@ -1473,6 +1557,21 @@ _register(Rule(
                    "the sweep drops the leading dot; the file is tracked."),
         Exemption("governance/strategies.md", ".compass/config.yml",
                    "the sweep drops the leading dot; the file is tracked."),
+        # test_anthropic_aligned_names.py's own module docstring is a "Was |
+        # Is" rename table (ADR-023): the five retired .md filenames it names
+        # in the "Was" column no longer exist by design, the same shape as
+        # the ADR-019 stub references below. Found while fixing batch 7, not
+        # by the audit.
+        Exemption("tests/test_anthropic_aligned_names.py", "agents/navigator.md",
+                   "the rename table's own retired filename; historical."),
+        Exemption("tests/test_anthropic_aligned_names.py", "agents/product-lens.md",
+                   "the rename table's own retired filename; historical."),
+        Exemption("tests/test_anthropic_aligned_names.py", "agents/marketing-lens.md",
+                   "the rename table's own retired filename; historical."),
+        Exemption("tests/test_anthropic_aligned_names.py", "agents/architect-lens.md",
+                   "the rename table's own retired filename; historical."),
+        Exemption("tests/test_anthropic_aligned_names.py", "commands/roundtable.md",
+                   "the rename table's own retired filename; historical."),
         # These two stub files existed only for the 3.x cycle and were
         # removed at the next major version, per this ADR's own rule - a
         # historical reference, not a stale one.
@@ -1519,6 +1618,16 @@ _register(Rule(
                    "tests/__pycache__/x.pyc",
                    "a hypothetical example path; the extension list stops "
                    "the match one character short of the real suffix."),
+        Exemption("tests/test_docs_cite_live_tests.py",
+                   "tests/test_v1_2_narrative.py",
+                   "the retired test file this guard's own example names; "
+                   "it does not exist on purpose - found while fixing "
+                   "batch 7, not by the audit."),
+        Exemption("tests/test_docs_cite_live_tests.py",
+                   "tests/test_ledger_export.py",
+                   "a worked-example path that was never meant to exist, "
+                   "named by this file's own docstring as the contrast "
+                   "case; found while fixing batch 7, not by the audit."),
         # A rejected alternative's hypothetical path - it does not exist
         # because the alternative was never built, which is the point of
         # naming it in the Alternatives table.

@@ -1,18 +1,19 @@
-"""`compass check`'s summary does not overstate what was verified.
+"""`compass check`'s summary does not overstate what was checked.
 
-Three of the sixteen checks clear with nothing to check: no BDD runner wired,
-no claims recorded, no project guardrails declared. Each is honestly labelled
-on its own line - that is to the tool's credit. The summary was the problem:
-`PASS - all 16 check(s) passed` flattens three checks that inspected nothing into the
-same count as thirteen real ones, and the summary is the line a reader takes
-away.
+The summary counts checks that inspected nothing apart from real passes.
+Three of the sixteen checks clear with nothing to check: no BDD runner
+wired, no claims recorded, no project guardrails declared. Each is honestly
+labelled on its own line, but `PASS - all 16 check(s) passed` flattened
+those three into the same count as thirteen real ones, and the summary is
+the line a reader takes away.
 
-The signal is structured rather than matched from the detail prose. A check's
-nothing to check is a runtime property - "no BDD runner wired" depends on the project -
-so a static list cannot express it, and matching the message would be a guard
-that silently stops working the first time someone improves the wording.
+The signal is structured rather than matched from the detail prose. A
+check's nothing to check is a runtime property - "no BDD runner wired"
+depends on the project - so a static list cannot express it, and matching
+the message would be a guard that silently stops working the first time
+someone improves the wording.
 
-Scenario ids: see .compass/work/identifiers-and-vocabulary-in-printed-output/
+Scenario ids: see identifiers-and-vocabulary-in-printed-output/
 acceptance-criteria.md (group D).
 """
 from __future__ import annotations
@@ -38,17 +39,17 @@ def _summarise():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 - checks that inspected nothing are counted apart
+# `TRC-D1` - checks that inspected nothing are counted apart
 # ---------------------------------------------------------------------------
 
 def test_trc_d1_empty_counted_apart():
     """Sixteen ran, three had nothing to check."""
     line = _summarise()(ran=16, failures=0, nothing_to_check=3)
 
-    # The denominator was dropped after this test first shipped: "13 of 16
-    # passed" reads as three failures at a glance, and the total is not a
-    # constant - G5 only runs when the work touches auth, payments, personal
-    # data or migrations. The count that matters is what passed.
+    # The summary has no denominator, because "13 of 16 passed" reads as
+    # three failures at a glance, and the total is not a constant - `G5` only
+    # runs when the work touches auth, payments, personal data or
+    # migrations. The count that matters is what passed.
     # tests/test_ceiling_and_honest_counts.py holds the current contract.
     assert "13 check(s) passed" in line, (
         f"the summary does not lead with how many checks verified something: "
@@ -63,14 +64,14 @@ def test_trc_d1_empty_counted_apart():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2 - a real pass is not miscounted
+# `TRC-D2` - a real pass is not miscounted
 # ---------------------------------------------------------------------------
 
 def test_trc_d2_real_pass_not_miscounted():
     """The control.
 
     Without it, a change that labelled every check empty would satisfy
-    TRC-D1 while reporting that Compass verified nothing.
+    `TRC-D1` while reporting that Compass checked nothing.
     """
     line = _summarise()(ran=16, failures=0, nothing_to_check=0)
 
@@ -94,7 +95,7 @@ def test_trc_d2c_the_sentinel_is_truthy():
     """NOTHING_TO_CHECK stands in for True at every existing call site.
 
     A falsy sentinel would silently convert three passing checks into three
-    failures, which is the opposite of the defect being fixed.
+    failures, which is the opposite of what this change prevents.
     """
     from compass_pkg.checks import NOTHING_TO_CHECK
 

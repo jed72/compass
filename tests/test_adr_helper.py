@@ -1,7 +1,7 @@
 """Tests for the `compass adr new <slug>` subcommand.
 
 Covers:
-  TRC-A3 - compass adr new <slug> creates a numbered ADR file
+  `TRC-A3` - compass adr new <slug> creates a numbered ADR file
 """
 from __future__ import annotations
 
@@ -9,16 +9,16 @@ from pathlib import Path
 
 
 
-# conftest.py provides: project, run_cli, make_task fixtures
+# conftest.py defines the project, run_cli and make_task fixtures.
 # FRAMEWORK_ROOT / CLI_PATH are also available via conftest
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 - creates a numbered ADR file
+# `TRC-A3` - creates a numbered ADR file
 # ---------------------------------------------------------------------------
 
 def test_creates_numbered_adr(project: Path, run_cli):
-    """TRC-A3: `compass adr new <slug>` creates ADR-<N+1>-<slug>.md inside
+    """`TRC-A3`: `compass adr new <slug>` creates ADR-<N+1>-<slug>.md inside
     architecture/decisions/ and registers it in architecture/decisions/README.md.
 
     When there are N existing ADR-*.md files the new file is numbered N+1.

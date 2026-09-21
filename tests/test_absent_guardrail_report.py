@@ -1,27 +1,19 @@
-"""An omitted guardrail is reported, not silent (task governance-drift-detection).
+"""An omitted guardrail is reported, not silent (governance-drift-detection).
 
-The field report said `compass check` prints "not applicable for these readings
-- skipped" both when a guardrail genuinely does not apply and when the floor
-that would have triggered it is missing. That premise is wrong: G5's
-`applies_when` keys on the READINGS, not on any floor, so no missing floor can
-change its applicability, and the message is correct where it is printed.
-
-The real defect is worse. A guardrail ABSENT from the project's file produced no
-output at all. Reproduced: on a task reading `touches: [auth]`, against a
-guardrails.yml with G5 removed, `compass check` printed G1 through G4 and
+`compass check` gives two guarantees: a guardrail that is ABSENT from the
+project's own governance file is reported in the default view, and a
+guardrail that genuinely does not apply reads as skipped only under
+--verbose. Reproduced: on an issue whose touches list names `auth`, against a
+guardrails.yml with `G5` (a human signs off on anything irreversible) removed,
+`compass check` printed `G1` through `G4` (the other default checks) and
 returned its normal result. Not an ambiguous label - silence, on the exact
-surface G5 exists to guard.
+surface `G5` exists to guard.
 
-Spec: docs/compass/2026-08-03-governance-drift-detection/acceptance-criteria.md (TRC-D1, D2).
+Spec: governance-drift-detection/acceptance-criteria.md (`TRC-D1`, `TRC-D2`).
 """
 
-# RE-POINT REVERTED on 2026-08-24. These tests guard something that belongs
-# in the DEFAULT view, not in --verbose, and moving them there left the
-# default view unguarded: the adoption-mode banner, and the warning that a
-# guardrail is absent from this project's governance. A fresh reader found
-# both missing from the default output, which is the case each was written
-# to prevent. The behaviour is back on the first screen and these assert it
-# there.
+# These tests assert the default view, because the adoption-mode banner and
+# the absent-guardrail warning must appear on the first screen.
 from __future__ import annotations
 
 import pathlib
@@ -93,7 +85,7 @@ def _check(proj, *flags):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 - a guardrail the project omits is reported
+# `TRC-D1` - a guardrail the project omits is reported
 # ---------------------------------------------------------------------------
 
 def test_trc_d1_a_guardrail_the_project_omits_should_be_reported():
@@ -112,7 +104,7 @@ def test_trc_d1_a_guardrail_the_project_omits_should_be_reported():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2 - a guardrail that genuinely does not apply still reads as skipped
+# `TRC-D2` - a guardrail that genuinely does not apply still reads as skipped
 # ---------------------------------------------------------------------------
 
 def test_trc_d2_a_guardrail_that_genuinely_does_not_apply_should_still_read_as_skipped():

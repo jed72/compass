@@ -5,19 +5,19 @@ tested-before-ship and traceability guardrails - so a scenario citing a test
 nobody wrote is invisible by construction. The check closes that hole by
 looking the name up in the file.
 
-It looked it up two ways that cannot succeed:
+The matcher must handle two cases:
 
-  * It took only the segment after the final `::` and searched for that whole
-    string verbatim. A jest-style id - `file::outer > inner > the test` - has
-    one `::`, so the "name" became the entire `outer > inner > the test`
-    chain, which appears nowhere in a file that writes those as nested
-    `describe`/`it` calls.
-  * It wrapped the name in `\\b...\\b`. A test name ending in a non-word
-    character - `@`, `)`, `.` - can never satisfy the trailing boundary,
-    whatever is on disk.
+  * A jest-style id - `file::outer > inner > the test` - has one `::`, so
+    taking only the segment after the final `::` and searching for it
+    verbatim finds the entire `outer > inner > the test` chain, which
+    appears nowhere in a file that writes those as nested `describe`/`it`
+    calls.
+  * A test name ending in a non-word character - `@`, `)`, `.` - can never
+    satisfy a trailing `\\b` boundary, whatever is on disk.
 
-Both fail at verify, *after* correctness has been claimed, which is the worst
-moment to discover a bookkeeping problem.
+A matcher that misses either fails at the verify stage, *after* correctness
+has been claimed, which is the worst moment to discover a bookkeeping
+problem.
 
 Scenario ids: see docs/system-spec.md (group C).
 """
@@ -74,7 +74,7 @@ def test_rcd_c1_nested_id_resolves(tmp_path):
 def test_rcd_c2_trailing_non_word_resolves(tmp_path):
     """A test name ending in a non-word character must resolve.
 
-    `\\b` after `@` requires a word character next. The name is followed by a
+    `\\b` after `@` needs a word character next. The name is followed by a
     quote, so the boundary can never be satisfied - the id is unresolvable
     regardless of what is on disk.
     """
@@ -89,7 +89,8 @@ def test_rcd_c2_trailing_non_word_resolves(tmp_path):
 
 
 def test_rcd_c3_missing_test_still_fails(tmp_path):
-    """The control: loosening the matcher must not stop it catching a fiction.
+    """The control: loosening the matcher must not stop it catching a test
+    that does not exist.
 
     Without this, C1 and C2 pass against a matcher that returns True for
     everything - which would delete the check while leaving it green.
@@ -112,9 +113,8 @@ def test_rcd_c3_missing_test_still_fails(tmp_path):
 def test_rcd_c3b_partial_word_still_fails(tmp_path):
     """A name that only appears as part of a longer word must not resolve.
 
-    This is what the word boundaries were protecting, and the fix must keep
-    it: dropping them entirely would make `test_plain` match
-    `test_plain_name` and quietly re-open the hole from the other side.
+    This is what the word boundaries protect, and dropping them entirely
+    would make `test_plain` match `test_plain_name`.
     """
     root = _project(tmp_path)
 
@@ -125,9 +125,9 @@ def test_rcd_c3b_partial_word_still_fails(tmp_path):
         "misspelled or truncated id pass"
     )
 
-    # And from the front. Only the trailing boundary was covered, so deleting
-    # the leading one survived the whole suite - the same substring hole
-    # entered from the other end.
+    # And from the front. A check on the trailing boundary alone would
+    # still pass with the leading boundary removed, so this tests the
+    # front too.
     assert checks._test_id_resolves(
         "src/tests/unit.py::plain_name", str(root)) is False, (
         "'plain_name' resolved against a file containing only "

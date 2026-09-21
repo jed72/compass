@@ -1,16 +1,12 @@
 """Consult doc - Reassessment trigger section.
 
-TRC-C4: commands/consult.md contains a "Reassessment trigger" section that
-documents the requirement to run /compass:assess --reassess after boundary
-or migration decisions.
+`TRC-C4`: commands/consult.md contains a "Reassessment trigger" section that
+says to run /compass:assess --reassess after boundary or migration
+decisions.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 from pathlib import Path
@@ -20,7 +16,7 @@ CONSULT_DOC = FRAMEWORK_ROOT / "commands" / "consult.md"
 
 
 def test_reframe_trigger_documented():
-    """TRC-C4: consult.md has a Reassessment trigger section with required content."""
+    """`TRC-C4`: consult.md has a Reassessment trigger section with required content."""
     assert CONSULT_DOC.is_file(), f"commands/consult.md not found at {CONSULT_DOC}"
     text = CONSULT_DOC.read_text(encoding="utf-8")
 
@@ -30,7 +26,7 @@ def test_reframe_trigger_documented():
         "Add a section with this heading as per TRC-C4."
     )
 
-    # Must state that boundary or migration decisions trigger a reframe
+    # Must state that boundary or migration decisions trigger a reassessment
     lower = text.lower()
     assert "boundary" in lower or "migration" in lower, (
         "The Reassessment trigger section must mention 'boundary' or 'migration' decisions."
