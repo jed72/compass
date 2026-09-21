@@ -8,12 +8,12 @@ and the `terminology.yml` entries that exist only to describe them.
 
 What stays, and why it is not an oversight: the read-side rename tables in
 `cli/compass_pkg/core.py` and `analyze.py`. They let an archived manifest and
-an old prose record load, which ADR-020 requires - the archive is migrated,
+an old prose record load, which ADR-020 needs - the archive is migrated,
 not frozen. They are kept for the archive's sake, not for an adopter's, and
-TRC-D3 holds the decision record to saying so.
+`TRC-D3` holds the decision record to saying so.
 
-Scenario ids: TRC-D1..D6 in
-docs/compass/2026-08-28-what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
+Scenario ids: `TRC-D1`..D6 in
+what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def _run(*args):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 - the retired slash commands no longer exist
+# `TRC-D1` - the retired slash commands no longer exist
 # ---------------------------------------------------------------------------
 
 def test_the_retired_slash_commands_no_longer_exist():
@@ -71,7 +71,7 @@ def test_the_retired_slash_commands_no_longer_exist():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2 - the hidden CLI alias no longer resolves
+# `TRC-D2` - the hidden CLI alias no longer resolves
 # ---------------------------------------------------------------------------
 
 def test_the_hidden_cli_alias_no_longer_resolves():
@@ -88,14 +88,12 @@ def test_the_hidden_cli_alias_no_longer_resolves():
     # satisfied mechanically for as long as `plan` parses, and says nothing
     # about whether the reader was helped. They are not: what a broken caller
     # actually gets is a list of 30 verbs. The redirect is the upgrade table
-    # in docs/releasing.md, which TRC-D6 checks. That `plan` parses at all is
+    # in docs/releasing.md, which `TRC-D6` checks. That `plan` parses at all is
     # established by the --help check below.
 
     # `hidden` keeps a verb out of --help while it still parses. The real
     # stale-entry check lives in cli/compass beside the subtraction, where it
-    # compares against the parser's own verbs and runs for every caller - an
-    # earlier version here searched this file's source for a `hidden = {...}`
-    # literal, missed the `set()` spelling, and never executed.
+    # compares against the parser's own verbs and runs for every caller.
     #
     # The guard is EXERCISED, not grepped. A source-text check for the
     # subtraction passed with the `raise` beneath it deleted - the assignment
@@ -115,7 +113,7 @@ def test_the_hidden_cli_alias_no_longer_resolves():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D3 - read-side migration survives, for the archive's reason
+# `TRC-D3` - read-side migration survives, for the archive's reason
 # ---------------------------------------------------------------------------
 
 def test_read_side_migration_survives_for_the_archive_s_reason():
@@ -148,7 +146,7 @@ def test_read_side_migration_survives_for_the_archive_s_reason():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D4 - the vocabulary has one value per concept again
+# `TRC-D4` - the vocabulary has one value per concept again
 # ---------------------------------------------------------------------------
 
 def test_the_vocabulary_has_one_value_per_concept_again():
@@ -266,12 +264,6 @@ def _excludes_anything(entry: str, scanned: set) -> bool:
 
     Matched the way the scan matches - `rel.startswith(entry)` - so this
     agrees with the thing it is checking rather than with an idea of it.
-
-    An earlier version asked whether any file existed under the prefix
-    anywhere in the repository. That is a different question and a much
-    weaker one: it walked ignored directories and `.git/`, and it answered
-    yes for `dis` (from `dist/`) and for invented paths under gitignored
-    roots, so fabricated entries passed.
     """
     return any(f.startswith(entry) for f in scanned)
 
@@ -299,7 +291,7 @@ def _exempt_paths(text: str) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# TRC-D5 - a stale exemption fails the build
+# `TRC-D5` - a stale exemption fails the build
 # ---------------------------------------------------------------------------
 
 def test_a_stale_exemption_fails_the_build():
@@ -327,10 +319,8 @@ def test_a_stale_exemption_fails_the_build():
             f"scan.exempt names {entry}, which excludes no file the scan "
             f"would visit. The exemption covers nothing and reads as coverage")
 
-    # A ceiling, because the shrink-only claim was not enforced by anything:
-    # adding a path to BOTH the exempt list and this allowance left the suite
-    # green, and the list grew from six to seven unnoticed. Raising this
-    # number is now a deliberate edit with a diff someone reviews.
+    # A ceiling, so adding a path to both lists fails. Raising this number is
+    # a deliberate edit with a diff someone reviews.
     assert len(KNOWN_INERT_EXEMPTIONS) <= 6, (
         f"KNOWN_INERT_EXEMPTIONS has grown to {len(KNOWN_INERT_EXEMPTIONS)}. "
         f"It is a ratchet: it may shrink as `exemptions-that-exclude-nothing` "
@@ -348,13 +338,12 @@ def test_a_stale_exemption_fails_the_build():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D6 - the release that carries the removal says so
+# `TRC-D6` - the release that carries the removal says so
 # ---------------------------------------------------------------------------
 
 def test_the_release_that_carries_the_removal_says_so():
-    # The MAJOR is what this scenario is about, not the exact release. Pinning
-    # `== "4.0.0"` made the check fail on 4.0.1 and on every release after the
-    # one it was written for - a guard with an expiry date nobody set.
+    # Checks the major version, not the exact release, so later 4.x releases
+    # pass.
     #
     # What ADR-006 forbids is removing a public name inside a major version.
     # 4.x is where these removals are allowed to have happened; which 4.x is
@@ -424,7 +413,7 @@ def _versions_in(blob) -> set[str]:
 
 
 # ---------------------------------------------------------------------------
-# TRC-D7 - nothing is left over from the removal
+# `TRC-D7` - nothing is left over from the removal
 # ---------------------------------------------------------------------------
 
 def test_no_dead_redirect_machinery_survives_the_removal():
@@ -459,13 +448,15 @@ def test_no_dead_redirect_machinery_survives_the_removal():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D8 - every list of the governance files names all of them
+# `TRC-D8` - every list of the governance files names all of them
 # ---------------------------------------------------------------------------
 
-# Surfaces that enumerate the prose files in `governance/`. Each one either
-# tells a reader to copy them, tells a check to run against them, or tells a
-# script to require them - so a list that is missing a file is a broken
-# promise rather than a typo.
+# Surfaces that enumerate the prose files in `governance/`. Each list does
+# one of three things:
+#   - tells a reader to copy them;
+#   - tells a check to run against them;
+#   - tells a script to need them.
+# A list missing a file is a broken promise, not a typo.
 # `docs/releasing.md` is deliberately absent: it is a release note that
 # mentions the new file, not a list of the whole set.
 GOVERNANCE_ENUMERATIONS = (
@@ -480,12 +471,9 @@ GOVERNANCE_ENUMERATIONS = (
 def test_every_list_of_the_governance_files_names_all_of_them():
     """Adding a governance file means updating every list that enumerates them.
 
-    `governance/strategies-rationale.md` was added by this change, and
-    `strategies.md` links to it. Three separate places tell a project which
-    governance files to copy, and none of them named it - so every project
-    running `/compass:init` would have got a `strategies.md` whose pointer
-    resolved to nothing. Four more places enumerate the same set for other
-    reasons and had the same gap.
+    `strategies.md` links to `governance/strategies-rationale.md`. A missing
+    entry means `/compass:init` copies a `strategies.md` whose pointer
+    resolves to nothing.
 
     Checked by globbing `governance/*.md` rather than against a hardcoded
     list, so the next file added here is caught the same way.
