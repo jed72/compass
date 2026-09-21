@@ -450,8 +450,23 @@ def _find_retired_word(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A1", "No retired v1 word survives in prose, a comment "
-               "or a test docstring", _find_retired_word))
+_register(Rule(
+    "PBW-A1", "No retired v1 word survives in prose, a comment "
+    "or a test docstring", _find_retired_word,
+    exemptions=(
+        Exemption(
+            "docs/compass/2026-08-27-sdd-loop-spike.md",
+            "cross-task-architectural-integrity",
+            "the real slug of a filed, landed issue - an identifier "
+            "(section 4), not a v1-vocabulary use of \"task\""),
+        Exemption(
+            "docs/compass/2026-08-27-sdd-loop-spike.md",
+            "task-reviewer-prompt.md",
+            "the literal filename of a file inside the Superpowers "
+            "repository, cited so the reference stays openable - not "
+            "this project's vocabulary"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -803,8 +818,17 @@ def _find_missing_reference(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A8", "Every file and command a comment names exists",
-               _find_missing_reference))
+_register(Rule(
+    "PBW-A8", "Every file and command a comment names exists",
+    _find_missing_reference,
+    exemptions=(
+        Exemption(
+            "docs/compass/2026-08-27-sdd-loop-spike.md", "obra/superpowers",
+            "every path under obra/superpowers/ is inside the Superpowers "
+            "repository, not this one - the file itself says so and gives "
+            "the github.com URL each path resolves against"),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
