@@ -1,27 +1,23 @@
-"""Acceptance tests for task readable-specs-and-flow.
+"""Acceptance tests for issue readable-specs-and-flow.
 
-Each test_trc_* function asserts one scenario in
-docs/compass/2026-08-03-readable-specs-and-flow/acceptance-criteria.md.
+Each test_trc_* function asserts one scenario:
+readable-specs-and-flow/acceptance-criteria.md.
 
 Why these are regex assertions over markdown rather than unit tests: the
-"production" change for most of this task is the text of shipped templates,
+"production" change for most of this issue is the text of shipped templates,
 skills, agents and commands. That is the same situation
 tests/test_plugin_doc_drift.py is in, and these follow its approach. The
-executable half of the task (the `compass plan lint` subcommand) is tested
+executable half of the issue (the `compass plan lint` subcommand) is tested
 separately in tests/test_no_placeholders_check.py, where real unit tests are
 possible.
 
 These are still real tests: they run under `pytest tests/`, they fail when the
 shipped text drifts, and `compass tdd-red` / `compass tdd-green` write typed
-test-run evidence from them that the verify gates accept.
+test-run evidence from them that the verify stage's gates accept.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006).
 import re
 import subprocess
 import sys
@@ -117,9 +113,7 @@ def test_trc_a2_summary_has_three_named_fields():
 
 def test_trc_a3_summary_length_scales_by_route():
     """Length guidance is stated per delivery approach, so a quick fix's
-    criteria do not get an initiative-sized preamble. (The names moved to
-    the v2 vocabulary in the template-prose rename slice; the rule is
-    unchanged.)"""
+    criteria do not get an initiative-sized preamble."""
     body = _section(_read(SPEC_TEMPLATE), "Summary")
     low = body.lower()
 
@@ -149,7 +143,7 @@ def test_trc_a4_template_scenario_machinery_intact():
 
 
 def test_trc_a5_spec_author_and_skill_name_summary():
-    """Both the agent that runs Specify and the skill it loads tell the author
+    """Both the agent that runs define and the skill it loads tell the author
     to write the Summary, and both name all three fields."""
     for rel in (SPEC_AUTHOR, BDD_SKILL):
         text = _read(rel)
@@ -161,8 +155,8 @@ def test_trc_a5_spec_author_and_skill_name_summary():
 
 
 def test_trc_a6_dor_requires_filled_summary():
-    """A filled Summary is a condition of leaving Clarify - enforced by the
-    Definition of Ready checklist, not by the CLI."""
+    """A filled Summary is a condition of leaving the requirements review -
+    enforced by the Definition of Ready checklist, not by the CLI."""
     body = _section(_read(CLARIFICATIONS_TEMPLATE), "Gate")
 
     assert "definition of ready" in body.lower(), "Definition of Ready section not found"
@@ -237,7 +231,8 @@ def test_trc_b3_self_review_is_fix_inline():
 
 
 def test_trc_b4_self_review_complements_clarify():
-    """The self-check adds to Clarify; it does not stand in for it."""
+    """The self-check adds to the requirements review; it does not stand in
+    for it."""
     low = _self_review().lower()
 
     assert "review still runs" in low, (
@@ -250,8 +245,9 @@ def test_trc_b4_self_review_complements_clarify():
 
 
 def test_trc_b5_express_self_check_recorded_in_devlog():
-    """Where Clarify collapses, the self-check is the QA - so it goes on disk,
-    not into the conversation (S4)."""
+    """Where the requirements review collapses, the self-check is the QA -
+    so it goes on disk, not into the conversation (`S4`, persistence over
+    conversation)."""
     low = _self_review().lower()
 
     assert "quick-fix" in low or "quick fix" in low, ("The self-review says nothing about the quick fix")
@@ -299,8 +295,8 @@ def test_trc_c3_check_sits_in_strategies_walk():
 
 
 def test_trc_c4_guardrail_count_stays_five():
-    """ADR-002: the framework grows by adding artifacts and lenses, not
-    guardrails. A sixth G-letter would dilute the concept."""
+    """ADR-002: the framework grows by adding artifacts, not rules. A
+    sixth guardrail would dilute the concept."""
     import yaml
 
     gy = yaml.safe_load((ROOT / "governance/guardrails.yml").read_text())
@@ -327,8 +323,8 @@ def test_trc_c4_guardrail_count_stays_five():
 
 
 def test_trc_c6_no_gate_or_floor_added():
-    """The check stays advisory on every route: no floor promotes it, and no
-    route shape lists it as a gate."""
+    """The check stays advisory on every delivery approach: no floor
+    promotes it, and no delivery-approach shape lists it as a gate."""
     import yaml
 
     rp = yaml.safe_load((ROOT / "governance/routing-policy.yml").read_text())
@@ -361,7 +357,7 @@ HANDOFF_PHASES = {
 
 
 def test_trc_d1_specify_handoff_prompt():
-    """Specify closes by inviting a cold-reader review: what was written, what
+    """Define closes by inviting a cold-reader review: what was written, what
     to look for, and what happens on approval."""
     text = _read("commands/define.md")
     assert HANDOFF_HEADING in text, "commands/define.md has no Hand-off section"
@@ -432,7 +428,7 @@ def _guide_example_sections():
 
 
 def test_trc_e1_guide_has_four_worked_examples():
-    """S7 shown applied to four kinds of artifact. A strategy described but
+    """`S7` shown applied to four kinds of artifact. A strategy described but
     never demonstrated is the thing this guide exists to fix."""
     text = _read(GUIDE)
     headings = re.findall(r"^## Example \d+ - (.+)$", text, re.M)
@@ -470,7 +466,7 @@ def test_trc_e2_examples_are_before_and_after():
 
 def test_trc_e3_guide_names_non_adoptions():
     """What Compass deliberately does not adopt, and why. An unstated boundary
-    gets re-litigated; a stated one gets a decision to argue with."""
+    gets argued again; a stated one gets a decision to argue with."""
     flat = _flat(_read(GUIDE))
 
     # No subagent review loop, with the measured reason.
@@ -516,13 +512,14 @@ def test_trc_e4_guide_is_linked():
 def test_trc_f1_pre_existing_specs_still_pass():
     """Specs written before the Summary existed must not start failing.
 
-    ADR-006 (backward compatibility is non-negotiable) is the reason the Summary
-    is enforced by the Definition of Ready at Clarify rather than by a validator
-    in `compass check`: a mechanical check over prose structure would fail every
-    spec already on disk, and every adopter's too.
+    ADR-006 (backward compatibility is non-negotiable) is the reason the
+    Summary is enforced by the Definition of Ready at the requirements
+    review rather than by a check in `compass check`: a mechanical check
+    over prose structure would fail every spec already on disk, and every
+    adopter's too.
     """
     work = ROOT / ".compass/work"
-    if not work.is_dir():          # the task directory is not shipped to adopters
+    if not work.is_dir():          # the issue directory is not shipped to adopters
         return
 
     older = [
@@ -539,21 +536,22 @@ def test_trc_f1_pre_existing_specs_still_pass():
         "every spec has been backfilled, delete it."
     )
 
-    # Nothing mechanical may require the section. Check each task that predates
-    # this change individually, skipping the task currently in flight: a task
-    # mid-Build has not recorded its green run yet, and asserting otherwise
-    # would make this test fail for the duration of every future task.
+    # Nothing mechanical may need the section. Check each issue that predates
+    # this change individually, skipping the active issue: an issue
+    # mid-implement has not recorded its green run yet, and asserting
+    # otherwise would make this test fail for the duration of every future
+    # issue.
     current = ROOT / ".compass" / "current-task"
-    in_flight = current.read_text().strip() if current.is_file() else ""
+    active_issue = current.read_text().strip() if current.is_file() else ""
 
     failures = []
     not_startable = {"queued", "parked", "abandoned"}
     for path in sorted(work.glob("*/manifest.yml")):
         slug = path.parent.name
-        if slug == in_flight:
+        if slug == active_issue:
             continue
         # Unstarted or stopped work has no green run by definition - same
-        # reason the in-flight issue is excluded.
+        # reason the active issue is excluded.
         try:
             status = (yaml.safe_load(path.read_text()) or {}).get("status", "active")
         except Exception:
