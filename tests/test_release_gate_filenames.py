@@ -12,8 +12,8 @@ this repository usually chases: a check that cannot fail hides because nobody
 sees a failure, and a check that cannot pass hides because a release-time gate
 is only exercised at release time. Both look exactly like a check that ran.
 
-Scenario ids: TRC-A1, TRC-F1 in
-docs/compass/2026-08-28-release-gate-greps-the-old-manifest-filename/acceptance-criteria.md
+Scenario ids: `TRC-A1`, `TRC-F1` in
+release-gate-greps-the-old-manifest-filename/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ RELEASE_SH = REPO_ROOT / "scripts" / "release.sh"
 
 # Filenames the script may grep for inside the tarball listing. Each must be a
 # real artifact name. `task.yml` is deliberately absent: it is the pre-rename
-# spelling, and greping for it is the defect these scenarios cover.
+# spelling, and grepping for it is the defect these scenarios cover.
 CURRENT_RECORD = "manifest.yml"
 
 
@@ -35,14 +35,14 @@ def _release_sh() -> str:
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - the examples check names the file that exists
+# `TRC-A1` - the examples check names the file that exists
 # ---------------------------------------------------------------------------
 
 def test_the_examples_check_names_the_file_that_exists():
     body = _release_sh()
 
     # The check exists at all. Without this the two assertions below would
-    # pass over a script that no longer verifies the examples.
+    # pass over a script that no longer checks the examples.
     assert "examples integrity" in body, (
         "scripts/release.sh no longer carries the examples-integrity check, "
         "so nothing verifies that a worked example's issue record survives "
@@ -76,7 +76,7 @@ def test_the_examples_check_names_the_file_that_exists():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a check that cannot pass is refused
+# `TRC-F1` - a check that cannot pass is refused
 # ---------------------------------------------------------------------------
 
 def test_a_check_that_cannot_pass_is_refused():

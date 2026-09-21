@@ -1,24 +1,22 @@
 """Public copy does not claim an outside user, or time one.
 
 Two standing constraints meet here. Nobody outside this repository has used
-Compass, so no shipped file may say or imply otherwise. And B2 - the
+Compass, so no shipped file must say or imply otherwise. And B2 - the
 cold-user test that would have measured how long a first run takes - was
 skipped by maintainer decision, so any duration attached to a user's
-experience is unmeasured rather than merely unproven, and may not appear in
-public copy.
+experience is unmeasured rather than merely unproven, and must not appear
+in public copy.
 
 ADR-013 breached both in one clause: its Context said the install "failed on
 the machine of someone who had known Compass for ninety seconds", in the past
 tense, which reads as a report of a real outside user and carries a timing
-figure. The issue's own working artifacts phrased the same point
-hypothetically; the tense drifted when the reasoning was lifted into a
-published record.
+figure.
 
 Scope note: this scans the files a reader can actually clone. `.compass/work/`
 and `docs/proposals/` are gitignored, so what they say is working material
 rather than public copy, and they are deliberately not scanned.
 
-Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, `TRC-2`).
 """
 from __future__ import annotations
 
