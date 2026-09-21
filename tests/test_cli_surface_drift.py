@@ -144,10 +144,10 @@ def test_trc_b1_agents_adapter_section_names_new_cross_task_kit_calls():
     """AGENTS.md's adapter contract section names every new cross-task kit call."""
     text = (ROOT / "AGENTS.md").read_text()
     m = re.search(
-        r"##\s+What a runtime adapter must provide.*?(?=^##\s+|\Z)",
+        r"##\s+What a runtime adapter must give.*?(?=^##\s+|\Z)",
         text, re.DOTALL | re.MULTILINE,
     )
-    assert m, "'What a runtime adapter must provide' section not found in AGENTS.md"
+    assert m, "'What a runtime adapter must give' section not found in AGENTS.md"
     section = m.group(0)
     missing = [s for s in _new_cross_task_commands() if s not in section]
     assert not missing, (

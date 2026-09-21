@@ -90,7 +90,7 @@ and the things it does not claim.
   to load with it, the stage-to-command map, the shape of an issue directory.
 - The `worktree-multiagent` skill, loaded by the orchestrator - who may create
   a worktree, who works inside one, how the subtask count is bounded.
-- `.compass/work/<issue>/` - the manifest, the artefacts and the evidence.
+- `.compass/work/<issue>/` - the manifest, the artifacts and the evidence.
 - `governance/` and `architecture/` - at the project root, not under
   `.compass/`. Compass ships an `architecture/`: its own invariants and the
   decision records behind the guardrails, the sizing model and the role

@@ -525,8 +525,45 @@ def _find_word_table(span: ProseSpan) -> list[Finding]:
     return findings
 
 
+# CLAUDE.md and AGENTS.md each carry the maintainer's own "Use the shorter
+# word" reference table - the rule's documentation, not prose that breaks the
+# rule. Its rows name the very words the rule retires, so the table cannot
+# pass this sweep by rewording (PBW-F4 refuses a rewrite that would). Each
+# row is its own named exemption (PBW-E3): the quote is the whole row, so a
+# later row sharing a short word such as "attempt" cannot exempt unrelated
+# prose elsewhere in the same file.
+_SHORTER_WORD_TABLE_ROWS: tuple[str, ...] = (
+    "| utilise, leverage | use |",
+    "| obtain, acquire | get |",
+    "| provide, supply | give |",
+    "| indicate, denote | show |",
+    "| validate | check |",
+    "| modify, alter | change |",
+    "| require | need |",
+    "| ensure | make sure |",
+    "| perform, execute | do |",
+    "| facilitate | help |",
+    "| attempt | try |",
+    "| sufficient | enough |",
+    "| currently | now |",
+    "| subsequently | then |",
+    "| prior to | before |",
+    "| in order to | to |",
+    "| due to the fact that | because |",
+    "| with regard to | about |",
+)
+
+_SHORTER_WORD_TABLE_EXEMPTIONS: tuple[Exemption, ...] = tuple(
+    Exemption(path, row,
+              "the \"Use the shorter word\" table names the retired word as "
+              "documentation of the rule, not as prose that breaks it")
+    for path in ("CLAUDE.md", "AGENTS.md")
+    for row in _SHORTER_WORD_TABLE_ROWS
+)
+
 _register(Rule("PBW-A2", "The shorter word stands where the word is not an "
-               "identifier", _find_word_table))
+               "identifier", _find_word_table,
+               exemptions=_SHORTER_WORD_TABLE_EXEMPTIONS))
 
 
 # ---------------------------------------------------------------------------
