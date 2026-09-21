@@ -84,7 +84,7 @@
       2,
       2
     ],
-    "list_items": 12,
+    "list_items": 11,
     "table_rows": 10
   },
   "approaches/initiative.md": {
@@ -757,11 +757,10 @@
       3,
       3,
       2,
-      2,
       2
     ],
     "list_items": 22,
-    "table_rows": 3
+    "table_rows": 0
   },
   "governance/routing-policy.md": {
     "fences": 2,
@@ -776,7 +775,7 @@
       2,
       2
     ],
-    "list_items": 18,
+    "list_items": 17,
     "table_rows": 0
   },
   "governance/strategies.md": {
@@ -803,7 +802,7 @@
       3,
       2
     ],
-    "list_items": 88,
+    "list_items": 89,
     "table_rows": 0
   },
   "skills/adaptive-routing/SKILL.md": {

@@ -7,6 +7,12 @@ supersedes: ''
 superseded_by: ''
 ---
 
+> **Vocabulary note (ADR-023, 2026-08-27):** this record's *framing step* is
+> now the **assess** stage; *readings* are now the **assessment**; the
+> *route* is now the **delivery approach**; `task.yml` is now
+> `manifest.yml`. The record keeps the words it was decided in; only the
+> names have moved.
+
 ## Context
 
 Early in Compass's design, the framing step produced both the context
@@ -49,15 +55,15 @@ inputs: same output.
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Co-locate readings and route in a single `framing:` block in `task.yml` | Simpler schema - one block for everything Frame produces | The human's judgement becomes indistinguishable from the computed result; audits cannot determine which changed when a re-frame occurs |
-| Let the mechanism propose initial readings (pre-filling blast radius, terrain) and have the human confirm | Reduces human effort at Frame | Pre-filled values become anchors; the human loses calibration discipline; the feedback loop that makes the Needle improve over time (via `/compass:calibration`) breaks |
+| Let the mechanism propose initial readings (pre-filling blast radius, terrain) and have the human confirm | Reduces human effort at Frame | Pre-filled values become anchors; the human loses calibration discipline; the feedback loop that makes the Needle improve over time (via `compass retro`) breaks |
 | Store readings in a separate `readings.yml` file outside `task.yml` | Clean separation at the file level, not just the field level | Creates a two-file coordination problem; `task.yml` is the task spine - splitting it creates surface for inconsistency |
 
 ## Consequences
 
 **Positive:**
 - Audits are unambiguous: a wrong route means either wrong readings (human
-  error, feedbacks into calibration) or wrong policy (policy bug, fixes the
-  YAML). The two failure modes are distinguishable.
+  error, feeds back into calibration) or a policy bug, fixed in the YAML. The
+  two failure modes are distinguishable.
 - Re-frames are first-class: `task.yml.reframes` records every time a human
   changed the readings, with a `--reason`. The history is inspectable.
 - Deterministic mechanism: tests can assert that given fixed readings and a
@@ -65,7 +71,7 @@ inputs: same output.
   and `tests/fixtures/route-baseline.yml` hold the mechanism to this contract.
 
 **Negative:**
-- Every framework task now requires a human to fill in four dimensions before
+- Every framework task now needs a human to fill in four dimensions before
   any code-changing tool call. This is friction. On small or obvious tasks, it
   can feel like process weight. The framework accepts this cost deliberately - the
   calibration signal is worth more than the saved seconds per task.
@@ -83,8 +89,8 @@ inputs: same output.
 
 ## References
 
-- Compass methodology: `docs/methodology.md` §"The one rule that creates every other rule"
-- Invariant Inv-1 (Frame is mandatory; `readings` is the only judgement field), defined in `architecture/decisions/README.md`
+- Compass methodology: `docs/methodology.md` §2 "Assessment and routing"
+- The invariant that Frame is mandatory and `readings` is the only judgement field (Inv-1), defined in `architecture/decisions/README.md`
 - Boundary rule: no mechanism may write loaded architecture content into `task.yml.readings` (`architecture/ownership.md`)
 - `governance/routing-policy.yml` (the policy the mechanism runs)
 - `tests/fixtures/route-baseline.yml` (the regression fixture for determinism)

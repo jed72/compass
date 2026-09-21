@@ -7,6 +7,14 @@ supersedes: ''
 superseded_by: ''
 ---
 
+> **Vocabulary note (ADR-023, 2026-08-27):** this record's *Standard route*
+> is now the **feature approach**; the *Build* phase is now **implement**;
+> `route.md` is now `delivery-approach.md`; `task.yml` is now
+> `manifest.yml`; `spec.feature.md` is now `acceptance-criteria.md`;
+> `clarifications.md` and `plan.md` are now `requirements-review.md` and
+> `technical-design.md`; the *Frame* stage is now **assess**. The record
+> keeps the words it was decided in; only the names have moved.
+
 ## Context
 
 Claude Code sessions do not have persistent memory across invocations. A task
@@ -14,10 +22,12 @@ that spans multiple sessions - a Standard route task with a two-day Build
 phase, for example - must be resumable by a new session (or a different agent)
 without loss of context.
 
-There are two design choices for how to handle this: (a) keep the important
-state in the conversation history and expect future sessions to re-read the
-earlier messages, or (b) write every output of every phase to a named file on
-disk, from which a new session can reconstruct the full task context.
+There are two design choices for how to handle this:
+
+- keep the important state in the conversation history and expect future
+  sessions to re-read the earlier messages;
+- write every output of every phase to a named file on disk, from which a
+  new session can reconstruct the full task context.
 
 The conversation-as-state approach is the default in most LLM-based tools. It
 is convenient for short tasks but breaks down over long tasks and across
@@ -34,17 +44,19 @@ Phase artifacts live under `.compass/work/<task>/`: `route.md`, `task.yml`,
 phase and read by downstream phases.
 
 Mechanism-produced state (evidence, load records, scan reports) also lives on
-disk in deterministic locations: `architecture-loaded.yml` in the task
-directory, the red and green records in the task directory
-(`evidence/green-<scenario>.json` when the run was bound to a scenario,
-`evidence/green.json` when it was not),
-`.compass/flow/rework-<date>.md` in the flow directory.
+disk in deterministic locations:
+
+- `architecture-loaded.yml` in the task directory;
+- the red and green records in the task directory
+  (`evidence/green-<scenario>.json` when the run was bound to a scenario,
+  `evidence/green.json` when it was not);
+- `.compass/flow/rework-<date>.md` in the flow directory.
 
 No Compass mechanism produces only-in-chat output. If a mechanism's output is
 not a named file, it did not happen.
 
-CLAUDE.md states this as the operative rule: "Persistence over conversation:
-if it isn't on disk, it didn't happen."
+`compass-contract.md` states this as the operative rule: "If it is not on
+disk, it did not happen."
 
 ## Alternatives considered
 
@@ -66,8 +78,8 @@ if it isn't on disk, it didn't happen."
 **Negative:**
 - Every agent invocation must read multiple files to reconstruct context.
   On a long task with many phase artifacts, the context budget is consumed
-  partly by re-reading artifacts. Compression artefacts (`/compress`) help
-  but do not eliminate this cost.
+  partly by re-reading artifacts. `/compact` helps but does not eliminate
+  this cost.
 - The `.compass/work/` directory accumulates files across tasks. Teams that
   do not prune it will accumulate a large history tree. There is no
   automated expiry mechanism.
@@ -80,7 +92,5 @@ if it isn't on disk, it didn't happen."
 
 ## References
 
-- Invariant Inv-6 (every mechanism output is a named file on disk), defined in `architecture/decisions/README.md`
-- `CLAUDE.md` §"The pipeline" ("if it isn't on disk, it didn't happen")
-- `docs/methodology.md` §"Where state lives"
-- `CLAUDE.md` §"Where state lives"
+- The invariant that every mechanism output is a named file on disk (Inv-6), defined in `architecture/decisions/README.md`
+- `compass-contract.md` ("If it is not on disk, it did not happen.")

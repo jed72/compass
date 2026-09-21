@@ -4,7 +4,8 @@
 # reading `defaults:` and each entry's `id`, `name` and `statement`. Change
 # those key names or that nesting and the derivation fails loudly, naming this
 # file - it does not fall back to a hand-written table, because a table would
-# drift from this file in silence. See TRC-C9 in plain-language-3-2-0.
+# drift from this file in silence. This is the derivation-failure criterion
+# (`TRC-C9`).
 # =============================================================================
 # Compass - guardrails.yml
 # =============================================================================
@@ -22,16 +23,16 @@
 #
 # The five default guardrails below ship active. A project may ADD guardrails
 # under `project:` - each needs a named check, or it is a strategy, not a
-# guardrail. `compass policy lint` validates this file against
+# guardrail. `compass policy lint` checks this file against
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.18.0
+version: 1.20.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
 # manifest.yml and evidence/ - it does not re-run tests (that is tdd-green's job);
-# it verifies the recorded state is coherent and backed by evidence.
+# it checks the recorded state is coherent and backed by evidence.
 # -----------------------------------------------------------------------------
 checks:
   borrowed-documents-answered:
@@ -44,7 +45,7 @@ checks:
     description: "Every scenario in manifest.yml lists at least one test."
   scenarios-are-executable:
     description: "Every scenario in manifest.yml was accounted for by the project's BDD runner. Reads the record `compass bdd verify` writes; never runs the suite. No-ops when project.bdd_runner is unset."
-    # Reading-scoped, exactly like a guardrail's `applies_when:`.
+    # Assessment-scoped, exactly like a guardrail's `applies_when:`.
     # Below this threshold a finding is reported without failing the
     # run - most projects have wired no runner, and an advisory
     # finding is the honest default (ADR-006).
@@ -63,16 +64,9 @@ checks:
     description: "Every scenario has a stable id and a linked intent id."
   claim-traces-to-scenario:
     description: >
-      Every claim maps to a scenario id that exists. TRACEABILITY, NOT TRUTH -
-      and this check is the one in the set whose name promises less than a
-      reader hears. It confirms a claim points at something. It cannot confirm
-      that what the claim says is so, and no machine can. A claim reading "7 em
-      dashes repaired to zero" traced correctly to its scenario and was false:
-      the file had never contained one. Passing means "this is traceable"; a
-      reader will hear "this is verified". Every other check here means roughly
-      what it sounds like, which is exactly why this one needs saying. What
-      catches a false claim is the reviewer at verify.claims, reading it against
-      the scenario it points at - a person, not this check.
+      Every claim maps to a scenario id that exists. This checks
+      traceability, not truth; the reviewer at verify.claims checks whether
+      the claim is true.
   gate-evidence-present:
     description: "Every gate marked pass has an evidence pointer that resolves."
   human-approval-present:
@@ -82,7 +76,7 @@ checks:
   spike-conclusion-present:
     description: "A spike has a `spike-conclusion` evidence entry with a recorded decision (discard | graduate-to-delivery | defer); graduate-to-delivery links the next issue."
   spike-no-production-changes:
-    description: "A Spike's `changed_files` is empty - a spike ships nothing; graduating to delivery is a fresh triage, not a merge."
+    description: "A Spike's `changed_files` is empty - a spike ships nothing; graduating to delivery is a fresh assessment, not a merge."
   dod-evidence-typed:
     description: >
       Every unchecked DoD box in verification-report.md must carry an inline
@@ -99,12 +93,13 @@ checks:
       Every test-run evidence entry is checked for rerun integrity. A record
       with rerun_without_change: true must have its test listed in the project
       quarantine registry (governance/quarantine.yml) with a tracking issue - a
-      rerun-to-green without a quarantine entry is a G4 failure (S5: intermittency
-      is failure). A record with attempts > 1 but no rerun_without_change marker
-      is also rejected - incomplete evidence cannot clear G4. Old evidence without
-      an attempts field passes trivially (backward compat, TRC-A5). May carry
+      rerun-to-green without a quarantine entry is a `G4` failure (`S5`: intermittency
+      is failure). A record with `attempts` > 1 but no rerun_without_change marker
+      is also rejected - incomplete evidence cannot clear `G4`. Old evidence without
+      an `attempts` field passes trivially (backward compatibility, ADR-006,
+      `TRC-A5`). May carry
       attempts: <int> and rerun_without_change: <bool> to signal rerun integrity
-      (see strategy S5).
+      (see strategy `S5`).
   evidence-identity-matches:
     description: >
       Every registry entry still names the record it was created from. Records
@@ -113,7 +108,7 @@ checks:
       record_id means the file was replaced after it was cited; a matching
       record_id with a different digest means it was edited in place. An entry
       with no record_id predates stamping and is UNVERIFIABLE - reported and
-      counted apart from the passes, never treated as verified, because an
+      counted apart from the passes, never treated as checked, because an
       unstamped record cannot be checked against its citation.
 
   command-passes:
@@ -137,14 +132,14 @@ evidence_types:
       scenario-bound `compass tdd-green`, or evidence/green.json from an
       unbound one.
       The strongest: a machine ran it. May carry attempts: <int> and
-      rerun_without_change: <bool> to signal rerun integrity (see strategy S5 and
+      rerun_without_change: <bool> to signal rerun integrity (see strategy `S5` and
       the no-trusted-rerun check).
   command-output:
     description: "Captured output of a command - a scanner, a linter, a coverage run, a `compass check` run."
   manual-review:
     description: "A recorded reviewer judgement - a code review or governance review captured in a file. Stronger than a generic artifact because it is a named review, not a stray note."
   human-approval:
-    description: "A recorded human sign-off - for irreversible changes (guardrail G5). Has structured fields: approver, role, decision, timestamp, scope, conditions."
+    description: "A recorded human sign-off - for irreversible changes (guardrail `G5`). Has structured fields: approver, role, decision, timestamp, scope, conditions."
   security-review:
     description: "A recorded security review or scan result - for security-sensitive changes."
   migration-plan:
@@ -152,10 +147,10 @@ evidence_types:
   rollback-plan:
     description: >
       A record showing the rollback was REHEARSED - what was run, when, and
-      against what. Not a plan: SWEBOK v4 §6.3.3 requires "a planned and
+      against what. Not a plan: SWEBOK v4 §6.3.3 needs "a planned and
       rehearsed rollback" before a new version is deployed, and a rollback
       nobody has run is a guess. A guess recorded as a plan is the assertion
-      guardrail G4 exists to reject.
+      guardrail `G4` exists to reject.
   claim-review:
     description: "A recorded review of public/user-facing claims against backing scenarios - the marketer's audit trail."
   spike-conclusion:
@@ -182,7 +177,7 @@ gate_evidence_requirements:
   verify.architecture: [test-run, command-output]    # architecture checks: command-output from command-passes, or a test-run
 
 # -----------------------------------------------------------------------------
-# DEFAULT GUARDRAILS - G1–G5. Shipped active. The floor under every route.
+# DEFAULT GUARDRAILS - `G1`–`G5`. Shipped active. The floor under every delivery approach.
 # -----------------------------------------------------------------------------
 defaults:
 
@@ -191,8 +186,8 @@ defaults:
     statement: >
       No code reaches main unless it traces to a declared test and a green test run is on record.
       Compass checks that both exist and line up; it does not observe the declared test running - see docs/safety-contract.md for what a test-run record does and does not establish.
-    # The red-before-green ritual is strategy S2, not this guardrail. G1 is the
-    # outcome; `compass check` verifies the outcome, the hook enforces S2.
+    # The red-before-green cycle is strategy `S2`, not this guardrail. `G1` is the
+    # outcome; `compass check` checks the outcome, the hook enforces `S2`.
     # `declared-tests-resolve` closes the gap that a test being *named* is not
     # the same as a test existing. It fires only once an issue has claimed
     # verify.correctness and is still active - before that the test legitimately
@@ -205,7 +200,7 @@ defaults:
     name: "Acceptance defined before it is built"
     statement: >
       No code is written that no stated, checkable acceptance criterion
-      describes. BDD scenarios (strategy S1) are the default form.
+      describes. BDD scenarios (strategy `S1`) are the default form.
     checks: [scenario-has-id-and-intent]
     checked_at: [clarify, verify]
 
@@ -244,11 +239,10 @@ defaults:
     # can lose data - a backup/restore path, a destructive cleanup job, a
     # retention policy, a storage migration written in application code - may
     # carry none of the four tags and still be exactly what this guardrail is
-    # for. `critical` is defined in the router rubric as "can this lose data,
-    # lose money, breach auth/privacy, or resist a clean rollback": the same
-    # four consequences. The definitions already agreed; only the trigger did
-    # not. The routing policy floors both arms heavily, so the checkpoint has a
-    # home either way.
+    # for. `critical` is defined in the router rubric as "Failure can lose
+    # data, lose money, breach auth/privacy, or cannot be cleanly rolled
+    # back": the same four consequences. The routing policy floors both arms
+    # heavily, so the checkpoint has a home either way.
     applies_when:
       any_of:
         - touches_any: [auth, payments, personal-data, migrations]
@@ -257,7 +251,7 @@ defaults:
 
 # -----------------------------------------------------------------------------
 # SPIKE GUARDRAILS - apply only on a spike. A spike is intentionally
-# free of the delivery guardrails (G1-G5 do not apply), but it is still
+# free of the delivery guardrails (`G1`-`G5` do not apply), but it is still
 # CONTROLLED: it must conclude, and it must not silently produce production
 # work. `compass check` runs these instead of the defaults on a spike.
 # -----------------------------------------------------------------------------
@@ -277,8 +271,8 @@ spike_guardrails:
     statement: >
       A Spike ships nothing - its `changed_files` must be empty. Exploration
       code lives on a scratch branch; if the finding is acted on, a fresh
-      triage owns the code under a real route's guardrails. This is the safety
-      model: a Spike cannot silently become delivery.
+      assessment owns the code under a real delivery approach's guardrails.
+      This is the safety model: a Spike cannot silently become delivery.
     checks: [spike-no-production-changes]
     checked_at: [land]
 

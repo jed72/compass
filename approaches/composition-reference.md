@@ -1,6 +1,6 @@
 # How an approach is composed and constrained
 
-Split out of `rubric.md`, and deliberately **not** part of the assess read.
+Assess does not load this file.
 
 This describes what `compass approach evaluate` does: how a candidate shape
 is composed from the four dimensions, and how floors, caps, immovable gates
@@ -13,42 +13,41 @@ understand why the CLI returned the approach it did. `compass approach
 evaluate --verbose` prints which rules fired for any assessment, and that is
 usually the faster answer.
 
-## Step 2 - Compose the candidate route
+## Composing the candidate delivery approach (Step 1 is in `rubric.md`)
 
-The candidate route is a composition, not a lookup. Assess assembles it
-from per-dimension contributions:
+The candidate delivery approach is a composition, not a lookup. Assess
+assembles it from per-dimension contributions:
 
-| The route is heavier when… | The route is lighter when… |
+| The delivery approach is heavier when… | The delivery approach is lighter when… |
 |---|---|
 | risk is `cross-cutting`/`critical` | risk is `trivial` |
 | familiarity is `greenfield` or `brownfield-unmapped` | familiarity is `brownfield-mapped` |
 | size is `large`/`product` | size is `atomic`/`small` |
 | a non-engineering role is involved (more artifacts, more gates) | only `engineer` is involved |
 
-Concretely, triage decides, per phase:
+Concretely, `compass approach evaluate` decides, per stage:
 
 - **Define** - how many scenarios, discovery vs. behaviour mapping, how deep.
 - **Refine** - full pass, light pass, or collapsed (only collapsible when the
-  spec is a single unambiguous scenario *and* no routing guardrail requires it).
+  spec is a single unambiguous scenario *and* no routing rule needs it).
 - **Plan** - "edit this file" one-liner, a real technical plan, or a plan plus
   a distribution map.
 - **Breakdown** - skipped (solo), pair, or multiagent. Subtask count comes from the
   distribution map; orchestration thresholds come from `.compass/config.yml`.
-- **Build** - test surface target, scaled to risk.
+- **Implement** - test surface target, scaled to risk.
 - **Verify** - which review dimensions apply (see below), how many gates.
 - **Ship** - trivial integration vs. coordinated multi-worktree merge; which
   follow-ups are owed.
 
 Most compositions land near one of the five reference shapes
-(`express`, `standard`, `expedition`, `hotfix`, `spike`). Assess names the
+(quick fix, feature, initiative, hotfix, spike). Assess names the
 nearest reference shape in `delivery-approach.md` for shared vocabulary, then lists any
-phase-level deviations from it. A route that is "Standard, but Verify also runs
-the security dimension because risk is cross-cutting" is a perfectly
-normal output - that is the framework working as designed.
+stage-level deviations from it. A delivery approach that is "Feature, but Verify also runs
+the security dimension because risk is cross-cutting" is a normal output.
 
-### Review dimensions by route (the default; routing guardrails can add but not remove)
+### Review dimensions by delivery approach (the default; routing rules can add but not remove)
 
-| Dimension | quick fix | Standard | initiative | Hotfix | Spike |
+| Dimension | quick fix | Feature | initiative | Hotfix | Spike |
 |---|---|---|---|---|---|
 | correctness | ✓ | ✓ | ✓ | ✓ | - |
 | governance | ✓ | ✓ | ✓ | ✓ | - |
@@ -66,19 +65,16 @@ its own Conclude gate ("was the question answered?"); see `approaches/spike.md`.
 
 ---
 
-## Step 3 - Constrain with the routing guardrails
+## Constraining with the routing rules
 
-The candidate route - already biased by the routing strategies in Step 2 - is
-now bounded by the **routing guardrails** in `governance/routing-policy.md`:
+The candidate delivery approach - already biased by the routing strategies
+above - is now bounded by the **routing rules** in `governance/routing-policy.md`:
 
-1. **floors** raise the route or force phases/skills back to full weight.
+1. **floors** raise the delivery approach or force stages back to full weight.
 2. **caps** limit scale-up (e.g. the worktree ceiling on critical risk).
-3. **immovable_gates** are stapled on regardless of route.
-4. **blocking role_rules** add required artifacts and phase blocks.
+3. **immovable_gates** are added whatever the delivery approach.
+4. **blocking role_rules** add required artifacts and stage blocks.
 
-Every routing guardrail that fires is recorded. Assess never applies a
+Every routing rule that fires is recorded. Assess never applies a
 constraint silently - if quick fix became initiative, `delivery-approach.md` says which floor
 did it and quotes the floor's rationale.
-
----
-

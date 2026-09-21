@@ -121,8 +121,8 @@ def test_trc_a1_the_rule_is_stated():
     assert re.search(r"first use", joined, re.I), (
         f"the vocabulary entry still tells a writer to drop the code rather "
         f"than expand it on first use: {entry!r}")
-    assert "S12" in str(entry.get("term", "")), (
-        f"the entry still names S1..S7; the strategies run to S12: {entry!r}")
+    assert "S14" in str(entry.get("term", "")), (
+        f"the entry still names S1..S7; the strategies run to S14: {entry!r}")
 
 
 # ---------------------------------------------------------------------------

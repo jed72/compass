@@ -1,7 +1,7 @@
 ---
 id: ADR-015
 title: The vocabulary scan covers code positions, not only prose
-status: accepted
+status: superseded
 date: 2026-08-13
 supersedes: ''
 superseded_by: ADR-018
@@ -37,7 +37,7 @@ task.get('route', '?')                     # a retired spine key
 os.path.join(task_dir, "plan.md")          # a retired artifact filename
 ```
 
-Three of the six defects in this cycle hid in precisely that shape, inside
+Three defects found during the 3.0.0 rename hid in precisely that shape, inside
 `cli/compass_pkg/` - a surface the scan already covered. The guard reported
 success on files containing the exact names it existed to ban. `compass
 check`'s header printed a placeholder on every run and the cross-issue board
@@ -67,6 +67,10 @@ retired-verb pointer already used, and it has the property that every
 remaining v1 spelling in the codebase lives in one file that a reader can
 enumerate.
 
+**Amendment.** `SPINE_KEY_MAP` and `ASSESSMENT_KEY_MAP` stay in
+`cli/compass_pkg/core.py`, not in `cli/migrate-map.yml`, because the
+manifest loader reads them at import time, before it can load YAML.
+
 **Where a fenced block must legitimately quote a historical name** - a
 changelog entry, a worked example about the rename itself - the resolution is
 a named exemption with a stated reason, never a quiet loosening of the scan.
@@ -76,7 +80,7 @@ a named exemption with a stated reason, never a quiet loosening of the scan.
 ## Consequences
 
 **Good.** The guard can now fail in the position where it actually failed.
-`RCD-G5` requires that to be demonstrated rather than assumed - the tightened
+`RCD-G5` needs that to be demonstrated rather than assumed - the tightened
 scan is broken on purpose in each newly-covered position before it is
 accepted, per `S10`.
 
@@ -92,27 +96,26 @@ old output needs an explicit exemption. That is a small tax on writing, and
 the thing it buys is that no v1 name can enter the repository unnoticed
 inside a code fence.
 
-**A general lesson, recorded because it will recur.** An exclusion written
-for a good reason becomes wrong when the surface it applies to changes, and
-it does so *silently* - the scan keeps passing, which reads as coverage. Any
-future narrowing of a scan should name the surface it was reasoned about, so
-the next person can tell whether that reasoning still holds.
+**A future narrowing of a scan must name the surface it was reasoned about.**
+An exclusion written for a good reason becomes wrong when the surface it
+applies to changes, and it does so *silently* - the scan keeps passing,
+which reads as coverage. Naming the surface lets the next person tell
+whether that reasoning still holds.
 
 ## Alternatives considered
 
-**Fix the four call sites, leave the scan as it was.** The author's initial
-recommendation. It repairs the symptom and leaves the guard unable to catch
-the next occurrence - the defect class, not the defect.
+**Fix the four call sites, leave the scan as it was.** Rejected: it repairs
+the symptom and leaves the guard unable to catch the next occurrence - the
+defect class, not the defect.
 
 **Tighten markdown only**, as originally scoped. Would have left the Python
-exclusion in place: the surface where three of the six defects actually hid.
+exclusion in place: the surface where three of the defects actually hid.
 
-**Scan inline spans but not fenced blocks.** The author's recommendation,
-overturned by the maintainer. The objection was that fenced blocks hold
-terminal transcripts where quoting a historical name is the point; the
-measurement showed the real cost was small and bounded, and the exemption
-mechanism handles the genuine cases. Recorded because the numbers, not the
-argument, decided it (`S11`).
+**Scan inline spans but not fenced blocks.** Rejected. The objection was
+that fenced blocks hold terminal transcripts where quoting a historical name
+is the point; the measurement showed the real cost was small and bounded,
+and the exemption mechanism handles the genuine cases. Recorded because the
+numbers, not the argument, decided it (`S11`).
 
 ## References
 
@@ -120,7 +123,7 @@ argument, decided it (`S11`).
   enforcement, and this decision widens what that enforcement can see.
 - ADR-014 - retired names are removed at the major version. This decision is
   only safe once that one has landed.
-- `governance/strategies.md` `S10` - mutation proof. `RCD-G5` requires the
+- `governance/strategies.md` `S10` - mutation proof. `RCD-G5` needs the
   tightened scan to be broken on purpose in each newly-covered position
   before it counts as a guard.
 - `governance/strategies.md` `S11` - measure before arguing. The 200-hits

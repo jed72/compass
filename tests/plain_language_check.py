@@ -39,7 +39,7 @@ import yaml
 REPO_ROOT = Path(__file__).parent.parent
 BASELINE_PATH = REPO_ROOT / "governance" / "plain-language-baseline.json"
 
-# Every id prefix, plus the guardrail and strategy codes. `G1..G5 / S1..S12`
+# Every id prefix, plus the guardrail and strategy codes. `G1..G5 / S1..S14`
 # were already banned bare; the prefixes were not, which is half of what this
 # widens.
 CODE = re.compile(

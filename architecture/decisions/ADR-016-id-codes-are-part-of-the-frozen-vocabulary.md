@@ -17,13 +17,10 @@ shipped surfaces: `TRC-` 639 occurrences, `INT-` 542, `ADR-` 118, `DD-` 59,
 
 `governance/terminology.yml` is the only glossary that exists. ADR-012 froze
 it, and it defines 53 terms - initiative, issue, slice, delivery approach -
-without mentioning a single code. The gap was found by asking "where do I look
-up `TRC-`?" and getting no answer.
-
-Investigating it turned up a second problem. Some prefixes encode words the v2
-freeze banned, and they survived because ids are not prose: the vocabulary
-scan reads what a surface teaches, and a code is a machine identifier that
-happens to be made of letters.
+without mentioning a single code. Nothing defines the codes. Some prefixes
+also encode words the v2 freeze banned, and they survived because ids are not
+prose: the vocabulary scan reads what a surface teaches, and a code is a
+machine identifier that happens to be made of letters.
 
 ## Decision
 
@@ -33,15 +30,15 @@ refers to, and where it appears. `docs/glossary.md` is derived from it;
 `compass terminology` renders codes as well as terms.
 
 **The set of codes is derived from use, not maintained by hand.** The guard
-scans shipped artifacts for prefix patterns and requires a definition for each
-one it finds. A hand-kept list would be the version-location table again: a
-list somebody must remember to extend, which reads as complete whatever it
-omits.
+scans shipped artifacts for prefix patterns and needs a definition for each
+one it finds. A hand-kept list would be `docs/releasing.md`'s version-location
+table again: a list somebody must remember to extend, which reads as
+complete whatever it omits.
 
 **Routing rule ids become `RP-` - routing policy.** `RG-` was wrong because of
 the `G`. `guardrail` is a frozen term meaning one of the five hard rules
 cleared with evidence; `RG-FLOOR-001` is not one of them. Compass already made
-this correction once, renaming the spine key `fired_guardrails` to
+this correction once, renaming the manifest key `fired_guardrails` to
 `policy_rules_fired` for exactly this reason, and the id never followed.
 `RS-` was already correct - `routing_strategies:` is the literal key - but
 `RP-` unifies both into one namespace with one thing to document.
@@ -55,7 +52,7 @@ process weight. Only three of the seven entries in the `floors:` block do
 that; the other four attach a gate when a condition matches and raise no
 minimum at all. They become `RP-REQUIRE-*` while remaining physically in the
 `floors:` list, with a comment saying the block name follows in the
-machine-key slice.
+`rename-routing-policy-machine-keys` issue.
 
 ## Consequences
 
@@ -81,14 +78,14 @@ same commit. Checked before the assessment rather than discovered during
 implementation.
 
 **The archive keeps the ids that fired.** `.compass/work/` holds live
-`RG-FLOOR-006` records, including the spine of the issue that made this
+`RG-FLOOR-006` records, including the manifest of the issue that made this
 decision. Historical records keep the id that actually fired, and a scenario
 asserts no archived file is modified.
 
 ## Alternatives considered
 
-**A hand-written glossary page.** Correct on the day it is written. This
-repository has produced three separate documents this cycle that restated a
+**A hand-written glossary page.** Correct on the day it is written. In the
+3.x cycle this repository produced three separate documents that restated a
 machine-readable source and drifted: a version table that said six while there
 were seven, a transcript promising to be reproducible verbatim that no longer
 matched, and a routing policy documenting its own conditions in retired names.

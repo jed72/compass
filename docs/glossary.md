@@ -36,27 +36,27 @@ Claim id. A public statement the product marketer intends to make. Every claim m
 
 **Refers to:** One planned public claim.
 
-**Appears in:** `positioning.md`, `launch-readiness.md`, `task.yml claims[].id`
+**Appears in:** `positioning.md`, `launch-readiness.md`, `manifest.yml claims[].id`
 
 **Related:** `TRC`, `launch-readiness`
 
 ### `DD-`
 
-Design decision. Numbered within one design.md: what was chosen, what was rejected, and why. A decision with no alternative recorded is not yet a decision.
+Design decision. Numbered within one technical-design.md: what was chosen, what was rejected, and why. A decision with no alternative recorded is not yet a decision.
 
-**Refers to:** One decision inside a single issue's design.
+**Refers to:** One decision inside a single issue's technical design.
 
-**Appears in:** `design.md`
+**Appears in:** `technical-design.md`
 
 **Related:** `ADR`, `design`
 
 ### `EV-`
 
-Evidence id. Identifies one typed record in the issue's evidence registry that clears a quality gate. One record can clear several gates. The accepted types are fixed by guardrails.yml; a gate that requires a mechanical type cannot be cleared with a written note.
+Evidence id. Identifies one typed record in the issue's evidence registry that clears a quality gate. One record can clear several gates. The accepted types are fixed by guardrails.yml; a gate that needs a mechanical type cannot be cleared with a written note.
 
 **Refers to:** One typed evidence record.
 
-**Appears in:** `task.yml evidence[].id`, `gates[].evidence`, `verification-report.md`
+**Appears in:** `manifest.yml evidence[].id`, `gates[].evidence`, `verification-report.md`
 
 **Related:** `quality-gate`, `evidence`
 
@@ -66,7 +66,7 @@ Follow-up id. Work this issue deferred to ship fast and still owes - the hotfix'
 
 **Refers to:** One piece of work this issue deferred and still owes.
 
-**Appears in:** `task.yml follow_ups[].id`, `verification-report.md`
+**Appears in:** `manifest.yml follow_ups[].id`, `verification-report.md`
 
 **Related:** `follow-up`, `definition-of-done`
 
@@ -76,7 +76,7 @@ Intent id. The "why" end of the traceability chain - the outcome the work is mea
 
 **Refers to:** A stated desired outcome.
 
-**Appears in:** `intent.md`, `acceptance-criteria.md`, `task.yml scenarios[].intent`
+**Appears in:** `intent.md`, `acceptance-criteria.md`, `manifest.yml scenarios[].intent`
 
 **Related:** `TRC`, `intent`
 
@@ -108,7 +108,7 @@ Routing policy rule. One rule in routing-policy.yml that biases or constrains th
 
 **Refers to:** One rule in the routing policy.
 
-**Appears in:** `routing-policy.yml`, `delivery-approach.md`, `task.yml policy_rules_fired[].id`
+**Appears in:** `routing-policy.yml`, `delivery-approach.md`, `manifest.yml policy_rules_fired[].id`
 
 **Related:** `routing-policy`, `delivery-approach`, `guardrail`
 
@@ -138,7 +138,7 @@ Traceability id. The join key of the traceability chain: code traces to a TRC- i
 
 **Refers to:** The traced item, normally a scenario.
 
-**Appears in:** `acceptance-criteria.md`, `task.yml scenarios[].id`
+**Appears in:** `acceptance-criteria.md`, `manifest.yml scenarios[].id`
 
 **Related:** `INT`, `EV`, `SCN`
 
@@ -166,9 +166,9 @@ Sizing up incoming work: risk, familiarity, size, and goal - producing an issue 
 
 ### assessment
 
-The four-dimension judgement triage produces - risk, familiarity, size and goal, plus the domain labels. It is the only judgement field in the issue manifest; everything below it is computed from it deterministically.
+The four-dimension judgement the assess stage produces - risk, familiarity, size and goal, plus the domain labels. It is the only judgement field in the issue manifest; everything below it is computed from it deterministically.
 
-**Not:** A choice of process. The assessment is read; the delivery approach is computed from it by `compass approach evaluate`.
+**Not:** A choice of process. The assessment is read; `compass approach evaluate` computes the delivery approach from it.
 
 **Related:** `assess`, `delivery-approach`, `router`
 
@@ -220,7 +220,7 @@ The gate before shipping: acceptance criteria pass, applicable guardrails clear,
 
 ### definition-of-ready
 
-The gate between requirements and design/build: acceptance criteria exist, ambiguities resolved, intent.md reviewed where one exists. Trivially satisfied for a quick fix.
+The gate between requirements and plan/implementation: acceptance criteria exist, ambiguities resolved, intent.md reviewed where one exists. Trivially satisfied for a quick fix.
 
 **Also:** DoR
 
@@ -228,7 +228,7 @@ The gate between requirements and design/build: acceptance criteria exist, ambig
 
 ### delivery-approach
 
-The chosen shape for an issue: which artifacts exist, which gates apply, solo or parallel. Deterministic - same triage plus same policy always gives the same approach.
+The chosen shape for an issue: which artifacts exist, which gates apply, solo or parallel. Deterministic - same assessment plus same policy always gives the same approach.
 
 **Related:** `assess`, `quality-gate`
 
@@ -236,7 +236,7 @@ The chosen shape for an issue: which artifacts exist, which gates apply, solo or
 
 The DESIGNER's stage and its command, /compass:design. It produces the UI contract (ui-contract.md) - scenarios written Given/When/Then that flow into the acceptance criteria, not mockup annotations. The word reads as UI work to most people, which is why the designer has it.
 
-**Not:** NOT the engineering design. That is the plan stage (/compass:plan), whose output is technical-design.md. Until 2026-08-25 `design` meant both, and a reader following the wrong one wrote a UI contract where a technical design was wanted and was told it worked. Also NOT the CLI verb: the placeholder scan is `compass plan lint`. Its retired spelling was kept as a hidden second name through 3.x and removed at 4.0.0 (ADR-024); it is now an unknown verb.
+**Not:** NOT the engineering design. That is the plan stage (/compass:plan), whose output is technical-design.md: the rule is that `design` names the UI contract and `plan` names the technical design, never the other way round. Also NOT the CLI verb: the placeholder scan is `compass plan lint`. Its retired spelling was kept as a hidden second name through 3.x and removed at 4.0.0 (ADR-024); it is now an unknown verb.
 
 **Related:** `plan`, `technical-design`, `delivery-approach`
 
@@ -342,7 +342,7 @@ Two related things, and the entry covers both deliberately. (1) The document: in
 
 ### issue
 
-The atomic tracked unit of work: one triaged piece of work, one delivery approach, shipping as one PR or a small PR series. Carries a type, labels, and a workflow state.
+The atomic tracked unit of work: one assessed piece of work, one delivery approach, shipping as one PR or a small PR series. Carries a type, labels, and a workflow state.
 
 **Not:** A 'task' - that word survives only as machine state, never prose.
 
@@ -352,7 +352,7 @@ The atomic tracked unit of work: one triaged piece of work, one delivery approac
 
 ### issue-type
 
-The classification triage assigns to an issue: quick fix, bug fix, hotfix, feature, or spike. Together with labels it determines the delivery approach - which artifacts exist and which gates apply.
+The classification the assess stage assigns to an issue: quick fix, bug fix, hotfix, feature, or spike. Together with labels it determines the delivery approach - which artifacts exist and which gates apply.
 
 **GitHub:** Issue type
 
@@ -368,7 +368,7 @@ A plain-word tag on an issue carrying classification and risk surface. Local-fir
 
 ### label-rule
 
-The deterministic consequence of a label, declared in policy: security/payments/personal-data/migration require a security review; user-facing requires a rollout plan; breaking-change requires human sign-off; ops-surface requires the operability section. Assess suggests labels, the human confirms; the rules then apply mechanically.
+The deterministic consequence of a label, declared in policy: security/payments/personal-data/migration needs a security review, user-facing needs a rollout plan, breaking-change needs human sign-off, and ops-surface needs the operability section. Assess suggests labels, the human confirms; the rules then apply mechanically.
 
 **Related:** `label`, `quality-gate`
 
@@ -380,9 +380,9 @@ Low-level design: optional per-component detail on initiative-scale work only. E
 
 ### manifest
 
-The machine-readable file at the root of an issue directory, `.compass/work/<issue-slug>/manifest.yml`. It holds the assessment, the computed delivery approach, the stages and gates, the scenarios, the evidence registry and the changed files, and it points at the prose artifacts beside it. Every command reads it; `compass check` verifies the guardrails against it.
+The machine-readable file at the root of an issue directory, `.compass/work/<issue-slug>/manifest.yml`. It holds the assessment, the computed delivery approach, the stages and gates, the scenarios, the evidence registry and the changed files, and it points at the prose artifacts beside it. Every command reads it; `compass check` checks the guardrails against it.
 
-**Not:** Not the prose artifacts it points at, and not "spine" - that word was a metaphor the framework had to teach, and it was glossed in 26 places because it did not land on its own. A manifest is what a package.json, a Cargo.toml or a Kubernetes manifest is: a machine-readable list of what a thing contains.
+**Not:** Not the prose artifacts it points at, and not "spine" - a metaphor that needed explaining each time it was used. A manifest is what a package.json, a Cargo.toml or a Kubernetes manifest is: a machine-readable list of what a thing contains.
 
 **GitHub:** none
 
@@ -404,9 +404,9 @@ The design section answering "what tells us this works in production?": the SLIs
 
 ### plan
 
-The engineering design stage: the command /compass:plan, the machine key `plan` in a manifest's stages block, the `plan-authoring` skill, the `planner` agent, and the CLI verb `compass plan lint`. Its output is technical-design.md. Every one of those already said `plan` before the command did.
+The engineering design stage: the command /compass:plan, the machine key `plan` in a manifest's stages block, the `plan-authoring` skill, the `planner` agent, and the CLI verb `compass plan lint`. Its output is technical-design.md.
 
-**Not:** NOT a schedule or a project plan - Compass has no such artifact. NOT the delivery approach either, which is computed at the assess stage and recorded in delivery-approach.md. `plan.md` was this artifact's v1 filename and is retired; a name that was retired can come back for the thing it best describes, which is what happened here.
+**Not:** NOT a schedule or a project plan - Compass has no such artifact. NOT the delivery approach either, which is computed at the assess stage and recorded in delivery-approach.md. `plan.md` was this artifact's v1 filename and is retired; a name that was retired can come back for the thing it best describes.
 
 **Related:** `technical-design`, `delivery-approach`, `design`
 
@@ -446,7 +446,7 @@ The per-issue proof summary rendered from the manifest and the evidence registry
 
 ### requirements-review
 
-The review pass that hardens requirements before design or build: ambiguities resolved into recorded decisions, contradictions and gaps closed, intent.md reviewed where one exists. Satisfying it is # vocabulary-scan: allow - a note recording what v1 called this, which # is what someone reading an old record needs to look it up. what makes an issue ready. v1 called this "Clarify".
+The review pass that hardens requirements before plan or implementation: ambiguities resolved into recorded decisions, contradictions and gaps closed, intent.md reviewed where one exists. Satisfying it is # vocabulary-scan: allow - a note recording what v1 called this, which # is what someone reading an old record needs to look it up. what makes an issue ready. v1 called this "Clarify".
 
 **Related:** `intent`, `definition-of-ready`, `acceptance-criteria`
 
@@ -490,7 +490,7 @@ The atomic unit of acceptance: one behaviour, one Given/When/Then, one executabl
 
 ### ship
 
-Merging and releasing the change: the PR lands, follow-ups are # vocabulary-scan: allow - a note recording what v1 called this. recorded, the derived system spec accretes. v1 called this "Land".
+Merging and releasing the change: the PR lands, follow-ups are # vocabulary-scan: allow - a note recording what v1 called this. recorded, the derived system spec is regenerated. v1 called this "Land".
 
 **Related:** `pr`, `rollout-plan`
 
@@ -542,7 +542,7 @@ The breakdown unit within an issue or initiative. A slice is tracked as a sub-is
 
 The engineering plan for one issue: the approach, the design decisions as ADR-style notes, the governance check, and the independent work units. Written at the planning stage (/compass:plan) as technical-design.md.
 
-**Not:** NOT the designer's work. That is the UI contract (ui-contract.md), from /compass:design. `design` alone named a command, an artifact, an artifact kind, a CLI verb and a role, and was the only overloaded word in this framework with no entry here - which is how it stayed ambiguous. NEVER abbreviate this to TDD: in this repository TDD is red-green-refactor and nothing else.
+**Not:** NOT the designer's work. That is the UI contract (ui-contract.md), from /compass:design. `design` alone named a command, an artifact, an artifact kind, a CLI verb and a role, and was the only overloaded word in this framework with no entry here. NEVER abbreviate this to TDD: in this repository TDD is red-green-refactor and nothing else.
 
 **Related:** `technical-design`, `delivery-approach`
 

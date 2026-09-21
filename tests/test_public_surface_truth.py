@@ -333,12 +333,30 @@ def test_d2_repairs_change_only_retired_names():
     fingerprint is a snapshot of a sanctioned state, not of the original text,
     so a sanctioned restructure moves it - visibly, in the same commit.
 
-    Two more were re-baselined by `prose-breaks-the-writing-style`:
-    `agents/orchestrator.md` (list_items 12 -> 15) and `agents/planner.md`
-    (list_items 22 -> 24), where a long paragraph became a vertical list -
-    the writing-style rule this issue exists to apply.
+    Eight were re-baselined by `prose-breaks-the-writing-style`. The list is
+    counted from the fixture, not merged from the batches' own notes: each
+    batch recorded only the entries it saw, and the merged set is larger than
+    either recorded.
 
-    The other 55 are untouched, and a NEW structural change to any of the 59
+    - `agents/orchestrator.md` (list_items 12 -> 15) and `agents/planner.md`
+      (22 -> 24), where a long paragraph became a vertical list - the
+      writing-style rule this issue exists to apply.
+    - `docs/quickstart.md` (11 -> 15) and `docs/routing-deep-dive.md`
+      (12 -> 20), the same rule over two longer documents.
+    - `approaches/hotfix.md` (12 -> 11) and `governance/routing-policy.md`
+      (18 -> 17), each losing a bullet that was really a continuation line of
+      the one above it, once the idiom or sentence break that put it on its
+      own dashed line went.
+    - `governance/guardrails.md` (heading_levels ten entries -> nine,
+      table_rows 3 -> 0), losing its placeholder amendment-log heading and
+      table - git is the log, so a rendered `{{DATE}}`/`{{NAME}}` table
+      taught nothing.
+    - `governance/strategies.md` (88 -> 89), gaining one: a run-on bullet
+      that named two purposes inline became a parent bullet with two nested
+      ones, which is the same "one point in one sentence, a vertical list for
+      a set of items" rule the rest of the rewrite applied.
+
+    The other 51 are untouched, and a NEW structural change to any of the 59
     still fails.
     """
     import json

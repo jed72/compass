@@ -292,7 +292,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     # exemption is in TERM_SURFACE_EXEMPT below; it used to be implicit in
     # the scan not reading those files, which stopped being true when the
     # scan widened.
-    "G1..G5 / S1..S12 codes, bare": [
+    "G1..G5 / S1..S14 codes, bare": [
         re.compile(r"(?<!`)\bG[1-5]\b(?!`)"),
         re.compile(r"(?<!`)\bS\d+\b(?!`)"),
     ],
@@ -616,7 +616,7 @@ TERM_SURFACE_EXEMPT = {
     # The .md files under governance/ are scanned. A deliberate illustration of
     # the wrong form carries a `vocabulary-scan: allow` marker and a reason,
     # which is enumerable by grep; a path prefix is not.
-    "G1..G5 / S1..S12 codes, bare": (
+    "G1..G5 / S1..S14 codes, bare": (
         "governance/guardrails.yml", "governance/routing-policy.yml",
         "governance/terminology.yml", "governance/signals.yml",
         "schemas/", "architecture/",
@@ -1263,7 +1263,7 @@ def test_pl_c11_strategies_prose_is_not_path_exempt():
     `vocabulary-scan: allow` marker and a written reason, which is greppable.
     A path prefix is not.
     """
-    exempt = TERM_SURFACE_EXEMPT.get("G1..G5 / S1..S12 codes, bare", ())
+    exempt = TERM_SURFACE_EXEMPT.get("G1..G5 / S1..S14 codes, bare", ())
     assert not any(e == "governance/" for e in exempt), (
         "the bare-codes ban still exempts all of governance/ by prefix, so "
         "governance/strategies.md is unscanned"

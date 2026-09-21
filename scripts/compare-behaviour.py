@@ -12,13 +12,15 @@ Comparison, per file type:
   never enter an abstract syntax tree, so stripping the docstring is the
   whole of the work.
 - Shell: the file with `#` comment text removed.
-- YAML: every line with a `PROSE_KEYS` key's value blanked and every comment
-  removed - the same key list the writing-style sweeps treat as prose, so the
-  two halves cannot disagree about what prose is. Read as text, not parsed:
-  `import yaml` outside `cli/compass_pkg/`, `cli/compass` or a
-  `compass_python` heredoc does not resolve through this repository's one
-  shared PyYAML mechanism (`tests/test_bundled_pyyaml.py`), and this script is
-  none of those three.
+- YAML: every line with a `PROSE_KEYS` key's value blanked, and every
+  whole-line or trailing `#` comment dropped - the same positions
+  `tests/test_writing_style.py`'s `_yaml_spans` reads as prose, so the two
+  halves cannot disagree about what prose is. A prose sequence item is
+  blanked to one marker each, so rewording is free and adding or removing an
+  item is not. Read as text, not parsed: `import yaml` outside
+  `cli/compass_pkg/`, `cli/compass` or a `compass_python` heredoc does not
+  resolve through this repository's one shared PyYAML mechanism
+  (`tests/test_bundled_pyyaml.py`), and this script is none of those three.
 - JSON: parsed structure, with `description` values blanked.
 - Markdown: the contents of every fenced code block and every link target.
   A markdown file has no other behaviour.
@@ -66,14 +68,18 @@ to cover.
   are called equal. Nothing checks that a command means what it did: a
   changed file mode, a renamed function used only by name, or a behaviour
   that depends on line numbers is invisible here.
-- **YAML, three deliberate blind spots.** A trailing comment on a line that
-  quotes anything is left in place, a prose key with an empty value keeps
-  whatever follows it, and a plain scalar continued over several lines is not
-  recognised. Each errs towards reporting a difference that is not one, which
-  costs a second look rather than a missed change.
+- **YAML, one deliberate blind spot.** A prose key whose value is empty and
+  whose children are a mapping keeps those children compared. That errs
+  towards reporting a difference that is not one, which costs a second look
+  rather than a missed change.
+- **YAML, sequence items.** A prose sequence item's text is not compared at
+  all, only the number of items. Rewording one is free by design, so a
+  rewrite that changes what a tie-breaker actually advises is invisible here
+  and only a reader can catch it.
 - **YAML, read as text.** Values are compared as written, so a rewrite that
   turns a block scalar into a flow scalar reads as a change even when a
-  parser would call the two identical.
+  parser would call the two identical. A quote spanning lines is read one
+  line at a time, so a `#` on a continuation line is taken for a comment.
 - **Markdown.** Only fenced code blocks and link targets are compared. An
   indented code block, a reference-style link definition and an HTML block
   are not read at all.
@@ -94,7 +100,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help"})
+PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
+                        "means", "not", "context", "why", "reason", "also",
+                        "appears_in", "referent",
+                        "biases"})
 _YAML_KEY_RE = re.compile(r"^(\s*-?\s*)([\w.\-]+)\s*:\s?(.*)$")
 
 
@@ -214,62 +223,99 @@ def _strip_shell_comments(text: str) -> str:
                      for line in text.splitlines())
 
 
-_YAML_TRAILING_COMMENT_RE = re.compile(r"^([^#'\"]*\S)\s+#.*$")
-_YAML_BLOCK_SCALAR_RE = re.compile(r"^[>|][0-9]*[-+]?$")
+
+
+_YAML_COMMENT_LINE_RE = re.compile(r"^\s*#")
+
+
+def _line_indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def _strip_inline_comment(line: str) -> str:
+    """Drop a `#` comment trailing real content on the same line - a plain
+    sequence item such as `- agents/    # why it is exempt` is not under a
+    `PROSE_KEYS` key, so `_yaml_spans` only reaches its comment through the
+    whole-line walk, which a trailing comment is not. Left unhandled, a
+    reworded (or deleted) trailing comment reads as the sequence item
+    itself changing. No marker is left behind - a comment carries no
+    behaviour whether it is present, reworded, or gone, so a line that had
+    one and a line that never did must blank to the same thing. Quote-aware,
+    since a `#` inside a quoted value is data, not a comment - the same
+    rule YAML itself uses."""
+    in_single = in_double = False
+    for i, ch in enumerate(line):
+        if ch == "'" and not in_double:
+            in_single = not in_single
+        elif ch == '"' and not in_single:
+            in_double = not in_double
+        elif ch == "#" and not in_single and not in_double:
+            if i == 0 or line[i - 1].isspace():
+                return line[:i].rstrip()
+    return line
 
 
 def _blank_yaml_prose(text: str) -> str:
-    """Every line, with a `PROSE_KEYS` key's value blanked and comments
-    removed. Read as text rather than parsed - see the module docstring for
-    why - so a folded or literal block scalar's continuation lines are not
-    distinguished from an ordinary value. A prose key's continuation lines are
-    therefore kept as they are, and `_significant_lines` is what stops a
-    rewrap of them reading as a change.
+    """Every line, with a `PROSE_KEYS` key's value blanked, every `#` comment
+    dropped - whole-line or trailing - and a prose value's continuation lines
+    collapsed into its one blanked key line. A differing line count would
+    otherwise read a rewrapped paragraph as changed when every non-prose byte
+    is identical. Matches what `_yaml_spans` reads as prose, so the two halves
+    cannot disagree about what prose is. Read as text rather than parsed - see
+    the module docstring for why - so a value's own indentation governs where
+    its continuation ends.
 
-    Two comment forms, handled differently, because YAML gives `#` two
-    meanings:
+    A trailing `#` is a comment only outside a quoted scalar, so
+    `_strip_inline_comment` tracks quote state rather than refusing any line
+    that holds a quote. Nothing is left in its place: a comment carries no
+    behaviour whether it is present, reworded or gone, so a line that had one
+    and a line that never did must blank to the same thing.
 
-    - A line whose first non-space character is `#` is always a comment, so it
-      goes.
-    - A trailing `#` is a comment only outside a quoted scalar. This drops one
-      only when no quote character appears before it, which is where the
-      reading is certain. A line that quotes anything is kept whole, so a
-      reworded trailing comment there still reads as a change. That is the
-      conservative direction: over-reporting costs a second look, while
-      under-reporting means shipping the behaviour change this tool was run to
-      catch.
+    Three shapes follow a `PROSE_KEYS` key, and they are not the same:
 
-    A prose key introducing a block scalar - `description: >`, `statement: |`
-    and the chomped forms - takes its indented continuation lines with it,
-    because those lines are the prose the key holds and rewrapping them is
-    the commonest edit this issue makes. The value must be an explicit block
-    indicator for that to happen. A prose key with an empty value is left
-    alone, because what follows it could be a nested mapping rather than
-    prose, and dropping real values would make this tool miss the change it
-    exists to find. A plain scalar continued over several lines is not
-    recognised either, so rewrapping one still reads as a change; the
-    repository's YAML uses block scalars for prose, so that case does not
-    arise here.
+    - **A value on the key's own line**, whether a block indicator such as
+      `>` or `|` or the first line of a plain scalar. The key line stands for
+      the value and its indented continuation lines go.
+    - **A sequence.** Each item blanks to one `-` marker and its wrapped
+      continuation lines go, so an item can be reworded and rewrapped freely
+      while the item COUNT is still compared. Deleting a tie-breaker from
+      `governance/routing-policy.yml`'s `biases:` is not a rewording, and a
+      reader would never see it go. An item that is itself a mapping
+      (`- name: x`) is left alone, because its keys are values.
+    - **A mapping.** Left entirely alone. Its keys are values, not prose, and
+      swallowing them would make this tool miss the change it exists to find.
     """
     lines = []
-    block_key_indent: int | None = None
+    block_indent: int | None = None
+    seq_indent: int | None = None
     for line in text.splitlines():
-        if block_key_indent is not None:
-            if not line.strip():
+        if block_indent is not None:
+            if line.strip() == "" or _line_indent(line) > block_indent:
+                continue  # one line already stands for the whole block
+            block_indent = None
+        if seq_indent is not None:
+            if line.strip() == "":
                 continue
-            if len(line) - len(line.lstrip()) > block_key_indent:
-                continue
-            block_key_indent = None
-        if line.lstrip().startswith("#"):
-            continue
-        trailing = _YAML_TRAILING_COMMENT_RE.match(line)
-        if trailing:
-            line = trailing.group(1)
+            if _line_indent(line) > seq_indent:
+                stripped = line.strip()
+                if _YAML_KEY_RE.match(line):
+                    pass  # a mapping under the key, or `- key: value`
+                elif stripped.startswith("-"):
+                    lines.append(f"{' ' * (seq_indent + 2)}-")
+                    continue  # one marker per item keeps the count compared
+                else:
+                    continue  # a wrapped continuation of the item above
+            seq_indent = None
+        if _YAML_COMMENT_LINE_RE.match(line):
+            continue  # a whole-line comment carries no behaviour
+        line = _strip_inline_comment(line)
         match = _YAML_KEY_RE.match(line)
         if match and match.group(2) in PROSE_KEYS:
             lines.append(f"{match.group(1)}{match.group(2)}:")
-            if _YAML_BLOCK_SCALAR_RE.match(match.group(3).strip()):
-                block_key_indent = len(match.group(1))
+            if match.group(3).strip():
+                block_indent = _line_indent(line)
+            else:
+                seq_indent = _line_indent(line)
         else:
             lines.append(line)
     return "\n".join(lines)
@@ -289,6 +335,15 @@ _LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 
 
 def _markdown_behaviour(text: str) -> str:
+    """Fenced content stays in document order - a fence can hold a real
+    shell session or a config example where sequence is the point. Link
+    targets are compared as a sorted set instead: a table row moving to fix
+    a genuinely wrong position (an index that listed one entry out of
+    numeric order) reorders the links `_LINK_RE` extracts even though every
+    href is byte-identical, and a reader following any of them still lands
+    in the same place regardless of row order. Sorting drops sensitivity to
+    THAT reordering while still catching a link actually retargeted, added,
+    or removed."""
     fenced: list[str] = []
     in_fence = False
     for line in text.splitlines():
@@ -297,7 +352,7 @@ def _markdown_behaviour(text: str) -> str:
             continue
         if in_fence:
             fenced.append(line)
-    links = _LINK_RE.findall(text)
+    links = sorted(_LINK_RE.findall(text))
     return "\n".join(fenced) + "\n" + "\n".join(links)
 
 

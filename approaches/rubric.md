@@ -5,19 +5,18 @@ dimensions, applies `governance/routing-policy.md`, and writes `delivery-approac
 file is its rubric. The `adaptive-routing` skill is the procedural companion;
 this is the reference.
 
-Assess does not pick a route from a list. It *scores four dimensions*,
-*composes* a candidate route (biased by the routing strategies), *constrains*
-it (bounded by the routing guardrails), and *explains* the result. The five
-reference shapes in this directory are common shapes the composition lands
-near - not a menu.
+Assess does not pick an approach from a list. Assess scores four dimensions;
+`compass approach evaluate` composes and constrains the approach, and
+explains the result. The five reference shapes in this directory are common
+shapes the composition lands near - not a menu.
 
 ---
 
 ## Step 1 - Score the four dimensions
 
-For each dimension, triage assigns a value and writes a one-line
+For each dimension, the assess stage assigns a value and writes a one-line
 justification. If it cannot justify a value, it asks the human rather than
-guessing - an unjustified reading is worse than a question.
+guessing - an unjustified value is worse than a question.
 
 ### risk - *if this goes wrong, how bad and how wide?*
 
@@ -37,7 +36,7 @@ be `critical`.
 |---|---|
 | `greenfield` | Net-new code with no existing behaviour to preserve. |
 | `brownfield-mapped` | Existing code, and its current behaviour is already captured in scenarios (or trivially readable). |
-| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A routing guardrail forces `behaviour-mapping` here - you cannot safely change what you have not first described. |
+| `brownfield-unmapped` | Existing code whose behaviour is *not* written down. A floor forces `behaviour-mapping` here - you cannot safely change what you have not first described. |
 
 ### Size - *how much work is this, honestly?*
 
@@ -50,10 +49,11 @@ be `critical`.
 | `product` | A new system or subsystem, 2+ weeks, many independent work subtasks. |
 
 Size is the only dimension a person reliably over- or under-estimates.
-When unsure, triage estimates *up* - it is cheaper to collapse a phase
-that turned out easy than to discover mid-Build that the route was too light.
+When unsure, the assess stage estimates *up* - it is cheaper to collapse a
+stage that turned out easy than to discover mid-implementation that the
+approach was too light.
 
-### Intent & role - *who is invoking, and what outcome are they after?*
+### Goal and role - *who is invoking, and what outcome are they after?*
 
 | Value | Entry point | What it changes |
 |---|---|---|
@@ -68,10 +68,10 @@ a CSV export" invoked by a product owner whose brief says "let finance
 self-serve" may need more than a button. Assess reads the brief if one
 exists.
 
-One intent value is not a role: **exploration** - "I cannot frame this well
-enough to deliver it yet." Exploration intent composes toward the **Spike**
-route (see `approaches/spike.md`), the way live-defect urgency composes toward
-Hotfix. Assess still scores all four dimensions; the intent is what selects
+One goal value is not a role: **exploration** - "I cannot frame this well
+enough to deliver it yet." An `exploration` goal composes towards the **Spike**
+approach (see `approaches/spike.md`), the way live-defect urgency composes towards
+Hotfix. Assess still scores all four dimensions; the goal is what selects
 the shape.
 
 ---
@@ -98,27 +98,27 @@ Assess writes `.compass/work/<issue-slug>/delivery-approach.md` from
 `templates/delivery-approach.md`. It contains:
 
 - the four dimension assessment, each with its one-line justification;
-- the composed candidate route;
-- every routing guardrail that fired and what it changed;
-- the final route: per-phase weight, the gate set, the multiagent orchestration;
-- **the de-scope ledger** - every phase or check that is collapsed or skipped,
-  each with an explicit "safe to skip because…" line. A phase with no
-  justification cannot be skipped; if triage cannot justify a skip, the
-  phase runs.
+- the composed candidate approach;
+- every routing rule that fired and what it changed;
+- the final approach: per-stage weight, the gate set, the multiagent orchestration;
+- **the de-scope ledger** - every stage or check that is collapsed or skipped,
+  each with an explicit "safe to skip because…" line. A stage with no
+  justification cannot be skipped; if the assess stage cannot justify a skip,
+  the stage runs.
 
-Routing is **advisory until confirmed**. The human can override any reading or
-the final route - overrides are recorded in `delivery-approach.md` too, with who and why.
+Routing is **advisory until confirmed**. The human can override any dimension or
+the final approach - overrides are recorded in `delivery-approach.md` too, with who and why.
 What cannot be overridden: an `immovable_gate`, or a `floor` (a routing
-guardrail is governance speaking; changing it means amending
-`governance/routing-policy.md`, not overriding a route).
+rule is governance speaking; changing it means amending
+`governance/routing-policy.yml`, not overriding an approach).
 
 ---
 
-## Re-framing mid-issue
+## Reassessing mid-issue
 
-If Build reveals the familiarity was misread - the "small" change is unspooling
+If implementation shows the size was misread - the "small" change is growing
 into a multi-module refactor - the correct move is to **stop and re-assess**,
-not to push on with a route you no longer believe. `/compass:assess --reassess`
+not to push on with an approach you no longer believe. `/compass:assess --reassess`
 re-scores the dimensions, writes a new `delivery-approach.md` revision, and records what
-changed and why. A re-assess is a normal event, not a failure. A route quietly
+changed and why. A re-assess is a normal event, not a failure. An approach quietly
 outgrown is the failure.
