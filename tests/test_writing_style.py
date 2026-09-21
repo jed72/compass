@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 340
+PENDING_PATHS_HIGH_WATER = 339
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -625,6 +625,22 @@ _register(Rule(
         Exemption("governance/terminology.yml",
                    "recorded, the derived system spec is regenerated. v1 called this \"Land\"",
                    "a not: field naming the retired word on purpose."),
+        # docs/glossary.md is DERIVED from governance/terminology.yml by
+        # `compass _derive-glossary`, so a `not:` field that has to name a
+        # retired word reappears here verbatim. The source entries already
+        # carry their own exemptions; the derived copy is a separate path and
+        # needs its own. Fixing these would mean editing a generated file,
+        # which the drift guard reverts, or removing the ban's own statement
+        # of what it bans.
+        Exemption("docs/glossary.md",
+                   "v1 called this a 'backfill', with states 'owed' and 'paid'",
+                   "the derived text of terminology.yml's follow-up `not:` "
+                   "field, which cannot say what the term is NOT without "
+                   "naming the retired word."),
+        Exemption("docs/glossary.md",
+                   "A 'task' - that word survives only as machine state",
+                   "the derived text of terminology.yml's issue `not:` "
+                   "field, same reason as the entry above."),
         # Both comments carry their own "# vocabulary-scan: allow" marker
         # for governance/terminology.yml's scanner, which this sweep does
         # not read (it reuses BAN_PATTERNS, not the marker). The retired
@@ -991,6 +1007,11 @@ _register(Rule(
         Exemption("governance/terminology.yml",
                    "the result. RP-REQUIRE attaches a gate",
                    "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("docs/glossary.md",
+                   "the result. RP-REQUIRE attaches a gate",
+                   "the derived text of the same terminology.yml line - "
+                   "RP-REQUIRE is an id prefix, not the verb the word table "
+                   "retires."),
         Exemption(
             "scripts/verify-archive-quotes.py",
             "verify against the primary",
