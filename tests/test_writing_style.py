@@ -726,6 +726,12 @@ _register(Rule(
             "the retired v1 word for a subtask - the word-table row "
             "matches the plural bare word regardless of sense."),
         Exemption(
+            "tests/test_prompt_layer.py",
+            "The intake names `intent-elicitation` as the second target; no skill has ever",
+            "quotes the specific proposed-but-never-built skill name "
+            "`intent-elicitation`, not a live use of the retired word "
+            "\"elicitation\"."),
+        Exemption(
             "tests/test_governance_drift_noop.py",
             "approach, gates, topology and fired guardrails against what the fixture",
             "names the fixture's real `topology` dict key the assertions "
