@@ -1,7 +1,7 @@
-"""R10 - the regression-baseline strategy (S6): a named, SOFT strategy that
-makes "green baseline before, re-run after, on shared/critical surface" the
-assessed-and-prompted default at Verify. Additive only - no new guardrail, no
-new gate, never a Land blocker (ADR-002, ADR-006).
+"""The regression-baseline strategy (`S6`): a named, SOFT strategy that makes
+"green baseline before, re-run after, on shared/critical surface" the
+assessed-and-prompted default at verify. Additive only - no new guardrail, no
+new gate, never a ship blocker (ADR-002, ADR-006).
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import yaml
 
 
 def test_s6_registered_in_strategies_md(framework_root):
-    """TRC-R10-1: strategies.md registers regression-baseline as a soft S6."""
+    """`TRC-R10`-1: strategies.md registers regression-baseline as a soft `S6`."""
     text = (framework_root / "governance" / "strategies.md").read_text()
     assert "S6" in text and ("regression-baseline" in text or "Regression baseline" in text), text[:200]
     low = text.lower()
@@ -24,8 +24,9 @@ def test_s6_registered_in_strategies_md(framework_root):
 
 
 def test_routing_strategy_surfaces_on_touches_no_gate_change(run_cli, make_task):
-    """TRC-R10-2: route evaluate surfaces regression-baseline as applicable for a
-    cross-cutting task - without adding or altering a gate."""
+    """`TRC-R10-2`: approach evaluate surfaces regression-baseline as
+    applicable for a cross-cutting issue - without adding or changing a
+    gate."""
     body = {"task": "rb", "created": "2026-06-22",
             "assessment": {"risk": "cross-cutting",
                          "familiarity": "brownfield-mapped", "size": "large",
@@ -55,7 +56,7 @@ def test_routing_strategy_absent_on_contained_task(run_cli, make_task):
 
 
 def test_verify_expects_baseline_and_postrun_as_judgement(framework_root):
-    """TRC-R10-3: the strategy describes a pre+post test-run expectation on
+    """`TRC-R10`-3: the strategy describes a pre+post test-run expectation on
     verify.regression, assessed as judgement (a strategy note)."""
     text = (framework_root / "governance" / "strategies.md").read_text().lower()
     assert "verify.regression" in text
@@ -64,15 +65,16 @@ def test_verify_expects_baseline_and_postrun_as_judgement(framework_root):
 
 
 def test_build_prompts_baseline_before_change(framework_root):
-    """TRC-R10-4: the Build command prompts to capture the baseline up front."""
+    """`TRC-R10-4`: the implement command prompts to capture the baseline up
+    front."""
     text = (framework_root / "commands" / "implement.md").read_text().lower()
     assert "baseline" in text
     assert "regression-baseline" in text or "regression baseline" in text
 
 
 def test_absent_baseline_does_not_block_land(framework_root):
-    """TRC-R10-5: no guardrails.yml check enforces a baseline - its absence
-    cannot fail compass check or block Land (soft strategy)."""
+    """`TRC-R10-5`: no guardrails.yml check enforces a baseline - its absence
+    cannot fail compass check or block ship (soft strategy)."""
     g = yaml.safe_load((framework_root / "governance" / "guardrails.yml").read_text())
     checks = g.get("checks") or {}
     assert not any("regression-baseline" in str(k) or "baseline" in str(k)
@@ -80,11 +82,11 @@ def test_absent_baseline_does_not_block_land(framework_root):
 
 
 def test_no_new_guardrail_or_gate_added(framework_root):
-    """TRC-R10-6: adding S6 introduces no sixth guardrail and no new gate;
+    """`TRC-R10`-6: adding `S6` introduces no sixth guardrail and no new gate;
     verify.regression's accepted types are unchanged ([test-run]); guardrails.yml
     does not define the strategy (it is a strategy, not a guardrail)."""
     gov = framework_root / "governance"
-    # the five guardrails live in guardrails.md - still G1..G5, no G6
+    # the five guardrails live in guardrails.md - still `G1`..`G5`, no G6
     md = (gov / "guardrails.md").read_text()
     for gid in ("G1", "G2", "G3", "G4", "G5"):
         assert gid in md, gid
