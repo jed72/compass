@@ -657,6 +657,13 @@ _register(Rule(
             "reads the pre-ADR-023 map spelling for back-compat; already "
             "marked '# vocabulary-scan: allow', which this sweep does not "
             "read."),
+        Exemption(
+            "tests/test_process_impact.py",
+            "tasks: list of (slug, created, landed, route, n_gates, "
+            "repairs|None).",
+            "documents the function's real parameter name `tasks` (an "
+            "identifier, section 4), not a v1-vocabulary use of the word - "
+            "the parameter and every call site in this file use that name."),
     ),
 ))
 

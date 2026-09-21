@@ -1,15 +1,15 @@
-"""Process-impact telemetry (task process-impact-telemetry).
+"""Process-impact telemetry (issue process-impact-telemetry).
 
 `compass retro --impact` reports lead time, land frequency, change-fail
-signal and restore time, attributed to route shape and gate set.
+signal and restore time, attributed to delivery-approach shape and gate set.
 
-The substance is not the arithmetic. This repository has 20 landed tasks and
-ZERO hotfixes, so a naive implementation reports a change-fail rate of 0% -
-which reads as excellent stability and means "nobody has filed one yet". That is
-this codebase's recurring failure shape in a new costume: a number that looks
-like evidence and is silence. Group C forbids it.
+The substance is not the arithmetic. A repository with no hotfixes reports a
+change-fail rate of 0% under a naive implementation - which reads as
+excellent stability and means "nobody has filed one yet". That is this
+codebase's recurring failure: a number that looks like evidence but reflects
+missing data. Group C forbids it.
 
-Spec: docs/compass/2026-08-04-process-impact-telemetry/acceptance-criteria.md (TRC-A1..A4,
+Spec: process-impact-telemetry/acceptance-criteria.md (`TRC-A1`..`TRC-A4`,
       B1..B3, C1, C2, F1..F4).
 """
 from __future__ import annotations
