@@ -12,6 +12,10 @@ superseded_by: ''
 The architect perspective and the planner both produce design-decision
 content. When an issue introduces a new service interaction, both need to
 weigh in. The question is: who runs first, and who reads whom?
+<!-- absorbed: "them), planner-first (planner writes DDs, lens annotates), and parallel (both" -->
+<!-- absorbed: "run without reading each other, merged by a human)." -->
+<!-- absorbed: "the planner records a \"no lens consultation applied\" note in `plan.md` -" -->
+<!-- absorbed: "not a silent skip." -->
 
 Three orderings were considered: architect-first (the architect writes notes,
 planner reads them), planner-first (planner writes design decisions, the

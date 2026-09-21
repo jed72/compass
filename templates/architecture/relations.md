@@ -11,6 +11,7 @@
      Format: keep service names consistent with the labels you use in the
      manifest (the `labels:` field) so the agent can match them.
 -->
+<!-- absorbed: "(see TRC-B2)." -->
 
 ## Service map
 
@@ -34,6 +35,7 @@
 <!-- List any stable contracts (OpenAPI specs, proto files, event schemas)
      that this service publishes or consumes.  Changing a contract must
      create or update an ADR. -->
+<!-- absorbed: "A change that modifies a" -->
 
 | Contract | Location | Owned by |
 |---|---|---|

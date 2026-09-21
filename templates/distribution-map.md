@@ -15,6 +15,7 @@ scenario groups (see the worktree-multiagent skill).
 
 Fill every {{PLACEHOLDER}}.
 -->
+<!-- absorbed: "solo - the map is the" -->
 
 # Distribution Map - {{ISSUE_SLUG}}
 

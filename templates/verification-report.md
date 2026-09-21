@@ -44,6 +44,8 @@ evidence block is an automatic fail.
      can open the file, and a file can be re-run where a paste cannot.
 
      On multiagent orchestration, list each subtask's record, then the combined one. -->
+<!-- absorbed: "the raw run can open the file - which is more than a paste gives them," -->
+<!-- absorbed: "because a paste cannot be re-run." -->
 
 **Command run:** `{{e.g. npm test}}`
 

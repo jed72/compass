@@ -18,6 +18,9 @@ guardrail at work.
 Fill every {{PLACEHOLDER}}. Keep the Gherkin clean: one behaviour per
 scenario, concrete Given/When/Then, no implementation detail.
 -->
+<!-- absorbed: "criteria, read by every role through its own perspective - and it is read" -->
+<!-- absorbed: "test & review)." -->
+<!-- absorbed: "BDD strategy: no code may exist that no scenario here describes." -->
 
 # Spec - {{ISSUE_SLUG}}
 

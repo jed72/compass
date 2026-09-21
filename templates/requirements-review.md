@@ -14,6 +14,8 @@ anything heavier this file always exists.
 Fill every {{PLACEHOLDER}}. Each entry is a closed loop: question →
 resolution → who decided → what it changed.
 -->
+<!-- absorbed: "clarification." -->
+<!-- absorbed: "# Clarifications - {{ISSUE_SLUG}}" -->
 
 # Requirements review - {{ISSUE_SLUG}}
 
@@ -79,6 +81,7 @@ prose every entry above should aim for:
 > hundred columns wide: a standard terminal shows that much without
 > scrolling, and a receipt that cannot fit needs a less verbose renderer, not
 > a setting.
+<!-- absorbed: "> a knob." -->
 
 That one paragraph carries what was unclear, the decision, who made it,
 and what it rests on - the same four things each `{{PLACEHOLDER}}`

@@ -17,6 +17,8 @@ However, `assessment` is the *judgement* block, where the router records its
 four-dimension assessment.  Mixing mechanism-produced load state into the
 judgement block violates the invariant that `assessment` is the only
 judgement field.
+<!-- absorbed: "However," -->
+<!-- absorbed: "assessment." -->
 
 ## Decision
 

@@ -71,4 +71,5 @@ Projects override by editing their own `governance/signals.yml`.
 
 - The requirements review, where the question of where advisory patterns live was settled
 - The technical design's decision to keep signals.yml a separate file
+<!-- absorbed: "- Plan DD-1 (signals.yml as a separate file)" -->
 - The invariant that the framework holds five guardrails, not six

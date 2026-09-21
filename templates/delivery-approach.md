@@ -145,6 +145,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
      the issue can close. A hotfix always owes one;
      other work owes whatever the de-scope ledger marked. A spike owes
      nothing - it ships nothing; its exit is graduate or discard. -->
+<!-- absorbed: "<!-- Process weight borrowed from the front of the pipeline that must be settled" -->
 
 - [ ] {{e.g. "Hotfix follow-up: this record completed properly, reproduction test promoted to a real scenario in acceptance-criteria.md, root-cause line in devlog.md."}}
 - [ ] {{e.g. "none owed"}}

@@ -11,6 +11,8 @@ the outcome wanted, not just the literal request.
 Fill every {{PLACEHOLDER}}. Keep it in the product owner's language, not
 engineering's - do not pre-solve the problem here.
 -->
+<!-- absorbed: "The Needle reads" -->
+<!-- absorbed: "The Needle" -->
 
 # Intent - {{ISSUE_SLUG}}
 

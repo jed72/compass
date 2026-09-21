@@ -47,6 +47,7 @@ Two inline tag forms on the DoD line itself:
 - DoD clearance is mechanical: `compass check` can check it without human interpretation.
 - `G4` (evidence, not assertion) is enforced at the DoD level.
 - Follow-up deferral is explicit and typed, not a narrative workaround.
+<!-- absorbed: "- The `templates/verification-report.md` must be updated to teach the syntax." -->
 
 **Negative:**
 - Learning curve: contributors must learn the `(evidence: ...)` syntax.
