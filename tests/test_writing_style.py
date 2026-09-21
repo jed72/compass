@@ -60,7 +60,8 @@ PENDING_PATHS_HIGH_WATER = 428
 # comparison blanks (`DD-3`), so the two halves cannot disagree about what
 # prose is.
 PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
-                        "means", "not", "context", "why", "reason", "also"})
+                        "means", "not", "context", "why", "reason", "also",
+                        "appears_in", "referent"})
 
 # Files this issue does not touch, matched by exact path or by directory
 # prefix (a trailing slash). `docs/system-spec.md` is derived and regenerated
@@ -1796,6 +1797,30 @@ def test_pbw_e4_a_yaml_comment_is_not_behaviour(tmp_path):
     result = _run_compare(repo, base_terms)
     assert result.returncode == 0, result.stdout + result.stderr
 
+    # `appears_in` is a citation list, not a mapping value - a reader's aid
+    # naming where an id shows up, printed by `compass terminology explain`
+    # and nowhere read as a rule. `referent` is the same kind of field, a
+    # one-line description printed alongside it. Correcting a stale filename
+    # inside `appears_in` (the v1 `task.yml` renamed to `manifest.yml`) and
+    # rewording `referent` are both not a behaviour change.
+    (repo / "codes.yml").write_text(
+        "codes:\n"
+        "  TRC:\n"
+        "    referent: One decision inside a single issue's design.\n"
+        "    appears_in: [acceptance-criteria.md, \"task.yml scenarios[].id\"]\n")
+    _commit(repo, "codes base")
+    base_codes = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                                 capture_output=True, text=True,
+                                 check=True).stdout.strip()
+    (repo / "codes.yml").write_text(
+        "codes:\n"
+        "  TRC:\n"
+        "    referent: One decision inside a single issue's technical design.\n"
+        "    appears_in: [acceptance-criteria.md, \"manifest.yml scenarios[].id\"]\n")
+    _commit(repo, "referent and appears_in corrected")
+    result = _run_compare(repo, base_codes)
+    assert result.returncode == 0, result.stdout + result.stderr
+
     # A multi-line folded block scalar under a PROSE_KEYS key: rewording
     # every continuation line is not a behaviour change...
     (repo / "block.yml").write_text(
@@ -1850,6 +1875,85 @@ def test_pbw_e4_a_yaml_comment_is_not_behaviour(tmp_path):
     _commit(repo, "comments collapsed")
     result = _run_compare(repo, base3)
     assert result.returncode == 0, result.stdout + result.stderr
+
+    # An inline `#` comment trailing a plain sequence item - not under a
+    # PROSE_KEYS key, so `_yaml_spans` reads it only via the whole-line
+    # comment walk, which a trailing comment is not. Rewording, or even
+    # deleting, the comment must still not read as a behaviour change: the
+    # item itself (`agents/`) is untouched.
+    (repo / "paths.yml").write_text(
+        "exempt:\n"
+        "  - agents/    # ten agent definitions, added clean at the freeze\n"
+        "  - docs/\n")
+    _commit(repo, "paths base")
+    base4 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                            capture_output=True, text=True, check=True).stdout.strip()
+    (repo / "paths.yml").write_text(
+        "exempt:\n"
+        "  - agents/    # ten agent definitions, same shape as the others\n"
+        "  - docs/\n")
+    _commit(repo, "inline comment reworded")
+    result = _run_compare(repo, base4)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Dropping the inline comment entirely - not reworded, gone - is the
+    # same non-change: a comment carries no behaviour whether it is present,
+    # reworded, or removed.
+    (repo / "paths.yml").write_text(
+        "exempt:\n"
+        "  - agents/\n"
+        "  - docs/\n")
+    _commit(repo, "inline comment deleted")
+    result = _run_compare(repo, base4)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # ...but the item itself changing is still a real change.
+    (repo / "paths.yml").write_text(
+        "exempt:\n"
+        "  - agents/    # ten agent definitions, same shape as the others\n"
+        "  - skills/\n")
+    _commit(repo, "item changed")
+    result = _run_compare(repo, base4)
+    assert result.returncode != 0
+    assert "paths.yml" in result.stdout
+
+
+def test_pbw_e4_a_reordered_table_row_is_not_behaviour(tmp_path):
+    """A markdown table's rows carry links in document order; moving a row
+    to fix a genuinely wrong position - `architecture/decisions/README.md`
+    listed ADR-013 last instead of between ADR-012 and ADR-014 - moves its
+    link in the extracted sequence too, even though every link target is
+    byte-identical. A reader following any of the links lands in the same
+    place regardless of row order, so this is not a behaviour change; a
+    link actually retargeted, added, or removed still is. `PBW-E4`."""
+    repo = _sandbox_repo(tmp_path)
+    (repo / "index.md").write_text(
+        "| [A](a.md) | first |\n"
+        "| [B](b.md) | second |\n"
+        "| [C](c.md) | third |\n")
+    _commit(repo, "base")
+    base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                           capture_output=True, text=True, check=True).stdout.strip()
+
+    # Row C moves to its correct position between A and B - same three
+    # links, different order on the page.
+    (repo / "index.md").write_text(
+        "| [A](a.md) | first |\n"
+        "| [C](c.md) | third |\n"
+        "| [B](b.md) | second |\n")
+    _commit(repo, "row reordered")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # A link actually retargeted is still a real change.
+    (repo / "index.md").write_text(
+        "| [A](a.md) | first |\n"
+        "| [C](d.md) | third |\n"
+        "| [B](b.md) | second |\n")
+    _commit(repo, "link retargeted")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "index.md" in result.stdout
 
 
 # ---------------------------------------------------------------------------

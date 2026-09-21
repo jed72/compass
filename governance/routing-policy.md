@@ -96,7 +96,7 @@ departure is normal and is recorded in `delivery-approach.md`, not punished.
 
 ```yaml
 routing_strategies:
-  # The reference shapes the assess stage composes towards. See approaches/.
+  # The reference shapes triage composes toward. See approaches/.
   # These mirror governance/routing-policy.yml; the live file also carries an
   # `id:` and a `rationale:` per entry, which the evaluator reports when a
   # shape fires.
@@ -117,15 +117,13 @@ routing_strategies:
     - "When size is genuinely unclear, estimate up - it is cheaper to
        collapse a stage that turned out easy than to discover mid-implementation
        that the approach was too light."
-    - "A non-engineering role in play usually pulls the delivery approach
-       heavier, because it adds artifacts and assessed strategies - but this
-       is a bias, not a floor. A marketer glancing at a tiny change need not
-       trigger an initiative."
-    - "Prefer the lightest delivery approach that still clears the routing
-       rules and the applicable gates. Process weight is a cost; spend it
-       where it buys safety."
+    - "A non-engineering role in play usually pulls the route heavier, because
+       it adds artifacts and assessed strategies - but this is a bias, not a
+       floor. A marketer glancing at a tiny change need not trigger an initiative."
+    - "Prefer the lightest route that still clears the routing guardrails and
+       the applicable gates. Process weight is a cost; spend it where it buys safety."
 
-  # Advisory role defaults (the blocking versions are routing rules above).
+  # Advisory role defaults (the blocking versions are routing guardrails above).
   role_defaults:
     - when: { role: designer }
       suggest_artifact: ui-contract.md

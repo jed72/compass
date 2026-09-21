@@ -13,7 +13,7 @@ Comparison, per file type:
   whole of the work.
 - Shell: the file with `#` comment text removed.
 - YAML: every line with a `PROSE_KEYS` key's value blanked, and every
-  whole-line `#` comment blanked too - the same two positions
+  whole-line or trailing `#` comment blanked too - the same positions
   `tests/test_writing_style.py`'s `_yaml_spans` reads as prose, so the two
   halves cannot disagree about what prose is. Read as text, not parsed:
   `import yaml` outside `cli/compass_pkg/`, `cli/compass` or a
@@ -41,7 +41,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
-                        "means", "not", "context", "why", "reason", "also"})
+                        "means", "not", "context", "why", "reason", "also",
+                        "appears_in", "referent"})
 _YAML_KEY_RE = re.compile(r"^(\s*-?\s*)([\w.\-]+)\s*:\s?(.*)$")
 
 
@@ -100,30 +101,49 @@ def _line_indent(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
 
 
+def _strip_inline_comment(line: str) -> str:
+    """Drop a `#` comment trailing real content on the same line - a plain
+    sequence item such as `- agents/    # why it is exempt` is not under a
+    `PROSE_KEYS` key, so `_yaml_spans` only reaches its comment through the
+    whole-line walk, which a trailing comment is not. Left unhandled, a
+    reworded (or deleted) trailing comment reads as the sequence item
+    itself changing. No marker is left behind - a comment carries no
+    behaviour whether it is present, reworded, or gone, so a line that had
+    one and a line that never did must blank to the same thing. Quote-aware,
+    since a `#` inside a quoted value is data, not a comment - the same
+    rule YAML itself uses."""
+    in_single = in_double = False
+    for i, ch in enumerate(line):
+        if ch == "'" and not in_double:
+            in_single = not in_single
+        elif ch == '"' and not in_single:
+            in_double = not in_double
+        elif ch == "#" and not in_single and not in_double:
+            if i == 0 or line[i - 1].isspace():
+                return line[:i].rstrip()
+    return line
+
+
 def _blank_yaml_prose(text: str) -> str:
-    """Every line, with a `PROSE_KEYS` key's value blanked - continuation
-    lines of a folded or literal block scalar included, collapsed to the one
-    blanked key line, since a differing line count would otherwise read a
-    reworded paragraph as changed even when every non-prose byte is
-    identical. Matches what `_yaml_spans` reads as prose, so the two halves
-    cannot disagree about what prose is. Read as text rather than parsed -
-    see the module docstring for why - so a value's own indentation still
-    governs where its continuation ends."""
+    """Every line, with a `PROSE_KEYS` key's value blanked, every `#`
+    comment dropped - whole-line or trailing - and a folded or literal block
+    scalar's continuation lines collapsed into its one blanked key line,
+    since a differing line count would otherwise read a reworded paragraph
+    as changed even when every non-prose byte is identical. Matches what
+    `_yaml_spans` reads as prose, so the two halves cannot disagree about
+    what prose is. Read as text rather than parsed - see the module
+    docstring for why - so a value's own indentation still governs where
+    its continuation ends."""
     lines = []
     block_indent: int | None = None
-    in_comment_run = False
     for line in text.splitlines():
         if block_indent is not None:
             if line.strip() == "" or _line_indent(line) > block_indent:
                 continue  # one line already stands for the whole block
             block_indent = None
-        is_comment = bool(_YAML_COMMENT_LINE_RE.match(line))
-        if is_comment:
-            if not in_comment_run:
-                lines.append("#")
-                in_comment_run = True
-            continue  # a run of comment lines also collapses to one
-        in_comment_run = False
+        if _YAML_COMMENT_LINE_RE.match(line):
+            continue  # a whole-line comment carries no behaviour
+        line = _strip_inline_comment(line)
         match = _YAML_KEY_RE.match(line)
         if match and match.group(2) in PROSE_KEYS:
             lines.append(f"{match.group(1)}{match.group(2)}:")
@@ -147,6 +167,15 @@ _LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 
 
 def _markdown_behaviour(text: str) -> str:
+    """Fenced content stays in document order - a fence can hold a real
+    shell session or a config example where sequence is the point. Link
+    targets are compared as a sorted set instead: a table row moving to fix
+    a genuinely wrong position (an index that listed one entry out of
+    numeric order) reorders the links `_LINK_RE` extracts even though every
+    href is byte-identical, and a reader following any of them still lands
+    in the same place regardless of row order. Sorting drops sensitivity to
+    THAT reordering while still catching a link actually retargeted, added,
+    or removed."""
     fenced: list[str] = []
     in_fence = False
     for line in text.splitlines():
@@ -155,7 +184,7 @@ def _markdown_behaviour(text: str) -> str:
             continue
         if in_fence:
             fenced.append(line)
-    links = _LINK_RE.findall(text)
+    links = sorted(_LINK_RE.findall(text))
     return "\n".join(fenced) + "\n" + "\n".join(links)
 
 
