@@ -833,6 +833,11 @@ _register(Rule(
             "pending list, so no batch owns the fix and this subtask cannot "
             "edit it (outside its own code surface). Filed separately as "
             "voice-tells-cites-trc-f2-with-no-plain-words."),
+        Exemption(
+            "docs/case-study-compass-rebuilt-itself.md",
+            "--scenario TRC-G3",
+            "the literal CLI command a person typed, inside backticks - "
+            "rewording it to add plain words would misquote what was run"),
     ),
 ))
 
