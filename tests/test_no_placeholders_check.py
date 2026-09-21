@@ -1,27 +1,24 @@
-"""Acceptance tests for `compass plan lint` (task readable-specs-and-flow).
+"""Acceptance tests for `compass plan lint` (issue readable-specs-and-flow).
 
-`compass plan lint` scans a plan.md for placeholder phrases that mean the plan
-is not actually finished - "TBD", "TODO", "implement later", "add appropriate
-error handling" - and for work units that promise tests without containing any.
+`compass plan lint` scans a technical design for placeholder phrases that mean
+the plan is not actually finished - "TBD", "TODO", "implement later", "add
+appropriate error handling" - and for work units that promise tests without
+containing any.
 
 Two properties matter as much as the detection itself, and both are tested here:
 
-  * It is ADVISORY. It always exits 0. A hit is a note for the planner, never a
-    block. This is fixed by DD-2 in the task's plan.md: the CLI may read a prose
-    artifact to advise, but may not gate on its structure.
+  * It is ADVISORY. It always exits 0. A hit is a note for the planner, never
+    a block. The CLI can read a prose document to advise but must not gate
+    on its structure.
   * It ignores fenced code blocks and blockquotes. Without that, the check fires
     on every document that explains it - including the governance-check skill,
-    the writing guide, and the plan for this very task.
+    the writing guide, and the plan for this very issue.
 
-Spec: docs/compass/2026-08-03-readable-specs-and-flow/acceptance-criteria.md (TRC-C1, C1b, C2, C5).
+Spec: readable-specs-and-flow/acceptance-criteria.md (`TRC-C1`, C1b, C2, `TRC-C5`).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006).
 import subprocess
 import sys
 import pathlib
@@ -42,7 +39,7 @@ def _plan_lint(tmp_path, body, name="technical-design.md"):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - the four prohibited phrases are reported with their line numbers
+# `TRC-C1` - the four prohibited phrases are reported with their line numbers
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_reports_each_prohibited_phrase(tmp_path):
@@ -89,7 +86,7 @@ def test_trc_c1_clean_plan_reports_nothing(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1b - a work unit that promises tests but contains none
+# `TRC-C1b` - a work unit that promises tests but contains none
 # ---------------------------------------------------------------------------
 
 def test_trc_c1b_incomplete_work_unit_reported(tmp_path):
@@ -131,7 +128,7 @@ def test_trc_c1b_not_reported_when_tests_follow(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 - advisory: hits are reported, the command still succeeds
+# `TRC-C2` - advisory: hits are reported, the command still succeeds
 # ---------------------------------------------------------------------------
 
 def test_trc_c2_hit_reported_with_exit_zero(tmp_path):
@@ -158,7 +155,7 @@ def test_trc_c2_missing_file_is_an_error_not_a_silent_pass(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C5 - quoted prose is not a placeholder
+# `TRC-C5` - quoted prose is not a placeholder
 # ---------------------------------------------------------------------------
 
 def test_trc_c5_fenced_and_quoted_text_ignored(tmp_path):
@@ -209,14 +206,14 @@ def test_trc_c5_real_hit_after_a_fence_is_still_found(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Dogfooding: this task's own plan must survive its own check
+# This issue's own technical design must pass its own check
 # ---------------------------------------------------------------------------
 
 def test_plan_lint_is_clean_on_this_tasks_own_plan():
     """The plan that specified this check quotes the phrases it forbids. If the
     check cannot read that plan without complaining, it is not usable."""
     plan = ROOT / "docs/compass/2026-08-03-readable-specs-and-flow/technical-design.md"
-    if not plan.exists():          # the task directory is not shipped to adopters
+    if not plan.exists():          # the issue directory is not shipped to adopters
         return
     result = subprocess.run(
         [sys.executable, str(COMPASS_CLI), "plan", "lint", "--file", str(plan)],
