@@ -732,6 +732,12 @@ _register(Rule(
             "`intent-elicitation`, not a live use of the retired word "
             "\"elicitation\"."),
         Exemption(
+            "tests/test_record_keeping_integrity.py",
+            "The defect: `task['friction'] = entries` discarded the first note.",
+            "a verbatim quote of the real defective line "
+            "(cli/compass_pkg/calibration.py:411, a local variable named "
+            "`task`), not a v1-vocabulary use of the word."),
+        Exemption(
             "tests/test_governance_drift_noop.py",
             "approach, gates, topology and fired guardrails against what the fixture",
             "names the fixture's real `topology` dict key the assertions "
@@ -1379,6 +1385,11 @@ _register(Rule(
             "the walkthrough's own hypothetical issue - it shows the "
             "reader where their own file will be, not a citation of a "
             "document that already exists in this repository"),
+        Exemption(
+            "tests/test_record_keeping_integrity.py",
+            ".compass/work/, not a fixture - the point is the actual audit trail.",
+            "names the real directory this test scans on the machine "
+            "running it, not a citation of a document a reader must open."),
         Exemption(
             "tests/test_hook_as_guest.py",
             'hook says "no .compass/work/"',
