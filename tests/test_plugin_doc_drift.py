@@ -121,15 +121,15 @@ def test_trc_a2_quickstart_drops_install_sh_path_claim():
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_readme_tree_lists_bin_and_plugin_manifest():
-    """README's 'What's in the box' tree contains entries for bin/ and
-    .claude-plugin/."""
+    """README's 'What the repository contains' tree contains entries for
+    bin/ and .claude-plugin/."""
     readme = _read("README.md")
     m = re.search(
-        r"##\s+What's in the box.*?(?=^##\s+|\Z)",
+        r"##\s+What the repository contains.*?(?=^##\s+|\Z)",
         readme,
         re.DOTALL | re.MULTILINE,
     )
-    assert m, "'What's in the box' section not found in README.md"
+    assert m, "'What the repository contains' section not found in README.md"
     block = m.group(0)
 
     # The tree is the code block inside that section.

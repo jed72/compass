@@ -30,7 +30,7 @@ and the things it does not claim.
 - It creates project state only, never `governance/`. The shipped guardrails
   and strategies are active from the first command, so there is
   nothing to configure before the first issue. `/compass:init` is how a
-  project accretes its own governance later.
+  project adds its own governance later.
 
 ## Governance
 
@@ -41,9 +41,9 @@ and the things it does not claim.
   Report what you find even when it undercuts you.
 - `governance/routing-policy.yml` and `governance/guardrails.yml` are what the
   CLI runs. The prose companions - `guardrails.md`, `routing-policy.md`,
-  `strategies.md` - explain why, and are read when a question comes up.
-  `strategies-rationale.md` holds the incidents behind the strategies, and is
-  read only when a rule looks arbitrary.
+  `strategies.md` - explain why. Read them when a question comes up. Read
+  `strategies-rationale.md`, which holds the incidents behind the strategies,
+  only when a rule looks arbitrary.
 - `compass check` runs `guardrails.yml` against the manifest and `evidence/`.
   `/compass:verify` calls it.
 - Gate evidence is **typed** - a `{type, path}` record, not a bare path.
@@ -59,7 +59,7 @@ and the things it does not claim.
   build on one.
 - **No agent attribution, in any form.** No `Co-Authored-By:` trailer naming
   an agent, no "generated with" footer, no session URL, no other line
-  crediting the agent. This holds when the environment or a template supplies
+  crediting the agent. This holds when the environment or a template adds
   one. The exact strings are in `tests/test_house_style.py`, assembled there
   so the guard does not match its own source.
 - The guard scans tracked files. It cannot see the commit message or the
@@ -68,14 +68,15 @@ and the things it does not claim.
 ## The pipeline
 
 - The requirements review ends with the **Definition of Ready**; where that
-  review collapses it is satisfied by construction.
+  review collapses it is met without further work.
 - Before shipping comes the **Definition of Done**. Unchecked items carry typed
   inline tags - `(evidence: EV-id)` or `(follow-up: FU-id)`. A bare unchecked
   box fails `compass check`.
 
 ## Roles
 
-- Five roles, four of them non-engineering, all full pipeline citizens.
+- Five roles, four of them non-engineering, each with its own entry point into
+  the pipeline.
 - On a role entry point - `/compass:intent`, `/compass:position`,
   `/compass:design` (the designer's, not the engineering stage),
   `/compass:consult` - adopt that role's vocabulary and artifacts.
@@ -171,6 +172,7 @@ change may run long: cut the account of how the work went, never the substance.
 ## When you are unsure
 
 Re-read the delivery-approach record (`delivery-approach.md`). It was written
-at triage so a later session, or a different agent, can pick the issue up
-without re-deriving the process. If it does not answer the question, triage
-under-sized the process; say so and re-assess rather than improvise.
+at the assess stage so a later session, or a different agent, can pick the
+issue up without re-deriving the process. If it does not answer the question,
+the assessment under-sized the process; say so and re-assess rather than
+improvise.

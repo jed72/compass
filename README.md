@@ -11,9 +11,9 @@
 A typo fix should not need an architecture pack. A payments rewrite should
 not begin with an unstructured prompt.
 
-Compass assesses each change by **risk, familiarity, size and intent**, then
-composes the right delivery approach: the artefacts worth writing, the checks
-worth running, the human decisions required and the number of agents that can
+Compass assesses each change by **risk, familiarity, size and goal**, then
+composes the right delivery approach: the artifacts worth writing, the checks
+worth running, the human decisions needed and the number of agents that can
 work safely in parallel.
 
 Assess the work. Let policy choose the process.
@@ -27,7 +27,7 @@ Install Compass from inside Claude Code:
 /plugin install compass@compass
 ```
 
-Requires Python 3. Compass CI currently tests Python 3.11.
+Needs Python 3. Compass CI tests Python 3.11.
 
 Or from source:
 
@@ -38,7 +38,8 @@ bash scripts/install.sh --global
 ```
 
 Add `bin/` to your `PATH` to make `compass` invokable, or call it as
-`python3 cli/compass`.
+`python3 cli/compass`. See [the installation smoke test](docs/install-smoke-test.md) for checks and
+troubleshooting.
 
 Then describe the work:
 
@@ -54,7 +55,7 @@ Compass complements your normal CI. It does not replace tests, linting,
 security scanning, builds or deployment checks.
 
 Want the guided walkthrough? Read **[Compass in five minutes](docs/five-minutes.md)**.
-Writing the artefacts is its own craft: see
+Writing the artifacts is its own craft: see
 [docs/writing-specs-and-plans.md](docs/writing-specs-and-plans.md).
 
 ## What Compass changes
@@ -67,7 +68,7 @@ everything. Compass adapts the depth without abandoning discipline.
 | **Quick fix** | One clear criterion, a focused change and evidence that it works. |
 | **Feature** | Behavioural specification in Gherkin, proportionate technical design and review. |
 | **Initiative** | intent document, architecture and delivery plan, with detailed design and test strategy only where useful. |
-| **Hotfix** | Reproduce first, fix safely, then pay back the process weight borrowed for speed. |
+| **Hotfix** | Reproduce first, fix safely, then do the follow-up work skipped for speed (promote the reproduction to a scenario; optional postmortem). |
 | **Spike** | Time-boxed exploration. Record the learning; ship nothing directly. |
 
 These are reference shapes, not fixed levels. A one-file authentication change
@@ -80,7 +81,7 @@ Every issue leaves a reviewable record under `.compass/work/<issue>/`:
 
 - a dashboard showing the current decision and what needs approval;
 - the delivery approach, including what was deliberately omitted and why;
-- only the product, requirements, design, test and release artefacts justified
+- only the product, requirements, design, test and release artifacts justified
   by the work;
 - traceable evidence behind each gate; and
 - enough state for another session (or another compatible agent runtime) to
@@ -169,9 +170,10 @@ compass terminology        what a term means here, from the frozen vocabulary
 ```
 
 Every verb describes itself - `compass <verb> --help` says what it does and
-what the result means, so this list is a map rather than a manual.
+what the result means. This list gives one line per verb; `--help` gives the
+detail.
 
-## What's in the box
+## What the repository contains
 
 ```
 commands/     the stage interface, under the /compass: namespace
@@ -183,7 +185,7 @@ hooks/        pre-tool.sh, post-tool.sh, stop.sh - mechanical enforcement
 cli/compass   the kit: routing, checks and the manifest
 bin/compass   the shim that puts the kit on your PATH
 governance/   guardrails, strategies, routing policy, frozen vocabulary
-approaches/   the reference shapes, and the artefacts each one earns
+approaches/   the reference shapes, and the artifacts each one earns
 architecture/ Compass's own invariants and decision records
 .claude-plugin/  the plugin manifest and marketplace entry
 ```
@@ -191,10 +193,10 @@ architecture/ Compass's own invariants and decision records
 The first four are the Claude Code adapter and are rebuilt for another
 runtime. Everything below them is reused unchanged.
 
-## Roles are full citizens
+## Five roles, one pipeline
 
-Five roles, four of them non-engineering, each with an entry point and its own
-artefacts: engineer, product owner, designer, product marketer and QA. A
+Five roles, four of them non-engineering, each with its own entry point and
+artifacts: engineer, product owner, designer, product marketer and QA. A
 non-engineering entry point changes the delivery approach rather than adding a
 consultation - see the [roles guide](docs/roles-guide.md).
 
@@ -205,20 +207,6 @@ consultation - see the [roles guide](docs/roles-guide.md).
 - **[Safety contract](docs/safety-contract.md):** what Compass guarantees and what it does not.
 - **[Security](docs/security.md):** hooks, dependencies and the trust model.
 - **[Portability](docs/portability.md):** how the methodology, kit and adapter fit together.
-
-<details>
-<summary>Install from source</summary>
-
-```bash
-git clone https://github.com/jed72/compass.git
-cd compass
-bash scripts/install.sh --global
-```
-
-See [the installation smoke test](docs/install-smoke-test.md) for verification
-and troubleshooting.
-
-</details>
 
 ## License
 
