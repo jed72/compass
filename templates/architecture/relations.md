@@ -1,14 +1,15 @@
 # Service Relations
 
-<!-- HOW TRIAGE USES THIS FILE
+<!-- HOW ASSESS USES THIS FILE
      Assess reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The `architect` agent reads it to determine
      which labels in the manifest map to known service names, so it
      knows when to fire automatically as acceptance criteria are defined
-     (see TRC-B2).
+     (the scenario that added automatic triggering, `TRC-B2`, is in another
+     issue's own record).
 
      Format: keep service names consistent with the labels you use in the
-     manifest (the `touches:` field) so the agent can match them.
+     manifest (the `labels:` field) so the agent can match them.
 -->
 
 ## Service map
@@ -31,8 +32,8 @@
 ## Known interface contracts
 
 <!-- List any stable contracts (OpenAPI specs, proto files, event schemas)
-     that this service publishes or consumes.  A change that modifies a
-     contract must create or update an ADR. -->
+     that this service publishes or consumes.  Changing a contract must
+     create or update an ADR. -->
 
 | Contract | Location | Owned by |
 |---|---|---|
@@ -42,7 +43,8 @@
 
 <!-- Relations that must NEVER be created - typically because they would
      create a cycle, violate ownership, or cross a data-classification
-     boundary.  These become invariants when architecture/invariants.yml
-     is populated. -->
+     boundary.  These can also live in architecture/invariants.yml, an
+     optional freeform YAML file the assess stage already reads into
+     architecture-loaded.yml. -->
 
 - <!-- example: service-A must not call service-B directly (use the event bus) -->

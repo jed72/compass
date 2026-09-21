@@ -36,7 +36,7 @@ you have them ("~4% of checkout requests since 09:12 UTC").}}
 
 ## Immediate mitigation
 
-{{What was done to stop the bleeding before the fix - rollback, feature
+{{What was done to limit the impact before the fix - rollback, feature
 flag off, traffic shift - or "none available", stated plainly.}}
 
 ## Follow-ups owed

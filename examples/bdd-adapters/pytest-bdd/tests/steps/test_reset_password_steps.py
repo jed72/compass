@@ -1,14 +1,14 @@
 """Step definitions binding the reset-password scenarios to the code.
 
 `scenarios(...)` points at the file `compass bdd extract` produced, NOT at
-spec.feature.md. The extracted file is derived and regenerated; the markdown
+the markdown spec (`acceptance-criteria.md`). The extracted file is derived and regenerated; the markdown
 spec stays the source of truth. Run the extract before the tests - the README
 shows the two commands together.
 
-Each scenario in the extracted feature carries its traceability id as a tag
-(@TRC-A1 and so on), so a pytest-bdd result maps straight back to manifest.yml.
-Select one with: pytest -m "" -k TRC-A2, or `pytest --tags TRC-A2` on runners
-that support tag expressions.
+Each scenario in the extracted feature carries its traceability id as a tag,
+prefixed `@` (for example `TRC-A1`), so a pytest-bdd result maps straight back
+to manifest.yml. Select one with: `pytest -m "" -k TRC-A2`, or
+`pytest --tags TRC-A2` on runners that support tag expressions.
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ def store():
 
 @pytest.fixture
 def outcome():
-    """A one-slot box for the result, so `when` can hand it to `then`."""
+    """A dict that carries the result from `when` to `then`."""
     return {}
 
 

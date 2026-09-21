@@ -1,9 +1,9 @@
-# Compass framework repo - its own CI (dogfooding).
+# Compass framework repo - its own CI.
 #
-# This validates the Compass framework repository itself: the repo structure,
+# This checks the Compass framework repository itself: the repo structure,
 # the governance YAML, and the CLI. It is also the live proof of the reference
 # workflow in ci/github-actions.yml - a project copies that one; this is the
-# framework keeping its own house in order.
+# framework running its own checks on itself.
 
 name: Compass (self-check)
 
@@ -39,12 +39,12 @@ jobs:
         # PyYAML travels inside the plugin (cli/vendor/yaml/); tests/conftest.py
         # resolves it the same way the CLI does, so there is nothing to install
         # for it here. jsonschema turns on full JSON Schema validation in the
-        # lint commands (genuinely optional). pytest is for the test suite step
+        # lint commands (optional). pytest is for the test suite step
         # below.
         run: pip install jsonschema pytest
 
       - name: Repo structure self-check
-        # scripts/validate.sh verifies the directory tree, that commands
+        # scripts/validate.sh checks the directory tree, that commands
         # reference skills/agents/templates that exist, and that the kit layer
         # is intact.
         run: bash scripts/validate.sh
@@ -53,13 +53,13 @@ jobs:
         run: python3 -c "import ast; ast.parse(open('cli/compass').read())"
 
       - name: Compass gate suite
-        # The framework repo has no .compass/work/ tasks, so this is
+        # The framework repo has no .compass/work/ issues, so this is
         # `compass policy lint` in practice - it proves the shipped governance
         # YAML is valid and the CLI runs.
         run: python3 cli/compass ci
 
       - name: Test suite
-        # `compass ci` above checks governance and per-task guardrails; it does
+        # `compass ci` above checks governance and per-issue guardrails; it does
         # not run the tests. Without this step nothing in tests/ gates a merge,
         # including the release invariants that cap the guardrail count and the
         # house-style guards. Plugin autoload is disabled for the same reason
@@ -80,8 +80,9 @@ jobs:
   # test is a green tick over an assertion nobody ran.
   #
   # So the adapter gets a job where autoload is ON and pytest-bdd is installed,
-  # while the main suite keeps its three dependencies and its autoload-off
-  # setting. Both properties are asserted by tests/test_bdd_adapter_reference.py.
+  # while the main suite keeps its two dependencies (jsonschema, pytest) and
+  # its autoload-off setting. Both properties are asserted by
+  # tests/test_bdd_adapter_reference.py.
   # ---------------------------------------------------------------------------
   bdd-adapter:
     runs-on: ubuntu-latest
@@ -106,7 +107,7 @@ jobs:
         run: python3 -m pytest tests/ -v
 
       - name: Prove the adapter ran rather than skipped
-        # Belt and braces: if pytest-bdd ever fails to load, collection returns
+        # A second check: if pytest-bdd ever fails to load, collection returns
         # zero scenarios and pytest exits 5. Catch that here rather than
         # reading a green tick that means nothing.
         working-directory: examples/bdd-adapters/pytest-bdd
@@ -116,7 +117,7 @@ jobs:
             echo "No scenarios were collected - pytest-bdd did not load."; exit 1; }
 
   # An example no job runs is an example nobody can trust. Every directory under
-  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  # examples/bdd-adapters/ has one of these, and tests/test_bdd_adapters_all.py asserts it.
   bdd-adapter-behave:
     runs-on: ubuntu-latest
     steps:
@@ -138,7 +139,7 @@ jobs:
         run: behave features/
 
   # An example no job runs is an example nobody can trust. Every directory under
-  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  # examples/bdd-adapters/ has one of these, and tests/test_bdd_adapters_all.py asserts it.
   bdd-adapter-cucumber-js:
     runs-on: ubuntu-latest
     steps:
@@ -165,7 +166,7 @@ jobs:
         run: npx cucumber-js
 
   # An example no job runs is an example nobody can trust. Every directory under
-  # examples/bdd-adapters/ has one of these, and a test asserts it (TRC-B1).
+  # examples/bdd-adapters/ has one of these, and tests/test_bdd_adapters_all.py asserts it.
   bdd-adapter-godog:
     runs-on: ubuntu-latest
     steps:

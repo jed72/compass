@@ -1,14 +1,14 @@
 <!--
 TEMPLATE: delivery-approach.md
-Produced by: triage (`/compass:assess`).
+Produced by: the assess stage (`/compass:assess`).
 Lives at:    docs/compass/<created>-<issue-slug>/delivery-approach.md
 Authority:   This is the audit centrepiece. It records the assessment, the
              delivery approach the policy computed, every policy rule that
-             fired, and - first-class - what was skipped and why it is safe.
+             fired, and, as its own section, what was skipped and why it is safe.
              Rubric: the delivery-approach reference docs. Policy:
              governance/routing-policy.md (hard rules + soft biases).
 
-On a spike, triage also writes a `.spike` marker file in the issue
+On a spike, assess also writes a `.spike` marker file in the issue
 directory so the pre-tool hook knows to suspend the TDD strategy.
 
 Fill every {{PLACEHOLDER}}. A dimension with no justification is not an
@@ -19,7 +19,7 @@ line is not skippable - it runs.
 # Delivery approach - {{ISSUE_SLUG}}
 
 > **Issue:** {{ONE-LINE DESCRIPTION AS INVOKED}}
-> **Triaged:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first triage; bump on `--reassess`)
+> **Assessed:** {{DATE}} by {{WHO}} · **Revision:** {{N}} (revision 1 = first assessment; bump on `--reassess`)
 > **Reference shape:** {{quick fix | feature | initiative | hotfix | spike}}
 
 <!-- On a re-assessment (`--reassess`), keep the prior revision below this
@@ -40,7 +40,7 @@ line is not skippable - it runs.
 | **Size** | {{atomic \| small \| standard \| large \| product}} | {{Why this value. When unsure, estimate up.}} |
 | **Goal & role** | {{engineer \| product-owner \| product-marketer \| designer \| qa}} | {{Who invoked, and the outcome actually wanted - read `intent.md` or the intake if one exists.}} |
 
-**Labels (the manifest's `touches:` field):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
+**Labels (the manifest's `labels:` field):** {{[auth, payments, personal-data, migrations, public-api, …] or "none"}}
 <!-- These are what the policy's hard floors key on. Be honest - a one-line
      auth change still carries the auth label. -->
 
@@ -94,19 +94,19 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 | Stage | Weight | Notes |
 |---|---|---|
 | Assess | Full | Always. This document is the output. |
-| Define acceptance criteria | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. behaviour mapping existing behaviour first; how deep}} |
-| Requirements review | {{collapsed \| light pass \| full pass \| skipped (spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
-| Design | {{one-line edit note \| real technical-design.md \| technical-design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
-| Break down the work | {{skipped (solo) \| pair \| multiagent}} | {{subtask count comes from the distribution map}} |
+| Define | {{one scenario \| small feature set \| full BDD discovery \| reproduce-first failing test \| collapsed to a question (spike)}} | {{discovery vs. behaviour mapping existing behaviour first; how deep}} |
+| Refine | {{collapsed \| light pass \| full pass \| skipped (spike)}} | {{if collapsed, the de-scope ledger below must justify it}} |
+| Plan | {{one-line edit note \| real technical-design.md \| technical-design.md + distribution-map.md \| timebox sketch (spike)}} | {{design decisions expected; governance check scope}} |
+| Breakdown | {{skipped (solo) \| pair \| multiagent}} | {{subtask count comes from the distribution map}} |
 | Implement | {{test surface target}} | {{scaled to risk - see the TDD skill}} |
-| Test & review | {{gate count}} | {{which review dimensions - section 4b}} |
+| Verify | {{gate count}} | {{which review dimensions - section 4b}} |
 | Ship | {{trivial commit \| coordinated merge}} | {{which follow-ups are owed - section 6}} |
 
 ### 4b. Gate set
 
 - Number of gates: {{1 \| 2 \| all \| 1 conclude gate (spike)}}
 - Review dimensions applied: {{list - correctness, governance, traceability are always on for delivery work; a spike runs none of these}}
-- Immovable gates stapled on (from routing-policy.md): {{verify.correctness, verify.governance, verify.regression, verify.claims, …}}
+- Immovable gates added (from routing-policy.md): {{verify.correctness, verify.governance, verify.traceability, …}}
 
 ### 4c. Multiagent orchestration
 
@@ -129,7 +129,7 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 | Stage / check | Action | Safe to skip / collapse because… |
 |---|---|---|
-| {{e.g. Requirements review}} | {{collapsed \| skipped}} | {{e.g. "The acceptance criteria are a single scenario certified unambiguous at triage - nothing to review."}} |
+| {{e.g. Requirements review}} | {{collapsed \| skipped}} | {{e.g. "The acceptance criteria are a single scenario certified unambiguous at assess - nothing to review."}} |
 | {{e.g. Design}} | {{collapsed to one-liner}} | {{e.g. "atomic size on familiar ground - no design decision; the design is 'edit src/foo.ts'."}} |
 | {{e.g. Break down the work}} | {{skipped}} | {{e.g. "One subtask of work - parallelism would be pure overhead."}} |
 
@@ -141,8 +141,8 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 
 ## 6. Owed follow-ups
 
-<!-- Process weight borrowed from the front of the pipeline that must be settled
-     at ship time before the issue can close. A hotfix always owes one;
+<!-- Work the issue deferred to go faster, which must be done at ship before
+     the issue can close. A hotfix always owes one;
      other work owes whatever the de-scope ledger marked. A spike owes
      nothing - it ships nothing; its exit is graduate or discard. -->
 
@@ -173,6 +173,6 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 - [ ] Every dimension in §1 has a justification.
 - [ ] Every skipped/collapsed stage in §5 has a "safe to skip because…" line.
 - [ ] On a spike: the `.spike` marker file is written to the issue directory.
-- [ ] `devlog.md` opened with the triage entry.
+- [ ] `devlog.md` opened with the assess entry.
 
 Next stage: **define acceptance criteria** (`/compass:define`) - or explore, on a spike.

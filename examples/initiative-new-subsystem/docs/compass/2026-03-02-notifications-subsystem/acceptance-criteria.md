@@ -1,6 +1,6 @@
 # Spec - notifications-subsystem
 
-> **Phase:** define · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
+> **Stage:** define · **Last updated:** 2026-03-05 · **Owning agent:** spec-author
 > **Familiarity:** greenfield discovery - there is no notifications capability today; these scenarios are discovered from `intent.md`, not behaviour-mapped from existing behaviour.
 
 ## How each role reads this file
@@ -112,7 +112,7 @@ Scenario: A muted category does not suppress a security notification
   And the mute on "security" is treated as not applicable
 ```
 
-<!-- This is the brief's hardest constraint made into a scenario: mute must not
+<!-- This is intent.md's hardest constraint made into a scenario: mute must not
      be able to suppress the things a user must not miss. It sits in group B's
      surface (preferences.py) - subtask-2 owns it. -->
 
@@ -120,11 +120,11 @@ Scenario: A muted category does not suppress a security notification
 
 ## Coverage ledger
 
-| Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
+| Traceability id | Serves intent | Has a failing test (implement) | Passes as acceptance (verify) |
 |---|---|---|---|
-| TRC-001 | INT-1 | [x] | [x] |
-| TRC-002 | INT-1 | [x] | [x] |
-| TRC-003 | INT-2 | [x] | [x] |
-| TRC-004 | INT-3 | [x] | [x] |
-| TRC-005 | INT-3 | [x] | [x] |
-| TRC-006 | INT-3 | [x] | [x] |
+| `TRC-001` | INT-1 | [x] | [x] |
+| `TRC-002` | INT-1 | [x] | [x] |
+| `TRC-003` | INT-2 | [x] | [x] |
+| `TRC-004` | INT-3 | [x] | [x] |
+| `TRC-005` | INT-3 | [x] | [x] |
+| `TRC-006` | INT-3 | [x] | [x] |

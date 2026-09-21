@@ -52,8 +52,8 @@ npx cucumber-js
 whenever the spec changes - in CI, put `compass bdd extract` immediately before
 the run command.
 
-**An unbound step fails loudly**, naming the step text it could not find. That
+**An unbound step fails with an error**, naming the step text it could not find. That
 is the first mistake an adopter makes, and it says what to fix.
 
-**This adapter is run by a CI job on every push.** An example nobody runs is an
+**A CI job runs this adapter on every pull request and every push to main.** An example nobody runs is an
 example nobody can trust, which is why Compass ships none without one.

@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: threat-model.md
-Produced by: the design stage, on an issue whose assessment carries `auth`,
+Produced by: the plan stage, on an issue whose assessment carries `auth`,
              `payments` or `personal-data` (RP-REQUIRE-005).
 Lives at:    docs/compass/<created>-<issue-slug>/threat-model.md
 
@@ -51,8 +51,8 @@ Keep it under 120 lines. Delete this comment block when you fill it in.
 
 | Threat | What are we going to do about it? |
 |---|---|
-| {{A forged session token is accepted as valid}} | {{TRC-B4}} |
-| {{An expired token is accepted after a clock skew}} | {{TRC-B5}} |
+| {{A forged session token is accepted as valid}} | {{`TRC-B4`}} |
+| {{An expired token is accepted after a clock skew}} | {{`TRC-B5`}} |
 | {{The audit log is filled by repeated failed logins}} | {{risk accepted - the platform rotates it hourly and alerts on volume}} |
 
 ## What are we going to do about it?
@@ -76,6 +76,6 @@ goes here with an owner.}}
 
 | Threat | Scenario | Evidence |
 |---|---|---|
-| {{A forged session token is accepted}} | {{TRC-B4}} | {{EV-T-TRC-B4}} |
+| {{A forged session token is accepted}} | {{`TRC-B4`}} | {{`EV-T-TRC-B4`}} |
 
 {{What is still open, and when this will be re-run.}}

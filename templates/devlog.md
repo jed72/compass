@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: devlog.md
-Produced by: opened at triage, appended to at every stage transition and
+Produced by: opened at assess, appended to at every stage transition and
              notable event, closed at ship time. Hooks write to it too -
              `hooks/post-tool.sh` appends entries after code edits.
 Lives at:    .compass/work/<issue-slug>/devlog.md
@@ -23,24 +23,24 @@ short - what happened, evidence pointer, what's next.
 
 ## {{YYYY-MM-DD HH:MM}} - Assess
 
-- **Event:** triage ran; the delivery approach was computed.
+- **Event:** assess ran; the delivery approach was computed.
 - **Approach:** {{reference shape - quick fix/feature/initiative/hotfix/spike}} - see `delivery-approach.md` revision {{N}}.
 - **Assessment:** risk {{…}}, familiarity {{…}}, size {{…}}, goal & role {{…}}.
 - **Policy rules fired:** {{list - or "none"}}.
 - **Owed follow-ups:** {{list - or "none" (a spike owes none)}}.
 - **Next:** define acceptance criteria {{or explore, on a spike}}.
 
-## {{YYYY-MM-DD HH:MM}} - Acceptance criteria
+## {{YYYY-MM-DD HH:MM}} - Define
 
-- **Event:** {{scenarios authored \| existing behaviour behaviour-mapped first, then new scenarios authored}}.
+- **Event:** {{scenarios authored \| existing behaviour mapped first, then new scenarios authored}}.
 - **Artifact:** `acceptance-criteria.md` - {{N}} scenarios in {{M}} groups.
-- **Next:** {{requirements review \| design, if the review collapsed}}.
+- **Next:** {{requirements review \| plan, if the review collapsed}}.
 
-## {{YYYY-MM-DD HH:MM}} - {{Requirements review | Design | Breakdown | Implementation | Test & review}}
+## {{YYYY-MM-DD HH:MM}} - {{Requirements review | Plan | Breakdown | Implement | Verify}}
 
 - **Event:** {{what happened}}.
 - **Artifact:** {{which file written/updated}}.
-- **Evidence:** {{pointer to the evidence record, e.g. "evidence/green-TRC-3.json"}}.
+- **Evidence:** {{pointer to the evidence record, e.g. `evidence/green-TRC-3.json`}}.
 - **Next:** {{next stage}}.
 
 <!-- Notable-event entries (not stage transitions) look like this: -->
@@ -58,6 +58,6 @@ short - what happened, evidence pointer, what's next.
 
 - **Event:** issue closed.
 - **What shipped:** {{summary}}.
-- **How verified:** {{pointer to verification-report.md gate decision}}.
+- **How checked:** {{pointer to verification-report.md gate decision}}.
 - **Follow-ups settled:** {{list - for a hotfix, the root-cause line goes here}}.
 - **Follow-ups filed:** {{issue ids - or "none"}}.

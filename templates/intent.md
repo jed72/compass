@@ -3,19 +3,19 @@ TEMPLATE: intent.md
 Produced by: the product owner / manager via `/compass:intent`.
 Lives at:    docs/compass/<created>-<issue-slug>/intent.md
 Role in the pipeline: the intent artifact. It sits UPSTREAM of the spec -
-the BDD scenarios in acceptance-criteria.md are checked back against this brief
-for intent fidelity before Plan (the product-owner role_rule in
-governance/routing-policy.md). The Needle reads it at triage: intent is
+the BDD scenarios in acceptance-criteria.md are checked back against this intent
+for intent fidelity before plan (the product-owner role_rule in
+governance/routing-policy.md). The assess stage reads this: intent is
 the outcome wanted, not just the literal request.
 
 Fill every {{PLACEHOLDER}}. Keep it in the product owner's language, not
 engineering's - do not pre-solve the problem here.
 -->
 
-# Brief - {{ISSUE_SLUG}}
+# Intent - {{ISSUE_SLUG}}
 
 > **Author:** {{PRODUCT OWNER / MANAGER NAME}} · **Date:** {{DATE}}
-> **Governance owner check:** this brief should be consistent with the
+> **Governance owner check:** this intent should be consistent with the
 > product strategies in `governance/strategies.md`.
 
 ---
@@ -38,8 +38,8 @@ engineering's - do not pre-solve the problem here.
 ## Success signals
 
 <!-- How will we know the outcome was actually achieved? Each signal should
-     be observable. These seed the success metrics in technical-design.md and the
-     acceptance perspective on acceptance-criteria.md. -->
+     be observable. These seed technical-design.md's "0. Summary - Why now /
+     what changes" field and the acceptance perspective on acceptance-criteria.md. -->
 
 - {{SIGNAL 1 - e.g. "Finance pulls month-end numbers without filing a data request."}}
 - {{SIGNAL 2}}
@@ -56,7 +56,7 @@ engineering's - do not pre-solve the problem here.
 ## Non-goals
 
 <!-- Explicitly out of scope. Naming non-goals is what stops scope creep and
-     what lets triage size the work honestly. "We are NOT building a
+     what lets assess size the work honestly. "We are NOT building a
      full reporting suite." -->
 
 - {{NON-GOAL 1}}
@@ -66,8 +66,8 @@ engineering's - do not pre-solve the problem here.
 
 <!-- The questions a sharp colleague would ask before agreeing to build this.
      Adapted from the Amazon working-backwards PRFAQ. Answer them honestly -
-     a weak answer here is cheaper to find now than in Build. The Needle reads
-     "why now" for urgency and "what could make this fail" for risk. -->
+     a weak answer here is cheaper to find now than at implement. The assess
+     stage reads "why now" for urgency and "what could make this fail" for risk. -->
 
 **Why now?**
 {{Why is this worth doing this cycle and not next? What changed, or what
@@ -75,7 +75,7 @@ breaks if it waits?}}
 
 **What is in v1, and what is explicitly later?**
 {{The MVP cut. Sharper than the non-goals list - non-goals are never; this is
-the v1/later line. Feeds triage's size assessment.}}
+the v1/later line. Feeds the size assessment the assess stage makes.}}
 
 **How will we know it worked?**
 {{Restate the success signals above as the one or two that actually decide
@@ -88,18 +88,18 @@ team accepts should be visible here, not discovered later.}}
 
 ## Affected roles
 
-<!-- Which of the five roles this brief pulls into the pipeline. The Needle
-     uses this when scoring the intent & role dimension. -->
+<!-- Which of the five roles this intent pulls into the pipeline. The assess
+     stage uses this when scoring the goal & role dimension. -->
 
 - {{e.g. designer - there is a new user-facing surface; expect a ui-contract.md}}
 - {{e.g. product-marketer - this is launch-visible; expect positioning.md}}
 
 ---
 
-## Intent-fidelity check (filled at the pre-Plan gate)
+## Intent-fidelity check (filled at the pre-plan gate)
 
-<!-- The product-owner role_rule blocks Plan until the spec is checked
-     against this brief. Record the check here. -->
+<!-- The product-owner role_rule blocks plan until the spec is checked
+     against this intent. Record the check here. -->
 
 - [ ] Every success signal above maps to at least one scenario in `acceptance-criteria.md`.
 - [ ] No scenario contradicts a constraint, pursues a non-goal, or runs against a product strategy.

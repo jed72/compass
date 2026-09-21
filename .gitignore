@@ -9,13 +9,12 @@
 # Compass per-project working state.
 #
 # IMPORTANT - in a real project that USES Compass, `.compass/work/` IS
-# committed: it is the audit trail (task.yml, route.md, evidence, devlog).
+# committed: it is the audit trail (manifest.yml, devlog.md, evidence/).
 # Only the framework repo itself ignores its own root-level `.compass/work/`,
 # and the patterns below are ROOT-ANCHORED with a leading `/` so they do not
 # also exclude `examples/<x>/.compass/work/...` - those ARE part of the
 # repo and must be tracked. (Without the leading `/`, git matches the
-# pattern at any depth, which silently drops the examples - the exact same
-# bug the release-tarball excludes hit.)
+# pattern at any depth, which silently drops the examples.)
 /.compass/work/
 /.compass/flow/
 /.compass/current-task

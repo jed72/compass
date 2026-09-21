@@ -3,15 +3,15 @@ TEMPLATE: positioning.md
 Produced by: the product marketer via `/compass:position`.
 Lives at:    docs/compass/<created>-<issue-slug>/positioning.md
 Role in the pipeline: the marketer's artifact. The marketer works PARALLEL
-to the spec, not downstream of it. Every claim made here must point at a
-scenario id in acceptance-criteria.md that backs it - that is the claim→scenario
-half of the traceability guardrail, and the voice & positioning
+to the spec, not downstream of it. Every claim must point at the scenario id
+in acceptance-criteria.md that backs it - that is the claim→scenario
+half of the traceability guardrail. The voice & positioning
 strategies in governance/strategies.md govern how it is said. Unbacked
 claims are resolved at ship time via launch-readiness.md; the marketer role_rule
 blocks shipping until they are.
 
 Fill every {{PLACEHOLDER}}. Leave the "backing scenario" slot blank if no
-scenario backs the claim yet - an empty slot is a visible debt, which is
+scenario backs the claim yet - an empty slot is a visible gap, which is
 the point.
 -->
 
@@ -31,12 +31,12 @@ the point.
 
 ## Value proposition
 
-<!-- The core promise, in one or two sentences, in the product's voice (V1).
+<!-- The core promise, in one or two sentences, in the product's voice.
      This is itself a claim - it needs a backing scenario. -->
 
 {{VALUE PROP}}
 
-- **Backing scenario:** {{TRC-id from acceptance-criteria.md - or BLANK (debt)}}
+- **Backing scenario:** {{`TRC-id` from acceptance-criteria.md - or BLANK (debt)}}
 
 ## Press release (working-backwards)
 
@@ -73,11 +73,11 @@ the implementation.}}
 <!-- Each message is a public claim. Each claim gets a backing scenario
      slot. The launch-readiness.md gate at ship time checks this whole table. -->
 
-| # | Claim (as it would appear publicly) | Backing scenario id | Verified? |
+| # | Claim (as it would appear publicly) | Backing scenario id | Checked? |
 |---|---|---|---|
-| C1 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ] - filled at ship time}} |
-| C2 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ]}} |
-| C3 | {{"…"}} | {{TRC-id - or BLANK}} | {{[ ]}} |
+| CLM-001 | {{"…"}} | {{`TRC-id` - or BLANK}} | {{[ ] - filled at ship time}} |
+| CLM-002 | {{"…"}} | {{`TRC-id` - or BLANK}} | {{[ ]}} |
+| CLM-003 | {{"…"}} | {{`TRC-id` - or BLANK}} | {{[ ]}} |
 
 ## Customer & internal FAQ
 
@@ -104,7 +104,7 @@ the implementation.}}
      may overstate. Checked against the voice & positioning strategies in
      governance/strategies.md. -->
 
-- {{e.g. "We say 'CSV export for finance', not 'full reporting suite' - word-discipline strategy; the suite is a non-goal in intent.md."}}
+- {{e.g. "We say 'CSV export for finance', not 'full reporting suite' - a voice strategy; the suite is a non-goal in intent.md."}}
 
 ---
 

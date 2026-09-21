@@ -333,7 +333,7 @@ def test_d2_repairs_change_only_retired_names():
     fingerprint is a snapshot of a sanctioned state, not of the original text,
     so a sanctioned restructure moves it - visibly, in the same commit.
 
-    Eight were re-baselined by `prose-breaks-the-writing-style`. The list is
+    Nine were re-baselined by `prose-breaks-the-writing-style`. The list is
     counted from the fixture, not merged from the batches' own notes: each
     batch recorded only the entries it saw, and the merged set is larger than
     either recorded.
@@ -355,6 +355,11 @@ def test_d2_repairs_change_only_retired_names():
       that named two purposes inline became a parent bullet with two nested
       ones, which is the same "one point in one sentence, a vertical list for
       a set of items" rule the rest of the rewrite applied.
+    - `examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/distribution-map.md`
+      (list_items 11 -> 10), losing a bullet that stated a
+      `.compass/config.yml` `max_worktrees` value the file does not
+      declare - a stated fact the audit found the source contradicted, not
+      a wording swap.
 
     The other 51 are untouched, and a NEW structural change to any of the 59
     still fails.

@@ -1,8 +1,8 @@
 """Step definitions for behave.
 
-Only this file differs from the pytest-bdd adapter. The spec, the extract
-command and the run command are the same four steps in a different language's
-idiom - which is the claim the four adapters exist to demonstrate.
+Apart from the runner config, only the step bindings differ. The spec, the
+extract command and the run command are the same four steps in a different
+language's idiom - which is the claim the four adapters exist to demonstrate.
 """
 from behave import given, when, then
 

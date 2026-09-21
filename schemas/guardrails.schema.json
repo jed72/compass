@@ -45,13 +45,13 @@
 
     "defaults": {
       "type": "array",
-      "description": "The shipped default guardrails (G1-G5).",
+      "description": "The shipped default guardrails (`G1`-`G5`).",
       "items": { "$ref": "#/definitions/guardrail" }
     },
 
     "spike_guardrails": {
       "type": "array",
-      "description": "Guardrails that apply ONLY on a spike. compass check runs these instead of the defaults when route=spike.",
+      "description": "Guardrails that apply ONLY on a spike. compass check runs these instead of the defaults when the delivery approach is spike.",
       "items": { "$ref": "#/definitions/guardrail" }
     },
 

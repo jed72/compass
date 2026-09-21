@@ -1,7 +1,7 @@
-# Brief - notifications-subsystem
+# Intent - notifications-subsystem
 
 > **Author:** S. Voss (product manager) · **Date:** 2026-03-01
-> **Governance owner check:** this brief is consistent with the product strategies in `governance/strategies.md` - in particular "depth for existing users over breadth".
+> **Governance owner check:** this intent is consistent with the product strategies in `governance/strategies.md` - in particular "depth for existing users over breadth".
 
 ---
 
@@ -68,10 +68,10 @@ rather than reinventing delivery.
 
 **What could make this fail?**
 - *Technical:* delivery that is not genuinely durable - looks fine in dev,
-  loses notifications under real restart/outage conditions. Mitigation: TRC-003
+  loses notifications under real restart/outage conditions. Mitigation: `TRC-003`
   makes durability an explicit, tested scenario.
 - *Product:* the preference model is too coarse (users mute everything because
-  the only knob is too blunt) or too fine (nobody configures it). Mitigation:
+  the only setting is all-or-nothing) or too fine (nobody configures it). Mitigation:
   category-level granularity for v1, safe defaults, revisit with usage data.
 - *Adoption:* the security-override is wrong in either direction - too broad
   (everything claims to be security and mute is meaningless) or too narrow (a
@@ -80,7 +80,7 @@ rather than reinventing delivery.
 
 ## Affected roles
 
-- product-owner - this brief; reviews the spec for intent fidelity before Plan.
+- product-owner - this intent; reviews the spec for intent fidelity before Plan.
 - engineer - owns the build (multiagent across two subtasks).
 - *Not* product-marketer on this issue - the external launch is a separate,
   later issue; this one ships the capability.
@@ -90,11 +90,11 @@ rather than reinventing delivery.
 ## Intent-fidelity check (filled at the pre-Plan gate - RP-ROLE-002)
 
 The product-owner role rule (RP-ROLE-002) blocks Plan until the spec is checked
-against this brief.
+against this intent.
 
 - [x] Every success signal above maps to at least one scenario in
-  `acceptance-criteria.md` - delivery-within-seconds → TRC-001; durability → TRC-003;
-  mute survives sessions → TRC-004; security reaches through mute → TRC-006.
+  `acceptance-criteria.md` - delivery-within-seconds → `TRC-001`; durability → `TRC-003`;
+  mute survives sessions → `TRC-004`; security reaches through mute → `TRC-006`.
   (The "support tickets drop" signal is an outcome metric, tracked post-launch,
   not a scenario - noted, not orphaned.)
 - [x] No scenario contradicts a constraint, pursues a non-goal, or runs against
