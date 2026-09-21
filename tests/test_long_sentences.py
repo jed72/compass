@@ -1,24 +1,20 @@
 """A long sentence is reported, never blocked.
 
-Long sentences are a prompt to re-read, not a defect. A threshold that failed a
-build would become a number people wrote around - splitting one 34-word
-sentence into two clumsy ones to clear a gate teaches exactly the wrong habit,
-and `intent.md` rules out any numeric writing gate for that reason.
+Long sentences are a prompt to re-read, not a defect. A threshold that failed
+a build would become a number people wrote around - splitting one 34-word
+sentence into two clumsy ones to clear a gate teaches exactly the wrong
+habit. No numeric writing gate exists, for that reason.
 
 So the REPORT never changes an exit status. The tests in this file are a
 different thing and must be able to fail: they check that the reporter finds
 what it should, ignores what it should, and stays inert. A reporter nobody can
 prove wrong is not advisory, it is decorative.
 
-Scenario ids: TRC-E1, TRC-E2 (issue plain-language-3-2-0).
+Scenario ids: `TRC-E1`, `TRC-E2` (issue plain-language-3-2-0).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006).
 from __future__ import annotations
 
 import re
@@ -64,11 +60,11 @@ def _sentence_of(n: int) -> str:
 
 
 # ---------------------------------------------------------------------------
-# TRC-E1 - a sentence of thirty-one words or more is reported
+# `TRC-E1` - a sentence of thirty-one words or more is reported
 # ---------------------------------------------------------------------------
 
 def test_pl_e1_thirty_one_words_reported_thirty_not():
-    """TRC-E1 - the boundary is stated exactly, and both sides of it hold."""
+    """`TRC-E1` - the boundary is stated exactly, and both sides of it hold."""
     text = "\n".join([_sentence_of(41), _sentence_of(31), _sentence_of(30),
                       _sentence_of(3)])
     found = long_sentences(text)
@@ -80,7 +76,7 @@ def test_pl_e1_thirty_one_words_reported_thirty_not():
 
 
 def test_pl_e1b_report_names_file_line_and_count():
-    """TRC-E1 - a report without locations is a number, not a report."""
+    """`TRC-E1` - a report without locations is a number, not a report."""
     text = "Short one.\n" + _sentence_of(35)
     found = long_sentences(text)
     assert len(found) == 1
@@ -91,11 +87,11 @@ def test_pl_e1b_report_names_file_line_and_count():
 
 
 # ---------------------------------------------------------------------------
-# TRC-E2 - the report never fails a build
+# `TRC-E2` - the report never fails a build
 # ---------------------------------------------------------------------------
 
 def test_pl_e2_exit_status_does_not_move_with_the_finding_count():
-    """TRC-E2 - 0, 30 and 500 findings all leave the caller's status alone.
+    """`TRC-E2` - 0, 30 and 500 findings all leave the caller's status alone.
 
     Stated as a property of the reporter rather than of a test run: calling it
     returns findings and raises nothing, whatever it finds.
@@ -110,7 +106,7 @@ def test_pl_e2_exit_status_does_not_move_with_the_finding_count():
 
 
 def test_pl_e2b_no_knob_exists_that_would_make_it_block():
-    """TRC-E2 - there is no option that would turn the report into a gate.
+    """`TRC-E2` - there is no option that would turn the report into a gate.
 
     "No threshold exists" cannot be seen from outside, so this checks the two
     things that can: the module exposes no failure switch, and the one number it
