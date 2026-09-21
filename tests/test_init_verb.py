@@ -1,14 +1,10 @@
 """`compass init` - the verb that makes a directory a Compass project.
 
-Before this, nothing owned initialisation. `/compass:init` created
-`.compass/config.yml` and `.compass/work/` at steps 4 and 5 of a governance
-conversation, `/compass:assess` created `.compass/work/<slug>/` as a side
-effect, and four of the five role entry points assumed the directory existed
-without creating it. There was no `init` verb, so initialisation could be
-described but not checked.
+`compass init` creates `.compass/config.yml` and `.compass/work/` and is
+safe to run twice. The five entry points call it.
 
 Scenario ids: IOI-A1, IOI-A2 in
-docs/compass/2026-08-26-init-is-the-opt-in/acceptance-criteria.md
+init-is-the-opt-in/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -100,9 +96,7 @@ def test_ioi_a2_init_is_safe_to_run_twice(tmp_path):
 def test_ioi_a2b_the_json_result_says_which_happened(tmp_path):
     """A consumer must be able to tell creation from a no-op.
 
-    `set-status-does-not-name-the-issue` was exactly this failure: a field
-    absent rather than wrong, so a reader saw nothing instead of something
-    false, and nobody noticed for a release.
+    A missing field shows the reader nothing instead of something false.
     """
     root = (tmp_path / "fresh").resolve()
     root.mkdir()
@@ -175,7 +169,7 @@ def test_ioi_b2_a_quiet_run_still_reports_creating_the_project(tmp_path):
 
 
 def test_ioi_d1_a_command_that_needs_an_issue_says_so(tmp_path):
-    """Initialising a project does not conjure an issue.
+    """Initialising a project does not create an issue.
 
     The failure this rules out is a confusing success: a user runs their first
     command, the project is initialised for them, and the next command they

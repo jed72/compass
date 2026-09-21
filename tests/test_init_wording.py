@@ -1,13 +1,10 @@
 """The docs stop implying that no project state is created.
 
-`commands/init.md` opened with "**`/compass:init` is optional**" and
-`CLAUDE.md` said "triage works with zero project setup". Both stay true in the
-sense that matters - you never have to run init *before* your first real
-command - but a reader who took them to mean no `.compass/` directory is
-created was misled once the entry points began initialising for them.
+Both claims hold only in that you never have to run init first. The entry
+points now create `.compass/` for you, so the docs must say so.
 
 Scenario ids: IOI-C1, IOI-C3 in
-docs/compass/2026-08-26-init-is-the-opt-in/acceptance-criteria.md
+init-is-the-opt-in/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -45,17 +42,14 @@ def test_ioi_c3b_zero_project_setup_is_not_claimed_bare():
 
     Taken bare it says nothing is created, which is no longer true.
 
-    Scoped to the paragraph the claim is IN. A character window either side
-    reached `.compass/current-task` two paragraphs up and passed on text that
-    had nothing to do with the claim - a check that could not fail, which is
-    the pattern this repository keeps finding.
+    Scoped to the paragraph holding the claim, so text elsewhere cannot
+    satisfy it.
     """
     text = _read("CLAUDE.md")
     paragraphs = text.split("\n\n")
-    # Either wording of the claim. It was "triage works with zero project
-    # setup"; compressing CLAUDE.md restated it as "nothing to configure and
-    # no gate to clear". Both say the same thing to a reader, and both need
-    # the qualifier - what must not happen is the claim standing bare.
+    # The claim has two wordings: "zero project setup" and "nothing to
+    # configure". Both say the same thing to a reader, and both need the
+    # qualifier - what must not happen is the claim standing bare.
     claim = re.compile(r"zero project setup|nothing to configure", re.I)
     claims = [p for p in paragraphs if claim.search(p)]
     assert claims, (
