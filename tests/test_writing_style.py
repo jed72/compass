@@ -810,20 +810,6 @@ _register(Rule(
             "(implement, verify, ship) - an identifier (section 4), not "
             "the verb the word table retires"),
         Exemption(
-            "docs/safety-contract.md", "Human approvals are required",
-            "tests/test_g5_trigger.py pins this exact phrase and is not "
-            "named for this unit in DD-6 - changing the assertion is not "
-            "this batch's to make, so the word-table finding is left "
-            "unapplied here and reported instead"),
-        Exemption(
-            "docs/quickstart.md", "does **not** modify your PATH",
-            "tests/test_plugin_doc_drift.py::"
-            "test_trc_a2_quickstart_drops_install_sh_path_claim pins this "
-            "exact phrase and is not named for this unit in DD-6 - "
-            "changing the assertion is not this batch's to make, so the "
-            "word-table finding is left unapplied here and reported "
-            "instead"),
-        Exemption(
             "docs/routing-deep-dive.md", "but verify also runs the",
             "\"verify\" is the stage name here, matching \"feature\" and "
             "the other lowercase reference-shape names beside it - an "

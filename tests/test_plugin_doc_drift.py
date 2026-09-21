@@ -95,10 +95,10 @@ def test_trc_a2_quickstart_drops_install_sh_path_claim():
 
     # And the disclaimer must be present, not merely the absence of the claim.
     assert re.search(
-        r"install\.sh[^.]{0,80}does\s+\*{0,2}not\*{0,2}\s+modify\s+your\s+PATH",
+        r"install\.sh[^.]{0,80}does\s+\*{0,2}not\*{0,2}\s+change\s+your\s+PATH",
         quickstart, re.IGNORECASE,
     ), (
-        "quickstart.md must say outright that install.sh does not modify your "
+        "quickstart.md must say outright that install.sh does not change your "
         "PATH. Silence leaves a reader to assume it does, which is the "
         "misreading this test exists to prevent."
     )

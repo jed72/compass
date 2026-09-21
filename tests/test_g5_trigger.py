@@ -189,7 +189,7 @@ def test_scn_c1_a_landed_task_is_reported_not_failed(tmp_path):
 
 def test_scn_f1_the_safety_contract_names_critical_blast_radius():
     text = CONTRACT.read_text(encoding="utf-8")
-    i = text.find("Human approvals are required")
+    i = text.find("Human approvals are needed")
     assert i != -1, "guarantee 5 not found in docs/safety-contract.md"
     para = text[i:i + 900]
     assert "critical" in para, (
