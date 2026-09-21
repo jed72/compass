@@ -1,7 +1,7 @@
-"""Acceptance tests for task make-receipt-render.
+"""Acceptance tests for issue make-receipt-render.
 
 Each test is a Given/When/Then scenario from
-docs/compass/2026-05-26-make-receipt-render/acceptance-criteria.md, exercised against the
+make-receipt-render/acceptance-criteria.md, exercised against the
 compass CLI via the run_cli fixture (a hermetic temp project).
 """
 from __future__ import annotations
@@ -27,7 +27,8 @@ _DEFAULT_READING_JUSTIFICATIONS = {
 
 def _make_route_md(slug: str, readings: Dict[str, str], route: str,
                    fired_guardrails: Optional[List[Dict[str, str]]] = None) -> str:
-    """Build a minimal route.md the receipt parses for justifications."""
+    """Build a minimal delivery-approach.md the receipt parses for
+    justifications."""
     fired = fired_guardrails or []
     fired_lines = (
         "\n".join(f"- {g['id']}: {g['rationale']}" for g in fired)
@@ -56,10 +57,11 @@ Final route: {route}.
 
 def _landed_task(project: Path, slug: str = "alpha",
                  evidence_types: Optional[List[str]] = None) -> Path:
-    """Create a fully-populated landed task on disk and return its task_dir.
+    """Create a fully-populated landed issue on disk and return its task_dir.
 
-    Default fixture: status=landed, route=standard, 6 standard gates all pass,
-    one evidence entry per type listed (defaults to one test-run).
+    Default fixture: status=landed, delivery approach=standard, 6 standard
+    gates all pass, one evidence entry per type listed (defaults to one
+    test-run).
     """
     task_dir = project / ".compass" / "work" / slug
     (task_dir / "evidence").mkdir(parents=True, exist_ok=True)
@@ -153,15 +155,15 @@ def _section_order(text: str, anchors: List[str]) -> bool:
     return True
 
 
-# --- TRC-D3 -----------------------------------------------------------------
+# --- `TRC-D3` -----------------------------------------------------------------
 
 
 def test_missing_task_clean_error(run_cli, project):
-    """TRC-D3: a missing task slug fails cleanly.
+    """`TRC-D3`: a missing issue slug fails cleanly.
 
     Given no directory exists at .compass/work/nonesuch/
     When `compass issue receipt --issue nonesuch` is run
-    Then a one-line error is written to stderr naming the missing task
+    Then a one-line error is written to stderr naming the missing issue
       and the expected directory
     And nothing is written to stdout
     And the process exits with a non-zero code
@@ -176,20 +178,20 @@ def test_missing_task_clean_error(run_cli, project):
     assert ".compass/work/nonesuch" in result.stderr, repr(result)
 
 
-# --- TRC-A1 -----------------------------------------------------------------
+# --- `TRC-A1` -----------------------------------------------------------------
 
 
 def test_canonical_landed_task(run_cli, project):
-    """TRC-A1: a landed Standard task with typed evidence renders the canonical
+    """`TRC-A1`: a landed feature issue with typed evidence renders the canonical
     receipt in six ordered sections.
 
-    Given a task "alpha" exists with status=landed, 6 gates pass with evidence,
+    Given an issue "alpha" exists with status=landed, 6 gates pass with evidence,
       and a multi-type evidence registry
     When `compass issue receipt --issue alpha` is run
     Then the receipt is printed to stdout in this order:
-      (1) task slug + landed status
-      (2) the four readings, each with its one-line justification
-      (3) the computed route + every routing guardrail that fired
+      (1) issue slug + landed status
+      (2) the four assessment values, each with its one-line justification
+      (3) the computed delivery approach + every routing guardrail that fired
       (4) each gate, its verdict, and the evidence id(s) that clear it
       (5) each evidence id with its type and the file it points at
       (6) an overall verdict line
@@ -215,17 +217,17 @@ def test_canonical_landed_task(run_cli, project):
         "EV-001",                             # 5: an evidence id
         "landed cleanly",                     # 6: overall verdict
     ]), repr(result)
-    # And the receipt must report "landed" for this happy-path task.
+    # And the receipt must report "landed" for this happy-path issue.
     assert "landed" in out, repr(result)
 
 
-# --- TRC-A2 -----------------------------------------------------------------
+# --- `TRC-A2` -----------------------------------------------------------------
 
 
 def test_receipt_fits_one_screen(run_cli, project):
-    """TRC-A2: the rendered receipt fits within a single terminal screen.
+    """`TRC-A2`: the rendered receipt fits within a single terminal screen.
 
-    Given a landed Standard task "alpha" with 6 gates and a multi-type evidence
+    Given a landed feature issue "alpha" with 6 gates and a multi-type evidence
       registry
     When `compass issue receipt --issue alpha` is run
     Then the receipt output is at most 50 lines
@@ -249,11 +251,11 @@ def test_receipt_fits_one_screen(run_cli, project):
         )
 
 
-# --- TRC-D1 -----------------------------------------------------------------
+# --- `TRC-D1` -----------------------------------------------------------------
 
 
 def _active_task(project: Path, slug: str = "alpha") -> Path:
-    """Build a task that has not yet landed: status=active, gates pending."""
+    """Build an issue that has not yet landed: status=active, gates pending."""
     task_dir = _landed_task(project, slug=slug)
     task_yml = task_dir / "manifest.yml"
     body = yaml.safe_load(task_yml.read_text())
@@ -266,12 +268,13 @@ def _active_task(project: Path, slug: str = "alpha") -> Path:
 
 
 def test_active_task_labeled_in_progress(run_cli, project):
-    """TRC-D1: a not-yet-landed task is labeled in-progress, not a final receipt.
+    """`TRC-D1`: a not-yet-landed issue is labelled in-progress, not a final receipt.
 
-    Given a task "alpha" with status=active and at least one gate pending
+    Given an issue "alpha" with status=active and at least one gate pending
     When `compass issue receipt --issue alpha` is run
     Then the receipt's header explicitly reads "IN PROGRESS - not yet landed"
-    And the receipt still renders the readings, the route, and the gates' state
+    And the receipt still renders the assessment values, the delivery
+      approach, and the gates' state
     And no gate's verdict is rendered as "landed"
     And the process exits with code 0
     """
@@ -288,7 +291,7 @@ def test_active_task_labeled_in_progress(run_cli, project):
     assert "Assessment" in out
     assert "Approach" in out
     assert "Gates" in out
-    # No gate is labeled "landed" - that word should not appear next to a gate
+    # No gate is labelled "landed" - that word must not appear next to a gate
     # verdict marker (we use [ PASS ]/[ FAIL ]/[ PENDING ]).
     for line in out.splitlines():
         if "verify." in line:
@@ -297,11 +300,11 @@ def test_active_task_labeled_in_progress(run_cli, project):
             )
 
 
-# --- TRC-C3 -----------------------------------------------------------------
+# --- `TRC-C3` -----------------------------------------------------------------
 
 
 def test_failed_gate_prominent(run_cli, project):
-    """TRC-C3: a task with a failed gate renders the failure prominently and
+    """`TRC-C3`: an issue with a failed gate renders the failure prominently and
     exits 0 (the receipt is a renderer; enforcement is `compass check`'s job)."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "manifest.yml").read_text())
@@ -326,11 +329,11 @@ def test_failed_gate_prominent(run_cli, project):
     assert "does not satisfy its own gates" in out, repr(result)
 
 
-# --- TRC-C4 -----------------------------------------------------------------
+# --- `TRC-C4` -----------------------------------------------------------------
 
 
 def test_owed_backfills_surfaced(run_cli, project):
-    """TRC-C4: a task with owed backfills is rendered as owing."""
+    """`TRC-C4`: an issue with owed follow-ups is rendered as owing."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     body["follow_ups"] = [
@@ -346,7 +349,7 @@ def test_owed_backfills_surfaced(run_cli, project):
     out = result.stdout
 
     # A follow-ups section exists and surfaces the outstanding one with
-    # id+description. (v1 wording moved with the CLI-voice slice.)
+    # id+description.
     assert "Follow-up" in out or "follow-up" in out, (
         f"receipt should include a follow-ups section\n--- stdout ---\n{out}"
     )
@@ -357,11 +360,11 @@ def test_owed_backfills_surfaced(run_cli, project):
     assert "1 follow-up" in out, repr(result)
 
 
-# --- TRC-B1 -----------------------------------------------------------------
+# --- `TRC-B1` -----------------------------------------------------------------
 
 
-# Per spec.feature.md §Scenario outline B1: one row per (type, minimal_fields,
-# label). All eleven types declared in governance/guardrails.yml.
+# One row per (type, minimal_fields, label). All eleven types declared in
+# governance/guardrails.yml.
 _TYPED_EVIDENCE_ROWS = [
     ("test-run",         {"path": "evidence/test.json", "scenario": "SCN-001"},
      "test-run"),
@@ -386,7 +389,7 @@ _TYPED_EVIDENCE_ROWS = [
 @pytest.mark.parametrize("etype,fields,label", _TYPED_EVIDENCE_ROWS,
                          ids=[t[0] for t in _TYPED_EVIDENCE_ROWS])
 def test_evidence_type_labels(run_cli, project, etype, fields, label):
-    """TRC-B1: the receipt labels each evidence type with its name and shows
+    """`TRC-B1`: the receipt labels each evidence type with its name and shows
     the type-specific minimal fields on the same row."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "manifest.yml").read_text())
@@ -416,18 +419,9 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
     )
     # Each minimal field's value appears in the same section - EXCEPT the path.
     #
-    # `path` was retired from the receipt on 2026-08-15 (maintainer's ruling).
-    # It was the widest column on every row; for a per-scenario record it is
-    # mechanically derivable from the id (`EV-T-TRC-A1` -> `green-TRC-A1.json`);
-    # for the rest the filename now renders as the row's plain-words
-    # description, so it is present as words rather than as a path. And once
-    # the line hit its column cap it printed as `evidence/gr...`, which looks
-    # like information and is not.
-    #
-    # The path is still in the manifest and still resolves - `compass check`'s
-    # gate-evidence-present reads it. What changed is that the receipt stopped
-    # printing it, and the receipt is a summary for a person rather than an
-    # index for a machine.
+    # The receipt does not print `path`: it is derivable from the id, and a
+    # truncated path looks like information. `compass check` still reads it
+    # from the manifest.
     fields = {k: v for k, v in fields.items() if k != "path"}
     for k, v in fields.items():
         assert str(v) in ev_section, (
@@ -435,16 +429,16 @@ def test_evidence_type_labels(run_cli, project, etype, fields, label):
         )
 
 
-# --- TRC-C1 -----------------------------------------------------------------
+# --- `TRC-C1` -----------------------------------------------------------------
 
 
 def test_wrong_typed_evidence_flagged(run_cli, project):
-    """TRC-C1: a pass gate cleared by wrong-typed evidence is rendered as
+    """`TRC-C1`: a pass gate cleared by wrong-typed evidence is rendered as
     "type-mismatch" (not as a clean pass). Exit 0 - receipt reports, does not
-    enforce (Q4)."""
+    enforce."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "manifest.yml").read_text())
-    # verify.correctness requires test-run; we clear it with an artifact.
+    # verify.correctness needs test-run; we clear it with an artifact.
     body["evidence"] = [{"id": "EV-Z", "type": "artifact",
                          "path": "evidence/note.md"}]
     body["gates"] = [g for g in body["gates"] if g["id"] != "verify.correctness"]
@@ -466,11 +460,11 @@ def test_wrong_typed_evidence_flagged(run_cli, project):
     assert "landed with caveats" in out, repr(result)
 
 
-# --- TRC-C2 -----------------------------------------------------------------
+# --- `TRC-C2` -----------------------------------------------------------------
 
 
 def test_unsupported_pass_flagged(run_cli, project):
-    """TRC-C2: a pass gate with no evidence id is rendered as "unsupported"."""
+    """`TRC-C2`: a pass gate with no evidence id is rendered as "unsupported"."""
     task_dir = _landed_task(project, slug="alpha")
     body = yaml.safe_load((task_dir / "manifest.yml").read_text())
     for g in body["gates"]:
@@ -492,15 +486,15 @@ def test_unsupported_pass_flagged(run_cli, project):
     assert "landed with caveats" in out, repr(result)
 
 
-# --- TRC-D2 -----------------------------------------------------------------
+# --- `TRC-D2` -----------------------------------------------------------------
 
 
 def test_schema_1_0_renders(run_cli, project):
-    """TRC-D2: a schema-1.0 manifest.yml (pre-status field, possibly no evidence:
+    """`TRC-D2`: a schema-1.0 manifest.yml (pre-status field, possibly no evidence:
     list) renders without error.
 
-    INT-3 / ADR-006: every new mechanism no-ops cleanly on projects that have
-    not adopted it.
+    ADR-006: every new mechanism no-ops cleanly on projects that have not
+    adopted it.
     """
     slug = "legacy"
     task_dir = project / ".compass" / "work" / slug
@@ -523,7 +517,7 @@ def test_schema_1_0_renders(run_cli, project):
     }
     (task_dir / "manifest.yml").write_text(
         yaml.safe_dump(legacy_body, sort_keys=False))
-    # No route.md, no evidence/, no gates - the absent-data path.
+    # No delivery-approach.md, no evidence/, no gates - the absent-data path.
 
     result = run_cli("issue", "receipt", "--issue", slug)
     assert result.returncode == 0, repr(result)
@@ -533,8 +527,8 @@ def test_schema_1_0_renders(run_cli, project):
     assert "1.0" in out and "legacy" in out.lower(), (
         f"header should note 'schema 1.0 (legacy)':\n{out}"
     )
-    # Readings + route are still rendered.
-    assert "trivial" in out  # blast_radius value
+    # Assessment values + delivery approach are still rendered.
+    assert "trivial" in out  # risk value
     assert "quick fix" in out  # the shape, shown by its v2 display name
     # Absent data is labelled - somewhere in the receipt, "not recorded" or
     # "no evidence recorded" surfaces honestly rather than crashing.
@@ -543,7 +537,7 @@ def test_schema_1_0_renders(run_cli, project):
     )
 
 
-# --- TRC-E1 -----------------------------------------------------------------
+# --- `TRC-E1` -----------------------------------------------------------------
 
 
 import hashlib  # noqa: E402 - used only here
@@ -559,14 +553,14 @@ def _file_tree_sha(root: Path) -> Dict[str, str]:
 
 
 def test_receipt_is_read_only(run_cli, project):
-    """TRC-E1: rendering the receipt mutates nothing on disk.
+    """`TRC-E1`: rendering the receipt mutates nothing on disk.
 
     The whole project tree is hashed before and after; the receipt must change
     no bytes, create no files, and write no caches.
     """
     task_dir = _landed_task(project, slug="alpha")
-    # Hash the *whole project*, not just the task dir, so we catch any caches
-    # or other side-effects landing elsewhere.
+    # Hash the *whole project*, not just the issue directory, so we catch
+    # any caches or other side-effects landing elsewhere.
     before = _file_tree_sha(project)
 
     result = run_cli("issue", "receipt", "--issue", "alpha")
@@ -580,14 +574,14 @@ def test_receipt_is_read_only(run_cli, project):
     assert not diffs, f"files mutated: {diffs!r}"
 
 
-# --- DD-4 - docs example pinned to actual renderer output -------------------
+# --- `DD-4` - docs example pinned to actual renderer output -------------------
 
 
 import subprocess as _subprocess  # noqa: E402
 
 
 def test_docs_example_matches_actual_output(framework_root, cli_path):
-    """DD-4: docs/receipt.md embeds the actual rendered output of the fixture.
+    """`DD-4`: docs/receipt.md embeds the actual rendered output of the fixture.
 
     This test extracts the first fenced code block under the "## Example"
     heading in docs/receipt.md and asserts it is byte-for-byte equal to the

@@ -1391,6 +1391,11 @@ _register(Rule(
             "names the real directory this test scans on the machine "
             "running it, not a citation of a document a reader must open."),
         Exemption(
+            "tests/test_receipt_render.py",
+            "Given no directory exists at .compass/work/nonesuch/",
+            "the fixture's own deliberately-missing directory, named to "
+            "prove the failure path - not a citation of a document."),
+        Exemption(
             "tests/test_hook_as_guest.py",
             'hook says "no .compass/work/"',
             "a quote of the hook's actual printed message "
