@@ -1,23 +1,20 @@
-"""TRC-F6 - the distributed plugin actually contains the bundled copy.
+"""`TRC-F6` - the distributed plugin actually contains the bundled copy.
 
 The working tree is not the artifact. This repository has already shipped a
 tarball missing files it contained once (`examples/<x>/.compass/work/` was
 silently stripped by a BSD-tar exclude bug) - `scripts/release.sh`'s
 examples-integrity check exists because of it. Under bundling, the same class
 of miss would turn every install back into the exact "PyYAML required" error
-this issue removes, so this test exercises the real selection logic
-(`release_file_list()`, sourced unmodified from `scripts/release.sh`) against
-a real git index, tars exactly what it selects, unpacks that tarball
-somewhere clean, and reaches first triage from there on a genuinely bare
-interpreter.
+this issue removes. This test exercises the real selection logic
+(`release_file_list()`, sourced unmodified from `scripts/release.sh`)
+against a real git index: it tars exactly what it selects, unpacks that
+tarball somewhere clean, and reaches its first assessment from there on a
+genuinely bare interpreter.
 
-Why a temporary clone rather than this repository's own working tree: the
-new vendored files are on disk but not yet part of this repository's git
-index (Build leaves the tree uncommitted), and `release_file_list()` selects
-from `git ls-files` - the actual selection any real release performs. A
-temporary clone with everything this repository currently has on disk
-(tracked and not-yet-tracked alike) committed into a fresh index lets the
-real, unmodified function answer honestly, rather than a copy of its logic.
+`release_file_list()` selects from `git ls-files`, so a temporary clone
+holding everything this repository has on disk - tracked and
+not-yet-tracked alike - committed into a fresh index lets the real,
+unmodified function answer honestly, rather than a copy of its logic.
 """
 from __future__ import annotations
 
@@ -46,9 +43,9 @@ def _git(cwd, *args, **kw):
 @pytest.fixture(scope="module")
 def source_clone(tmp_path_factory):
     """A fresh git repository holding everything this repository's working
-    tree currently has - tracked (with any uncommitted edits) and untracked-
+    tree now has - tracked (with any uncommitted edits) and untracked-
     but-not-ignored alike - so `release_file_list()` can be run for real
-    against a committed index that matches what Build actually produced,
+    against a committed index that matches what implement actually produced,
     without staging or committing anything in the real repository."""
     clone_dir = tmp_path_factory.mktemp("release-source-clone")
 
@@ -88,7 +85,7 @@ def _release_file_list(clone_dir: Path) -> list[str]:
 def test_release_sh_refuses_a_tarball_missing_the_vendored_copy():
     """`vendor_integrity_missing()` in scripts/release.sh, sourced for real:
     a tarball listing missing the vendored copy is flagged; a complete one
-    is not. This is the hard-fail release.sh performs next to its existing
+    is not. This is the hard-fail release.sh does next to its existing
     examples-integrity check - factored into a sourceable function so this
     one `grep` can be driven red-to-green without running a full
     `make release`."""
@@ -145,8 +142,8 @@ def test_the_packaged_plugin_contains_the_bundled_copy(source_clone, bare_interp
         assert (unpack_dir / rel).is_file(), (
             f"{rel} was selected but did not survive tar/untar")
 
-    # First triage from the unpacked tree, on a genuinely bare interpreter -
-    # the distributed artifact, not the working tree, is what has to work.
+    # First assessment from the unpacked tree, on a genuinely bare interpreter
+    # - the distributed artifact, not the working tree, is what has to work.
     cli_path = unpack_dir / "cli" / "compass"
     assert cli_path.is_file(), "cli/compass missing from the unpacked release"
 
