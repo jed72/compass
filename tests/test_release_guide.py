@@ -1,11 +1,7 @@
-"""Acceptance tests for task release-guide-rewrite.
+"""Acceptance tests for issue release-guide-rewrite.
 
-The release-checklist file at v1.2.0 was the rc.1 → 1.0.0 historical
-checklist. The release-checklist-disposition Spike (F) decided to
-rewrite it as a generic release guide: keep the durable operational
-content (the make-based release procedure, the tarball-hygiene lesson,
-cross-references to the test surfaces that defend each invariant),
-drop the resolved rc.1 history.
+The release guide keeps the make-based procedure, the tarball-hygiene rule
+and the cross-references, and carries no rc.1 history.
 
 These tests assert the post-rewrite content (presence of the durable
 steps, presence of the cross-references) and the absence of the
@@ -24,9 +20,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 def _release_guide_path():
-    """Resolve the rewritten release guide. Build may keep the original
-    filename (`docs/release-checklist.md`) or rename to `docs/releasing.md`.
-    Either is acceptable; the test finds whichever exists.
+    """Resolve the rewritten release guide. Only `docs/releasing.md` exists;
+    the second candidate stays so a rename back would not break this check
+    silently.
     """
     candidates = [
         ROOT / "docs" / "releasing.md",
@@ -135,7 +131,7 @@ def test_trc_b1_release_guide_does_not_carry_rc1_specific_history():
 
 
 # ---------------------------------------------------------------------------
-# Task release-script-portable-tar, SCN-001
+# Issue release-script-portable-tar, SCN-001
 # ---------------------------------------------------------------------------
 
 def test_release_script_packages_on_this_platform(tmp_path):
