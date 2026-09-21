@@ -1510,6 +1510,11 @@ _register(Rule(
                    "tests/__pycache__/x.pyc",
                    "a hypothetical example path; the extension list stops "
                    "the match one character short of the real suffix."),
+        Exemption("tests/test_house_style.py",
+                   "tests/__pycache__/x.pyc",
+                   "the same hypothetical example path and the same "
+                   "one-character-short match as the "
+                   "governance/strategies-rationale.md exemption above."),
         # A rejected alternative's hypothetical path - it does not exist
         # because the alternative was never built, which is the point of
         # naming it in the Alternatives table.
