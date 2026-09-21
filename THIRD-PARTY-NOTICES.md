@@ -13,7 +13,7 @@ can find the terms it travels under without having to go looking.
 - **sha256:** `d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e`
 - **Licence:** MIT (full text at `cli/vendor/LICENSE-PyYAML`)
 - **Path in this repository:** `cli/vendor/yaml/`
-- **Modified:** unmodified - the vendored files are byte-identical to
+- **Local changes:** none - the vendored files are byte-identical to
   `lib/yaml/` inside the sdist above. Run each line below in order, from the
   repository root, to reproduce and compare. This is the only copy of the
   command in the repository: `cli/vendor/README.md` and `docs/security.md`

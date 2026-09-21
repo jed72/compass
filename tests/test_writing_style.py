@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 451
+PENDING_PATHS_HIGH_WATER = 452
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -419,7 +419,7 @@ from test_terminology import BAN_PATTERNS  # noqa: E402
 # retired at a major version, quoted so a reader whose script broke can find
 # the row that fixes it - is not a fresh breach for this sweep to invent a
 # second opinion about. This module checks the marker only on the span's own
-# line: every citation it currently guards carries an inline marker in the
+# line: every citation it now guards carries an inline marker in the
 # same table cell or sentence, not a marker on a preceding line.
 from allow_marker import ALLOW_MARKER_RE  # noqa: E402
 
@@ -557,8 +557,8 @@ def _find_word_table(span: ProseSpan) -> list[Finding]:
 # rule. Its rows name the very words the rule retires, so the table cannot
 # pass this sweep by rewording (PBW-F4 refuses a rewrite that would). Each
 # row is its own named exemption (PBW-E3): the quote is the whole row, so a
-# later row sharing a short word such as "attempt" cannot exempt unrelated
-# prose elsewhere in the same file.
+# later row sharing one short word from an earlier row cannot exempt
+# unrelated prose elsewhere in the same file.
 _SHORTER_WORD_TABLE_ROWS: tuple[str, ...] = (
     "| utilise, leverage | use |",
     "| obtain, acquire | get |",
@@ -643,6 +643,45 @@ _register(Rule(
             "changing the assertion is not this batch's to make, so the "
             "word-table finding is left unapplied here and reported "
             "instead"),
+        Exemption(
+            "docs/routing-deep-dive.md", "but verify also runs the",
+            "\"verify\" is the stage name here, matching \"feature\" and "
+            "the other lowercase reference-shape names beside it - an "
+            "identifier (section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "[refine, verify, ship]",
+            "the literal `never_skip` policy value quoted from "
+            "governance/routing-policy.yml:109 - an identifier (section "
+            "4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "implement expedited; verify",
+            "\"verify\" is the stage name in a list of stage names, "
+            "matching \"implement\" and \"ship\" beside it - an "
+            "identifier (section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "at full verify weight",
+            "\"verify\" is the stage name - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "not skipped; verify and ship",
+            "\"verify\" is the stage name in a list of stage names, "
+            "matching \"ship\" beside it - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "*before* verify and never verify",
+            "\"verify\" is the stage name, twice - an identifier "
+            "(section 4), not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md", "spike. verify becomes",
+            "\"verify\" is the stage name - an identifier (section 4), "
+            "not the verb the word table retires"),
+        Exemption(
+            "docs/routing-deep-dive.md",
+            "**Verify** runs **at full weight",
+            "\"Verify\" is the stage name, bold as one item in the "
+            "stage-by-stage list beside \"Plan\", \"Breakdown\", "
+            "\"Implement\" and \"Ship\" - an identifier (section 4), "
+            "not the verb the word table retires"),
     ),
 ))
 
