@@ -1,0 +1,11 @@
+hooks/pre-tool.sh
+hooks/stop.sh
+hooks/post-tool.sh
+hooks/session-start.sh
+scripts/install.sh
+scripts/integrate.sh
+scripts/lib/compass-python.sh
+scripts/multiagent.sh
+scripts/release.sh
+scripts/validate.sh
+scripts/verify-archive-quotes.py
