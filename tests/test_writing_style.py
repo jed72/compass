@@ -1382,12 +1382,16 @@ def test_pbw_e4_the_behaviour_comparison_reports_a_planted_change(tmp_path):
     (repo / "tests" / "test_thing.py").write_text(
         '"""Doc, reworded."""\n\n\ndef test_x():\n    assert 2 == 2\n')
     _commit(repo, "test pin changed")
-    result = _run_compare(repo, base3, "--allow-pinned-test", "tests/test_other.py")
+    result = _run_compare(
+        repo, base3, "--allow-pinned-test",
+        "tests/test_other.py=a different file, named to show the allowance "
+        "is per path")
     assert result.returncode != 0
     assert "test_thing.py" in result.stdout
 
     # A path outside tests/ passed to --allow-pinned-test is refused.
-    result = _run_compare(repo, base3, "--allow-pinned-test", "src/mod.py")
+    result = _run_compare(repo, base3, "--allow-pinned-test",
+                           "src/mod.py=a stated reason does not help here")
     assert result.returncode != 0
 
 
@@ -1518,6 +1522,140 @@ def test_pbw_e4_a_comment_only_rewrite_that_moves_line_counts_is_not_a_change(
     result = _run_compare(repo, base)
     assert result.returncode != 0
     assert "data.json" in result.stdout
+
+
+def test_pbw_e4_a_quoted_hash_is_not_a_comment(tmp_path):
+    """A `#` inside a quoted shell string is part of the command, so a change
+    after it is reported. A real trailing comment is still stripped. `PBW-E4`.
+
+    This was a false negative in the one tool whose purpose is proving that
+    no behaviour changed: the comment stripper matched ` #` anywhere outside
+    a comment's own syntax, so `echo "tag #alpha"` was cut to `echo "tag` and
+    a change to the part after the hash compared equal. The direction matters
+    more than the count - over-reporting costs a second look, while this
+    missed the change the tool is run to catch.
+    """
+    repo = _sandbox_repo(tmp_path)
+
+    def _base() -> str:
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                               capture_output=True, text=True,
+                               check=True).stdout.strip()
+
+    # Case 1: a double-quoted hash, with the change after it - reported.
+    (repo / "a.sh").write_text('#!/bin/sh\necho "tag #alpha"\n')
+    _commit(repo, "quoted hash base")
+    base = _base()
+    (repo / "a.sh").write_text('#!/bin/sh\necho "tag #beta"\n')
+    _commit(repo, "quoted hash changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert "a.sh" in result.stdout
+
+    # Case 2: a hash inside a sed substitution - reported.
+    (repo / "b.sh").write_text('#!/bin/sh\nsed -i "s/ #a/ #b/" f\n')
+    _commit(repo, "sed base")
+    base = _base()
+    (repo / "b.sh").write_text('#!/bin/sh\nsed -i "s/ #a/ #c/" f\n')
+    _commit(repo, "sed changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert "b.sh" in result.stdout
+
+    # Case 3: a single-quoted hash - reported.
+    (repo / "c.sh").write_text("#!/bin/sh\necho 'tag #alpha'\n")
+    _commit(repo, "single quote base")
+    base = _base()
+    (repo / "c.sh").write_text("#!/bin/sh\necho 'tag #beta'\n")
+    _commit(repo, "single quote changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+
+    # Case 4: `$#` and `${#var}` are shell parameters, not comments - a
+    # change to the line is reported.
+    (repo / "d.sh").write_text('#!/bin/sh\necho "$# args ${#PATH} chars"\n')
+    _commit(repo, "param base")
+    base = _base()
+    (repo / "d.sh").write_text('#!/bin/sh\necho "$# args ${#HOME} chars"\n')
+    _commit(repo, "param changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+
+    # Case 5: the fix must not over-correct. A genuine trailing comment,
+    # reworded over a different length, is still stripped - exit 0. A
+    # quoted hash on the same line stays part of the command.
+    (repo / "e.sh").write_text(
+        '#!/bin/sh\necho "tag #alpha"  # what this line does\n')
+    _commit(repo, "trailing comment base")
+    base = _base()
+    (repo / "e.sh").write_text(
+        '#!/bin/sh\necho "tag #alpha"  # a much longer note about the line\n')
+    _commit(repo, "trailing comment reworded")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 6: an escaped hash outside quotes is part of the command.
+    (repo / "f.sh").write_text('#!/bin/sh\nprintf %s a\\#alpha\n')
+    _commit(repo, "escaped base")
+    base = _base()
+    (repo / "f.sh").write_text('#!/bin/sh\nprintf %s a\\#beta\n')
+    _commit(repo, "escaped changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+
+
+def test_pbw_e4_an_allowance_must_name_its_reason(tmp_path):
+    """`--allow-pinned-test` takes `PATH=REASON`, prints both, and refuses an
+    allowance with no reason or a path outside `tests/`. `PBW-E4`.
+
+    An allowance with no stated reason is the same defect as a loosened
+    matcher: the report goes quiet and nothing records why. The plan needs
+    every batch to lower `PENDING_PATHS_HIGH_WATER` in
+    `tests/test_writing_style.py`, so every batch needs one allowance, and the
+    reason is what keeps that from becoming a habit nobody reads.
+    """
+    repo = _sandbox_repo(tmp_path)
+    (repo / "tests").mkdir()
+    (repo / "tests" / "test_mech.py").write_text(
+        '"""Doc."""\n\n\ndef test_x():\n    assert 1 == 1\n')
+    _commit(repo, "base")
+    base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                           capture_output=True, text=True,
+                           check=True).stdout.strip()
+    (repo / "tests" / "test_mech.py").write_text(
+        '"""Doc."""\n\n\ndef test_x():\n    assert 2 == 2\n')
+    _commit(repo, "mechanism constant lowered")
+
+    # Without an allowance the change is reported.
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "test_mech.py" in result.stdout
+
+    # With a reason: exit 0, and the output names the path and the reason.
+    reason = "the high-water constant the plan requires this batch to lower"
+    result = _run_compare(repo, base, "--allow-pinned-test",
+                           f"tests/test_mech.py={reason}")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "tests/test_mech.py" in result.stdout
+    assert reason in result.stdout, (
+        "the recorded output must say why the path was excused:\n"
+        + result.stdout)
+
+    # No reason: refused, and the message says a reason is needed.
+    result = _run_compare(repo, base, "--allow-pinned-test",
+                           "tests/test_mech.py")
+    assert result.returncode != 0
+    assert "reason" in result.stdout.lower() + result.stderr.lower()
+
+    # An empty reason is not a reason.
+    result = _run_compare(repo, base, "--allow-pinned-test",
+                           "tests/test_mech.py=")
+    assert result.returncode != 0
+
+    # A path outside tests/ is still refused, reason or not.
+    result = _run_compare(repo, base, "--allow-pinned-test",
+                           "src/mod.py=a stated reason does not help here")
+    assert result.returncode != 0
 
 
 # ---------------------------------------------------------------------------
