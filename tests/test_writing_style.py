@@ -1,9 +1,11 @@
 """The mechanical half of the writing-style rewrite, enforced.
 
-`docs/analysis/2026-09-11-writing-style-audit.md` records 2,928 findings
-across 474 files against the standard in the maintainer's global `CLAUDE.md`.
-Nine batches fix those files; this module is what judges every one of them,
-and what stops the prose drifting back afterwards.
+The writing-style audit records 2,928 findings across 474 files against the
+standard in the maintainer's global `CLAUDE.md`. It is not itself part of
+this repository's tracked tree - it lives under `docs/analysis/`, which is
+gitignored, so it opens on the maintainer's machine and nowhere else. Nine
+batches fix the 474 files it names; this module is what judges every one of
+them, and what stops the prose drifting back afterwards.
 
 Fourteen rules can be held mechanically - a sweep reads the tracked tree,
 reports a file, a line and what it found, and is silent when the prose is
@@ -54,8 +56,9 @@ PENDING_PATHS_HIGH_WATER = 474
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
-# contract a migration would rename. Mirrors the key list DD-3's behaviour
-# comparison blanks, so the two halves cannot disagree about what prose is.
+# contract a migration would rename. Mirrors the key list the behaviour
+# comparison blanks (`DD-3`), so the two halves cannot disagree about what
+# prose is.
 PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help"})
 
 # Files this issue does not touch, matched by exact path or by directory
@@ -176,7 +179,8 @@ def _markdown_spans(rel: str, text: str) -> list[ProseSpan]:
 def _python_spans(rel: str, text: str) -> list[ProseSpan]:
     """Comments from `tokenize`, docstrings from `ast`. Never another string
     literal - a printed message or an assertion is not what this module
-    checks, and DD-3's behaviour comparison is what proves neither changed."""
+    checks, and the behaviour comparison (`DD-3`) is what proves neither
+    changed."""
     spans: list[ProseSpan] = []
     try:
         for tok in tokenize.generate_tokens(io.StringIO(text).readline):
@@ -254,8 +258,9 @@ def _walk_yaml_node(node, rel: str, spans: list[ProseSpan]) -> None:
 
 def _yaml_spans(rel: str, text: str) -> list[ProseSpan]:
     """`#` comment text, plus the values of `PROSE_KEYS` keys at any depth.
-    Never another value - a machine enum such as `full-plus-backfill` stays
-    out of reach, the same protection `PBW-D1` already holds for identifiers."""
+    Never another value - a machine enum naming a retired-word compound
+    stays out of reach, the same protection `PBW-D1` already holds for
+    identifiers."""
     spans = _yaml_comment_spans(rel, text)
     try:
         node = yaml.compose(text)
@@ -412,7 +417,8 @@ from test_terminology import BAN_PATTERNS  # noqa: E402
 # (audit 5.1) are surface gaps this module's reader already closes: it reads
 # comments, it reads tests/, and its patterns are not narrowed to a single
 # capitalised form. One gap is not a surface gap but a pattern gap - a
-# hyphenated compound such as "per-stream" or "task-centric" - and that is
+# hyphenated compound naming the retired unit-of-work word or the retired
+# work-item word, the two forms the audit names by example - and that is
 # what this table widens, term by term, rather than by loosening every
 # pattern in BAN_PATTERNS.
 HYPHEN_WIDENING: dict[str, tuple[re.Pattern, ...]] = {
@@ -545,11 +551,9 @@ def _analyze_exempt(text: str, match: re.Match) -> bool:
     before = text[max(0, start - 9):start]
     if before.rstrip().endswith("compass"):
         return True
-    if text[start - 1:start] in "`/":
-        return True
+    if text[start - 1:start] in "`/.":  # a code span, a slash command, or
+        return True                     # the qualified gate id verify.analyze
     if text[end:end + 3] == ".py":
-        return True
-    if text[end:end + 1] == ".":  # verify.analyze
         return True
     return False
 
@@ -597,7 +601,8 @@ _register(Rule("PBW-A4", '"artifact" is the only spelling', _find_artefact))
 # ---------------------------------------------------------------------------
 
 # The maintainer's global CLAUDE.md table (audit 5.5), one row per idiom.
-# "smell" excludes "code smell", which the repository keeps; "rot"/"rots"
+# The row below for the sign-of-a-problem sense excludes the kept two-word
+# form ("code" plus that word); the row for the goes-out-of-date sense
 # carries no such exception - the audit's keep list does not name it.
 IDIOM_TABLE: tuple[tuple[str, str], ...] = (
     ("full citizens", "fully supported, or name what they support"),
@@ -643,9 +648,9 @@ def _idiom_exempt(text: str, match: re.Match) -> bool:
 def _find_idiom(span: ProseSpan) -> list[Finding]:
     if span.path.startswith(_RETIRED_WORD_STRUCTURAL_SKIP):
         # tests/fixtures/terminology/ plants every banned word on purpose
-        # (PBW-D2), and "blast radius" is both a retired word and an idiom -
-        # the same structural skip PBW-A1 uses applies here for the same
-        # reason.
+        # (PBW-D2), and one of the retired assessment-dimension words is also
+        # on the idiom table above - the same structural skip PBW-A1 uses
+        # applies here for the same reason.
         return []
     findings = []
     for pattern, replacement in _IDIOM_PATTERNS:
@@ -709,7 +714,7 @@ def _find_bare_code(span: ProseSpan) -> list[Finding]:
     findings = []
     for match in _BARE_CODE_RE.finditer(span.text):
         start = match.start()
-        # Already in the house form - "the plain words (G5)" - or a
+        # Already in the house form - "the plain words (`G5`)" - or a
         # backticked cross-reference beside a rule already stated in full.
         if start > 0 and span.text[start - 1] in "(`":
             continue
@@ -770,7 +775,8 @@ _register(Rule("PBW-A8", "Every file and command a comment names exists",
 # ---------------------------------------------------------------------------
 
 # Immediate repetition, allowing punctuation such as a bracket between the
-# two occurrences - "traceability (traceability)" is this shape.
+# two occurrences - a word restated in brackets right after itself is this
+# shape, one of the audit's own named passages (5.10).
 _DOUBLED_WORD_RE = re.compile(r"\b(\w+)\b[\s(]+\1\b", re.IGNORECASE)
 
 # The audit's own named passages (5.10) that a word-level check cannot see,
@@ -1108,7 +1114,8 @@ def test_pbw_a3_the_spelling_is_british():
 
 
 def test_pbw_a4_artifact_is_the_only_spelling():
-    """The spelling sweep reports no "artefact". `PBW-A4`."""
+    """The spelling sweep reports no occurrence of the retired e-spelling.
+    `PBW-A4`."""
     report = run_sweep(RULES["PBW-A4"], scanned_paths())
     assert not report.findings, report.render()
     assert report.files_scanned > 0
@@ -1302,7 +1309,7 @@ def test_pbw_e3_every_exemption_names_a_file_and_a_reason():
 
 
 # ---------------------------------------------------------------------------
-# PBW-E4 - no changed file alters behaviour
+# PBW-E4 - no changed file's behaviour changes
 # ---------------------------------------------------------------------------
 
 COMPARE_BEHAVIOUR = REPO_ROOT / "scripts" / "compare-behaviour.py"

@@ -139,7 +139,7 @@ def _compare_file(cwd: Path, base: str, path: str) -> str | None:
     old = _show(cwd, base, path)
     new = _show(cwd, "HEAD", path)
     if old is None:
-        return None  # new file - nothing prior to preserve
+        return None  # new file - nothing existed before it to preserve
     if new is None:
         return "deleted"
     if old == new:
