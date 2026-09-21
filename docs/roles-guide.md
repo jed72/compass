@@ -3,20 +3,20 @@
 Compass gives product, design, engineering, marketing and QA distinct ways to
 enter the same issue. They do not maintain separate specifications.
 
-The shared substrate is `acceptance-criteria.md`: one set of observable
+All roles share one file: `acceptance-criteria.md` - one set of observable
 behaviours, read from different professional perspectives.
 
 ## Entry points and ownership
 
-| Role | Entry point | Primary artefacts | Governing question |
+| Role | Entry point | Primary artifacts | Governing question |
 |---|---|---|---|
 | Product owner or manager | `/compass:intent` | `intent.md` | Does the specification deliver the intended outcome? |
-| Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Which claims are supported by verified behaviour? |
+| Product marketer | `/compass:position` | `positioning.md`, `launch-readiness.md` | Which claims does tested behaviour support? |
 | Designer | `/compass:design` | `ui-contract.md` | Are interaction states and accessibility expectations specified? |
 | Engineer | `/compass:assess` | approach, design, code and tests | How will each scenario become tested software? |
-| QA | `/compass:verify` | `verification-report.md` | Is the behaviour covered, and is the evidence sufficient? |
+| QA | `/compass:verify` | `verification-report.md` | Is the behaviour covered, and is the evidence enough? |
 
-A role changes the issue's assessment, artefacts and gates. It is not merely a
+A role changes the issue's assessment, artifacts and gates. It is not merely a
 label for a reviewer added at the end.
 
 ## One scenario, five perspectives
@@ -51,7 +51,7 @@ The marketer can support “Export your month-end ledger in seconds” because t
 scenario states a measurable threshold. They cannot support “Export any report
 from anywhere” because no scenario establishes that behaviour.
 
-Each public claim in `positioning.md` should trace to a scenario.
+Each public claim in `positioning.md` must trace to a scenario.
 `launch-readiness.md` records whether that scenario passed before release.
 
 ### Design: interaction behaviour
@@ -61,7 +61,7 @@ UI contract might add scenarios for progress, retry, empty, error and keyboard
 states. Those scenarios flow into the shared acceptance criteria before
 implementation.
 
-Visual artefacts can support the contract where they clarify the experience;
+Visual artifacts can support the contract where they clarify the experience;
 the observable behaviour remains in the shared specification.
 
 ### Engineering: executable behaviour
@@ -120,10 +120,10 @@ Use `/compass:consult` when a decision crosses roles, such as:
 - a coverage gap that changes the planned work.
 
 The consult records the decision and its trade-offs. A guardrail always
-beats a strategy. Conflicts between strategies are resolved by the delivery
-approach or a human decision.
+beats a strategy. The delivery approach, or a human, settles a conflict
+between strategies.
 
-Reassess the issue when the decision changes its size, risk, intent or delivery
+Reassess the issue when the decision changes its size, risk, goal or delivery
 shape.
 
 ## Anti-patterns
@@ -134,8 +134,8 @@ shape.
 | Product, design or marketing consulted after implementation | Bring them in through their entry points while change is still inexpensive. |
 | A brief flattened directly into an engineering issue | Preserve `intent.md` and check the scenarios against it. |
 | Claims written without scenario links | Change the claim or add the behaviour needed to support it. |
-| QA asked only whether tests passed | Ask whether the behaviour space and evidence are sufficient. |
+| QA asked only whether tests passed | Ask whether the behaviour space and evidence are enough. |
 
 Delivery management is a cross-issue capability rather than a sixth role.
-`/compass:flow` reads issue state from the artefacts and surfaces blockers,
-follow-ups and calibration signals without owning or gating the work.
+`/compass:flow` reads issue state from the artifacts and surfaces blockers,
+follow-ups and retrospective signals without owning or gating the work.
