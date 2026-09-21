@@ -11,13 +11,12 @@ project's production code - a scratch file in a session temp directory, a
 throwaway script in a detached worktree. Neither can reach `main` by any path.
 
 The friction is not the point. The refusal told the author to write a failing
-test or re-run triage as a spike, and for a file outside the project neither
-is a coherent action - so the only ways forward were to route around the hook
-or abandon the work. A guardrail issuing unactionable instructions teaches
+test or re-run assessment as a spike. For a file outside the project neither
+is a coherent action. The only ways forward were to bypass the hook or
+abandon the work. A guardrail issuing unactionable instructions teaches
 people to look for the bypass, which is the behaviour it exists to prevent.
 
-Scenario ids: see .compass/work/field-feedback-hook-scope-and-restage/
-acceptance-criteria.md.
+Scenario ids: see field-feedback-hook-scope-and-restage/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -30,7 +29,7 @@ HOOK = ROOT / "hooks" / "pre-tool.sh"
 
 
 def _project(tmp_path):
-    """A project with an issue in flight and NO failing test on record."""
+    """A project with an active issue and NO failing test on record."""
     root = tmp_path / "proj"
     work = root / ".compass" / "work" / "demo"
     work.mkdir(parents=True)
@@ -74,7 +73,8 @@ def test_ff_2_inside_the_project_is_still_blocked(tmp_path):
     """The control.
 
     Without it, a containment check that answered "not ours" for everything
-    would satisfy FF-1 while switching enforcement off completely.
+    would satisfy the outside-the-project scenario while switching
+    enforcement off completely.
     """
     root = _project(tmp_path)
     inside = root / "src" / "app.py"

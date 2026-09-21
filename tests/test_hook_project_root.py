@@ -3,18 +3,12 @@
 `PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(pwd)}"` assumed the working directory
 is the repository root. When Claude Code is started anywhere else - a
 subdirectory, or a parent - the hook looked for `.compass/` in the wrong
-place, found nothing, and blocked every code edit while reporting that triage
-had not run. It had.
-
-Two failures in one line. The resolution was wrong, and the diagnostic named
-a cause that was not the cause, which cost a demo rehearsal a symlink
-workaround before anyone questioned the message.
+place, found nothing, and blocked every code edit while reporting that
+assessment had not run. It had.
 
 The fix walks up from the working directory, and refuses when it finds
 nothing - an enforcement path that cannot tell what it is enforcing must
-never wave an edit through. That is the same failure 2.1.0 fixed one layer
-down, where a missing vendored library made this hook exit 3 and the runtime
-read it as "allow".
+never let an edit through.
 
 Scenario ids: see docs/system-spec.md (group A).
 """
@@ -62,7 +56,7 @@ friction: []
 
 
 def _project(tmp_path: pathlib.Path, *, with_work: bool = True) -> pathlib.Path:
-    """A minimal project tree: .compass/ with one triaged issue."""
+    """A minimal project tree: .compass/ with one assessed issue."""
     proj = tmp_path / "proj"
     (proj / "src" / "deep" / "deeper").mkdir(parents=True)
     (proj / "src" / "app.py").write_text("x = 1\n", encoding="utf-8")
@@ -79,7 +73,7 @@ def _project(tmp_path: pathlib.Path, *, with_work: bool = True) -> pathlib.Path:
         # is what makes a correctly-resolved project ALLOW the edit. Without
         # it both the resolved and the unresolved case block - for completely
         # different reasons - and a test comparing exit codes passes while
-        # measuring nothing. The first version of this file did exactly that.
+        # measuring nothing.
         write_red_record(work)
     return proj
 
@@ -118,17 +112,8 @@ def test_rcd_a1_resolves_from_subdirectory(tmp_path):
 def test_rcd_a2_a_repository_that_never_opted_in_is_silent(tmp_path):
     """No .compass/ anywhere: pass through, and say nothing.
 
-    This test used to assert the opposite, and was right to at the time - a
-    hook that could not find what it was enforcing had two options and one of
-    them was safe. What changed is what "could not find it" means. This hook
-    is installed at user scope, so it runs in every repository on the machine,
-    and refusing in all of them meant someone trying Compass on one project
-    lost the ability to edit code in every other one.
-
-    `.compass/` is the opt-in, and since `init-is-the-opt-in` only
-    `compass init` creates it - run by the five entry-point commands. So a
-    repository without it has genuinely never been asked to use Compass, and
-    silence is the honest answer rather than a fail-open one.
+    The hook runs in every repository on the machine, so a repository with
+    no `.compass/` passes through silently.
 
     The case that still refuses is a project that HAS opted in and cannot be
     read - see test_rcd_a4b below.
@@ -152,10 +137,8 @@ def test_rcd_a2_a_repository_that_never_opted_in_is_silent(tmp_path):
 def test_rcd_a3_an_opted_in_project_names_the_real_cause(tmp_path):
     """The diagnostic still names the real cause where it still speaks.
 
-    The original fault this guarded against was a message blaming the working
-    directory for a problem that was not the working directory. That fault is
-    still worth guarding; the place it can happen has moved to a project that
-    has opted in and not yet been triaged.
+    An opted-in project that has not been assessed must be told to assess,
+    not that its working directory is wrong.
     """
     proj = tmp_path / "opted-in"
     (proj / ".compass").mkdir(parents=True)
@@ -198,8 +181,8 @@ def test_rcd_a4_missing_work_dir_still_says_so(tmp_path):
 def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
     """A repository with no .compass/ must not inherit an ancestor's issue.
 
-    Found at the verify stage, in the security dimension. Walking up from the
-    working directory is right; walking up *without a bound* is not. A user
+    Walking up from the working directory is right; walking up *without a
+    bound* is not. A user
     working in a repository that has never opted in, underneath a parent that
     happens to hold a .compass/ - a monorepo, or a stray one in $HOME - would
     have the hook resolve the stranger's issue and enforce it. If that issue
@@ -235,18 +218,10 @@ def test_rcd_a2b_the_walk_does_not_escape_the_repository(tmp_path):
     assert not out.strip(), (
         f"the hook spoke in a repository that has no .compass/ of its own:\n{out}")
 def test_rcd_a4b_an_opted_in_project_before_its_first_triage_is_told_to_triage(tmp_path):
-    """An opted-in project with no work/ yet means triage, not lost.
+    """An opted-in project with no work/ yet means assessment, not lost.
 
-    This used to run against a project with no `.compass/` at all, on the
-    reasoning that every project's first edit hits that state. It no longer
-    does: `compass init` creates `.compass/` and the five entry-point commands
-    run it, so a project reaches its first edit already opted in. A directory
-    with no `.compass/` is now a repository that never asked for Compass, and
-    telling its owner to run triage is the fault this test exists to prevent,
-    one level up.
-
-    What it still guards is the message: a project that HAS opted in and has
-    not been triaged must be told to triage, and must not be told its working
+    What this guards is the message: a project that HAS opted in and has not
+    been assessed must be told to assess, and must not be told its working
     directory is wrong.
     """
     proj = tmp_path / "fresh"

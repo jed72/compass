@@ -13,11 +13,7 @@ Measured before the fix, same input, same issue:
     cli/vendor/yaml intact      -> exit 2, 1013 bytes of refusal on stderr
     cli/vendor/yaml moved away  -> exit 3, zero bytes on both streams
 
-That is the defect the vendoring work existed to fix, one layer down. ADR-013
-describes the pre-vendoring version as "a guardrail that looked like it was
-enforcing G2 was not enforcing anything at all"; removing the pip step closed
-that case and opened a wider one, because the abort costs every check after
-it rather than one.
+ADR-013 (vendored third-party code) covers the earlier form of this defect.
 
 Removing `exec` alone is not enough. It restores the `|| true` and returns the
 hook to failing *quietly*, which is where it was before and is still wrong. A
@@ -95,7 +91,7 @@ def project(tmp_path):
     (dest / ".compass" / "current-task").write_text("guarded\n", encoding="utf-8")
     (dest / ".compass" / "config.yml").write_text(
         "version: 1.0.0\nmode: enforced\n", encoding="utf-8")
-    # No `.red` marker: the hook should block an edit to production code.
+    # No `.red` marker: the hook must block an edit to production code.
     for marker in (".red", ".acceptance"):
         (work / marker).unlink(missing_ok=True)
     return dest

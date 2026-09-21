@@ -14,8 +14,8 @@ It failed in both directions:
 * **Open.** A red recorded in the MAIN tree unlocked production edits in
   every worktree, including ones whose builder had no failing test at all.
   This is the fail-open the hook's own comment refuses for the parent walk,
-  reached by another route, and it appears only on the topology where the
-  work is most consequential.
+  reached another way, and it appears only on the multiagent orchestration,
+  where the work is most consequential.
 
 Reproduced on 2026-08-27 before the fix: a valid red placed in the main tree
 allowed an append to `cli/compass_pkg/core.py` inside a worktree that had no
