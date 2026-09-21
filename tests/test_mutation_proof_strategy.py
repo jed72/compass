@@ -1,15 +1,8 @@
 """Mutation proof is standing practice, not this cycle's habit.
 
-The 2.1.0 release found five guards that reported success while checking
-nothing, and four of them had passing tests the whole time. A passing test
-proves the guard runs. It does not prove the guard is connected to the thing
-it names.
-
-The case that settles it: `test_version_guard_covers_every_location.py` was
-written specifically to close that class, passed its own tests, and performed
-zero comparisons on the single location it existed for. Setting both version
-banners to `9.9.9` left it green. Nothing but breaking the subject would have
-shown that.
+A passing test proves the guard runs. It does not prove the guard is
+connected to the thing it names. `governance/strategies-rationale.md` holds
+the incident that established the practice.
 
 Scenario ids: see docs/system-spec.md.
 """
@@ -25,9 +18,9 @@ EVIDENCE_GATES_DIR = ROOT / "skills" / "evidence-gates"
 
 
 class _SkillDir:
-    """Reads a whole skill. The long skills are split, so a guard that
-    reads only SKILL.md reports content missing when it moved next door.
-    The strings looked for are unchanged."""
+    """Reads SKILL.md and its sibling files, because the long skills are
+    split and a guard reading only SKILL.md reports content missing when it
+    has moved to a sibling file."""
 
     def __init__(self, d):
         self._d = d
@@ -46,7 +39,7 @@ def _rationale_section(s_number: str) -> str:
 
     `governance/strategies.md` states the rules; the incidents and worked
     examples that justify them are in `governance/strategies-rationale.md`,
-    one `## ...(`Sn`)` section each. Both halves are required - a rule with no
+    one `## ...(`Sn`)` section each. Both halves are needed - a rule with no
     incident behind it is an assertion.
 
     Scoped to the one section on purpose. Searching the whole file would let a
@@ -93,11 +86,8 @@ def test_trc_1_the_strategy_states_the_method_and_the_reason():
         "the heading must carry an S-number, matching the file's convention"
     )
 
-    # The four steps, and they must be one method rather than four words
-    # scattered through the section. The first version of this assertion
-    # checked each word independently and survived deleting the method
-    # sentence entirely - "failure", "passing test" and "recorded" all occur
-    # elsewhere in the entry. Caught by applying S10 to S10's own test.
+    # The four steps must be one sentence, because each word also occurs
+    # elsewhere in the entry.
     method = re.search(
         r"break[^.]*?\bred\b[^.]*?restore[^.]*?\bgreen\b[^.]*?record",
         flat,
@@ -111,9 +101,8 @@ def test_trc_1_the_strategy_states_the_method_and_the_reason():
     # The reason, which is the part that makes the rule stick. It sits in
     # strategies-rationale.md, next to the rule it backs.
     flat = flat + " " + _rationale_section("S10")
-    # Not a bare "passing test" substring: the phrase also occurs in the
-    # unrelated 2.1.0 count below, so that check survived deleting the very
-    # sentence it was written for. Assert the proposition instead.
+    # Asserts the proposition, because "passing test" also occurs in the
+    # 2.1.0 count.
     assert re.search(r"passing test proves[^.]*runs\.\s*it does not prove[^.]*"
                      r"connected", flat), (
         "the strategy must say what a passing test does and does not prove - "
