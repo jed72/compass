@@ -614,6 +614,11 @@ _register(Rule(
             "implement\" beside it - an identifier (section 4), not the "
             "verb the word table retires"),
         Exemption(
+            "docs/methodology.md", "| `/compass:verify` | Verify |",
+            "\"Verify\" is the stage name in the stage-mapping table's own "
+            "column, beside \"Assess\", \"Define\" and \"Plan\" - an "
+            "identifier (section 4), not the verb the word table retires"),
+        Exemption(
             "docs/safety-contract.md", "Human approvals are required",
             "tests/test_g5_trigger.py pins this exact phrase and is not "
             "named for this unit in DD-6 - changing the assertion is not "
