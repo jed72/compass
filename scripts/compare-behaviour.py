@@ -12,15 +12,25 @@ Comparison, per file type:
   never enter an abstract syntax tree, so stripping the docstring is the
   whole of the work.
 - Shell: the file with `#` comment text removed.
-- YAML: every line with a `PROSE_KEYS` key's value blanked - the same key
-  list the writing-style sweeps treat as prose, so the two halves cannot
-  disagree about what prose is. Read as text, not parsed: `import yaml`
-  outside `cli/compass_pkg/`, `cli/compass` or a `compass_python` heredoc
-  does not resolve through this repository's one shared PyYAML mechanism
-  (`tests/test_bundled_pyyaml.py`), and this script is none of those three.
+- YAML: every line with a `PROSE_KEYS` key's value blanked and every comment
+  removed - the same key list the writing-style sweeps treat as prose, so the
+  two halves cannot disagree about what prose is. Read as text, not parsed:
+  `import yaml` outside `cli/compass_pkg/`, `cli/compass` or a
+  `compass_python` heredoc does not resolve through this repository's one
+  shared PyYAML mechanism (`tests/test_bundled_pyyaml.py`), and this script is
+  none of those three.
 - JSON: parsed structure, with `description` values blanked.
 - Markdown: the contents of every fenced code block and every link target.
   A markdown file has no other behaviour.
+
+The shell and YAML readers empty a line to remove prose from it, so they
+compare the sequence of non-empty lines rather than the joined text. See
+`_significant_lines`. The markdown and JSON readers cannot carry that
+defect and do not use it: markdown collects the fenced lines and link
+targets it cares about instead of blanking what it does not, and JSON
+compares parsed structures, where neither formatting nor a line count
+exists. `tests/test_writing_style.py` holds a case for each of the four, so
+the two that are immune are recorded as checked rather than assumed.
 
 `--allow-pinned-test PATH` excuses one test file entirely - the one
 exception this tool allows, for a test whose assertion pinned wording this
@@ -83,6 +93,25 @@ def _strip_python_docstrings(text: str) -> str | None:
     return ast.dump(tree)
 
 
+def _significant_lines(text: str) -> list[str]:
+    """The lines that carry something, with trailing whitespace dropped.
+
+    Both strippers below remove prose by emptying the line that held it, so
+    the count of empty lines is a count of removed prose and says nothing
+    about behaviour. Comparing joined text counted them, and a rewrite that
+    changed how many lines a comment block occupied therefore read as a
+    behaviour change with no behaviour changed. Almost every rewrite moves a
+    comment's line count, so that comparison reported on almost every file.
+
+    A blank line already in the source is dropped for the same reason: it
+    separates prose, and neither shell nor YAML gives it meaning. The
+    remaining lines are still compared as an ordered sequence, so a command
+    line that changes, moves or disappears is still a difference.
+    """
+    return [stripped for stripped in
+            (line.rstrip() for line in text.splitlines()) if stripped]
+
+
 def _strip_shell_comments(text: str) -> str:
     lines = []
     for line in text.splitlines():
@@ -90,19 +119,62 @@ def _strip_shell_comments(text: str) -> str:
     return "\n".join(lines)
 
 
+_YAML_TRAILING_COMMENT_RE = re.compile(r"^([^#'\"]*\S)\s+#.*$")
+_YAML_BLOCK_SCALAR_RE = re.compile(r"^[>|][0-9]*[-+]?$")
+
+
 def _blank_yaml_prose(text: str) -> str:
-    """Every line, with a `PROSE_KEYS` key's value blanked. Read as text
-    rather than parsed - see the module docstring for why - so a folded or
-    literal block scalar's continuation lines are not distinguished from an
-    ordinary value; a rewrite that turns a block scalar into a flow scalar,
-    or the reverse, is read as a behaviour change here even when the prose
-    sweeps would call it identical. That is the conservative direction: a
-    difference this misses would be the more expensive event."""
+    """Every line, with a `PROSE_KEYS` key's value blanked and comments
+    removed. Read as text rather than parsed - see the module docstring for
+    why - so a folded or literal block scalar's continuation lines are not
+    distinguished from an ordinary value. A prose key's continuation lines are
+    therefore kept as they are, and `_significant_lines` is what stops a
+    rewrap of them reading as a change.
+
+    Two comment forms, handled differently, because YAML gives `#` two
+    meanings:
+
+    - A line whose first non-space character is `#` is always a comment, so it
+      goes.
+    - A trailing `#` is a comment only outside a quoted scalar. This drops one
+      only when no quote character appears before it, which is where the
+      reading is certain. A line that quotes anything is kept whole, so a
+      reworded trailing comment there still reads as a change. That is the
+      conservative direction: over-reporting costs a second look, while
+      under-reporting means shipping the behaviour change this tool was run to
+      catch.
+
+    A prose key introducing a block scalar - `description: >`, `statement: |`
+    and the chomped forms - takes its indented continuation lines with it,
+    because those lines are the prose the key holds and rewrapping them is
+    the commonest edit this issue makes. The value must be an explicit block
+    indicator for that to happen. A prose key with an empty value is left
+    alone, because what follows it could be a nested mapping rather than
+    prose, and dropping real values would make this tool miss the change it
+    exists to find. A plain scalar continued over several lines is not
+    recognised either, so rewrapping one still reads as a change; the
+    repository's YAML uses block scalars for prose, so that case does not
+    arise here.
+    """
     lines = []
+    block_key_indent: int | None = None
     for line in text.splitlines():
+        if block_key_indent is not None:
+            if not line.strip():
+                continue
+            if len(line) - len(line.lstrip()) > block_key_indent:
+                continue
+            block_key_indent = None
+        if line.lstrip().startswith("#"):
+            continue
+        trailing = _YAML_TRAILING_COMMENT_RE.match(line)
+        if trailing:
+            line = trailing.group(1)
         match = _YAML_KEY_RE.match(line)
         if match and match.group(2) in PROSE_KEYS:
             lines.append(f"{match.group(1)}{match.group(2)}:")
+            if _YAML_BLOCK_SCALAR_RE.match(match.group(3).strip()):
+                block_key_indent = len(match.group(1))
         else:
             lines.append(line)
     return "\n".join(lines)
@@ -154,11 +226,13 @@ def _compare_file(cwd: Path, base: str, path: str) -> str | None:
             return "code body changed"
         return None
     if suffix == ".sh" or suffix == "":
-        if _strip_shell_comments(old) != _strip_shell_comments(new):
+        if (_significant_lines(_strip_shell_comments(old))
+                != _significant_lines(_strip_shell_comments(new))):
             return "a command line changed"
         return None
     if suffix in (".yml", ".yaml"):
-        if _blank_yaml_prose(old) != _blank_yaml_prose(new):
+        if (_significant_lines(_blank_yaml_prose(old))
+                != _significant_lines(_blank_yaml_prose(new))):
             return "a non-prose value changed"
         return None
     if suffix == ".json":

@@ -1391,6 +1391,135 @@ def test_pbw_e4_the_behaviour_comparison_reports_a_planted_change(tmp_path):
     assert result.returncode != 0
 
 
+def test_pbw_e4_a_comment_only_rewrite_that_moves_line_counts_is_not_a_change(
+        tmp_path):
+    """A comment-only edit that changes how many lines a comment block
+    occupies exits 0, in shell and in YAML, and a real change in either still
+    exits non-zero. `PBW-E4`.
+
+    This is the shape that made the tool useless on batch 6: a stripper that
+    replaces a comment with an empty line keeps one line per input line, so
+    rewrapping a comment block changed the number of empty lines and the
+    joined text differed with no command line changed. Nearly every rewrite
+    this issue makes moves a comment's line count, so a tool that reports it
+    reports on almost every batch.
+
+    Markdown and JSON are covered here too. Neither can carry the defect -
+    the markdown reader collects fenced lines and link targets rather than
+    blanking prose, and the JSON reader compares parsed structures - and the
+    two cases record that rather than leaving a later reader to re-derive it.
+    """
+    repo = _sandbox_repo(tmp_path)
+
+    def _base() -> str:
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                               capture_output=True, text=True,
+                               check=True).stdout.strip()
+
+    # Case 1: a shell comment block of three lines becomes one, and every
+    # command line is byte-identical - exit 0.
+    (repo / "run.sh").write_text(
+        '#!/bin/sh\n# one\n# two\n# three\necho "x"\n')
+    _commit(repo, "shell base")
+    base = _base()
+    (repo / "run.sh").write_text(
+        '#!/bin/sh\n# one, two and three, said once\necho "x"\n')
+    _commit(repo, "shell comment rewrapped")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 2: the same rewrap, plus a real command change - exit non-zero.
+    (repo / "run.sh").write_text(
+        '#!/bin/sh\n# one, two and three\n# said over two lines now\necho "y"\n')
+    _commit(repo, "shell command changed too")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "run.sh" in result.stdout
+
+    # Case 3: an extensionless shell script takes the same path.
+    (repo / "hook").write_text('#!/bin/sh\n# a\n# b\nexit 0\n')
+    _commit(repo, "hook base")
+    base = _base()
+    (repo / "hook").write_text('#!/bin/sh\n# a and b\nexit 0\n')
+    _commit(repo, "hook comment rewrapped")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 4: a YAML whole-line comment reworded over a different number of
+    # lines, with no value touched - exit 0.
+    (repo / "conf.yml").write_text(
+        "# the old note\n# spread over two lines\nthreshold: 5\n")
+    _commit(repo, "yaml base")
+    base = _base()
+    (repo / "conf.yml").write_text(
+        "# the new note, said on one line\nthreshold: 5\n")
+    _commit(repo, "yaml comment rewrapped")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 5: a YAML trailing comment reworded, with no value touched -
+    # exit 0.
+    (repo / "conf.yml").write_text("threshold: 5  # the old note\n")
+    _commit(repo, "yaml trailing base")
+    base = _base()
+    (repo / "conf.yml").write_text("threshold: 5  # a rather longer note\n")
+    _commit(repo, "yaml trailing comment reworded")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 6: a real YAML value change, with the comment reworded too - exit
+    # non-zero. The fix must not buy exit 0 by going blind.
+    (repo / "conf.yml").write_text("threshold: 6  # a different note again\n")
+    _commit(repo, "yaml value changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "conf.yml" in result.stdout
+
+    # Case 7: a YAML prose value whose line count changes - exit 0. The key
+    # is in PROSE_KEYS, so its value is prose by the same list the sweeps use.
+    (repo / "prose.yml").write_text(
+        "description: >\n  one\n  two\nthreshold: 5\n")
+    _commit(repo, "yaml prose base")
+    base = _base()
+    (repo / "prose.yml").write_text(
+        "description: >\n  one two\nthreshold: 5\n")
+    _commit(repo, "yaml prose rewrapped")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 8: markdown prose rewritten around an unchanged fenced block -
+    # exit 0, and a changed fenced block still exits non-zero.
+    (repo / "doc.md").write_text(
+        "Old prose.\n\nMore old prose.\n\n```sh\necho hi\n```\n")
+    _commit(repo, "md base")
+    base = _base()
+    (repo / "doc.md").write_text("New prose, shorter.\n\n```sh\necho hi\n```\n")
+    _commit(repo, "md prose only")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+    (repo / "doc.md").write_text("New prose.\n\n```sh\necho bye\n```\n")
+    _commit(repo, "md fence changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "doc.md" in result.stdout
+
+    # Case 9: a JSON description reworded and the file reformatted - exit 0,
+    # and a changed non-description value still exits non-zero.
+    (repo / "data.json").write_text('{"description": "old words", "n": 1}')
+    _commit(repo, "json base")
+    base = _base()
+    (repo / "data.json").write_text(
+        '{\n  "description": "new and rather longer words",\n  "n": 1\n}')
+    _commit(repo, "json description only")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+    (repo / "data.json").write_text('{"description": "new words", "n": 2}')
+    _commit(repo, "json value changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0
+    assert "data.json" in result.stdout
+
+
 # ---------------------------------------------------------------------------
 # PBW-F7 - a rewritten instruction still instructs the same behaviour
 # ---------------------------------------------------------------------------
