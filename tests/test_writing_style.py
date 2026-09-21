@@ -2464,6 +2464,111 @@ def test_pbw_e4_a_quoted_hash_is_not_a_comment(tmp_path):
     assert result.returncode != 0, result.stdout + result.stderr
 
 
+def test_pbw_e4_an_extensionless_file_is_read_by_its_shebang(tmp_path):
+    """A file with no extension is dispatched on its shebang, so
+    `#!/usr/bin/env python3` is read as Python and not as shell. `PBW-E4`.
+
+    `cli/compass` is Python with a shebang and no extension, so the suffix
+    test sent it to the shell reader. Batch 5 hit the false positive - "a
+    command line changed" for a docstring rewrite - and checked the syntax
+    trees by hand to prove nothing moved. The worse half is the other
+    direction: a real change to a Python body in an extensionless entry point
+    would be judged by a reader that cannot see a Python body at all, and
+    would pass. `cli/compass` is the command every adopter runs.
+    """
+    repo = _sandbox_repo(tmp_path)
+
+    def _base() -> str:
+        return subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                               capture_output=True, text=True,
+                               check=True).stdout.strip()
+
+    # Case 1: an extensionless Python entry point, docstring only - exit 0.
+    # The shell reader would see the changed line and report it.
+    (repo / "entry").write_text(
+        '#!/usr/bin/env python3\n"""Old summary."""\n\n\ndef f():\n    return 1\n')
+    _commit(repo, "python entry base")
+    base = _base()
+    (repo / "entry").write_text(
+        '#!/usr/bin/env python3\n"""New summary, rewritten at length."""\n'
+        '\n\ndef f():\n    return 1\n')
+    _commit(repo, "python entry docstring only")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 2: the same file, a changed statement - reported. This is the
+    # direction the shell reader could not see.
+    (repo / "entry").write_text(
+        '#!/usr/bin/env python3\n"""New summary, rewritten at length."""\n'
+        '\n\ndef f():\n    return 2\n')
+    _commit(repo, "python entry body changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+    assert "entry" in result.stdout
+
+    # Case 3: an extensionless bash entry point keeps the shell reader -
+    # bin/compass's shape. A rewrapped comment block is not a change.
+    (repo / "shim").write_text(
+        '#!/usr/bin/env bash\n# one\n# two\nexec echo hi\n')
+    _commit(repo, "bash shim base")
+    base = _base()
+    (repo / "shim").write_text(
+        '#!/usr/bin/env bash\n# one and two, said once\nexec echo hi\n')
+    _commit(repo, "bash shim comment rewrapped")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 4: the same bash file, a changed command - reported.
+    (repo / "shim").write_text(
+        '#!/usr/bin/env bash\n# one and two\nexec echo bye\n')
+    _commit(repo, "bash shim command changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+
+    # Case 5: a python3 shebang without `env`, and a bare `#!/bin/sh`.
+    (repo / "direct").write_text(
+        '#!/usr/bin/python3\n"""Doc."""\nx = 1\n')
+    (repo / "posix").write_text('#!/bin/sh\n# note\necho hi\n')
+    _commit(repo, "other shebang forms base")
+    base = _base()
+    (repo / "direct").write_text(
+        '#!/usr/bin/python3\n"""Doc, reworded."""\nx = 1\n')
+    (repo / "posix").write_text('#!/bin/sh\n# a different note\necho hi\n')
+    _commit(repo, "other shebang forms, prose only")
+    result = _run_compare(repo, base)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # Case 6: no extension and no shebang falls back to the shell reader,
+    # which is what this repository's VERSION, Makefile, CODEOWNERS and
+    # examples/.../current-task files need. A changed line is still reported.
+    (repo / "VERSION").write_text("4.0.1\n")
+    _commit(repo, "data file base")
+    base = _base()
+    (repo / "VERSION").write_text("4.0.2\n")
+    _commit(repo, "data file changed")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, result.stdout + result.stderr
+
+    # Case 7: the false negative that made this worth fixing, rather than the
+    # false positive that revealed it. The shell reader drops blank lines and
+    # trailing whitespace, because neither carries behaviour in shell. Both
+    # are content inside a Python string, so a change to printed text was
+    # invisible. `cli/compass` holds four multi-line string constants, so this
+    # was reachable in the command every adopter runs.
+    (repo / "helptext").write_text(
+        '#!/usr/bin/env python3\nBANNER = """line one\nline two\n"""\n')
+    _commit(repo, "help text base")
+    base = _base()
+    (repo / "helptext").write_text(
+        '#!/usr/bin/env python3\nBANNER = """line one\n\nline two\n"""\n')
+    _commit(repo, "a blank line added to printed help text")
+    result = _run_compare(repo, base)
+    assert result.returncode != 0, (
+        "a blank line inside a Python string constant changes what the "
+        "command prints, and the shell reader could not see it:\n"
+        + result.stdout + result.stderr)
+
+
 def test_pbw_e4_a_prose_sequence_item_is_blanked_but_still_counted(tmp_path):
     """A prose sequence item under a `PROSE_KEYS` key can be reworded and
     rewrapped freely, but adding or removing one is reported. `PBW-E4`.

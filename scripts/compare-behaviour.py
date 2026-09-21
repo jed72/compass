@@ -12,6 +12,9 @@ Comparison, per file type:
   never enter an abstract syntax tree, so stripping the docstring is the
   whole of the work.
 - Shell: the file with `#` comment text removed.
+- No extension: the shebang decides. `#!...python...` takes the Python reader
+  and a shell interpreter takes the shell reader, so `cli/compass` is read as
+  Python and `bin/compass` as bash. See `_suffix_from_shebang`.
 - YAML: every line with a `PROSE_KEYS` key's value blanked, and every
   whole-line or trailing `#` comment dropped - the same positions
   `tests/test_writing_style.py`'s `_yaml_spans` reads as prose, so the two
@@ -86,6 +89,13 @@ to cover.
 - **Python.** Only the abstract syntax tree is compared, with leading
   docstrings removed. A changed comment is invisible, which is intended, but
   so is a change that changes behaviour without changing the tree.
+- **A file with no extension and no shebang** is read as shell. That is a
+  fallback, not a claim about the file. Checked against every extensionless
+  tracked file here: `Makefile` and `.github/CODEOWNERS` both use `#` for a
+  comment, so the reader is right about them, and `VERSION` plus four
+  `examples/.../current-task` files hold one line of data with no `#`. A file
+  of a new shape added to that set would be read on an assumption nobody
+  restated.
 - **Any other file type** is reported as changed and left to the architect,
   because guessing would be worse.
 """
@@ -130,6 +140,42 @@ def _show(cwd: Path, rev: str, path: str) -> str | None:
 def _changed_files(cwd: Path, base: str) -> list[str]:
     out = _git(["diff", "--name-only", "--diff-filter=ACMR", f"{base}...HEAD"], cwd)
     return [line for line in out.splitlines() if line]
+
+
+_SHEBANG_LANGUAGES = (
+    ("python", ".py"),
+    ("bash", ".sh"),
+    ("zsh", ".sh"),
+    ("dash", ".sh"),
+    ("ksh", ".sh"),
+    ("sh", ".sh"),
+)
+
+
+def _suffix_from_shebang(text: str) -> str | None:
+    """The suffix an extensionless file's shebang implies, or None.
+
+    Checked against every extensionless tracked file in this repository.
+    `cli/compass` is the one Python entry point and was being read as shell.
+    `bin/compass` really is bash, so it was already right. The rest -
+    `Makefile`, `.github/CODEOWNERS`, `VERSION` and four
+    `examples/.../current-task` files - carry no shebang and keep the shell
+    reader, which is a fallback rather than a claim: `Makefile` and
+    `CODEOWNERS` both use `#` for a comment, so it reads them correctly, and
+    the other five hold a single line of data with no `#` in it. `LICENSE` and
+    `cli/vendor/LICENSE-PyYAML` never reach here, being excluded paths.
+
+    "python" is tested before "sh" because a path can hold both, and the
+    longest sensible match has to win.
+    """
+    first = text.split("\n", 1)[0]
+    if not first.startswith("#!"):
+        return None
+    interpreter = first[2:].strip().lower()
+    for name, suffix in _SHEBANG_LANGUAGES:
+        if name in interpreter:
+            return suffix
+    return None
 
 
 def _strip_python_docstrings(text: str) -> str | None:
@@ -367,6 +413,14 @@ def _compare_file(cwd: Path, base: str, path: str) -> str | None:
     if old == new:
         return None
     suffix = Path(path).suffix
+    if suffix == "":
+        # No extension, so the shebang says what the file is. Dispatching on
+        # the suffix alone sent `cli/compass` - Python, with a shebang and no
+        # extension - to the shell reader, which reported a docstring rewrite
+        # as "a command line changed". The expensive half is the other
+        # direction: a changed Python body read by a reader that cannot see a
+        # Python body would have passed, in the command every adopter runs.
+        suffix = _suffix_from_shebang(old) or suffix
     if suffix == ".py":
         old_ast = _strip_python_docstrings(old)
         new_ast = _strip_python_docstrings(new)
