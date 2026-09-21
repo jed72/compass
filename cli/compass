@@ -3,14 +3,14 @@
 
 The commands live in `compass_pkg/`; this file holds the shebang, the
 argument parser and main(). It re-exports every public name the package
-defines, so anything that loads this file by path - as the test suite does -
-keeps working across the split (DD-2 of the cli-module-split issue).
+defines, so anything that loads this file by path, such as the test suite,
+finds every public name in the package.
 """
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-# Runs compass_pkg/__init__.py, which puts the bundled PyYAML at
+# Runs cli/compass_pkg/__init__.py, which puts the bundled PyYAML at
 # sys.path[0] - before the `import yaml` below, so it is the copy this
 # process resolves rather than whatever the machine happens to have (or not
 # have). This is the ONE place that side effect is triggered for this entry
@@ -20,47 +20,20 @@ import compass_pkg  # noqa: E402,F401
 # =============================================================================
 # compass - the Compass CLI
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green and decides the
-#                            filename: evidence/green-<scenario>.json when
-#                            bound, evidence/green.json when not.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
+# The deterministic half of Compass. A person or an agent gives the
+# four-dimension assessment - that is judgement. Everything downstream of the
+# assessment is mechanical, and this is where the mechanism lives. Each
+# verb's description is in `cli/compass_pkg/verb_help.py`.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
 #
 # GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
 # (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
+# the framework's shipped `governance/` next to this script. The fallback
+# means the shipped defaults work with no project setup.
 # =============================================================================
 
 import argparse
@@ -75,37 +48,15 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# `import compass_pkg` above already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
+# `import compass_pkg` above already checked that the bundled copy resolves -
+# or exited 3 with a clear message naming the absolute path it checked - before
 # this line ever runs. By now `yaml` is already imported and cached, so this
 # is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -115,8 +66,8 @@ from compass_pkg._all import *  # noqa: F401,F403
 
 # Declared literally here as well as in compass_pkg.core: this file is
 # what `compass --version` and the release-consistency test read, and a
-# grep for the constant should find it at the CLI's front door. The
-# assert makes the duplication impossible to drift.
+# grep for the constant should find it at the CLI's entry point. The
+# assert fails if the two values differ.
 COMPASS_VERSION = "4.0.1"
 assert COMPASS_VERSION == _core.COMPASS_VERSION, (
     "cli/compass and compass_pkg/core.py disagree about the version")
@@ -124,10 +75,9 @@ assert COMPASS_VERSION == _core.COMPASS_VERSION, (
 
 def _pyyaml_resolution_line():
     """One line for `--version`: which PyYAML this process is actually
-    running, and where it came from. This is how a reader checks TRC-G1's
-    claim for themselves - "the bundled copy wins" is a sentence until
-    someone can ask the running CLI which one it picked (Q11's "how does a
-    user find out which version they have")."""
+    running, and where it came from. It lets a reader check which PyYAML
+    the running CLI loaded: the bundled copy, or another one on the
+    machine."""
     try:
         return f"PyYAML {yaml.__version__} at {os.path.abspath(yaml.__file__)}"
     except Exception:
@@ -268,14 +218,9 @@ def build_parser():
     pll = pls.add_parser("lint", help="structurally validate the governance YAML")
     pll.set_defaults(func=cmd_policy_lint, output_kind="report")
 
-    # The planning stage's verb. It answers to `plan`, the word its machine
-    # key, skill, agent and slash command all use; `design` means the
-    # DESIGNER's stage everywhere else, and one word meaning two stages was
-    # the ambiguity this rename removed.
-    #
-    # `compass design lint` was a second name for this verb through 3.x. It
-    # was removed at 4.0.0, the major-version boundary ADR-019 scheduled it  # version-guard: allow - when the alias was removed, not a version this file publishes
-    # for, and ADR-024 records why that machinery is not carried further.
+    # The planning stage's verb is `plan`, the word its key, skill, agent
+    # and slash command use. `design` names the designer's stage. ADR-024
+    # says why no old alias is kept.
     ppl = sub.add_parser("plan", help="technical-design.md tools")
     ppls = ppl.add_subparsers(dest="subcmd", required=True)
     ppll = ppls.add_parser(
@@ -286,11 +231,9 @@ def build_parser():
     ppll.add_argument("--file", help="lint a specific technical-design.md file")
     ppll.set_defaults(func=cmd_plan_lint, output_kind="report")
 
-    # The intake document. A NEW top-level group: `/compass:intent` has always
-    # been a slash command, and the CLI never had a verb for it. Adding one is a
-    # declaration on a surface four tests pin deliberately - see
-    # technical-design.md DD-1 of issue `ingest-an-existing-brief`, which was
-    # written believing this group already existed and is corrected there.
+    # The intake-document group. Adding a top-level verb means updating
+    # `EXPECTED_PUBLIC_SUBCOMMANDS` in
+    # `tests/cross_cutting/test_stream_d_invariants.py`.
     pin = sub.add_parser("intent", help="intake document tools")
     pins = pin.add_subparsers(dest="subcmd", required=True)
     ping = pins.add_parser(
@@ -454,7 +397,7 @@ def build_parser():
                      help="optional paths to stage before committing")
     plc.set_defaults(func=cmd_land_commit, output_kind="hand-off")
 
-    # --- manifest mutators (R9) + gate pass (R6) --------------------------
+    # --- manifest mutators + gate pass --------------------------
     pgate = sub.add_parser("gate", help="issue gate tools")
     pgs = pgate.add_subparsers(dest="subcmd", required=True)
     pgp = pgs.add_parser(
@@ -519,14 +462,14 @@ def build_parser():
                        help="the term to render (omit to list every term)")
     pterm.set_defaults(func=cmd_terminology, output_kind="report")
 
-    # --- private entry point (DD-4, TRC-B6) ---------------------------------
+    # --- private entry point ---------------------------------
     # The leading underscore in the name is the convention that marks a
     # subcommand as private (in-framework callers only).
     # We register it via add_parser(help=SUPPRESS) to hide it from the
     # subcommand help listing, and then manually remove it from the
     # _choices_actions list so it also disappears from the usage line and the
-    # {choices} display.  This keeps the public surface at exactly the verbs
-    # TRC-D2 tests for.
+    # {choices} display.  This keeps private verbs out of the public verb set
+    # that `tests/cross_cutting/test_stream_d_invariants.py` pins.
     p_derive = sub.add_parser(
         "_derive-system-spec",
         help=argparse.SUPPRESS,
@@ -539,25 +482,24 @@ def build_parser():
     p_derive.set_defaults(func=cmd_derive_system_spec, output_kind="report")
 
     # docs/glossary.md is generated from governance/terminology.yml. Private
-    # and called at ship, the same shape as _derive-system-spec: the surface
-    # deepens rather than widens.
+    # and called at ship, the same shape as _derive-system-spec: it adds no
+    # public verb.
     p_gloss = sub.add_parser("_derive-glossary", help=argparse.SUPPRESS)
     p_gloss.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
     p_gloss.add_argument("--out", help=argparse.SUPPRESS)
     p_gloss.add_argument("--root", help=argparse.SUPPRESS)
     p_gloss.set_defaults(func=cmd_derive_glossary, output_kind="report")
 
-    # Private entry point for the archive migration core the user-facing
-    # migrate verb will wrap in its own slice. Hidden like its siblings.
+    # Private entry point for the archive migration core that `compass
+    # migrate` wraps. Hidden like its siblings.
     p_marc = sub.add_parser("_migrate-archive", help=argparse.SUPPRESS)
     p_marc.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
     p_marc.add_argument("roots", nargs="*", help=argparse.SUPPRESS)
     from compass_pkg.migrate import cmd_migrate_archive as _cmd_marc
     p_marc.set_defaults(func=_cmd_marc, output_kind="hand-off")
 
-    # Private entry point for the Land friction-capture step (DD-3). Hidden the
-    # same way as _derive-system-spec; called by commands/land.md, not a public
-    # verb (PRD Goal 4 - deepen, don't widen the surface).
+    # Private entry point for the friction-capture step of ship, called by
+    # `commands/ship.md`. It adds no public verb.
     p_fric = sub.add_parser("_friction-capture", help=argparse.SUPPRESS)
     p_fric.add_argument("--internal", action="store_true", help=argparse.SUPPRESS)
     p_fric.add_argument("--issue", dest="task", metavar="SLUG", help=argparse.SUPPRESS)
@@ -573,8 +515,8 @@ def build_parser():
     #      usage line (which uses the metavar string for display).
     # The parsers remain in sub.choices/_name_parser_map so they can still
     # be invoked; they just do not surface in the public help surface.
-    # TRC-D2 checks the *public* subcommand list after landing; this is the
-    # mechanism that keeps the count at two new public verbs (analyze, next).
+    # This keeps private verbs out of the public verb set that
+    # `tests/cross_cutting/test_stream_d_invariants.py` pins.
     sub._choices_actions = [
         a for a in sub._choices_actions
         if not a.dest.startswith("_")
@@ -584,10 +526,8 @@ def build_parser():
     # version - ADR-006 - but it must not appear in `--help` either, or every
     # teaching surface has to document a name the reader should not use.
     #
-    # Empty since 4.0.0, which removed the one entry it held (`design`, a  # version-guard: allow - when the entry went, not a version this file publishes
-    # second name for `plan`). Kept rather than deleted because the mechanism
-    # is what a future retirement needs; ADR-024 records why nothing is
-    # carried in it today.
+    # Empty now. Kept because a future retirement needs the mechanism;
+    # ADR-024 says why nothing is in it.
     hidden = set()
     # A stale entry here is otherwise silent: `hidden` is only ever subtracted
     # from the advertised list, so naming a verb that does not parse removes
@@ -619,9 +559,8 @@ def build_parser():
 
 def main(argv=None):
     raw = list(sys.argv[1:]) if argv is None else list(argv)
-    # A retired v1 verb used to be intercepted here and answered with a
-    # pointer naming its replacement. ADR-014 removed those at the major version: a
-    # retired verb is now simply an unrecognised one, and argparse says so.
+    # A retired v1 verb is an unrecognised verb, and argparse reports it
+    # (ADR-014).
     args = build_parser().parse_args(raw)
     # tdd-red/green: strip a leading "--" that argparse REMAINDER keeps
     if getattr(args, "command", None) and args.command and args.command[0] == "--":

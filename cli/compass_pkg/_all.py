@@ -2,7 +2,7 @@
 
 The entry point re-exports through this so that anything loading
 `cli/compass` by file path - as the test suite does - still finds every
-name the single file used to define (DD-2 of issue cli-module-split).
+public name in the package.
 """
 from compass_pkg.analyze import *  # noqa: F401,F403
 from compass_pkg.bdd import *  # noqa: F401,F403

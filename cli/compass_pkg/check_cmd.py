@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.check_cmd - `compass check` and its output
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -130,7 +67,7 @@ CHECK_FNS = {
 # Per-check guidance for structured failure messages. Each entry has the
 # *why it matters* and the *how to fix it* - the bits a check's own detail
 # string usually does not have room for. The check returns the "what failed";
-# this table supplies the rest. A failure with guidance reads like support;
+# this table gives the rest. A failure with guidance reads like support;
 # a failure without reads like bureaucracy.
 #
 # `do` is the one-line form, shown in the default view where the full `fix`
@@ -253,9 +190,9 @@ def summarise_counts(ran, failures, nothing_to_check=0):
 
     Three of the default checks can clear with nothing to check - no BDD
     runner wired, no claims recorded, no project guardrails declared. Each is
-    labelled honestly on its own line, but folding them into a single
-    "all N passed" made the headline number claim more than was verified.
-    They are reported apart so the count never overstates.
+    labelled honestly on its own line. Folding them into "all N passed"
+    would make the count claim more than was checked. They are reported
+    apart so the count never overstates.
     """
     if failures:
         return f"compass check: FAIL - {failures} of {ran} check(s) failed."
@@ -275,13 +212,9 @@ def summarise_counts(ran, failures, nothing_to_check=0):
 # =============================================================================
 # The gate verdict, under the terminal output contract
 # =============================================================================
-# `compass check` is the most important hand-off in the pipeline and it used to
-# spend 45 lines - 14 of them PASS lines - to say four things failed. The checks
-# themselves are unchanged; only what reaches the terminal is.
-#
-# The verb now COLLECTS its results and renders them at the end, because a
-# decision about what to show cannot be made by code that has already printed.
-# --verbose renders exactly what this command printed before, line for line.
+# `compass check` collects its results and prints them at the end, because
+# code that has already printed cannot decide what to show. --verbose prints
+# every check and its result.
 # =============================================================================
 
 class _CheckRun:
@@ -310,13 +243,7 @@ class _CheckRun:
 
 
 def _verbose_lines(run):
-    """The full view: every check, its result, and the why behind each failure.
-
-    This was written to reproduce the pre-contract output line for line, and it
-    is close but not identical - the old printer emitted a blank line after
-    each guardrail group. Saying so, because a comment claiming an equivalence
-    nobody has checked is worse than no comment.
-    """
+    """The full view: every check, its result, and the why behind each failure."""
     out = ["compass check - issue '%s' (approach: %s)" % (run.slug, run.approach),
            run.mode_banner, ""]
     for kind, payload in run.rows:
@@ -358,35 +285,27 @@ def _summary_lines(run):
     from compass_pkg.terminal import MAX_ITEMS, _fit
 
     # Deduplicated by check name. Several checks are listed under more than
-    # one guardrail - `scenario-has-id-and-intent` runs under both G2 and G3 -
-    # so a failing run produces two rows with the same name and the same
-    # detail. Showing one in the top three and naming it again as hidden reads
-    # as the tool being confused about its own findings. The COUNT in the
-    # verdict still counts check runs, because that is what `ran` counts and
-    # the two must agree.
+    # one guardrail - `scenario-has-id-and-intent` runs under both `G2` and
+    # `G3` - so a failing run produces two rows with the same name and the
+    # same detail. Showing one in the top three and naming it again as
+    # hidden reads as the tool being confused about its own findings.
     failed, seen = [], set()
     for _g, n, p, d in run.results:
         if p or n in seen:
             continue
         seen.add(n)
         failed.append((n, d))
-    # The verdict counts DISTINCT failing checks, the same set the list below
-    # is drawn from. It used to count check RUNS: `scenario-has-id-and-intent`
-    # runs under both G2 and G3, so the header said "4 failed", the list showed
-    # 3 after deduplication, and the "and N more" line - computed from the
-    # deduplicated set - was empty. A failure vanished with nothing saying
-    # anything had been cut, which is exactly what TRC-A4 exists to prevent.
-    # Two numbers describing the same thing have to come from the same set.
+    # The verdict counts distinct failing checks, the same set the list below
+    # uses. Two numbers that describe the same thing must come from the same
+    # set, or a failure can drop out of the list with nothing saying so.
     distinct_failed = len(failed)
     distinct_ran = len({n for _g, n, _p, _d in run.results})
-    # Built from the counts rather than by re-parsing `summarise_counts`,
-    # which already begins "compass check: PASS - ..." and produced a verdict
-    # reading "PASS - PASS - ...". The "nothing to check" clause is carried
-    # through deliberately: a check that inspected nothing must never be
-    # reported as one that verified something.
-    # "(?)" told a reader nothing. An issue with no computed approach is one
-    # `compass approach evaluate` has not been run on, and saying so is the
-    # difference between a puzzle and an instruction.
+    # Built from the counts, not by re-parsing `summarise_counts`, whose text
+    # already starts "compass check: PASS". The "nothing to check" clause is
+    # carried through deliberately: a check that inspected nothing must
+    # never be reported as one that checked something.
+    # An issue with no computed approach has not had `compass approach
+    # evaluate` run on it, so say that.
     approach = (run.approach if run.approach and run.approach != "?"
                 else "no approach yet - run `compass approach evaluate --write`")
     if distinct_failed:
@@ -398,17 +317,14 @@ def _summary_lines(run):
             distinct_ran - run.nothing, nothing, run.slug, approach)
     out = [_fit(verdict)]
 
-    # The adoption-mode banner stays in the DEFAULT view. It was moved to
-    # --verbose with the rest of the header, which meant an advisory run showed
-    # a FAIL verdict and exited 0 with nothing explaining the contradiction -
-    # precisely the mistake the banner was written to prevent. It costs one
-    # line of twelve.
+    # Keep the adoption-mode banner in the default view. Without it, an
+    # advisory run shows FAIL and exits 0 with nothing to explain why. It
+    # costs one line of twelve.
     if run.mode_banner and run.mode_banner.strip():
         out.append(_fit(run.mode_banner.strip()))
 
     # A guardrail this project's governance omits is reported here, not only
-    # under --verbose. Silence was the original defect; the summary path had
-    # gone silent again.
+    # under --verbose.
     notices = [t for kind, t in run.rows if kind == "line" and t.strip()]
     for n in notices[:MAX_ITEMS]:
         out.append(_fit(n.strip(), "  "))
@@ -457,7 +373,7 @@ def _emit_check(run, args):
         return
     lines = _verbose_lines(run) if mode == "verbose" else _summary_lines(run)
     # --evidence-out writes the FULL verdict, so the summary on screen has
-    # something to link to. The flag was advertised here and wrote nothing.
+    # something to link to.
     out_path = getattr(args, "evidence_out", None)
     if out_path:
         from compass_pkg.terminal import write_capture
@@ -475,21 +391,17 @@ def cmd_check(args):
     readings = task.get("assessment") or {}
     mode = load_mode()
 
-    # Route-aware: a Spike does not need the delivery guardrails (G1-G5 do not
-    # apply - a spike ships nothing), but it IS controlled: it must conclude,
-    # and it must not silently produce production change. `compass check` runs
-    # `spike_guardrails` from guardrails.yml on a Spike route instead of the
-    # delivery defaults.
+    # A spike ships nothing, so the delivery guardrails (`G1`-`G5`) do not apply.
+    # It is still controlled: it must conclude, and it must not change
+    # production code. On a spike, `compass check` runs `spike_guardrails`
+    # from guardrails.yml instead.
     if task.get("delivery_approach") == "spike":
         spike_gs = list(guardrails.get("spike_guardrails", []))
         run = _CheckRun(task_dir, task, mode)
         if not spike_gs:
-            # Reported as a FAILED CHECK, not as a line. A line is only read
-            # by --verbose, so the default view showed "FAIL - 1 of 1" with
-            # nothing saying what failed, and --json showed an empty checks
-            # list. `ran`/`failures` were also fabricated as 1 for a run in
-            # which nothing executed, which is the overstatement
-            # NOTHING_TO_CHECK exists to prevent, pointing the other way.
+            # Report this as a failed check, not a line: the default view
+            # and --json show only checks. Do not count it as a check that
+            # ran, because nothing ran.
             run.guardrail("", "spike control")
             run.result("spike-guardrails-declared", False,
                        "no `spike_guardrails:` defined in guardrails.yml - "
@@ -519,11 +431,9 @@ def cmd_check(args):
                     failures += 1
                 run.result(check_name, passed, detail)
 
-        # Backfills are cross-cutting and a Spike is the route that most often
-        # OWES one - a graduating spike leaves deferred work behind by design. The
-        # spike branch used to return before the shared backfill block below,
-        # so a Spike with an owed backfill reported "concluded and contained"
-        # and the word "backfill" never appeared.
+        # Follow-ups apply to every delivery approach, and a spike most often
+        # owes one - a graduating spike leaves deferred work behind by
+        # design - so the spike branch must reach the follow-up block below.
         ran += 1
         try:
             passed, detail = _check_backfills_paid(task, task_dir)
@@ -546,17 +456,12 @@ def cmd_check(args):
     # summary never reports a check that inspected nothing as something it
     # verified.
     nothing_to_check = 0
-    # Reads `delivery_approach`, the live manifest key. This said `route` - the
-    # key the v2 rename retired - so it fell to its default and printed a
-    # placeholder on every run, with the real value sitting in the manifest.
+    # Reads `delivery_approach`, the live manifest key.
     run = _CheckRun(task_dir, task, mode)
 
-    # A guardrail the project's file OMITS produced no output at all: not
-    # "skipped", nothing. On a task touching auth, against a governance copy
-    # without G5, this printed G1-G4 and returned its normal result. Report the
-    # ones that are absent AND would have applied here - task-scoped on purpose,
-    # because a full inventory printed on every task is a message nobody reads.
-    # `compass policy lint` is where the full inventory lives.
+    # Report a guardrail the project's file omits when it would apply to
+    # this issue. Only this issue's: a full list on every run would not be
+    # read, and `compass policy lint` prints the full list.
     declared_ids = {g.get("id") for g in all_guardrails}
     try:
         fw_guardrails = load_yaml(
@@ -611,9 +516,10 @@ def cmd_check(args):
                            "to strategies.md.")
                 continue
             # `landed_by` moves the record claim to another issue rather
-            # than waiving it. Only the three named checks stand down, and only
-            # once the pointer has been verified in full - the named issue
-            # exists, has landed, carries a record, and names this one back.
+            # than waiving it. Only the named checks in `LANDED_BY_RELAXES`
+            # stand down, and only once the pointer has been checked in
+            # full - the named issue exists, has landed, carries a record,
+            # and names this one back.
             # A relaxation that fired on the field's mere presence would waive
             # the guardrail for anything that typed a slug.
             if check_name in LANDED_BY_RELAXES:
@@ -627,15 +533,15 @@ def cmd_check(args):
 
             try:
                 passed, detail = fn(task, task_dir)
-            except Exception as exc:  # a check should never crash the run
+            except Exception as exc:  # a check must not crash the run
                 passed, detail = False, f"check errored: {exc}"
 
-            # A check may declare `blocking_when:` in guardrails.yml - a
-            # reading-scoped condition, exactly like a guardrail's
+            # A check may declare `blocking_when:` in guardrails.yml - an
+            # assessment-scoped condition, exactly like a guardrail's
             # `applies_when:`. Below that threshold a finding is reported and
-            # does not fail the run. The condition lives in governance as data;
-            # only its evaluation is here, which is the side of ADR-001's
-            # boundary mechanism belongs on.
+            # does not fail the run. Governance holds the condition as data;
+            # this code only evaluates it, which is the mechanism side of
+            # the boundary ADR-001 draws.
             blocking_when = (declared_checks.get(check_name) or {}).get(
                 "blocking_when")
             if (not passed and blocking_when
@@ -650,12 +556,11 @@ def cmd_check(args):
                 nothing_to_check += 1
             run.result(check_name, passed, detail)
 
-    # backfills are cross-cutting - always run them
+    # follow-ups are cross-cutting - always run them
     ran += 1
     try:
-        # Every other check is wrapped - "a check should never crash the run" -
-        # and this one was not, so a `backfills:` list of strings took down
-        # check, receipt, rework-scan, flow --digest and ci with a traceback.
+        # Wrap this one too: a malformed `follow_ups:` list must not crash
+        # check, receipt, rework-scan, flow --digest or ci.
         passed, detail = _check_backfills_paid(task, task_dir)
     except Exception as exc:                            # noqa: BLE001
         passed, detail = False, f"check errored: {exc}"

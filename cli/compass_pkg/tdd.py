@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.tdd - `compass tdd-red`, `compass tdd-green` and `compass acceptance`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -61,38 +22,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -103,13 +40,15 @@ from compass_pkg.core import CompassError, find_upwards, load_manifest, load_yam
 
 # --- commands: tdd-red / tdd-green ------------------------------------------
 
-# R2 - exit-code-masking integrity for piped test commands.
+# Exit-code-masking integrity for piped test commands.
 # A command wrapped in `bash -c '... | tail'` returns the LAST pipeline stage's
 # exit code (tail = 0), masking an inner test failure as a false green. Three
-# layered signals defend against it (DD-2): (1) inject `set -o pipefail` into
-# bash/zsh wrappers so a mid-pipeline failure propagates; (2) warn when the
-# wrapped script is a top-level pipe ending in a pager/filter; (3) cross-check
-# output for a known-runner fail-token even on a zero exit.
+# layered signals defend against it:
+#   1. inject `set -o pipefail` into bash/zsh wrappers so a mid-pipeline
+#      failure propagates;
+#   2. warn when the wrapped script is a top-level pipe ending in a
+#      pager/filter;
+#   3. cross-check output for a known-runner fail-token even on a zero exit.
 _PIPE_FILTER_CMDS = {"tail", "head", "grep", "cat", "less", "more", "tee", "sort",
                      "uniq", "wc", "awk", "sed"}
 _PIPEFAIL_SHELLS = {"bash", "zsh"}
@@ -143,7 +82,7 @@ def _final_pipe_filter(script):
 
 
 def _output_fail_token(out):
-    """Return a recognised runner fail-token if the output indicates a failure,
+    """Return a recognised runner fail-token if the output shows a failure,
     even on a zero exit. Conservative - only strong, runner-specific patterns,
     so a passing run ('0 failed', '5 passed') is never flagged."""
     patterns = [
@@ -240,7 +179,7 @@ def _write_evidence(task_dir, name, payload):
 
 
 def _resolve_scenario(task_dir, scenario):
-    """Validate a --scenario binding. A red/green that proves a test ran is
+    """Check a --scenario binding. A red/green that proves a test ran is
     weaker than one bound to the scenario it is evidence FOR - relevance, not
     just failure. If the issue has a scenarios block, the id must be in it."""
     if not scenario:
@@ -259,8 +198,8 @@ def _resolve_scenario(task_dir, scenario):
     return scenario
 
 
-# R7 - coverage-floor neutralisation + the test_micro_command knob.
-# R8 - the sanctioned verified-by kinds for an honest non-unit red.
+# Coverage-floor neutralisation + the test_micro_command setting.
+# The sanctioned verified-by kinds for an honest non-unit red.
 _VERIFIED_BY_KINDS = {"regression", "e2e", "typecheck", "live"}
 
 
@@ -276,8 +215,8 @@ def _read_config(task_dir):
 
 
 def _micro_command(args, task_dir):
-    """The command a TDD micro-run executes: the explicit `-- <cmd>` if given,
-    else project.test_micro_command, else project.test_command (R7)."""
+    """The command a TDD micro-run runs: the explicit `-- <cmd>` if given,
+    else project.test_micro_command, else project.test_command."""
     if args.command:
         return list(args.command)
     proj = _read_config(task_dir).get("project") or {}
@@ -316,9 +255,9 @@ def _pytest_cov_available():
 
 
 def _neutralise_coverage(cmd):
-    """R7: for a recognised pytest micro-run, inject --cov-fail-under=0 so a
+    """For a recognised pytest micro-run, inject --cov-fail-under=0 so a
     project-wide coverage floor cannot refuse a passing targeted test. The
-    micro-run is never the coverage gate - the full suite at Verify is. An
+    micro-run is never the coverage gate - the full suite at the verify stage is. An
     explicit --cov-fail-under is preserved (the full-suite floor is respected);
     a non-pytest command is left untouched.
 
@@ -410,12 +349,9 @@ def cmd_tdd_red(args):
         "_full_log": out,
     }
     if verified_by:
-        payload["verified_by"] = verified_by   # R8: a sanctioned non-unit red
-    # The binding decides the path here too. No registry entry cites a red
-    # today, so this is not a live hazard - but the guard being added is on the
-    # shape, and shipping a class guard with a known exception is worse than
-    # the small change that removes it. It also stops one scenario's red being
-    # destroyed by the next.
+        payload["verified_by"] = verified_by   # a sanctioned non-unit red
+    # The binding decides the path here too, so one scenario's red cannot
+    # overwrite another's.
     red_name = "red"
     if scenario:
         red_name = "red-" + scenario.replace("/", "_")
@@ -442,7 +378,7 @@ def _source_tree_hash(project_root):
     Returns a hex digest string. Performance target: < 200 ms on typical
     project trees (< 100 MB of source files).
 
-    DD-7: hash is content + path, deterministic. Used by cmd_tdd_green to
+    Hash is content + path, deterministic. Used by cmd_tdd_green to
     detect whether any source file changed between two invocations.
     """
     _EXCLUDED_DIRS = {".compass", ".git", "__pycache__", ".venv",
@@ -472,7 +408,7 @@ def _source_tree_hash(project_root):
 
 def _tdd_state_path(task_dir):
     """Path to the CLI-internal sidecar that tracks the source-tree hash and
-    attempt counter between tdd-green invocations. Not part of manifest.yml schema.
+    `attempts` counter between tdd-green invocations. Not part of manifest.yml schema.
     """
     return os.path.join(task_dir, "evidence", ".tdd-state.json")
 
@@ -480,8 +416,8 @@ def _tdd_state_path(task_dir):
 def _load_tdd_state(task_dir, scenario):
     """Load the per-scenario TDD state from the sidecar file.
 
-    Returns a dict with keys: 'tree_hash' (str), 'attempts' (int),
-    'scenario' (str|None). Returns a fresh empty state if absent or unreadable.
+    Returns a dict with keys: `tree_hash` (str), `attempts` (int),
+    `scenario` (str|None). Returns a fresh empty state if absent or unreadable.
     """
     path = _tdd_state_path(task_dir)
     if not os.path.isfile(path):
@@ -519,9 +455,9 @@ def _save_tdd_state(task_dir, scenario, tree_hash, attempts, command=None):
 def _red_record_for(task_dir, scenario):
     """The red record a green bound to `scenario` needs, or None if unbound.
 
-    Same binding, same file: `--scenario X` is answered by
-    `evidence/red-X.json` and by nothing else - not by an unbound `red.json`,
-    and not by a red recorded for a different scenario.
+    Same binding, same file: only `evidence/red-X.json` answers
+    `--scenario X` - not an unbound `red.json`, and not a red recorded for
+    a different scenario.
 
     The looser rule, "any red on this issue", lets a red recorded for one
     scenario clear a green for another. That is the same class of error as a
@@ -572,9 +508,9 @@ def cmd_tdd_green(args):
             f"green yet. The .red marker is left in place.\n"
             f"--- output (tail) ---\n" + excerpt
         )
-    # R2 signal (3): output-token cross-check. A zero exit whose output carries
+    # Output-token cross-check. A zero exit whose output carries
     # a known-runner fail-token is a suspected masked failure - refuse rather
-    # than record a clean green on a contradictory signal (TRC-R2-5).
+    # than record a clean green on a contradictory signal.
     fail_token = _output_fail_token(out)
     if fail_token:
         raise CompassError(
@@ -584,7 +520,7 @@ def cmd_tdd_green(args):
             f"marker is left in place.\n--- output (tail) ---\n" + excerpt
         )
 
-    # --- DD-7: attempts + rerun_without_change detection --------------------
+    # --- `attempts` + rerun_without_change detection --------------------------
     # Find the project root: walk up from the task_dir to the directory that
     # contains .compass/ - that is the project root the hash covers.
     project_root = find_upwards(task_dir, ".compass") or task_dir
@@ -594,9 +530,10 @@ def cmd_tdd_green(args):
     prior_attempts = prior_state.get("attempts") or 0
 
     # The command matters as much as the tree. Running the SAME assertion again
-    # with nothing changed is the flaky-test laundering this flag exists to
-    # catch; running a DIFFERENT one - the narrow suite, then the full suite,
-    # which is what Verify asks for - is a new assertion, not a retry.
+    # with nothing changed is hiding a flaky test by re-running it, which this
+    # flag exists to catch; running a DIFFERENT one - the narrow suite, then
+    # the full suite, which is what the verify stage asks for - is a new
+    # assertion, not a retry.
     current_command = " ".join(command)
     prior_command = prior_state.get("command")
 
@@ -627,31 +564,28 @@ def cmd_tdd_green(args):
         "log_excerpt": excerpt,
         "_full_log": out,
     }
-    # BF-1: always record the marker when attempts > 1. Absence of the field on
-    # a multi-attempt record fails the no-trusted-rerun check (DD-3: incomplete
-    # evidence cannot clear G4). The marker is informative either way - true
-    # means "no source change between attempts" (the failure mode S5 protects
-    # against), false means "source did change" (a legitimate red→green path).
+    # Always record the marker when `attempts` > 1. Absence of the field on
+    # a record of more than one try fails the no-trusted-rerun check
+    # (incomplete evidence cannot clear `G4`). The marker is informative
+    # either way - true means "no source change between tries" (the failure
+    # mode `S5` protects against), false means "source did change" (a legitimate
+    # red→green path).
     if attempts > 1:
         payload["rerun_without_change"] = rerun_without_change
     if verified_by:
-        payload["verified_by"] = verified_by   # R8: carry the guard kind forward
+        payload["verified_by"] = verified_by   # carry the guard kind forward
     # THE BINDING DECIDES THE PATH. One record per run, and nothing else is
     # touched.
     #
-    # This used to write `green.json` unconditionally and then add a scenario
-    # copy, which meant every scenario-bound run also replaced the unbound
-    # record - the one a full-suite citation names. The scenario copy protected
-    # scenarios from each other and protected the unbound record from nothing.
-    # A tool whose safe use depends on remembering that is not safe, so the
-    # rule is now symmetrical and declared rather than inferred: bound writes
-    # touch only their own record, unbound writes touch only the unbound one.
+    # A bound write touches only its own record and an unbound write only
+    # the unbound one, so a scenario run cannot replace the record a
+    # full-suite citation names.
     name = "green"
     if scenario:
         name = "green-" + scenario.replace("/", "_")
     ev_path = _write_evidence(task_dir, name, payload)
     rel_path = f"evidence/{name}.json"
-    # Upsert a test-run entry in the task's evidence registry - the registry
+    # Upsert a test-run entry in the issue's evidence registry - the registry
     # is what `compass check` reads, so the green has to land there.
     _upsert_test_run_evidence(task_dir, scenario, rel_path,
                               record_id=payload.get("record_id"),
@@ -684,7 +618,7 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path,
     """
     task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
-        return  # no manifest.yml - Frame hasn't run; nothing to update
+        return  # no manifest.yml - assess has not run; nothing to update
     try:
         task = load_yaml(task_path)
     except CompassError:
@@ -724,22 +658,21 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path,
 
 
 # --- compass acceptance -----------------------------------------------------
-# R13: config, docs and behaviour-preserving refactors have no natural
+# Config, docs and behaviour-preserving refactors have no natural
 # behavioural red - the whole point of a refactor is that behaviour does not
-# change. Authors satisfied the hook with reds like
-#     tdd-red --verified-by regression -- '! grep -q "_ = is_unique" solver.py'
-# which asserts a string's presence in a file: the "test the implementation, not
-# the behaviour" smell tdd-discipline warns against. The sanction made that
-# allowed; it never made it right. This gives those changes a real signal.
+# change. Without this verb, the only way past the hook for such a change is
+# a red that asserts a string is in a file. That tests the implementation,
+# not the behaviour, which the tdd-discipline skill warns against. This
+# gives those changes a real signal.
 #
 # Two kinds, because the honest evidence differs:
 #   validation - a validator command (`docker compose config`, `promtool check
 #                rules`, `terraform validate`, a schema parse) must pass after
 #                the change. There may be no meaningful "before" - a new rules
-#                file has none - so no baseline is required.
+#                file has none - so no baseline is needed.
 #   refactor   - a passing command must STILL pass, across a source tree that
 #                demonstrably changed. Behaviour preservation is the contract,
-#                so the baseline is required and green-then-green with an
+#                so the baseline is needed and green-then-green with an
 #                unchanged tree is refused: that is two runs, not a refactor.
 #
 # It writes `.acceptance`, never `.red`. `.red` means "a real failure was
@@ -879,17 +812,14 @@ def cmd_acceptance_record(args):
         payload["baseline"] = state.get("baseline", {})
         payload["baseline"]["command"] = state.get("command")
 
-    # The binding decides the path - see the note in cmd_tdd_green. This half
-    # of the module had the identical defect: the fixed path was written
-    # unconditionally, so a scenario-bound acceptance replaced the unbound
-    # record as well as writing its own.
+    # The binding decides the path, as in cmd_tdd_green.
     scenario = getattr(args, "scenario", None)
     name = "acceptance"
     if scenario:
         name = "acceptance-" + scenario.replace("/", "_")
     ev_path = _write_evidence(task_dir, name, payload)
     rel_path = f"evidence/{name}.json"
-    # Registered as `test-run` so the existing G1 checks accept it: the point of
+    # Registered as `test-run` so the existing `G1` checks accept it: the point of
     # this verb is to remove the incentive to fake a red, which it only does if
     # the result counts.
     _upsert_test_run_evidence(task_dir, scenario, rel_path,

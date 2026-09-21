@@ -1,12 +1,7 @@
 """`compass init` - make a directory a Compass project.
 
-Before this verb, nothing owned initialisation. `/compass:init` created
-`.compass/config.yml` and `.compass/work/` at steps 4 and 5 of a governance
-conversation, `/compass:assess` created `.compass/work/<slug>/` as a side
-effect of writing an issue manifest, and four of the five role entry points wrote
-into `.compass/work/<slug>/` while assuming somebody else had made it. A
-project became a Compass project by accident, which meant nothing could check
-that it had.
+`compass init` is the one owner of initialisation, so every entry point can
+make sure the project exists before it writes into it.
 
 The split this verb keeps:
 
@@ -32,8 +27,8 @@ import os
 from compass_pkg.terminal import say
 
 # Written on creation only - never over an existing file. Deliberately small:
-# authoritative governance lives in governance/, and a value in two places is a
-# value that drifts. `/compass:init` is where a project fills these in.
+# authoritative governance lives in governance/, and a value in two places can
+# come to disagree. `/compass:init` is where a project fills these in.
 CONFIG_TEMPLATE = """\
 # Compass - per-project configuration
 #

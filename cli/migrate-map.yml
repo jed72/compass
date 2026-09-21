@@ -1,20 +1,18 @@
 # =============================================================================
 # The v1-to-v2 migration map - DATA, deliberately exempt from the
-# vocabulary scan (scan.exempt in governance/terminology.yml).
+# vocabulary scan (`scan.exempt` in governance/terminology.yml).
 #
-# Why this file exists: the retired-verb pointers and (in its own slice)
-# the `compass migrate` tool must both name v1 spellings - inside a CLI
-# whose string literals are scanned for exactly those spellings. The
-# mapping lives here as data so the enforced code never carries a banned
-# name in a literal. Established at the CLI-voice slice, before the first
-# pointer landed, so the exemption never has to be retrofitted.
+# Why this file exists: `compass migrate` and the read-side normaliser must
+# name v1 spellings, inside a CLI whose string literals are scanned for those
+# spellings. The mapping lives here as data, so the enforced code never
+# carries a banned word in a literal.
 # =============================================================================
 
-# Spine value renames. Read-side: the normaliser maps them on load.
-# Write-side: the migrate tool (its own slice) rewrites them on disk.
+# Manifest value renames. Read-side: the normaliser maps them on load.
+# Write-side: `compass migrate` rewrites them on disk.
 values:
-  # Evidence type and check name. ADR-023 renamed the concept; six manifests
-  # on disk carry the old spelling and must keep clearing their gate.
+  # Evidence type and check name. ADR-023 renamed the concept; archived
+  # manifests carry the old spelling and must keep clearing their gate.
   evidence_type:
     coherence-check: consistency-check
   check_name:
@@ -33,7 +31,7 @@ values:
     expedition: initiative
 
 # Machine shape values -> the v2 change-type names the display layer
-# prints. The spine keeps the machine value; the terminal never shows it.
+# prints. The manifest keeps the machine value; the terminal never shows it.
 shape_display:
   express: quick fix
   standard: feature
@@ -58,17 +56,12 @@ artifacts:
   prd.md: intent.md
   spec.feature: acceptance-criteria.feature
 
-# Stage keys. The one set of renames this map never covered, which is why they
-# were never migrated: `frame` was banned as a phase name at the v2 freeze and
-# survived here as a live machine key for months, because governance/*.yml is
-# not a scanned surface.
+# Stage keys: retired stage names mapped to the current ones.
 #
-# `plan` and `verify` are DELIBERATELY ABSENT. `verify` already agrees. `plan`
-# stays because the command moves TO it - and note the `artifacts:` section
-# above records `plan.md: technical-design.md`, so the engineering document
-# was called `plan.md` in v1 and `design.md` in v2. A later reader will see the word circling this stage and may
-# take the key for a vestige. It is not: `plan-authoring` and `planner` were
-# named deliberately at v2, and the command joins them.
+# `plan` and `verify` are not listed because they are current keys. `plan` is
+# the planning stage's key, skill (`plan-authoring`), agent (`planner`) and
+# command, even though v1 used `plan.md` for the design document - see the
+# `artifacts:` section above.
 stage_keys:
   frame: assess
   specify: define
@@ -77,10 +70,10 @@ stage_keys:
   build: implement
   land: ship
 
-# Gate ids. `verify.fitness` is printed by `compass check` on every run, so it
-# is a surface a reader learns the vocabulary from, not private plumbing -
-# which is why ADR-023 renamed it with the concept rather than leaving it.
-# Roughly a hundred archived manifests carry the old id.
+# Gate ids. `compass check` prints the gate id on every run, so a reader
+# learns the vocabulary from it; it is not an internal name - which is why
+# ADR-023 renamed it with the concept rather than leaving it. Archived
+# manifests carry the old id.
 gate_ids:
   verify.fitness: verify.architecture
 
@@ -92,7 +85,7 @@ manifest_keys:
   stream_ceiling: subtask_ceiling
 
 # `.compass/config.yml` block names. This is the one vocabulary file an adopter
-# edits by hand, so their existing spelling is read rather than required to
+# edits by hand, so their existing spelling is read instead of needing to
 # change.
 config_keys:
   swarm: multiagent
