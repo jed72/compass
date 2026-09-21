@@ -1,6 +1,6 @@
 # What a scenario is, and what makes one good
 
-Split out of `SKILL.md`: reference on qualities, granularity and how depth scales - consulted while writing, not before starting.
+Reference on qualities, granularity and depth - consulted while writing.
 
 ## What a scenario is
 
@@ -12,29 +12,29 @@ Scenario: <a behaviour, named as an outcome>
 ```
 
 A scenario is a single behaviour with a single trigger. It is concrete enough
-that someone could execute it by hand and concrete enough that a test can
+that someone could run it by hand and concrete enough that a test can
 assert it automatically - those are the same bar.
 
 ## The qualities of a good scenario
 
 - **Concrete state.** "Given a user" is too vague. "Given a user with a
-  verified email and no active subscription" can be set up and asserted.
+  confirmed email and no active subscription" can be set up and asserted.
 - **One When.** Two actions in `When` means two scenarios. The trigger is
   singular.
 - **Observable Then.** The outcome must be checkable from outside - a returned
   value, a stored state, a rendered element, an emitted event. "Then it works"
   is not a Then. "Then the response is 402 and no charge row is written" is.
 - **Declarative, not procedural.** Describe *what* is true, not the click-path
-  to get there. The implementation can change; the behaviour should not.
+  to get there. The implementation can change; the behaviour must not.
 - **Named as an outcome.** "Scenario: expired token is rejected" beats
-  "Scenario: test token". The name is the first thing the PM, marketer, and QA
-  read.
+  "Scenario: test token". The name is the first thing the product owner,
+  marketer, and QA read.
 
 ## Scenario granularity - splitting and merging
 
 - **Split** when a scenario has an "and" in its `When`, or branches in its
   `Then` ("Then either X or Y"), or needs a paragraph of `Given` - those are
-  multiple behaviours wearing one name.
+  multiple behaviours under one name.
 - **Merge** when two scenarios differ only in an incidental value and assert the
   same behaviour - use a scenario outline / examples table instead of copying.
 - The unit is *one behaviour*, not one feature and not one line of code. A
@@ -49,7 +49,7 @@ how much.
 - **Quick fix** - exactly one scenario. The happy path of the new
   behaviour, no more. If you cannot capture it in one unambiguous
   scenario, the assessment was misread: it is not a quick fix. Say so and
-  send it back to triage.
+  send it back to the assess stage.
 - **Feature** - a small scenario set: the happy path, the realistic edges,
   and the failure modes that actually matter. Not every conceivable edge -
   the ones with real consequence.

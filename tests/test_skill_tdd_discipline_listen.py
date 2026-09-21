@@ -75,12 +75,18 @@ def test_tdd_discipline_has_behaviour_not_implementation_antipattern():
     assert "implementation" in text_lower, (
         "tdd-discipline must contain 'implementation'."
     )
-    # Must have the concept together
+    # Must have the concept together. The anti-pattern can be named as an
+    # instruction ("test behaviour, not implementation") or as the mistake
+    # itself ("testing implementation, not behaviour") - both state the same
+    # rule.
     assert (
         "test behaviour" in text_lower
         or "behaviour, not implementation" in text_lower
         or "behavior, not implementation" in text_lower
         or "test behavior" in text_lower
+        or "testing implementation" in text_lower
+        or "implementation, not behaviour" in text_lower
+        or "implementation, not behavior" in text_lower
     ), (
         "tdd-discipline must contain an anti-pattern about testing behaviour not implementation."
     )

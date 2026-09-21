@@ -5,7 +5,7 @@ description: How work is prioritised across issues, the blocker protocol, and th
 
 # Flow Management
 
-Compass is task-centric: every issue carries its own route, artifacts, and
+Compass is issue-centric: every issue carries its own delivery approach, artifacts, and
 gates, and the pipeline guarantees a single issue is well-run. Flow management
 is the layer *above* that - the cross-issue view. It is the delivery-management
 function expressed as a **capability**, not a persona. There is no
@@ -17,10 +17,9 @@ how to handle a blocker, and how to write the digest.
 
 ## Why this is a capability, not a role
 
-The builder-style approach modelled delivery as a persona agent with turf - it
-"owned" the board, "assigned" work, "moved" issues between columns. Compass
-deliberately does not. Issue state is not a label someone sets; it is *inferred
-from the artifacts on disk*. An issue is in Build because `technical-design.md` exists and
+A delivery-manager agent would own the board and move issues; Compass has none.
+Issue state is not a label someone sets; it is *inferred
+from the artifacts on disk*. An issue is in the implement stage because `technical-design.md` exists and
 `verification-report.md` does not - not because someone moved a card. So flow
 management has nothing to *own* and nothing to *move*. Its entire job is to
 read the artifacts, notice what the per-issue pipeline structurally cannot
@@ -31,38 +30,39 @@ human first.
 
 Flow management reads artifacts; it also has one CLI command of its own.
 `compass retro` aggregates the `reassessments` log across every issue and
-reports whether triage is systematically over- or under-sizing routes - the
+reports whether the assess stage is systematically over- or under-sizing
+delivery approaches - the
 framework's own feedback loop. It is read-only and never gates. Run it as part
 of triage and fold its signal into the digest: "are we right-sizing process?"
 is a cross-issue question, and this is the command that answers it.
 
-## Assess heuristics
+## Board heuristics
 
 Run these against every issue directory under `.compass/work/`. Order of
 severity, worst first:
 
-1. **No `delivery-approach.md`** - a guardrail violation. Work was started without triage.
+1. **No `delivery-approach.md`** - a guardrail violation. Work was started without an assessment.
    This outranks everything; an issue with no computed approach is unaccountable.
-   The fix is to run triage retroactively and reconcile.
+   The fix is to run `/compass:assess` now and reconcile.
 
-2. **Route outgrown** - the devlog shows the issue drifting past its route
-   (a "Standard" issue that has sprouted a fourth work subtask; an "quick-fix"
+2. **Delivery approach outgrown** - the devlog shows the issue outgrowing its delivery approach
+   (a feature issue that has sprouted a fourth work subtask; a quick-fix
    issue still open after days). The fix is `/compass:assess --reassess`, not
-   pushing on. A route quietly outgrown is the failure mode Compass exists to
+   pushing on. A delivery approach quietly outgrown is the failure mode Compass exists to
    prevent - flow management is where it gets caught when the issue itself
    missed it.
 
-3. **Stalled** - an in-progress phase with no `devlog.md` movement for longer
-   than the route's expected cadence (quick-fix: hours; Standard: a day or two;
+3. **Stalled** - an in-progress stage with no `devlog.md` movement for longer
+   than the delivery approach's expected cadence (quick-fix: hours; feature: a day or two;
    initiative: longer, but each subtask should still show movement). A stall is
    almost always a hidden blocker. Name the likely cause from the artifacts.
 
-4. **Owed follow-up sitting** - an issue past Verify with an unpaid Hotfix
+4. **Owed follow-up sitting** - an issue past the verify stage with an unpaid Hotfix
    follow-up or an unbacked marketing claim. The per-issue `/compass:status`
    flags this; flow's job is to make sure it does not sit ignored across the
    whole board.
 
-5. **Healthy** - progressing in line with its route. Report it briefly; spend
+5. **Healthy** - progressing in line with its delivery approach. Report it briefly; spend
    the attention on 1–4.
 
 ## Blocker protocol
@@ -72,7 +72,7 @@ When an issue is blocked or stalled:
 1. **Locate the blocker precisely.** Read the devlog and the latest artifact.
    "Blocked" is not a state - "blocked on a governance amendment decision",
    "blocked on a flaky integration test", "blocked waiting on a human to
-   confirm the route override" are states.
+   confirm the delivery approach override" are states.
 2. **Name who or what unblocks it.** A human decision, another issue landing
    first, an external dependency, a re-assess.
 3. **Record it where the issue lives** - append a dated line to that issue's
@@ -122,5 +122,4 @@ the natural fit). Keep it short enough to read in two minutes.
   board looks wrong, the artifacts are wrong - fix those, not a label.
 - **It does not own issues.** No assignment, no turf. It reads, triages, and
   surfaces. The moment flow management starts "managing people" instead of
-  "surfacing reality", it has drifted back into the persona model Compass
-  replaced.
+  "surfacing reality", it has become a manager, which Compass does not have.

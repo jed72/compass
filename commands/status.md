@@ -32,13 +32,13 @@ So: **the board is the default. Everything else is drill-down.**
 
 1. **Read the issues.** List `.compass/work/*/`; `manifest.yml` is each issue's
    manifest. Prefer one scripted pass over per-issue tool calls - a mature repo
-   may hold hundreds, and the reader is waiting.
+   can hold hundreds, and the reader is waiting.
 
 2. **Place each issue in exactly one column**, most urgent first:
 
    | column | means |
    |---|---|
-   | **BLOCKED** | cannot progress without a decision or an unpaid debt being settled: `compass check` fails, an owed follow-up, a missing human approval on an irreversible change |
+   | **BLOCKED** | cannot progress without a decision or an owed follow-up being settled: `compass check` fails, an owed follow-up, a missing human approval on an irreversible change |
    | **READY TO SHIP** | all gates green and `compass check` passes, but not yet marked shipped - finished work nobody has closed |
    | **IN PROGRESS** | started, not finished: a `status: active` issue, or artifacts present without a terminal status |
    | **NEXT UP** | explicitly queued to start. If the status vocabulary has no queued state, say so plainly rather than guessing - see step 4 |
@@ -86,7 +86,7 @@ DONE 131 shipped. 94 more issues have no recorded state at all.
 ```
 
 That is the whole report. It fits on a screen, every line supports a
-decision, and no Compass vocabulary leaks into it beyond issue names.
+decision, and no Compass vocabulary appears in it beyond issue names.
 
 ## Procedure - with an issue slug (drill-down)
 
@@ -96,7 +96,7 @@ Here the internals *are* the point. Report:
   nearest reference shape, the four assessment dimensions, and any policy
   rule that fired.
 - **Stage** - inferred from which artifacts exist: `delivery-approach.md`
-  -> triaged; `acceptance-criteria.md` -> criteria defined;
+  -> assessed; `acceptance-criteria.md` -> criteria defined;
   `requirements-review.md` -> requirements reviewed; `technical-design.md` ->
   designed; `distribution-map.md` -> broken down;
   `verification-report.md` -> verified. Cross-check the approach's
@@ -118,5 +118,5 @@ Here the internals *are* the point. Report:
 ## Note
 
 If `delivery-approach.md` is missing for a directory under `work/`, that
-issue was started without triage - flag it as a guardrail violation, not
+issue was started without an assessment - flag it as a guardrail violation, not
 merely an incomplete issue. On the board, that belongs in BLOCKED.

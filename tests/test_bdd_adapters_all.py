@@ -216,7 +216,7 @@ def test_trc_c1_the_review_skill_should_be_within_its_stated_length():
         f"320 allows for the tilde. It shipped at 433 under a 500-word bound "
         f"that was set loose enough to pass what had already been written.")
     lowered = body.lower()
-    for phrase in ("verify each suggestion", "push back", "say what you did"):
+    for phrase in ("check each suggestion", "push back", "say what you did"):
         assert phrase in lowered, (
             f"trimming removed '{phrase}' - the three things the skill exists "
             f"to say")

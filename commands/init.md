@@ -9,26 +9,26 @@ allowed-tools: Read, Write, Edit, Bash, Glob
 
 The `compass init` verb creates `.compass/` - a config file and the work
 directory - and your first Compass command runs it for you and says that it
-did. So a project is initialised by the command you actually wanted to run,
-not by a setup step you had to know about first.
+did. So the command you wanted to run initialises the project,
+not a setup step you had to know about first.
 
 What `/compass:init` adds on top is the governance conversation below. Compass
 ships with five default guardrails, a set of default method strategies
-(including BDD and TDD), and a default routing policy, all active out of the
-box, and `/compass:assess` computes delivery approaches against them on day
+(including BDD and TDD), and a default routing policy, all active from
+install, and `/compass:assess` computes delivery approaches against them on day
 one. This command is not a gate you must clear before the first issue.
 
-What init *is*: the step where a project starts to **accrete its own
+What init *is*: the step where a project starts to **build up its own
 governance**. It copies `governance/` into the project so the team can
 extend it - adding project-specific guardrails and strategies, and tuning
-the routing policy to the project's real risk surface. Governance is a
-gradient, not a threshold (see `docs/methodology.md` §4): "the shipped
+the routing policy to the project's real risk surface. A project can adopt
+governance a piece at a time: "the shipped
 defaults and nothing project-specific yet" is a complete, valid governance
-state. Init is how a team moves *along* that gradient, when it has formed
+state. Init is how a team adds to its own governance, when it has formed
 opinions worth writing down - not before.
 
 Run it whenever the team is ready. It does not change application code, so
-it is exempt from triage.
+it is exempt from assessment.
 
 ## Steps
 
@@ -53,32 +53,32 @@ it is exempt from triage.
    that link pointing at nothing.
 
 3. **Walk the team through extending them** - additively, in each role's
-   own language, a few questions at a time. Nothing here is required to be
-   filled; an empty project section is a valid, complete state.
+   own language, a few questions at a time. The team does not need to fill
+   any section; an empty project section is a valid, complete state.
    - **`guardrails.md` - project guardrails section.** Add a guardrail only
      when the team hits something that must *never* recur and can be
-     checked with evidence. Guardrails are sticky: slow to add, slower to
+     checked with evidence. Guardrails are slow to add and slower to
      remove. Leave the section empty rather than padding it.
    - **`strategies.md` - project strategies section.** Add freely -
-     strategies are meant to accrete. Product, engineering, and voice &
-     positioning preferences all live here (this is what the old
-     constitution called "principles"). A strategy is directional and
+     strategies are meant to build up. Product, engineering, and voice &
+     positioning preferences all live here. A strategy is directional and
      assessed, not checkable or blocking.
    - **`routing-policy.md` / `routing-policy.yml`.** Tune them to the
      project, keeping the prose and the YAML in step - the YAML is
      authoritative for what the CLI runs. The soft biases
      (`default_shapes`, `biases`) are meant to be adjusted as the team
      learns how its work distributes. The hard rules (floors, caps,
-     immovable_gates, role_rules) bound triage - adjust them deliberately;
-     loosening one weakens the framework for everyone. Run
-     `compass policy lint` after any edit to the governance YAML.
+     immovable_gates, role_rules) bound the computed delivery approach -
+     adjust them deliberately; loosening one weakens the framework for
+     everyone. Run `compass policy lint` after any edit to the governance
+     YAML.
    Fill `{{PROJECT_NAME}}`, `{{DATE}}` (today), and each file's
    amendment-log first row. Do not leave `{{...}}` placeholders behind.
 
 4. **Create the config.** `compass init` has already written a minimal
    `.compass/config.yml` if one was missing. Set
-   `project.name` and `project.test_command`. It holds only genuine project
-   knobs - routing rules (the default shape, the worktree caps) live in
+   `project.name` and `project.test_command`. It holds only project
+   settings - routing rules (the default shape, the worktree caps) live in
    `governance/routing-policy.yml`, which is authoritative; tune routing
    there, not here.
 
@@ -99,5 +99,5 @@ it is exempt from triage.
 Init is complete when the project `governance/` files are in place with no
 remaining `{{...}}` placeholders in their headers and amendment logs, and
 `.compass/config.yml` is set. The project guardrail and strategy *sections*
-may be left empty - that is accretion not yet begun, not an unfinished
-step. The shipped defaults are in force regardless.
+can be left empty - that is a project section not yet built up, not an
+unfinished step. The shipped defaults are in force regardless.

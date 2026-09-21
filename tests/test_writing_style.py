@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 474
+PENDING_PATHS_HIGH_WATER = 419
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -450,8 +450,64 @@ def _find_retired_word(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A1", "No retired v1 word survives in prose, a comment "
-               "or a test docstring", _find_retired_word))
+_register(Rule(
+    "PBW-A1", "No retired v1 word survives in prose, a comment "
+    "or a test docstring", _find_retired_word,
+    exemptions=(
+        Exemption(
+            "agents/planner.md",
+            "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
+            "the real filename of a template ADR this repository ships; "
+            "\"lens\" is part of the identifier, not prose, and cannot be "
+            "reworded without renaming the file (section 4 protects "
+            "identifiers)."),
+        Exemption(
+            "skills/bdd-specification/refinement-chain.md",
+            "architecture/decisions/ADR-004-one-spec-many-lenses.md",
+            "the real filename of the shipped ADR this repository has; "
+            "\"lenses\" is part of the identifier, not prose. "
+            "test_terminology.py's own scan.exempt already carries the "
+            "identical exemption for its sweep; this sweep does not read "
+            "that list, so it needs its own entry."),
+        Exemption(
+            "skills/compass-runtime/writing-voice.md",
+            "cross-task-architectural-integrity/devlog.md",
+            "the real slug of a past, archived issue - the \"Source:\" "
+            "line names which issue an archive quote came from. Section "
+            "4's verbatim-quote protection covers this citation the same "
+            "way it covers the quote: renaming the slug would misattribute "
+            "it to an issue that never existed."),
+        Exemption(
+            "skills/compass-runtime/writing-voice.md",
+            "swarm-script-strips-markdown/devlog.md",
+            "the real slug of a past, archived issue - the same protected "
+            "citation as the cross-task-architectural-integrity exemption "
+            "above."),
+        Exemption(
+            "skills/evidence-gates/architecture-checks.md",
+            "ADR-009-fitness-functions-are-project-guardrails.md",
+            "the real filename of the shipped ADR this repository has, "
+            "cited three times, plus its title quoted verbatim per section "
+            "4's quoted-term exception (\"Architectural fitness functions "
+            "are project guardrails, not framework guardrails\") - "
+            "\"fitness function\" is part of the identifier and the quote, "
+            "not prose describing the mechanism in this sweep's own words."),
+        Exemption(
+            "skills/evidence-gates/architecture-checks.md",
+            "Architectural fitness functions are project guardrails",
+            "the second line of ADR-009's title, wrapped onto its own "
+            "markdown line - the same verbatim quote as the exemption "
+            "above; this sweep reads one markdown line at a time, so the "
+            "wrapped continuation needs its own entry."),
+        Exemption(
+            "skills/evidence-gates/architecture-checks.md",
+            "a fitness function is an automated check",
+            "the parenthetical explaining the quoted term, required by "
+            "section 4's quoted-term exception (\"quote it exactly and say "
+            "what 'fitness function' means\") - it has to use the term to "
+            "define it."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -525,8 +581,65 @@ def _find_word_table(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A2", "The shorter word stands where the word is not an "
-               "identifier", _find_word_table))
+_register(Rule(
+    "PBW-A2", "The shorter word stands where the word is not an "
+    "identifier", _find_word_table,
+    exemptions=(
+        Exemption(
+            "commands/flow.md", "verifying",
+            "one label in a parallel list of pipeline-stage gerunds "
+            "(\"defining criteria . reviewing requirements . designing . "
+            "implementing . verifying . shipping\") - the stage name, not "
+            "the verb, and singling it out with \"the verify stage\" would "
+            "break the list's parallel form."),
+        Exemption(
+            "commands/quick-fix.md", "## 4. Verify",
+            "a step heading naming the verify stage, parallel to \"## 1. "
+            "Assess\" and \"## 5. Ship\" two headings over - those two "
+            "escape only because \"assess\" and \"ship\" are not in the "
+            "word table, not because a bare stage-name heading is wrong."),
+        Exemption(
+            "skills/adaptive-routing/composition.md", "**Verify** - which "
+            "review dimensions",
+            "one label in a parallel bulleted list of pipeline-stage names "
+            "(Define, Refine, Plan, Breakdown, Implement, Verify, Ship) - "
+            "the stage name, not the verb."),
+        Exemption(
+            "skills/evidence-gates/review-dimensions.md",
+            'as "verified"',
+            "the word being quoted is the point of the sentence: it names "
+            "the stronger claim a reader wrongly hears in a gate that only "
+            "promises \"traceable\". Replacing the quoted word erases the "
+            "contrast the sentence exists to make."),
+        Exemption(
+            "skills/compass-runtime/writing-voice.md",
+            "do not perform the process",
+            "the pinned principle line, verbatim - "
+            "tests/test_human_voice.py:138 asserts this exact string "
+            "(PRINCIPLE), and the audit's own per-file entry for this file "
+            "lists it under \"Pinned\", to keep as it stands."),
+        Exemption(
+            "skills/evidence-gates/architecture-checks.md", "RP-REQUIRE-003",
+            "a real routing-policy rule id (governance/routing-policy.yml, "
+            "`RP-REQUIRE-003`) - the match lands mid-identifier on the "
+            "\"REQUIRE\" substring, not the standalone verb the word table "
+            "means to catch."),
+        Exemption(
+            "skills/evidence-gates/architecture-checks.md", "RP-REQUIRE-004",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "sibling rule."),
+        Exemption(
+            "skills/quick-fix/SKILL.md", "--verified-by",
+            "a real CLI flag (`cli/compass:246,258`, `dest=\"verified_by\"`) "
+            "- the match lands mid-flag-name on the \"verified\" substring, "
+            "not the standalone verb the word table means to catch."),
+        Exemption(
+            "skills/tdd-discipline/no-natural-red.md", "terraform validate",
+            "a third-party command's real name (Terraform's own CLI verb), "
+            "not the English verb the word table means to catch - Compass "
+            "does not own or spell this identifier."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -663,7 +776,21 @@ def _find_idiom(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A5", "No idiom from the table survives", _find_idiom))
+_register(Rule(
+    "PBW-A5", "No idiom from the table survives", _find_idiom,
+    exemptions=(
+        Exemption(
+            "skills/compass-runtime/writing-voice.md",
+            '"papercuts" | "what the hell is papercuts?"',
+            "the term is the subject of the row, not the prose: the table "
+            "quotes the jargon a cold reader stumbled on so the row can "
+            "show its plain form beside it (\"a list of small "
+            "irritations\", already given). Replacing it would delete the "
+            "example the section exists to show, and "
+            "tests/test_reply_shape_instructions.py:125-152 requires the "
+            "literal word on its row."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------
@@ -684,11 +811,14 @@ def _find_citation(span: ProseSpan) -> list[Finding]:
     findings = []
     for match in _CITATION_RE.finditer(span.text):
         path = match.group(1).rstrip(".,;:'\"")
-        if "<" in path:
-            # A placeholder shape such as docs/compass/<created>-<slug>/ -
-            # naming the convention, not citing one issue's real document.
-            # git check-ignore matches the literal string regardless, so
-            # this is excluded rather than reported.
+        if "<" in path or "*" in path:
+            # A placeholder shape - the angle-bracket form
+            # (docs/compass/<created>-<slug>/) or a shell-glob form
+            # (.compass/work/*/) - names the convention, not one issue's
+            # real document. A literal "*" is never a real filename, so
+            # widening for it cannot mask a genuinely broken citation. git
+            # check-ignore matches the literal string regardless, so this
+            # is excluded rather than reported.
             continue
         if _git_ignores(path):
             findings.append(Finding(
@@ -742,8 +872,14 @@ _register(Rule(
 # PBW-A8 - every file and command a comment names exists
 # ---------------------------------------------------------------------------
 
+
+# The first path segment may open with a single dot - `.compass/config.yml`
+# is a real, hidden-directory path this repository has, not a relative-path
+# marker, and the old pattern silently dropped the dot and checked the
+# wrong (word-only) path for existence, reporting a false break on every
+# reference to it. Later segments never carry a leading dot.
 _REFERENCE_RE = re.compile(
-    r"`?((?:[\w][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
+    r"`?(\.?[\w][\w-]*/(?:[\w][\w-]*/)*[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
 
 
 def _reference_exempt(text: str, match: re.Match) -> bool:
@@ -754,20 +890,82 @@ def _reference_exempt(text: str, match: re.Match) -> bool:
         text[max(0, start - 12):start]
 
 
+@lru_cache(maxsize=1)
+def _repo_top_level_names() -> frozenset[str]:
+    """Every real top-level file or directory name, so a reference whose
+    first segment is not one of these cannot be a repository-relative path
+    at all."""
+    return frozenset(p.name for p in REPO_ROOT.iterdir())
+
+
+# The document names `<slug>/<document>.md` citations use (audit 5.7,
+# commit 899d391) - a per-issue directory under the gitignored
+# `docs/compass/`, cited by slug rather than by the path a reader's machine
+# cannot open. Such a citation can never resolve in a shared tree by
+# construction, so it is not the broken reference PBW-A8 exists to catch -
+# `skills/compass-runtime/writing-voice.md`'s archive quotes cite six real
+# past issues exactly this way.
+_ISSUE_DOCUMENT_NAMES = frozenset({
+    "intent.md", "acceptance-criteria.md", "requirements-review.md",
+    "technical-design.md", "distribution-map.md", "manifest.yml",
+    "delivery-approach.md", "verification-report.md", "devlog.md",
+    "positioning.md", "launch-readiness.md", "ui-contract.md",
+    "architecture-notes.md",
+})
+
+
+def _looks_like_issue_citation(path: str) -> bool:
+    first_segment = path.split("/", 1)[0]
+    document_name = path.rsplit("/", 1)[-1]
+    return (first_segment not in _repo_top_level_names()
+            and document_name in _ISSUE_DOCUMENT_NAMES)
+
+
+def _looks_like_runtime_evidence(path: str) -> bool:
+    """A path relative to the current issue's own `evidence/` directory
+    (`.compass/work/<issue-slug>/evidence/...`, per `skills/compass-runtime/
+    SKILL.md`'s "Where state lives" diagram) - written at run time, never
+    committed at that bare location, so it is never on disk to find. A
+    tracked example fixture's evidence lives nested under its own
+    `.compass/work/<slug>/evidence/`, never at this top-level path, so the
+    two cannot collide."""
+    return path.split("/", 1)[0] == "evidence"
+
+
 def _find_missing_reference(span: ProseSpan) -> list[Finding]:
     findings = []
     for match in _REFERENCE_RE.finditer(span.text):
         if _reference_exempt(span.text, match):
             continue
         path = match.group(1)
+        if _looks_like_issue_citation(path) or _looks_like_runtime_evidence(path):
+            continue
         if not (REPO_ROOT / path).exists():
             findings.append(Finding(
                 span.path, span.line, f'named path "{path}" does not exist'))
     return findings
 
 
-_register(Rule("PBW-A8", "Every file and command a comment names exists",
-               _find_missing_reference))
+_register(Rule(
+    "PBW-A8", "Every file and command a comment names exists",
+    _find_missing_reference,
+    exemptions=(
+        Exemption(
+            "agents/architect.md", "architecture/invariants.yml",
+            "a real, conditional artifact a consuming project supplies - "
+            "`cli/compass_pkg/core.py`'s `_INVARIANTS_FILE` reads it \"if "
+            "present\", and `tests/test_frame_loads_architecture.py` "
+            "exercises both the present and absent case. Compass's own "
+            "architecture/ does not ship one, which is correct, not a "
+            "broken reference."),
+        Exemption(
+            "agents/spec-author.md", "architecture/invariants.yml",
+            "the same conditional artifact reference as agents/architect.md."),
+        Exemption(
+            "commands/consult.md", "architecture/invariants.yml",
+            "the same conditional artifact reference as agents/architect.md."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------

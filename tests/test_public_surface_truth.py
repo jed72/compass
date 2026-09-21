@@ -331,9 +331,15 @@ def test_d2_repairs_change_only_retired_names():
     and `governance/guardrails.md` (10 -> 22), when both were cut from prose
     to directives and their incidents moved to `strategies-rationale.md`. The
     fingerprint is a snapshot of a sanctioned state, not of the original text,
-    so a sanctioned restructure moves it - visibly, in the same commit. The
-    other 57 are untouched, and a NEW structural change to any of the 59 still
-    fails.
+    so a sanctioned restructure moves it - visibly, in the same commit.
+
+    Two more were re-baselined by `prose-breaks-the-writing-style`:
+    `agents/orchestrator.md` (list_items 12 -> 15) and `agents/planner.md`
+    (list_items 22 -> 24), where a long paragraph became a vertical list -
+    the writing-style rule this issue exists to apply.
+
+    The other 55 are untouched, and a NEW structural change to any of the 59
+    still fails.
     """
     import json
     snap = json.loads(

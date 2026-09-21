@@ -60,9 +60,13 @@ RE_FRAME_TRIGGER_PHRASES = [
     "invoke /compass:assess again",
 ]
 
-# Supporting sentence that must appear in each agent description
-# The sentence follows the command rename: triage, not Frame.
-AGENT_TRIGGER_SENTENCE = "Trigger triage on intent"
+# Supporting sentence that must appear in each agent description. Cut before
+# "typed" - the sentence wraps there in the four agent files, and a raw
+# substring check cannot cross the line break.
+AGENT_TRIGGER_SENTENCE = (
+    "Assess the work when the request describes it, not only when the "
+    "command is"
+)
 
 
 class TestCLAUDEMdInvisibleTriggering:

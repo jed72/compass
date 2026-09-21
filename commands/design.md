@@ -8,8 +8,9 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 The designer entry point. UI contracts in Compass are not mockup
 annotations - they are **scenarios**, written Given/When/Then, that flow
-*into* the acceptance criteria as first-class spec input. The designer feeds
-the shared spec; they are not a downstream consumer of it.
+*into* the acceptance criteria as spec input, on the same footing as the rest
+of the spec. The designer feeds the shared spec; they are not a downstream
+consumer of it.
 
 **Surface:** $ARGUMENTS
 
@@ -59,8 +60,8 @@ shipped governance defaults stay in force, and adopting your own is what
 `ui-contract.md` is an input to the **define** stage. When `spec-author`
 runs, it folds the UI contract scenarios into `acceptance-criteria.md` -
 they become acceptance checks and seed the TDD cycle like any other
-scenario. Because the contract is already Given/When/Then, nothing is lost
-in translation.
+scenario. Because the contract is already Given/When/Then, spec-author
+copies them without rewriting.
 
 ## Gate
 

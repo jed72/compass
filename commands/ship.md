@@ -6,7 +6,7 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 # /compass:ship
 
 Ship closes the issue: integrate the work, prove the combination, update the
-living docs, and pay back every borrowed bit of process weight. An issue with an
+living docs, and settle every follow-up the approach deferred. An issue with an
 unsettled follow-up is an open issue - ship refuses to close it.
 
 ## Setup
@@ -26,21 +26,24 @@ for delivery work; on a spike, follow the graduate-or-discard step in
 
 ## Procedure
 
-1. **Integrate.** Solo orchestration: commit on the current branch with
-   `compass ship-commit -m "<message>"` - it is robust to auto-fixing
-   pre-commit hooks (which otherwise silently no-op the commit and leave
-   HEAD unmoved), retries once after re-staging the hooks' fixes, and
-   **errors if HEAD did not advance** so shipping can never falsely believe
-   it happened. Pass `--issue <slug>` to mark the issue shipped only on a
-   verified commit. The message follows the cold-reader strategy: say what
-   changed and why, for someone who was not in the conversation; no
-   `Co-Authored-By:` trailer for any agent and no "Generated with" footer.
-   The same applies to a pull-request body.
-   Pair or multiagent: the `orchestrator` (or lead builder on a pair) runs
-   `scripts/integrate.sh` - an orchestrated merge of all worktrees. The
-   orchestrator is the only agent allowed to resolve cross-stream conflicts.
+1. **Integrate.**
+   - **Solo orchestration:** commit on the current branch with
+     `compass ship-commit -m "<message>"` - it is robust to auto-fixing
+     pre-commit hooks (which otherwise silently no-op the commit and leave
+     HEAD unmoved), retries once after re-staging the hooks' fixes, and
+     **errors if HEAD did not advance** so a commit that did not happen
+     cannot count as shipped. Pass `--issue <slug>` to mark the issue
+     shipped only on a checked commit.
+   - **Message rules:** the message follows the cold-reader strategy: say
+     what changed and why, for someone who was not in the conversation; no
+     `Co-Authored-By:` trailer for any agent and no "Generated with"
+     footer. The same applies to a pull-request body.
+   - **Pair or multiagent:** the `orchestrator` (or lead builder on a pair)
+     runs `scripts/integrate.sh` - an orchestrated merge of all worktrees.
+     The orchestrator is the only agent allowed to resolve cross-subtask
+     conflicts.
 2. **Combined regression.** Run regression across the *combined* result. On
-   a multiagent this is non-negotiable - per-stream green does not imply
+   a multiagent this is non-negotiable - per-subtask green does not imply
    integrated green. Record the run and link the record.
 3. **Update living docs.** Bring READMEs, architecture notes, and any docs
    the change touched in line with reality. If the change is launch-visible
@@ -68,7 +71,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    follow-up unpaid, and (where a human sign-off applies) the approval is
    on record. It exits non-zero on any failure; record its output and link
    the record. This is
-   the checkable backbone of shipping.
+   the mechanical check before shipping.
 
    **Typed Definition of Done (evidence, not assertion):** `compass check`
    also parses the `### Definition of Done` section of
@@ -82,8 +85,7 @@ for delivery work; on a spike, follow the graduate-or-discard step in
      `manifest.yml`'s `follow_ups:` with `status: owed`. The follow-up can
      carry an optional `target_task: <slug>` field; when set, the named
      issue's ship check fails until this entry is paid
-     (`compass follow-up resolve --issue <slug> <FU-id>` - the CLI verb renames
-     with the CLI-voice slice).
+     (`compass follow-up resolve --issue <slug> <FU-id>`).
    - `- [x] <description>` - a human-ticked box passes unconditionally.
    - `- [ ] <bare description>` - **fails**. Narrative notes in `devlog.md`
      (e.g. "USER TO APPLY") never clear a DoD item - evidence, not
@@ -95,19 +97,20 @@ for delivery work; on a spike, follow the graduate-or-discard step in
    DoD section is clean. Pay the upstream follow-up first.
 6. **Capture process friction (advisory - never a gate).** With the gate
    already cleared in step 5, record where Compass's *own* process weight cost
-   more than it returned between triage and ship. Run
-   `compass _friction-capture --internal` - it assembles a draft
-   `friction:` list from signals the CLI already computed (recorded
-   re-assessments, absorbed assessment-debt) and writes it into `manifest.yml`.
-   Then offer the author **one optional line**: *"anything the framework
-   made harder than it should have been?"* - pass it with `--note "..."
-   --note-category <over-weight|tooling|...> --note-phase <stage>`.
-   **Recording nothing is a valid, common outcome.** This step never blocks
-   shipping: it runs after the gate, writes only the `friction:` section
-   (no follow-up, no gate), and `compass retro --friction` later
-   aggregates it across issues as advice, never as a gate (Flow advises
-   but never gates).
-7. **Final devlog entry.** One entry: what shipped, how it was verified,
+   more than it returned between assess and ship.
+   - Run `compass _friction-capture --internal` - it assembles a draft
+     `friction:` list from signals the CLI already computed (recorded
+     re-assessments, absorbed assessment-debt) and writes it into
+     `manifest.yml`.
+   - Then offer the author **one optional line**: *"anything the framework
+     made harder than it should have been?"* - pass it with `--note "..."
+     --note-category <over-weight|tooling|...> --note-phase <stage>`.
+     **Recording nothing is a valid, common outcome.**
+   - This step never blocks shipping: it runs after the gate, writes only
+     the `friction:` section (no follow-up, no gate), and
+     `compass retro --friction` later aggregates it across issues as
+     advice, never as a gate (Flow advises but never gates).
+7. **Final devlog entry.** One entry: what shipped, what checked it,
    what follow-ups were settled.
 
 ## Gate - ship refuses to close the issue unless
@@ -120,5 +123,5 @@ for delivery work; on a spike, follow the graduate-or-discard step in
   unbacked marketing claim, no de-scoped artifact left owed.
 
 If a follow-up cannot be completed now, the issue stays open and
-`/compass:status` keeps flagging it. Borrowed process weight is a debt with a due
-date, and the due date is "before the issue closes."
+`/compass:status` keeps flagging it. A deferred follow-up must be settled
+before the issue closes.

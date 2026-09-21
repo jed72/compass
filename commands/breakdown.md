@@ -5,8 +5,8 @@ allowed-tools: Read, Write, Edit, Bash, Glob
 
 # /compass:breakdown
 
-Breakdown executes the orchestration that the design decided. It creates the
-worktrees and assigns the agent multiagent.
+Breakdown carries out the orchestration that the plan decided. It creates the
+worktrees and assigns one builder agent to each worktree.
 
 ## First: is breakdown in play?
 
@@ -17,7 +17,7 @@ reason, and point the user to `/compass:implement`. Breakdown is a no-op
 there, not a stage to invent.
 
 It runs when the distribution map shows genuinely independent units. The
-pair/multiagent boundaries are framework constants (methodology §7); the orchestration
+pair/multiagent boundaries are framework constants (`docs/methodology.md` §9); the orchestration
 and the worktree cap come from `delivery-approach.md` - which the CLI
 computed from `governance/routing-policy.yml` (the shapes' `orchestration`, the
 policy `caps`):
@@ -38,7 +38,7 @@ policy `caps`):
 
 ## Procedure
 
-1. **Verify the count.** Cross-check the map's subtask count against the
+1. **Check the count.** Cross-check the map's subtask count against the
    orchestration and any policy `cap` recorded in `delivery-approach.md` (the CLI
    computed both from `routing-policy.yml`). Note: `critical` risk caps
    worktrees at 1 - an initiative can be heavy *and* solo. If the cap and

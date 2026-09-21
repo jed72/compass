@@ -5,16 +5,16 @@ description: What counts as evidence for a gate, and how to clear one. Load at t
 
 # Evidence Gates
 
-"Evidence, not assertion" is **the evidence-not-assertion guardrail**. A guardrail is cleared with
-artifacts and command output - never with a claim. "The tests pass" is not a
-gate-passing statement in any route; the *recorded test run* is. This skill
+**The evidence-not-assertion guardrail** says a guardrail clears with artifacts
+and command output, never a claim. "The tests pass" is not a
+gate-passing statement on any delivery approach; the *recorded test run* is. This skill
 covers what counts as evidence, the checklists for each review dimension, and -
 just as important - the line between what is *checked* and what is *assessed*.
 
 ## Guardrails are checked; strategies are assessed
 
 This is the distinction the whole gate model rests on. The two kinds of
-governance are verified two different ways, and conflating them is the failure
+governance are checked two different ways, and conflating them is the failure
 mode the evidence-not-assertion guardrail exists to prevent.
 
 - **Guardrails are *checkable*.** They are cleared with evidence - a test ran, a
@@ -41,11 +41,11 @@ side, judgement on the other.
 | "The tests pass." | The recorded test-runner output: counts, the green summary, the command that produced it. |
 | "Coverage is fine." | The coverage report, with the number, against any project coverage-floor guardrail. |
 | "It's fast enough." | The benchmark output against any project performance-budget guardrail. |
-| "No regressions." | The regression run, before-and-after, showing nothing previously green is now red. |
-| "It's secure." | The scan output; the dependency-CVE result where a project security guardrail requires it. |
+| "No regressions." | The regression run, before-and-after, showing nothing green before is red now. |
+| "It's secure." | The scan output; the dependency-CVE result where a project security guardrail needs it. |
 | "Every claim is backed." | `launch-readiness.md` with each claim's backing scenario and that scenario's passing status. |
 
-The test is simple: **could someone who does not trust you verify it from what
+The test is simple: **could someone who does not trust you check it from what
 you recorded?** If yes, it is evidence. If they would have to take your word, it
 is assertion.
 
@@ -64,7 +64,7 @@ is assertion.
 A vocabulary - commit, acceptance, and the rest - in
 `skills/evidence-gates/evidence-kinds.md`.
 
-## How the two halves of Verify split
+## How the two halves of the verify stage split
 
 - The **Verifier** does the mechanical half: runs the scenarios as the
   acceptance suite, runs the TDD suite, runs regression, and **writes each
@@ -88,12 +88,12 @@ One checklist per dimension, in `skills/evidence-gates/review-dimensions.md`. Re
 ## Passing a gate - the procedure
 
 1. Read `delivery-approach.md` for the gate set and the dimensions in play.
-2. Verifier: run everything the dimensions require, write the raw output to an
+2. Verifier: run everything the dimensions need, write the raw output to an
    evidence record and link it from `verification-report.md`, flag every gap.
 3. Reviewer: walk each dimension's checklist against the evidence and the
    change. Record per-dimension **pass** or **no-pass with the specific reason**.
 4. The gate passes only if every applicable dimension passes. One no-pass sends
-   the work back - to Build, or to a re-assess. A gate is not "mostly passed."
+   the work back to the implement stage, or to a re-assess. A gate is not "mostly passed."
 
 ## Architecture checks and the verify.architecture gate
 
@@ -107,6 +107,4 @@ In `skills/evidence-gates/coverage-and-anti-patterns.md`.
 
 In `skills/evidence-gates/traceability.md`. Read it whenever you write an
 artifact: it is how code, scenarios, claims and intents point at each other,
-and `verify.traceability` is checked against exactly that chain. It was a skill
-of its own until the two were merged, which is why it reads as a whole subject
-rather than a note.
+and `verify.traceability` is checked against exactly that chain.

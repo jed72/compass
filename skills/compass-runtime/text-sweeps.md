@@ -3,7 +3,9 @@
 A rename touching many files is tempting to apply with one find-and-replace.
 That method rewrites **data** as readily as prose, and the result is usually
 valid - valid YAML, valid JSON, code that still runs - so nothing fails where
-the mistake is. The ADR-023 rename was applied that way and damaged twelve
+the mistake is. The vocabulary rename in ADR-023
+(`architecture/decisions/ADR-023-the-vocabulary-is-measured-against-anthropics-docs.md`)
+was applied that way and damaged twelve
 things, two of them valid Python doing the wrong thing: a rename table that
 gained `"x": "x"` and silently stopped migrating, and vendored third-party
 code that `THIRD-PARTY-NOTICES.md` states is byte-identical to upstream.
@@ -20,6 +22,5 @@ Before any sweep:
    `old` is how a migration quietly stops migrating.
    `tests/test_rename_tables_and_data_paths.py` guards this.
 
-If the change can be applied file by file, do that instead. The full account
-is in `anthropic-aligned-vocabulary/technical-design.md` (DD-9).
+If the change can be applied file by file, do that instead.
 

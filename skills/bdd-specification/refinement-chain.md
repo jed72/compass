@@ -1,8 +1,6 @@
 # The example-first refinement chain
 
-Split out of `SKILL.md`: it is the long worked walk-through, read once to learn the method.
-
-## Example-first refinement chain
+A worked walk-through, read once to learn the method.
 
 Good BDD scenarios do not appear fully formed. They emerge through a
 disciplined refinement chain: **vague idea → concrete examples → acceptance
@@ -49,13 +47,14 @@ consistently - the spec is the contract between all five roles.
 ### What stays refused
 
 **User stories** ("As a [role], I want [feature], so that [outcome]") are
-refused as a per-role spec format in Compass - see **ADR-004 (one spec, many
-roles)**. The rationale: a user story format embeds a single role's
+refused as a per-role spec format in Compass - see
+`architecture/decisions/ADR-004-one-spec-many-lenses.md`. The rationale: a
+user story format embeds a single role's
 perspective into the spec, which means one role's spec and another role's
 spec diverge. Compass uses one `acceptance-criteria.md` that all five roles read
-through their own perspective (see `role-translation`), not five separate
+through their own perspective (see `skills/intent-interview/role-translation.md`), not five separate
 role-scoped artifacts. The BDD scenario *is* the shared artifact; the
 role-translation perspective is how each role reads it. User stories as a format
-are fine upstream of Compass (in a brief, a brief or a Jira ticket) - they
+are fine upstream of Compass (in a brief or a Jira ticket) - they
 are not the spec, and they do not replace the scenario.
 

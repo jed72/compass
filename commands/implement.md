@@ -5,14 +5,14 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 
 # /compass:implement
 
-Implementation is where code is written, and it is written test-first. The
-red-before-green TDD strategy applies on every delivery approach, including a
-quick fix - a change is introduced by a test that fails first. The approach
-adapts how much *surface* the tests cover. The one exception is a **spike**:
-there the TDD strategy is suspended (the pre-tool hook is approach-aware and
-does not block), because exploration is not delivery - but the
-tested-before-ship guardrail still applies to anything a spike *graduates*
-into real delivery work.
+Implementation is where code is written, and it is written test-first. Every
+change starts with a test that fails. The red-before-green TDD strategy
+applies on every delivery approach, including a quick fix; the approach adapts
+how much *surface* the tests cover. The one exception is a **spike**: there
+the TDD strategy is suspended (the pre-tool hook is approach-aware and does
+not block), because exploration is not delivery - but the tested-before-ship
+guardrail still applies to anything a spike *graduates* into real delivery
+work.
 
 ## Setup
 
@@ -26,18 +26,19 @@ into real delivery work.
   work, one builder on the current branch.
 - On a multiagent, the `orchestrator` is already watching: it detects when two
   subtasks are converging on shared surface and intervenes *before* they
-  collide. Cross-stream changes go through the orchestrator, never builder
+  collide. Cross-subtask changes go through the orchestrator, never builder
   to builder.
-- **Capture the regression baseline first (a shipped strategy).** If
-  `delivery-approach.md` assesses risk as cross-cutting or critical - or
-  `compass approach evaluate` surfaced `regression-baseline` under the
-  advisory strategies - run the designated existing suite
-  (`project.regression_baseline_suite`, else `project.test_command`)
-  **green now, before editing shared code**, and record it as `test-run`
-  evidence on `verify.regression`. Re-run it after the change. This is soft
-  (assessed, never gating), but it is captured up front, not as an
-  afterthought - it catches a high-consequence break in behaviour you did
-  not mean to touch.
+- **Capture the regression baseline first (a shipped strategy).**
+  - **When it applies:** `delivery-approach.md` assesses risk as
+    cross-cutting or critical, or `compass approach evaluate` surfaced
+    `regression-baseline` under the advisory strategies.
+  - **What to run:** the designated existing suite
+    (`project.regression_baseline_suite`, else `project.test_command`),
+    **green now, before editing shared code**.
+  - **Where to record it:** as `test-run` evidence on `verify.regression`.
+  - **When to re-run it:** after the change. This is soft (assessed, never
+    gating), but it is captured up front, not as an afterthought - it
+    catches a high-consequence break in behaviour you did not mean to touch.
 
 ## The cycle, per scenario
 
@@ -52,8 +53,8 @@ into real delivery work.
 2. **Green.** Write the smallest correct change that makes the test pass,
    then run `compass tdd-green -- <test command>`. The CLI asserts it
    PASSES, records the green, and clears `.red`. **The binding decides the
-   filename**: `--scenario TRC-x` writes `evidence/green-TRC-x.json`, and an
-   unbound run writes `evidence/green.json`. Only one file is written, so
+   filename**: `--scenario <id>` writes `evidence/green-<id>.json`, and an
+   unbound run writes `evidence/green.json` instead. Only one file is written, so
    recording a scenario cannot destroy a record another gate cites. If it still
    fails, the CLI leaves `.red` in place - you are not green yet.
 3. **Refactor.** Clean up with the suite green. On a hotfix, refactor only
@@ -61,7 +62,7 @@ into real delivery work.
 4. **Record the change.** For each production file you touched, add an entry
    to `manifest.yml`'s `changed_files:` - its path and the scenario id(s) it
    traces to. This is the code-to-criterion half of the traceability
-   guardrail, and `compass check` verifies it.
+   guardrail, and `compass check` checks it.
 5. Keep the traceability chain live as you go - code to scenario to intent -
    not at the end.
 
@@ -90,13 +91,13 @@ than the phases do:
 
 **After three consecutive fixes that did not hold, stop.** Three failures in
 a row means the model you are debugging against does not match the system,
-and a fourth guess damages code that was not broken. That is a triage
-signal - see the reassessment trigger below.
+and a fourth guess damages code that was not broken. That is a signal to
+re-assess - see the reassessment trigger below.
 
 ## Reassessment trigger
 
 If implementation reveals the assessment was misread - a "small" change
-unspooling into a multi-module refactor - **stop and re-assess**
+growing into a multi-module refactor - **stop and re-assess**
 (`/compass:assess --reassess`). Pushing on with a delivery approach you no
 longer believe is the failure mode.
 
