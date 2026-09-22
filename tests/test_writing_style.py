@@ -949,6 +949,12 @@ _register(Rule(
             "exists to catch, same protection as the PBW-A7 exemption for "
             "this line."),
         Exemption(
+            "tests/test_schema_2.py",
+            "no route.md, spec.feature.md, brief.md, clarifications.md, or",
+            "names the exact retired filenames the test's own old_names "
+            "set checks are absent - an identifier list (section 4), not "
+            "prose use of the words."),
+        Exemption(
             "tests/plain_language_check.py",
             "G5 fired, which means a human signs off",
             "the module's own worked example of the wrong form the check "
