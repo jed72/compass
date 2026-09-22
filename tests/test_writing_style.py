@@ -2318,6 +2318,13 @@ _register(Rule(
             "a literal filename example, inside backticks - the same "
             "reasoning as the CLI command exemption on this line."),
         Exemption(
+            "examples/README.md", "evidence/red-TRC-001.json",
+            "a literal filename example, inside backticks - the third on "
+            "this page and the same reasoning as the two above. Added when "
+            "fixups/clarity-findings merged: that branch repaired the "
+            "nested backtick that had been hiding this one, so the quote "
+            "only exists here post-merge."),
+        Exemption(
             "templates/threat-model.md", "EV-T-TRC-B4",
             "a placeholder evidence id, inside backticks, built from the "
             "placeholder scenario id `TRC-B4` on the same row - not a real "
@@ -3389,7 +3396,7 @@ def test_pbw_a6_resolves_every_path_shaped_citation_not_a_hard_coded_list():
 # instance cannot hide inside it, and `_find_bare_code`'s own correctness is
 # still proven directly, by the planted breach below and by `PBW-E1`'s fixture
 # proof, neither of which this mark loosens.
-PBW_A7_LINE_OPENING_BACKTICK_HIGH_WATER = 509
+PBW_A7_LINE_OPENING_BACKTICK_HIGH_WATER = 507
 
 
 def test_pbw_a7_a_bare_code_carries_its_meaning():
