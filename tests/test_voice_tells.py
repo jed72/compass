@@ -1,4 +1,4 @@
-"""How the standalone tell check behaves (issue human-voice, TRC-D2, D3, F1, F2).
+"""How the standalone tell check behaves (issue human-voice, `TRC-D2`, D3, F1, F2).
 
 `scripts/voice-tells.py` greps the three writing-voice tells a fixed string
 can find - "I will now proceed", "Upon completion", "utilize" - over an
@@ -6,20 +6,16 @@ issue's markdown artifacts. It is advisory: it always exits 0, it is
 registered in no `guardrails.yml` entry, and no test here asserts the
 repository is free of tells. `tests/test_human_voice.py` asserts what the
 prose surfaces carry; this file asserts how the check itself behaves, run as
-a subprocess over fixtures in `tmp_path` (technical-design.md DD-4).
+a subprocess over fixtures in `tmp_path` (technical-design.md `DD-4`).
 
 Criteria: docs/system-spec.md
-Design:   docs/compass/2026-08-09-human-voice/technical-design.md, section 5 (the script's
-          contract) and DD-2 (what "newly written" scopes to) and DD-3 (why
+Design:   human-voice/technical-design.md, section 5 (the script's
+          contract) and `DD-2` (what "newly written" scopes to) and `DD-3` (why
           a standalone script rather than a CLI verb).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import importlib.util
@@ -60,7 +56,7 @@ def test_trc_d2_each_hit_is_reported_with_file_and_line(tmp_path):
     fixture.mkdir()
     md = fixture / "devlog.md"
     # Built from TELLS, not retyped - a fixture spelling its needles
-    # independently of the script's own list is exactly the drift TRC-D2's
+    # independently of the script's own list is exactly the drift `TRC-D2`'s
     # "one list, not two" rules out.
     lines = ["line one is plain prose."] + [
         f"Sentence naming the tell: {tell}." for tell in TELLS
@@ -211,7 +207,7 @@ def test_a_slug_with_a_path_separator_is_rejected_not_followed(tmp_path):
     """Review finding 3 (verification-report.md 5.3, 5.5): the slug read
     from the pointer went into os.path.join unvalidated, so an absolute
     slug replaced the whole prefix and escaped the issue directory -
-    exactly the property TRC-F2 asserts for well-formed input: a
+    exactly the property `TRC-F2` asserts for well-formed input: a
     default-scoped run never reports a path outside the current issue
     directory."""
     project = tmp_path / "project"
