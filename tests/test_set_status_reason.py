@@ -1,19 +1,11 @@
 """`compass issue set-status --reason` leaves the manifest valid (issue
 set-status-reason-writes-an-invalid-manifest).
 
-The command wrote `parked_reason` for `parked` and a bare `note` for every
-other status. `parked_reason` is declared in `schemas/manifest.schema.json`;
-`note` never was, and the schema sets `additionalProperties: false`. So the
-flag worked for one status out of five and corrupted the manifest for the
-other four - and `compass ci`, which lints every issue on disk, then failed
-for the whole repository.
+`--reason` on any status must leave a manifest that passes `issue lint`. No
+earlier test set a status with a reason and then linted the result.
 
-Nothing caught it because the two halves were tested apart: `set-status` has
-tests, `issue lint` has tests, and no test set a status with a reason and then
-linted the result. The pairing that breaks was the pairing nobody made.
-
-Scenario ids: TRC-A1, TRC-A2, TRC-F1 in
-docs/compass/2026-08-28-set-status-reason-writes-an-invalid-manifest/acceptance-criteria.md
+Scenario ids: `TRC-A1`, `TRC-A2`, `TRC-F1` in
+set-status-reason-writes-an-invalid-manifest/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -47,7 +39,7 @@ def _project(tmp: Path) -> Path:
     work = tmp / ".compass" / "work" / "sample"
     work.mkdir(parents=True)
     (tmp / ".compass" / "config.yml").write_text("version: 1.0.0\n", encoding="utf-8")
-    # Carries an `assessment:` block because lint requires one of any issue
+    # Carries an `assessment:` block because lint needs one of any issue
     # that has left `queued`, and this fixture is set to every status in turn.
     # Without it the sweep would fail on a rule that has nothing to do with
     # the key under test - a test failing for the wrong reason proves nothing
@@ -79,7 +71,7 @@ def _run(project: Path, *args):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - a reason on any status leaves the manifest valid
+# A reason on any status leaves the manifest valid (TRC-A1)
 # ---------------------------------------------------------------------------
 
 def test_a_reason_on_any_status_leaves_the_manifest_valid():
@@ -112,7 +104,7 @@ def test_a_reason_on_any_status_leaves_the_manifest_valid():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - the recorded reason says which transition it belongs to
+# The recorded reason says which transition it belongs to (TRC-A2)
 # ---------------------------------------------------------------------------
 
 def test_the_recorded_reason_says_which_transition_it_belongs_to():
@@ -131,10 +123,8 @@ def test_the_recorded_reason_says_which_transition_it_belongs_to():
         "status_reason is not declared, so a reason recorded against any "
         "status other than parked writes a key the schema forbids")
 
-    # A bare `note` is what the CLI used to write. It is not declared, and it
-    # should not be: the key beside it says which transition it describes, and
-    # a name that does not is the reason this was worth changing rather than
-    # simply legalising.
+    # A bare `note` is not in the schema and must not be: the key must say
+    # which transition the reason belongs to.
     assert "note" not in props, (
         "`note` was added to the schema instead of naming the field for what "
         "it records. The key should say which transition the reason belongs "
@@ -155,7 +145,7 @@ def test_the_recorded_reason_says_which_transition_it_belongs_to():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a key the schema forbids is refused
+# A key the schema forbids is refused (TRC-F1)
 # ---------------------------------------------------------------------------
 
 def test_a_key_the_schema_forbids_is_refused():
