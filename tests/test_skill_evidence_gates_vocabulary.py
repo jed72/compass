@@ -1,8 +1,8 @@
-"""TRC-E1 - evidence-gates frames verify.correctness as acceptance/releasability gate.
-TRC-E2 - evidence-gates frames the tdd-red/tdd-green loop as the commit stage.
-TRC-E3 - Release and Production stages stay out of scope in evidence-gates.
+"""evidence-gates frames verify.correctness as acceptance/releasability gate
+(TRC-E1). evidence-gates frames the tdd-red/tdd-green loop as the commit
+stage (TRC-E2). Release and Production stages stay out of scope in
+evidence-gates (TRC-E3).
 
-Serves: INT-9
 Spec:
   - skills/evidence-gates/SKILL.md must frame verify.correctness as
     "anything that defines releasable" (acceptance/releasability gate)
@@ -10,7 +10,7 @@ Spec:
   - must name the deployment-pipeline stage vocabulary (commit, acceptance)
   - must explicitly state Release and Production stages are out of scope
     (safety-contract guarantee 6)
-  - must cite G4 (falsification principle) as the standing version
+  - must name the falsification principle (evidence, not assertion)
 """
 from __future__ import annotations
 from pathlib import Path
@@ -18,16 +18,9 @@ from pathlib import Path
 SKILL_MD = Path(__file__).parent.parent / "skills" / "evidence-gates" / "SKILL.md"
 
 def _skill_text(skill_name):
-    """Everything the skill says, across every file in its directory.
-
-    A skill used to be one file. The long ones are now split - the parts load
-    when they are needed instead of the whole thing loading to answer one
-    question - so a guard that reads only SKILL.md reports content missing
-    when it has merely moved next door.
-
-    The strings each guard looks for are unchanged. Only where it looks has
-    widened, and deleting the content still fails.
-    """
+    """Reads every file in the skill's directory. Long skills are split into
+    parts that load on demand, so a guard that reads only SKILL.md reports
+    moved content as missing."""
     import pathlib as _p
     d = _p.Path(__file__).parent.parent / "skills" / skill_name
     return "\n".join(sorted(
@@ -39,7 +32,7 @@ def _read_skill() -> str:
     return _skill_text("evidence-gates")
 
 
-# --- TRC-E1 tests ---
+# --- `TRC-E1` tests ---
 
 def test_evidence_gates_frames_verify_correctness_as_acceptance_gate():
     """verify.correctness must be framed as the acceptance/releasability gate."""
@@ -64,7 +57,7 @@ def test_evidence_gates_verify_correctness_anything_that_defines_releasable():
     )
 
 
-# --- TRC-E2 tests ---
+# --- `TRC-E2` tests ---
 
 def test_evidence_gates_frames_tdd_loop_as_commit_stage():
     """The tdd-red/tdd-green loop must be framed as the commit stage."""
@@ -89,7 +82,7 @@ def test_evidence_gates_commit_stage_fail_fast_language():
     )
 
 
-# --- TRC-E3 tests ---
+# --- `TRC-E3` tests ---
 
 def test_evidence_gates_release_production_out_of_scope():
     """Release and Production stages must be stated as out of scope."""
@@ -116,11 +109,8 @@ def test_evidence_gates_release_production_out_of_scope():
 
 
 def test_evidence_gates_cites_g4_for_falsification():
-    """Must cite G4 (falsification principle) as the standing version of the idea inside Compass."""
+    """Must name the falsification principle (evidence, not assertion)."""
     text = _read_skill()
-    # The G4 code retired with the skills-prose slice; the same principle
-    # is cited by its plain name. The premise is unchanged - the skill must
-    # name the standing falsification principle in the E2/E3 context.
     assert "evidence-not-assertion" in text or "Evidence, not assertion" in text, (
         "evidence-gates must cite the evidence-not-assertion guardrail as "
         "the standing falsification principle in the E2/E3 context."
