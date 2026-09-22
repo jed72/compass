@@ -1971,6 +1971,11 @@ _register(Rule(
             "> a knob.",
             "an absorbed-into marker quoting the merge-base sentence "
             "verbatim, per PBW-F7 - not a new use of the retired idiom."),
+        Exemption(
+            "tests/test_trace_rot_detection.py",
+            "Scenarios: trace-rot-detection/acceptance-criteria.md",
+            "the real slug of this issue - an identifier (section 4), not "
+            "a v1-vocabulary use of the idiom \"rot\"."),
     ),
 ))
 
