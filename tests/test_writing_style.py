@@ -796,13 +796,13 @@ _register(Rule(
             "v1-vocabulary use of the word."),
         Exemption(
             "tests/test_plain_words.py",
-            'time, and "vacuous"/"vacuity" is accurate and almost never used in ordinary',
+            'time, and "vacuous"/"vacuity" is accurate and almost never used in ordinary',  # plain-words: allow - the exemption quotes the offending sentence verbatim, which is how a substring sweep tells it from an ordinary use
             "the file's own subject is banning these words, so the "
             "docstring has to name them to explain the rule - the same "
             "exception the banned block itself gets."),
         Exemption(
             "tests/test_plain_words.py",
-            "codes. An unexplained term is a defect whether it is `G5` or `vacuity`, and",
+            "codes. An unexplained term is a defect whether it is `G5` or `vacuity`, and",  # plain-words: allow - the exemption quotes the offending sentence verbatim, which is how a substring sweep tells it from an ordinary use
             "the same naming-the-banned-word exception as the docstring "
             "line above."),
         Exemption(
