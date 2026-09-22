@@ -82,8 +82,8 @@ for delivery work; on a spike, follow the graduate-or-discard step in
      `manifest.yml`'s evidence registry with an accepted type (`test-run`,
      `command-output`, `manual-review`, `human-approval`, `artifact`, etc.).
    - `- [ ] (follow-up: FU-<id>) <description>` - passes if `FU-<id>` is in
-     `manifest.yml`'s `follow_ups:` with `status: owed`. The follow-up can
-     carry an optional `target_task: <slug>` field; when set, the named
+     `manifest.yml`'s `follow_ups:` with `status: outstanding`. The follow-up
+     can carry an optional `target_task: <slug>` field; when set, the named
      issue's ship check fails until this entry is paid
      (`compass follow-up resolve --issue <slug> <FU-id>`).
    - `- [x] <description>` - a human-ticked box passes unconditionally.
@@ -93,8 +93,8 @@ for delivery work; on a spike, follow the graduate-or-discard step in
 
    Cross-issue blocking: if another issue's `follow_ups:` has `target_task`
    pointing at the issue being shipped, and that follow-up is still
-   `status: owed`, `compass check` fails at ship even if this issue's own
-   DoD section is clean. Pay the upstream follow-up first.
+   `status: outstanding`, `compass check` fails at ship even if this issue's
+   own DoD section is clean. Pay the upstream follow-up first.
 6. **Capture process friction (advisory - never a gate).** With the gate
    already cleared in step 5, record where Compass's *own* process weight cost
    more than it returned between assess and ship.

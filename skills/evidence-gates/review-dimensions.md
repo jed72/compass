@@ -43,13 +43,13 @@ dependency-CVE scan where a project security guardrail needs it; evidence is
 scan output, not "looks fine."
 
 **clarity** - Is the code and are its tests legible to the next person - names,
-structure, no surprising control flow? Off on quick-fix; deferred to the
-mandatory follow-up on Hotfix. This is also where the writing-voice tells
+structure, no surprising control flow? Off on quick fix; deferred to the
+mandatory follow-up on hotfix. This is also where the writing-voice tells
 named in `skills/compass-runtime/writing-voice.md` are judged - does the
 artifact communicate a decision, or does it narrate the pipeline? Run
 `scripts/voice-tells.py` over the issue's artifacts for the three tells a fixed string can find; a hit is a note and a conversation, never an automatic gate failure.
-This check applies to every issue - `governance/strategies.md`
-`S8` names the calibration sample it is read against.
+This check applies to every issue - the calibration sample it is read
+against is named in `governance/strategies.md` (`S8`).
 
 **claims** - When the product-marketer role is in play (`verify.claims` is
 an immovable gate, so it applies whenever the marketer takes part): does every

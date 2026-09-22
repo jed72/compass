@@ -85,10 +85,10 @@ So:
 /compass:assess --reassess --reason "three fixes failed; the familiarity was misread"
 ```
 
-Re-score the dimensions honestly. If familiarity is genuinely unmapped,
-`RP-FLOOR-002` will force `behaviour-mapping`, and writing the current
-behaviour down is very often the thing that ends the bug hunt. A re-assess here
-is the system working; a fourth guess is not.
+Re-score the dimensions honestly. If familiarity is genuinely unmapped, the
+unmapped-familiarity floor (`RP-FLOOR-002`) will force `behaviour-mapping`,
+and writing the current behaviour down is very often the thing that ends the
+bug hunt. A re-assess here is the system working; a fourth guess is not.
 
 ## Anti-patterns
 

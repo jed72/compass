@@ -15,8 +15,8 @@ Go stage by stage, not approach by approach:
 - **Plan** - one-liner / real `technical-design.md` / plan + distribution map.
 - **Breakdown** - solo / pair / multiagent, subtask count from the distribution map.
 - **Implement** - test-surface target, scaled to risk.
-- **Verify** - which review dimensions, how many gates (see the table in
-  `approaches/composition-reference.md:53`).
+- **Verify** - which review dimensions, how many gates (see "Review
+  dimensions by delivery approach" in `approaches/composition-reference.md`).
 - **Ship** - trivial integration vs. coordinated merge; which follow-ups are owed.
 
 Name the nearest reference shape for shared vocabulary, then list deviations
@@ -32,9 +32,9 @@ one when the issue warrants, and record the departure in `delivery-approach.md`.
 
 ## Composing a spike
 
-When intent reads `exploration`, the composition leans towards **Spike** - the
+When goal reads `exploration`, the composition leans towards **Spike** - the
 approach for work you cannot yet state as delivery. Compose towards Spike
-when *all three* hold: intent is genuinely exploration not delivery, the work is
+when *all three* hold: the goal is genuinely exploration not delivery, the work is
 a question rather than a known change, and nothing irreversible is in scope.
 
 What is different about a Spike composition:

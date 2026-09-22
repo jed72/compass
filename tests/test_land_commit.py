@@ -87,7 +87,7 @@ def test_clean_then_commit_advances_head(run_cli, tmp_path):
 
 
 def test_noop_detected_retry_advances_head(run_cli, tmp_path):
-    """`TRC-R5`-3: the no-op is detected, fixes re-staged, retry advances HEAD,
+    """`TRC-R5-3`: the no-op is detected, fixes re-staged, retry advances HEAD,
     and the retry is reported (not silent)."""
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -145,7 +145,7 @@ def test_persistent_noop_errors_loudly(run_cli, tmp_path):
 
 
 def test_empty_staging_is_explicit_error(run_cli, tmp_path):
-    """`TRC-R5`-F2: nothing staged → an explicit error, not a retry loop."""
+    """`TRC-R5-F2`: nothing staged → an explicit error, not a retry loop."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)

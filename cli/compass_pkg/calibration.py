@@ -263,7 +263,7 @@ def derive_friction(slug, task, work):
     the CLI already computes - recorded reframes and absorbed reframe-debt.
 
     A re-assessment records an assessment that misjudged the work.
-    Re-assessment debt is a misjudgement nobody recorded. Both are friction
+    Reframe debt is a misjudgement nobody recorded. Both are friction
     by definition. Pure: it
     reads manifest.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
     entries carry no `proposed_change` - a reframe does not propose a specific

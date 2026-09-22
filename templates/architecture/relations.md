@@ -4,9 +4,8 @@
      Assess reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The `architect` agent reads it to determine
      which labels in the manifest map to known service names, so it
-     knows when to fire automatically as acceptance criteria are defined
-     (the scenario that added automatic triggering, `TRC-B2`, is in another
-     issue's own record).
+     fires automatically when acceptance criteria are defined and a
+     manifest label matches a service named here.
 
      Format: keep service names consistent with the labels you use in the
      manifest (the `labels:` field) so the agent can match them.

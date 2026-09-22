@@ -271,5 +271,5 @@ See [Portability](portability.md) for the adapter conformance contract.
 5. Use one shared specification across roles.
 6. Prefer evidence over assertion and files over conversation.
 7. Parallelise only independent work.
-8. Treat reassessment as the retrospective signal, not failure.
+8. Treat reassessment as a normal event, not a failure.
 9. Generate artifacts for human review, not agent consumption alone.

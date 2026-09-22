@@ -46,11 +46,11 @@ from compass_pkg.project_commands import _contained_script, _project_commands_al
 
 def _scenario_documented_in_spec(spec_path, scenario_id):
     """A `verifiable: narrative` scenario is 'documented' when its gherkin
-    block in acceptance-criteria.md has a non-empty When AND Then. The When/Then is
-    documentation-as-acceptance and lives only in the spec (it has no structured
-    home to duplicate). The When and Then steps exist only in the acceptance
-    criteria, so reading them there is correct. It is not the mistake of
-    grepping prose for a fact the manifest holds."""
+    block in acceptance-criteria.md has a non-empty When AND Then. The
+    When/Then is documentation-as-acceptance and lives only in
+    acceptance-criteria.md (it has no structured home to duplicate), so
+    reading it there is correct - not the mistake of grepping prose for a
+    fact the manifest holds."""
     if not spec_path or not os.path.isfile(spec_path):
         return False
     try:

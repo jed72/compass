@@ -7,7 +7,7 @@ now proceed to the requirements review stage" - the human can already see the
 pipeline; naming the stage tells them nothing they did not know. It
 communicates a decision when it says what changed and what it needs next. The
 difference is not vocabulary - both sentences can use exactly the same v2
-terms - it is whether the sentence carries out a process or reports on one.
+terms - it is whether the sentence acts out a process or reports on one.
 
 **The calibration sample.** Before writing anything in this register, read the
 "Never stash across a worktree hop" section of
@@ -74,7 +74,7 @@ Before:
 
 After:
 
-> Ran the requirements review as a light pass, since this was Standard-sized work.
+> Ran the requirements review as a light pass, since this was feature-sized work.
 
 What changed: says why the pass was light in the same sentence as what ran, instead of a bare command name with its parameters trailing in parentheses like a log line.
 

@@ -15,10 +15,12 @@ invokes hooks/pre-tool.sh with the synthetic tool call JSON.
 IMPORTANT NOTE on path design:
   hooks/pre-tool.sh exempts a target file whose basename or project-relative
   path matches an anchored test pattern (so you can always write the failing
-  test before any red is on record). This means the project directory and
-  target file path must not contain the word "test" as a substring. We use
-  tempfile.mkdtemp with a "compass-fixture-" prefix and place the target at
-  "src/app.py" to avoid this exemption.
+  test before any red is on record). This means the target file's own
+  basename and project-relative path must not contain the word "test" as a
+  substring. We place the target at "src/app.py" to avoid this exemption.
+  We also use tempfile.mkdtemp with a "compass-fixture-" prefix, as a
+  matching convention - the project directory's own name is not part of
+  the match.
 """
 from __future__ import annotations
 

@@ -47,12 +47,15 @@ tar_prefix_flags() {
 # --- what goes in the tarball -----------------------------------------------
 # The list of paths to package, one per line, each prefixed `./`.
 #
-# This is driven from `git ls-files` rather than from the working tree:
+# This is driven from `git ls-files` rather than from the working tree, and
+# the excludes below are shell `grep -Ev` patterns anchored with `^`, never a
+# tar `--exclude`:
 #
-#   * BSD tar has no --anchored, so an exclude of ./.compass/work matches at
-#     any depth and strips
-#     examples/<x>/.compass/work/<slug>/manifest.yml. Selecting paths in
-#     shell lets us anchor exactly.
+#   * A tar `--exclude` of `.compass/work` is not anchored on BSD tar, so it
+#     would match at any depth and strip
+#     examples/<x>/.compass/work/<slug>/manifest.yml along with the real
+#     target. Selecting paths in shell and handing tar a fixed list (`-T`)
+#     avoids the flag, and the anchor, entirely.
 #   * An untracked file, such as a local .mcp.json, matches no noise
 #     pattern, so a working-tree archive ships it. Tracked-only excludes it
 #     by construction, and gitignored dev state (the repo's `.compass/work`)
@@ -187,8 +190,9 @@ if [ -n "$STALE" ]; then
 fi
 OUT="dist/compass-${VERSION}.tar.gz"
 
-# release_file_list() builds the list from tracked paths only, so noise
-# cannot appear. The noise check below still checks.
+# release_file_list() builds the list from tracked paths only, so noise from
+# an untracked file cannot appear. The noise check below still runs, to
+# catch a tracked file that should not ship.
 TMP_LIST="$(mktemp)"
 trap 'rm -f "$TMP_LIST"' EXIT
 release_file_list > "$TMP_LIST"
@@ -229,7 +233,8 @@ echo "    (clean - none)"
 
 # --- examples integrity check (HARD FAIL) ----------------------------------
 # Every example's manifest.yml must be in the tarball. Check the listing
-# directly, because an unanchored .compass/work exclude strips them.
+# directly, so a mistake in release_file_list()'s excludes is caught here
+# rather than assumed away.
 echo "  examples integrity (every example must have its manifest.yml):"
 required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
@@ -241,7 +246,7 @@ for e in $required_examples; do
 done
 if [ -n "$missing" ]; then
   echo "    !!  missing example manifest.yml in tarball:$missing" >&2
-  echo "release.sh: FAIL - examples were not packaged correctly. Check the .compass/work exclude is root-anchored (./.compass/work, not .compass/work)." >&2
+  echo "release.sh: FAIL - examples were not packaged correctly. Check release_file_list()'s .compass/(work|flow) exclude in this script." >&2
   exit 1
 fi
 for e in $required_examples; do

@@ -452,7 +452,7 @@ The review pass that hardens requirements before plan or implementation: ambigui
 
 ### retrospective-signal
 
-Compass's cross-issue self-check: is triage consistently over- or under-sizing the process? Advisory, surfaced in retro language. v1 called this "calibration".
+Compass's cross-issue self-check: is assess consistently over- or under-sizing the process? Advisory, surfaced in retro language. v1 called this "calibration".
 
 **Related:** `dora-metrics`, `assess`
 

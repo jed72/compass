@@ -109,11 +109,11 @@ only in conversation did not happen (persistence over conversation).
 
 *Why there is no subagent critic here.* The Superpowers project shipped a
 subagent review loop between spec and plan and then removed it in their
-v5.0.6 release. They reported regression testing across five versions and five
+[v5.0.6 release](https://github.com/obra/superpowers/releases/tag/v5.0.6).
+They reported regression testing across five versions and five
 trials that found identical quality scores whether the loop ran or not, at
 roughly 25 minutes of overhead per run. Compass has not repeated that
-measurement and takes the published result at face value - I have not
-checked the release notes myself. Compass already has
+measurement and takes the published result at face value. Compass already has
 two review points that earn their cost: **the requirements review**, which
 QAs the spec against governance, and the **reviewer** agent at verify. A
 third pass between them would double the time without measurably

@@ -7,11 +7,8 @@ Each test invokes `compass analyze` via subprocess in an isolated project
 directory (using the `project`/`run_cli` fixtures from conftest.py).
 """
 
-# These tests assert the current file names; files written under older
-# names still load (ADR-006).
-
-# These tests assert the current stage names; manifests written under
-# older names still load (ADR-006).
+# These tests assert the current stage and file names; manifests and files
+# written under older names still load (ADR-006).
 from __future__ import annotations
 
 import json
@@ -159,10 +156,9 @@ def test_trc_a1_coherent_artifacts_pass_cleanly(project: Path, run_cli):
     result = run_cli("analyze")
     assert result.returncode == 0, f"Expected exit 0:\n{result}"
     combined = result.stdout + result.stderr
-    # "PASS - no coherence findings" replaced "PASS - 0 finding(s)" on
-    # 2026-08-24: a verdict reading "PASS - 1 finding(s)" was the problem, and
-    # the fix was to stop pairing the word PASS with a count. The intent - a
-    # clean run says plainly that it found nothing - is unchanged.
+    # A clean run says plainly that it found nothing, and never pairs the
+    # word PASS with a count - a verdict reading "PASS - 1 finding(s)" would
+    # read as a pass despite the finding.
     assert "no coherence finding" in combined.lower() or \
         "0 finding" in combined.lower() or "zero finding" in combined.lower() or \
            "no finding" in combined.lower() or "findings: 0" in combined.lower() or \
@@ -210,13 +206,13 @@ def test_trc_a2_orphaned_scenario_flagged(project: Path, run_cli):
 
 def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
     """delivery-approach.md says 'Clarify: full' but manifest.yml says
-    'clarify: collapsed', so `analyze` exits non-zero (TRC-A3)."""
+    'refine: collapsed', so `analyze` exits non-zero (TRC-A3)."""
     slug = "route-disagree-task"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
     body = _minimal_task(slug)
-    # manifest.yml says clarify: collapsed
+    # manifest.yml says refine: collapsed
     body["stages"]["refine"] = "collapsed"
     body["scenarios"] = [{"id": "SCN-001", "intent": "INT-1", "title": "foo", "tests": []}]
     # Gate mode so findings → non-zero
@@ -240,7 +236,7 @@ def test_trc_a3_route_disagreement_flagged(project: Path, run_cli):
     result = run_cli("analyze")
     assert result.returncode != 0, f"Expected non-zero exit:\n{result}"
     combined = result.stdout + result.stderr
-    assert "refine" in combined.lower(), f"Expected 'Clarify' in output:\n{result}"
+    assert "refine" in combined.lower(), f"Expected 'refine' in output:\n{result}"
     assert "route-disagreement" in combined.lower() or "disagree" in combined.lower(), \
         f"Expected route-disagreement finding:\n{result}"
 

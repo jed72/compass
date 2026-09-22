@@ -207,5 +207,5 @@ can add it as a plugin:
 ```
 
 Then start with `/compass:assess "..."`. You need Python 3; the plugin
-carries everything else - and the defaults work with no setup, so there's
-nothing to set up first. It's early, so point it at a throwaway branch.
+carries everything else, and the shipped defaults work as they are - nothing
+to configure first. It's early, so point it at a throwaway branch.

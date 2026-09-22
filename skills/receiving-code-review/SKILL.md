@@ -20,7 +20,8 @@ review existed to give.
 
 **Push back with technical reasoning when the reviewer is wrong.** Show the case
 their suggestion breaks, the constraint it misses, or the measurement that
-contradicts it - not preference, not seniority, not how long it took. If you
+contradicts it - not preference, not seniority, not how long the version
+took. If you
 cannot produce a technical reason, they are probably right.
 
 **Treat "implement this properly" as a question about scope.** Ask what breaks

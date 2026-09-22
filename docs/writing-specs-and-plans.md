@@ -306,8 +306,8 @@ fine *upstream* of Compass, in a brief or a ticket; they are not the spec.
 reader is a junior engineer with no context". Compass does not, because its
 five-role model is a stronger reader model than any single persona: the same
 spec is read for intent fidelity, for claims, for tests, for coverage, and for UI
-behaviour. `S7`, the cold-reader strategy, already assumes zero prior context without having to name someone
-to imagine.
+behaviour. The cold-reader strategy (`S7`) already assumes zero prior context
+without having to name someone to imagine.
 
 **No plan made of small steps, each with the exact commands to run.** Some frameworks make
 the plan a sequence of small steps each with the literal command to run. Compass
@@ -321,8 +321,8 @@ lint`.
 
 ## Related
 
-- `governance/strategies.md` - `S7` (write for a cold reader) and `S4`
-  (persistence over conversation), which `S7` extends.
+- `governance/strategies.md` - the cold-reader strategy (`S7`) and the
+  persistence-over-conversation strategy (`S4`), which `S7` extends.
 - `skills/bdd-specification/SKILL.md` - the Summary section, the four-scan
   self-review, and what makes a scenario runnable.
 - `skills/governance-check/SKILL.md` - where `compass plan lint` fits in the

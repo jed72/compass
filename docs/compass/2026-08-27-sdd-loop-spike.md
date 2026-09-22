@@ -99,8 +99,8 @@ One.
 That is worth saying plainly because it changes how to read everything
 below. Compass is not catching up to a more mature loop. It is running an
 experiment the other framework decided against, with a sample size of
-roughly one, against a loop that donated sessions and eval campaigns with
-published numbers shaped.
+roughly one, against a loop shaped by donated sessions and eval campaigns
+with published numbers.
 
 ## The mechanism walk
 

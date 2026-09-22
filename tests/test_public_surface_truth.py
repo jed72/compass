@@ -127,8 +127,8 @@ def test_a5_architecture_context_uses_current_stage_names():
     """`TRC-A5` - the context file describes the system as it is now.
 
     `architecture/decisions/` is exempt as history. `system-context.md` is not
-    a decision record; it says what is true today, and it said the manifest is
-    "written by Frame".
+    a decision record; it says what is true today, in current stage names
+    only.
     """
     body = (REPO_ROOT / "architecture" / "system-context.md").read_text(encoding="utf-8")
     for retired in ("Frame", "Specify", "Clarify", "Distribute", "Land"):

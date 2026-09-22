@@ -301,12 +301,11 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# `TRC-A6` - `bdd` is on the documented CLI surface, and is the ONLY verb added
+# `TRC-A6` - `bdd` is on the documented CLI surface
 # ---------------------------------------------------------------------------
 
-# The full subcommand set. Frozen deliberately: `TRC-A6` says this issue adds
-# exactly one verb, so a second one appearing here must need an edit to this
-# list and noticing.
+# The full subcommand set, frozen deliberately: a new verb must edit this
+# list, so adding one is a visible decision rather than a silent one.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
     "tdd-green", "policy", "plan", "intent", "issue", "adr", "rework-scan", "flow",
@@ -318,7 +317,7 @@ EXPECTED_SUBCOMMANDS = {
 }
 
 
-def test_trc_a6_bdd_is_the_only_new_subcommand(run_cli):
+def test_trc_a6_bdd_is_on_the_documented_subcommand_surface(run_cli):
     result = run_cli("--help")
     assert result.returncode == 0, result
     m = re.search(r"\{([a-zA-Z0-9_,\-]+)\}", result.stdout)
@@ -327,7 +326,7 @@ def test_trc_a6_bdd_is_the_only_new_subcommand(run_cli):
 
     assert "bdd" in actual, "the bdd subcommand group is not registered"
     assert actual == EXPECTED_SUBCOMMANDS, (
-        "the CLI surface changed by more than the one verb this task adds.\n"
+        "the CLI surface does not match the frozen subcommand list.\n"
         f"  unexpected: {sorted(actual - EXPECTED_SUBCOMMANDS)}\n"
         f"  missing   : {sorted(EXPECTED_SUBCOMMANDS - actual)}"
     )

@@ -73,7 +73,7 @@ Logical surface: **strategies**
 ### Role Pipeline
 
 Compass has five roles - engineer, product owner, designer, marketer, QA -
-and each runs the full pipeline. Each role has entry-point slash commands
+each with its own entry point into the pipeline. Each role has entry-point slash commands
 (`/compass:intent`, `/compass:position`, `/compass:design`,
 `/compass:consult`) and dedicated agent files in `agents/`. The architect
 role (`agents/architect.md`) is an advisory role over the role pipeline,
@@ -108,9 +108,11 @@ Logical surface: **role pipeline**
    changed_files, evidence, follow_ups, reassessments. No mechanism may write into
    `manifest.yml.assessment`.
 
-3. **Guardrails are not configurable.** Projects may add their own governance
-   checks, but they cannot remove or soften `G1`–`G5`. Adopters declare
-   architecture checks as project guardrails using the generic
+3. **A dropped or weakened guardrail is reported, not hidden.** A project's
+   `governance/guardrails.yml` can omit a default `G1`–`G5` entry;
+   `compass policy lint` and `compass check` name what is missing rather than
+   counting it as passing (`docs/safety-contract.md` guarantee 2). Adopters
+   declare architecture checks as project guardrails using the generic
    `command-passes` check (see ADR-009); the `verify.architecture` gate is
    added by `RP-REQUIRE-003` and `RP-REQUIRE-004` when risk or labels
    warrant it.

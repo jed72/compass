@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass_pkg.core - shared helpers: governance discovery, manifest loading and
-# key mapping, the document resolver and the delivery-approach evaluator
+# compass_pkg.core - shared helpers: governance discovery, manifest loading
+# and key mapping, and the document resolver
 # =============================================================================
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in

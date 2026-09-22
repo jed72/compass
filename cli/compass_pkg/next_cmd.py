@@ -42,7 +42,7 @@ from compass_pkg.core import artifact_path, load_yaml, manifest_path, normalize_
 # answer from manifest.yml + delivery-approach.md only; nothing else is read.
 #
 # Output format (chosen to read clearly without colour escapes):
-#   "<NextPhase> [gate: <gate-id>][ | <phase> is collapsed on this route]"
+#   "<NextPhase> [gate: <gate-id>][ | <phase> collapsed on this route]"
 # When all stages are complete / landed:
 #   "all phases complete"
 # When delivery-approach.md is missing:

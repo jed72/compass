@@ -64,8 +64,8 @@ approach was too light.
 | `qa` | joins at `/compass:verify` | Owns the Verify gate; can send an issue back to define if scenarios are uncoverable. |
 
 Intent is also *the actual outcome wanted*, not just the literal request. "Add
-a CSV export" invoked by a product owner whose brief says "let finance
-self-serve" may need more than a button. Assess reads the brief if one
+a CSV export" invoked by a product owner whose `intent.md` says "let finance
+self-serve" may need more than a button. Assess reads `intent.md` if one
 exists.
 
 One goal value is not a role: **exploration** - "I cannot frame this well

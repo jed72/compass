@@ -1,13 +1,9 @@
 """docs/system-spec.md stays current, and stays house-style clean.
 
-18 issues are marked landed. The committed file carried scenarios from ONE, and
-had gone fourteen consecutive Lands without being re-derived. Nobody noticed,
-because nothing looked.
-
-A derived artifact that nothing regenerates is worse than no artifact: it reads
-as authoritative and is fiction. So the fix is not "regenerate it" - that makes
-it right today. The fix is a test that re-derives and compares, which makes it
-stay right.
+A derived artifact that nothing regenerates is worse than no artifact: it
+reads as authoritative and is wrong. The fix is not to regenerate it once -
+that only makes it right today. The fix is a test that re-derives and
+compares on every run, which keeps it right.
 
 Spec: living-spec-and-process-impact/acceptance-criteria.md (`TRC-A1`..`TRC-A3`,
       `TRC-B1`, `TRC-B2`, `TRC-F1`, `TRC-F2`).
@@ -98,10 +94,10 @@ def _archive_present():
     empty spec that can never equal the committed one, and the comparison would
     fail for a reason that has nothing to do with staleness.
 
-    The guard is therefore: compare only where the sources exist. This is a real
-    limit, not a dodge - it means the currency check runs for a developer and
-    when the issue ships, and cannot run in CI. Stated here rather than hidden, because the
-    first version of this test failed every clean clone.
+    The guard is therefore: compare only where the sources exist. This is a
+    real limit, not a dodge - it means the currency check runs on a
+    developer's machine and at ship, and cannot run in CI. Stated here
+    rather than left implicit.
     """
     return WORK.is_dir() and any(
         (p / "manifest.yml").is_file() for p in WORK.iterdir() if p.is_dir())

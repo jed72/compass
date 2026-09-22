@@ -211,9 +211,10 @@ blocks.)
 
 ### Final `delivery-approach.md`
 
-initiative, single worktree. The policy-rules section records both floors
-and the cap, each with its rationale. The orchestration section (§4c of the
-template) records the worktree count as **cap-driven** - not as a de-scope.
+The delivery approach is initiative, single worktree. The policy-rules
+section records both floors and the cap, each with its rationale. The
+orchestration section (§4c of the template) records the worktree count as
+**cap-driven** - not as a de-scope.
 This distinction matters: the de-scope ledger is for things the delivery
 approach *chose* to skip; a cap removing a worktree is a routing policy rule,
 and rule-driven reductions go in the orchestration section, never the
@@ -272,7 +273,8 @@ genuinely different orchestration - because the dimensions read differently.
 
 ### Final `delivery-approach.md`
 
-initiative at full weight, multiagent orchestration, empty de-scope ledger (initiative's
+The delivery approach is initiative at full weight, multiagent orchestration,
+empty de-scope ledger (initiative's
 ledger is empty by definition - it is what the other approaches are measured
 against). If a designer and product owner did join, their `role_rules` would
 fire: `intent.md` required and the intent-fidelity gate before the plan
@@ -294,14 +296,14 @@ rather than by the size / risk / familiarity composition.
 
 | Dimension | Value | Justification |
 |---|---|---|
-| risk | `critical` | Checkout is down for a class of carts - lost revenue, happening live. |
+| risk | `cross-cutting` | Checkout is down for every cart with a discount code - many users affected, and recovery needs coordination with the payments team. No data is lost, no money is misrouted, and the deploy can be rolled back cleanly, so it stops short of `critical`. |
 | Familiarity | `brownfield-mapped` | The checkout and discount paths are mapped. |
 | Size | `small` | The defect is bounded; the fix is expected to be 1–3 files once the cause is found. |
 | Goal and role | `engineer`, often paired with `qa` | An engineer fixing a live defect, QA checking. |
 
 ### Compose
 
-A live defect with user impact happening *now*, small size, critical
+A live defect with user impact happening *now*, small size, cross-cutting
 risk - the assess stage composes towards a **hotfix**. The shape, stage by
 stage:
 
@@ -320,15 +322,19 @@ stage:
 
 ### Constrain
 
-The `risk: critical` floor's `force_minimum_route: expedition` would
-seem to apply - but hotfix's gate set is *already* at full verify weight, and
-`never_skip: [refine, verify, ship]` is honoured by hotfix's structure
-(the review is collapsed *into* the reproduction, not skipped; verify and ship
-run full). hotfix is the delivery approach that compresses the stages
-*before* verify and never verify itself, which is exactly what the
-critical floor's rationale - "critical changes coordinate or they break
-things quietly" - is protecting. The critical-risk cap (`max_worktrees: 1`)
-is moot: hotfix is solo anyway.
+Risk here is `cross-cutting`, not `critical`. `RP-FLOOR-001` floors a
+`critical` risk value to initiative, and no delivery approach composes it as a
+hotfix, however urgent the defect (`approaches/hotfix.md`). Had the discount
+path also double-charged a card, risk would score `critical` and assess would
+floor the route to initiative, under incident command, instead.
+
+The architecture-check requirement fires on the `cross-cutting` value and adds
+`verify.architecture` to hotfix's gate set, so this hotfix runs six gates, not
+the base five. `never_skip: [refine, verify, ship]` is honoured by hotfix's
+structure regardless of risk (the review is collapsed *into* the
+reproduction, not skipped; verify and ship run full). hotfix is the delivery
+approach that compresses the stages *before* verify and never verify itself.
+Hotfix has no worktree to cap - breakdown is skipped and the fix runs solo.
 
 The methodology's own guard applies here: a fix that turns out to be
 `standard`+ in size is *not* a hotfix - it is an incident. Assess it as an
@@ -338,7 +344,7 @@ holds.
 
 ### Final `delivery-approach.md`
 
-hotfix. The §6 "Owed follow-ups" section of `delivery-approach.md` carries an unchecked
+The delivery approach is hotfix. The §6 "Owed follow-ups" section of `delivery-approach.md` carries an unchecked
 item - the mandatory follow-up - and the issue is not closeable until it is
 resolved: `delivery-approach.md` completed properly (not just the urgent stub), the
 reproduction test promoted into a real Given/When/Then scenario in
@@ -394,7 +400,7 @@ clear of irreversible surface, so spike stands. Nothing is floored.
 
 ### Final `delivery-approach.md` - and the exit
 
-spike. verify becomes **conclude**: not a test gate, a findings check - *was
+The delivery approach is spike. The verify stage becomes **conclude**: not a test gate, a findings check - *was
 the question answered?* The one gate is "the question is answered (or
 explicitly answered with 'inconclusive - here is why'), and the finding is
 written down." ship becomes **graduate or discard**:

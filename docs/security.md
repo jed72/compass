@@ -175,8 +175,9 @@ limit what a fork can reach inside it.
 
 ## Persistent artifacts
 
-Commit `.compass/work/`. It can contain command output, test evidence,
-approvals, decisions and an append-only development log.
+`.compass/work/` is committed to the repository. It can contain command
+output, test evidence, approvals, decisions and an append-only development
+log.
 
 Do not place secrets, access tokens, personal data or sensitive production
 output in these files. Redact evidence before committing it, while retaining

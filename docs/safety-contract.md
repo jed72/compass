@@ -127,7 +127,7 @@ unlocks nothing.
 own fields, with no secret, so anyone who can write the file can compute a
 matching one. It is tamper evidence, not forgery resistance: it catches a
 record edited after it was written, and it does not catch one written from
-scratch by someone who knows the format. Forging a red record now needs
+scratch by someone who knows the format. Forging a red record needs
 valid JSON with a correct digest, not an empty file. It is still possible.
 
 Records written before records carried an identity are accepted without a

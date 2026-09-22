@@ -57,7 +57,7 @@ severity, worst first:
    initiative: longer, but each subtask should still show movement). A stall is
    almost always a hidden blocker. Name the likely cause from the artifacts.
 
-4. **Owed follow-up sitting** - an issue past the verify stage with an unpaid Hotfix
+4. **Owed follow-up sitting** - an issue past the verify stage with an owed
    follow-up or an unbacked marketing claim. The per-issue `/compass:status`
    flags this; flow's job is to make sure it does not sit ignored across the
    whole board.
