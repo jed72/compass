@@ -1,9 +1,9 @@
 # Verification Report - notifications-subsystem
 
-> **Phase:** Verify · **Date:** 2026-03-13 · **Owning role:** QA
+> **Stage:** verify · **Date:** 2026-03-13 · **Owning role:** QA
 > **Agents:** verifier, reviewer
-> **Route (from delivery-approach.md):** initiative · **Gate count:** all (full set)
-> **Orchestration:** multiagent - verified per-stream, then combined after integration
+> **Approach (from delivery-approach.md):** initiative · **Gate count:** all (full set)
+> **Orchestration:** multiagent - verified per-subtask, then combined after integration
 
 ---
 
@@ -11,12 +11,12 @@
 
 | Scenario id | Title | Result | Evidence |
 |---|---|---|---|
-| TRC-001 | An in-app event produces a notification for the target user | PASS | §2 (subtask-1) |
-| TRC-002 | A notification is delivered once, even if the event is retried | PASS | §2 (subtask-1) |
-| TRC-003 | Notifications survive a worker restart | PASS | §2 (subtask-1) |
-| TRC-004 | A user mutes a category and stops receiving that category | PASS | §2 (subtask-2) |
-| TRC-005 | A user with no saved preferences gets the safe defaults | PASS | §2 (subtask-2) |
-| TRC-006 | A muted category does not suppress a security notification | PASS | §2 (subtask-2) |
+| `TRC-001` | An in-app event produces a notification for the target user | PASS | §2 (subtask-1) |
+| `TRC-002` | A notification is delivered once, even if the event is retried | PASS | §2 (subtask-1) |
+| `TRC-003` | Notifications survive a worker restart | PASS | §2 (subtask-1) |
+| `TRC-004` | A user mutes a category and stops receiving that category | PASS | §2 (subtask-2) |
+| `TRC-005` | A user with no saved preferences gets the safe defaults | PASS | §2 (subtask-2) |
+| `TRC-006` | A muted category does not suppress a security notification | PASS | §2 (subtask-2) |
 
 ## 2. Test suite evidence
 
@@ -46,7 +46,7 @@ tests/workspace/ .............                                           [100%]
 ```
 
 The 6 new notification scenarios pass; the 65 pre-existing tests still pass -
-per-stream green *and* combined green. Per-stream green does not imply
+per-subtask green *and* combined green. Per-subtask green does not imply
 integrated green; this combined run is the proof.
 
 **Coverage (against the guardrail floor):**
@@ -64,25 +64,25 @@ project line coverage                85%   (floor: 80% - met)
 
 | Dimension | Applies on this approach? | Result | Evidence |
 |---|---|---|---|
-| correctness | always | PASS | All six scenarios in §1 pass - per-stream and combined. |
-| governance | always | PASS | `G1`: every scenario has a passing test it traces to (§2). `G2`: all six stated and the requirements review-closed before Build. `G3`: see traceability. `G4`: every gate below has a resolving evidence pointer. **`G5`: GREEN** - `migrations/0042` signed off by L. Haddad (eng lead) before ship, recorded in `manifest.yml` `approvals:`; forward and rollback paths reviewed. `S2` red-before-green followed in both worktrees. |
+| correctness | always | PASS | All six scenarios in §1 pass - per-subtask and combined. |
+| governance | always | PASS | `G1`: every scenario has a passing test it traces to (§2). `G2`: all six stated, and the requirements review closed before implement. `G3`: see traceability. `G4`: every gate below has a resolving evidence pointer. **`G5`: GREEN** - `migrations/0042` signed off by L. Haddad (eng lead) before ship, recorded as a `human-approval` evidence entry in `manifest.yml`; forward and rollback paths reviewed. `S2` red-before-green followed in both worktrees. |
 | traceability | always | PASS | All five `changed_files` trace to scenario ids; every scenario traces to INT-1/2/3; `compass check` confirms every chain. |
 | regression | yes | PASS | The combined run in §2 - 65 pre-existing tests still green alongside the 6 new ones. |
-| security | full | PASS | Full pass, not scaled - greenfield code with a new table. Reviewed: the migration adds no PII column; `api.py` endpoints are tenant-scoped and a user can only read their own notifications; the idempotency key is server-trusted only for dedup, not authorization; the security-category override (DD-1) cannot be disabled by user input. No injection surface in the dispatch path. |
-| clarity | yes | PASS | Four focused modules, one responsibility each; `technical-design.md` DD-1/2/3 record the three non-obvious choices (fixed security category, once-ever dedup, write-before-deliver durability) for a future reader. The two-stream split is documented in `distribution-map.md`. |
+| security | full | PASS | Full pass, not scaled - greenfield code with a new table. Reviewed: the migration adds no PII column; `api.py` endpoints are tenant-scoped and a user can only read their own notifications; the idempotency key is server-trusted only for dedup, not authorisation; the security-category override (DD-1) cannot be disabled by user input. No injection surface in the dispatch path. |
+| clarity | yes | PASS | Four focused modules, one responsibility each; `technical-design.md` `DD-1`/2/3 record the three non-obvious choices (fixed security category, once-ever dedup, write-before-deliver durability) for a future reader. The two-subtask split is documented in `distribution-map.md`. |
 | claims | yes (in initiative's shape) | PASS | No product-marketer was in play - there are no public claims to back, and `manifest.yml` `claims:` is empty. The gate exists in initiative's set and is satisfied trivially: `compass check`'s claim-traces-to-scenario passes because there is nothing unbacked. The external launch is a separate later issue. |
 
 ## 4. Gate decision
 
 | Gate | Required by | Status |
 |---|---|---|
-| verify.correctness | immovable + route | GREEN |
-| verify.governance | immovable + route | GREEN |
-| verify.traceability | immovable + route | GREEN |
-| verify.regression | route | GREEN |
-| verify.security | route | GREEN |
-| verify.clarity | route | GREEN |
-| verify.claims | route (initiative shape) | GREEN (no claims to check - satisfied trivially) |
+| verify.correctness | immovable + approach | GREEN |
+| verify.governance | immovable + approach | GREEN |
+| verify.traceability | immovable + approach | GREEN |
+| verify.regression | approach | GREEN |
+| verify.security | approach | GREEN |
+| verify.clarity | approach | GREEN |
+| verify.claims | approach (initiative shape) | GREEN (no claims to check - satisfied trivially) |
 
 **Overall:** PASS - advance to ship.
 
@@ -96,12 +96,12 @@ project line coverage                85%   (floor: 80% - met)
 
 ### Definition of Done
 
-- [x] **Every scenario passes** - §1 is all PASS, per-stream and combined.
-- [x] **TDD suite green** - §2 shows per-stream runs and the 71-test combined run, output pasted.
+- [x] **Every scenario passes** - §1 is all PASS, per-subtask and combined.
+- [x] **TDD suite green** - §2 shows per-subtask runs and the 71-test combined run, output pasted.
 - [x] **Coverage meets the guardrail floor** - 85% project, floor 80% - §2.
 - [x] **No lint / format / type errors** - `ruff check src/notifications/` and `mypy src/notifications/` clean (run logged in `devlog.md`).
 - [x] **Traceability intact** - code → scenario → intent holds across both subtasks; no claims (no marketer).
 - [x] *(carried to ship)* Living docs updated to match reality - a new "Notifications" page in the architecture docs; the event-producer contract documented.
-- [x] *(carried to ship)* Every outstanding follow-up resolved - none outstanding (initiative's de-scope ledger is empty). `G5` sign-off on the migration is on record in `manifest.yml` `approvals:`.
+- [x] *(carried to ship)* Every outstanding follow-up resolved - none outstanding (initiative's de-scope ledger is empty). `G5` sign-off on the migration is on record as a `human-approval` evidence entry in `manifest.yml`.
 
 Next stage: **ship** (`/compass:ship`) - orchestrated merge, then close.

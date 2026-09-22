@@ -5,7 +5,7 @@ acceptance suite. Copy the wiring, not the domain - the password-reset rule
 here is three lines, on purpose.
 
 **What this demonstrates:** the Gherkin an engineer writes in
-`acceptance-criteria.md` is the same text a runner executes. The link between a
+`acceptance-criteria.md` is the same text a runner runs. The link between a
 scenario and the test that satisfies it stops being a convention someone
 maintains and becomes a fact the runner establishes.
 
@@ -24,9 +24,9 @@ project:
 ```
 
 Only `bdd_run_command` and `bdd_steps_dir` matter to a human here;
-`bdd_features_dir` is left unset so the extracted feature lands beside its
-source spec. In the shipped Compass config all four are commented out - a
-project that edits nothing has opted into nothing.
+`bdd_features_dir` is left unset so the extracted feature lands in the
+issue's `.compass/work/` directory. In the shipped Compass config all four
+are commented out - a project that edits nothing has opted into nothing.
 
 ### 2. Extract the Gherkin
 
@@ -107,12 +107,12 @@ whenever the spec changes - in CI, put `compass bdd extract` immediately before
 the test command. Committing the extracted file is fine and often useful (the
 output is deterministic), but it is never the source of truth.
 
-**An unbound step fails loudly.** Delete a `@given` and pytest-bdd reports the
+**An unbound step fails with an error.** Delete a `@given` and pytest-bdd reports the
 step text it could not find. That is the failure an adopter meets first, and it
 names the thing to fix.
 
 **pytest-bdd is a pytest plugin.** If your project sets
-`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` - a common cure for plugins that hang on
+`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` - a common fix for plugins that hang on
 init in clean environments - pytest-bdd will not load, and your scenarios will
 silently not run. The Compass repository itself does this, which is why its own
 adapter check runs in a dedicated CI job with autoload on rather than in the
@@ -127,7 +127,7 @@ the spec is what needs changing.
 ## Other runners
 
 `cucumber-js`, `behave` and `godog` each have a worked adapter beside this one,
-and each is run by its own CI job on every push. The same four steps apply to
+and a CI job runs each one on every pull request and every push to main. The same four steps apply to
 all four; only step three, binding the steps, differs. `compass bdd extract`
 emits plain Gherkin with standard `@tags`, which every one of them reads and
 selects on.

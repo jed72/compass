@@ -1,6 +1,6 @@
 # Spec - rate-limit-search-endpoint
 
-> **Phase:** define · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
+> **Stage:** define · **Last updated:** 2026-04-22 · **Owning agent:** spec-author
 > **Familiarity:** brownfield-mapped - the middleware chain is known; these are new scenarios for a new link in it, no behaviour-mapping needed.
 
 ## How each role reads this file
@@ -89,7 +89,7 @@ Scenario: Two clients have independent limits
 
 ## Failure-mode scenarios
 
-The failure mode that mattered here - the over-limit case - is TRC-002, kept in
+The failure mode that mattered here - the over-limit case - is `TRC-002`, kept in
 group A because it is the core behaviour, not an afterthought. `contained`
 risk does not call for adversarial inputs; the missing-client-id edge
 was raised in refine and resolved as a config default (see
@@ -99,10 +99,10 @@ was raised in refine and resolved as a config default (see
 
 ## Coverage ledger
 
-| Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
+| Traceability id | Serves intent | Has a failing test (implement) | Passes as acceptance (verify) |
 |---|---|---|---|
-| TRC-001 | INT-1 | [x] | [x] |
-| TRC-002 | INT-1 | [x] | [x] |
-| TRC-003 | INT-2 | [x] | [x] |
-| TRC-004 | INT-1 | [x] | [x] |
-| TRC-005 | INT-1 | [x] | [x] |
+| `TRC-001` | INT-1 | [x] | [x] |
+| `TRC-002` | INT-1 | [x] | [x] |
+| `TRC-003` | INT-2 | [x] | [x] |
+| `TRC-004` | INT-1 | [x] | [x] |
+| `TRC-005` | INT-1 | [x] | [x] |

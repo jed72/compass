@@ -33,22 +33,22 @@ migration cost.
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | `governance/architecture/` | Keeps all Compass-related artifacts under one top-level dir | Mixes "process" (governance) with "structure" (architecture); makes `governance/` heavier |
-| `docs/architecture/` | Common convention in many projects | `docs/` is for human documentation; architecture artifacts are also machine-read by Frame |
+| `docs/architecture/` | Common convention in many projects | `docs/` is for human documentation; architecture artifacts are also machine-read by the assess stage |
 
 ## Consequences
 
 **Positive:**
 - Clean separation of governance (process) and architecture (structure).
-- Frame's load contract is symmetric: reads `governance/` for policy, reads `architecture/` for structure.
+- The assess stage's load contract is symmetric: reads `governance/` for policy, reads `architecture/` for structure.
 - Low adoption barrier for projects with existing `architecture/` directories.
 
 **Negative:**
 - One more top-level directory in the repository root.
 
 **Neutral / follow-on:**
-- The `compass-self-architecture` follow-on task will populate Compass's own `architecture/` using this location.
+- The `compass-self-architecture` follow-on issue will populate Compass's own `architecture/` using this location.
 
 ## References
 
-- The task's `clarifications.md`, where the location of `architecture-notes.md` was settled
-- Plan DD-6 (foundation-first subtask ordering)
+- The requirements review, where the location of `architecture-notes.md` was settled
+- The technical design's foundation-first subtask ordering decision

@@ -1,6 +1,6 @@
 # Ownership
 
-<!-- HOW TRIAGE USES THIS FILE
+<!-- HOW ASSESS USES THIS FILE
      Assess reads this file and includes it in architecture-loaded.yml as a
      narrative artifact.  The `architect` agent uses ownership data to
      flag when a proposed change crosses team boundaries - a common source of
@@ -22,8 +22,10 @@
 ## Ownership rules
 
 <!-- State any rules that govern how ownership can change or how cross-team
-     changes must be coordinated.  These rules are candidates for
-     architecture/invariants.yml once the schema is finalised. -->
+     changes must be coordinated.  These rules can also live in
+     architecture/invariants.yml, an optional freeform YAML file the assess
+     stage already reads into architecture-loaded.yml - no schema constrains
+     its shape yet. -->
 
 - <!-- example: a change to a service's public API must be approved by that service's
        owning team before it can land. -->

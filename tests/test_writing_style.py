@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 339
+PENDING_PATHS_HIGH_WATER = 254
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -530,6 +530,22 @@ _register(Rule(
     "PBW-A1", "No retired v1 word survives in prose, a comment "
     "or a test docstring", _find_retired_word,
     exemptions=(
+        # PBW-F7's <!-- absorbed: "..." --> markers quote a merge-base
+        # sentence verbatim so a reader can see what the rewrite carried
+        # forward - the same reason ADR quotes and voice-tells fixtures are
+        # exempt elsewhere in this file. HTML comments are not blanked by
+        # _markdown_spans, so the quoted retired word is read as prose
+        # unless named here.
+        Exemption(
+            "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
+            "lens annotates), and parallel (both",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - not a v1-vocabulary use of \"lens\"."),
+        Exemption(
+            "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
+            "no lens consultation applied",
+            "the same absorbed-into marker mechanism as the entry above, "
+            "for the sentence naming the pre-rename note text."),
         Exemption(
             "docs/compass/2026-08-27-sdd-loop-spike.md",
             "cross-task-architectural-integrity",
@@ -541,6 +557,12 @@ _register(Rule(
             "the literal filename of a file inside the Superpowers "
             "repository, cited so the reference stays openable - not "
             "this project's vocabulary"),
+        Exemption(
+            "templates/architecture/decisions/README.md",
+            "ADR-004-lens-first-planner-second.md",
+            "the ADR's real, tracked filename, linked from the index row - "
+            "an identifier (section 4), not a v1-vocabulary use of \"lens\". "
+            "The row's own title reads \"Architect First Planner Second\"."),
         Exemption(
             "agents/planner.md",
             "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
@@ -788,6 +810,18 @@ _register(Rule(
             "\"supply chain\" is the standard security term, not the verb "
             "\"supply\" the word table retires"),
         Exemption(
+            "ci/README.md", "supply-chain stance",
+            "the same standard security term as the docs/security.md "
+            "exemption above."),
+        Exemption(
+            "ci/github-actions.yml", "supply-chain stance",
+            "the same standard security term as the docs/security.md "
+            "exemption above."),
+        Exemption(
+            ".github/workflows/compass.yml", "supply-chain stance",
+            "the same standard security term as the docs/security.md "
+            "exemption above."),
+        Exemption(
             "compass-contract.md", "7. verify",
             "\"verify\" here is the stage name, one word per line in the "
             "stage list, in the same form as \"1. assess\" and \"6. "
@@ -906,6 +940,27 @@ _register(Rule(
             "the same rule-id false match as RP-REQUIRE-003 above, for the "
             "sibling rule."),
         Exemption(
+            "templates/rollback-plan.md", "RP-REQUIRE-006",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "migrations floor."),
+        Exemption(
+            "templates/threat-model.md", "RP-REQUIRE-005",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "auth/payments/personal-data floor."),
+        Exemption(
+            "templates/technical-design.md", "RP-REQUIRE-005",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "auth/payments/personal-data floor."),
+        Exemption(
+            "templates/technical-design.md", "RP-REQUIRE-006",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "migrations floor."),
+        Exemption(
+            "schemas/routing-policy.schema.json", "RP-REQUIRE-003",
+            "the same rule-id false match as the skills/evidence-gates "
+            "exemption above, quoted here as the schema's own example "
+            "waiver id."),
+        Exemption(
             "skills/quick-fix/SKILL.md", "--verified-by",
             "a real CLI flag (`cli/compass:246,258`, `dest=\"verified_by\"`) "
             "- the match lands mid-flag-name on the \"verified\" substring, "
@@ -955,6 +1010,180 @@ _register(Rule(
         Exemption("architecture/system-context.md",
                    "implement → verify → ship",
                    "names the Verify stage, not the verb."),
+        Exemption("ci/README.md", "verify time - it does not",
+                   "names the Verify stage, not the verb."),
+        Exemption("examples/README.md", "Verify is a short note",
+                   "names the Verify stage, not the verb."),
+        Exemption("examples/README.md", "uncompressed* Verify gate",
+                   "names the Verify gate, not the verb."),
+        Exemption(
+            "examples/bdd-adapters/behave/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "names the Verify stage in the coverage ledger's own column "
+            "header, not the verb."),
+        Exemption(
+            "examples/bdd-adapters/cucumber-js/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the behave copy."),
+        Exemption(
+            "examples/bdd-adapters/godog/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the behave copy."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the behave copy."),
+        Exemption(
+            "examples/feature-api-change/.compass/work/"
+            "rate-limit-search-endpoint/devlog.md",
+            "13:10 - Verify",
+            "a devlog entry heading naming the Verify stage, not the verb."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the bdd-adapters "
+            "exemption above."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/delivery-approach.md",
+            "| Verify | Full - one gate",
+            "names the Verify stage in the per-stage weight table, not the "
+            "verb."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/delivery-approach.md",
+            "gate at Verify (the feature's",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "examples/hotfix-regression/.compass/work/"
+            "search-crash-on-empty-filter/devlog.md",
+            "10:40 - Verify",
+            "a devlog entry heading naming the Verify stage, not the verb."),
+        Exemption(
+            "examples/hotfix-regression/.compass/work/"
+            "search-crash-on-empty-filter/devlog.md",
+            "Full Verify - not compressed",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the bdd-adapters "
+            "exemption above."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
+            "reviewed the Verify gate",
+            "names the Verify gate, not the verb."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
+            "permitted Verify deferral",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
+            "| Verify | Full |",
+            "names the Verify stage in the per-stage weight table, not the "
+            "verb."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
+            "full Verify gate - five review",
+            "names the Verify gate, not the verb."),
+        Exemption(
+            "examples/initiative-new-subsystem/.compass/work/"
+            "notifications-subsystem/devlog.md",
+            "14:50 - Verify",
+            "a devlog entry heading naming the Verify stage, not the verb."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the bdd-adapters "
+            "exemption above."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/delivery-approach.md",
+            "| Verify | All gates, all dimensions",
+            "names the Verify stage in the per-stage weight table, not the "
+            "verb."),
+        Exemption(
+            "examples/quick-fix-typo/.compass/work/"
+            "fix-timeout-error-message/devlog.md",
+            "09:27 - Verify",
+            "a devlog entry heading naming the Verify stage, not the verb."),
+        Exemption(
+            "examples/quick-fix-typo/.compass/work/"
+            "fix-timeout-error-message/devlog.md",
+            "light Verify output",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "the same coverage-ledger column header as the bdd-adapters "
+            "exemption above."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/delivery-approach.md",
+            "| Verify | Light |",
+            "names the Verify stage in the per-stage weight table, not the "
+            "verb."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/delivery-approach.md",
+            "1 (at Verify)",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/verification-note.md",
+            "its Verify is light",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "examples/spike-technical-unknown/docs/compass/"
+            "2026-05-12-pdf-export-library-viability/delivery-approach.md",
+            "| Verify | = **Conclude**",
+            "names the Verify stage in the per-stage weight table, not the "
+            "verb."),
+        Exemption(
+            "schemas/signals.schema.json",
+            "reviewer agent at verify - judgement",
+            "the JSON mirror of the already-exempted governance/signals.yml "
+            "line above - names the Verify stage, not the verb."),
+        Exemption(
+            "templates/acceptance-criteria.md",
+            "Passes as acceptance (verify)",
+            "names the Verify stage in the coverage ledger's own column "
+            "header, not the verb - every example's copy of this table is "
+            "exempted the same way above."),
+        Exemption(
+            "templates/delivery-approach.md",
+            "| Verify | {{gate count}}",
+            "names the Verify stage in the per-stage weight table, not the "
+            "verb."),
+        Exemption(
+            "templates/devlog.md",
+            "Implement | Verify}}",
+            "names the Verify stage in a placeholder list of stage names, "
+            "not the verb."),
+        Exemption(
+            "templates/launch-readiness.md",
+            "passed at Verify?",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "templates/launch-readiness.md",
+            "failed at Verify}}",
+            "names the Verify stage, not the verb."),
+        Exemption(
+            "templates/verification-report.md",
+            "the Verify output",
+            "names the Verify stage, not the verb."),
         Exemption("governance/guardrails.md",
                    "Checked at Verify and again at ship time",
                    "names the Verify stage, not the verb."),
@@ -1020,6 +1249,11 @@ _register(Rule(
             "for the claim'); the audit's human review ruled this instance "
             "keeps the word (section 9, batch 6, scripts/verify-archive-"
             "quotes.py note on L27-28)."),
+        Exemption(
+            "templates/architecture/relations.md",
+            "A change that modifies a",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - not a new use of the retired word."),
     ),
 ))
 
@@ -1085,6 +1319,17 @@ _register(Rule(
                    "ADR-007-conditional-gate-promotion-via-floors.md",
                    "EV-ANALYZE-ADVISORY",
                    "evidence-id prefix, a machine identifier."),
+        # Disagrees with the audit's finding for this line. The manifesto
+        # this file quotes is the real, external body's own name, spelt
+        # with the American form of the word - confirmed by the domain it
+        # names two lines below, threatmodelingmanifesto.org, which uses
+        # the same spelling. Changing the spelling would misname the source
+        # the file instructs the reader not to reword.
+        Exemption("templates/threat-model.md",
+                   "Threat Modeling",
+                   "the real name of the external manifesto this file "
+                   "quotes, confirmed by threatmodelingmanifesto.org's own "
+                   "spelling two lines below; not the ordinary word."),
     ),
 ))
 
@@ -1200,6 +1445,11 @@ _register(Rule(
             "example the section exists to show, and "
             "tests/test_reply_shape_instructions.py:125-152 requires the "
             "literal word on its row."),
+        Exemption(
+            "templates/requirements-review.md",
+            "> a knob.",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - not a new use of the retired idiom."),
     ),
 ))
 
@@ -1248,6 +1498,52 @@ _register(Rule(
             "the walkthrough's own hypothetical issue - it shows the "
             "reader where their own file will be, not a citation of a "
             "document that already exists in this repository"),
+        # The citation regex matches from the compass-work segment onward,
+        # so the placeholder "<x>" marker in the fuller path this comment
+        # names sits before the match and is never captured; rstrip then
+        # drops the trailing dots and the sweep is left checking a bare
+        # compass-work directory path against git check-ignore, which is
+        # true by construction: this is the .gitignore file defining that
+        # very pattern two lines below.
+        Exemption(
+            ".gitignore",
+            "examples/<x>/.compass/work/",
+            "a placeholder path (the \"<x>\" marker sits before what the "
+            "citation regex captures) explaining this file's own pattern, "
+            "not a citation of a document a reader cannot open."),
+        # A path relative to the README's own directory, the same PBW-A8 gap
+        # named for these four files above: git check-ignore is asked about
+        # the literal string against the repository root, where the root
+        # .gitignore's `/docs/compass/*/` pattern matches it - even though
+        # the real file, nested under examples/<adapter>/, is tracked.
+        Exemption(
+            "examples/bdd-adapters/behave/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "a path relative to this README's own directory; the real "
+            "file, examples/bdd-adapters/behave/docs/compass/2026-08-03-"
+            "reset-password/acceptance-criteria.md, is tracked."),
+        Exemption(
+            "examples/bdd-adapters/cucumber-js/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "the same directory-relative path as the behave README's "
+            "exemption above."),
+        Exemption(
+            "examples/bdd-adapters/godog/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "the same directory-relative path as the behave README's "
+            "exemption above."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "the same directory-relative path as the behave README's "
+            "exemption above."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/README.md",
+            ".compass/work/reset-password/acceptance-criteria.feature",
+            "a path relative to this README's own directory; the real "
+            "file is generated at run time under examples/bdd-adapters/"
+            "pytest-bdd/.compass/work/reset-password/, the same shape as "
+            "this rule's docs/quickstart.md exemption above."),
     ),
 ))
 
@@ -1297,6 +1593,70 @@ _register(Rule(
             "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
             "what a G5 guard was",
             "restates the same verbatim quote."),
+        # The traceability id comment above every scenario is not prose a
+        # reader loses meaning from - it is the machine-parsed marker
+        # `cli/compass_pkg/bdd.py`'s extraction regex reads (bdd.py:137),
+        # which needs the id to start immediately after the colon with no
+        # backtick or other character in between. Wrapping it broke
+        # `compass bdd extract`, caught by tests/test_bdd_adapters_all.py -
+        # the marker is a real identifier (section 4), not a dangling
+        # reference.
+        Exemption(
+            "templates/acceptance-criteria.md", "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "templates/ui-contract.md", "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/bdd-adapters/behave/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/bdd-adapters/cucumber-js/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/bdd-adapters/godog/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/docs/compass/"
+            "2026-08-03-reset-password/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/acceptance-criteria.md",
+            "<!-- traceability id:",
+            "the machine-parsed scenario-id marker `compass bdd extract` "
+            "reads; see the comment above."),
         # That id's own meaning is not documented anywhere this sweep can
         # check, so it is quoted as originally written (test_pl_x3 in
         # tests/test_plain_language.py pins its presence) rather than
@@ -1324,15 +1684,84 @@ _register(Rule(
             "the literal CLI command a person typed, inside backticks - "
             "rewording it to add plain words would misquote what was run"),
         Exemption(
+            "examples/bdd-adapters/pytest-bdd/tests/steps/"
+            "test_reset_password_steps.py",
+            '-k TRC-A2',
+            "a literal CLI command example, inside backticks - rewording it "
+            "to add plain words would misquote the command."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/tests/steps/"
+            "test_reset_password_steps.py",
+            "--tags TRC-A2",
+            "the same literal CLI command example, for a different runner."),
+        Exemption(
+            "examples/README.md", "--scenario TRC-001",
+            "a literal CLI command example, inside backticks - rewording it "
+            "to add plain words, or nesting a second backtick span inside "
+            "it, would misquote the command."),
+        Exemption(
+            "examples/README.md", "evidence/green-TRC-001.json",
+            "a literal filename example, inside backticks - the same "
+            "reasoning as the CLI command exemption on this line."),
+        Exemption(
+            "templates/threat-model.md", "EV-T-TRC-B4",
+            "a placeholder evidence id, inside backticks, built from the "
+            "placeholder scenario id `TRC-B4` on the same row - not a real "
+            "code pointing at meaning kept outside the file."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/verification-note.md",
+            "evidence/green-TRC-001.json",
+            "the real evidence filename `compass tdd-green` wrote for this "
+            "issue's one real scenario, inside backticks - nesting a "
+            "second backtick span inside it would break the filename."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/verification-note.md",
+            "evidence/red-TRC-001.json",
+            "the real evidence filename `compass tdd-red` wrote for this "
+            "issue's one real scenario, inside backticks - nesting a "
+            "second backtick span inside it would break the filename."),
+        Exemption(
             "docs/quickstart.md", "`--scenario TRC-x`",
             "a placeholder scenario id, the same shape as `<test cmd>` "
             "elsewhere on this page - not a real code pointing at meaning "
             "kept outside the file"),
         Exemption(
+            "templates/verification-report.md", "green-TRC-x.json",
+            "the placeholder evidence filename `compass tdd-green` writes "
+            "for a placeholder scenario id, the same shape as the "
+            "docs/quickstart.md exemption above."),
+        Exemption(
+            "templates/devlog.md", "green-TRC-3.json",
+            "the placeholder evidence filename `compass tdd-green` writes "
+            "for a placeholder scenario id, the same shape as the "
+            "docs/quickstart.md exemption above."),
+        Exemption(
+            "templates/manifest.yml", "TRC-001",
+            "the one placeholder scenario id the file's five commented-out "
+            "worked examples share (evidence, scenarios, changed_files, "
+            "claims) - not a real code pointing at meaning kept outside "
+            "the file, the same shape as the docs/quickstart.md exemption "
+            "above."),
+        Exemption(
             "governance/terminology.yml",
             "it prints 'G5 A human signs off",
             "a verbatim quote of `compass check`'s real printed output, "
             "itself the house-form example this ban describes."),
+        Exemption(
+            "templates/architecture/decisions/ADR-005-signals-yml-governance-file.md",
+            "- Plan DD-1 (signals.yml as a separate file)",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - the code is explained where it is "
+            "used, not where this marker quotes it."),
+        Exemption(
+            "templates/architecture/relations.md",
+            "(see TRC-B2).",
+            "an absorbed-into marker quoting the merge-base sentence "
+            "verbatim, per PBW-F7 - the code is explained where it is "
+            "used (line 8, \"the scenario that added automatic "
+            "triggering, `TRC-B2`\"), not where this marker quotes it."),
     ),
 ))
 
@@ -1424,6 +1853,146 @@ _register(Rule(
             "every path under obra/superpowers/ is inside the Superpowers "
             "repository, not this one - the file itself says so and gives "
             "the github.com URL each path resolves against"),
+        # PBW-A8's reference sweep resolves every path against the repository
+        # root. Each of the five worked examples under examples/ narrates a
+        # fictional application change, naming source and test files that
+        # belong to the STORY's application, not to this repository - the same
+        # way a textbook's code listing names a file that exists only in the
+        # chapter. None of the five examples ships the application source it
+        # narrates; only the Compass documents (devlog, delivery-approach,
+        # technical-design, and the rest) are real, tracked files.
+        Exemption(
+            "examples/feature-api-change/.compass/work/"
+            "rate-limit-search-endpoint/devlog.md",
+            "src/api/middleware/rate_limit.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/feature-api-change/.compass/work/"
+            "rate-limit-search-endpoint/devlog.md",
+            "src/api/routes/search.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/feature-api-change/.compass/work/"
+            "rate-limit-search-endpoint/devlog.md",
+            "src/api/config.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/technical-design.md",
+            "src/api/middleware/rate_limit.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/technical-design.md",
+            "src/api/routes/search.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/feature-api-change/docs/compass/"
+            "2026-04-21-rate-limit-search-endpoint/technical-design.md",
+            "src/api/config.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/hotfix-regression/.compass/work/"
+            "search-crash-on-empty-filter/devlog.md",
+            "src/api/search/filter_compiler.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
+            "tests/api/test_search.py",
+            "a path relative to this issue's own directory - it resolves "
+            "at examples/hotfix-regression/tests/api/test_search.py, "
+            "which is tracked; the sweep checks every path against the "
+            "repository root, the same gap the bdd-adapters exemptions "
+            "above name."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/verification-report.md",
+            "src/api/search/filter_compiler.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/distribution-map.md",
+            "src/notifications/dispatch.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/distribution-map.md",
+            "src/notifications/preferences.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/technical-design.md",
+            "src/notifications/dispatch.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/technical-design.md",
+            "src/notifications/store.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/technical-design.md",
+            "src/notifications/api.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/technical-design.md",
+            "src/notifications/preferences.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/verification-report.md",
+            "tests/notifications/test_dispatch.py",
+            "a path relative to this issue's own directory - it resolves "
+            "at examples/initiative-new-subsystem/tests/notifications/"
+            "test_dispatch.py, which is tracked."),
+        Exemption(
+            "examples/initiative-new-subsystem/docs/compass/"
+            "2026-03-02-notifications-subsystem/verification-report.md",
+            "tests/notifications/test_preferences.py",
+            "a path relative to this issue's own directory - it resolves "
+            "at examples/initiative-new-subsystem/tests/notifications/"
+            "test_preferences.py, which is tracked."),
+        Exemption(
+            "examples/quick-fix-typo/.compass/work/"
+            "fix-timeout-error-message/devlog.md",
+            "src/api/upload.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/delivery-approach.md",
+            "src/api/upload.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/verification-note.md",
+            "tests/api/test_upload_errors.py",
+            "a path relative to this issue's own directory - it resolves "
+            "at examples/quick-fix-typo/tests/api/test_upload_errors.py, "
+            "which is tracked."),
+        Exemption(
+            "examples/quick-fix-typo/docs/compass/"
+            "2026-05-04-fix-timeout-error-message/verification-note.md",
+            "src/api/upload.py",
+            "the fictional application file the walkthrough narrates, not a "
+            "file this repository ships."),
         Exemption(
             "docs/quickstart.md",
             ".compass/work/add-rate-limiting/manifest.yml",
@@ -1454,6 +2023,66 @@ _register(Rule(
         Exemption(
             "commands/consult.md", "architecture/invariants.yml",
             "the same conditional artifact reference as agents/architect.md."),
+        Exemption(
+            "templates/architecture/ownership.md", "architecture/invariants.yml",
+            "the same conditional artifact reference as agents/architect.md."),
+        Exemption(
+            "templates/architecture/relations.md", "architecture/invariants.yml",
+            "the same conditional artifact reference as agents/architect.md."),
+        Exemption(
+            "templates/manifest.yml", "tests/api/test_ledger_export.py",
+            "the template's own worked example of a scenarios: entry, not a "
+            "file this repository ships - the same shape as the "
+            "docs/quickstart.md exemptions above."),
+        Exemption(
+            "templates/manifest.yml", "src/api/ledger_export.py",
+            "the template's own worked example of a changed_files: entry, "
+            "not a file this repository ships."),
+        Exemption(
+            "examples/bdd-adapters/behave/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "a path relative to this README's own directory - it resolves "
+            "at examples/bdd-adapters/behave/docs/compass/2026-08-03-"
+            "reset-password/acceptance-criteria.md, which is tracked; the "
+            "sweep checks every path against the repository root."),
+        Exemption(
+            "examples/bdd-adapters/behave/README.md",
+            "features/steps/reset_password_steps.py",
+            "a path relative to this README's own directory - it resolves "
+            "at examples/bdd-adapters/behave/features/steps/"
+            "reset_password_steps.py, which is tracked."),
+        Exemption(
+            "examples/bdd-adapters/cucumber-js/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "the same directory-relative path as the behave README's "
+            "exemption above; it resolves under this adapter's own "
+            "docs/compass/2026-08-03-reset-password/."),
+        Exemption(
+            "examples/bdd-adapters/godog/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "the same directory-relative path as the behave README's "
+            "exemption above; it resolves under this adapter's own "
+            "docs/compass/2026-08-03-reset-password/."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/README.md",
+            "docs/compass/2026-08-03-reset-password/acceptance-criteria.md",
+            "the same directory-relative path as the behave README's "
+            "exemption above; it resolves under this adapter's own "
+            "docs/compass/2026-08-03-reset-password/."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/README.md",
+            ".compass/work/reset-password/acceptance-criteria.feature",
+            "a path relative to this README's own directory - it resolves "
+            "at examples/bdd-adapters/pytest-bdd/.compass/work/"
+            "reset-password/acceptance-criteria.feature, which is "
+            "generated at run time, the same shape as the runtime-evidence "
+            "exemption this rule already carries for a bare evidence/ path."),
+        Exemption(
+            "examples/bdd-adapters/pytest-bdd/README.md",
+            "tests/steps/test_reset_password_steps.py",
+            "a path relative to this README's own directory - it resolves "
+            "at examples/bdd-adapters/pytest-bdd/tests/steps/"
+            "test_reset_password_steps.py, which is tracked."),
         # The reference regex needs a word character to open the first path
         # segment, so it drops the leading dot from a citation of a file
         # under a dotdir and then checks a path that was never meant to
@@ -1648,8 +2277,29 @@ def _find_doubled_word(span: ProseSpan) -> list[Finding]:
     return findings
 
 
-_register(Rule("PBW-A9", "No sentence is left broken by an earlier "
-               "find-and-replace", _find_doubled_word))
+_register(Rule(
+    "PBW-A9", "No sentence is left broken by an earlier find-and-replace",
+    _find_doubled_word,
+    exemptions=(
+        # The doubled-word pattern matches any repeated \w+ token, including
+        # two adjacent numbers - a date immediately followed by a time whose
+        # hour repeats the day is not a doubled English word, and rewording a
+        # timestamp to dodge the pattern would be an edit for the sweep's own
+        # convenience rather than for clarity.
+        Exemption(
+            "examples/hotfix-regression/.compass/work/"
+            "search-crash-on-empty-filter/devlog.md",
+            "2026-05-11 11:",
+            "a date immediately followed by a time starting with the same "
+            "number, not a doubled word."),
+        Exemption(
+            "examples/hotfix-regression/docs/compass/"
+            "2026-05-11-search-crash-on-empty-filter/delivery-approach.md",
+            "2026-05-11 11:",
+            "a date immediately followed by a time starting with the same "
+            "number, not a doubled word."),
+    ),
+))
 
 
 # ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: bug-report.md
-Produced by: triage, when the issue type is a bug fix (or by whoever reports
+Produced by: the assess stage, when the issue type is a bug fix (or by whoever reports
              the defect - the reporter's words are the best evidence).
 Lives at:    docs/compass/<created>-<issue-slug>/bug-report.md
 Role in the pipeline: the intake artifact for a bug fix. The failing
@@ -38,4 +38,4 @@ exists.}}
 ## Impact
 
 {{Who or what is affected, and how badly - one or two sentences. This feeds
-the risk assessment at triage; it does not decide it.}}
+the risk assessment at assess; it does not decide it.}}
