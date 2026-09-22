@@ -13,14 +13,10 @@ clean. Each sweep is proven able to fail before it is trusted: a breach is
 planted in `tests/fixtures/writing-style/`, and the sweep must report it
 before a zero from the real tree means anything (`PBW-E1`, `PBW-E2`).
 
-The sweeps must land before the batches that use them, or the suite goes red
-the moment they land and blocks every batch. `tests/writing_style_pending/`
-holds nine lists, one per batch, of the paths its sweep skips; a batch's
-definition of done is deleting its own list in the same commit as its prose,
-so the sweep starts judging a file the moment its batch fixes it. The lists
-are checked pairwise disjoint and shrink-only (`PBW-D8`), which is what makes
-the audit's "the batches share no files" claim a checked fact rather than an
-assertion.
+The sweeps landed before the batches that used them, and each batch skipped
+the paths it had not yet corrected through a per-batch list under
+`tests/writing_style_pending/`. The last batch deleted the last list, so every
+tracked path is judged now and the scaffolding is gone (`PBW-D1`, `PBW-F6`).
 
 `RULES` is a registry, not fourteen hand-written test bodies: `PBW-E1` proves
 every rule in it in one loop, so a fifteenth rule cannot be added unproven.
@@ -46,13 +42,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).parent.parent
 FIXTURE_DIR = REPO_ROOT / "tests" / "fixtures" / "writing-style"
-PENDING_DIR = REPO_ROOT / "tests" / "writing_style_pending"
 TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
-
-# The audit's own file count. A per-batch pending list may only shrink: the
-# ratchet's meta-checks (further down) hold this number as the high-water
-# mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 0
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -328,26 +318,6 @@ def _git_ls_files() -> list[str]:
     return [line for line in out.stdout.splitlines() if line]
 
 
-def _pending_list_files() -> list[Path]:
-    if not PENDING_DIR.is_dir():
-        return []
-    return sorted(PENDING_DIR.glob("batch-*.txt"))
-
-
-@lru_cache(maxsize=1)
-def _pending_paths() -> frozenset[str]:
-    """Every path any batch's pending list still names. A batch removes its
-    own file's path only by deleting the whole list in the same commit as
-    its prose (DD-2) - there is no partial removal to support."""
-    paths: set[str] = set()
-    for list_file in _pending_list_files():
-        for line in list_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if line:
-                paths.add(line)
-    return frozenset(paths)
-
-
 def _is_excluded(rel: str) -> bool:
     for excluded in EXCLUDED_PATHS:
         if excluded.endswith("/"):
@@ -362,14 +332,13 @@ _FIXTURE_PREFIX = "tests/fixtures/writing-style/"
 
 
 def scanned_paths() -> list[Path]:
-    """Every tracked path, minus `EXCLUDED_PATHS`, minus the pending lists,
-    minus this mechanism's own planted-breach fixtures. The fixtures are not
-    on `EXCLUDED_PATHS` - that set is the audit's own five paths - but they
-    plant a breach on purpose (`PBW-E1`) and every sweep's own per-rule test
-    would otherwise see them as a real, unfixed finding."""
-    pending = _pending_paths()
+    """Every tracked path, minus `EXCLUDED_PATHS`, minus this mechanism's own
+    planted-breach fixtures. The fixtures are not on `EXCLUDED_PATHS` - that
+    set is the audit's own five paths - but they plant a breach on purpose
+    (`PBW-E1`) and every sweep's own per-rule test would otherwise see them as
+    a real, unfixed finding."""
     return [REPO_ROOT / rel for rel in _git_ls_files()
-            if rel not in pending and not _is_excluded(rel)
+            if not _is_excluded(rel)
             and not rel.startswith(_FIXTURE_PREFIX)]
 
 
@@ -4149,10 +4118,10 @@ def test_pbw_e4_an_allowance_must_name_its_reason(tmp_path):
     allowance with no reason or a path outside `tests/`. `PBW-E4`.
 
     An allowance with no stated reason is the same defect as a loosened
-    matcher: the report goes quiet and nothing records why. The plan needs
-    every batch to lower `PENDING_PATHS_HIGH_WATER` in
-    `tests/test_writing_style.py`, so every batch needs one allowance, and the
-    reason is what keeps that from becoming a habit nobody reads.
+    matcher: the report goes quiet and nothing records why. Every batch of
+    this issue needed one, because every batch edited this file to shrink the
+    per-batch skip lists, and the stated reason is what kept that from
+    becoming a habit nobody reads.
     """
     repo = _sandbox_repo(tmp_path)
     (repo / "tests").mkdir()
@@ -4597,11 +4566,9 @@ def test_pbw_d8_the_excluded_paths_are_out_of_every_sweep():
     `LICENSE` and `assets/` never appear in `scanned_paths()`, so no sweep in
     group A can report a finding inside them. `PBW-D8`.
 
-    The same "which paths are outside every sweep" question holds the
-    pending-list ratchet: the distribution map's "the batches share no
-    files" claim rests on the nine lists being pairwise disjoint, and
-    `PENDING_PATHS_HIGH_WATER` rests on every listed path being real and the
-    total never climbing past the audit's own count."""
+    The pending-list ratchet that used to be checked here went with the
+    lists: the last batch deleted the last one, so there is nothing left to
+    hold pairwise disjoint or shrink-only."""
     scanned = {str(p.relative_to(REPO_ROOT)) for p in scanned_paths()}
     for excluded in EXCLUDED_PATHS:
         if excluded.endswith("/"):
@@ -4610,21 +4577,3 @@ def test_pbw_d8_the_excluded_paths_are_out_of_every_sweep():
             assert excluded not in scanned, excluded
     assert scanned, "scanned_paths() must not be empty"
 
-    tracked = set(_git_ls_files())
-    seen: dict[str, str] = {}
-    total = 0
-    for list_file in _pending_list_files():
-        for line in list_file.read_text(encoding="utf-8").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            total += 1
-            assert line in tracked, f"{list_file.name}: {line} is not tracked"
-            assert (REPO_ROOT / line).exists(), f"{list_file.name}: {line} does not exist"
-            assert line not in seen, (
-                f"{line} is on both {seen.get(line)} and {list_file.name} - "
-                f"the batches are no longer disjoint")
-            seen[line] = list_file.name
-    assert total <= PENDING_PATHS_HIGH_WATER, (
-        f"{total} pending paths exceeds the high-water mark of "
-        f"{PENDING_PATHS_HIGH_WATER} - the ratchet only ever shrinks")

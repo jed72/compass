@@ -55,12 +55,15 @@ routing_strategies:
   # biases - free-text tie-breakers the assess stage applies during composition.
   # Not machine-evaluated; surfaced to the assess stage and recorded for audit.
   biases:
-    - "When size is genuinely unclear, estimate up - collapsing an easy
-       phase is cheaper than discovering mid-Build that the route was too light."
-    - "A non-engineering role in play usually pulls the route heavier (more
-       artifacts, more assessed strategies) - a bias, not a floor."
-    - "Prefer the lightest route that still clears every routing guardrail and
-       the applicable gates. Process weight is a cost; spend it where it buys safety."
+    - "When size is genuinely unclear, estimate up - it is cheaper to
+       collapse a stage that turned out easy than to discover mid-implementation
+       that the approach was too light."
+    - "A non-engineering role in play usually pulls the delivery approach
+       heavier, because it adds artifacts and assessed strategies - but this is
+       a bias, not a floor."
+    - "Prefer the lightest delivery approach that still clears the routing
+       rules and the applicable gates. Process weight is a cost; spend it where
+       it buys safety."
 
   # role_defaults - advisory artifacts a role's involvement suggests. The
   # BLOCKING versions live under routing_guardrails.role_rules.
