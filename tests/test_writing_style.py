@@ -1620,6 +1620,14 @@ _register(Rule(
         Exemption("architecture/system-context.md",
                    "added by `RP-REQUIRE-003` and `RP-REQUIRE-004`",
                    "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("tests/test_verify_fitness_route_promotion.py",
+                   "When cross-cutting fires RP-REQUIRE-003, it appears in "
+                   "fired_guardrails.",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("tests/test_verify_fitness_route_promotion.py",
+                   "When touches fires RP-REQUIRE-004, it appears in "
+                   "fired_guardrails.",
+                   "RP-REQUIRE is an id prefix, not the verb."),
         Exemption("governance/routing-policy.yml",
                    "six of the entries below carry RP-REQUIRE ids",
                    "RP-REQUIRE is an id prefix, not the verb."),
