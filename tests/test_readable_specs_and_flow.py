@@ -542,13 +542,13 @@ def test_trc_f1_pre_existing_specs_still_pass():
     # otherwise would make this test fail for the duration of every future
     # issue.
     current = ROOT / ".compass" / "current-task"
-    active_issue = current.read_text().strip() if current.is_file() else ""
+    in_flight = current.read_text().strip() if current.is_file() else ""
 
     failures = []
     not_startable = {"queued", "parked", "abandoned"}
     for path in sorted(work.glob("*/manifest.yml")):
         slug = path.parent.name
-        if slug == active_issue:
+        if slug == in_flight:
             continue
         # Unstarted or stopped work has no green run by definition - same
         # reason the active issue is excluded.

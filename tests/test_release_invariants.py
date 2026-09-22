@@ -41,7 +41,7 @@ def test_no_trusted_rerun_is_a_check_under_g4_not_a_new_guardrail():
     data = yaml.safe_load((REPO_ROOT / "governance/guardrails.yml").read_text())
     g4 = next(g for g in data["defaults"] if g["id"] == "G4")
     assert "no-trusted-rerun" in g4["checks"], (
-        "The no-trusted-rerun check must be registered as a CHECK_FN under G4 - "
+        "A1's no-trusted-rerun must be registered as a CHECK_FN under G4 - "
         "not as a new guardrail."
     )
 

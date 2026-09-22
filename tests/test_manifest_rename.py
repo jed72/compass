@@ -320,7 +320,7 @@ def test_nir_e1_a_decision_record_covers_the_vocabulary_change():
             and re.search(r"\bspine\b", p.read_text(encoding="utf-8"), re.I)]
     assert hits, (
         "no decision record covers renaming the artifact. terminology.yml "
-        "needs a decision record for a vocabulary change, "
+        "requires the ceremony of a decision record for a vocabulary change, "
         "and this is the largest one the vocabulary has had")
 
 
