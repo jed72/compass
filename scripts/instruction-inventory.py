@@ -154,7 +154,17 @@ def _inventory_for(cwd: Path, base: str, path: str, similarity: float,
     old_text = _show(cwd, base, path)
     new_text = _show(cwd, "HEAD", path)
     old_sentences = _split_sentences(old_text) if old_text else []
-    new_sentences = _split_sentences(new_text) if new_text else []
+    # A marker line is a declaration ABOUT a sentence, not a replacement FOR
+    # it, so it is kept out of the candidate pool. It quotes its sentence
+    # verbatim, so it resembles that sentence more closely than any real
+    # rewrite does: left in the pool it matched at 0.847 and 0.607 for the two
+    # template sentences, clearing them as "mapped" whether or not the marker
+    # was understood and whether or not any real sentence carried the meaning.
+    # Writing a marker would have cleared the report by itself, which is no
+    # gate at all. The exact absorbed path below is the only way a marker
+    # clears a sentence.
+    new_sentences = [s for s in (_split_sentences(new_text) if new_text else [])
+                     if not _ABSORBED_RE.search(s)]
     absorbed = _absorbed_sentences(new_text or "")
 
     rows = []

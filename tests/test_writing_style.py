@@ -4235,7 +4235,10 @@ def test_pbw_f7_a_marker_can_quote_a_sentence_that_ends_a_comment(tmp_path):
 
     # Declared absorbed with `-->` escaped as `--\>`: accepted, and the
     # marker is a well-formed HTML comment so nothing leaks into the page.
-    marker = ('<!-- absorbed: "Every row here must name its" -->\n'
+    # Quoted exactly as the splitter produces each sentence, which for the
+    # head of a comment includes the opening `<!-- `. The absorbed path is an
+    # exact match on purpose: a marker that paraphrases clears nothing.
+    marker = ('<!-- absorbed: "<!-- Every row here must name its" -->\n'
                '<!-- absorbed: "owning team before it can land. --\\>" -->')
     assert marker.count("-->") == 2, (
         "two markers, one terminator each - the escaped tail contributes no "
@@ -4260,6 +4263,55 @@ def test_pbw_f7_a_marker_can_quote_a_sentence_that_ends_a_comment(tmp_path):
         '<!-- absorbed: "You must write the failing test first." -->\n')
     _commit(repo, "ordinary absorbed marker")
     result = _run_inventory(repo, base2, out)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_pbw_f7_a_marker_is_not_itself_a_replacement_sentence(tmp_path):
+    """A marker line cannot satisfy the mapped check for the sentence it
+    quotes. `PBW-F7`.
+
+    A marker holds its sentence verbatim, so it resembles that sentence more
+    closely than anything else in the file. Left in the candidate pool, it
+    fuzzy-matched above the 0.6 threshold and the sentence counted as MAPPED -
+    which means writing a marker cleared the report whether or not the marker
+    was understood, and whether or not any real sentence carried the meaning.
+    Measured on the two real template sentences at 0.847 and 0.607.
+
+    A gate that any marker clears is not a gate. The exact, unescaped
+    absorbed path is the only way a marker may clear a sentence.
+    """
+    repo = _sandbox_repo(tmp_path)
+    skill = repo / "skills" / "example"
+    skill.mkdir(parents=True)
+    skill.joinpath("SKILL.md").write_text(
+        "# Example skill\n\n"
+        "You must record the owning team before it can land.\n")
+    _commit(repo, "base")
+    base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                           capture_output=True, text=True,
+                           check=True).stdout.strip()
+    out = tmp_path / "inv"
+
+    # A marker quoting the sentence INEXACTLY. The absorbed path needs an
+    # exact match, so this must not clear - and the marker must not clear it
+    # by resembling it either.
+    skill.joinpath("SKILL.md").write_text(
+        "# Example skill\n\n"
+        '<!-- absorbed: "You must record the owning team before it can '
+        'land and ship." -->\n')
+    _commit(repo, "a marker that misquotes the sentence")
+    result = _run_inventory(repo, base, out)
+    assert result.returncode != 0, (
+        "a misquoted marker cleared the sentence, so any marker clears any "
+        "sentence:\n" + result.stdout + result.stderr)
+
+    # The same sentence quoted exactly does clear it.
+    skill.joinpath("SKILL.md").write_text(
+        "# Example skill\n\n"
+        '<!-- absorbed: "You must record the owning team before it can '
+        'land." -->\n')
+    _commit(repo, "a marker that quotes the sentence exactly")
+    result = _run_inventory(repo, base, out)
     assert result.returncode == 0, result.stdout + result.stderr
 
 
