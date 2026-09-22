@@ -1705,7 +1705,7 @@ _register(Rule(
             "evidence record (cli/compass_pkg/tdd.py), an identifier, not "
             "the verb the word table retires."),
         # tests/test_terminology.py:866's test_banned_usage_in_fixture_is_flagged
-        # requires every ban in governance/terminology.yml to hit at least
+        # needs every ban in governance/terminology.yml to hit at least
         # one line in this file, so a word-table match here is the same
         # planted vocabulary PBW-D2 protects, not prose to fix. Audit
         # section 9 (batch 9) reads this file line by line and lists one
