@@ -3,11 +3,11 @@
 Two tests assert what their own issue did by diffing a pinned commit range.
 `actions/checkout` fetches shallow history by default, so those objects are
 absent in continuous integration and `git diff` exits 128 - green on every
-developer machine, red on the one nobody watches.
+developer machine, and fails only in CI.
 
-The range check may degrade when the history genuinely is not there. What may
-not degrade is the content assertion beside it, which needs no history and
-carries the invariant that matters now.
+The range check can skip when the history is absent. The content assertion
+beside it must not skip: it needs no history and carries the invariant that
+matters now.
 
 Scenario ids: see docs/system-spec.md (TRC-1).
 """
@@ -81,7 +81,8 @@ def shallow_clone(tmp_path_factory):
 
 @pytest.mark.parametrize("test_file,selector", SHA_PINNED)
 def test_the_pinned_assertions_run_on_a_shallow_clone(shallow_clone, test_file, selector):
-    """They may skip their range check; they may not die on a missing object."""
+    """They can skip their range check; they must not fail on a missing
+    object."""
     result = subprocess.run(
         ["python3", "-m", "pytest", test_file, "-k", selector, "-q"],
         cwd=str(shallow_clone), capture_output=True, text=True, timeout=300,
