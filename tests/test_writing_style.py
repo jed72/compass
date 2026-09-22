@@ -1528,6 +1528,9 @@ _register(Rule(
         Exemption("tests/test_bdd_optin_noop.py", "compass bdd verify",
                    "compass bdd verify is a CLI verb, not the plain verb; "
                    "found while fixing batch 7, not by the audit."),
+        Exemption("tests/test_stream_c_no_new_checks_or_gates.py",
+                   "reading the record `compass bdd verify` writes",
+                   "compass bdd verify is a CLI verb, not the plain verb."),
         Exemption("governance/guardrails.yml", "checked_at: [verify]",
                    "an example YAML value inside a comment, not the verb."),
         Exemption("governance/guardrails.yml", "attempts: <int>",
@@ -1745,6 +1748,10 @@ _register(Rule(
                    "not the ordinary word."),
         Exemption("cli/compass_pkg/borrowed_docs.py",
                    "The Threat Modeling Manifesto names the failure",
+                   "the manifesto's own name, spelt as it spells itself; "
+                   "not the ordinary word."),
+        Exemption("tests/test_stream_c_no_new_checks_or_gates.py",
+                   "Modeling Manifesto's named anti-pattern",
                    "the manifesto's own name, spelt as it spells itself; "
                    "not the ordinary word."),
         # An evidence-id prefix carries the gate's own American spelling as

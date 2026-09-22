@@ -1,13 +1,14 @@
-"""guardrails.yml gains no new check name and no new gate name.
+"""guardrails.yml gains no undeclared check, gate or evidence type.
 
 Adding a check or a gate is adding mechanism, and the framework grows by
 checks and strategies deliberately, never by accident (ADR-002). These tests
 make such an addition visible in review rather than silent.
 
-This is a negative assertion test: it checks that no new check name or gate
-name has appeared in guardrails.yml relative to main.
+This is a negative assertion test: a check or gate name declared in
+`BASELINE_CHECKS` or `BASELINE_GATES` passes; anything else is a new,
+undeclared addition.
 
-It also verifies that the empty `project:` list carries a comment saying the
+It also checks that the empty `project:` list carries a comment saying the
 emptiness is deliberate.
 """
 from __future__ import annotations
@@ -22,16 +23,15 @@ GUARDRAILS_YML = "governance/guardrails.yml"
 # structural comparison against main below is the canonical guard; the
 # state-based tests use this list as the known-legitimate set.
 BASELINE_CHECKS = {
-    # Added by the borrowed document shapes: a threat model that lists
-    # threats and mitigates none is the Threat Modeling Manifesto's named
-    # anti-pattern, and a rollback plan nobody has rehearsed is a guess.
-    # One check reads both, under G4 rather than as a sixth guardrail
-    # (ADR-002).
+    # A threat model that lists threats and mitigates none is the Threat
+    # Modeling Manifesto's named anti-pattern, and a rollback plan nobody
+    # has rehearsed is a guess. One check reads both, under `G4` rather
+    # than as a sixth guardrail (ADR-002).
     "borrowed-documents-answered",
-    # Added by the per-issue review dashboard: the generated README is
-    # what a reviewer approves from, so it must not be allowed to
-    # disagree with the manifest it was rendered from. Joins G4 rather
-    # than becoming a sixth guardrail (ADR-002).
+    # The generated per-issue review dashboard is what a reviewer approves
+    # from, so it must not be allowed to disagree with the manifest it was
+    # rendered from. Joins `G4` rather than becoming a sixth guardrail
+    # (ADR-002).
     "dashboard-current",
     "scenarios-have-tests",
     "suite-passed",
@@ -39,18 +39,16 @@ BASELINE_CHECKS = {
     "scenario-has-id-and-intent",
     "claim-traces-to-scenario",
     "gate-evidence-present",
-    # Added by no-status-for-work-done-elsewhere (2026-08-26). An issue
-    # whose work was delivered through a different issue points at it with
-    # `landed_by:`, and this verifies the pointer resolves both ways. It
-    # joins G3 (traceability) rather than becoming a sixth guardrail
-    # (ADR-002) - the pointer IS a traceability link, and the check is what
-    # stops it being a one-sided claim on somebody else's evidence.
+    # An issue whose work was delivered through a different issue points at
+    # it with `landed_by:`, and this checks that the pointer resolves both
+    # ways. Joins `G3` (traceability) rather than becoming a sixth
+    # guardrail (ADR-002) - the pointer is a traceability link, and the
+    # check is what stops it being a one-sided claim on somebody else's
+    # evidence.
     "landed-by-resolves",
-    # Added by tdd-green-unbound-record (2026-08-23), declared here because
-    # ADR-002 permits exactly this growth path: a new CHECK_FN under an
-    # existing guardrail (G4), never a sixth G-letter. It asks whether a
-    # registry entry still names the record it was created from - the
-    # question nothing asked, which let three gates rest on the wrong run.
+    # Checks whether a registry entry still names the record it was
+    # created from, so a gate cannot rest on a record from a different run.
+    # Joins `G4` rather than becoming a sixth guardrail (ADR-002).
     "evidence-identity-matches",
     "human-approval-present",
     "backfills-paid",
@@ -58,18 +56,15 @@ BASELINE_CHECKS = {
     "spike-no-production-changes",
     "dod-evidence-typed",
     "coherence-check-passes",
-    # Added alongside the checks above:
     "no-trusted-rerun",   # refuses to clear a test-run that only passed on a rerun
-    "command-passes",     # runs a project-declared command and requires exit 0
-    # Added by task record-keeping-integrity: a scenario's declared test id must
-    # point at a test that exists, so a named-but-nonexistent test can no longer
-    # read as green. Registered under G1; the guardrail count stays at five.
+    "command-passes",     # runs a project-declared command and needs exit 0
+    # A scenario's declared test id must point at a test that exists, so a
+    # named-but-nonexistent test can no longer read as green. Joins `G1`.
     "declared-tests-resolve",
-    # Added by task phase-2-skills-check-and-cli-split: verifies every scenario
-    # in manifest.yml was accounted for by the project's BDD runner, reading the
-    # record `compass bdd verify` writes. Registered under G1; the guardrail
-    # count stays at five, and the check no-ops entirely for a project that has
-    # set no project.bdd_runner, which is nearly all of them.
+    # Checks that every scenario in manifest.yml was accounted for by the
+    # project's BDD runner, reading the record `compass bdd verify` writes.
+    # Joins `G1`, and no-ops entirely for a project that has set no
+    # project.bdd_runner, which is nearly all of them.
     "scenarios-are-executable",
 }
 
@@ -243,22 +238,11 @@ def test_no_new_gate_names_added():
 def test_guardrails_gains_no_mechanism_on_this_branch():
     """A branch may not add mechanism to guardrails.yml *undeclared*.
 
-    This compares the parsed structure against main rather than the raw text.
-    An earlier version required every added line to be a comment, which meant
-    any edit to the prose inside the file - rewording a guardrail statement,
-    or the repository-wide punctuation sweep - read as a structural change.
-    Prose is editorial and free to change; the mechanism is what must not grow.
-
-    What "grow" means was tightened by task record-keeping-integrity. An earlier
-    version of this test forbade a branch adding any check name at all, which is
-    stricter than the ADR it cites: **ADR-002 caps guardrails at five and
-    explicitly permits new checks** registered as CHECK_FN entries under an
-    existing guardrail. Forbidding those outright would have blocked the growth
-    path the ADR names, so a check added *and declared* in BASELINE_CHECKS above
-    now passes, while an undeclared one still fails. The invariant's purpose is
-    that mechanism growth is deliberate and visible in review, and a declared
-    addition is exactly that. Everything else - gates, evidence types, rules -
-    is still frozen relative to main.
+    Compares the parsed structure with main. Prose can change; mechanism
+    must not grow unless declared. A check declared in BASELINE_CHECKS
+    passes, because ADR-002 caps guardrails at five and permits new checks
+    under an existing guardrail. Gates, evidence types and rules must match
+    main.
     """
     import yaml
 
@@ -324,9 +308,7 @@ def test_empty_project_guardrails_are_explained():
     project-level check until it declares one. A reader should not have to
     guess which it is.
 
-    This replaces an earlier test that required a comment naming an internal
-    work stream. That comment asserted a past review rather than proving
-    anything, and the guarantee it claimed is now checked directly by
+    The no-growth guarantee is checked by
     `test_guardrails_gains_no_mechanism_on_this_branch` above and by
     `test_no_project_guardrails_declared_in_framework_repo`.
     """
