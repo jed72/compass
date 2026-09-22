@@ -1,6 +1,7 @@
-"""R6 + R9 - schema-owning manifest.yml mutators and the write-time gate-evidence
-type guard. `compass gate pass` is the shared command: it is R9's gate mutator
-whose write-time validation against gate_evidence_requirements IS the R6 fix.
+"""Schema-owning manifest.yml mutators and the write-time gate-evidence type
+guard (`R6` + `R9`). `compass gate pass` is the shared command: it is `R9`'s
+gate mutator whose write-time validation against gate_evidence_requirements
+IS the `R6` fix.
 """
 from __future__ import annotations
 
@@ -34,11 +35,11 @@ def _mk_evfile(task_dir, rel):
     p.write_text("{}")
 
 
-# --- R9-1 (baseline → guard): the mutators now exist -----------------------
+# The mutators now exist, baseline -> guard (`R9-1`) ------------------------
 
 def test_no_mutator_exists_today_baseline(run_cli, make_task):
-    """TRC-R9-1: the gap is closed - schema-owning mutators are registered
-    verbs (no longer hand-edited YAML)."""
+    """The gap is closed - schema-owning mutators are registered
+    verbs, no longer hand-edited YAML (`TRC-R9-1`)."""
     make_task("mut-help", _body_with_gates())
     for verb in (("scenario", "add"), ("changed-file", "add"),
                  ("evidence", "add"), ("gate", "pass")):
@@ -46,11 +47,11 @@ def test_no_mutator_exists_today_baseline(run_cli, make_task):
         assert r.returncode == 0, (verb, r)
 
 
-# --- R6-3/4 + R9-7: gate pass ----------------------------------------------
+# Gate pass (`R6-3`/`R6-4` + `R9-7`) -----------------------------------------
 
 def test_gate_pass_rejects_wrong_type_with_accepted_list(run_cli, make_task):
-    """TRC-R6-3: a wrong-type evidence is refused at write time, with the
-    accepted-type list, and the gate stays pending (no partial write)."""
+    """A wrong-type evidence is refused at write time, with the
+    accepted-type list, and the gate stays pending - no partial write (`TRC-R6-3`)."""
     task_dir = make_task("gp-wrong", _body_with_gates())
     _mk_evfile(task_dir, "evidence/green.json")
     r = run_cli("gate", "pass", "verify.governance", "--evidence", "EV-T")
@@ -64,7 +65,7 @@ def test_gate_pass_rejects_wrong_type_with_accepted_list(run_cli, make_task):
 
 
 def test_gate_pass_accepts_correct_type_and_flips_pass(run_cli, make_task):
-    """TRC-R6-4: a correct-type evidence flips the gate to pass and check accepts it."""
+    """A correct-type evidence flips the gate to pass, and check accepts it (`TRC-R6-4`)."""
     task_dir = make_task("gp-ok", _body_with_gates())
     _mk_evfile(task_dir, "evidence/scan.txt")
     r = run_cli("gate", "pass", "verify.governance", "--evidence", "EV-CO")
@@ -75,7 +76,7 @@ def test_gate_pass_accepts_correct_type_and_flips_pass(run_cli, make_task):
 
 
 def test_gate_pass_mutation_lints_clean(run_cli, make_task):
-    """TRC-R9-7: gate pass mutates through the schema-owning writer; task lint passes."""
+    """Gate pass mutates through the schema-owning writer; issue lint passes (`TRC-R9-7`)."""
     task_dir = make_task("gp-lint", _body_with_gates())
     _mk_evfile(task_dir, "evidence/green.json")
     r = run_cli("gate", "pass", "verify.correctness", "--evidence", "EV-T")
@@ -91,7 +92,7 @@ def test_gate_pass_unknown_gate_errors(run_cli, make_task):
     assert "verify.nope" in (r.stdout + r.stderr), r
 
 
-# --- R9-2/3/4: the add mutators --------------------------------------------
+# The add mutators (`R9-2`/`R9-3`/`R9-4`) ------------------------------------
 
 def test_scenario_add_appends_lint_clean_entry(run_cli, make_task):
     task_dir = make_task("sc-add", _body_with_gates())
@@ -130,7 +131,7 @@ def test_evidence_add_appends_typed_entry(run_cli, make_task):
     assert e["type"] == "command-output" and e["path"] == "evidence/scan.txt", r
 
 
-# --- R9-5/6: rejections -----------------------------------------------------
+# Rejections (`R9-5`/`R9-6`) -------------------------------------------------
 
 def test_scenario_add_rejects_duplicate_id(run_cli, make_task):
     task_dir = make_task("sc-dup", _body_with_gates())
