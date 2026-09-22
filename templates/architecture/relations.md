@@ -48,5 +48,6 @@
      boundary.  These can also live in architecture/invariants.yml, an
      optional freeform YAML file the assess stage already reads into
      architecture-loaded.yml. -->
+<!-- absorbed: "is populated. --\>" -->
 
 - <!-- example: service-A must not call service-B directly (use the event bus) -->

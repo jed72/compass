@@ -109,8 +109,35 @@ def _is_instruction(sentence: str) -> bool:
     return False
 
 
+def _unescape_marker(quoted: str) -> str:
+    r"""The sentence a marker names, with its escapes resolved.
+
+    `\>` stands for `>`, so a sentence containing `-->` is written `--\>`.
+    Without that, such a sentence could not be named at all. The natural form
+    satisfies this module's own pattern but holds two `-->`, which makes it a
+    malformed HTML comment: it closes at the first one and leaves `" -->`
+    visible in the rendered file. Two template sentences have that shape,
+    being the tail of a multi-line comment split on its full stop, and both
+    left the command at exit 1 with no way to clear them.
+
+    `\"` stands for `"`, which the pattern already allowed through and which
+    is resolved here for the same reason. Any other backslash pair is left
+    exactly as written, so a sentence that really contains a backslash still
+    matches itself.
+    """
+    out, i = [], 0
+    while i < len(quoted):
+        if quoted[i] == "\\" and i + 1 < len(quoted) and quoted[i + 1] in '>"':
+            out.append(quoted[i + 1])
+            i += 2
+            continue
+        out.append(quoted[i])
+        i += 1
+    return "".join(out)
+
+
 def _absorbed_sentences(text: str) -> set[str]:
-    return {m.group(1) for m in _ABSORBED_RE.finditer(text)}
+    return {_unescape_marker(m.group(1)) for m in _ABSORBED_RE.finditer(text)}
 
 
 def _best_match(sentence: str, candidates: list[str]) -> tuple[str | None, float]:

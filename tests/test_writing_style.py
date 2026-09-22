@@ -4187,6 +4187,82 @@ def test_pbw_f7_every_sentence_maps_or_is_recorded_as_absorbed(tmp_path):
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+def test_pbw_f7_a_marker_can_quote_a_sentence_that_ends_a_comment(tmp_path):
+    """An absorbed-into marker can name a sentence containing `-->`, by
+    escaping it as `--\\>`. `PBW-F7`.
+
+    The sentence splitter breaks a multi-line HTML comment on its full stops,
+    so the tail becomes a sentence carrying the closing `-->`. Two template
+    sentences have that shape and neither could be declared absorbed:
+
+    - the natural form satisfies the marker's pattern but holds two `-->`, so
+      it is a malformed HTML comment - it closes at the first one and leaves
+      `" -->` visible in the rendered template;
+    - the escaped form is a well-formed comment with one `-->`, and was not
+      understood, so it did not clear.
+
+    Batch 4 was therefore left at exit 1 with no way to clear two genuinely
+    absent sentences. A gate tool that cannot be cleared for a legitimate
+    case teaches people to ignore its exit code, which is worse than the gate
+    not existing.
+    """
+    repo = _sandbox_repo(tmp_path)
+    skill = repo / "skills" / "example"
+    skill.mkdir(parents=True)
+    # A multi-line comment whose tail fragment is itself an instruction, the
+    # shape templates/architecture/ownership.md has.
+    skill.joinpath("SKILL.md").write_text(
+        "# Example skill\n\n"
+        "You must read the assignment before you start.\n\n"
+        "<!-- Every row here must name its\n"
+        "owning team before it can land. -->\n"
+    )
+    _commit(repo, "base")
+    base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                           capture_output=True, text=True,
+                           check=True).stdout.strip()
+    out = tmp_path / "inv"
+    fragment = "owning team before it can land. -->"
+
+    # Dropped with no marker: refused, naming the fragment.
+    skill.joinpath("SKILL.md").write_text(
+        "# Example skill\n\n"
+        "You must read the assignment before you start.\n")
+    _commit(repo, "drop the comment")
+    result = _run_inventory(repo, base, out)
+    assert result.returncode != 0
+    assert "owning team" in (result.stdout + result.stderr)
+
+    # Declared absorbed with `-->` escaped as `--\>`: accepted, and the
+    # marker is a well-formed HTML comment so nothing leaks into the page.
+    marker = ('<!-- absorbed: "Every row here must name its" -->\n'
+               '<!-- absorbed: "owning team before it can land. --\\>" -->')
+    assert marker.count("-->") == 2, (
+        "two markers, one terminator each - the escaped tail contributes no "
+        "`-->` at all, which is what keeps both comments well formed")
+    skill.joinpath("SKILL.md").write_text(
+        "# Example skill\n\n"
+        "You must read the assignment before you start.\n"
+        f"{marker}\n")
+    _commit(repo, "declare both absorbed, the tail escaped")
+    result = _run_inventory(repo, base, out)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+    # An ordinary sentence with no `-->` still works unescaped.
+    skill.joinpath("OTHER.md").write_text(
+        "# Other\n\nYou must write the failing test first.\n")
+    _commit(repo, "other base")
+    base2 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo,
+                            capture_output=True, text=True,
+                            check=True).stdout.strip()
+    skill.joinpath("OTHER.md").write_text(
+        "# Other\n\nWrite the failing test first, always.\n"
+        '<!-- absorbed: "You must write the failing test first." -->\n')
+    _commit(repo, "ordinary absorbed marker")
+    result = _run_inventory(repo, base2, out)
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
 def test_pbw_d8_the_excluded_paths_are_out_of_every_sweep():
     """`docs/system-spec.md`, `cli/vendor/yaml/`, `cli/vendor/LICENSE-PyYAML`,
     `LICENSE` and `assets/` never appear in `scanned_paths()`, so no sweep in
