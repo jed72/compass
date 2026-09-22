@@ -60,9 +60,17 @@ def test_receipt_comment_does_not_claim_a_path_only_entry():
 
 
 def test_release_sh_does_not_claim_a_live_unanchored_exclude():
+    """The COMMENTS no longer claim a live unanchored exclude.
+
+    The printed failure message still does, and deliberately so. Correcting
+    it changes what a person running the command sees, and this issue claims
+    no printed string changed - `tests/test_printed_strings_unchanged.py`
+    holds that claim and reported this very line. The message correction is
+    filed with the other printed-output fixes, and the assertion that pinned
+    it went with them.
+    """
     text = _read("scripts/release.sh")
     assert "unanchored .compass/work exclude strips them" not in text
-    assert "Check the .compass/work exclude is root-anchored" not in text
     assert "The noise check below still checks." not in text
 
 
