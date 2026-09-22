@@ -13,15 +13,11 @@ Measured before any threshold here was written, on 2026-08-23:
   37 test files asserting a literal string in stdout - 130 assertions
 
 Scenario ids trace to
-docs/compass/2026-08-23-the-terminal-output-contract/acceptance-criteria.md.
+the-terminal-output-contract/acceptance-criteria.md.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import json
@@ -85,7 +81,7 @@ def _leaf_parsers():
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_every_verb_accepts_every_mode_flag():
-    """TRC-C1: the five mode flags reach every leaf verb.
+    """The five mode flags reach every leaf verb (`TRC-C1`).
 
     The failure this prevents: a flag that works on four verbs and is silently
     ignored on the other thirty, which is worse than not having it.
@@ -94,8 +90,8 @@ def test_trc_c1_every_verb_accepts_every_mode_flag():
     leaves = _leaf_parsers()
     # A non-recursive walk reaches the thirteen group parsers by name and
     # stops, so it never sees anything nested. Naming a nested verb catches
-    # that directly and does not rot as verbs are added, which a bare count
-    # would. The floor is a second, cruder net.
+    # that directly and does not go out of date as verbs are added, which a
+    # bare count would. The floor is a second, cruder net.
     for nested in ("issue dashboard", "gate pass", "evidence add", "bdd verify"):
         assert nested in leaves, (
             "%r was not reached, so the walk over the parser tree is not "
@@ -116,7 +112,7 @@ def test_trc_c1_every_verb_accepts_every_mode_flag():
 
 
 def test_trc_c1_every_verb_honours_the_flags_it_accepts(tail_project):
-    """TRC-C1, the half that was missing: ACCEPTED is not HONOURED.
+    """ACCEPTED is not HONOURED - the half of `TRC-C1` that was missing.
 
     The docstring above this test used to promise the verb "honours it rather
     than accepting and ignoring it", and the test checked only that argparse
@@ -161,7 +157,7 @@ def test_trc_c1_every_verb_honours_the_flags_it_accepts(tail_project):
 
 
 def test_trc_c6_every_verb_declares_which_contract_it_is_under():
-    """TRC-C6: each verb declares hand-off or report; neither is not allowed.
+    """Each verb declares hand-off or report; neither is not allowed (`TRC-C6`).
 
     A default is how the 35th verb quietly becomes whatever was easiest.
     """
@@ -177,7 +173,7 @@ def test_trc_c6_every_verb_declares_which_contract_it_is_under():
 
 
 def test_trc_c2_quiet_prints_nothing_on_success():
-    """TRC-C2: --quiet is silent on an uneventful success; the exit code carries it."""
+    """--quiet is silent on an uneventful success; the exit code carries it (`TRC-C2`)."""
     from compass_pkg.terminal import Emitter
 
     e = Emitter(mode="quiet")
@@ -194,7 +190,7 @@ def test_trc_c2_quiet_prints_nothing_on_success():
 
 
 def test_trc_c3_json_is_machine_only():
-    """TRC-C3: --json emits one JSON document and no prose."""
+    """--json emits one JSON document and no prose (`TRC-C3`)."""
     from compass_pkg.terminal import Emitter
 
     e = Emitter(mode="json")
@@ -207,7 +203,8 @@ def test_trc_c3_json_is_machine_only():
 
 
 def test_trc_c3_existing_json_verb_keeps_its_keys(tmp_path):
-    """TRC-C3, the compatibility half: `approach evaluate --json` already ships.
+    """`approach evaluate --json` already ships - the compatibility half of
+    `TRC-C3`.
 
     ADR-006 makes backward compatibility non-negotiable within a major version,
     so this verb's existing keys are public surface. New keys may appear; none
@@ -250,7 +247,7 @@ def test_trc_c3_existing_json_verb_keeps_its_keys(tmp_path):
 
 
 def test_trc_c5_verbose_adds_detail_without_relaxing_the_default():
-    """TRC-C5: --verbose is where detail goes, not where the contract is escaped."""
+    """--verbose is where detail goes, not where the contract is escaped (`TRC-C5`)."""
     from compass_pkg.terminal import Emitter
 
     def build(mode):
@@ -269,7 +266,7 @@ def test_trc_c5_verbose_adds_detail_without_relaxing_the_default():
 
 
 def test_trc_c7_evidence_out_with_nothing_to_capture(tmp_path):
-    """TRC-C7: accepted everywhere; writes nothing where there is nothing.
+    """Accepted everywhere; writes nothing where there is nothing (`TRC-C7`).
 
     Not an error - a script passing the flag uniformly across a pipeline should
     not break on the verbs that happen to have nothing to say.
@@ -289,7 +286,7 @@ def test_trc_c7_evidence_out_with_nothing_to_capture(tmp_path):
 
 
 def test_trc_c4_evidence_out_writes_the_capture(tmp_path):
-    """TRC-C4: raw output is written and linked, never printed."""
+    """Raw output is written and linked, never printed (`TRC-C4`)."""
     from compass_pkg.terminal import Emitter
 
     path = tmp_path / "capture.txt"
@@ -313,7 +310,7 @@ def test_trc_c4_evidence_out_writes_the_capture(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_hand_off_states_outcome_artifact_and_reply():
-    """TRC-A2: twelve lines of the wrong twelve things is not an improvement."""
+    """Twelve lines of the wrong twelve things is not an improvement (`TRC-A2`)."""
     from compass_pkg.terminal import Emitter
 
     e = Emitter(mode="summary")
@@ -329,7 +326,7 @@ def test_trc_a2_hand_off_states_outcome_artifact_and_reply():
 
 
 def test_trc_a3_hand_off_with_nothing_to_decide_is_shorter():
-    """TRC-A3: the common case - no invented decision, concern or reply."""
+    """The common case - no invented decision, concern or reply (`TRC-A3`)."""
     from compass_pkg.terminal import Emitter
 
     e = Emitter(mode="summary")
@@ -364,7 +361,7 @@ def test_trc_a3_hand_off_with_nothing_to_decide_is_shorter():
 
 
 def test_trc_a4_three_items_and_the_count_of_what_was_hidden():
-    """TRC-A4: a silent truncation reads as 'there were three'.
+    """A silent truncation reads as 'there were three' (`TRC-A4`).
 
     That is a claim the command never checked, and this repository has already
     found four checks that cleared by not looking.
@@ -386,7 +383,8 @@ def test_trc_a4_three_items_and_the_count_of_what_was_hidden():
 
 
 def test_trc_a1_and_a5_a_hand_off_fits_one_screen_and_is_not_widened():
-    """TRC-A1 and TRC-A5 together: a line budget alone is met by joining lines.
+    """A line budget alone is met by joining lines (`TRC-A1` and `TRC-A5`
+    together).
 
     Measured rather than supposed - `compass check`'s longest line today is 252
     characters, so 45 lines reflowed into 12 would satisfy a line count exactly
@@ -424,7 +422,7 @@ def test_trc_a1_and_a5_a_hand_off_fits_one_screen_and_is_not_widened():
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_report_opens_with_a_summary_and_b2_keeps_its_detail():
-    """TRC-B1 and TRC-B2: a report is not a hand-off.
+    """A report is not a hand-off (`TRC-B1` and `TRC-B2`).
 
     `compass calibration` and `compass terminology` exist to give detail.
     Cutting them to twelve lines would remove the reason to run them, so the
@@ -455,8 +453,8 @@ def test_trc_b1_report_opens_with_a_summary_and_b2_keeps_its_detail():
 # ---------------------------------------------------------------------------
 
 def test_trc_d1_compression_never_edits_the_inside_of_a_line():
-    """TRC-D1: ADR-017 - an identifier is a key; attach its meaning, never
-    delete the id.
+    """An identifier is a key; attach its meaning, never
+    delete the id (`TRC-D1`, ADR-017).
 
     A twelve-line budget creates constant pressure to drop `(RP-FLOOR-001,
     floor)` from a line to save room. The emitter drops whole lines and never
@@ -502,7 +500,7 @@ def test_trc_d1_compression_never_edits_the_inside_of_a_line():
 # ---------------------------------------------------------------------------
 
 def test_trc_e1_the_budget_guard_names_the_verb_it_caught():
-    """TRC-E1: an unactionable failure gets suppressed rather than fixed."""
+    """An unactionable failure gets suppressed rather than fixed (`TRC-E1`)."""
     from compass_pkg.terminal import over_budget
 
     findings = over_budget({"issue dashboard": "\n".join("x" * 3 for _ in range(20))})
@@ -514,7 +512,7 @@ def test_trc_e1_the_budget_guard_names_the_verb_it_caught():
 
 
 def test_trc_e2_the_budget_guard_can_fail_and_declines_an_empty_input():
-    """TRC-E2: the two ways a line-count check passes without looking.
+    """The two ways a line-count check passes without looking (`TRC-E2`).
 
     A budget so high nothing breaches it, and an empty input that passes by
     having nothing to check. Both are asserted here because both have happened
@@ -584,7 +582,7 @@ def _run_check(proj, *flags):
 
 
 def test_trc_a6_check_verdict_fits_and_keeps_its_guidance(tmp_path):
-    """TRC-A6 with TRC-A1, A2 and A4: the gate verdict on one screen."""
+    """The gate verdict on one screen (`TRC-A6` with `TRC-A1`, `A2` and `A4`)."""
     proj = _failing_issue(tmp_path)
     r = _run_check(proj)
     out = r.stdout
@@ -640,7 +638,7 @@ def test_trc_a6_check_verdict_fits_and_keeps_its_guidance(tmp_path):
 
 
 def test_trc_c5_check_verbose_keeps_everything(tmp_path):
-    """TRC-C5: --verbose is where the detail goes, not where the budget is lost."""
+    """--verbose is where the detail goes, not where the budget is lost (`TRC-C5`)."""
     proj = _failing_issue(tmp_path)
     verbose = _run_check(proj, "--verbose").stdout
     default = _run_check(proj).stdout
@@ -654,7 +652,7 @@ def test_trc_c5_check_verbose_keeps_everything(tmp_path):
 
 
 def test_trc_c2_check_is_silent_when_it_passes(tmp_path):
-    """TRC-C2: --quiet on a clean run says nothing; the exit code carries it."""
+    """--quiet on a clean run says nothing; the exit code carries it (`TRC-C2`)."""
     import yaml
     proj = _failing_issue(tmp_path)
     # A spike concludes with evidence rather than the delivery guardrails, so
@@ -675,7 +673,7 @@ def test_trc_c2_check_is_silent_when_it_passes(tmp_path):
 
 
 def test_trc_c3_check_emits_json(tmp_path):
-    """TRC-C3: --json is one document and carries no prose."""
+    """--json is one document and carries no prose (`TRC-C3`)."""
     proj = _failing_issue(tmp_path)
     r = _run_check(proj, "--json")
     doc = json.loads(r.stdout)
@@ -687,7 +685,7 @@ def test_trc_c3_check_emits_json(tmp_path):
 
 
 def test_trc_d1_check_keeps_every_identifier(tmp_path):
-    """TRC-D1: ADR-017 - the compressed verdict still names each check.
+    """The compressed verdict still names each check (`TRC-D1`, ADR-017).
 
     A check's name IS its identifier. Compressing the verdict must not leave a
     reader with "3 checks failed" and no way to know which.
@@ -711,7 +709,7 @@ def test_trc_d1_check_keeps_every_identifier(tmp_path):
 
 
 def test_trc_a6_every_guidance_entry_has_a_one_line_fix():
-    """TRC-A6: the short fix is written, not derived.
+    """The short fix is written, not derived (`TRC-A6`).
 
     The full `fix` strings run to 320 characters. Deriving a short form by
     cutting at the first sentence would produce something nobody read before it
@@ -743,7 +741,7 @@ def test_trc_a6_every_guidance_entry_has_a_one_line_fix():
 
 
 def test_trc_a4_a_check_named_twice_is_not_listed_twice(tmp_path):
-    """TRC-A4: the hidden list names only what was not shown.
+    """The hidden list names only what was not shown (`TRC-A4`).
 
     Found by reading the output, not by a test. Several checks are listed under
     more than one guardrail - `scenario-has-id-and-intent` runs under both
@@ -816,7 +814,7 @@ def report_project(tmp_path_factory):
         "version: 1.0.0\nmode: enforced\n")
 
     # Enough issues, in enough states, that `flow` has more to say than a
-    # hand-off budget would allow - which is the thing TRC-B2 asserts.
+    # hand-off budget would allow - which is the thing `TRC-B2` asserts.
     states = ["active", "queued", "queued", "parked", "landed", "abandoned"]
     for i in range(18):
         slug = "issue-%02d" % i
@@ -848,7 +846,7 @@ def _repo_run(project, *argv):
 
 
 def test_trc_b1_every_live_report_opens_with_a_summary(report_project):
-    """TRC-B1: the first five lines say what was found.
+    """The first five lines say what was found (`TRC-B1`).
 
     A reader who has to scan 157 lines to learn there is nothing to do has been
     failed by the report.
@@ -881,7 +879,7 @@ def test_trc_b1_every_live_report_opens_with_a_summary(report_project):
 
 
 def test_trc_b2_a_report_keeps_all_of_its_detail(report_project):
-    """TRC-B2: the hand-off budget is not applied to a report.
+    """The hand-off budget is not applied to a report (`TRC-B2`).
 
     Asserted against the LONGEST report this repository produces, because a
     budget applied by accident would show up there first.
@@ -897,7 +895,7 @@ def test_trc_b2_a_report_keeps_all_of_its_detail(report_project):
 
 
 def test_trc_c2_a_report_under_quiet_is_the_summary_only(report_project):
-    """TRC-C2 for a report: --quiet keeps the finding, drops the detail.
+    """--quiet keeps the finding, drops the detail (`TRC-C2` for a report).
 
     Not silence. A person who asked for a report asked for an answer; --quiet
     says they want it short, not that they want nothing.
@@ -916,7 +914,7 @@ def test_trc_c2_a_report_under_quiet_is_the_summary_only(report_project):
 
 
 def test_trc_c3_every_live_report_emits_json(report_project):
-    """TRC-C3: --json is one document and carries no prose."""
+    """--json is one document and carries no prose (`TRC-C3`)."""
     for verb in _LIVE_REPORTS:
         r = _repo_run(report_project, verb, "--json")
         try:
@@ -930,7 +928,7 @@ def test_trc_c3_every_live_report_emits_json(report_project):
 
 
 def test_trc_c6_the_report_list_is_not_empty():
-    """TRC-C6, the other half: something actually declares itself a report.
+    """Something actually declares itself a report - the other half of `TRC-C6`.
 
     If nothing did, every test above would iterate an empty list and pass
     without checking anything - and this repository has found four checks that
@@ -952,9 +950,9 @@ def test_trc_c6_the_report_list_is_not_empty():
 #
 # Everything above tests the emitter, or one verb at a time. Nothing yet runs
 # EVERY hand-off verb and measures what actually reached the terminal, which is
-# what TRC-A1 and TRC-A3 are about.
+# what `TRC-A1` and `TRC-A3` are about.
 #
-# The table below is the argv each verb needs in order to do its job. A verb
+# The table below is the argv each verb needs to do its job. A verb
 # that is in the parser and not in the table fails the coverage guard, so the
 # next verb added has to be measured rather than quietly missed.
 
@@ -1059,7 +1057,7 @@ def tail_project(tmp_path):
         "```gherkin\nScenario: a thing happens\n  Given a start\n"
         "  When it runs\n  Then it works\n```\n")
     (td / "delivery-approach.md").write_text("# Delivery approach - t\n")
-    # `tdd-green` is measured with `--scenario TRC-1`, and a bound green needs
+    # `tdd-green` is measured with `--scenario` `TRC-1`, and a bound green needs
     # a red for the same binding. Written here so the verb reaches the output
     # this file is about rather than being refused before it prints anything.
     write_red_record(td, "TRC-1")
@@ -1092,7 +1090,7 @@ def tail_project(tmp_path):
 
 
 def test_trc_c1_the_tail_table_covers_every_hand_off_verb():
-    """TRC-C1: a verb in the parser is measured, or exempt with a reason.
+    """A verb in the parser is measured, or exempt with a reason (`TRC-C1`).
 
     Without this, adding a verb quietly leaves it unmeasured, which is how
     this surface drifted in the first place.
@@ -1109,7 +1107,7 @@ def test_trc_c1_the_tail_table_covers_every_hand_off_verb():
 
 
 def test_trc_a1_and_a3_every_hand_off_verb_fits_its_budget(tail_project):
-    """TRC-A1 and TRC-A3: what actually reaches the terminal, measured.
+    """What actually reaches the terminal, measured (`TRC-A1` and `TRC-A3`).
 
     Each verb runs for real. A verb that exits non-zero is a FAILURE of this
     test, not a skip - a table entry with the wrong arguments would otherwise
@@ -1146,7 +1144,7 @@ def NOTHING_TO_CHECK_SENTINEL():
 
 
 def test_trc_c2_the_tail_is_silent_under_quiet(tail_project):
-    """TRC-C2: a verb with nothing to decide prints nothing under --quiet."""
+    """A verb with nothing to decide prints nothing under --quiet (`TRC-C2`)."""
     noisy, broken = [], []
     for verb, argv in sorted(_TAIL_ARGV.items()):
         r = subprocess.run([sys.executable, str(CLI), *_with_flags(argv, "--quiet")],
@@ -1170,7 +1168,7 @@ def test_trc_c2_the_tail_is_silent_under_quiet(tail_project):
 
 
 def test_trc_c3_the_tail_emits_json(tail_project):
-    """TRC-C3: --json is one document per verb, and carries no prose."""
+    """--json is one document per verb, and carries no prose (`TRC-C3`)."""
     bad, broken = [], []
     for verb, argv in sorted(_TAIL_ARGV.items()):
         r = subprocess.run([sys.executable, str(CLI), *_with_flags(argv, "--json")],
