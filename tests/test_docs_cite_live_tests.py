@@ -1,20 +1,16 @@
 """The release guide must not name a test file that does not exist.
 
-`docs/releasing.md` listed `tests/test_v1_2_narrative.py` twice - once as a
-suite the release must run, once in the invariants table as the defender of
-"every v1.2.0 capability named in CLAUDE.md is in AGENTS.md or methodology".
-When that guard was retired (ADR-021) the citations stayed, so the guide told a
-releaser to run a file that is not there and claimed an invariant nothing
-defends. Nothing caught it.
+Every test path in `docs/releasing.md` is an instruction to run something
+and a claim that something is defended, so a retired citation tells a
+releaser to run a file that is not there and claims an invariant nothing
+defends - as `tests/test_v1_2_narrative.py` did after ADR-021 retired it.
 
 Scoped to the release guide on purpose. Other documents name test paths as
 worked examples - `docs/writing-specs-and-plans.md` walks through a
 `tests/test_ledger_export.py` that was never meant to exist, and ADR-021 names
-the very file it retires. Those are illustrations, not coverage claims. The
-release guide is the one document where every test path is an instruction to
-run something and a claim that something is defended.
+the very file it retires. Those are illustrations, not coverage claims.
 
-Scenario id: DOC-A4 in docs/compass/2026-08-26-docs-slimming-pass/acceptance-criteria.md
+Scenario id: DOC-A4 in docs-slimming-pass/acceptance-criteria.md
 """
 from __future__ import annotations
 

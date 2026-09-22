@@ -1,15 +1,11 @@
-"""R1 - `scenarios-have-tests` (G1) honours the scenario taxonomy: a
+"""`scenarios-have-tests` (`G1`) honours the scenario taxonomy: a
 `verifiable: narrative` scenario clears the check by being DOCUMENTED (a
-non-empty When/Then in spec.feature.md), not by carrying a fabricated test -
-and not merely by carrying an incidental command.
+non-empty When/Then in acceptance-criteria.md), not by carrying a fabricated
+test - and not merely by carrying an incidental command.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail, which the command prints only
+# under --verbose.
 from __future__ import annotations
 
 GHERKIN = "```gherkin"
@@ -50,9 +46,9 @@ def _scenarios_line(combined):
 
 
 def test_baseline_narrative_without_test_fails(run_cli, make_task):
-    """TRC-R1-1 (regression guard): a narrative scenario whose body is NOT
-    documented still FAILS - narrative buys documentation-as-acceptance, not a
-    free pass."""
+    """`TRC-R1`-1 (regression guard): a narrative scenario whose body is NOT
+    documented still FAILS - a narrative scenario is accepted on its
+    documentation, and nothing else."""
     task_dir = make_task("narr-base",
                          _body({"id": "SCN-N", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
@@ -62,7 +58,7 @@ def test_baseline_narrative_without_test_fails(run_cli, make_task):
 
 
 def test_documented_narrative_passes(run_cli, make_task):
-    """TRC-R1-2: a documented narrative scenario with no test clears the check."""
+    """`TRC-R1`-2: a documented narrative scenario with no test clears the check."""
     task_dir = make_task("narr-doc",
                          _body({"id": "SCN-N", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
@@ -72,7 +68,7 @@ def test_documented_narrative_passes(run_cli, make_task):
 
 
 def test_non_narrative_without_test_still_fails(run_cli, make_task):
-    """TRC-R1-3: the exemption is narrow - a delivery scenario with no test
+    """`TRC-R1`-3: the exemption is narrow - a delivery scenario with no test
     still fails."""
     task_dir = make_task("narr-deliv",
                          _body({"id": "SCN-D", "intent": "INT-1", "tests": []}))
@@ -83,8 +79,9 @@ def test_non_narrative_without_test_still_fails(run_cli, make_task):
 
 
 def test_undocumented_narrative_fails_weaker_assertion(run_cli, make_task):
-    """TRC-R1-4: an empty-body narrative scenario fails on the documentation
-    assertion (not 'no test') - documented, not anything-goes."""
+    """`TRC-R1`-4: an empty-body narrative scenario fails on the documentation
+    assertion (not 'no test') - a narrative scenario is accepted on its
+    documentation, and nothing else."""
     task_dir = make_task("narr-empty",
                          _body({"id": "SCN-E", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
@@ -95,7 +92,7 @@ def test_undocumented_narrative_fails_weaker_assertion(run_cli, make_task):
 
 
 def test_incidental_command_not_rewarded(run_cli, make_task):
-    """TRC-R1-5: a narrative scenario carrying an incidental command but no
+    """`TRC-R1`-5: a narrative scenario carrying an incidental command but no
     documented body still FAILS - assessed on documentation, not 'has a test'."""
     task_dir = make_task("narr-cmd",
                          _body({"id": "SCN-CMD-BARE", "intent": "INT-1",

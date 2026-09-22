@@ -1,6 +1,6 @@
-"""Tests for the architect agent (U2 - stream-2).
+"""Tests for the architect agent.
 
-Covers scenarios: TRC-B1, TRC-B2, TRC-B3, TRC-B4, TRC-B5, TRC-X5, TRC-F5.
+Covers scenarios: `TRC-B1`, `TRC-B2`, `TRC-B3`, `TRC-B4`, `TRC-B5`, `TRC-X5`, `TRC-F5`.
 
 Strategy: agent files are markdown with frontmatter + headed sections.
 Tests use file-existence + content-regex assertions (structural contract).
@@ -8,16 +8,12 @@ Trigger-detection logic (TRC-B2) is tested with mocked manifest.yml and
 mocked architecture files via filesystem fixtures in tmp_path.
 
 Architectural invariant: architecture-notes.md is ANNOTATIONS
-+ candidate ADR titles - NOT Given/When/Then scenarios. TRC-F5 encodes
++ candidate ADR titles - NOT Given/When/Then scenarios. `TRC-F5` encodes
 this prohibition explicitly.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 from pathlib import Path
@@ -42,12 +38,12 @@ def command_file(name: str) -> Path:
 
 
 # --------------------------------------------------------------------------
-# TRC-B1 - architect is invocable from consult
+# `TRC-B1` - architect is invocable from consult
 # --------------------------------------------------------------------------
 
 
 def test_invocable_from_consult():
-    """TRC-B1: commands/consult.md lists architect in its standard
+    """`TRC-B1`: commands/consult.md lists architect in its standard
     agent roster and documents the /compass:consult architect
     invocation pattern.
     """
@@ -62,19 +58,19 @@ def test_invocable_from_consult():
 
 
 # --------------------------------------------------------------------------
-# TRC-B1 (continued) - the agent file itself must exist with required shape
+# `TRC-B1` (continued) - the agent file itself must exist with required shape
 # --------------------------------------------------------------------------
 
 
 def test_architect_lens_agent_file_exists():
-    """TRC-B1: agents/architect.md must exist."""
+    """`TRC-B1`: agents/architect.md must exist."""
     assert agent_file("architect.md").exists(), (
         "agents/architect.md does not exist"
     )
 
 
 def test_architect_lens_has_frontmatter():
-    """TRC-B1: agents/architect.md must have YAML frontmatter (--- delimiters)."""
+    """`TRC-B1`: agents/architect.md must have YAML frontmatter (--- delimiters)."""
     content = agent_file("architect.md").read_text(encoding="utf-8")
     assert content.startswith("---"), (
         "agents/architect.md missing YAML frontmatter opening ---"
@@ -85,7 +81,7 @@ def test_architect_lens_has_frontmatter():
 
 
 def test_architect_lens_frontmatter_fields():
-    """TRC-B1: architect.md frontmatter must have name, description, tools, model."""
+    """`TRC-B1`: architect.md frontmatter must have name, description, tools, model."""
     content = agent_file("architect.md").read_text(encoding="utf-8")
     # Extract frontmatter block
     parts = content.split("---", 2)
@@ -100,10 +96,10 @@ def test_architect_lens_frontmatter_fields():
 
 
 def test_architect_lens_has_required_sections():
-    """TRC-B1/B5: architect.md must contain the five required output sections
+    """`TRC-B1`/B5: architect.md must contain the five required output sections
     (matching the architecture-notes.md contract):
       1. System under change
-      2. Invariants this task must preserve
+      2. Invariants this issue must preserve
       3. Boundary risks
       4. Candidate ADRs
       5. Notes for the planner
@@ -123,7 +119,7 @@ def test_architect_lens_has_required_sections():
 
 
 def test_architect_lens_reads_architecture_files():
-    """TRC-B1: architect.md must instruct the agent to read the standard
+    """`TRC-B1`: architect.md must instruct the agent to read the standard
     architecture/ input files.
     """
     content = agent_file("architect.md").read_text(encoding="utf-8")
@@ -139,8 +135,9 @@ def test_architect_lens_reads_architecture_files():
 
 
 def test_architect_lens_reads_task_artifacts():
-    """TRC-B1/Inv-5: architect reads spec.feature.md and plan.md - it is
-    a lens OVER the spec, not an author of the spec.
+    """`TRC-B1`/`Inv-5` (one spec, many roles; roles annotate, never fork):
+    architect reads the acceptance criteria and technical-design.md - it is
+    a role agent OVER the spec, not an author of the spec.
     """
     content = agent_file("architect.md").read_text(encoding="utf-8")
     assert "acceptance-criteria.md" in content, (
@@ -152,8 +149,8 @@ def test_architect_lens_reads_task_artifacts():
 
 
 def test_architect_lens_writes_architecture_notes():
-    """TRC-B1/B5: architect.md must instruct the agent to write
-    architecture-notes.md to the task directory.
+    """`TRC-B1`/B5: architect.md must instruct the agent to write
+    architecture-notes.md to the issue directory.
     """
     content = agent_file("architect.md").read_text(encoding="utf-8")
     assert "architecture-notes.md" in content, (
@@ -162,14 +159,15 @@ def test_architect_lens_writes_architecture_notes():
 
 
 # --------------------------------------------------------------------------
-# TRC-B2 - spec-author consults architect for boundary-touching tasks
+# `TRC-B2` - spec-author consults architect for boundary-touching issues
 # --------------------------------------------------------------------------
 
 
 def test_consulted_by_spec_author():
-    """TRC-B2: agents/spec-author.md must contain a step that triggers the
-    architect consultation when manifest.yml.readings.touches matches
-    the Q5 trigger conditions (public-api, service name, lens_trigger_tag).
+    """`TRC-B2`: agents/spec-author.md must contain a step that triggers the
+    architect consultation when manifest.yml.assessment.labels matches
+    one of three trigger conditions (public-api, service name,
+    lens_trigger_tag).
     """
     spec_author = agent_file("spec-author.md")
     assert spec_author.exists(), "agents/spec-author.md not found"
@@ -186,7 +184,7 @@ def test_consulted_by_spec_author():
 
 
 def test_spec_author_trigger_conditions():
-    """TRC-B2: spec-author.md must document all three Q5 trigger conditions:
+    """`TRC-B2`: spec-author.md must document all three trigger conditions:
       1. touches contains 'public-api'
       2. touches contains a service name from architecture/relations.md
       3. touches contains a lens_trigger_tag from architecture/invariants.yml
@@ -201,14 +199,14 @@ def test_spec_author_trigger_conditions():
 
 
 # --------------------------------------------------------------------------
-# TRC-B3 - planner reads existing architect notes and cites or diverges
+# `TRC-B3` - planner reads existing architect notes and cites or diverges
 # --------------------------------------------------------------------------
 
 
 def test_consulted_by_planner():
-    """TRC-B3: agents/planner.md must contain a step that reads
-    architecture-notes.md (if present) and produces a DD that cites or
-    diverges from its findings. DD-5 in plan.md.
+    """`TRC-B3`: agents/planner.md must contain a step that reads
+    architecture-notes.md (if present) and produces a design decision that
+    cites or diverges from its findings.
     """
     planner = agent_file("planner.md")
     assert planner.exists(), "agents/planner.md not found"
@@ -220,7 +218,7 @@ def test_consulted_by_planner():
 
 
 def test_planner_cites_or_diverges():
-    """TRC-B3: planner.md must document the cite-or-diverge behaviour -
+    """`TRC-B3`: planner.md must document the cite-or-diverge behaviour -
     either cite an existing ADR, name a candidate ADR, or justify divergence.
     When architecture-notes.md is absent the absence is recorded (not silent skip).
     """
@@ -240,13 +238,14 @@ def test_planner_cites_or_diverges():
 
 
 # --------------------------------------------------------------------------
-# TRC-B4 - architect degrades when architecture/ is absent
+# `TRC-B4` - architect degrades when architecture/ is absent
 # --------------------------------------------------------------------------
 
 
 def test_degrades_gracefully():
-    """TRC-B4: architect.md must document that when architecture/ is
-    absent the lens writes a WARNING line and does not block the phase.
+    """`TRC-B4`: architect.md must document that when architecture/ is
+    absent the role agent writes a WARNING line and does not block the
+    phase.
     """
     content = agent_file("architect.md").read_text(encoding="utf-8")
     assert "WARNING" in content or "warning" in content.lower(), (
@@ -259,23 +258,23 @@ def test_degrades_gracefully():
 
 
 def test_degrades_writes_warning_line():
-    """TRC-B4: the warning first line must be documented in the agent instructions."""
+    """`TRC-B4`: the warning first line must be documented in the agent instructions."""
     content = agent_file("architect.md").read_text(encoding="utf-8")
-    # The spec requires: "WARNING: No architecture/ artifacts found - running on heuristics only"
+    # The spec asks for: "WARNING: No architecture/ artifacts found - running on heuristics only"
     assert "No architecture/" in content or "no architecture/" in content.lower(), (
         "architect.md does not document the exact WARNING message for missing architecture/"
     )
 
 
 # --------------------------------------------------------------------------
-# TRC-B5 - architect findings persist on disk
+# `TRC-B5` - architect findings persist on disk
 # --------------------------------------------------------------------------
 
 
 def test_persists_notes():
-    """TRC-B5: architect.md must document that its output is always
-    written to architecture-notes.md in the task directory (persistence over
-    conversation - Inv-6).
+    """`TRC-B5`: architect.md must document that its output is always
+    written to architecture-notes.md in the issue directory (Inv-6: every
+    mechanism output is a named file on disk, persistence over conversation).
     """
     content = agent_file("architect.md").read_text(encoding="utf-8")
     assert "architecture-notes.md" in content, (
@@ -288,16 +287,17 @@ def test_persists_notes():
 
 
 # --------------------------------------------------------------------------
-# TRC-X5 - bootstrap: consult does NOT invoke architect if the
-# agent file doesn't exist (prevents infinite recursion on the task that
-# introduces the lens)
+# `TRC-X5` - bootstrap: consult does NOT invoke architect if the
+# agent file doesn't exist (prevents infinite recursion on the issue that
+# introduces the role agent)
 # --------------------------------------------------------------------------
 
 
 def test_bootstrap_no_recursion():
-    """TRC-X5: commands/consult.md must document that lenses are invoked
-    ONLY if their agent file is registered (i.e. exists in agents/).
-    This prevents recursive invocation when the task itself introduces the lens.
+    """`TRC-X5`: commands/consult.md must document that role agents are
+    invoked ONLY if their agent file is registered (i.e. exists in
+    agents/). This prevents recursive invocation when the issue itself
+    introduces the role agent.
     """
     content = command_file("consult.md").read_text(encoding="utf-8")
     # The contract must be explicit: invoke only if agent file exists/is registered
@@ -314,12 +314,12 @@ def test_bootstrap_no_recursion():
 
 
 # --------------------------------------------------------------------------
-# TRC-F5 - architect does NOT fork the spec
+# `TRC-F5` - architect does NOT fork the spec
 # --------------------------------------------------------------------------
 
 
 def test_notes_are_annotations_not_spec():
-    """TRC-F5: architect.md must explicitly prohibit
+    """`TRC-F5`: architect.md must explicitly prohibit
     writing Given/When/Then scenarios into architecture-notes.md.
     The output is ANNOTATIONS + candidate ADR titles, not a parallel spec.
     """
@@ -340,10 +340,10 @@ def test_notes_are_annotations_not_spec():
 
 
 def test_no_gherkin_in_architecture_notes_contract():
-    """TRC-F5: architect.md must describe architecture-notes.md as
+    """`TRC-F5`: architect.md must describe architecture-notes.md as
     containing annotations and candidate ADR titles - NOT Given/When/Then.
-    The word 'scenario' should only appear in the context of reading
-    spec.feature.md, not in the context of writing output.
+    The word 'scenario' must only appear in the context of reading the
+    acceptance criteria, not in the context of writing output.
     """
     content = agent_file("architect.md").read_text(encoding="utf-8")
     # Confirm the output format is annotations, not scenarios
@@ -353,10 +353,9 @@ def test_no_gherkin_in_architecture_notes_contract():
 
 
 def test_consult_agent_roster_section():
-    """TRC-B1: commands/consult.md must have a dedicated 'Agent roster'
+    """`TRC-B1`: commands/consult.md must have a dedicated 'Agent roster'
     or equivalent section that lists architect alongside other standard
-    lenses. Stream-3 owns the 'Reframe trigger' section; stream-2 (this
-    stream) owns the agent roster section.
+    role agents.
     """
     content = command_file("consult.md").read_text(encoding="utf-8")
     # The file must have a section heading that covers the agent roster

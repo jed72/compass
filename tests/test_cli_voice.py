@@ -1,14 +1,14 @@
-"""Slice 5b of the v2 rename: the CLI speaks the v2 register.
+"""The CLI speaks the v2 register.
 
-The content specification is the ratified verb map in the slice's issue
-archive: approach evaluate, follow-up resolve (states outstanding ->
-resolved), retro, plan lint, issue lint/receipt/set-status, ship-commit,
-and the new terminology verb. Retired verbs and the tolerated --task and
---reading flag spellings were removed at the major version (ADR-014); what
-remains of those contracts is asserted in tests/test_no_deprecation_stubs.py,
-which checks they no longer parse. The cli/ scan surface is
-enforced and widened to cli/compass_pkg/ string literals, and the receipt
-speaks v2 change-type names and shows recorded topology overrides.
+These tests assert the v2 verb map: approach evaluate, follow-up resolve
+(states outstanding -> resolved), retro, plan lint, issue
+lint/receipt/set-status, ship-commit, and the terminology verb. Retired
+verbs and the tolerated --task and --reading flag spellings were removed at <!-- vocabulary-scan: allow - names the retired flag spellings this suite removed -->
+the major version (ADR-014); what remains of those contracts is asserted in
+tests/test_no_deprecation_stubs.py, which checks they no longer parse. The
+cli/ scan surface is enforced and widened to cli/compass_pkg/ string
+literals, and the receipt speaks v2 change-type names and shows recorded
+orchestration overrides.
 """
 from __future__ import annotations
 
@@ -60,7 +60,7 @@ def _run(root, *args):
 
 
 def test_the_v2_verbs_exist_and_work(tmp_path):
-    """TRC-1: each renamed verb performs its predecessor's behaviour, and
+    """`TRC-1`: each renamed verb does what its predecessor did, and
     terminology renders the vocabulary file."""
     root = _project(tmp_path)
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
@@ -87,30 +87,21 @@ def test_the_v2_verbs_exist_and_work(tmp_path):
     assert "ship" in r.stdout.lower()
 
 
-# The retired-verb pointer contract used to be asserted here: a retired v1
-# verb exited 2 with exactly one stderr line naming its replacement. ADR-014
-# removed the pointers at the major version, so there is no pointer left to
-# assert. What replaced it - a retired verb failing as an unrecognised verb,
-# for all six retired spellings - is asserted in
-# tests/test_no_deprecation_stubs.py (RCD-F2). Recorded rather than silently
-# deleted, because a test that vanishes with no forwarding address is
-# indistinguishable from coverage lost by accident.
+# tests/test_no_deprecation_stubs.py asserts that retired verbs fail
+# (RCD-F2).
 
 
 def test_the_issue_flag_is_the_only_spelling(tmp_path):
-    """TRC-3: the help text teaches --issue, and its metavar speaks v2.
+    """`TRC-3`: the help text teaches --issue, and its metavar speaks v2.
 
-    This used to assert that --issue and the tolerated --task spelling
-    resolved the same issue. ADR-014 removed the alias at the major version,
-    so there is no second spelling to agree with; that half now lives in
-    tests/test_no_deprecation_stubs.py (RCD-F3), which asserts --task no
-    longer parses. The help-text assertions below are unchanged.
+    tests/test_no_deprecation_stubs.py asserts that --task no longer <!-- vocabulary-scan: allow - names the retired flag spelling that no longer parses -->
+    parses (RCD-F3). The help-text assertions below are unchanged.
     """
     root = _project(tmp_path)
     r = _run(root, "check", "--help")
     assert "--issue" in r.stdout, "check --help does not document --issue"
-    # The metavar speaks v2 too: "--issue TASK" would teach the banned word
-    # from the help screen itself (maintainer amendment on the 5b review).
+    # The metavar speaks v2 too: "--issue TASK" would teach the banned word <!-- vocabulary-scan: allow - names the retired metavar the help screen must not print -->
+    # from the help screen itself.
     assert re.search(r"--issue\s+SLUG", r.stdout), (
         "the --issue flag's metavar is not SLUG:\n" + r.stdout)
     assert not re.search(r"\bTASK\b", r.stdout), (
@@ -121,7 +112,7 @@ def test_the_issue_flag_is_the_only_spelling(tmp_path):
 
 
 def test_follow_up_states_outstanding_resolved_with_1x_readable(tmp_path):
-    """TRC-4: the resolver writes 'resolved'; a 1.x manifest carrying
+    """`TRC-4`: the resolver writes 'resolved'; a 1.x manifest carrying
     owed/paid is normalised read-side so checks still see the truth."""
     root = _project(tmp_path)
     r = _run(root, "follow-up", "resolve", "--issue", "t", "BF-1")
@@ -154,9 +145,9 @@ OVERRIDE_MD = """# Delivery approach - t
 
 
 def test_output_speaks_v2_shape_names_and_receipt_shows_overrides(tmp_path):
-    """TRC-5: the receipt prints 'initiative' for the machine value
-    'expedition' and shows the recorded topology override; the evaluator's
-    output uses v2 shape names too."""
+    """`TRC-5`: the receipt prints 'initiative' for the machine value
+    'expedition' and shows the recorded orchestration override; the
+    evaluator's output uses v2 shape names too."""
     root = _project(tmp_path, approach_md=OVERRIDE_MD)
     r = _run(root, "issue", "receipt", "--issue", "t")
     assert r.returncode == 0, r.stderr[-400:]
@@ -175,7 +166,7 @@ def test_output_speaks_v2_shape_names_and_receipt_shows_overrides(tmp_path):
 
 
 def test_vocabulary_carries_receipt_follow_up_and_bump():
-    """TRC-6: version past 2.0.0-pre6; a receipt term with the evidence
+    """`TRC-6`: version past 2.0.0-pre6; a receipt term with the evidence
     disambiguation; the follow-up entry speaks outstanding/resolved."""
     doc = yaml.safe_load(
         (REPO_ROOT / "governance" / "terminology.yml").read_text())
@@ -193,7 +184,7 @@ def test_vocabulary_carries_receipt_follow_up_and_bump():
 
 
 def test_cli_surface_enforced_and_widened():
-    """TRC-7: cli/compass left pending (file and baseline);
+    """`TRC-7`: cli/compass left pending (file and baseline);
     cli/compass_pkg/ is a scanned surface; the migrate map is exempt."""
     from test_terminology import PENDING_BASELINE
     scan = yaml.safe_load(
@@ -218,8 +209,8 @@ def test_cli_surface_enforced_and_widened():
 
 
 def test_compass_backfill_tolerance_re_tightened():
-    """TRC-8: 'compass backfill' in prose is flagged like any other use -
-    the lookbehind tolerance ended with the verb rename."""
+    """`TRC-8`: 'compass backfill' in prose is flagged like any other use - <!-- vocabulary-scan: allow - names the retired verb this test proves is still banned -->
+    no lookbehind exemption applies."""
     from test_terminology import BAN_PATTERNS
     line = "settle it with compass " + "backfill pay before shipping"
     hits = [p for p in BAN_PATTERNS["backfill"] if p.search(line)]

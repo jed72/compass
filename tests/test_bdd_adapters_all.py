@@ -1,17 +1,13 @@
-"""All four BDD reference adapters (task bdd-adapters-and-skill-length).
+"""All four BDD reference adapters (issue bdd-adapters-and-skill-length).
 
-The improvement plan asked for reference adapters for pytest-bdd, cucumber-js,
-behave and godog. One shipped, and the pytest-bdd README told readers "the same
-four steps apply" to three runners no adapter existed for - a claim recorded at
-the time as only partially backed. These tests are what back it.
+Compass ships reference adapters for pytest-bdd, cucumber-js, behave and
+godog, and these tests run each one. The rule they enforce: an example no
+job runs is an example nobody can trust. So an adapter ships only with CI
+that runs it, and a test that skips because a runner is absent says so
+rather than reporting success.
 
-The rule these enforce, learned from the pytest-bdd adapter: **an example no job
-runs is an example nobody can trust.** So an adapter ships only with CI that
-runs it, and a test that skips because a runner is absent says so rather than
-reporting success.
-
-Spec: docs/compass/2026-08-03-bdd-adapters-and-skill-length/acceptance-criteria.md (TRC-A1..A4,
-      TRC-B1, TRC-B2, TRC-C1).
+Spec: bdd-adapters-and-skill-length/acceptance-criteria.md (TRC-A1..A4,
+      `TRC-B1`, `TRC-B2`, `TRC-C1`).
 """
 from __future__ import annotations
 
@@ -152,9 +148,9 @@ def test_trc_a3_every_adapter_should_share_the_same_four_documented_steps():
 
 # godog is deliberately excluded. Its -godog.* flags exist only if the suite
 # calls BindCommandLineFlags, which the idiomatic programmatic setup does not -
-# so probing it returns "flag provided but not defined", every tag looks
-# unbound, and the check accused a passing suite of having no step definitions.
-# It reports "unverified" instead, which is the honest answer.
+# so probing it returns "flag provided but not defined". Probing it would
+# report every tag unbound and fail a passing suite, so it reports
+# "unverified" instead, which is the honest answer.
 SELECTOR_RUNNERS = {"pytest-bdd", "behave", "cucumber-js"}
 
 
@@ -191,9 +187,8 @@ def test_trc_b1_every_adapter_should_be_exercised_by_a_ci_job():
 
 
 def test_trc_b2_an_adapter_whose_runner_is_absent_should_skip_loudly():
-    """The skip must name the missing runner. A test that skips silently is the
-    permanently-skipped adapter test all over again - a green tick over an
-    assertion nobody ran."""
+    """The skip must name the missing runner. A test that skips silently
+    shows a green tick over an assertion nobody ran."""
     src = pathlib.Path(__file__).read_text(encoding="utf-8")
     assert "pytest.skip(" in src, "no skip path exists"
     m = re.search(r"pytest\.skip\((.*?)\)\n", src, re.S)

@@ -1,17 +1,14 @@
 """Every verb says what it does when asked.
 
-`compass check --help` printed a usage line and its flags and nothing else -
-43 of 43 `add_parser` calls carried a one-line `help=` and no `description=`.
-The answer existed the whole time, in `CHECK_GUIDANCE`, `guardrails.yml` and
-the command files; it simply never reached the person or the agent asking the
-tool what it was.
-
-Anthropic's context-engineering guidance for Claude 5 models replaces "give
-examples of tool usage" with "design better tool interfaces". This is the half
-of that Compass can act on without guessing.
+Every runnable verb has a `description=` that says more than its help
+line. `compass check --help` printed a usage line and its flags and
+nothing else - 43 of 43 `add_parser` calls carried a one-line `help=` and
+no `description=`. The answer existed the whole time, in `CHECK_GUIDANCE`,
+`guardrails.yml` and the command files; it simply never reached the person
+or the agent asking the tool what it was.
 
 Scenario id: CLIV-A1 in
-docs/compass/2026-08-26-cli-verbs-do-not-describe-themselves/acceptance-criteria.md
+cli-verbs-do-not-describe-themselves/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -22,8 +19,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "cli"))
 
-#: Groups exist to hold subverbs. `compass issue` is not a thing you run, so it
-#: is described by its members rather than by itself.
+#: Groups exist to hold subverbs. `compass issue` is not a thing you run, so
+#: its members describe it rather than it describing itself.
 _GROUPS_ONLY = set()
 
 #: Retired spellings that still run but are hidden from `--help`, so requiring

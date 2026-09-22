@@ -1,14 +1,10 @@
 """
-Tests for architectural fitness functions (command-passes + verify.architecture).
-TRC-B1, TRC-B2, TRC-B3, TRC-B6, TRC-B7, TRC-FM1.
+Tests for architecture checks (command-passes + verify.architecture).
+`TRC-B1`, `TRC-B2`, `TRC-B3`, `TRC-B6`, `TRC-B7`, `TRC-FM1`.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail, which the command prints only
+# under --verbose.
 from __future__ import annotations
 
 import json
@@ -120,11 +116,11 @@ def _make_project(
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1: command-passes project guardrail clears when command exits 0
+# `TRC-B1`: command-passes project guardrail clears when command exits 0
 # ---------------------------------------------------------------------------
 
 class TestCommandPassesSuccess:
-    """TRC-B1: a command-passes project guardrail clears when the declared
+    """`TRC-B1`: a command-passes project guardrail clears when the declared
     command exits 0."""
 
     def test_command_passes_check_succeeds_on_exit_0(self, tmp_path):
@@ -144,7 +140,7 @@ class TestCommandPassesSuccess:
         )
         # Run compass check
         result = _run_cli("check", "--verbose", "--issue", "test-task", cwd=project_root)
-        # command-passes should report success (PASS command-passes)
+        # command-passes must report success (PASS command-passes)
         assert "PASS command-passes" in result.stdout or "command-passes" in result.stdout, (
             f"Expected PASS command-passes in output:\n{result.stdout}\n{result.stderr}"
         )
@@ -171,11 +167,11 @@ class TestCommandPassesSuccess:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B2: command-passes project guardrail fails when command exits non-zero
+# `TRC-B2`: command-passes project guardrail fails when command exits non-zero
 # ---------------------------------------------------------------------------
 
 class TestCommandPassesFailure:
-    """TRC-B2: a command-passes project guardrail fails when the declared
+    """`TRC-B2`: a command-passes project guardrail fails when the declared
     command exits non-zero."""
 
     def test_command_passes_check_fails_on_non_zero_exit(self, tmp_path):
@@ -222,15 +218,15 @@ class TestCommandPassesFailure:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3: verify.architecture is advisory by default
+# `TRC-B3`: verify.architecture is advisory by default
 # ---------------------------------------------------------------------------
 
 class TestVerifyFitnessAdvisory:
-    """TRC-B3: verify.architecture is advisory by default (not in gate set when
+    """`TRC-B3`: verify.architecture is advisory by default (not in gate set when
     no promotion floor fires)."""
 
     def test_fitness_not_in_gates_for_contained_blast_radius(self, tmp_path):
-        """route evaluate with contained blast_radius does NOT add verify.architecture."""
+        """approach evaluate with contained risk does NOT add verify.architecture."""
         import shutil
         gov_dst = tmp_path / "governance"
         gov_dst.mkdir(parents=True, exist_ok=True)
@@ -269,7 +265,7 @@ class TestVerifyFitnessAdvisory:
                 "checked_at": ["verify"],
             }
         ]
-        # task gates do NOT include verify.architecture
+        # issue gates do NOT include verify.architecture
         task_gates = [
             {"id": "verify.correctness", "status": "pending", "evidence": []},
         ]
@@ -279,11 +275,11 @@ class TestVerifyFitnessAdvisory:
             task_gates=task_gates,
             risk="contained",  # no floor fires
         )
-        # command-passes check still runs (it's in G4 defaults),
+        # command-passes check still runs (`G4`: evidence, not assertion),
         # but verify.architecture gate is not in gate set
         result = _run_cli("check", "--verbose", "--issue", "test-task", cwd=project_root)
-        # The key invariant: verify.architecture gate should not be mentioned as blocking
-        # (it's not in the task's gates list)
+        # The key invariant: verify.architecture gate must not be mentioned as blocking
+        # (it's not in the issue's gates list)
         assert "verify.architecture" not in result.stdout or \
                "not in gate set" in result.stdout or \
                "nothing to check" in result.stdout.lower(), (
@@ -292,16 +288,16 @@ class TestVerifyFitnessAdvisory:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6: nothing-to-check pass - no project guardrails → verify.architecture clears
+# `TRC-B6`: nothing-to-check pass - no project guardrails → verify.architecture clears
 # ---------------------------------------------------------------------------
 
 class TestNothingToCheckPass:
-    """TRC-B6: when verify.architecture is in the gate set but no project guardrails
+    """`TRC-B6`: when verify.architecture is in the gate set but no project guardrails
     declare command-passes, the check passes without checking anything."""
 
     def test_no_project_guardrails_passes_with_nothing_to_check(self, tmp_path):
         """With empty project: section and verify.architecture in gate set,
-        command-passes passes without checking anything and reports the nothing to check message."""
+        command-passes clears without checking anything and reports the nothing to check message."""
         project_root, task_dir = _make_project(
             tmp_path,
             project_guardrails=[],  # no project guardrails
@@ -325,7 +321,7 @@ class TestNothingToCheckPass:
         )
 
     def test_passes_with_nothing_to_check_exits_pass(self, tmp_path):
-        """PASS command-passes should appear in output when nothing-to-check pass."""
+        """PASS command-passes must appear in output when nothing-to-check pass."""
         project_root, task_dir = _make_project(
             tmp_path,
             project_guardrails=[],
@@ -340,11 +336,11 @@ class TestNothingToCheckPass:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B7: command-passes is recognised by compass policy lint
+# `TRC-B7`: command-passes is recognised by compass policy lint
 # ---------------------------------------------------------------------------
 
 class TestPolicyLintCommandPasses:
-    """TRC-B7: command-passes is recognised by compass policy lint."""
+    """`TRC-B7`: command-passes is recognised by compass policy lint."""
 
     def test_policy_lint_passes_with_command_passes_check(self, tmp_path):
         """compass policy lint exits 0 when guardrails.yml declares a
@@ -390,11 +386,11 @@ class TestPolicyLintCommandPasses:
 
 
 # ---------------------------------------------------------------------------
-# TRC-FM1: malformed command-passes declaration fails policy lint
+# `TRC-FM1`: malformed command-passes declaration fails policy lint
 # ---------------------------------------------------------------------------
 
 class TestMalformedCommandPasses:
-    """TRC-FM1: a malformed command-passes declaration fails policy lint."""
+    """`TRC-FM1`: a malformed command-passes declaration fails policy lint."""
 
     def _make_guardrails(self, tmp_path: Path, params: Dict[str, Any]) -> Path:
         """Write governance files with a command-passes entry using the given params."""

@@ -1,15 +1,15 @@
-"""Tests for Frame's architecture-loading mechanism.
+"""Tests for the assess stage's architecture-loading mechanism.
 
 Covers:
-  TRC-A1 - Frame loads architecture/ into the task's working context
-  TRC-A2 - Frame degrades gracefully when architecture/ is absent
-  TRC-A5 - invariants.yml is loaded by mechanism when present
-  TRC-A5b - Frame proceeds normally when invariants.yml is absent
-  TRC-X1 - Malformed invariants.yml fails Frame loudly
+  `TRC-A1` - the assess stage loads architecture/ into the issue's working context
+  `TRC-A2` - the assess stage degrades gracefully when architecture/ is absent
+  `TRC-A5` - the loader reads invariants.yml when it is present
+  `TRC-A5b` - the assess stage proceeds normally when invariants.yml is absent
+  `TRC-X1` - malformed invariants.yml fails the assess stage loudly
 
-The helper under test is `frame_load_architecture(project_root, task_dir)`
-in cli/compass.  It is imported via importlib so we don't need to install
-the CLI as a package.
+The helper under test is `frame_load_architecture(project_root, task_dir)`,
+defined in cli/compass_pkg/core.py. It is imported via importlib so we
+don't need to install the CLI as a package.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ import yaml
 
 
 # ---------------------------------------------------------------------------
-# Load the CLI module without executing main()
+# Load the CLI module without running main()
 # ---------------------------------------------------------------------------
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
@@ -33,10 +33,10 @@ def _load_cli():
     source = CLI_PATH.read_text(encoding="utf-8")
     mod = types.ModuleType("compass_cli")
     mod.__file__ = str(CLI_PATH)
-    # Provide __name__ so the `if __name__ == "__main__"` guard doesn't fire
+    # Set __name__ so the `if __name__ == "__main__"` guard doesn't fire
     # during exec.  We also suppress sys.exit calls by catching SystemExit at
-    # module load (there are none, but belt-and-suspenders).
-    exec(compile(source, str(CLI_PATH), "exec"), mod.__dict__)  # noqa: S102
+    # module load (there are none; this is a second safeguard).
+    exec(compile(source, str(CLI_PATH), "exec"), mod.__dict__)  # noqa: `S102`
     return mod
 
 
@@ -60,11 +60,11 @@ def _make_arch(base: Path, files: dict[str, str]) -> None:
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - loads when architecture/ is present
+# `TRC-A1` - loads when architecture/ is present
 # ---------------------------------------------------------------------------
 
 def test_loads_when_present(tmp_path):
-    """TRC-A1: frame_load_architecture writes architecture-loaded.yml with
+    """`TRC-A1`: frame_load_architecture writes architecture-loaded.yml with
     one entry per file found.  The schema_version, loaded_at, artifacts list
     and adrs list must all be present.  Each artifact entry carries path,
     sha256, and type."""
@@ -121,11 +121,11 @@ def test_loads_when_present(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - degrades gracefully when architecture/ is absent
+# `TRC-A2` - degrades gracefully when architecture/ is absent
 # ---------------------------------------------------------------------------
 
 def test_noop_when_absent(tmp_path):
-    """TRC-A2: When architecture/ does not exist, frame_load_architecture
+    """`TRC-A2`: When architecture/ does not exist, frame_load_architecture
     succeeds (no exception), writes architecture-loaded.yml with empty
     artifacts and adrs lists."""
     task_dir = tmp_path / ".compass" / "work" / "test-task"
@@ -147,11 +147,11 @@ def test_noop_when_absent(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5 - invariants.yml loaded when present (valid YAML)
+# `TRC-A5` - invariants.yml loaded when present (valid YAML)
 # ---------------------------------------------------------------------------
 
 def test_invariants_parsed_when_present(tmp_path):
-    """TRC-A5: When architecture/invariants.yml exists and is valid YAML,
+    """`TRC-A5`: When architecture/invariants.yml exists and is valid YAML,
     it appears in artifacts with type 'structured' and its parsed content
     is included inline."""
     inv_content = "rules:\n  - no_duplication\n"
@@ -181,11 +181,11 @@ def test_invariants_parsed_when_present(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5b - no invariants.yml is fine (only narrative files)
+# `TRC-A5b` - no invariants.yml is fine (only narrative files)
 # ---------------------------------------------------------------------------
 
 def test_no_invariants_file_ok(tmp_path):
-    """TRC-A5b: When architecture/ exists but invariants.yml is absent,
+    """`TRC-A5b`: When architecture/ exists but invariants.yml is absent,
     no error is raised and the loaded record contains only narrative entries."""
     _make_arch(tmp_path, {
         "architecture/system-context.md": "# ctx",
@@ -202,18 +202,18 @@ def test_no_invariants_file_ok(tmp_path):
     assert not inv_arts, \
         "invariants.yml should NOT appear when the file is absent"
 
-    # All entries should be narrative
+    # All entries must be narrative
     for art in result["artifacts"]:
         assert art["type"] == "narrative", \
             f"expected narrative type, got {art['type']!r} for {art['path']}"
 
 
 # ---------------------------------------------------------------------------
-# TRC-X1 - malformed invariants.yml fails loudly
+# `TRC-X1` - malformed invariants.yml fails loudly
 # ---------------------------------------------------------------------------
 
 def test_malformed_invariants_fails(tmp_path):
-    """TRC-X1: When architecture/invariants.yml is not valid YAML,
+    """`TRC-X1`: When architecture/invariants.yml is not valid YAML,
     frame_load_architecture raises an exception whose message names the file
     and the parse error."""
     _make_arch(tmp_path, {

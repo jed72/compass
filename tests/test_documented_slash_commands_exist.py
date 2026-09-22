@@ -1,20 +1,18 @@
 """Every slash command a shipped document names is one that exists (issue
 stale-command-names-in-shipped-prose).
 
-`skills/compass-runtime/writing-voice.md` showed `/compass:build`,
-`/compass:land` and `/compass:clarify` in its worked examples. All three were
-removed at 3.0.0, three major versions before this was noticed. It is the file
-every agent loads before writing a devlog entry, a requirements review or a
-line of dialogue, so sessions copied their voice from examples naming commands
-that did not exist.
+Every slash command a shipped document names must exist, because the
+vocabulary scan bans retired *stage words* and does not read slash-command
+spellings inside code spans, and `tests/test_documented_commands_exist.py`
+reads `compass <verb>`, never `/compass:<name>`, so neither guard catches
+one. `skills/compass-runtime/writing-voice.md` showed `/compass:build`,
+`/compass:land` and `/compass:clarify` in its worked examples, all three <!-- vocabulary-scan: allow - names the retired commands this test proves are gone -->
+removed at 3.0.0. It is the file every agent loads before writing a devlog
+entry, a requirements review or a line of dialogue, so sessions copied
+their voice from examples naming commands that did not exist.
 
-Nothing caught it. The vocabulary scan bans retired *stage words*; these are
-slash-command spellings inside code spans, which the position rules treat as
-identifiers rather than prose. And `tests/test_documented_commands_exist.py`
-reads `compass <verb>`, never `/compass:<name>`.
-
-Scenario ids: TRC-A1, TRC-B1, TRC-F1 in
-docs/compass/2026-08-28-stale-command-names-in-shipped-prose/acceptance-criteria.md
+Scenario ids: `TRC-A1`, `TRC-B1`, `TRC-F1` in
+stale-command-names-in-shipped-prose/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -62,12 +60,11 @@ def _slash_mentions():
 
     A blockquote is skipped. `skills/compass-runtime/writing-voice.md` shows
     "Before:" passages quoted verbatim from archived devlogs, with their text
-    hash-verified against the real file by
+    hash-checked against the real file by
     `tests/test_human_voice.py::test_trc_a2_every_pair_quotes_a_real_archive_passage`.
     Those quotes name the commands that existed when they were written, and
     rewriting one to satisfy this check would falsify the record - which is
-    what that hash guard exists to catch. It caught exactly that during this
-    change.
+    what that hash guard exists to catch.
 
     Quoting a command is not teaching it. What this guard is for is prose that
     tells a reader to RUN something.
@@ -85,7 +82,7 @@ def _slash_mentions():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - no shipped document names a slash command that does not exist
+# `TRC-A1` - no shipped document names a slash command that does not exist
 # ---------------------------------------------------------------------------
 
 def test_no_shipped_document_names_a_slash_command_that_does_not_exist():
@@ -107,7 +104,7 @@ def test_no_shipped_document_names_a_slash_command_that_does_not_exist():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - the safety contract names one start version
+# `TRC-B1` - the safety contract names one start version
 # ---------------------------------------------------------------------------
 
 def test_the_safety_contract_names_one_start_version():
@@ -127,7 +124,7 @@ def test_the_safety_contract_names_one_start_version():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a guard that reads no commands is refused
+# `TRC-F1` - a guard that reads no commands is refused
 # ---------------------------------------------------------------------------
 
 def test_a_guard_that_reads_no_commands_is_refused():

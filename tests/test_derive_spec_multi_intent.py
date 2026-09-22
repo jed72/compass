@@ -2,9 +2,8 @@
 
 `schemas/manifest.schema.json` says a scenario's `intent` may be "a string or a
 list of strings (a scenario may serve more than one intent)". The deriver
-used the value directly as a dictionary key, so the list form crashed it with
-`TypeError: unhashable type: 'list'`. Nothing hit it until an issue actually
-wrote the list form.
+must accept a list; using a list as a dictionary key raises
+`TypeError: unhashable type: 'list'`.
 
 Scenario ids: see docs/system-spec.md (TRC-1).
 """
@@ -69,7 +68,7 @@ def test_a_scenario_serving_two_intents_answers_for_both(tmp_path):
 
 
 def test_a_scenario_serving_one_intent_still_derives(tmp_path):
-    """The scalar form is unchanged - this fix must not trade one for the other."""
+    """The scalar form is unchanged - the list form must not break the scalar form."""
     flow = _flow_module()
     project = _project(tmp_path, "INT-9")
 

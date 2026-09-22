@@ -1,30 +1,35 @@
 """How archive-quote verification behaves in each environment it runs in
-(issue archive-quote-verification).
+(archive-quote-verification).
+
+`scripts/verify-archive-quotes.py` runs a two-part check: a committed hash
+manifest (`skills/compass-runtime/archive-quote-manifest.json`) records, per
+quoted span, a sha256 of its exact text - a fingerprint, not a copy - and
+verification always checks the live quote against that hash. Where the
+archive is also present, it additionally checks the quote directly against
+the real file.
 
 `skills/compass-runtime/writing-voice.md` quotes the real archive verbatim,
 citing a path under `.compass/work/` for every pair. `.compass/work/` is
-gitignored, so continuous integration never has it - and the check that used
-to compare a quote against its cited file simply skipped whenever the file
-was missing, which meant a fabricated or altered quote passed the build
+gitignored, so continuous integration never has it. Before this check
+existed, comparing a quote against its cited file simply skipped whenever
+the file was missing, so a fabricated or changed quote passed the build
 every time continuous integration ran it.
 
-`scripts/verify-archive-quotes.py` closes that gap with a two-part check:
-a committed hash manifest (`skills/compass-runtime/archive-quote-manifest.json`)
-records, per quoted span, a sha256 of its exact text - a fingerprint, not a
-copy - and verification always checks the live quote against that hash. Where
-the archive is also present, it additionally checks the quote directly
-against the real file. Either mismatch is a hard failure; the only case that
-still yields a skip is a hash that matches with no file to compare it
-against directly, and that skip must say, by name, which spans went
-unverified and that the manifest is what confirmed them.
+The check gives three outcomes:
+- the hash does not match the live quote: hard failure;
+- the archive is present and the quote is not in the cited file: hard
+  failure;
+- the hash matches and there is no file to compare it against directly: a
+  skip that names, by span, which quotes went unchecked and says the
+  manifest is what confirmed them.
 
 Every test below builds its own fixture reference text, fixture manifest,
-and fixture archive directory in `tmp_path` - never the real repository
-files - so TRC-1 in particular proves the archive-absent path can actually
-fail, rather than asserting it never gets exercised
-(`tests/test_human_voice.py`'s TRC-A2 and TRC-C2 call the same module
-against the real files, which is why that file still uses `pytest.skip` when
-this developer's own checkout happens to be missing the archive).
+and fixture archive directory in `tmp_path`, never the real repository
+files. `TRC-1` proves the archive-absent path can actually fail, rather than
+asserting it never gets exercised. `tests/test_human_voice.py`'s `TRC-A2` and
+`TRC-C2` call the same module against the real files, which is why that file
+still uses `pytest.skip` when this developer's own checkout happens to be
+missing the archive.
 
 Criteria: docs/system-spec.md
 """
@@ -119,7 +124,7 @@ def test_trc_1_fabricated_quote_fails_when_archive_is_absent(tmp_path):
 
 def test_trc_2_unaltered_quote_passes_via_manifest_when_archive_is_absent(tmp_path):
     """The companion case: the quote is exactly what the manifest last
-    verified, and the archive still is not here. This must not fail - but
+    checked, and the archive still is not here. This must not fail - but
     it must not report a silent, unqualified pass either. It has to name
     the span it could not check directly."""
     module = _load_module()
@@ -146,7 +151,7 @@ def test_trc_2_unaltered_quote_passes_via_manifest_when_archive_is_absent(tmp_pa
 def test_trc_3_genuine_quote_passes_by_direct_verification_when_archive_present(tmp_path):
     """With the archive present and the quote genuinely inside it,
     verification takes the direct-comparison branch: no span is left
-    unverified, because there was a real file to check it against."""
+    unchecked, because there was a real file to check it against."""
     module = _load_module()
 
     text = "A line that really is inside the archive file."
@@ -172,10 +177,8 @@ def test_trc_3_genuine_quote_passes_by_direct_verification_when_archive_present(
 
 
 def test_trc_4_mismatched_quote_fails_not_skips_when_archive_present(tmp_path):
-    """The archive is present, but the quote the reference carries is not
-    actually in the cited file - a fabrication the original design already
-    caught. This must remain a hard failure, not regress to a skip, even
-    though the fix's main job is the opposite environment."""
+    """The archive is present and the quote is not in the cited file. This
+    must stay a hard failure, not a skip."""
     module = _load_module()
 
     text = "A sentence that the reference claims is quoted."
@@ -206,7 +209,7 @@ def test_trc_5_update_refuses_to_write_an_unverified_hash(tmp_path):
     the real file first. A quote the archive cannot confirm must not reach
     the manifest at all - proving that hand-editing a hash into the file
     cannot substitute for this path, because this path itself refuses to
-    write one it has not verified."""
+    write one it has not checked."""
     module = _load_module()
 
     reference = _reference_with_one_pair("A quote the archive does not actually contain.")

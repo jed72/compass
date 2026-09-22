@@ -4,10 +4,9 @@ Scenario group A of `docs-compass-artifacts`, plus three of its failure modes.
 
 A path in the manifest's `artifacts:` registry is measured from the PROJECT
 ROOT, not from the issue directory. That is what lets a document live under
-`docs/compass/<date>-<slug>/` while the manifest still names it. It is a
-breaking change to how an existing entry reads - a bare `verification-report.md`
-no longer resolves from the registry - and the flat-filename fallback is what
-keeps those issues working.
+`docs/compass/<date>-<slug>/` while the manifest still names it. A bare
+filename such as `verification-report.md` does not resolve from the
+registry; the flat-filename fallback finds it beside the manifest.
 
 The `evidence:` registry is a different key read by different code and is NOT
 affected: evidence stays under `.compass/work/<slug>/evidence/`.
@@ -61,7 +60,7 @@ def _doc(project, relpath, text="# a document\n"):
     return path
 
 
-# --- TRC-A1 ------------------------------------------------------------------
+# --- `TRC-A1` ------------------------------------------------------------------
 
 def test_trc_a1_a_registered_document_outside_the_issue_directory_resolves(
         project):
@@ -84,7 +83,7 @@ def test_trc_a1_a_registered_document_outside_the_issue_directory_resolves(
         f"{found}")
 
 
-# --- TRC-A2 ------------------------------------------------------------------
+# --- `TRC-A2` ------------------------------------------------------------------
 
 def test_trc_a2_a_registered_path_is_anchored_to_the_project(
         project, monkeypatch, tmp_path):
@@ -112,7 +111,7 @@ def test_trc_a2_a_registered_path_is_anchored_to_the_project(
         "the resolved path moved when the working directory did")
 
 
-# --- TRC-A3 ------------------------------------------------------------------
+# --- `TRC-A3` ------------------------------------------------------------------
 
 def test_trc_a3_an_issue_with_no_registry_resolves_as_today(project):
     """No registry at all: the flat filename beside the manifest still wins."""
@@ -131,17 +130,17 @@ def test_trc_a3_an_issue_with_no_registry_resolves_as_today(project):
 def test_trc_a3_an_unmigrated_entry_still_finds_its_document(project):
     """The breaking half, stated as behaviour.
 
-    An entry written before this change holds a bare filename. Read from the
-    project root that misses, so the fallback finds the file beside the
-    manifest - and the reason says the registered path was not there, which is
-    what makes an unmigrated registry visible rather than silent.
+    A bare filename such as `verification-report.md` does not resolve from
+    the registry; the flat-filename fallback finds it beside the manifest -
+    and the reason says the registered path was not there, which is what
+    makes an unmigrated registry visible rather than silent.
     """
     task_dir = _issue(project, artifacts=[{
         "id": "ART-VERIFICATION_REPORT",
         "kind": "verification-report",
         "status": "draft",
         "reason": "every initiative carries one",
-        "path": "verification-report.md",      # the pre-change spelling
+        "path": "verification-report.md",      # a bare, unregistered path
     }])
     beside = task_dir / "verification-report.md"
     beside.write_text("# beside the manifest\n", encoding="utf-8")
@@ -156,7 +155,7 @@ def test_trc_a3_an_unmigrated_entry_still_finds_its_document(project):
         f"registered path missed. Got: {reason!r}")
 
 
-# --- TRC-A4 ------------------------------------------------------------------
+# --- `TRC-A4` ------------------------------------------------------------------
 
 def test_trc_a4_the_schema_says_what_the_path_is_relative_to():
     """The schema is where a reader finds out, so it has to say."""
@@ -184,7 +183,7 @@ def test_trc_a4_the_schema_says_what_the_path_is_relative_to():
         f"issue directory. Got: {first_sentence!r}")
 
 
-# --- TRC-G1 ------------------------------------------------------------------
+# --- `TRC-G1` ------------------------------------------------------------------
 
 def test_trc_g1_a_registered_path_with_no_file_reports_not_written(project):
     """Entry points somewhere, nothing there, nothing beside the manifest."""
@@ -204,7 +203,7 @@ def test_trc_g1_a_registered_path_with_no_file_reports_not_written(project):
         f"the refusal does not name the registered path it tried: {reason!r}")
 
 
-# --- TRC-G3 ------------------------------------------------------------------
+# --- `TRC-G3` ------------------------------------------------------------------
 
 def test_trc_g3_the_registered_copy_wins_and_the_stale_one_is_reported(
         project):
@@ -231,7 +230,7 @@ def test_trc_g3_the_registered_copy_wins_and_the_stale_one_is_reported(
         f"mention it, so nobody will delete it. Got: {reason!r}")
 
 
-# --- TRC-G4 ------------------------------------------------------------------
+# --- `TRC-G4` ------------------------------------------------------------------
 
 @pytest.mark.parametrize("escape", [
     "../outside.md",
@@ -259,7 +258,7 @@ def test_trc_g4_a_path_outside_the_project_is_refused(project, escape):
 
 
 def test_trc_g4_the_refusal_does_not_fall_back_to_the_flat_filename(project):
-    """A refusal must not be quietly rescued by the fallback.
+    """The fallback must not override a refusal.
 
     Without this, an escaping path plus a file beside the manifest reads as a
     clean FOUND and the refusal never fires - the check would pass on the
@@ -286,10 +285,11 @@ def test_trc_g4_the_refusal_does_not_fall_back_to_the_flat_filename(project):
 def test_the_artifact_registry_does_not_swallow_evidence_entries(project):
     """Evidence does not move, so its paths do not change meaning.
 
-    Named here rather than in the evidence tests because this is the boundary
-    the change had to stop at: reading `evidence:` paths from the project root
-    would break every gate in the repository at once. The two registries are
-    separate keys, and the artifact resolver must not see into the other one.
+    Named here rather than in the evidence tests because reading `evidence:`
+    paths from the project root would break every gate in the repository at
+    once, so that is the boundary the artifact resolver must stop at. The
+    two registries are separate keys, and the artifact resolver must not see
+    into the other one.
     """
     task_dir = _issue(project)
     manifest = yaml.safe_load(

@@ -1,17 +1,16 @@
 """Evidence has an identity, and a citation is checked against it.
 
-A registry entry is a path pointing at a record file. Nothing connected the two
-beyond the path, so replacing the file silently replaced what a gate rested on -
-and `compass check` reported PASS throughout. Two landed issues are in that
-state.
+A registry entry is a path pointing at a record file. That is not enough
+on its own: replacing the file would silently replace what a gate rests on,
+with `compass check` still reporting PASS.
 
 These tests pin the two stamps written at record time (`record_id`, unique per
-write, and `content_digest`, over what was written), the write path that stops
-clobbering, and the check that compares them.
+write, and `content_digest`, over what was written), the write path that
+stops overwriting records, and the check that compares them.
 
-Scenario ids trace to .compass/work/tdd-green-unbound-record/
-acceptance-criteria.md - group A (the write path), B (identity), C (the check),
-D (manifests written before stamping existed).
+Scenario ids trace to tdd-green-unbound-record/acceptance-criteria.md -
+group A (the write path), B (identity), C (the check), D (manifests written
+before stamping existed).
 """
 from __future__ import annotations
 
@@ -92,7 +91,7 @@ def _green(proj: Path, message: str, scenario: Optional[str] = None):
 # ---------------------------------------------------------------------------
 
 def test_b1_record_carries_a_unique_identity(tmp_path):
-    """TRC-B1: a recorded run carries an identity, and two different runs carry
+    """`TRC-B1`: a recorded run carries an identity, and two different runs carry
     different identities."""
     proj = _make_project(tmp_path)
 
@@ -111,11 +110,11 @@ def test_b1_record_carries_a_unique_identity(tmp_path):
 
 
 def test_b2_rerecording_produces_a_new_identity(tmp_path):
-    """TRC-B2: re-recording the SAME command produces a different identity.
+    """`TRC-B2`: re-recording the SAME command produces a different identity.
 
     Identity is of the run, not of the command or its output. Two runs of one
-    suite are two pieces of evidence, and a citation naming the first must not
-    be satisfied by the second.
+    suite are two pieces of evidence, and the second must not satisfy a
+    citation naming the first.
 
     This is why a content digest cannot carry the identity alone: `now_iso()`
     is second-resolution, so the two payloads below are byte-identical apart
@@ -134,7 +133,7 @@ def test_b2_rerecording_produces_a_new_identity(tmp_path):
 
 
 def test_b3_registry_entry_stores_the_identity(tmp_path):
-    """TRC-B3: the registry entry carries the identity of the run it was
+    """`TRC-B3`: the registry entry carries the identity of the run it was
     created from, and it matches the record on disk."""
     proj = _make_project(tmp_path)
     _green(proj, "FULL SUITE: 957 tests")
@@ -158,7 +157,7 @@ def test_b3_registry_entry_stores_the_identity(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_a1_scenario_green_does_not_destroy_the_unbound_green(tmp_path):
-    """TRC-A1: recording a scenario-bound green leaves the unbound green
+    """`TRC-A1`: recording a scenario-bound green leaves the unbound green
     intact.
 
     The defect, reproduced. An unbound full-suite record is registered and
@@ -186,7 +185,7 @@ def test_a1_scenario_green_does_not_destroy_the_unbound_green(tmp_path):
 
 
 def test_a2_scenario_acceptance_does_not_destroy_the_unbound_acceptance(tmp_path):
-    """TRC-A2: the same defect in the other half of the module.
+    """`TRC-A2`: the same defect in the other half of the module.
 
     `compass acceptance record` carried the identical unconditional write. Its
     own comment described the scenario-copy fix, which closed scenario-versus-
@@ -211,7 +210,7 @@ def test_a2_scenario_acceptance_does_not_destroy_the_unbound_acceptance(tmp_path
 
 
 def test_a3_no_verb_overwrites_a_cited_path(tmp_path):
-    """TRC-A3: the guard on the class, not on its two known members.
+    """`TRC-A3`: the guard on the class, not on its two known members.
 
     Every evidence-writing verb follows one rule - a write bound to a scenario
     touches only that scenario's record. A fifth fixed-name write added later
@@ -245,7 +244,7 @@ def test_a3_no_verb_overwrites_a_cited_path(tmp_path):
 
 
 def test_a4_unbound_record_can_be_rerecorded(tmp_path):
-    """TRC-A4: the failure this fix could easily introduce.
+    """`TRC-A4`: the failure this fix could easily introduce.
 
     Protecting the unbound record so well that a genuinely stale full-suite run
     can never be replaced would be its own defect.
@@ -269,7 +268,7 @@ def test_a4_unbound_record_can_be_rerecorded(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Group C - the check verifies the citation
+# Group C - the check checks the citation
 # ---------------------------------------------------------------------------
 
 def _replace_record(proj: Path, name: str, **overrides) -> None:
@@ -282,7 +281,7 @@ def _replace_record(proj: Path, name: str, **overrides) -> None:
 
 
 def test_c1_replaced_record_is_reported(tmp_path):
-    """TRC-C1: a citation whose record has been replaced is reported.
+    """`TRC-C1`: a citation whose record has been replaced is reported.
 
     The scenario that decides whether any of this is worth building. An
     identity nothing reads is decoration.
@@ -305,11 +304,11 @@ def test_c1_replaced_record_is_reported(tmp_path):
 
 
 def test_c2_matching_citation_is_quiet(tmp_path):
-    """TRC-C2: a citation that matches its record is not reported.
+    """`TRC-C2`: a citation that matches its record is not reported.
 
     The half that stops this becoming noise. This passes the moment the check
-    is written correctly, so it is proved by mutation - see
-    evidence/mutation-proofs.md.
+    is written correctly, so it is proved by mutation: breaking the match
+    makes this test fail.
     """
     proj = _make_project(tmp_path)
     _green(proj, "FULL SUITE: 957 tests")
@@ -323,7 +322,7 @@ def test_c2_matching_citation_is_quiet(tmp_path):
 
 
 def test_c3_report_names_what_changed(tmp_path):
-    """TRC-C3: the report names the evidence id, the file, and what changed.
+    """`TRC-C3`: the report names the evidence id, the file, and what changed.
 
     A failure a reader cannot act on sends them to the source to find out which
     record is wrong.
@@ -347,7 +346,8 @@ def test_c3_report_names_what_changed(tmp_path):
 
 def _unstamped_entry(proj: Path, ev_id: str = "EV-OLD") -> None:
     """A registry entry and record of the kind written before stamping - no
-    record_id on either. 662 of these exist across 89 landed issues."""
+    record_id on either. Every record written before stamping existed is in
+    this state."""
     ev = proj / ".compass/work/t/evidence"
     (ev / "old.json").write_text(json.dumps(
         {"command": "pytest tests/", "exit_code": 0, "passed": True}, indent=2))
@@ -359,14 +359,15 @@ def _unstamped_entry(proj: Path, ev_id: str = "EV-OLD") -> None:
 
 
 def test_d1_unstamped_record_does_not_fail(tmp_path):
-    """TRC-D1: a record written before stamping existed does not fail the
+    """`TRC-D1`: a record written before stamping existed does not fail the
     check.
 
-    662 records across 89 landed issues are in this state. Failing on them
-    would turn every one red for a fact about when they were written.
+    Every record written before stamping existed is in this state. Failing
+    on them would turn every one red for a fact about when they were
+    written.
 
     Never-red by construction once the code is right, so it is proved by
-    mutation - see evidence/mutation-proofs.md.
+    mutation: breaking the never-fail path makes this test fail.
     """
     proj = _make_project(tmp_path)
     _unstamped_entry(proj)
@@ -381,11 +382,11 @@ def test_d1_unstamped_record_does_not_fail(tmp_path):
 
 
 def test_d2_unstamped_record_is_not_reported_as_verified(tmp_path):
-    """TRC-D2: an unverifiable record says so, rather than passing quietly.
+    """`TRC-D2`: an `unverifiable` record says so, rather than passing quietly.
 
-    The scenario QA should read first. An unstamped record CANNOT be checked
+    The scenario to read first. An unstamped record CANNOT be checked
     against its citation - that is a fact about the record, not a pass.
-    Reporting it as verified would be a check that cannot fail.
+    Reporting it as checked would be a check that cannot fail.
     """
     proj = _make_project(tmp_path)
     _unstamped_entry(proj)
@@ -396,6 +397,6 @@ def test_d2_unstamped_record_is_not_reported_as_verified(tmp_path):
         "the report does not say the citation could not be verified:\n" + line)
 
     # And the count must not absorb it. With ONLY unstamped records, nothing
-    # was verified, so the check must not claim otherwise.
+    # was checked, so the check must not claim otherwise.
     assert "1 citation(s) match" not in line, (
         "an unstamped record was counted as a matching citation:\n" + line)

@@ -1,25 +1,14 @@
-"""Config, docs and refactor work needs an honest acceptance (field report R13).
+"""Config, docs and refactor work needs an honest acceptance.
 
-The highest-frequency item in the batch - roughly 40% of the reporter's tasks.
-A compose `mem_limit`, a CI `exit-code`, a Prometheus rule, a Terraform runbook,
-a dead-code removal: none has a natural behavioural red, because the whole point
-of a refactor is that behaviour does not change.
-
-To satisfy the hook they recorded reds like
-
-    compass tdd-red --verified-by regression -- '! grep -q "_ = is_unique" solver.py'
-
-which asserts the presence of a string in a file - exactly the "test the
-implementation, not the behaviour" smell `tdd-discipline` warns against. R8's
-sanction made that *allowed*; it did not make it *right*. The framework had no
-honest path for a legitimate change, so authors invented a dishonest one.
-
-The acceptance verb gives those changes a real signal: a validator that must
-pass, or a green baseline that must stay green across a demonstrably changed
-tree. It writes its own marker - `.red` keeps meaning only "a real failure was
+The acceptance verb gives that work a real signal: a validator that must
+pass, or a green baseline that must stay green across a demonstrably
+changed tree. Without it, a change with no natural behavioural red - a
+compose `mem_limit`, a CI `exit-code`, a Terraform runbook, a dead-code
+removal - has no honest way to satisfy the red-before-green hook. The verb
+writes its own marker - `.red` keeps meaning only "a real failure was
 observed here".
 
-Scenarios: docs/compass/2026-08-06-honest-acceptance-for-config-and-refactor/acceptance-criteria.md
+Scenarios: honest-acceptance-for-config-and-refactor/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -225,8 +214,9 @@ def test_scn_c2_marker_is_per_task():
 # ---------------------------------------------------------------------------
 
 def test_scn_f1_evidence_is_accepted_by_check():
-    """The acceptance has to be usable as the task's recorded run, or authors
-    are back to faking a red to satisfy G1."""
+    """The acceptance has to be usable as the issue's recorded run, or
+    authors are back to faking a red to satisfy `G1` (every scenario has a
+    test)."""
     root, task_dir = _project()
     try:
         _run(root, "acceptance", "start", "--kind", "validation", "--", *PASS_CMD)
@@ -253,14 +243,8 @@ def test_scn_f2_tdd_discipline_names_the_verb():
 # ---------------------------------------------------------------------------
 # Group G - two scenarios' acceptance records must not collide
 #
-# Found while recording TRC-F4 and TRC-F5's characterisation acceptances for
-# zero-friction-install: `compass acceptance record --scenario ...` always
-# wrote the SAME fixed file, evidence/acceptance.json, regardless of
-# --scenario. A second scenario's record silently overwrote the first's real
-# evidence, even though manifest.yml's registry still listed both scenarios as
-# bound to that one (now wrong-for-one-of-them) file. `compass tdd-green`
-# already avoids exactly this by writing a scenario-specific copy alongside
-# the generic one; `compass acceptance record` did not.
+# Each scenario's acceptance record must go to its own file; one shared
+# file lets a second record overwrite the first.
 # ---------------------------------------------------------------------------
 
 def test_scn_g1_two_scenarios_recorded_in_sequence_do_not_overwrite_each_other():

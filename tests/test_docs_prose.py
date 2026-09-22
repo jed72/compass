@@ -1,13 +1,15 @@
-"""Slice 7 of the v2 rename: the docs and governance prose speak v2, and
-the ratchet reaches zero.
+"""The docs and governance prose speak v2, and the ratchet reaches zero.
 
-The last pending surfaces (README, five-minutes, methodology, the
-governance prose) are rewritten and enforced; routes/ becomes the
-delivery-approach reference docs under approaches/; the remaining docs
-prose enters scan.surfaces enforced and never-pending; the worked-example
-directories rename to their v2 change-type names (directory names teach
-vocabulary before any file is opened); and the install.sh plugin-source
-refusal points at the path the plugin source actually uses.
+These tests assert:
+
+- the last pending surfaces (README, five-minutes, methodology, the
+  governance prose) are rewritten and enforced;
+- routes/ is the delivery-approach reference docs under approaches/; <!-- vocabulary-scan: allow - names the retired directory these tests assert is gone -->
+- the remaining docs prose is in scan.surfaces, enforced and never-pending;
+- the worked-example directories carry their v2 change-type names (a
+  directory name teaches vocabulary before any file is opened);
+- the install.sh plugin-source refusal points at the path the plugin
+  source actually uses.
 """
 from __future__ import annotations
 
@@ -27,9 +29,8 @@ def _scan_cfg() -> dict:
 
 
 def test_the_ratchet_reaches_zero():
-    """TRC-1, restored to its original form by the second half of the
-    docs-prose slice: pending_surfaces is empty and the committed
-    baseline with it - every user-facing surface is enforced, forever."""
+    """`TRC-1`: pending_surfaces is empty and the committed baseline with it -
+    every user-facing surface is enforced, forever."""
     from test_terminology import PENDING_BASELINE
     assert _scan_cfg()["pending_surfaces"] == [], (
         "pending_surfaces is not empty - the ratchet has not reached zero")
@@ -38,8 +39,8 @@ def test_the_ratchet_reaches_zero():
 
 
 def test_reference_docs_carry_v2_names():
-    """TRC-2: approaches/ holds the rubric and the five shape docs under
-    v2 names; routes/ is gone; no live surface points at the old path."""
+    """`TRC-2`: approaches/ holds the rubric and the five shape docs under
+    v2 names; routes/ is gone; no live surface points at the old path. <!-- vocabulary-scan: allow - names the retired directory this test asserts is gone -->"""
     approaches = REPO_ROOT / "approaches"
     for name in ("rubric.md", "quick-fix.md", "feature.md",
                  "initiative.md", "hotfix.md", "spike.md"):
@@ -65,7 +66,7 @@ def test_reference_docs_carry_v2_names():
 
 
 def test_examples_carry_v2_names():
-    """TRC-3: the worked-example directories carry v2 change-type names -
+    """`TRC-3`: the worked-example directories carry v2 change-type names -
     the manual teaches vocabulary from the directory listing."""
     names = {p.name for p in (REPO_ROOT / "examples").iterdir()
              if p.is_dir()}
@@ -80,19 +81,17 @@ def test_examples_carry_v2_names():
 
 
 def test_remaining_docs_are_enforced():
-    """TRC-4, restored to its full form by the second half: all six
-    remaining docs are scanned surfaces, and the doctrine document is
-    enforced with them."""
+    """`TRC-4`: all six remaining docs are scanned surfaces, and the
+    doctrine document is enforced with them."""
     scan = _scan_cfg()
     for f in ("docs/roles-guide.md", "docs/safety-contract.md",
               "docs/security.md", "docs/quickstart.md",
               "docs/portability.md", "docs/routing-deep-dive.md"):
         assert f in scan["surfaces"], f"{f} is not a scanned surface"
     # Asserted as "not scanned", which is the property that matters, rather
-    # than as "exempt". The exemption did no work: `scan.exempt` is applied
-    # only to files gathered from `scan.surfaces`, and this file is under
-    # none of them - so it was already unscanned, and the entry read as
-    # coverage that had been granted.
+    # than as "exempt". `scan.exempt` applies only to files under
+    # `scan.surfaces`, and this file is under none, so the test asserts
+    # "not scanned".
     reachable = [sfc for sfc in scan["surfaces"]
                  if "docs/system-spec.md".startswith(sfc.rstrip("/") + "/")
                  or sfc == "docs/system-spec.md"]
@@ -103,7 +102,7 @@ def test_remaining_docs_are_enforced():
 
 
 def test_install_refusal_points_at_plugin_dir():
-    """TRC-5: the plugin-source refusal names the path the plugin source
+    """`TRC-5`: the plugin-source refusal names the path the plugin source
     actually uses - claude --plugin-dir - not /plugin install, which is
     the answer for a project consuming the plugin."""
     text = (REPO_ROOT / "scripts" / "install.sh").read_text(encoding="utf-8")
@@ -114,11 +113,8 @@ def test_install_refusal_points_at_plugin_dir():
         "the refusal block still sends the plugin source to /plugin install")
 
 
-# `compass plan lint` was on this list until 2026-08-25, when the vocabulary
-# rename moved the planning verb BACK to `plan` - `design` names the designer's
-# stage now, and one word cannot mean two stages in one release. It is the live
-# spelling. `compass design lint` was the retired second name for it, and
-# was removed at 4.0.0 - so it must not be taught anywhere.
+# `compass plan lint` is the live spelling. `compass design lint` was
+# removed at 4.0.0 and must not be taught anywhere.
 RETIRED_CLI = __import__("re").compile(
     r"compass (?:route|backfill|calibration|land-commit)\b"
     r"|compass task (?:lint|receipt|set-status)"
@@ -131,11 +127,10 @@ RETIRED_CLI = __import__("re").compile(
 # cannot match the error they got to the row that fixes it. Recording is not
 # teaching.
 #
-# The REASON is mandatory, and the pattern is the vocabulary scan's own so the
-# two cannot drift. A bare `vocabulary-scan: allow` with nothing after it would
-# be a skip pattern with extra steps - any line in any live document could
-# silence this guard, with no reason and no count. That is the defect this
-# change removed from two other guards; it is not re-introduced here.
+# The REASON is mandatory, and the pattern is the vocabulary scan's own, so
+# the two stay identical. A bare `vocabulary-scan: allow` with nothing after
+# it would be an unconditional skip - any line in any live document could
+# silence this guard, with no reason and no count.
 #
 # Counted as well as reasoned: `MAX_ALLOW_MARKERS` is a ceiling, so the list
 # cannot grow quietly. `grep -rn "vocabulary-scan: allow" .` enumerates every
@@ -146,11 +141,10 @@ MAX_ALLOW_MARKERS = 14
 
 
 def test_no_live_doc_teaches_a_retired_cli_spelling():
-    """Extension from the docs-prose review: code spans are scan-exempt,
-    so a retired CLI verb inside backticks or a fenced example survives
-    the vocabulary scan and only reading catches it. This sweep reads
-    everything - a cleaned surface never teaches a spelling whose only
-    life is a redirect pointer."""
+    """Code spans are scan-exempt, so a retired CLI verb inside backticks
+    or a fenced example survives the vocabulary scan and only reading
+    catches it. This sweep reads everything - a cleaned surface never
+    teaches a retired spelling."""
     surfaces = [REPO_ROOT / "CLAUDE.md", REPO_ROOT / "AGENTS.md",
                 REPO_ROOT / "README.md", REPO_ROOT / "examples" / "README.md"]
     for pat in ("commands/*.md", "skills/*/SKILL.md", "agents/*.md",

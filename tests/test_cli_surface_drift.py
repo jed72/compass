@@ -1,14 +1,12 @@
-"""Acceptance tests for task cli-surface-drift-v1-2.
+"""Acceptance tests for issue cli-surface-drift-v1-2.
 
-The forward-looking move: parse `compass --help` to derive the truth set of
-subcommands and assert it appears in the documented CLI blocks. The next new
-subcommand that ships without updating the docs fails these tests in CI.
+The tests parse `compass --help` to derive the truth set of subcommands and
+assert it appears in the documented CLI blocks. The next new subcommand
+that ships without updating the docs fails these tests in CI.
 
-Scenario ids: TRC-A1..C1, from the `cli-surface-drift-v1-2` issue. Its
-record is not in this tree - `.compass/work/` has never been tracked in
-git, so a path into it was never openable by anyone but the author, and
-that directory is gone. The ids and the description above are what
-survives.
+Scenario ids: `TRC-A1`..C1, from the `cli-surface-drift-v1-2` issue. The
+issue's record is not in the repository; these ids and this description are
+the only record.
 """
 import re
 import subprocess
@@ -50,9 +48,10 @@ def _cli_block_in(file_path):
     <subcommand>` lines, one per line. We anchor on a listing line for
     `compass approach evaluate` and grab the surrounding fence.
 
-    The anchor must start the line. The same command also appears in prose and
-    in pasted terminal transcripts, where it is quoted inline or follows a `$`
-    prompt - matching those picked up a block that lists no verbs at all.
+    The anchor must start the line. The same command also appears in prose
+    and in pasted terminal transcripts, where it is quoted inline or
+    follows a `$` prompt - matching those would pick up a block that lists
+    no verbs at all.
     """
     text = (ROOT / file_path).read_text()
     # Find the fenced block that contains the anchor line.
@@ -94,12 +93,11 @@ def _sub_verbs(parent):
 
 def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
     """README.md's CLI block names every `compass issue` sub-verb (lint,
-    receipt, ...) - the group was `task` before the CLI-voice slice renamed
-    it. The earlier tests cover top-level verbs; this one covers the
-    sub-verbs under `issue` so a new one cannot ship undocumented behind a
-    top-level no-op (e.g. `compass issue receipt` adding to existing
-    `compass issue lint`). docs/five-minutes.md carries no CLI block of its
-    own - it points readers at README's.
+    receipt, ...). The earlier tests cover top-level verbs; this one covers
+    the sub-verbs under `issue` so a new one cannot ship undocumented
+    behind a top-level no-op (e.g. `compass issue receipt` adding to
+    existing `compass issue lint`). docs/five-minutes.md carries no CLI
+    block of its own - it points readers at README's.
     """
     sub_verbs = _sub_verbs("issue")
     for doc_file in ("README.md",):
@@ -122,14 +120,13 @@ def test_trc_a3_task_sub_verbs_tracked_in_cli_blocks():
 def _new_cross_task_commands():
     """The six commands that ship between fb092c0 and v1.2.0 - must appear in
     the runtime-neutral adapter contracts."""
-    # "compass backfill" became "compass follow-up" at the CLI-voice slice;
-    # the contract must name the live verb.
+    # The contract must name the live verb.
     return ["compass analyze", "compass rework-scan", "compass follow-up",
             "compass flow", "compass next", "compass adr"]
 
 
 def test_trc_b1_agents_adapter_section_names_new_cross_task_kit_calls():
-    """AGENTS.md's adapter contract section names every new cross-task kit call."""
+    """AGENTS.md's adapter contract section names every new cross-issue command."""
     text = (ROOT / "AGENTS.md").read_text()
     m = re.search(
         r"##\s+What a runtime adapter must give.*?(?=^##\s+|\Z)",
@@ -166,12 +163,10 @@ def test_trc_b2_portability_mapping_table_names_new_cross_task_kit_calls():
 def test_trc_c1_install_smoke_test_shows_current_version():
     """install-smoke-test.md's expected `compass --version` output matches the VERSION file.
 
-    The anchor deliberately does not name the words after the version. It
-    used to search for `(task schema`, the retired v1 spelling, which meant
-    it validated a stale line for the whole of v2 while the correct line
-    sixty lines above went unchecked. Whether the banner's wording is right
-    is `tests/test_smoke_test_version_matches_cli.py`'s job, and it settles
-    that against the CLI rather than against a phrase written down here.
+    The anchor does not name the words after the version.
+    `tests/test_smoke_test_version_matches_cli.py` checks the banner
+    wording, against the CLI rather than against a phrase written down
+    here.
     """
     version = (ROOT / "VERSION").read_text().strip()
     smoke_test = (ROOT / "docs" / "install-smoke-test.md").read_text()

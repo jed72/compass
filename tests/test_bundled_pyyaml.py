@@ -1,27 +1,24 @@
 """Group G - the bundled copy and the machine it lands on.
 
-TRC-G1: whatever PyYAML the host machine has - none, one, or a different
-version - the CLI always resolves the copy Compass ships, deterministically.
-TRC-G2: the version that ships is the version the documentation names, and it
-is a specific version, not a range. TRC-G3: the bundled library carries its
-own licence and its attribution, and Compass's own licence is not altered to
-describe code Compass did not write.
+- `TRC-G1`: whatever PyYAML the host machine has - none, one, or a different
+  version - the CLI always resolves the copy Compass ships, deterministically.
+- `TRC-G2`: the version that ships is the version the documentation names, and
+  it is a specific version, not a range.
+- `TRC-G3`: the bundled library carries its own licence and its attribution,
+  and Compass's own licence is not changed to describe code Compass did not
+  write.
 
-This file also carries DD-2's repository fitness test
+This file also carries `DD-2`'s architecture check
 (`test_every_yaml_reader_resolves_through_the_shared_mechanism`): the static
 proof that nobody bypassed the one resolution mechanism. The dynamic tests
 above prove the mechanism resolves correctly against a decoy; this proves
-nobody wrote a seventh reader the old way. It is a fitness function in the
-shape of `tests/test_house_style.py` - it adds no guardrail, no gate, no
-vocabulary; `verify.fitness` is what it clears.
+nobody wrote a seventh reader the old way. It is an architecture check in
+the shape of `tests/test_house_style.py` - it adds no guardrail, no gate, no
+vocabulary; `verify.architecture` is what it clears.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import os
@@ -68,7 +65,7 @@ def _run_version(extra_env: dict) -> str:
 
 def test_trc_g1_bundled_copy_wins_over_a_decoy(tmp_path):
     """A decoy `yaml` on PYTHONPATH, and the real system PyYAML still behind
-    it in site-packages (this dev machine has one): the CLI reports the
+    it in site-packages (on a machine that has one): the CLI reports the
     bundled version and a file location under `cli/vendor/yaml/`, not the
     decoy's, and not site-packages'. Run twice, same answer both times."""
     decoy_dir = _make_decoy(tmp_path)
@@ -116,7 +113,7 @@ def _run_version_in_copy(cli_dir: Path, extra_env: dict | None = None):
 
 
 def test_trc_g1_absent_vendor_does_not_silently_fall_back_to_a_system_pyyaml(tmp_path):
-    """Precedence is claimed unconditionally (ADR-013 Decision 3, DD-3): the
+    """Precedence is claimed unconditionally (ADR-013 Decision 3, `DD-3`): the
     bundled copy always wins, never a fallback. Inserting a nonexistent
     directory at sys.path[0] is a no-op, so with cli/vendor/ removed on a
     machine that also has a real PyYAML in site-packages, the resolver must
@@ -215,13 +212,13 @@ def test_trc_g3_compass_licence_not_altered_to_describe_third_party_code():
 
 
 # ---------------------------------------------------------------------------
-# The repository fitness test (DD-2) - nobody bypassed the shared mechanism
+# The repository architecture check (DD-2) - nobody bypassed the shared mechanism
 # ---------------------------------------------------------------------------
 
 # Any spelling of a YAML import: `import yaml`, `import sys, yaml`,
 # `import yaml as y`, `from yaml import safe_load`. A bare `grep "import
-# yaml"` misses the comma form, which is exactly how a reader hides -
-# `hooks/stop.sh` writes it that way today.
+# yaml"` misses the comma form, which is how a YAML reader goes unnoticed -
+# `scripts/integrate.sh` writes `import yaml, datetime, sys`.
 _IMPORT_YAML_RE = re.compile(
     r"^[ \t]*(?:import[ \t]+[ \t\w,]*\byaml\b(?:[ \t]+as[ \t]+\w+)?[ \t]*(?:#.*)?$"
     r"|from[ \t]+yaml\b[ \t]+import\b)",
@@ -251,10 +248,10 @@ _HEREDOC_OPEN_RE = re.compile(
 
 def _iter_heredocs(text):
     """Yield (invoker, body_start, body_end) for each heredoc in `text`, in
-    the order they open. A delimiter reused by a later heredoc (both PY, as
-    hooks/pre-tool.sh's two blocks are) is handled correctly because each
-    heredoc's own closing line is searched for starting only after that
-    heredoc's own body begins - it never matches an earlier heredoc's close."""
+    the order they open. Several heredocs in this repository reuse the same
+    delimiter; the parser searches for each heredoc's closing line only
+    after that heredoc's own body begins, so it never matches an earlier
+    heredoc's close."""
     pos = 0
     for m in _HEREDOC_OPEN_RE.finditer(text):
         if m.start() < pos:
@@ -285,7 +282,7 @@ def _find_yaml_reader_violations(file_texts: dict) -> list:
     independently. A file's first heredoc doing the right thing does not
     excuse its second - `import compass_pkg` earlier in the FILE is not the
     same claim as `import compass_pkg` earlier in the SAME heredoc's body,
-    and only the second is what DD-2 actually promises."""
+    and only the second is what `DD-2` actually promises."""
     violations = []
     for rel, text in file_texts.items():
         if rel in ("cli/compass",) or rel.startswith("cli/compass_pkg/"):
@@ -342,10 +339,9 @@ def test_yaml_reader_detection_flags_a_bypass_and_clears_the_shared_mechanism():
     bypassing_python = "import yaml\n\ndef f():\n    return yaml.safe_load('')\n"
     package_python = "import yaml\n"  # legitimately inside cli/compass_pkg/
 
-    # The reviewer's probe 3 shape: one file, two heredocs - the first
-    # routed correctly, the second a full bypass. A per-FILE check (the
-    # design this test used to have) sees "import compass_pkg" from the
-    # first heredoc and waves the second through; this must not.
+    # One file, two heredocs: the first routed correctly, the second a
+    # bypass. A per-file check sees the first import and passes the
+    # second; this must not.
     mixed_two_heredoc_file = (
         "#!/usr/bin/env bash\n"
         "source scripts/lib/compass-python.sh\n"
@@ -379,7 +375,7 @@ def test_yaml_reader_detection_flags_a_bypass_and_clears_the_shared_mechanism():
 
 def test_every_yaml_reader_resolves_through_the_shared_mechanism():
     """The real repository, scanned for real: every tracked file outside
-    `tests/` that imports yaml in any spelling routes through DD-2's one
+    `tests/` that imports yaml in any spelling routes through `DD-2`'s one
     mechanism. A new reader written the old way fails this build."""
     listing = subprocess.run(
         ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
@@ -408,8 +404,8 @@ def test_every_yaml_reader_resolves_through_the_shared_mechanism():
 
 
 # ---------------------------------------------------------------------------
-# cli/vendor/ contents - the invariant ADR-013, technical-design.md and
-# cli/vendor/README.md all state and none of them checked
+# cli/vendor/ contents - the invariant ADR-013 and cli/vendor/README.md both
+# state and neither checked
 # ---------------------------------------------------------------------------
 
 _VENDOR_ALLOWED_ENTRIES = {"yaml", "LICENSE-PyYAML", "README.md"}
@@ -419,7 +415,7 @@ def _vendor_shadow_violations(vendor_dir: Path) -> list:
     """`cli/vendor/` sits at sys.path[0] in every Compass process (DD-2),
     ahead of the standard library itself - so only names that are not
     already in the standard library may ever be vendored there (ADR-013
-    Decision 1, technical-design.md DD-1 Consequences, `cli/vendor/README.md`: "Nothing
+    Decision 1, technical-design.md `DD-1` Consequences, `cli/vendor/README.md`: "Nothing
     else goes in this directory"). Returns a problem string per violation:
     an entry outside the declared allowlist, or an importable top-level name
     that collides with a standard-library module."""

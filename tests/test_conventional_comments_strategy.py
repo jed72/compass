@@ -65,9 +65,7 @@ def test_the_strategy_names_every_label_and_the_reason():
     # means - not merely mentioned somewhere in the prose. Checking for the
     # bare word passes while the definition list is being deleted: the entry
     # discusses nitpicks and blocking in its rationale, so "nitpick" and
-    # "issue" survive the removal of their own bullets. That is the same
-    # fault this file's own strategy set was written to catch, and it has now
-    # appeared in three separate strategy tests.
+    # "issue" survive the removal of their own bullets.
     undefined = [
         w for w in LABELS
         if not re.search(rf"^\s*[-*]\s+\*\*{w}\*\*\s*-\s*\S", entry,

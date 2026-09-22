@@ -1,8 +1,8 @@
 """`compass ci` - the aggregated mechanical gate suite.
 
-Returns non-zero when ANY task fails check, zero when everything passes. The
-mode interaction is covered in test_modes; here we just verify the exit-code
-aggregation.
+Returns non-zero when ANY issue fails check, zero when everything passes.
+The mode interaction is covered in test_modes; here we just check the
+exit-code aggregation.
 """
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ def _write_green(task_dir):
 
 
 def test_ci_passes_when_no_tasks(run_cli, project):
-    """A repo with governance but no tasks: governance still lints, ci
+    """A repo with governance but no issues: governance still lints, ci
     returns 0."""
     r = run_cli("ci")
     assert r.returncode == 0, r
@@ -60,10 +60,10 @@ def test_ci_passes_when_all_tasks_pass(run_cli, make_task):
 
 
 def test_ci_fails_when_any_task_fails(run_cli, make_task):
-    """Two tasks; one is missing test-run evidence => ci must exit non-zero."""
+    """Two issues; one is missing test-run evidence => ci must exit non-zero."""
     task_dir = make_task("ok", _valid_task("ok"))
     _write_green(task_dir)
-    # the second task is missing the evidence + the green.json file
+    # the second issue is missing the evidence + the green.json file
     make_task("bad", _valid_task("bad", with_evidence=False))
     r = run_cli("ci")
     assert r.returncode != 0, r
@@ -71,7 +71,7 @@ def test_ci_fails_when_any_task_fails(run_cli, make_task):
 
 
 def test_ci_fails_on_invalid_policy(run_cli, edit_governance, make_task):
-    """Broken governance => ci fails before any task check."""
+    """Broken governance => ci fails before any issue check."""
     with edit_governance("guardrails.yml") as gr:
         gr.setdefault("project", []).append({
             "id": "Q-BAD",
@@ -85,7 +85,7 @@ def test_ci_fails_on_invalid_policy(run_cli, edit_governance, make_task):
 
 
 def test_ci_reports_each_task(run_cli, make_task):
-    """The output mentions each task slug so a user can locate the failure."""
+    """The output mentions each issue slug so a user can locate the failure."""
     for slug in ("alpha", "beta"):
         td = make_task(slug, _valid_task(slug))
         _write_green(td)

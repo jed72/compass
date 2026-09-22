@@ -1,13 +1,13 @@
 """The fresh-eyes practice becomes a standing strategy (issue fresh-eyes-verify-sweeps).
 
 The maintainer's instruction: after a sweep, rename, or cleanup that touches
-many files, verification is done by a fresh agent that has not seen the
-change - not by the one that made it. The author of a sweep checks their own
-work against a mental list of what they changed, not against the goal, so
-the files they forgot are exactly the files they do not think to look for.
-Two cleanups leaked in this repository's own history, both reported complete
-by the agent that made them - that is the evidence this strategy exists to
-act on.
+many files, a fresh agent that has not seen the change checks the work -
+not the one that made it. The author of a sweep checks their own work
+against a mental list of what they changed, not against the goal, so the
+files they forgot are exactly the files they do not think to look for. Two
+cleanups missed files in this repository's own history, and the agent that
+made each one reported it complete - that is the evidence this strategy
+exists to act on.
 
 This file pins the strategy entry in `governance/strategies.md` and the
 pointer from the verify stage guidance (`commands/verify.md`,
@@ -15,16 +15,10 @@ pointer from the verify stage guidance (`commands/verify.md`,
 repeating it.
 
 Criteria: docs/system-spec.md
-(Requirements review and design collapsed on this quick fix - see
-`docs/compass/2026-08-11-fresh-eyes-verify-sweeps/delivery-approach.md` §5.)
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import re
@@ -39,12 +33,10 @@ EVIDENCE_GATES = REPO_ROOT / "skills" / "evidence-gates" / "SKILL.md"
 def _evidence_gates_text():
     """Everything the evidence-gates skill says, across its whole directory.
 
-    The skill was split so its parts load when needed - the review-dimension
-    checklists, the evidence vocabulary, the fitness-function detail and the
-    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
-    reports content missing when it has moved next door.
-
-    The strings below are unchanged; only where they are looked for widened.
+    The skill's parts are split across its directory, so the guard reads
+    all of them: the review-dimension checklists, the evidence vocabulary,
+    the architecture-check detail and the coverage notes are siblings of
+    SKILL.md.
     """
     import pathlib as _p
     d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
@@ -58,7 +50,7 @@ def _rationale_section(s_number: str) -> str:
 
     `governance/strategies.md` states the rules; the incidents and worked
     examples that justify them are in `governance/strategies-rationale.md`,
-    one `## ...(`Sn`)` section each. Both halves are required - a rule with no
+    one `## ...(`Sn`)` section each. Both halves are needed - a rule with no
     incident behind it is an assertion.
 
     Scoped to the one section on purpose. Searching the whole file would let a
@@ -77,8 +69,7 @@ def _flat(text: str) -> str:
 
     Phrase assertions here are about what the prose says, not about where
     its lines happen to wrap - `tests/test_voice_audition_standing.py`
-    already learned this the hard way, so the fix is reused rather than
-    re-broken.
+    uses the same rule.
     """
     return " ".join(text.split())
 
@@ -104,7 +95,7 @@ def _strategy_entry() -> str:
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - the strategy states the trigger, the staffing rule, and the method
+# `TRC-A1` - the strategy states the trigger, the staffing rule, and the method
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_strategy_states_trigger_staffing_rule_and_method():
@@ -156,7 +147,7 @@ def test_trc_a1_strategy_states_trigger_staffing_rule_and_method():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - the strategy states the prohibition, the evidence, and carries
+# `TRC-A2` - the strategy states the prohibition, the evidence, and carries
 # the file's own "Why a strategy" / "Cross-reference" conventions.
 # ---------------------------------------------------------------------------
 
@@ -202,7 +193,7 @@ def test_trc_a2_strategy_states_prohibition_evidence_and_cross_references_s8():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - the verify stage guidance points at the strategy, not repeat it
+# `TRC-B1` - the verify stage guidance points at the strategy, not repeat it
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_verify_guidance_points_at_the_strategy_not_repeat_it():
@@ -227,7 +218,7 @@ def test_trc_b1_verify_guidance_points_at_the_strategy_not_repeat_it():
         assert "sweep" in flat_lower, (
             f"{name} must mention the sweep trigger, so the pointer is findable"
         )
-        # A pointer, not a restatement: neither surface should repeat the
+        # A pointer, not a restatement: neither surface must repeat the
         # strategy's own prohibition or evidence sentences in full.
         assert "reported complete" not in text.lower(), (
             f"{name} must not repeat the strategy's own evidence sentence"
@@ -238,7 +229,7 @@ def test_trc_b1_verify_guidance_points_at_the_strategy_not_repeat_it():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - the amendment states the primary-record rule and defines what a
+# `TRC-C1` - the amendment states the primary-record rule and defines what a
 # primary record is (issue s9-primary-record)
 # ---------------------------------------------------------------------------
 
@@ -248,7 +239,7 @@ def test_trc_c1_strategy_states_primary_record_rule_and_definition():
     flat = _flat(entry)
     flat_lower = flat.lower()
 
-    # The rule: verify against the primary record, not the nearest mention.
+    # The rule: check against the primary record, not the nearest mention.
     assert "primary record" in flat_lower, (
         "the strategy must name 'primary record' as the thing verified against"
     )
@@ -279,7 +270,7 @@ def test_trc_c1_strategy_states_primary_record_rule_and_definition():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 - the amendment carries the ADR-013 worked example and warns that
+# `TRC-C2` - the amendment carries the ADR-013 worked example and warns that
 # the nearest document is often a summary (issue s9-primary-record)
 # ---------------------------------------------------------------------------
 
@@ -298,9 +289,9 @@ def test_trc_c2_strategy_carries_adr_013_worked_example_and_summary_caution():
         "is often a summary of it"
     )
 
-    # The worked example: ADR-013's Context, checked against technical-design.md
-    # (the nearest document) rather than a primary record that does not
-    # exist because the claimed event never happened.
+    # The worked example: ADR-013's Context, checked against the nearest
+    # design document rather than a primary record that does not exist
+    # because the claimed event never happened.
     assert "adr-013" in flat_lower, (
         "the strategy must name ADR-013 as the worked example"
     )
@@ -321,8 +312,8 @@ def test_trc_c2_strategy_carries_adr_013_worked_example_and_summary_caution():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - no new mechanism (no natural red - see acceptance-criteria.md's
-# note; recorded via `compass acceptance start` / `record`)
+# `TRC-F1` - no new mechanism (no natural red; recorded via
+# `compass acceptance start` / `record`)
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
@@ -343,30 +334,6 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     # not a ban on ever defining a word. Raising it is the deliberate act that
     # says a vocabulary change was intended - the same shape as
     # EXPECTED_VERSION in test_version_consistency.
-    #
-    # 53 -> 57 at 3.0.0: traceability, intent, router and assessment. Each
-    # named something already load-bearing and undefined - the most-used id
-    # prefix in the repository, a live command, a live agent, and the only
-    # judgement field in the manifest. ADR-016 records the decision.
-    #
-    # 58 -> 57 on 2026-08-25, the vocabulary rename. `triage` was renamed to
-    # `assess` (net zero) and `prd` was DROPPED: both were defined as live
-    # vocabulary while the same file banned them, so the generated glossary
-    # published two retired words as current. What `prd` described - the
-    # intake document - is what the `intent` entry describes, which is why it
-    # is one entry fewer rather than a replacement.
-    #
-    # 57 -> 59 on 2026-08-25: `design` and `plan`. `design` is the word this
-    # whole rename existed for - it named a command, an artifact, an artifact
-    # kind, a CLI verb and a role, and was the only overloaded word here with
-    # no entry, which is how it stayed ambiguous. `plan` took the engineering
-    # half. TRC-A3 requires both.
-    #
-    # 59 -> 60 on 2026-08-27: `manifest`. The central artifact was named twice
-    # and governed neither way - prose called it the issue spine, the file was
-    # task.yml, the module was task_spine.py, and `spine` had no entry here at
-    # all while `task` was already banned. ADR-022 ("The issue record is a
-    # manifest") records the decision and the measurements behind it.
     assert len(terminology["terms"]) == 60, (
         "governance/terminology.yml gained or lost a term without this count "
         "moving. A vocabulary change is a decision (ADR-012); make it one."
@@ -378,14 +345,9 @@ def test_trc_f1_no_new_gate_guardrail_check_cli_verb_or_vocabulary():
     )
     known_verbs = {
         "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
-        # `plan` is the planning verb again. `design` still works but is
-        # hidden from `--help`, so it is not in the advertised set.
-        # `intent` added 2026-08-25 - `compass intent ingest`.
         "tdd-green", "policy", "plan", "intent", "issue", "acceptance", "adr",
         "rework-scan", "flow", "next", "follow-up", "ship-commit", "gate",
         "scenario", "changed-file", "evidence", "migrate", "terminology",
-        # `init` added 2026-08-26 - see tests/test_phase2_invariants.py for
-        # why it is a verb rather than a subcommand.
         "init",
     }
     line = next(l for l in result.stdout.splitlines() if l.strip().startswith("{"))

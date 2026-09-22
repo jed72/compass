@@ -5,14 +5,15 @@ Scenario group C of `docs-compass-artifacts`.
 A document that has moved is not found by a reader that builds its own path to
 it, and the failure is silent: the reader gets "no such file" and reports the
 document as absent, which most checks treat as "nothing to check" and pass on.
-That is the intake's stated risk in its most expensive form, and TRC-C5 pins
-the worst instance - `dod-evidence-typed` goes GREEN on every issue in a
-repository if the verification report moves and its reader does not.
+That silent pass is the most expensive failure this group guards against,
+and `TRC-C5` pins the worst instance - `dod-evidence-typed` goes GREEN on
+every issue in a repository if the verification report moves and its
+reader does not.
 
-The class test (TRC-C3) is the one that matters most. Chasing thirteen readers
-by hand and declaring victory is exactly the failure this group exists to
-prevent, so the guard enumerates the document kinds and fails on any direct
-path join to one of them.
+The class test (TRC-C3) is the one that matters most. Fixing thirteen
+readers one at a time and calling the job done is exactly the failure this
+group exists to prevent, so the guard enumerates the document kinds and
+fails on any direct path join to one of them.
 """
 
 import os
@@ -32,7 +33,7 @@ sys.path.insert(0, str(ROOT / "cli"))
 from compass_pkg import core  # noqa: E402
 
 
-#: The modules that read an issue's documents, from the spec's own list.
+#: The modules that read an issue's documents.
 READER_MODULES = [
     "analyze.py", "checks.py", "check_cmd.py", "policy.py", "receipt.py",
     "next_cmd.py", "dashboard.py", "bdd.py", "flow.py", "routing.py",
@@ -57,7 +58,7 @@ def _document_filenames():
     return {p.name for p in (ROOT / "templates").glob("*.md")} - machine_state
 
 
-# --- TRC-C2 and TRC-C3 -------------------------------------------------------
+# --- `TRC-C2` and `TRC-C3` -------------------------------------------------------
 
 #: A path built by joining a directory to a document filename, rather than by
 #: asking the resolver. Both spellings a reader reaches for.
@@ -82,7 +83,7 @@ def _direct_joins():
 
 
 def test_trc_c2_no_reader_builds_its_own_path_to_a_document():
-    """The four the spec names, and anything else of the same shape."""
+    """Every reader in the list, and anything else of the same shape."""
     hits = _direct_joins()
     assert not hits, (
         "CLI readers build their own path to a document instead of asking "
@@ -143,7 +144,7 @@ def test_trc_c3_the_exemption_names_a_module_that_still_exists():
         f"BUILDS_ITS_OWN_PATHS names modules that no longer exist: {missing}")
 
 
-# --- TRC-C1, C4, C5 ----------------------------------------------------------
+# --- `TRC-C1`, C4, C5 ----------------------------------------------------------
 
 def _relocated_issue(tmp_path, dod_line, slug="a-moved-issue",
                      created="2026-09-08"):
@@ -258,8 +259,8 @@ def test_trc_c5_an_untagged_dod_item_turns_the_check_red(tmp_path):
 
 
 def test_trc_c5_the_same_item_tagged_with_evidence_passes(tmp_path):
-    """The other half. Without it, the check above is satisfied by a check
-    that fails on everything."""
+    """The other half. Without it, a check that fails on everything would
+    also satisfy the test above."""
     _relocated_issue(
         tmp_path, "- [ ] (evidence: EV-T-MV-1) the suite is green")
     r = _check(tmp_path)

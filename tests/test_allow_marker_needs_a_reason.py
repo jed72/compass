@@ -1,21 +1,20 @@
-"""A scan exemption needs a reason a person wrote (issue
-allow-marker-supplies-its-own-reason).
+"""A scan exemption needs a reason a person wrote
+(allow-marker-supplies-its-own-reason).
 
 `governance/terminology.yml` argues that a per-line marker beats a path prefix
 because it is countable:
 
     grep -rn "vocabulary-scan: allow" .
 
-enumerates every exemption, each carrying the reason someone wrote for it. That
-argument only holds if the reason is real. The pattern demanded
-`allow\\s*-\\s*\\S`, and in markdown the marker lives inside an HTML comment
-whose `-->` supplies the dash and a non-space - so
-`<!-- vocabulary-scan: allow -->` was accepted as reasoned while carrying
-nothing. Nine markers in scanned markdown are HTML comments, so this is the
-normal shape in prose.
+enumerates every exemption, each carrying the reason someone wrote for it.
+That argument only holds if the reason is real. A pattern of
+`allow\\s*-\\s*\\S` accepts `<!-- vocabulary-scan: allow -->`, because the
+`-->` that closes an HTML comment gives the dash and a non-space character,
+so a marker that carries nothing reads as reasoned. Nine markers in scanned
+markdown are HTML comments, so this is the normal shape in prose.
 
-Scenario ids: TRC-A1, TRC-A2, TRC-B1 in
-docs/compass/2026-08-28-allow-marker-supplies-its-own-reason/acceptance-criteria.md
+Scenario ids: `TRC-A1`, `TRC-A2`, `TRC-B1` in
+allow-marker-supplies-its-own-reason/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -25,8 +24,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Every guard that honours the marker. Each must use the shared definition
-# rather than its own copy - three copies of one rule drift, and these already
-# had: two required a letter while the third accepted any non-space.
+# rather than its own copy - three copies of one rule diverge: two needed a
+# letter and the third accepted any non-space.
 HONOURING_GUARDS = (
     "tests/test_terminology.py",
     "tests/test_docs_prose.py",
@@ -35,9 +34,9 @@ HONOURING_GUARDS = (
 
 SHARED_DEFINITION = "tests/allow_marker.py"
 
-# An attempt at an exemption, as opposed to a mention of the marker. The dash
-# is what makes it an attempt; the shared pattern then decides whether the
-# reason after it is real.
+# A claimed exemption, as opposed to a mention of the marker. The dash is
+# what makes it a claim; the shared pattern then decides whether the reason
+# after it is real.
 ATTEMPT_RE = re.compile(r"vocabulary-scan:\s*allow\s*-")
 
 
@@ -52,7 +51,7 @@ def _marker_re():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - a marker with no reason is refused
+# `TRC-A1` - a marker with no reason is refused
 # ---------------------------------------------------------------------------
 
 def test_a_marker_with_no_reason_is_refused():
@@ -72,7 +71,7 @@ def test_a_marker_with_no_reason_is_refused():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - a marker with a real reason still exempts
+# `TRC-A2` - a marker with a real reason still exempts
 # ---------------------------------------------------------------------------
 
 def test_a_marker_with_a_real_reason_still_exempts():
@@ -90,12 +89,13 @@ def test_a_marker_with_a_real_reason_still_exempts():
     # And every marker already in the repository still works. Tightening a
     # pattern that guards live exemptions must not silently un-exempt them.
     #
-    # Read from the surfaces the vocabulary scan actually visits, using the
-    # scan's own file gatherer. Sweeping the whole repository counted prose
-    # that DISCUSSES the marker as if it carried one: `terminology.yml` quotes
-    # the grep command in a comment, the guards match the string to decide
-    # whether to skip a line, and this file quotes bare markers on purpose as
-    # the thing being refused. None of those is an exemption anybody relies on.
+    # The check reads only the surfaces the vocabulary scan visits, using the
+    # scan's own file gatherer. Other files discuss the marker without using
+    # it:
+    # - `terminology.yml` quotes the grep command in a comment;
+    # - the guards match the string to decide whether to skip a line;
+    # - this file quotes bare markers on purpose, as the thing being refused.
+    # None of those is an exemption anybody relies on.
     import importlib.util
     spec = importlib.util.spec_from_file_location(
         "_terminology_scan", REPO_ROOT / "tests" / "test_terminology.py")
@@ -111,7 +111,7 @@ def test_a_marker_with_a_real_reason_still_exempts():
             except (UnicodeDecodeError, OSError):
                 continue
             for n, line in enumerate(text.splitlines(), 1):
-                # An ATTEMPTED exemption is the marker followed by a dash.
+                # A claimed exemption is the marker followed by a dash.
                 # Without one it is a mention - `terminology.yml` quotes the
                 # `grep -rn "vocabulary-scan: allow" .` command in a comment
                 # while arguing why per-line markers are countable, and that
@@ -131,7 +131,7 @@ def test_a_marker_with_a_real_reason_still_exempts():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - the guards that honour the marker share its definition
+# `TRC-B1` - the guards that honour the marker share its definition
 # ---------------------------------------------------------------------------
 
 def test_the_guards_that_honour_the_marker_share_its_definition():

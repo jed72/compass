@@ -3,13 +3,13 @@
 Each is the same shape: output that reads as a decision or a verification when
 it is neither.
 
-* **Topology at triage.** The evaluator printed `topology: swarm` for work
-  with one changed file. It cannot know: it has no concept of a work unit, and
-  `routing-policy.yml` contains no reference to units, independence or
-  streams. The distribution map that decides parallelism is written at design,
-  three stages later. So the evaluator now emits a *ceiling* - how many
-  streams this approach permits - and breakdown sets the topology once the map
-  exists.
+* **Orchestration at assessment.** The evaluator printed `topology: swarm` for <!-- vocabulary-scan: allow - quotes the retired printed output this fix replaces -->
+  work with one changed file. It cannot know: it has no concept of a work
+  unit, and `routing-policy.yml` contains no reference to units, independence
+  or subtasks. The distribution map that decides parallelism is written at
+  plan, three stages later. So the evaluator now emits a *ceiling* - how many
+  subtasks this approach permits - and breakdown sets the orchestration once
+  the map exists.
 
 * **The check summary's denominator.** `12 of 15 check(s) passed` reads as
   three failures at a glance. The total is also not a constant: it depends on
@@ -20,15 +20,11 @@ it is neither.
   It does not establish which scenarios that run exercised - `green.json`
   holds one exit code for one command and never enumerates the tests.
 
-Scenario ids: see docs/compass/2026-08-14-dry-run-2-rulings/acceptance-criteria.md.
+Scenario ids: see dry-run-2-rulings/acceptance-criteria.md.
 """
 
-# These read `compass approach evaluate`'s DETAIL - the provenance line,
-# the per-stage weights, the full gate list, the effect lines under each
-# fired rule. That detail moved to --verbose on 2026-08-24 when the
-# evaluator came under the terminal output contract; the computation is
-# unchanged. The assertions are re-pointed rather than rewritten, because
-# what they assert still holds - only where it is printed changed.
+# These tests read the per-check detail, which the command prints only
+# under --verbose.
 from __future__ import annotations
 
 import json
@@ -67,12 +63,12 @@ def _project(tmp_path, manifest=None):
 
 
 # ---------------------------------------------------------------------------
-# Group A - the evaluator emits a ceiling, not a topology
+# Group A - the evaluator emits a ceiling, not a topology <!-- vocabulary-scan: allow - contrasts the retired concept with the ceiling -->
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_evaluator_emits_a_ceiling_not_a_topology(tmp_path):
-    """Triage says how much parallelism is PERMITTED. It cannot say how much
-    there is, because the work units are not known until design."""
+    """Assessment says how much parallelism is PERMITTED. It cannot say how
+    much there is, because the work units are not known until plan."""
     root = _project(tmp_path)
     r = subprocess.run(
         [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "demo",
@@ -88,7 +84,7 @@ def test_trc_a1_evaluator_emits_a_ceiling_not_a_topology(tmp_path):
 
 def test_trc_a2_the_ceiling_is_a_number_not_a_sentence(tmp_path):
     """The bug this replaces: the evaluator wrote the string
-    "solo (capped to 1 worktree)" into the manifest's topology field - a sentence
+    "solo (capped to 1 worktree)" into the manifest's topology field - a sentence <!-- vocabulary-scan: allow - names the retired field the bug wrote into -->
     in a machine field, which nothing downstream can compare against."""
     root = _project(tmp_path)
     subprocess.run(
@@ -123,10 +119,10 @@ def test_trc_a3_an_uncapped_approach_permits_more_than_one(tmp_path):
         check=True)
     manifest = yaml.safe_load(
         (root / ".compass" / "work" / "demo" / "manifest.yml").read_text())
-    # None means unbounded, which is what an uncapped swarm actually permits.
-    # The assertion is "not pinned to one", not "greater than one" - an
-    # earlier version asserted the latter and only passed because `swarm`
-    # carried an invented ceiling of 8.
+    # None means unbounded, which is what an uncapped multiagent actually
+    # permits. The assertion is "not pinned to one", not "greater than one" -
+    # a fixed ceiling such as 8 would also satisfy "greater than one" without
+    # being unbounded.
     assert manifest["subtask_ceiling"] != 1, (
         f"large work on contained risk permits parallel streams; the ceiling "
         f"came out {manifest['subtask_ceiling']!r}")
@@ -137,8 +133,8 @@ def test_trc_a3_an_uncapped_approach_permits_more_than_one(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_summary_has_no_denominator():
-    """`12 of 15` reads as three failures on the frame people screenshot, and
-    the 15 is not a constant - it depends on whether G5 applies."""
+    """`12 of 15` reads as three failures on the screen people share, and
+    the 15 is not a constant - it depends on whether `G5` applies."""
     from compass_pkg.check_cmd import summarise_counts
 
     line = summarise_counts(ran=15, failures=0, nothing_to_check=3)
@@ -196,9 +192,10 @@ def test_trc_c1_suite_passed_does_not_imply_scenario_coverage(tmp_path):
 def test_trc_c2_declared_tests_resolve_refuses_a_skipped_test(tmp_path, monkeypatch):
     """A scenario may name a test that resolves and never runs.
 
-    This repository's own suite contains a todo/skipped test, so the hole is
-    not hypothetical: `declared-tests-resolve` passed on a scenario whose only
-    test was permanently skipped, which is a declaration dressed as coverage.
+    This repository's own suite contains a todo/skipped test, so this
+    happens in practice: `declared-tests-resolve` passed on a scenario whose
+    only test was permanently skipped, which is a declared test that nobody
+    runs.
     """
     from compass_pkg.checks import _check_declared_tests_resolve
 
@@ -261,19 +258,17 @@ def test_trc_c3_a_real_test_still_resolves(tmp_path, monkeypatch):
 # ---------------------------------------------------------------------------
 
 def test_trc_e1_swarm_has_no_invented_ceiling():
-    """`swarm` is unbounded in the policy - no number exists to encode.
+    """`swarm` is unbounded in the policy - no number exists to encode. <!-- vocabulary-scan: allow - names the retired shape word this test reads -->
 
-    The first version of this work wrote `swarm: 8`. Nothing in
-    `routing-policy.yml` or `.compass/config.yml` says eight; the only cap in
-    the policy is RP-CAP-001's `max_worktrees: 1`, and the config file states
-    that the worktree cap is a routing concern it deliberately does not hold.
-    So eight was a configurable-looking number frozen into a literal, and it
-    would have misreported the day anyone set a real cap.
+    Nothing in `routing-policy.yml` or `.compass/config.yml` says a fixed
+    number for it; the only cap in the policy is RP-CAP-001's
+    `max_worktrees: 1`, and the config file states that the worktree cap is
+    a routing concern it deliberately does not hold. A configurable-looking
+    number frozen into a literal would misreport the day anyone set a real
+    cap.
     """
-    # ADR-023 moved these numbers out of a lookup in `routing` and into the
-    # route shapes themselves, because the words they were keyed by retired.
-    # The property under test is unchanged: the unbounded shape must carry no
-    # invented number.
+    # The property under test: the unbounded shape must carry no invented
+    # number.
     import yaml
 
     shapes = yaml.safe_load(
@@ -301,9 +296,9 @@ def test_trc_e2_a_cap_still_produces_a_number(tmp_path):
 
 
 def test_trc_e3_an_old_spine_normalises_to_a_ceiling():
-    """A manifest written before this change carries `topology: swarm` and no
-    ceiling. It must still be readable - ADR-006's tolerant read side - so the
-    old word normalises to the ceiling it always implied."""
+    """A manifest carrying `topology: swarm` and no ceiling must still be <!-- vocabulary-scan: allow - names the retired keys an old manifest carries -->
+    readable - ADR-006's tolerant read side - so the old word normalises to
+    the ceiling it always implied."""
     from compass_pkg.core import normalize_spine
 
     for word, expected in (("solo", 1), ("solo-or-pair", 2), ("swarm", None)):
