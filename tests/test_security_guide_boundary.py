@@ -1,6 +1,6 @@
 """The security guide describes the trust boundary that exists.
 
-Issue: claims-match-what-is-proved. Scenarios TRC-C1, TRC-C2 and TRC-C3.
+Issue: claims-match-what-is-proved. Scenarios `TRC-C1`, `TRC-C2` and `TRC-C3`.
 
 The finding, from an outside engineering review of 3.2.0: the guide argued that
 a hostile project guardrail cannot name a check and have the CLI run it, because
@@ -13,7 +13,7 @@ on a pull request before anyone approves it, so review is not what stands
 between an untrusted contribution and the runner.
 
 This issue fixes the description only. The mechanism - an opt-in, a refusal on
-untrusted pull requests, an allowlist - is separate work.
+untrusted pull requests, an allowlist - is issue #65.
 """
 
 import re
@@ -57,17 +57,16 @@ def _section() -> str:
         "check can no longer find the claims it exists to police")
 
 
-# --- TRC-C1 -----------------------------------------------------------------
+# --- `TRC-C1` ---------------------------------------------------------------
 
 def test_c1_guide_says_project_governance_is_executable():
-    """TRC-C1 - a project guardrail can run a command, and the guide says so."""
+    """A project guardrail can run a command, and the guide says so
+    (TRC-C1)."""
     s = _section().lower()
 
-    # Phrases, not words. The first version of this test asked whether
-    # "command-passes" and "shell" appeared anywhere in the section. Both
-    # recur several times for unrelated reasons, so no change to the section
-    # could make it fail - it passed over prose it had not read. Its own
-    # mutation proof is what caught that, the second time in this issue.
+    # Match phrases, not words: "command-passes" and "shell" recur in the
+    # section for unrelated reasons, so a word match passes whatever the
+    # section says.
     assert "whose parameter is the command" in s, (
         "the section does not say that the check's parameter IS the command. "
         "Naming command-passes without saying that leaves the reader thinking "
@@ -82,7 +81,8 @@ def test_c1_guide_says_project_governance_is_executable():
 
 
 def test_c1b_the_registry_is_no_longer_offered_as_a_defence():
-    """TRC-C1 - the misleading claim is withdrawn, in one of two valid ways.
+    """The misleading claim is withdrawn, in one of two valid ways
+    (TRC-C1).
 
     Deleting it is fine. So is quoting it and saying why it was wrong, which is
     better for a reader who read the old version and wants to know what
@@ -99,10 +99,10 @@ def test_c1b_the_registry_is_no_longer_offered_as_a_defence():
         "as withdrawn. command-passes is exactly that check")
 
 
-# --- TRC-C2 -----------------------------------------------------------------
+# --- `TRC-C2` ---------------------------------------------------------------
 
 def test_c2_guide_does_not_rely_on_pr_review():
-    """TRC-C2 - CI runs before approval, so review is not the boundary."""
+    """CI runs before approval, so review is not the boundary (TRC-C2)."""
     s = _section().lower()
 
     assert "before" in s and ("approv" in s or "review" in s), (
@@ -113,10 +113,11 @@ def test_c2_guide_does_not_rely_on_pr_review():
         "is what makes pull-request review the wrong boundary to cite")
 
 
-# --- TRC-C3 -----------------------------------------------------------------
+# --- `TRC-C3` ---------------------------------------------------------------
 
 def test_c3_guide_names_the_issue_that_closes_it():
-    """TRC-C3 - a known gap reads differently from one nobody has noticed.
+    """A known gap reads differently from one nobody has noticed
+    (TRC-C3).
 
     The citation must be something a reader outside this machine can open.
     The framework's own .compass/work/ is gitignored, so a local issue slug
