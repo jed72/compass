@@ -1,10 +1,11 @@
-"""The safety-critical Spike-vs-floor routing-conflict cases.
+"""The safety-critical spike-vs-floor routing-conflict cases.
 
-When the candidate route is Spike (intent=exploration) and a routing
-guardrail floor would push the route onto a delivery shape (because the
-work touches risky surface), the evaluator MUST refuse - silent promotion
-of a Spike into delivery would defeat the whole safety model. The honest
-output is a routing conflict that demands a re-frame.
+When the candidate delivery approach is spike (goal=exploration) and a
+routing-policy floor would raise it to a delivery approach (because the
+work touches risky surface), the evaluator must refuse - silent promotion
+of a spike into delivery would break the guarantee that exploration cannot
+become delivery. The honest output is a routing conflict that needs a
+reassessment.
 """
 from __future__ import annotations
 
@@ -25,7 +26,7 @@ def _readings_to_args(d):
 
 @pytest.mark.parametrize("domain", ["auth", "payments", "personal-data", "migrations"])
 def test_spike_conflict_on_g5_domains(run_cli, domain):
-    """Spike + a touch on auth/payments/personal-data/migrations => routing
+    """Spike + a label on auth/payments/personal-data/migrations => routing
     conflict (exit non-zero, message says so)."""
     r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "contained",
@@ -42,8 +43,9 @@ def test_spike_conflict_on_g5_domains(run_cli, domain):
 
 
 def test_spike_conflict_on_critical_blast_radius(run_cli):
-    """Spike + critical blast radius => the critical-floor would push the
-    route to expedition. That is exactly the unsafe-promotion case."""
+    """Spike + critical risk => the critical-floor would raise the
+    delivery approach to initiative. That is exactly the unsafe-promotion
+    case."""
     r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "critical",
                                     "familiarity": "brownfield-mapped",
@@ -69,7 +71,7 @@ def test_safe_exploration_still_routes_to_spike(run_cli):
 
 
 def test_spike_conflict_message_actionable(run_cli):
-    """The conflict message must tell the user what to do next - re-frame."""
+    """The conflict message must tell the user what to do next - reassess."""
     r = run_cli("approach", "evaluate", "--json",
                 *_readings_to_args({"risk": "contained",
                                     "familiarity": "brownfield-mapped",
@@ -78,5 +80,5 @@ def test_spike_conflict_message_actionable(run_cli):
                                     "labels": ["auth"]}))
     assert r.returncode != 0, r
     msg = (r.stdout + r.stderr).lower()
-    # the message should suggest a re-frame as the answer
+    # the message should suggest a reassessment as the answer
     assert "re-frame" in msg or "reframe" in msg or "narrower" in msg, r
