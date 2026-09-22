@@ -57,7 +57,7 @@ them - the stages, the gates, the orchestration - is computed. Run
 `compass approach evaluate --verbose` against that assessment and it prints:
 
 ```text
-  policy          : /Users/jed/dev/compass/governance/routing-policy.yml (v2.5.0)
+  policy          : <your project>/governance/routing-policy.yml (v<the version that file declares>)
   assessment      : {"risk": "contained", "familiarity": "brownfield-mapped", "size": "atomic", "goal": "delivery", "role": "engineer"}
   candidate shape : quick fix  <- RP-SHAPE-003 (Small on every axis, on mapped ground.)
   FINAL APPROACH  : quick fix
