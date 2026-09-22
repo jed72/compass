@@ -1,16 +1,17 @@
-# Route - hypothetical-framework-task (fixture)
+# Delivery approach - hypothetical-framework-task (fixture)
 
-> This is a minimal fixture for TRC-C3 testing. It represents a hypothetical
-> framework task that touches the public-api surface, which should trigger
-> architect consultation citing Compass's own ADRs.
+> No test reads this directory (checked by grep over tests/, cli/, scripts/
+> and hooks/). It represents a hypothetical framework issue that touches the
+> public-api surface, which would trigger architect consultation citing
+> Compass's own ADRs, if anything read it.
 
-## 1. The four dimension readings
+## 1. The assessment
 
-| Dimension | Reading | Justification |
+| Dimension | Value | Justification |
 |---|---|---|
-| **Blast radius** | cross-cutting | Changes to the public API affect all callers |
-| **Terrain** | brownfield-mapped | The public API shape is documented |
-| **Magnitude** | standard | Moderate scope of change |
-| **Intent & role** | engineer · delivery | Feature delivery |
+| **Risk** | cross-cutting | Changes to the public API affect all callers |
+| **Familiarity** | brownfield-mapped | The public API shape is documented |
+| **Size** | standard | Moderate scope of change |
+| **Goal & role** | delivery · engineer | Feature delivery |
 
-**Domain tags (`touches:`):** public-api
+**Labels (`labels:`):** public-api

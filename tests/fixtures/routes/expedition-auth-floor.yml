@@ -1,6 +1,6 @@
-# A small change that touches auth. RP-SHAPE-003 picks express as the
-# candidate; RP-FLOOR-003 forces the route to at least expedition because
-# `touches` includes a G5 domain.
+# A small change that touches auth. RP-SHAPE-003 picks quick-fix as the
+# candidate; RP-FLOOR-003 raises the delivery approach to initiative because
+# a label names a domain where a human signs off on the irreversible (`G5`).
 name: expedition-auth-floor
 assessment:
   risk: contained
@@ -14,5 +14,5 @@ expected:
   delivery_approach: initiative
   fired_guardrail_ids: [RP-FLOOR-003]
   conflict: false
-  subtask_ceiling: null   # swarm is unbounded; only a cap produces a number
+  subtask_ceiling: null   # multiagent orchestration is unbounded; only a cap produces a number
   has_gate: verify.security

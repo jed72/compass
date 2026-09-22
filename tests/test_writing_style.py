@@ -917,6 +917,33 @@ _register(Rule(
             "the same literal fixture-content quote as the entry above, "
             "in the comment right before the phases dict it describes."),
         Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-adds-handler/task.yml", "Fixture: task-adds-handler",
+            "the real, on-disk directory name of this fixture pair "
+            "(section 4), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-adds-handler/task.yml",
+            "task-removes-handler/task.yml",
+            "the real, on-disk path of the sibling fixture (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-removes-handler/task.yml", "Fixture: task-removes-handler",
+            "the real, on-disk directory name of this fixture pair "
+            "(section 4), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-removes-handler/task.yml",
+            "task-adds-handler/task.yml",
+            "the real, on-disk path of the sibling fixture (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/self-architecture/hypothetical-framework-task/"
+            "route.md", "hypothetical-framework-task (fixture)",
+            "the real, on-disk directory name of this fixture (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
             "tests/analyze/test_analyze_core.py",
             "the slug `unframed-task` contains it",
             "the literal, hyphenated slug this test's fixture uses - an "
@@ -1613,6 +1640,17 @@ _register(Rule(
             "\"attempts\" names the literal `attempts` field on a TDD "
             "evidence record (cli/compass_pkg/tdd.py), an identifier, not "
             "the verb the word table retires."),
+        # tests/test_terminology.py:866's test_banned_usage_in_fixture_is_flagged
+        # requires every ban in governance/terminology.yml to hit at least
+        # one line in this file, so a word-table match here is the same
+        # planted vocabulary PBW-D2 protects, not prose to fix. Audit
+        # section 9 (batch 9) reads this file line by line and lists one
+        # finding, a narrative sentence; the rest is deliberate.
+        Exemption(
+            "tests/fixtures/terminology/banned_usage.md",
+            "The dimensions were scored during Frame, checked at verify and Land",
+            "planted vocabulary for governance/terminology.yml's ban list "
+            "(PBW-D2), not prose."),
     ),
 ))
 
@@ -2041,6 +2079,11 @@ _register(Rule(
             "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
             "what a G5 guard was",
             "restates the same verbatim quote."),
+        Exemption(
+            "tests/fixtures/terminology/banned_usage.md",
+            "Guardrail G1 and strategy S7 are cited by code in prose",
+            "the fixture's own planted example of a bare code cited by "
+            "code, not by this document - PBW-D2 protects it."),
         # The traceability id comment above every scenario is not prose a
         # reader loses meaning from - it is the machine-parsed marker
         # `cli/compass_pkg/bdd.py`'s extraction regex reads (bdd.py:137),
@@ -2336,6 +2379,12 @@ _register(Rule(
             "every path under obra/superpowers/ is inside the Superpowers "
             "repository, not this one - the file itself says so and gives "
             "the github.com URL each path resolves against"),
+        Exemption(
+            "tests/fixtures/terminology/banned_usage.md",
+            "Write the brief to `prd.md`, from `templates/prd.md`",
+            "the fixture's own planted example of the retired filenames - "
+            "PBW-D2 protects it; templates/prd.md is banned and never "
+            "ships."),
         # PBW-A8's reference sweep resolves every path against the repository
         # root. Each of the five worked examples under examples/ narrates a
         # fictional application change, naming source and test files that
