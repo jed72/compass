@@ -1226,6 +1226,10 @@ _register(Rule(
             "the same rule-id false match as RP-REQUIRE-003 above, for the "
             "auth floor this test's fixture triggers."),
         Exemption(
+            "tests/test_spine_records_the_truth.py", "RP-REQUIRE-003 adds",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "fitness-check floor this test's fixture triggers."),
+        Exemption(
             "skills/evidence-gates/architecture-checks.md", "RP-REQUIRE-004",
             "the same rule-id false match as RP-REQUIRE-003 above, for the "
             "sibling rule."),
