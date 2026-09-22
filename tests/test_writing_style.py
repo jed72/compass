@@ -1712,6 +1712,32 @@ _register(Rule(
             "a verified-by red drops this marker",
             "the same `--verified-by` flag name as the exemption above."),
         Exemption(
+            "tests/test_tdd_evidence.py",
+            "`--verified-by` - instead of about the evidence layout.",
+            "names the real `--verified-by` CLI flag (cli/compass_pkg/"
+            "tdd.py), an identifier, not the verb the word table retires."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "First-class `--verified-by` red (`R8`, `TRC-R8-2`..`R8-6`; "
+            "`R8-1` hook part in test_pre_tool_hook)",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "The green carries the `--verified-by` kind forward and binds the",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "No smuggling - a passing command with no --verified-by records no red",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "An unrecognised `--verified-by` kind is refused with the allowed set",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "A `--verified-by` red still needs the guard to genuinely fail",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
             "tests/test_printed_output_vocabulary.py",
             "RP-REQUIRE-001/002 both add verify.analyze and RP-REQUIRE-003/004 both add",
             "the same rule-id false match as the RP-REQUIRE exemptions "
