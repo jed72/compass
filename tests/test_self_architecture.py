@@ -1,32 +1,32 @@
-"""Tests for the Compass self-architecture task.
+"""Tests for Compass's own architecture/ directory.
 
-Covers all 18 scenarios from spec.feature.md:
+Covers these 16 scenarios:
 
 Group A - Narrative artifacts ship with required structure
-  TRC-A1 - system-context.md exists with canonical sections
-  TRC-A2 - relations.md documents the call graph
-  TRC-A3 - ownership.md documents boundaries
+  `TRC-A1` - system-context.md exists with canonical sections
+  `TRC-A2` - relations.md documents the call graph
+  `TRC-A3` - ownership.md documents boundaries
 
-Group B - ADRs encode P1..P8
-  TRC-B1 - architecture/decisions/ contains exactly six founding ADRs
-  TRC-B2 - ADRs follow the template structure
-  TRC-B3 - README.md indexes the ADRs
-  TRC-B4 - At least one ADR demonstrates substantive alternatives + negative consequences
+Group B - ADRs encode the founding principles (P1..P8)
+  `TRC-B1` - architecture/decisions/ contains the six founding ADRs
+  `TRC-B2` - ADRs follow the template structure
+  `TRC-B3` - README.md indexes the ADRs
+  `TRC-B4` - At least one ADR demonstrates substantive alternatives + negative consequences
 
 Group C - Mechanism integration
-  TRC-C1 - frame_load_architecture returns the new artifacts and ADRs
-  TRC-C2 - SHA-256 is recorded per artifact
-  TRC-C3 - Architect-lens cites Compass's own ADRs on a framework task
+  `TRC-C1` - frame_load_architecture returns the new artifacts and ADRs
+  `TRC-C2` - SHA-256 is recorded per artifact
+  `TRC-C3` - the architect role cites Compass's own ADRs on a framework issue
 
-Group D - CLAUDE.md amendment in lockstep
-  TRC-D1 - CLAUDE.md notes Compass itself ships an architecture/
-  TRC-D2 - CLAUDE.md does not claim unbuilt features
+Group D - CLAUDE.md matches the architecture/ directory
+  `TRC-D1` - CLAUDE.md notes Compass itself ships an architecture/
+  `TRC-D2` - CLAUDE.md does not claim unbuilt features
 
 Group E - Backward compat + regression
-  TRC-E1 - Existing test suite still passes
-  TRC-E2 - Projects without architecture/ still no-op cleanly
-  TRC-E3 - compass check still passes 10/10
-  TRC-E4 - Lint count does not regress
+  `TRC-E1` - Existing test suite still passes
+  `TRC-E2` - Projects without architecture/ still no-op cleanly
+  `TRC-E3` - compass check still passes 10/10
+  `TRC-E4` - Lint count does not regress
 """
 from __future__ import annotations
 
@@ -88,14 +88,11 @@ def run_cli(*args: str) -> subprocess.CompletedProcess:
 
 
 def test_system_context_exists_with_canonical_sections():
-    """TRC-A1: architecture/system-context.md has the canonical sections."""
+    """architecture/system-context.md has the canonical sections (TRC-A1)."""
     path = ARCH_DIR / "system-context.md"
     assert path.is_file(), "architecture/system-context.md must exist"
     content = path.read_text(encoding="utf-8")
-    # The canonical sections that actually exist in system-context.md as
-    # authored (see the file). The Stream-B rewrite of this test originally
-    # expected "## Boundaries" + "## Principles" - neither is in the file.
-    # Aligned at Land integration of comparison-requirements (TRC-D5 honoured).
+    # These are the sections system-context.md has.
     expected = ["## Components", "## Boundary conditions", "## External dependencies"]
     for section in expected:
         assert section in content, (
@@ -104,7 +101,7 @@ def test_system_context_exists_with_canonical_sections():
 
 
 def test_relations_documents_call_graph():
-    """TRC-A2: architecture/relations.md documents the call graph."""
+    """architecture/relations.md documents the call graph (TRC-A2)."""
     path = ARCH_DIR / "relations.md"
     assert path.is_file(), "architecture/relations.md must exist"
     content = path.read_text(encoding="utf-8")
@@ -115,7 +112,7 @@ def test_relations_documents_call_graph():
 
 
 def test_ownership_documents_boundaries():
-    """TRC-A3: architecture/ownership.md documents the ownership model."""
+    """architecture/ownership.md documents the ownership model (TRC-A3)."""
     path = ARCH_DIR / "ownership.md"
     assert path.is_file(), "architecture/ownership.md must exist"
     content = path.read_text(encoding="utf-8")
@@ -131,14 +128,8 @@ def test_ownership_documents_boundaries():
 
 
 def test_adrs_cover_p1_to_p8():
-    """TRC-B1: architecture/decisions/ contains the founding ADRs with the
-    six founding ADRs (ADR-001..ADR-006) as the minimum baseline.
-
-    The comparison-requirements Expedition task adds ADR-007 (conditional gate
-    promotion) and ADR-008 (cross-task derived artifacts) per plan DD-7.  The
-    count assertion is therefore 'at least 6' to remain stable across the
-    parallel streams that add those new ADRs.
-    """
+    """ADR-001 to ADR-006 must exist. Later ADRs are allowed, so the count
+    is a minimum (TRC-B1)."""
     adrs = _adr_files()
     assert len(adrs) >= 6, (
         f"Expected at least 6 founding ADR files, found {len(adrs)}: "
@@ -159,22 +150,20 @@ def test_adrs_cover_p1_to_p8():
     assert len(numbers) == len(set(numbers)), "ADR numbers must be unique"
 
     # The founding six (001-006) must be contiguous with no gaps.
-    # ADRs beyond 006 are added by later tasks; they may be present or absent
-    # depending on integration
-    # order, so they are not checked for contiguity here.
+    # Later ADRs are not checked for contiguity.
     founding = sorted(n for n in numbers if n <= 6)
     assert founding == list(range(1, len(founding) + 1)), (
         f"Founding ADR numbers (001..006) must be contiguous, got: {founding}"
     )
 
-    # ADR-001 must cover Inv-1 + Inv-7 (judgement/mechanism)
+    # ADR-001 must cover the judgement/mechanism split (`Inv-1` + `Inv-7`)
     adr001 = next(f for f in adrs if f.name.startswith("ADR-001"))
     c001 = adr001.read_text(encoding="utf-8")
     assert any(kw in c001.lower() for kw in ["judgement", "judgment", "mechanism", "inv-1"]), (
         "ADR-001 must cover the judgement/mechanism separation (Inv-1 + Inv-7)"
     )
 
-    # ADR-006 must cover Inv-8 (backward compat)
+    # ADR-006 must cover backward compatibility (`Inv-8`)
     adr006 = next(f for f in adrs if f.name.startswith("ADR-006"))
     c006 = adr006.read_text(encoding="utf-8")
     assert any(kw in c006.lower() for kw in ["backward compat", "backwards compat",
@@ -184,7 +173,7 @@ def test_adrs_cover_p1_to_p8():
 
 
 def test_adr_structure():
-    """TRC-B2: Every ADR has required frontmatter fields and five sections."""
+    """Every ADR has required frontmatter fields and five sections (TRC-B2)."""
     adrs = _adr_files()
     assert adrs, "No ADR files found - test_adrs_cover_p1_to_p8 should catch this first"
 
@@ -198,9 +187,7 @@ def test_adr_structure():
     ]
     # `superseded` is in the set because architecture/decisions/README.md
     # documents it: "If an ADR is superseded, the old number and file remain
-    # (with status: superseded)". It was absent here until the first
-    # supersession actually happened, on 2026-08-25 - an unexercised branch of
-    # a documented convention.
+    # (with status: superseded)".
     valid_statuses = {"accepted", "proposed", "superseded"}
 
     for adr in adrs:
@@ -262,7 +249,7 @@ def test_adr_structure():
 
 
 def test_decisions_readme_indexes_adrs():
-    """TRC-B3: architecture/decisions/README.md indexes every ADR."""
+    """architecture/decisions/README.md indexes every ADR (TRC-B3)."""
     readme = DECISIONS_DIR / "README.md"
     assert readme.is_file(), "architecture/decisions/README.md must exist"
     content = readme.read_text(encoding="utf-8")
@@ -278,8 +265,8 @@ def test_decisions_readme_indexes_adrs():
 
 
 def test_at_least_one_adr_has_substantive_alternatives():
-    """TRC-B4: at least one ADR has substantive alternatives considered and
-    negative consequences."""
+    """At least one ADR has substantive alternatives considered and
+    negative consequences (TRC-B4)."""
     adrs = _adr_files()
     substantive = []
     for adr in adrs:
@@ -313,15 +300,14 @@ def test_at_least_one_adr_has_substantive_alternatives():
 
 
 def test_frame_load_architecture_returns_adrs():
-    """TRC-C1: frame_load_architecture returns the ADR list correctly."""
+    """frame_load_architecture returns the ADR list correctly (TRC-C1)."""
     result = run_cli("approach", "evaluate",
                      "--assessment", "risk=contained",
                      "--assessment", "familiarity=greenfield",
                      "--assessment", "size=small",
                      "--json")
-    # We can't call frame_load_architecture directly without a task dir,
-    # but we can verify the CLI boots cleanly and the ADR scanner works
-    # by loading the compass module.
+    # frame_load_architecture needs an issue directory, so this test loads
+    # the module and checks the ADR scanner instead.
     import types as _types
     source = CLI_PATH.read_text(encoding="utf-8")
     mod = _types.ModuleType("compass_cli")
@@ -340,7 +326,7 @@ def test_frame_load_architecture_returns_adrs():
 
 
 def test_sha256_recorded_per_artifact():
-    """TRC-C2: every narrative artifact in the load record has a sha256 field."""
+    """Every narrative artifact in the load record has a sha256 field (TRC-C2)."""
     import types as _types
     source = CLI_PATH.read_text(encoding="utf-8")
     mod = _types.ModuleType("compass_cli")
@@ -361,9 +347,10 @@ def test_sha256_recorded_per_artifact():
 
 
 def test_architect_lens_cites_own_adrs():
-    """TRC-C3: the architecture-loaded.yml for Compass's own task cites its ADRs."""
-    # The architecture-loaded.yml is written by frame_load_architecture.
-    # Check the one in the current task dir (if present) or derive fresh.
+    """The architecture-loaded.yml for Compass's own issue cites its ADRs
+    (TRC-C3)."""
+    # frame_load_architecture writes architecture-loaded.yml.
+    # Check the one in the current issue dir (if present) or derive fresh.
     arch_loaded = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "architecture-loaded.yml"
     if not arch_loaded.is_file():
         pytest.skip("architecture-loaded.yml not present for self-architecture task - "
@@ -381,7 +368,7 @@ def test_architect_lens_cites_own_adrs():
 
 
 def test_claude_md_notes_architecture_dir():
-    """TRC-D1: CLAUDE.md references architecture/ so readers know it exists."""
+    """CLAUDE.md references architecture/ so readers know it exists (TRC-D1)."""
     claude_md = FRAMEWORK_ROOT / "CLAUDE.md"
     assert claude_md.is_file(), "CLAUDE.md must exist"
     content = claude_md.read_text(encoding="utf-8")
@@ -391,7 +378,7 @@ def test_claude_md_notes_architecture_dir():
 
 
 def test_claude_md_does_not_claim_unbuilt_features():
-    """TRC-D2: CLAUDE.md doesn't reference features that don't exist yet."""
+    """CLAUDE.md does not reference features that do not exist yet (TRC-D2)."""
     claude_md = FRAMEWORK_ROOT / "CLAUDE.md"
     content = claude_md.read_text(encoding="utf-8")
     # Spot-check a few things that must NOT appear (pre-architecture claims)
@@ -409,8 +396,8 @@ def test_claude_md_does_not_claim_unbuilt_features():
 
 
 def test_projects_without_architecture_still_noop():
-    """TRC-E2: frame_load_architecture on a project with no architecture/ dir
-    returns an empty record - it does not error."""
+    """frame_load_architecture on a project with no architecture/ dir
+    returns an empty record - it does not error (TRC-E2)."""
     import types as _types
     import tempfile
 
@@ -433,7 +420,7 @@ def test_projects_without_architecture_still_noop():
 
 
 def test_policy_lint_passes():
-    """TRC-E3: compass policy lint passes cleanly (no regressions)."""
+    """compass policy lint passes cleanly, no regressions (TRC-E3)."""
     result = run_cli("policy", "lint")
     assert result.returncode == 0, (
         f"compass policy lint failed:\n{result.stdout}\n{result.stderr}"
@@ -441,7 +428,7 @@ def test_policy_lint_passes():
 
 
 def test_lint_count_does_not_regress():
-    """TRC-E4: task lint does not produce more errors than before."""
+    """issue lint does not produce more errors than before (TRC-E4)."""
     # This test uses the current manifest.yml - if it lints clean, regression is OK.
     task_yml = FRAMEWORK_ROOT / ".compass" / "work" / "self-architecture" / "manifest.yml"
     if not task_yml.is_file():
