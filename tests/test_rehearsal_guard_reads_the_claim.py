@@ -1,17 +1,13 @@
 """The rollback rehearsal check reads the claim, not a word list.
 
-Scenario RGN-1 of `rehearsal-guard-fails-on-a-neighbour`.
+Scenario RGN-1, in `rehearsal-guard-fails-on-a-neighbour/delivery-approach.md`.
 
-The check scanned the whole "When this was last rehearsed" section for
-`not yet|never|none|tbd|todo|n/a|pending|planned` and failed on any hit,
-wherever it appeared. A section recording 528 document moves with
-before-and-after results for 194 issues failed on the word "Planned" in a
-table column header, twice.
+The check reads the "When this was last rehearsed" section for a date, and
+for an opening line that is not a denial. A denial word elsewhere in the
+section, such as "Planned" in a table header, does not fail it.
 
-That is the mirror of the failure this project keeps finding. A loose match
-that passes on a neighbouring word lets a bad document through; this one
-rejected a good document for a neighbouring word, and taught the author to
-reword around the guard rather than to rehearse anything.
+A word-list match fails a real rehearsal on a neighbouring word, and the
+author then rewords the section to get past the check.
 
 The template asks for a date, a target, an outcome and a duration. So the
 check reads for those: a date in the section, and an opening line that is not
@@ -32,7 +28,7 @@ COMPASS_CLI = ROOT / "cli" / "compass"
 HEADING = "## When this was last rehearsed\n\n"
 
 #: A completed rehearsal, written the way the template asks. The table header
-#: is the exact wording that broke the old guard.
+#: is the one a word-list match fails on.
 RECORDED = HEADING + """**Rehearsed on 2026-09-10**, against a copy taken that
 morning.
 
@@ -84,8 +80,9 @@ def _check(project, slug="an-issue"):
 
 
 def test_rgn_1_a_recorded_rehearsal_passes_beside_a_neighbouring_word(tmp_path):
-    """The fixture that broke the old guard: a real rehearsal, a table column
-    headed `Planned`, and the word `none` as a collision count.
+    """A recorded rehearsal, with a table header a word-list match fails on:
+    a table column headed `Planned`, and the word `none` as a collision
+    count.
 
     Asserted against the WHOLE output. `compass check` prints the verdict on
     one line and the reason on the next, so a check that reads only the line
@@ -112,8 +109,8 @@ def test_rgn_1_a_denied_rehearsal_still_fails(tmp_path):
 def test_rgn_1_an_undated_rehearsal_fails(tmp_path):
     """"We rehearsed it" with no date is a claim, not a record.
 
-    Without this the fix would accept any prose that avoids the denial words,
-    which is a looser guard than the one it replaces.
+    Without this, the check would accept any prose that avoids the denial
+    words.
     """
     r = _issue(tmp_path, UNDATED) and _check(tmp_path)
     assert r.returncode != 0, (
