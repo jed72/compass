@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 84
+PENDING_PATHS_HIGH_WATER = 0
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -904,6 +904,25 @@ _register(Rule(
             "names the real, retired CLI flag spelling `--task` this test "
             "asserts a teaching artifact must not use - an identifier "
             "(section 4), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py",
+            "'Clarify: full' but manifest.yml says",
+            "quotes the literal v1-shaped fixture content _write_route_md "
+            "writes and the fixture's own dict keys assert on - an "
+            "identifier of the test data (section 4), not prose use of "
+            "the word."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py",
+            "delivery-approach.md says Clarify: full (disagrees with",
+            "the same literal fixture-content quote as the entry above, "
+            "in the comment right before the phases dict it describes."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py",
+            "the slug `unframed-task` contains it",
+            "the literal, hyphenated slug this test's fixture uses - an "
+            "identifier (section 4), not a v1-vocabulary use of the word; "
+            "the sentence's own point is that the retired-looking substring "
+            "is coincidental."),
     ),
 ))
 
@@ -1158,6 +1177,10 @@ _register(Rule(
             "`RP-REQUIRE-003`) - the match lands mid-identifier on the "
             "\"REQUIRE\" substring, not the standalone verb the word table "
             "means to catch."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py", "RP-REQUIRE-001",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "auth floor this test's fixture triggers."),
         Exemption(
             "skills/evidence-gates/architecture-checks.md", "RP-REQUIRE-004",
             "the same rule-id false match as RP-REQUIRE-003 above, for the "
@@ -1667,6 +1690,13 @@ _register(Rule(
                    "ADR-007-conditional-gate-promotion-via-floors.md",
                    "EV-ANALYZE-ADVISORY",
                    "evidence-id prefix, a machine identifier."),
+        # The same no-op case as the ADR-007 exemption above: this line names
+        # the evidence-id prefix the fixture globs for, a machine
+        # identifier, not the ordinary word.
+        Exemption("tests/analyze/test_analyze_core.py",
+                   "the `EV-ANALYZE-` prefix",
+                   "evidence-id prefix, a machine identifier - same case as "
+                   "the ADR-007 exemption above."),
         # Disagrees with the audit's finding for this line. The manifesto
         # this file quotes is the real, external body's own name, spelt
         # with the American form of the word - confirmed by the domain it
