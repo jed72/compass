@@ -1,11 +1,12 @@
-"""TRC-1 - scripts/multiagent.sh strips markdown punctuation from branch-name cells.
+"""scripts/multiagent.sh strips markdown punctuation from branch-name cells
+(`TRC-1`).
 
 The distribution-map.md §3 table has a fourth cell for the branch name. Users
-may format that cell with backticks or bold for readability - the parser must
+can format that cell with backticks or bold for readability - the parser must
 treat the cell value as a clean git ref name, not the literal-with-markdown
 string.
 
-Spec: docs/compass/2026-05-24-swarm-script-strips-markdown/acceptance-criteria.md (TRC-1).
+Spec: swarm-script-strips-markdown/acceptance-criteria.md (`TRC-1`).
 """
 from __future__ import annotations
 
@@ -40,19 +41,19 @@ def _init_project(project: Path) -> None:
 
 
 def _write_task_artifacts(task_dir: Path, branch_cell: str) -> None:
-    """Write minimal route.md + distribution-map.md so multiagent.sh runs.
+    """Write minimal delivery-approach.md + distribution-map.md so
+    multiagent.sh runs.
 
-    multiagent.sh requires route.md to be present (Frame's output) and reads
-    distribution-map.md to parse the streams. The route content is not deeply
-    inspected beyond a grep for "Blast radius: critical" (which we don't set),
-    so a stub is enough.
+    multiagent.sh needs delivery-approach.md, from /compass:assess, and
+    reads distribution-map.md to parse the subtasks. A stub record is
+    enough.
     """
     task_dir.mkdir(parents=True, exist_ok=True)
     (task_dir / "delivery-approach.md").write_text(
         f"# Route - {task_dir.name}\n\nReference route: Standard\n"
     )
-    # R4: the worktree cap is read from manifest.yml (readings.blast_radius +
-    # fired_guardrails), not route.md prose - so the fixture must provide it.
+    # The worktree cap comes from the manifest (`assessment.risk`,
+    # `policy_rules_fired`), so the fixture must give it (R4).
     (task_dir / "manifest.yml").write_text(
         f"task: {task_dir.name}\n"
         "readings:\n"

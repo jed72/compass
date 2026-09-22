@@ -604,6 +604,12 @@ _register(Rule(
             "citation as the cross-task-architectural-integrity exemption "
             "above."),
         Exemption(
+            "tests/test_swarm_script_parser.py",
+            "Spec: swarm-script-strips-markdown/acceptance-criteria.md",
+            "the real slug of a past, archived issue - the same protected "
+            "citation as the cross-task-architectural-integrity exemption "
+            "above."),
+        Exemption(
             "skills/evidence-gates/architecture-checks.md",
             "ADR-009-fitness-functions-are-project-guardrails.md",
             "the real filename of the shipped ADR this repository has, "
@@ -969,6 +975,12 @@ _register(Rule(
             "quotes the literal fixture string `_PROSE` verbatim, a "
             "regression fixture for an old-format audit note (section 4), "
             "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/test_swarm_script_parser.py",
+            "Match the \"stream-1: WOULD create worktree",
+            "quotes the literal regex pattern on the next line verbatim - "
+            "an identifier (section 4), not a v1-vocabulary use of the "
+            "word."),
         Exemption(
             "tests/analyze/test_analyze_core.py",
             "the slug `unframed-task` contains it",
