@@ -965,6 +965,11 @@ _register(Rule(
             "names the real parameter `tasks` this helper takes (section 4), "
             "not a v1-vocabulary use of the word."),
         Exemption(
+            "tests/test_swarm_cap.py", "note quoting `blast_radius: critical`",
+            "quotes the literal fixture string `_PROSE` verbatim, a "
+            "regression fixture for an old-format audit note (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
             "tests/analyze/test_analyze_core.py",
             "the slug `unframed-task` contains it",
             "the literal, hyphenated slug this test's fixture uses - an "
