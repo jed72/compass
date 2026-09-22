@@ -246,7 +246,13 @@ for e in $required_examples; do
 done
 if [ -n "$missing" ]; then
   echo "    !!  missing example manifest.yml in tarball:$missing" >&2
-  echo "release.sh: FAIL - examples were not packaged correctly. Check release_file_list()'s .compass/(work|flow) exclude in this script." >&2
+  # The message below is the pre-issue wording, restored on purpose. Its
+  # advice is stale - this script hands tar a fixed list and passes no
+  # --exclude at all, as the header now explains - but correcting it changes
+  # printed output, and prose-breaks-the-writing-style claims no printed
+  # string changed. The correction belongs with the other printed-output
+  # fixes, in their own issue.
+  echo "release.sh: FAIL - examples were not packaged correctly. Check the .compass/work exclude is root-anchored (./.compass/work, not .compass/work)." >&2
   exit 1
 fi
 for e in $required_examples; do
