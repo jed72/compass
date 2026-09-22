@@ -1662,6 +1662,12 @@ _register(Rule(
             "The dimensions were scored during Frame, checked at verify and Land",
             "planted vocabulary for governance/terminology.yml's ban list "
             "(PBW-D2), not prose."),
+        Exemption(
+            "tests/test_scenarios_are_executable.py",
+            "a record written by `compass bdd verify`",
+            "the real CLI subcommand `compass bdd verify` "
+            "(cli/compass:148) - an identifier, not the verb the word "
+            "table retires."),
     ),
 ))
 
