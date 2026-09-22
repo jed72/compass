@@ -6,8 +6,8 @@ asks Compass consumers to take. And it must run the test suite, so that a
 failing test can stop a merge rather than only failing on a contributor's
 machine.
 
-Traces to: docs/compass/2026-05-20-sha-pin-workflow-actions/acceptance-criteria.md SCN-001,
-and docs/compass/2026-07-29-ci-runs-test-suite/acceptance-criteria.md SCN-001.
+Traces to: sha-pin-workflow-actions/acceptance-criteria.md SCN-001,
+and ci-runs-test-suite/acceptance-criteria.md SCN-001.
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ def test_third_party_actions_are_sha_pinned():
 def test_ci_workflow_runs_the_test_suite():
     """CI must run the tests, not only the governance and structure checks.
 
-    `compass ci` is governance lint plus the per-task guardrail checks. It does
+    `compass ci` is governance lint plus the per-issue guardrail checks. It does
     not run pytest. Without an explicit step, every test in this suite - the
     release invariants that cap the guardrail count, the house-style guards,
     all of it - runs only where someone happens to run it, and a pull request

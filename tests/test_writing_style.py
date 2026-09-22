@@ -1563,6 +1563,10 @@ _register(Rule(
         Exemption("tests/test_stream_c_no_new_checks_or_gates.py",
                    "reading the record `compass bdd verify` writes",
                    "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("tests/test_workflow_pins.py",
+                   "the same supply-chain stance",
+                   "\"supply chain\" is the established compound noun, not "
+                   "the verb \"supply\" the word table retires."),
         Exemption("governance/guardrails.yml", "checked_at: [verify]",
                    "an example YAML value inside a comment, not the verb."),
         Exemption("governance/guardrails.yml", "attempts: <int>",
