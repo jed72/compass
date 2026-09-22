@@ -85,9 +85,8 @@ def project(tmp_path: Path) -> Path:
 def write_red_record(task_dir, scenario=None, *, valid=True):
     """Write a red record and its marker, the way `compass tdd-red` does.
 
-    Fixtures used to write a bare `.red` file, because the hook was satisfied
-    by its existence. It now reads the record beside it and checks the digest,
-    so a fixture that wants to model "a failure is on record" has to write one.
+    The hook reads the record beside the marker and checks its digest, so a
+    fixture that models a recorded failure must write both.
 
     `valid=False` writes a record whose content no longer matches its digest -
     for tests that model an edited record.
@@ -125,28 +124,28 @@ def red_record():
 
 @pytest.fixture
 def make_task(project: Path):
-    """Return a callable that materialises a task directory with a manifest.yml.
+    """Return a callable that materialises an issue directory with a manifest.yml.
 
     Usage:
         task_dir = make_task("my-slug", {"assessment": {...}, ...})
-        # task_dir == project/.compass/work/my-slug
+        # task_dir == project/.compass/work/<slug>
         # .compass/current-task is set to "my-slug"
     """
 
     def _make(slug: str, body: Dict[str, Any], *, set_current: bool = True) -> Path:
         task_dir = project / ".compass" / "work" / slug
         task_dir.mkdir(parents=True, exist_ok=True)
-        # ensure required minimum keys unless caller fully overrides
+        # add the keys every manifest needs, unless the caller fully overrides
         body = dict(body)
         body.setdefault("task", slug)
         body.setdefault("created", "2026-05-15")
         path = task_dir / "manifest.yml"
         with path.open("w", encoding="utf-8") as fh:
             yaml.safe_dump(body, fh, sort_keys=False)
-        # Materialise the files the task says it changed. A task claiming
-        # correctness over a path that is not on disk is trace rot, which
+        # Materialise the files the issue says it changed. An issue claiming
+        # correctness over a path that is not on disk is a dead trace, which
         # `changed-code-traces-to-scenario` now fails - so a fixture modelling a
-        # well-formed task needs the file to exist. Tests that deliberately
+        # well-formed issue needs the file to exist. Tests that deliberately
         # model a missing path create their own manifest.yml or delete the file.
         for cf in (body.get("changed_files") or []):
             if isinstance(cf, dict) and cf.get("path"):
@@ -163,7 +162,7 @@ def make_task(project: Path):
 
 @pytest.fixture
 def write_evidence_file(project: Path):
-    """Return a callable that writes an evidence JSON next to the task dir.
+    """Return a callable that writes an evidence JSON next to the issue dir.
 
     The `path` returned is relative to the task_dir (i.e. `evidence/green.json`).
     """
@@ -189,7 +188,7 @@ class CliResult:
         self.returncode: int = proc.returncode
         self.stdout: str = proc.stdout or ""
         self.stderr: str = proc.stderr or ""
-        # convenience: both streams joined
+        # convenience: stdout and stderr joined
         self.combined: str = self.stdout + "\n" + self.stderr
 
     def __repr__(self) -> str:  # makes test failures readable
@@ -215,8 +214,8 @@ def run_cli(cli_path: Path, project: Path):
              input_text: Optional[str] = None,
              timeout: int = 10) -> CliResult:
         # Default timeout 10s - the CLI's real operations finish in under a
-        # second; anything beyond 10s is a hang, and a hang should fail fast
-        # rather than compounding 30s * 93 tests on a slow environment.
+        # second; anything beyond 10s is a hang, and a hang must fail fast
+        # rather than wait it out across every test in the suite.
         env = dict(os.environ)
         if extra_env:
             env.update(extra_env)
@@ -265,10 +264,12 @@ def edit_governance(project: Path):
 
 
 # --- the bare-interpreter harness (DD-6) ------------------------------------
-# Shared by every TRC-A test (tests/test_zero_install_cli.py) and by TRC-F6
-# (tests/test_release_packaging.py, which proves first triage from an
-# unpacked release tarball on this same kind of interpreter). One place to
-# build it and prove it is genuinely bare, per DD-6: "python3 -S" is an
+# Shared by every zero-install-CLI scenario (tests/test_zero_install_cli.py,
+# `TRC-A`) and by the release-packaging scenario
+# (tests/test_release_packaging.py, `TRC-F6`), which proves the first assess
+# from an unpacked release tarball on this same kind of interpreter. One
+# place to
+# build it and prove it is genuinely bare (DD-6): "python3 -S" is an
 # approximation of absence and this class of test must not accept one.
 
 
@@ -308,8 +309,8 @@ def _write_bare_fallback_wrapper(wrapper_dir: Path) -> Path:
 
 def _build_bare_interpreter(base_dir: Path) -> BareInterpreter:
     """Build a genuinely empty interpreter and PROVE it is empty before
-    handing it back. If the precondition does not hold, this FAILS - it never
-    skips its way to a empty green (DD-6)."""
+    handing it back. If the precondition does not hold, this FAILS. It never
+    skips: a skipped test passes without checking anything (DD-6)."""
     venv_dir = base_dir / "bare-venv"
     result = subprocess.run(
         [sys.executable, "-m", "venv", "--without-pip", str(venv_dir)],
@@ -321,22 +322,18 @@ def _build_bare_interpreter(base_dir: Path) -> BareInterpreter:
             python_path = venv_dir / "Scripts" / "python.exe"
         mode = "python3 -m venv --without-pip"
     else:
-        # Fallback mode, per DD-6: some distributions package venv
-        # separately. A BareInterpreter is not just the precondition check
-        # below - TRC-A3 to TRC-A7 exercise the shell surfaces by prepending
-        # `python_path.parent` to PATH and letting hooks/*.sh and scripts/*.sh
-        # find a bare `python3` themselves. Handing back plain
-        # sys.executable here would make the precondition true (checked with
-        # -S -s applied by hand, once) while every later invocation - a
-        # shell script calling bare `python3` - ran the ordinary interpreter
-        # with site-packages intact, proving nothing while looking like it
-        # proved something. A tiny wrapper script named `python3`, placed
-        # first on PATH, is what makes -S -s apply to every consumer, not
-        # only this function's own check. (-E is deliberately not part of
-        # this: it would also block the PYTHONPATH the CLI's own resolver
-        # legitimately relies on - see cli/compass_pkg/__init__.py - so
-        # bareness comes from -S -s plus a caller-controlled PYTHONPATH,
-        # exactly as env() below already provides for the venv mode too.)
+        # Fallback mode: some distributions package venv separately.
+        # The scenarios that exercise the shell surfaces (`TRC-A3` to `TRC-A7`)
+        # do it by prepending `python_path.parent` to PATH and letting
+        # hooks/*.sh and scripts/*.sh find a bare `python3` themselves, so a
+        # wrapper script named
+        # `python3`, placed first on PATH, is what makes -S -s reach every
+        # consumer, not only this function's own check (DD-6).
+        # -E is deliberately not part of this: it would also block the
+        # PYTHONPATH the CLI's own resolver needs
+        # (cli/compass_pkg/__init__.py), so bareness comes from -S -s plus a
+        # caller-controlled PYTHONPATH, exactly as env() below already
+        # gives for the venv mode too.
         python_path = _write_bare_fallback_wrapper(base_dir / "bare-fallback-bin")
         mode = "python3 -S -s via a PATH wrapper (scrubbed-site fallback)"
 
