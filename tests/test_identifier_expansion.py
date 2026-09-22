@@ -1,21 +1,15 @@
 """An identifier never appears without its meaning on first use.
 
-A maintainer using Compass for the first time was told "the G5 guard kicked
-in" and had no idea what a G5 guard was. Nothing taught an agent that
-phrasing: `governance/guardrails.yml` uses the id as each guardrail's primary
-key, so an agent reading the file and using the key as the name is doing the
-natural thing. No rule said otherwise and no test would have caught it.
-
-`compass check` already gets this right - it prints
-`G5 A human signs off on the irreversible`. The standard existed in the CLI
-and never reached the agent's speech, so these tests hold the guidance and the
-two renderers to the standard the CLI already sets.
+An agent reading `guardrails.yml` uses the id as the name, because the id is
+each guardrail's primary key in the file. `compass check` already prints the
+id with its statement - `G5 A human signs off on the irreversible` - so these
+tests hold the guidance and both renderers to that.
 
 The rule has two halves and both matter. Expand on first use; leave the bare
 id everywhere after that. Always-expand would be its own readability defect,
 and the ids carry the traceability the machine checks depend on.
 
-Scenario ids: see .compass/work/identifiers-and-vocabulary-in-printed-output/
+Scenario ids: see identifiers-and-vocabulary-in-printed-output/
 acceptance-criteria.md (group A).
 """
 from __future__ import annotations
@@ -83,17 +77,16 @@ def _receipt(root):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - the rule is stated where agent speech is governed
+# `TRC-A1` - the rule is stated where agent speech is governed
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_the_rule_is_stated():
     """The cold-reader strategy and the vocabulary agree on one rule.
 
     Checked in both places on purpose: `strategies.md` is what an agent
-    reads, `terminology.yml` is what the scan reads, and before this issue
-    they said different things - the vocabulary said to REPLACE the code with
-    the plain statement, which would delete the traceability the machine
-    checks run on.
+    reads, `terminology.yml` is what the scan reads. Both must say to add
+    the meaning, not replace the code, because the machine checks run on
+    the code.
     """
     text = STRATEGIES.read_text(encoding="utf-8")
     s7 = text.split("(`S7`)", 1)
@@ -126,7 +119,7 @@ def test_trc_a1_the_rule_is_stated():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - the receipt names a scenario, not only its id
+# `TRC-A2` - the receipt names a scenario, not only its id
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_scenario_title_beside_id(tmp_path):
@@ -142,7 +135,7 @@ def test_trc_a2_scenario_title_beside_id(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 - a printed identifier is never truncated
+# `TRC-A3` - a printed identifier is never truncated
 # ---------------------------------------------------------------------------
 
 def test_trc_a3_no_truncated_identifier(tmp_path):
@@ -165,13 +158,13 @@ def test_trc_a3_no_truncated_identifier(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A4 - the guard can fail
+# `TRC-A4` - the guard can fail
 # ---------------------------------------------------------------------------
 
 def test_trc_a4_the_check_can_fail(tmp_path):
-    """The control for TRC-A2.
+    """The control for `TRC-A2`.
 
-    Without it, TRC-A2 passes against a renderer that prints the whole manifest,
+    Without it, `TRC-A2` passes against a renderer that prints the whole manifest,
     or one that prints nothing at all. Here the scenario has no title, so
     there is no meaning to print and the bare id is all the receipt can
     honestly show - and it must still render rather than crash.

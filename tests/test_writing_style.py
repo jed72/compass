@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 254
+PENDING_PATHS_HIGH_WATER = 84
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -556,6 +556,13 @@ _register(Rule(
             "the real slug of a filed, landed issue - an identifier "
             "(section 4), not a v1-vocabulary use of \"task\""),
         Exemption(
+            "tests/test_route_selection.py",
+            "cross-task-architectural-integrity",
+            "the real slug of a filed, landed issue - an identifier "
+            "(section 4), not a v1-vocabulary use of \"task\" - the same "
+            "exemption already carried for this slug in "
+            "docs/compass/2026-08-27-sdd-loop-spike.md."),
+        Exemption(
             "docs/compass/2026-08-27-sdd-loop-spike.md",
             "task-reviewer-prompt.md",
             "the literal filename of a file inside the Superpowers "
@@ -774,6 +781,129 @@ _register(Rule(
             '"Topology" (ADR-006)',
             "documents the retired label a pre-ADR-023 record literally "
             "carries, so this reader can still parse it."),
+        Exemption(
+            "tests/test_process_impact.py",
+            "tasks: list of (slug, created, landed, route, n_gates, "
+            "repairs|None).",
+            "documents the function's real parameter name `tasks` (an "
+            "identifier, section 4), not a v1-vocabulary use of the word - "
+            "the parameter and every call site in this file use that name."),
+        Exemption(
+            "tests/test_no_deprecation_stubs.py",
+            "`--task` and `--reading` were tolerated alongside `--issue` and",
+            "names the real, retired CLI flag spelling `--task` this test "
+            "asserts still fails - an identifier (section 4), not a "
+            "v1-vocabulary use of the word."),
+        Exemption(
+            "tests/test_plain_words.py",
+            'time, and "vacuous"/"vacuity" is accurate and almost never used in ordinary',
+            "the file's own subject is banning these words, so the "
+            "docstring has to name them to explain the rule - the same "
+            "exception the banned block itself gets."),
+        Exemption(
+            "tests/test_plain_words.py",
+            "codes. An unexplained term is a defect whether it is `G5` or `vacuity`, and",
+            "the same naming-the-banned-word exception as the docstring "
+            "line above."),
+        Exemption(
+            "tests/test_rework_scan.py",
+            "`TRC-D2`: file added by task-a and deleted by task-b is reported.",
+            "task-a and task-b are the real fixture directory names "
+            "write_task_yml() writes (section 4, identifiers), not a "
+            "v1-vocabulary use of the word."),
+        Exemption(
+            "tests/test_rework_scan.py",
+            "`TRC-D4`: migration added in task-a and a drop migration added in task-b is reported.",
+            "the same fixture directory names as the exemption above."),
+        Exemption(
+            "tests/test_rework_scan.py",
+            "task-b is 10 days later - outside the window",
+            "the same fixture directory name as the exemptions above."),
+        Exemption(
+            "tests/test_printed_output_vocabulary.py",
+            "only layer 2 catches, and `Land` capitalised is a prose form that only",
+            "a verbatim quote of the defect this test checks for - the "
+            "capitalised retired stage name the prose scan must still "
+            "catch, not live prose use of it."),
+        Exemption(
+            "tests/test_public_surface_truth.py",
+            '"written by Frame".',
+            "a verbatim quote of the defect this test checks for - the "
+            "literal text architecture/system-context.md carried, not "
+            "live prose use of a retired stage name."),
+        Exemption(
+            "tests/test_public_surface_truth.py",
+            'user meeting "has Frame run?" is being told to run a stage that does not',
+            "a verbatim quote of the class of defect this test checks for, "
+            "not live prose use of a retired stage name."),
+        Exemption(
+            "tests/test_hook_fails_closed.py",
+            "cli/vendor/yaml moved away  -> exit 3, zero bytes on both streams",
+            "'streams' names stdout/stderr, an ordinary English use, not "
+            "the retired v1 word for a subtask - the word-table row "
+            "matches the plural bare word regardless of sense."),
+        Exemption(
+            "tests/test_prompt_layer.py",
+            "The intake names `intent-elicitation` as the second target; no skill has ever",
+            "quotes the specific proposed-but-never-built skill name "
+            "`intent-elicitation`, not a live use of the retired word "
+            "\"elicitation\"."),
+        Exemption(
+            "tests/test_record_keeping_integrity.py",
+            "The defect: `task['friction'] = entries` discarded the first note.",
+            "a verbatim quote of the real defective line "
+            "(cli/compass_pkg/calibration.py:411, a local variable named "
+            "`task`), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "added by the RP-REQUIRE-003 and RP-REQUIRE-004 floors.",
+            "RP-REQUIRE is an id prefix, not the verb - the same false "
+            "match as the RP-REQUIRE exemptions above."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.architecture.",
+            "RP-REQUIRE is an id prefix, not the verb - the same false "
+            "match as the RP-REQUIRE exemptions above."),
+        Exemption(
+            "tests/test_governance_drift_noop.py",
+            "approach, gates, topology and fired guardrails against what the fixture",
+            "names the fixture's real `topology` dict key the assertions "
+            "below read (`expect[\"topology\"]`, `got[\"topology\"]`), not "
+            "the abstract concept the word table retires - renaming the "
+            "prose here would contradict the code two lines down."),
+        Exemption(
+            "tests/test_g5_trigger.py",
+            "removed a committed default credential, read `blast_radius: critical`",
+            "a literal quote of the manifest field the incident actually "
+            "read at the time, kept in backticks by the audit's own "
+            "ruling (batch 8, tests/test_g5_trigger.py note: "
+            "\"`blast_radius: critical` in backticks stays\")."),
+        Exemption(
+            "tests/test_g5_trigger.py",
+            "`blast_radius`, so the delivery approach stayed heavy",
+            "the same literal field-name quote as the exemption above, "
+            "continued onto its own wrapped line."),
+        Exemption(
+            "tests/test_route_selection.py",
+            "swarm=8",
+            "one of the literal keys of `RETIRED_ORCHESTRATION_CEILING` "
+            "(cli/compass_pkg/core.py), itself marked "
+            "\"vocabulary-scan: allow\" as the retired words archived "
+            "manifests carry (ADR-006) - not a live use of the word."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "Deliberately still named task.yml, and deliberately still "
+            "keyed `task:`.",
+            "the literal filename and key of a fixture kept under its "
+            "pre-rename shape on purpose (ADR-006, ADR-022) - the test "
+            "exists to prove this old shape still loads, so the name "
+            "cannot be reworded without breaking the point of the test."),
+        Exemption(
+            "tests/test_human_voice.py",
+            "retired stage name. `--task` no longer parses (ADR-014 removed",
+            "names the real, retired CLI flag spelling `--task` this test "
+            "asserts a teaching artifact must not use - an identifier "
+            "(section 4), not a v1-vocabulary use of the word."),
     ),
 ))
 
@@ -1375,6 +1505,10 @@ _register(Rule(
                    "[RP-REQUIRE-003] requirement:",
                    "RP-REQUIRE is an id prefix, not the verb; this is a "
                    "quoted literal string a test matched."),
+        Exemption("tests/test_id_prefix_glossary.py",
+                   'printed "[RP-REQUIRE-003] floor:" on screen',
+                   "RP-REQUIRE is an id prefix, not the verb; a quote of "
+                   "the CLI's actual printed output."),
         Exemption("governance/terminology.yml",
                    "the result. RP-REQUIRE attaches a gate",
                    "RP-REQUIRE is an id prefix, not the verb."),
@@ -1416,6 +1550,60 @@ _register(Rule(
             "A change that modifies a",
             "an absorbed-into marker quoting the merge-base sentence "
             "verbatim, per PBW-F7 - not a new use of the retired word."),
+        Exemption(
+            "tests/test_governance_drift.py",
+            "that considered RP-REQUIRE-003 and rejected it",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_plugin_doc_drift.py",
+            "/ `compass tdd-green` write typed test-run evidence the verify gates accept.",
+            "names the verify stage's gates, the same identifier-adjacent "
+            "use as \"All Verify gates\" in approaches/hotfix.md."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "A red recorded with `tdd-red --verified-by` (`TRC-R8-1`, `TRC-R8-2` hook",
+            "names the real `--verified-by` CLI flag (cli/compass_pkg/"
+            "tdd.py), an identifier, not the verb the word table retires."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "verified-by red plugs into.",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "hook blocks a production edit - the gap a verified-by red exists to fill",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "-2 (hook side): a recorded red (the .red marker a verified-by red",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_pre_tool_hook.py",
+            "a verified-by red drops this marker",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_printed_output_vocabulary.py",
+            "RP-REQUIRE-001/002 both add verify.analyze and RP-REQUIRE-003/004 both add",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "added by the RP-REQUIRE-003 and RP-REQUIRE-004 floors.",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "RP-REQUIRE-003 and RP-REQUIRE-004 are present and use "
+            "add_gate: verify.architecture.",
+            "the same rule-id false match as the RP-REQUIRE exemptions "
+            "above - RP-REQUIRE is an id prefix, not the verb."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "A landed issue's test-run evidence (no attempts field) must "
+            "still clear `G4`",
+            "\"attempts\" names the literal `attempts` field on a TDD "
+            "evidence record (cli/compass_pkg/tdd.py), an identifier, not "
+            "the verb the word table retires."),
     ),
 ))
 
@@ -1530,6 +1718,11 @@ _register(Rule(
         Exemption("cli/compass_pkg/receipt.py",
                    "`EV-ANALYZE-<slug>-<timestamp>` runs to 51 characters",
                    "evidence-id prefix, a machine identifier."),
+        Exemption("tests/test_identifier_expansion.py",
+                   "EV-ANALYZE-signup-email-va",
+                   "the same evidence-id-prefix machine identifier as the "
+                   "ADR-007 exemption above, truncated mid-token by the "
+                   "docstring it illustrates."),
     ),
 ))
 
@@ -1757,6 +1950,28 @@ _register(Rule(
             "the test builds a synthetic project - not a citation of one "
             "document a reader cannot open; found while fixing batch 7, "
             "not by the audit."),
+        Exemption(
+            "tests/test_record_keeping_integrity.py",
+            ".compass/work/, not a fixture - the point is the actual audit trail.",
+            "names the real directory this test scans on the machine "
+            "running it, not a citation of a document a reader must open."),
+        Exemption(
+            "tests/test_receipt_render.py",
+            "Given no directory exists at .compass/work/nonesuch/",
+            "the fixture's own deliberately-missing directory, named to "
+            "prove the failure path - not a citation of a document."),
+        Exemption(
+            "tests/test_hook_as_guest.py",
+            'hook says "no .compass/work/"',
+            "a quote of the hook's actual printed message "
+            "(hooks/pre-tool.sh:538), not a citation of a document - the "
+            "sweep cannot tell quoted output from a path reference."),
+        Exemption(
+            "tests/test_release_invariants.py",
+            "templates/ or .compass/work/.",
+            "names the gitignored directory itself, as the thing a "
+            "user-story artifact must not appear under - not a citation "
+            "of a document a reader must open."),
     ),
 ))
 
@@ -2438,6 +2653,38 @@ _register(Rule(
                    "a worked-example path that was never meant to exist, "
                    "named by this file's own docstring as the contrast "
                    "case; found while fixing batch 7, not by the audit."),
+        Exemption("tests/test_house_style.py",
+                   "tests/__pycache__/x.pyc",
+                   "the same hypothetical example path and the same "
+                   "one-character-short match as the "
+                   "governance/strategies-rationale.md exemption above."),
+        Exemption("tests/test_hotfix_181_false_blocks.py",
+                   ".github/workflows/ci.yml",
+                   "a hypothetical example path illustrating the command "
+                   "shape the hook must classify, not a citation of the "
+                   "repository's real workflow file (.github/workflows/"
+                   "compass.yml)."),
+        Exemption("tests/test_install_plugin_detection.py",
+                   ".claude/settings.json",
+                   "the file install.sh writes into a --project temp "
+                   "directory the test creates, not a path this repository "
+                   "ships."),
+        Exemption("tests/test_hook_guards_only_its_project.py",
+                   "src/app.py",
+                   "a hypothetical example path illustrating a relative "
+                   "redirect target, not a file this repository ships."),
+        Exemption("tests/test_migrate_to_docs_compass.py",
+                   "commands/technical-design.md",
+                   "the docstring's own point: this path does not exist - "
+                   "it is the wrong rewrite the bug produced, named to "
+                   "explain the defect."),
+        Exemption("tests/test_pre_tool_hook.py",
+                   '"src/app.py" to avoid this exemption.',
+                   "the fixture target path the test creates under a temp "
+                   "directory, not a file this repository ships."),
+        Exemption("tests/test_pre_tool_hook.py",
+                   '"src/app.py" - no "test" component anywhere in the path.',
+                   "the same fixture target path as the exemption above."),
         # A rejected alternative's hypothetical path - it does not exist
         # because the alternative was never built, which is the point of
         # naming it in the Alternatives table.

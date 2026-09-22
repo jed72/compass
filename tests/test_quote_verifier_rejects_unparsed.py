@@ -1,14 +1,14 @@
 """A quote the verifier could not read is a failure, not a pass.
 
 `scripts/verify-archive-quotes.py` exists to stop a fabricated archive quote
-passing the build. Its own blind spot was the shape one step before
-fabrication: a quote it could not parse at all.
+passing the build. Its own gap was the shape one step before fabrication: a
+quote it could not parse at all.
 
 `parse_pairs` sets `before` to `None` when the `Before:` block does not match
 its blockquote pattern - a line written `>text` without the space is enough.
 Downstream, `sha256_text(span["quoted"] or "")` hashed the empty string and
 `_matches_archive("substring", "", archive_text)` reduced to `"" in
-archive_text`, which is always true. So the span verified clean, and
+archive_text`, which is always true. So the span checked clean, and
 `--update` would record `sha256("")` for it against a file it never matched.
 
 That contradicted the script's own promise: `update_manifest` documents that
@@ -83,8 +83,7 @@ def test_trc_1_an_unparsed_span_is_a_failure(tmp_path):
     # The hash `--update` would itself have written for this span: the hash of
     # the empty string, because the quote did not parse. Using a wrong hash
     # here instead would make this test pass on a hash mismatch and prove
-    # nothing about the parse failure - which is how the first draft of this
-    # test passed against the unfixed script.
+    # nothing about the parse failure.
     manifest = {
         s["id"]: {"source": s["source"], "sha256": module.sha256_text("")}
         for s in spans
@@ -110,10 +109,8 @@ def test_trc_2_update_refuses_to_record_an_unparsed_span(tmp_path, capsys):
     module = _module()
     reference, _ = _fixture(tmp_path, ">")
     manifest_path = tmp_path / "archive-quote-manifest.json"
-    # Learned the hard way. An earlier draft of this test omitted
-    # `manifest_path`, so `update_manifest` fell back to its default - the
-    # repository's real manifest - and rewrote it to point at this fixture.
-    # A test that can write to the tree it is testing will eventually do so.
+    # Pass `manifest_path` explicitly: without it `update_manifest` writes
+    # to the repository's real manifest.
     assert manifest_path != module.MANIFEST, (
         "this test is about to write a manifest; it must not be the real one"
     )

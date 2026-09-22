@@ -9,8 +9,7 @@ decision:
   * A **mapping** reads a file that used the old name. Archives written under
     the v1 vocabulary still exist, and Compass tells people to keep them.
 
-Deleting the second along with the first would strand exactly the historical
-records the framework's own pitch is built on.
+Deleting the second along with the first would make v1 archives unreadable.
 
 Scenario ids: see docs/system-spec.md (RCD-F4).
 """
@@ -100,7 +99,7 @@ def test_rcd_f4c_migrate_still_runs(tmp_path):
     (work / "manifest.yml").write_text(V1_SPINE, encoding="utf-8")
     (work / "route.md").write_text("# the v1 approach record\n", encoding="utf-8")
 
-    # `migrate` is dry by default; --apply is what executes.
+    # `migrate` is dry by default; --apply makes the change.
     result = subprocess.run(
         [sys.executable, str(CLI), "migrate"],
         cwd=str(tmp_path), capture_output=True, text=True, timeout=120,

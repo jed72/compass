@@ -1,20 +1,20 @@
-"""A corrected reading is recorded even when the approach absorbs it (issue
-reassessment-log-drops-reading-only-changes).
+"""A corrected assessment value is recorded even when the approach absorbs it
+(issue reassessment-log-drops-reading-only-changes).
 
 `compass approach evaluate --write --reason "..."` logged a re-assessment only
 when the COMPUTED outputs changed - approach, stages, ceiling, gates, fired
-rules. The four readings were not in that snapshot, so correcting size from
-`small` to `standard` was discarded, along with the reason, whenever the route
-absorbed it.
+rules. The four assessment values were not in that snapshot, so correcting
+size from `small` to `standard` was discarded, along with the reason,
+whenever the delivery approach absorbed it.
 
-That is the cheapest evidence there is that sizing was wrong: the reading moved
-and someone noticed. `compass retro` reads this log to report whether
-assessment systematically over- or under-sizes work, so dropping exactly those
-biases the aggregate toward corrections large enough to change the route -
-which are the ones already visible.
+That is the cheapest evidence there is that sizing was wrong: the assessment
+moved and someone noticed. `compass retro` reads this log to report whether
+assessment systematically over- or under-sizes work, so dropping exactly
+those biases the aggregate towards corrections large enough to change the
+delivery approach - which are the ones already visible.
 
-Scenario ids: TRC-A1, TRC-A2, TRC-B1 in
-docs/compass/2026-08-28-reassessment-log-drops-reading-only-changes/acceptance-criteria.md
+Scenario ids: `TRC-A1`, `TRC-A2`, `TRC-B1` in
+reassessment-log-drops-reading-only-changes/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -78,7 +78,8 @@ def _set_size(project: Path, size: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - a corrected reading is logged when the approach does not move
+# `TRC-A1` - a corrected assessment value is logged when the approach does
+# not move
 # ---------------------------------------------------------------------------
 
 def test_a_corrected_reading_is_logged_when_the_approach_does_not_move():
@@ -90,8 +91,8 @@ def test_a_corrected_reading_is_logged_when_the_approach_does_not_move():
         first = _manifest(project)
 
         # atomic -> small is absorbed: both compute `quick-fix`. That is the
-        # case this scenario is about; a change that moves the route already
-        # logged.
+        # case this scenario is about; a change that moves the delivery
+        # approach already logged.
         _set_size(project, "small")
         code, out = _run(project, "approach", "evaluate", "--issue", "sample",
                          "--write", "--reason", "the work is three files, not one")
@@ -118,7 +119,7 @@ def test_a_corrected_reading_is_logged_when_the_approach_does_not_move():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - the reason is not discarded
+# `TRC-A2` - the reason is not discarded
 # ---------------------------------------------------------------------------
 
 def test_the_reason_is_not_discarded():
@@ -135,7 +136,7 @@ def test_the_reason_is_not_discarded():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - a first write records no re-assessment
+# `TRC-B1` - a first write records no re-assessment
 # ---------------------------------------------------------------------------
 
 def test_a_first_write_records_no_re_assessment():

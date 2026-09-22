@@ -10,19 +10,14 @@ are linked, not reproduced - a review page that reproduces its evidence stops
 being two screens and stops being read.
 
 It is generated, never hand-edited, and guarded for staleness the way
-`docs/system-spec.md` is. That guard exists because this repository's own
-derived spec went stale twice on 2026-08-23; a generated page nobody checks is
-trusted anyway, which is worse than no page.
+`docs/system-spec.md` is. A generated page nobody checks is trusted anyway,
+which is worse than no page.
 
-Scenario ids trace to docs/compass/2026-08-23-the-human-front-door/acceptance-criteria.md.
+Scenario ids trace to the-human-front-door/acceptance-criteria.md.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006).
 from __future__ import annotations
 
 import re
@@ -75,7 +70,7 @@ PACK = [
 # ---------------------------------------------------------------------------
 
 def test_c1_dashboard_names_decision_and_start(tmp_path):
-    """TRC-C1: the first screen states what is being asked and what to read.
+    """`TRC-C1`: the first screen states what is being asked and what to read.
 
     A reviewer who has to work out what they are approving has already been
     failed by the page.
@@ -93,13 +88,12 @@ def test_c1_dashboard_names_decision_and_start(tmp_path):
 
 
 def test_c2_dashboard_lists_registered_artifacts(tmp_path):
-    """TRC-C2: each document appears with its status and the reason it exists."""
+    """`TRC-C2`: each document appears with its status and the reason it exists."""
     from compass_pkg.dashboard import render_dashboard
     task_dir = _issue(tmp_path, artifacts=PACK)
     # The documents have to EXIST for their registry status to mean anything -
     # `awaiting-approval` on a file nobody wrote is not a state a reviewer can
-    # act on, and the page reports absence instead. This fixture used to skip
-    # writing them and so asserted a status that could never really occur.
+    # act on, and the page reports absence instead.
     for e in PACK:
         if e.get("path"):
             (task_dir / e["path"]).write_text("# %s\n" % e["kind"])
@@ -122,10 +116,10 @@ def test_c2_dashboard_lists_registered_artifacts(tmp_path):
 
 
 def test_c3_dashboard_lists_omissions(tmp_path):
-    """TRC-C3: each omission appears with the reason it was omitted.
+    """`TRC-C3`: each omission appears with the reason it was omitted.
 
-    The proposal's phrase for why this matters: it "makes omission visible
-    without making the reviewer read the routing algorithm".
+    This makes an omission visible without making the reviewer read the
+    routing algorithm.
     """
     from compass_pkg.dashboard import render_dashboard
     page = render_dashboard(str(_issue(tmp_path, artifacts=PACK)))
@@ -139,7 +133,7 @@ def test_c3_dashboard_lists_omissions(tmp_path):
 
 
 def test_c4_dashboard_carries_no_raw_evidence(tmp_path):
-    """TRC-C4: evidence is linked, not reproduced.
+    """`TRC-C4`: evidence is linked, not reproduced.
 
     Asserts an ABSENCE, which is the easiest thing to satisfy without checking
     anything - so the fixture plants real captured output in the manifest and the
@@ -170,11 +164,10 @@ def test_c4_dashboard_carries_no_raw_evidence(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_d1_stale_dashboard_is_reported(tmp_path):
-    """TRC-D1: a dashboard that no longer matches its manifest says so.
+    """`TRC-D1`: a dashboard that no longer matches its manifest says so.
 
-    Not in the proposal. It is here because `docs/system-spec.md` is the worked
-    precedent for a generated artifact in this repository, and its currency
-    guard fired twice on 2026-08-23.
+    `docs/system-spec.md` is the worked precedent for a generated artifact
+    in this repository, with its own currency guard.
     """
     from compass_pkg.dashboard import render_dashboard, dashboard_is_current
     task_dir = _issue(tmp_path, artifacts=PACK)
@@ -202,12 +195,11 @@ def test_d1_stale_dashboard_is_reported(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_e1_instructions_say_link_not_paste():
-    """TRC-E1: no instruction asks for raw output to be pasted into a document
+    """`TRC-E1`: no instruction asks for raw output to be pasted into a document
     a person reads.
 
-    Reads each instruction's own sentence rather than the whole file: three
-    empty checks in this session were whole-file searches satisfied by
-    unrelated text.
+    Reads each instruction's own sentence rather than the whole file:
+    whole-file searches pass on unrelated text.
     """
     offenders = []
     pattern = re.compile(r"\bpaste[sd]?\b[^.\n]{0,80}", re.IGNORECASE)
@@ -219,11 +211,7 @@ def test_e1_instructions_say_link_not_paste():
                 sentence = " ".join(m.group(0).split())
                 # Pasting INTO evidence is fine; pasting into a human document
                 # is what this forbids.
-                # PLURALS TOO. The first version of this list was singular
-                # only, so `\bartifact\b` did not match "artifacts" and the
-                # check read a tree with real offenders in it and reported
-                # clean. Found on 2026-08-23 by grepping the same tree by hand
-                # and getting a different answer from the test.
+                # Plurals too: `\bartifact\b` does not match "artifacts".
                 if re.search(r"\b(reports?|documents?|artifacts?|verification|"
                              r"devlogs?|reviews?)\b", sentence, re.IGNORECASE):
                     offenders.append("%s: %s"
@@ -235,12 +223,10 @@ def test_e1_instructions_say_link_not_paste():
 
 
 def test_c5_dashboard_verb_generates_and_checks(tmp_path):
-    """TRC-C5: the page can be generated, and checked, from the CLI.
+    """`TRC-C5`: the page can be generated, and checked, from the CLI.
 
-    Added during implementation. The spec covered what the page says and never
-    covered how it comes to exist - a renderer nobody can invoke is a function,
-    not a front door. `--check` writes nothing and reports drift, which is the
-    mode the currency guard calls.
+    A renderer nobody can run is not a usable page. `--check` writes nothing
+    and reports drift, which is the mode the currency guard calls.
     """
     import subprocess
     cli = REPO_ROOT / "cli" / "compass"
@@ -273,7 +259,7 @@ def test_c5_dashboard_verb_generates_and_checks(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_d2_stale_dashboard_fails_a_guardrail_check(tmp_path):
-    """TRC-D2: a drifted dashboard fails `compass check`, it does not merely warn.
+    """`TRC-D2`: a drifted dashboard fails `compass check`, it does not merely warn.
 
     `dashboard_is_current` is a function nobody has to call. The complaint this
     issue answers is that a reviewer trusts what is in front of them, so the
@@ -327,12 +313,12 @@ def test_d2_stale_dashboard_fails_a_guardrail_check(tmp_path):
 
 
 def test_d3_currency_check_is_registered_under_a_guardrail():
-    """TRC-D3: the check is wired into `compass check`, not just importable.
+    """`TRC-D3`: the check is wired into `compass check`, not just importable.
 
     A check function that no guardrail lists never runs. Compass grows by
-    adding checks under the five existing guardrails, never a sixth letter
-    (ADR-002), so this asserts both the registration and the guardrail it
-    joined.
+    adding checks under the five existing guardrails, never a sixth
+    guardrail (ADR-002), so this asserts both the registration and the
+    guardrail it joined.
     """
     sys.path.insert(0, str(REPO_ROOT / "cli"))
     from compass_pkg.check_cmd import CHECK_FNS, CHECK_GUIDANCE
@@ -355,16 +341,15 @@ def test_d3_currency_check_is_registered_under_a_guardrail():
 
 
 def test_c6_dashboard_separates_written_from_still_owed(tmp_path):
-    """TRC-C6: the pack distinguishes a document that exists from one that does not.
+    """`TRC-C6`: the pack distinguishes a document that exists from one that does not.
 
-    Added during implementation, after reading this issue's own generated page.
-    It listed seven documents as `draft` when three of them had never been
-    written and four were finished - because `draft` is the status the routing
-    seeds, and nothing moves it. A reviewer reading that page would go looking
-    for files that are not there, which is a worse failure than no page: it is
-    a page that is confidently wrong.
-
-    The resolver already knows the difference. The page just was not asking it.
+    `draft` is the status the routing seeds, and nothing moves it on its
+    own, so a document can sit as `draft` whether or not it has been
+    written. A reviewer reading a page that shows `draft` for a finished
+    document goes looking for a decision that has already been made; one
+    that shows it for a document that does not exist goes looking for a
+    file that is not there. The resolver already knows the difference; the
+    page must ask it.
     """
     from compass_pkg.dashboard import render_dashboard
     task_dir = _issue(tmp_path, artifacts=[
@@ -394,14 +379,12 @@ def test_c6_dashboard_separates_written_from_still_owed(tmp_path):
 
 
 def test_c7_artifact_status_can_be_moved_from_the_cli(tmp_path):
-    """TRC-C7: a document's status can be changed, and an omission recorded.
+    """`TRC-C7`: a document's status can be changed, and an omission recorded.
 
-    Added during implementation, from reading this issue's own page. Routing
-    seeds every earned document as `draft` and nothing could move it, so
-    `omitted`, `awaiting-approval` and `approved` were all unreachable - which
-    made the page's two headline sections, "Decision required" and
-    "Deliberately omitted", permanently empty. TRC-A2 and TRC-C3 were testing
-    behaviour the framework had no way to produce.
+    Routing seeds every earned document as `draft`. A CLI verb must be able
+    to move it to `omitted`, `awaiting-approval` or `approved`, or the
+    page's two headline sections, "Decision required" and "Deliberately
+    omitted", stay permanently empty.
 
     An omission MUST carry a reason. A document dropped without one is
     indistinguishable from one nobody got to, which is the distinction the

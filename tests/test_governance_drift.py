@@ -1,28 +1,30 @@
-"""Governance drift detection (task governance-drift-detection).
+"""Governance drift detection (issue governance-drift-detection).
 
 A project that runs `/compass:init` gets a COPY of `governance/`. The framework
 later ships new floors and checks; the copy never learns about them; and nothing
-reports the divergence. The result is a route that looks correct, passes every
-validator, and is quietly missing gates current policy requires.
+reports the divergence. The result is a delivery approach that looks correct,
+passes every check, and is quietly missing gates current policy needs.
 
 Reproduced against HEAD before this was written: a `governance/` missing four
 floors and five checks computes 7 gates where the shipped policy computes 9, and
 `compass policy lint` returns a clean PASS.
 
 The failure is DIRECTIONAL, which is what makes it dangerous - stale governance
-never fails loudly, it produces a *lighter* route. Every artifact looks right.
+never fails loudly, it produces a *lighter* delivery approach. Every artifact
+looks right.
 
 Two properties matter as much as the detection:
 
-  * It must not cry wolf. A project that reworded a rationale, reordered its
-    floors, or added its own rules has not drifted. A detector that fires on
-    those gets switched off, and then detects nothing.
+  * It must not report drift where there is none. A project that reworded a
+    rationale, reordered its floors, or added its own rules has not drifted.
+    A detector that fires on those gets switched off, and then detects
+    nothing.
   * A deliberate omission must be distinguishable from an unseen one. A project
     that considered RP-REQUIRE-003 and rejected it is in a different state from
     one that has never heard of it.
 
-Spec: docs/compass/2026-08-03-governance-drift-detection/acceptance-criteria.md (TRC-A1..A3,
-      TRC-B1..B8).
+Spec: governance-drift-detection/acceptance-criteria.md (`TRC-A1`..`TRC-A3`,
+      `TRC-B1`..`TRC-B8`).
 """
 from __future__ import annotations
 
@@ -129,7 +131,7 @@ def lint(proj):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - the shipped governance declares a version that has moved
+# `TRC-A1` - the shipped governance declares a version that has moved
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_the_shipped_governance_should_declare_a_version_that_has_moved():
@@ -157,7 +159,7 @@ def test_trc_a1_the_shipped_governance_should_declare_a_version_that_has_moved()
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - content may not change without the version moving
+# `TRC-A2` - content may not change without the version moving
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_changing_governance_content_without_bumping_its_version_should_fail():
@@ -189,7 +191,7 @@ def test_trc_a2_changing_governance_content_without_bumping_its_version_should_f
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 - a project behind the framework's version is told
+# `TRC-A3` - a project behind the framework's version is told
 # ---------------------------------------------------------------------------
 
 def test_trc_a3_a_project_behind_the_frameworks_governance_version_should_be_told(tmp_path):
@@ -207,7 +209,7 @@ def test_trc_a3_a_project_behind_the_frameworks_governance_version_should_be_tol
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 / B2 - missing rules and checks are named individually
+# `TRC-B1` / B2 - missing rules and checks are named individually
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_missing_floors_and_strategies_should_be_named_individually(tmp_path):
@@ -224,7 +226,7 @@ def test_trc_b2_missing_guardrail_checks_should_be_named_individually(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3..B5 - waivers
+# `TRC-B3`..B5 - waivers
 # ---------------------------------------------------------------------------
 
 def test_trc_b3_a_waived_rule_should_read_as_deliberate_not_as_drift(tmp_path):
@@ -265,7 +267,7 @@ def test_trc_b5_waiving_a_rule_the_framework_does_not_ship_should_be_refused(tmp
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6 / B7 - advisory by default, strict by choice
+# `TRC-B6` / B7 - advisory by default, strict by choice
 # ---------------------------------------------------------------------------
 
 def test_trc_b6_drift_should_be_advisory_by_default(tmp_path):
@@ -288,7 +290,7 @@ def test_trc_b7_a_project_may_opt_into_failing_on_drift(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-B8 - the waived block is declared in the schemas
+# `TRC-B8` - the waived block is declared in the schemas
 # ---------------------------------------------------------------------------
 
 def test_trc_b8_the_waived_block_should_be_declared_in_the_schema():

@@ -6,8 +6,8 @@ Scenario group F of `docs-compass-artifacts`, first half: the two skill merges
 
 `tests/test_instruction_volume.py` already pins the totals. This file pins the
 three things that are about SHAPE rather than size: which skills exist, which
-documents a route points an adopter at, and whether the ceiling is expressed in
-a unit a reader can check against the intake.
+documents a delivery approach points an adopter at, and whether the ceiling
+is expressed in a unit a reader can check against the intake.
 """
 
 import json
@@ -39,7 +39,7 @@ def _description_words(path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F3 - two skills merge into their neighbours
+# `TRC-F3` - two skills merge into their neighbours
 # ---------------------------------------------------------------------------
 
 #: The merges the intake asks for: (absorbed skill, the skill that absorbs it).
@@ -119,14 +119,8 @@ def test_trc_f3_nothing_names_a_skill_that_does_not_exist():
     """
     existing = {p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")}
 
-    # A backticked identifier immediately after "load". Every one of the
-    # thirteen names this currently matches is a skill, so the pattern needs no
-    # further narrowing - and narrowing it is how this guard breaks. The first
-    # version required a hyphen in the name, to avoid imagined false positives.
-    # There were none, and the filter silently skipped every single-word skill:
-    # `traceability` was named in two files that no longer resolve and the
-    # guard reported clean. A condition added for safety that removes half the
-    # subject is the failure this whole file is about.
+    # Matches any backticked name after "load". Every match now is a skill.
+    # Do not narrow it: a hyphen filter skipped every single-word skill.
     pattern = re.compile(r"[Ll]oad(?:s|ing)?\s+(?:the\s+)?`([a-z0-9-]+)`")
     searched = (
         sorted((ROOT / "commands").glob("*.md"))
@@ -153,7 +147,7 @@ def test_trc_f3_nothing_names_a_skill_that_does_not_exist():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 - the framework's own documents are off the adopter's reading path
+# `TRC-F4` - the framework's own documents are off the adopter's reading path
 # ---------------------------------------------------------------------------
 
 #: Documents about DEVELOPING Compass rather than about USING it. An adopter
@@ -169,8 +163,8 @@ FRAMEWORK_INTERNAL = {
     "docs/launch-article.md",       # marketing copy for Compass
 }
 
-#: Everything an agent reads while doing an issue, on any route. These are the
-#: files that may point an adopter somewhere.
+#: Everything an agent reads while doing an issue, on any delivery approach.
+#: These are the files that may point an adopter somewhere.
 READING_PATH = (
     sorted((ROOT / "commands").glob("*.md"))
     + sorted((ROOT / "skills").glob("*/*.md"))
@@ -202,7 +196,7 @@ def test_trc_f4_the_list_names_documents_that_exist():
     """A guard over a list of filenames is only as good as the list.
 
     A renamed or deleted document would leave an entry that can never match,
-    and the check above would go quietly greener over time.
+    and the check above would pass while guarding less.
     """
     missing = [d for d in sorted(FRAMEWORK_INTERNAL) if not (ROOT / d).is_file()]
     assert not missing, (
@@ -211,7 +205,7 @@ def test_trc_f4_the_list_names_documents_that_exist():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F5 - the resident cost is pinned in a stated unit
+# `TRC-F5` - the resident cost is pinned in a stated unit
 # ---------------------------------------------------------------------------
 
 def test_trc_f5_the_resident_ceiling_is_stated_in_tokens_as_well_as_words():
@@ -260,12 +254,13 @@ def test_trc_f5_the_contract_is_measured_separately_and_reported():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a quick fix reads one command file and one skill file
+# `TRC-F1` - a quick fix reads one command file and one skill file
 # ---------------------------------------------------------------------------
 
 #: The two files a quick fix reads. The five stage commands and the three
-#: skills they load stay on disk and are read on the heavier routes; the
-#: quick-fix path inlines what it needs instead of delegating to them.
+#: skills they load stay on disk and are read on the heavier delivery
+#: approaches; the quick-fix path inlines what it needs instead of
+#: delegating to them.
 QUICK_FIX_COMMAND = ROOT / "commands" / "quick-fix.md"
 QUICK_FIX_SKILL = ROOT / "skills" / "quick-fix" / "SKILL.md"
 
@@ -316,12 +311,12 @@ def _stage_command_verbs():
 
 
 def test_trc_f1_the_quick_fix_command_names_every_cli_call_it_inlines():
-    """The cost DD-7 accepted: two files now describe the quick-fix path.
+    """The cost of inlining: two files now describe the quick-fix path.
 
     Inlining the light path means a change to how the framework records
     evidence has two places to land, and duplicated instructions drift - the
-    framework has been bitten by exactly that before, with three copies of the
-    contract closed at 4.0.0. Counting files and words cannot see drift.
+    framework had this defect before, with three copies of the contract
+    closed at 4.0.0. Counting files and words cannot see drift.
 
     So this pins the two descriptions against each other: every `compass` verb
     the five stage commands run must be named in the inlined command, or be
@@ -392,7 +387,7 @@ def test_trc_f1_the_quick_fix_command_sends_the_agent_nowhere_else():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 - a quick fix writes only the delivery-approach record
+# `TRC-F2` - a quick fix writes only the delivery-approach record
 # ---------------------------------------------------------------------------
 
 #: The routing policy's internal name for the quick-fix shape.
@@ -407,14 +402,11 @@ def _routing_policy():
 
 def test_trc_f2_the_quick_fix_shape_requires_no_document():
     """`delivery-approach.md` is written by assess on every approach, so a
-    shape that requires no artifact of its own requires only that one.
+    shape that needs no artifact of its own needs only that one.
 
-    The two the shape used to require - a light acceptance-criteria.md and a
-    light verification-report.md - were there to carry G2's stated criterion
-    and G1's recorded green. Both of those are machine-readable records that
-    `compass check` reads directly: the criterion is the manifest's
-    `scenarios:` block, and the green is a test-run evidence record. The
-    documents were the human-readable face of records that exist either way.
+    The quick-fix shape needs no light acceptance-criteria.md or
+    verification-report.md, because the manifest and the test-run evidence
+    carry the same records.
     """
     shapes = _routing_policy()["route_shapes"]
     assert QUICK_FIX_SHAPE in shapes, (
@@ -485,8 +477,7 @@ def test_trc_f2_compass_check_passes_with_no_other_document_written(tmp_path):
 
     The same issue is checked twice: once without the recorded green, where
     the check must FAIL, and once with it, where it must pass. Without the
-    first half this is a green line that asserts nothing - the failure mode
-    this issue keeps finding elsewhere in the framework.
+    first half this is a green line that asserts nothing.
     """
     _quick_fix_issue(tmp_path, with_green=False)
     without = _check(tmp_path)

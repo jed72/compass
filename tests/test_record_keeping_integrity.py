@@ -1,26 +1,22 @@
-"""Acceptance tests for task record-keeping-integrity.
+"""Acceptance tests for issue record-keeping-integrity.
 
 Three fixes on one theme: Compass's own record-keeping reporting success while
 losing or failing to record information.
 
   * `declared-tests-resolve` (group A) - a scenario naming a test that does not
-    exist must not pass `compass check`. Scoped to tasks that are still `active`
+    exist must not pass `compass check`. Scoped to issues that are still `active`
     AND have already claimed `verify.correctness: pass`, because TDD writes a
-    test id at Specify before the test exists (DD-1).
+    test id at define before the test exists.
   * friction merge (group B) - `_friction-capture` appends human notes instead
-    of overwriting the list (DD-3).
+    of overwriting the list.
   * provenance column (group C) - the review-dimensions table records who
-    assessed each judgement dimension (DD-4).
+    assessed each judgement dimension.
 
-Spec: docs/compass/2026-08-03-record-keeping-integrity/acceptance-criteria.md
+Spec: record-keeping-integrity/acceptance-criteria.md
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import json
@@ -88,9 +84,10 @@ def _real_test_file(project, name="tests/test_real.py", func="test_present"):
     p = project / name
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(f"def {func}():\n    assert True\n")
-    # A task claiming correctness must also have the file it says it changed:
-    # `changed-code-traces-to-scenario` checks the path is still on disk, so a
-    # fixture that models a correct task needs its changed file to exist too.
+    # An issue claiming correctness must also have the file it says it
+    # changed: `changed-code-traces-to-scenario` checks the path is still on
+    # disk, so a fixture that models a correct issue needs its changed file
+    # to exist too.
     changed = project / "src" / "x.py"
     changed.parent.mkdir(parents=True, exist_ok=True)
     changed.write_text("x = 1\n")
@@ -113,8 +110,8 @@ def test_trc_a1_missing_test_file_reported(run_cli, make_task, project):
 
 def test_trc_a2_missing_test_function_reported(run_cli, make_task, project):
     """The file existing is not enough - the named test must be in it. This is
-    the case that actually bit: a test renamed during Build, never written back
-    to manifest.yml."""
+    the case that happened: a test renamed during implement, never written
+    back to manifest.yml."""
     _real_test_file(project, func="test_present")
     task_dir = make_task("resolve-me",
                          _task_claiming_correctness(["tests/test_real.py::test_absent"]))
@@ -151,8 +148,8 @@ def test_trc_a3_parametrised_id_resolves(run_cli, make_task, project):
 
 
 def test_trc_a3_non_file_shaped_id_is_skipped(run_cli, make_task, project):
-    """Compass does not own the test-id vocabulary of every runner (DD-2). A
-    false positive on a legitimate id teaches people to switch the check off."""
+    """Compass does not own the test-id vocabulary of every runner. A false
+    positive on a legitimate id teaches people to switch the check off."""
     task_dir = make_task(
         "resolve-me",
         _task_claiming_correctness(["grep: governance/strategies.md carries S7"]))
@@ -187,8 +184,8 @@ def test_trc_a4_narrative_scenario_exempt(run_cli, make_task, project):
 
 
 def test_trc_a7_pending_correctness_not_checked(run_cli, make_task, project):
-    """Between Specify and Build the declared test legitimately does not exist
-    yet. An active-only rule would fail every task in that window."""
+    """Between define and implement the declared test legitimately does not
+    exist yet. An active-only rule would fail every issue in that window."""
     task_dir = make_task(
         "resolve-me",
         _task_claiming_correctness(["tests/test_not_written_yet.py::test_x"],
@@ -202,8 +199,9 @@ def test_trc_a7_pending_correctness_not_checked(run_cli, make_task, project):
 
 
 def test_trc_a8_landed_task_not_rechecked(run_cli, make_task, project):
-    """Tests get renamed after a task lands. Re-validating a historical record
-    against a moving codebase produces failures that mean nothing (ADR-006)."""
+    """Tests get renamed after an issue lands. Re-checking a historical
+    record against a moving codebase produces failures that mean nothing
+    (ADR-006)."""
     task_dir = make_task(
         "resolve-me",
         _task_claiming_correctness(["tests/test_long_gone.py::test_x"], status="landed"))
@@ -215,8 +213,8 @@ def test_trc_a8_landed_task_not_rechecked(run_cli, make_task, project):
 
 
 def test_trc_a5_registered_under_g1_no_new_guardrail():
-    """ADR-002: the framework grows by adding artifacts and lenses, not
-    guardrails. The check registers under G1; the count stays at five."""
+    """ADR-002: the framework grows by adding artifacts, not rules. The
+    check registers under `G1`; the count stays at five."""
     gy = yaml.safe_load(_read("governance/guardrails.yml"))
 
     defaults = {g["id"]: g for g in gy["defaults"]}
@@ -300,7 +298,7 @@ def test_trc_b1_identical_note_not_appended_twice(run_cli, make_task):
 
 
 def test_trc_b3_nothing_captured_stays_absent(run_cli, make_task):
-    """A task that hit no friction stays a clean no-op (ADR-006)."""
+    """An issue that hit no friction stays a clean no-op (ADR-006)."""
     task_dir = _friction_task("fric", make_task)
 
     r = run_cli("_friction-capture", "--internal", "--issue", "fric")
@@ -354,13 +352,13 @@ def test_trc_c2_template_explains_assessor_column():
 # ---------------------------------------------------------------------------
 
 def _pre_existing_task_slugs():
-    """Every task on disk except the one currently in flight.
+    """Every issue on disk except the active one.
 
-    The in-flight task is excluded deliberately. A task mid-Build has not
-    recorded its green run yet, so checking it would assert that unfinished work
-    is finished - and running the whole of `compass ci` here would make this
-    test fail for the duration of every future task, which is a test that
-    reports on the calendar rather than on the change.
+    The active issue is excluded deliberately. An issue mid-implement has
+    not recorded its green run yet, so checking it would assert that
+    unfinished work is finished - and running the whole of `compass ci`
+    here would make this test fail for the duration of every future issue,
+    which is a test that reports on the calendar rather than on the change.
     """
     work = ROOT / ".compass" / "work"
     if not work.is_dir():
@@ -387,7 +385,7 @@ def _pre_existing_task_slugs():
 
 
 def test_trc_f1_existing_tasks_still_pass():
-    """Every task that predates this change still passes, once the references
+    """Every issue that predates this change still passes, once the references
     `declared-tests-resolve` exposed have been repaired. Run against the real
     .compass/work/, not a fixture - the point is the actual audit trail."""
     import subprocess

@@ -14,7 +14,7 @@ repository with no `.compass/` has genuinely never been asked to use Compass.
 Fail-closed behaviour inside an opted-in project is unchanged.
 
 Scenario ids: HAG-A1, HAG-A2, HAG-B1..B4, HAG-C1, HAG-C3, HAG-C4, HAG-D1 in
-docs/compass/2026-08-26-hook-as-guest/acceptance-criteria.md
+hook-as-guest/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -43,9 +43,8 @@ def _run_hook(cwd, payload, hook=PRE_TOOL, project_dir=None):
     """Run a hook the way Claude Code does.
 
     The hook reads `INVOKED_FROM="$(pwd)"`, not the payload's `cwd`, so the
-    subprocess must actually run in the repository under test. Getting that
-    wrong made every block look like silence while this issue was being
-    measured.
+    subprocess must actually run in the repository under test. Run anywhere
+    else, every block looks like silence.
     """
     env = dict(os.environ)
     env.pop("CLAUDE_PROJECT_DIR", None)
@@ -149,7 +148,7 @@ def test_hag_b2_an_opted_in_project_with_no_issue_still_blocks(tmp_path):
 
 
 def test_hag_b3_an_unreadable_opted_in_project_fails_closed(tmp_path):
-    """The distinction the brief names as the way this fails.
+    """The distinction that matters is how this fails.
 
     "No `.compass/`" and "could not read the project" are not the same case.
     The first is a stranger's repository. The second is Compass unable to tell

@@ -1,22 +1,19 @@
-"""The hook must block writes, never reads or prose (field report R12-followup).
+"""The hook must block writes, never reads or prose.
 
-1.8.0 taught the pre-tool hook to see shell commands that write production
-files. Its inline-interpreter rule was too greedy in two ways, and both were
-reported from the field within hours:
+The pre-tool hook sees shell commands that write production files. Its
+inline-interpreter rule is too greedy in two ways:
 
-- `open(` was treated as a write regardless of mode, so a read-only
-  `yaml.safe_load(open('.github/workflows/ci.yml'))` used to verify a change was
-  blocked - the hook stopping an author from checking their own work.
-- When that rule fired it lifted *every* path-like token out of the whole
-  command, heredoc bodies included, so writing a document that merely names a
-  `.sql` migration demanded a failing test for the migration. The reporter's
-  third occurrence was this file's own bug report being blocked by the path
-  quoted inside it.
+- `open(` is treated as a write regardless of mode, so a read-only
+  `yaml.safe_load(open('.github/workflows/ci.yml'))` used to check a change
+  is blocked - the hook stopping an author from checking their own work.
+- When that rule fires it lifts *every* path-like token out of the whole
+  command, heredoc bodies included, so writing a document that merely names
+  a `.sql` migration demands a failing test for the migration.
 
-Both push authors toward bypassing the hook, which costs more than the misses
-the extra strictness prevented.
+Both push authors towards bypassing the hook, which costs more than the
+misses the extra strictness prevents.
 
-Scenarios: docs/compass/2026-08-04-hotfix-1-8-1-false-blocks-and-land-scope/acceptance-criteria.md
+Scenarios: hotfix-1-8-1-false-blocks-and-land-scope/acceptance-criteria.md
 (SCN-A1..A4).
 """
 from __future__ import annotations
@@ -37,7 +34,7 @@ HOOK = ROOT / "hooks" / "pre-tool.sh"
 
 
 def _project(*, red: bool = False) -> Path:
-    """A framed project whose path contains no 'test'/'spec' substring."""
+    """An assessed project whose path contains no 'test'/'spec' substring."""
     root = Path(tempfile.mkdtemp(prefix="compass-fix-"))
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
@@ -119,9 +116,8 @@ MUST_BLOCK = [
         'python3 - <<\'PY\'\nimport pathlib\npathlib.Path("src/app.py").write_text("x")\nPY',
         id="SCN-A4-heredoc-write-text",
     ),
-    # The two-step form is the commonest heredoc idiom - and the one used to
-    # edit this repository's own source all session - so the narrowing must not
-    # lose it. Here the write is on a variable, not chained to Path(...).
+    # The two-step form is the commonest heredoc form, so the narrowing must
+    # not lose it. Here the write is on a variable, not chained to Path(...).
     pytest.param(
         'python3 - <<\'PY\'\nimport pathlib\np = pathlib.Path("src/app.py")\np.write_text("x")\nPY',
         id="SCN-A4-heredoc-write-via-variable",

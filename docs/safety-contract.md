@@ -52,7 +52,7 @@ findings into production work.
 
 ### 5. Irreversible work needs recorded human approval
 
-Human approvals are required for:
+Human approvals are needed for:
 
 - auth and access-control changes;
 - payments or movement of money;

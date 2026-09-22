@@ -1,17 +1,16 @@
 """An issue delivered through another issue can say so, checkably.
 
+`landed_by:` moves the claim to another record; it does not waive it. Six of
+the nine scenarios prove the relaxation applies only when that record
+exists.
+
 Six issues sat as `abandoned` with an empty record and had actually been
 delivered - the fix arrived through a different issue. `abandoned` was the only
 status that did not lie about the record, so it lied about the outcome instead,
-in the one place `compass retro` reads to judge whether triage is drifting.
-
-`landed_by:` moves the claim rather than waiving it. THAT IS THE WHOLE POINT OF
-THIS FILE: relaxing a guardrail check is the move a project talks itself into
-whenever a check is inconvenient, and six of these nine scenarios exist to prove
-the relaxation only fires when the record genuinely exists somewhere else.
+in the one place `compass retro` reads to judge whether assessment is drifting.
 
 Scenario ids: DEL-A1..A2, B1..B5, C1..C2 in
-docs/compass/2026-08-24-no-status-for-work-done-elsewhere/acceptance-criteria.md
+no-status-for-work-done-elsewhere/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -142,7 +141,7 @@ def test_del_b2_a_pointer_at_an_unlanded_issue_fails(tmp_path):
 
 
 def test_del_b3_a_pointer_at_an_empty_issue_fails(tmp_path):
-    """The chain-breaker: A points at B, B is empty too."""
+    """A points at B, B is empty too."""
     p = _project(tmp_path)
     _issue(p, "doer", delivered=["absorbed"])          # landed, but no record
     _issue(p, "absorbed", landed_by="doer")
@@ -192,11 +191,9 @@ def test_del_b4_a_pointer_is_inert_below_landed(tmp_path):
 # ---------------------------------------------------------------------------
 # The widening - a list, and two kinds of entry
 #
-# The first design took the bug report's framing at face value: "the fix
-# arrived through a different issue". Checked against the six records that
-# motivated the issue, that fits ONE of them. Three were fixed by an ordinary
-# commit with no issue opened, one has three parents, and one was decided
-# against. These scenarios are the shape the data actually has.
+# The six records take three forms: another issue, an ordinary commit,
+# several parents. One was decided against. These scenarios are the shape
+# the data actually has.
 # ---------------------------------------------------------------------------
 
 def test_del_a3_every_entry_in_the_list_is_checked(tmp_path):
@@ -219,8 +216,7 @@ def test_del_a3_every_entry_in_the_list_is_checked(tmp_path):
         "a list containing an unlanded issue passed - the check stops at the "
         "first good entry:\n" + combined)
     # Asserted on the REASON, not on the slug appearing. Stringifying the whole
-    # list into an error message would put "three" in the output by accident,
-    # and this test passed that way before the list was implemented.
+    # list into an error message would put "three" in the output by accident.
     assert "has not landed" in combined, (
         "the failure does not say WHY the entry is bad, so it could be any "
         "error that happens to quote the list:\n" + combined)
@@ -269,8 +265,7 @@ def test_del_d3_a_commit_with_no_explanation_fails(tmp_path):
 
 
 def test_del_d4_without_git_the_commit_form_declines(tmp_path, monkeypatch):
-    """A check that clears because it could not look is the failure this
-    repository found four of in one release."""
+    """A check that passes because it could not look is not a check."""
     from compass_pkg import landed_by as mod
 
     ok, detail = mod.landed_by_holds(
@@ -307,9 +302,8 @@ def _git_project(tmp_path):
 # Group C - the archive itself
 #
 # `.compass/work/` is gitignored, so these SKIP with a reason on a clean
-# checkout rather than passing on an empty tree. A check that quietly clears
-# when there is nothing to read is the failure this repository found four of in
-# one release.
+# checkout rather than passing on an empty tree. A check that passes because
+# it could not look is not a check.
 # ---------------------------------------------------------------------------
 
 ARCHIVE = REPO_ROOT / ".compass" / "work"
@@ -387,9 +381,9 @@ def _abandoned_in(text, slug):
 def test_del_a4_an_absorbed_issue_that_was_never_assessed_still_lints(tmp_path):
     """DEL-A4: `assessment` is not demanded of an issue delivered elsewhere.
 
-    The schema requires `assessment` at the root, because every issue that goes
+    The schema needs `assessment` at the root, because every issue that goes
     through the pipeline is assessed. An issue whose work was absorbed by
-    another never entered the pipeline - so requiring it asks for a record of a
+    another never entered the pipeline - so needing it asks for a record of a
     judgement nobody made, and the only way to satisfy it is to invent one.
 
     That is the same argument as the rest of this issue: the claim moves to the
@@ -417,7 +411,7 @@ def test_del_a4_an_absorbed_issue_that_was_never_assessed_still_lints(tmp_path):
 
 def test_del_a4b_an_ordinary_issue_still_needs_its_assessment(tmp_path):
     """The control. Without it, dropping the requirement outright would
-    satisfy DEL-A4 while letting every issue skip triage."""
+    satisfy DEL-A4 while letting every issue skip assessment."""
     p = _project(tmp_path)
     d = p / ".compass" / "work" / "ordinary"
     d.mkdir(parents=True, exist_ok=True)

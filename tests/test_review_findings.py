@@ -1,18 +1,12 @@
 """Fixes for the defects an independent review confirmed.
 
-Eleven were returned at once. These tests pin the ones that had no test - each
-should fail if its fix is reverted, which is the only thing that makes a fix
-durable.
+These tests pin the ones that had no test. Each test must fail if its fix
+is reverted, which is the only thing that makes a fix durable.
 
-Spec: docs/compass/2026-08-04-review-findings-2026-08/acceptance-criteria.md
+Spec: review-findings-2026-08/acceptance-criteria.md
 """
 
-# These read `compass approach evaluate`'s DETAIL - the provenance line,
-# the per-stage weights, the full gate list, the effect lines under each
-# fired rule. That detail moved to --verbose on 2026-08-24 when the
-# evaluator came under the terminal output contract; the computation is
-# unchanged. The assertions are re-pointed rather than rewritten, because
-# what they assert still holds - only where it is printed changed.
+# These tests read the detail `compass approach evaluate --verbose` prints.
 from __future__ import annotations
 
 import json
@@ -66,7 +60,7 @@ def _impact(proj):
                           cwd=str(proj), capture_output=True, text=True, timeout=90)
 
 
-# --- group B: a check that verified nothing --------------------------------
+# --- group B: a check that checked nothing ----------------------------------
 
 def test_trc_b1_a_tag_that_binds_to_no_scenario_should_not_be_recorded_as_seen():
     """cucumber-js and behave exit 0 when a tag filter matches nothing, so a

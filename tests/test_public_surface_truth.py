@@ -1,7 +1,7 @@
 """The surface a newcomer reads first says what is true.
 
-Issue: public-docs-tell-the-truth. Scenarios TRC-A1 to TRC-A6, TRC-D2,
-TRC-E1, TRC-F1, TRC-F2.
+Issue: public-docs-tell-the-truth. Scenarios `TRC-A1` to `TRC-A6`, `TRC-D2`,
+`TRC-E1`, `TRC-F1`, `TRC-F2`.
 
 An outside engineering review of 3.2.0 opened the README and found `issk`,
 opened the safety contract and found it titled for version 1.0, and opened the
@@ -34,10 +34,10 @@ def _prose_files() -> list[Path]:
             if p.is_file() and not str(p.relative_to(REPO_ROOT)).startswith(EXEMPT)]
 
 
-# --- TRC-A1 -----------------------------------------------------------------
+# --- `TRC-A1` -----------------------------------------------------------------
 
 def test_a1_no_file_says_issk():
-    """TRC-A1 - a rename search-and-replaced "issue" into "issk".
+    """`TRC-A1` - a rename search-and-replaced "issue" into "issk".
 
     It reached the README twice, the five-minute guide, and the architecture
     context file. It is the first word a newcomer reads about the framework's
@@ -50,13 +50,12 @@ def test_a1_no_file_says_issk():
     assert not hits, "the word 'issk' survives in:\n  " + "\n  ".join(hits)
 
 
-# --- TRC-A2 -----------------------------------------------------------------
+# --- `TRC-A2` -----------------------------------------------------------------
 
 def test_a2_contract_title_carries_no_version():
-    """TRC-A2 - a title carrying a version has to move at every major.
+    """`TRC-A2` - a title carrying a version has to move at every major.
 
-    That is how it came to say 1.0 on a 3.2.0 release. The version moves into
-    the body, where a check can compare it to VERSION.
+    The version moves into the body, where a check can compare it to VERSION.
     """
     title = (REPO_ROOT / "docs" / "safety-contract.md").read_text(
         encoding="utf-8").splitlines()[0]
@@ -79,10 +78,10 @@ def test_a2b_contract_states_the_version_it_applies_from():
         f"VERSION {current} - it is describing a release that does not exist")
 
 
-# --- TRC-A3 -----------------------------------------------------------------
+# --- `TRC-A3` -----------------------------------------------------------------
 
 def test_a3_guide_does_not_deny_the_marketplace():
-    """TRC-A3 - the guide denied a channel the project publishes on."""
+    """`TRC-A3` - the guide denied a channel the project publishes on."""
     body = " ".join((REPO_ROOT / "docs" / "security.md").read_text(
         encoding="utf-8").replace("`", "").split())
     assert "no Compass plugin marketplace" not in body, (
@@ -95,10 +94,10 @@ def test_a3_guide_does_not_deny_the_marketplace():
         "with the same care")
 
 
-# --- TRC-A4 -----------------------------------------------------------------
+# --- `TRC-A4` -----------------------------------------------------------------
 
 def test_a4_named_files_resolve():
-    """TRC-A4 - docs/portability.md listed approach files that do not exist.
+    """`TRC-A4` - docs/portability.md listed approach files that do not exist.
 
     Scoped to filenames a document presents as shipping with the framework:
     a backticked or bare path ending in .md under a known framework directory.
@@ -122,10 +121,10 @@ def test_a4_named_files_resolve():
         "documents name files that do not exist:\n  " + "\n  ".join(missing))
 
 
-# --- TRC-A5 -----------------------------------------------------------------
+# --- `TRC-A5` -----------------------------------------------------------------
 
 def test_a5_architecture_context_uses_current_stage_names():
-    """TRC-A5 - the context file describes the system as it is now.
+    """`TRC-A5` - the context file describes the system as it is now.
 
     `architecture/decisions/` is exempt as history. `system-context.md` is not
     a decision record; it says what is true today, and it said the manifest is
@@ -138,7 +137,7 @@ def test_a5_architecture_context_uses_current_stage_names():
             f"by {retired}, a stage that no longer exists")
 
 
-# --- TRC-A6 -----------------------------------------------------------------
+# --- `TRC-A6` -----------------------------------------------------------------
 
 RETIRED_STAGES = ("Frame", "Specify", "Clarify", "Distribute", "Land")
 
@@ -173,12 +172,11 @@ def _printed_strings() -> list[tuple[Path, int, str]]:
 
 
 def test_a6_printed_strings_name_no_retired_stage():
-    """TRC-A6 - a message must not tell a user to run a stage that is gone.
+    """`TRC-A6` - a message must not tell a user to run a stage that is gone.
 
     Worse than the documentation drift. A reader can put a document down; a
     user meeting "has Frame run?" is being told to run a stage that does not
-    exist, while already stuck - and the redirect that keeps the advice merely
-    old expires at the next major.
+    exist, while already stuck.
     """
     strings = _printed_strings()
     assert len(strings) > 200, (
@@ -197,10 +195,10 @@ def test_a6_printed_strings_name_no_retired_stage():
         + "\n  ".join(hits))
 
 
-# --- TRC-E1 -----------------------------------------------------------------
+# --- `TRC-E1` -----------------------------------------------------------------
 
 def test_e1_failure_message_claim_is_checked_or_narrowed():
-    """TRC-E1 - guarantee 7 claimed something about EVERY failure message.
+    """`TRC-E1` - guarantee 7 claimed something about EVERY failure message.
 
     Nothing checks it, and nothing can: judging whether prose explains a cause
     is not mechanisable. So it is narrowed to what is true, and says which
@@ -216,21 +214,18 @@ def test_e1_failure_message_claim_is_checked_or_narrowed():
         "messages - narrowing past what is true is its own defect")
 
 
-# --- TRC-F1 -----------------------------------------------------------------
+# --- `TRC-F1` -----------------------------------------------------------------
 
 def test_f1_decay_rule_states_its_ask():
-    """TRC-F1 - the mechanical half. The judgement half needs a reader.
+    """`TRC-F1` - the mechanical half. The judgement half needs a reader.
 
-    Carried from a closed issue that asked for a reader three times and never
-    found one. This half can pass alone, on purpose: the reader's answer is
-    recorded as evidence when it arrives, and anything it finds becomes its own
-    issue rather than blocking a release.
+    This half can pass alone, on purpose: the reader's answer is recorded as
+    evidence when it arrives, and anything it finds becomes its own issue
+    rather than blocking a release.
     """
     body = (REPO_ROOT / "governance" / "strategies.md").read_text(encoding="utf-8")
-    # Anchored on the rule's own opening sentence, not on a heading. It has no
-    # heading, and never uses the word "decay" - it is called the decay rule
-    # only in conversation, which is part of why pointing a reader at it was
-    # awkward in the first place.
+    # The rule has no heading and does not use the word "decay", so it is
+    # found by its opening sentence.
     anchor = "**Correct a retired name in a comment you were touching anyway.**"
     assert anchor in body, (
         "the rule about retired names in comments is not where this check "
@@ -258,7 +253,7 @@ def test_f1_decay_rule_states_its_ask():
     # you were touching anyway" - and the assertion above already pins that
     # sentence verbatim. Searching the section for an action verb therefore
     # matched text this check had selected: the body could be replaced with
-    # anything and it still passed, which was verified by blanking it.
+    # anything and it still passed, which was checked by blanking it.
     #
     # The BOUND is the body, and nothing guarded it. Without "no sweep, no
     # obligation to go looking" the rule reads as an instruction to hunt down
@@ -277,10 +272,10 @@ def test_f1_decay_rule_states_its_ask():
         f"reader outside the conversation cannot resolve them")
 
 
-# --- TRC-F2 -----------------------------------------------------------------
+# --- `TRC-F2` -----------------------------------------------------------------
 
 def test_f2_launch_article_carries_no_working_notes():
-    """TRC-F2 - the mechanical half of "does it read as publication copy"."""
+    """`TRC-F2` - the mechanical half of "does it read as publication copy"."""
     article = REPO_ROOT / "docs" / "launch-article.md"
     assert article.is_file(), "docs/launch-article.md is missing"
     body = article.read_text(encoding="utf-8")
@@ -291,22 +286,19 @@ def test_f2_launch_article_carries_no_working_notes():
         f"copy, not a scratchpad")
 
 
-# --- TRC-D2 -----------------------------------------------------------------
+# --- `TRC-D2` -----------------------------------------------------------------
 
 def test_d2_repairs_change_only_retired_names():
-    """TRC-D2 - the sweep changed wording, not structure.
+    """`TRC-D2` - the sweep changed wording, not structure.
 
     Fourteen of the repaired files are under agents/ and skills/ - instructions
     to an agent, not prose - so a careless rename changes behaviour rather than
     reading.
 
-    The design asked for something stronger: replay a substitution map over the
-    pre-repair text and require it to reproduce the result byte for byte. That
-    turned out not to be true and was not made true by pretending. Several
-    repairs needed rephrasing rather than substitution ("Clarify may be *light*
-    on Standard" does not become correct English by swapping one word), and a
-    check asserting otherwise would have been a check nobody could satisfy
-    honestly.
+    What is checked is a structural fingerprint of the pre-repair text,
+    committed alongside it: heading levels and order, fenced code blocks,
+    table rows, list items. A repair that drops a step, merges a table row
+    or edits a code example fails this; one that renames a stage does not.
 
     What is checked instead is the structural property the map was a proxy for,
     fingerprinted from the pre-repair text and committed: heading levels and
@@ -355,13 +347,13 @@ def test_d2_repairs_change_only_retired_names():
       that named two purposes inline became a parent bullet with two nested
       ones, which is the same "one point in one sentence, a vertical list for
       a set of items" rule the rest of the rewrite applied.
-    - `examples/initiative-new-subsystem/docs/compass/2026-03-02-notifications-subsystem/distribution-map.md`
+    - the shipped `initiative-new-subsystem` example's own distribution map
       (list_items 11 -> 10), losing a bullet that stated a
       `.compass/config.yml` `max_worktrees` value the file does not
       declare - a stated fact the audit found the source contradicted, not
       a wording swap.
 
-    The other 51 are untouched, and a NEW structural change to any of the 59
+    The other 50 are untouched, and a NEW structural change to any of the 59
     still fails.
     """
     import json

@@ -53,7 +53,7 @@ it yourself for full JSON Schema validation in `compass policy lint` and
 `compass issue lint` (without it the built-in linter still runs - see
 `schemas/README.md`).
 
-Unlike the plugin, `install.sh` does **not** modify your PATH. If you want to
+Unlike the plugin, `install.sh` does **not** change your PATH. If you want to
 call `compass` directly from your shell, add `$COMPASS_HOME/bin` to your
 `PATH` (or invoke the CLI as `python3 $COMPASS_HOME/cli/compass`). The slash
 commands run the CLI on your behalf, so this only matters when you call it

@@ -3,10 +3,10 @@
 A team arriving with a brief already written should not have to retype it. The
 reader is the mechanical half of that: resolve a source, read it, hash it, and
 say clearly when it cannot. Reshaping the document into `intent.md` is the
-session's job, not this module's - see `technical-design.md` DD-1.
+session's job, not this module's.
 
 Scenario ids: ING-A1, A2, A4, D2 in
-docs/compass/2026-08-24-ingest-an-existing-brief/acceptance-criteria.md
+ingest-an-existing-brief/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -46,11 +46,11 @@ def test_ing_a1_a_local_file_is_read_and_hashed(tmp_path):
 
 
 def test_ing_a2_the_source_may_be_called_anything(tmp_path):
-    """ING-A2: no particular filename is required.
+    """ING-A2: no particular filename is needed.
 
-    The bug report assumed `prd.md`. The whole point is that the document
-    already exists, under whatever name its author gave it - so this walks
-    several shapes rather than asserting one.
+    The whole point is that the document already exists, under whatever
+    name its author gave it - so this walks several shapes rather than
+    asserting one.
     """
     from compass_pkg.ingest import read_source
 
@@ -143,7 +143,7 @@ def test_ing_d2b_an_empty_document_is_not_silently_accepted(tmp_path):
 def test_ing_d4_a_url_that_is_not_https_is_refused():
     """ING-D4: only https sources are fetched, and the refusal says what to do.
 
-    A brief becomes the issue's intent, so a document altered in transit
+    A brief becomes the issue's intent, so a document changed in transit
     shapes the acceptance criteria and everything after them. Recording that
     it arrived over plain HTTP would not prevent any of that.
     """
@@ -165,10 +165,10 @@ def test_ing_d4_a_url_that_is_not_https_is_refused():
 
 
 def test_ing_d1_an_authenticated_source_is_refused_with_a_way_forward():
-    """ING-D1: 401 and 403 are refused. Compass is not growing an auth story.
+    """ING-D1: 401 and 403 are refused. Compass does not handle authentication.
 
     The whole behaviour is refusing well: the person is told the document
-    needs credentials Compass does not have, and given the one route that
+    needs credentials Compass does not have, and given the one way that
     always works.
     """
     import urllib.error
@@ -210,7 +210,7 @@ def test_ing_d4b_a_redirect_that_leaves_https_is_refused():
     `urllib.request` follows redirects AUTOMATICALLY, through
     HTTPRedirectHandler. An https URL redirecting to http would be fetched
     with the caller never seeing it - so a scheme check on the typed URL alone
-    passes here while failing in fact. `governance/strategies.md` S10: a guard
+    passes here while failing in fact. `governance/strategies.md` `S10`: a guard
     is accepted on a demonstrated failure, and this is the demonstration.
     """
     from compass_pkg.ingest import _https_only_redirect_handler
@@ -367,11 +367,8 @@ def test_ing_a4c_a_missing_source_leaves_the_issue_untouched(tmp_path):
 def test_ing_d4d_a_bad_source_is_refused_for_the_right_reason(tmp_path):
     """The argument is checked before the issue's state is.
 
-    Found by running the verb by hand. The snapshot check ran first, so on an
-    issue that had already ingested something, `--from http://...` was refused
-    with "intent-source.md already exists" - a true sentence about an unrelated
-    thing. The person changes the wrong one, tries again, and gets the same
-    message.
+    The argument is checked before the snapshot, so a bad `--from` is
+    refused for its own reason.
 
     A refusal that names the wrong cause is worse than a vague one: it sends
     the reader somewhere confidently.
@@ -396,9 +393,7 @@ def test_ing_a3_a_url_becomes_a_snapshot_and_a_record(tmp_path, monkeypatch):
     """ING-A3: the whole verb, over https, with no network.
 
     Patches `_fetch_https` in the module the reader resolves it from - not a
-    name imported elsewhere. Patching the wrong namespace is how a guard in
-    this repository ended up comparing a file with itself, so it is worth
-    being deliberate about: `read_source` looks up `_fetch_https` in
+    name imported elsewhere. `read_source` looks up `_fetch_https` in
     `compass_pkg.ingest` at call time, and that is what this replaces.
     """
     from compass_pkg import ingest as ingest_module
@@ -437,14 +432,12 @@ def test_ing_a3_a_url_becomes_a_snapshot_and_a_record(tmp_path, monkeypatch):
 
 def test_ing_a4d_an_oversized_local_source_is_refused_like_a_fetched_one(tmp_path,
                                                                         monkeypatch):
-    """The size ceiling applies to both routes, not just the network one.
+    """The size ceiling applies to both paths, not just the network one.
 
-    Found in the security review at verify. `_fetch_https` reads at most
-    MAX_SOURCE_BYTES + 1 so a misdirected fetch cannot pull an arbitrary body
-    into memory - and the local path called `fh.read()` with no bound at all.
-    A mistyped path at a database dump gave a MemoryError rather than a
-    sentence, which is the same failure the cap exists to prevent arriving by
-    the other door.
+    `_fetch_https` reads at most MAX_SOURCE_BYTES + 1 so a misdirected fetch
+    cannot pull an arbitrary body into memory. The local path needs the same
+    bound, or a mistyped path at a database dump gives a MemoryError rather
+    than a sentence through the local path.
     """
     from compass_pkg import ingest as ingest_module
     from compass_pkg.ingest import read_source

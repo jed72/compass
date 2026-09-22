@@ -1,9 +1,9 @@
 """Scenario group D - the instruction surface.
 
-TRC-D1: nothing tracked instructs a user or an adopter to `pip install`
-PyYAML. TRC-D3: the copyable CI workflow has no dependency-install step.
-TRC-D4: the install smoke test asserts the zero-install path rather than
-setting one up. TRC-D6: no tracked document claims Compass carries nothing
+`TRC-D1`: nothing tracked instructs a user or an adopter to `pip install`
+PyYAML. `TRC-D3`: the copyable CI workflow has no dependency-install step.
+`TRC-D4`: the install smoke test asserts the zero-install path rather than
+setting one up. `TRC-D6`: no tracked document claims Compass carries nothing
 beyond the standard library, in any of that claim's usual phrasings, and
 none says PyYAML is a package the reader installs rather than something the
 plugin already carries.
@@ -12,7 +12,7 @@ The scanner matches `pip install` forms specifically, not the bare word
 "pip" - `docs/security.md`'s corrected audit instructions legitimately
 contain `pip download pyyaml==6.0.2` (how an auditor reproduces the vendored
 tree), and a scanner that fired on that sentence would fail the build on the
-exact text that repairs the audit posture.
+text that corrects the audit instructions.
 
 Every needle this file searches for is assembled from its parts at import
 time, the same convention `tests/test_house_style.py` uses for its banned
@@ -41,19 +41,19 @@ _PIP_INSTALL_PYYAML_RE = re.compile(
     rf"{_PIP}\s+{_INSTALL}\b[^\n]{{0,200}}\b{_PYYAML}\b", re.IGNORECASE)
 
 # Text that claims Compass has nothing to bundle at all - assembled the same
-# way, and deliberately narrow: a generic "no dependencies" pattern once
-# false-positived on schemas/README.md's true, unrelated claim that the
-# built-in structural linter (not the CLI as a whole) needs none.
+# way, and deliberately narrow, so it does not match schemas/README.md's
+# true claim that the built-in structural linter (not the CLI as a whole)
+# needs no dependencies.
 _STDLIB_ONLY_RES = [
     re.compile(r"\bstdlib" + r"[\s-]only\b", re.IGNORECASE),
     re.compile(r"\bpure" + r"[\s-]standard" + r"[\s-]library\b", re.IGNORECASE),
     re.compile(r"\b" + "dependency" + r"[\s-]free\b", re.IGNORECASE),
-    # The two claim shapes TRC-D6's own comment names as what was actually
+    # The two claim shapes `TRC-D6`'s own comment names as what was actually
     # in the tree before this issue: "its only hard dependency is PyYAML"
-    # and "depends only on Python 3 and PyYAML". Neither of the three
-    # needles above ever matched either one (probe 8) - these two do, and
-    # narrowly enough that the corrected wording ("bundled", "travels inside
-    # the plugin") does not trip them.
+    # and "depends only on Python 3 and PyYAML". None of the three needles
+    # above ever matched either one - these two do, and narrowly enough that
+    # the corrected wording ("bundled", "travels inside the plugin") does
+    # not trip them.
     re.compile(r"\bonly\s+(?:hard\s+)?dependency\s+is\s+PyYAML\b", re.IGNORECASE),
     re.compile(r"\bdepends?\s+only\s+on\s+Python\s*3\s+and\s+PyYAML\b", re.IGNORECASE),
     re.compile(r"\bdependency\s+is\s+Python\s*3\s+and\s+PyYAML\b", re.IGNORECASE),
@@ -65,11 +65,10 @@ _EXCLUDE_DIR_PREFIXES = (
     ".git/", "dist/", "cli/vendor/", "node_modules/",
 )
 
-# This file and its sibling TRC-D5 test discuss the removed instruction by
+# This file and its sibling `TRC-D5` test discuss the removed instruction by
 # name, in prose about its own absence - not a shipped instruction. Excluded
-# the same way `tests/test_house_style.py` excludes nothing by exemption and
-# everything by construction; here the discussion is unavoidable in a
-# docstring, so it is excluded explicitly instead.
+# explicitly, because a docstring that discusses the removed instruction
+# must name it.
 _SELF_REFERENTIAL_FILES = {
     "tests/test_install_surface_no_pip.py",
     "tests/test_plugin_doc_drift.py",
@@ -93,9 +92,9 @@ _SELF_REFERENTIAL_FILES = {
 
 
 def _tracked_and_untracked_files():
-    """Every file this repository currently has, enumerated at run time -
-    tracked (with any uncommitted edits) and untracked-but-not-gitignored
-    alike, so a file this session added is covered as much as one already
+    """Every file this repository now has, enumerated at run time - tracked
+    (with any uncommitted edits) and untracked-but-not-gitignored alike, so
+    a file added but not yet committed is covered as much as one already
     committed."""
     listing = subprocess.run(
         ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
@@ -119,7 +118,7 @@ def _read_text(rel: str) -> str:
 
 
 def test_no_shipped_instruction_installs_pyyaml():
-    """TRC-D1: no tracked file - Markdown, YAML, shell, or Python - contains
+    """`TRC-D1`: no tracked file - Markdown, YAML, shell, or Python - contains
     a `pip install ... pyyaml` command."""
     hits = []
     for rel in _tracked_and_untracked_files():
@@ -138,9 +137,9 @@ def test_no_shipped_instruction_installs_pyyaml():
 
 
 def test_adopter_ci_template_needs_no_pip_step():
-    """TRC-D3: the reference workflow and its copyable snippets have no step
-    installing a Python package in order to run `compass ci` - checkout, set
-    up Python, run `compass ci`."""
+    """`TRC-D3`: the reference workflow and its copyable snippets have no step
+    installing a Python package to run `compass ci` - checkout, set up
+    Python, run `compass ci`."""
     ci_workflow = _read_text("ci/github-actions.yml")
     assert "pip install" not in ci_workflow.lower(), ci_workflow
     assert "actions/checkout" in ci_workflow
@@ -155,7 +154,7 @@ def test_adopter_ci_template_needs_no_pip_step():
 
 
 def test_install_smoke_test_asserts_the_zero_install_path():
-    """TRC-D4: the smoke test proves the claim rather than setting it up -
+    """`TRC-D4`: the smoke test proves the claim rather than setting it up -
     no PyYAML install step, a step that runs the CLI on an interpreter with
     no third-party packages and states the expected output, and the old
     'PyYAML missing' gotcha is gone."""
@@ -170,9 +169,9 @@ def test_install_smoke_test_asserts_the_zero_install_path():
 
 
 def test_no_test_locks_the_removed_instruction():
-    """TRC-D5: no test's *anchor* - the pattern it requires README to match -
-    still requires the removed pip-install line. `test_plugin_doc_drift.py`
-    may still discuss that history in a comment (excluded above as
+    """`TRC-D5`: no test's *anchor* - the pattern it needs README to match -
+    still needs the removed pip-install line. `test_plugin_doc_drift.py`
+    can still discuss that history in a comment (excluded above as
     self-referential); what it must not do is search for a regex ending in
     the old line, because that would fail once README no longer has it.
     The real evidence for this scenario is the whole suite passing with the
@@ -191,10 +190,7 @@ def test_no_test_locks_the_removed_instruction():
 
 def test_stdlib_only_patterns_catch_the_claim_shapes_that_actually_shipped():
     """Unit-level proof the document-half needles fire on real prose, not
-    only on strings nobody ever wrote (probe 8: before this widening, none
-    of the three original needles - "stdlib-only", "pure standard library",
-    "dependency-free" - ever matched anything in this repository's history,
-    because the actual claim was phrased two other ways)."""
+    only on strings nobody ever wrote."""
     shape_one = "Its only hard dependency is PyYAML. `jsonschema` is optional."
     shape_two = ("This layer is tool-agnostic - its only hard dependency is "
                 "Python 3 and PyYAML (`jsonschema` is optional), and nothing "
@@ -208,7 +204,7 @@ def test_stdlib_only_patterns_catch_the_claim_shapes_that_actually_shipped():
 
 
 def test_no_document_claims_compass_is_stdlib_only():
-    """TRC-D6: no tracked document says Compass is stdlib-only, pure
+    """`TRC-D6`: no tracked document says Compass is stdlib-only, pure
     standard library, or dependency-free; none says PyYAML is a dependency
     the reader installs; each that names PyYAML says it is bundled."""
     hits = []
@@ -250,9 +246,8 @@ def test_no_document_claims_compass_is_stdlib_only():
         # covered: only a header that actually NAMES PyYAML has to say
         # "bundled".
         if "DEPENDENCY:" not in text:
-            # Self-exempting: a module that stops carrying the marker used to
-            # leave this check silently, so coverage could drain away without
-            # a red. Collect them and assert on the set instead.
+            # A module that drops the marker must fail this check, so
+            # collect the set and assert on it.
             unmarked.append(rel)
             continue
         checked.append(rel)
@@ -261,8 +256,8 @@ def test_no_document_claims_compass_is_stdlib_only():
         if _PIP_INSTALL_PYYAML_RE.search(text):
             header_problems.append(rel)
 
-    # The antidote: prove the scan actually read what it claims to cover.
-    # `migrate.py` and `terminology_cmd.py` carry no dependency header today
+    # Prove the scan actually read what it claims to cover. `migrate.py`
+    # and `terminology_cmd.py` carry no dependency header today
     # and are named here deliberately, so a THIRD module quietly losing its
     # header fails rather than shrinking the check.
     assert set(unmarked) <= {"cli/compass_pkg/migrate.py",
@@ -280,9 +275,7 @@ def test_no_document_claims_compass_is_stdlib_only():
 
 
 # ---------------------------------------------------------------------------
-# The audit instruction - one runnable copy, referenced, not restated
-# (found by review: the old three-copy version had no extraction step, no
-# __pycache__ exclusion, and disagreed with itself on the path)
+# The audit instruction - one runnable copy, referenced, not restated.
 # ---------------------------------------------------------------------------
 
 
@@ -291,9 +284,9 @@ def test_third_party_notices_audit_instruction_is_complete_and_self_consistent()
     block. Checked statically (shape and internal consistency) rather than
     by actually running `pip download` in the suite - a network call in an
     ordinary test run is exactly the intermittency risk this repository's own
-    discipline (S5) warns against. The block was run for real, once, by hand
-    (see devlog) and produced no output, confirming the shape asserted here
-    is also the shape that works."""
+    discipline (`S5`) warns against. Run for real, once, by hand, the block
+    produced no output, confirming the shape asserted here is also the
+    shape that works."""
     text = _read_text("THIRD-PARTY-NOTICES.md")
     m = re.search(r"```\n\s*(pip download.*?expect no output)\n\s*```", text, re.S)
     assert m, "no fenced reproduce block found in THIRD-PARTY-NOTICES.md"
@@ -305,9 +298,8 @@ def test_third_party_notices_audit_instruction_is_complete_and_self_consistent()
     assert download.startswith("pip download pyyaml==6.0.2"), download
     assert "-d /tmp/pyyaml-src" in download, download
     assert hash_check.startswith("shasum -a 256 /tmp/pyyaml-src/pyyaml-6.0.2.tar.gz"), hash_check
-    # The step the old instruction skipped: pip download only saves the
-    # archive, it does not unpack it, so a diff step immediately after would
-    # target a directory that does not exist yet.
+    # `pip download` saves the archive without unpacking it, so the diff
+    # needs an extract step first.
     assert extract.startswith("tar xzf /tmp/pyyaml-src/pyyaml-6.0.2.tar.gz"), extract
     assert "-C /tmp/pyyaml-src" in extract, extract
     assert diff.startswith("diff -r -x __pycache__"), (
@@ -321,12 +313,9 @@ def test_third_party_notices_audit_instruction_is_complete_and_self_consistent()
 
 
 def test_other_two_copies_point_at_the_one_runnable_block_rather_than_restate_it():
-    """`cli/vendor/README.md` and `docs/security.md` used to each carry their
-    own copy of the reproduce command, and the three disagreed - two
-    different paths and one internal self-contradiction
-    (`THIRD-PARTY-NOTICES.md` treating `/tmp/pyyaml-src/pyyaml-6.0.2.tar.gz`
-    as an archive on one line and a directory on the next). One copy, two
-    references."""
+    """Only THIRD-PARTY-NOTICES.md carries the reproduce command.
+    `cli/vendor/README.md` and `docs/security.md` point at it, so the
+    copies cannot disagree."""
     for rel in ("cli/vendor/README.md", "docs/security.md"):
         text = _read_text(rel)
         assert "pip download" not in text, (

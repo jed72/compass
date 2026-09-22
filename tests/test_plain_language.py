@@ -2,21 +2,21 @@
 
 The rule this checks is an extension of the existing ban on bare `G1`-`G5` and
 `S1`-`S12` codes, widened to every id prefix and given the one thing that ban
-never stated: the ORDER. "a human signs off on the irreversible (G5)" is right;
-"G5 fired, which means a human signs off on the irreversible" is not, because
+never stated: the ORDER. "a human signs off on the irreversible (`G5`)" is right;
+"`G5` fired, which means a human signs off on the irreversible" is not, because
 the reader met the code before its meaning.
 
 The check reports and never blocks (TRC-C4). The tests in this file are a
 different thing and must be able to fail.
 
-**Read TRC-C10 before trusting any zero this reports.** The registry of what
+**Read `TRC-C10` before trusting any zero this reports.** The registry of what
 each code means is DERIVED from governance rather than hand-written, and a
 derivation that returns empty makes every code meaningless, every count zero
 and every test green while nothing has been inspected. That is the exact defect
 this issue exists to stop, so the check refuses to report a zero it cannot
 stand behind.
 
-Scenario ids: TRC-C1 to TRC-C10 (issue plain-language-3-2-0).
+Scenario ids: `TRC-C1` to `TRC-C10` (issue plain-language-3-2-0).
 """
 from __future__ import annotations
 
@@ -37,11 +37,11 @@ from plain_language_check import (
 
 
 # ---------------------------------------------------------------------------
-# TRC-C10 - the registry cannot be empty and silent. Read this first.
+# `TRC-C10` - the registry cannot be empty and silent. Read this first.
 # ---------------------------------------------------------------------------
 
 def test_pl_c10_empty_registry_fails_rather_than_reporting_zero():
-    """TRC-C10 - a zero from an empty registry is the worst available answer.
+    """`TRC-C10` - a zero from an empty registry is the worst available answer.
 
     If the derivation yields nothing, no code has a known meaning, nothing can
     be counted as unexplained, and the count is zero - indistinguishable from a
@@ -59,15 +59,12 @@ def test_pl_c10_empty_registry_fails_rather_than_reporting_zero():
 
 
 def test_pl_c10b_a_partially_empty_source_is_named():
-    """TRC-C10 - which source came back empty, not just that one did."""
+    """`TRC-C10` - which source came back empty, not just that one did."""
     with pytest.raises(EmptyRegistry) as exc:
         gloss_registry(guardrails={}, strategies={}, codes={})
     msg = str(exc.value)
-    # Assert the sources are named as EMPTY, not merely mentioned. The first
-    # version checked `source in msg`, and the message's explanatory sentence
-    # names all three sources whatever went wrong - so it passed with the
-    # empty-source list removed entirely. The assertion was reading the wrong
-    # half of its own subject.
+    # Assert the sources are named as EMPTY: the message names all three
+    # sources whatever went wrong.
     head = msg.split(".")[0]
     for source in ("guardrails", "strategies", "codes"):
         assert source in head, (
@@ -86,7 +83,7 @@ def test_pl_c10b_a_partially_empty_source_is_named():
 
 
 def test_pl_c10c_the_real_registry_is_not_empty():
-    """TRC-C10 - and the derivation actually works against real governance.
+    """`TRC-C10` - and the derivation actually works against real governance.
 
     Without this, the guard above could be satisfied forever by a derivation
     that never returns anything.
@@ -101,23 +98,23 @@ def test_pl_c10c_the_real_registry_is_not_empty():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2, C3, C7 - the order is the rule, not the nearness
+# `TRC-C2`, C3, C7 - the order is the rule, not the nearness
 # ---------------------------------------------------------------------------
 
 def test_pl_c2_bare_code_is_counted():
-    """TRC-C2 - a code with no meaning in front of it is counted."""
+    """`TRC-C2` - a code with no meaning in front of it is counted."""
     hits = count_bare_codes("the G5 guard kicked in")
     assert len(hits) == 1 and hits[0].code == "G5", hits
 
 
 def test_pl_c3_glossed_code_is_not_counted():
-    """TRC-C3 - meaning first, code in brackets, is the correct form."""
+    """`TRC-C3` - meaning first, code in brackets, is the correct form."""
     assert count_bare_codes(
         "a human signs off on the irreversible (G5)") == []
 
 
 def test_pl_c7_meaning_after_the_code_is_still_counted():
-    """TRC-C7 - what proximity alone gets wrong.
+    """`TRC-C7` - what proximity alone gets wrong.
 
     The gloss is present and adjacent. The reader still met the code first.
     """
@@ -130,25 +127,25 @@ def test_pl_c7_meaning_after_the_code_is_still_counted():
 
 
 def test_pl_c3b_the_sentence_before_also_counts_as_in_front():
-    """TRC-C3 - the gloss may sit in the preceding sentence."""
+    """`TRC-C3` - the gloss may sit in the preceding sentence."""
     assert count_bare_codes(
         "A human signs off on the irreversible. That is what G5 requires."
     ) == []
 
 
 # ---------------------------------------------------------------------------
-# TRC-C8 - exempt when the identifier is the whole of its content
+# `TRC-C8` - exempt when the identifier is the whole of its content
 # ---------------------------------------------------------------------------
 
 def test_pl_c8_whole_content_identifiers_are_exempt():
-    """TRC-C8 - an index entry is not a sentence that failed to explain itself."""
+    """`TRC-C8` - an index entry is not a sentence that failed to explain itself."""
     assert is_whole_content("TRC-C6", "TRC-C6")
     assert is_whole_content("`TRC-C6`", "TRC-C6")
     assert not is_whole_content("TRC-C6 - the baseline records its reach", "TRC-C6")
 
 
 def test_pl_c8b_a_bullet_opening_with_an_id_is_not_exempt():
-    """TRC-C8 - the case a positional exemption would have wrongly allowed."""
+    """`TRC-C8` - the case a positional exemption would have wrongly allowed."""
     hits = count_bare_codes("| TRC-C6 | INT-2 | test |\n\n"
                             "TRC-C6: the baseline now records its reach.")
     assert [h.code for h in hits] == ["TRC-C6"], (
@@ -158,7 +155,7 @@ def test_pl_c8b_a_bullet_opening_with_an_id_is_not_exempt():
 
 
 def test_pl_c8c_no_file_is_exempt_as_a_whole():
-    """TRC-C8 - the rule cannot be dodged by choosing where to write."""
+    """`TRC-C8` - the rule cannot be dodged by choosing where to write."""
     import plain_language_check as mod
     src = Path(mod.__file__).read_text(encoding="utf-8")
     assert "EXEMPT_PATHS" not in src and "exempt_files" not in src, (
@@ -168,18 +165,18 @@ def test_pl_c8c_no_file_is_exempt_as_a_whole():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C4, C6 - advisory, with a baseline so the number can move
+# `TRC-C4`, C6 - advisory, with a baseline so the number can move
 # ---------------------------------------------------------------------------
 
 def test_pl_c4_count_reports_without_blocking():
-    """TRC-C4 - the count never changes an exit status."""
+    """`TRC-C4` - the count never changes an exit status."""
     for text in ("", "the G5 guard kicked in", "G1 G2 G3 G4 G5 " * 50):
         hits = count_bare_codes(text)
         assert isinstance(hits, list)
 
 
 def test_pl_c6_baseline_records_count_and_reach():
-    """TRC-C6 - a report with no baseline cannot show a number moving."""
+    """`TRC-C6` - a report with no baseline cannot show a number moving."""
     b = load_baseline()
     for key in ("count", "locations", "files_scanned", "printed_output_reach"):
         assert key in b, f"the baseline does not record {key!r}"
@@ -191,20 +188,17 @@ def test_pl_c6_baseline_records_count_and_reach():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1, C5 - the rule is stated where the writer and the reviewer stand.
-# Both presence-shaped. Every presence assertion in this issue that was not
-# mutated turned out to be satisfiable by accident, so each of these names a
-# specific string that would be absent if the rule were not really there.
+# `TRC-C1`, C5 - the rule is stated where the writer and the reviewer stand.
+# Both presence-shaped. Each check names a string that would be absent
+# without the rule, because presence checks pass by accident.
 # ---------------------------------------------------------------------------
 
 def test_pl_c1_strategy_states_the_order_with_four_real_pairs():
-    """TRC-C1 - meaning leads, code follows, with pairs from real output.
+    """`TRC-C1` - meaning leads, code follows, with pairs from real output.
 
     The rule is stated in strategies.md; the pairs that prove it live in
-    strategies-rationale.md, which is where the worked examples moved when
-    strategies.md was cut to directives. Both halves are still required - the
-    rule without pairs is an assertion, and the pairs without the rule are an
-    anecdote.
+    strategies-rationale.md. Both halves are needed - the rule without pairs
+    is an assertion, and the pairs without the rule are an anecdote.
     """
     doc = (REPO_ROOT / "governance" / "strategies.md").read_text(encoding="utf-8")
     doc = " ".join(doc.replace("*", "").split())
@@ -212,9 +206,9 @@ def test_pl_c1_strategy_states_the_order_with_four_real_pairs():
         "the ordering rule is not stated - S7 says an identifier carries its "
         "meaning on first use, but never which comes first"
     )
-    # Scoped to S7's own section. Counting across the whole rationale file
+    # Scoped to `S7`'s own section. Counting across the whole rationale file
     # let four "instead of" phrases from any other strategy's evidence stand
-    # in for S7's pairs - the same loose match these guards exist to catch.
+    # in for `S7`'s pairs - the same loose match these guards exist to catch.
     rationale = (REPO_ROOT / "governance" / "strategies-rationale.md").read_text(
         encoding="utf-8")
     parts = re.split(r"(?m)^## ", rationale)
@@ -236,13 +230,10 @@ def test_pl_c1_strategy_states_the_order_with_four_real_pairs():
 
 
 def test_pl_c5_reviewer_instructions_name_the_bare_code():
-    """TRC-C5 - the reviewer is told what to look for, not just to be careful."""
+    """`TRC-C5` - the reviewer is told what to look for, not just to be careful."""
     doc = (REPO_ROOT / "agents" / "reviewer.md").read_text(encoding="utf-8")
-    # Normalise whitespace and markdown emphasis before matching. Prose is
-    # hard-wrapped, so a phrase that spans a line break is not a substring of
-    # the raw text - the first version of this test failed on a correctly
-    # written rule for that reason alone. Presence checks are fragile in a way
-    # that reads as a real finding until you look.
+    # Normalise whitespace and emphasis first, because hard-wrapped prose
+    # splits phrases across lines.
     low = " ".join(doc.replace("*", "").split()).lower()
     assert "no plain words in front of it" in low, (
         "the reviewer's instructions do not name a bare code as something to "
@@ -265,7 +256,7 @@ def _strategies() -> str:
 
 
 def test_pl_d1_title_rule_names_the_refused_shapes():
-    """TRC-D1 - the rule refuses named shapes, and states its own scope."""
+    """`TRC-D1` - the rule refuses named shapes, and states its own scope."""
     doc = _strategies()
     for shape in ("slogan", "theme", "play on words", "the x that y"):
         assert shape in doc, f"the title rule does not refuse a {shape!r}"
@@ -284,7 +275,7 @@ def test_pl_d1_title_rule_names_the_refused_shapes():
 
 
 def test_pl_d2_body_template_has_its_four_sections():
-    """TRC-D2 - what changed, what breaks, how to check it, where to look."""
+    """`TRC-D2` - what changed, what breaks, how to check it, where to look."""
     tpl = REPO_ROOT / "templates" / "pull-request-body.md"
     assert tpl.is_file(), f"{tpl} does not exist"
     low = " ".join(tpl.read_text(encoding="utf-8").replace("*", "").split()).lower()
@@ -297,12 +288,10 @@ def test_pl_d2_body_template_has_its_four_sections():
 
 
 def test_pl_d3_commit_guidance_points_at_the_title_rule():
-    """TRC-D3 - one rule, referenced, not two rules that drift apart."""
+    """`TRC-D3` - one rule, referenced, not two rules that drift apart."""
     doc = _strategies()
-    # Target the guidance paragraph, not the first mention. An earlier version
-    # searched for "commit title" and matched the rule's opening sentence,
-    # where the phrase appears incidentally - the assertion read text it was
-    # never meant to read, which is the failure S10 names.
+    # Target the guidance paragraph: "commit title" also appears in the
+    # rule's opening sentence.
     i = doc.find("commit titles follow")
     assert i != -1, (
         "no commit-title guidance in strategies.md - expected a paragraph "
@@ -319,7 +308,7 @@ def test_pl_d3_commit_guidance_points_at_the_title_rule():
 
 
 def test_pl_d4_correction_rule_is_stated_as_a_checklist_item():
-    """TRC-D4 - stated as an item, because it was advice for three rounds."""
+    """`TRC-D4` - stated as an item, because advice alone was not followed."""
     doc = _strategies()
     assert "worse than the original error" in doc, (
         "the correction rule does not say why it matters - that a record "
@@ -333,25 +322,21 @@ def test_pl_d4_correction_rule_is_stated_as_a_checklist_item():
 
 
 def test_pl_c2b_the_receipt_puts_meaning_before_the_policy_code():
-    """TRC-C2 - the release's own receipt obeys the rule the release writes.
+    """`TRC-C2` - the release's own receipt obeys the rule the release writes.
 
     `compass issue receipt` rendered each fired policy rule as
     "<id>: <rationale>", so a reader met an unresolvable code and learned what
-    it did only afterwards. That is the defect S7 forbids in as many words,
+    it did only afterwards. That is the defect `S7` forbids in as many words,
     in the flagship artifact of the release that forbids it.
 
     Deliberately narrow. Two other findings from the same read - the Gates
     block naming eight ids with no statement of what they check, and
     justifications truncated mid-sentence - are NOT fixed here: both need
     design and a one-screen budget, and they are filed as
-    receipt-and-scan-container-gaps. They are also left in place on purpose,
-    because FU-001 is about to be run against this receipt and pre-correcting
-    everything findable would have the reader confirm a screen already tuned
-    for them.
+    receipt-and-scan-container-gaps.
 
-    Reads the checked-in fixture, not the live issue. It first read this
-    release's own issue, which lives in a directory git ignores - so it passed
-    here and found nothing to check anywhere else.
+    Reads the checked-in fixture, not the live issue - the live issue lives
+    in a directory git ignores.
     """
     out = _fixture_receipt()
     fired = [l for l in out.splitlines() if re.search(r"\((RP|G|S)[-\w]+\)\s*$", l)]
@@ -369,11 +354,7 @@ def test_pl_c2b_the_receipt_puts_meaning_before_the_policy_code():
 
 
 def test_pl_c12_claims_gate_states_traceability_not_truth():
-    """TRC-C12 - the one gate whose name promises less than a reader hears.
-
-    Added at verify. The work existed without a criterion describing it, which
-    G2 forbids; populating `changed_files` is what surfaced the gap.
-    """
+    """`TRC-C12` - the one gate whose name promises less than a reader hears."""
     g = (REPO_ROOT / "governance" / "guardrails.yml").read_text(encoding="utf-8")
     g_norm = " ".join(g.split()).lower()
     assert "traceability, not truth" in g_norm, (
@@ -392,28 +373,18 @@ def test_pl_c12_claims_gate_states_traceability_not_truth():
     )
 
 
-# TRC-X1 was withdrawn from this release, so no test for it lives here.
-#
-# It checked that every check this repository adds has a mutation proof on
-# record. Keeping it running needed this repository to declare a rule of its
-# own, and a recorded decision - guarded by a test - says it declares none.
-# Its subject is also live issue state, which is not in the repository, so a
-# test could not have read it anyway. See the filed issue
-# `declare-a-project-guardrail-or-do-not`.
 def test_pl_c6b_the_count_states_its_own_limit_when_it_reports():
-    """TRC-C6 - a number that is known to be high says so where it is read.
+    """`TRC-C6` - a number that is known to be high says so where it is read.
 
-    The check counts every occurrence; S7 asks about first use per piece of
-    output. Until that is fixed, every report has to carry the gap - otherwise
-    an adopter either loses an afternoon or widens the matcher, and widening a
-    matcher to cure a false positive is the failure this release named.
+    The check counts every occurrence; `S7` asks about first use per piece of
+    output. Every report must state the gap - otherwise an adopter either
+    wastes time or widens the matcher, and widening a matcher to fix a false
+    positive is the failure this release named.
     """
     from plain_language_check import KNOWN_LIMIT, report
     line = report(count_bare_codes("the G5 guard kicked in"))
     assert "1 bare code" in line
-    # Case-insensitive: the note writes "FIRST use" for emphasis, and a
-    # case-sensitive match failed against a correctly written rule - the
-    # brittle-matcher failure S10 describes, in the test asserting the rule.
+    # Case-insensitive: the note writes "FIRST use" for emphasis.
     low = line.lower()
     for phrase in ("first use", "31%", "do not widen",
                    "plain-language-count-first-use-per-output"):
@@ -426,7 +397,7 @@ def test_pl_c6b_the_count_states_its_own_limit_when_it_reports():
 
 
 def test_pl_x3_repair_keeps_the_code():
-    """TRC-X3 - a repair adds meaning; it never deletes the identifier.
+    """`TRC-X3` - a repair adds meaning; it never deletes the identifier.
 
     The counting check rewards deletion: remove the code and the count falls.
     That trades a reader's small confusion for a broken traceability chain, and
@@ -457,17 +428,18 @@ def test_pl_x3_repair_keeps_the_code():
 
 
 def test_pl_x4_quoted_tool_string_is_left_unchanged():
-    """TRC-X4 - a banned word quoted from a tool survives, byte for byte.
+    """`TRC-X4` - a banned word quoted from a tool survives, byte for byte.
 
-    Distinct from TRC-B4, which proves the SCANNER does not flag a quoted word.
+    Distinct from `TRC-B4`, which proves the SCANNER does not flag a quoted word.
     This proves the quoted string is still there to be searched for - the reason
     the exception exists. A scanner that ignores a quotation and a repair that
     paraphrases it produce the same clean scan and different documents.
     """
     strategies = (REPO_ROOT / "governance" / "strategies.md").read_text(encoding="utf-8")
-    # The live instance: S10 quotes the exact command whose behaviour it is
-    # explaining. Paraphrasing it would make the passage describe a command
-    # nobody can run, which is the loss the exception prevents.
+    # The live instance: mutation proof (`S10`) quotes the exact command
+    # whose behaviour it is explaining. Paraphrasing it would make the
+    # passage describe a command nobody can run, which is the loss the
+    # exception prevents.
     assert r"git grep -n -i -E '\bseam\b'" in strategies, (
         "S10's worked example no longer quotes the exact command it explains. "
         "The quoted-term exception exists so a reader can search for the string; "
@@ -490,7 +462,7 @@ def test_pl_x4_quoted_tool_string_is_left_unchanged():
 
 
 def test_pl_c9_derivation_failure_names_the_file():
-    """TRC-C9 - a loud break is only useful if it says what broke.
+    """`TRC-C9` - a loud break is only useful if it says what broke.
 
     The gloss registry is derived from three governance files rather than
     hand-written, trading silent drift for loud breakage. Two things make the
@@ -522,7 +494,7 @@ def test_pl_c9_derivation_failure_names_the_file():
 
 
 def test_pl_b5_no_un_conflate_in_governance():
-    """TRC-B5 - "un-conflate" is gone, and the replacement says the same thing."""
+    """`TRC-B5` - "un-conflate" is gone, and the replacement says the same thing."""
     for f in sorted((REPO_ROOT / "governance").rglob("*.md")):
         assert "conflate" not in f.read_text(encoding="utf-8").lower(), (
             f"{f.relative_to(REPO_ROOT)} still uses a form of 'conflate' - it is "
@@ -534,7 +506,7 @@ def test_pl_b5_no_un_conflate_in_governance():
 
 
 def test_pl_d5_empty_scan_habit_is_stated():
-    """TRC-D5 - a search returning zero is not believed until it has been tried."""
+    """`TRC-D5` - a search returning zero is not believed until it has been tried."""
     doc = " ".join((REPO_ROOT / "governance" / "strategies.md")
                    .read_text(encoding="utf-8").replace("*", "").split())
     low = doc.lower()
@@ -551,13 +523,12 @@ def test_pl_d5_empty_scan_habit_is_stated():
 
 
 def test_pl_g3_living_spec_title_matches_its_source_scenario():
-    """TRC-G3 - the derived spec says what its source says.
+    """`TRC-G3` - the derived spec says what its source says.
 
     The living spec derives from each landed issue's `manifest.yml` scenario
     TITLES, not from the prose headings. A correction applied to the heading
-    and not the manifest leaves the two disagreeing and the derivation faithfully
-    reproducing the one nobody edited - which is what happened here, and why
-    re-deriving produced byte-identical output while the spec was wrong.
+    and not the manifest leaves the two disagreeing, and the derivation
+    faithfully reproduces the one nobody edited.
     """
     spec = REPO_ROOT / "docs" / "system-spec.md"
     text = spec.read_text(encoding="utf-8")
@@ -577,12 +548,12 @@ def test_pl_g3_living_spec_title_matches_its_source_scenario():
 
 
 def test_pl_d6_correction_rule_distinguishes_record_from_claim():
-    """TRC-D6 - which places take a correction, and which take a note.
+    """`TRC-D6` - which places take a correction, and which take a note.
 
-    S14 says apply a correction everywhere it belongs. Without saying WHERE it
-    belongs, a moved number forces a false choice: falsify a record to keep it
-    consistent with today, or leave a false claim standing because rewriting
-    felt dishonest.
+    Strategy `S14` says apply a correction everywhere it belongs. Without
+    saying WHERE it belongs, a moved number forces a false choice: falsify a
+    record to keep it consistent with today, or leave a false claim standing
+    because rewriting felt dishonest.
     """
     doc = " ".join((REPO_ROOT / "governance" / "strategies.md")
                    .read_text(encoding="utf-8").replace("*", "").split()).lower()
@@ -605,22 +576,17 @@ def test_pl_d6_correction_rule_distinguishes_record_from_claim():
 # A purpose-built issue on disk, not the one being worked on. These tests assert
 # properties of the RENDERER, and a fixture exercises that completely.
 #
-# They used to render this issue's own working state. That state is not in
-# version control, so they failed everywhere but the author's machine - and the
-# deeper fault is that a test reading the CURRENT issue can only pass while that
-# issue is current. The day this one lands, it would have been reading a
-# different issue or nothing at all.
+# A test that reads the current issue passes only while that issue is
+# current, and its state is not in version control.
 RECEIPT_FIXTURE = REPO_ROOT / "tests" / "fixtures" / "receipt-fixture-project"
 
 def _evidence_gates_text():
-    """Everything the evidence-gates skill says, across its whole directory.
+    """Reads SKILL.md and its sibling files.
 
-    The skill was split so its parts load when needed - the review-dimension
-    checklists, the evidence vocabulary, the fitness-function detail and the
-    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
-    reports content missing when it has moved next door.
-
-    The strings below are unchanged; only where they are looked for widened.
+    The evidence-gates skill's parts load when needed - the review-dimension
+    checklists, the evidence vocabulary, the architecture-check detail and
+    the coverage notes are siblings of SKILL.md, not inside it. A guard
+    reading only SKILL.md would report them missing.
     """
     import pathlib as _p
     d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
@@ -642,13 +608,7 @@ def _fixture_receipt() -> str:
 
 
 def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
-    """TRC-C13 - the evidence block is a table a reader can scan down.
-
-    It rendered 28 entries across 44 lines: sixteen spilled onto an indented
-    continuation line and twelve did not, so there was no row to follow. The
-    scenario title - the only human-readable content in the block - sat on that
-    continuation line behind the word `scenario:`, while the widest column held
-    a file path derivable from the id.
+    """`TRC-C13` - the evidence block is a table a reader can scan down.
 
     One line per entry, and what was proved before where to find it.
     """
@@ -680,15 +640,11 @@ def test_pl_c13_evidence_rows_are_one_line_and_lead_with_what_was_proved():
 
 
 def test_pl_c15_evaluator_puts_meaning_before_the_code():
-    """TRC-C15 - both screens that print a fired rule read the same way.
+    """`TRC-C15` - both screens that print a fired rule read the same way.
 
-    TRC-C2 corrected the receipt and stopped there. `compass approach evaluate`
-    prints the same data through a different renderer and still opened each
-    line with a bare identifier - on the first screen a new user ever sees, and
-    the one the demo recording holds longest.
-
-    This asserts the property on BOTH screens, because a test that covers one
-    renderer is how the two came apart in the first place.
+    Both screens that print a fired rule must put the meaning first: the
+    receipt and `compass approach evaluate`. This asserts the property on
+    both, not just one - one screen's renderer can drift from the other's.
     """
     import subprocess
     import sys as _sys
@@ -711,12 +667,8 @@ def test_pl_c15_evaluator_puts_meaning_before_the_code():
                                 body), (
                 f"the {screen} opens a fired-rule line with its code:\n  {body}\n"
                 f"State what the rule did, then the code in brackets.")
-            # The code may share its brackets - "(RP-FLOOR-002, floor)" keeps
-            # the rule's kind beside it. An earlier version of this pattern
-            # demanded a closing bracket immediately after the code and failed
-            # against a correct line, which is the brittle-matcher failure S10
-            # warns about: establish whether the rule is missing or the match
-            # is wrong before changing either.
+            # The code can share its brackets with the rule's kind, as in
+            # "(RP-FLOOR-002, floor)".
             assert re.search(r"\((RP|G|S)[-\w]+[,)]", body), (
                 f"the {screen} dropped the code entirely - it carries the "
                 f"traceability and must stay, in brackets:\n  {body}")

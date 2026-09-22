@@ -1,9 +1,9 @@
-"""Acceptance tests for task fix-plugin-doc-drift.
+"""Acceptance tests for issue fix-plugin-doc-drift.
 
-Each test_trc_* function asserts the fix for one scenario in
-.compass/work/fix-plugin-doc-drift/spec.feature.md. The "production" change
-is text in README.md, AGENTS.md, and docs/*.md, so these tests are grep/regex
-assertions over the published doc files.
+Each test_trc_* function asserts the fix for one scenario: the plugin install
+path no longer needs a separate PyYAML step, and the shipped docs must say
+so. The "production" change is text in README.md, AGENTS.md, and docs/*.md,
+so these tests are grep/regex assertions over the published doc files.
 
 Why this file exists separate from the rest of tests/: the existing test
 suite defends the CLI's safety contract (see tests/README.md). These tests
@@ -30,10 +30,8 @@ def test_trc_a1_readme_source_install_has_path_note():
     compass CLI - by adding bin/ to PATH or via `python3 cli/compass`."""
     readme = _read("README.md")
 
-    # The source-install code block (clone -> bash install.sh). The block used
-    # to end at `pip install pyyaml`; that line is gone now that PyYAML
-    # travels inside the plugin (zero-friction-install, TRC-D1/TRC-D5) - the
-    # block's real end is the install script invocation, which survives.
+    # The source-install code block (clone -> bash install.sh). The block
+    # ends at the install-script invocation.
     m = re.search(
         r"git clone https://github\.com/jed72/compass\.git.*?"
         r"bash scripts/install\.sh --global",
@@ -83,7 +81,7 @@ def _on_path_claims_about_install_sh(text):
 
 
 def test_trc_a2_quickstart_drops_install_sh_path_claim():
-    """quickstart.md §1 must not claim install.sh modifies PATH, and must
+    """quickstart.md §1 must not claim install.sh changes PATH, and must
     explain how to invoke the CLI after a source install."""
     quickstart = _read("docs/quickstart.md")
 
@@ -95,10 +93,10 @@ def test_trc_a2_quickstart_drops_install_sh_path_claim():
 
     # And the disclaimer must be present, not merely the absence of the claim.
     assert re.search(
-        r"install\.sh[^.]{0,80}does\s+\*{0,2}not\*{0,2}\s+modify\s+your\s+PATH",
+        r"install\.sh[^.]{0,80}does\s+\*{0,2}not\*{0,2}\s+change\s+your\s+PATH",
         quickstart, re.IGNORECASE,
     ), (
-        "quickstart.md must say outright that install.sh does not modify your "
+        "quickstart.md must say outright that install.sh does not change your "
         "PATH. Silence leaves a reader to assume it does, which is the "
         "misreading this test exists to prevent."
     )
@@ -144,15 +142,11 @@ def test_trc_b1_readme_tree_lists_bin_and_plugin_manifest():
 
 
 def test_trc_b2_methodology_section_9_names_bin_and_plugin_manifest():
-    """methodology.md §9's adapter-layer paragraph names bin/compass and
+    """methodology.md's adapter-layer paragraph names bin/compass and
     .claude-plugin/."""
     method = _read("docs/methodology.md")
     m = re.search(
-        # By NAME, at whatever number. The section was §9 and is §11 since the
-        # docs were slimmed on 2026-08-26; what this guard needs is the
-        # paragraph that names bin/compass, not its position in the running
-        # order. Pinning a section number is the same brittleness that broke
-        # two anchors in this repair already.
+        # Found by name, not section number, so renumbering does not break it.
         r"##\s+\d+\.\s+The three layers.*?(?=^##\s+\d+\.|\Z)",
         method,
         re.DOTALL | re.MULTILINE,
@@ -190,7 +184,7 @@ def test_trc_b3_portability_adapter_block_and_mapping_table():
     )
 
     # And there must be a mapping-table row about the install surface. The
-    # row should reference the plugin shim or manifest.
+    # row must reference the plugin shim or manifest.
     has_install_row = bool(
         re.search(r"\|\s*Install surface\s*\|", port, re.IGNORECASE)
         or (
@@ -235,7 +229,7 @@ def test_trc_c1_agents_uses_compass_prefix():
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_half_fix_misleading_phrases_removed():
-    """No file contains its specific misleading phrase from the Spike's findings."""
+    """No file contains its specific misleading phrase about install.sh and PATH."""
     quickstart = _read("docs/quickstart.md")
     bad_quickstart = _on_path_claims_about_install_sh(quickstart)
     assert not bad_quickstart, (

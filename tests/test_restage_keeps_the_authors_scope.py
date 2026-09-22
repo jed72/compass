@@ -10,20 +10,15 @@ non-trivial - that list names files belonging to commits not yet made. So the
 author stages commit 1, a formatter fires, the retry runs, and commit 1
 silently grows to the issue's whole declared scope.
 
-What that did in the field: a module was landed as two commits - step
-definitions first, then the registration that imports them. The re-stage
-pulled the registration into the earlier commit, which then referenced a
-module that did not exist yet and failed at collection when checked out
-standalone. CI never saw it, because CI only builds the branch tip. It
-surfaced only because each commit was checked out into a clean worktree.
+An earlier commit then imports a module that does not exist yet, and CI does
+not see it because CI builds only the branch tip.
 
 The function's own docstring already argued against this: "Never `git add
 -A`... so a hook that reformats fifty unrelated files cannot smuggle them into
 the commit". The `owned` loop did not smuggle in unrelated files; it smuggled
 in not-yet-ready ones.
 
-Scenario ids: see .compass/work/field-feedback-hook-scope-and-restage/
-acceptance-criteria.md.
+Scenario ids: see field-feedback-hook-scope-and-restage/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -74,7 +69,8 @@ def _repo(tmp_path):
     (root / "src" / "registration.py").write_text("from steps import STEP  # 2\n")
     # The issue's own artifacts move too - a devlog entry written as the work
     # happens. Without an actual change here the artifact directory has
-    # nothing to re-stage, and FF-4 would pass whatever the code did.
+    # nothing to re-stage, and the artifact-restage scenario would pass
+    # whatever the code did.
     (work / "devlog.md").write_text("# Devlog\n\nStaged the steps.\n")
     _git(["add", "--", "src/steps.py"], root)
 
@@ -83,10 +79,8 @@ def _repo(tmp_path):
     # framework. The failure is what forces ship-commit's retry path - the
     # path _restage_owned lives on.
     #
-    # An earlier version of this fixture only rewrote the file. The commit
-    # then succeeded first time (the rewrite was unstaged, so the index was
-    # unchanged), the retry never ran, and this test passed without exercising
-    # a single line of the code it exists to test.
+    # The hook must also fail: a rewrite alone leaves the index unchanged,
+    # the commit succeeds first time and the retry never runs.
     hooks = root / ".git" / "hooks"
     hooks.mkdir(parents=True, exist_ok=True)
     pc = hooks / "pre-commit"
@@ -129,9 +123,9 @@ def test_ff_3_restage_does_not_widen_the_commit(tmp_path):
 def test_ff_4_artifacts_are_still_restaged(tmp_path):
     """The control: the re-stage must keep doing what it exists for.
 
-    Dropping the whole re-stage would satisfy FF-3 while re-opening the case
-    it was written for - a hook rewrite leaving the commit without the
-    issue's own artifacts.
+    Dropping the whole re-stage would satisfy the scope-only scenario while
+    re-opening the case it was written for - a hook rewrite leaving the
+    commit without the issue's own artifacts.
     """
     root = _repo(tmp_path)
     r = _ship(root)

@@ -1,17 +1,17 @@
-"""Tests for `compass rework-scan` - cross-task rework detection (R4).
+"""Tests for `compass rework-scan` - cross-issue rework detection.
 
 Scenarios covered:
-  TRC-D1  clean repo reports 0 rework instances
-  TRC-D2  add-then-delete file pair is reported
-  TRC-D3  public-surface symbol added then removed is reported
-  TRC-D4  migration created then dropped is reported
-  TRC-D6  canonical fixture at tests/fixtures/rework-scan/add-then-delete-pair/
-  TRC-X2  corrupt manifest.yml is skipped gracefully
+  `TRC-D1`  clean repo reports 0 rework instances
+  `TRC-D2`  add-then-delete file pair is reported
+  `TRC-D3`  public-surface symbol added then removed is reported
+  `TRC-D4`  migration created then dropped is reported
+  `TRC-D6`  canonical fixture at tests/fixtures/rework-scan/add-then-delete-pair/
+  `TRC-X2`  corrupt manifest.yml is skipped gracefully
 
 Architectural invariants under test:
   The exit code is ALWAYS 0 when rework is detected: it is a signal, not a gate.
   Patterns are loaded from signals.yml at runtime, not hardcoded.
-  Inv-7:   given identical input, output is deterministic.
+  `Inv-7`:   given identical input, output is deterministic.
 """
 from __future__ import annotations
 
@@ -90,11 +90,11 @@ def write_signals_yml(directory: Path, window_days: int = 14,
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1  Clean repo - no rework detected
+# `TRC-D1`  Clean repo - no rework detected
 # ---------------------------------------------------------------------------
 
 def test_clean_repo(tmp_path):
-    """TRC-D1: disjoint changed_files produces a report with 0 rework instances."""
+    """`TRC-D1`: disjoint changed_files produces a report with 0 rework instances."""
     root = tmp_path / "work"
     signals = write_signals_yml(tmp_path)
 
@@ -113,11 +113,11 @@ def test_clean_repo(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2  Add-then-delete pair detected
+# `TRC-D2`  Add-then-delete pair detected
 # ---------------------------------------------------------------------------
 
 def test_add_then_delete(tmp_path):
-    """TRC-D2: file added by task-a and deleted by task-b is reported."""
+    """`TRC-D2`: file added by task-a and deleted by task-b is reported."""
     root = tmp_path / "work"
     signals = write_signals_yml(tmp_path)
 
@@ -142,12 +142,12 @@ def test_add_then_delete(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D3  Public-surface churn detected
+# `TRC-D3`  Public-surface churn detected
 # ---------------------------------------------------------------------------
 
 def test_public_surface_churn(tmp_path):
-    """TRC-D3: path matching public_surface_patterns added then removed is reported.
-    Also verifies the pattern is loaded from signals.yml at runtime.
+    """`TRC-D3`: path matching public_surface_patterns added then removed is reported.
+    Also checks the pattern is loaded from signals.yml at runtime.
     """
     root = tmp_path / "work"
     # Use a custom pattern to prove runtime-loading (not hardcoded)
@@ -202,11 +202,11 @@ def test_public_surface_patterns_loaded_at_runtime(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D4  Migration pair detected
+# `TRC-D4`  Migration pair detected
 # ---------------------------------------------------------------------------
 
 def test_migration_pair(tmp_path):
-    """TRC-D4: migration added in task-a and a drop migration added in task-b is reported."""
+    """`TRC-D4`: migration added in task-a and a drop migration added in task-b is reported."""
     root = tmp_path / "work"
     signals = write_signals_yml(tmp_path)
 
@@ -232,13 +232,13 @@ def test_migration_pair(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D6  Canonical regression fixture
+# `TRC-D6`  Canonical regression fixture
 # ---------------------------------------------------------------------------
 
 def test_add_then_delete_pair_fixture():
-    """TRC-D6: the canonical checked-in fixture must yield exactly one rework instance.
+    """`TRC-D6`: the canonical checked-in fixture must yield exactly one rework instance.
 
-    Also verifies the exit code is 0 even when rework is detected.
+    Also checks the exit code is 0 even when rework is detected.
     The scanner is a SIGNAL, not a gate.
     """
     fixture_root = FIXTURES_DIR / "rework-scan" / "add-then-delete-pair"
@@ -270,17 +270,17 @@ def test_add_then_delete_pair_fixture():
 
 
 # ---------------------------------------------------------------------------
-# TRC-X2  Corrupt manifest.yml is skipped gracefully
+# `TRC-X2`  Corrupt manifest.yml is skipped gracefully
 # ---------------------------------------------------------------------------
 
 def test_skips_malformed_task(tmp_path):
-    """TRC-X2: a malformed manifest.yml is skipped with a WARNING; scan completes;
+    """`TRC-X2`: a malformed manifest.yml is skipped with a WARNING; scan completes;
     exit code is 0.
     """
     root = tmp_path / "work"
     signals = write_signals_yml(tmp_path)
 
-    # Write a valid task
+    # Write a valid issue
     write_task_yml(root / "task-good", "task-good", [
         {"path": "services/foo/handler.go", "action": "added"},
     ])
@@ -303,7 +303,7 @@ def test_skips_malformed_task(tmp_path):
     assert "warning" in combined.lower() or "skipped" in combined.lower(), (
         f"expected a WARNING or 'skipped' message for the corrupt file:\n{combined}"
     )
-    # The scan should complete and still report on the valid tasks
+    # The scan must complete and still report on the valid issues
     # (no crash, no silent failure)
 
 

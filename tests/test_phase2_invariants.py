@@ -1,19 +1,15 @@
-"""Invariants for the phase-2 additions (task phase-2-skills-check-and-cli-split).
+"""Invariants for the phase-2 additions (issue phase-2-skills-check-and-cli-split).
 
 Two skills and one check were added. The properties that must survive that:
-a project which opted into nothing sees no change, every task already on disk
+a project which opted into nothing sees no change, every issue already on disk
 returns what it returned before, and the framework grew by artifacts and checks
-only - no guardrail, gate, reading dimension, or top-level CLI verb.
+only - no guardrail, gate, assessment dimension, or top-level CLI verb.
 
-Spec: docs/compass/2026-08-03-phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-F1..F3).
+Spec: phase-2-skills-check-and-cli-split/acceptance-criteria.md (`TRC-F1`..`TRC-F3`).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import pathlib
@@ -51,11 +47,11 @@ def test_trc_f1_a_project_that_opted_into_nothing_should_see_no_change():
 
 
 def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
-    """Every task already on disk must still check the way it did.
+    """Every issue already on disk must still check the way it did.
 
-    The new check runs inside G1, which is always active - so a bug in it would
-    change the result for every task in the repository at once. This is the
-    guard on that.
+    The new check runs inside `G1`, which is always active - so a bug in it
+    would change the result for every issue in the repository at once. This
+    is the guard on that.
     """
     work = ROOT / ".compass" / "work"
     if not work.is_dir():
@@ -63,7 +59,7 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
     slugs = sorted(p.name for p in work.iterdir() if (p / "manifest.yml").is_file())
     assert slugs, "no tasks on disk - this guard would be empty"
 
-    # A Spike runs `spike_guardrails`, not G1-G5 - the BDD and TDD strategies
+    # A Spike runs `spike_guardrails`, not `G1`-`G5` - the BDD and TDD strategies
     # are suspended there by design, so a check about executable scenarios
     # correctly never fires. Excluded rather than asserted over.
     spikes = set()
@@ -80,8 +76,8 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
             cwd=str(ROOT), capture_output=True, text=True, timeout=180)
         line = next((l for l in r.stdout.splitlines()
                      if "scenarios-are-executable" in l), "")
-        # No task in this repository has wired a runner, so every one of them
-        # must take the no-op path. A FAIL here would mean the check is
+        # No issue in this repository has wired a runner, so every one of
+        # them must take the no-op path. A FAIL here would mean the check is
         # penalising projects for not having opted in.
         if line:
             checked += 1
@@ -100,38 +96,24 @@ def test_trc_f2_adding_the_check_should_not_change_any_existing_tasks_result():
 
 
 EXPECTED_GUARDRAIL_IDS = {"G1", "G2", "G3", "G4", "G5", "S1", "S2"}
-# The CLI-voice slice renamed the banned-word verbs (route -> approach,
-# plan -> design, task -> issue, backfill -> follow-up) and added
-# terminology; the set below is the surface after that deliberate move.
-# The vocabulary rename moved the planning verb BACK to `plan` on
-# 2026-08-25: `design` now means the designer's stage everywhere else,
-# and one word cannot mean two stages in one release. `design` was kept
-# alongside it as a hidden second spelling through 3.x, and was removed at
-# 4.0.0 (ADR-024). One name, one handler.
-# `intent` added 2026-08-25: `compass intent ingest` reads a brief that
-# already exists, by path or https URL, so a team arriving with one does
-# not retype it. A new top-level group rather than a subverb - there was
-# no `intent` verb before, only the slash command.
+# Each verb below is in the set for its own reason. `plan` is the planning
+# stage's live command. `intent` reads a brief that already exists, by path
+# or https URL, so a team arriving with one does not retype it - a
+# top-level group rather than a subverb, because no subverb owns it.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
     "tdd-green", "policy", "plan", "intent", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
-    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
-    # `init` added 2026-08-26: `compass init` creates .compass/ - the config
-    # and the work directory - and is safe to run twice. It exists because
-    # nothing owned initialisation: /compass:init created the directories at
-    # the end of a governance conversation, /compass:assess created them as a
-    # side effect of writing a manifest, and four of the five role entry points
-    # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
-    # rather than a subcommand because there is no group it belongs under, and
-    # because the five entry points call it directly.
+    "migrate",                    # the 1.x-to-2.0 tree migrator
+    # `init` creates `.compass/config.yml` and `.compass/work/`, and is safe
+    # to run twice. It exists because no other command owns initialisation,
+    # and the five entry points call it directly.
     "init",
-    # `acceptance` (R13) is the one honest path for a change with no natural
+    # `acceptance` is the recorded path for a change with no natural
     # behavioural red - config, docs, a behaviour-preserving refactor. It is a
     # GROUP (`start`, `record`), so later kinds add a subcommand rather than a
-    # verb. Added deliberately: the alternative was leaving authors to fake a
-    # red that greps a file for a string, which is what the field reported.
+    # verb.
     "acceptance",
 }
 EXPECTED_READING_KEYS = {
