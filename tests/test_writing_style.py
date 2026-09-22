@@ -982,6 +982,21 @@ _register(Rule(
             "an identifier (section 4), not a v1-vocabulary use of the "
             "word."),
         Exemption(
+            "tests/test_tdd_red_integrity.py", "not a red (TRC-G1)",
+            "the scenario id TRC-G1 contains G1 as a substring by "
+            "coincidence - an identifier (section 4), not a reference to "
+            "the guardrail."),
+        Exemption(
+            "tests/test_tdd_red_integrity.py", "not a red (TRC-G2)",
+            "the scenario id TRC-G2 contains G2 as a substring by "
+            "coincidence - an identifier (section 4), not a reference to "
+            "the guardrail."),
+        Exemption(
+            "tests/test_tdd_red_integrity.py", "still a red (TRC-G3)",
+            "the scenario id TRC-G3 contains G3 as a substring by "
+            "coincidence - an identifier (section 4), not a reference to "
+            "the guardrail."),
+        Exemption(
             "tests/analyze/test_analyze_core.py",
             "the slug `unframed-task` contains it",
             "the literal, hyphenated slug this test's fixture uses - an "
