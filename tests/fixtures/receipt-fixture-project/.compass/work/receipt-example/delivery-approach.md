@@ -1,6 +1,6 @@
-# Route - receipt-example
+# Delivery approach - receipt-example
 
-## 1. The four dimension readings
+## 1. The assessment
 
 | Dimension | Reading | One-line justification |
 |---|---|---|
@@ -13,6 +13,6 @@
 
 No routing guardrail fired.
 
-## 4. The final route
+## 4. The final delivery approach
 
-Final route: standard.
+Final delivery approach: standard.
