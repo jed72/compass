@@ -70,12 +70,12 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     "Triage": [
         re.compile(r"/compass:triage\b"),
         # Capitalised, anywhere. Five narrower shapes stood here until
-        # 2026-08-25 - `Triage phase|stage`, the two arrow forms, a heading,
-        # and `during|at|before Triage` - and between them they caught NONE of
+        # 2026-08-25 - `Triage phase|stage`, the two arrow forms, a heading, <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+        # and `during|at|before Triage` - and between them they caught NONE of <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # the 57 live occurrences across 30 shipped files, because the tree
-        # writes it in table cells (`| Triage |`) and ordinary sentences
-        # ("Triage reads the four dimensions"). This one pattern subsumes all
-        # five and catches those: capital-T Triage is always the stage name.
+        # writes it in table cells (`| Triage |`) and ordinary sentences <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+        # ("Triage reads the four dimensions"). This one pattern subsumes all <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+        # five and catches those: capital-T Triage is always the stage name. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         #
         # LOWERCASE `triage` IS NOT BANNED HERE. The ordinary verb - sorting
         # BETWEEN cases by urgency, which is what `compass flow` does - stays
@@ -90,7 +90,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bWireframe\s+(?:phase|stage|command)\b"),
         re.compile(r"^#+\s+Wireframe\b", re.M),
     ],
-    # The intake document. `prd.md` is the filename; "product requirements" as
+    # The intake document. `prd.md` is the filename; "product requirements" as <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # ordinary prose stays legal.
     "PRD / prd.md": [
         re.compile(r"\bprd\.md\b"),
@@ -98,7 +98,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         # The bare acronym, which the two patterns above never touched - so
         # 24 live occurrences survived, including `commands/intent.md`'s own
         # description line, the sentence a user reads in the slash-command
-        # menu, which said the command captures intent "as a PRD" while
+        # menu, which said the command captures intent "as a PRD" while <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # writing intent.md. Naming the document. "Product requirements" as
         # ordinary prose is still fine.
         re.compile(r"\bPRD\b"),
@@ -113,7 +113,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"(?:→|->)\s*Frame\b"),
         re.compile(r"^#+\s+Frame\b", re.M),
         # Tuned at the skills-prose review: the capitalised stage name
-        # after a preposition ("during Frame,") is stage-name usage the
+        # after a preposition ("during Frame,") is stage-name usage the <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # suffix forms above miss; lowercase "frame the problem" stays
         # legal.
         re.compile(r"\b(?:during|at|before|after|since|until)\s+Frame\b"),
@@ -149,9 +149,9 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\broute\s+evaluate\b"),
         # Not preceded by a path separator: `src/api/routes/search.py` is a
         # web router directory, which is ordinary in almost any codebase.
-        # The ban is about a Compass `routes/` directory at the top level.
+        # The ban is about a Compass `routes/` directory at the top level. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         re.compile(r"(?<![\w/.-])routes?/"),
-        # Case-insensitive on the qualifier: "**Reference route:**" is how a
+        # Case-insensitive on the qualifier: "**Reference route:**" is how a <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # heading writes it, and the lowercase-only pattern walked past every
         # one of them in the shipped examples.
         re.compile(
@@ -187,23 +187,23 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\s*(?:→|->)"),
         re.compile(r"^#+\s+(?:Specify|Clarify|Distribute|Land)\b", re.M),
         # Tuned at the skills-prose review: the capitalised stage name
-        # after a preposition or conjunction ("at Land", "and Land",
-        # "during Specify") is stage-name usage the suffix forms miss;
+        # after a preposition or conjunction ("at Land", "and Land", <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+        # "during Specify") is stage-name usage the suffix forms miss; <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # lowercase ordinary verbs ("planes land") stay legal.
         re.compile(r"\b(?:during|at|before|after|since|until|and|into)\s+"
                    r"(?:Specify|Clarify|Distribute|Land)\b"),
-        # Banned outright, like Frame above and for the same reason. See the
+        # Banned outright, like Frame above and for the same reason. See the <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # comment there for the two designs that were measured and rejected.
         re.compile(r"\b(?:Specify|Clarify|Distribute|Land)\b"),
     ],
     # The role-perspective concept, in any casing. Tuned at the
-    # skills-prose slice: a hyphen-preceded "lens" is an agent identifier
+    # skills-prose slice: a hyphen-preceded "lens" is an agent identifier <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # (product-owner, architect, product-marketer) - machine vocabulary
     # that keeps its spelling until an agent-rename decision - and is no
     # longer flagged. The concept word alone still is.
-    # The carve-out for a hyphen-preceded "lens" is gone: it existed only
-    # while the agents were still called product-lens, marketing-lens and
-    # architect-lens, and ADR-023 renamed them after their roles. The bare
+    # The carve-out for a hyphen-preceded "lens" is gone: it existed only <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    # while the agents were still called product-lens, marketing-lens and <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    # architect-lens, and ADR-023 renamed them after their roles. The bare <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # pattern now catches the identifiers too, which is the point.
     "lens": [
         re.compile(r"\blens(?:es)?\b", re.IGNORECASE),
@@ -211,15 +211,15 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     # ADR-023. Three of these need a tuned pattern because the word has an
     # ordinary sense the ban must not touch; the rest are unambiguous.
     #
-    # `stream`: the lookbehind is what makes `upstream` and `downstream`
+    # `stream`: the lookbehind is what makes `upstream` and `downstream` <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # invisible. Measured before the ban was written - 40 upstream/downstream
     # uses in scanned prose, 116 of the unit-of-work sense, and zero uses of
-    # the data-flow sense ("event stream", "output stream"). So the lookbehind
+    # the data-flow sense ("event stream", "output stream"). So the lookbehind <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # is the whole of the ambiguity.
     "stream": [
         re.compile(r"(?<![a-z-])streams?\b", re.IGNORECASE),
     ],
-    # `topology` and `ceremony` keep their ordinary senses, which is why the
+    # `topology` and `ceremony` keep their ordinary senses, which is why the <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # ban entries say so; the patterns are plain because those senses do not
     # appear in this repository's prose.
     "swarm": [re.compile(r"\bswarms?\b", re.IGNORECASE)],
@@ -240,7 +240,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     "terrain": [
         re.compile(r"\bterrain\b", re.IGNORECASE),
     ],
-    # The v1 size dimension. "order(s) of magnitude" is ordinary English
+    # The v1 size dimension. "order(s) of magnitude" is ordinary English <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # and stays legal.
     "magnitude": [
         re.compile(r"(?<!order of )(?<!orders of )\bmagnitude\b", re.IGNORECASE),
@@ -265,10 +265,10 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bbackfills?\b", re.IGNORECASE),
     ],
     # The v1 work-item noun in human-facing prose. Machine-state forms
-    # stay legal during the transition: manifest.yml, current-task, --task,
+    # stay legal during the transition: manifest.yml, current-task, --task, <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # issue-slug and friends.
     "task": [
-        # The `--task` exemption is gone: it was there because --task was a
+        # The `--task` exemption is gone: it was there because --task was a <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # live flag spelling, and ADR-014 removed it. Prose teaching it now
         # teaches a flag that does not parse, so the ban should say so.
         re.compile(
@@ -276,15 +276,15 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
             re.IGNORECASE,
         ),
     ],
-    # Governance shorthand codes STANDING IN FOR the rule. "satisfy S2" tells
+    # Governance shorthand codes STANDING IN FOR the rule. "satisfy S2" tells <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # a reader nothing; "write the failing test first" does.
     #
     # A BACKTICKED code is exempt, because that is a cross-reference beside a
     # rule that has already been stated in full - the same shape as citing an
-    # ADR by id. The range was `S[1-7]` while the file defined S1 to S12, so
-    # every strategy added after S7 sat outside the ban meant to govern it;
+    # ADR by id. The range was `S[1-7]` while the file defined S1 to S12, so <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    # every strategy added after S7 sat outside the ban meant to govern it; <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # widening it to `S\d+` without this exemption then flagged the pointers
-    # that `S11` and `S12` require by test.
+    # that `S11` and `S12` need by test.
     #
     # The plain statement of the rule replaces the code. The ban's own context says
     # "codes may live in governance config" - governance/ is where they are
@@ -298,7 +298,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
     ],
     # The issue's machine-readable file, called the spine until ADR-022 renamed
     # it to the manifest. An actual backbone, or the spine of a book, is
-    # ordinary English and must not fire - so the pattern requires a nearby
+    # ordinary English and must not fire - so the pattern needs a nearby
     # Compass structural word rather than matching the bare noun. A backticked
     # or quoted use is exempt: the migration table and the rename test both
     # have to name the old spelling to do their job.
@@ -310,7 +310,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\b(issue|task)[- ]spines?\b(?![`\"'])", re.I),
     ],
     # Structural metaphor only. "the seam of a garment" is ordinary English and
-    # must not fire, so the patterns require a structural noun nearby rather
+    # must not fire, so the patterns need a structural noun nearby rather
     # than matching the bare word. Both fixtures prove the pair: banned_usage.md
     # plants the structural forms, innocent_usage.md the ordinary ones.
     # A quoted or code-spanned use is exempt - the reader needs it to search.
@@ -322,7 +322,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\b(along|across|find|the natural|cut\w*)\s+(the\s+)?seams?\b"
                    r"(?![`\"'])", re.I),
     ],
-    # The v1 intake artifact filename; v2 writes prd.md.
+    # The v1 intake artifact filename; v2 writes prd.md. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     "vacuous / vacuity / orthogonal / elide / salient": [
         # Plain-word rule: accurate but almost never used in ordinary speech,
         # so it costs a junior or mid engineer a lookup at the moment they are
@@ -390,10 +390,10 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
     """The (line number, text) pairs the scanner checks for one file.
 
     Two surfaces get less than full text, for the same reason: the scan
-    measures what a surface *teaches*, not what the machinery is currently
+    measures what a surface *teaches*, not what the machinery is now
     named. `cli/compass` contributes only its Python string literals. In
     markdown, fenced code blocks and inline code spans are machine
-    identifiers - a backticked `/compass:frame` names a command that really
+    identifiers - a backticked `/compass:frame` names a command that really <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     is still called that during the transition - so markdown contributes
     prose only. The rename slices tighten this by making the old names
     disappear from the machinery itself; until then, prose must be clean v2
@@ -437,7 +437,7 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
     if path.suffix == ".md":
         # Full text, code spans and fenced blocks included. Both used to be
         # stripped, and the reason was real at the time: a backticked
-        # `/compass:frame` named a command that really was still called that
+        # `/compass:frame` named a command that really was still called that <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # during the transition. ADR-014 removed those names at the major
         # version, so the exclusion had nothing left to protect - and it was
         # hiding a quickstart that told new users to run a command which no
@@ -449,7 +449,7 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
         # text Compass has. So: full text, minus the embedded Python.
         #
         # The hooks run Python through `compass_python - <<'PYEOF'`, and that
-        # block is code, not prose: `task = yaml.safe_load(...)` is a variable
+        # block is code, not prose: `task = yaml.safe_load(...)` is a variable <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         # name. Scanning it would flag correct code and teach the next author
         # to work around the guard rather than with it.
         units, in_python, delim = [], False, ""
@@ -486,7 +486,7 @@ def _scan_units(path: Path) -> list[tuple[int, str]]:
         # terminology.yml). A `rationale:` value is printed verbatim to the
         # terminal by `compass approach evaluate`, so it is prose whatever
         # file it lives in; reading only the comments is how "checked before
-        # Land" reached a screen past a green scan.
+        # Land" reached a screen past a green scan. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
         #
         # Exempt, by declared exemption: the comment (PX-1 - the parser
         # discards it) and the key itself (PX-2 - machine contract, renamed by
@@ -585,7 +585,7 @@ def _surface_files(surface: str) -> list[Path]:
 
 # A line may name a retired term when naming it IS the job - reading an old
 # archive, quoting historical output verbatim, or documenting the rename
-# itself. Such a line carries the marker below, and the marker requires a
+# itself. Such a line carries the marker below, and the marker needs a
 # reason after the colon, so an exemption is a sentence somebody wrote rather
 # than a switch somebody flipped.
 #
@@ -597,15 +597,15 @@ def _surface_files(surface: str) -> list[Path]:
 # entry implements a context note already written in the ban itself, and the
 # list is short enough to read.
 TERM_SURFACE_EXEMPT = {
-    # The guardrails and strategies are where G1..G5 and S1..S7 are defined.
+    # The guardrails and strategies are where G1..G5 and S1..S7 are defined. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # A definition names the thing it defines; banning the code here would
     # mean governance could not label its own rules.
     # governance/ DEFINES the codes; schemas/ describes the fields that
     # carry them, which is the same act one layer down - a schema saying
-    # "the shipped default guardrails (G1-G5)" is naming what it validates.
+    # "the shipped default guardrails (G1-G5)" is naming what it validates. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     #
     # NARROWED from the whole of governance/ to its machine-readable files
-    # (issue plain-language-3-2-0, design decision DD-9). A policy file's
+    # (issue plain-language-3-2-0, design decision `DD-9`). A policy file's
     # `when: {risk: critical}` clause cannot gloss its own ids, so those stay
     # exempt. governance/strategies.md is different: it is prose a contributor
     # reads, and it is where this project states the rule about bare codes -
@@ -630,7 +630,7 @@ TERM_SURFACE_EXEMPT = {
     # before/after parsing that same guard depends on.
     # scripts/verify-archive-quotes.py holds the quoted spans it verifies. The
     # retired name in one of them is what the archived file actually says, and
-    # a sweep rewrote it - so the script briefly verified a sentence nobody had
+    # a sweep rewrote it - so the script briefly checked a sentence nobody had
     # written, and its own guard failed within seconds. Exempt at file
     # granularity because Python surfaces contribute string literals only, so
     # an inline marker in a comment is invisible to the scanner.
@@ -649,9 +649,9 @@ TERM_SURFACE_EXEMPT = {
         "cli/migrate-map.yml",
         "architecture/decisions/ADR-022-the-issue-record-is-a-manifest.md",
     ),
-    # ADR-004's decision IS the word - it is titled "one spec, many lenses" -
+    # ADR-004's decision IS the word - it is titled "one spec, many lenses" - <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # so the record keeps it (ADR-023). The broad "architecture/" prefix this
-    # replaced was only needed while the agents were still called *-lens.
+    # replaced was only needed while the agents were still called *-lens. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # A file that merely CITES the record carries a line-level
     # `vocabulary-scan: allow` marker instead - see
     # skills/bdd-specification/refinement-chain.md. A file-wide entry would
@@ -664,10 +664,10 @@ TERM_SURFACE_EXEMPT = {
     # `spine / issue spine` is exempt there.
     "stream": ("skills/compass-runtime/writing-voice.md",),
     "swarm": ("skills/compass-runtime/writing-voice.md",),
-    # ADR-009 is titled "fitness functions are project guardrails"; same rule.
+    # ADR-009 is titled "fitness functions are project guardrails"; same rule. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # skills/evidence-gates/architecture-checks.md cites the filename and
     # quotes the title verbatim, and carries a line-level marker on each - the
-    # same reason as "lens" above.
+    # same reason as "lens" above. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     "fitness function": (
         "architecture/decisions/ADR-009-fitness-functions-are-project-guardrails.md",
     ),
@@ -759,8 +759,8 @@ def _report(hits: list[str], rule: str) -> str:
 # ---------------------------------------------------------------------------
 
 def test_vocabulary_file_parses_with_three_sections():
-    """TRC-A1: governance/terminology.yml parses and carries terms, banned,
-    and scan - the glossary, the bans, and what the scan covers."""
+    """governance/terminology.yml parses and carries terms, banned,
+    and scan - the glossary, the bans, and what the scan covers (`TRC-A1`)."""
     cfg = _terminology()
     assert isinstance(cfg, dict), "terminology.yml must parse to a mapping"
     assert cfg.get("version"), "terminology.yml must declare a version"
@@ -776,7 +776,7 @@ def test_vocabulary_file_parses_with_three_sections():
 
 
 def test_every_term_states_its_meaning():
-    """TRC-A2: a term without a meaning is a name, not vocabulary."""
+    """A term without a meaning is a name, not vocabulary (`TRC-A2`)."""
     missing = [
         name for name, entry in _terminology()["terms"].items()
         if not (isinstance(entry, dict) and str(entry.get("means", "")).strip())
@@ -788,8 +788,8 @@ def test_every_term_states_its_meaning():
 
 
 def test_every_ban_carries_replacement_and_context():
-    """TRC-A3: a ban without a replacement gives no way forward, and one
-    without a context note bans the word rather than the usage."""
+    """A ban without a replacement gives no way forward, and one
+    without a context note bans the word rather than the usage (`TRC-A3`)."""
     broken = [
         entry.get("term", f"<entry {i}>")
         for i, entry in enumerate(_terminology()["banned"])
@@ -806,8 +806,8 @@ def test_every_ban_carries_replacement_and_context():
 
 
 def test_scan_config_declares_its_three_lists():
-    """TRC-A4: the scan section names what is checked (surfaces), what never
-    is (exempt), and what is tolerated for now (pending_surfaces)."""
+    """The scan section names what is checked (surfaces), what never
+    is (exempt), and what is tolerated for now (pending_surfaces) (`TRC-A4`)."""
     scan = _terminology()["scan"]
     for key in ("surfaces", "exempt", "pending_surfaces"):
         value = scan.get(key)
@@ -818,10 +818,10 @@ def test_scan_config_declares_its_three_lists():
 
 
 def test_every_related_term_is_defined():
-    """TRC-A1 (v2-terminology-dangling-refs): a `related:` reference to a
-    term the file never defines is a dangling pointer in the glossary - the
-    reader clicks through to nothing. Every referenced term must have its
-    own entry."""
+    """A `related:` reference to a term the file never defines is a
+    dangling pointer in the glossary - the reader clicks through to nothing.
+    Every referenced term must have its own entry (`TRC-A1`,
+    v2-terminology-dangling-refs)."""
     terms = _terminology()["terms"]
     dangling = sorted({
         ref
@@ -836,9 +836,9 @@ def test_every_related_term_is_defined():
 
 
 def test_pending_entry_must_name_a_scanned_surface():
-    """TRC-F1: a pending entry outside the surface list would never burn
+    """A pending entry outside the surface list would never burn
     down - nothing would ever scan it, so nothing would ever demand its
-    removal."""
+    removal (`TRC-F1`)."""
     scan = _terminology()["scan"]
     strays = set(scan["pending_surfaces"]) - set(scan["surfaces"])
     assert not strays, (
@@ -852,9 +852,9 @@ def test_pending_entry_must_name_a_scanned_surface():
 # ---------------------------------------------------------------------------
 
 def test_every_ban_is_bound_to_a_pattern():
-    """TRC-B1 (binding): the vocabulary file and the pattern table stay in
+    """The vocabulary file and the pattern table stay in
     one-to-one correspondence, so a ban cannot be added without a pattern
-    and a pattern cannot outlive its ban."""
+    and a pattern cannot outlive its ban (`TRC-B1`, binding)."""
     banned_terms = {entry["term"] for entry in _terminology()["banned"]}
     bound_terms = set(BAN_PATTERNS)
     assert banned_terms == bound_terms, (
@@ -864,8 +864,8 @@ def test_every_ban_is_bound_to_a_pattern():
 
 
 def test_banned_usage_in_fixture_is_flagged():
-    """TRC-B1: every ban catches its planted usage in the banned fixture,
-    and every hit names file, line, term, and pattern."""
+    """Every ban catches its planted usage in the banned fixture,
+    and every hit names file, line, term, and pattern (`TRC-B1`)."""
     hits = _scan_files([FIXTURE_BANNED])
     assert hits, "the banned-usage fixture produced no hits at all"
     flagged_terms = {
@@ -890,11 +890,11 @@ def test_every_ban_pattern_catches_something_in_the_fixture():
     The check above asks whether each BAN fires on the fixture. A ban with six
     patterns passes it when one of them fires, so the other five can be dead -
     a regex that has never matched anything and never will. Ten were, when
-    this was written, including `during|at|before Triage`, which is
-    case-sensitive against a fixture line that says "During Triage".
+    this was written, including `during|at|before Triage`, which is <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    case-sensitive against a fixture line that says "During Triage". <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
 
     That is the "check that cannot fail" shape: it reads as coverage and
-    verifies nothing. `governance/strategies.md` S10 - a guard is accepted on
+    checks nothing. `governance/strategies.md` S10 - a guard is accepted on <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     a demonstrated failure, not on a passing test - and a pattern that has
     never matched has never demonstrated one.
     """
@@ -911,8 +911,8 @@ def test_every_ban_pattern_catches_something_in_the_fixture():
 
 
 def test_innocent_usage_is_not_flagged():
-    """TRC-B2: ordinary English reuse of the banned words stays legal - a
-    hit in the innocent fixture means a pattern is too broad."""
+    """Ordinary English reuse of the banned words stays legal - a
+    hit in the innocent fixture means a pattern is too broad (`TRC-B2`)."""
     hits = _scan_files([FIXTURE_INNOCENT])
     assert not hits, _report(
         hits,
@@ -927,8 +927,8 @@ def test_innocent_usage_is_not_flagged():
 # ---------------------------------------------------------------------------
 
 def test_pending_surface_may_still_carry_banned_terms():
-    """TRC-C1: a surface still in pending_surfaces is tolerated, so CI stays
-    green while its rename slice is unshipped."""
+    """A surface still in pending_surfaces is tolerated, so CI stays
+    green while its rename slice is unshipped (`TRC-C1`)."""
     fixture_surface = "tests/fixtures/terminology/"
     hits = _enforced_hits({
         "surfaces": [fixture_surface],
@@ -942,8 +942,8 @@ def test_pending_surface_may_still_carry_banned_terms():
 
 
 def test_surface_removed_from_pending_must_be_clean():
-    """TRC-C2: once a surface leaves pending_surfaces its banned terms are
-    build failures, named by file, line, and pattern."""
+    """Once a surface leaves pending_surfaces its banned terms are
+    build failures, named by file, line, and pattern (`TRC-C2`)."""
     fixture_surface = "tests/fixtures/terminology/"
     hits = _enforced_hits({
         "surfaces": [fixture_surface],
@@ -961,9 +961,9 @@ def test_surface_removed_from_pending_must_be_clean():
 
 
 def test_exempt_path_is_never_scanned():
-    """TRC-F2: exempt paths stay unscanned even inside an enforced surface,
+    """Exempt paths stay unscanned even inside an enforced surface,
     so proposals, analysis, decision records, and this test's own fixtures
-    remain honest history."""
+    remain honest history (`TRC-F2`)."""
     fixture_surface = "tests/fixtures/terminology/"
     hits = _enforced_hits({
         "surfaces": [fixture_surface],
@@ -976,12 +976,12 @@ def test_exempt_path_is_never_scanned():
 
 
 def test_pending_list_only_ever_shrinks():
-    """TRC-C3: the live pending list is a subset of the committed baseline.
+    """The live pending list is a subset of the committed baseline (`TRC-C3`).
 
     Removing a surface (with the baseline edit in the same diff) is a rename
     slice finishing its job. Adding one means un-renaming a surface, and
     that is a recorded vocabulary decision, not an edit - the freeze gives
-    vocabulary changes the same ceremony as a decision record.
+    vocabulary changes the same process weight as a decision record.
     """
     pending = set(_terminology()["scan"]["pending_surfaces"])
     grown = pending - PENDING_BASELINE
@@ -993,7 +993,7 @@ def test_pending_list_only_ever_shrinks():
 
 
 def test_repository_scan_is_green():
-    """TRC-C4: the enforced scan over the real config passes. On freeze day
+    """The enforced scan over the real config passes (`TRC-C4`). On freeze day
     every surface is pending, so this is green by construction; from the
     first rename slice on, it is green because cleaned surfaces stay clean.
     """
@@ -1013,7 +1013,7 @@ def test_repository_scan_is_green():
 # covered but did not read. `cli/compass_pkg/` was a scanned surface the whole
 # time; the scan skipped string literals with no whitespace, on the reasoning
 # that a single token is a machine identifier rather than prose. That is
-# exactly the shape of `task.get('route')` and `os.path.join(dir, "plan.md")`.
+# exactly the shape of `task.get('route')` and `os.path.join(dir, "plan.md")`. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
 #
 # The fix is two questions rather than one loosened answer:
 #   * what does a surface TEACH   -> the ban patterns, now reaching markdown
@@ -1094,7 +1094,7 @@ def test_rcd_g1b_the_check_can_see_a_planted_name(tmp_path):
 
     A pass proves nothing unless the same code reports a name that IS there -
     the exact failure this whole cycle is about. Plants each retired name in
-    a literal and requires it to be seen.
+    a literal and needs it to be seen.
     """
     for name, replacement in RETIRED_NAMES.items():
         src = tmp_path / "planted.py"
@@ -1110,7 +1110,7 @@ def test_rcd_g2_markdown_code_span_and_fence_caught():
     """Markdown contributes its code spans and fenced blocks to the scan.
 
     Both were skipped while the retired names were still live: a backticked
-    `/compass:frame` named a command that really was still called that.
+    `/compass:frame` named a command that really was still called that. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     ADR-014 removed those, so the exclusion has no remaining justification.
     """
     import tempfile
@@ -1134,7 +1134,7 @@ def test_rcd_g2_markdown_code_span_and_fence_caught():
 def test_rcd_g3_hooks_surface_is_scanned():
     """hooks/ is on the scanned list.
 
-    It never was, which is how `hooks/pre-tool.sh` told users "Frame has not
+    It never was, which is how `hooks/pre-tool.sh` told users "Frame has not <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     run" through the entire v2 rename - the enforcement path itself teaching
     the retired vocabulary, on every block.
     """
@@ -1183,7 +1183,7 @@ def _banned_entry(term_fragment: str) -> dict:
 
 
 def test_pl_b3_seam_ban_names_its_replacements():
-    """TRC-B3 - a ban that does not say what to write instead is a scold.
+    """A ban that does not say what to write instead is a scold (`TRC-B3`).
 
     The global rules already name the replacements; the entry has to carry them
     or a contributor who hits the ban has to go and find them.
@@ -1204,10 +1204,10 @@ def test_pl_b3_seam_ban_names_its_replacements():
 
 
 def test_pl_b4_quoted_term_exception_is_written_down():
-    """TRC-B4 - the exception is a rule, not folklore in three context strings.
+    """The exception is a rule, not folklore in three context strings (`TRC-B4`).
 
     Without it written once, in the place a contributor configuring the list
-    reads, someone paraphrases a string the reader needed in order to search.
+    reads, someone paraphrases a string the reader needed to search.
     """
     doc = TERMINOLOGY_PATH.read_text(encoding="utf-8")
     low = doc.lower()
@@ -1229,7 +1229,7 @@ def test_pl_b4_quoted_term_exception_is_written_down():
 
 
 def test_pl_b7_the_list_states_todays_behaviour_not_the_intended_one():
-    """TRC-B7 - what ships says what is true now, not what is planned.
+    """What ships says what is true now, not what is planned (`TRC-B7`).
 
     The ruling is that the list ships as a default, extends per project and is
     never replaceable. Only the first of those is true today: a project-local
@@ -1250,9 +1250,9 @@ def test_pl_b7_the_list_states_todays_behaviour_not_the_intended_one():
 
 
 def test_pl_c11_strategies_prose_is_not_path_exempt():
-    """TRC-C11 - the bare-codes exemption covers definitions, not prose.
+    """The bare-codes exemption covers definitions, not prose (`TRC-C11`).
 
-    `governance/` is exempt because it DEFINES G1-G5 and S1-S12, and a
+    `governance/` is exempt because it DEFINES `G1`-`G5` and `S1`-`S12`, and a
     definition has to name what it defines. That holds for the machine-readable
     files. `strategies.md` is prose a contributor reads, and it is where this
     project writes the rule about bare codes - so a path exemption made the one
@@ -1285,7 +1285,7 @@ def test_pl_c11_strategies_prose_is_not_path_exempt():
 # Three designs were measured before this one. Enumerating shapes caught 85 of
 # 149 live occurrences. Capitalisation caught 297 and left 102. Both reported
 # clean over surfaces that were not clean, which is the failure the issue
-# exists to repair. See the comment on the Frame patterns above.
+# exists to repair. See the comment on the Frame patterns above. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
 # ---------------------------------------------------------------------------
 
 RETIRED_STAGES = ("Frame", "Specify", "Clarify", "Distribute", "Land")
@@ -1314,21 +1314,21 @@ def _scan_text(text: str, name: str = "sample.md") -> list[str]:
 
 
 def test_b1_label_shape_in_a_table_cell_is_caught():
-    """TRC-B1 - the shape every approach document uses for its stage table."""
+    """The shape every approach document uses for its stage table (`TRC-B1`)."""
     for stage in RETIRED_STAGES:
         hits = _scan_text(f"| {stage} | Light but real. |\n")
         assert hits, f"a table cell holding only '{stage}' was not reported"
 
 
 def test_b2_label_shape_in_a_bold_run_is_caught():
-    """TRC-B2 - the other label form: `- **Specify** - how many scenarios`."""
+    """The other label form: `- **Specify** - how many scenarios` (`TRC-B2`). <!-- vocabulary-scan: allow - quotes the retired label form this test plants and checks the ban catches -->"""
     for stage in RETIRED_STAGES:
         hits = _scan_text(f"- **{stage}** - how many scenarios and how deep.\n")
         assert hits, f"a bold run holding only '{stage}' was not reported"
 
 
 def test_b3_every_retired_stage_name_has_a_label_pattern():
-    """TRC-B3 - five names were retired together and are written alike.
+    """Five names were retired together and are written alike (`TRC-B3`).
 
     Teaching the shape to one and not the rest is how the next four survive,
     so this asserts the ban covers all five rather than trusting that it does.
@@ -1340,9 +1340,9 @@ def test_b3_every_retired_stage_name_has_a_label_pattern():
 
 
 def test_b5_sentence_shape_is_caught():
-    """TRC-B5 - the shape found in the CLI's printed strings.
+    """The shape found in the CLI's printed strings (`TRC-B5`).
 
-    "has Frame run?", "a fresh Frame", "the next Land". These sit mid-sentence
+    "has Frame run?", "a fresh Frame", "the next Land". These sit mid-sentence <!-- vocabulary-scan: allow - quotes the retired CLI strings this test plants and checks the ban catches -->
     and are the shape most likely to collide with ordinary English, which is
     why the tolerance test below matters as much as this one.
     """
@@ -1353,8 +1353,8 @@ def test_b5_sentence_shape_is_caught():
 
 
 def test_b4_scan_report_states_the_count():
-    """TRC-B4 - a failure without a number cannot tell a real hit from a
-    pattern that has started matching everything."""
+    """A failure without a number cannot tell a real hit from a
+    pattern that has started matching everything (`TRC-B4`)."""
     hits = _scan_text("| Frame |\n| Land |\n")
     report = _report(hits, "rule")
     assert str(len(hits)) in report.split("\n")[0], (
@@ -1367,7 +1367,7 @@ def test_b4_scan_report_states_the_count():
 
 
 def test_c1_ordinary_verb_use_is_tolerated():
-    """TRC-C1 - the ban is case-sensitive, and that is what keeps it usable.
+    """The ban is case-sensitive, and that is what keeps it usable (`TRC-C1`).
 
     You frame a problem, you specify behaviour, a spike does not land
     production code. Every one of those is correct English and stays legal
@@ -1385,9 +1385,9 @@ def test_c1_ordinary_verb_use_is_tolerated():
 
 
 def test_c2_bold_sentence_opening_is_tolerated():
-    """TRC-C2 - the one legitimate capitalised use, and how it is allowed.
+    """The one legitimate capitalised use, and how it is allowed (`TRC-C2`).
 
-    `- **Land production code.**` is a sentence whose first word is capitalised
+    `- **Land production code.**` is a sentence whose first word is capitalised <!-- vocabulary-scan: allow - quotes the one legitimate capitalised use this test plants and checks the marker permits -->
     by position. Under a total ban it IS reported, and the inline marker is how
     it is permitted - with a reason, in the file, where a reader meets it.
     """
@@ -1405,7 +1405,7 @@ def test_c2_bold_sentence_opening_is_tolerated():
 
 
 def test_c3_innocent_fixture_covers_every_retired_stage_name():
-    """TRC-C3 - the tolerance fixture must grow with the patterns.
+    """The tolerance fixture must grow with the patterns (`TRC-C3`).
 
     The project keeps a pair: one planting every banned usage, one reusing
     every word innocently. If the innocent one does not exercise a word, it
@@ -1422,7 +1422,7 @@ def test_c3_innocent_fixture_covers_every_retired_stage_name():
 
 
 def test_c4_clean_surfaces_stay_clean():
-    """TRC-C4 - the blast radius, pinned to zero rather than to a count.
+    """The residual-finding count, pinned to zero rather than to a count (`TRC-C4`).
 
     The requirements review pinned this to 35 files and the design corrected it
     to 36; both numbers described work in progress. Now that the sweep is done
@@ -1433,7 +1433,7 @@ def test_c4_clean_surfaces_stay_clean():
 
 
 def test_d1_no_live_surface_carries_a_retired_stage_name():
-    """TRC-D1 - 297 occurrences repaired across 66 files."""
+    """297 occurrences repaired across 66 files (`TRC-D1`)."""
     for stage in RETIRED_STAGES:
         planted = _scan_text(f"The issue moves to {stage} next.\n")
         assert planted, (
@@ -1443,7 +1443,7 @@ def test_d1_no_live_surface_carries_a_retired_stage_name():
 
 
 def test_d3_exempt_list_still_covers_history_and_no_live_surface():
-    """TRC-D3 - history stays exempt, and the exemption stays narrow.
+    """History stays exempt, and the exemption stays narrow (`TRC-D3`).
 
     213 raw hits became 0 enforced mostly because decision records are exempt.
     That is correct - rewriting one would falsify an account of what was

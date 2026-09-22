@@ -2032,6 +2032,12 @@ _register(Rule(
             "Scenarios: trace-rot-detection/acceptance-criteria.md",
             "the real slug of this issue - an identifier (section 4), not "
             "a v1-vocabulary use of the idiom \"rot\"."),
+        Exemption(
+            "tests/test_terminology.py",
+            "An actual backbone, or the spine of a book, is",
+            "the ordinary-English sense the spine/issue-spine ban's own "
+            "comment gives as the example that must NOT fire - not a use "
+            "of the idiom \"backbone\" this table retires."),
     ),
 ))
 
@@ -2230,6 +2236,40 @@ _register(Rule(
             "Guardrail G1 and strategy S7 are cited by code in prose",
             "the fixture's own planted example of a bare code cited by "
             "code, not by this document - PBW-D2 protects it."),
+        Exemption(
+            "tests/test_terminology.py",
+            '"satisfy S2" tells',
+            "a deliberately bare code, the worked example of the failure "
+            "mode this rule exists to catch - explaining it would destroy "
+            "the example."),
+        Exemption(
+            "tests/test_terminology.py",
+            "The range was `S[1-7]` while the file defined S1 to S12, so",
+            "names the historical S-range this comment explains, the same "
+            "worked-example protection as the ADR-017 exemptions above."),
+        Exemption(
+            "tests/test_terminology.py",
+            "every strategy added after S7 sat outside the ban meant to govern it;",
+            "names the historical S-range this comment explains, the same "
+            "worked-example protection as the ADR-017 exemptions above."),
+        Exemption(
+            "tests/test_terminology.py",
+            "The guardrails and strategies are where G1..G5 and S1..S7 are defined.",
+            "governance/ DEFINES these codes; a definition names what it "
+            "defines, the same reason architecture/decisions/README.md's "
+            "table is exempt above."),
+        Exemption(
+            "tests/test_terminology.py",
+            '"the shipped default guardrails (G1-G5)" is naming what it validates.',
+            "a quoted example of a schema comment naming what it "
+            "validates, the same reason as the exemption immediately "
+            "above."),
+        Exemption(
+            "tests/test_terminology.py",
+            "`governance/strategies.md` S10 - a guard is accepted on",
+            "names the real strategy this test's own docstring cites by "
+            "id, the same reason architecture/decisions/README.md's table "
+            "is exempt above."),
         # The traceability id comment above every scenario is not prose a
         # reader loses meaning from - it is the machine-parsed marker
         # `cli/compass_pkg/bdd.py`'s extraction regex reads (bdd.py:137),
@@ -2531,6 +2571,12 @@ _register(Rule(
             "the fixture's own planted example of the retired filenames - "
             "PBW-D2 protects it; templates/prd.md is banned and never "
             "ships."),
+        Exemption(
+            "tests/test_terminology.py",
+            "`src/api/routes/search.py` is a",
+            "an illustrative example of an ordinary web-router directory "
+            "this repository does not ship, not a real path reference - "
+            "the comment's point is that the ban ignores it."),
         # PBW-A8's reference sweep resolves every path against the repository
         # root. Each of the five worked examples under examples/ narrates a
         # fictional application change, naming source and test files that
@@ -3363,6 +3409,12 @@ _register(Rule("PBW-C5", "A test docstring says what the file tests and "
                        "the module's own worked example of the wrong form "
                        "the check exists to catch, same protection as the "
                        "PBW-A7 exemption for this line."),
+                   Exemption(
+                       "tests/test_terminology.py",
+                       "`governance/strategies.md` S10 - a guard is accepted on",
+                       "names the real strategy this docstring cites by "
+                       "id, same protection as the PBW-A7 exemption for "
+                       "this line."),
                )))
 
 
