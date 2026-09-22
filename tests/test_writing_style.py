@@ -944,6 +944,17 @@ _register(Rule(
             "the real, on-disk directory name of this fixture (section 4), "
             "not a v1-vocabulary use of the word."),
         Exemption(
+            "tests/plain_language_check.py", "the G5 guard kicked in",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch, same protection as the PBW-A7 exemption for "
+            "this line."),
+        Exemption(
+            "tests/plain_language_check.py",
+            "G5 fired, which means a human signs off",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch, same protection as the PBW-A7 exemption for "
+            "this line."),
+        Exemption(
             "tests/analyze/test_analyze_core.py",
             "the slug `unframed-task` contains it",
             "the literal, hyphenated slug this test's fixture uses - an "
@@ -2080,6 +2091,17 @@ _register(Rule(
             "what a G5 guard was",
             "restates the same verbatim quote."),
         Exemption(
+            "tests/plain_language_check.py", "the G5 guard kicked in",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch - the same protection as the ADR-017 "
+            "exemptions above."),
+        Exemption(
+            "tests/plain_language_check.py",
+            "G5 fired, which means a human signs off",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch - the same protection as the ADR-017 "
+            "exemptions above."),
+        Exemption(
             "tests/fixtures/terminology/banned_usage.md",
             "Guardrail G1 and strategy S7 are cited by code in prose",
             "the fixture's own planted example of a bare code cited by "
@@ -3203,7 +3225,21 @@ def _find_docstring_shape(span: ProseSpan) -> list[Finding]:
 
 
 _register(Rule("PBW-C5", "A test docstring says what the file tests and "
-               "cites its issue by slug", _find_docstring_shape))
+               "cites its issue by slug", _find_docstring_shape,
+               exemptions=(
+                   Exemption(
+                       "tests/plain_language_check.py",
+                       "the G5 guard kicked in",
+                       "the module's own worked example of the wrong form "
+                       "the check exists to catch, same protection as the "
+                       "PBW-A7 exemption for this line."),
+                   Exemption(
+                       "tests/plain_language_check.py",
+                       "G5 fired, which means a human signs off",
+                       "the module's own worked example of the wrong form "
+                       "the check exists to catch, same protection as the "
+                       "PBW-A7 exemption for this line."),
+               )))
 
 
 def test_pbw_a1_no_retired_word_in_prose_comments_or_docstrings():

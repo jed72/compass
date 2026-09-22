@@ -9,12 +9,12 @@ the reader still met the code first. **The order is the rule, not the nearness.*
 Two design decisions a reader should be able to argue with:
 
 **The registry of meanings is DERIVED from governance, never hand-written.**
-`guardrails.yml` states G1-G5, the strategy headings state S1-S12, and
+`guardrails.yml` states `G1`-`G5`, the strategy headings state `S1`-`S12`, and
 `terminology.yml`'s `codes:` block already carries a `means:` per id prefix. A
-hand-written table would drift from the governance it describes and the drift
-would be silent - the check would keep passing while describing codes that had
-been renamed. The cost is that this couples to the shape of three files and can
-break for reasons unrelated to writing. That break is loud; drift is not.
+hand-written table would go out of date without any check failing - it would
+keep passing while describing codes that had been renamed. The cost is that
+this couples to the shape of three files and can break for reasons unrelated
+to writing. That break is loud; drift is not.
 
 **A place is exempt when the identifier is the WHOLE of its content**, not
 because of where it sits. A ledger cell holding `TRC-C6` is an index entry; a
@@ -39,9 +39,7 @@ import yaml
 REPO_ROOT = Path(__file__).parent.parent
 BASELINE_PATH = REPO_ROOT / "governance" / "plain-language-baseline.json"
 
-# Every id prefix, plus the guardrail and strategy codes. `G1..G5 / S1..S14`
-# were already banned bare; the prefixes were not, which is half of what this
-# widens.
+# This covers every id prefix as well as the G and S codes.
 CODE = re.compile(
     r"\b(?:TRC-[A-Z]+\d+|INT-\d+|EV-[A-Z0-9-]+|FU-\d+|CLM-\d+|RP-[A-Z]+-\d+"
     r"|ADR-\d+|PX-\d+|G[1-5]|S\d{1,2})\b"
@@ -51,10 +49,9 @@ _STOPWORDS = {"the", "a", "an", "is", "are", "it", "that", "this", "and", "or",
               "of", "to", "in", "on", "for", "with", "not", "no", "be", "by"}
 
 
-# Stated in every report this check produces, because an adopter who runs it and
-# gets an inflated count either loses an afternoon working out why, or widens the
-# matcher until it catches nothing - and widening a matcher to cure a false
-# positive is the failure this release spent its length naming.
+# Stated in every report this check produces, because an adopter who runs it
+# and gets an inflated count either spends time finding out why, or widens
+# the matcher until it catches nothing.
 KNOWN_LIMIT = (
     "NOTE - this count is HIGH by design-not-yet-fixed: it counts every "
     "occurrence, while the rule (S7) asks only about the FIRST use in each piece "
