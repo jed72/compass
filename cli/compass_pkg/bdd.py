@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.bdd - `compass bdd extract` and `compass bdd verify`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -103,16 +40,12 @@ from compass_pkg.tdd import _read_config, _run_test
 
 
 # --- command: bdd extract ----------------------------------------------------
-# Lifts the Gherkin out of a task's spec.feature.md into a plain .feature file a
-# real BDD runner (pytest-bdd, cucumber-js, behave, godog) can execute. This is
-# what turns the scenario-to-test link from a convention an engineer maintains
-# into a fact a runner establishes.
-#
-# The four functions below are deliberately kept as one contiguous, separable
-# block so they can be lifted into their own module later without untangling
-# anything.
+# Lifts the Gherkin out of an issue's acceptance-criteria.md into a plain
+# .feature file a real BDD runner (pytest-bdd, cucumber-js, behave, godog) can
+# execute. This is what turns the scenario-to-test link from a convention an
+# engineer maintains into a fact a runner establishes.
 
-# A Compass scenario in spec.feature.md always looks like this:
+# A Compass scenario in acceptance-criteria.md always looks like this:
 #
 #   ### Scenario: <title>
 #   <!-- traceability id: TRC-A1 · serves: INT-1 -->
@@ -127,12 +60,9 @@ from compass_pkg.tdd import _read_config, _run_test
 # showing what a scenario looks like, this very comment block). Extracting every
 # ```gherkin fence would turn those illustrations into scenarios. Requiring the
 # traceability comment means only real, id-carrying scenarios are extracted.
-# Any uppercase-prefixed id, not just TRC-. The framework ships both
-# conventions: templates/spec.feature.md uses TRC-, and every example under
-# examples/ uses SCN-. Hardcoding one meant `bdd extract` failed on all five
-# shipped route examples with "contains no Gherkin scenarios" - which reads as
-# "your spec is malformed" rather than "this tool only accepts one of the two
-# id prefixes we ship".
+# Accept any uppercase id prefix. The template uses TRC- and the examples
+# under examples/ use SCN-, and accepting only one would reject a valid
+# document with a message that blames the document.
 _TRC_COMMENT_RE = re.compile(
     r"<!--\s*traceability id:\s*(?P<trc>[A-Z][A-Z0-9]*-[A-Za-z0-9_]+)\b.*?-->",
     re.S)
@@ -227,8 +157,8 @@ def scan_spec_markdown(text):
 def validate_scenarios(scenarios, spec_path):
     """Return a list of human-readable problems. Empty list means valid.
 
-    Collects rather than raises so a spec with three problems reports the first
-    with its location, instead of failing on whichever one the parser reached.
+    Collects instead of raising, so a document with three problems reports
+    all three, each with its location.
     """
     problems = []
     if not scenarios:
@@ -275,7 +205,7 @@ def render_feature(slug, scenarios, spec_rel_path):
 
     Determinism is the point - the output is diffable and committable, and
     `compass bdd extract` run twice over an unchanged spec produces
-    byte-identical bytes.
+    identical bytes.
     """
     lines = [
         "# Derived from %s by `compass bdd extract`." % spec_rel_path,
@@ -355,17 +285,16 @@ _SOME_COLLECTED = re.compile(
 def _probe_collected(out, runner=""):
     """Did the tag actually bind to at least one scenario?
 
-    Exit code alone is not enough, and believing it was a real defect: pytest
-    exits 5 on an empty collection, but **cucumber-js and behave exit 0** when a
-    tag filter matches nothing. A probe that trusted the exit code reported
-    every scenario as bound for two of the four shipped adapters - a check that
-    verified nothing while saying it had.
+    The exit code alone is not enough: pytest exits 5 on an empty collection,
+    but cucumber-js and behave exit 0 when a tag filter matches nothing.
+    Trusting the exit code would report every scenario as bound for those two
+    runners.
 
     So read the count the runner prints. An explicit zero is decisive; otherwise
-    require a positive count. Silence is treated as "not collected", because the
+    need a positive count. Silence is treated as "not collected", because the
     failure that matters here is a false pass.
     """
-    # behave is a special case, and getting it wrong broke a correct project.
+    # behave needs its own rule.
     # Its --dry-run summary ALWAYS opens "0 features passed, 0 failed, ..."
     # regardless of whether the tag matched, so the generic zero-match below
     # reads every behave probe as unbound. What distinguishes the two is the
@@ -399,21 +328,20 @@ def _bdd_tag_selector(runner, command):
     # its -godog.* flags exist only if the suite calls BindCommandLineFlags -
     # which the idiomatic programmatic setup (and the adapter Compass ships)
     # does not. Probing it returns "flag provided but not defined", so every
-    # tag looks unbound and the check accused a passing suite of having no step
-    # definitions. An honest "could not verify" beats a confident wrong answer.
+    # tag would look unbound. Report "could not check" instead.
     return None
 
 
 def cmd_bdd_verify(args):
     """compass bdd verify -- <run command> - run the BDD suite and record it.
 
-    The producer half of `scenarios-are-executable`. This may depend on the
+    The producer half of `scenarios-are-executable`. This can depend on the
     project's BDD runner, because a project only runs it when it has one;
-    `compass check` may not, which is why the two are separate commands.
+    `compass check` must not, which is why the two are separate commands.
 
     It records the spec's content hash alongside the scenario ids the runner
     reported, so a later check can tell whether the run still describes the
-    spec it claims to verify.
+    spec it claims to check.
     """
     task_dir = resolve_issue_dir(getattr(args, "task", None))
     task_yaml = normalize_spine(load_yaml(manifest_path(task_dir)) or {})
@@ -433,14 +361,12 @@ def cmd_bdd_verify(args):
 
     # Which scenarios did the runner actually bind?
     #
-    # Scraping stdout for TRC ids does not work, and finding that out cost a
-    # dogfood run that recorded zero scenarios against a suite that passed
-    # three. The tags `compass bdd extract` writes become *marks* in the
-    # runner - they are selectable, not printed. Nothing in a normal run's
-    # output names them.
+    # Scraping stdout for TRC ids does not work: the tags `compass bdd
+    # extract` writes become marks in the runner, and a normal run does not
+    # print them.
     #
     # So ask the runner instead, using the tag selection the tags exist for:
-    # collect (do not execute) each tag in turn and see whether anything
+    # collect (do not run) each tag in turn and see whether anything
     # matches. Collection is cheap, and this asks the exact question the check
     # needs - "is this scenario bound to something the runner can run?"
     scenario_ids = [s.get("id") for s in (task_yaml.get("scenarios") or [])
@@ -512,7 +438,7 @@ def cmd_bdd_extract(args):
 
     scenarios = scan_spec_markdown(text)
 
-    # Validate EVERYTHING before writing ANYTHING. This is what makes a failed
+    # Check everything before writing anything. This is what makes a failed
     # extract leave the filesystem exactly as it was.
     problems = validate_scenarios(scenarios, os.path.relpath(spec_path, os.getcwd()))
     if problems:
@@ -525,9 +451,8 @@ def cmd_bdd_extract(args):
     out_path = _bdd_out_path(args, task_dir, slug)
     spec_rel = os.path.join(".compass", "work", slug, os.path.basename(spec_path))
     atomic_write(out_path, render_feature(slug, scenarios, spec_rel))
-    # The path used to be the ENTIRE output, with no sentence around it - a
-    # verb that answers with a bare string is written for a shell pipeline,
-    # not a person. It is still the only thing --json carries, under a key.
+    # Print a sentence around the path: a bare string suits a shell pipeline,
+    # not a person. --json carries the path alone, under a key.
     return say(args, "compass bdd extract: %d scenario(s) -> %s"
                      % (len(scenarios), out_path),
                path=out_path, scenarios=len(scenarios), spec=spec_rel)

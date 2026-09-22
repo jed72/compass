@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.analyze - `compass analyze` and `compass ci`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -103,22 +40,24 @@ from compass_pkg.policy import cmd_task_lint
 
 
 # --- command: analyze -------------------------------------------------------
-# `compass analyze` - cross-artifact consistency check (TRC-A1…A13, F1, F4, F5)
+# `compass analyze` - cross-artifact consistency check
 #
-# Reads a task's artifacts (brief.md, spec.feature.md, route.md, manifest.yml,
-# positioning.md if present) and emits a structured coherence report.
+# Reads an issue's artifacts (intent.md, acceptance-criteria.md,
+# delivery-approach.md, manifest.yml, positioning.md if present) and emits a
+# structured consistency report.
 #
-# Finding types (Inv-7 - baked in, not from signals.yml):
-#   orphaned-intent  - a scenario in spec/manifest.yml links to an intent id that
-#                      does not appear in brief.md
-#   route-disagreement - route.md and manifest.yml describe different phase weights
-#                        for the same phase
+# Finding types (the taxonomy is fixed in code, not read from signals.yml):
+#   orphaned-intent  - a scenario in acceptance-criteria.md/manifest.yml links
+#                      to an intent id that does not appear in intent.md
+#   route-disagreement - delivery-approach.md and manifest.yml describe
+#                        different stage weights for the same stage
 #   orphan-claim     - positioning.md lists a claim id that no scenario links to
-#   missing-artifact - an artifact required by the route's non-collapsed phase
-#                      is absent (route-aware: legitimately omitted artifacts
-#                      on collapsed/skipped phases are not flagged)
+#   missing-artifact - an artifact needed by the delivery approach's
+#                      non-collapsed stage is absent (delivery-approach-aware:
+#                      legitimately omitted artifacts on collapsed/skipped
+#                      stages are not flagged)
 #
-# Mode selection (DD-5 / ADR-007):
+# Mode selection (ADR-007):
 #   Gate-clearing mode  - verify.analyze is in manifest.yml.gates:
 #       exits non-zero on any finding; evidence type `consistency-check`;
 #       id prefix `EV-ANALYZE-<task>-<ts>`
@@ -127,20 +66,20 @@ from compass_pkg.policy import cmd_task_lint
 #       id prefix `EV-ANALYZE-ADVISORY-<task>-<ts>`
 #
 # Invariants honoured:
-#   Inv-1 / Inv-4 - strictly read-only over manifest.yml; never writes to
-#                   manifest.yml.readings or manifest.yml.gates
-#   Inv-7         - finding taxonomy is structural, not from signals.yml
-#   Inv-8         - no brief.md / spec.feature.md → exits 0 ("no artifacts")
-#   OQ-1 boundary - never asserts whether gate evidence exists or passes;
-#                   that is compass check's job
+#   read-only over the manifest, never writing to its `assessment` or
+#   `gates` (`Inv-1`, `Inv-4`)
+#   the finding taxonomy is structural, not read from signals.yml (`Inv-7`)
+#   no intent.md / acceptance-criteria.md exits 0, "no artifacts" (`Inv-8`)
+#   never asserts whether gate evidence exists or passes; that is
+#   `compass check`'s job
 
 
-# Phases that require brief.md to be present. On collapsed/skipped Specify
-# the brief is legitimately absent. Route-aware: only flag missing brief
-# when Specify is full-weight.
+# Check for intent.md only when define runs at full weight. Do not default
+# to "full": a defaulted lookup turns a key rename into a false finding
+# instead of an error.
 _SPECIFY_FULL_WEIGHTS = {"full"}
 
-# The stages this checks for approach-disagreement. CURRENT keys:
+# The stages this checks for approach-disagreement. Current keys:
 # `normalize_spine` maps a retired key forward on load, so a set written in the
 # retired spelling matches nothing and every check below falls to its default.
 _KNOWN_PHASES = {
@@ -148,9 +87,9 @@ _KNOWN_PHASES = {
     "implement", "verify", "ship",
 }
 
-# Human-readable phase name → manifest.yml key (lowercase map)
+# Stage name → manifest.yml key (lowercase map)
 # The names a human writes in delivery-approach.md, and the manifest key each one
-# means. Both the retired and the current spelling map to the CURRENT key,
+# means. Both the retired and the current spelling map to the current key,
 # because a prose record written months ago still says the retired word while
 # the manifest it describes has been normalised forward.
 _PHASE_NAME_MAP = {
@@ -162,11 +101,11 @@ _PHASE_NAME_MAP = {
     "implement": "implement", "build": "implement",
     "verify": "verify",
     "ship": "ship", "land": "ship",
-    # The PROSE names, which are what the shipped template actually writes in
-    # its stage table and therefore what every real record on disk says. Only
-    # the one-word keys above were here, so five of the eight rows in a
-    # template-shaped record matched nothing and the consistency check compared
-    # three stages while reporting on all of them.
+    # The prose names, which are what the shipped template actually writes in
+    # its stage table and therefore what every real record on disk says.
+    # Without the prose names, five of the eight rows in a template-shaped
+    # record match nothing, and the check compares three stages while
+    # reporting on all eight.
     "define acceptance criteria": "define",
     "acceptance criteria": "define",
     "requirements review": "refine",
@@ -249,23 +188,17 @@ def _parse_claim_ids_from_positioning(positioning_path: str) -> set:
 
 
 def _parse_claimed_scenario_ids_from_spec(spec_path: str) -> set:
-    """Extract scenario ids that are referenced as backing claims.
-
-    Looks for:
-      <!-- claims: CLM-1 -->
-      <!-- backed-by: TRC-A1 -->
-    Returns set of scenario ids that a claim is backed by.
+    """Return every scenario id in the acceptance criteria. It does not read
+    claim links.
     """
-    # For simplicity, also return the scenario ids found in the spec
-    # (the spec's traceability comment already lists the scenario id)
     return set(_parse_scenario_intents_from_spec(spec_path).keys())
 
 
 def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
     """Extract {phase_name_lower: weight} from a delivery-approach.md file.
 
-    Looks for a Markdown table with Phase | Weight columns.
-    Also handles the per-phase weight section.
+    Looks for a Markdown table with a Stage (or Phase) column and a Weight
+    column.
     """
     weights = {}
     if not os.path.isfile(route_md_path):
@@ -275,11 +208,10 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
     in_phase_table = False
     for line in lines:
         stripped = line.strip()
-        # BOTH header words. The template writes `| Stage | Weight | Notes |`
-        # and has since the v2 rename of `phases:` to `stages:`; this matched
-        # only `Phase`, so it found no table at all in a record written from
-        # the shipped template - and an empty weight map reads downstream as
-        # "nothing disagreed" rather than "nothing was read".
+        # Match both header words: the template writes `| Stage | Weight |
+        # Notes |` and older records write `Phase`. An empty weight map
+        # would read downstream as "nothing disagreed" instead of "nothing
+        # was read".
         if _re.match(r'\|\s*(?:Phase|Stage)\s*\|\s*Weight', stripped,
                      _re.IGNORECASE):
             in_phase_table = True
@@ -304,8 +236,8 @@ def _parse_phase_weights_from_route_md(route_md_path: str) -> dict:
                 # meets the manifest it describes. Without this the parser returns
                 # `distribute` while the normalised manifest holds `breakdown`,
                 # the comparison finds no key in common, and every
-                # disagreement is silently skipped - the check reporting clean
-                # because the two halves stopped speaking the same language.
+                # disagreement is silently skipped - the check reports clean
+                # because the two sides use different keys.
                 weights[_PHASE_NAME_MAP.get(phase, phase)] = weight
             elif stripped.startswith("#") or not stripped.startswith("|"):
                 in_phase_table = False
@@ -329,7 +261,7 @@ def _parse_route_from_route_md(route_md_path: str) -> str | None:
 
 
 def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
-    """Analyze an issue's artifacts for coherence and return a report dict.
+    """Analyse an issue's artifacts for consistency and return a report dict.
 
     The report dict has:
       findings: list of {type, subject, detail} dicts
@@ -337,15 +269,16 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
       mode: 'gate' | 'advisory'
       has_verify_analyze_gate: bool
 
-    This function is strictly read-only over all issue artifacts (Inv-1 / Inv-4).
-    It never writes to manifest.yml or any other file; the caller (cmd_analyze)
-    writes the evidence record.
+    Read-only over all issue artifacts (`Inv-1`, `Inv-4`). It never writes to
+    manifest.yml or any other file; the caller (cmd_analyze) writes the
+    evidence record.
 
-    Finding types (Inv-7):
+    Finding types (the taxonomy is structural, not read from signals.yml -
+    `Inv-7`):
       orphaned-intent    - scenario links to an intent not in intent.md
-      route-disagreement - delivery-approach.md phase weight differs from manifest.yml phases
+      route-disagreement - delivery-approach.md stage weight differs from manifest.yml stages
       orphan-claim       - positioning.md claim has no backing scenario
-      missing-artifact   - a required artifact is absent (route-aware)
+      missing-artifact   - a needed artifact is absent (delivery-approach-aware)
     """
     task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
@@ -361,11 +294,11 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     task_slug = task.get("task") or os.path.basename(task_dir)
     findings = []
 
-    # Determine mode from gate set (DD-5 / ADR-007)
+    # Determine mode from gate set (ADR-007)
     gate_ids = [g.get("id") for g in (task.get("gates") or []) if isinstance(g, dict)]
     has_analyze_gate = "verify.analyze" in gate_ids
 
-    # --- No artifacts to analyze (Inv-8) ------------------------------------
+    # --- No artifacts to analyse: exits 0, "no artifacts" (`Inv-8`) --------
     brief_path = artifact_path(task_dir, "intent.md")
     spec_path = artifact_path(task_dir, "acceptance-criteria.md")
     route_md_path = artifact_path(task_dir, "delivery-approach.md")
@@ -376,7 +309,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
     has_positioning = os.path.isfile(positioning_path)
 
     if not has_brief and not has_spec:
-        # Bare-repo path: no artifacts to analyze
+        # Bare-repo path: no artifacts to analyse
         return {
             "findings": [],
             "task_slug": task_slug,
@@ -385,13 +318,11 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
             "no_artifacts": True,
         }
 
-    # --- 1. Route-aware missing-artifact check ------------------------------
-    # Only check for brief.md when Specify is expected to run at full weight.
+    # --- 1. Delivery-approach-aware missing-artifact check -------------------
+    # Check for intent.md only when define runs at full weight.
     phases = task.get("stages") or {}
-    # NO DEFAULT OF "full". This read `phases.get("specify", "full")`, and when
-    # the key was renamed to `define` the lookup missed, fell to the default,
-    # and reported every hotfix as owing a brief - a defaulted lookup turning a
-    # rename into a false finding rather than a crash.
+    # Do not default to "full": a defaulted lookup turns a key rename into a
+    # false finding instead of an error.
     specify_weight = str(phases.get("define", phases.get("specify", ""))).lower()
     if specify_weight in _SPECIFY_FULL_WEIGHTS and not has_brief:
         findings.append({
@@ -404,9 +335,9 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
         })
 
     # --- 2. Orphaned-intent check -------------------------------------------
-    # Scenarios in manifest.yml with an intent that is not in brief.md.
-    # Only when brief.md exists (no brief → no intents to check against,
-    # but we may have already flagged missing-artifact above).
+    # Scenarios in manifest.yml with an intent that is not in intent.md.
+    # Only when intent.md exists (no intent.md means no intents to check
+    # against, but missing-artifact above may already have flagged that).
     if has_brief:
         declared_intents = _parse_intent_ids_from_brief(brief_path)
         task_scenarios = [
@@ -425,7 +356,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                         f"{sorted(declared_intents)})"
                     ),
                 })
-        # Also check spec.feature.md's scenario-intent links
+        # Also check acceptance-criteria.md's scenario-intent links
         if has_spec:
             spec_scenario_intents = _parse_scenario_intents_from_spec(spec_path)
             for scn_id, intent_id in spec_scenario_intents.items():
@@ -447,7 +378,7 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
                         })
 
     # --- 3. Route-disagreement check ----------------------------------------
-    # Compare route.md per-phase weights against manifest.yml phases.
+    # Compare delivery-approach.md stage weights against the manifest's stages.
     if os.path.isfile(route_md_path):
         route_md_phases = _parse_phase_weights_from_route_md(route_md_path)
         task_phases = {k.lower(): str(v).lower() for k, v in phases.items()}
@@ -467,8 +398,8 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
 
     # --- 4. Orphan-claim check -----------------------------------------------
     # Claims in positioning.md that have no scenario backing them.
-    # (OQ-1 boundary: we check whether a claim names a scenario id, not whether
-    # the scenario passes - that is compass check / verify.claims's job.)
+    # Checks whether a claim names a scenario id, not whether the scenario
+    # passes - that is compass check / verify.claims's job.
     if has_positioning:
         claim_ids = _parse_claim_ids_from_positioning(positioning_path)
         # Collect all scenario ids from manifest.yml and spec
@@ -525,13 +456,13 @@ def _analyze_task(task_dir: str, project_root: str | None = None) -> dict:
 
 def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
                              is_gate_mode: bool) -> str:
-    """Write the analyze evidence file and return the file path (relative to task_dir).
+    """Write the analyse evidence file and return the file path (relative to task_dir).
 
     Gate-clearing: type=consistency-check, prefix EV-ANALYZE-<task>-<ts>
     Advisory:      type=command-output,  prefix EV-ANALYZE-ADVISORY-<task>-<ts>
 
-    The file is JSON; the manifest.yml evidence registry is NOT written here
-    (Inv-1 / Inv-4 - analyze is strictly read-only over manifest.yml).
+    The file is JSON; the manifest.yml evidence registry is NOT written here -
+    analyse is read-only over the manifest (`Inv-1`, `Inv-4`).
     cmd_analyze calls this and then upserts into the registry separately only
     in gate-clearing mode (to let compass check clear verify.analyze).
     """
@@ -565,14 +496,14 @@ def _write_analyze_evidence(task_dir: str, task_slug: str, report: dict,
 
 def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
                                        ev_type: str, rel_path: str) -> None:
-    """Upsert the analyze evidence entry into manifest.yml's evidence registry.
+    """Upsert the analyse evidence entry into manifest.yml's evidence registry.
 
     Only called in gate-clearing mode so compass check can locate the
     consistency-check evidence when clearing verify.analyze.
 
-    This is the ONE write to manifest.yml that analyze is permitted: adding an
-    entry to the top-level `evidence:` list. It does NOT write to
-    manifest.yml.readings or manifest.yml.gates (Inv-1 / Inv-4).
+    This is the ONE write to manifest.yml that analyse is permitted: adding an
+    entry to the top-level `evidence:` list. It does not write to the
+    manifest's `assessment` or `gates` (`Inv-1`, `Inv-4`).
     """
     task_path = manifest_path(task_dir)
     if not os.path.isfile(task_path):
@@ -597,19 +528,19 @@ def _upsert_analyze_evidence_registry(task_dir: str, ev_id: str,
 def cmd_analyze(args):
     """compass analyze - cross-artifact consistency check.
 
-    Strictly read-only over manifest.yml (Inv-1 / Inv-4). Writes one evidence
-    file (consistency-check or command-output type) to evidence/.
+    Read-only over the manifest (`Inv-1`, `Inv-4`). Writes one evidence file
+    (consistency-check or command-output type) to evidence/.
 
     Exit codes:
-      0 - zero coherence findings (or advisory mode regardless of findings,
-          or Inv-8 bare-repo path)
-      1 - one or more coherence findings AND verify.analyze gate is present
-      2 - input error (malformed manifest.yml, issue not framed, etc.)
+      0 - zero consistency findings (or advisory mode regardless of findings,
+          or the no-artifacts path - `Inv-8`)
+      1 - one or more consistency findings AND verify.analyze gate is present
+      2 - input error (malformed manifest.yml, issue not assessed, etc.)
     """
     task_dir = resolve_issue_dir(getattr(args, "task", None))
     project_root = os.path.dirname(os.path.dirname(task_dir))  # .compass/work/<slug>/../../
 
-    # TRC-F1: malformed manifest.yml → exit non-zero, stderr names the file and error
+    # A malformed manifest.yml exits non-zero, stderr naming the file and error.
     try:
         report = _analyze_task(task_dir, project_root)
     except CompassError as exc:
@@ -621,7 +552,7 @@ def cmd_analyze(args):
     findings = report.get("findings", [])
     no_artifacts = report.get("no_artifacts", False)
 
-    # Inv-8: no artifacts → exit 0 with informational message
+    # No artifacts (`Inv-8`): exit 0 with an informational message.
     if no_artifacts:
         print(f"compass analyze: no artifacts to analyze for issue '{task_slug}'.")
         print("  (no intent.md and no acceptance-criteria.md found - bare-repo path)")
@@ -672,12 +603,12 @@ def cmd_analyze(args):
 
 # --- command: ci ------------------------------------------------------------
 # The full mechanical gate suite, for CI / pre-merge. It is a convenience: it
-# just runs the checks that already exist - `policy lint`, then `task lint` and
-# `check` for every task under .compass/work/ - and aggregates the exit codes.
-# CI integration is genuinely this small: run `compass ci`, honour the exit
-# code. See ci/README.md.
+# just runs the checks that already exist - `policy lint`, then `issue lint`
+# and `check` for every issue under .compass/work/ - and aggregates the exit
+# codes. CI integration is genuinely this small: run `compass ci`, honour the
+# exit code. See ci/README.md.
 
-# Lifecycle states meaning "not in flight". An issue in one of these has no
+# Lifecycle states meaning "not active". An issue in one of these has no
 # acceptance criteria yet, by design, so the gate checks have nothing to read.
 _NOT_IN_FLIGHT = ("queued", "parked", "abandoned")
 
@@ -685,7 +616,7 @@ _NOT_IN_FLIGHT = ("queued", "parked", "abandoned")
 def _issue_status(slug):
     """The issue's lifecycle status, or '' if it cannot be read.
 
-    An unreadable manifest is not treated as not-in-flight: it falls through to
+    An unreadable manifest is not treated as not active: it falls through to
     the checks, which report the problem properly rather than skipping it.
     """
     try:
@@ -724,17 +655,17 @@ def cmd_ci(args):
         print("\n  no issues under .compass/work/ - governance policy only.")
     for slug in slugs:
         print(f"\n[issue] {slug}")
-        # The lint runs for every issue, whatever its stage. It validates the
+        # The lint runs for every issue, whatever its stage. It checks the
         # manifest's own structure - schema version, required keys, vocabulary -
         # and a malformed manifest is malformed whether or not the work has
-        # started. Skipping it once let a manifest the linter rejects outright
-        # sit in a repository while the sweep reported everything clean.
+        # started. Skipping it would let a manifest the linter rejects pass
+        # while the sweep reports clean.
         if cmd_task_lint(types.SimpleNamespace(task=slug, file=None)):
             failures += 1
 
         # The gate checks are different. An issue that has not started has no
         # acceptance criteria and no evidence, correctly so - the framework
-        # asks for work to be triaged early, and failing the sweep for
+        # asks for work to be assessed early, and failing the sweep for
         # complying teaches people to stop. Skip those, name the issue, and
         # say why: an issue that vanished from the output would be worse than
         # one that failed, because nobody would know it was there.
@@ -746,18 +677,12 @@ def cmd_ci(args):
             skipped += 1
             continue
         print()
-        # cmd_check honours the mode itself - but to know whether it had real
-        # failures (regardless of mode's effect on its exit), check ran already
-        # and we capture exit. For ci aggregation in advisory mode we still
-        # want to honour mode at the top level, so call cmd_check and let it
-        # return; failures captured here mean "this group had problems."
+        # cmd_check applies the output mode itself. Call it and keep its exit
+        # code, so ci can report which groups failed.
         checked += 1
-        # The caller's mode is FORWARDED. A bare namespace resolved to the
-        # default view, so CI logs got each issue's four-line summary ending
-        # "run with --verbose" - and `compass ci --verbose` printed the same
-        # summary, because the flag never reached the check. The one place a
-        # reader cannot re-run interactively was the one place that advice was
-        # dead.
+        # Forward the caller's output mode, so `compass ci --verbose` gives
+        # verbose check output. A CI log is the one place a reader cannot
+        # re-run a command.
         if cmd_check(types.SimpleNamespace(
                 task=slug, _mode=getattr(args, "_mode", None),
                 evidence_out=getattr(args, "evidence_out", None))):
@@ -767,10 +692,8 @@ def cmd_ci(args):
     if failures:
         print(f"compass ci: FAIL - {failures} check group(s) failed.")
     else:
-        # Say what was actually done rather than making a blanket claim. The
-        # summary is the line a CI reader reads; when it said "every issue"
-        # while the run had skipped some, the skip lines further up were the
-        # part nobody scrolled back for.
+        # The summary must say what ran and what was skipped: a CI reader
+        # reads the summary line, not the skip lines above it.
         counted = f"{checked} issue(s) fully checked"
         if skipped:
             counted += f", {skipped} lint-only (not in flight)"

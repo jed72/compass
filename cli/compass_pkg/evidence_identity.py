@@ -4,21 +4,16 @@
 # =============================================================================
 # Does a registry entry still name the record it was created from?
 #
-# Split out of checks.py, which is the check registry and had grown past this
-# project's 1200-line guard. The split follows a real boundary: everything here
-# is about the relationship between a citation and the file it cites, which is
-# a different concern from the guardrail checks that consume it.
+# Kept apart from checks.py because it is about the link between a citation
+# and the file it cites, not a guardrail check.
 #
 # The write side lives in compass_pkg.tdd (`_stamp_identity`). The two halves
 # have to agree on the field names and nothing else, which is why they can sit
 # in different modules.
 #
-# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
-# the only third-party code Compass ships; everything else is the Python 3
-# standard library. This module uses none of it - json and os only.
+# DEPENDENCY: standard library only (json, os).
 # =============================================================================
-"""Verifying that a cited evidence record is the one that was recorded."""
+"""Checking that a cited evidence record is the one that was recorded."""
 from __future__ import annotations
 
 import json
@@ -30,12 +25,9 @@ from compass_pkg.check_results import NOTHING_TO_CHECK
 def _check_evidence_identity_matches(task, task_dir):
     """Is each registry entry still naming the record it was created from?
 
-    THE QUESTION THIS ASKS THAT NOTHING ASKED BEFORE. A registry entry is a
-    path, and `gate-evidence-present` confirms the path resolves. Neither
-    established that the file at that path is the run the entry was made for.
-    So a record replaced after it was cited left every check green: three gates
-    on `zero-friction-install` rested on an eleven-test run of one file, and two
-    landed issues are still in that state.
+    `gate-evidence-present` checks that the path resolves, not that the file
+    is the run the entry was made for. Without this check, a record replaced
+    after it was cited leaves every check green.
 
     Two stamps, two different failures:
       record_id      - unique per write. A different one means the file is a
@@ -45,7 +37,7 @@ def _check_evidence_identity_matches(task, task_dir):
 
     A record written before stamping existed carries neither. That is
     UNVERIFIABLE, not a pass and not a failure: an unstamped record cannot be
-    checked against its citation, and calling it verified would be a check that
+    checked against its citation, and calling it checked would be a check that
     cannot fail. Where nothing in the issue is stamped, the whole check returns
     NOTHING_TO_CHECK so it is counted apart from the passes rather than
     inflating them.
@@ -67,8 +59,8 @@ def _check_evidence_identity_matches(task, task_dir):
             continue
         full = path if os.path.isabs(path) else os.path.join(task_dir, path)
         if not os.path.isfile(full):
-            # gate-evidence-present owns the resolves-or-not question; not
-            # repeating its failure here would leave this one silent on it.
+            # gate-evidence-present reports a missing file. Count it here as
+            # unverifiable, so this check does not report a pass for it.
             unverifiable += 1
             continue
         try:

@@ -1,51 +1,13 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.routing - the delivery-approach evaluator and
+# `compass approach evaluate`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +22,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -101,24 +39,22 @@ from compass_pkg.manifest import _annotate_gate_accepts
 
 
 
-# How many parallel subtasks each route shape permits is stated by the policy
-# as a number, so a cap can be compared against it directly. A null ceiling
+# The policy states, as a number, how many parallel subtasks each shape
+# permits, so a cap can be compared against it directly. A null ceiling
 # means UNBOUNDED, not that the number is unknown.
 # Nothing in routing-policy.yml or .compass/config.yml states a multiagent width -
 # the only cap the policy carries is RP-CAP-001's max_worktrees: 1, and the
 # config file says in as many words that the worktree cap is a routing
-# concern it does not hold. An earlier draft wrote 8 here; that is a
-# configurable-looking number frozen into a literal, and it would have
-# misreported the day anyone set a real cap. A ceiling on a multiagent can only
-# come from a cap, or from the distribution map at breakdown.
-# Route shapes declare `subtask_ceiling` as a number since ADR-023. The word
-# -> number lookup that used to live here is gone; `core` keeps its own copy
-# for reading archived manifests, which still carry the words.
+# concern it does not hold. A ceiling on multiagent work can only come from a
+# cap, or from the distribution map at breakdown.
+# Route shapes declare `subtask_ceiling` as a number since ADR-023; `core`
+# keeps its own copy for reading archived manifests, which still carry the
+# words.
 
 
 def evaluate_route(readings, policy):
-    """Pure function: readings + policy -> the final route and everything that
-    shaped it. This is the deterministic heart of Compass."""
+    """Pure function: assessment + policy -> the delivery approach and
+    everything that shaped it. This is the deterministic core of Compass."""
     _vk = {"blast_radius": "risk", "terrain": "familiarity",
            "magnitude": "size", "intent": "goal",
            "touches_common": "labels_common"}
@@ -129,7 +65,7 @@ def evaluate_route(readings, policy):
     strategies = policy.get("routing_strategies", {})
     guardrails = policy.get("routing_guardrails", {})
 
-    # --- validate the readings: a misclassification fails loudly -------------
+    # --- check the assessment: a misclassification fails loudly -------------
     errors = []
     for dim in ("risk", "familiarity", "size"):
         if dim not in readings:
@@ -166,8 +102,8 @@ def evaluate_route(readings, policy):
     def weight(route):
         return shapes.get(route, {}).get("weight", 0)
 
-    # --- 2. floors raise the route / force phases (routing guardrails) -------
-    floor_gates = []  # gates added by floors via add_gate (DD-1 / ADR-007)
+    # --- 2. floors raise the delivery approach / force stages (routing guardrails) -------
+    floor_gates = []  # gates added by floors via add_gate (ADR-007)
     # Artifacts a rule earns, beside the gates a rule earns. What an issue
     # documents is a routed output like its stages and its gate set: judgement
     # produces the assessment, and the mechanism produces everything downstream.
@@ -184,13 +120,10 @@ def evaluate_route(readings, policy):
                            f"{display_shape(forced)}")
             final = forced
         if fl.get("require_phase"):
-            # Canonicalised, for the same reason as `never_skip` below. These
-            # names are looked up in the shape's stage map, which
-            # `shape_stages` has already canonicalised - so a floor naming the
-            # retired key asked for an entry that is never there, found
-            # nothing, and raised nothing. No error and the floor still
-            # reported as fired. `never_skip` got this treatment in the v2
-            # rename and this line, seven above it, did not.
+            # Canonicalise these names: they are looked up in a stage map
+            # `shape_stages` has already canonicalised, so a retired key
+            # would find nothing and raise nothing while the floor still
+            # reports as fired.
             required = _stage_key_renames().get(fl["require_phase"],
                                                 fl["require_phase"])
             required_phases.add(required)
@@ -233,11 +166,12 @@ def evaluate_route(readings, policy):
 
     # --- 2b. routing conflict: exploration must not silently become delivery -
     # If the candidate was a Spike and a routing floor would force it onto a
-    # delivery route, that is NOT "Spike raised to Expedition" - it is "this is
-    # not a Spike." A Spike ships nothing and must not touch production-critical
-    # surface (approaches/spike.md). Auto-promoting it would quietly change the
-    # *meaning* of the work from "explore" to "deliver." The honest answer is a
-    # re-frame, so the evaluator stops and says so.
+    # delivery approach, that is NOT "Spike raised to initiative" - it is
+    # "this is not a Spike." A Spike ships nothing and must not touch
+    # production-critical surface (approaches/spike.md). Auto-promoting it
+    # would quietly change the *meaning* of the work from "explore" to
+    # "deliver." The honest answer is a re-assessment, so the evaluator stops
+    # and says so.
     if candidate == "spike" and final != "spike":
         floor_ids = [f["id"] for f in fired if f["kind"] == "floor"]
         raise CompassError(
@@ -306,7 +240,7 @@ def evaluate_route(readings, policy):
         if phases.get(p) in ("collapsed", "skipped", "light"):
             phases[p] = "full"
     gates = list(shape.get("gates", []))
-    # Immovable gates and role-added gates apply to DELIVERY routes only. Spike
+    # Immovable gates and role-added gates apply to delivery approaches only. Spike
     # ships nothing - it carries only its own Conclude gate, by design. (A
     # spike that needs a delivery gate is not a spike; it graduates.)
     if final != "spike":
@@ -322,12 +256,11 @@ def evaluate_route(readings, policy):
     # A CEILING, not a decision. Assess cannot know the orchestration: the
     # evaluator has no concept of a work unit, `routing-policy.yml` says
     # nothing about independence or subtasks, and the distribution map that
-    # decides parallelism is written at design - three stages later. So the
+    # decides parallelism is written at plan - three stages later. So the
     # evaluator reports how many parallel subtasks this approach PERMITS, and
     # breakdown sets the actual orchestration once the map exists.
     #
-    # It stays a number so a cap can be compared against it. The previous code
-    # wrote the sentence "solo (capped to 1 worktree)" into a machine field.
+    # It stays a number so a cap can be compared against it.
     # --- the artifact set --------------------------------------------------
     # The shape says what this size and risk of work ordinarily documents; a
     # rule adds what a dimension the shape cannot see has earned. Nothing is
@@ -342,14 +275,13 @@ def evaluate_route(readings, policy):
             "kind": kind, "status": "draft", "depth": depth,
             # The reason names the rule that earned it, in the reader's words.
             # It deliberately does not repeat the kind - the row already says
-            # which document this is, and "initiative earns it (prd)" told a
-            # reviewer nothing they could not see.
+            # which document this is.
             "reason": "every %s carries %s" % (
                 display_shape(final),
                 "one" if depth == "full" else "a light one"),
         })
     # A role rule already demands documents via `require_artifact` - a marketer
-    # needs launch-readiness, a product owner a brief. That is the same idea
+    # needs launch-readiness, a product owner an intent document. That is the same idea
     # from the role's side, so it joins the same set rather than living in a
     # second list nothing renders.
     for req in required_artifacts:
@@ -370,10 +302,11 @@ def evaluate_route(readings, policy):
         subtask_ceiling = (max_worktrees if subtask_ceiling is None
                            else min(subtask_ceiling, max_worktrees))
 
-    # --- soft advisory strategies (R10) -------------------------------------
-    # These BIAS/ASSESS only - they never alter the route, gates, weight, or
-    # subtask ceiling. Surfaced for the Needle and the reviewer (e.g. regression-
-    # baseline on shared/critical surface). A strategy, not a guardrail.
+    # --- soft advisory strategies --------------------------------------------
+    # These BIAS/ASSESS only - they never change the delivery approach, gates,
+    # weight, or subtask ceiling. Surfaced for the router and the reviewer
+    # (e.g. regression-baseline on shared/critical surface). A strategy, not
+    # a guardrail.
     applicable_strategies = []
     for adv in strategies.get("advisory_strategies", []):
         if reading_matches(adv.get("when"), readings):
@@ -400,7 +333,7 @@ def evaluate_route(readings, policy):
     }
 
 
-# --- command: route evaluate -------------------------------------------------
+# --- command: approach evaluate -----------------------------------------------
 
 def cmd_route_evaluate(args):
     gov = find_governance()
@@ -435,8 +368,8 @@ def cmd_route_evaluate(args):
 
     # This verb renders all three modes itself, including the JSON document it
     # shipped with. Saying so keeps the generic fallback in main() out of the
-    # way - without it, that fallback wrapped this verb's own JSON in its
-    # "unconverted verb" envelope and every key moved a level down.
+    # way - without it, the fallback would wrap this verb's JSON in its
+    # "unconverted verb" envelope.
     mark_handled()
     _mode = resolve_mode(args)
     if _mode == "json":
@@ -480,8 +413,8 @@ def cmd_route_evaluate(args):
                        "unbounded parallel subtasks" if _ceiling is None
                        else "up to %d parallel subtask(s)" % _ceiling),
             # Only if it is actually there. `delivery-approach.md` is written
-            # by the triage command, not by the evaluator, so a first evaluate
-            # was telling the reader to open a file that did not exist.
+            # by the assess command, not the evaluator, so do not point the
+            # reader at it before it exists.
             read=(_approach_doc if task is not None
                   and os.path.isfile(_approach_doc := os.path.join(
                       task_dir, "delivery-approach.md")) else None),
@@ -492,9 +425,10 @@ def cmd_route_evaluate(args):
             "nothing recorded - re-run with --write to fold this into the manifest")
         _e.flush()
     else:
-        # Provenance first. route.md records which guardrails fired and why; it
-        # said nothing about WHICH POLICY produced those answers, so a reader
-        # could not tell a genuinely light route from a stale-governance one.
+        # Provenance first. delivery-approach.md records which rules fired
+        # but not which policy file produced them, so print the policy
+        # first, so a reader can tell a genuinely light route from a
+        # stale-governance one.
         print(f"  policy          : {os.path.join(gov, 'routing-policy.yml')} "
               f"(v{policy.get('version', 'unknown')})")
         drift = governance_drift(gov)
@@ -513,18 +447,10 @@ def cmd_route_evaluate(args):
             print("  policy rules fired:")
             seen_effects = set()
             for f in result["policy_rules_fired"]:
-                # Meaning first, code in brackets. This printed
-                # "[RP-FLOOR-002] floor: You cannot safely..." - a bare
-                # identifier opening the first screen a new user ever sees.
-                # The receipt's renderer was corrected for exactly this and
-                # this one was missed; the two print the same data through
-                # different code, which is how they came apart.
-                # The KIND stays. It says whether the rule raised the whole
-                # approach or only attached a single gate, and an earlier issue
-                # exists because every entry in the floors block reported
-                # itself as a floor including the four that only add a gate.
-                # Dropping it to shorten the line would have quietly undone
-                # that work.
+                # Meaning first, code in brackets: a bare id must not open
+                # the first screen a new user sees. Keep the kind: it says
+                # whether the rule raised the whole approach or only
+                # attached one gate.
                 rationale = str(f['rationale']).rstrip().rstrip('.')
                 print(f"    {rationale} ({f['id']}, {f['kind']})")
                 for c in f["changed"]:
@@ -560,20 +486,18 @@ def cmd_route_evaluate(args):
         if task is None:
             raise CompassError("--write needs an issue (use --issue or run in a "
                                "issue; it cannot write with ad-hoc --assessment)")
-        # Re-frame detection, on the route's CONTENT rather than its name.
-        # Keying on the name discarded real re-frames: a task whose governance
-        # was updated went from 7 gates to 9 under the same route name and
-        # logged nothing, taking its `--reason` with it. Route weight is not the
-        # only thing that matters about a route.
-        # The four readings, compared against what the LAST `--write` computed
-        # from. They cannot be read out of the manifest: by the time this runs
-        # the manifest already holds the corrected readings, so there would be
-        # nothing to differ from. `evaluated_assessment` is what closes that -
-        # each write records the assessment it evaluated, and the next write
-        # compares against it.
+        # Detect a re-assessment from the approach's content, not its name: a
+        # governance update can add gates without changing the approach name.
+        # The four assessment dimensions, compared against what the LAST
+        # `--write` computed from. They cannot be read out of the manifest:
+        # by the time this runs the manifest already holds the corrected
+        # assessment, so there would be nothing to differ from.
+        # `evaluated_assessment` is what closes that - each write records
+        # the assessment it evaluated, and the next write compares against
+        # it.
         #
-        # Without this, correcting a reading was discarded whenever the route
-        # absorbed it - and a correction the route absorbed is the cheapest
+        # Without this, a corrected assessment that leaves the approach
+        # unchanged would not be logged, and that correction is the cheapest
         # evidence there is that sizing was wrong, which is exactly what
         # `compass retro` aggregates.
         prior = {
@@ -597,24 +521,24 @@ def cmd_route_evaluate(args):
                 f.get("id") for f in (result["policy_rules_fired"] or [])
                 if isinstance(f, dict)),
         }
-        # Only fields that were ALREADY recorded can have changed. A task whose
-        # phases or gates were never written is being filled in for the first
-        # time - `--write` after a bare `route:` is materialisation, not a
-        # re-frame, and logging it would put noise into the signal this exists
-        # to sharpen.
+        # Only fields that were ALREADY recorded can have changed. An issue
+        # whose stages or gates were never written is being filled in for the
+        # first time - `--write` after a bare `delivery_approach:` is
+        # materialisation, not a re-assessment, and logging it would put
+        # noise into the signal this exists to sharpen. A previous write is
+        # still needed: materialising an approach that was never computed is
+        # not a re-assessment either.
         changed = {k: {"from": prior[k], "to": now[k]}
                    for k in prior if prior[k] and prior[k] != now[k]}
-        # A previous write is still required - materialising an approach that
-        # was never computed is not a re-assessment, and logging it would put
-        # noise into the signal the log exists to sharpen.
         evaluated_before = bool(prior["delivery_approach"]) or bool(prior["assessment"])
         reframed = evaluated_before and bool(changed)
         if reframed:
             reason = args.reason or "(reason not given - fill this in)"
-            # The kind keeps calibration honest. Logging a governance-driven
-            # weight-up as a plain re-frame would read as the Needle
-            # under-sizing - and it is not: the readings were right, the policy
-            # under them moved. Only `judgement` feeds the re-sizing aggregate.
+            # The kind keeps `compass retro` accurate. Logging a
+            # governance-driven weight-up as a plain re-assessment would read
+            # as assessment under-sizing the work - and it is not: the
+            # assessment was right, the policy under it moved. Only
+            # `judgement` feeds the re-sizing aggregate.
             kind = getattr(args, "kind", None) or "judgement"
             task.setdefault("reassessments", []).append({
                 "from_route": prior["delivery_approach"],
@@ -626,7 +550,7 @@ def cmd_route_evaluate(args):
             })
         task["schema_version"] = "2.0"
         # What this write computed from. Read by the NEXT write to notice a
-        # corrected reading; never read by anything else.
+        # corrected assessment; never read by anything else.
         # A COPY, not the same object. Assigning the reference makes PyYAML
         # emit an anchor alias (`evaluated_assessment: *id001`), so both keys
         # load as one dict and the comparison above can never see a
@@ -661,14 +585,14 @@ def cmd_route_evaluate(args):
             if a.get("status") == "omitted" and not any(m["kind"] == kind for m in merged):
                 merged.append(a)
         task["artifacts"] = merged
-        # ensure the evidence registry exists at the top level
+        # make sure the evidence registry exists at the top level
         task.setdefault("evidence", [])
         task["subtask_ceiling"] = result["subtask_ceiling"]
         # Assess never records an orchestration: breakdown owns it, once the
         # distribution map says whether independent subtasks exist.
         task.pop("orchestration", None)
         save_manifest(task, task_path)
-        _annotate_gate_accepts(task_path)   # R6-6: seed accepted-type comments
+        _annotate_gate_accepts(task_path)   # seed accepted-type comments
         print(f"\n  wrote route, phases, gates -> {task_path}")
         if not reframed and getattr(args, "reason", None):
             print("  no route change detected - the --reason was NOT recorded. "

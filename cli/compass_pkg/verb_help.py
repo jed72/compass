@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """What each verb does, in the words a reader gets from `--help`.
 
-Here rather than beside each `add_parser` call for two reasons. The entry
-point is capped at 620 lines to keep logic out of it, and 30 paragraphs of
-prose would have spent that budget on content rather than structure - which
-is the complaint `entry-point-cap-measures-the-wrong-thing` already makes
-about that cap. And a reader reviewing what the CLI claims about itself can
-read the claims together here, instead of tracing them through a parser.
+Here rather than beside each `add_parser` call, for two reasons:
+
+- the entry point is capped below 640 lines to keep logic out of it, and 30
+  paragraphs of prose would have used those lines for content rather than
+  structure;
+- a reader reviewing what the CLI claims about itself can read the claims
+  together here, instead of tracing them through a parser.
 
 Keyed by the path a person types, because `lint` exists under three groups
 and they do different things.

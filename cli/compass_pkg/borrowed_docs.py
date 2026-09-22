@@ -7,14 +7,14 @@
 # Neither shape is ours. The threat model asks the Threat Modeling Manifesto's
 # four questions (threatmodelingmanifesto.org) and answers each threat with a
 # scenario id, which is the output form the ThoughtWorks Technology Radar names
-# - "evil user stories" - and has had in Adopt since Nov 2015. The rollback plan
-# records a REHEARSAL rather than a plan, because SWEBOK v4 §6.3.3 requires "a
-# planned and rehearsed rollback" before a deploy and Dave Farley's answer to
+# - "evil user stories" - and has had in Adopt since Nov 2015. The rollback
+# plan records a REHEARSAL rather than a plan: SWEBOK v4 §6.3.3 needs "a
+# planned and rehearsed rollback" before a deploy. Dave Farley's answer to
 # rollback is a mechanism you exercise rather than a document you write.
 #
 # It lives here rather than in checks.py because it reads those two templates
-# and nothing else in checks.py touches them - the same reason the review
-# page's currency check lives beside the page.
+# and nothing else in checks.py touches them - the same reason `dashboard.py`
+# holds the check that the review page is up to date.
 #
 # DEPENDENCY: the resolver in compass_pkg.core, plus os and re from the
 # standard library. It asks the resolver where each document is rather than
@@ -32,8 +32,8 @@ from compass_pkg.check_results import NOTHING_TO_CHECK
 from compass_pkg.core import artifact_path
 
 # The shape the two borrowed templates write, and what "answered" means in
-# each. A threat is answered by a scenario id or an explicit accepted risk; a
-# rollback is answered by a rehearsal that happened.
+# each. A scenario id or an explicit accepted risk answers a threat; a
+# rehearsal that happened answers a rollback.
 _TRC_ID = re.compile(r"\bTRC-[A-Za-z0-9-]+\b")
 _RISK_ACCEPTED = re.compile(r"risk\s+accepted", re.IGNORECASE)
 #: A date in the section. The template asks for "a date, a target, an outcome,
@@ -41,12 +41,10 @@ _RISK_ACCEPTED = re.compile(r"risk\s+accepted", re.IGNORECASE)
 #: intention: "we rehearsed it" with no date is a claim.
 _REHEARSAL_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 
-#: A section that OPENS by denying the rehearsal. Read from the opening
-#: statement rather than scanned across the whole section, because a section
-#: recording a real rehearsal mentions these words in other roles - a table
-#: column headed "Planned", a collision count of "none" - and failing on those
-#: teaches the author to reword around the guard instead of rehearsing
-#: anything.
+#: A section that OPENS by denying the rehearsal. Read the opening statement
+#: only. A section that records a real rehearsal uses these words in other
+#: roles, such as a column headed "Planned", or a count of "none". Failing on
+#: those teaches the author to reword around the guard.
 _DENIES_REHEARSAL = re.compile(
     r"\b(not\s+yet|never\s+rehearsed|no\s+rehearsal|tbd|todo|n/?a|pending)\b",
     re.IGNORECASE)
@@ -73,20 +71,19 @@ def _check_borrowed_documents_answered(task, task_dir):
     Both fail the same way - a section written and left unanswered - so one
     check reads whichever exists rather than two checks reading one each.
 
-    A THREAT is answered by a `TRC-` scenario id, or by `risk accepted` with a
-    reason. The Threat Modeling Manifesto names the failure this prevents:
-    "Admiration for the Problem", a document that lists threats and mitigates
-    none.
+    A `TRC-` scenario id, or `risk accepted` with a reason, answers a THREAT.
+    The Threat Modeling Manifesto names the failure this prevents: "Admiration
+    for the Problem", a document that lists threats and mitigates none.
 
-    A ROLLBACK is answered by a rehearsal that happened. SWEBOK v4 §6.3.3: "a
+    A rehearsal that happened answers a ROLLBACK. SWEBOK v4 §6.3.3: "a
     planned and rehearsed rollback is done before a new version of the software
     is deployed in production." A rollback nobody has run is a guess, and a
     guess recorded as a plan is the assertion the evidence-not-assertion
     guardrail (`G4`) rejects.
 
     NEITHER FILE PRESENT RETURNS THE SENTINEL, NOT A PASS. Most issues earn
-    neither document, and a guard reporting a clean result for work it never
-    looked at is the failure this repository keeps finding.
+    neither document, and a guard must not report a pass for work it never
+    looked at.
     """
     threat = artifact_path(task_dir, "threat-model.md")
     rollback = artifact_path(task_dir, "rollback-plan.md")

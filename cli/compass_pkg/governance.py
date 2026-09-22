@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.governance - the governance drift report and `compass policy lint`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -102,16 +39,15 @@ from compass_pkg.policy import _jsonschema_errors, _lint_errors_guardrails, _lin
 
 # --- governance drift --------------------------------------------------------
 # A project that runs `/compass:init` gets a COPY of governance/. The framework
-# later ships new floors and checks; the copy never learns about them; and until
-# this existed, nothing reported the divergence. The failure is DIRECTIONAL and
-# therefore quiet: stale governance never fails loudly, it produces a *lighter*
-# route. A project can lose half its routing guardrails with every green light
-# in the system still green.
+# later ships new floors and checks; the copy never learns about them. The
+# failure is DIRECTIONAL and therefore quiet: stale governance never fails
+# loudly, it produces a lighter delivery approach. A project can lose half its
+# routing guardrails while every check still passes.
 #
 # This compares the DECLARED RULE IDS of the two policies, not their content. A
 # project that reworded a rationale, reordered its floors, or added rules of its
 # own has not drifted, and a detector that fires on those gets switched off.
-# The cost of that choice: a project keeping every id while gutting a rule's
+# The cost of that choice: a project that keeps every id but empties a rule's
 # body reads as current. That limit is stated in the report rather than hidden.
 
 # Where rule ids live in each governance file: (file, path-to-list, kind).
@@ -170,9 +106,9 @@ def _dig(data, path):
 def _rule_ids(data, path):
     """Rules by id. Ignores anything whose id is not a string.
 
-    A list- or dict-valued id used to raise an unhashable-type TypeError out of
-    `route evaluate`, which calls this with no structural lint in front of it -
-    so a malformed policy killed Frame instead of being reported.
+    A list- or dict-valued id would raise an unhashable-type TypeError in
+    `approach evaluate`, which calls this with no lint first, and stop
+    assessment with a traceback instead of a report.
     """
     out = {}
     for r in _dig(data, path):
@@ -227,9 +163,8 @@ def governance_drift(project_gov, framework_gov=None):
     rp_project = loaded["routing-policy.yml"][0]
     waived_ids = {}
     for entry in _dig(rp_project, ("routing_guardrails", "waived")):
-        # isinstance str, not just truthiness: a list-valued id crashed here
-        # with `unhashable type` when used as a dict key below - the same class
-        # of crash the rule-id reader was already hardened against.
+        # isinstance str, not just truthiness: a list-valued id would raise
+        # `unhashable type` when used as a dict key below.
         if not isinstance(entry, dict) or not isinstance(entry.get("id"), str) \
                 or not entry["id"]:
             report.waiver_errors.append(
@@ -378,9 +313,9 @@ def cmd_policy_lint(args):
             schema_ran = True
             errs += [f"[{label}] {e}" for e in je]
     if errs:
-        # DD-4: structural errors short-circuit the drift comparison. A policy
-        # that fails to parse would otherwise be reported as missing every
-        # framework rule - true, and useless. Fix the syntax, then see the drift.
+        # Structural errors stop the drift comparison. A policy that fails to
+        # parse would otherwise be reported as missing every framework rule -
+        # true, and useless. Fix the syntax, then see the drift.
         print("compass policy lint: FAIL")
         for e in errs:
             print(f"  - {e}")

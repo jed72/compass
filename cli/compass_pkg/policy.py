@@ -1,51 +1,13 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.policy - `compass policy lint`, `compass issue lint` and
+# `compass plan lint`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +22,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -102,7 +40,7 @@ from compass_pkg.core import (CompassError, FRAMEWORK_ROOT, artifact_path,
 
 
 
-# --- commands: policy lint / task lint --------------------------------------
+# --- commands: policy lint / issue lint --------------------------------------
 
 # The built-in `_lint_errors_*` functions below are the no-dependency floor:
 # they always run, and they do the one thing JSON Schema cannot - cross-check
@@ -112,7 +50,7 @@ from compass_pkg.core import (CompassError, FRAMEWORK_ROOT, artifact_path,
 # installed. PyYAML stays the CLI's only *hard* dependency.
 
 def _jsonschema_errors(instance, schema_name):
-    """Validate `instance` against schemas/<schema_name>. Returns a list of
+    """Check `instance` against schemas/<schema_name>. Returns a list of
     error strings, or None if `jsonschema` is not installed (caller falls back
     to the built-in structural lint, which always runs anyway)."""
     try:
@@ -175,11 +113,12 @@ def _lint_errors_guardrails(p):
     if "defaults" not in p:
         errs.append("missing top-level key: defaults")
     known_checks = set((p.get("checks") or {}).keys())
-    # Validate all guardrails (defaults + project) for structural integrity.
+    # Check all guardrails (defaults + project) for structural integrity.
     # command-passes `params` validation ONLY applies to project guardrails -
-    # the framework's own G4 legitimately registers command-passes without
-    # per-guardrail params (it's a cross-cutting check that reads params from
-    # the project: guardrails it finds at run time).
+    # the framework's own guardrails (`G4`, evidence not assertion) legitimately
+    # register command-passes without per-guardrail params (it's a
+    # cross-cutting check that reads params from the project: guardrails it
+    # finds at run time).
     for g in list(p.get("defaults", [])) + list(p.get("project", [])):
         if "id" not in g:
             errs.append(f"a guardrail has no id: {g}")
@@ -193,7 +132,7 @@ def _lint_errors_guardrails(p):
             elif c not in CHECK_FNS:
                 # The integrity rule: a declared guardrail check the CLI does
                 # not implement would silently become advisory. Lint catches it
-                # here, BEFORE a task relies on it; `compass check` also fails
+                # here, before an issue relies on it; `compass check` also fails
                 # on it at run time. Both, because this is the line that keeps
                 # "guardrail" meaning hard-and-blocking.
                 errs.append(f"guardrail {g.get('id', '?')} references check "
@@ -201,9 +140,10 @@ def _lint_errors_guardrails(p):
                             f"CHECK_FNS) - implement it, or move the guardrail "
                             f"to strategies.md")
 
-    # command-passes params validation - only for project guardrails (TRC-FM1 / DD-2).
-    # Framework defaults (G4) can reference command-passes without params; the params
-    # come from the project guardrails that declare the actual commands to run.
+    # command-passes params validation - only for project guardrails.
+    # Framework defaults (`G4`) can reference command-passes without params;
+    # the params come from the project guardrails that declare the actual
+    # commands to run.
     for g in list(p.get("project", [])):
         if "command-passes" not in (g.get("checks") or []):
             continue
@@ -275,12 +215,12 @@ def _schema_note(ran):
 
 
 def _lint_errors_quarantine(gov_dir):
-    """Validate governance/quarantine.yml if present.
+    """Check governance/quarantine.yml if present.
 
     Returns a list of error strings. An absent quarantine.yml is not an error
     (zero-setup default, ADR-006). Required fields per entry: test,
-    tracking_task, reason, added. An entry without tracking_task is malformed
-    (TRC-A7 - a quarantine without a tracking issue is a graveyard).
+    tracking_task, reason, added. An entry without tracking_task is malformed:
+    a quarantined test with no tracking issue never gets fixed.
     """
     path = os.path.join(gov_dir, "quarantine.yml")
     if not os.path.isfile(path):
@@ -317,10 +257,11 @@ def _lint_errors_quarantine(gov_dir):
 
 
 # --- command: plan lint ------------------------------------------------------
-# Scans a plan.md for the phrases that mean the plan is not actually finished.
-# ADVISORY BY DESIGN: it always exits 0 on findings. A hit is a note for the
-# planner to judge, never a gate. The CLI may read a prose artifact to advise;
-# it may not make the structure of a prose artifact a condition of passing.
+# Scans a technical-design.md for the phrases that mean the plan is not
+# actually finished. ADVISORY BY DESIGN: it always exits 0 on findings. A hit
+# is a note for the planner to judge, never a gate. The CLI can read a prose
+# document to advise; it must not make the document's structure a condition
+# of passing.
 
 PLAN_PLACEHOLDER_PHRASES = (
     "TBD",
@@ -454,27 +395,19 @@ def cmd_task_lint(args):
         task, path = load_manifest(task_dir)
     # built-in structural lint (always runs)
     errs = []
-    # The manifest is normalised above, so this reads the CURRENT key. It
-    # read `task` while reporting `issue:` - correct only while the two were
-    # the same field under two names, and wrong the moment the rename landed.
+    # The manifest is normalised above, so this reads the current key.
     if "issue" not in task:
         errs.append("missing `issue:` (the issue slug)")
     # Each block below checks the shape before reading it. This command's whole
-    # job is to report a malformed manifest.yml, so it must not crash on one - a
-    # scenario written as a bare string used to raise AttributeError here, and a
-    # traceback tells the author nothing about what to fix.
+    # job is to report a malformed manifest.yml, so it must not crash on one -
+    # a scenario written as a bare string must be reported, not raise
+    # AttributeError.
     if "assessment" not in task:
         if (task.get("status") or "active") == "queued":
-            # Queued means recorded as next up and not started, so it has not
-            # been assessed - assessing it is the first thing starting it would
-            # do. `cmd_ci` draws exactly this distinction for the gate checks
-            # and says why: the framework "asks for work to be triaged early,
-            # and failing the sweep for complying teaches people to stop".
-            #
-            # ONE FIELD, ONE STATUS. The rest of the lint still runs, because
-            # a malformed manifest is malformed whether or not the work started -
-            # skipping the lint wholesale for a status is the mistake `cmd_ci`
-            # warns against in the comment above that one.
+            # A queued issue has not been assessed yet, so the lint does not
+            # ask it for an assessment. Only that field is skipped: the rest
+            # of the lint still runs, because a malformed manifest is
+            # malformed whether or not work has started.
             pass
         elif task.get("landed_by"):
             # An issue delivered elsewhere never entered the pipeline, so it
@@ -502,7 +435,7 @@ def cmd_task_lint(args):
             errs.append(f"a changed_files entry must be a mapping with a `path:`: {cf!r}")
         elif "path" not in cf:
             errs.append(f"a changed_files entry has no `path`: {cf}")
-    # TRC-FM2: validate attempts field on test-run evidence entries
+    # Check the `attempts` field on test-run evidence entries
     for ev in task.get("evidence") or []:
         if not isinstance(ev, dict):
             continue

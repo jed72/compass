@@ -25,17 +25,15 @@ see "who updates it" below.
 - **Upstream:** https://pypi.org/project/PyYAML/
 - **Licence:** MIT (see `LICENSE-PyYAML` in this directory)
 - **Taken from:** `lib/yaml/` inside the upstream sdist (`pyyaml-6.0.2.tar.gz`)
-- **Modified:** no. Every file here is byte-identical to the upstream
+- **Changed:** no. Every file here is byte-identical to the upstream
   source. Compass does not patch it, reformat it, or trim unused code out
   of it.
 
-Only the pure-Python implementation is vendored. PyYAML's optional C
-extension (`libyaml` bindings, `_yaml.*`) is a compiled binary specific to
-one platform and one Python build, which is the opposite of what a
-zero-install plugin needs - it is not included, so `yaml.__with_libyaml__`
-is `False` under the bundled copy and `CSafeLoader` is unavailable. Nothing
-in `cli/` uses it: every call site in Compass is `safe_load`, `safe_dump`,
-or `YAMLError`.
+Only the pure-Python code is vendored. PyYAML's optional C extension
+(`libyaml` bindings, `_yaml.*`) is a compiled binary for one platform and one
+Python build, which a zero-install plugin cannot use. So `yaml.__with_libyaml__`
+is `False` and `CSafeLoader` is not available. Nothing in `cli/` uses it:
+every call site in Compass is `safe_load`, `safe_dump`, or `YAMLError`.
 
 ## How every caller reaches it
 
@@ -49,11 +47,11 @@ do the rest. See `THIRD-PARTY-NOTICES.md` and `docs/security.md` for the
 full account, including what carrying someone else's code obliges and how
 an auditor reproduces this tree from upstream and checks it.
 
-## Reproducing this tree, to verify it
+## Reproducing this tree, to check it
 
 The full, runnable command is in `THIRD-PARTY-NOTICES.md` at the repository
-root, under "PyYAML" - one copy, not restated here, so there is exactly one
-place for it to go stale. In short: download the pinned sdist, verify its
+root, under "PyYAML" - one copy, not restated here, so there is one copy to
+keep up to date. In short: download the pinned sdist, check its
 hash, extract it, and diff its `lib/yaml/` against this directory.
 
 ## Who updates it, and when

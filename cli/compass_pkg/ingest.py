@@ -3,9 +3,9 @@
 # compass - reading an existing brief into an issue
 # =============================================================================
 # Most teams arriving at Compass already have a brief somewhere - Notion, Jira,
-# a Google Doc, a file called anything at all. Until this existed, the only way
-# in was to open it, read it, and retype it through the intake stage, which is
-# transcription and so the kind of step people skip.
+# a Google Doc, a file called anything at all. Without this verb, the only way
+# in is to retype the brief through the intake stage. That is transcription,
+# and people skip it.
 #
 # THIS MODULE IS THE MECHANICAL HALF, AND ONLY THAT. Resolving a source,
 # refusing a scheme, following a redirect, hashing what arrived - the same
@@ -15,12 +15,12 @@
 # Turning the document into intent.md is JUDGEMENT and lives in a skill:
 # deciding that a paragraph about "who this is for" belongs under Users, and
 # noticing that no non-goals are stated so a question needs asking. Nothing in
-# this module writes intent.md. See technical-design.md DD-1.
+# this module writes intent.md.
 #
 # DEPENDENCY: `urllib.request` is standard library, so nothing joins the
-# dependency set and ADR-013 (vendored third-party code) is not in play. What
-# is new is that Compass makes an outbound request at all - it had made none,
-# anywhere, before this. That is why the scheme rule below is enforced twice.
+# dependency set and ADR-013 (vendored third-party code) is not in play. This
+# is the only place Compass makes an outbound request, which is why the
+# scheme rule below is enforced twice.
 # =============================================================================
 """Resolving and reading a brief that already exists, by path or https URL."""
 from __future__ import annotations
@@ -34,7 +34,7 @@ from compass_pkg.core import CompassError
 
 #: The only URL scheme a brief is fetched over.
 #:
-#: A brief becomes the issue's intent, so a document altered in transit would
+#: A brief becomes the issue's intent, so a document changed in transit would
 #: silently shape the acceptance criteria, the design, and everything after
 #: them. Recording that it arrived over plain HTTP would not prevent any of
 #: that - recording is not preventing.
@@ -131,11 +131,9 @@ def validate_source(spec):
     """Check the source SPEC alone - no filesystem, no network, no issue state.
 
     Split out so a caller can refuse a bad argument before it looks at anything
-    else. Running the state checks first meant an `http://` URL on an issue
-    that had already ingested something was refused with "intent-source.md
-    already exists" - true, unrelated, and confidently pointing the reader at
-    the wrong thing to fix. A refusal that names the wrong cause is worse than
-    a vague one.
+    else. Checking issue state first would refuse an `http://` URL with
+    "intent-source.md already exists": true, but the wrong cause. A refusal
+    that names the wrong cause is worse than a vague one.
 
     Returns the cleaned spec.
     """
@@ -193,8 +191,8 @@ def read_source(spec, opener=None):
 
     # The opener's contract is (text, final_url). It is stated here rather than
     # defended against: a branch tolerating some other shape could never fire
-    # after the unpack above, and dead tolerance reads as care while checking
-    # nothing.
+    # after the unpack above, and code that accepts a shape that cannot occur
+    # looks careful but checks nothing.
     final_url = final_url or spec
     return SourceDocument(_refuse_empty(text, final_url), final_url, "https")
 
@@ -204,10 +202,8 @@ class _HttpsOnlyRedirectHandler(urllib.request.HTTPRedirectHandler):
 
     THE POINT OF THIS CLASS: `urllib.request` follows redirects AUTOMATICALLY.
     An https URL that redirects to http would be fetched with the caller never
-    seeing it - so checking the scheme only on the URL the person typed passes
-    on paper and fails in fact, which is the shape of guard this repository has
-    found several of. `test_ing_d4b` proves the refusal by attempting a real
-    downgrade rather than by asserting a clean run.
+    seeing it, so checking only the typed URL would let an http redirect
+    through. `test_ing_d4b` proves the refusal by trying a real downgrade.
     """
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
@@ -241,8 +237,9 @@ def _fetch_https(url):
     """Fetch a brief over https. Returns (text, final_url_after_redirects).
 
     No authentication handler is installed, deliberately: a 401 or 403 is
-    refused with a way forward rather than retried with credentials. Compass is
-    not growing an auth story - see ING-D1.
+    refused with a way forward rather than retried with credentials. Compass
+    does not handle authentication (scenario ING-D1, tested in
+    `tests/test_intent_ingest.py`).
     """
     from compass_pkg.core import COMPASS_VERSION
 
@@ -274,10 +271,10 @@ def _fetch_https(url):
 # =============================================================================
 
 #: The snapshot of what actually arrived, kept beside intent.md and never
-#: edited. This is what makes the invention rule auditable: the rule is that
-#: every statement in intent.md traces to the source or to a recorded answer,
-#: and nobody can check that afterwards against a document that is not there.
-#: A hash proves the source has not changed; it cannot show what was in it.
+#: edited. The rule: every statement in intent.md traces to the source or to
+#: a recorded answer. Nobody can check that later without the document, so
+#: keep the snapshot. A hash proves the source has not changed; it cannot
+#: show what was in it.
 SNAPSHOT_NAME = "intent-source.md"
 
 
@@ -286,8 +283,7 @@ def cmd_intent_ingest(args):
 
     Brings a brief that already exists into the issue and stops. It writes the
     snapshot and the provenance record; it does NOT write intent.md, because
-    reshaping the document is judgement and lives in a skill - see
-    technical-design.md DD-1.
+    reshaping the document is judgement and lives in a skill.
 
     Nothing is written until the source has been read successfully, so a bad
     path leaves the issue exactly as it was.
@@ -346,10 +342,10 @@ def cmd_intent_ingest(args):
 # the danger together: an INVENTED non-goal reads exactly like a decided one,
 # and no reader can tell them apart afterwards.
 #
-# requirements-review.md Q2 turned that into a rule a check can hold: every
-# statement in intent.md traces to the source or to a recorded answer, and
-# there is no third origin. This is where it is held. The skill teaches the
-# discipline; without this the discipline is only a good intention.
+# The rule a check can hold: every statement in intent.md traces to the
+# source or to a recorded answer, and there is no third origin. This is where
+# it is held. The skill teaches the discipline; without this the discipline
+# is only a good intention.
 # =============================================================================
 
 #: What a section's material may come from. There is deliberately no value
@@ -359,10 +355,8 @@ ORIGINS = ("source", "answer", "unanswered")
 #: Enough for a brief, and a ceiling so a misdirected source cannot pull an
 #: arbitrarily large body into memory before anyone notices.
 #:
-#: APPLIED TO BOTH ROUTES. It bounded only the fetch until the security review
-#: at verify, while the local read called `fh.read()` unbounded - so a mistyped
-#: path at a database dump gave a MemoryError rather than a sentence. Same
-#: failure, other door.
+#: Both the fetch and the local read are bounded: an unbounded read of a path
+#: that points at a large file gives a MemoryError instead of a message.
 MAX_SOURCE_BYTES = 5 * 1024 * 1024
 
 
@@ -475,7 +469,7 @@ def describe_intent_origins(task_dir):
     This answers "where did this sentence come from?" for a reviewer, which is
     the question the fidelity gate actually needs.
 
-    THE GATE CANNOT VOUCH FOR MATERIAL NOBODY SUPPLIED, and that is structural
+    THE GATE CANNOT VOUCH FOR MATERIAL NOBODY GAVE, and that is structural
     rather than careful: `ORIGINS` has no value meaning "Compass wrote it", so
     there is no state this could describe as sourced-but-unattributed. Every
     row names a human - the person who wrote the brief, or the person who
@@ -537,9 +531,9 @@ def describe_intent_origins(task_dir):
     if unused:
         # An ANSWERED question that no section cites is the notable one: a
         # person was asked, they told Compass something, and it did not reach
-        # the document. That is a quiet loss, and the person who supplied it
-        # will assume it is in there - so the answer is shown, not just the
-        # fact that something is missing.
+        # the document. That is a quiet loss, and the person who gave it will
+        # assume it is in there - so the answer is shown, not just the fact
+        # that something is missing.
         lines += ["", "Asked, and not used in any section:"]
         for a in unused:
             if a.get("answer") in (None, ""):

@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.receipt - `compass issue receipt` and `compass adr new`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -61,38 +22,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -100,19 +37,18 @@ from compass_pkg.core import CompassError, artifact_path, display_shape, find_co
 
 
 
-# --- command: task receipt ---------------------------------------------------
+# --- command: issue receipt ---------------------------------------------------
 # `compass issue receipt --issue <slug>` renders a one-screen receipt of an issue:
 # assessment -> delivery approach -> gates with verdicts -> evidence registry -> overall
 # verdict. Read-only over .compass/work/<slug>/{manifest.yml, delivery-approach.md, evidence/}
-# plus governance/guardrails.yml; never re-executes checks (INT-2 / ADR-005).
-# Clustered here next to cmd_task_lint so Move 5C can relocate as one block.
+# plus governance/guardrails.yml; never re-runs checks (ADR-005).
 
 def _receipt_resolve_task_dir(args):
     """Resolve an issue dir for the receipt, honouring --workdir if present.
 
     Returns (task_dir, slug, project_root). Raises CompassError with a
     receipt-specific message that names both the slug and the expected
-    directory (TRC-D3).
+    directory.
     """
     workdir = getattr(args, "workdir", None)
     slug = args.task
@@ -141,7 +77,7 @@ def _receipt_resolve_task_dir(args):
 
 
 def _receipt_gate_requirements(project_root):
-    """Read gate_evidence_requirements from governance/guardrails.yml (DD-3).
+    """Read gate_evidence_requirements from governance/guardrails.yml.
 
     Returns {gate_id: frozenset(accepted_types)}. {} when the file is absent -
     type-mismatch detection then silently no-ops (degrades gracefully on
@@ -162,7 +98,7 @@ def _receipt_gate_requirements(project_root):
 
 
 def _receipt_parse_route_md_readings(route_md_path):
-    """Parse the four-readings table out of a delivery-approach.md file.
+    """Parse the four-dimension assessment table out of a delivery-approach.md file.
 
     Returns {key: (value, justification)} for the four dimensions; absent
     rows are simply not in the dict. If the file is missing or unparseable,
@@ -195,8 +131,9 @@ def _receipt_parse_route_md_readings(route_md_path):
 _RECEIPT_RULE = "=" * 80
 _RECEIPT_LINE_CAP = 100
 
-# Per DD-3: types not listed render as id+type+path. Listing extras here is the
-# only piece that adapts when a type gains meaningful payload fields.
+# A type with no entry shows its id, its type, and its file name as the
+# readable text. Listing extras here is the only piece that adapts when a
+# type gains meaningful payload fields.
 _RECEIPT_EVIDENCE_EXTRAS = {
     "test-run": ("scenario",),
     "manual-review": ("reviewer",),
@@ -206,8 +143,8 @@ _RECEIPT_EVIDENCE_EXTRAS = {
 
 
 def _receipt_truncate(text, width=_RECEIPT_LINE_CAP):
-    """ASCII-safe line truncation. Honours DD-2 (no ANSI; bytes stable across
-    terminals/CI). Tail "..." indicates the cut."""
+    """ASCII-safe line truncation. No ANSI; bytes stable across
+    terminals/CI. Tail "..." shows the cut."""
     if len(text) <= width:
         return text
     if width <= 3:
@@ -270,10 +207,10 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
                     orchestration_override=None):
     """Render the one-screen receipt for an issue. Returns a string.
 
-    Sections (TRC-A1 order):
+    Sections, in order:
       1. header  - slug + landed/in-progress status
-      2. readings + justifications
-      3. route + fired routing guardrails
+      2. assessment + justifications
+      3. delivery approach + fired routing guardrails
       4. gates + verdicts + evidence ids
       5. evidence registry (id, type, path)
       6. overall verdict line
@@ -284,9 +221,9 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     # manifests are readable by normalisation but reported as legacy. ADR-006:
     # render meaningfully on pre-feature task.ymls, do not crash.
     is_legacy = not schema_version.startswith("2.")
-    # status: in 1.0 there is no status field - those tasks are treated as
+    # status: in 1.0 there is no status field - those issues are treated as
     # active by the rest of the CLI, and the receipt does the same. Honesty:
-    # a legacy task with no status cannot be reported as cleanly landed.
+    # a legacy issue with no status cannot be reported as cleanly landed.
     raw_status = task.get("status")
     is_landed = (raw_status == "landed")
     if is_landed:
@@ -303,7 +240,7 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     lines.append(_RECEIPT_RULE)
     lines.append("")
 
-    # 2. readings + justifications
+    # 2. assessment + justifications
     lines.append("Assessment")
     lines.append("----------")
     readings = task.get("assessment") or {}
@@ -343,8 +280,8 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
             "see the delivery approach)")
     # Assess records a ceiling, breakdown records an orchestration. A manifest
     # may legitimately carry either: an archived one has the word assess used
-    # to write, and an in-flight one has only the ceiling until the
-    # distribution map exists. Printing the empty slot said nothing.
+    # to write, and an active one has only the ceiling until the
+    # distribution map exists.
     if orchestration_shown:
         detail = f"orchestration: {orchestration_shown}"
     else:
@@ -361,11 +298,9 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         for g in fired:
             gid = g.get("id", "?") if isinstance(g, dict) else str(g)
             rationale = g.get("rationale", "") if isinstance(g, dict) else ""
-            # Meaning first, code in brackets. This line used to read
-            # "<id>: <rationale>", so a reader met an unresolvable code and
-            # learned what it did only afterwards - the defect S7 forbids, in
-            # the receipt of the release that forbids it. The code stays: it
-            # carries the traceability and it is what someone searches for.
+            # Meaning first, code in brackets, so a reader meets the meaning
+            # before the code (`S7`, cold reader). The code stays: it carries
+            # the traceability and it is what someone searches for.
             lines.append(_receipt_truncate(
                 f"    {rationale.rstrip().rstrip('.')} ({gid})"
                 if rationale else f"    ({gid})"))
@@ -374,8 +309,8 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     lines.append("")
 
     # 4. gates + verdicts + evidence ids
-    # The verdict label is honest about the recorded state (TRC-C1, TRC-C2):
-    # a pass referencing wrong-typed evidence is type-mismatch; a pass with no
+    # The verdict label is honest about the recorded state: a pass
+    # referencing wrong-typed evidence is type-mismatch; a pass with no
     # evidence is unsupported. The receipt reports; it does not enforce.
     lines.append("Gates")
     lines.append("-----")
@@ -410,10 +345,9 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
                 else:
                     verdict = "[ PASS ]"
         elif gstatus == "pending":
-            # A pending gate is not a clean land. This set neither any_fail nor
-            # any_caveat, so a receipt with every gate PENDING and no evidence
-            # at all still printed "landed cleanly" - and the receipt is the
-            # audit artefact, the thing someone reads instead of re-deriving.
+            # A pending gate is not a clean land. The receipt is the audit
+            # record, so it must not say "landed cleanly" while any gate is
+            # pending.
             verdict = "[ PENDING ]"
             any_caveat = True
         else:
@@ -429,20 +363,18 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
     lines.append("")
 
     # 5. evidence registry - type-specific minimal fields rendered alongside
-    # the path (TRC-B1). The dispatch table covers only types with meaningful
-    # extras; any future type without an entry renders id+type+path (DD-3 -
-    # adding an evidence type to governance/guardrails.yml does not require a
-    # renderer change, it just lands as a path-only entry until/unless someone
-    # adds an extras tuple here).
+    # the id and type. The dispatch table covers only types with meaningful
+    # extras; a type with no entry shows its id, its type, and its file name
+    # as the readable text - adding an evidence type to
+    # governance/guardrails.yml does not need a renderer change, it just
+    # lands as a path-only entry until/unless someone adds an extras tuple
+    # here.
     lines.append("Evidence")
     lines.append("--------")
     evs = task.get("evidence") or []
     if not evs:
         lines.append("  (no evidence recorded)")
     else:
-        # Column width follows the widest id actually present. A fixed width
-        # of 8 shoved every other column off its grid the moment one long
-        # generated id appeared.
         # Sized to the widest id present, but CAPPED. One auto-generated id -
         # `EV-ANALYZE-<slug>-<timestamp>` runs to 51 characters - would
         # otherwise set the column for all of them and crush the readable
@@ -453,21 +385,12 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
         # An identifier appears with its meaning on first use (the cold-reader
         # strategy). A scenario's meaning is its title, which the manifest
         # already holds - so print it rather than making the reader resolve
-        # `TRC-B1` from somewhere else.
+        # the scenario id from somewhere else.
         titles = {s.get("id"): s.get("title")
                   for s in (task.get("scenarios") or [])
                   if isinstance(s, dict) and s.get("title")}
-        # One line per entry, and the readable part first. This used to print a
-        # narrow id/type/path row and push the extras onto an indented
-        # continuation line - so 28 entries took 44 lines, sixteen of them
-        # two-line and twelve one-line, with no row to scan down. The scenario
-        # title, the only human-readable content in the block, sat on the
-        # continuation line while the widest column held a path derivable from
-        # the id for most entries.
-        #
-        # Column order follows what a reader wants in order: WHAT was proved,
-        # HOW strongly, then WHERE to find it. The path is last because it is
-        # the first thing worth losing when the line is capped.
+        # One line per entry, readable part first: what was proved, then how
+        # strongly (the type).
         rows = []
         for ev in evs:
             if not isinstance(ev, dict):
@@ -475,13 +398,8 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
             eid = str(ev.get("id", "?"))
             etype = str(ev.get("type", "?"))
             extras = _RECEIPT_EVIDENCE_EXTRAS.get(etype, ())
-            # What this proves, in words. A scenario's title is held in the
-            # manifest, so print it rather than making the reader resolve the id.
-            # What this proves, in words.
-            #
-            # A scenario's title says it outright, so use the title alone - the
-            # manifest holds it, and making the reader resolve `TRC-B1` from
-            # somewhere else is the defect this column exists to remove.
+            # What this proves, in words. For a scenario, the id and its
+            # title from the manifest.
             #
             # Every other type keeps ALL its declared fields, joined on one
             # line. A human sign-off means nothing without who approved, in
@@ -511,16 +429,12 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
             rows.append((eid, etype, proves))
 
         # Issue-level records - baselines, reviews, sweeps - have no scenario
-        # behind them. Grouping them after the per-scenario rows stops the two
-        # kinds interleaving in whatever order they were written.
-        # Per-scenario records first, then the issue-level ones, so the two
-        # kinds do not interleave in whatever order they were written.
+        # behind them. Per-scenario records first, then the issue-level ones,
+        # so the two kinds do not interleave in whatever order they were
+        # written.
         rows.sort(key=lambda r: (not r[0].startswith("EV-T-"), ))
-        # The path column is gone. It was the widest thing on the row, it is
-        # derivable from the id for most entries, and once the line was capped
-        # it rendered as "evidence/gr..." - which looks like information and is
-        # not. The id identifies the record; anyone who needs the file can
-        # resolve it. Dropping it buys the width back for the readable column.
+        # No path column: the id identifies the record, and a capped path
+        # reads as information when it is not.
         # Width maths, spelled out because getting it wrong silently truncates
         # whichever column is last: two spaces of indent, the id, two spaces,
         # the readable column, two spaces, the type. The type width comes from
@@ -589,9 +503,9 @@ def cmd_task_receipt(args):
 # `compass adr new <slug>` creates a sequentially-numbered ADR file under
 # architecture/decisions/ and registers it in the README.md index.
 #
-# Inv-7: sequential within a tree at invocation time; concurrent worktrees may
-#         collide and surface the conflict as a normal git merge conflict (DD-8).
-# Inv-8: the directory is created if absent.
+# Sequential within a tree at invocation time; concurrent worktrees may
+# collide and surface the conflict as a normal git merge conflict. The
+# directory is created if absent.
 
 _ADR_TEMPLATE = """\
 ---

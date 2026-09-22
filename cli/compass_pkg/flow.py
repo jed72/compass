@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.flow - `compass flow` and the living system spec derivation
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -101,13 +38,13 @@ from compass_pkg.rework import cmd_rework_scan
 
 
 # --- command: flow ----------------------------------------------------------
-# Cross-task flow view. Reads broadly; writes only when --digest is given.
-# NEVER modifies any manifest.yml (Inv-4: Flow advises, never gates).
+# Cross-issue flow view. Reads broadly; writes only when --digest is given.
+# Never changes any manifest (`Inv-4`: Flow advises, never gates).
 
 def cmd_flow(args):
     """Produce the flow board; with --digest also output a dated digest section
-    to stdout. The digest includes the rework-scan section (TRC-D5) and a
-    calibration summary. Exit code is always 0 - this is advisory.
+    to stdout. The digest includes the rework-scan section and a retro
+    summary. Exit code is always 0 - this is advisory.
     """
     work_root = getattr(args, "work_root", None)
     do_digest = getattr(args, "digest", False)
@@ -121,7 +58,7 @@ def cmd_flow(args):
             work_root = ".compass/work"
 
     if not do_digest:
-        # Live board mode: minimal - list tasks and their routes
+        # Live board mode: minimal - list issues and their delivery approaches
         if not os.path.isdir(work_root):
             print("compass flow: no issues found - work root does not exist.")
             return 0
@@ -130,10 +67,9 @@ def cmd_flow(args):
         if not slugs:
             print("compass flow: no issues under work root.")
             return 0
-        # Grouped by lifecycle state, because a flat list reported stopped work
-        # as in flight. Parked tasks accumulate while active ones close, so the
-        # single number a planning view must not get wrong drifts further out
-        # the longer the repo lives.
+        # Group by lifecycle state. A flat list counts parked work as active,
+        # and parked issues accumulate, so the active count gets more wrong
+        # over time.
         groups = {"active": [], "queued": [], "parked": [], "landed": [],
                   "abandoned": [], "unreadable": []}
         for slug in slugs:
@@ -143,9 +79,7 @@ def cmd_flow(args):
                 continue
             try:
                 t = normalize_spine(load_yaml(task_yml))
-                # The live manifest key. This read `route`, retired by the
-                # v2 rename, so every row on the board printed the
-                # placeholder instead of the computed approach.
+                # The live manifest key, `delivery_approach`.
                 route = t.get("delivery_approach", "?")
                 # Absent means active: every manifest.yml written before the status
                 # field existed omits it (ADR-006).
@@ -217,7 +151,7 @@ def cmd_flow(args):
 
     # --- Calibration summary ---
     print("## Calibration signal\n")
-    # Enumerate tasks for calibration summary
+    # Enumerate issues for the retro summary
     tasks = []
     if os.path.isdir(work_root):
         for d in sorted(os.listdir(work_root)):
@@ -239,26 +173,26 @@ def cmd_flow(args):
     return 0
 
 
-# --- living system spec derivation (Stream B, DD-3, DD-4, ADR-008) ---------
+# --- living system spec derivation (ADR-008) ---------------------------------
 #
 # derive_system_spec(project_root) is the internal helper that produces
 # docs/system-spec.md by walking every .compass/work/*/manifest.yml whose
 # status == 'landed'.
 #
 # Design constraints honoured here:
-#   Inv-5  - annotation over per-task specs, never a parallel spec; the
-#            derived file carries the DERIVED FILE header (TRC-B10).
-#   Inv-6  - all derivation inputs live on disk; no in-memory accumulation
-#            beyond the walk (TRC-B8 reconstructibility).
-#   Inv-8  - backward compat: manifest.yml files with no `status` field
+#   `Inv-5`  - annotation over per-issue specs, never a parallel spec; the
+#            derived file carries the DERIVED FILE header.
+#   `Inv-6`  - all derivation inputs live on disk; no in-memory accumulation
+#            beyond the walk (reconstructibility).
+#   `Inv-8`  - backward compat: manifest.yml files with no `status` field
 #            (schema 1.0) are treated as active (not landed), so they are
-#            excluded from the derivation (TRC-B2, TRC-B11, DD-3).
+#            excluded from the derivation.
 #   ADR-008 §3 - idempotent; deterministic order (land_timestamp, then
-#             task slug as tiebreaker); supersession (same intent id →
+#             issue slug as tiebreaker); supersession (same intent id →
 #             latest-landed wins for current section, earlier → archive).
 #   ADR-008 §4 - never source-of-truth; DERIVED FILE header on line 1;
-#             silent overwrite on next Land (TRC-B9).
-#   TRC-B5 - brand-new project with no landed tasks produces a stub file.
+#             silent overwrite on next ship.
+#   brand-new project with no landed issues produces a stub file.
 
 _DERIVED_HEADER = (
     "<!-- DERIVED FILE - do not hand-edit; "
@@ -283,11 +217,11 @@ def derive_system_spec(project_root: str) -> None:
     project_root = os.path.abspath(project_root)
     compass_work = os.path.join(project_root, ".compass", "work")
 
-    # ---- 1. Collect landed tasks -------------------------------------------
+    # ---- 1. Collect landed issues -------------------------------------------
     # Walk .compass/work/*/manifest.yml; keep only status == 'landed'.
-    # Tasks without a `status` field (schema 1.0) are treated as active.
-    # Process order: land_timestamp ascending, then task slug ascending.
-    landed = []  # list of dicts: {slug, task_dir, task, land_timestamp}
+    # Issues without a `status` field (schema 1.0) are treated as active.
+    # Process order: land_timestamp ascending, then issue slug ascending.
+    landed = []  # list of dicts: {slug, task_dir, issue, land_timestamp}
     if os.path.isdir(compass_work):
         for slug in sorted(os.listdir(compass_work)):
             task_dir = os.path.join(compass_work, slug)
@@ -312,7 +246,7 @@ def derive_system_spec(project_root: str) -> None:
                 "land_timestamp": str(land_ts) if land_ts else "",
             })
 
-    # Sort: land_timestamp ascending, task slug as tiebreaker
+    # Sort: land_timestamp ascending, issue slug as tiebreaker
     landed.sort(key=lambda x: (x["land_timestamp"], x["slug"]))
 
     # ---- 2. Build the current-behaviour and archived-behaviour tables ------
@@ -421,7 +355,7 @@ def derive_system_spec(project_root: str) -> None:
     content = "\n".join(lines)
 
     # ---- 3b. Normalise house style on write ---------------------------------
-    # Scenario titles from landed tasks are copied verbatim, and four historic
+    # Scenario titles from landed issues are copied verbatim, and four historic
     # ones contain em dashes. docs/system-spec.md is tracked, and this
     # repository forbids em dashes in tracked files - so a faithful copy
     # produces a file that fails the repository's own style test.
@@ -434,11 +368,11 @@ def derive_system_spec(project_root: str) -> None:
     # \u2014 is the em dash, written as an escape: this file is tracked, and
     # the style test would otherwise flag the normaliser for containing the
     # character it exists to remove.
-    # Normalise at the substitution site only. A follow-up global
-    # `.replace("  -  ", " - ")` also rewrote titles that never contained an em
-    # dash at all - that was the corruption, and it is what this replaces.
+    # Normalise at the substitution site only. Do not add a global
+    # `.replace("  -  ", " - ")`: it rewrites titles that never held an em
+    # dash.
     # [ \t] not \s: \s matches newlines, so an em dash at the end of a line
-    # swallowed the break and joined a heading to the bullet list after it.
+    # would remove the line break and join a heading to the list after it.
     content = re.sub(r"[ \t]*\u2014[ \t]*", " - ", content)
 
     # ---- 4. Write atomically -----------------------------------------------
@@ -452,12 +386,12 @@ def derive_system_spec(project_root: str) -> None:
 def cmd_derive_system_spec(args):
     """Private CLI entry point for ``compass _derive-system-spec --internal``.
 
-    This subcommand is intentionally excluded from ``compass --help`` (the
-    leading-underscore convention per DD-4).  It is only for in-framework
-    callers (currently ``scripts/integrate.sh``).
+    This subcommand is intentionally excluded from ``compass --help`` (a
+    leading underscore marks a private verb).  It is only for in-framework
+    callers (now ``scripts/integrate.sh``).
 
     The ``--internal`` flag is mandatory - without it the command errors out
-    (belt-and-suspenders protection against accidental direct invocation).
+    (a second guard against running it by accident).
     """
     if not getattr(args, "internal", False):
         raise CompassError(

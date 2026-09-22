@@ -39,7 +39,7 @@ import re
 import sys
 
 # The budget, and why each number is what it is.
-HANDOFF_LINES = 12       # the proposal's number - where a reader stops scrolling
+HANDOFF_LINES = 12       # where a reader stops scrolling
 QUIET_HANDOFF_LINES = 5  # a hand-off with nothing to decide
 REPORT_SUMMARY_LINES = 5
 MAX_WIDTH = 100          # a line budget alone is met by joining lines
@@ -62,11 +62,6 @@ class _NothingToCheckHere:
     it subclasses int, because a check function returns it where a pass would
     go. This one is FALSEY, because `over_budget` returns a list of findings
     and an empty result must not read as findings.
-
-    They previously shared a class name and a repr. `_all.py` star-imports this
-    module after the others, so the flat namespace resolved to whichever was
-    imported last - a trap that only failed to bite because nothing read it
-    from there.
     """
 
     def __bool__(self):
@@ -112,8 +107,8 @@ def attach_mode_flags(parser):
     """Add the five flags to every LEAF parser in the tree, recursively.
 
     Recursion is the whole job. The tree has thirteen nested subparser groups -
-    `issue`, `bdd`, `gate`, `evidence`, `adr` and eight more - under 47
-    `add_parser` calls. A walk that handles only the top level attaches the
+    `issue`, `bdd`, `gate`, `evidence`, `adr` and eight more - under every
+    `add_parser` call. A walk that handles only the top level attaches the
     flags to `issue` and misses `issue dashboard` entirely, which is how a
     guard over this tree passes while checking a fraction of it.
 
@@ -126,8 +121,8 @@ def attach_mode_flags(parser):
     declaration is the opposite: it is written at each `set_defaults(func=...)`
     so that a new verb which forgets it FAILS, rather than being defaulted into
     whichever contract was easiest. Deriving it from a list here would mean no
-    verb could ever lack one, and the guard that checks for it could never
-    fail - which is a check that cannot fail wearing the shape of convenience.
+    verb could ever lack one, and that guard would be a check that cannot
+    fail.
     """
     import argparse
 
@@ -186,9 +181,8 @@ def _path_line(prefix, path):
 def write_capture(path, capture):
     """Write raw output to PATH, so the terminal can link it instead.
 
-    Errors are turned into CompassError, because `--evidence-out
-    /nope/x.txt` used to be an unreachable code path and would have surfaced
-    as a raw traceback the first time somebody used it.
+    Errors are turned into CompassError, so a bad path such as
+    `--evidence-out /nope/x.txt` gives a message, not a traceback.
     """
     from compass_pkg.core import CompassError
 
@@ -225,11 +219,9 @@ def _fit(text, prefix=""):
     # path or a URL - is printed WHOLE. Shortening it makes the link
     # unopenable, which fails at the thing the line exists for.
     #
-    # THIS CHECK LIVES HERE, not at the call sites, because it was fixed at
-    # three separate call sites on three separate days and came back each time:
-    # the hand-off's Read line, the report's summary, and then the one-line
-    # `say()`. A rule every caller has to remember is a rule that gets
-    # forgotten by the fourth caller.
+    # This check lives here, not at the call sites: the hand-off's Read line,
+    # the report's summary, and the one-line `say()` all need it, and a rule
+    # each caller must remember is a rule the next caller forgets.
     if _is_unbreakable(prefix + text, MAX_WIDTH):
         return prefix + text
 
@@ -249,10 +241,8 @@ def _capped(values, label, where=None):
     The count line is not decoration. A silent truncation reads as "there were
     three", which is a claim the command never checked.
 
-    `where` says where the rest are. It used to say "see the artifact above"
-    unconditionally, including when there was no artifact line above - and the
-    two other renderers say "run with --verbose" for the same situation. Three
-    renderers, one piece of advice.
+    `where` says where the rest are, so the three renderers give the same
+    advice.
     """
     values = [v for v in (values or [])]
     shown = values[:MAX_ITEMS]
@@ -288,15 +278,12 @@ class Emitter:
                          "failed": bool(failed)}
             return self
 
-        # CONCERNS keep the mode talking. The test was `not failed and not
-        # reply`, so `approach evaluate --quiet` on a project with a drifted
-        # policy printed nothing at all - including the warning that had been
-        # deliberately promoted to the first screen.
+        # Concerns keep --quiet talking, so a policy-drift warning still
+        # prints.
         if (self.mode == "quiet" and not failed and not reply
                 and not concerns):
             # Nothing to decide and nothing went wrong. The exit code carries
-            # it. This is the case the proposal left unstated, and an unstated
-            # case in a mode flag becomes each verb's own guess.
+            # it.
             self._note_no_capture(silent=True)
             return self
 
@@ -321,10 +308,6 @@ class Emitter:
             # to decide; a next step is what to run. Telling them apart is what
             # lets --quiet be silent when nothing is being asked.
             #
-            # This was declared in the signature, written into the --json
-            # document, and never rendered for a person - so `approach
-            # evaluate` without --write said nothing about nothing having been
-            # written.
             lines.append("")
             lines.append(_fit(next_step, "Next: "))
         if reply:
@@ -332,9 +315,8 @@ class Emitter:
             lines.append(_fit(reply, "Reply: "))
 
         self._out = lines
-        # The no-capture note goes in BEFORE the budget is applied. Appending
-        # it afterwards pushed a full hand-off to thirteen lines against a
-        # budget of twelve.
+        # Add the no-capture note before the budget is applied, so it counts
+        # against the twelve lines.
         self._note_no_capture()
         if self.mode != "verbose":
             self._out = _within(self._out, HANDOFF_LINES)
@@ -427,8 +409,7 @@ def over_budget(outputs, budget=HANDOFF_LINES, width=MAX_WIDTH):
     unactionable failure gets suppressed rather than fixed.
 
     An EMPTY input returns the sentinel, not an empty list. A guard handed
-    nothing that answers "all good" is how four checks in one release cleared
-    without reading anything.
+    nothing must not answer "all good".
     """
     if not outputs:
         return NOTHING_TO_CHECK
@@ -466,11 +447,9 @@ def _is_unbreakable(line, width):
     rest = len(line) - len(longest)
     if rest > width:
         return False
-    # A PATH or a URL, not merely a long word with a slash in it. The test was
-    # `"/" in longest`, which exempted
-    # "a/very/long-thing-name-that-is-not-a-path-at-all" - and since the width
-    # guard uses this same predicate, a line the renderer wrongly exempted was
-    # also invisible to the check meant to catch it.
+    # Match a real path or URL, not any long word with a slash. The width
+    # guard uses this same predicate, so a wrong exemption would also hide
+    # the line from the guard.
     if "://" in longest:
         return True
     return "/" in longest and (
@@ -554,8 +533,7 @@ class Report:
 
         # A summary line carrying a path is printed WHOLE. Shortening it makes
         # the link unopenable, which fails at the thing the line exists for -
-        # the same rule the hand-off applies, and the same mistake made twice
-        # before it was written down here.
+        # the same rule the hand-off applies.
         head = [l if _is_unbreakable(l, MAX_WIDTH) else _fit(l)
                 for l in self._summary][:REPORT_SUMMARY_LINES]
         if self.mode == "quiet":
@@ -568,8 +546,7 @@ class Report:
         out = list(head)
         if self.evidence_out:
             # The whole report goes to the file; the terminal keeps the
-            # summary and a link. This was stored and never read, so the flag
-            # was advertised on every verb and wrote nothing anywhere.
+            # summary and a link.
             full = list(self._summary) + list(self._body)
             for name, rows, render in self._sections:
                 full.append("")
@@ -641,9 +618,8 @@ def say(args, outcome, detail=None, read=None, reply=None, decision=False, **dat
     for d in (detail or []):
         # A detail that is a bare path keeps its whole length: a link a reader
         # cannot open fails at the thing it exists for.
-        # The indent is applied either way. This measured the indented line
-        # and then appended the unindented one, so a continuation line sat at
-        # a different indent from the line it continued.
+        # The indent is applied either way, so a continuation line lines up
+        # with the line it continues.
         text = str(d)
         lines.append("  " + text if _is_unbreakable("  " + text, MAX_WIDTH)
                      else _fit(text, "  "))

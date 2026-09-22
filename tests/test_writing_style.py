@@ -679,6 +679,97 @@ _register(Rule(
             "reads the pre-ADR-023 map spelling for back-compat; already "
             "marked '# vocabulary-scan: allow', which this sweep does not "
             "read."),
+        Exemption(
+            "cli/compass_pkg/analyze.py",
+            'records write "full, streams unbounded by policy"',
+            "quotes what an archived 1.x record literally says, already "
+            "marked '# vocabulary-scan: allow', which this sweep does not "
+            "read."),
+        Exemption(
+            "cli/compass_pkg/core.py",
+            "retired `task` key still load through this row",
+            "documents the retired key SPINE_KEY_MAP maps forward, the same "
+            "purpose terminology.yml's own `not:` fields serve."),
+        Exemption(
+            "cli/compass_pkg/core.py",
+            "multiagent work, and fan out \"independent subtasks\"; "
+            "`topology` and",
+            "documents the two retired words this map reads for back-compat, "
+            "the same purpose terminology.yml's own `not:` fields serve."),
+        Exemption(
+            "cli/compass_pkg/core.py",
+            "`stream` were Compass-only words for both",
+            "documents the two retired words this map reads for back-compat, "
+            "the same purpose terminology.yml's own `not:` fields serve."),
+        Exemption(
+            "cli/compass_pkg/core.py",
+            "Evidence types. ADR-023 renamed `coherence-check` to "
+            "`consistency-check`;",
+            "documents the retired evidence type this map reads for "
+            "back-compat, the same purpose terminology.yml's own `not:` "
+            "fields serve."),
+        Exemption(
+            "cli/compass_pkg/core.py",
+            "Friction categories. ADR-023 retired `ceremony`, and the enum "
+            "holds",
+            "documents the retired word this map reads for back-compat, the "
+            "same purpose terminology.yml's own `not:` fields serve."),
+        Exemption(
+            "cli/compass_pkg/analyze.py",
+            "Extract the reference route name from delivery-approach.md",
+            "the function reads the literal 1.x field `**Reference "
+            "route:**`, which route.md wrote before the v2 rename; the "
+            "docstring names the field it searches for."),
+        Exemption(
+            "cli/compass_pkg/analyze.py",
+            "Looks for: **Reference route:** Express",
+            "quotes the literal 1.x field and a real 1.x route name, the "
+            "text the regex searches an old document for."),
+        Exemption(
+            "cli/compass_pkg/test_ids.py",
+            "governance/strategies.md carries S7",
+            "a worked example of a sentence that merely mentions a file, "
+            "inside quotes - prose, not a path reference, so S7 here names "
+            "nothing and needs no meaning."),
+        Exemption(
+            "cli/migrate-map.yml",
+            "ADR-023 retired `ceremony`",
+            "documents which retired word the data rows below map away "
+            "from, the same purpose terminology.yml's own `not:` fields "
+            "serve - this file is data exempt from the vocabulary scan and "
+            "must name retired words on purpose (audit note on this file)."),
+        Exemption(
+            "cli/compass_pkg/migrate.py",
+            "the same document: `brief.md` and `prd.md` both become "
+            "`intent.md`",
+            "names the real v1 filenames this migration function reads - "
+            "the module's whole purpose is v1-to-v2 filename mapping, the "
+            "same reason migrate-map.yml's data rows name retired words."),
+        Exemption(
+            "cli/compass_pkg/landed_by.py",
+            "and `backfills-paid` still apply",
+            "backfills-paid is the real check id in "
+            "governance/guardrails.yml:74, an identifier - the audit notes "
+            "the `backfills:` key is an identifier and stays; this is the "
+            "same class of identifier."),
+        Exemption(
+            "cli/compass_pkg/checks.py",
+            'in preference to task.get("task") which may be a',
+            "quotes the real dict lookup at line 669 below, over the "
+            "legacy `task` root key normalize_spine reads - an identifier, "
+            "not prose."),
+        Exemption(
+            "cli/compass_pkg/receipt.py",
+            'Records written before ADR-023 say "Topology"',
+            "documents the retired label a pre-ADR-023 record literally "
+            "carries, so this reader can still parse it - the same "
+            "back-compat reading terminology.yml's own not: fields and the "
+            "stream-N exemptions above cover."),
+        Exemption(
+            "cli/compass_pkg/receipt.py",
+            '"Topology" (ADR-006)',
+            "documents the retired label a pre-ADR-023 record literally "
+            "carries, so this reader can still parse it."),
     ),
 ))
 
@@ -961,6 +1052,19 @@ _register(Rule(
             "exemption above, quoted here as the schema's own example "
             "waiver id."),
         Exemption(
+            "cli/compass_pkg/routing.py",
+            "calling it a floor is the same conflation the RP-REQUIRE ids "
+            "were",
+            "RP-REQUIRE is a real routing-policy id prefix - the match "
+            "lands mid-identifier on the \"REQUIRE\" substring, the same "
+            "false match as the architecture-checks.md exemption above."),
+        Exemption(
+            "cli/compass_pkg/routing.py",
+            "introduced to end - and it would print \"[RP-REQUIRE-003] "
+            "floor:\"",
+            "RP-REQUIRE-003 is a real rule id, quoted as the literal "
+            "printed text this comment explains."),
+        Exemption(
             "skills/quick-fix/SKILL.md", "--verified-by",
             "a real CLI flag (`cli/compass:246,258`, `dest=\"verified_by\"`) "
             "- the match lands mid-flag-name on the \"verified\" substring, "
@@ -970,6 +1074,15 @@ _register(Rule(
             "a third-party command's real name (Terraform's own CLI verb), "
             "not the English verb the word table means to catch - Compass "
             "does not own or spell this identifier."),
+        Exemption(
+            "cli/compass_pkg/tdd.py", "The sanctioned verified-by kinds",
+            "names the `--verified-by` flag's accepted values - the match "
+            "lands mid-flag-name on the \"verified\" substring, not the "
+            "standalone verb the word table means to catch."),
+        Exemption(
+            "cli/compass_pkg/tdd.py", "terraform validate`, a schema parse",
+            "a third-party command's real name (Terraform's own CLI verb), "
+            "not the English verb the word table means to catch."),
         Exemption("approaches/README.md", "but verify adds the security",
                    "names the Verify stage, not the verb."),
         Exemption("approaches/composition-reference.md",
@@ -1195,6 +1308,12 @@ _register(Rule(
                    "names the Verify stage, not the verb."),
         Exemption("governance/guardrails.yml", "compass bdd verify",
                    "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("cli/compass_pkg/bdd.py", "and `compass bdd verify`",
+                   "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("cli/compass_pkg/bdd.py", "compass bdd verify -- <run",
+                   "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("cli/compass_pkg/checks.py", "written by `compass bdd verify`",
+                   "compass bdd verify is a CLI verb, not the plain verb."),
         Exemption("governance/guardrails.yml", "checked_at: [verify]",
                    "an example YAML value inside a comment, not the verb."),
         Exemption("governance/guardrails.yml", "attempts: <int>",
@@ -1307,6 +1426,18 @@ def _find_spelling(span: ProseSpan) -> list[Finding]:
 _register(Rule(
     "PBW-A3", "The spelling is British", _find_spelling,
     exemptions=(
+        # The quoted title below is the real, external organisation's own
+        # name (threatmodelingmanifesto.org), spelt with the American form in
+        # its own title. Respelling it would misquote the name, the same
+        # protection section 4 gives a verbatim quote or an identifier.
+        Exemption("cli/compass_pkg/borrowed_docs.py",
+                   "The threat model asks the Threat Modeling Manifesto's",
+                   "the manifesto's own name, spelt as it spells itself; "
+                   "not the ordinary word."),
+        Exemption("cli/compass_pkg/borrowed_docs.py",
+                   "The Threat Modeling Manifesto names the failure",
+                   "the manifesto's own name, spelt as it spells itself; "
+                   "not the ordinary word."),
         # An evidence-id prefix carries the gate's own American spelling as
         # a machine identifier, not the ordinary word it is spelt like. The
         # exemption function recognises a backtick right before the match,
@@ -1330,6 +1461,32 @@ _register(Rule(
                    "the real name of the external manifesto this file "
                    "quotes, confirmed by threatmodelingmanifesto.org's own "
                    "spelling two lines below; not the ordinary word."),
+        Exemption("cli/compass_pkg/analyze.py",
+                   "id prefix `EV-ANALYZE-<task>-<ts>`",
+                   "evidence-id prefix, a machine identifier - the same "
+                   "class as the ADR-007 exemption above."),
+        Exemption("cli/compass_pkg/analyze.py",
+                   "id prefix `EV-ANALYZE-ADVISORY-<task>-<ts>`",
+                   "evidence-id prefix, a machine identifier."),
+        Exemption("cli/compass_pkg/analyze.py",
+                   "Gate-clearing: type=consistency-check, prefix "
+                   "EV-ANALYZE-<task>-<ts>",
+                   "evidence-id prefix, a machine identifier."),
+        Exemption("cli/compass_pkg/analyze.py",
+                   "Advisory:      type=command-output,  prefix "
+                   "EV-ANALYZE-ADVISORY-<task>-<ts>",
+                   "evidence-id prefix, a machine identifier."),
+        Exemption("cli/compass_pkg/analyze.py",
+                   "--- command: analyze ---",
+                   "names the CLI verb `compass analyze`, an identifier "
+                   "(section 4 rule 1), not the ordinary word."),
+        Exemption("cli/compass_pkg/receipt.py",
+                   'is worse than a bare one: "EV-ANALYZE-signup-email-va...',
+                   "evidence-id prefix, a machine identifier, inside a "
+                   "worked example of a truncated one."),
+        Exemption("cli/compass_pkg/receipt.py",
+                   "`EV-ANALYZE-<slug>-<timestamp>` runs to 51 characters",
+                   "evidence-id prefix, a machine identifier."),
     ),
 ))
 
@@ -1762,6 +1919,30 @@ _register(Rule(
             "verbatim, per PBW-F7 - the code is explained where it is "
             "used (line 8, \"the scenario that added automatic "
             "triggering, `TRC-B2`\"), not where this marker quotes it."),
+        Exemption(
+            "cli/compass_pkg/analyze.py",
+            "traceability id: TRC-A1",
+            "a literal syntax example of the HTML comment the function "
+            "parses, byte-identical to templates/acceptance-criteria.md's "
+            "own example - not a pointer standing in for an explanation."),
+        Exemption(
+            "cli/compass_pkg/bdd.py",
+            "traceability id: TRC-A1",
+            "a literal syntax example of the HTML comment the extractor "
+            "looks for, byte-identical to templates/acceptance-criteria.md's "
+            "own example - not a pointer standing in for an explanation."),
+        Exemption(
+            "cli/compass_pkg/test_ids.py",
+            "governance/strategies.md carries S7",
+            "a worked example of a sentence that merely mentions a file, "
+            "inside quotes - the point is that this text is prose, not a "
+            "path reference, so S7 here names nothing and needs no meaning."),
+        Exemption(
+            "cli/compass_pkg/receipt.py",
+            "Ids written by the CLI do (`EV-T-TRC-A1`)",
+            "a real evidence-id shape this module itself generates and "
+            "sorts on (`row[0].startswith(\"EV-T-\")` below) - not a "
+            "dangling reference."),
     ),
 ))
 
@@ -2242,6 +2423,11 @@ _register(Rule(
             "a shellcheck `source=` directive, resolved relative to the "
             "sourcing file's own directory (scripts/), not to the "
             "repository root; the real file is scripts/lib/compass-python.sh."),
+        Exemption(
+            "cli/compass_pkg/migrate.py", "commands/technical-design.md",
+            "the path's non-existence is the point of the sentence - it "
+            "names the wrong path a filename-only rewrite would produce, "
+            "as a worked example of the bug this function avoids."),
     ),
 ))
 

@@ -1,13 +1,11 @@
 # =============================================================================
 # The archive migration core - 1.x issue directories to schema 2.0.
 #
-# This module owns the whole v1-to-v2 on-disk mapping: the manifest keys (via
-# core.normalize_spine) and the artifact filenames (the map below, which
-# moved here from the runtime resolver when the repository's own archive
-# migrated - the runtime resolves v2 names only; this module is what reads
-# old trees). The user-facing `compass migrate` verb in its own slice wraps
-# migrate_tree with dry-run and reporting; the internal verb exists so this
-# repository could migrate itself as the first fixture.
+# This module owns the v1-to-v2 on-disk mapping: manifest keys (through
+# core.normalize_spine) and artifact filenames (the map below). The runtime
+# resolves v2 names only; this module reads old trees. `compass migrate`
+# wraps migrate_tree with a dry run and a report; the private
+# `_migrate-archive` verb migrates this repository's own archive.
 # =============================================================================
 import copy
 import os
@@ -20,8 +18,8 @@ from compass_pkg.core import CompassError, manifest_path, normalize_spine
 V1_ARTIFACT_NAMES = {
     # Spelled from parts for the same reason core.MANIFEST_NAMES is: the
     # enforced CLI must not carry a retired name as a plain string literal,
-    # and a blanket rename over the tree has twice rewritten a compatibility
-    # pair into an identity when it could read one.
+    # so a blanket rename over the tree cannot turn a compatibility pair
+    # into an identity.
     "task" + ".yml": "manifest.yml",
     "brief.md": "intent.md",
     "spec.feature.md": "acceptance-criteria.md",
@@ -76,8 +74,8 @@ def colliding_artifacts(task_dir):
     rule in the map says which is the real one.
 
     Returns {current_name: [retired names present]}, entries with two or more
-    sources only. The caller refuses; picking by dict order silently kept the
-    older file, which is the stale one.
+    sources only. The caller refuses; picking by dict order would keep the
+    older, out-of-date file.
     """
     sources = {}
     for old_name, new_name in artifact_name_map().items():
@@ -93,10 +91,7 @@ def repoint_spine_references(task_dir, node, renamed):
     the artifact registry's `path:`, `changed_files:` - and renaming the file
     without repointing them leaves every one of those naming something that is
     no longer there. `compass check` then fails gate-evidence-present with
-    "path does not resolve" on an issue nothing is wrong with. 22 manifests in
-    this repository were in that state, some of them naming `route.md` and
-    `plan.md`, so the v2 freeze's migration left the same wreckage a cycle
-    earlier.
+    "path does not resolve" on an issue nothing is wrong with.
 
     Driven by what was ACTUALLY renamed in this directory, plus a check that
     the old file is gone and the new one is there. A blanket rewrite of every
@@ -118,9 +113,8 @@ def repoint_spine_references(task_dir, node, renamed):
         # THE WHOLE PATH, NOT THE TAIL. A manifest names files outside its own
         # directory too - `changed_files:` lists repository paths - and
         # `commands/plan.md` is a shipped command file, not this issue's
-        # design. Deciding on the filename alone rewrote it to
-        # `commands/technical-design.md`, which does not exist, and nothing
-        # failed until `compass check` reported a traced path that had gone.
+        # design. Deciding on the filename alone would rewrite it to
+        # `commands/technical-design.md`, a path that does not exist.
         if head and not os.path.isfile(os.path.join(task_dir, value)):
             return value, False
         return head + sep + renamed[tail], True
@@ -156,18 +150,16 @@ def plan_issue_dir(task_dir):
         if os.path.exists(old_p) and not os.path.exists(new_p):
             notes.append(f"would rename {old_name} -> {new_name}")
     # The manifest is found AFTER the artifact renames above, because it is
-    # one of them: `manifest.yml` becomes `manifest.yml` on the same pass. Naming
-    # the old filename here meant the rename moved the file and the key
-    # rewrite then looked for something that was no longer there - so an
-    # issue migrated to the new filename kept the retired root key inside it,
-    # which is the half-migration this whole ordering exists to prevent.
+    # one of them: the retired manifest filename becomes `manifest.yml` on
+    # the same pass. Looking the manifest up by its old name here would find
+    # nothing, and the issue would keep the retired root key.
     manifest = manifest_path(task_dir)
     if os.path.isfile(manifest):
         with open(manifest, encoding="utf-8") as fh:
             raw = yaml.safe_load(fh) or {}
         before = copy.deepcopy(raw)          # see migrate_issue_dir
         migrated = normalize_spine(raw)
-        # Reported here as well as performed in the apply, or the dry run
+        # Reported here as well as done in the apply, or the dry run
         # promises less than the apply does - which is the same class of
         # mismatch as promising more, and just as hard to trust afterwards.
         if repoint_spine_references(task_dir, migrated, renamed):
@@ -215,9 +207,8 @@ def _work_root_is_recoverable(root):
 
 
 def cmd_migrate(args):
-    """`compass migrate [root]` - dry-run by default; --apply executes.
+    """`compass migrate [root]` - dry-run by default; --apply makes the changes.
 
-    Wraps the core this repository's own archive migration proved.
     Idempotent: a migrated tree reports nothing to do.
 
     Refuses before writing anything if any directory holds two retired files
@@ -246,7 +237,7 @@ def cmd_migrate(args):
 
     # Checked across the whole tree BEFORE anything is written, and reported
     # on a dry run too - a dry run that promises a rename the apply cannot
-    # perform is worse than the refusal.
+    # make is worse than the refusal.
     collisions = []
     for entry in dirs:
         for new_name, olds in colliding_artifacts(
@@ -263,11 +254,10 @@ def cmd_migrate(args):
               "one automatically would silently keep whichever came first, "
               "which is the older file.")
 
-    # One directory failing must not take the report with it. The notes used
-    # to be printed after the loop, so an unparseable manifest raised out of the
-    # whole command: every rename already performed stayed on disk, unnamed,
-    # under a raw traceback. Both spellings still resolve, so the half-migrated
-    # tree WORKS - which is precisely why nobody would notice.
+    # One directory failing must not take the report with it. Report each
+    # directory as it goes, so one unparseable manifest cannot hide the
+    # renames already made. Both spellings resolve, so a half-migrated tree
+    # still works, and nobody would notice it.
     changed = {}
     failed = {}
     for entry in dirs:
@@ -330,11 +320,11 @@ STAYS_BESIDE_THE_MANIFEST = {
     ".red", ".spike", ".acceptance", ".tdd-state.json",
 }
 
-#: The one document whose absence beside the manifest STOPS WORK rather than
-#: degrading a warning. `hooks/pre-tool.sh` reads it to decide whether
-#: assessment ran, and an install that predates the artifact registry has no
-#: way to look anywhere else - so moving it locks that project out of every
-#: code edit. A pointer is left in its place; see `_compatibility_pointer`.
+#: The one document whose absence beside the manifest stops work.
+#: `hooks/pre-tool.sh` reads it to decide whether assessment ran. An install
+#: that predates the artifact registry cannot look anywhere else, so moving
+#: the file blocks every code edit. Leave a pointer in its place (see
+#: `_compatibility_pointer`).
 BLOCKING_DOCUMENT = "delivery-approach.md"
 
 #: How the pointer opens. Read to tell a pointer from a real record, so that a
@@ -361,8 +351,8 @@ def _relocations(task_dir):
       * a document already under `docs/compass/` that the registry does not
         name - leave it where it is and register it.
 
-    The second is TRC-G2's half-finished migration. Without it the only way out
-    of an interrupted run is to edit the manifest by hand.
+    The second covers a migration that was interrupted. Without it the only
+    way out of an interrupted run is to edit the manifest by hand.
     """
     from compass_pkg.core import docs_dir
 
@@ -440,8 +430,8 @@ def _repoint_evidence(task_dir, filename, project_rel):
     So the entry is rewritten as a relative path from the issue directory to
     the document's new home - `../../../docs/compass/...`. Not pretty, and
     correct: `compass check` joins the issue directory to it, which is exactly
-    what that resolves against. Leaving it alone instead would fail the gate on
-    an issue nothing is wrong with, which is what this whole issue is about.
+    what that resolves against. Leaving it alone instead would fail the gate
+    on an issue nothing is wrong with.
     """
     manifest = manifest_path(task_dir)
     if not os.path.isfile(manifest):
@@ -455,9 +445,9 @@ def _repoint_evidence(task_dir, filename, project_rel):
     # Matched by WHERE THE PATH RESOLVES, not by how it is spelled. Manifests
     # on disk carry both spellings: `technical-design.md`, measured from the
     # issue directory, and `.compass/work/<slug>/technical-design.md`, measured
-    # from the project root. A repoint that compared the string to the bare
-    # filename rewrote the first and left the second dangling, which fails the
-    # gate on an issue nothing is wrong with.
+    # from the project root. Comparing the string with the bare filename
+    # would rewrite the first and miss the second, which fails the gate on
+    # an issue nothing is wrong with.
     source = os.path.abspath(os.path.join(task_dir, filename))
     changed = False
     for entry in records:
@@ -485,10 +475,9 @@ def _pointer_owed(task_dir):
     """The registered path of a delivery-approach record with nothing at its
     old name, or None.
 
-    The pointer used to be written only by the run that did the move, so every
-    tree an earlier version migrated is still locked out and reports "nothing
-    to do" - there is nothing left to move. Written on the state of the tree
-    instead: registered elsewhere, old name empty, no pointer.
+    Decide from the state of the tree, not from whether this run moved the
+    file: a tree an earlier version migrated has nothing left to move but
+    still needs the pointer.
     """
     if os.path.exists(os.path.join(task_dir, BLOCKING_DOCUMENT)):
         return None
@@ -531,10 +520,10 @@ def _compatibility_pointer(task_dir, name, rel):
     running on their machine when the documents move, so the compatibility has
     to come from here.
 
-    A POINTER, NOT A COPY. Two copies of a record drift, and the stale one is
-    indistinguishable from the real one. This says where the record went and
-    nothing else, so a person who opens it is not misled and a reader that uses
-    the registry never sees it.
+    A POINTER, NOT A COPY. Two copies of a record come to disagree, and the
+    out-of-date one looks the same as the real one. This says where the
+    record went and nothing else, so a person who opens it is not misled and
+    a reader that uses the registry never sees it.
     """
     with open(os.path.join(task_dir, name), "w", encoding="utf-8") as fh:
         fh.write(
@@ -604,7 +593,7 @@ def plan_relocations(task_dir):
               if _evidence_cites(task_dir, name)]
     notes += ["would register %s, already under docs/compass/ and not in the "
               "registry" % rel for _kind, _name, rel in adoptions]
-    # Reported here as well as performed in the apply, or the dry run promises
+    # Reported here as well as done in the apply, or the dry run promises
     # less than the apply does.
     repair = _pointer_owed(task_dir)
     if repair:
@@ -706,9 +695,8 @@ def migrate_issue_dir(task_dir):
             raw = yaml.safe_load(fh) or {}
         # A snapshot that nothing below can reach. `normalize_spine` copies the
         # top level and SHARES every nested list and dict, so repointing - which
-        # rewrites values inside `evidence:` and `artifacts:` - changed `raw`
-        # too, and the `!= raw` guard below compared a value with itself. The
-        # note was appended and the file was never written.
+        # rewrites values inside `evidence:` and `artifacts:` - would change
+        # `raw` too, and the `!= raw` guard would compare a value with itself.
         before = copy.deepcopy(raw)
         migrated = normalize_spine(raw)
         # The manifest points at its own documents. Repointing is part of the
@@ -721,9 +709,9 @@ def migrate_issue_dir(task_dir):
         if migrated != before:
             # Serialise first, then replace atomically. `open(manifest, "w")`
             # empties the file before safe_dump writes a byte, so a dump that
-            # raised - an unexpected object type in the manifest will do it - left
-            # manifest.yml empty and the issue with no record at all. os.replace is
-            # atomic on every platform Compass supports.
+            # raises - an unexpected object type in the manifest will do it -
+            # would leave manifest.yml empty and the issue with no record at
+            # all. os.replace is atomic on every platform Compass supports.
             body = yaml.safe_dump(migrated, sort_keys=False,
                                   default_flow_style=False, allow_unicode=True)
             tmp = manifest + ".tmp"
