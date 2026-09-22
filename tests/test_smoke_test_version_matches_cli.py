@@ -1,26 +1,11 @@
 """The documented `compass --version` output is what the CLI actually prints.
 
-`docs/install-smoke-test.md` tells a reader to run `compass --version` and
-shows them what to expect. That expectation drifted: the doc carried
-`compass <v> (task schema 1.0)` long after the CLI had started printing
-`compass <v> (issue schema 2.0)` - stale schema version, and the retired v1
-word the vocabulary freeze replaced.
+This compares the documented `compass --version` banner with what the CLI
+prints, not with a phrase written in advance: the primary record for what
+the CLI prints is the CLI. A fenced block is not scanned for vocabulary, so
+only a comparison with the CLI catches a wrong banner there.
 
-The guard that should have caught it could not. `tests/test_cli_surface_drift.py`
-searched the doc for the phrase `(task schema`, so it was validating the
-stale line and would have gone on passing through any number of releases.
-The correct line, earlier in the same file, was never what it looked at.
-
-The v2 rename missed the stale line because it sits inside a fenced code
-block, which the terminology scanner skips - correctly, since a scanner
-should not rewrite literal command output. The cost of that exemption is
-that *wrong* literal output hides where nothing checks.
-
-So this compares the document against the CLI itself rather than against any
-phrase written down in advance. A hardcoded expectation is what let the drift
-survive; the primary record for what the CLI prints is the CLI (`S9`).
-
-Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, `TRC-2`).
 """
 from __future__ import annotations
 
@@ -64,9 +49,9 @@ def test_trc_1_every_documented_version_banner_matches_the_cli():
 
 
 def test_trc_2_the_documented_banner_uses_current_vocabulary():
-    """Belt and braces: the retired spelling must not come back.
+    """A second check: the retired spelling must not come back.
 
-    TRC-1 already fails if the doc disagrees with the CLI, so this only
+    `TRC-1` already fails if the doc disagrees with the CLI, so this only
     catches the case where the CLI itself regressed to the old word - which
     is worth catching separately, because then both would agree and be wrong.
     """
