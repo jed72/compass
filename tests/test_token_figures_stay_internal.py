@@ -6,7 +6,7 @@ harness, evaluating four alternative repositories, two regression
 investigations. They are an upper bound, not a benchmark.
 
 Two reasons they stay internal. A single run is not evidence, and a number
-travels away from its caveat: quoting "57.4M tokens" would be true and
+gets quoted without its caveat: quoting "57.4M tokens" would be true and
 badly misleading, because cache reads - the cheapest token class - exceed new
 input by roughly 85x. And leading on efficiency undercuts the claim Compass
 actually makes, which is that it deliberately does *more* work.

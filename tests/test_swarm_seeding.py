@@ -1,18 +1,17 @@
-"""`scripts/multiagent.sh` must seed each worktree with the task's artifacts.
+"""`scripts/multiagent.sh` must seed each worktree with the issue's artifacts.
 
 A worktree created by `git worktree add` contains only what git tracks. In a
-project that commits `.compass/work/` that is enough - the task directory comes
-along with everything else. The framework repository deliberately does NOT
+project that commits `.compass/work/` that is enough - the issue directory comes
+along with everything else. The framework repository deliberately does not
 commit its own (`.gitignore`: `/.compass/work/`, `/.compass/current-task`), and
-neither does any project that treats task state as local. There, a fresh
-worktree arrives with no spec, no plan, and no charter, and `resolve_issue_dir`
+neither does any project that treats issue state as local. There, a fresh
+worktree arrives with no spec, no plan, and no assignment, and `resolve_issue_dir`
 raises because there is no work directory to resolve against.
 
-That makes the documented swarm flow unusable in exactly the repository that
-documents it. This was found by running `scripts/multiagent.sh` for a real task and
-then looking inside the worktree it made.
+That makes the documented multiagent flow unusable in exactly the repository
+that documents it.
 
-Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-E1..E3).
+Spec: executable-bdd-and-richer-plans/acceptance-criteria.md (`TRC-E1`..`E3`).
 """
 from __future__ import annotations
 
@@ -78,7 +77,7 @@ def _git(cwd, *args):
 
 @pytest.fixture
 def seeded_project(tmp_path):
-    """A git repo with one Compass task, whose .compass/work/ is gitignored -
+    """A git repo with one Compass issue, whose .compass/work/ is gitignored -
     the arrangement that exposes the gap."""
     repo = tmp_path / "proj"
     repo.mkdir()
@@ -115,7 +114,7 @@ def _run_swarm(repo):
 
 
 # ---------------------------------------------------------------------------
-# TRC-E1 - a created worktree carries the task's artifacts
+# A created worktree carries the issue's artifacts (TRC-E1)
 # ---------------------------------------------------------------------------
 
 def test_trc_e1_worktree_carries_task_dir(seeded_project):
@@ -143,7 +142,7 @@ def test_trc_e1_worktree_carries_task_dir(seeded_project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-E2 - a builder in a seeded worktree can resolve its task
+# A builder in a seeded worktree can resolve its issue (TRC-E2)
 # ---------------------------------------------------------------------------
 
 def test_trc_e2_seeded_worktree_resolves_task(seeded_project):
@@ -162,7 +161,7 @@ def test_trc_e2_seeded_worktree_resolves_task(seeded_project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-E3 - re-running the swarm does not clobber a builder's work
+# Re-running multiagent.sh does not clobber a builder's work (TRC-E3)
 # ---------------------------------------------------------------------------
 
 def test_trc_e3_reseeding_is_non_destructive(seeded_project):

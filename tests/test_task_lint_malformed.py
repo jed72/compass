@@ -1,10 +1,7 @@
 """`compass issue lint` must report a malformed manifest.yml, not crash on it.
 
-The command exists to tell an author what is wrong with their manifest.yml. When a
-scenario or a changed_files entry was written as a bare string instead of a
-mapping, the lint called `.get()` on it and died with an AttributeError - the
-one input it was built for was the one input it could not survive, and the
-traceback said nothing about what to fix.
+A scenario or `changed_files` entry written as a bare string must produce a
+lint error that says what to fix, not an AttributeError traceback.
 """
 import pathlib
 import subprocess

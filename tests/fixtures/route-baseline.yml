@@ -1,9 +1,7 @@
-# The stage keys were renamed on 2026-08-24 - frame->assess, specify->define,
-# clarify->refine, distribute->breakdown, build->implement, land->ship.
-# THE KEYS WERE TRANSLATED, NOT RE-CAPTURED. Every weight is the one recorded
-# at fb092c0; re-running the evaluator to regenerate this file would launder a
-# real routing regression into the baseline, which is what a baseline exists
-# to prevent.
+# Do not regenerate this file by re-running the evaluator: that would record
+# a routing regression as the expected result. Each expected value is what
+# the evaluator produced at commit fb092c0; the stage keys were translated to
+# the current names, not re-captured.
 - name: spike
   assessment:
     risk: trivial

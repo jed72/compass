@@ -1,32 +1,28 @@
-"""The scenarios-are-executable check (task phase-2-skills-check-and-cli-split).
+"""The scenarios-are-executable check (issue phase-2-skills-check-and-cli-split).
 
-`compass bdd extract` shipped last task, so a project can run its Gherkin.
-Nothing checked that it did - which left the scenario-to-test link a convention
-one level up from where it started.
+`compass bdd extract` lets a project run its Gherkin. This check confirms
+that the project did.
 
 Two constraints shape everything here:
 
   * `compass check` is the fast mechanical gate. It runs in CI, in hooks, and on
-    machines that never installed the project's dev dependencies, so it CANNOT
+    machines that never installed the project's dev dependencies, so it cannot
     run the BDD suite. It reads a record written by `compass bdd verify`.
   * A record is only evidence if it still describes the spec it claims to
-    verify. Staleness is detected by the spec's content hash, never by mtime -
-    `git checkout` rewrites mtimes, so a fresh CI clone would read every stale
-    record as current. That is a false green in the exact place it matters most.
+    check. The check detects a stale record by the spec's content hash, never
+    by mtime - `git checkout` rewrites mtimes, so a fresh CI clone would read
+    every stale record as current. That is a false green in the exact place
+    it matters most.
 
 The common path is a project that has wired no runner at all. It must pass,
 with a reason - a check that punished projects for not opting in would be worse
 than no check.
 
-Spec: docs/compass/2026-08-03-phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-C1..C6).
+Spec: phase-2-skills-check-and-cli-split/acceptance-criteria.md (`TRC-C1`..`C6`).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read `compass check`'s per-check detail, which it prints only
+# under `--verbose`.
 from __future__ import annotations
 
 import hashlib
@@ -141,7 +137,7 @@ def line_for(out, name="scenarios-are-executable"):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - registered and implemented
+# Registered and implemented (TRC-C1)
 # ---------------------------------------------------------------------------
 
 def test_trc_c1_the_check_should_be_registered_and_implemented():
@@ -160,7 +156,7 @@ def test_trc_c1_the_check_should_be_registered_and_implemented():
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 - no runner wired: pass, with a reason. THE common path.
+# No runner wired: pass, with a reason. The common path (TRC-C2).
 # ---------------------------------------------------------------------------
 
 def test_trc_c2_a_project_that_has_wired_no_runner_should_pass_with_a_stated_reason(tmp_path):
@@ -174,7 +170,7 @@ def test_trc_c2_a_project_that_has_wired_no_runner_should_pass_with_a_stated_rea
 
 
 # ---------------------------------------------------------------------------
-# TRC-C3 / C4 - every scenario accounted for, or named
+# Every scenario accounted for, or named (`TRC-C3` / `C4`)
 # ---------------------------------------------------------------------------
 
 def test_trc_c3_every_scenario_bound_to_a_collected_step_definition_should_pass(tmp_path):
@@ -196,7 +192,7 @@ def test_trc_c4_a_scenario_the_runner_never_ran_should_be_named(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C5 - a stale record is not success
+# A stale record is not success (TRC-C5)
 # ---------------------------------------------------------------------------
 
 def test_trc_c5_a_stale_runner_result_should_not_be_read_as_success(tmp_path):
@@ -212,7 +208,7 @@ def test_trc_c5_a_stale_runner_result_should_not_be_read_as_success(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C6 - advisory unless the route promotes it
+# Advisory unless the delivery approach promotes it (TRC-C6)
 # ---------------------------------------------------------------------------
 
 def test_trc_c6_the_check_should_be_advisory_unless_the_route_promotes_it(tmp_path):

@@ -1,11 +1,7 @@
 """Tests for integrate.sh writing status: landed to manifest.yml (TRC-B11).
 
-The charter note for TRC-B11 suggests a shell-test-runner fixture that runs
-integrate.sh on a synthetic task directory with a fake green test command.
-We keep it lightweight: we test the YAML-write logic directly (the
-`_write_task_status_landed` function we add to the CLI), and separately test
-that integrate.sh calls that logic by checking the script contains the right
-invocation line.
+These tests check the YAML-write logic directly, and check that integrate.sh
+contains the call to it.
 """
 from __future__ import annotations
 
@@ -32,11 +28,11 @@ def _load_compass_module():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B11 part 2: integrate.sh writes status: landed
+# integrate.sh writes status: landed (`TRC-B11` part 2)
 # ---------------------------------------------------------------------------
 
 class TestIntegrateSh:
-    """TRC-B11: after successful Land, manifest.yml has status: landed.
+    """After the issue ships, manifest.yml has status: landed (`TRC-B11`).
 
     We test this in two layers:
     1. The derive_system_spec function correctly reads status: landed from
@@ -60,7 +56,7 @@ class TestIntegrateSh:
         )
 
     def test_integrate_sh_writes_status_landed(self):
-        """integrate.sh must write status: landed to the task's manifest.yml."""
+        """integrate.sh must write status: landed to the issue's manifest.yml."""
         assert INTEGRATE_SH.is_file(), f"integrate.sh not found at {INTEGRATE_SH}"
         content = INTEGRATE_SH.read_text(encoding="utf-8")
         assert "status: landed" in content or "status:landed" in content or \
@@ -71,7 +67,7 @@ class TestIntegrateSh:
     def test_derive_invocation_comes_after_regression(self):
         """In integrate.sh, the _derive-system-spec invocation appears AFTER
         the combined regression section - not before (ADR-008 §1: derivation
-        runs at Land, after regression passes)."""
+        runs at ship time, after regression passes)."""
         content = INTEGRATE_SH.read_text(encoding="utf-8")
 
         # Find position of the regression section and the derive invocation
@@ -99,7 +95,7 @@ class TestStatusLandedWrite:
     """Unit tests for writing status: landed to manifest.yml."""
 
     def test_task_yml_with_status_landed_validates(self, tmp_path):
-        """A manifest.yml with status: landed validates against the schema."""
+        """A manifest.yml with status: landed passes the schema check."""
         task_dir = tmp_path / ".compass" / "work" / "test-land"
         task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -151,7 +147,7 @@ class TestStatusLandedWrite:
         )
 
     def test_task_yml_status_active_validates(self, tmp_path):
-        """A manifest.yml with status: active validates against the schema."""
+        """A manifest.yml with status: active passes the schema check."""
         task_dir = tmp_path / ".compass" / "work" / "test-active"
         task_dir.mkdir(parents=True, exist_ok=True)
 

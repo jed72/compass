@@ -1,29 +1,22 @@
 """The install smoke test describes the framework a reader actually installed.
 
-`docs/install-smoke-test.md` is the first document a new user follows. It
-told them to run `/compass:frame` and to expect a manifest carrying `readings:`,
-`route:` and `schema_version: "1.0"` - all v1. In v2 the command is
-`/compass:assess`, the manifest carries `assessment:` and `delivery_approach:`,
-and the schema version is "2.0".
+`docs/install-smoke-test.md` is the first document a new user follows, so it
+must use the v2 names: `/compass:assess`, `assessment:`, `delivery_approach:`,
+schema 2.0.
 
-It survived the v2 rename because the file is not in
-`governance/terminology.yml`'s `scan.surfaces` and never was. The ratchet
-that went from nine pending surfaces to zero was never reading it. Zero
-pending surfaces means the nine listed surfaces came clean; it does not mean
-the repository came clean.
+Zero pending surfaces means the listed surfaces are clean, not the whole
+repository - `docs/install-smoke-test.md` was never in
+`governance/terminology.yml`'s `scan.surfaces`, so nothing held it to the
+frozen vocabulary through the whole of v2.
 
 This asserts both halves: the document speaks v2, and it is in the scanned
-set so it cannot drift back out of sight.
+set so a retired term in it fails the build.
 
-Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, `TRC-2`).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import pathlib
@@ -61,12 +54,8 @@ def test_trc_1_the_smoke_test_describes_v2_behaviour():
 
 
 def test_trc_2_the_smoke_test_is_scanned_for_the_frozen_vocabulary():
-    """The fix that matters more than the edit.
-
-    Correcting the prose fixes today. Adding the file to the scanned set is
-    what keeps it fixed, and is why this was missed for a whole major
-    version.
-    """
+    """The smoke test must be in the scanned set: that keeps a retired
+    term out of it."""
     terminology = yaml.safe_load(
         (ROOT / "governance" / "terminology.yml").read_text(encoding="utf-8")
     )

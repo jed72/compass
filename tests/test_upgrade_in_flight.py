@@ -1,27 +1,22 @@
-"""TRC-F4 - an issue already in flight survives the zero-friction-install
-upgrade unchanged.
+"""An open issue gets the same verdict after the upgrade that bundles PyYAML
+(`TRC-F4`).
 
 `compass check` is read-only over an issue directory: nothing in
 `cli/compass_pkg/check_cmd.py` opens a file for writing. That single fact is
-what makes "nothing changes for anyone mid-issue" checkable rather than an
-instruction to remember - a half-finished issue's `.red` marker, its recorded
+what makes "nothing changes for anyone with an open issue" checkable rather
+than an instruction to remember - an open issue's `.red` marker, its recorded
 evidence, and `compass check`'s gate-by-gate verdict on it are exactly what
 they were, because the command that reads them never touches the disk.
 
 This is a characterisation test: there is no natural failing state to drive
 it red, so it goes through `compass acceptance start --kind refactor` rather
-than a manufactured one (see devlog, U0). It is declared before the bundled
-copy and its resolver land, and recorded after - across a tree that genuinely
-changed - so the "before" and "after" are two different points in this
-issue's history, not one run compared with itself.
+than a manufactured one. The acceptance record was declared before the
+bundled PyYAML and its resolver were added, and recorded after, so before
+and after are two different trees, not one run compared with itself.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read `compass check`'s per-check detail, which it prints only
+# under `--verbose`.
 from __future__ import annotations
 
 import hashlib
@@ -70,10 +65,10 @@ def _in_flight_body():
 
 
 def test_an_issue_in_flight_survives_the_upgrade_unchanged(make_task, run_cli):
-    """A mid-flight issue - `.red` set, one red recorded, three gates
+    """An open issue - `.red` set, one red recorded, three gates
     pending - gets the same `compass check` verdict, gate by gate, and not
-    one byte in its directory moves, whether the CLI underneath it is
-    yesterday's or this issue's."""
+    one byte in its directory moves, whether the CLI is the one before the
+    upgrade or after it."""
     task_dir = make_task("in-flight-issue", _in_flight_body())
 
     # A real red on record: the marker plus the evidence it names.
@@ -99,8 +94,8 @@ def test_an_issue_in_flight_survives_the_upgrade_unchanged(make_task, run_cli):
 
     # No migration step, none prompted for: `compass check` needs no `--apply`,
     # no flag naming a schema version, nothing beyond the verb itself.
-    # The recorded red is not a green, so G1 (tested before it lands) is not
-    # clear yet - the issue is genuinely mid-flight, and the verdict says so.
+    # The recorded red is not a green, so `G1` (tested before it lands) is
+    # not clear yet - the issue is genuinely open, and the verdict says so.
     assert result.returncode != 0, result
     assert "G1" in result.stdout, result
     assert "suite-passed" in result.stdout, result

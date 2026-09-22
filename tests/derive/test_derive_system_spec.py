@@ -1,18 +1,18 @@
-"""Tests for the living-system-spec derivation (Stream B).
+"""Tests for the living-system-spec derivation (Group B).
 
-Covers TRC-B1 through TRC-B11 and TRC-F2.
+Covers `TRC-B1` through `TRC-B11` and `TRC-F2`.
 
 The derivation helper under test is `derive_system_spec(project_root)` in
 `cli/compass`, invoked via the private CLI entry point
 `compass _derive-system-spec --internal`.
 
 Test strategy: each test builds a synthetic project root in tmp_path,
-populates `.compass/work/*/manifest.yml` and `spec.feature.md` files, runs
+populates `.compass/work/*/manifest.yml` and `acceptance-criteria.md` files, runs
 the derivation (via direct Python import of the helper function), and
 asserts on the resulting `docs/system-spec.md`.
 
-The CLI entry-point tests (TRC-B6, DD-4 convention) invoke the CLI via
-subprocess to verify the argparse surface.
+The CLI entry-point tests (`TRC-B6`, `DD-4` convention) invoke the CLI via
+subprocess to check the argparse surface.
 """
 
 # The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
@@ -93,7 +93,7 @@ def make_task_dir(root: Path, slug: str, *,
                   scenarios: Optional[List[Dict]] = None,
                   feature_text: Optional[str] = None,
                   schema_version: str = "1.1") -> Path:
-    """Create .compass/work/<slug>/ with manifest.yml and optionally spec.feature.md."""
+    """Create .compass/work/<slug>/ with manifest.yml and optionally acceptance-criteria.md."""
     task_dir = root / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
@@ -144,12 +144,12 @@ def make_feature_text(scn_id: str, title: str, intent: str = "INT-1") -> str:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B10 - the derived spec carries a "DERIVED FILE" header
+# The derived spec carries a "DERIVED FILE" header (`TRC-B10`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB10:
-    """TRC-B10: the derived spec carries a 'DERIVED FILE' header on the first
-    non-empty line."""
+    """The derived spec carries a 'DERIVED FILE' header on the first
+    non-empty line (`TRC-B10`)."""
 
     def test_derived_file_header_present(self, tmp_path):
         """After derivation, the first non-empty line identifies the file as
@@ -202,15 +202,15 @@ class TestTrcB10:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B5 - a greenfield project Lands with no pre-existing system spec
+# A greenfield project Lands with no pre-existing system spec (`TRC-B5`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB5:
-    """TRC-B5: a brand-new project with no pre-existing system spec produces
-    docs/system-spec.md on first Land."""
+    """A brand-new project with no pre-existing system spec produces
+    docs/system-spec.md on first ship (`TRC-B5`)."""
 
     def test_greenfield_creates_spec_file(self, tmp_path):
-        """Land succeeds and creates system-spec.md even if no file existed."""
+        """Shipping succeeds and creates system-spec.md even if no file existed."""
         derive = _import_derive()
 
         make_task_dir(
@@ -228,10 +228,10 @@ class TestTrcB5:
         assert spec_path.exists(), "docs/system-spec.md was not created on first Land"
 
     def test_greenfield_no_landed_tasks_creates_stub(self, tmp_path):
-        """When no task has status: landed, derive creates an empty/stub spec."""
+        """When no issue has status: landed, derive creates an empty/stub spec."""
         derive = _import_derive()
 
-        # Create a task with status: active (not landed)
+        # Create an issue with status: active (not landed)
         make_task_dir(
             tmp_path, "active-task",
             status="active",
@@ -243,7 +243,7 @@ class TestTrcB5:
 
         spec_path = tmp_path / "docs" / "system-spec.md"
         assert spec_path.exists(), "docs/system-spec.md should be created even with no landed tasks"
-        # Should contain the header and indicate no scenarios
+        # Should contain the header and show no scenarios
         content = spec_path.read_text(encoding="utf-8")
         assert "DERIVED" in content.upper()
 
@@ -258,14 +258,14 @@ class TestTrcB5:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - a landed behaviour change accretes into the system spec
+# A landed behaviour change adds into the system spec (`TRC-B1`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB1:
-    """TRC-B1: a landed task's scenario appears in the living system spec."""
+    """A landed issue's scenario appears in the living system spec (`TRC-B1`)."""
 
     def test_landed_scenario_appears_in_spec(self, tmp_path):
-        """After a task with status: landed has a scenario, that scenario
+        """After an issue with status: landed has a scenario, that scenario
         appears in docs/system-spec.md."""
         derive = _import_derive()
 
@@ -283,7 +283,7 @@ class TestTrcB1:
         assert "task-one" in spec, "Source task slug not found in system spec"
 
     def test_source_task_and_scenario_id_recorded(self, tmp_path):
-        """Each derived entry records the source task slug and scenario id."""
+        """Each derived entry records the source issue slug and scenario id."""
         derive = _import_derive()
 
         make_task_dir(
@@ -301,14 +301,14 @@ class TestTrcB1:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B2 - a pure Spike contributes nothing to the system spec
+# A pure Spike contributes nothing to the system spec (`TRC-B2`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB2:
-    """TRC-B2: tasks with status != 'landed' do not appear in the spec."""
+    """Issues with status != 'landed' do not appear in the spec (`TRC-B2`)."""
 
     def test_active_task_not_in_spec(self, tmp_path):
-        """A task with status: active is not included in the derivation."""
+        """An issue with status: active is not included in the derivation."""
         derive = _import_derive()
 
         make_task_dir(
@@ -333,7 +333,7 @@ class TestTrcB2:
 
     def test_task_with_no_status_field_not_in_spec(self, tmp_path):
         """A manifest.yml without the status field (schema 1.0 style) is treated as
-        active (not landed) and excluded from the derivation (Inv-8, DD-3)."""
+        active (not landed) and excluded from the derivation (`Inv-8`, `DD-3`)."""
         derive = _import_derive()
 
         task_dir = tmp_path / ".compass" / "work" / "old-task"
@@ -366,12 +366,12 @@ class TestTrcB2:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B3 - re-deriving from unchanged scenarios produces no diff (idempotency)
+# Re-deriving from unchanged scenarios produces no diff, idempotency (`TRC-B3`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB3:
-    """TRC-B3: running derivation twice on unchanged inputs produces a
-    byte-identical file."""
+    """Running derivation twice on unchanged inputs produces a
+    byte-identical file (`TRC-B3`)."""
 
     def test_idempotent_derivation(self, tmp_path):
         """Two consecutive derivation runs on unchanged inputs are byte-identical."""
@@ -396,7 +396,7 @@ class TestTrcB3:
         )
 
     def test_idempotent_multiple_tasks(self, tmp_path):
-        """Idempotency holds with multiple landed tasks."""
+        """Idempotency holds with multiple landed issues."""
         derive = _import_derive()
 
         for i in range(3):
@@ -418,12 +418,12 @@ class TestTrcB3:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4 - superseding change updates the prior behaviour and archives the prior
+# A superseding change updates the prior behaviour and archives the prior (`TRC-B4`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB4:
-    """TRC-B4: when two landed tasks share an intent id, the later-landed one
-    wins in the current-behaviour section; the earlier moves to the archive."""
+    """When two landed issues share an intent id, the later-landed one
+    wins in the current-behaviour section; the earlier moves to the archive (`TRC-B4`)."""
 
     def test_superseding_scenario_wins_current_section(self, tmp_path):
         """The later-landed scenario for a given intent id appears in the
@@ -479,20 +479,20 @@ class TestTrcB4:
         assert "archive" in spec.lower() or "archived" in spec.lower(), (
             "No archive section found in spec"
         )
-        # SCN-V1 should be in the archive with task slug and land date
+        # SCN-V1 should be in the archive with issue slug and land date
         assert "task-v1" in spec, "Superseded task slug not in archive"
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4a - archived-behaviour appendix preserves the trace back to the prior task
+# Archived-behaviour appendix preserves the trace back to the prior issue (`TRC-B4a`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB4a:
-    """TRC-B4a: every entry in the archive records task slug, scenario id,
-    and the land date that retired it."""
+    """Every entry in the archive records issue slug, scenario id,
+    and the land date that retired it (`TRC-B4a`)."""
 
     def test_archive_entry_has_task_slug(self, tmp_path):
-        """Archived entries name the source task slug."""
+        """Archived entries name the source issue slug."""
         derive = _import_derive()
 
         make_task_dir(
@@ -513,12 +513,12 @@ class TestTrcB4a:
         derive(str(tmp_path))
         spec = (tmp_path / "docs" / "system-spec.md").read_text(encoding="utf-8")
 
-        # old-provider is the archived task
+        # old-provider is the archived issue
         assert "old-provider" in spec, "Source task slug missing from archive"
         assert "SCN-P1" in spec, "Archived scenario id missing"
 
     def test_archive_entry_has_land_date(self, tmp_path):
-        """Archived entries record the Land date that retired the scenario."""
+        """Archived entries record the ship date that retired the scenario."""
         derive = _import_derive()
 
         make_task_dir(
@@ -547,14 +547,14 @@ class TestTrcB4a:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B7 - every entry in the system spec traces to a landed scenario
+# Every entry in the system spec traces to a landed scenario (`TRC-B7`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB7:
-    """TRC-B7: every entry in the system spec traces to a real landed scenario."""
+    """Every entry in the system spec traces to a real landed scenario (`TRC-B7`)."""
 
     def test_all_spec_entries_have_provenance(self, tmp_path):
-        """Every scenario entry in the derived spec records a task slug + scenario id."""
+        """Every scenario entry in the derived spec records an issue slug + scenario id."""
         derive = _import_derive()
 
         make_task_dir(
@@ -574,19 +574,19 @@ class TestTrcB7:
         derive(str(tmp_path))
         spec = (tmp_path / "docs" / "system-spec.md").read_text(encoding="utf-8")
 
-        # Each scenario should appear with its source task slug
+        # Each scenario should appear with its source issue slug
         assert "SCN-A" in spec
         assert "SCN-B" in spec
         assert "task-provenance" in spec
 
 
 # ---------------------------------------------------------------------------
-# TRC-B8 - the derivation is not the sole source of truth (delete-and-rederive)
+# The derivation is not the sole source of truth, delete-and-rederive (`TRC-B8`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB8:
-    """TRC-B8: deleting docs/system-spec.md and re-running derivation produces
-    a byte-identical file - the derivation is reconstructible."""
+    """Deleting docs/system-spec.md and re-running derivation produces
+    a byte-identical file - the derivation is reconstructible (`TRC-B8`)."""
 
     def test_delete_and_rederive_produces_identical_output(self, tmp_path):
         """Delete the derived file, re-run, get back the same bytes."""
@@ -616,11 +616,11 @@ class TestTrcB8:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B9 - a hand-edit to the spec is silently overwritten by the next Land
+# A hand-edit to the spec is silently overwritten by the next ship (`TRC-B9`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB9:
-    """TRC-B9: hand-edits to docs/system-spec.md are silently overwritten."""
+    """Hand-edits to docs/system-spec.md are silently overwritten (`TRC-B9`)."""
 
     def test_hand_edit_is_overwritten(self, tmp_path):
         """A hand-edit to the derived file is silently overwritten on next run."""
@@ -644,7 +644,7 @@ class TestTrcB9:
         )
         assert spec_path.read_bytes() != original_content, "Pre-condition: edit must change content"
 
-        # Re-derive (the "next Land")
+        # Re-derive (the "next ship")
         derive(str(tmp_path))
         after_rederive = (tmp_path / "docs" / "system-spec.md").read_bytes()
 
@@ -674,12 +674,12 @@ class TestTrcB9:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B6 - introducing the living spec adds no new phase or gate
+# Introducing the living spec adds no new stage or gate (`TRC-B6`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB6:
-    """TRC-B6: the pipeline phase set and gate set per route shape are
-    unchanged by introducing the living spec capability."""
+    """The pipeline stage set and gate set per route shape are
+    unchanged by introducing the living spec capability (`TRC-B6`)."""
 
     def test_phase_set_unchanged(self, tmp_path):
         """compass approach evaluate still returns the same phases as before the
@@ -736,15 +736,15 @@ class TestTrcB6:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B11 - a landed task is the source-of-truth via manifest.yml.status
+# A landed issue is the source-of-truth via manifest.yml.status (`TRC-B11`)
 # ---------------------------------------------------------------------------
 
 class TestTrcB11:
-    """TRC-B11: manifest.yml.status == 'landed' is the signal the derivation walker
-    uses to include a task."""
+    """manifest.yml.status == 'landed' is the signal the derivation walker
+    uses to include an issue (`TRC-B11`)."""
 
     def test_only_landed_tasks_contribute(self, tmp_path):
-        """Only tasks with status: landed appear in the derived spec."""
+        """Only issues with status: landed appear in the derived spec."""
         derive = _import_derive()
 
         statuses = {
@@ -770,7 +770,7 @@ class TestTrcB11:
         assert "SCN-ACT" not in spec, "Active scenario should not be in spec"
 
     def test_task_yml_status_field_schema_valid(self, tmp_path):
-        """manifest.yml with status: landed validates cleanly against the schema."""
+        """manifest.yml with status: landed checks cleanly against the schema."""
         task_dir = tmp_path / ".compass" / "work" / "test-status"
         task_dir.mkdir(parents=True, exist_ok=True)
         (tmp_path / ".compass" / "current-task").write_text("test-status", encoding="utf-8")
@@ -836,16 +836,16 @@ class TestTrcB11:
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 - derivation handles conflicting scenarios deterministically
+# Derivation handles conflicting scenarios deterministically (`TRC-F2`)
 # ---------------------------------------------------------------------------
 
 class TestTrcF2:
-    """TRC-F2: when two landed tasks have scenarios that contradict on the
+    """When two landed issues have scenarios that contradict on the
     same behaviour (same intent id), the derivation produces a defined,
-    stable outcome."""
+    stable outcome (`TRC-F2`)."""
 
     def test_conflicting_scenarios_latest_wins(self, tmp_path):
-        """Two tasks sharing an intent id: the later-landed one wins.
+        """Two issues sharing an intent id: the later-landed one wins.
         This is the defined, stable reconciliation mechanism."""
         derive = _import_derive()
 
@@ -873,7 +873,7 @@ class TestTrcF2:
         assert "SCN-A" in spec, "Earlier-landed scenario should be in archive"
 
     def test_conflicting_outcome_is_stable_across_runs(self, tmp_path):
-        """Re-running derivation on conflicting tasks produces the same output."""
+        """Re-running derivation on conflicting issues produces the same output."""
         derive = _import_derive()
 
         make_task_dir(
@@ -900,7 +900,7 @@ class TestTrcF2:
         assert first == second, "Conflicting-scenario resolution is not stable across runs"
 
     def test_tiebreaker_by_task_slug(self, tmp_path):
-        """When two tasks have the same land_timestamp, task slug is the
+        """When two issues have the same land_timestamp, issue slug is the
         tiebreaker (alphabetically later slug wins) - produces defined, stable output."""
         derive = _import_derive()
 

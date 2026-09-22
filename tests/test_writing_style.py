@@ -52,7 +52,7 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 # The audit's own file count. A per-batch pending list may only shrink: the
 # ratchet's meta-checks (further down) hold this number as the high-water
 # mark, and the close-out unit deletes it along with the lists themselves.
-PENDING_PATHS_HIGH_WATER = 84
+PENDING_PATHS_HIGH_WATER = 0
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
@@ -604,6 +604,12 @@ _register(Rule(
             "citation as the cross-task-architectural-integrity exemption "
             "above."),
         Exemption(
+            "tests/test_swarm_script_parser.py",
+            "Spec: swarm-script-strips-markdown/acceptance-criteria.md",
+            "the real slug of a past, archived issue - the same protected "
+            "citation as the cross-task-architectural-integrity exemption "
+            "above."),
+        Exemption(
             "skills/evidence-gates/architecture-checks.md",
             "ADR-009-fitness-functions-are-project-guardrails.md",
             "the real filename of the shipped ADR this repository has, "
@@ -904,6 +910,99 @@ _register(Rule(
             "names the real, retired CLI flag spelling `--task` this test "
             "asserts a teaching artifact must not use - an identifier "
             "(section 4), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py",
+            "'Clarify: full' but manifest.yml says",
+            "quotes the literal v1-shaped fixture content _write_route_md "
+            "writes and the fixture's own dict keys assert on - an "
+            "identifier of the test data (section 4), not prose use of "
+            "the word."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py",
+            "delivery-approach.md says Clarify: full (disagrees with",
+            "the same literal fixture-content quote as the entry above, "
+            "in the comment right before the phases dict it describes."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-adds-handler/task.yml", "Fixture: task-adds-handler",
+            "the real, on-disk directory name of this fixture pair "
+            "(section 4), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-adds-handler/task.yml",
+            "task-removes-handler/task.yml",
+            "the real, on-disk path of the sibling fixture (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-removes-handler/task.yml", "Fixture: task-removes-handler",
+            "the real, on-disk directory name of this fixture pair "
+            "(section 4), not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/rework-scan/add-then-delete-pair/"
+            "task-removes-handler/task.yml",
+            "task-adds-handler/task.yml",
+            "the real, on-disk path of the sibling fixture (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/fixtures/self-architecture/hypothetical-framework-task/"
+            "route.md", "hypothetical-framework-task (fixture)",
+            "the real, on-disk directory name of this fixture (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/plain_language_check.py", "the G5 guard kicked in",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch, same protection as the PBW-A7 exemption for "
+            "this line."),
+        Exemption(
+            "tests/test_schema_2.py",
+            "no route.md, spec.feature.md, brief.md, clarifications.md, or",
+            "names the exact retired filenames the test's own old_names "
+            "set checks are absent - an identifier list (section 4), not "
+            "prose use of the words."),
+        Exemption(
+            "tests/plain_language_check.py",
+            "G5 fired, which means a human signs off",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch, same protection as the PBW-A7 exemption for "
+            "this line."),
+        Exemption(
+            "tests/test_status_vocabulary.py", "tasks: {slug: issue-dict}",
+            "names the real parameter `tasks` this helper takes (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/test_swarm_cap.py", "note quoting `blast_radius: critical`",
+            "quotes the literal fixture string `_PROSE` verbatim, a "
+            "regression fixture for an old-format audit note (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
+            "tests/test_swarm_script_parser.py",
+            "Match the \"stream-1: WOULD create worktree",
+            "quotes the literal regex pattern on the next line verbatim - "
+            "an identifier (section 4), not a v1-vocabulary use of the "
+            "word."),
+        Exemption(
+            "tests/test_tdd_red_integrity.py", "not a red (TRC-G1)",
+            "the scenario id TRC-G1 contains G1 as a substring by "
+            "coincidence - an identifier (section 4), not a reference to "
+            "the guardrail."),
+        Exemption(
+            "tests/test_tdd_red_integrity.py", "not a red (TRC-G2)",
+            "the scenario id TRC-G2 contains G2 as a substring by "
+            "coincidence - an identifier (section 4), not a reference to "
+            "the guardrail."),
+        Exemption(
+            "tests/test_tdd_red_integrity.py", "still a red (TRC-G3)",
+            "the scenario id TRC-G3 contains G3 as a substring by "
+            "coincidence - an identifier (section 4), not a reference to "
+            "the guardrail."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py",
+            "the slug `unframed-task` contains it",
+            "the literal, hyphenated slug this test's fixture uses - an "
+            "identifier (section 4), not a v1-vocabulary use of the word; "
+            "the sentence's own point is that the retired-looking substring "
+            "is coincidental."),
     ),
 ))
 
@@ -1158,6 +1257,14 @@ _register(Rule(
             "`RP-REQUIRE-003`) - the match lands mid-identifier on the "
             "\"REQUIRE\" substring, not the standalone verb the word table "
             "means to catch."),
+        Exemption(
+            "tests/analyze/test_analyze_core.py", "RP-REQUIRE-001",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "auth floor this test's fixture triggers."),
+        Exemption(
+            "tests/test_spine_records_the_truth.py", "RP-REQUIRE-003 adds",
+            "the same rule-id false match as RP-REQUIRE-003 above, for the "
+            "fitness-check floor this test's fixture triggers."),
         Exemption(
             "skills/evidence-gates/architecture-checks.md", "RP-REQUIRE-004",
             "the same rule-id false match as RP-REQUIRE-003 above, for the "
@@ -1444,6 +1551,13 @@ _register(Rule(
                    "names the Verify stage, not the verb."),
         Exemption("governance/guardrails.yml", "compass bdd verify",
                    "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption(
+            "tests/fixtures/receipt-fixture-project/governance/guardrails.yml",
+            "compass bdd verify",
+            "a verbatim copy of governance/guardrails.yml, restored after an "
+            "earlier commit wrongly trimmed it to dodge this sweep - same "
+            "text, same reason as the governance/guardrails.yml exemption "
+            "above: compass bdd verify is a CLI verb, not the plain verb."),
         Exemption("cli/compass_pkg/bdd.py", "and `compass bdd verify`",
                    "compass bdd verify is a CLI verb, not the plain verb."),
         Exemption("cli/compass_pkg/bdd.py", "compass bdd verify -- <run",
@@ -1453,11 +1567,33 @@ _register(Rule(
         Exemption("tests/test_bdd_optin_noop.py", "compass bdd verify",
                    "compass bdd verify is a CLI verb, not the plain verb; "
                    "found while fixing batch 7, not by the audit."),
+        Exemption("tests/test_stream_c_no_new_checks_or_gates.py",
+                   "reading the record `compass bdd verify` writes",
+                   "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption("tests/test_workflow_pins.py",
+                   "the same supply-chain stance",
+                   "\"supply chain\" is the established compound noun, not "
+                   "the verb \"supply\" the word table retires."),
         Exemption("governance/guardrails.yml", "checked_at: [verify]",
                    "an example YAML value inside a comment, not the verb."),
         Exemption("governance/guardrails.yml", "attempts: <int>",
                    "attempts: <int> names the evidence field, not the verb "
                    "\"attempt\"."),
+        Exemption(
+            "tests/fixtures/receipt-fixture-project/governance/guardrails.yml",
+            "checked_at: [verify]",
+            "a verbatim copy of governance/guardrails.yml, restored after an "
+            "earlier commit wrongly trimmed it to dodge this sweep - same "
+            "text, same reason as the governance/guardrails.yml exemption "
+            "above: an example YAML value inside a comment, not the verb."),
+        Exemption(
+            "tests/fixtures/receipt-fixture-project/governance/guardrails.yml",
+            "attempts: <int>",
+            "a verbatim copy of governance/guardrails.yml, restored after an "
+            "earlier commit wrongly trimmed it to dodge this sweep - same "
+            "text, same reason as the governance/guardrails.yml exemption "
+            "above: attempts: <int> names the evidence field, not the verb "
+            "\"attempt\"."),
         # The first half of a hyphenated compound noun about a chain of
         # suppliers is not the plain verb the word table replaces with
         # "give". The exemption function does not check for a hyphen right
@@ -1483,6 +1619,14 @@ _register(Rule(
                    "RP-REQUIRE is an id prefix, not the verb."),
         Exemption("architecture/system-context.md",
                    "added by `RP-REQUIRE-003` and `RP-REQUIRE-004`",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("tests/test_verify_fitness_route_promotion.py",
+                   "When cross-cutting fires RP-REQUIRE-003, it appears in "
+                   "fired_guardrails.",
+                   "RP-REQUIRE is an id prefix, not the verb."),
+        Exemption("tests/test_verify_fitness_route_promotion.py",
+                   "When touches fires RP-REQUIRE-004, it appears in "
+                   "fired_guardrails.",
                    "RP-REQUIRE is an id prefix, not the verb."),
         Exemption("governance/routing-policy.yml",
                    "six of the entries below carry RP-REQUIRE ids",
@@ -1568,6 +1712,32 @@ _register(Rule(
             "a verified-by red drops this marker",
             "the same `--verified-by` flag name as the exemption above."),
         Exemption(
+            "tests/test_tdd_evidence.py",
+            "`--verified-by` - instead of about the evidence layout.",
+            "names the real `--verified-by` CLI flag (cli/compass_pkg/"
+            "tdd.py), an identifier, not the verb the word table retires."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "First-class `--verified-by` red (`R8`, `TRC-R8-2`..`R8-6`; "
+            "`R8-1` hook part in test_pre_tool_hook)",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "The green carries the `--verified-by` kind forward and binds the",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "No smuggling - a passing command with no --verified-by records no red",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "An unrecognised `--verified-by` kind is refused with the allowed set",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
+            "tests/test_tdd_evidence.py",
+            "A `--verified-by` red still needs the guard to genuinely fail",
+            "the same `--verified-by` flag name as the exemption above."),
+        Exemption(
             "tests/test_printed_output_vocabulary.py",
             "RP-REQUIRE-001/002 both add verify.analyze and RP-REQUIRE-003/004 both add",
             "the same rule-id false match as the RP-REQUIRE exemptions "
@@ -1590,6 +1760,23 @@ _register(Rule(
             "\"attempts\" names the literal `attempts` field on a TDD "
             "evidence record (cli/compass_pkg/tdd.py), an identifier, not "
             "the verb the word table retires."),
+        # tests/test_terminology.py:866's test_banned_usage_in_fixture_is_flagged
+        # needs every ban in governance/terminology.yml to hit at least
+        # one line in this file, so a word-table match here is the same
+        # planted vocabulary PBW-D2 protects, not prose to fix. Audit
+        # section 9 (batch 9) reads this file line by line and lists one
+        # finding, a narrative sentence; the rest is deliberate.
+        Exemption(
+            "tests/fixtures/terminology/banned_usage.md",
+            "The dimensions were scored during Frame, checked at verify and Land",
+            "planted vocabulary for governance/terminology.yml's ban list "
+            "(PBW-D2), not prose."),
+        Exemption(
+            "tests/test_scenarios_are_executable.py",
+            "a record written by `compass bdd verify`",
+            "the real CLI subcommand `compass bdd verify` "
+            "(cli/compass:148) - an identifier, not the verb the word "
+            "table retires."),
     ),
 ))
 
@@ -1655,6 +1842,10 @@ _register(Rule(
                    "The Threat Modeling Manifesto names the failure",
                    "the manifesto's own name, spelt as it spells itself; "
                    "not the ordinary word."),
+        Exemption("tests/test_stream_c_no_new_checks_or_gates.py",
+                   "Modeling Manifesto's named anti-pattern",
+                   "the manifesto's own name, spelt as it spells itself; "
+                   "not the ordinary word."),
         # An evidence-id prefix carries the gate's own American spelling as
         # a machine identifier, not the ordinary word it is spelt like. The
         # exemption function recognises a backtick right before the match,
@@ -1667,6 +1858,13 @@ _register(Rule(
                    "ADR-007-conditional-gate-promotion-via-floors.md",
                    "EV-ANALYZE-ADVISORY",
                    "evidence-id prefix, a machine identifier."),
+        # The same no-op case as the ADR-007 exemption above: this line names
+        # the evidence-id prefix the fixture globs for, a machine
+        # identifier, not the ordinary word.
+        Exemption("tests/analyze/test_analyze_core.py",
+                   "the `EV-ANALYZE-` prefix",
+                   "evidence-id prefix, a machine identifier - same case as "
+                   "the ADR-007 exemption above."),
         # Disagrees with the audit's finding for this line. The manifesto
         # this file quotes is the real, external body's own name, spelt
         # with the American form of the word - confirmed by the domain it
@@ -1829,6 +2027,17 @@ _register(Rule(
             "> a knob.",
             "an absorbed-into marker quoting the merge-base sentence "
             "verbatim, per PBW-F7 - not a new use of the retired idiom."),
+        Exemption(
+            "tests/test_trace_rot_detection.py",
+            "Scenarios: trace-rot-detection/acceptance-criteria.md",
+            "the real slug of this issue - an identifier (section 4), not "
+            "a v1-vocabulary use of the idiom \"rot\"."),
+        Exemption(
+            "tests/test_terminology.py",
+            "An actual backbone, or the spine of a book, is",
+            "the ordinary-English sense the spine/issue-spine ban's own "
+            "comment gives as the example that must NOT fire - not a use "
+            "of the idiom \"backbone\" this table retires."),
     ),
 ))
 
@@ -2011,6 +2220,56 @@ _register(Rule(
             "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
             "what a G5 guard was",
             "restates the same verbatim quote."),
+        Exemption(
+            "tests/plain_language_check.py", "the G5 guard kicked in",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch - the same protection as the ADR-017 "
+            "exemptions above."),
+        Exemption(
+            "tests/plain_language_check.py",
+            "G5 fired, which means a human signs off",
+            "the module's own worked example of the wrong form the check "
+            "exists to catch - the same protection as the ADR-017 "
+            "exemptions above."),
+        Exemption(
+            "tests/fixtures/terminology/banned_usage.md",
+            "Guardrail G1 and strategy S7 are cited by code in prose",
+            "the fixture's own planted example of a bare code cited by "
+            "code, not by this document - PBW-D2 protects it."),
+        Exemption(
+            "tests/test_terminology.py",
+            '"satisfy S2" tells',
+            "a deliberately bare code, the worked example of the failure "
+            "mode this rule exists to catch - explaining it would destroy "
+            "the example."),
+        Exemption(
+            "tests/test_terminology.py",
+            "The range was `S[1-7]` while the file defined S1 to S12, so",
+            "names the historical S-range this comment explains, the same "
+            "worked-example protection as the ADR-017 exemptions above."),
+        Exemption(
+            "tests/test_terminology.py",
+            "every strategy added after S7 sat outside the ban meant to govern it;",
+            "names the historical S-range this comment explains, the same "
+            "worked-example protection as the ADR-017 exemptions above."),
+        Exemption(
+            "tests/test_terminology.py",
+            "The guardrails and strategies are where G1..G5 and S1..S7 are defined.",
+            "governance/ DEFINES these codes; a definition names what it "
+            "defines, the same reason architecture/decisions/README.md's "
+            "table is exempt above."),
+        Exemption(
+            "tests/test_terminology.py",
+            '"the shipped default guardrails (G1-G5)" is naming what it validates.',
+            "a quoted example of a schema comment naming what it "
+            "validates, the same reason as the exemption immediately "
+            "above."),
+        Exemption(
+            "tests/test_terminology.py",
+            "`governance/strategies.md` S10 - a guard is accepted on",
+            "names the real strategy this test's own docstring cites by "
+            "id, the same reason architecture/decisions/README.md's table "
+            "is exempt above."),
         # The traceability id comment above every scenario is not prose a
         # reader loses meaning from - it is the machine-parsed marker
         # `cli/compass_pkg/bdd.py`'s extraction regex reads (bdd.py:137),
@@ -2306,6 +2565,18 @@ _register(Rule(
             "every path under obra/superpowers/ is inside the Superpowers "
             "repository, not this one - the file itself says so and gives "
             "the github.com URL each path resolves against"),
+        Exemption(
+            "tests/fixtures/terminology/banned_usage.md",
+            "Write the brief to `prd.md`, from `templates/prd.md`",
+            "the fixture's own planted example of the retired filenames - "
+            "PBW-D2 protects it; templates/prd.md is banned and never "
+            "ships."),
+        Exemption(
+            "tests/test_terminology.py",
+            "`src/api/routes/search.py` is a",
+            "an illustrative example of an ordinary web-router directory "
+            "this repository does not ship, not a real path reference - "
+            "the comment's point is that the ban ignores it."),
         # PBW-A8's reference sweep resolves every path against the repository
         # root. Each of the five worked examples under examples/ narrates a
         # fictional application change, naming source and test files that
@@ -3124,7 +3395,27 @@ def _find_docstring_shape(span: ProseSpan) -> list[Finding]:
 
 
 _register(Rule("PBW-C5", "A test docstring says what the file tests and "
-               "cites its issue by slug", _find_docstring_shape))
+               "cites its issue by slug", _find_docstring_shape,
+               exemptions=(
+                   Exemption(
+                       "tests/plain_language_check.py",
+                       "the G5 guard kicked in",
+                       "the module's own worked example of the wrong form "
+                       "the check exists to catch, same protection as the "
+                       "PBW-A7 exemption for this line."),
+                   Exemption(
+                       "tests/plain_language_check.py",
+                       "G5 fired, which means a human signs off",
+                       "the module's own worked example of the wrong form "
+                       "the check exists to catch, same protection as the "
+                       "PBW-A7 exemption for this line."),
+                   Exemption(
+                       "tests/test_terminology.py",
+                       "`governance/strategies.md` S10 - a guard is accepted on",
+                       "names the real strategy this docstring cites by "
+                       "id, same protection as the PBW-A7 exemption for "
+                       "this line."),
+               )))
 
 
 def test_pbw_a1_no_retired_word_in_prose_comments_or_docstrings():

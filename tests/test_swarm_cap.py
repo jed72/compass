@@ -1,7 +1,7 @@
-"""R4 - multiagent.sh derives the worktree cap from structured manifest.yml truth
-(readings.blast_radius + fired_guardrails), not by grepping route.md prose
-(which false-positives on 'did-not-fire' audit notes), and counts only
-worktree-provisioning streams.
+"""multiagent.sh reads the worktree cap from the manifest (`assessment.risk`,
+`policy_rules_fired`), not from delivery-approach.md prose (which
+false-positives on 'did-not-fire' audit notes), and counts only subtasks
+that get a worktree.
 """
 from __future__ import annotations
 
@@ -74,9 +74,9 @@ _PROSE = "RP-CAP-001 (`blast_radius: critical`) - not matched; blast radius is c
 
 
 def test_did_not_fire_note_caps_to_one_today(tmp_path):
-    """TRC-R4-1 (regression guard): a route.md 'did-not-fire' note quoting
-    `blast_radius: critical` no longer collapses the cap - the reading is
-    contained, so the swarm provisions."""
+    """`TRC-R4-1` (regression guard): a delivery-approach.md 'did-not-fire'
+    note quoting `blast_radius: critical` no longer collapses the cap - the
+    assessment is contained, so multiagent.sh provisions the worktrees."""
     repo = _repo(tmp_path)
     td = _task(repo, "t1", risk="contained")
     _route(td, _PROSE)
@@ -87,8 +87,8 @@ def test_did_not_fire_note_caps_to_one_today(tmp_path):
 
 
 def test_cap_from_readings_ignores_prose(tmp_path):
-    """TRC-R4-2: the cap honours readings.blast_radius (contained → full cap),
-    not the critical token in route.md prose."""
+    """`TRC-R4-2`: the cap honours `assessment.risk` (contained → full cap),
+    not the critical token in delivery-approach.md prose."""
     repo = _repo(tmp_path)
     td = _task(repo, "t2", risk="contained")
     _route(td, _PROSE)
@@ -99,7 +99,7 @@ def test_cap_from_readings_ignores_prose(tmp_path):
 
 
 def test_critical_reading_caps_to_one(tmp_path):
-    """TRC-R4-3: a genuinely critical task (RP-CAP-001 fired) still caps to 1."""
+    """`TRC-R4-3`: a genuinely critical issue (RP-CAP-001 fired) still caps to 1."""
     repo = _repo(tmp_path)
     td = _task(repo, "t3", risk="critical", capped=True)
     _route(td, "blast radius is critical")
@@ -110,8 +110,8 @@ def test_critical_reading_caps_to_one(tmp_path):
 
 
 def test_non_worktree_stream_excluded_from_count(tmp_path):
-    """TRC-R4-4: a stream marked 'not a parallel worktree' is not counted toward
-    the cap."""
+    """`TRC-R4-4`: a subtask marked 'not a parallel worktree' is not counted
+    towards the cap."""
     repo = _repo(tmp_path)
     td = _task(repo, "t4", risk="critical", capped=True)   # cap = 1
     _route(td, "critical")
@@ -121,10 +121,10 @@ def test_non_worktree_stream_excluded_from_count(tmp_path):
 
 
 def test_missing_readings_errors_not_silent_cap(tmp_path):
-    """TRC-R4-F1: absent readings.blast_radius is a hard error - never a silent
-    cap=1 and never a fall back to grepping route.md prose."""
+    """`TRC-R4-F1`: absent `assessment.risk` is a hard error - never a silent
+    cap=1 and never a fall back to grepping delivery-approach.md prose."""
     repo = _repo(tmp_path)
-    td = _task(repo, "t5", risk=None)   # readings present but no blast_radius
+    td = _task(repo, "t5", risk=None)   # assessment present but no risk
     _route(td, _PROSE)
     _map(td, "t5", 3)
     r = _run(repo, "t5")

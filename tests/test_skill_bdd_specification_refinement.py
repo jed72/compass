@@ -1,13 +1,12 @@
-"""TRC-D1 - bdd-specification teaches the example-first refinement chain.
-TRC-D2 - user stories remain refused as a per-role spec format.
+"""bdd-specification teaches the example-first refinement chain (TRC-D1).
+User stories remain refused as a per-role spec format (TRC-D2).
 
-Serves: INT-8 (D1), INT-8+INT-11 (D2)
 Spec:
   - skills/bdd-specification/SKILL.md must have a refinement-chain section
   - the chain: vague idea → concrete examples → acceptance criteria → at least one executable specification each
   - recommends specs that start with "should" and a ubiquitous language
   - must refuse user stories as a per-role spec format (TRC-D2)
-  - ADR-004 reference: the shared artifact stays as BDD scenario in spec.feature.md
+  - ADR-004 reference: the shared artifact stays as BDD scenario in acceptance-criteria.md
 """
 from __future__ import annotations
 from pathlib import Path
@@ -15,16 +14,9 @@ from pathlib import Path
 SKILL_MD = Path(__file__).parent.parent / "skills" / "bdd-specification" / "SKILL.md"
 
 def _skill_text(skill_name):
-    """Everything the skill says, across every file in its directory.
-
-    A skill used to be one file. The long ones are now split - the parts load
-    when they are needed instead of the whole thing loading to answer one
-    question - so a guard that reads only SKILL.md reports content missing
-    when it has merely moved next door.
-
-    The strings each guard looks for are unchanged. Only where it looks has
-    widened, and deleting the content still fails.
-    """
+    """Reads every file in the skill's directory. Long skills are split into
+    parts that load on demand, so a guard that reads only SKILL.md reports
+    moved content as missing."""
     import pathlib as _p
     d = _p.Path(__file__).parent.parent / "skills" / skill_name
     return "\n".join(sorted(
@@ -36,7 +28,7 @@ def _read_skill() -> str:
     return _skill_text("bdd-specification")
 
 
-# --- TRC-D1 tests ---
+# --- `TRC-D1` tests ---
 
 def test_bdd_spec_has_refinement_chain_section():
     """Must have a refinement-chain section (example-first)."""
@@ -76,7 +68,7 @@ def test_refinement_chain_covers_executable_spec():
 
 
 def test_bdd_spec_recommends_should_prefix():
-    """The section should recommend specs starting with 'should'."""
+    """The section must recommend specs starting with 'should'."""
     text = _read_skill()
     text_lower = text.lower()
     assert '"should"' in text_lower or "'should'" in text_lower or "start with" in text_lower or "prefix" in text_lower, (
@@ -86,7 +78,7 @@ def test_bdd_spec_recommends_should_prefix():
 
 
 def test_bdd_spec_mentions_ubiquitous_language():
-    """The section should recommend a ubiquitous language used consistently."""
+    """The section must recommend a ubiquitous language used consistently."""
     text = _read_skill()
     text_lower = text.lower()
     assert "ubiquitous" in text_lower or "ubiquitous language" in text_lower, (
@@ -94,7 +86,7 @@ def test_bdd_spec_mentions_ubiquitous_language():
     )
 
 
-# --- TRC-D2 tests ---
+# --- `TRC-D2` tests ---
 
 def test_bdd_spec_refuses_user_stories_as_spec_format():
     """User stories must be refused as a per-role spec format."""
@@ -122,7 +114,8 @@ def test_bdd_spec_refuses_user_stories_as_spec_format():
 
 
 def test_bdd_spec_shared_artifact_stays_bdd():
-    """The spec.feature.md artifact must remain the shared BDD artifact."""
+    """The acceptance-criteria.md artifact must remain the shared BDD
+    artifact."""
     text = _read_skill()
     text_lower = text.lower()
     assert "acceptance-criteria.md" in text_lower, (

@@ -1,22 +1,16 @@
-"""The manifest must record what actually happened (reports R18, R15, R19).
+"""The manifest must record what actually happened.
 
-R18 - `route evaluate --write --reason "..."` logged a re-frame only when the
-route NAME changed. Two re-frames on one task, days apart, both with an explicit
-reason, left `reframes: []`: one adopted a newer governance policy and took the
-task from 7 gates to 9; the other split scope, moving magnitude large ->
-standard. The second is a textbook re-frame - the readings themselves changed -
-and it was invisible. `compass retro` aggregates `reframes:` to detect the
-Needle systematically mis-sizing routes, so the signal was under-counted.
+Three requirements, each from an adopter field report:
 
-R15 - `evidence add --type test-run --path run.txt` was accepted, and `check`
-failed later with "test-run evidence unreadable", because `test-run` means a
-JSON run record and not a raw log. Nothing said so at write time.
+  * A reassessment is logged when the delivery approach's content changes,
+    not only its name.
+  * `evidence add --type test-run` refuses a raw log at write time: the type
+    means a JSON run record, and nothing said so before.
+  * The schema accepts `superseded_by`, so a skill that asks authors to
+    record a supersession link is not asking for something the validator
+    forbids.
 
-R19 - `behaviour-mapping` names silent supersession as an anti-pattern and
-asks for the link to be recorded. The schema rejected `superseded_by`, so a
-skill instructed authors to record something the validator forbade.
-
-Scenarios: docs/compass/2026-08-06-spine-records-the-truth/acceptance-criteria.md (SCN-A1..F1).
+Scenarios: spine-records-the-truth/acceptance-criteria.md (SCN-A1..F1).
 """
 from __future__ import annotations
 
@@ -75,7 +69,7 @@ def _task(root, slug="t"):
 # ---------------------------------------------------------------------------
 
 def _seeded(tmp_path, **readings):
-    """A task whose route has already been computed once."""
+    """An issue whose delivery approach has already been computed once."""
     root = _project(tmp_path, _base(readings={
         "risk": "contained", "familiarity": "greenfield",
         "size": "small", "intent": "delivery", "urgency": "none",
@@ -85,15 +79,15 @@ def _seeded(tmp_path, **readings):
 
 
 def test_scn_a1_content_change_is_logged(tmp_path):
-    """Same route name, materially different route."""
+    """Same delivery-approach name, materially different delivery approach."""
     root = _seeded(tmp_path)
     before = _task(root)
     assert before["delivery_approach"] == "feature", before["delivery_approach"]
 
-    # cross-cutting keeps the route name `standard` and takes the gate set from
-    # 6 to 7 (RP-REQUIRE-003 adds verify.fitness) - R18's exact case. `critical`
-    # would also change the route NAME, which the old code already logged, so it
-    # would prove nothing.
+    # cross-cutting keeps the delivery-approach name `standard` and takes the
+    # gate set from 6 to 7 (RP-REQUIRE-003 adds verify.fitness). `critical`
+    # would also change the approach name, so it would not test a
+    # content-only change.
     before["assessment"]["risk"] = "cross-cutting"
     (root / ".compass" / "work" / "t" / "manifest.yml").write_text(
         yaml.safe_dump(before, sort_keys=False))
@@ -149,8 +143,8 @@ def test_scn_a4_entry_carries_a_kind(tmp_path):
 
 
 def test_scn_a5_calibration_counts_only_judgement(tmp_path):
-    """A policy-correction re-frame would otherwise read as the Needle
-    under-sizing, which pollutes the signal calibration exists to produce."""
+    """A policy-correction reassessment would otherwise read as assessment
+    under-sizing the work, which skews the retro signal."""
     reframes = [
         {"from_route": "standard", "to_route": "expedition", "kind": "judgement",
          "reason": "magnitude under-read", "date": "2026-08-01"},
@@ -243,8 +237,8 @@ def test_scn_c2_dangling_supersession_fails(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_scn_f1_existing_task_files_unchanged(tmp_path):
-    """Every manifest.yml on disk predates all three changes: reframes entries with
-    no `kind`, scenarios with no `superseded_by`."""
+    """Every manifest.yml on disk predates all three changes: reassessment
+    entries with no `kind`, scenarios with no `superseded_by`."""
     old = _base(route="standard", reframes=[
         {"from_route": "express", "to_route": "standard",
          "reason": "magnitude under-read", "date": "2026-07-01"}])

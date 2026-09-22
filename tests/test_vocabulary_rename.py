@@ -7,7 +7,7 @@ own output disagreed with them:
   the stage whose key, skill and agent all say `plan` was commanded as `design`
   `design` named a command, an artifact, an artifact kind, a CLI verb and a
       role, and was the only overloaded word with no glossary entry
-  `/compass:intent` wrote a file called `prd.md`
+  `/compass:intent` wrote a file called `prd.md` <!-- vocabulary-scan: allow - names the retired filename this migration test tracks -->
   `frame` was banned as a phase name and survived as a live machine key,
       because governance/*.yml is not a scanned surface
 
@@ -16,7 +16,7 @@ switches to it - see design.md D2. These tests are written so the accept phase
 can be green on its own.
 
 Scenario ids trace to
-docs/compass/2026-08-24-the-vocabulary-rename/acceptance-criteria.md.
+the-vocabulary-rename/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ def _map():
 # ---------------------------------------------------------------------------
 
 def test_trc_c1():
-    """TRC-C1: the map carries the stage keys, and any copy is proven to match.
+    """The map carries the stage keys, and any copy is proven to match (`TRC-C1`).
 
     The second half is the point. The guard that existed before this asserted
     `migrate.artifact_name_map() == artifacts` - and that function reads the
@@ -122,7 +122,7 @@ def test_trc_c1():
 
 
 def test_trc_e2_map_guard_declines_an_empty_input():
-    """TRC-E2 for the map: a scan handed nothing does not report a pass."""
+    """A scan handed nothing does not report a pass (`TRC-E2` for the map)."""
     from compass_pkg import migrate
 
     assert migrate.artifact_name_map(), (
@@ -136,7 +136,7 @@ def test_trc_e2_map_guard_declines_an_empty_input():
 # ---------------------------------------------------------------------------
 
 def test_trc_b1():
-    """TRC-B1: a manifest written before the rename still reads.
+    """A manifest written before the rename still reads (`TRC-B1`).
 
     107 manifests carry the retired keys. ADR-006 makes this
     non-negotiable inside a major version.
@@ -164,7 +164,7 @@ def test_trc_b1():
 
 
 def test_trc_b2():
-    """TRC-B2: a document written before the rename still resolves.
+    """A document written before the rename still resolves (`TRC-B2`).
 
     Also asserts the compatibility map has not collapsed to an identity. A
     blanket rename over the tree rewrote its values to the current filenames
@@ -248,7 +248,7 @@ def _is_removed(name):
 
 
 def test_trc_a1():
-    """TRC-A1: a command, its machine key and its artifact name the same thing.
+    """A command, its machine key and its artifact name the same thing (`TRC-A1`).
 
     The rule is about an artifact CLAIMING another stage, not about sharing a
     word with one - four artifacts already differ from their stage's name and
@@ -283,8 +283,8 @@ def test_trc_a1():
 
 
 def test_trc_a2():
-    """TRC-A2: the designer's command is `design` again, and does not claim
-    the engineering stage's job."""
+    """The designer's command is `design` again, and does not claim
+    the engineering stage's job (`TRC-A2`)."""
     names = _command_names()
     for want in ("design", "plan"):
         assert want in names, "no `/compass:%s` command: %s" % (want, sorted(names))
@@ -307,7 +307,7 @@ def test_trc_a2():
 
 
 def test_trc_b4():
-    """TRC-B4: a retired command no longer answers at all.
+    """A retired command no longer answers at all (`TRC-B4`).
 
     Through 3.x each of these was a redirect stub, and this scenario checked
     it pointed at its replacement. 4.0.0 removed them, so the scenario now
@@ -338,7 +338,7 @@ def test_trc_b4():
 # ---------------------------------------------------------------------------
 # Group B (continued) - a rename has two halves, and only one was tested
 #
-# TRC-B2 proved a document written BEFORE the rename still resolves. Nothing
+# `TRC-B2` proved a document written BEFORE the rename still resolves. Nothing
 # asked the other question: does a document written AFTER it resolve? It did
 # not. `_flat_name` replaced the current filename with the retired one instead
 # of falling back to it, so `compass issue dashboard` reported a technical
@@ -357,9 +357,9 @@ def _issue_dir(**files):
 
 
 def test_trc_b5():
-    """TRC-B5: a document written after the rename resolves under its new name.
+    """A document written after the rename resolves under its new name (`TRC-B5`).
 
-    This is TRC-B2 read the other way round. The compatibility map exists so a
+    This is `TRC-B2` read the other way round. The compatibility map exists so a
     landed issue keeps working; it must not cost the framework the ability to
     find the file it writes today.
     """
@@ -378,7 +378,7 @@ def test_trc_b5():
 
 
 def test_trc_b6():
-    """TRC-B6: when both filenames are present, the current one wins.
+    """When both filenames are present, the current one wins (`TRC-B6`).
 
     Resuming a landed issue and re-running the plan stage writes the current
     name beside the retired one. Preferring the retired file would make every
@@ -401,7 +401,7 @@ def test_trc_b6():
 
 
 def test_trc_b7():
-    """TRC-B7: `compass plan lint` still reads a landed issue's design.
+    """`compass plan lint` still reads a landed issue's design (`TRC-B7`).
 
     Every other artifact reader goes through `artifact_path`, which knows both
     names. This one joined the filename itself, so it reported "no such file"
@@ -446,7 +446,7 @@ def test_trc_b7():
 # ---------------------------------------------------------------------------
 
 def test_trc_a4():
-    """TRC-A4: the planning stage answers to `plan` in the CLI too.
+    """The planning stage answers to `plan` in the CLI too (`TRC-A4`).
 
     `commands/design.md` was renamed to `commands/plan.md` while the CLI verb
     stayed `compass design lint` - the same word meaning the engineering
@@ -530,7 +530,7 @@ def _shipped_docs():
 
 
 def test_trc_a5():
-    """TRC-A5: no live surface sends the engineering stage to `/compass:design`.
+    """No live surface sends the engineering stage to `/compass:design` (`TRC-A5`).
 
     `/compass:design` was not retired - it was REPURPOSED, from the
     engineering design stage to the designer's UI-contract entry point. A
@@ -579,8 +579,8 @@ def _terminology():
 def _banned_spellings(doc):
     """Every individual word a `banned:` entry retires.
 
-    A `term:` may name several at once - "Specify / Clarify / Distribute /
-    Land" is one entry retiring four words - so the slash-separated parts are
+    A `term:` may name several at once - "Specify / Clarify / Distribute / <!-- vocabulary-scan: allow - quotes governance/terminology.yml's own term string as the example -->
+    Land" is one entry retiring four words - so the slash-separated parts are <!-- vocabulary-scan: allow - quotes governance/terminology.yml's own term string as the example -->
     split out and lowercased.
     """
     out = {}
@@ -593,7 +593,7 @@ def _banned_spellings(doc):
 
 
 def test_trc_d1():
-    """TRC-D1: a ban never points at a replacement that is itself banned.
+    """A ban never points at a replacement that is itself banned (`TRC-D1`).
 
     A reader who hits a banned word looks up its replacement and uses it. If
     that replacement is also retired they rename twice, and the second rename
@@ -645,7 +645,7 @@ def test_trc_d5_the_code_position_scan_knows_this_rename():
     That block is what `tests/test_terminology.py` scans Python string
     literals against - the check that exists specifically to catch a retired
     filename left in a code position. It carried the v1 filenames and was not
-    extended when `design.md` became `technical-design.md` and `prd.md` became
+    extended when `design.md` became `technical-design.md` and `prd.md` became <!-- vocabulary-scan: allow - names the retired filename this migration test tracks -->
     `intent.md`, so it was blind to the rename it shipped beside.
     """
     doc = _terminology()
@@ -670,8 +670,8 @@ def test_trc_c5_migrate_refuses_a_many_to_one_collision():
     `artifacts:` now has two such pairs, both created on 2026-08-25 when this
     rename was added beside the v2 freeze's:
 
-        brief.md -> intent.md            prd.md    -> intent.md
-        plan.md  -> technical-design.md  design.md -> technical-design.md
+        brief.md -> intent.md            prd.md    -> intent.md   <!-- vocabulary-scan: allow - names the retired filenames this migration test tracks -->
+        plan.md  -> technical-design.md  design.md -> technical-design.md <!-- vocabulary-scan: allow - names the retired filenames this migration test tracks -->
 
     A directory holding BOTH members of a pair used to be resolved by dict
     insertion order: the first rename happened, the second silently did not,
@@ -680,7 +680,7 @@ def test_trc_c5_migrate_refuses_a_many_to_one_collision():
     under a name nothing reads. Re-running then reported "nothing to do",
     which was a confident falsehood about a directory holding two designs.
 
-    The archive in this repository has no `plan.md` or `brief.md` left, so it
+    The archive in this repository has no `plan.md` or `brief.md` left, so it <!-- vocabulary-scan: allow - names the retired filenames this migration test tracks -->
     is latent here - and live for an adopter mid-upgrade, which is exactly who
     `compass migrate` is for.
     """
@@ -774,10 +774,10 @@ def _migrate(project, *flags):
 
 
 def test_trc_c2():
-    """TRC-C2: migrate rewrites a stale reference, and is idempotent.
+    """Migrate rewrites a stale reference, and is idempotent (`TRC-C2`).
 
     Both halves matter. The rename is only safe because a record written
-    before it still reads (TRC-B1, TRC-B2); this is the other side of that -
+    before it still reads (`TRC-B1`, `TRC-B2`); this is the other side of that -
     the archive is brought forward rather than left resolving through a
     compatibility path for ever. Running it twice must be a no-op, or nobody
     can re-run it after a failure without wondering what it will do.
@@ -815,7 +815,7 @@ def test_trc_c2():
 
 
 def test_trc_c3():
-    """TRC-C3: a dry run reports what would change and writes nothing.
+    """A dry run reports what would change and writes nothing (`TRC-C3`).
 
     The dry run is what a person reads before letting the tool touch an
     archive they cannot easily reconstruct, so "writes nothing" is the whole
@@ -839,7 +839,7 @@ def test_trc_c3():
 
 
 def test_trc_c4():
-    """TRC-C4: a migration that stops says what it did and what remains.
+    """A migration that stops says what it did and what remains (`TRC-C4`).
 
     A failure partway leaves some directories migrated and some not - and
     because both spellings stay accepted, that tree still WORKS, which is
@@ -848,7 +848,7 @@ def test_trc_c4():
 
     The notes were accumulated and printed after the loop, so an unparseable
     manifest raised out of the whole command and took the report with it: every
-    rename already performed stayed on disk, unnamed, under a raw traceback.
+    rename already done stayed on disk, unnamed, under a raw traceback.
     """
     import tempfile
 
@@ -890,7 +890,7 @@ def test_trc_c4():
 
 
 def test_trc_d2():
-    """TRC-D2: the vocabulary file's own prose is scanned.
+    """The vocabulary file's own prose is scanned (`TRC-D2`).
 
     This is how the retired stage keys survived the v2 freeze unremarked for
     months: `governance/*.yml` was not a scanned surface. Three of its YAML
@@ -935,7 +935,7 @@ def test_trc_d2b_the_region_exemption_is_a_region_not_a_file():
     A region exemption that quietly widened to the whole file would leave this
     test passing and check nothing - the exact shape this repository found
     four of in one release. So: plant a retired name in the `terms:` block and
-    require the scan to catch it.
+    need the scan to catch it.
     """
     import importlib.util
 
@@ -1029,7 +1029,7 @@ def test_trc_c6_migrate_repoints_the_spine_at_the_files_it_renamed():
     resolve" on an issue nothing is wrong with.
 
     22 manifests in this repository were in that state, and some of them name
-    `route.md` and `plan.md` - retired at the v2 freeze - so the freeze's own
+    `route.md` and `plan.md` - retired at the v2 freeze - so the freeze's own <!-- vocabulary-scan: allow - names the retired filenames this migration test tracks -->
     migration left the same wreckage a cycle earlier and nobody looked.
     """
     import subprocess
@@ -1112,7 +1112,7 @@ def test_trc_c6b_a_reference_to_a_file_that_is_still_there_is_left_alone():
 
 
 def test_trc_a3():
-    """TRC-A3: every word this rename touches carries a glossary entry.
+    """Every word this rename touches carries a glossary entry (`TRC-A3`).
 
     This is the root cause, not a tidiness rule. `design` named a command, an
     artifact, an artifact kind, a CLI verb and a role - five things - and was
@@ -1163,7 +1163,7 @@ def test_trc_a3():
 
 
 def test_trc_b3():
-    """TRC-B3: the retired spelling is still accepted after the switch.
+    """The retired spelling is still accepted after the switch (`TRC-B3`).
 
     The ordering rule as a criterion rather than as advice: accept both
     spellings everywhere, THEN switch the writers. Switching first breaks the

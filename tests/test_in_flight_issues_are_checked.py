@@ -1,16 +1,16 @@
 """An issue still in flight has its declared test ids checked.
 
-Scenario QRL-1 of `queued-issues-read-as-landed`.
+Scenario QRL-1, in `queued-issues-read-as-landed/delivery-approach.md`.
 
-`_check_declared_tests_resolve` closes a specific hole: G1 and G3 are satisfied
-by a test being NAMED, so a scenario naming a test nobody wrote reports green.
-The check is meant to be scoped away from landed issues, whose manifests are
-historical records that a moving codebase would fail for no actionable reason.
+`_check_declared_tests_resolve` closes the gap: a scenario can name a test
+nobody wrote and still report green, because `G1` and `G3` are satisfied by
+a test being named. The check is meant to be scoped away from landed
+issues, whose manifests are historical records that a moving codebase would
+fail for no actionable reason.
 
-It implemented that as "anything that is not `active`". The vocabulary has five
-statuses, and two of the other four - `queued` and `parked` - are issues still
-in flight. On those the hole is open again, and the PASS line says "issue is
-landed" about an issue whose manifest says otherwise.
+The check skips only the terminal statuses, `landed` and `abandoned`.
+`queued` and `parked` issues are still in flight, so the check runs on
+them.
 """
 from __future__ import annotations
 
@@ -80,7 +80,7 @@ def _check(project, slug="an-issue"):
 @pytest.mark.parametrize("status", IN_FLIGHT)
 def test_qrl_1_an_in_flight_issue_has_its_declared_tests_checked(
         tmp_path, status):
-    """The hole, on every status that is not terminal."""
+    """The gap, on every status that is not terminal."""
     _issue(tmp_path, status)
     r = _check(tmp_path)
     assert "declared-tests-resolve" in r.stdout
@@ -105,11 +105,7 @@ def test_qrl_1_a_finished_issue_is_still_left_alone(tmp_path, status):
 
 @pytest.mark.parametrize("status", TERMINAL)
 def test_qrl_1_the_skip_names_the_status_it_read(tmp_path, status):
-    """A PASS line must not assert something the manifest contradicts.
-
-    It said "issue is landed" for every status that was not `active`, so a
-    reader checking why the check did not run was told a fact the file denies.
-    """
+    """The PASS line names the status the manifest records."""
     _issue(tmp_path, status)
     r = _check(tmp_path)
     line = next((l for l in r.stdout.splitlines()

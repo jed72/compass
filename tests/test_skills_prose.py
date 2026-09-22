@@ -1,13 +1,14 @@
-"""Slice 6 of the v2 rename: the skills and agents speak the v2 register.
+"""The skills and agents speak the v2 register.
 
-The twelve pending skills and the ten agent definitions are rewritten in
-the frozen v2 vocabulary; `skills/` leaves both pending lists and
-`agents/` enters `scan.surfaces` as an enforced, never-pending surface -
-the same shape as the root instruction files. The worktree-multiagent skill
-gains the queued "never stash across a worktree hop" rule, and the lens
-ban pattern is tuned so agent identifiers (machine names like
-`product-owner`, which keep their spelling until an agent-rename decision)
-no longer collide with the banned role-perspective concept word.
+These tests check:
+
+  * `skills/` is enforced - it has left both terminology pending lists;
+  * `agents/` is scanned and never pending;
+  * the worktree-multiagent skill carries the "never stash across a
+    worktree hop" rule;
+  * the role-perspective ban catches the concept, but not a hyphenated
+    agent identifier such as `product-owner`, which keeps its spelling
+    until an agent-rename decision.
 """
 from __future__ import annotations
 
@@ -25,8 +26,8 @@ def _scan_cfg() -> dict:
 
 
 def test_skills_surface_is_enforced():
-    """TRC-1: skills/ has left pending_surfaces and the committed
-    baseline - its banned terms are build failures from here on."""
+    """skills/ has left pending_surfaces and the committed baseline -
+    its banned terms are build failures from here on (TRC-1)."""
     from test_terminology import PENDING_BASELINE
     scan = _scan_cfg()
     assert "skills/" not in scan["pending_surfaces"], (
@@ -38,8 +39,8 @@ def test_skills_surface_is_enforced():
 
 
 def test_agents_surface_is_enforced_never_pending():
-    """TRC-2: agents/ is scanned and enforced from the day it was
-    rewritten - present in surfaces, absent from both pending lists."""
+    """agents/ is scanned and enforced - present in surfaces, absent
+    from both pending lists (TRC-2)."""
     from test_terminology import PENDING_BASELINE
     scan = _scan_cfg()
     assert "agents/" in scan["surfaces"], (
@@ -52,8 +53,8 @@ def test_agents_surface_is_enforced_never_pending():
 
 
 def test_worktree_swarm_carries_the_stash_rule():
-    """TRC-3: the lesson moved from the slice-3a issue's devlog into the
-    skill where future sessions will read it."""
+    """The worktree-multiagent skill carries the "never stash across a
+    worktree hop" rule (TRC-3)."""
     text = (REPO_ROOT / "skills" / "worktree-multiagent" / "SKILL.md").read_text(
         encoding="utf-8").lower()
     assert "never stash across a worktree hop" in text, (
@@ -64,9 +65,9 @@ def test_worktree_swarm_carries_the_stash_rule():
 
 
 def test_lens_ban_catches_concept_not_identifiers():
-    """TRC-4: the ban still catches 'lens' as the role-perspective
-    concept, but a hyphenated agent identifier is machine vocabulary and
-    passes - the fixture pair proves both sides."""
+    """The ban still catches the role-perspective concept, but a
+    hyphenated agent identifier is machine vocabulary and passes - the
+    fixture pair proves both sides (TRC-4)."""
     from test_terminology import BAN_PATTERNS
     patterns = BAN_PATTERNS["lens"]
     concept = "read the spec through the marketing lens before shipping"

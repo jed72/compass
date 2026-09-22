@@ -14,14 +14,13 @@ mechanism's handling of proposed-status ADRs. It lives in
 `tests/fixtures/self-architecture/proposed-adr/` and is never part of
 Compass's own `architecture/decisions/` tree.
 
-Compass's own ADRs (ADR-001..ADR-006) all ship with `status: accepted`.
-This fixture exists solely to verify that the load mechanism correctly
-preserves the `proposed` status rather than normalising everything to
-`accepted`.
+This fixture exists to check that the load mechanism correctly preserves the
+`proposed` status rather than normalising everything to `accepted`.
 
 ## Decision
 
-This ADR is not a real decision. It is a fixture for TRC-X2.
+This ADR is not a real decision. It is a fixture for the proposed-status
+scenario (`TRC-X2`).
 
 ## Alternatives considered
 
@@ -38,11 +37,10 @@ This ADR is not a real decision. It is a fixture for TRC-X2.
 - None (this is a test fixture, not a production ADR).
 
 **Neutral / follow-on:**
-- Real proposed ADRs for Compass will live in `architecture/decisions/` with
-  the next sequential number after ADR-006, when a genuine decision is in
-  flight.
+- Real proposed ADRs for Compass live in `architecture/decisions/` with the
+  next sequential number.
 
 ## References
 
-- `tests/test_self_architecture.py::test_proposed_adr_loaded_with_status` (TRC-X2)
-- `spec.feature.md` §"Failure-mode scenarios" (TRC-X2)
+No test reads this fixture (checked by grep over tests/ and cli/). It is
+kept for a future proposed-status scenario (`TRC-X2`).

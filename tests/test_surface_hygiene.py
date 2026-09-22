@@ -1,20 +1,17 @@
-"""Surface hygiene (task executable-bdd-and-richer-plans).
+"""Surface hygiene (issue executable-bdd-and-richer-plans).
 
-Two pieces of tidying that the Superpowers comparison surfaced:
+Two pieces of tidying:
 
-  * `skills/constitution-check/` is a tombstone. Compass replaced the single
-    "constitution" model with strategies and guardrails, and the skill has
-    redirected to `governance-check` ever since. Nothing loads it. A dead skill
-    in the plugin's skill list costs a reader attention every time they scan it.
+  * `skills/constitution-check/` is removed: it only redirected to
+    `governance-check` and nothing loaded it. A dead skill in the plugin's
+    skill list costs a reader attention every time they scan it.
 
-  * Specify's inline self-review and the Clarify phase overlap, and neither
-    file said so. A reader meeting both wonders which one is redundant. They
-    are not: the self-review is four cheap scans the author owes Clarify, and
-    Clarify does the work that needs a decision. Writing the split down in both
-    places is the fix.
+  * The define stage's self-review and the requirements review overlap.
+    Both files state the split: the self-review is four quick scans; the
+    requirements review does the work that needs a decision.
 
-Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md
-      (TRC-D1..D4, TRC-F7).
+Spec: executable-bdd-and-richer-plans/acceptance-criteria.md
+      (`TRC-D1`..`D4`, `TRC-F7`).
 """
 from __future__ import annotations
 
@@ -26,12 +23,12 @@ SKILLS = ROOT / "skills"
 BDD_SKILL = SKILLS / "bdd-specification" / "SKILL.md"
 CLARIFY_CMD = ROOT / "commands" / "refine.md"
 
-# The four scans the spec-author runs inline at the end of Specify.
+# The four scans the spec-author runs inline at the end of the define stage.
 FOUR_SCANS = ["placeholder", "orphan", "untestable", "ambiguous"]
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 - the superseded skill is gone
+# The superseded skill is gone (TRC-D1)
 # ---------------------------------------------------------------------------
 
 def test_trc_d1_constitution_check_skill_deleted():
@@ -46,7 +43,7 @@ def test_trc_d1_constitution_check_skill_deleted():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2 - nothing points at the deleted skill
+# Nothing points at the deleted skill (TRC-D2)
 # ---------------------------------------------------------------------------
 
 SEARCHED_SUFFIXES = {".md", ".yml", ".yaml", ".json", ".py", ".sh"}
@@ -63,9 +60,9 @@ def _is_issue_archive(path):
 
     `.compass` is skipped above because an issue's documents record what
     Compass looked like when they were written, and rewriting history to match
-    the present destroys their value. `docs-compass-artifacts` moved those same
-    documents to `docs/compass/<created>-<slug>/`, so the exemption travels
-    with them - the reason for it did not change, only the location.
+    the present destroys their value. Issue documents live in
+    `docs/compass/<created>-<slug>/`, so the same exemption covers those
+    subdirectories.
 
     Scoped to the per-issue SUBDIRECTORIES, not to `docs/compass/` itself.
     Two hand-written documents sit flat in that directory - a cross-issue
@@ -117,7 +114,7 @@ def test_trc_d2_no_references_to_deleted_skill():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D3 - the specification skill states what it leaves to Clarify
+# The specification skill states what it leaves to the requirements review (TRC-D3)
 # ---------------------------------------------------------------------------
 
 def test_trc_d3_bdd_skill_documents_the_split():
@@ -128,18 +125,14 @@ def test_trc_d3_bdd_skill_documents_the_split():
             f"the bdd-specification skill does not name the {scan!r} scan"
         )
 
-    # it must say what Clarify does that the self-review does not
-    # "Clarify" became "the requirements review" with the skills-prose
-    # slice; the required statement is the same, in the v2 words.
+    # it must say what the requirements review does that the self-review does not
     assert re.search(
         r"(?:requirements )?review (?:still )?(?:does|runs|resolves|hunts)",
         text), (
         "the skill never says what work the requirements review does that "
         "the inline self-review does not"
     )
-    # and which delivery approaches run each. "Express" and "Standard" were
-    # the v1 names for quick fix and feature; the skills-prose slice renamed
-    # them, so the file now states the same split in v2 words.
+    # and which delivery approaches run each: quick fix or feature.
     assert "quick fix" in text and re.search(r"feature", text), (
         "the skill does not say which delivery approaches run the inline "
         "self-review and which run the requirements review"
@@ -147,7 +140,7 @@ def test_trc_d3_bdd_skill_documents_the_split():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D4 - the clarify command states the same split from its side
+# The /compass:refine command states the same split from its side (TRC-D4)
 # ---------------------------------------------------------------------------
 
 def test_trc_d4_clarify_command_documents_the_split():
@@ -172,7 +165,7 @@ def test_trc_d4_clarify_command_documents_the_split():
 
 
 # ---------------------------------------------------------------------------
-# TRC-F7 - the skill count does not grow on net
+# The skill count does not grow on net (TRC-F7)
 # ---------------------------------------------------------------------------
 
 def test_trc_f7_skill_count_unchanged_on_net():
@@ -182,10 +175,6 @@ def test_trc_f7_skill_count_unchanged_on_net():
     routing dimensions (architecture/decisions/ADR-002), and every new
     user-facing concept is meant to be scrutinised before it lands. This makes
     the arithmetic a checked fact rather than a claim.
-
-    This is a cross-stream assertion: `plan-authoring` arrives with the richer
-    plans work and `constitution-check` leaves with this one. It can only be
-    true of the integrated result.
     """
     present = {p.name for p in SKILLS.iterdir()
                if p.is_dir() and (p / "SKILL.md").is_file()}
@@ -194,31 +183,21 @@ def test_trc_f7_skill_count_unchanged_on_net():
     assert "constitution-check" not in present, (
         "constitution-check was not removed")
 
-    # A LIVING allowlist, in the same spirit as EXPECTED_PUBLIC_SUBCOMMANDS: no
-    # skill appears or disappears without a deliberate edit here. It is not a
-    # freeze on the count - a later task may add skills, and two did:
-    # systematic-debugging and receiving-code-review, from
-    # phase-2-skills-check-and-cli-split. What this task asserted, and what
-    # still holds, is that IT added one and removed one.
+    # No skill appears or disappears without an edit to this list.
     expected = {
         "adaptive-routing", "bdd-specification", "behaviour-mapping",
         "compass-runtime", "evidence-gates", "flow-management",
         "governance-check", "plan-authoring",
         "tdd-discipline", "worktree-multiagent",
-        "receiving-code-review", "systematic-debugging",   # phase-2 task
-        # ingest-an-existing-brief: turning a brief that already exists into
-        # intent.md by asking rather than assuming. A skill rather than a
-        # mechanism, per the plan's P0-C - "the discipline is the skill".
+        "receiving-code-review",  # a second pass over someone else's diff
+        "systematic-debugging",   # notices three failed fixes in a row
+        # Turns a brief that already exists into intent.md by asking rather
+        # than assuming: "the discipline is the skill".
         "intent-interview",
-        # docs-compass-artifacts removed two skills by MERGING them into the
-        # skill each was always read beside, so their descriptions stopped
-        # being resident on every turn: traceability into evidence-gates and
-        # role-translation into intent-interview. Both subjects are still on
-        # disk as skills/evidence-gates/traceability.md and
-        # skills/intent-interview/role-translation.md.
-        # The same issue added one: quick-fix, the inlined light path, so a
-        # quick fix reads one command and one skill instead of five and three.
-        "quick-fix",
+        # Traceability lives in skills/evidence-gates/traceability.md and
+        # role-translation lives in skills/intent-interview/role-translation.md,
+        # each read beside the skill it merged into.
+        "quick-fix",  # the inlined light path: one command and one skill
     }
     assert present == expected, (
         "the skill set changed without this allowlist being updated.\n"

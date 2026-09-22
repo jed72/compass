@@ -1,10 +1,10 @@
 """Spike mechanical safety - guarantee 4 of the safety contract.
 
-On a Spike route, the delivery guardrails do not apply; instead the spike
-guardrails do. The CLI must enforce:
+On the spike delivery approach, the delivery guardrails do not apply;
+instead the spike guardrails do. The CLI must enforce:
   - a spike-conclusion evidence entry exists, with a recorded decision
-  - if the decision is graduate-to-delivery, `next_task` links the new task
-  - `changed_files` is empty (a Spike ships nothing)
+  - if the decision is graduate-to-delivery, `next_task` links the new issue
+  - `changed_files` is empty (a spike ships nothing)
 """
 from __future__ import annotations
 
@@ -100,8 +100,9 @@ def test_spike_graduate_with_next_task_passes(run_cli, make_task):
 
 
 def test_spike_check_does_not_run_delivery_guardrails(run_cli, make_task):
-    """A Spike route shouldn't be hit by G1-G5 (no scenarios needed, no
-    test-run evidence, etc.) - the check output is the spike guardrails."""
+    """The spike delivery approach does not run the delivery guardrails
+    (`G1`-`G5`): no scenarios needed, no test-run evidence, and so on. The
+    check output is the spike guardrails."""
     body = _spike_body()
     body["evidence"].append({
         "id": "EV-CONC", "type": "spike-conclusion",
@@ -110,7 +111,7 @@ def test_spike_check_does_not_run_delivery_guardrails(run_cli, make_task):
     make_task("spike-only", body)
     r = run_cli("check", "--issue", "spike-only")
     assert r.returncode == 0, r
-    # the output should mention the spike route header
+    # the output should mention the spike delivery-approach header
     assert "spike" in r.stdout.lower(), r
     # delivery checks should NOT appear in a Spike check output
     assert "scenarios-have-tests" not in r.stdout, r

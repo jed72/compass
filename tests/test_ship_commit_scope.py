@@ -1,29 +1,23 @@
 """Shipping does not refuse the framework's own bookkeeping.
 
 `compass ship-commit` refuses to commit paths outside the issue's declared
-scope - its `changed_files` plus its artifact directory. That check earns its
-place: a repo-wide auto-formatter plus a whole-tree re-stage once took a real
-index from 23 files to 1,574, including a concurrent agent's uncommitted work.
+scope - its `changed_files` plus its artifact directory. The check is
+needed: a repo-wide auto-formatter plus a whole-tree re-stage once took a
+real index from 23 files to 1,574, including a concurrent agent's
+uncommitted work.
 
-But `.compass/current-task` sits beside `.compass/work/`, not inside the
-issue's directory, and triage writes it. So Compass refused to commit a file
-Compass had just written, and shipping stalled on the framework's own output
-with a message telling the author to record it as a changed file - which it
-is not.
+`.compass/current-task` sits outside the issue's directory and
+`/compass:assess` writes it, so the scope check must allow it by name.
 
-The fix widens the allowance by a named list, never by a prefix: anything
-under `.compass/` would re-admit a sibling issue's artifacts into this
-issue's commit, which is exactly what the check exists to stop.
+The allowance is a named list, never a prefix: anything under `.compass/`
+would re-admit a sibling issue's artifacts into this issue's commit, which
+is exactly what the check exists to stop.
 
 Scenario ids: see docs/system-spec.md (group D).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import pathlib
@@ -44,7 +38,8 @@ def _scope():
 
 
 def test_rcd_d1_current_task_pointer_in_scope():
-    """The pointer triage writes must not be refused by the commit that ships it."""
+    """The pointer /compass:assess writes must not be refused by the commit
+    that ships it."""
     owned, artifact_dir = _scope()
     stray = manifest._out_of_scope(
         ["src/app.py", ".compass/current-task"], owned, artifact_dir)
@@ -72,7 +67,7 @@ def test_rcd_d2_unrelated_file_still_refused():
     """The control, and the reason the check exists at all.
 
     Without this, D1 passes against a change that allowed everything - which
-    would re-open the case where a formatter's output rides into the commit.
+    would re-open the case where a formatter's output ends up in the commit.
     """
     owned, artifact_dir = _scope()
     stray = manifest._out_of_scope(
@@ -89,14 +84,13 @@ def test_rcd_d2b_a_sibling_issues_artifacts_are_still_refused():
     """The widening must be a named list, not a `.compass/` prefix.
 
     A prefix would let another issue's artifacts - or another agent's
-    in-progress work in the same tree - ride into this commit, which is the
+    in-progress work in the same tree - end up in this commit, which is the
     collision the scope check was built for.
     """
     owned, artifact_dir = _scope()
-    # `demo-2` EXTENDS `demo`. A slug sharing no prefix passes whether or not
-    # the artifact directory carries its trailing slash, so the earlier
-    # fixture left that boundary untested - and slugs that extend one another
-    # are ordinary here (rehearsal-recordings beside rehearsal-cli-defects).
+    # `demo-2` extends `demo`, which tests the trailing-slash boundary;
+    # slugs that extend one another are common here (rehearsal-recordings
+    # beside rehearsal-cli-defects).
     stray = manifest._out_of_scope(
         [".compass/work/demo-2/manifest.yml",
          ".compass/work/some-other-issue/manifest.yml"], owned, artifact_dir)
