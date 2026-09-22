@@ -1,15 +1,11 @@
-"""R3 - task lint's scenario schema agrees with the convention compass check
-already accepts: `intent` may be a string OR a list of strings, and `group` +
-`verifiable` are admitted optional fields. The widening is precise - a numeric
-intent, or a list with a non-string element, still fails.
+"""Issue lint's scenario schema agrees with the convention `compass check`
+already accepts (`R3`): `intent` may be a string OR a list of strings, and
+`group` + `verifiable` are admitted optional fields. The widening is precise
+- a numeric intent, or a list with a non-string element, still fails.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read `compass check`'s per-check detail, which it prints only
+# under `--verbose`.
 from __future__ import annotations
 
 
@@ -23,9 +19,9 @@ def _body(scenario):
 
 
 def test_baseline_lint_check_disagree_on_corpus_shape(run_cli, make_task):
-    """TRC-R3-1: the de-facto corpus shape (list intent + group + verifiable) is
+    """The de-facto corpus shape (list intent + group + verifiable) is
     accepted by compass check's scenario-has-id-and-intent - the check side that
-    the schema must be reconciled to."""
+    the schema must be reconciled to (`TRC-R3-1`)."""
     make_task("r3-base", _body(
         {"id": "TRC-Z1", "intent": ["INT-1", "INT-2"], "group": "A",
          "verifiable": "narrative", "tests": []}))
@@ -36,8 +32,8 @@ def test_baseline_lint_check_disagree_on_corpus_shape(run_cli, make_task):
 
 
 def test_corpus_shape_passes_after_fix(run_cli, make_task):
-    """TRC-R3-2: the corpus shape that fails lint today passes after the schema
-    is reconciled."""
+    """The corpus shape that fails lint today passes after the schema
+    is reconciled (`TRC-R3-2`)."""
     make_task("r3-corpus", _body(
         {"id": "TRC-Z1", "intent": ["INT-1", "INT-2"], "group": "A",
          "verifiable": "narrative", "tests": []}))
@@ -47,7 +43,7 @@ def test_corpus_shape_passes_after_fix(run_cli, make_task):
 
 
 def test_string_intent_still_passes(run_cli, make_task):
-    """TRC-R3-3: a plain-string intent still lints clean (backward compat)."""
+    """A plain-string intent still lints clean, backward compatible (`TRC-R3-3`)."""
     make_task("r3-str", _body(
         {"id": "TRC-Z2", "intent": "INT-1", "tests": ["tests/test_x.py::test_y"]}))
     r = run_cli("issue", "lint", "--issue", "r3-str")
@@ -55,7 +51,7 @@ def test_string_intent_still_passes(run_cli, make_task):
 
 
 def test_numeric_intent_still_fails(run_cli, make_task):
-    """TRC-R3-4: a numeric intent is still rejected - widened, not removed."""
+    """A numeric intent is still rejected - widened, not removed (`TRC-R3-4`)."""
     make_task("r3-num", _body({"id": "TRC-Z3", "intent": 7, "tests": []}))
     r = run_cli("issue", "lint", "--issue", "r3-num")
     assert r.returncode != 0, r
@@ -63,7 +59,7 @@ def test_numeric_intent_still_fails(run_cli, make_task):
 
 
 def test_list_intent_non_string_element_fails(run_cli, make_task):
-    """TRC-R3-5: a list intent with a non-string element is rejected."""
+    """A list intent with a non-string element is rejected (`TRC-R3-5`)."""
     make_task("r3-listbad", _body(
         {"id": "TRC-Z4", "intent": ["INT-1", 7], "tests": []}))
     r = run_cli("issue", "lint", "--issue", "r3-listbad")
