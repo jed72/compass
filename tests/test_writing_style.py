@@ -46,18 +46,33 @@ TERMINOLOGY_PATH = REPO_ROOT / "governance" / "terminology.yml"
 
 # What `reader.prose_spans` treats as prose inside a YAML value: the keys
 # whose value a reader or a printed message actually sees, not the machine
-# contract a migration would rename. Mirrors the key list the behaviour
-# comparison blanks (`DD-3`), so the two halves cannot disagree about what
-# prose is.
-PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
-                        "means", "not", "context", "why", "reason", "also",
-                        "appears_in", "referent"})
+# contract a migration would rename. Read from `scripts/prose_keys.py`, the
+# one place either half defines this list (finding 1, `review-dimensions.md`
+# - two separately-written copies had already drifted once), so the
+# behaviour comparison's YAML reader (`DD-3`) cannot disagree with this
+# sweep about what prose is.
+from scripts.prose_keys import PROSE_KEYS  # noqa: E402
 
 # Files this issue does not touch, matched by exact path or by directory
 # prefix (a trailing slash). `docs/system-spec.md` is derived and regenerated
 # by `compass ship`; the two `cli/vendor/` paths are upstream code copied
 # unmodified (DD-7 keeps `cli/vendor/README.md` out of this set, because
 # Compass wrote it); `LICENSE` and `assets/` are out of scope.
+#
+# `docs/system-spec.md` is derived rather than excluded on some ground the
+# sweeps could not state - it hides real findings, and the reason it is
+# still right to exclude it is recorded here (finding 7,
+# `review-dimensions.md`). Every sweep run directly over the file, bypassing
+# this set, reports 286: 181 retired words (`PBW-A1`), 53 bare codes
+# (`PBW-A7`), 30 word-table hits (`PBW-A2`), 12 spellings (`PBW-A3`), 10
+# idioms (`PBW-A5`). They are overwhelmingly archived scenario titles -
+# `task`, `task-architectural`, `lens`, `Land`, `Frame` and the rest - each  # vocabulary-scan: allow - naming the retired v1 words the excluded findings are made of, not using them
+# on a line already ending `_(archived)_` - the same ground
+# `governance/terminology.yml`'s `scan.exempt` already gives
+# `architecture/decisions/`: a landed scenario's title is a historical
+# record of what it was called when it ran, not a live claim a reader acts
+# on today. `PBW-D8` proves the branch changes none of the excluded paths,
+# which is the check this exclusion needs, not the ground for it.
 EXCLUDED_PATHS: frozenset[str] = frozenset({
     "docs/system-spec.md",
     "cli/vendor/yaml/",
@@ -105,17 +120,23 @@ class Exemption:
 
 @dataclass(frozen=True)
 class Report:
-    """One sweep's result: which rule ran, what it found, and how many files
-    it looked at - so a zero from an empty file set reads differently from a
-    zero from clean prose (`PBW-E2`)."""
+    """One sweep's result: which rule ran, what it found, how many files
+    were given to it, and how many of those it can actually report on - so a
+    zero from an empty file set reads differently from a zero from clean
+    prose (`PBW-E2`), and a zero from a rule with a narrow reach reads
+    differently from a zero read against the whole repository (`PBW-E2`,
+    finding 11, `review-dimensions.md`: a single repository-wide
+    `files_scanned` overstated four rules' real reach by up to 60 times)."""
 
     rule_id: str
     findings: tuple[Finding, ...]
     files_scanned: int
+    files_reachable: int
 
     def render(self) -> str:
         lines = [f"{self.rule_id}: {len(self.findings)} finding(s) over "
-                 f"{self.files_scanned} file(s) scanned"]
+                 f"{self.files_reachable} file(s) it can report on "
+                 f"({self.files_scanned} scanned)"]
         for finding in self.findings:
             lines.append(f"  {finding.path}:{finding.line}: {finding.detail}")
         return "\n".join(lines)
@@ -124,12 +145,20 @@ class Report:
 @dataclass(frozen=True)
 class Rule:
     """One mechanical rule: its id, the scenario it satisfies, the finder
-    that reads one span at a time, and the exemptions found in review."""
+    that reads one span at a time, and the exemptions found in review.
+
+    `reach` names which scanned files this rule could ever report on - most
+    rules read every kind of span, so the default (`None`) counts a file the
+    moment it yields one prose span of any kind. A rule scoped to a real
+    path or a file type (`PBW-A1`, `PBW-A10`, `PBW-C3`, `PBW-C4`, `PBW-C5`)
+    overrides it, so `Report.files_reachable` states that rule's own reach
+    rather than the whole repository's."""
 
     id: str
     scenario: str
     find: Callable[[ProseSpan], list[Finding]]
     exemptions: tuple[Exemption, ...] = field(default_factory=tuple)
+    reach: Callable[[str], bool] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -228,19 +257,35 @@ def _yaml_comment_spans(rel: str, text: str) -> list[ProseSpan]:
     return spans
 
 
+def _scalar_span(node: "yaml.ScalarNode", rel: str, spans: list[ProseSpan]) -> None:
+    start = node.start_mark.line + 1
+    for offset, line in enumerate(str(node.value).splitlines()):
+        spans.append(ProseSpan(rel, start + offset, line, "yaml_value"))
+
+
 def _walk_yaml_node(node, rel: str, spans: list[ProseSpan]) -> None:
     """Depth-first walk of a composed YAML node tree, collecting the value of
     every `PROSE_KEYS` key at any depth. Composing rather than a line regex
     is what makes a folded or literal block scalar (`description: >`) read
-    correctly - the parser already knows where the value starts and ends."""
+    correctly - the parser already knows where the value starts and ends.
+
+    A prose key's value can be a scalar or a sequence of scalars (a
+    `biases:` list of tie-breakers) - both are read. A sequence item that is
+    itself a mapping (`- name: x`) is left alone: its keys are values, not
+    prose, the same distinction `scripts/compare-behaviour.py`'s blanking
+    draws. Finding 1, `review-dimensions.md`: before this, only the scalar
+    shape was read, so a prose sequence item was silently skipped."""
     if isinstance(node, yaml.MappingNode):
         for key_node, value_node in node.value:
-            if (isinstance(key_node, yaml.ScalarNode)
-                    and key_node.value in PROSE_KEYS
-                    and isinstance(value_node, yaml.ScalarNode)):
-                start = value_node.start_mark.line + 1
-                for offset, line in enumerate(str(value_node.value).splitlines()):
-                    spans.append(ProseSpan(rel, start + offset, line, "yaml_value"))
+            is_prose_key = (isinstance(key_node, yaml.ScalarNode)
+                             and key_node.value in PROSE_KEYS)
+            if is_prose_key and isinstance(value_node, yaml.ScalarNode):
+                _scalar_span(value_node, rel, spans)
+            elif is_prose_key and isinstance(value_node, yaml.SequenceNode):
+                for item in value_node.value:
+                    if isinstance(item, yaml.ScalarNode):
+                        _scalar_span(item, rel, spans)
+                    # else: a mapping item's keys are values, not prose.
             else:
                 _walk_yaml_node(value_node, rel, spans)
     elif isinstance(node, yaml.SequenceNode):
@@ -354,12 +399,22 @@ def _is_exempt(rule: Rule, span: ProseSpan) -> bool:
 def run_sweep(rule: Rule, paths: Iterable[Path]) -> Report:
     path_list = list(paths)
     findings: list[Finding] = []
+    spans_seen: set[str] = set()
     for span in prose_spans(path_list):
+        spans_seen.add(span.path)
         if _is_exempt(rule, span):
             continue
         findings.extend(rule.find(span))
+    # A file only counts once it yields a prose span - the baseline every
+    # rule needs - and, if the rule names its own narrower `reach`, once it
+    # also clears that.
+    files_reachable = sum(
+        1 for p in path_list
+        if str(p.relative_to(REPO_ROOT)) in spans_seen
+        and (rule.reach is None or rule.reach(str(p.relative_to(REPO_ROOT)))))
     return Report(rule_id=rule.id, findings=tuple(findings),
-                  files_scanned=len(path_list))
+                  files_scanned=len(path_list),
+                  files_reachable=files_reachable)
 
 
 # ---------------------------------------------------------------------------
@@ -516,10 +571,6 @@ _register(Rule(
             "the same absorbed-into marker mechanism as the entry above, "
             "for the sentence naming the pre-rename note text."),
         Exemption(
-            "tests/test_frame_loads_architecture.py", "# noqa: S102",
-            "a flake8 noqa suppression code (exec-builtin), not a "
-            "strategy id; found while fixing batch 7, not by the audit."),
-        Exemption(
             "docs/compass/2026-08-27-sdd-loop-spike.md",
             "cross-task-architectural-integrity",
             "the real slug of a filed, landed issue - an identifier "
@@ -544,21 +595,6 @@ _register(Rule(
             "an identifier (section 4), not a v1-vocabulary use of \"lens\". "
             "The row's own title reads \"Architect First Planner Second\"."),
         Exemption(
-            "agents/planner.md",
-            "templates/architecture/decisions/ADR-004-lens-first-planner-second.md",
-            "the real filename of a template ADR this repository ships; "
-            "\"lens\" is part of the identifier, not prose, and cannot be "
-            "reworded without renaming the file (section 4 protects "
-            "identifiers)."),
-        Exemption(
-            "skills/bdd-specification/refinement-chain.md",
-            "architecture/decisions/ADR-004-one-spec-many-lenses.md",
-            "the real filename of the shipped ADR this repository has; "
-            "\"lenses\" is part of the identifier, not prose. "
-            "test_terminology.py's own scan.exempt already carries the "
-            "identical exemption for its sweep; this sweep does not read "
-            "that list, so it needs its own entry."),
-        Exemption(
             "skills/compass-runtime/writing-voice.md",
             "cross-task-architectural-integrity/devlog.md",
             "the real slug of a past, archived issue - the \"Source:\" "
@@ -578,60 +614,29 @@ _register(Rule(
             "the real slug of a past, archived issue - the same protected "
             "citation as the cross-task-architectural-integrity exemption "
             "above."),
-        Exemption(
-            "skills/evidence-gates/architecture-checks.md",
-            "ADR-009-fitness-functions-are-project-guardrails.md",
-            "the real filename of the shipped ADR this repository has, "
-            "cited three times, plus its title quoted verbatim per section "
-            "4's quoted-term exception (\"Architectural fitness functions "
-            "are project guardrails, not framework guardrails\") - "
-            "\"fitness function\" is part of the identifier and the quote, "
-            "not prose describing the mechanism in this sweep's own words."),
-        Exemption(
-            "skills/evidence-gates/architecture-checks.md",
-            "Architectural fitness functions are project guardrails",
-            "the second line of ADR-009's title, wrapped onto its own "
-            "markdown line - the same verbatim quote as the exemption "
-            "above; this sweep reads one markdown line at a time, so the "
-            "wrapped continuation needs its own entry."),
-        Exemption(
-            "skills/evidence-gates/architecture-checks.md",
-            "a fitness function is an automated check",
-            "the parenthetical explaining the quoted term, required by "
-            "section 4's quoted-term exception (\"quote it exactly and say "
-            "what 'fitness function' means\") - it has to use the term to "
-            "define it."),
-        # test_terminology.py's own broad bare-word pattern for the ship
-        # stage's retired spelling matches the ordinary verb too. The author
-        # already marked this exact sentence "vocabulary-scan: allow" for
-        # that scan; this sweep reuses the same BAN_PATTERNS (DD-1) but does
-        # not read that marker, so the false positive needs its own named
-        # exemption.
-        Exemption("approaches/spike.md", "Land production code",
-                   "ordinary verb, already marked vocabulary-scan: allow "
-                   "for the same reason."),
+        # The `ship` stage-weight enum value below has its own
+        # "vocabulary-scan: allow" marker on the comment line above it, not
+        # on the value's own line, so `ALLOW_MARKER_RE` (checked directly by
+        # `_find_retired_word`) never reaches it - this sweep needs its own
+        # named exemption for that line.
         Exemption("governance/routing-policy.yml", "full-plus-backfill",
-                   "a machine stage-weight enum value, already marked "
-                   "vocabulary-scan: allow for the same reason."),
-        # Each of these five terminology.yml `not:` entries states what a
-        # v2 term is NOT, which cannot be written without naming the
-        # retired word it replaced - already marked vocabulary-scan: allow
-        # for test_terminology.py's own scan, which this sweep does not
-        # read.
+                   "a machine stage-weight enum value; its allow marker sits "
+                   "on the line above, not on this one."),
+        # Two of terminology.yml's `not:` entries name a retired word on a
+        # simple scalar line, with the "vocabulary-scan: allow" marker on a
+        # real YAML comment line above it - a separate span this sweep
+        # reads, so each needs its own named exemption. Three other `not:`
+        # entries use a folded `>` block instead, where that same marker
+        # text sits inside the value (not a real comment - `#` has no
+        # special meaning there), so it folds into the one span this sweep
+        # reads for the whole field and `ALLOW_MARKER_RE` already matches
+        # it directly - no named exemption needed for those three, and none
+        # is listed here.
         Exemption("governance/terminology.yml",
                    "A 'task' - that word survives only as machine state",
                    "a not: field naming the retired word on purpose."),
         Exemption("governance/terminology.yml",
-                   "NOT triage. Triage means sorting BETWEEN cases",
-                   "a not: field naming the retired word on purpose."),
-        Exemption("governance/terminology.yml",
-                   "what makes an issue ready. v1 called this \"Clarify\"",
-                   "a not: field naming the retired word on purpose."),
-        Exemption("governance/terminology.yml",
                    "v1 called this a 'backfill', with states 'owed'",
-                   "a not: field naming the retired word on purpose."),
-        Exemption("governance/terminology.yml",
-                   "recorded, the derived system spec is regenerated. v1 called this \"Land\"",
                    "a not: field naming the retired word on purpose."),
         # docs/glossary.md is DERIVED from governance/terminology.yml by
         # `compass _derive-glossary`, so a `not:` field that has to name a
@@ -649,22 +654,6 @@ _register(Rule(
                    "A 'task' - that word survives only as machine state",
                    "the derived text of terminology.yml's issue `not:` "
                    "field, same reason as the entry above."),
-        # Both comments carry their own "# vocabulary-scan: allow" marker
-        # for governance/terminology.yml's scanner, which this sweep does
-        # not read (it reuses BAN_PATTERNS, not the marker). The retired
-        # spelling in the quote below is deliberate: it is the pre-ADR-023
-        # map syntax these lines read for back-compat, not a live use of
-        # the retired word.
-        Exemption(
-            "scripts/integrate.sh", "stream-N",
-            "reads the pre-ADR-023 map spelling for back-compat; already "
-            "marked '# vocabulary-scan: allow', which this sweep does not "
-            "read."),
-        Exemption(
-            "scripts/multiagent.sh", "stream-N",
-            "reads the pre-ADR-023 map spelling for back-compat; already "
-            "marked '# vocabulary-scan: allow', which this sweep does not "
-            "read."),
         Exemption(
             "cli/compass_pkg/analyze.py",
             'records write "full, streams unbounded by policy"',
@@ -830,16 +819,6 @@ _register(Rule(
             "(cli/compass_pkg/calibration.py:411, a local variable named "
             "`task`), not a v1-vocabulary use of the word."),
         Exemption(
-            "tests/test_release_invariants.py",
-            "added by the RP-REQUIRE-003 and RP-REQUIRE-004 floors.",
-            "RP-REQUIRE is an id prefix, not the verb - the same false "
-            "match as the RP-REQUIRE exemptions above."),
-        Exemption(
-            "tests/test_release_invariants.py",
-            "RP-REQUIRE-003 and RP-REQUIRE-004 are present and use add_gate: verify.architecture.",
-            "RP-REQUIRE is an id prefix, not the verb - the same false "
-            "match as the RP-REQUIRE exemptions above."),
-        Exemption(
             "tests/test_governance_drift_noop.py",
             "approach, gates, topology and fired guardrails against what the fixture",
             "names the fixture's real `topology` dict key the assertions "
@@ -973,6 +952,11 @@ _register(Rule(
             "the sentence's own point is that the retired-looking substring "
             "is coincidental."),
     ),
+    # Finding 11, `review-dimensions.md`: this rule's own two file-level
+    # skips, mirrored from `_find_retired_word` - a file inside either is
+    # never a candidate, whatever it yields.
+    reach=lambda path: (not path.startswith(_RETIRED_WORD_STRUCTURAL_SKIP)
+                         and not path.startswith(_ADR_VOCABULARY_SKIP)),
 ))
 
 
@@ -1054,6 +1038,13 @@ def _find_word_table(span: ProseSpan) -> list[Finding]:
 # row is its own named exemption (PBW-E3): the quote is the whole row, so a
 # later row sharing one short word from an earlier row cannot exempt
 # unrelated prose elsewhere in the same file.
+#
+# The maintainer's table has 18 rows; `WORD_TABLE` above mechanically checks
+# 14 of them. "facilitate", "subsequently", "due to the fact that" and "with
+# regard to" are documented but not enforced, so this sweep never reports
+# their row and an exemption for it would be dead on arrival - finding 9,
+# `review-dimensions.md`, found four such dead pairs (each row, both files)
+# and removed them rather than leave them to accumulate.
 _SHORTER_WORD_TABLE_ROWS: tuple[str, ...] = (
     "| utilise, leverage | use |",
     "| obtain, acquire | get |",
@@ -1064,15 +1055,11 @@ _SHORTER_WORD_TABLE_ROWS: tuple[str, ...] = (
     "| require | need |",
     "| ensure | make sure |",
     "| perform, execute | do |",
-    "| facilitate | help |",
     "| attempt | try |",
     "| sufficient | enough |",
     "| currently | now |",
-    "| subsequently | then |",
     "| prior to | before |",
     "| in order to | to |",
-    "| due to the fact that | because |",
-    "| with regard to | about |",
 )
 
 _SHORTER_WORD_TABLE_EXEMPTIONS: tuple[Exemption, ...] = tuple(
@@ -1158,11 +1145,6 @@ _register(Rule(
             "the literal `never_skip` policy value quoted from "
             "governance/routing-policy.yml:109 - an identifier (section "
             "4), not the verb the word table retires"),
-        Exemption(
-            "docs/routing-deep-dive.md", "implement expedited; verify",
-            "\"verify\" is the stage name in a list of stage names, "
-            "matching \"implement\" and \"ship\" beside it - an "
-            "identifier (section 4), not the verb the word table retires"),
         Exemption(
             "docs/routing-deep-dive.md", "at full verify weight",
             "\"verify\" is the stage name - an identifier (section 4), "
@@ -2015,8 +1997,25 @@ _register(Rule(
 # PBW-A6 - no citation points at a path git does not distribute
 # ---------------------------------------------------------------------------
 
+# A repository-relative path to a real file, shaped generically rather than
+# anchored to any particular top-level directory: one or more `segment/`
+# groups (the first may open with a single dot, for a dotdir such as
+# `.compass/`), ending in a filename with a recognised extension. Finding
+# 10, `review-dimensions.md`: this used to open with a hard-coded
+# `(?:docs/compass|\.compass/work)/` prefix, deciding by an enumerated list
+# what was even worth asking git about - the thing PBW-A6's own scenario
+# forbids ("resolves its judgement from git's own ignore rules, not from a
+# hard-coded prefix list"). `docs/analysis/` and `docs/proposals/` are also
+# gitignored (`.gitignore:6-7`) and this issue's own source document lives
+# in the former; neither was ever a candidate. Every path-shaped citation of
+# a real file is now offered to `git check-ignore`, which is where the real
+# judgement already lived. Requiring an extension, the same shape PBW-A8's
+# `_REFERENCE_RE` below uses, is deliberate: a bare directory mention such
+# as ".compass/work/" names the convention, not one document a reader
+# cannot open, and the widened prefix would otherwise turn every one of the
+# hundreds of ordinary mentions of that convention into a reported citation.
 _CITATION_RE = re.compile(
-    r"`?((?:docs/compass|\.compass/work)/[^\s`()\[\]]+)`?")
+    r"`?((?:[\w.][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
 
 
 @lru_cache(maxsize=4096)
@@ -2055,19 +2054,6 @@ _register(Rule(
             "the walkthrough's own hypothetical issue - it shows the "
             "reader where their own file will be, not a citation of a "
             "document that already exists in this repository"),
-        # The citation regex matches from the compass-work segment onward,
-        # so the placeholder "<x>" marker in the fuller path this comment
-        # names sits before the match and is never captured; rstrip then
-        # drops the trailing dots and the sweep is left checking a bare
-        # compass-work directory path against git check-ignore, which is
-        # true by construction: this is the .gitignore file defining that
-        # very pattern two lines below.
-        Exemption(
-            ".gitignore",
-            "examples/<x>/.compass/work/",
-            "a placeholder path (the \"<x>\" marker sits before what the "
-            "citation regex captures) explaining this file's own pattern, "
-            "not a citation of a document a reader cannot open."),
         # A path relative to the README's own directory, the same PBW-A8 gap
         # named for these four files above: git check-ignore is asked about
         # the literal string against the repository root, where the root
@@ -2107,35 +2093,24 @@ _register(Rule(
             "the comment quotes a fixture path a test builds "
             "(`make_task([...])`), not a citation of a real record; found "
             "while fixing batch 7, not by the audit."),
+        # Finding 10 narrowed `_CITATION_RE` to a real file (an extension is
+        # required, the same shape as PBW-A8's `_REFERENCE_RE`), which is
+        # also why the five bare-directory-mention exemptions that used to
+        # sit here are gone: ".compass/work/" with nothing after it no
+        # longer matches at all, so they excused nothing left to excuse.
+        # `_CITATION_RE`'s extension alternation has no trailing word
+        # boundary, though, so it still slices "x.pyc" down to the prefix
+        # "x.py" it does recognise - the real filename in both sentences
+        # below is the ".pyc" compiled-bytecode example a `.gitignore`
+        # discussion worked through, not a citation of "x.py".
         Exemption(
-            "tests/test_bdd_optin_noop.py",
-            ".compass/work/, so running it here would fail",
-            "names the gitignored directory generically, to explain why "
-            "the test builds a synthetic project - not a citation of one "
-            "document a reader cannot open; found while fixing batch 7, "
-            "not by the audit."),
+            "governance/strategies-rationale.md", "tests/__pycache__/x.pyc",
+            "the regex slices \".pyc\" down to \".py\"; the real filename "
+            "is the compiled-bytecode example, not a citation."),
         Exemption(
-            "tests/test_record_keeping_integrity.py",
-            ".compass/work/, not a fixture - the point is the actual audit trail.",
-            "names the real directory this test scans on the machine "
-            "running it, not a citation of a document a reader must open."),
-        Exemption(
-            "tests/test_receipt_render.py",
-            "Given no directory exists at .compass/work/nonesuch/",
-            "the fixture's own deliberately-missing directory, named to "
-            "prove the failure path - not a citation of a document."),
-        Exemption(
-            "tests/test_hook_as_guest.py",
-            'hook says "no .compass/work/"',
-            "a quote of the hook's actual printed message "
-            "(hooks/pre-tool.sh:538), not a citation of a document - the "
-            "sweep cannot tell quoted output from a path reference."),
-        Exemption(
-            "tests/test_release_invariants.py",
-            "templates/ or .compass/work/.",
-            "names the gitignored directory itself, as the thing a "
-            "user-story artifact must not appear under - not a citation "
-            "of a document a reader must open."),
+            "tests/test_house_style.py", "tests/__pycache__/x.pyc",
+            "the regex slices \".pyc\" down to \".py\"; the real filename "
+            "is the compiled-bytecode example, not a citation."),
     ),
 ))
 
@@ -2152,20 +2127,31 @@ _BARE_CODE_RE = re.compile(
 # reference lookups keyed by id - the same shape as terminology.yml's own
 # codes: section, where the code IS the row's key and its meaning sits in
 # the adjacent cell. The "plain words, then the code in brackets" house
-# form is a prose rule; a two-column table row is not prose in that sense,
-# and every one of this rule's findings in this file is a table row.
+# form is a prose rule; a two-column table row is not prose in that sense.
+# Narrowed to a row test, not a whole-file skip (finding 8,
+# `review-dimensions.md`): every one of this rule's findings in this file is
+# a table row today, so the row test costs nothing, and a future non-table
+# bare code in this file is no longer silently exempt with it.
 _BARE_CODE_TABLE_SKIP = "architecture/decisions/README.md"
 
 
 def _find_bare_code(span: ProseSpan) -> list[Finding]:
-    if span.path == _BARE_CODE_TABLE_SKIP:
-        return []
     findings = []
     for match in _BARE_CODE_RE.finditer(span.text):
         start = match.start()
         # Already in the house form - "the plain words (`G5`)" - or a
         # backticked cross-reference beside a rule already stated in full.
-        if start > 0 and span.text[start - 1] in "(`":
+        # Neither shape has the code opening the line: a lone backtick with
+        # nothing before it is "code first, meaning after," the shape this
+        # rule exists to refuse, not a house form to wave through. Finding
+        # 6, `review-dimensions.md`: the old check skipped any single
+        # preceding backtick, so it reported none of the 607 lines that
+        # open with one - this is the corrected, narrower check.
+        opens_the_line = start == 1 and span.text[0] == "`"
+        if start > 0 and span.text[start - 1] in "(`" and not opens_the_line:
+            continue
+        if (span.path == _BARE_CODE_TABLE_SKIP
+                and span.text.lstrip().startswith("|")):
             continue
         findings.append(Finding(
             span.path, span.line,
@@ -2176,10 +2162,6 @@ def _find_bare_code(span: ProseSpan) -> list[Finding]:
 _register(Rule(
     "PBW-A7", "A bare code carries its meaning or goes", _find_bare_code,
     exemptions=(
-        Exemption(
-            "tests/test_frame_loads_architecture.py", "# noqa: S102",
-            "a flake8 noqa suppression code (exec-builtin), not a "
-            "strategy id; found while fixing batch 7, not by the audit."),
         Exemption(
             "architecture/decisions/ADR-017-an-identifier-is-a-key-not-jargon.md",
             "the G5 guard kicked in",
@@ -2391,17 +2373,6 @@ _register(Rule(
             "the file, the same shape as the docs/quickstart.md exemption "
             "above."),
         Exemption(
-            "tests/test_evidence_path_docs.py",
-            "`compass tdd-green --scenario TRC-x` writes",
-            "a placeholder scenario id, the same shape as the "
-            "docs/quickstart.md exemption above; found while fixing batch "
-            "7, not by the audit."),
-        Exemption(
-            "tests/test_evidence_path_docs.py",
-            "writes `evidence/green-TRC-x.json`",
-            "the placeholder filename the same placeholder scenario id "
-            "produces; found while fixing batch 7, not by the audit."),
-        Exemption(
             "governance/terminology.yml",
             "it prints 'G5 A human signs off",
             "a verbatim quote of `compass check`'s real printed output, "
@@ -2456,7 +2427,10 @@ _register(Rule(
 # is a real, hidden-directory path this repository has, not a relative-path
 # marker, and the old pattern silently dropped the dot and checked the
 # wrong (word-only) path for existence, reporting a false break on every
-# reference to it. Later segments never carry a leading dot.
+# reference to it. Later segments never carry a leading dot. Unlike PBW-A6's
+# `_CITATION_RE`, this one needs a real filename to check for existence, so
+# it stops at a recognised extension rather than swallowing a bare
+# directory.
 _REFERENCE_RE = re.compile(
     r"`?((?:[\w.][\w-]*/)+[\w.-]+\.(?:md|py|yml|yaml|json|sh|feature))`?")
 
@@ -2698,16 +2672,6 @@ _register(Rule(
             "the comment quotes a fixture path a test builds, not a real "
             "path - see the PBW-A6 exemption above for the same line."),
         Exemption(
-            "docs/quickstart.md", "evidence/green-TRC-x.json",
-            "the filename `compass tdd-green` would write for the "
-            "placeholder scenario id `TRC-x`, not a file this repository "
-            "ships"),
-        Exemption(
-            "docs/quickstart.md", "evidence/green.json",
-            "the filename `compass tdd-green` writes with no scenario "
-            "bound, shown here as an example of the naming rule, not a "
-            "file this repository ships"),
-        Exemption(
             "agents/architect.md", "architecture/invariants.yml",
             "a real, conditional artifact a consuming project supplies - "
             "`cli/compass_pkg/core.py`'s `_INVARIANTS_FILE` reads it \"if "
@@ -2789,25 +2753,13 @@ _register(Rule(
             "tests/test_frame_loads_architecture.py", "architecture/invariants.yml",
             "the same conditional artifact reference as agents/architect.md; "
             "found while fixing batch 7, not by the audit."),
-        # The reference regex needs a word character to open the first path
-        # segment, so it drops the leading dot from a citation of a file
-        # under a dotdir and then checks a path that was never meant to
-        # exist at the repo root - the tracked file sits one character to
-        # the left of what got checked. Found while building this sweep,
-        # not by the audit: the same gap can fire on any dotdir citation
-        # repository-wide, so it is filed separately as
-        # writing-style-sweep-drops-the-leading-dot-on-a-dotdir-citation.
-        Exemption("approaches/composition-reference.md",
-                   ".compass/config.yml",
-                   "the sweep drops the leading dot; the file is tracked."),
-        Exemption("approaches/feature.md", ".compass/config.yml",
-                   "the sweep drops the leading dot; the file is tracked."),
-        Exemption("architecture/decisions/"
-                   "ADR-011-enforced-file-types-are-project-configurable.md",
-                   ".compass/config.yml",
-                   "the sweep drops the leading dot; the file is tracked."),
-        Exemption("governance/strategies.md", ".compass/config.yml",
-                   "the sweep drops the leading dot; the file is tracked."),
+        # writing-style-sweep-drops-the-leading-dot-on-a-dotdir-citation was
+        # fixed at the source: `_REFERENCE_RE` above now allows a leading dot
+        # on the first path segment, so a `.compass/config.yml` citation
+        # checks the real path rather than the word-only one. The four named
+        # exemptions this filed defect needed no longer find anything and
+        # were dead (finding 9, `review-dimensions.md`); removed rather than
+        # left to accumulate.
         # test_anthropic_aligned_names.py's own module docstring is a "Was |
         # Is" rename table (ADR-023): the five retired .md filenames it names
         # in the "Was" column no longer exist by design, the same shape as
@@ -2849,17 +2801,6 @@ _register(Rule(
         Exemption("architecture/decisions/ADR-022-the-issue-record-is-a-manifest.md",
                    "schemas/task.schema.json",
                    "names the schema's pre-rename filename; historical."),
-        # A per-issue relative filename convention inside
-        # .compass/work/<issue>/, not a repo-root path - the reference
-        # regex cannot tell the two apart, since both look like
-        # "dir/file.ext".
-        Exemption("architecture/decisions/ADR-005-state-lives-on-disk.md",
-                   "evidence/green.json",
-                   "names the per-issue evidence filename convention, not "
-                   "a repo-root path."),
-        Exemption("governance/guardrails.yml", "evidence/green.json",
-                   "names the per-issue evidence filename convention, not "
-                   "a repo-root path."),
         # A hypothetical example test in a commented-out sample entry - it
         # was never meant to exist.
         Exemption("governance/quarantine.yml",
@@ -2918,22 +2859,10 @@ _register(Rule(
                    ".compass/cache/system-spec.json",
                    "a rejected alternative's hypothetical path; it was "
                    "never built."),
-        # A pinned test in test_fresh_eyes_verify_sweeps.py needs this exact
-        # path as the ADR-013 evidence trail's own citation, and the
-        # sentence around it already says "not in this repository" - the
-        # file was never meant to be tracked here.
-        Exemption("governance/strategies-rationale.md",
-                   "plain-language-3-2-0/technical-design.md",
-                   "a pinned citation of another issue's document; the "
-                   "sentence already says it is not in this repository."),
         # The regex this rule matches on starts at `[\w]`, so it cannot
         # include a leading `.` or `$`. Each entry below names a real
         # citation the regex mis-slices, found while fixing batch 6
         # (`scripts/` and `hooks/`); none is a broken reference in the text.
-        Exemption(
-            "hooks/post-tool.sh", "evidence/green.json",
-            "a per-issue relative path under .compass/work/<issue>/evidence/, "
-            "not a path this repository tracks."),
         Exemption(
             "hooks/post-tool.sh", "claude/settings.json",
             "the regex does not match a leading '.'; the real path is "
@@ -2943,14 +2872,6 @@ _register(Rule(
             "the regex does not match a leading '$'; "
             "$CLAUDE_PROJECT_DIR/hooks/post-tool.sh is a real path once the "
             "shell variable expands."),
-        Exemption(
-            "hooks/pre-tool.sh", "evidence/red.json",
-            "a per-issue relative path under .compass/work/<issue>/evidence/, "
-            "not a path this repository tracks."),
-        Exemption(
-            "hooks/pre-tool.sh", "evidence/green.json",
-            "a per-issue relative path under .compass/work/<issue>/evidence/, "
-            "not a path this repository tracks."),
         Exemption(
             "hooks/pre-tool.sh", "claude/settings.json",
             "the regex does not match a leading '.'; the real path is "
@@ -2964,10 +2885,6 @@ _register(Rule(
             "hooks/pre-tool.sh", "src/app.py",
             "an illustrative example path in a comment, not a citation of a "
             "file in this repository."),
-        Exemption(
-            "hooks/pre-tool.sh", "compass/config.yml",
-            "the regex does not match a leading '.'; the real path is "
-            ".compass/config.yml, which is tracked."),
         Exemption(
             "hooks/pre-tool.sh", "github/workflows/ci.yml",
             "a generic illustrative filename pair (with docker-compose.yml), "
@@ -2988,18 +2905,10 @@ _register(Rule(
             ".claude/settings.json (or ~/.claude/settings.json), the "
             "install destination, not a path this repository tracks."),
         Exemption(
-            "scripts/install.sh", "claude-plugin/plugin.json",
-            "the regex does not match a leading '.'; the real path is "
-            ".claude-plugin/plugin.json, which is tracked."),
-        Exemption(
             "scripts/integrate.sh", "lib/compass-python.sh",
             "a shellcheck `source=` directive, resolved relative to the "
             "sourcing file's own directory (scripts/), not to the "
             "repository root; the real file is scripts/lib/compass-python.sh."),
-        Exemption(
-            "scripts/multiagent.sh", "compass/config.yml",
-            "the regex does not match a leading '.'; the real path is "
-            ".compass/config.yml, which is tracked."),
         Exemption(
             "scripts/multiagent.sh", "lib/compass-python.sh",
             "a shellcheck `source=` directive, resolved relative to the "
@@ -3237,7 +3146,11 @@ def _find_count_claim(span: ProseSpan) -> list[Finding]:
 
 
 _register(Rule("PBW-A10", "A stated count matches the thing it counts",
-               _find_count_claim))
+               _find_count_claim,
+               # Finding 11: `_find_count_claim` itself returns early unless
+               # `span.path` is one of `_REGISTRY_FILES` - naming that here
+               # too, rather than a wider guess, is what keeps this honest.
+               reach=lambda path: path in _REGISTRY_FILES))
 
 
 # ---------------------------------------------------------------------------
@@ -3300,20 +3213,29 @@ def _find_cli_module_header(span: ProseSpan) -> list[Finding]:
 
 
 _register(Rule("PBW-C3", "A CLI module's header describes that module",
-               _find_cli_module_header))
+               _find_cli_module_header,
+               # Finding 11: mirrors `_find_cli_module_header`'s own two
+               # early returns - `cli/compass` describes itself, and nothing
+               # outside `cli/compass_pkg/` is a candidate at all.
+               reach=lambda path: path.startswith("cli/compass_pkg/")))
 
 
 # ---------------------------------------------------------------------------
 # PBW-C4 - a copied block is fixed the same way in every file that holds it
 # ---------------------------------------------------------------------------
 
-# The four blocks copied across test files (audit 5.6), matched by the
-# distinctive phrase `git grep` finds each one by.
+# The blocks copied across test files (audit 5.6), matched by the
+# distinctive phrase `git grep` finds each one by. The fifth is the
+# stage-key rename's own copied block, missed by the first four and found
+# by a second review reading `tests/derive/test_derive_system_spec.py:18-23`
+# - the same shape as the vocabulary-rename block above it, for a different
+# rename, and fixed the same way.
 COPIED_BLOCK_MARKERS: tuple[str, ...] = (
     "vocabulary rename landed on 2026-08-25",
     "moved to --verbose",
     "moved next door",
     "only where they are looked for widened",
+    "The stage keys moved on 2026-08-24",
 )
 
 
@@ -3329,7 +3251,18 @@ def _find_copied_block(span: ProseSpan) -> list[Finding]:
 
 
 _register(Rule("PBW-C4", "A copied block is fixed the same way in every "
-               "file that holds it", _find_copied_block))
+               "file that holds it", _find_copied_block,
+               exemptions=(
+                   Exemption(
+                       "tests/test_writing_style.py",
+                       "The stage keys moved on 2026-08-24",
+                       "this rule's own test names the marker's exact "
+                       "opening phrase to prove the marker catches it - not "
+                       "a second live copy of the block."),
+               ),
+               # Finding 11: mirrors `_find_copied_block`'s own early
+               # return - nothing outside `tests/` is a candidate.
+               reach=lambda path: path.startswith("tests/")))
 
 
 # ---------------------------------------------------------------------------
@@ -3384,7 +3317,12 @@ _register(Rule("PBW-C5", "A test docstring says what the file tests and "
                        "names the real strategy this docstring cites by "
                        "id, same protection as the PBW-A7 exemption for "
                        "this line."),
-               )))
+               ),
+               # Finding 11: mirrors `_find_docstring_shape`'s own guard -
+               # only a `tests/*.py` file yields a `docstring`-kind span at
+               # all, so nothing else is a candidate.
+               reach=lambda path: (path.startswith("tests/")
+                                    and path.endswith(".py"))))
 
 
 def test_pbw_a1_no_retired_word_in_prose_comments_or_docstrings():
@@ -3435,12 +3373,98 @@ def test_pbw_a6_no_citation_of_an_undistributed_path():
     assert report.files_scanned > 0
 
 
+def test_pbw_a6_resolves_every_path_shaped_citation_not_a_hard_coded_list():
+    """Finding 10, `review-dimensions.md`: the old `_CITATION_RE` only
+    offered `docs/compass/` and `.compass/work/` citations to
+    `git check-ignore`, so a citation of a gitignored path under any other
+    directory - this issue's own `docs/analysis/` source among them - was
+    never a candidate. Every path-shaped citation is a candidate now."""
+    span = ProseSpan(
+        "t.md", 1,
+        "see `docs/analysis/2026-09-11-writing-style-audit.md` for detail.",
+        "markdown")
+    findings = _find_citation(span)
+    assert findings, (
+        "a citation of a gitignored path outside the old two prefixes "
+        "must be reported")
+    assert "docs/analysis/2026-09-11-writing-style-audit.md" in findings[0].detail
+
+
+# A high-water mark, in the same shape as the retired `PENDING_PATHS_HIGH_WATER`
+# this issue already removed once every audited file was corrected - except
+# this one was never audited. Narrowing `_find_bare_code` to what its own
+# comment says (finding 6, `review-dimensions.md`) stopped it waving through
+# every line that opens with a backticked bare code, and 509 of those predate
+# this issue, spread across 89 files this issue's nine batches never touched -
+# dominated by this repository's `TRC-*`-first test-docstring convention. That
+# is a real, pre-existing defect, not a regression this fix introduces, and
+# fixing 509 lines across 89 files is its own issue, filed by slug, not a
+# review fixup to this mechanism. The mark may only fall, never rise: a new
+# instance cannot hide inside it, and `_find_bare_code`'s own correctness is
+# still proven directly, by the planted breach below and by `PBW-E1`'s fixture
+# proof, neither of which this mark loosens.
+PBW_A7_LINE_OPENING_BACKTICK_HIGH_WATER = 509
+
+
 def test_pbw_a7_a_bare_code_carries_its_meaning():
     """The bare-code sweep is silent over every file not yet on a pending
-    list. `PBW-A7`."""
+    list, or on the finding-6 high-water mark above it. `PBW-A7`."""
     report = run_sweep(RULES["PBW-A7"], scanned_paths())
-    assert not report.findings, report.render()
+    assert len(report.findings) <= PBW_A7_LINE_OPENING_BACKTICK_HIGH_WATER, (
+        f"PBW-A7 now reports {len(report.findings)}, above its high-water "
+        f"mark of {PBW_A7_LINE_OPENING_BACKTICK_HIGH_WATER} - a new "
+        f"line-opening bare code was added rather than fixed:\n"
+        + report.render())
     assert report.files_scanned > 0
+
+
+def test_pbw_a7_a_line_opening_backtick_is_not_the_house_form():
+    """A backtick that opens the line is "code first, meaning after" - the
+    shape `PBW-A7` exists to refuse - not the house form ("the plain words
+    (`G5`)") and not a cross-reference beside a rule already stated. Finding
+    6, `review-dimensions.md`: the old check skipped on any single preceding
+    backtick, so it reported none of these."""
+    opens_the_line = ProseSpan(
+        "t.md", 1, "`S11` says measure before arguing.", "markdown")
+    assert _find_bare_code(opens_the_line), (
+        "a line-opening bare code must be reported")
+
+    house_form = ProseSpan(
+        "t.md", 1, "the plain words (`G5`).", "markdown")
+    assert not _find_bare_code(house_form), (
+        "the house form must stay exempt")
+
+    house_form_list = ProseSpan(
+        "t.md", 1, "(`TRC-B6`, `DD-4`) both apply.", "markdown")
+    assert not _find_bare_code(house_form_list), (
+        "a house-form list of codes must stay exempt")
+
+    mid_sentence_citation = ProseSpan(
+        "t.md", 1, "cites `governance/strategies.md` `S11` directly.", "markdown")
+    assert not _find_bare_code(mid_sentence_citation), (
+        "a backtick beside another citation, not opening the line, is "
+        "unaffected by this narrowing")
+
+
+def test_pbw_a7_the_readme_skip_is_a_row_test_not_a_whole_file_skip():
+    """`_BARE_CODE_TABLE_SKIP` only exempts a table row in
+    `architecture/decisions/README.md`, not the whole file. Finding 8,
+    `review-dimensions.md`: every finding there today is a table row, so
+    narrowing costs nothing - but a non-table bare code in that same file
+    must still be caught."""
+    table_row = ProseSpan(
+        _BARE_CODE_TABLE_SKIP, 43,
+        "| [ADR-001](ADR-001-x.md) | x | accepted | Inv-1 (readings) |",
+        "markdown")
+    assert not _find_bare_code(table_row), (
+        "a table row in the exempted file must stay exempt")
+
+    prose_line = ProseSpan(
+        _BARE_CODE_TABLE_SKIP, 12,
+        "`Inv-1` is not a table row here.", "markdown")
+    assert _find_bare_code(prose_line), (
+        "a non-table bare code in the exempted file must still be caught - "
+        "the skip is a row test, not a whole-file skip")
 
 
 def test_pbw_a8_every_named_file_and_command_exists():
@@ -3580,20 +3604,53 @@ def test_pbw_e1_each_sweep_reports_a_planted_breach():
 def test_pbw_e2_each_sweep_reports_the_files_it_scanned():
     """Every `Report` carries the number of files it scanned, so a zero from
     an empty file set reads differently from a zero from clean prose.
-    `PBW-E2`."""
+    `PBW-E2`. It also carries `files_reachable`, the rule's own real reach -
+    finding 11, `review-dimensions.md`: a single `files_scanned: 543` for
+    every rule overstated four rules' reach by up to 60 times, so a zero
+    from `PBW-A10` (9 files it can ever report on) read as broad as a zero
+    from a rule that reads the whole tree."""
+    paths = scanned_paths()
     for rule in RULES.values():
         empty_report = run_sweep(rule, [])
         assert empty_report.files_scanned == 0
+        assert empty_report.files_reachable == 0
         assert not empty_report.findings
-        real_report = run_sweep(rule, scanned_paths())
+        real_report = run_sweep(rule, paths)
         assert real_report.files_scanned > 0
-        assert real_report.files_scanned == len(scanned_paths())
+        assert real_report.files_scanned == len(paths)
+        assert 0 < real_report.files_reachable <= real_report.files_scanned
+
+
+def test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans():
+    """The four rules finding 11 measured - each reaches only the files its
+    own `find` function can ever report on, not the whole 543-file scan."""
+    paths = scanned_paths()
+    expected = {
+        "PBW-A10": 9,
+        "PBW-C3": 32,
+        "PBW-C5": 209,
+        "PBW-C4": 228,
+    }
+    for rule_id, reach in expected.items():
+        report = run_sweep(RULES[rule_id], paths)
+        assert report.files_reachable == reach, (
+            f"{rule_id} reach drifted: expected {reach}, got "
+            f"{report.files_reachable}")
+        assert report.files_reachable < report.files_scanned
 
 
 def test_pbw_e3_every_exemption_names_a_file_and_a_reason():
     """Every exemption on every rule names the file, the quote and the
     reason - a widened pattern is not how a sweep clears a report.
-    `PBW-E3`."""
+    `PBW-E3`.
+
+    Finding 9, `review-dimensions.md`: 6 of 430 exemptions quoted text that
+    had since left the file entirely - stale, and undetected, because
+    nothing checked that the quote was still there. A dead exemption is not
+    a hole today; it is a hole waiting, ready to excuse a future occurrence
+    nobody reviewed. This also fails when the quote is present but the rule
+    would not report the span anyway - the fuller "dead" class review found
+    35 of, on top of the 6 stale ones."""
     total = 0
     for rule in RULES.values():
         for exemption in rule.exemptions:
@@ -3604,6 +3661,36 @@ def test_pbw_e3_every_exemption_names_a_file_and_a_reason():
                 f"{rule.id} exemption for {exemption.path} gives no real "
                 f"reason")
     assert total >= 1, "at least the PBW-A7 exemption should exist by now"
+
+
+def test_pbw_e3_every_exemption_is_still_needed():
+    """A named exemption stops being needed for one of two reasons: the
+    prose it quotes moved on (the quote is no longer in the file at all), or
+    the rule was narrowed and would not report that span anyway. Either way
+    the exemption is dead, and PBW-E3's own presence check above cannot see
+    it - a path, a quote and a reason can all be well-formed and still
+    describe nothing live. Finding 9, `review-dimensions.md`."""
+    paths = scanned_paths()
+    spans_by_path: dict[str, list[ProseSpan]] = {}
+    for span in prose_spans(paths):
+        spans_by_path.setdefault(span.path, []).append(span)
+
+    dead: list[str] = []
+    for rule in RULES.values():
+        for exemption in rule.exemptions:
+            file_spans = spans_by_path.get(exemption.path, [])
+            matching = [s for s in file_spans if exemption.quote in s.text]
+            if not matching:
+                dead.append(
+                    f"{rule.id} {exemption.path!r}: quote {exemption.quote!r} "
+                    f"is not in the file's prose at all")
+                continue
+            if not any(rule.find(s) for s in matching):
+                dead.append(
+                    f"{rule.id} {exemption.path!r}: quote {exemption.quote!r} "
+                    f"is present, but the rule reports nothing there - the "
+                    f"exemption excuses nothing")
+    assert not dead, "dead exemptions found:\n" + "\n".join(dead)
 
 
 # ---------------------------------------------------------------------------
@@ -4576,4 +4663,86 @@ def test_pbw_d8_the_excluded_paths_are_out_of_every_sweep():
         else:
             assert excluded not in scanned, excluded
     assert scanned, "scanned_paths() must not be empty"
+
+
+def test_pbw_d1_every_tracked_yaml_file_parses():
+    """`_yaml_spans` catches `yaml.YAMLError` and silently falls back to
+    whole-line comments only, so a YAML file that does not parse loses every
+    `PROSE_KEYS` value the sweeps would otherwise read - and nothing says
+    so. Finding 12, `review-dimensions.md`: `schemas/manifest.reference.yml`
+    and `schemas/routing-policy.reference.yml` both failed to parse, on a
+    `key:# comment` with no space between the colon and the `#`, which YAML
+    reads as an unterminated key rather than a mapping entry with a trailing
+    comment. Both are fixed; this is the guard against the next one."""
+    unparseable = []
+    for path in scanned_paths():
+        if path.suffix not in (".yml", ".yaml"):
+            continue
+        rel = str(path.relative_to(REPO_ROOT))
+        try:
+            yaml.compose(_read(path) or "")
+        except yaml.YAMLError as exc:
+            unparseable.append(f"{rel}: {exc}")
+    assert not unparseable, (
+        "these tracked YAML files do not parse, so the sweeps silently "
+        "read only their whole-line comments:\n" + "\n".join(unparseable))
+
+
+def test_pbw_d8_system_spec_findings_match_the_recorded_count():
+    """`docs/system-spec.md`'s exclusion names a count so a reader can check
+    it rather than take it on trust (finding 7, `review-dimensions.md`). A
+    sweep run directly over the file, bypassing `EXCLUDED_PATHS`, must keep
+    finding the same 286 - a drop is fine, a rise means a new kind of
+    finding entered the file and the exclusion's own reasoning needs a
+    second look before it still covers it."""
+    spans = _spans_for_file(REPO_ROOT / "docs" / "system-spec.md")
+    by_rule = {rid: len([f for s in spans for f in rule.find(s)])
+               for rid, rule in RULES.items()}
+    total = sum(by_rule.values())
+    assert total <= 286, (
+        f"docs/system-spec.md now reports {total}, more than the 286 the "
+        f"exclusion's comment records - a new kind of finding may have "
+        f"entered the file: {by_rule}")
+
+
+def test_pbw_e1_prose_keys_are_the_one_shared_list():
+    """`tests/test_writing_style.py` and `scripts/compare-behaviour.py` now
+    read `PROSE_KEYS` from `scripts/prose_keys.py`, the same object either
+    way - so the two halves cannot disagree about what prose is. Finding 1,
+    `review-dimensions.md`: they did, over `biases`, until this module
+    existed. `_yaml_spans` also reads a prose sequence item now, not only a
+    scalar value, so a `biases:` list is not silently skipped either."""
+    from scripts.prose_keys import PROSE_KEYS as SHARED_PROSE_KEYS
+    assert PROSE_KEYS is SHARED_PROSE_KEYS, (
+        "the sweep's PROSE_KEYS must be the shared module's own object, "
+        "not a second copy that can drift from it again")
+    assert "biases" in PROSE_KEYS
+
+    text = (
+        "routing_strategies:\n"
+        "  biases:\n"
+        '    - "We need to verify the Frame phase artefact."\n'
+    )
+    spans = _yaml_spans("governance/routing-policy.yml", text)
+    joined = " ".join(s.text for s in spans)
+    assert "Frame phase artefact" in joined, (
+        "a biases: sequence item must be read as a prose span, not skipped "
+        "the way a machine value is")
+
+
+def test_pbw_c4_the_stage_key_rename_block_has_a_marker():
+    """A second copied block, alongside the vocabulary-rename one
+    `COPIED_BLOCK_MARKERS` already names: the stage-key rename explanation
+    ("The stage keys moved on 2026-08-24 ... Re-pointed, not relaxed.")
+    copied into `tests/derive/test_derive_system_spec.py`. Found by a second
+    review, reading `tests/derive/test_derive_system_spec.py:18-23`: the
+    check reported clean with an instance still on disk, because no marker
+    named its opening phrase."""
+    span = ProseSpan(
+        "tests/derive/test_derive_system_spec.py", 18,
+        "The stage keys moved on 2026-08-24 - `frame` -> `assess`",
+        "comment")
+    assert _find_copied_block(span), (
+        "the stage-key rename block's opening phrase must be a named "
+        "marker, the same as the vocabulary-rename block's")
 

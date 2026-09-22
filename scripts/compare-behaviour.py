@@ -106,14 +106,18 @@ import ast
 import json
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-PROSE_KEYS = frozenset({"description", "statement", "rationale", "name", "help",
-                        "means", "not", "context", "why", "reason", "also",
-                        "appears_in", "referent",
-                        "biases"})
+# The one list `tests/test_writing_style.py`'s `_yaml_spans` also reads (DD-1:
+# reused, not copied - finding 1, `review-dimensions.md`, found the two
+# already drifted once, on `biases`, precisely because each file held its
+# own copy).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from prose_keys import PROSE_KEYS  # noqa: E402
+
 _YAML_KEY_RE = re.compile(r"^(\s*-?\s*)([\w.\-]+)\s*:\s?(.*)$")
 
 

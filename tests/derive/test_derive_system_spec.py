@@ -15,12 +15,8 @@ The CLI entry-point tests (`TRC-B6`, `DD-4` convention) invoke the CLI via
 subprocess to check the argparse surface.
 """
 
-# The stage keys moved on 2026-08-24 - `frame` -> `assess`, `specify` ->
-# `define`, `clarify` -> `refine`, `distribute` -> `breakdown`, `build` ->
-# `implement`, `land` -> `ship`. `plan` and `verify` did not. Spines written
-# before that still load, because `normalize_spine` maps them forward
-# (ADR-006), so what changed is the CANONICAL form these tests assert -
-# not what the routing computes. Re-pointed, not relaxed.
+# These tests assert the current stage keys; spines written under older
+# keys still load (ADR-006).
 from __future__ import annotations
 
 import os
