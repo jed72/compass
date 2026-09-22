@@ -961,6 +961,10 @@ _register(Rule(
             "exists to catch, same protection as the PBW-A7 exemption for "
             "this line."),
         Exemption(
+            "tests/test_status_vocabulary.py", "tasks: {slug: issue-dict}",
+            "names the real parameter `tasks` this helper takes (section 4), "
+            "not a v1-vocabulary use of the word."),
+        Exemption(
             "tests/analyze/test_analyze_core.py",
             "the slug `unframed-task` contains it",
             "the literal, hyphenated slug this test's fixture uses - an "
