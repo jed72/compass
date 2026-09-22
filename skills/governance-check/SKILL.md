@@ -22,9 +22,18 @@ Read `governance/` fresh before you start. A guardrail or strategy can
 change between sessions, and a cached memory of an earlier read is not the
 current file.
 
+**Record which governance you read.** `governance/guardrails.yml` and
+`governance/routing-policy.yml` each declare a `version:`, and
+`tests/fixtures/governance-content-hashes.json` pins their content. Write both
+version numbers into the check, the way the technical-design template's
+policy-provenance section does. A check that names no version cannot be told
+apart from one run against wording that has since changed, and the prose
+files carry no version of their own to compare.
+
 ## Before you start
 
-Read the *current* `governance/` files at the project root. If `/compass:init`
+Read the *current* `governance/` files at the project root, and note the
+`version:` each of the two YAML files declares. If `/compass:init`
 has not been run, the framework's shipped
 `governance/` defaults apply as-is - and that is a valid, complete governance
 state, not a missing prerequisite. **The shipped defaults alone are a
@@ -174,7 +183,8 @@ Confirm the plan is consistent with `routing-policy.md`:
   deadline; inconvenience is not a counter-argument.
 - **Checking the stale file** - reviewing against a remembered copy of
   `governance/` instead of reading it fresh, so the check runs against
-  wording that has since changed.
+  wording that has since changed. Recording both `version:` values makes this
+  visible to a later reader instead of invisible.
 - **Floor erosion** - reading a project guardrail floor as a target to *hit*
   rather than a minimum to *clear*. Floors only ratchet up.
 - **Silent delivery-approach assumption** - a plan that assumes a lighter
