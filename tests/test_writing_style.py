@@ -2003,8 +2003,8 @@ _register(Rule(
             "a v1-vocabulary use of the idiom \"rot\"."),
         Exemption(
             "tests/test_terminology.py",
-            "An actual backbone, or the spine of a book, is",
-            "the ordinary-English sense the spine/issue-spine ban's own "
+            "An actual backbone, or the spine of a book, is",  # vocabulary-scan: allow - quotes test_terminology.py's own comment verbatim, which is how a substring sweep tells a deliberate mention from a live use
+            "the ordinary-English sense the spine/issue-spine ban's own "  # vocabulary-scan: allow - quotes test_terminology.py's own comment verbatim, which is how a substring sweep tells a deliberate mention from a live use
             "comment gives as the example that must NOT fire - not a use "
             "of the idiom \"backbone\" this table retires."),
     ),

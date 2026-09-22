@@ -174,10 +174,26 @@ def test_nir_b2_the_old_name_survives_only_where_history_needs_it():
     # though this repository does not track either directory. An adopting
     # project commits its issue records, and there the old name is history the
     # entries exist to permit.
+    # Reported per LINE, not per file, so a single line that must name the
+    # retired word carries a marker instead of the whole file being excused.
+    # tests/test_writing_style.py needs it twice: a named exemption there
+    # quotes another test's comment verbatim, because that sweep matches on
+    # substrings, and the quote is what tells a deliberate mention from a live
+    # use. Excusing the file would also excuse any future use anywhere in it.
+    # The four entries in OLD_NAME_ALLOWED that are whole files stay whole:
+    # the word runs throughout each of them.
     out = subprocess.run(
-        ["git", "grep", "-lI", "-e", r"\bspine\b"],
+        ["git", "grep", "-nI", "-e", r"\bspine\b"],
         cwd=str(ROOT), capture_output=True, text=True)
-    files = [f for f in out.stdout.splitlines() if f.strip()]
+    files = []
+    for hit in out.stdout.splitlines():
+        if not hit.strip():
+            continue
+        path, _, rest = hit.partition(":")
+        _, _, text = rest.partition(":")
+        if "vocabulary-scan: allow" in text:
+            continue
+        files.append(path)
 
     stray = [f for f in files
              if not any(f.startswith(a) or f == a for a in OLD_NAME_ALLOWED)]
