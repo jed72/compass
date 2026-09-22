@@ -1551,6 +1551,13 @@ _register(Rule(
                    "names the Verify stage, not the verb."),
         Exemption("governance/guardrails.yml", "compass bdd verify",
                    "compass bdd verify is a CLI verb, not the plain verb."),
+        Exemption(
+            "tests/fixtures/receipt-fixture-project/governance/guardrails.yml",
+            "compass bdd verify",
+            "a verbatim copy of governance/guardrails.yml, restored after an "
+            "earlier commit wrongly trimmed it to dodge this sweep - same "
+            "text, same reason as the governance/guardrails.yml exemption "
+            "above: compass bdd verify is a CLI verb, not the plain verb."),
         Exemption("cli/compass_pkg/bdd.py", "and `compass bdd verify`",
                    "compass bdd verify is a CLI verb, not the plain verb."),
         Exemption("cli/compass_pkg/bdd.py", "compass bdd verify -- <run",
@@ -1572,6 +1579,21 @@ _register(Rule(
         Exemption("governance/guardrails.yml", "attempts: <int>",
                    "attempts: <int> names the evidence field, not the verb "
                    "\"attempt\"."),
+        Exemption(
+            "tests/fixtures/receipt-fixture-project/governance/guardrails.yml",
+            "checked_at: [verify]",
+            "a verbatim copy of governance/guardrails.yml, restored after an "
+            "earlier commit wrongly trimmed it to dodge this sweep - same "
+            "text, same reason as the governance/guardrails.yml exemption "
+            "above: an example YAML value inside a comment, not the verb."),
+        Exemption(
+            "tests/fixtures/receipt-fixture-project/governance/guardrails.yml",
+            "attempts: <int>",
+            "a verbatim copy of governance/guardrails.yml, restored after an "
+            "earlier commit wrongly trimmed it to dodge this sweep - same "
+            "text, same reason as the governance/guardrails.yml exemption "
+            "above: attempts: <int> names the evidence field, not the verb "
+            "\"attempt\"."),
         # The first half of a hyphenated compound noun about a chain of
         # suppliers is not the plain verb the word table replaces with
         # "give". The exemption function does not check for a hyphen right
