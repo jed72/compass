@@ -66,7 +66,7 @@ gates are real, and "solo" is a justified finding, not a default.
 a live crash on a new mobile build.
 
 **What it demonstrates:** reproduce-first (the failing regression test *is* the
-spec - `evidence/red-`TRC-001`.json` reproduces the crash before any fix), the compressed
+spec - `evidence/red-TRC-001.json` reproduces the crash before any fix), the compressed
 front of the pipeline, the *uncompressed* Verify gate, and the **mandatory
 follow-up**. `manifest.yml`'s `follow_ups:` lists three follow-ups, all resolved; `delivery-approach.md` §6 and
 the `devlog.md` ship entry show all three **resolved** - which is what makes this a

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass_pkg.policy - `compass policy lint`, `compass issue lint` and
-# `compass plan lint`
+# compass_pkg.policy - `compass issue lint` and `compass plan lint`
 # =============================================================================
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in

@@ -137,8 +137,9 @@ with the version hidden.
    release script is the one place the artifact is guaranteed clean -
    every other path includes local noise files.
 
-   A dirty zip has shipped before; the fix is operational, not in code:
-   ship `dist/compass-<version>.tar.gz` and only that.
+   A zip built any other way can carry local noise into a release; the fix
+   is operational, not in code: ship `dist/compass-<version>.tar.gz` and
+   only that.
 
 8. **Check the tarball OUT OF THE SOURCE TREE.** The final smoke test:
 

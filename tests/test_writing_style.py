@@ -791,12 +791,6 @@ _register(Rule(
             "catch, not live prose use of it."),
         Exemption(
             "tests/test_public_surface_truth.py",
-            '"written by Frame".',
-            "a verbatim quote of the defect this test checks for - the "
-            "literal text architecture/system-context.md carried, not "
-            "live prose use of a retired stage name."),
-        Exemption(
-            "tests/test_public_surface_truth.py",
             'user meeting "has Frame run?" is being told to run a stage that does not',
             "a verbatim quote of the class of defect this test checks for, "
             "not live prose use of a retired stage name."),
@@ -1146,10 +1140,6 @@ _register(Rule(
             "governance/routing-policy.yml:109 - an identifier (section "
             "4), not the verb the word table retires"),
         Exemption(
-            "docs/routing-deep-dive.md", "at full verify weight",
-            "\"verify\" is the stage name - an identifier (section 4), "
-            "not the verb the word table retires"),
-        Exemption(
             "docs/routing-deep-dive.md", "not skipped; verify and ship",
             "\"verify\" is the stage name in a list of stage names, "
             "matching \"ship\" beside it - an identifier (section 4), "
@@ -1158,10 +1148,6 @@ _register(Rule(
             "docs/routing-deep-dive.md", "*before* verify and never verify",
             "\"verify\" is the stage name, twice - an identifier "
             "(section 4), not the verb the word table retires"),
-        Exemption(
-            "docs/routing-deep-dive.md", "spike. verify becomes",
-            "\"verify\" is the stage name - an identifier (section 4), "
-            "not the verb the word table retires"),
         Exemption(
             "docs/routing-deep-dive.md",
             "**Verify** runs **at full weight",
@@ -3623,13 +3609,19 @@ def test_pbw_e2_each_sweep_reports_the_files_it_scanned():
 
 def test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans():
     """The four rules finding 11 measured - each reaches only the files its
-    own `find` function can ever report on, not the whole 543-file scan."""
+    own `find` function can ever report on, not the whole 545-file scan.
+
+    A number here moves only when the set of files a rule can reach moves.
+    PBW-C5 went 209 to 210 and PBW-C4 228 to 229 when the clarity-review
+    fixups added one test file, which both reach. That is the check reporting
+    a real change rather than drift. PBW-A10 at 9 and PBW-C3 at 32 did not
+    move, because neither reaches a test file."""
     paths = scanned_paths()
     expected = {
         "PBW-A10": 9,
         "PBW-C3": 32,
-        "PBW-C5": 209,
-        "PBW-C4": 228,
+        "PBW-C5": 210,
+        "PBW-C4": 229,
     }
     for rule_id, reach in expected.items():
         report = run_sweep(RULES[rule_id], paths)

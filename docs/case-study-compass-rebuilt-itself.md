@@ -32,7 +32,8 @@ the nine numbered slices, four actually struck a surface off it -
 slices 3, 5, 6, and 7; the other five (the freeze, the session
 instructions, the machine manifest, the migrator, and the release itself)
 did work the ratchet doesn't see but the rewrite needed anyway. The
-list reached zero at the last slice, numbered 7b, merged as `b6017b0` in pull request #33.
+list reached zero at 7b, the last of the four slices that touched it, merged
+as `b6017b0` in pull request #33.
 
 The nine were the surfaces on the list, and the list was not the whole
 repository. Cutting the 2.1.0 release turned up a tenth document that

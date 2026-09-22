@@ -129,17 +129,20 @@ system-installed copy, deterministically.**
 
 **Neutral / follow-on:**
 - `architecture/ownership.md` still has no row naming who keeps a
-  redistributed dependency's currency, beyond what this record states. A
-  follow-up issue tracks writing that row, so `cli/vendor/README.md`'s
-  answer lifts into it directly rather than being re-derived. It matters
-  because an adopter gets a PyYAML security fix only when Compass ships a
-  new copy, and nobody is now watching for that.
+  redistributed dependency's currency, beyond what this record states. The
+  `vendored-dependency-ownership` issue was filed to write that row, so
+  `cli/vendor/README.md`'s answer could lift into it directly rather than
+  being re-derived - it was abandoned rather than solved
+  (`docs/case-study-compass-rebuilt-itself.md`). It matters because an
+  adopter gets a PyYAML security fix only when Compass ships a new copy, and
+  nobody is watching for that.
 - The five pre-existing shell readers that embed their own Python instead of
   calling the CLI (`docs/portability.md`'s "call the kit, do not
   reimplement it") are unchanged in shape by this decision - they still
   embed a reader - but now all resolve the bundled copy through one shared
   mechanism rather than five independently-written ones. Migrating them to
-  call the CLI instead is a separate, undecided follow-up issue.
+  call the CLI instead is a separate, undecided follow-up issue
+  (`shell-readers-use-the-kit`).
 
 ## References
 

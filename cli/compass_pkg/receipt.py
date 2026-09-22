@@ -364,11 +364,11 @@ def _receipt_render(task, slug, route_readings, gate_requirements=None,
 
     # 5. evidence registry - type-specific minimal fields rendered alongside
     # the id and type. The dispatch table covers only types with meaningful
-    # extras; a type with no entry shows its id, its type, and its file name
-    # as the readable text - adding an evidence type to
-    # governance/guardrails.yml does not need a renderer change, it just
-    # lands as a path-only entry until/unless someone adds an extras tuple
-    # here.
+    # extras; a type with no entry shows its id, its type, and its file stem
+    # (hyphens turned to spaces) as the readable text - adding an evidence
+    # type to governance/guardrails.yml does not need a renderer change,
+    # it just lands with that fallback until/unless someone adds an extras
+    # tuple here.
     lines.append("Evidence")
     lines.append("--------")
     evs = task.get("evidence") or []

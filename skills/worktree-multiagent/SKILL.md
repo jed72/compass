@@ -105,7 +105,7 @@ detection, and integration:
    evidence.
 2. The orchestrator runs `scripts/integrate.sh` to merge worktrees in a
    coordinated order (foundations first, dependents after).
-3. The orchestrator resolves any merge conflicts - no one else can.
+3. Only the orchestrator resolves a merge conflict - a builder must not.
 4. **Run combined regression across the integrated result.** This is
    non-negotiable on initiative. Per-subtask green does not imply integrated
    green; proving the combination is the entire reason the orchestrator owns
@@ -119,9 +119,9 @@ Never stash in one worktree and pop in another - and never stash at all
 inside a temporary worktree. A stash lives in the shared repository, but
 the working state it captures belongs to one checkout: a stash popped
 inside a temporary worktree that is then removed
-destroys the stashed work along with the worktree. A CI fix lost work this
-way; the
-change survived only because it had been committed elsewhere first. If
+destroys the stashed work along with the worktree. A CI fix nearly lost work
+this way - the change survived only because it had already been committed
+elsewhere. If
 work must move between worktrees, commit it (a WIP commit on the
 subtask's branch is fine and can be amended); the branch is durable, the
 stash is not.

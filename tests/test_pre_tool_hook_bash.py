@@ -32,12 +32,14 @@ HOOKS_JSON = FRAMEWORK_ROOT / "hooks" / "hooks.json"
 
 
 def _fresh_project_dir() -> Path:
-    """A temp dir whose path contains no 'test'/'spec' substring.
+    """A temp dir whose path contains no 'test'/'spec' substring, as a
+    matching convention with the fixtures above it.
 
-    The hook exempts a file whose basename or project-relative path matches,
-    so the failing test can always be written; a fixture living under one
-    would be exempt for the wrong reason and every assertion below would
-    pass without checking anything.
+    The hook exempts a target file whose own basename or project-relative
+    path matches, not the project directory's name; a fixture whose target
+    lived under a path matching by basename or relative path would be
+    exempt for the wrong reason and every assertion below would pass
+    without checking anything.
     """
     return Path(tempfile.mkdtemp(prefix="compass-fix-"))
 

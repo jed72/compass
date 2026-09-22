@@ -46,7 +46,7 @@ def _scenarios_line(combined):
 
 
 def test_baseline_narrative_without_test_fails(run_cli, make_task):
-    """`TRC-R1`-1 (regression guard): a narrative scenario whose body is NOT
+    """`TRC-R1-1` (regression guard): a narrative scenario whose body is NOT
     documented still FAILS - a narrative scenario is accepted on its
     documentation, and nothing else."""
     task_dir = make_task("narr-base",
@@ -58,7 +58,7 @@ def test_baseline_narrative_without_test_fails(run_cli, make_task):
 
 
 def test_documented_narrative_passes(run_cli, make_task):
-    """`TRC-R1`-2: a documented narrative scenario with no test clears the check."""
+    """`TRC-R1-2`: a documented narrative scenario with no test clears the check."""
     task_dir = make_task("narr-doc",
                          _body({"id": "SCN-N", "intent": "INT-1",
                                 "verifiable": "narrative", "tests": []}))
@@ -68,7 +68,7 @@ def test_documented_narrative_passes(run_cli, make_task):
 
 
 def test_non_narrative_without_test_still_fails(run_cli, make_task):
-    """`TRC-R1`-3: the exemption is narrow - a delivery scenario with no test
+    """`TRC-R1-3`: the exemption is narrow - a delivery scenario with no test
     still fails."""
     task_dir = make_task("narr-deliv",
                          _body({"id": "SCN-D", "intent": "INT-1", "tests": []}))
@@ -79,7 +79,7 @@ def test_non_narrative_without_test_still_fails(run_cli, make_task):
 
 
 def test_undocumented_narrative_fails_weaker_assertion(run_cli, make_task):
-    """`TRC-R1`-4: an empty-body narrative scenario fails on the documentation
+    """`TRC-R1-4`: an empty-body narrative scenario fails on the documentation
     assertion (not 'no test') - a narrative scenario is accepted on its
     documentation, and nothing else."""
     task_dir = make_task("narr-empty",
@@ -92,7 +92,7 @@ def test_undocumented_narrative_fails_weaker_assertion(run_cli, make_task):
 
 
 def test_incidental_command_not_rewarded(run_cli, make_task):
-    """`TRC-R1`-5: a narrative scenario carrying an incidental command but no
+    """`TRC-R1-5`: a narrative scenario carrying an incidental command but no
     documented body still FAILS - assessed on documentation, not 'has a test'."""
     task_dir = make_task("narr-cmd",
                          _body({"id": "SCN-CMD-BARE", "intent": "INT-1",

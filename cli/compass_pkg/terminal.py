@@ -107,8 +107,8 @@ def attach_mode_flags(parser):
     """Add the five flags to every LEAF parser in the tree, recursively.
 
     Recursion is the whole job. The tree has thirteen nested subparser groups -
-    `issue`, `bdd`, `gate`, `evidence`, `adr` and eight more - under every
-    `add_parser` call. A walk that handles only the top level attaches the
+    `issue`, `bdd`, `gate`, `evidence`, `adr` and eight more - and the flags
+    belong on every leaf. A walk that handles only the top level attaches the
     flags to `issue` and misses `issue dashboard` entirely, which is how a
     guard over this tree passes while checking a fraction of it.
 
@@ -307,7 +307,6 @@ class Emitter:
             # A NEXT STEP is not a reply. A reply means a person is being asked
             # to decide; a next step is what to run. Telling them apart is what
             # lets --quiet be silent when nothing is being asked.
-            #
             lines.append("")
             lines.append(_fit(next_step, "Next: "))
         if reply:

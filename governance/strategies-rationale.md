@@ -92,7 +92,7 @@ instead of:
 
 > a human signs off on the irreversible, and that guard (`G5`) refused
 
-> RP-ROLE-002 blocked the design stage
+> RP-ROLE-002 blocked the plan stage
 
 instead of:
 

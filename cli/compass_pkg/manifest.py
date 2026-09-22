@@ -213,7 +213,8 @@ def cmd_land_commit(args):
     # Success. Mark the issue landed only now that HEAD is confirmed advanced -
     # AND only if its gates actually cleared.
     #
-    # `G1` is checked at the verify stage and at ship. `compass retro`, the living-spec
+    # The tested-before-ship guardrail (`G1`) is checked at the verify stage
+    # and at ship. `compass retro`, the living-spec
     # derivation and every cross-issue report read the status, so an issue
     # whose gates failed must not be recorded as landed.
     landed_note = ""

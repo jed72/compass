@@ -65,7 +65,7 @@ from compass_pkg.policy import cmd_task_lint
 #       exits 0 even on findings; evidence type `command-output`;
 #       id prefix `EV-ANALYZE-ADVISORY-<task>-<ts>`
 #
-# Invariants honoured:
+# Invariants honoured (defined in architecture/ownership.md):
 #   read-only over the manifest, never writing to its `assessment` or
 #   `gates` (`Inv-1`, `Inv-4`)
 #   the finding taxonomy is structural, not read from signals.yml (`Inv-7`)

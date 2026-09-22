@@ -130,8 +130,8 @@ Candidate review dimensions: {{correctness, governance, traceability, … per th
 | Stage / check | Action | Safe to skip / collapse because… |
 |---|---|---|
 | {{e.g. Requirements review}} | {{collapsed \| skipped}} | {{e.g. "The acceptance criteria are a single scenario certified unambiguous at assess - nothing to review."}} |
-| {{e.g. Design}} | {{collapsed to one-liner}} | {{e.g. "atomic size on familiar ground - no design decision; the design is 'edit src/foo.ts'."}} |
-| {{e.g. Break down the work}} | {{skipped}} | {{e.g. "One subtask of work - parallelism would be pure overhead."}} |
+| {{e.g. Plan}} | {{collapsed to one-liner}} | {{e.g. "atomic size on familiar ground - no design decision; the plan is 'edit src/foo.ts'."}} |
+| {{e.g. Breakdown}} | {{skipped}} | {{e.g. "One subtask of work - parallelism would be pure overhead."}} |
 
 **One-line edit note (quick fix / hotfix collapsed design only):** {{which file(s) to edit, or root-cause note}}
 

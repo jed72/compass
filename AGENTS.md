@@ -86,12 +86,12 @@ which are skipped - and why. Each stage emits its artifact (templates in
      human checkpoint.
 
    **BDD and TDD are default *strategies*, not guardrails** - the strong,
-   shipped-on way to satisfy the first two guardrails. A runtime can
-   enforce the red-before-green strategy *mechanically* where it is able to
-   (Claude Code uses a pre-tool hook that is aware of the delivery approach
-   and does not block on a spike); otherwise it enforces it procedurally.
-   But what a runtime must always enforce is the guardrail *outcome* (tested
-   before it ships), not the ritual.
+   shipped-on way to satisfy the first two guardrails. A runtime enforces
+   the red-before-green strategy *mechanically* when its own mechanism
+   allows it (Claude Code uses a pre-tool hook that is aware of the
+   delivery approach and does not block on a spike); otherwise it enforces
+   it procedurally. But what a runtime must always enforce is the
+   guardrail *outcome* (tested before it ships), not the ritual.
 
    The guardrail *checks* are mechanism, not judgement - so a portable
    runtime must run them via the kit-layer CLI rather than reimplement

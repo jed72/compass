@@ -109,9 +109,9 @@ What must not change is that the contract exists once. Keep one copy: two
 copies drift apart.
 
 BDD and TDD are default strategies. When the runtime supports pre-action hooks,
-the adapter can enforce red-before-green mechanically and make the hook
-approach-aware so it does not block spikes. Without hooks, the adapter must make
-the check an explicit implementation step.
+the adapter enforces red-before-green mechanically, with the hook made
+approach-aware so it does not block spikes. Without hooks, the adapter must
+make the check an explicit implementation step.
 
 An adapter limitation can reduce convenience or parallelism. It must not
 silently weaken a guardrail.
@@ -192,7 +192,7 @@ An empty cell is a design question, not evidence of equivalence.
 
 ## What to reuse
 
-A port must normally keep these unchanged:
+A port normally keeps these unchanged:
 
 - methodology and conceptual documentation;
 - governance prose and machine-readable policy;

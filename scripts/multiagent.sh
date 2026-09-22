@@ -233,9 +233,12 @@ for i in "${!SUBTASKS[@]}"; do
     else
       mkdir -p "$wt_task_dir"
       # Do not copy .red or evidence/: each records a run in another
-      # worktree. The `*` glob skips dotfiles, which excludes .red (and
-      # .spike and .acceptance - I have not checked whether that is
-      # intended).
+      # worktree. The `*` glob also skips dotfiles, so .spike and
+      # .acceptance do not copy either - those mark the issue's own state
+      # (is it a spike, is it defined), not a per-worktree run, so a spike
+      # or already-defined issue loses that marker in the new worktree.
+      # Looks unintended; not fixed here (found defects get their own
+      # issue).
       for _f in "$TASK_DIR"/*; do
         case "$(basename "$_f")" in
           evidence) continue ;;

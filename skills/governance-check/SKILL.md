@@ -18,14 +18,14 @@ distinct files in `governance/`, and each has its own standard of proof.
 - `routing-policy.md` - the same split applied to the router: **routing
   guardrails** bound the delivery approach, **routing strategies** bias it.
 
-Each governance file carries a version header; check it before you start. If
-your cached understanding predates the last amendment, you are checking
-against a stale file.
+Read `governance/` fresh before you start. A guardrail or strategy can
+change between sessions, and a cached memory of an earlier read is not the
+current file.
 
 ## Before you start
 
-Read the *current* `governance/` files at the project root. Check the version
-on each. If `/compass:init` has not been run, the framework's shipped
+Read the *current* `governance/` files at the project root. If `/compass:init`
+has not been run, the framework's shipped
 `governance/` defaults apply as-is - and that is a valid, complete governance
 state, not a missing prerequisite. **The shipped defaults alone are a
 complete governance state**: "the shipped default guardrails, the shipped default strategies,
@@ -139,7 +139,7 @@ Confirm the plan is consistent with `routing-policy.md`:
 
 ## How to run the check (plan stage)
 
-1. Read the current `governance/` files; confirm each version.
+1. Read the current `governance/` files.
 2. Walk 1 - guardrails - against `technical-design.md` and the spec it builds on. Record
    per guardrail: **clears** (with evidence or the plan element that produces
    it) or **fails** (with the specific guardrail).
@@ -153,10 +153,11 @@ Confirm the plan is consistent with `routing-policy.md`:
 6. A failed guardrail **stops the plan** - revise or re-assess. A strategy
    departure does **not** stop the plan; record it and, if it matters, raise it.
    That asymmetry is the whole point of the split.
-7. If a guardrail itself seems wrong, that is an amendment conversation (change
-   `guardrails.md`, bump the version, log it) - never a quiet override
-   mid-issue. If a strategy keeps getting overridden the same way, that is a
-   curation signal - fix the strategy or write down the thing overriding it.
+7. If a guardrail itself seems wrong, that is an amendment conversation
+   (change `guardrails.md`, bump `guardrails.yml`'s `version:` field, and say
+   why in the commit message) - never a quiet override mid-issue. If a
+   strategy keeps getting overridden the same way, that is a curation signal -
+   fix the strategy or write down the thing overriding it.
 
 ## Anti-patterns
 
@@ -171,8 +172,9 @@ Confirm the plan is consistent with `routing-policy.md`:
 - **The convenience override** - treating a guardrail as advisory because
   honouring it is inconvenient. A guardrail beats every strategy and every
   deadline; inconvenience is not a counter-argument.
-- **Checking the stale file** - reviewing against a `governance/` file older
-  than its last amendment.
+- **Checking the stale file** - reviewing against a remembered copy of
+  `governance/` instead of reading it fresh, so the check runs against
+  wording that has since changed.
 - **Floor erosion** - reading a project guardrail floor as a target to *hit*
   rather than a minimum to *clear*. Floors only ratchet up.
 - **Silent delivery-approach assumption** - a plan that assumes a lighter

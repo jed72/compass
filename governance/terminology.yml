@@ -486,7 +486,7 @@ terms:
     related: [retrospective-signal]
   retrospective-signal:
     means: >
-      Compass's cross-issue self-check: is triage consistently over- or
+      Compass's cross-issue self-check: is assess consistently over- or
       under-sizing the process? Advisory, surfaced in retro language. v1
       called this "calibration".
     related: [dora-metrics, assess]

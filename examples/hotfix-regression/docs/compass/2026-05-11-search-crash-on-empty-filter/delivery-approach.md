@@ -104,7 +104,7 @@ real condition. (This is the root cause, not the symptom - the symptom was the
 
 ## 6. Outstanding follow-ups
 
-Hotfix borrows speed from the front of the pipeline and **finishes it at
+Hotfix borrows time from the front of the pipeline and **pays it back at
 ship**. All three are recorded in `manifest.yml` under `follow_ups:` and `compass
 check` fails the issue while any is `outstanding`. As of ship, all are **resolved**:
 
