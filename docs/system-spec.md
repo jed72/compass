@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### CLAUDE.md and AGENTS.md carry the full plain-English rules
+### A rewrite that swaps one idiom for another is refused
 
-- **Scenario id:** `PFR-1`
+- **Scenario id:** `PBW-F4`
 - **Intent:** `INT-1`
-- **Source issue:** `plain-english-full-rules`
-- **Landed:** 2026-09-11
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,33 +43,33 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### A reading command still does not create anything
+### A clarity review that read less than the sampling rule is refused
 
-- **Scenario id:** `TRC-B4`
+- **Scenario id:** `PBW-F8`
 - **Intent:** `INT-2`
-- **Source issue:** `docs-compass-artifacts`
-- **Landed:** 2026-09-11
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
-### A registered path that climbs out of the project
+### A clarity review that read less than the sampling rule is refused
 
-- **Scenario id:** `TRC-G4`
+- **Scenario id:** `PBW-F8`
 - **Intent:** `INT-3`
-- **Source issue:** `docs-compass-artifacts`
-- **Landed:** 2026-09-11
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
-### An older install is not locked out by the move
+### A test docstring says what the file tests and cites its issue by slug
 
-- **Scenario id:** `TRC-E5`
+- **Scenario id:** `PBW-C5`
 - **Intent:** `INT-4`
-- **Source issue:** `docs-compass-artifacts`
-- **Landed:** 2026-09-11
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
-### The resident cost is measured and pinned
+### A CLI module's header describes that module
 
-- **Scenario id:** `TRC-F5`
+- **Scenario id:** `PBW-C3`
 - **Intent:** `INT-5`
-- **Source issue:** `docs-compass-artifacts`
-- **Landed:** 2026-09-11
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
 ### the hook still blocks a code file inside the project
 
@@ -85,19 +85,19 @@
 - **Source issue:** `field-feedback-hook-scope-and-restage`
 - **Landed:** 2026-08-14
 
-### The framework's own documents are off the adopter's path
+### A batch that does not record its changed files is refused
 
-- **Scenario id:** `TRC-F4`
+- **Scenario id:** `PBW-F9`
 - **Intent:** `INT-6`
-- **Source issue:** `docs-compass-artifacts`
-- **Landed:** 2026-09-11
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
-### A configured test_micro_command takes precedence when present
+### A batch that cannot show its sweeps ran is refused
 
-- **Scenario id:** `TRC-R7-5`
+- **Scenario id:** `PBW-F6`
 - **Intent:** `INT-7`
-- **Source issue:** `framework-field-feedback`
-- **Landed:** 2026-06-23
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
 
 ### A verified-by guard that does not actually fail is rejected
 
@@ -2313,6 +2313,13 @@
 ### A non-pytest micro-run is left untouched by the coverage logic _(archived)_
 
 - **Scenario id:** `TRC-R7-4`
+- **Intent:** `INT-7`
+- **Source issue:** `framework-field-feedback`
+- **Landed:** 2026-06-23
+
+### A configured test_micro_command takes precedence when present _(archived)_
+
+- **Scenario id:** `TRC-R7-5`
 - **Intent:** `INT-7`
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
@@ -7609,6 +7616,13 @@
 - **Source issue:** `docs-compass-artifacts`
 - **Landed:** 2026-09-11
 
+### A reading command still does not create anything _(archived)_
+
+- **Scenario id:** `TRC-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
 ### A reader finds a relocated document _(archived)_
 
 - **Scenario id:** `TRC-C1`
@@ -7693,6 +7707,13 @@
 - **Source issue:** `docs-compass-artifacts`
 - **Landed:** 2026-09-11
 
+### An older install is not locked out by the move _(archived)_
+
+- **Scenario id:** `TRC-E5`
+- **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
 ### A quick fix reads one command and one skill _(archived)_
 
 - **Scenario id:** `TRC-F1`
@@ -7714,6 +7735,20 @@
 - **Source issue:** `docs-compass-artifacts`
 - **Landed:** 2026-09-11
 
+### The framework's own documents are off the adopter's path _(archived)_
+
+- **Scenario id:** `TRC-F4`
+- **Intent:** `INT-6`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### The resident cost is measured and pinned _(archived)_
+
+- **Scenario id:** `TRC-F5`
+- **Intent:** `INT-5`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
 ### A document registered at a path that does not exist _(archived)_
 
 - **Scenario id:** `TRC-G1`
@@ -7732,6 +7767,13 @@
 
 - **Scenario id:** `TRC-G3`
 - **Intent:** `INT-4`
+- **Source issue:** `docs-compass-artifacts`
+- **Landed:** 2026-09-11
+
+### A registered path that climbs out of the project _(archived)_
+
+- **Scenario id:** `TRC-G4`
+- **Intent:** `INT-3`
 - **Source issue:** `docs-compass-artifacts`
 - **Landed:** 2026-09-11
 
@@ -7762,3 +7804,325 @@
 - **Intent:** `INT-1`
 - **Source issue:** `claude-md-plain-english`
 - **Landed:** 2026-09-11
+
+### CLAUDE.md and AGENTS.md carry the full plain-English rules _(archived)_
+
+- **Scenario id:** `PFR-1`
+- **Intent:** `INT-1`
+- **Source issue:** `plain-english-full-rules`
+- **Landed:** 2026-09-11
+
+### No retired v1 word survives in prose, a comment or a test docstring _(archived)_
+
+- **Scenario id:** `PBW-A1`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A stated count matches the thing it counts _(archived)_
+
+- **Scenario id:** `PBW-A10`
+- **Intent:** `INT-4`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The shorter word stands where the word is not an identifier _(archived)_
+
+- **Scenario id:** `PBW-A2`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The spelling is British _(archived)_
+
+- **Scenario id:** `PBW-A3`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### "artifact" is the only spelling _(archived)_
+
+- **Scenario id:** `PBW-A4`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No idiom from the table survives _(archived)_
+
+- **Scenario id:** `PBW-A5`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No citation points at a path git does not distribute _(archived)_
+
+- **Scenario id:** `PBW-A6`
+- **Intent:** `INT-4`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A bare code carries its meaning or goes _(archived)_
+
+- **Scenario id:** `PBW-A7`
+- **Intent:** `INT-4`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### Every file and command a comment names exists _(archived)_
+
+- **Scenario id:** `PBW-A8`
+- **Intent:** `INT-4`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No sentence is left broken by an earlier find-and-replace _(archived)_
+
+- **Scenario id:** `PBW-A9`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No sentence is left broken by an earlier find-and-replace _(archived)_
+
+- **Scenario id:** `PBW-A9`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A document leads with the point _(archived)_
+
+- **Scenario id:** `PBW-B1`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### Each sentence makes one point _(archived)_
+
+- **Scenario id:** `PBW-B2`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A set of items is a vertical list _(archived)_
+
+- **Scenario id:** `PBW-B3`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### "must", "can" and "do not" say which is which _(archived)_
+
+- **Scenario id:** `PBW-B4`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The actor is named before the action _(archived)_
+
+- **Scenario id:** `PBW-B5`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A document describes the state now _(archived)_
+
+- **Scenario id:** `PBW-B6`
+- **Intent:** `INT-3`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No document holds a changelog, a version banner or a dated count _(archived)_
+
+- **Scenario id:** `PBW-B7`
+- **Intent:** `INT-3`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No document states a fact its source contradicts _(archived)_
+
+- **Scenario id:** `PBW-B8`
+- **Intent:** `INT-3`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No document states a fact its source contradicts _(archived)_
+
+- **Scenario id:** `PBW-B8`
+- **Intent:** `INT-4`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A comment states what the code does _(archived)_
+
+- **Scenario id:** `PBW-C1`
+- **Intent:** `INT-5`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A comment gives its reason before its detail _(archived)_
+
+- **Scenario id:** `PBW-C2`
+- **Intent:** `INT-5`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A copied block is fixed the same way in every file that holds it _(archived)_
+
+- **Scenario id:** `PBW-C4`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A copied block is fixed the same way in every file that holds it _(archived)_
+
+- **Scenario id:** `PBW-C4`
+- **Intent:** `INT-3`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A test docstring says what the file tests and cites its issue by slug _(archived)_
+
+- **Scenario id:** `PBW-C5`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### Every identifier keeps its spelling _(archived)_
+
+- **Scenario id:** `PBW-D1`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The frozen vocabulary still names the words it bans _(archived)_
+
+- **Scenario id:** `PBW-D2`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The archive quotes are unchanged _(archived)_
+
+- **Scenario id:** `PBW-D3`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The deliberately bad text survives _(archived)_
+
+- **Scenario id:** `PBW-D4`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### Every CLI module keeps its DEPENDENCY: line _(archived)_
+
+- **Scenario id:** `PBW-D5`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A test that pinned the old wording changes in the same commit _(archived)_
+
+- **Scenario id:** `PBW-D6`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The help text in scripts/release.sh stays inside its printed range _(archived)_
+
+- **Scenario id:** `PBW-D7`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The excluded files are untouched _(archived)_
+
+- **Scenario id:** `PBW-D8`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### The case study and the launch article keep their form _(archived)_
+
+- **Scenario id:** `PBW-D9`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### Each sweep reports a planted breach _(archived)_
+
+- **Scenario id:** `PBW-E1`
+- **Intent:** `INT-7`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A result of zero is believed only after the sweep has reported _(archived)_
+
+- **Scenario id:** `PBW-E2`
+- **Intent:** `INT-7`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A sweep is never loosened to clear a report _(archived)_
+
+- **Scenario id:** `PBW-E3`
+- **Intent:** `INT-7`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### No changed file alters behaviour _(archived)_
+
+- **Scenario id:** `PBW-E4`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A prose edit that changes behaviour is refused _(archived)_
+
+- **Scenario id:** `PBW-F1`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### An out-of-scope defect folded into a batch is refused _(archived)_
+
+- **Scenario id:** `PBW-F2`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### An edit that adds an em dash or an attribution line is refused _(archived)_
+
+- **Scenario id:** `PBW-F3`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### An edit that adds an em dash or an attribution line is refused _(archived)_
+
+- **Scenario id:** `PBW-F3`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### An edit made from a stale line number is refused _(archived)_
+
+- **Scenario id:** `PBW-F5`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A rewritten instruction still instructs the same behaviour _(archived)_
+
+- **Scenario id:** `PBW-F7`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### A rewritten instruction still instructs the same behaviour _(archived)_
+
+- **Scenario id:** `PBW-F7`
+- **Intent:** `INT-6`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
