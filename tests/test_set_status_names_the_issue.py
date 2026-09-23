@@ -2,7 +2,7 @@
 
 The success line, the refusal and the `--json` result all name the issue.
 
-The refusal is the one that mattered: it is what a person meets when shipping
+The refusal matters most: it is what a person meets when shipping
 is blocked, usually with several issues open, and "refusing to mark 'None'
 landed" cannot tell them which one refused.
 

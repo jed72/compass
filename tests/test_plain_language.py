@@ -9,14 +9,19 @@ the reader met the code before its meaning.
 The check reports and never blocks (TRC-C4). The tests in this file are a
 different thing and must be able to fail.
 
-**Read `TRC-C10` before trusting any zero this reports.** The registry of what
-each code means is DERIVED from governance rather than hand-written, and a
-derivation that returns empty makes every code meaningless, every count zero
-and every test green while nothing has been inspected. That is the exact defect
-this issue exists to stop, so the check refuses to report a zero it cannot
-stand behind.
+**Read this before trusting any zero this check reports (`TRC-C10`).** The
+registry of what each code means is DERIVED from governance rather than
+hand-written, and a derivation that returns empty makes every code meaningless,
+every count zero and every test green while nothing has been inspected. That is
+the exact defect this issue exists to stop, so the check refuses to report a
+zero it cannot stand behind.
 
 Scenario ids: `TRC-C1` to `TRC-C10` (issue plain-language-3-2-0).
+
+`governance/plain-language-baseline.json` records locations only under
+`architecture/`, `examples/`, `governance/` and `templates/`; none of its 466
+recorded locations is under `tests/`. A zero from this check says nothing
+about a bare code in a test docstring or assertion message.
 """
 from __future__ import annotations
 
@@ -203,7 +208,7 @@ def test_pl_c1_strategy_states_the_order_with_four_real_pairs():
     doc = (REPO_ROOT / "governance" / "strategies.md").read_text(encoding="utf-8")
     doc = " ".join(doc.replace("*", "").split())
     assert "plain words come first" in doc.lower(), (
-        "the ordering rule is not stated - S7 says an identifier carries its "
+        "the ordering rule is not stated - `S7` says an identifier carries its "
         "meaning on first use, but never which comes first"
     )
     # Scoped to `S7`'s own section. Counting across the whole rationale file
@@ -441,7 +446,7 @@ def test_pl_x4_quoted_tool_string_is_left_unchanged():
     # passage describe a command nobody can run, which is the loss the
     # exception prevents.
     assert r"git grep -n -i -E '\bseam\b'" in strategies, (
-        "S10's worked example no longer quotes the exact command it explains. "
+        "`S10`'s worked example no longer quotes the exact command it explains. "
         "The quoted-term exception exists so a reader can search for the string; "
         "a paraphrase removes exactly that."
     )

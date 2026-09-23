@@ -1,6 +1,6 @@
 # A small change that touches auth. RP-SHAPE-003 picks quick-fix as the
 # candidate; RP-FLOOR-003 raises the delivery approach to initiative because
-# a label names a domain where a human signs off on the irreversible (`G5`).
+# domain risk overrides size, and a one-line auth change is not small.
 name: expedition-auth-floor
 assessment:
   risk: contained

@@ -7,7 +7,7 @@
 #
 # The fixture is synthetic - see the sibling fixture's header for rationale.
 #
-# Minimal valid manifest.yml shape - only the fields the scanner reads.
+# Minimal valid task.yml shape - only the fields the scanner reads.
 
 slug: task-removes-handler
 route: standard

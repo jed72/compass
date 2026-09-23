@@ -1,7 +1,8 @@
-"""evidence-gates frames verify.correctness as acceptance/releasability gate
-(TRC-E1). evidence-gates frames the tdd-red/tdd-green loop as the commit
-stage (TRC-E2). Release and Production stages stay out of scope in
-evidence-gates (TRC-E3).
+"""evidence-gates does three things:
+
+- frames `verify.correctness` as the acceptance/releasability gate (`TRC-E1`)
+- frames the tdd-red/tdd-green loop as the commit stage (`TRC-E2`)
+- keeps Release and Production stages out of scope (`TRC-E3`)
 
 Serves: INT-9
 Spec:

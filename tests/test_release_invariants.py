@@ -327,11 +327,12 @@ def test_no_maturity_assessment_added():
 
 
 # -----------------------------------------------------------------------------
-# PBW-D7 - scripts/release.sh --help stays inside its printed range
+# The `--help` text must stay inside the printed line range (`PBW-D7`)
 # -----------------------------------------------------------------------------
 
 def test_release_help_prints_the_whole_header_and_nothing_else():
-    """PBW-D7: `--help` prints a fixed line range of scripts/release.sh's own
+    """The `--help` text must stay inside the printed line range (`PBW-D7`).
+    `--help` prints a fixed line range of scripts/release.sh's own
     header comment. The range must bound the header exactly - not stop short
     of its closing marker, and not spill past it - or a rewritten header
     silently prints a truncated or padded result."""

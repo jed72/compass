@@ -45,8 +45,9 @@ def source_clone(tmp_path_factory):
     """A fresh git repository holding everything this repository's working
     tree now has - tracked (with any uncommitted edits) and untracked-
     but-not-ignored alike - so `release_file_list()` can be run for real
-    against a committed index that matches what implement actually produced,
-    without staging or committing anything in the real repository."""
+    against a committed index that matches what the implement stage
+    produced, without staging or committing anything in the real
+    repository."""
     clone_dir = tmp_path_factory.mktemp("release-source-clone")
 
     listing = subprocess.run(

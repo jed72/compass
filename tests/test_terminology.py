@@ -890,8 +890,8 @@ def test_every_ban_pattern_catches_something_in_the_fixture():
     The check above asks whether each BAN fires on the fixture. A ban with six
     patterns passes it when one of them fires, so the other five can be dead -
     a regex that has never matched anything and never will. Ten were, when
-    this was written, including `during|at|before Triage`, which is <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
-    case-sensitive against a fixture line that says "During Triage". <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    this was written, including `during|at|before Triage`. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    It is case-sensitive against a fixture line that says "During Triage". <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
 
     That is the "check that cannot fail" shape: it reads as coverage and
     checks nothing. `governance/strategies.md` S10 - a guard is accepted on <!-- vocabulary-scan: allow - names the banned term this pattern retires -->

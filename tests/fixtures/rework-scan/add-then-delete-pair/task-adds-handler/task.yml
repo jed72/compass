@@ -12,7 +12,7 @@
 #   - opposing `action:` values (`added` here, `deleted` in the sibling),
 #   - both issues within the configured window of each other.
 #
-# Minimal valid manifest.yml shape - only the fields the scanner reads.
+# Minimal valid task.yml shape - only the fields the scanner reads.
 
 slug: task-adds-handler
 route: standard
