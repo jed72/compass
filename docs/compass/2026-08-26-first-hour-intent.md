@@ -101,8 +101,24 @@ about to move.
 
 ## Intent-fidelity check (filled before the plan stage)
 
-- [ ] Every success signal above maps to at least one scenario in each
+- [x] Every success signal above maps to at least one scenario in each
   issue's `acceptance-criteria.md`.
-- [ ] No scenario contradicts a constraint, pursues a non-goal, or runs
+- [x] No scenario contradicts a constraint, pursues a non-goal, or runs
   against a product strategy.
-- [ ] Checked by: {{NAME}} on {{DATE}}.
+- [x] Checked by: jed72 on 2026-09-23.
+
+**What this signature accepts.** Every signal maps to scenarios, and two
+things fall short of what the intake asked for. jed72 accepted both on
+2026-09-23.
+
+- INT-4 asks for resident per-turn cost at or under Superpowers', about 1,000
+  tokens. The issue that delivers and measures it records about 1,600. The
+  rest of INT-4, one command and one skill and nothing else written, is
+  delivered and verified.
+- Two of the seven issues that trace to this intake, `hook-as-guest` and
+  `evidence-gaps`, are still active, so their signals are served on paper
+  rather than by a landed record.
+
+The signal-by-signal mapping this rests on was written by the product owner
+role at the verify stage of the issue `prose-breaks-the-writing-style`, and
+is filed with that issue's evidence.
