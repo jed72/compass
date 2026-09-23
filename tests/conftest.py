@@ -267,8 +267,8 @@ def edit_governance(project: Path):
 # Shared by every zero-install-CLI scenario (tests/test_zero_install_cli.py,
 # `TRC-A1` to `TRC-A7`) and by the release-packaging scenario
 # (tests/test_release_packaging.py, `TRC-F6`), which proves that
-# `compass assess` runs for the first time from an unpacked release tarball
-# on this same kind of interpreter. One place to build it and prove it is
+# `compass approach evaluate` runs for the first time from an unpacked
+# release tarball on this same kind of interpreter. One place to build it and prove it is
 # genuinely bare (DD-6): "python3 -S" is an approximation of absence and this
 # class of test must not accept one.
 

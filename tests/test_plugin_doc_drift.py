@@ -152,12 +152,14 @@ def test_trc_b2_methodology_three_layers_names_bin_and_plugin_manifest():
         re.DOTALL | re.MULTILINE,
     )
     assert m, "'The three layers' section not found in methodology.md"
-    section9 = m.group(0)
-    assert "bin/compass" in section9, (
-        "methodology §9 does not name `bin/compass` as an adapter-layer artifact"
+    three_layers = m.group(0)
+    assert "bin/compass" in three_layers, (
+        "the methodology's three-layers section does not name `bin/compass` as "
+        "an adapter-layer artifact"
     )
-    assert ".claude-plugin/" in section9, (
-        "methodology §9 does not name `.claude-plugin/` as an adapter-layer artifact"
+    assert ".claude-plugin/" in three_layers, (
+        "the methodology's three-layers section does not name `.claude-plugin/` "
+        "as an adapter-layer artifact"
     )
 
 

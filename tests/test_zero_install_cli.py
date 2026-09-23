@@ -31,7 +31,7 @@ import yaml
 
 # The bare-interpreter harness (BareInterpreter, the `bare_interpreter`
 # fixture) lives in conftest.py - it is shared with
-# tests/test_release_packaging.py (TRC-F6), which proves first triage from an
+# tests/test_release_packaging.py (TRC-F6), which proves a first assessment from an
 # unpacked release tarball on the same kind of proven-bare interpreter.
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
@@ -84,18 +84,18 @@ def _assert_no_install_instruction(result):
 
 
 # ---------------------------------------------------------------------------
-# A first assess completes with no Python package installed (`TRC-A1`)
+# A first assessment completes with no Python package installed (`TRC-A1`)
 # ---------------------------------------------------------------------------
 
 
-def test_first_assess_completes_without_installing_a_package(bare_interpreter, tmp_path):
+def test_first_assessment_completes_without_installing_a_package(bare_interpreter, tmp_path):
     project = _make_bare_project(tmp_path)
     slug = "new-issue"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
 
-    # The judgement half of assessment - a human or `compass assess` records
-    # the assessment. Writing manifest.yml directly here is exactly what a
+    # The judgement half of assessment - a person, or a session running
+    # /compass:assess, records it. Writing manifest.yml directly here is exactly what a
     # session does; only the mechanical half runs through the CLI.
     with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
@@ -125,7 +125,7 @@ def test_first_assess_completes_without_installing_a_package(bare_interpreter, t
     pointer = (project / ".compass" / "current-task").read_text(encoding="utf-8")
     assert pointer.splitlines() == [slug]
 
-    # A second, ordinary CLI invocation during the same triage - ask what
+    # A second, ordinary CLI invocation on the same issue - ask what
     # comes next on this issue's route - also exits 0 on the bare
     # interpreter. (Not `issue lint`: jsonschema is a separate, optional
     # dependency, and its own "not installed" note is required to keep
