@@ -1,6 +1,7 @@
 """bdd-specification teaches the example-first refinement chain (TRC-D1).
 User stories remain refused as a per-role spec format (TRC-D2).
 
+Serves: INT-8 (D1), INT-8+INT-11 (D2)
 Spec:
   - skills/bdd-specification/SKILL.md must have a refinement-chain section
   - the chain: vague idea → concrete examples → acceptance criteria → at least one executable specification each

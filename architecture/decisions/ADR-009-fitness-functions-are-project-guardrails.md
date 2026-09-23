@@ -1,7 +1,7 @@
 ---
 id: ADR-009
 title: Architectural fitness functions are project guardrails, not framework guardrails
-status: accepted
+status: proposed
 date: 2026-05-25
 supersedes: ''
 superseded_by: ''
@@ -9,11 +9,8 @@ superseded_by: ''
 
 > **Vocabulary note (ADR-023, 2026-08-27):** what this record calls a
 > *fitness function* is now called an **architecture check**, and the gate it
-> promotes is `verify.architecture` rather than `verify.fitness`. The two
-> floors this record calls `RG-FLOOR-006` and `RG-FLOOR-007` now ship as
-> `RP-REQUIRE-003` and `RP-REQUIRE-004` (`governance/routing-policy.yml`
-> lines 133-141). The record keeps the words and ids it was decided in;
-> only the spellings have moved.
+> promotes is `verify.architecture` rather than `verify.fitness`. The record
+> keeps the words it was decided in; only the names have moved.
 
 
 ## Context

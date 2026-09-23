@@ -1,9 +1,10 @@
 # Delivery approach - hypothetical-framework-task (fixture)
 
-> No test reads this directory (checked by grep over tests/, cli/, scripts/
-> and hooks/). It represents a hypothetical framework issue that touches the
+> `tests/test_writing_style.py` reads this file - its directory name is
+> exempted there as the real, on-disk path, not a retired-vocabulary use of
+> the word. It represents a hypothetical framework issue that touches the
 > public-api surface, which would trigger architect consultation citing
-> Compass's own ADRs, if anything read it.
+> Compass's own ADRs, if a scenario ran against it.
 
 ## 1. The assessment
 

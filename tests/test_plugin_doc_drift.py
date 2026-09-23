@@ -141,7 +141,7 @@ def test_trc_b1_readme_tree_lists_bin_and_plugin_manifest():
     )
 
 
-def test_trc_b2_methodology_section_9_names_bin_and_plugin_manifest():
+def test_trc_b2_methodology_three_layers_names_bin_and_plugin_manifest():
     """methodology.md's adapter-layer paragraph names bin/compass and
     .claude-plugin/."""
     method = _read("docs/methodology.md")
@@ -151,7 +151,7 @@ def test_trc_b2_methodology_section_9_names_bin_and_plugin_manifest():
         method,
         re.DOTALL | re.MULTILINE,
     )
-    assert m, "§9 'The three layers' not found in methodology.md"
+    assert m, "'The three layers' section not found in methodology.md"
     section9 = m.group(0)
     assert "bin/compass" in section9, (
         "methodology §9 does not name `bin/compass` as an adapter-layer artifact"

@@ -38,10 +38,12 @@ def _seed_plugin_manifest(target_dir):
 
 
 def _seed_existing_compass_hooks(target_dir):
-    """Plant a settings.json that already contains all three Compass hook
-    entries, as if `install.sh --project` had been run against this dir.
-    Simulates a target where an older install.sh registered the hooks
-    twice."""
+    """Plant a settings.json that already contains three of Compass's four
+    hook entries (PreToolUse, PostToolUse, Stop - this fixture does not seed
+    SessionStart), as if `install.sh --project` had already been run against
+    this dir once. `test_trc_a2` reruns install.sh against this seed, inside
+    a plugin-source target, to check that the existing entries are stripped
+    rather than left in place."""
     claude_dir = target_dir / ".claude"
     claude_dir.mkdir(parents=True, exist_ok=True)
     pre = {

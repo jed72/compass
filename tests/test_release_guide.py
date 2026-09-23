@@ -20,9 +20,10 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
 def _release_guide_path():
-    """Resolve the rewritten release guide. Only `docs/releasing.md` exists;
-    the second candidate stays so a rename back would not break this check
-    silently.
+    """Resolve the rewritten release guide. Only `docs/releasing.md` exists
+    now; the second, retired candidate stays in the list so the check keeps
+    resolving, without edit, if a future rename restores it - `found[0]`
+    returns whichever candidate exists.
     """
     candidates = [
         ROOT / "docs" / "releasing.md",

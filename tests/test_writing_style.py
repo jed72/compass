@@ -1780,7 +1780,7 @@ _register(Rule(
                    "the manifesto's own name, spelt as it spells itself; "
                    "not the ordinary word."),
         Exemption("tests/test_stream_c_no_new_checks_or_gates.py",
-                   "Modeling Manifesto's named anti-pattern",
+                   "Modeling Manifesto's named",
                    "the manifesto's own name, spelt as it spells itself; "
                    "not the ordinary word."),
         # An evidence-id prefix carries the gate's own American spelling as
@@ -2191,7 +2191,7 @@ _register(Rule(
             "worked-example protection as the ADR-017 exemptions above."),
         Exemption(
             "tests/test_terminology.py",
-            "The guardrails and strategies are where G1..G5 and S1..S7 are defined.",
+            "The guardrails and strategies are where G1..G5 and S1..S14 are defined.",
             "governance/ DEFINES these codes; a definition names what it "
             "defines, the same reason architecture/decisions/README.md's "
             "table is exempt above."),

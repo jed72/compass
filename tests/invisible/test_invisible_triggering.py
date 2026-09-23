@@ -133,7 +133,7 @@ class TestCLAUDEMdNoReframe:
         active issue (TRC-F3)."""
         content = CONTRACT.read_text(encoding="utf-8").lower()
         # Check around the intent-trigger paragraph specifically
-        trigger_idx = content.find("trigger triage on intent")
+        trigger_idx = content.find("trigger on intent, not on the command")
         if trigger_idx == -1:
             # If paragraph not yet there, the test for its presence will catch it
             return

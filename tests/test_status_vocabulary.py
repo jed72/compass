@@ -1,8 +1,8 @@
 """An issue must be able to say it stopped.
 
-An issue's status can say it stopped: parked, blocked, superseded. Without
-that, `compass flow` reports parked work as in progress, indistinguishable
-from an issue still in progress.
+Real work gets parked - deprioritised, blocked on a decision, superseded by a
+change of direction. Without a `parked` status, `compass flow` reported parked
+work as in progress, indistinguishable from an issue genuinely under way.
 
 With no `compass issue set-status`, every status change - including each
 new value here - was a hand-edited `str.replace` on the manifest.

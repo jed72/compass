@@ -23,15 +23,16 @@ GUARDRAILS_YML = "governance/guardrails.yml"
 # structural comparison against main below is the canonical guard; the
 # state-based tests use this list as the known-legitimate set.
 BASELINE_CHECKS = {
-    # A threat model that lists threats and mitigates none is the Threat
-    # Modeling Manifesto's named anti-pattern, and a rollback plan nobody
-    # has rehearsed is a guess. One check reads both, under `G4` rather
-    # than as a sixth guardrail (ADR-002).
-    "borrowed-documents-answered",
-    # The generated per-issue review dashboard is what a reviewer approves
-    # from, so it must not be allowed to disagree with the manifest it was
-    # rendered from. Joins `G4` rather than becoming a sixth guardrail
+    # Added by the borrowed document shapes. A threat model that lists
+    # threats and mitigates none is the Threat Modeling Manifesto's named
+    # anti-pattern, and a rollback plan nobody has rehearsed is a guess.
+    # One check reads both, under `G4` rather than as a sixth guardrail
     # (ADR-002).
+    "borrowed-documents-answered",
+    # Added by the per-issue review dashboard: it is what a reviewer
+    # approves from, so it must not be allowed to disagree with the
+    # manifest it was rendered from. Joins `G4` rather than becoming a
+    # sixth guardrail (ADR-002).
     "dashboard-current",
     "scenarios-have-tests",
     "suite-passed",
@@ -39,16 +40,17 @@ BASELINE_CHECKS = {
     "scenario-has-id-and-intent",
     "claim-traces-to-scenario",
     "gate-evidence-present",
-    # An issue whose work was delivered through a different issue points at
-    # it with `landed_by:`, and this checks that the pointer resolves both
-    # ways. Joins `G3` (traceability) rather than becoming a sixth
-    # guardrail (ADR-002) - the pointer is a traceability link, and the
-    # check is what stops it being a one-sided claim on somebody else's
-    # evidence.
+    # Added by no-status-for-work-done-elsewhere. An issue whose work was
+    # delivered through a different issue points at it with `landed_by:`,
+    # and this checks that the pointer resolves both ways. Joins `G3`
+    # (traceability) rather than becoming a sixth guardrail (ADR-002) -
+    # the pointer is a traceability link, and the check is what stops it
+    # being a one-sided claim on somebody else's evidence.
     "landed-by-resolves",
-    # Checks whether a registry entry still names the record it was
-    # created from, so a gate cannot rest on a record from a different run.
-    # Joins `G4` rather than becoming a sixth guardrail (ADR-002).
+    # Added by tdd-green-unbound-record. Checks whether a registry entry
+    # still names the record it was created from, so a gate cannot rest on
+    # a record from a different run. Joins `G4` rather than becoming a
+    # sixth guardrail (ADR-002).
     "evidence-identity-matches",
     "human-approval-present",
     "backfills-paid",
@@ -58,13 +60,15 @@ BASELINE_CHECKS = {
     "coherence-check-passes",
     "no-trusted-rerun",   # refuses to clear a test-run that only passed on a rerun
     "command-passes",     # runs a project-declared command and needs exit 0
-    # A scenario's declared test id must point at a test that exists, so a
-    # named-but-nonexistent test can no longer read as green. Joins `G1`.
+    # Added by record-keeping-integrity. A scenario's declared test id must
+    # point at a test that exists, so a named-but-nonexistent test can no
+    # longer read as green. Joins `G1`.
     "declared-tests-resolve",
-    # Checks that every scenario in manifest.yml was accounted for by the
-    # project's BDD runner, reading the record `compass bdd verify` writes.
-    # Joins `G1`, and no-ops entirely for a project that has set no
-    # project.bdd_runner, which is nearly all of them.
+    # Added by phase-2-skills-check-and-cli-split. Checks that every
+    # scenario in manifest.yml was accounted for by the project's BDD
+    # runner, reading the record `compass bdd verify` writes. Joins `G1`,
+    # and no-ops entirely for a project that has set no project.bdd_runner,
+    # which is nearly all of them.
     "scenarios-are-executable",
 }
 

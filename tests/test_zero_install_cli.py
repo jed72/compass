@@ -84,19 +84,19 @@ def _assert_no_install_instruction(result):
 
 
 # ---------------------------------------------------------------------------
-# A first triage completes with no Python package installed (`TRC-A1`)
+# A first assess completes with no Python package installed (`TRC-A1`)
 # ---------------------------------------------------------------------------
 
 
-def test_first_triage_completes_without_installing_a_package(bare_interpreter, tmp_path):
+def test_first_assess_completes_without_installing_a_package(bare_interpreter, tmp_path):
     project = _make_bare_project(tmp_path)
     slug = "new-issue"
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
 
-    # The judgement half of triage - a human or `compass assess` records the
-    # assessment. Writing manifest.yml directly here is exactly what a session
-    # does; only the mechanical half runs through the CLI.
+    # The judgement half of assessment - a human or `compass assess` records
+    # the assessment. Writing manifest.yml directly here is exactly what a
+    # session does; only the mechanical half runs through the CLI.
     with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "task": slug,

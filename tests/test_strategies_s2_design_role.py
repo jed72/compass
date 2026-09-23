@@ -1,6 +1,7 @@
 """TDD, red-green-refactor (`S2`) names both governance and design-feedback
-roles.
+roles (`TRC-C1`).
 
+Serves: INT-6
 Spec: governance/strategies.md's `S2` section must name:
   - red-before-green as the way to satisfy the tested-before-it-lands
     guardrail (`G1`) (governance role)

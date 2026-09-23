@@ -14,8 +14,10 @@ mechanism's handling of proposed-status ADRs. It lives in
 `tests/fixtures/self-architecture/proposed-adr/` and is never part of
 Compass's own `architecture/decisions/` tree.
 
-This fixture exists to check that the load mechanism correctly preserves the
-`proposed` status rather than normalising everything to `accepted`.
+This fixture is kept for the proposed-status scenario (`TRC-X2`) below, to
+check that the load mechanism correctly preserves the `proposed` status
+rather than normalising everything to `accepted` - no shipped test exercises
+it now (see References).
 
 ## Decision
 

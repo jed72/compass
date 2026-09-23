@@ -322,7 +322,7 @@ BAN_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\b(along|across|find|the natural|cut\w*)\s+(the\s+)?seams?\b"
                    r"(?![`\"'])", re.I),
     ],
-    # The v1 intake artifact filename; v2 writes prd.md. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    # The v1 intake artifact filename; v2 writes intent.md. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     "vacuous / vacuity / orthogonal / elide / salient": [
         # Plain-word rule: accurate but almost never used in ordinary speech,
         # so it costs a junior or mid engineer a lookup at the moment they are
@@ -597,7 +597,7 @@ def _surface_files(surface: str) -> list[Path]:
 # entry implements a context note already written in the ban itself, and the
 # list is short enough to read.
 TERM_SURFACE_EXEMPT = {
-    # The guardrails and strategies are where G1..G5 and S1..S7 are defined. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
+    # The guardrails and strategies are where G1..G5 and S1..S14 are defined. <!-- vocabulary-scan: allow - names the banned term this pattern retires -->
     # A definition names the thing it defines; banning the code here would
     # mean governance could not label its own rules.
     # governance/ DEFINES the codes; schemas/ describes the fields that
@@ -993,9 +993,9 @@ def test_pending_list_only_ever_shrinks():
 
 
 def test_repository_scan_is_green():
-    """The enforced scan over the real config passes (`TRC-C4`). On freeze day
-    every surface is pending, so this is green by construction; from the
-    first rename slice on, it is green because cleaned surfaces stay clean.
+    """The enforced scan over the real configuration passes (`TRC-C4`). It is
+    green because `PENDING_BASELINE` is empty: every surface has had its
+    rename slice, and cleaned surfaces stay clean.
     """
     hits = _enforced_hits(_terminology()["scan"])
     assert not hits, _report(
@@ -1252,7 +1252,7 @@ def test_pl_b7_the_list_states_todays_behaviour_not_the_intended_one():
 def test_pl_c11_strategies_prose_is_not_path_exempt():
     """The bare-codes exemption covers definitions, not prose (`TRC-C11`).
 
-    `governance/` is exempt because it DEFINES `G1`-`G5` and `S1`-`S12`, and a
+    `governance/` is exempt because it DEFINES `G1`-`G5` and `S1`-`S14`, and a
     definition has to name what it defines. That holds for the machine-readable
     files. `strategies.md` is prose a contributor reads, and it is where this
     project writes the rule about bare codes - so a path exemption made the one

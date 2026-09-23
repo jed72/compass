@@ -2,6 +2,7 @@
 tdd-discipline contains a "test behaviour, not implementation" anti-pattern
 (TRC-C3).
 
+Serves: INT-6
 Spec:
   - skills/tdd-discipline/SKILL.md must have a section on "Listen to your tests"
   - that section says: a hard-to-write test is a sign of a problem in the design - change the design, not the test

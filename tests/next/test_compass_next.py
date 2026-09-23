@@ -18,7 +18,7 @@ Output format chosen (devlog entry):
   "<NextPhase> [gate: <next-gate>][ | <phase> collapsed on this route]"
   Examples:
     "Define [gate: verify.correctness]"
-    "Plan [gate: verify.correctness] | Define is collapsed on this route"
+    "Plan [gate: verify.correctness] | Define collapsed on this route"
     "all phases complete"   <- when issue is fully landed/all gates pass
   This is deliberately plain (no colour escapes) so it is clear in a terminal
   and in logged output.
@@ -208,8 +208,8 @@ class TestNextReportsPhaseAndGate:
 
 class TestNextShowsCollapsedPhases:
     def test_express_clarify_marked_collapsed(self, tmp_path):
-        """On a quick-fix delivery approach, a collapsed stage is reported
-        as collapsed (`TRC-C5`)."""
+        """On a quick-fix delivery approach, Refine is marked as collapsed
+        (`TRC-C5`)."""
         project = make_project(tmp_path)
         task_body = {
             "schema_version": "1.0",
@@ -248,12 +248,12 @@ class TestNextShowsCollapsedPhases:
         result = run_next(project)
         assert result.returncode == 0
         output = result.stdout
-        # Must mention that the collapsed stage is reported
-        assert "collapsed" in output.lower() or "Clarify" in output
+        # Must mention that Refine is collapsed
+        assert "collapsed" in output.lower() or "Refine" in output
 
     def test_express_names_plan_as_next_running_phase(self, tmp_path):
-        """On a quick-fix delivery approach, once the first stage is done,
-        Plan is named as the actual next stage (`TRC-C5`)."""
+        """On a quick-fix delivery approach, once Define is done, Plan is
+        named as the actual next stage (`TRC-C5`)."""
         project = make_project(tmp_path)
         task_body = {
             "schema_version": "1.0",

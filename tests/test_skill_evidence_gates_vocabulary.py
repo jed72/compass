@@ -3,6 +3,7 @@
 stage (TRC-E2). Release and Production stages stay out of scope in
 evidence-gates (TRC-E3).
 
+Serves: INT-9
 Spec:
   - skills/evidence-gates/SKILL.md must frame verify.correctness as
     "anything that defines releasable" (acceptance/releasability gate)

@@ -1,5 +1,6 @@
 """signals.yml defines a design_smell advisory category (TRC-C4).
 
+Serves: INT-6
 Spec:
   - governance/signals.yml must have a top-level key design_smell
   - it must be a sibling to scope_bloat_phrases

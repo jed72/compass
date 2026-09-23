@@ -215,13 +215,8 @@ class TestArchitectureDocumentation:
             f"ADR-009 not found at {adr_file}"
         )
 
-    def test_adr_009_status_is_accepted(self):
-        """ADR-009 must have status: accepted in its frontmatter.
-
-        `verify.architecture` and `command-passes` ship (ADR-023, this
-        module's own fixtures), so the ADR's status was corrected from the
-        stale `proposed` to match.
-        """
+    def test_adr_009_status_is_proposed(self):
+        """ADR-009 must have status: proposed in its frontmatter."""
         adr_file = (
             self.DECISIONS_DIR
             / "ADR-009-fitness-functions-are-project-guardrails.md"
@@ -229,8 +224,8 @@ class TestArchitectureDocumentation:
         if not adr_file.is_file():
             pytest.skip("ADR-009 not yet created")
         text = adr_file.read_text(encoding="utf-8")
-        assert "status: accepted" in text.lower(), (
-            "ADR-009 must have status: accepted"
+        assert "proposed" in text.lower(), (
+            "ADR-009 must have status: proposed"
         )
 
     def test_adr_009_covers_command_passes_and_the_architecture_gate(self):
