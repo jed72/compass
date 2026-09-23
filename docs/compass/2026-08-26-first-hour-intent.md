@@ -101,7 +101,8 @@ about to move.
 
 ## Intent-fidelity check (filled before the plan stage)
 
-- [x] Every success signal above maps to at least one scenario in each
+- [ ] Every success signal above maps to at least one scenario in each
   issue's `acceptance-criteria.md`.
-- [x] No scenario contradicts a constraint, pursues a non-goal, or runs
+- [ ] No scenario contradicts a constraint, pursues a non-goal, or runs
   against a product strategy.
+- [ ] Checked by: {{NAME}} on {{DATE}}.

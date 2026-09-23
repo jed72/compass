@@ -3387,11 +3387,11 @@ def test_pbw_a6_resolves_every_path_shaped_citation_not_a_hard_coded_list():
 # this issue already removed once every audited file was corrected - except
 # this one was never audited. Narrowing `_find_bare_code` to what its own
 # comment says (finding 6, `review-dimensions.md`) stopped it waving through
-# every line that opens with a backticked bare code, and 509 of those predate
-# this issue, spread across 89 files this issue's nine batches never touched -
+# every line that opens with a backticked bare code, and 507 of those predate
+# this issue, spread across 87 files this issue's nine batches never touched -
 # dominated by this repository's `TRC-*`-first test-docstring convention. That
 # is a real, pre-existing defect, not a regression this fix introduces, and
-# fixing 509 lines across 89 files is its own issue, filed by slug, not a
+# fixing 507 lines across 87 files is its own issue, filed by slug, not a
 # review fixup to this mechanism. The mark may only fall, never rise: a new
 # instance cannot hide inside it, and `_find_bare_code`'s own correctness is
 # still proven directly, by the planted breach below and by `PBW-E1`'s fixture

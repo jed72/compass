@@ -88,7 +88,7 @@ def _assert_no_install_instruction(result):
 # ---------------------------------------------------------------------------
 
 
-def test_first_assessment_completes_without_installing_a_package(bare_interpreter, tmp_path):
+def test_first_triage_completes_without_installing_a_package(bare_interpreter, tmp_path):
     project = _make_bare_project(tmp_path)
     slug = "new-issue"
     task_dir = project / ".compass" / "work" / slug
