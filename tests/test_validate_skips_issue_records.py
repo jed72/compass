@@ -1,8 +1,8 @@
 """validate.sh does not fail on the references inside an issue's own documents.
 
 An issue's documents under `docs/compass/<created>-<slug>/` record what was
-true when they were written. Many name `scripts/swarm.sh`, which became
-`scripts/multiagent.sh` at 4.0.0. Rewriting them to satisfy a scanner would
+true when they were written. Many name a script that 4.0.0 renamed.
+Rewriting them to satisfy a scanner would
 falsify the record, so validate.sh skips them, by the same rule every other
 repository-wide scan uses (`issue_layout.is_issue_document`).
 
@@ -11,7 +11,8 @@ of a working tree with no `.git` did: validate.sh falls back to a recursive
 grep there and read the whole archive. Both paths are tested here, each with a
 planted broken reference in a living file to prove the scan still fails.
 
-Scenario id: VSA-1, in validate-scan-vs-archive/delivery-approach.md
+Scenario id: VSA-1, in the delivery approach of issue
+`validate-scan-vs-archive`.
 """
 from __future__ import annotations
 
@@ -23,9 +24,9 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 
-#: An issue document naming the retired script, as the archive does.
+#: An issue document naming a script that no longer exists, as the archive does.
 RECORD = "docs/compass/2026-01-01-old-issue/acceptance-criteria.md"
-RECORD_TEXT = "The builder runs `scripts/swarm.sh` to set up worktrees.\n"
+RECORD_TEXT = "The builder runs `scripts/retired-helper.sh` to set up worktrees.\n"
 #: A living document naming a script that does not exist.
 LIVING = "docs/living-note.md"
 LIVING_TEXT = "Run `scripts/no-such-helper.sh` first.\n"
@@ -93,7 +94,7 @@ def test_vsa_1_no_git_copy_still_fails_a_living_file(tree, tmp_path):
     result = _validate(root)
     assert result.returncode == 1
     assert "scripts/no-such-helper.sh" in result.stderr
-    assert "scripts/swarm.sh" not in result.stderr
+    assert "scripts/retired-helper.sh" not in result.stderr
 
 
 def test_vsa_1_git_checkout_skips_a_tracked_issue_record(tree, tmp_path):
@@ -119,7 +120,7 @@ def test_vsa_1_git_checkout_still_fails_a_living_file(tree, tmp_path):
     result = _validate(root)
     assert result.returncode == 1
     assert "scripts/no-such-helper.sh" in result.stderr
-    assert "scripts/swarm.sh" not in result.stderr
+    assert "scripts/retired-helper.sh" not in result.stderr
 
 
 def test_vsa_1_the_header_states_the_rule():

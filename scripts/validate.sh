@@ -148,9 +148,8 @@ say "6. Script and hook references"
 # checkout, e.g. inside an unpacked release tarball.
 #
 # Both forms skip an issue's own documents, `docs/compass/<created>-<slug>/`.
-# They record what was true when written - many name scripts/swarm.sh, which
-# became scripts/multiagent.sh at 4.0.0 - and rewriting them to satisfy this
-# scan would falsify the record. It is the rule issue_layout.is_issue_document
+# They record what was true when written - many name a script that 4.0.0
+# renamed - and rewriting them to satisfy this scan would falsify the record. It is the rule issue_layout.is_issue_document
 # states for every repository-wide scan, anchored at the root so the worked
 # examples under examples/ stay in scope. A flat file directly under
 # docs/compass/ is not an issue's record and is still scanned.
