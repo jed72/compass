@@ -756,45 +756,28 @@ fi
 # format. Forging goes from `touch` to writing plausible JSON with a correct
 # digest - a different order of deliberateness, not an impossibility.
 # docs/safety-contract.md states both halves.
+#
+# A record with no digest at all counts only when the project declares no
+# `records_signed_since` date, or when the record's own timestamp is earlier.
 if [ -f "$TASK_DIR/.red" ]; then
-  RED_VERDICT="$(compass_python - "$TASK_DIR" <<'PYEOF' 2>/dev/null
-import glob
-import hashlib
-import json
-import os
+  # `set +e` around the reader: under `set -e` a reader that exits non-zero
+  # would end this script with exit 1, which the runtime treats as a
+  # non-blocking error and lets the edit through. The status is checked below
+  # and a failed reader refuses.
+  set +e
+  RED_VERDICT="$(compass_python - "$TASK_DIR" "$COMPASS_DIR" <<'PYEOF' 2>/dev/null
+# One verdict, shared with `suite-passed`, so the hook and the check cannot
+# disagree about what counts as a red. red_first.py documents each word.
 import sys
 
-task_dir = sys.argv[1]
-records = sorted(glob.glob(os.path.join(task_dir, "evidence", "red*.json")))
-if not records:
-    print("no-record")
-    raise SystemExit(0)
+import compass_pkg                      # noqa: F401 - puts vendor on sys.path
+from compass_pkg.red_first import verdict_line
 
-for path in records:
-    try:
-        with open(path, encoding="utf-8") as fh:
-            doc = json.load(fh)
-    except (OSError, ValueError):
-        continue
-    if doc.get("passed") is not False:
-        continue
-    stated = doc.get("content_digest")
-    if not stated:
-        # Written before records carried an identity. Accepted: refusing here
-        # would block work on an issue whose red is genuine and merely old.
-        print("ok")
-        raise SystemExit(0)
-    body = {k: v for k, v in doc.items() if k != "content_digest"}
-    actual = "sha256:" + hashlib.sha256(
-        json.dumps(body, sort_keys=True, default=str).encode("utf-8")).hexdigest()
-    if actual == stated:
-        print("ok")
-        raise SystemExit(0)
-
-print("no-valid-record")
+print(verdict_line(sys.argv[1], sys.argv[2]))
 PYEOF
 )"
   RED_STATUS=$?
+  set -e
 
   if [ "$RED_STATUS" -ne 0 ] || [ -z "${RED_VERDICT:-}" ]; then
     # The reader could not run. A hook that cannot check must not permit.
@@ -815,6 +798,25 @@ EOF
     # An observed failure is on record for this issue. Red came before green.
     exit 0
   fi
+
+  case "$RED_VERDICT" in
+    unsigned*)
+      cat >&2 <<EOF
+Compass: BLOCKED - the red record for issue '$TASK_SLUG' carries no identity.
+
+  This project requires one for records written since
+  records_signed_since: ${RED_VERDICT#unsigned }, set in .compass/config.yml.
+  A record written by \`compass tdd-red\` carries a content_digest. This one
+  has no content_digest, and its own timestamp does not put it before that
+  date.
+
+  To proceed the Compass way:
+    compass tdd-red -- <your failing test command>
+
+  Edit target: $TARGET  (tool: ${TOOL:-?})
+EOF
+      exit 2 ;;
+  esac
 
   cat >&2 <<EOF
 Compass: BLOCKED - the .red marker for issue '$TASK_SLUG' has no record behind it.

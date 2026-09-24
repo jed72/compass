@@ -35,7 +35,8 @@ import fnmatch
 import re as _re
 from compass_pkg.terminal import say
 from compass_pkg.core import CompassError, find_upwards, load_manifest, load_yaml, manifest_path, now_iso, resolve_issue_dir, save_manifest
-from compass_pkg.red_first import ACCEPTANCE_KINDS as _ACCEPTANCE_KINDS, has_red
+from compass_pkg.red_first import (
+    ACCEPTANCE_KINDS as _ACCEPTANCE_KINDS, content_digest as _content_digest, has_red)
 
 
 
@@ -150,13 +151,6 @@ def _stamp_identity(payload):
     digest = _content_digest(payload)
     payload["content_digest"] = digest
     return record_id, digest
-
-
-def _content_digest(payload):
-    """A stable digest over a record's content, excluding the digest itself."""
-    body = {k: v for k, v in payload.items() if k != "content_digest"}
-    encoded = json.dumps(body, sort_keys=True, default=str).encode("utf-8")
-    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def _write_evidence(task_dir, name, payload):

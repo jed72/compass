@@ -130,9 +130,20 @@ record edited after it was written, and it does not catch one written from
 scratch by someone who knows the format. Forging a red record needs
 valid JSON with a correct digest, not an empty file. It is still possible.
 
-Records written before records carried an identity are accepted without a
-digest check. Refusing them would block work on an issue whose red is genuine
-and merely old.
+A record with no identity - written before records carried one, or written
+by hand - unlocks an edit only in one of two cases:
+
+- the project declares no `records_signed_since` date in
+  `.compass/config.yml`
+- the record's own timestamp is earlier than that date
+
+`compass init` writes the date as the day the project was set up, so a new
+project refuses unstamped records from the start. A project set up earlier
+keeps the older allowance until it adds the line. Two limits remain. The
+timestamp can be written by hand too, so the cutoff raises the cost of a
+forged record from one line of JSON to a dated one, and no further. And
+`.compass/` is not a guarded path, so the line can be deleted like any other
+project setting.
 
 ### Shell-write detection is best-effort
 
