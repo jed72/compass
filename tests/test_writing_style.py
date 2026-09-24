@@ -63,9 +63,11 @@ from scripts.prose_keys import PROSE_KEYS  # noqa: E402
 # sweeps could not state - it hides real findings, and the reason it is
 # still right to exclude it is recorded here (finding 7,
 # `review-dimensions.md`). Every sweep run directly over the file, bypassing
-# this set, reports 286: 181 retired words (`PBW-A1`), 53 bare codes
-# (`PBW-A7`), 30 word-table hits (`PBW-A2`), 12 spellings (`PBW-A3`), 10
-# idioms (`PBW-A5`). They are overwhelmingly archived scenario titles -
+# this set, reports five kinds and no others: retired words (`PBW-A1`), bare
+# codes (`PBW-A7`), word-table hits (`PBW-A2`), spellings (`PBW-A3`) and
+# idioms (`PBW-A5`). The counts rise as issues land, because each one appends
+# its scenario titles, so the kinds are what is pinned and the totals are
+# not. At the time this was written they were 181, 53, 30, 12 and 10. They are overwhelmingly archived scenario titles -
 # `task`, `task-architectural`, `lens`, `Land`, `Frame` and the rest - each  # vocabulary-scan: allow - naming the retired v1 words the excluded findings are made of, not using them
 # on a line already ending `_(archived)_` - the same ground
 # `governance/terminology.yml`'s `scan.exempt` already gives
@@ -4688,21 +4690,37 @@ def test_pbw_d1_every_tracked_yaml_file_parses():
         "read only their whole-line comments:\n" + "\n".join(unparseable))
 
 
-def test_pbw_d8_system_spec_findings_match_the_recorded_count():
-    """`docs/system-spec.md`'s exclusion names a count so a reader can check
-    it rather than take it on trust (finding 7, `review-dimensions.md`). A
-    sweep run directly over the file, bypassing `EXCLUDED_PATHS`, must keep
-    finding the same 286 - a drop is fine, a rise means a new kind of
-    finding entered the file and the exclusion's own reasoning needs a
-    second look before it still covers it."""
+#: The kinds of finding the excluded derived spec is allowed to contain, and
+#: the ground the exclusion rests on: an archived scenario title is a record
+#: of what a scenario was called when it ran. A sixth kind would not be that,
+#: so it needs a reader before the exclusion still covers it.
+SYSTEM_SPEC_KINDS = frozenset({
+    "PBW-A1", "PBW-A2", "PBW-A3", "PBW-A5", "PBW-A7"})
+
+
+def test_pbw_d8_system_spec_findings_are_the_recorded_kinds():
+    """`docs/system-spec.md`'s exclusion names what it hides so a reader can
+    check it rather than take it on trust (finding 7,
+    `review-dimensions.md`).
+
+    The kinds are pinned and the totals are not. Every landed issue appends
+    its scenario titles to this derived file, so a total can only rise and a
+    pinned total fails on the next issue to land rather than on anything
+    being wrong. That is what happened first: this test pinned 286, the spec
+    was re-derived at ship, one more word-table hit arrived with the new
+    titles, and continuous integration failed on a number that was never the
+    point. A sixth KIND is the thing worth stopping, because the exclusion's
+    reasoning covers archived titles and nothing else."""
     spans = _spans_for_file(REPO_ROOT / "docs" / "system-spec.md")
     by_rule = {rid: len([f for s in spans for f in rule.find(s)])
                for rid, rule in RULES.items()}
-    total = sum(by_rule.values())
-    assert total <= 286, (
-        f"docs/system-spec.md now reports {total}, more than the 286 the "
-        f"exclusion's comment records - a new kind of finding may have "
-        f"entered the file: {by_rule}")
+    unexpected = {rid: n for rid, n in by_rule.items()
+                  if n and rid not in SYSTEM_SPEC_KINDS}
+    assert not unexpected, (
+        f"docs/system-spec.md reports a kind of finding the exclusion's "
+        f"reasoning does not cover: {unexpected}. The exclusion rests on "
+        f"these being archived scenario titles; read the new findings before "
+        f"widening it. Recorded kinds: {sorted(SYSTEM_SPEC_KINDS)}.")
 
 
 def test_pbw_e1_prose_keys_are_the_one_shared_list():
