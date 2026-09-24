@@ -25,6 +25,9 @@
 #   4. Every skill referenced anywhere in commands/ exists in skills/.
 #   5. Every template referenced in commands/ exists in templates/.
 #   6. Every script and hook referenced in the repo exists and is executable.
+#      It skips an issue's own documents under docs/compass/<created>-<slug>/:
+#      they record what was true when written, and a script renamed since is
+#      not a broken reference in a living file.
 #   7. The five reference approach docs exist and the rubric references them.
 #   8. The kit layer is present: the CLI, the machine-readable governance,
 #      the schemas, and the manifest.yml template - and `compass policy lint`
@@ -143,14 +146,25 @@ say "6. Script and hook references"
 # as the cucumber-js adapter's node_modules/, whose package.json files name
 # scripts that are not ours. Fall back to the recursive form outside a git
 # checkout, e.g. inside an unpacked release tarball.
+#
+# Both forms skip an issue's own documents, `docs/compass/<created>-<slug>/`.
+# They record what was true when written - many name scripts/swarm.sh, which
+# became scripts/multiagent.sh at 4.0.0 - and rewriting them to satisfy this
+# scan would falsify the record. It is the rule issue_layout.is_issue_document
+# states for every repository-wide scan, anchored at the root so the worked
+# examples under examples/ stay in scope. A flat file directly under
+# docs/compass/ is not an issue's record and is still scanned.
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  REFS="$(git ls-files -z -- '*.md' '*.json' 2>/dev/null \
+  REFS="$(git ls-files -- '*.md' '*.json' 2>/dev/null \
+          | grep -vE '^docs/compass/[^/]+/' | tr '\n' '\0' \
           | xargs -0 grep -ohE '(scripts|hooks)/[a-z-]+\.sh' 2>/dev/null \
           | sort -u || true)"
 else
-  REFS="$(grep -rohE '(scripts|hooks)/[a-z-]+\.sh' . \
-          --include='*.md' --include='*.json' \
-          --exclude-dir=node_modules 2>/dev/null | sort -u || true)"
+  REFS="$(find . \( -path './docs/compass/*' -type d \) -prune \
+               -o -name node_modules -prune \
+               -o -type f \( -name '*.md' -o -name '*.json' \) -print0 \
+          | xargs -0 grep -ohE '(scripts|hooks)/[a-z-]+\.sh' 2>/dev/null \
+          | sort -u || true)"
 fi
 for ref in $REFS; do
   if [ -f "$ref" ]; then
