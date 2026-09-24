@@ -35,6 +35,7 @@ import fnmatch
 import re as _re
 from compass_pkg.terminal import say
 from compass_pkg.core import CompassError, find_upwards, load_manifest, load_yaml, manifest_path, now_iso, resolve_issue_dir, save_manifest
+from compass_pkg.red_first import ACCEPTANCE_KINDS as _ACCEPTANCE_KINDS, has_red
 
 
 
@@ -494,7 +495,10 @@ def cmd_tdd_green(args):
             f"is no failure for this green to be the other half of.\n"
             f"  expected : {red_path}\n"
             f"  Run `compass tdd-red --scenario {scenario} -- <test command>` "
-            f"first, or drop --scenario to record an unbound green."
+            f"first. For work with no natural red - config, docs, a "
+            f"behaviour-preserving refactor - declare it before the change "
+            f"with `compass acceptance start --kind validation|refactor -- "
+            f"<command>`."
         )
 
     command = _neutralise_coverage(command)
@@ -590,16 +594,28 @@ def cmd_tdd_green(args):
     _upsert_test_run_evidence(task_dir, scenario, rel_path,
                               record_id=payload.get("record_id"),
                               content_digest=payload.get("content_digest"))
+    # Say "red -> green" only when a red was there to clear. An unbound green
+    # needs no red, and printing the pair when none existed told the user a
+    # failure had been observed when it had not. The last full-suite green
+    # comes after the bound reds were cleared, so it names those instead of
+    # denying them.
     red_marker = os.path.join(task_dir, ".red")
     if os.path.exists(red_marker):
         os.remove(red_marker)
+        marker_line = "marker   : .red cleared - red -> green is on record."
+    elif has_red(task_dir):
+        marker_line = ("marker   : no .red marker to clear - a red for this "
+                       "issue is already on record.")
+    else:
+        marker_line = ("marker   : no .red marker - no red is on record for "
+                       "this issue.")
     bound = f" (bound to {scenario})" if scenario else " (unbound - consider --scenario)"
     return say(args,
                f"compass tdd-green: passing suite recorded (exit 0){bound}.",
                detail=[f"evidence : {ev_path}",
                        "registry : manifest.yml `evidence:` updated with the "
                        "test-run entry",
-                       "marker   : .red cleared - red -> green is on record."],
+                       marker_line],
                scenario=scenario, exit_code=0, evidence=ev_path)
 
 
@@ -679,7 +695,6 @@ def _upsert_test_run_evidence(task_dir, scenario, rel_path,
 # observed here" and is the framework's most honest artifact; overloading it
 # would make it ambiguous.
 
-_ACCEPTANCE_KINDS = ("validation", "refactor")
 
 
 def _acceptance_marker(task_dir):
