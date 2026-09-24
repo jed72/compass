@@ -342,15 +342,15 @@ def test_a_stale_exemption_fails_the_build():
 # ---------------------------------------------------------------------------
 
 def test_the_release_that_carries_the_removal_says_so():
-    # Checks the major version, not the exact release, so later 4.x releases
-    # pass.
+    # Checks that the major version is 4 or later, not the exact release, so
+    # every release after 4.0.0 passes.
     #
     # What ADR-006 forbids is removing a public name inside a major version.
-    # 4.x is where these removals are allowed to have happened; which 4.x is
-    # current says nothing about that.
+    # 4.0.0 is where these removals happened; which later release is current
+    # says nothing about that.
     version = (REPO_ROOT / "VERSION").read_text(encoding="utf-8").strip()
-    major = version.split(".")[0]
-    assert major == "4", (
+    major = int(version.split(".")[0])
+    assert major >= 4, (
         f"VERSION is {version}. The retired names were removed at 4.0.0, so a "
         f"tree that has them removed must be on 4.x or later - removing a "
         f"public command name under a 3.x number is a break inside a major "

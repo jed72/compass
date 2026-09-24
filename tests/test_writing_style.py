@@ -3621,17 +3621,16 @@ def test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans():
     own `find` function can ever report on, not the whole 545-file scan.
 
     A number here moves only when the set of files a rule can reach moves.
-    PBW-C5 went 209 to 211 and PBW-C4 228 to 230 as this issue added two
-    test files, which both rules reach: the clarity-review fixups and the
-    printed-string guard. That is the check reporting
-    a real change rather than drift. PBW-A10 at 9 and PBW-C3 at 32 did not
-    move, because neither reaches a test file."""
+    PBW-C5 and PBW-C4 reach every test file, so each new test file raises
+    both by one. That is the check reporting a real change rather than
+    drift. PBW-A10 and PBW-C3 reach no test file, so a new test file does
+    not move them."""
     paths = scanned_paths()
     expected = {
         "PBW-A10": 9,
         "PBW-C3": 32,
-        "PBW-C5": 211,
-        "PBW-C4": 230,
+        "PBW-C5": 212,
+        "PBW-C4": 231,
     }
     for rule_id, reach in expected.items():
         report = run_sweep(RULES[rule_id], paths)

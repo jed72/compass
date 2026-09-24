@@ -29,6 +29,37 @@ ADR-006 is the other half of this: backward compatibility is non-negotiable
 it, and a breaking change happens once, at a major version, with the reason
 recorded.
 
+### What changed at 5.0.0
+
+5.0.0 removed two skills by merging each into another. A session, an agent
+file or a project instruction that loads a removed skill by name must load
+its replacement:
+
+| Removed | Use instead |
+|---|---|
+| `traceability` skill | `evidence-gates` skill, which now holds it as `traceability.md` |
+| `role-translation` skill | `intent-interview` skill, which now holds it as `role-translation.md` |
+
+Issue documents moved too. The acceptance criteria, technical design,
+delivery approach and the other prose documents now live in
+`docs/compass/<created>-<slug>/`. The manifest, `evidence/` and `devlog.md`
+stay in `.compass/work/<slug>/`. A path in the manifest's `artifacts:` list
+is now measured from the project root.
+
+An issue written under 4.x keeps working without any change: a bare
+filename still resolves beside the manifest, and the CLI says when it used
+that fallback. To move the documents, run `compass migrate`. It refuses when
+git holds no copy of the work directory, and `--i-have-a-copy` tells it you
+have taken one yourself.
+
+New in 5.0.0, and nothing removed by it:
+
+- `/compass:quick-fix` and its `quick-fix` skill: the light path reads one
+  command file and one skill.
+- `compass issue artifact-path <kind>` prints where one of an issue's
+  documents is.
+- `compass issue artifact --path` records where a document was written.
+
 ### What changed at 4.0.0
 
 4.0.0 removed three slash commands that had been redirect stubs since 3.x,
