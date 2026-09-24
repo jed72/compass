@@ -10,8 +10,8 @@ Each test reads the "Plain English" section alone, up to the next heading. A
 word such as "idiom" appearing somewhere else in the file must not satisfy it.
 
 Scenario ids:
-- PE-1, in docs/compass/2026-09-11-claude-md-plain-english/delivery-approach.md
-- PFR-1, in docs/compass/2026-09-11-plain-english-full-rules/delivery-approach.md
+- PE-1, in claude-md-plain-english/delivery-approach.md
+- PFR-1, in plain-english-full-rules/delivery-approach.md
 """
 from __future__ import annotations
 

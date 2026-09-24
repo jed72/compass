@@ -11,8 +11,8 @@ python3 --version
 git --version
 ```
 
-Compass requires Python 3. Its CI currently tests Python 3.11. The CLI bundles
-its required YAML parser; `jsonschema` is optional.
+Compass needs Python 3. Its CI tests Python 3.11. The CLI bundles its YAML
+parser; `jsonschema` is optional.
 
 ## 2. Install Compass
 
@@ -58,7 +58,7 @@ PyYAML 6.0.2 at .../cli/vendor/yaml/__init__.py
 ```
 
 The PyYAML path is the point: it must be the bundled copy, not one from your
-environment. Policy lint should end in `PASS`.
+environment. Policy lint must end in `PASS`.
 
 To prove the CLI is not relying on packages from your Python environment:
 
@@ -88,7 +88,7 @@ Confirm that Compass created:
 .compass/work/test-the-compass-installation/
 ```
 
-The exact slug may vary. The issue directory should contain at least
+The exact slug can vary. The issue directory must contain at least
 `manifest.yml` and `delivery-approach.md`.
 
 Generate the review dashboard:
@@ -97,8 +97,8 @@ Generate the review dashboard:
 compass issue dashboard --issue <issue-slug>
 ```
 
-Open the generated `README.md`. It should show the route, artefact pack,
-omissions, approval state and next action.
+Open the generated `README.md`. It must show the delivery approach, artifact
+pack, omissions, approval state and next action.
 
 If `/compass:assess` is unknown, the adapter is not loaded. Restart Claude
 Code, then check the plugin installation or source-install wiring.
@@ -119,13 +119,13 @@ and verification evidence do not exist yet. A healthy result:
 - gives a next action; and
 - exits non-zero without a Python traceback.
 
-A traceback or “governance not found” error indicates an installation or path
+A traceback or “governance not found” error shows an installation or path
 problem rather than an uncleared gate.
 
 ## 6. Check the hooks
 
 Start a small delivery issue, define one scenario, then try to edit production
-code before recording a failing test. The pre-tool hook should block the edit
+code before recording a failing test. The pre-tool hook must block the edit
 and explain how to record the red test.
 
 Do not run this check on a spike: spikes deliberately suspend the
@@ -135,8 +135,9 @@ For a source install, confirm the Claude Code settings contain Compass entries
 for:
 
 - `hooks/pre-tool.sh`;
-- `hooks/post-tool.sh`; and
-- `hooks/stop.sh`.
+- `hooks/post-tool.sh`;
+- `hooks/stop.sh`; and
+- `hooks/session-start.sh`.
 
 These hooks run with your user permissions. Review them before using Compass
 in a sensitive environment.
@@ -151,14 +152,14 @@ bash scripts/install.sh --global
 bash scripts/install.sh --global
 ```
 
-Uninstall should remove only the Claude Code adapter wiring. Both reinstall
-runs should succeed without duplicate hook entries.
+Uninstall must remove only the Claude Code adapter wiring. Both reinstall
+runs must succeed without duplicate hook entries.
 
 ## Troubleshooting
 
 | Symptom | Check |
 |---|---|
-| Command is unknown | Restart Claude Code; verify the plugin or source adapter path. |
+| Command is unknown | Restart Claude Code; check the plugin or source adapter path. |
 | `policy lint` cannot find governance | Run from the project or use the CLI from a complete Compass checkout. |
 | Edit is blocked | Record a failing test first, or confirm the issue is correctly assessed as a spike. |
 | Hooks were not registered | Install `jq` and rerun the source installer, or follow its manual instructions. |

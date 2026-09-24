@@ -1,27 +1,31 @@
 <!--
 TEMPLATE: acceptance-criteria.md
-Produced by: the acceptance-criteria stage (`/compass:define`); refined
+Produced by: the define stage (`/compass:define`); refined
              at requirements review (`/compass:refine`).
 Lives at:    docs/compass/<created>-<issue-slug>/acceptance-criteria.md
-Role in the pipeline: THE shared artifact - one set of acceptance
-criteria, read by every role through its own perspective - and it is read
-twice: as the specification (when defined) and as the acceptance check (at
-test & review). It satisfies the acceptance-before-build guardrail via the
-BDD strategy: no code may exist that no scenario here describes.
+Role in the pipeline: The shared artifact. Every role reads the same
+acceptance criteria from its own perspective. It is read twice: as the
+specification when defined, and as the acceptance check at verify. It
+satisfies the "Acceptance defined before it is built" guardrail (`G2`) via the
+BDD strategy: every change to production code must be described by a
+scenario here.
 
 Scenarios are grouped by independence - that grouping seeds the
-distribution map at design time. Every scenario carries a traceability id
+distribution map at the plan stage. Every scenario carries a traceability id
 and a link back to the intent it serves - that is the traceability
 guardrail at work.
 
 Fill every {{PLACEHOLDER}}. Keep the Gherkin clean: one behaviour per
 scenario, concrete Given/When/Then, no implementation detail.
 -->
+<!-- absorbed: "criteria, read by every role through its own perspective - and it is read" -->
+<!-- absorbed: "test & review)." -->
+<!-- absorbed: "BDD strategy: no code may exist that no scenario here describes." -->
 
 # Spec - {{ISSUE_SLUG}}
 
-> **Phase:** define · **Last updated:** {{DATE}} · **Owning agent:** spec-author
-> **Familiarity:** {{greenfield discovery \| existing behaviour behaviour-mapped first, then new scenarios}}
+> **Stage:** define · **Last updated:** {{DATE}} · **Owning agent:** spec-author
+> **Familiarity:** {{greenfield discovery \| existing behaviour mapped first, then new scenarios}}
 
 ## Summary
 
@@ -40,7 +44,7 @@ scenario, concrete Given/When/Then, no implementation detail.
      An unfilled field is caught twice: by the author's placeholder scan
      when the criteria are finished, and by the Definition of Ready at the
      foot of requirements-review.md, which will not let an empty Summary
-     reach design. -->
+     reach plan. -->
 
 **Goal:** {{One sentence - what this change delivers, in user terms. Not the
 implementation, not the ticket title.}}
@@ -149,9 +153,9 @@ Scenario: {{scenario title}}
 
 <!-- Maintained continuously, not at the end. QA reads this at Verify. -->
 
-| Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
+| Traceability id | Serves intent | Has a failing test (implement) | Passes as acceptance (verify) |
 |---|---|---|---|
-| TRC-A1 | INT-1 | {{[ ] / [x]}} | {{[ ] / [x]}} |
-| TRC-A2 | INT-1 | {{[ ]}} | {{[ ]}} |
-| TRC-B1 | INT-2 | {{[ ]}} | {{[ ]}} |
-| TRC-F1 | INT-1 | {{[ ]}} | {{[ ]}} |
+| `TRC-A1` | INT-1 | {{[ ] / [x]}} | {{[ ] / [x]}} |
+| `TRC-A2` | INT-1 | {{[ ]}} | {{[ ]}} |
+| `TRC-B1` | INT-2 | {{[ ]}} | {{[ ]}} |
+| `TRC-F1` | INT-1 | {{[ ]}} | {{[ ]}} |

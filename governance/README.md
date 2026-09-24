@@ -11,45 +11,42 @@ point of this directory.
   it. See `strategies.md`.
 
 A third file, `routing-policy.md`, applies the same split to assessment
-itself: routing guardrails *bound* what it may do, routing strategies *bias*
+itself: routing rules *bound* what it may do, routing strategies *bias*
 what it does by default. A fourth, `strategies-rationale.md`, holds the
 incidents behind the strategies and states no rule of its own.
 
-This replaces the older single "constitution." The constitution model jammed
-soft preferences, hard limits, and routing rules into one document under one
-connotation - "supremacy" - and that conflation caused real problems: it made
-governance a heavy all-or-nothing artifact you had to author before you could
-start, and it let advisory judgements get dressed up as hard gates. Splitting
-them into strategies and guardrails keeps the two apart: a guardrail blocks and
-is cleared with evidence, a strategy guides and is assessed.
+Guardrails and strategies are separate so a judgement is never presented as a
+hard gate: a guardrail blocks and is cleared with evidence, a strategy guides
+and is assessed.
 
 ---
 
 ## Why the split matters
 
-**It is a gradient, not a threshold.** A constitution is all-or-nothing - you
-have one or you don't, and a half-written one feels broken. Strategies and
-guardrails have a valid *light* state: the shipped default guardrails, the
-shipped default method strategies, and zero project-specific additions. That
-is a complete, usable governance state, not a skipped step. A team starts
-there and *accretes* strategies as it forms opinions, and adds a guardrail
-only when it hits something that must never recur. This is what makes
-`/compass:init` optional and "frame-and-go" honest - see `docs/quickstart.md`.
+**It is a gradient, not a threshold.** A single governing document is
+all-or-nothing - you have one or you don't, and a half-written one feels
+broken. Strategies and guardrails have a valid *light* state: the shipped
+default guardrails, the shipped default method strategies, and zero
+project-specific additions. That is a complete, usable governance state, not
+a skipped step. A team starts there and adds strategies as it forms
+opinions, and adds a guardrail only when it hits something that must never
+recur. This is what makes `/compass:init` optional - see `docs/quickstart.md`.
 
 **It keeps honest things honest.** Guardrails are *checkable* - a test ran, a
 scan passed, a human approved. Strategies are *assessed* - is this clear, does
 it fit our voice, is this the simplest thing that works. Naming them
-differently stops a judgement call being presented as a hard gate. "Evidence
-over assertion" (the evidence-not-assertion guardrail) applies cleanly to guardrails; strategies are
+differently stops a judgement call being presented as a hard gate. The
+evidence-not-assertion guardrail (`G4`) applies cleanly to guardrails; strategies are
 honestly the reviewer's judgement, and are labelled as such.
 
-**It right-sizes rigour.** The form of a practice can be a strategy while its
-outcome is a guardrail. Compass's headline example: *being tested before it
-lands* is the tested-before-ship guardrail - hard, checkable, universal. *Red-green-refactor* is a
-default strategy - the strong, shipped-on way to get there, but a spike
-can suspend it. A one-character typo fix still has to be tested before it
-lands; it does not have to perform the red-green ritual. That distinction is
-how Compass avoids using a sledgehammer on a nut without giving up the floor.
+**It matches the effort to the risk.** The form of a practice can be a
+strategy while its outcome is a guardrail. Compass's headline example: *being
+tested before it lands* is the "tested before it lands" guardrail (`G1`) -
+hard, checkable, universal. *Red-green-refactor* is a default strategy - the
+strong, shipped-on way to get there, but a spike can suspend it. A
+one-character typo fix still has to be tested before it lands; it does not
+have to do the red-green cycle. That distinction is how Compass keeps a small
+change from carrying heavy process, without dropping the guardrails.
 
 ---
 
@@ -61,13 +58,12 @@ When two pieces of governance disagree:
    licenses crossing a guardrail.
 2. **Guardrail vs guardrail** should not happen - if it does, the guardrail
    set has a bug; fix the set, do not improvise around it.
-3. **Strategy vs strategy** is resolved by context: triage picks based on
-   the route at triage, or a human picks (often via `/compass:consult`).
+3. **Strategy vs strategy** is resolved by context: the delivery approach
+   decides, or a human picks (often via `/compass:consult`).
    A strategy losing a context call is normal - that is what "soft" means.
 
-This replaces the old "constitution supremacy." There is no single supreme
-document; there is a small hard set that wins, and a larger soft set that
-guides.
+There is no single supreme document; there is a small hard set that wins, and
+a larger soft set that guides.
 
 ---
 
@@ -95,8 +91,8 @@ stale, contradictory strategies is its own kind of mess. So:
 | `strategies.md` | The shipped default method strategies (incl. BDD and TDD) + a project-strategies section | Soft, assessed, accretive |
 | `routing-policy.md` | Routing guardrails (bound assessment) + routing strategies (bias it) | Both, applied to routing |
 | `strategies-rationale.md` | The incidents and worked examples behind the strategies | Neither - evidence, read when a rule looks arbitrary |
-| `signals.yml` | Advisory patterns: scope-bloat phrases the stop-hook nudges on, the rework-scan window, public-surface patterns | Soft signals - *not* guardrails; advisory only |
-| `quarantine.yml` | Records of intermittent tests explicitly quarantined with a tracking issue | Pairs with the `no-trusted-rerun` rule on evidence-not-assertion (see `strategies.md` §6) |
+| `signals.yml` | Advisory patterns: scope-bloat phrases the stop-hook prompts on, the rework-scan window, public-surface patterns | Soft signals - *not* guardrails; advisory only |
+| `quarantine.yml` | Records of intermittent tests explicitly quarantined with a tracking issue | Pairs with the `no-trusted-rerun` rule on evidence-not-assertion (see `strategies.md` `S5`) |
 
 The framework ships these with sane, active defaults. `/compass:init` copies
 them into a project so the team can extend them; until then, the shipped

@@ -1,8 +1,8 @@
 # System Context
 
-<!-- HOW TRIAGE USES THIS FILE
+<!-- HOW ASSESS USES THIS FILE
      Assess reads this file at the start of every issue and includes it (with
-     its SHA-256 fingerprint) in .compass/work/<task>/architecture-loaded.yml.
+     its SHA-256 fingerprint) in .compass/work/<issue>/architecture-loaded.yml.
      Downstream agents - `spec-author`, `planner`, and `architect` - read
      architecture-loaded.yml to get persistent architectural context that
      survives session boundaries and context compaction.

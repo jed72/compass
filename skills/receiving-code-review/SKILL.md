@@ -1,6 +1,6 @@
 ---
 name: receiving-code-review
-description: "How to answer review comments: verify each against the code before acting, push back with reasoning rather than preference, and record what you did with each one."
+description: "How to answer review comments: check each against the code before acting, push back with reasoning rather than preference, and record what you did with each one."
 ---
 
 # Receiving Code Review
@@ -8,10 +8,10 @@ description: "How to answer review comments: verify each against the code before
 There are two ways to answer a reviewer badly, and agreeing too readily is the
 more common one.
 
-**Verify each suggestion against the code before you implement it.** Every
+**Check each suggestion against the code before you implement it.** Every
 comment is a hypothesis about code the reviewer read faster than you wrote it.
-A suggestion right about the smell and wrong about the cause is the normal
-case - implementing it verbatim leaves the smell and adds a change nobody
+A suggestion right about the symptom and wrong about the cause is the normal
+case - implementing it verbatim leaves the symptom and adds a change nobody
 needed.
 
 **"You're absolutely right", before checking, is the failure this prevents.**
@@ -20,14 +20,15 @@ review existed to give.
 
 **Push back with technical reasoning when the reviewer is wrong.** Show the case
 their suggestion breaks, the constraint it misses, or the measurement that
-contradicts it - not preference, not seniority, not how long the current version
-took. If you cannot produce a technical reason, they are probably right.
+contradicts it - not preference, not seniority, not how long the version
+took. If you
+cannot produce a technical reason, they are probably right.
 
 **Treat "implement this properly" as a question about scope.** Ask what breaks
 today without it. If the answer is nothing, it is a separate issue, not a
 review thread.
 
-**Read the label first** (`S12`). Issue, suggestion, nitpick, question or
+**Read the label first** (`governance/strategies.md` `S12`). Issue, suggestion, nitpick, question or
 praise tells you what blocks the merge before you read the argument. If it is
 missing, ask rather than guess.
 

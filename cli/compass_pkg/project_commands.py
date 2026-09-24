@@ -3,9 +3,8 @@
 # compass - project command policy
 # =============================================================================
 # Whether Compass runs a command a project guardrail declared, and where that
-# command's script is allowed to live. Split out of checks.py, which is the
-# check registry: this is the policy those checks apply, and it is easier to
-# read - and to argue with - on its own.
+# command's script is allowed to live. Kept apart from checks.py, the check
+# registry, so the policy can be read and changed on its own.
 #
 # This module reads the PROJECT's own configuration, which means everything it
 # decides is repository-controlled. That is fine for what it does: it is a
@@ -13,7 +12,7 @@
 # decision lives in trust.py, is read first, and reads nothing from here.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library. This module reaches it only indirectly, through the shared
 # config reader in compass_pkg.tdd.

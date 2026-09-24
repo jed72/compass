@@ -1,16 +1,12 @@
 """docs/system-spec.md stays current, and stays house-style clean.
 
-18 tasks are marked landed. The committed file carried scenarios from ONE, and
-had gone fourteen consecutive Lands without being re-derived. Nobody noticed,
-because nothing looked.
+A derived artifact that nothing regenerates is worse than no artifact: it
+reads as authoritative and is wrong. The fix is not to regenerate it once -
+that only makes it right today. The fix is a test that re-derives and
+compares on every run, which keeps it right.
 
-A derived artifact that nothing regenerates is worse than no artifact: it reads
-as authoritative and is fiction. So the fix is not "regenerate it" - that makes
-it right today. The fix is a test that re-derives and compares, which makes it
-stay right.
-
-Spec: docs/compass/2026-08-03-living-spec-and-process-impact/acceptance-criteria.md (TRC-A1..A3,
-      TRC-B1, TRC-B2, TRC-F1, TRC-F2).
+Spec: living-spec-and-process-impact/acceptance-criteria.md (`TRC-A1`..`TRC-A3`,
+      `TRC-B1`, `TRC-B2`, `TRC-F1`, `TRC-F2`).
 """
 from __future__ import annotations
 
@@ -50,7 +46,7 @@ def _derive_into(root):
 
 
 def _sandbox(landed_only=True):
-    """A copy of this repo's task archive, cheap enough to derive against."""
+    """A copy of this repo's issue archive, cheap enough to derive against."""
     tmp = pathlib.Path(tempfile.mkdtemp(prefix="compass-sysspec-"))
     (tmp / "docs").mkdir()
     (tmp / ".compass" / "work").mkdir(parents=True)
@@ -73,7 +69,7 @@ def _landed_slugs(work):
 # --- group A: staleness is detected ----------------------------------------
 
 def test_trc_a1_a_stale_derived_spec_should_fail_a_check():
-    """Simulated by deriving into a sandbox and removing a task's scenarios
+    """Simulated by deriving into a sandbox and removing an issue's scenarios
     from the committed copy - the comparison must notice."""
     if not _archive_present():
         pytest.skip("no task archive in this checkout - see _archive_present()")
@@ -91,17 +87,17 @@ def test_trc_a1_a_stale_derived_spec_should_fail_a_check():
 
 
 def _archive_present():
-    """Is this checkout carrying the task archive the spec is derived FROM?
+    """Is this checkout carrying the issue archive the spec is derived FROM?
 
     `.gitignore` root-anchors `/.compass/work/`, so a fresh clone - which is
     exactly what CI checks out - has no archive. Deriving there produces an
     empty spec that can never equal the committed one, and the comparison would
     fail for a reason that has nothing to do with staleness.
 
-    The guard is therefore: compare only where the sources exist. This is a real
-    limit, not a dodge - it means the currency check runs for a developer and a
-    Land, and cannot run in CI. Stated here rather than hidden, because the
-    first version of this test failed every clean clone.
+    The guard is therefore: compare only where the sources exist. This is a
+    real limit, not a dodge - it means the currency check runs on a
+    developer's machine and at ship, and cannot run in CI. Stated here
+    rather than left implicit.
     """
     return WORK.is_dir() and any(
         (p / "manifest.yml").is_file() for p in WORK.iterdir() if p.is_dir())

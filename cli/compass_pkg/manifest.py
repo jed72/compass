@@ -1,51 +1,13 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.manifest - `compass ship-commit`, the manifest mutators and
+# `compass issue set-status`
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +22,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -100,15 +38,13 @@ from compass_pkg.core import CompassError, find_governance, load_manifest, load_
 
 
 
-# --- command: land-commit ---------------------------------------------------
-# R5 - the Land commit step, made robust to auto-fixing pre-commit hooks.
-# An auto-fixer (ruff format/--fix) rewrites a staged file and aborts the
-# commit; pre-commit stashes the unstaged delta, the commit no-ops, and HEAD
-# does not move - yet nothing notices, so an unattended Land believes it landed
-# when it didn't. land-commit (DD-5) does all three R5 fixes: (a) best-effort
-# clean-first via the pre-commit framework when present; (b) detect the no-op
-# (HEAD unchanged), re-stage the hook's fixes, and retry once; (c) ALWAYS
-# verify HEAD advanced and error loudly if not.
+# --- command: ship-commit -----------------------------------------------------
+# `compass ship-commit`, the commit step of ship. An auto-fixing pre-commit
+# hook can rewrite a staged file and abort the commit, so HEAD does not move
+# and nothing reports it. So ship-commit:
+#   (a) does a best-effort clean-first via the pre-commit framework when present;
+#   (b) detects the no-op (HEAD unchanged), re-stages the hook's fixes, and retries once;
+#   (c) ALWAYS checks that HEAD advanced and errors loudly if not.
 
 
 def _git(args, cwd):
@@ -128,7 +64,7 @@ FRAMEWORK_OWNED_PATHS = frozenset({
 
 
 def _land_scope(task, slug):
-    """The paths a Land commit is allowed to contain.
+    """The paths a ship commit is allowed to contain.
 
     An issue's own `changed_files`, its artifact directory, and the framework's
     own bookkeeping files above. Anything else in the commit belongs to someone
@@ -166,20 +102,20 @@ def cmd_land_commit(args):
     for f in files:
         _git(["add", "--", f], cwd)
 
-    # Nothing staged → explicit error, never a retry loop (TRC-R5-F2).
+    # Nothing staged → explicit error, never a retry loop.
     if _git(["diff", "--cached", "--quiet"], cwd).returncode == 0:
         raise CompassError(
             "compass ship-commit: nothing staged to land. Stage the artifacts "
             "first (e.g. `git add <paths>`), then re-run."
         )
 
-    # The task's declared scope. Everything below re-stages against this rather
-    # than against the whole tree: a Land commit must contain what the task
-    # says it changed, and nothing else. A repo-wide auto-formatter plus a
-    # whole-tree re-stage once took a real index from ~23 task files to 1,574,
-    # including a concurrent agent's uncommitted work.
-    # Best-effort: `land-commit` has always worked in a repo with no task
-    # directory at all, and must keep doing so. Without a task there is no
+    # The issue's declared scope. Everything below re-stages against this
+    # rather than against the whole tree: a ship commit must contain what the
+    # issue says it changed, and nothing else. A whole-tree re-stage after a
+    # repo-wide formatter would sweep unrelated files, including another
+    # agent's uncommitted work, into the commit.
+    # Best-effort: `ship-commit` has always worked in a repo with no issue
+    # directory at all, and must keep doing so. Without an issue there is no
     # declared scope to check against - the re-stage below stays scoped either
     # way.
     owned, artifact_dir, slug = set(), "\0none", None
@@ -193,9 +129,9 @@ def cmd_land_commit(args):
 
     staged_now = _git(["diff", "--cached", "--name-only"], cwd).stdout.split()
 
-    # The scope check needs a declared scope. A task with no `changed_files`
+    # The scope check needs a declared scope. An issue with no `changed_files`
     # has not said what it owns, so there is nothing to check against and
-    # refusing would break every task that does not record them (ADR-006:
+    # refusing would break every issue that does not record them (ADR-006:
     # a new mechanism no-ops for projects that have not adopted it). The
     # re-stage below is still scoped in that case - it re-stages what was
     # staged, never the whole tree.
@@ -227,11 +163,11 @@ def cmd_land_commit(args):
         It deliberately does NOT re-add the issue's whole `changed_files:`
         list. That list names every file the issue will touch, including files
         belonging to commits not yet made - so on an issue landed as a
-        sequence of commits, re-adding it widened the current commit to the
-        issue's entire declared scope. In the field that put a module's
-        registration into the commit before the module itself, producing a
-        commit that referenced code it did not contain: unbisectable,
-        unrevertable, and green in CI, because CI only builds the branch tip.
+        sequence of commits, re-adding it would widen the current commit to
+        the issue's whole declared scope. That can put a module's
+        registration in a commit without the module: a commit that cannot
+        be bisected or reverted, and that passes CI because CI builds only
+        the branch tip.
 
         Recovering from a hook rewrite only needs what was already staged.
         """
@@ -249,21 +185,21 @@ def cmd_land_commit(args):
                            cwd=cwd, capture_output=True, text=True)
             _restage_owned()  # re-stage what the hooks rewrote, scoped
 
-    # First commit attempt.
+    # First try at the commit.
     c1 = _git(["commit", "-m", msg], cwd)
     head_after = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
 
     retried = False
     if head_after == head_before:
         # (b) the commit no-op'd - a hook likely auto-fixed and aborted. Stage
-        # whatever it rewrote and retry exactly once, within the task's scope.
+        # whatever it rewrote and retry exactly once, within the issue's scope.
         _restage_owned()
         retried = True
         if _git(["diff", "--cached", "--quiet"], cwd).returncode != 0:
             _git(["commit", "-m", msg], cwd)
             head_after = _git(["rev-parse", "HEAD"], cwd).stdout.strip()
 
-    # (c) ALWAYS verify HEAD advanced - the land's evidence is the moved HEAD.
+    # (c) ALWAYS check that HEAD advanced - the land's evidence is the moved HEAD.
     if head_after == head_before:
         log = ((c1.stdout or "") + (c1.stderr or ""))[-800:]
         raise CompassError(
@@ -274,15 +210,13 @@ def cmd_land_commit(args):
             "--- commit output (tail) ---\n" + log
         )
 
-    # Success. Mark the task landed only now that HEAD is confirmed advanced -
+    # Success. Mark the issue landed only now that HEAD is confirmed advanced -
     # AND only if its gates actually cleared.
     #
-    # Guardrail G1 is "checked at Verify and Land". This used to write
-    # `status: landed` on the strength of git HEAD moving alone, so a task
-    # whose `compass check` failed before the commit was still recorded as
-    # landed afterwards. The status is what `calibration`, the living-spec
-    # derivation and every cross-task report read, so an unverified land
-    # silently entered the record as a clean one.
+    # The tested-before-ship guardrail (`G1`) is checked at the verify stage
+    # and at ship. `compass retro`, the living-spec
+    # derivation and every cross-issue report read the status, so an issue
+    # whose gates failed must not be recorded as landed.
     landed_note = ""
     if getattr(args, "task", None):
         try:
@@ -315,11 +249,10 @@ def cmd_land_commit(args):
     return 0
 
 
-# --- commands: task-manifest mutators (R9) + gate pass (R6) ---------------------
-# Thin, schema-owning mutators so the manifest.yml manifest below `readings` is never
-# hand-edited YAML. `compass gate pass` is the shared R6/R9 command: it flips a
-# gate to pass (R9) AND validates the evidence type against
-# gate_evidence_requirements at write time (R6) - so a mismatch is caught
+# --- commands: manifest mutators + gate pass ---------------------------------
+# Manifest mutators, which own the schema so nobody hand-edits the YAML.
+# `compass gate pass` marks a gate passed and checks the evidence type
+# against `gate_evidence_requirements` as it writes, so a mismatch is caught
 # before it is recorded, not discovered later at `compass check`.
 
 
@@ -430,12 +363,9 @@ def cmd_evidence_add(args):
             f"compass evidence add: evidence id '{args.evidence_id}' already "
             f"exists. Use a fresh id."
         )
-    # Validate the file against its declared type HERE, not two phases later.
-    # `evidence add --type test-run --path run.txt` used to be accepted, and
-    # `compass check` then failed with "test-run evidence unreadable" - a
-    # set-then-discover-at-check round trip, out of context and hard to act on.
-    # Only types with a real shape contract are checked; a manual review or an
-    # artifact can be any file.
+    # Check the file against its declared type here, not at `compass check`,
+    # where the failure arrives out of context. Only types with a real shape
+    # contract are checked; a manual review or an artifact can be any file.
     abs_path = args.path if os.path.isabs(args.path) else os.path.join(
         task_dir, args.path)
     if not os.path.exists(abs_path):
@@ -469,10 +399,10 @@ def cmd_evidence_add(args):
 
 
 def _annotate_gate_accepts(task_path):
-    """R6-6: annotate each gate in the gates block with a `# accepts: [...]`
+    """Annotate each gate in the gates block with a `# accepts: [...]`
     comment naming its accepted evidence types (from guardrails.yml). A seeding
-    nicety - yaml round-trips drop it, so it is re-applied after each route
-    evaluate --write."""
+    nicety - yaml round-trips drop it, so it is re-applied after each
+    `approach evaluate --write`."""
     reqs, _known = _load_gate_requirements()
     if not reqs:
         return
@@ -501,11 +431,9 @@ def _annotate_gate_accepts(task_path):
         fh.write("\n".join(out) + "\n")
 
 
-# --- compass task set-status ------------------------------------------------
-# The last routine hand-edit of the manifest. Before this, the terminal flip was a
-# scripted `str.replace` on manifest.yml - reported from the field as brittle and
-# repeated across every Land - and each new status value below would have been
-# set the same way.
+# --- compass issue set-status -------------------------------------------------
+# `compass issue set-status`: sets the lifecycle status, so nobody edits the
+# manifest by hand.
 
 TASK_STATUSES = ("active", "queued", "parked", "landed", "abandoned")
 
@@ -533,8 +461,8 @@ def cmd_task_set_status(args):
     task_dir = resolve_issue_dir(getattr(args, "task", None))
     task, path = load_manifest(task_dir)
 
-    # `land-commit` refuses to write `landed` over gates that have not passed.
-    # A second door into the same field must not be an easier one, or the
+    # `ship-commit` refuses to write `landed` over gates that have not passed.
+    # This command must not be an easier way to set the same field, or the
     # refusal is advice rather than a rule.
     if status == "landed":
         unmet = [g.get("id", "?") for g in (task.get("gates") or [])
@@ -555,13 +483,9 @@ def cmd_task_set_status(args):
             task["parked_reason"] = reason
         task["parked_at"] = now_iso()
     elif reason:
-        # `status_reason`, not `note`. The schema forbids undeclared keys, and
-        # `note` was never declared - so for four of the five statuses this
-        # command accepts, `--reason` wrote a manifest that failed
-        # `compass issue lint`, and `compass ci` then failed for the whole
-        # repository. The name also has to say what it records: a bare `note`
-        # does not say which transition it belongs to, where `parked_reason`
-        # beside it does.
+        # `status_reason`, not `note`: the schema forbids undeclared keys,
+        # and the name must say which transition it records, as
+        # `parked_reason` does.
         task["status_reason"] = reason
 
     save_manifest(task, path)

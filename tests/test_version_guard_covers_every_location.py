@@ -1,5 +1,9 @@
 """The partial-bump guard covers every place a version lives.
 
+This test finds every version string in the published surfaces and asserts
+the guard has a case for each, so the list of locations cannot go out of
+date.
+
 `tests/test_version_consistency.py` parametrises the locations it checks. It
 covered five; there are seven. `cli/compass_pkg/core.py` holds the constant
 `cli/compass` asserts equality against, and the smoke-test banner is the one
@@ -13,11 +17,7 @@ This is the fourth instance in one release of a check reporting success while
 checking nothing - alongside the smoke-test guard that searched for a retired
 spelling, an evidence record with no identity, and `OLD_VERSIONS`, which no
 code read and which a missing comma had silently corrupted. A check that
-cannot fail buys false confidence, which is worse than no check.
-
-So this test does not restate the list of locations. Restating it is how the
-list went stale. It finds every version string in the repository's published
-surfaces and asserts the guard has a case for each.
+cannot fail gives false confidence, which is worse than no check.
 
 Scenario ids: see docs/system-spec.md.
 """
@@ -30,7 +30,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 GUARD = ROOT / "tests" / "test_version_consistency.py"
 
 # Every file that publishes the version, and how to find it in that file.
-# A location added here without a matching case in the guard fails TRC-1.
+# A location added here without a matching case in the guard fails `TRC-1`.
 PUBLISHED_LOCATIONS = {
     "VERSION": None,
     ".claude-plugin/plugin.json": "version",
@@ -59,20 +59,13 @@ def test_trc_1_every_published_location_reports_the_declared_version():
         text = (ROOT / rel).read_text(encoding="utf-8")
         for m in re.finditer(r"\b\d+\.\d+\.\d+\b", text):
             found = m.group(0)
-            # Skip versions that belong to something else. This filter used
-            # to look at the whole LINE, which silently swallowed the one
-            # location this test exists for: the smoke test's banner reads
-            # "compass 2.1.0 (issue schema 2.0)", the line contains "schema",
-            # and so every match on it was dropped. Setting both banners to
-            # 9.9.9 left the test green. Match the neighbouring token
-            # instead, so only a genuinely foreign version is skipped.
-            # An explicit, individually-justified exemption for a version the
-            # file TALKS ABOUT rather than publishes. The instance this was
-            # written for was a comment in cli/compass recording that the
-            # `compass design lint` alias shipped in 3.3.0; 4.0.0 removed the
-            # alias and the comment with it, so the published surfaces carry
-            # no exemption today. The mechanism stays for the next one.
-            # reason on the line it exempts, and
+            # Match the neighbouring token, not the whole line: the
+            # smoke-test banner line contains "schema", and a line filter
+            # drops its version.
+            # An explicit, individually-justified exemption for a version
+            # the file talks about rather than publishes. No published
+            # surface carries an exemption now; the mechanism stays for the
+            # next historical reference.
             # tests/test_version_guard_exemptions.py counts them so the list
             # cannot grow into the wide skip pattern this guard's history
             # warns about.
@@ -99,9 +92,8 @@ def test_trc_1_every_published_location_reports_the_declared_version():
         "a published surface carries a version that is not the declared "
         "one - a partial bump:\n  " + "\n  ".join(stale)
     )
-    # The antidote to this test's own former defect: a filter that drops
-    # every candidate leaves a guard that cannot fail. Prove each location
-    # still had something left to compare.
+    # A filter that drops every candidate makes a guard that cannot fail,
+    # so check each location still has something to compare.
     silent = sorted(rel for rel, n in compared.items() if n == 0)
     assert not silent, (
         "these locations yielded no version comparison at all, so a wrong "
@@ -121,13 +113,8 @@ def test_trc_2_the_guard_has_a_case_for_every_published_location():
 
 
 def test_trc_3_the_guard_declares_no_constant_nothing_reads():
-    """`OLD_VERSIONS` was dead, and a missing comma had corrupted it.
-
-    Nothing read it, so nothing noticed that `"1.0.0-rc.1" "1.8.1"` had
-    concatenated into a single nonsense string and dropped 1.8.1 from the
-    set. A guard nobody reads cannot fail; keeping one is how a repository
-    accumulates reassurance it has not earned.
-    """
+    """The guard declares no constant that no code reads: an unread
+    constant cannot fail and hides errors such as a missing comma."""
     guard = GUARD.read_text(encoding="utf-8")
     # The declaration, not the word. The comment recording why it went is
     # worth keeping; a set nobody reads is not.

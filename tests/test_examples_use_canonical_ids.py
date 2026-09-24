@@ -1,13 +1,10 @@
 """The shipped samples use one id prefix, and use it consistently.
 
 The five sample issue directories are how an adopter learns what an artifact
-looks like. They shipped with two spellings for the same thing - `SCN-` in the
-examples, `TRC-` everywhere else - and with ids that had been renamed in one
-file and not its siblings.
-
-The second failure is the worse one. A sample whose spec cites an id its own
-manifest does not carry teaches that the traceability chain is decorative, which
-is the opposite of the lesson.
+looks like. Every sample uses the `TRC-` prefix, and every id a sample's
+prose cites exists in its manifest - a sample whose spec cites an id its
+own manifest does not carry would teach that the traceability chain is
+decorative.
 
 Scenario ids: see docs/system-spec.md.
 """
@@ -29,9 +26,9 @@ EXAMPLES = ROOT / "examples"
 CANONICAL = "TRC-"
 RETIRED = "SCN-"
 
-# A real id is a number, optionally behind a one-letter group: TRC-001,
-# TRC-A1. Deliberately not [A-Za-z0-9]+, which also matched the prose
-# placeholder `TRC-id` and reported it as a dangling reference.
+# A real id is a number, optionally behind a one-letter group: `TRC-001`,
+# `TRC-A1`. Deliberately not [A-Za-z0-9]+, which would also match the prose
+# placeholder `TRC-id`.
 ID_RE = re.compile(r"\b(TRC|SCN)-[A-Z]?[0-9]+\b")
 
 

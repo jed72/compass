@@ -13,17 +13,13 @@ The two conditions are not equal, and the tests keep them unequal:
     can edit. It is evaluated second, and only for a contribution that was not
     already refused.
 
-Scenario ids trace to .compass/work/project-commands-are-a-trust-boundary/
+Scenario ids trace to project-commands-are-a-trust-boundary/
 acceptance-criteria.md - group A (opt-in), group B (the refusal), group C (the
 script form), group E (a disabled guardrail does not go quiet).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import json
@@ -158,7 +154,7 @@ def _sentinel_guardrail(sentinel: Path) -> List[Dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 def test_b1_untrusted_ci_context_refuses_the_command(tmp_path):
-    """TRC-B1: a command is refused when the CI environment says the
+    """`TRC-B1`: a command is refused when the CI environment says the
     contribution is untrusted - here, a pull request from a fork.
 
     The project has opted in, so the opt-in is not what stops it.
@@ -184,7 +180,7 @@ def test_b1_untrusted_ci_context_refuses_the_command(tmp_path):
 
 
 def test_b2_repository_config_cannot_disable_the_refusal(tmp_path):
-    """TRC-B2: the repository must not be able to switch the refusal off.
+    """`TRC-B2`: the repository must not be able to switch the refusal off.
 
     The scenario the spec calls the one that decides whether this issue
     produces a boundary or a preference. The project opts in as loudly as it
@@ -211,7 +207,7 @@ def test_b2_repository_config_cannot_disable_the_refusal(tmp_path):
 
 
 def test_b2_trust_module_reads_nothing_inside_the_project(tmp_path):
-    """TRC-B2, the mechanism rather than the message.
+    """`TRC-B2`, the mechanism rather than the message.
 
     The refusal is unforgeable only because the module deciding it cannot read
     anything the contribution could have written. Asserting that from the
@@ -247,13 +243,11 @@ def test_b2_trust_module_reads_nothing_inside_the_project(tmp_path):
 
 
 def test_b5_unrecognised_ci_provider_is_refused(tmp_path):
-    """TRC-B5: an unrecognised CI provider should be refused rather than
+    """`TRC-B5`: an unrecognised CI provider must be refused rather than
     trusted.
 
-    Added at the requirements review. A CI system Compass has not been taught
-    presents exactly like a laptop - no signal it understands - and running the
-    command there would leave a hole shaped like every provider except GitHub.
-    So a generic CI marker with no trusted signal refuses.
+    A CI system Compass does not recognise looks like a laptop, so running
+    the command there would trust every provider except GitHub.
     """
     sentinel = tmp_path / "the-command-ran"
     project = _make_project(
@@ -277,12 +271,12 @@ def test_b5_unrecognised_ci_provider_is_refused(tmp_path):
 
 
 def test_b3_explicit_untrusted_signal_is_honoured(tmp_path):
-    """TRC-B3: detection should not depend on one CI provider.
+    """`TRC-B3`: detection must not depend on one CI provider.
 
     No generic CI marker is set here on purpose. This pins the explicit signal
     on its own, so the test still means something on a provider Compass has
     never heard of - and so it cannot quietly pass via the fail-closed rule
-    that TRC-B5 covers.
+    that `TRC-B5` covers.
     """
     sentinel = tmp_path / "the-command-ran"
     project = _make_project(
@@ -304,7 +298,7 @@ def test_b3_explicit_untrusted_signal_is_honoured(tmp_path):
 
 
 def test_b4_local_run_is_not_untrusted(tmp_path):
-    """TRC-B4: an ordinary local run should not be treated as untrusted.
+    """`TRC-B4`: an ordinary local run must not be treated as untrusted.
 
     The spec calls this "the failure that would make people switch the whole
     thing off". It passes the moment the fail-closed rule is written correctly,
@@ -334,7 +328,7 @@ def test_b4_local_run_is_not_untrusted(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_a1_command_does_not_run_without_opt_in(tmp_path):
-    """TRC-A1: a project command should not run unless the project has opted
+    """`TRC-A1`: a project command must not run unless the project has opted
     in, and the check reports that rather than passing quietly."""
     sentinel = tmp_path / "the-command-ran"
     project = _make_project(
@@ -354,7 +348,7 @@ def test_a1_command_does_not_run_without_opt_in(tmp_path):
 
 
 def test_a2_opted_in_project_runs_its_command(tmp_path):
-    """TRC-A2: a project that has opted in has its command run, and the
+    """`TRC-A2`: a project that has opted in has its command run, and the
     command's exit code decides whether the check passes."""
     sentinel = tmp_path / "the-command-ran"
     project = _make_project(
@@ -387,11 +381,11 @@ def test_a2_opted_in_project_runs_its_command(tmp_path):
 
 
 def test_a3_report_distinguishes_disabled_from_undeclared(tmp_path):
-    """TRC-A3: the report distinguishes a declaration that was not run from
+    """`TRC-A3`: the report distinguishes a declaration that was not run from
     there being nothing declared.
 
     Both run nothing. A reader who cannot tell them apart cannot tell whether
-    their fitness functions are working.
+    their architecture checks are working.
     """
     sentinel = tmp_path / "unused"
     disabled = _make_project(
@@ -424,7 +418,7 @@ def test_a3_report_distinguishes_disabled_from_undeclared(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_e1_disabled_guardrail_is_reported_every_run(tmp_path):
-    """TRC-E1: a project whose command stops running is told which guardrail
+    """`TRC-E1`: a project whose command stops running is told which guardrail
     is affected and the one line that restores it."""
     sentinel = tmp_path / "unused"
     project = _make_project(
@@ -434,11 +428,8 @@ def test_e1_disabled_guardrail_is_reported_every_run(tmp_path):
     )
     output = _run_check(project, extra_env={}).stdout
 
-    # Scope the assertions to the command-passes line. Asserting against the
-    # whole report was an empty check: `compass check` prints a section header
-    # naming each guardrail ("F1 Fitness function"), so "F1" was satisfied by
-    # output this message had nothing to do with. A mutation that stripped the
-    # name out of the message left the test green. Found by MP-3a.
+    # Scope to the command-passes line, because the section header also
+    # names each guardrail.
     line = next((l for l in output.splitlines() if "command-passes" in l), "")
     assert line, "no command-passes line in the report:\n" + output
 
@@ -451,11 +442,11 @@ def test_e1_disabled_guardrail_is_reported_every_run(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# Group C - a safer way to declare a fitness function.
+# Group C - a safer way to declare an architecture check.
 # ---------------------------------------------------------------------------
 
 def test_c1_script_form_runs_without_a_shell(tmp_path):
-    """TRC-C1: a project can name a script instead of writing a shell string,
+    """`TRC-C1`: a project can name a script instead of writing a shell string,
     and its arguments are passed as a list rather than interpolated.
 
     The proof that no shell was involved is the argument itself: a value
@@ -493,7 +484,7 @@ def test_c1_script_form_runs_without_a_shell(tmp_path):
 
 
 def test_c2_script_outside_the_project_is_refused(tmp_path):
-    """TRC-C2: a script path that RESOLVES outside the project root is
+    """`TRC-C2`: a script path that RESOLVES outside the project root is
     refused.
 
     Resolves, not reads-as-written: a symlink sitting inside the project and
@@ -530,7 +521,7 @@ def test_c2_script_outside_the_project_is_refused(tmp_path):
 
 
 def test_c1_lint_accepts_the_script_form(tmp_path):
-    """TRC-C1, the declaration's other half: `compass policy lint` must accept
+    """`TRC-C1`, the declaration's other half: `compass policy lint` must accept
     a guardrail that declares `script:` instead of `command:`, and must reject
     one that declares both."""
     project = _make_project(
@@ -571,7 +562,7 @@ def test_c1_lint_accepts_the_script_form(tmp_path):
 
 
 def test_c3_shell_form_still_works_and_is_documented(tmp_path):
-    """TRC-C3: the shell form keeps working, and the documentation says what
+    """`TRC-C3`: the shell form keeps working, and the documentation says what
     it costs.
 
     Removing it would be a second break in one release for no safety gain -
@@ -590,9 +581,8 @@ def test_c3_shell_form_still_works_and_is_documented(tmp_path):
     guide = (FRAMEWORK_ROOT / "docs" / "security.md").read_text()
     # Collapse whitespace before matching. The guide is hard-wrapped, so a
     # phrase that is genuinely present can straddle a line break and fail a
-    # plain substring test - which it did, and read as a missing rule until
-    # someone looked. This normalises the wrapping, not the phrase: every word
-    # still has to be there, in order.
+    # plain substring test. This normalises the wrapping, not the phrase:
+    # every word still has to be there, in order.
     prose = " ".join(guide.split())
 
     assert "script:" in guide, "the guide does not show the script form at all"
@@ -603,10 +593,10 @@ def test_c3_shell_form_still_works_and_is_documented(tmp_path):
 
 
 def test_b2_forged_trusted_signal_cannot_beat_fork_detection(tmp_path):
-    """TRC-B2: a contribution cannot promote itself to trusted.
+    """`TRC-B2`: a contribution cannot promote itself to trusted.
 
-    Found by the security review at verify. On a `pull_request` event the
-    workflow file comes from the pull request's own merge ref, so a fork can
+    On a `pull_request` event the workflow file comes from the pull
+    request's own merge ref, so a fork can
     add anything to its `env:` block - including the signal Compass reads to
     decide trust. There is no way to tell that env var from one the runner set.
 
@@ -637,13 +627,12 @@ def test_b2_forged_trusted_signal_cannot_beat_fork_detection(tmp_path):
 
 
 def test_b2_clearing_the_environment_does_not_look_like_a_laptop(tmp_path):
-    """TRC-B2: a contribution cannot get its command run by ERASING the
+    """`TRC-B2`: a contribution cannot get its command run by ERASING the
     signals rather than forging them.
 
-    Found by the security review at verify, and the deeper half of the same
-    problem. A fork controls its own workflow file on a `pull_request` event,
-    so it can blank `GITHUB_EVENT_NAME` and `CI` and present as a developer's
-    laptop - which used to run the command.
+    The deeper half of the same problem: a fork controls its own workflow
+    file on a `pull_request` event, so it can blank `GITHUB_EVENT_NAME` and
+    `CI` and present as a developer's laptop.
 
     The answer is to stop asking "has anything told me this is untrusted?" and
     start asking "has anything confirmed it is trusted?". An erased environment
@@ -657,11 +646,9 @@ def test_b2_clearing_the_environment_does_not_look_like_a_laptop(tmp_path):
     )
 
     # The realistic shape of the attack: the runner still wrote its payload,
-    # and the contribution blanked only the variables that name the event. An
-    # earlier version of this test set no payload path at all, so it refused at
-    # the "no payload" branch and never reached the blanked-event-name branch
-    # it was written for - a mutation that made that branch return TRUSTED left
-    # it green. Found by MP-12.
+    # and the contribution blanked only the variables that name the event.
+    # Sets a payload path so the test reaches the blanked-event-name branch,
+    # not the no-payload branch.
     env = _fork_pr_env(tmp_path)
     env["GITHUB_EVENT_NAME"] = ""    # blanked by the contribution
     env["CI"] = ""                   # blanked by the contribution
@@ -685,7 +672,7 @@ def test_b2_clearing_the_environment_does_not_look_like_a_laptop(tmp_path):
 
 
 def test_b2_event_payload_inside_the_checkout_is_refused(tmp_path):
-    """TRC-B2: a payload the contribution could have written is not evidence.
+    """`TRC-B2`: a payload the contribution could have written is not evidence.
 
     The runner writes its event payload outside the checkout. A path pointing
     back INTO the repository is either a mistake or a forgery, and neither is

@@ -40,6 +40,6 @@ written precisely so the process never has to be re-derived.
 
 ## When the artifacts do not answer the question
 
-If `delivery-approach.md` does not explain the process from here, triage
-under-sized it. Say so and re-assess (`/compass:assess --reassess`) rather
+If `delivery-approach.md` does not explain the process from here, the
+assessment under-sized it. Say so and re-assess (`/compass:assess --reassess`) rather
 than improvising a process. A guessed process is not a resumed issue.

@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.checks - the check registry
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -108,11 +45,12 @@ from compass_pkg.project_commands import _contained_script, _project_commands_al
 # --- command: check ----------------------------------------------------------
 
 def _scenario_documented_in_spec(spec_path, scenario_id):
-    """R1: a `verifiable: narrative` scenario is 'documented' when its gherkin
-    block in acceptance-criteria.md has a non-empty When AND Then. The When/Then is
-    documentation-as-acceptance and lives only in the spec (it has no structured
-    home to duplicate), so reading it is reading the artifact - NOT the R4
-    prose-grep-for-a-machine-fact anti-pattern."""
+    """A `verifiable: narrative` scenario is 'documented' when its gherkin
+    block in acceptance-criteria.md has a non-empty When AND Then. The
+    When/Then is documentation-as-acceptance and lives only in
+    acceptance-criteria.md (it has no structured home to duplicate), so
+    reading it there is correct - not the mistake of grepping prose for a
+    fact the manifest holds."""
     if not spec_path or not os.path.isfile(spec_path):
         return False
     try:
@@ -145,25 +83,24 @@ def _scenario_documented_in_spec(spec_path, scenario_id):
 
 
 def _check_declared_tests_resolve(task, task_dir):
-    """G1: a scenario's declared test id must point at a test that exists.
+    """`G1`: a scenario's declared test id must point at a test that exists.
 
     Without this, `compass check` reports green for a scenario naming a test
-    nobody wrote - G1 and G3 are satisfied by a test being *named*, so the hole
-    is invisible by construction.
+    nobody wrote - a test that is only *named* satisfies `G1` and `G3`, so the
+    hole is invisible by construction.
 
     Scoped to issues that are still `active` AND have already claimed
     `verify.correctness: pass`. Both conditions matter:
 
       * Before correctness is claimed, a declared test legitimately does not
-        exist yet - TDD writes the id at Specify and the test at Build.
+        exist yet - TDD writes the id at define and the test at implement.
       * After an issue lands, its manifest is a historical record. Tests get renamed
-        afterwards, and re-validating history against a moving codebase produces
+        afterwards, and re-checking history against a moving codebase produces
         failures nobody can act on (ADR-006).
     """
     # Scoped to the TERMINAL statuses, not to "not active". The vocabulary has
-    # five, and `queued` and `parked` are issues still being worked on - on
-    # those the hole this check exists to close was open again, and the PASS
-    # line said "issue is landed" about a manifest that said otherwise.
+    # five, and `queued` and `parked` issues are still being worked on, so
+    # the check must apply to them.
     status = (task.get("status") or "active").strip()
     if status in TERMINAL_STATUSES:
         return True, ("issue is %s - declared test ids are a historical record"
@@ -207,7 +144,7 @@ def _check_scenarios_have_tests(task, task_dir):
     missing_test, undocumented, documented_narr = [], [], 0
     for s in scns:
         sid = s.get("id", "?")
-        # R1: narrative scenarios are assessed on documentation, never on a
+        # Narrative scenarios are assessed on documentation, never on a
         # test - so an incidental command does not buy a pass, and a documented
         # playbook does not need a fabricated one.
         if s.get("verifiable") == "narrative":
@@ -286,9 +223,9 @@ def _check_scenarios_are_executable(task, task_dir):
     recorded = record.get("spec_sha256")
     if not current or not recorded:
         # A record with no spec hash cannot be shown to describe the spec it
-        # claims to verify. Unverifiable is not the same as verified - treating
-        # it as a pass is how a run made before the spec existed stays green
-        # through every later edit.
+        # claims to check. A record that cannot be checked is not a pass -
+        # treating it as a pass is how a run made before the spec existed
+        # stays green through every later edit.
         return False, ("the BDD run on record carries no spec hash, so it "
                        "cannot be shown to match the current acceptance-criteria.md - "
                        "re-run `compass bdd verify`")
@@ -321,7 +258,7 @@ from compass_pkg.test_ids import _test_id_resolves, _test_is_skipped
 
 
 def _check_suite_passed(task, task_dir):
-    # Read test-run entries from the registry. A task may have multiple
+    # Read test-run entries from the registry. An issue may have multiple
     # test-run entries (one per scenario binding); at least one must resolve
     # to a green-recorded file (exit_code 0), and any scenario binding must be
     # a real scenario in manifest.yml.
@@ -356,7 +293,7 @@ def _check_suite_passed(task, task_dir):
     # green suite does not establish which scenarios it exercised, and naming
     # the scenarios an evidence entry happens to be labelled with invited
     # exactly that reading. Per-scenario coverage needs the runner's own
-    # result output parsed, which is filed as its own issue.
+    # result output parsed.
     return True, (f"{len(green)} test-run(s) on record, all green. This does "
                   f"not record which scenarios the run exercised")
 
@@ -375,8 +312,8 @@ def _path_was_deleted(path, project_root):
     """Did git record this path being deleted? Then its absence IS the change.
 
     Removing dead code is legitimate work, and the file it removes is
-    legitimately absent afterwards. Only git can tell that apart from a record
-    that has rotted.
+    legitimately absent afterwards. Only git can tell that apart from a
+    record that is out of date.
     """
     return bool(_git_out(["log", "--diff-filter=D", "--oneline", "-1", "--", path],
                          project_root).strip())
@@ -421,13 +358,12 @@ def _check_changed_code_traces(task, task_dir):
         return False, "changed files not traced: " + "; ".join(problems)
 
     # A trace to a file that is no longer there is not a trace. The mapping
-    # above can be perfect while every path points at nothing - which is how a
-    # task reached all-gates-green with half its recorded paths dead, moved by
-    # an ordinary refactor. A guard that cannot fail is not a guard.
+    # can be correct while every path points at nothing, because a refactor
+    # moved the files. A guard that cannot fail is not a guard.
     #
     # Scoped the same way as `declared-tests-resolve`, and for the same reasons:
-    #   * A landed task's manifest is a historical record. Files move afterwards,
-    #     and re-validating history against a moving codebase produces failures
+    #   * A landed issue's manifest is a historical record. Files move afterwards,
+    #     and re-checking history against a moving codebase produces failures
     #     nobody can act on (ADR-006) - so it is reported, never failed.
     #   * Before correctness is claimed the record is still being built.
     project_root = os.path.dirname(find_compass_dir())
@@ -438,7 +374,8 @@ def _check_changed_code_traces(task, task_dir):
             continue
         # Rename first: `git log --diff-filter=D -- <path>` reports a rename as
         # a deletion too, so asking "was it deleted?" first would silently
-        # excuse every moved file - the exact rot this check exists to catch.
+        # excuse every moved file - the out-of-date path this check exists
+        # to catch.
         moved_to = _renamed_to(path, project_root)
         if moved_to:
             missing.append(f"{path} (moved to {moved_to}?)")
@@ -531,7 +468,7 @@ def _check_gate_evidence(task, task_dir):
             continue
         gid = g.get("id", "?")
         ev = g.get("evidence")
-        # Gates now reference evidence by id (a list). Reject the older inline
+        # Gates reference evidence by id (a list). Reject the older inline
         # {type, path} dict form explicitly - the registry is the model.
         if isinstance(ev, dict):
             problems.append(f"{gid} uses the old inline-evidence shape "
@@ -572,7 +509,7 @@ def _check_gate_evidence(task, task_dir):
                             f"a mechanical gate cannot be cleared with the "
                             f"wrong kind of evidence")
     if problems:
-        # R6-5: enumerate one problem per line so two mismatched gates surface
+        # Enumerate one problem per line so two mismatched gates surface
         # as two distinct, readable failures - not one concatenated string.
         return False, "\n         ".join(problems)
     passed = [g.get("id") for g in gates if g.get("status") == "pass"]
@@ -636,22 +573,22 @@ _DOD_ACCEPTED_EVIDENCE_TYPES = {
 
 def _check_dod_evidence_typed(task, task_dir):
     """Parse the DoD section of verification-report.md and enforce the
-    inline-tag rule (DD-3):
+    inline-tag rule:
 
     - `- [x] ...`                  → passes (human ticked it)
     - `- [ ] (evidence: EV-id) ...` → passes if EV-id is in the evidence
                                        registry with an accepted type
-    - `- [ ] (follow-up: BF-id) ...` → passes if BF-id is in manifest.yml
+    - `- [ ] (follow-up: FU-id) ...` → passes if FU-id is in manifest.yml
                                        follow_ups with status: outstanding
-    - `- [ ] <bare description>`   → FAILS (evidence, not assertion - G4)
+    - `- [ ] <bare description>`   → FAILS (evidence, not assertion - `G4`)
 
-    Cross-issue half (TRC-E3): scan sibling manifest.yml files for follow-ups with
+    Cross-issue half: scan sibling manifest.yml files for follow-ups with
     target_task equal to this issue's slug and status: outstanding - any such entry
-    blocks this issue's Land.
+    blocks shipping this issue.
     """
     dod_lines = _parse_dod_lines(task_dir)
 
-    # Build lookup structures from the current task
+    # Build lookup structures from this issue
     ev_registry = {
         e.get("id"): e
         for e in (task.get("evidence") or [])
@@ -682,7 +619,7 @@ def _check_dod_evidence_typed(task, task_dir):
         bf_match = _BACKFILL_TAG_RE.search(rest)
 
         if not ev_match and not bf_match:
-            # Bare unchecked - fails G4 (evidence, not assertion)
+            # Bare unchecked - fails `G4` (evidence, not assertion)
             desc = rest.strip() or raw.strip()
             problems.append(
                 f"bare unchecked DoD item (no evidence or follow-up tag): "
@@ -725,7 +662,7 @@ def _check_dod_evidence_typed(task, task_dir):
             # outstanding and resolved both pass here; resolving is a
             # separate concern tracked by _check_backfills_paid
 
-    # Cross-task check (TRC-E3): scan sibling tasks for backfills that
+    # Cross-issue check: scan sibling issues for follow-ups that
     # target this issue and are still outstanding. Use the directory name as the slug
     # (authoritative) in preference to task.get("task") which may be a
     # template placeholder; the directory name is always the true slug.
@@ -736,11 +673,10 @@ def _check_dod_evidence_typed(task, task_dir):
     if problems:
         return False, "; ".join(problems)
 
-    # Name the file, both ways. "Nothing to evidence" and "everything is
-    # typed" are the same green line to a reader, and the first of them is
-    # what a check that never found the report says - so the report's path is
-    # the only thing that tells them apart. `_report_location` says where it
-    # looked when there is nothing there.
+    # "Nothing to evidence" and "everything is typed" print the same green
+    # line. A check that never found the report says the first. So print
+    # the report's path; `artifact_location` says where it looked when
+    # there is nothing there.
     where = artifact_location(task_dir, "verification-report.md")
     if item_count == 0:
         return True, ("DoD section is empty or absent - nothing to evidence "
@@ -791,22 +727,19 @@ def _check_inbound_backfills(task_dir, this_slug):
 
 
 def _check_human_approval(task, task_dir):
-    # Approvals are typed evidence in the registry. G5 applies when the task
-    # touches irreversible surface (the routing policy floors it to Expedition);
-    # this check verifies a `human-approval` entry with decision=approved and
-    # the required structured fields.
+    # Approvals are typed evidence in the registry. `G5` applies when the issue
+    # touches irreversible surface (the routing policy sets its approach to
+    # initiative at least); this check looks for a `human-approval` entry
+    # with decision=approved and the needed structured fields.
     registry = task.get("evidence") or []
     approvals = [e for e in registry if isinstance(e, dict)
                  and e.get("type") == "human-approval"]
     approved = [a for a in approvals if a.get("decision") == "approved"]
     if not approved:
-        # G5's trigger widened in guardrails.yml v1.5.0 to include a critical
-        # blast radius. A task that already landed cleared the gates that
-        # applied at the time, and demanding a checkpoint for a decision taken
-        # weeks ago is a failure nobody can act on (ADR-006) - so it is said
-        # out loud and not failed. No hole: `status` only becomes `landed`
-        # after the gates pass while the task is active, which is when the
-        # widened trigger applies.
+        # `G5` also fires on critical risk. A landed issue cleared the gates in
+        # force when it landed, so report this and do not fail it. There is
+        # no gap: an issue becomes `landed` only after the gates pass while
+        # it is active.
         if (task.get("status") or "active") != "active":
             return True, ("no human-approval evidence on record, and the issue "
                           "has landed - reported only, because its gates were "
@@ -878,7 +811,7 @@ def _check_spike_no_production_changes(task, task_dir):
 
 
 def _load_quarantine_registry(gov_dir):
-    """Load governance/quarantine.yml and return a set of quarantined test ids.
+    """Load governance/quarantine.yml and return a dict of test id -> entry.
 
     Returns a dict mapping test id -> entry, so callers can check for
     tracking_task presence. Returns an empty dict if quarantine.yml is absent
@@ -899,15 +832,15 @@ def _load_quarantine_registry(gov_dir):
 
 
 def _check_no_trusted_rerun(task, task_dir):
-    """G4 extension (TRC-A3, TRC-A4, TRC-A5, TRC-FM3 / DD-3): verify that
-    no test-run evidence records a rerun-to-green without either:
+    """`G4` extension: check that no test-run evidence records a
+    rerun-to-green without either:
       (a) the test being listed in governance/quarantine.yml with a tracking_task, OR
-      (b) evidence with attempts:1 (clean first pass), OR
-      (c) no attempts field at all (old evidence - backward compat, TRC-A5).
+      (b) evidence with `attempts`:1 (clean first pass), OR
+      (c) no `attempts` field at all (old evidence - backward compat).
 
-    Failure cases (DD-3):
+    Failure cases:
       - rerun_without_change: true AND test not quarantined → FAIL
-      - attempts > 1 AND rerun_without_change absent → FAIL (incomplete evidence)
+      - `attempts` > 1 AND rerun_without_change absent → FAIL (incomplete evidence)
 
     This check reads governance/quarantine.yml at runtime; the registry is
     loaded lazily so zero-setup projects (no quarantine.yml) pass trivially.
@@ -931,7 +864,7 @@ def _check_no_trusted_rerun(task, task_dir):
     for entry in registry_entries:
         path = entry.get("path")
         ev_id = entry.get("id", "?")
-        # Try to read the evidence file to get attempts/rerun_without_change
+        # Try to read the evidence file to get `attempts`/rerun_without_change
         green_data = {}
         if path:
             full = path if os.path.isabs(path) else os.path.join(task_dir, path)
@@ -948,11 +881,11 @@ def _check_no_trusted_rerun(task, task_dir):
                       else entry.get("rerun_without_change"))
         test_id = green_data.get("test") or entry.get("test")
 
-        # Case 1: TRC-A5 backward compat - no attempts field → trivial pass
+        # Case 1: backward compat - no `attempts` field → trivial pass
         if attempts is None:
             continue
 
-        # Case 2: attempts > 1, rerun_without_change absent → incomplete evidence
+        # Case 2: `attempts` > 1, rerun_without_change absent → incomplete evidence
         if isinstance(attempts, int) and attempts > 1 and rerun_flag is None:
             problems.append(
                 f"evidence {ev_id}: attempts={attempts} but rerun_without_change "
@@ -996,7 +929,7 @@ def _check_no_trusted_rerun(task, task_dir):
 
 
 def _check_coherence_check_passes(task, task_dir):
-    """G4 extension (ADR-007 / DD-2): verify.analyze requires a consistency-check
+    """`G4` extension (ADR-007): verify.analyze needs a consistency-check
     evidence entry with zero findings. Only runs when verify.analyze is in the
     issue's gate set. If the gate is absent, this check trivially passes (the
     issue is not subject to the consistency-check requirement)."""
@@ -1032,7 +965,7 @@ def _check_coherence_check_passes(task, task_dir):
 
 
 def _check_command_passes(task, task_dir):
-    """A2 (ADR-009 / DD-2): run each project guardrail's declared `command:`
+    """ADR-009: run each project guardrail's declared `command:`
     and report pass/fail.
 
     Behaviour:
@@ -1066,9 +999,10 @@ def _check_command_passes(task, task_dir):
     ]
 
     # The trust decision comes BEFORE the opt-in, and that order is the whole
-    # security property. A hostile pull request could add the command and the
-    # opt-in in one diff; it cannot change what the CI runner reports about
-    # where the contribution came from. See cli/compass_pkg/trust.py.
+    # security property. A hostile pull request could add the command and
+    # turn the opt-in on together; it cannot change what the CI runner
+    # reports about where the contribution came from. See
+    # cli/compass_pkg/trust.py.
     if cp_guardrails:
         state, reason = contribution_trust(project_root=project_root)
         # Fail closed on a runner we cannot read. UNKNOWN on a laptop is
@@ -1099,7 +1033,7 @@ def _check_command_passes(task, task_dir):
     #
     # This returns nothing-to-check rather than a pass or a failure, and the
     # distinction is the point. A pass would be a check that cannot fail - it
-    # would report green having executed nothing. A failure would turn red the
+    # would report green having run nothing. A failure would turn red the
     # build of every project that declared a command before upgrading. Nothing-
     # to-check does not fail the run and is counted apart from the passes, so a
     # guardrail that stopped running is visible rather than silent.
@@ -1159,7 +1093,7 @@ def _check_command_passes(task, task_dir):
 
         timeout = params.get("timeout_seconds", 300)
         if timeout == 0:
-            timeout = None  # 0 = no timeout (discouraged, as per DD-2)
+            timeout = None  # 0 = no timeout (discouraged)
         try:
             proc = subprocess.run(
                 argv if script is not None else command,

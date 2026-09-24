@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: rollback-plan.md
-Produced by: the design stage, on an issue whose assessment carries
+Produced by: the plan stage, on an issue whose assessment carries
              `migrations` (RP-REQUIRE-006).
 Lives at:    docs/compass/<created>-<issue-slug>/rollback-plan.md
 

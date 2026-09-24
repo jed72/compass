@@ -53,7 +53,7 @@ experimental multi-agent framework.
 at something. It was banned with replacement `role`, and bare concept uses are
 now at **zero**. The 124 remaining hits are the hyphenated agent identifiers
 (`product-lens`, `marketing-lens`, `architect-lens`), which the ban pattern
-carves out on purpose until those agents are renamed. The ban worked; the rename
+skips on purpose until those agents are renamed. The ban worked; the rename
 it was waiting for is in this change.
 
 `terminology.yml` states that the vocabulary is frozen and that changing it
@@ -104,8 +104,8 @@ nothing for the two collisions: a reader who thinks `distillation` means model
 distillation does not consult a glossary, because they do not know they have
 misread anything.
 
-**Rename the prose and leave the machine keys.** This was the maintainer's
-explicit instruction to reject. It also repeats the defect ADR-015 records for
+**Rename the prose and leave the machine keys.** The maintainer rejected this
+explicitly. It also repeats the defect ADR-015 records for
 `compass check`'s placeholder header: a retired name survives in printed output
 past a green scan, because the scan was not reading what the tool prints.
 `topology` is a key in `manifest.schema.json`, and `verify.fitness` is a gate id
@@ -150,8 +150,8 @@ text is what makes the next reopening harder than this one.
 
 ## References
 
-- `.compass/work/anthropic-aligned-vocabulary/` - the issue, its measurements
-  and its verification.
+- The `anthropic-aligned-vocabulary` issue holds the measurements and
+  verification behind this decision.
 - ADR-006 - backward compatibility within a major version.
 - ADR-012 - the vocabulary freeze this record amends.
 - ADR-015 - a retired name in printed output survives a green scan.

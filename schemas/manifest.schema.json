@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://compass-sdd/schemas/manifest.schema.json",
-  "title": "Compass issue.yml",
-  "description": "The manifest. Lives at .compass/work/<issue-slug>/issue.yml. The human-readable companion is issue.reference.yml.",
+  "title": "Compass manifest.yml",
+  "description": "The manifest. Lives at .compass/work/<issue-slug>/manifest.yml. The human-readable companion is manifest.reference.yml.",
   "type": "object",
   "required": [
     "issue",
@@ -24,7 +24,7 @@
     },
     "created": {
       "type": "string",
-      "description": "ISO date the issue was triaged."
+      "description": "ISO date the issue was assessed."
     },
     "status": {
       "type": "string",
@@ -35,7 +35,7 @@
         "landed",
         "abandoned"
       ],
-      "description": "Optional. Lifecycle status of the issue. 'active' (default when absent) means in-flight; 'queued' means recorded as next up but not started; 'parked' means stopped with the phases so far still valid, so it can resume; 'landed' means ship completed and its scenarios are eligible for the living system spec derivation (ADR-008, DD-3); 'abandoned' means it will not resume. Only 'landed' grants derivation eligibility - every other value is ineligible, so a new value can never silently acquire it. Issues with schema_version '1.0' that lack this field are treated as 'active' (Inv-8 backward compat)."
+      "description": "Optional. Lifecycle status of the issue. 'active' (default when absent) means in-flight; 'queued' means recorded as next up but not started; 'parked' means stopped with the phases so far still valid, so it can resume; 'landed' means ship completed and its scenarios are eligible for the living system spec derivation (ADR-008); 'abandoned' means it will not resume. Only 'landed' grants derivation eligibility - every other value is ineligible, so a new value can never silently get it. Issues with schema_version '1.0' that lack this field are treated as 'active', for backward compatibility."
     },
     "landed_by": {
       "type": "array",
@@ -76,7 +76,7 @@
     },
     "assessment": {
       "type": "object",
-      "description": "The four-dimension judgement assessment triage produces at triage.",
+      "description": "The four-dimension assessment the assess stage produces.",
       "required": [
         "risk",
         "familiarity",
@@ -187,7 +187,7 @@
     },
     "evidence": {
       "type": "array",
-      "description": "The issue's evidence registry - typed, id-tagged entries gates reference by id. Built incrementally across phases.",
+      "description": "The issue's evidence registry - typed, id-tagged entries gates reference by id. Built incrementally across stages.",
       "items": {
         "type": "object",
         "required": [
@@ -367,7 +367,7 @@
     },
     "changed_files": {
       "type": "array",
-      "description": "Every production file the issue changes, each traced to >=1 scenario id; filled by Build.",
+      "description": "Every production file the issue changes, each traced to >=1 scenario id; filled at implement.",
       "items": {
         "type": "object",
         "required": [
@@ -391,7 +391,7 @@
     },
     "claims": {
       "type": "array",
-      "description": "Public/marketing claims, each traced to a backing scenario; filled by Position.",
+      "description": "Public/marketing claims, each traced to a backing scenario; filled by `/compass:position`.",
       "items": {
         "type": "object",
         "required": [
@@ -448,7 +448,7 @@
           },
           "paid_note": {
             "type": "string",
-            "description": "Optional audit field: a note recorded when paying."
+            "description": "Optional audit field: a note recorded when resolving."
           }
         }
       }
@@ -484,18 +484,18 @@
               "policy-correction",
               "scope-change"
             ],
-            "description": "What kind of re-assessment this was. Only 'judgement' feeds compass retro's re-sizing signal - a policy correction or a scope change is not triage having misread the work."
+            "description": "What kind of re-assessment this was. Only 'judgement' feeds compass retro's re-sizing signal - a policy correction or a scope change is not the assessment having misread the work."
           },
           "changed": {
             "type": "object",
-            "description": "What the recomputation actually moved - route, phases, gates, orchestration - each as a from/to pair. Written by the evaluator as the audit detail behind the reason."
+            "description": "What the recomputation actually moved - delivery approach, stages, gates, orchestration - each as a from/to pair. Written by the evaluator as the audit detail behind the reason."
           }
         }
       }
     },
     "friction": {
       "type": "array",
-      "description": "Optional. Written at ship. Records where Compass's own process weight cost more than it returned between triage and ship, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates ship. Absent on issues that hit no friction; the loop no-ops cleanly for projects that never write it (ADR-006). Aggregated by `compass calibration --friction`.",
+      "description": "Optional. Written at ship. Records where Compass's own process weight cost more than it returned between assess and ship, and how the framework could have been configured to avoid it. A strategy-class signal (soft, advisory) - never gates ship. Absent on issues that hit no friction; nothing happens for a project that never writes it (ADR-006). Aggregated by `compass retro --friction`.",
       "items": {
         "type": "object",
         "required": [
@@ -515,7 +515,7 @@
               "verify",
               "land"
             ],
-            "description": "The pipeline phase the friction was felt in."
+            "description": "The stage the friction was felt in."
           },
           "category": {
             "enum": [
@@ -542,7 +542,7 @@
               "derived",
               "human"
             ],
-            "description": "derived: assembled automatically at ship from reassessments/reframe-debt. human: supplied by the author."
+            "description": "derived: assembled automatically at ship from the reassessments log. human: given by the author."
           }
         }
       }
@@ -550,7 +550,7 @@
     "repairs": {
       "type": "string",
       "minLength": 1,
-      "description": "hotfix approaches only: the slug of the issue this hotfix repairs. Read by `compass calibration --impact` to compute the change-fail signal. Optional - a hotfix that declares none is reported as a coverage gap rather than silently counted as zero."
+      "description": "hotfix approaches only: the slug of the issue this hotfix repairs. Read by `compass retro --impact` to compute the change-fail signal. Optional - a hotfix that declares none is reported as a coverage gap rather than silently counted as zero."
     },
     "parked_reason": {
       "type": "string",
@@ -571,7 +571,7 @@
     },
     "artifacts": {
       "type": "array",
-      "description": "The issue's artifact registry: which documents this issue produced, where they are, and WHY each exists - or why it was deliberately not written. The reason is the point. A filename with no reason is a directory listing, so `reason` is required on every entry including the omitted ones. The CLI resolves a registered `path` first and the flat filename beside the manifest second, so an issue with no registry keeps working. An entry written before paths became project-relative holds a bare filename, which no longer resolves from the registry - the flat filename still finds it and the CLI says that is how it was found, so an unmigrated entry is visible rather than silent. `compass migrate` rewrites them.",
+      "description": "The issue's artifact registry: which documents this issue produced, where they are, and WHY each exists - or why it was deliberately not written. The reason is the point. A filename with no reason is a directory listing, so `reason` is required on every entry including the omitted ones. The CLI resolves a registered `path` first and the flat filename beside the manifest second, so an issue with no registry keeps working. An old entry, written before paths became project-relative, holds a bare filename. That filename no longer resolves from the registry, but the CLI still finds it beside the manifest and says that is how it found it, so an unmigrated entry is visible rather than silent. `compass migrate` rewrites them.",
       "items": {
         "type": "object",
         "required": [
@@ -587,7 +587,7 @@
           },
           "kind": {
             "type": "string",
-            "description": "What kind of document this is - design, prd, threat-model."
+            "description": "What kind of document this is - technical-design, intent, threat-model."
           },
           "path": {
             "type": "string",

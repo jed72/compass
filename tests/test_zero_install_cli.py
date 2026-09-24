@@ -1,6 +1,6 @@
 """Scenario group A - the bare-interpreter path.
 
-TRC-A1 through TRC-A7 all ask the same underlying question of a different
+`TRC-A1` through `TRC-A7` all ask the same underlying question of a different
 entry point: does it work on a machine that genuinely cannot import PyYAML
 from anywhere on its own path? "Genuinely cannot" is the operative word - a
 mere `python3 -S` is an approximation of absence, so the harness below builds
@@ -9,19 +9,15 @@ before it proves anything else. If the precondition ever holds - if the
 "bare" interpreter can import yaml - every test using it fails loudly rather
 than passing on an interpreter that was never actually bare (DD-6).
 
-TRC-A3 through TRC-A6 exercise the four shell surfaces that embed their own
-Python reader (plus TRC-A7 for the fifth, `scripts/multiagent.sh`) by prepending
+`TRC-A3` through `TRC-A6` exercise the four shell surfaces that embed their own
+Python reader (plus `TRC-A7` for the fifth, `scripts/multiagent.sh`) by prepending
 the bare interpreter's `bin/` to `PATH` and running the script the way a
 person on such a machine actually would - `python3` on `PATH` resolves to the
 bare one, which is exactly how these scripts find Python in real life.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import os
@@ -35,7 +31,7 @@ import yaml
 
 # The bare-interpreter harness (BareInterpreter, the `bare_interpreter`
 # fixture) lives in conftest.py - it is shared with
-# tests/test_release_packaging.py (TRC-F6), which proves first triage from an
+# tests/test_release_packaging.py (TRC-F6), which proves a first assessment from an
 # unpacked release tarball on the same kind of proven-bare interpreter.
 
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
@@ -88,7 +84,7 @@ def _assert_no_install_instruction(result):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - a first triage completes with no Python package installed
+# A first assessment completes with no Python package installed (`TRC-A1`)
 # ---------------------------------------------------------------------------
 
 
@@ -98,9 +94,9 @@ def test_first_triage_completes_without_installing_a_package(bare_interpreter, t
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True)
 
-    # The judgement half of triage - a human or the Needle records the
-    # assessment. Writing manifest.yml directly here is exactly what a session
-    # does; only the mechanical half runs through the CLI.
+    # The judgement half of assessment - a person, or a session running
+    # /compass:assess, records it. Writing manifest.yml directly here is exactly what a
+    # session does; only the mechanical half runs through the CLI.
     with (task_dir / "manifest.yml").open("w", encoding="utf-8") as fh:
         yaml.safe_dump({
             "task": slug,
@@ -129,11 +125,11 @@ def test_first_triage_completes_without_installing_a_package(bare_interpreter, t
     pointer = (project / ".compass" / "current-task").read_text(encoding="utf-8")
     assert pointer.splitlines() == [slug]
 
-    # A second, ordinary CLI invocation during the same triage - ask what
+    # A second, ordinary CLI invocation on the same issue - ask what
     # comes next on this issue's route - also exits 0 on the bare
     # interpreter. (Not `issue lint`: jsonschema is a separate, optional
     # dependency, and its own "not installed" note is required to keep
-    # printing unchanged by TRC-F5 - it is not the instruction TRC-A1 is
+    # printing unchanged by `TRC-F5` - it is not the instruction `TRC-A1` is
     # about.)
     next_result = _run_cli(bare_interpreter, project, "next", "--issue", slug)
     assert next_result.returncode == 0, next_result.stdout + next_result.stderr
@@ -141,7 +137,7 @@ def test_first_triage_completes_without_installing_a_package(bare_interpreter, t
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - no CLI verb exits on a missing dependency
+# No CLI verb exits on a missing dependency (`TRC-A2`)
 # ---------------------------------------------------------------------------
 
 
@@ -172,7 +168,7 @@ def test_no_subcommand_exits_with_missing_dependency_status(bare_interpreter, tm
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 - the pre-tool hook enforces G2 rather than failing open
+# The pre-tool hook enforces `G2` rather than failing open (`TRC-A3`)
 # ---------------------------------------------------------------------------
 
 
@@ -213,7 +209,7 @@ def test_pre_tool_hook_enforces_acceptance_before_code_without_a_system_pyyaml(
 
 
 # ---------------------------------------------------------------------------
-# TRC-A4 - integration records the landing rather than warning it could not
+# Integration records the landing rather than warning it could not (`TRC-A4`)
 # ---------------------------------------------------------------------------
 
 
@@ -282,7 +278,7 @@ def test_integrate_writes_landed_status_without_a_system_pyyaml(bare_interpreter
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5 - the session-end signal scan runs rather than returning empty
+# The session-end signal scan runs rather than returning empty (`TRC-A5`)
 # ---------------------------------------------------------------------------
 
 
@@ -323,7 +319,7 @@ def test_stop_hook_scope_signal_runs_without_a_system_pyyaml(bare_interpreter, t
 
 
 # ---------------------------------------------------------------------------
-# TRC-A6 - the repository check runs the policy lint rather than skipping it
+# The repository check runs the policy lint rather than skipping it (`TRC-A6`)
 # ---------------------------------------------------------------------------
 
 
@@ -359,7 +355,7 @@ def test_validate_runs_the_policy_lint_without_a_system_pyyaml(bare_interpreter)
 
 
 # ---------------------------------------------------------------------------
-# TRC-A7 - preparing a swarm reads the cap rather than refusing
+# Preparing a multiagent breakdown reads the cap rather than refusing (`TRC-A7`)
 # ---------------------------------------------------------------------------
 
 
@@ -413,11 +409,11 @@ def test_swarm_reads_the_cap_without_a_system_pyyaml(bare_interpreter, tmp_path)
 
 
 def test_fallback_wrapper_isolation_reaches_a_plain_python3_found_on_path(tmp_path):
-    """TRC-A3 through TRC-A7 do not call `bare_interpreter.python_path`
+    """`TRC-A3` through `TRC-A7` do not call `bare_interpreter.python_path`
     directly - they prepend its directory to PATH and let a shell script
     find a bare `python3` itself, the way hooks/*.sh and scripts/*.sh do in
     real use. The fallback mode's isolation has to survive exactly that
-    indirection, or DD-6's 'neither mode may skip' is violated silently: the
+    indirection, or `DD-6`'s 'neither mode may skip' is violated silently: the
     precondition would pass (checked directly) while every real test using
     PATH lookup ran the ordinary interpreter underneath."""
     from conftest import _write_bare_fallback_wrapper
@@ -448,7 +444,7 @@ def test_fallback_wrapper_still_honours_pythonpath_for_the_clis_own_resolver(tmp
     `cli/compass_pkg/__init__.py` resolves the bundled copy through
     PYTHONPATH, and the CLI legitimately needs that path to keep working on
     the fallback interpreter - only site-packages and user-site should be
-    scrubbed, not every caller-supplied path."""
+    scrubbed, not every path a caller gives."""
     from conftest import _write_bare_fallback_wrapper
 
     wrapper_dir = tmp_path / "bare-fallback-bin"

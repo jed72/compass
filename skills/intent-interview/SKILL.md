@@ -1,6 +1,6 @@
 ---
 name: intent-interview
-description: How to draw a usable brief out of a conversation - the questions to ask, and what a good answer looks like. Load at the intake stage, before acceptance criteria exist.
+description: How to draw a usable `intent.md` out of a conversation - the questions to ask, and what a good answer looks like. Load before acceptance criteria exist.
 ---
 
 # Intent interview
@@ -22,11 +22,11 @@ anything else.
 **Every statement in `intent.md` traces to the source or to a recorded answer.
 There is no third origin.**
 
-You may move material, split it, merge it under a template heading, and
-reformat it. You may not change what it means, and you may not add to it.
+You can move material, split it, merge it under a template heading, and
+reformat it. You must not change what it means, and you must not add to it.
 
-That last part is the one that will tempt you. A brief with no non-goals is a
-brief that feels unfinished, and you will be able to think of a perfectly
+That last part is the one that will tempt you. A source document with no non-goals is a
+source document that feels unfinished, and you will be able to think of a perfectly
 sensible non-goal. **Write it and you have put a product decision into the
 record that no person made** - and it will read exactly like one they did make,
 because there is nothing on the page to distinguish them.
@@ -46,13 +46,13 @@ problem, the outcome, the non-goals, the success signals and a first slice,
 then there is nothing to draw out. Reshape it into the template's sections,
 record every section as `from: source`, and hand it over.
 
-A person who arrives with a complete brief and gets interrogated about it
+A person who arrives with a complete source document and gets interrogated about it
 learns that Compass wastes their time. That is a worse outcome than a thin
 `intent.md`, because they do not come back.
 
-**Say what you are doing:** "Your brief covers everything the template asks
-for, so I have reshaped it and asked nothing." That sentence is the whole
-hand-off when the source is good.
+**Say what you are doing:** "Your source document covers everything the
+template asks for, so I have reshaped it and asked nothing." That sentence is
+the whole hand-off when the source is good.
 
 ## When there is something to ask
 
@@ -75,17 +75,16 @@ grateful to have been asked and least likely to volunteer.
 
 ## Declining is a complete answer
 
-**A person may decline every question and must still get an `intent.md`.**
+**A person can decline every question and must still get an `intent.md`.**
 Someone in a hurry, or without the answers to hand, needs to start now and
-come back later. A loop that blocks them is worse than the retyping it
-replaced.
+come back later. A loop that blocks them is worse than no interview.
 
 When a question is declined:
 
 - record it in `interview` with `answer: null` - the question was asked, and
   that is worth knowing
 - record the section as `from: unanswered`
-- write, in the section itself, that it was asked and not supplied
+- write, in the section itself, that it was asked and not answered
 
 **Never write `TBD`.** `TBD` means "someone will get to this", and
 `compass plan lint` scans for it as an unfinished placeholder. A section that
@@ -110,7 +109,7 @@ the two side by side.
 
 ## Hand-off
 
-> I have written `intent.md` from the brief at `<origin>`.
+> I have written `intent.md` from the source document at `<origin>`.
 >
 > N sections came from the source, M from questions I asked, K were asked
 > about and left open. The questions and answers are recorded in the manifest.
@@ -137,4 +136,4 @@ on, and do not thank them for each answer. See
 In `skills/intent-interview/role-translation.md`. Read it when the person you
 are interviewing works in a different discipline from the artifact you are
 about to write - it is how one role's words become another's without either
-losing what they meant. It was a skill of its own until the two were merged.
+losing what they meant.

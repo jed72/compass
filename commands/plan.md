@@ -5,15 +5,12 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 
 # /compass:plan
 
-Design turns the spec into a technical approach, checks it against
+Plan turns the spec into a technical approach, checks it against
 governance, and - on larger work - decides the parallel orchestration.
-Parallelism is *decided here* and *executed at breakdown*.
+Parallelism is *decided here* and *carried out at breakdown*.
 
-(The designer's entry point is `/compass:design` - it produces the UI
-contract, upstream of the acceptance criteria. This command is the
-engineering planning stage: its machine key, its skill `plan-authoring`
-and its agent `planner` have all said `plan` since v2, and the command
-now says it too.)
+(The designer's entry point is `/compass:design`. This command is the
+engineering plan stage.)
 
 ## Setup
 
@@ -40,16 +37,19 @@ now says it too.)
    guardrails (hard, blocking) and the applicable engineering strategies
    (soft, assessed). Read the machine-readable governance the CLI runs
    against: `guardrails.yml`, `strategies.md`, `routing-policy.yml`.
-   `compass policy lint` structurally validates the governance YAML - run it
+   `compass policy lint` checks the structure of the governance YAML - run it
    if the project has tuned `governance/`. A design that crosses a guardrail
    does not pass - revise the design, never waive the guardrail. A design
-   that departs from a strategy may pass, but the departure is recorded.
+   that departs from a strategy can pass, but the departure is recorded.
 3. **Distribution map** (when the work splits into independent units). Read
    the scenario groups from `acceptance-criteria.md`; units that touch
-   disjoint code and satisfy disjoint scenarios can run in parallel. On a
-   feature a short list of 2-3 units is enough; on an initiative write the
-   full `distribution-map.md` from its template - even if a cap forces it
-   solo, the map records what *could* have been parallel and why it wasn't.
+   disjoint code and satisfy disjoint scenarios can run in parallel.
+   - On a feature: a short list of 2-3 units is enough.
+   - On an initiative: write the full `distribution-map.md` from its
+     template.
+   - On an initiative capped solo: still write the full map - it records
+     what *could* have been parallel and why it wasn't.
+
    Subtask count comes from the map; orchestration thresholds from
    `.compass/config.yml`; a policy cap can bound the count.
 4. **Write `technical-design.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/technical-design.md`,

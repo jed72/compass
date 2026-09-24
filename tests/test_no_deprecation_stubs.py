@@ -28,9 +28,9 @@ CLI = ROOT / "cli" / "compass"
 COMMANDS = ROOT / "commands"
 
 # Retired pipeline commands, removed at a major version and never to reappear.
-# `plan.md` is NOT here: `plan` was a retired v1 command and became the
-# planning stage's live command again on 2026-08-25. A removed name is not
-# reserved for ever - it is free to be reused for the thing it best describes.
+# `plan` is the planning stage's live command, so it is not listed. A removed
+# name is not reserved for ever - it is free to be reused for the thing it
+# best describes.
 #
 # The first six went at 3.0.0. The last three were redirect stubs through 3.x
 # and went at 4.0.0, the boundary ADR-019 scheduled them for; ADR-024 records
@@ -42,9 +42,8 @@ RETIRED_COMMANDS = (
 )
 
 # The retired verbs and verb pairs. Each used to exit 2 with a one-line
-# pointer naming its replacement. The full set is carried here because this
-# file replaces the test that used to assert the pointer contract - dropping
-# a spelling in the handover would retire a check silently.
+# pointer naming its replacement. The full set is listed so no retired
+# spelling drops out of the check silently.
 RETIRED_VERBS = (
     ("route", "evaluate"),
     ("backfill", "pay"),
@@ -67,8 +66,7 @@ def test_rcd_f1_no_retired_slash_commands():
     # filename, so a rename of the stub file does not slip past.
     #
     # No exemptions. 4.0.0 removed the last three stubs, so every command file
-    # is covered - which is what this check was always working towards, one
-    # major version at a time. Re-introducing a stub means adding a name here
+    # is covered. Re-introducing a stub means adding a name here
     # deliberately, and this comment is where the argument for it goes.
     redirects = [
         p.name for p in COMMANDS.glob("*.md")
@@ -131,17 +129,9 @@ def test_rcd_f3_retired_flag_is_unknown():
     worked, so removing the old ones changes no behaviour - only what the
     parser accepts.
     """
-    # Each retired spelling is probed on the subcommand that actually carried
-    # it. The first version of this test ran both against `issue lint`, and
-    # `--reading` was never an alias there - it lived only on `approach
-    # evaluate`. So that half reported "unrecognized" before the removal as
-    # well as after, and would have passed unchanged if the alias were put
-    # back. Half a guard, green either way. Caught by a fresh reader applying
-    # S9 to the sweep this file belongs to.
-    #
-    # The RETIRED spellings are literals here on purpose: a blanket call-site
-    # sweep once rewrote them to the live flags, inverting the test into
-    # asserting that `--issue` fails.
+    # Each retired spelling is probed on the subcommand that carried it:
+    # `--reading` lived only on `approach evaluate`. The retired spellings
+    # are literals so a rename sweep cannot invert the test.
     for argv in (
         ["issue", "lint", "--task", "demo"],
         ["approach", "evaluate", "--reading", "risk=contained"],
@@ -156,12 +146,8 @@ def test_rcd_f3_retired_flag_is_unknown():
         assert result.returncode != 0, (
             f"`{flag}` was accepted - a retired flag spelling must fail"
         )
-        # argparse's exact wording, not a loose "did it fail somehow". An
-        # earlier version accepted "invalid" as well, and `approach evaluate`
-        # answers a PARSED `--reading` with "compass: invalid assessment:
-        # missing required reading" - so the guard passed with the alias
-        # restored. It was checking that the command failed, which it does
-        # either way, rather than that the flag was rejected.
+        # Matches argparse's exact wording, because `approach evaluate` also
+        # fails a parsed `--reading` with "invalid assessment".
         assert "unrecognized arguments" in combined, (
             f"`{flag}` failed, but not as an unrecognised flag - it parsed, "
             f"so it may still be wired up:\n{combined}"

@@ -10,18 +10,18 @@
 
 ---
 
-## 2026-05-12 09:30 - triage
+## 2026-05-12 09:30 - assess
 
-- **Event:** Needle ran; route computed. `.spike` marker written - the pre-tool hook will suspend the TDD strategy.
-- **Route:** Spike - see `delivery-approach.md` revision 1. Selected by `intent: exploration` (RP-SHAPE-001).
+- **Event:** assess ran; delivery approach computed. `.spike` marker written - the pre-tool hook will suspend the TDD strategy.
+- **Approach:** spike - see `delivery-approach.md` revision 1. Selected by `goal: exploration` (RP-SHAPE-001).
 - **Assessment:** risk contained, familiarity greenfield, size small, intent & role engineer/exploration.
-- **Routing guardrails fired:** none. (RP-FLOOR-003 did not fire - `touches:` is empty; that is what keeps Spike legitimately available here.)
+- **Routing guardrails fired:** none. (RP-FLOOR-003 did not fire - `labels:` is empty; that is what keeps Spike legitimately available here.)
 - **Outstanding follow-ups:** none - a spike owes nothing, it lands nothing.
 - **Next:** Explore (define, refine, design all collapsed/skipped per the delivery approach).
 
 ## 2026-05-12 10:00 - Explore - begin
 
-- **Event:** Explore phase started. Scratch branch `spike/pdf-export-weasyprint` created - NOT to be merged. TDD strategy suspended; writing rendering code freely to answer the question.
+- **Event:** Explore stage started. Scratch branch `spike/pdf-export-weasyprint` created - NOT to be merged. TDD strategy suspended; writing rendering code freely to answer the question.
 - **Detail:** Plan: render the three layout-demanding templates (financial summary, multi-page audit log, chart-heavy dashboard), eyeball fidelity against the HTML originals, measure render time and peak memory. Timebox: 2 days.
 
 ## 2026-05-13 14:00 - Explore - findings so far
@@ -35,11 +35,11 @@
 ## 2026-05-13 16:30 - Conclude  ← the Conclude gate (spike.conclude)
 
 - **Event:** The question is answered. **Conclusion: VIABLE WITH CAVEATS.**
-- **Answer to the framed question:**
+- **Answer to the spike question:**
   - `weasyprint` is viable for our report PDF export. Fidelity on text-and-table
     layouts is excellent; CSS paged-media handles multi-page correctly.
   - **Caveat 1 - no JS:** charts must be pre-rendered to static SVG before
-    `weasyprint` sees the HTML. The existing email-report SVG path can supply
+    `weasyprint` sees the HTML. The existing email-report SVG path can give
     this; budget that integration into the real feature, do not assume charts
     "just work".
   - **Caveat 2 - speed:** ~20ms/page is fine for on-demand single reports;
@@ -58,19 +58,19 @@
 - **Event:** issue closed. **Decision: GRADUATE.**
 - **What happens to the code:** the scratch branch `spike/pdf-export-weasyprint`
   is **not merged.** Nothing lands from a spike. The three render scripts stay
-  on the branch as *reference inputs* to the next triage - good inputs, because
+  on the branch as *reference inputs* to the next assessment - good inputs, because
   the familiarity is now mapped.
 - **Graduation:** a fresh `/compass:assess` has been run for the real delivery
-  work - issue `report-pdf-export`. That triage inherits this spike's `delivery-approach.md`,
+  work - issue `pdf-export-with-weasyprint`. That assessment inherits this spike's `delivery-approach.md`,
   this conclusion, and the reference code. The new issue will compose to a real
-  route (likely Standard) where guardrails `G1`–`G3` apply in full: the PDF export
+  delivery approach (likely feature) where guardrails `G1`–`G3` apply in full: the PDF export
   code will be written under TDD with real scenarios before anything lands. The
-  chart-pre-rendering caveat is carried into that issue's brief as a known
+  chart-pre-rendering caveat is carried into that issue's intent.md as a known
   constraint.
-- **This spike's status:** graduated → issue `report-pdf-export`. Closed.
-- **Note on `compass check`:** running `compass check` against this issue reports
-  `G1`/`G2` FAILs - no tested scenarios, no green record. That is correct and
-  expected: `compass check` asks "is this a landable delivery issue?" and a
-  Spike is honestly not one. A Spike passes its one Conclude gate (above), not
-  the delivery guardrail set. The guardrails are not skipped - they moved with
-  the code to `report-pdf-export`, where they apply in full.
+- **This spike's status:** graduated → issue `pdf-export-with-weasyprint`. Closed.
+- **Note on `compass check`:** `compass check` does not report `G1`/`G2` FAILs
+  on this issue - it runs the spike guardrails for this issue, not the
+  delivery guardrail set, and reports `PASS - 3 check(s) passed ... (spike)`.
+  A Spike passes its one Conclude gate (above); the delivery guardrails are
+  not skipped, they moved with the code to `pdf-export-with-weasyprint`,
+  where they apply in full.

@@ -1,28 +1,19 @@
 """The computed delivery approach is displayed, not a placeholder.
 
-The v2 rename moved the manifest key from `route` to `delivery_approach`. Two
-display sites kept reading the old key, so both fell to their default:
-
-    check_cmd.py:264   f"(route: {task.get('route', '?')})"
-    flow.py:141        route = t.get("route", "?")
-
-`compass check`'s header printed `route: ?` on every run, and the cross-issue
-board printed `route=?` on every row - confirmed against all 18 in-flight
-issues in this repository. The value was sitting in the manifest the whole time.
-
-Neither was caught by the vocabulary scan, which covers `cli/compass_pkg/`,
-because it skipped string literals with no whitespace as machine identifiers -
-and `'route'` is exactly that shape. ADR-015 records the widening.
+`compass check` and `compass flow` must show the manifest's
+`delivery_approach`, never a placeholder. Two display sites read the retired
+`route` key instead and fell back to `?`, confirmed against all 18 open
+issues in this repository - the value was sitting in the manifest the whole
+time. The vocabulary scan caught neither, because it treats a
+whitespace-free string literal in `cli/compass_pkg/` as a machine
+identifier, and `'route'` is exactly that shape (ADR-015 records the
+widening).
 
 Scenario ids: see docs/system-spec.md (group E).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail, which the command prints only
+# under --verbose.
 from __future__ import annotations
 
 import pathlib
@@ -137,11 +128,10 @@ def test_rcd_e2b_an_unreadable_spine_is_still_surfaced(tmp_path):
     removes - a row that says "I could not read this" is information, and a
     missing row is not.
 
-    Note what this does NOT assert. An unreadable issue is reported by being
-    grouped as unreadable with a reason, not by printing "?" in the approach
-    column. An earlier version of this test looked for the "?" and failed
-    against correct behaviour: the placeholder is in the internal tuple but
-    was never displayed for this group.
+    Note what this does NOT assert. The board reports an unreadable issue by
+    grouping it as unreadable with a reason; it never shows "?" in the
+    approach column for this group, even though the placeholder still sits
+    in the internal tuple.
     """
     project = _project(tmp_path, [("alpha", "feature", "active")])
     broken = project / ".compass" / "work" / "broken"

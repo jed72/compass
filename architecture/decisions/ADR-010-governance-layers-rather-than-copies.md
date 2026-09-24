@@ -15,9 +15,9 @@ project's copy never learns about it.
 
 This was reported from the field against 1.7.0 and reproduced against HEAD. A
 project that ran init at ~1.5.0 computed **7 gates where current policy
-requires 9** on a task touching auth, losing `verify.analyze` and
+needs 9** on a task touching auth, losing `verify.analyze` and
 `verify.fitness`, while `compass policy lint` returned a clean `PASS`. Four of
-the six checks it was missing belong to G1 and G4 - "tested before it lands"
+the six checks it was missing belong to `G1` and `G4` - "tested before it lands"
 and "evidence, not assertion".
 
 The failure is **directional**, which is what makes it dangerous. Stale
@@ -25,7 +25,7 @@ governance never fails loudly; it produces a *lighter* route. Every artifact
 looks correct. `route.md` records the guardrails that fired and says nothing
 about the ones that could not, because it does not know they exist.
 
-The task `governance-drift-detection` addressed the *symptom*: `compass policy
+The detection work that shipped since addressed the *symptom*: `compass policy
 lint` now names every rule a project is missing, `route evaluate` records which
 policy produced the route, and a `waived:` block distinguishes a deliberate
 omission from an unseen one. That makes drift **visible**. It does not make it
@@ -70,14 +70,14 @@ detection work:
    declare it.
 3. **Where the merged policy is visible.** Today a reader opens one file and
    sees the whole policy. Layered, they see a fragment. `compass policy show
-   --merged` or equivalent is not optional garnish; without it the audit trail
-   gets worse, not better, which would trade one invisibility for another.
+   --merged` or equivalent is required; without it a reader cannot see the
+   whole policy.
 
 ## Consequences
 
 **What this buys.** New framework guardrails reach existing projects without
-manual action - the reporter's fifth acceptance criterion, and the only one
-detection cannot satisfy. It also matches how the framework already describes
+manual action - the fifth of the field report's acceptance criteria, and the
+only one detection cannot satisfy. It also matches how the framework already describes
 itself: `/compass:init` is documented as the point at which a project's
 governance *"extends those defaults"*. The copy-based implementation is what
 breaks that description; this makes the code match the sentence.
@@ -101,9 +101,8 @@ divergence honest.
 
 - **Detection alone** (what shipped). Cheap, immediate, and it gives every
   adopter a signal today. Rejected as the *end state* because it relies on
-  someone reading and acting on the report - and the field report's own
-  demonstration is that the drift was known, filed, and still cost the next
-  task two gates hours later.
+  someone reading and acting on the report - and the field report was filed,
+  and the next issue still lost two gates.
 - **Version-pinning with a forced upgrade prompt.** Simpler than layering, but
   it turns every framework release into a migration event for every adopter,
   and the thing being migrated is the file that decides whether their code is
@@ -114,11 +113,12 @@ divergence honest.
 
 ## References
 
-- `~/Documents/compass-governance-drift-report.md` - the field report against
-  1.7.0 that reproduced the 7-gates-instead-of-9 failure, and proposed layering
-  as its fourth and deepest fix.
-- Task `governance-drift-detection` - the detection work that shipped instead,
-  making drift visible without making it impossible.
+- A field report against 1.7.0 reproduced the 7-gates-instead-of-9 failure and
+  proposed layering as its fourth and deepest fix.
+- The detection work that shipped instead made drift visible without making
+  it impossible: `compass policy lint` names every rule a project is
+  missing, `route evaluate` records which policy produced the route, and a
+  `waived:` block distinguishes a deliberate omission from an unseen one.
 - **ADR-006** (backward compat is non-negotiable) - the constraint that makes
   the migration path a prerequisite rather than a detail.
 - **ADR-001** (judgement and mechanism separated) - unaffected by this; layering

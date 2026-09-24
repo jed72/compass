@@ -1,9 +1,9 @@
-"""Acceptance tests for `compass bdd extract` (task executable-bdd-and-richer-plans).
+"""Acceptance tests for `compass bdd extract` (issue executable-bdd-and-richer-plans).
 
-`compass bdd extract` lifts the Gherkin out of a task's `spec.feature.md` into a
-plain `.feature` file that a real BDD runner can execute, tagging each scenario
-with its traceability id so a runner's per-scenario result maps back to
-`manifest.yml`.
+`compass bdd extract` lifts the Gherkin out of an issue's
+`acceptance-criteria.md` into a plain `.feature` file that a real BDD runner
+can run, tagging each scenario with its traceability id so a runner's
+per-scenario result maps back to `manifest.yml`.
 
 Three properties matter as much as the extraction itself, and all three are
 tested here:
@@ -11,14 +11,14 @@ tested here:
   * It is DETERMINISTIC. Same input, byte-identical output, no timestamps and no
     absolute paths. Without that the output cannot be committed or diffed.
   * It FAILS CLOSED. A spec with no Gherkin, malformed Gherkin, or a title that
-    drifts between the markdown heading and the fence is an error that writes
-    nothing at all - not a partial file.
+    differs between the markdown heading and the fence is an error that
+    writes nothing at all - not a partial file.
   * It is ANCHORED ON THE TRACEABILITY COMMENT, not on the ```gherkin fence.
     Compass documents contain illustrative Gherkin that is not a scenario;
     extracting every fence would pick those up as if they were.
 
-Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md
-      (TRC-A1..A8, TRC-F1..F4).
+Spec: executable-bdd-and-richer-plans/acceptance-criteria.md
+      (TRC-A1..A8, `TRC-F1`..F4).
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ import yaml
 # --- helpers ---------------------------------------------------------------
 
 def scenario_block(trc_id: str, title: str, steps: str, intent: str = "INT-1") -> str:
-    """One scenario in the shape every Compass spec.feature.md uses."""
+    """One scenario in the shape every Compass acceptance-criteria.md uses."""
     return (
         f"### Scenario: {title}\n"
         f"<!-- traceability id: {trc_id} · serves: {intent} -->\n"
@@ -73,7 +73,8 @@ def three_scenario_spec() -> str:
 
 @pytest.fixture
 def demo_task(make_task):
-    """A task whose spec.feature.md holds three well-formed scenarios."""
+    """An issue whose acceptance-criteria.md holds three well-formed
+    scenarios."""
     task_dir = make_task("demo", {
         "assessment": {"risk": "contained", "familiarity": "greenfield",
                      "size": "small", "intent": "delivery",
@@ -92,7 +93,7 @@ def demo_task(make_task):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - extraction produces a feature file a BDD runner can read
+# `TRC-A1` - extraction produces a feature file a BDD runner can read
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
@@ -117,7 +118,7 @@ def test_trc_a1_extract_produces_readable_feature(demo_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - extraction is byte-for-byte deterministic
+# `TRC-A2` - extraction is byte-for-byte deterministic
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
@@ -140,7 +141,7 @@ def test_trc_a2_extract_is_deterministic(demo_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A3 - each scenario carries its traceability id as a tag
+# `TRC-A3` - each scenario carries its traceability id as a tag
 # ---------------------------------------------------------------------------
 
 def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
@@ -160,7 +161,7 @@ def test_trc_a3_scenarios_tagged_with_trc_id(demo_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A4 - the extracted Feature names the task it came from
+# `TRC-A4` - the extracted Feature names the issue it came from
 # ---------------------------------------------------------------------------
 
 def test_trc_a4_feature_names_source_task(demo_task, run_cli):
@@ -178,7 +179,7 @@ def test_trc_a4_feature_names_source_task(demo_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A5 - extraction resolves the current task when none is named
+# `TRC-A5` - extraction resolves the current issue when none is named
 # ---------------------------------------------------------------------------
 
 def test_trc_a5_resolves_current_task_pointer(demo_task, run_cli, project):
@@ -192,7 +193,7 @@ def test_trc_a5_resolves_current_task_pointer(demo_task, run_cli, project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A7 - a configured features directory overrides the default location
+# `TRC-A7` - a configured features directory overrides the default location
 # ---------------------------------------------------------------------------
 
 def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
@@ -217,7 +218,7 @@ def test_trc_a7_features_dir_overrides_default(demo_task, run_cli, project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - a spec with no gherkin fences fails loudly
+# `TRC-F1` - a spec with no gherkin fences fails loudly
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
@@ -231,7 +232,7 @@ def test_trc_f1_no_fences_fails_loudly(make_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 - a malformed gherkin fence fails loudly, leaving nothing behind
+# `TRC-F2` - a malformed gherkin fence fails loudly, leaving nothing behind
 # ---------------------------------------------------------------------------
 
 def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
@@ -256,7 +257,7 @@ def test_trc_f2_malformed_gherkin_fails_loudly(make_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F3 - a title that drifts between heading and fence is caught
+# `TRC-F3` - a title that differs between heading and fence is caught
 # ---------------------------------------------------------------------------
 
 def test_trc_f3_title_drift_is_caught(make_task, run_cli):
@@ -279,7 +280,7 @@ def test_trc_f3_title_drift_is_caught(make_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 - extraction modifies nothing it did not create
+# `TRC-F4` - extraction changes nothing it did not create
 # ---------------------------------------------------------------------------
 
 def _digest(path):
@@ -300,52 +301,23 @@ def test_trc_f4_extract_mutates_nothing_else(demo_task, run_cli):
 
 
 # ---------------------------------------------------------------------------
-# The anchor rule (DD-1) - illustrative Gherkin that is not a scenario is
-# not extracted. This is what lets Compass's own proposal documents contain
-# example Gherkin without it becoming an acceptance criterion.
+# `TRC-A6` - `bdd` is on the documented CLI surface
 # ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# TRC-A6 - `bdd` is on the documented CLI surface, and is the ONLY verb added
-# ---------------------------------------------------------------------------
-
-# The full subcommand set after this task. Frozen deliberately: the point of
-# TRC-A6 is that this task adds exactly one verb, so a second one appearing here
-# should require editing this list and noticing.
-# The v2 verb surface after the CLI-voice slice renamed the banned-word
-# verbs (approach evaluate, follow-up resolve, retro, design lint, the
-# issue group, ship-commit) and added terminology. The premise of the
-# assertion below is unchanged - the surface equals the known set - but
-# the known set deliberately moved with that slice.
-# The vocabulary rename moved the planning verb BACK to `plan` on
-# 2026-08-25: `design` now means the designer's stage everywhere else,
-# and one word cannot mean two stages in one release. `design` was kept
-# alongside it as a hidden second spelling through 3.x, and was removed at
-# 4.0.0 (ADR-024). One name, one handler.
-# `intent` added 2026-08-25: `compass intent ingest` reads a brief that
-# already exists, by path or https URL, so a team arriving with one does
-# not retype it. A new top-level group rather than a subverb - there was
-# no `intent` verb before, only the slash command.
+# The full subcommand set, frozen deliberately: a new verb must edit this
+# list, so adding one is a visible decision rather than a silent one.
 EXPECTED_SUBCOMMANDS = {
     "approach", "bdd", "check", "analyze", "retro", "ci", "tdd-red",
     "tdd-green", "policy", "plan", "intent", "issue", "adr", "rework-scan", "flow",
     "next", "follow-up", "ship-commit", "gate", "scenario", "changed-file",
     "evidence", "terminology",
-    "migrate",                    # slice 8: the 1.x-to-2.0 tree migrator
-    # `init` added 2026-08-26: `compass init` creates .compass/ - the config
-    # and the work directory - and is safe to run twice. It exists because
-    # nothing owned initialisation: /compass:init created the directories at
-    # the end of a governance conversation, /compass:assess created them as a
-    # side effect of writing a manifest, and four of the five role entry points
-    # wrote into .compass/work/<slug>/ assuming somebody else had. A verb
-    # rather than a subcommand because there is no group it belongs under, and
-    # because the five entry points call it directly.
-    "init",
-    "acceptance",   # R13: the acceptance verb group
+    "migrate",                    # the 1.x-to-2.0 tree migrator
+    "init",                       # creates .compass/ - safe to run twice
+    "acceptance",                 # the acceptance verb group
 }
 
 
-def test_trc_a6_bdd_is_the_only_new_subcommand(run_cli):
+def test_trc_a6_bdd_is_on_the_documented_subcommand_surface(run_cli):
     result = run_cli("--help")
     assert result.returncode == 0, result
     m = re.search(r"\{([a-zA-Z0-9_,\-]+)\}", result.stdout)
@@ -354,7 +326,7 @@ def test_trc_a6_bdd_is_the_only_new_subcommand(run_cli):
 
     assert "bdd" in actual, "the bdd subcommand group is not registered"
     assert actual == EXPECTED_SUBCOMMANDS, (
-        "the CLI surface changed by more than the one verb this task adds.\n"
+        "the CLI surface does not match the frozen subcommand list.\n"
         f"  unexpected: {sorted(actual - EXPECTED_SUBCOMMANDS)}\n"
         f"  missing   : {sorted(EXPECTED_SUBCOMMANDS - actual)}"
     )
@@ -367,7 +339,7 @@ def test_trc_a6_bdd_is_the_only_new_subcommand(run_cli):
 
 
 # ---------------------------------------------------------------------------
-# TRC-A8 - the shipped config template documents the new keys, inert by default
+# `TRC-A8` - the shipped config template documents the new keys, inert by default
 # ---------------------------------------------------------------------------
 
 BDD_CONFIG_KEYS = ("bdd_runner", "bdd_features_dir", "bdd_steps_dir",
@@ -404,9 +376,8 @@ def test_trc_a8_config_template_documents_bdd_keys(framework_root):
 
 
 # ---------------------------------------------------------------------------
-# The anchor rule (DD-1) - illustrative Gherkin that is not a scenario is
-# not extracted. This is what lets Compass's own proposal documents contain
-# example Gherkin without it becoming an acceptance criterion.
+# The anchor rule: Gherkin with no traceability comment is illustration, not
+# a scenario, and is not extracted.
 # ---------------------------------------------------------------------------
 
 def test_illustrative_gherkin_without_a_trc_comment_is_ignored(make_task, run_cli):

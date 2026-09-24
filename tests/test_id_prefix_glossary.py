@@ -1,26 +1,20 @@
 """Id prefixes are vocabulary, and they have somewhere to be looked up.
 
-Compass artifacts are dense with short codes - TRC-A1, INT-1, EV-003, DD-2,
-BF-1, RG-FLOOR-006 - and until this issue a reader meeting one had nowhere to
-go. `governance/terminology.yml` defined 53 terms and not a single code.
+Compass artifacts are dense with short codes - `TRC-A1`, INT-1, EV-003, `DD-2`,
+BF-1, RP-FLOOR-006 - and every prefix has a `governance/terminology.yml`
+entry a reader can look up.
 
-Two of the prefixes were also wrong. `RG-` says *guardrail* for something that
-is not one of the five hard rules; Compass already made that correction once,
-renaming the manifest key `fired_guardrails` to `policy_rules_fired`, and the id
-never followed. And four of the seven entries in the `floors:` block raise no
-minimum at all - they attach a gate - so a glossary could not define `FLOOR`
-honestly while they shared its name.
+`RG-` was renamed to `RP-` because it said *guardrail* for something that is
+not one of the five hard rules. `FLOOR` covers only entries that raise a
+minimum; an entry that only attaches a gate is not a floor, so a glossary
+could not define `FLOOR` honestly while the two shared a name.
 
-See ADR-016. Spec:
+See ADR-016 (id codes are part of the frozen vocabulary). Spec:
 docs/system-spec.md.
 """
 
-# These read `compass approach evaluate`'s DETAIL - the provenance line,
-# the per-stage weights, the full gate list, the effect lines under each
-# fired rule. That detail moved to --verbose on 2026-08-24 when the
-# evaluator came under the terminal output contract; the computation is
-# unchanged. The assertions are re-pointed rather than rewritten, because
-# what they assert still holds - only where it is printed changed.
+# These tests read the detail `compass approach evaluate --verbose` prints:
+# provenance, per-stage weights, gate list, effect lines.
 from __future__ import annotations
 
 import pathlib
@@ -77,10 +71,9 @@ def _codes() -> dict:
 def _prefixes_in_use() -> set[str]:
     """Derived from the repository, never from a maintained list.
 
-    A hand-kept list of prefixes is the same shape as the version-location
-    table that said six while there were seven: it reads as complete whatever
-    it omits. Deriving means a prefix introduced without a definition fails
-    the build on arrival rather than years later.
+    A hand-kept list of prefixes reads as complete whatever it omits.
+    Deriving means a prefix introduced without a definition fails the build
+    on arrival rather than years later.
     """
     # Read in Python rather than shelling to `git grep -E`: its ERE has no
     # \b and no non-capturing groups, so the same pattern matched "HIRD-P"
@@ -111,7 +104,7 @@ def _prefixes_in_use() -> set[str]:
 
 @pytest.mark.parametrize("term", ["traceability", "intent", "router"])
 def test_the_missing_terms_are_defined(term):
-    """Each names something load-bearing and none was in the vocabulary.
+    """Each names something the code depends on, and none was in the vocabulary.
 
     `TRC-` is the most-used prefix in the repository and names traceability.
     `/compass:intent` is a live command. `router` is a live agent, and the
@@ -294,7 +287,7 @@ def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
     including the four that only attach a gate. After the id rename that
     printed "[RP-REQUIRE-003] floor:" on screen and wrote the same
     contradiction into the manifest - the id saying one thing and the kind
-    saying the other. Found by checking what the demo would actually show.
+    saying the other.
     """
     r = subprocess.run(
         [sys.executable, str(CLI), "approach", "evaluate", "--verbose", "--issue", "probe"],
@@ -302,12 +295,7 @@ def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
         timeout=120,
     )
     assert r.returncode == 0, r.stdout + r.stderr
-    # Asserted as a property of the LINE, not of a layout. The first version
-    # matched the literal string "[RP-REQUIRE-003] requirement:", which broke
-    # the day the renderer was corrected to put the rule's meaning before its
-    # code - a true property failing because the words moved. What matters is
-    # that the id and the kind agree on the same line, in whatever order the
-    # line is written.
+    # Asserts the id and the kind share a line, in either order.
     gate_adder = [ln for ln in r.stdout.splitlines() if "RP-REQUIRE-003" in ln]
     assert gate_adder, f"RP-REQUIRE-003 did not fire:\n{r.stdout}"
     assert all("requirement" in ln for ln in gate_adder), (
@@ -325,9 +313,8 @@ def test_a_gate_adder_reports_its_kind_as_requirement(tmp_path):
 def test_the_rename_does_not_change_any_computed_approach(tmp_path):
     """The ids are data the evaluator copies; renaming must compute the same.
 
-    Not assumed - one test in this suite asserts two of these ids by literal
-    value, so the rename is demonstrably not opaque, and the safest reading
-    is to check the output rather than the mechanism.
+    One test asserts two of these ids by value, so check the computed
+    output rather than assume the rename changes nothing.
     """
     manifest = tmp_path / ".compass" / "work" / "probe"
     manifest.mkdir(parents=True)
@@ -357,10 +344,8 @@ def test_the_rename_does_not_change_any_computed_approach(tmp_path):
 def test_the_archive_is_untouched():
     """Historical records keep the id that actually fired.
 
-    Checked against the WORKING TREE, not `git diff`. `.compass/work/` is
-    gitignored, so a diff over it is empty whatever anyone did to those files -
-    the first version of this test could not fail, which is the class it was
-    written to guard against.
+    Checked against the working tree, because `.compass/work/` is gitignored
+    and `git diff` over it is always empty.
 
     The archive holds records naming the pre-rename routing ids. Rewriting one
     would make the audit trail say something that did not happen.

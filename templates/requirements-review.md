@@ -6,18 +6,20 @@ Role in the pipeline: the ambiguity ledger. The review QAs the criteria
 against themselves and against governance; every ambiguity found, every
 question asked, and every resolution is recorded here. Collapsed on a
 quick fix when the criteria are a single scenario certified unambiguous
-at triage (and no policy rule requires the review), and on a hotfix where
-the reproduction is the
-clarification. Skipped entirely on Spike - the behaviour is the unknown,
-so there is nothing to QA. On Standard+ this file always exists.
+at assess (and no policy rule needs the review), and on a hotfix where
+the reproduction is the clarification. Skipped entirely on a spike - the
+behaviour is the unknown, so there is nothing to QA. On a feature or
+anything heavier this file always exists.
 
 Fill every {{PLACEHOLDER}}. Each entry is a closed loop: question →
 resolution → who decided → what it changed.
 -->
+<!-- absorbed: "clarification." -->
+<!-- absorbed: "# Clarifications - {{ISSUE_SLUG}}" -->
 
-# Clarifications - {{ISSUE_SLUG}}
+# Requirements review - {{ISSUE_SLUG}}
 
-> **Phase:** refine · **Date:** {{DATE}} · **Owning agent:** spec-author
+> **Stage:** refine · **Date:** {{DATE}} · **Owning agent:** spec-author
 > **Requirements review weight (from delivery-approach.md):** {{light pass \| full pass}}
 
 ---
@@ -42,7 +44,7 @@ resolution → who decided → what it changed.
 
 ## Ambiguity ledger
 
-<!-- One entry per ambiguity. An open entry blocks the Plan phase - refine
+<!-- One entry per ambiguity. An open entry blocks the plan stage - refine
      does not hand a question downstream. -->
 
 ### Q1 - {{SHORT TITLE}}
@@ -78,10 +80,11 @@ prose every entry above should aim for:
 > project should be able to configure? jed72 kept it fixed at fifty lines, a
 > hundred columns wide: a standard terminal shows that much without
 > scrolling, and a receipt that cannot fit needs a less verbose renderer, not
-> a knob.
+> a setting.
+<!-- absorbed: "> a knob." -->
 
-That one paragraph carries what was unclear, the call, whose call it was,
-and what the call rests on - the same four things each `{{PLACEHOLDER}}`
+That one paragraph carries what was unclear, the decision, who made it,
+and what it rests on - the same four things each `{{PLACEHOLDER}}`
 entry above owes, said as a colleague would say them rather than filled into
 a form.
 
@@ -105,16 +108,16 @@ a form.
       the CLI never inspects the spec's prose, so an empty Summary is caught
       here or not at all.
 - [ ] **Problem traces up** - the spec serves the Problem and Desired outcome
-      in `intent.md` (or the triage request, if no brief). No scenario is
-      orphaned from intent.
+      in `intent.md` (or the issue description, if there is no intent.md). No
+      scenario is orphaned from intent.
 - [ ] **Behaviour is Given/When/Then** - every scenario has an observable
       `Then`. No scenario is a wish.
-- [ ] **Traceability ids assigned** - every scenario has a TRC-id so code and
+- [ ] **Traceability ids assigned** - every scenario has a `TRC-id` so code and
       claims can point back to it.
 - [ ] **Affected surface named** - the spec or `delivery-approach.md` identifies what code
       and which components this touches.
 - [ ] **No open questions** - the ambiguity ledger above is fully resolved.
-- [ ] **Route still fits** - nothing found in refine makes `delivery-approach.md` wrong;
-      if it does, re-frame before Plan.
+- [ ] **Delivery approach still fits** - nothing found in refine makes `delivery-approach.md` wrong;
+      if it does, re-assess (`/compass:assess --reassess`) before plan.
 
 Next stage: **plan** (`/compass:plan`).

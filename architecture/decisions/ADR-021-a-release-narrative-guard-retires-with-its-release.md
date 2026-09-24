@@ -24,8 +24,7 @@ pass in 3.4.0 cut eight documents from 4,134 lines to 1,394, and seven of the
 paragraph naming it had been rewritten or moved.
 
 The wrong answer is to relax the seven failing checks so the build goes green.
-That leaves a guard whose remaining checks nobody has re-justified, and it is
-the sentence a project says just before it loses coverage it needed. So the
+That leaves a guard whose remaining checks nobody has re-justified. So the
 question is asked once, for the whole file.
 
 ## Decision
@@ -47,15 +46,15 @@ failed. Six were still passing against live facts:
 | `trc_d1` | `governance/README.md`'s file table lists `signals.yml` and `quarantine.yml` |
 
 Those six facts are now unguarded in the documents. Deleting a paragraph naming
-`signals.yml` from `governance/README.md` will not redden the build.
+`signals.yml` from `governance/README.md` will not fail the build.
 
 **What is still covered elsewhere**, so it is not lost with the file:
 
 - `tests/test_architect_lens.py` proves the agent exists, has valid
   frontmatter, and is invocable from `/compass:consult`. The agent itself is
   guarded; only its mentions in prose are not.
-- `tests/cross_cutting/test_stream_d_invariants.py` requires
-  `agents/architect-lens.md` to be present in the shipped agent set.
+- `tests/cross_cutting/test_stream_d_invariants.py` needs
+  `agents/architect.md` to be present in the shipped agent set.
 - `tests/test_cli_surface_drift.py` guards the CLI verb listings in `README.md`
   and `docs/five-minutes.md` against `compass --help`, which is the anti-drift
   check `trc_f1` was modelled on and is not release-specific.
@@ -65,7 +64,7 @@ Those six facts are now unguarded in the documents. Deleting a paragraph naming
 **Move the content and repoint the guard.** Satisfy each failing check by
 relocating the paragraph it wants from `README.md` into `docs/`, and edit the
 check to read the new location. This keeps the coverage, and it also keeps the
-premise: that the v1.2.0 feature list is permanently load-bearing in the
+premise: that the v1.2.0 feature list is permanently required in the
 documents. Every future slimming pass pays the same cost again.
 
 **Relax only the seven failing checks.** Rejected in the context above. It
@@ -91,7 +90,7 @@ would take, not as work this decision commits to.
 
 - `tests/test_v1_2_narrative.py`, deleted by this decision. Its content is in
   the history at the commit that references this ADR.
-- `docs/compass/2026-08-26-docs-slimming-pass/bug-report.md` states the question this
+- The `docs-slimming-pass` issue's bug report states the question this
   decision answers, with the full list of 49 failing drift guards.
 - `governance/strategies.md` `S10` - a guard is accepted on a demonstrated
   failure. The mirror of that rule is that retiring one needs a demonstrated

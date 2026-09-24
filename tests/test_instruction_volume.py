@@ -11,13 +11,14 @@ Two numbers, and they are different things:
 Measured at HEAD before this issue: 1,744 words resident (~2,354 tokens) and
 19,448 words per run (~26,254), rising to 26,567 (~35,865) with
 `governance/strategies.md`, which `CLAUDE.md` told the model to read at the
-start of every issue. Superpowers is about 900 tokens resident.
+start of every issue. Superpowers (another Claude Code plugin) is about 900
+tokens resident.
 
 The ceilings below are the issue's success signals. They are deliberately not
 "whatever it is today plus a bit": a ceiling that tracks the tree cannot fail.
 
 Scenario ids: IV-A1, IV-A2, IV-B1, IV-C1 in
-docs/compass/2026-08-27-instruction-volume/acceptance-criteria.md
+instruction-volume/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -63,12 +64,8 @@ def _resident_breakdown():
 # derived: deriving it from the instructions is the thing under test, and a
 # measurement that reads its own subject cannot fail.
 #
-# This was thirteen files and 11,203 words - the contract, CLAUDE.md, the
-# runtime map, five stage commands, the approach rubric and three skills.
-# `docs-compass-artifacts` replaced the middle of that with one command that
-# inlines the light path end to end and one skill carrying its share of the
-# three. The five stage commands and three skills still exist and are read on
-# the feature and initiative routes; a quick fix no longer opens them.
+# A quick fix reads the files below. The feature and initiative delivery
+# approaches also read the five stage commands and three skills.
 QUICK_FIX_READS = [
     "compass-contract.md",
     "CLAUDE.md",
@@ -158,15 +155,10 @@ def test_iv_c2_a_split_skill_still_says_where_its_parts_are():
 def test_iv_d1_every_frontmatter_parses():
     """Every skill, command and agent frontmatter is valid YAML.
 
-    Rewriting descriptions in this issue broke thirteen of them at once: a
-    colon followed by a space inside an unquoted scalar ends the key, so
-    `description: The architect's perspective: reads ...` is not a string, it
-    is a syntax error.
-
-    Only `test_architect_lens.py` noticed, and only because it happened to
-    parse that one file strictly. Twelve others were broken and silent - the
-    runtime reads these to decide what to load, so a session would have been
-    told nothing about twelve of the things it can use.
+    A colon followed by a space in an unquoted scalar ends the key, so
+    `description: The architect's perspective: reads ...` is a syntax error.
+    The runtime reads frontmatter to decide what to load, so a broken one
+    hides that file silently.
     """
     import yaml
 

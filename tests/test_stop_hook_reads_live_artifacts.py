@@ -1,24 +1,14 @@
 """The stop hook checks the artifacts that exist today.
 
-Found by adding hooks/ to the vocabulary scan, which is the argument for
-adding it: two of this hook's checks named artifacts the v2 rename retired,
-and neither could reach a correct verdict any more.
+The stop hook reads `acceptance-criteria.md` and the "Outstanding
+follow-ups" heading, which are what the current templates write.
 
-  * The reproduction-scenario check read `spec.feature.md`, with no fallback
-    to `acceptance-criteria.md`. On every issue written since the rename that
-    file is absent, so the hook took the "does not exist" branch and reported
-    "the reproduction test was never promoted to a scenario" - on hotfixes
-    where it demonstrably had been. A check that can no longer succeed is the
-    mirror image of one that can no longer fail, and it is worse in one
-    respect: it trains people to ignore it.
+  * The reproduction-scenario check reads `acceptance-criteria.md`. A check
+    that can never pass is worse than one that can never fail: people learn
+    to ignore it.
 
-  * The outstanding-follow-up scan looked for a section headed "Owed
-    backfills". The template writes "Outstanding follow-ups", so the scan
-    matched nothing and the check never fired.
-
-Both are the same defect as `compass check`'s placeholder header: a value
-renamed on one side of a boundary and not the other, invisible because
-nothing failed.
+  * The outstanding-follow-up scan looks for a section headed "Outstanding
+    follow-ups", the heading the template writes.
 
 Scenario ids: see docs/system-spec.md (group G).
 """
@@ -30,12 +20,8 @@ import subprocess
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 HOOK = ROOT / "hooks" / "stop.sh"
 
-# The fixture is built from the SHIPPED TEMPLATE, not hand-typed. The first
-# version of this file invented `**Reference approach:**` and
-# `## Outstanding follow-ups` - neither of which appears in
-# templates/delivery-approach.md or in any archived record - so the test proved
-# only that the regex matched a string written for the test. That is the exact
-# defect it was written to catch, one level up.
+# Build the fixture from the shipped template, not by hand: a hand-typed
+# heading only proves the regex matches a string written for the test.
 TEMPLATE = (ROOT / "templates" / "delivery-approach.md").read_text(encoding="utf-8")
 
 

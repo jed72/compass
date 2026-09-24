@@ -1,9 +1,6 @@
 # Traceability
 
-Merged in from the `traceability` skill. It was a skill of its own, which meant its description was resident on every turn for a subject that is read while writing an artifact - so it moved here, beside the gates it feeds, and nothing it taught was cut.
-
-
-Traceability is **the traceability guardrail**. Two chains, maintained on every route,
+**The traceability guardrail** keeps two chains, on every delivery approach,
 updated *as you go* - not reconstructed at the end:
 
 ```
@@ -15,7 +12,7 @@ The chain is not paperwork. It *is* the audit trail. When it is intact, anyone
 can pick any line of code and walk it up to the reason it exists; anyone can
 pick any public claim and walk it down to the proof it is true. When it is
 broken, you have code nobody can explain or claims nobody can stand behind -
-and that is a Verify no-pass.
+and that is a no-pass at the verify stage.
 
 ## The two chains, link by link
 
@@ -26,7 +23,7 @@ and that is a Verify no-pass.
   several units, a unit may serve several scenarios - but *onto*: no code
   without at least one scenario above it. The acceptance-before-code guardrail forbids code no stated
   acceptance criterion describes; this link is how that is observable.
-- **scenario → intent.** Every scenario traces up to an intent - the brief
+- **scenario → intent.** Every scenario traces up to an intent - the `intent.md`
   success signal, the ticket, the product outcome it serves. A scenario with no
   intent above it is a scenario nobody asked for.
 
@@ -45,14 +42,14 @@ at the end is a chain that was guessed.
 - **At define** - the Spec Author tags each scenario with its intent reference
   as the scenario is written. The upper half of the chain exists before any
   code does.
-- **At Build** - the Builder records the scenario each unit serves *as the unit
+- **At implement** - the Builder records the scenario each unit serves *as the unit
   is written* - a comment, a test name, a commit message convention, whatever
   the project uses. The link is made at the moment the code is made, when the
   reason is still in your head. Recovering it later is archaeology.
 - **Alongside define and ship** - the Marketing Perspective adds a `claim → scenario` row
   to `launch-readiness.md` as each claim is drafted. A claim with no row is not
   yet a shippable claim.
-- **At Verify** - the Reviewer runs `traceability` as a review dimension: walk
+- **At the verify stage** - the Reviewer runs `traceability` as a review dimension: walk
   the chains, find the breaks. It is on every delivery approach because it is
   the traceability guardrail in review form.
 
@@ -81,23 +78,23 @@ reconstructing anything:
 - *Is this feature actually built?* - walk down from the intent: scenarios,
   then code, then the passing tests.
 - *Can we say this publicly?* - walk down from the claim to the scenario and
-  check its Verify status.
+  check its status at the verify stage.
 - *What breaks if we change this scenario?* - walk down to every unit of code
   and every claim that traces to it.
 
-That is why it is maintained continuously and on every route, including
-quick-fix and Hotfix. The audit trail is not a document you write; it is a
+That is why it is maintained continuously and on every delivery approach, including
+quick fix and hotfix. The audit trail is not a document you write; it is a
 property the chain *has* - but only if every link was made when the work was.
 
 ## Anti-patterns
 
-- **End-of-issue reconstruction** - building the chain at Verify from memory.
-  You are guessing, and the guesses look exactly like real links.
+- **End-of-issue reconstruction** - building the chain at the verify stage
+  from memory. You are guessing, and the guesses look exactly like real links.
 - **The decorative reference** - a scenario tag that points vaguely at a feature
   rather than precisely at a scenario. Precision is what makes the walk work.
 - **Letting Hotfix skip it** - "we were in a hurry." The reproduction test
   traces to the defect; the promoted scenario traces to an intent. The chain
-  holds at 3am.
+  holds under time pressure too.
 - **Claims that outrun scenarios** - drafting launch copy for behaviour the spec
-  does not yet describe and intending to "follow-up the scenario." The scenario
+  does not yet describe and intending to write the scenario later. The scenario
   comes first, or the claim is not real.

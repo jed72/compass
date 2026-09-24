@@ -1,16 +1,13 @@
 """`compass issue set-status` names the issue it acted on.
 
-It printed "None" instead, in both the success line and the refusal, because
-`cli/compass_pkg/manifest.py` read `task.get("issue")` while the manifest's root
-key for the slug is `task:`. The `--json` result dropped the field altogether,
-so a consumer reading it to learn which issue changed state got nothing.
+The success line, the refusal and the `--json` result all name the issue.
 
-The refusal is the one that mattered: it is what a person meets when shipping
-is blocked, usually with several issues in flight, and "refusing to mark 'None'
+The refusal matters most: it is what a person meets when shipping
+is blocked, usually with several issues open, and "refusing to mark 'None'
 landed" cannot tell them which one refused.
 
 Scenario ids: SSN-A1, SSN-A2 in
-docs/compass/2026-08-26-set-status-does-not-name-the-issue/acceptance-criteria.md
+set-status-does-not-name-the-issue/acceptance-criteria.md
 """
 from __future__ import annotations
 

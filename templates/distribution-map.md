@@ -5,20 +5,21 @@ Produced by: the plan stage (`/compass:plan`) on pair/multiagent-capable work;
              `orchestrator` agent.
 Lives at:    docs/compass/<created>-<issue-slug>/distribution-map.md
 Role in the pipeline: the record of what could run in parallel and why.
-The design stage produces it; `scripts/multiagent.sh` reads it to create
+The plan stage produces it; `scripts/multiagent.sh` reads it to create
 worktrees. Initiative-scale work writes this file even if a cap pins it
-solo - the map is the
-record of what could have been parallel and why it wasn't.
+solo - the map is the record of what could have been parallel and why it
+wasn't.
 
 Independence has two tests, both must hold: disjoint code AND disjoint
 scenario groups (see the worktree-multiagent skill).
 
 Fill every {{PLACEHOLDER}}.
 -->
+<!-- absorbed: "solo - the map is the" -->
 
 # Distribution Map - {{ISSUE_SLUG}}
 
-> **Phase:** Plan · **Date:** {{DATE}} · **Reads from:** technical-design.md §4, acceptance-criteria.md
+> **Stage:** plan · **Date:** {{DATE}} · **Reads from:** technical-design.md §4, acceptance-criteria.md
 > **Consumed by:** breakdown, `scripts/multiagent.sh`, the `orchestrator` agent
 
 ---
@@ -52,8 +53,8 @@ Fill every {{PLACEHOLDER}}.
 
 | Subtask | Owns work unit(s) | Owns scenario ids | Branch name |
 |---|---|---|---|
-| subtask-1 | {{U1}} | {{TRC-A1, TRC-A2}} | {{compass/<issue-slug>/subtask-1}} |
-| subtask-2 | {{U2}} | {{TRC-B1}} | {{compass/<issue-slug>/subtask-2}} |
+| subtask-1 | {{U1}} | {{`TRC-A1`, `TRC-A2`}} | {{compass/<issue-slug>/subtask-1}} |
+| subtask-2 | {{U2}} | {{`TRC-B1`}} | {{compass/<issue-slug>/subtask-2}} |
 
 ## 4. Proposed worktree orchestration
 

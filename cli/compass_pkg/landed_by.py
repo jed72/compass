@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """`landed_by` - an issue whose work was done through a different issue.
 
-Its own module rather than more of `checks.py`, because the size cap in
-`test_trc_a2` fired at 1289 lines against a limit of 1200. The cap exists to
-keep modules grouped the way the code already is, and this block is cohesive:
-one constant, one reader, one predicate and one check.
+Kept apart from `checks.py`, which has a 1200-line cap (`test_trc_a2`). This
+block is cohesive: one constant, one reader, one predicate and one check.
 
 DEPENDENCY: none beyond the standard library and this package. It reads a manifest
 through `core.load_yaml`, which is where the bundled PyYAML is resolved; nothing
@@ -22,22 +20,20 @@ from compass_pkg.core import CompassError, load_yaml, normalize_spine
 # =============================================================================
 # `landed_by` - an issue whose work was done through a different issue
 # =============================================================================
-# Six issues sat as `abandoned` with an empty record and had actually been
-# delivered. `abandoned` was the only status that did not lie about the record,
-# so it lied about the outcome instead - in the one place `compass retro` reads
-# to judge whether triage is systematically over- or under-sizing.
+# Use `landed_by:` when the work was delivered through another issue or a
+# commit. Marking such an issue `abandoned` misleads `compass retro`, which
+# reads the status to judge whether assessment is over- or under-sizing the
+# process.
 #
 # `landed_by:` MOVES the claim; it does not waive it. The named issue must
 # exist, must be landed, must carry a record of its own, and must name this
-# issue back in `delivered:`. Relaxing a guardrail check is the move a project
-# talks itself into whenever a check is inconvenient, and the difference
-# between doing it and getting away with it is whether every one of those four
-# is checked.
+# issue back in `delivered:`. Relaxing a guardrail check is safe only when
+# all four conditions are checked.
 
 #: The checks `landed_by` stands down, named rather than derived.
 #:
-#: Measured: these are exactly the three an empty-record landed issue fails.
-#: A DERIVED set - "relax whatever fails" - would work today and rot the moment
+#: Measured: these are exactly the four checks an empty-record landed issue
+#: fails. A DERIVED set - "relax whatever fails" - would go wrong the moment
 #: a check is added, silently widening the relaxation. A named list fails
 #: loudly when the set changes, which is the moment to think about it.
 #:
@@ -49,15 +45,12 @@ LANDED_BY_RELAXES = (
     "scenarios-have-tests",
     "suite-passed",
     "scenario-has-id-and-intent",
-    # Its complaint is "no gates in manifest.yml - has the route been evaluated?",
-    # which is the same class as the three above: this issue never went through
-    # verify, because a different one did.
+    # Its complaint is "no gates in manifest.yml - has the delivery approach
+    # been evaluated?", which is the same class as the three above: this
+    # issue never went through the verify stage, because a different one did.
     #
-    # IT WAS MISSED THE FIRST TIME, and how is worth recording. The design says
-    # this set was "measured rather than assumed" - and the measurement read
-    # `compass check`'s DEFAULT view, which shows three failures and then
-    # "... and 2 more". So it measured the truncation. Re-measured with
-    # --verbose: four distinct checks, not three.
+    # Measure this set with `compass check --verbose`: the default view
+    # truncates after three failures.
     "gate-evidence-present",
 )
 
@@ -78,9 +71,8 @@ def _git_commit_subject(sha, cwd):
     """The subject line of `sha`, or None when it cannot be resolved.
 
     None means "could not look" as well as "not there" - the caller
-    distinguishes them by asking git whether it is usable at all, because a
-    check that clears because it could not look is the failure this repository
-    found four of in one release.
+    distinguishes them by asking git whether it is usable at all. A check
+    that clears because it could not look must not be counted as a pass.
     """
     import subprocess
 
@@ -172,10 +164,8 @@ def landed_by_holds(task, task_dir, git_reader=None):
     `landed_by` is a LIST, and an entry names either another issue or a commit.
     The single-slug form the field shipped with is read as one issue entry.
 
-    THE LIST IS WHY THIS WAS WIDENED. The first design assumed every already-done
-    issue had been delivered by another issue - which fits one of the six
-    records that motivated it. Three were fixed by an ordinary commit with no
-    issue opened, and one had three parents.
+    It is a list because work can be delivered by another issue, by a commit
+    with no issue, or by several issues.
 
     `git_reader` is injected so the commit form is testable without depending
     on this repository's history.

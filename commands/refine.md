@@ -20,11 +20,14 @@ de-scope reason still holds, and point the user to `/compass:plan`. Do not
 re-add a stage the approach skipped, and do not skip one it kept.
 
 On a collapsed- or skipped-review approach the **Definition of Ready** is
-satisfied by construction - a quick fix by triage certifying the single
-scenario unambiguous, a hotfix by the reproduction test being the spec, a
-spike by having no acceptance criteria to be ready against - so there is no
-separate checklist to fill. On feature and initiative work it is the
-explicit gate below.
+satisfied by construction:
+- a quick fix, by the assess stage certifying the single scenario
+  unambiguous;
+- a hotfix, by the reproduction test being the spec;
+- a spike, by having no acceptance criteria to be ready against.
+
+So there is no separate checklist to fill. On feature and initiative work it
+is the explicit gate below.
 
 On a feature, the review is a light-to-full pass - light, never absent. On an
 initiative it is a full pass with an explicit ambiguity ledger and
@@ -35,8 +38,8 @@ non-engineering role review.
 The spec-author ran a four-scan self-review inline at the end of the define
 stage, before handing the spec over: a **placeholder** scan, an
 **orphan**-intent scan, an **untestable**-`Then` scan, and an
-**ambiguous**-quantifier scan. Those findings were fixed in place by whoever
-made them. It runs on every approach, including a quick fix.
+**ambiguous**-quantifier scan. The spec-author fixed those in place. The
+self-review runs on every approach, including a quick fix.
 
 **Refine does not repeat them.** Re-running four mechanical scans over a file
 someone has just scanned spends a stage to find nothing. If you do hit one
@@ -72,7 +75,7 @@ is for. The same split is written from the other side in
 
 1. **Self-QA the spec.** Contradictory scenarios? Undefined terms? Edges
    named but not specified? Failure modes missing?
-2. **Governance QA.** Does the spec hold the guardrails (especially
+2. **Governance QA.** Does the spec meet the guardrails (especially
    acceptance-before-code and traceability) and respect the applicable
    strategies, including the voice strategies where claims are involved?
 3. **Resolve.** For each ambiguity, either resolve it (update
@@ -106,10 +109,10 @@ about decisions, not wording.
 > `docs/compass/<created>-<issue-slug>/requirements-review.md`, and updated
 > `acceptance-criteria.md` where a resolution changed it.
 >
-> N ambiguities were found and resolved. The ones that changed what gets
+> I found and resolved N ambiguities. The ones that changed what gets
 > built are: <short list>.
 >
-> Worth a read before design. Specifically, look for:
+> Worth a read before the plan stage. Specifically, look for:
 > - **Decisions you disagree with** - each entry records what was decided and
 >   by whom; a resolution recorded is not the same as a resolution you would
 >   make.
@@ -118,7 +121,7 @@ about decisions, not wording.
 > - **The Definition of Ready** - every box is checked, and each one is meant
 >   to be true rather than ticked.
 >
-> On approval this goes to the design stage, which turns the spec into a
+> On approval this goes to the plan stage, which turns the spec into a
 > technical approach and runs the governance check against it.
 
 ## Voice
@@ -129,8 +132,11 @@ label-and-status row. See `skills/compass-runtime/writing-voice.md`.
 
 ## Gate
 
-`requirements-review.md` exists; every ambiguity is resolved or owned; the
-spec passes governance QA; and the **Definition of Ready** checklist at the
-foot of `requirements-review.md` is fully checked - that is the entry gate
-into design, and an unchecked box stops design from starting. Log to
-`devlog.md`. Next: `/compass:plan`.
+- `requirements-review.md` exists;
+- every ambiguity is resolved or owned;
+- the spec passes governance QA;
+- the **Definition of Ready** checklist at the foot of
+  `requirements-review.md` is fully checked - that is the entry gate into
+  the plan stage, and an unchecked box stops the plan stage from starting.
+
+Log to `devlog.md`. Next: `/compass:plan`.

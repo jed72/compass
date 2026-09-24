@@ -116,7 +116,7 @@ spec can be scanned without opening a single scenario body.
 
 ## Example 4 - a plan work unit
 
-Work units in `technical-design.md` are what Build actually executes. A unit that reads
+Work units in `technical-design.md` are what the implement stage runs. A unit that reads
 clearly to the planner and vaguely to the builder is the most expensive kind of
 plan defect, because the ambiguity is discovered after the work starts.
 
@@ -164,9 +164,9 @@ design before it is built, which is the cheapest moment to disagree with it.
 
 They are optional individually. `skills/plan-authoring/SKILL.md` carries the
 rule for each; the short version is that quick fix writes no plan at all,
-Standard uses the one or two that add clarity, and initiative may use all of
-them. **Delete the ones you do not use** - an empty optional heading reads as
-an omission rather than a decision.
+a feature uses the one or two that add clarity, and an initiative can use
+all of them. **Delete the ones you do not use** - an empty optional heading
+reads as an omission rather than a decision.
 
 Below is a complete worked example for an imaginary issue: adding support for a
 second JWT signing algorithm. Note what it does *not* do - it names two
@@ -234,11 +234,11 @@ loader.
 ### 4. Design patterns invoked
 
 > - **Strategy** (GoF) - `TokenValidator` lets `AuthService` swap signature
->   algorithms without knowing which is in play. Earns its keep because we
+>   algorithms without knowing which is in play. Justified because we
 >   already ship RS256, are adding HS256 now, and EdDSA is on the roadmap:
 >   three variants is where a conditional stops being cheaper than a type.
 > - **Registry** - `ValidatorRegistry` maps an algorithm name to its
->   validator. Earns its keep because the mapping is data the config already
+>   validator. Justified because the mapping is data the config already
 >   owns, and putting it in a registry keeps `AuthService` free of a lookup
 >   table that would need a test per entry.
 
@@ -284,7 +284,8 @@ person something specific to argue with.
 **No subagent review loop between spec and plan.** The obvious way to improve a
 spec is to have a second agent critique it. The evidence against it is not
 Compass's own: the Superpowers project shipped such a loop, then removed it in
-their v5.0.6 release after regression testing across five versions and five
+their [v5.0.6 release](https://github.com/obra/superpowers/releases/tag/v5.0.6)
+after regression testing across five versions and five
 trials found identical quality scores whether the loop ran or not, at roughly 25
 minutes of overhead per run. Compass has not repeated that measurement, and
 takes their published result at face value. Compass already has two
@@ -295,24 +296,24 @@ benefit without the process weight, because the author fixes their own cheap mis
 rather than routing them through a critic.
 
 **No user-story format as the spec.** "As a [role], I want [feature], so that
-[outcome]" is refused as a spec format by **ADR-004**. The reason is that a user
+[outcome]" - **ADR-004** rejects it as a spec format. The reason is that a user
 story embeds one role's perspective into the artifact, so each role ends up
 wanting their own version and the versions drift. Compass has one
-`acceptance-criteria.md` that five roles read through five roles. User stories are
+`acceptance-criteria.md` that all five roles read. User stories are
 fine *upstream* of Compass, in a brief or a ticket; they are not the spec.
 
 **No single-audience declaration.** A common convention is to write "assume the
 reader is a junior engineer with no context". Compass does not, because its
 five-role model is a stronger reader model than any single persona: the same
 spec is read for intent fidelity, for claims, for tests, for coverage, and for UI
-behaviour. the cold-reader strategy (`S7`) already assumes zero prior context without having to name someone
-to imagine.
+behaviour. The cold-reader strategy (`S7`) already assumes zero prior context
+without having to name someone to imagine.
 
-**No bite-sized issues with exact commands in the plan.** Some frameworks make
+**No plan made of small steps, each with the exact commands to run.** Some frameworks make
 the plan a sequence of small steps each with the literal command to run. Compass
-does not, because Build already sequences small units through `compass tdd-red`
+does not, because the implement stage already sequences small units through `compass tdd-red`
 and `compass tdd-green`, and duplicating that in `technical-design.md` inflates the plan
-while making it stale the moment the code moves. The useful part of that idea -
+while it goes out of date as soon as the code changes. The useful part of that idea -
 that a plan should contain no unfinished promises - is kept, as `compass plan
 lint`.
 
@@ -320,8 +321,8 @@ lint`.
 
 ## Related
 
-- `governance/strategies.md` - the cold-reader strategy (`S7`) and the persistence-over-conversation strategy (`S4`) (persistence over
-  conversation), which the cold-reader strategy (`S7`) extends.
+- `governance/strategies.md` - the cold-reader strategy (`S7`) and the
+  persistence-over-conversation strategy (`S4`), which `S7` extends.
 - `skills/bdd-specification/SKILL.md` - the Summary section, the four-scan
   self-review, and what makes a scenario runnable.
 - `skills/governance-check/SKILL.md` - where `compass plan lint` fits in the

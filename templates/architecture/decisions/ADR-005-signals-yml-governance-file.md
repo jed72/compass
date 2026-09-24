@@ -10,7 +10,7 @@ superseded_by: ''
 ## Context
 
 Three framework mechanisms needed configurable patterns:
-- The stop-hook's scope-bloat phrase detector (reframe nudge).
+- The stop-hook's scope-bloat phrase detector (re-assessment prompt).
 - The rework scanner's time window and public-surface patterns.
 - Eventually, the architect's trigger tags.
 
@@ -51,24 +51,25 @@ Projects override by editing their own `governance/signals.yml`.
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Fold into `guardrails.yml` | One fewer file | Guardrails are hard and blocking; signals are soft and advisory - mixing dilutes both |
-| Put in `.compass/config.yml` | Config is already project-scoped | Config holds project knobs (test command, worktree root); governance content belongs in `governance/` |
+| Put in `.compass/config.yml` | Config is already project-scoped | Config holds project settings (test command, worktree root); governance content belongs in `governance/` |
 | Hard-code in the CLI | Simplest implementation | Non-overridable; defeats the "adaptive" principle for project-specific conventions |
 
 ## Consequences
 
 **Positive:**
-- Clean three-file governance model: routing-policy.yml (routes), guardrails.yml (hard checks), signals.yml (advisory patterns).
+- Clean three-file governance model: routing-policy.yml (delivery approaches), guardrails.yml (hard checks), signals.yml (advisory patterns).
 - Projects can tune scope-bloat phrases and rework windows without forking the framework.
-- `compass policy lint` validates signals.yml structure.
+- `compass policy lint` checks signals.yml structure.
 
 **Negative:**
 - A third file for new adopters to become aware of.
 
 **Neutral / follow-on:**
-- Lens-trigger tags (when the architect becomes more sophisticated) will be added as a new key in `signals.yml`, not a new file.
+- Architect trigger tags (when the architect becomes more sophisticated) will be added as a new key in `signals.yml`, not a new file.
 
 ## References
 
-- The task's `clarifications.md`, where the question of where advisory patterns live was settled
-- Plan DD-1 (signals.yml as a separate file)
+- The requirements review, where the question of where advisory patterns live was settled
+- The technical design's decision to keep signals.yml a separate file
+<!-- absorbed: "- Plan DD-1 (signals.yml as a separate file)" -->
 - The invariant that the framework holds five guardrails, not six

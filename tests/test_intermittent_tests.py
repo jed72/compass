@@ -1,24 +1,11 @@
-"""Stream A - A1: Intermittent-test integrity.
+"""Intermittent-test integrity.
 
-Tests for TRC-A1, TRC-A2, TRC-A3, TRC-A4, TRC-A5, TRC-A6, TRC-A7,
-TRC-FM2, TRC-FM3.
-
-Production changes driven by these tests:
-  - governance/strategies.md: S5 added
-  - governance/guardrails.yml: no-trusted-rerun check + updated G4.checks
-  - governance/quarantine.yml: new file (shipped empty)
-  - cli/compass: cmd_tdd_green extended (attempts + rerun_without_change),
-                 no-trusted-rerun CHECK_FN,
-                 policy lint quarantine validation,
-                 task lint attempts validation
+Tests for `TRC-A1`, `TRC-A2`, `TRC-A3`, `TRC-A4`, `TRC-A5`, `TRC-A6`, `TRC-A7`,
+`TRC-FM2`, `TRC-FM3`.
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read the per-check detail (name, PASS/FAIL, reason) that
+# `compass check --verbose` prints.
 from __future__ import annotations
 
 import json
@@ -34,21 +21,21 @@ FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 
 
 # =============================================================================
-# TRC-A6 - strategies.md declares S5 - "Intermittency is failure."
+# `TRC-A6` - strategies.md declares `S5` - "Intermittency is failure."
 # =============================================================================
 
 class TestS5InStrategiesMd:
-    """TRC-A6: governance/strategies.md must declare S5."""
+    """`TRC-A6`: governance/strategies.md must declare `S5`."""
 
     def test_s5_exists_in_strategies_md(self):
-        """S5 must be present under ## Default method strategies."""
+        """`S5` must be present under ## Default method strategies."""
         strat_path = FRAMEWORK_ROOT / "governance" / "strategies.md"
         assert strat_path.is_file(), f"strategies.md not found at {strat_path}"
         text = strat_path.read_text(encoding="utf-8")
         assert "S5" in text, "S5 strategy id not found in strategies.md"
 
     def test_s5_is_named_intermittency_is_failure(self):
-        """S5 must be named 'Intermittency is failure.'"""
+        """`S5` must be named 'Intermittency is failure.'"""
         strat_path = FRAMEWORK_ROOT / "governance" / "strategies.md"
         text = strat_path.read_text(encoding="utf-8")
         assert "Intermittency is failure" in text, (
@@ -56,10 +43,10 @@ class TestS5InStrategiesMd:
         )
 
     def test_s5_mentions_rerun_to_green_as_signal_loss(self):
-        """S5 must say a rerun-to-green is the loss of the most useful signal."""
+        """`S5` must say a rerun-to-green is the loss of the most useful signal."""
         strat_path = FRAMEWORK_ROOT / "governance" / "strategies.md"
         text = strat_path.read_text(encoding="utf-8")
-        # The plan says: "a rerun-to-green is the loss of the most useful signal"
+        # `S5` must say: "a rerun-to-green is the loss of the most useful signal"
         assert "rerun" in text.lower(), (
             "S5 must mention rerun in the context of signal loss"
         )
@@ -68,16 +55,16 @@ class TestS5InStrategiesMd:
         )
 
     def test_s5_is_in_default_method_strategies_section(self):
-        """S5 must appear under ## Default method strategies, after S4."""
+        """`S5` must appear under ## Default method strategies, after `S4`."""
         strat_path = FRAMEWORK_ROOT / "governance" / "strategies.md"
         text = strat_path.read_text(encoding="utf-8")
-        # S5 must come after S4 in the default section
+        # `S5` must come after `S4` in the default section
         s4_pos = text.find("(`S4`)")
         s5_pos = text.find("(`S5`)")
         assert s5_pos != -1, "the S5-tagged heading not found in strategies.md"
         assert s4_pos != -1, "the S4-tagged heading not found in strategies.md"
         assert s5_pos > s4_pos, "S5 must appear after S4 in strategies.md"
-        # S5 must appear before the project strategies section
+        # `S5` must appear before the project strategies section
         project_section_pos = text.find("## Project strategies")
         assert s5_pos < project_section_pos, (
             "S5 must appear in ## Default method strategies, before ## Project strategies"
@@ -85,11 +72,11 @@ class TestS5InStrategiesMd:
 
 
 # =============================================================================
-# TRC-A1 - tdd-green records attempts:1 on a clean first pass
+# `TRC-A1` - tdd-green records `attempts`:1 on a clean first pass
 # =============================================================================
 
 class TestTddGreenRecordsAttempts:
-    """TRC-A1: tdd-green must record attempts:1 on a clean first pass."""
+    """`TRC-A1`: tdd-green must record `attempts`:1 on a clean first pass."""
 
     def test_tdd_green_records_attempts_1_on_first_pass(self, run_cli, make_task, project):
         body = {
@@ -128,7 +115,7 @@ class TestTddGreenRecordsAttempts:
         )
 
     def test_tdd_green_attempts_absent_on_unbound_run(self, run_cli, make_task, project):
-        """Even without --scenario, attempts:1 must be recorded."""
+        """Even without --scenario, `attempts`:1 must be recorded."""
         body = {
             "task": "attempts-unbound",
             "created": "2026-05-25",
@@ -157,18 +144,18 @@ class TestTddGreenRecordsAttempts:
 
 
 # =============================================================================
-# TRC-A2 - tdd-green records attempts > 1 and rerun_without_change
+# `TRC-A2` - tdd-green records `attempts` > 1 and rerun_without_change
 #           when no edits intervened
 # =============================================================================
 
 class TestTddGreenRerunDetection:
-    """TRC-A2: On a second tdd-green invocation with no source change,
-    attempts > 1 and rerun_without_change: true must be recorded."""
+    """`TRC-A2`: On a second tdd-green invocation with no source change,
+    `attempts` > 1 and rerun_without_change: true must be recorded."""
 
     def test_second_tdd_green_records_attempts_2_and_rerun_flag(
             self, run_cli, make_task, project):
         """Simulate: tdd-red, failing tdd-green, second passing tdd-green.
-        The second green must record attempts:2 and rerun_without_change:true."""
+        The second green must record `attempts`:2 and rerun_without_change:true."""
         body = {
             "task": "rerun-test",
             "created": "2026-05-25",
@@ -194,16 +181,11 @@ class TestTddGreenRerunDetection:
         )
         assert r.returncode == 0, r
 
-        # Step 2: first tdd-green attempt fails (the test still fails here-
-        # we simulate by running a failing command; CLI will error but still
-        # record the failed-attempt state)
-        # Actually: tdd-green with a FAILING command just errors out.
-        # The way attempts>1 works: the .tdd-state.json stores the hash + attempt counter
-        # from the previous tdd-green call. On a second call with same hash, attempts++.
-        # So we need: 1st passing tdd-green → attempts:1, then 2nd passing tdd-green
-        # (no source change) → attempts:2 + rerun_without_change:true.
+        # A failing tdd-green errors without recording state, so this runs
+        # two passing greens with no source change between them. The second
+        # records `attempts`:2 and rerun_without_change:true.
 
-        # First green (attempt 1):
+        # First green (try 1):
         write_red_record(task_dir, "SCN-001")
         r = run_cli(
             "tdd-green", "--issue", "rerun-test",
@@ -232,11 +214,11 @@ class TestTddGreenRerunDetection:
 
 
 # =============================================================================
-# TRC-A3 - G4 fails when test-run shows rerun-to-green and no quarantine
+# `TRC-A3` - `G4` fails when test-run shows rerun-to-green and no quarantine
 # =============================================================================
 
 class TestNoTrustedRerunCheck:
-    """TRC-A3, TRC-A4, TRC-A5, TRC-FM3: no-trusted-rerun CHECK_FN."""
+    """`TRC-A3`, `TRC-A4`, `TRC-A5`, `TRC-FM3`: no-trusted-rerun CHECK_FN."""
 
     def _base_task_body(self):
         return {
@@ -259,7 +241,7 @@ class TestNoTrustedRerunCheck:
 
     def test_g4_fails_when_rerun_without_change_and_no_quarantine(
             self, run_cli, make_task, project):
-        """TRC-A3: a test-run with rerun_without_change:true and no quarantine
+        """`TRC-A3`: a test-run with rerun_without_change:true and no quarantine
         must cause no-trusted-rerun check to fail."""
         body = self._base_task_body()
         body["task"] = "rerun-check-a3"
@@ -295,7 +277,7 @@ class TestNoTrustedRerunCheck:
 
     def test_g4_passes_when_quarantined_test_links_tracking_task(
             self, run_cli, make_task, project):
-        """TRC-A4: a quarantined test with a tracking task must pass the check."""
+        """`TRC-A4`: a quarantined test with a tracking issue must pass the check."""
         body = self._base_task_body()
         body["task"] = "rerun-check-a4"
         body["scenarios"][0]["id"] = "SCN-A4"
@@ -336,19 +318,19 @@ class TestNoTrustedRerunCheck:
             yaml.safe_dump(quarantine, default_flow_style=False)
         )
         r = run_cli("check", "--verbose", "--issue", "rerun-check-a4")
-        # The no-trusted-rerun check must pass (quarantined with tracking task)
+        # The no-trusted-rerun check must pass (quarantined with tracking issue)
         combined = r.stdout + r.stderr
         assert "no-trusted-rerun" not in combined.lower().replace("pass no-trusted-rerun", ""), (
             "no-trusted-rerun must not FAIL when test is quarantined with a tracking task"
         )
-        # More specifically: the check output should show PASS for no-trusted-rerun
+        # The check output must show PASS for no-trusted-rerun
         assert "PASS no-trusted-rerun" in combined, (
             f"Expected PASS for no-trusted-rerun when quarantined: {combined}"
         )
 
     def test_g4_passes_when_evidence_has_no_attempts_field(
             self, run_cli, make_task, project):
-        """TRC-A5: old evidence without the attempts field must clear G4 trivially."""
+        """`TRC-A5`: old evidence without the `attempts` field must clear `G4` trivially."""
         body = self._base_task_body()
         body["task"] = "rerun-check-a5"
         body["scenarios"][0]["id"] = "SCN-A5"
@@ -364,7 +346,7 @@ class TestNoTrustedRerunCheck:
         task_dir = make_task("rerun-check-a5", body)
         ev_dir = task_dir / "evidence"
         ev_dir.mkdir(exist_ok=True)
-        # Old-style evidence: no attempts, no rerun_without_change
+        # Old-style evidence: no `attempts`, no rerun_without_change
         (ev_dir / "green-SCN-A5.json").write_text(json.dumps({
             "exit_code": 0,
             "passed": True,
@@ -372,14 +354,14 @@ class TestNoTrustedRerunCheck:
         }))
         r = run_cli("check", "--verbose", "--issue", "rerun-check-a5")
         combined = r.stdout + r.stderr
-        # no-trusted-rerun check must pass (no attempts to evaluate)
+        # no-trusted-rerun check must pass (no `attempts` to evaluate)
         assert "PASS no-trusted-rerun" in combined, (
             f"Expected PASS for no-trusted-rerun on old evidence: {combined}"
         )
 
     def test_no_trusted_rerun_fails_when_attempts_gt1_no_marker(
             self, run_cli, make_task, project):
-        """TRC-FM3: attempts>1 without rerun_without_change fails the check."""
+        """`TRC-FM3`: `attempts`>1 without rerun_without_change fails the check."""
         body = self._base_task_body()
         body["task"] = "rerun-check-fm3"
         body["scenarios"][0]["id"] = "SCN-FM3"
@@ -395,7 +377,7 @@ class TestNoTrustedRerunCheck:
         task_dir = make_task("rerun-check-fm3", body)
         ev_dir = task_dir / "evidence"
         ev_dir.mkdir(exist_ok=True)
-        # Evidence with attempts:2 but NO rerun_without_change marker
+        # Evidence with `attempts`:2 but NO rerun_without_change marker
         (ev_dir / "green-SCN-FM3.json").write_text(json.dumps({
             "exit_code": 0,
             "passed": True,
@@ -414,11 +396,11 @@ class TestNoTrustedRerunCheck:
 
 
 # =============================================================================
-# TRC-A7 - quarantined test without tracking task fails policy lint
+# `TRC-A7` - quarantined test without tracking issue fails policy lint
 # =============================================================================
 
 class TestQuarantinePolicyLint:
-    """TRC-A7: policy lint must reject quarantine entries without tracking_task."""
+    """`TRC-A7`: policy lint must reject quarantine entries without tracking_task."""
 
     def test_quarantine_entry_without_tracking_task_fails_policy_lint(
             self, run_cli, project):
@@ -486,14 +468,14 @@ class TestQuarantinePolicyLint:
 
 
 # =============================================================================
-# TRC-FM2 - attempts field with a non-positive value fails task lint
+# `TRC-FM2` - `attempts` field with a non-positive value fails issue lint
 # =============================================================================
 
 class TestTaskLintAttemptsValidation:
-    """TRC-FM2: task lint must reject attempts <= 0 on test-run evidence entries."""
+    """`TRC-FM2`: issue lint must reject `attempts` <= 0 on test-run evidence entries."""
 
     def test_task_lint_fails_on_attempts_zero(self, run_cli, make_task, project):
-        """attempts:0 in a test-run evidence entry must fail task lint."""
+        """`attempts`:0 in a test-run evidence entry must fail issue lint."""
         body = {
             "task": "attempts-lint",
             "created": "2026-05-25",
@@ -523,7 +505,7 @@ class TestTaskLintAttemptsValidation:
         )
 
     def test_task_lint_fails_on_attempts_negative(self, run_cli, make_task, project):
-        """attempts:-1 in a test-run evidence entry must fail task lint."""
+        """`attempts`:-1 in a test-run evidence entry must fail issue lint."""
         body = {
             "task": "attempts-lint-neg",
             "created": "2026-05-25",
@@ -549,7 +531,7 @@ class TestTaskLintAttemptsValidation:
         )
 
     def test_task_lint_passes_on_attempts_1(self, run_cli, make_task, project):
-        """attempts:1 in a test-run evidence entry must pass task lint."""
+        """`attempts`:1 in a test-run evidence entry must pass issue lint."""
         body = {
             "task": "attempts-lint-ok",
             "created": "2026-05-25",
@@ -576,7 +558,7 @@ class TestTaskLintAttemptsValidation:
 
     def test_task_lint_passes_on_evidence_without_attempts(
             self, run_cli, make_task, project):
-        """Old evidence without attempts field must pass task lint (TRC-A5 / backward compat)."""
+        """Old evidence without `attempts` field must pass issue lint (TRC-A5 / backward compat)."""
         body = {
             "task": "attempts-lint-absent",
             "created": "2026-05-25",
@@ -591,7 +573,7 @@ class TestTaskLintAttemptsValidation:
                     "id": "EV-T-SCN-001",
                     "type": "test-run",
                     "path": "evidence/green.json",
-                    # no attempts field - old evidence
+                    # no `attempts` field - old evidence
                 }
             ],
         }
@@ -603,11 +585,11 @@ class TestTaskLintAttemptsValidation:
 
 
 # =============================================================================
-# TRC-A1 (supplementary) - guardrails.yml has no-trusted-rerun registered
+# `TRC-A1` (supplementary) - guardrails.yml has no-trusted-rerun registered
 # =============================================================================
 
 class TestNoTrustedRerunInGuardrailsYml:
-    """no-trusted-rerun must be in guardrails.yml checks and in G4."""
+    """no-trusted-rerun must be in guardrails.yml checks and in `G4`."""
 
     def test_no_trusted_rerun_check_registered(self):
         gr_path = FRAMEWORK_ROOT / "governance" / "guardrails.yml"

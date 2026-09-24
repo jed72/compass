@@ -1,8 +1,10 @@
-"""TRC-C1 - S2 names both governance and design-feedback roles.
+"""TDD, red-green-refactor (`S2`) names both governance and design-feedback
+roles (`TRC-C1`).
 
 Serves: INT-6
-Spec: governance/strategies.md S2 section should name:
-  - red-before-green as the way to satisfy G1 (governance role)
+Spec: governance/strategies.md's `S2` section must name:
+  - red-before-green as the way to satisfy the tested-before-it-lands
+    guardrail (`G1`) (governance role)
   - the design-feedback role
   - the framing that TDD is less about testing and more about good design
 """
@@ -13,9 +15,9 @@ STRATEGIES_MD = Path(__file__).parent.parent / "governance" / "strategies.md"
 
 
 def _read_s2_section() -> str:
-    """Extract the S2 section text from strategies.md."""
+    """Extract the `S2` section text from strategies.md."""
     text = STRATEGIES_MD.read_text(encoding="utf-8")
-    # Find S2 heading and extract until next heading or end
+    # Find `S2` heading and extract until next heading or end
     lines = text.splitlines()
     in_s2 = False
     s2_lines = []
@@ -25,7 +27,7 @@ def _read_s2_section() -> str:
             s2_lines.append(line)
             continue
         if in_s2:
-            # Stop at next strategy heading (### S3 etc) or section heading
+            # Stop at next strategy heading (### `S3` etc) or section heading
             if line.startswith("### ") and "(`S2`)" not in line:
                 break
             if line.startswith("## ") or line.startswith("# "):
@@ -35,10 +37,8 @@ def _read_s2_section() -> str:
 
 
 def test_s2_names_governance_role():
-    """S2 must mention satisfying guardrail G1 - the governance role."""
+    """`S2` must name the guardrail it satisfies (tested before it lands)."""
     s2 = _read_s2_section()
-    # The code became the plain guardrail name at the docs-prose slice;
-    # the required statement is the same.
     assert "G1" in s2 or "tested-before-ship" in s2, (
         "S2 section in strategies.md must name the tested-before-ship "
         "guardrail (the governance role). "
@@ -47,7 +47,7 @@ def test_s2_names_governance_role():
 
 
 def test_s2_names_design_feedback_role():
-    """S2 must name the design-feedback role explicitly."""
+    """`S2` must name the design-feedback role explicitly."""
     s2 = _read_s2_section()
     s2_lower = s2.lower()
     assert "design" in s2_lower, (
@@ -63,7 +63,7 @@ def test_s2_names_design_feedback_role():
 
 
 def test_s2_frames_tdd_as_design_tool():
-    """S2 must include the framing that TDD is less about testing and more about good design."""
+    """`S2` must include the framing that TDD is less about testing and more about good design."""
     s2 = _read_s2_section()
     s2_lower = s2.lower()
     assert "less about testing" in s2_lower or "more about" in s2_lower, (

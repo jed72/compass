@@ -3,16 +3,17 @@
 ADR-019 carried redirects because it read publication to the plugin
 marketplace as proof that the adopter population "is no longer empty".
 Publication is not adoption: with no install telemetry the population is
-*unknown*, and ADR-014 before it made the mirror-image error in the other
-direction. 4.0.0 does the deleting; this record corrects the inference, so the
-first rename inside 4.x does not rebuild the machinery on the same reasoning.
+*unknown*. ADR-014 before it read pre-publication as evidence of an empty
+population. 4.0.0 does the deleting; this record corrects the inference, so
+the first rename inside 4.x does not rebuild the machinery on the same
+reasoning.
 
 These scenarios check properties of the record and of the decision chain
 around it. A scenario like "the reasoning is sound" would be unwritable, so
 each one names something a reader could point at.
 
-Scenario ids: TRC-A1..A4, B1..B3, C1..C3, F1..F3 in
-docs/compass/2026-08-28-what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
+Scenario ids: `TRC-A1`..A4, B1..B3, C1..C3, F1..F3 in
+what-compass-owes-an-unobserved-adopter/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -85,10 +86,10 @@ def test_the_decision_names_an_observable_quantity():
         "the Decision names no observation. The whole defect in ADR-019 was "
         "inferring a quantity from a proxy, so a replacement that states no "
         "way of observing it repeats the error in a new place")
-    # In one breath with the observation, not merely somewhere in the section:
-    # "issue" and "install" both occur in the Decision for unrelated reasons
-    # ("issue directory", "installs"), so a section-wide token check passed
-    # after the sentence naming the means was deleted.
+    # A section-wide token check still passes when the sentence naming the
+    # means is deleted, because "issue" and "install" both occur elsewhere in
+    # the Decision for unrelated reasons ("issue directory", "installs"), so
+    # the check below reads the observation and its means in one breath.
     assert re.search(r"observed[^.]*?(issue|report|pull request|message)",
                      decision), (
         "the Decision does not say by what means the population would be "
@@ -104,9 +105,9 @@ def test_publication_is_refused_as_evidence_of_adoption():
     assert "unknown" in body, (
         "the record does not say the population is unknown. 'Empty' and "
         "'non-empty' are both claims; 'unknown' is the honest one")
-    # Scoped to the Context and shaped as the claim. A bare "adr-014" is
-    # satisfied by the References list at the foot of the record, so it
-    # survived deleting the sentence this was written for.
+    # A bare "adr-014" still passes against the References list at the foot
+    # of the record even with the sentence this test was written for deleted,
+    # so the check below is scoped to the Context and shaped as the claim.
     context = _flat(_section(_body("ADR-024"), "Context")).lower()
     assert re.search(r"adr-014[^.]*(empty|opposite|pre-publication)", context), (
         "the Context does not say ADR-014 made the same error in the opposite "
@@ -117,9 +118,9 @@ def test_publication_is_refused_as_evidence_of_adoption():
 def test_the_revival_condition_is_readable_from_the_record_alone():
     body = _flat(_body("ADR-024")).lower()
 
-    # Anchored on the condition itself. `\bif\b|\bonce\b|\bwhen\b` over the
-    # whole record was satisfied by any incidental "when" - one neutral
-    # sentence elsewhere defeated it.
+    # `\bif\b|\bonce\b|\bwhen\b` over the whole record still passes on any
+    # incidental "when" - one neutral sentence elsewhere would satisfy it -
+    # so the check below anchors on the condition itself.
     assert re.search(r"if the population is observed[^.]*redirect", body), (
         "the record states no revival condition a reader can point at, so "
         "they cannot tell what would bring full migration compatibility back")
@@ -135,9 +136,9 @@ def test_the_record_says_what_it_adds_beyond_the_release():
     assert "4.0.0" in body, (
         "the record does not name the release that carries the removal")
 
-    # Scoped, and stated as a proposition. "inside a major" on its own also
-    # occurs in the Decision, where it says a break there stays forbidden -
-    # so a bare phrase check passed after this sentence was deleted.
+    # "inside a major" on its own also occurs in the Decision, where it says
+    # a break there stays forbidden, so a bare phrase check still passes with
+    # this sentence deleted. The check below is scoped and stated as a claim.
     alts = _flat(_section(_body("ADR-024"), "Alternatives considered")).lower()
     assert re.search(r"what this record adds beyond[^.]*?rule", alts), (
         "the record never says, in one sentence a reviewer can point at, what "
@@ -192,7 +193,8 @@ def test_inv_8_resolves_to_a_record_that_is_not_superseded():
     citing = [line for line in index.splitlines() if "Inv-8" in line]
     assert citing, "no record in the index cites Inv-8, so this checks nothing"
 
-    # Inv-8 is defined on ADR-006. If that record were ever superseded, every
+    # `Inv-8` (every new mechanism no-ops on a project that has not adopted
+    # it) is defined on ADR-006. If that record were ever superseded, every
     # citation above would resolve to a decision that no longer holds.
     home = _frontmatter(_record("ADR-006"))
     assert not home.get("superseded_by"), (
@@ -229,8 +231,8 @@ def test_inv_8_s_two_promises_are_stated_separately():
         "the record does not carry forward Inv-8's no-op promise - that a new "
         "mechanism does nothing to a project which has not adopted it")
     # "two promises" alone also occurs where the record describes ADR-019's
-    # framing, so the loose alternation passed after both sentences asserting
-    # the difference were deleted. Require the assertion itself.
+    # framing, so a loose alternation still passes with both sentences
+    # asserting the difference deleted. Match the assertion itself.
     assert re.search(r"not the same claim", lower) and re.search(
             r"two different claims", lower), (
         "the record does not say the no-op promise and migration "
@@ -266,9 +268,9 @@ def test_a_record_that_only_restates_the_existing_schedule_is_refused():
         "the Alternatives section does not consider simply cutting the "
         "release and writing nothing, which is the cheapest option and the "
         "one this record has to beat")
-    # Not any of several near-synonyms scattered through the section: the
-    # rejection has to name the thing the release cannot touch, which is
-    # ADR-019's rule. A bare "future rename" matched the sentence next door.
+    # A bare "future rename" matches the sentence next door, so the check
+    # below names the thing the release cannot touch instead of any of the
+    # several near-synonyms scattered through the section: ADR-019's rule.
     assert re.search(r"rule for renames", lower), (
         "the Alternatives section rejects the release-only option without "
         "saying what it fails to do. The answer is that it leaves ADR-019's "
@@ -282,9 +284,9 @@ def test_a_revival_condition_nobody_can_observe_is_refused():
         "the record does not address install telemetry. The obvious way to "
         "count adopters does not exist here, and a record that names an "
         "observation without saying so leaves the reader to find out")
-    # Both halves, in one sentence: the observation is absent, AND which kind
-    # of absent it is. Checked together because either alone reads as covered
-    # while the reader still cannot tell whether anyone could perform it.
+    # Either half alone reads as covered while the reader still cannot tell
+    # whether anyone could make that observation, so both are checked
+    # together, in one sentence: the observation is absent, and which kind.
     assert re.search(r"unperformed, not impossible|not impossible[^.]*"
                      r"unperformed", body), (
         "the record does not say which kind of absence this is. An "
@@ -294,10 +296,11 @@ def test_a_revival_condition_nobody_can_observe_is_refused():
 
 
 def test_orphaning_inv_8_fails_the_change():
-    """The mechanical half: every ADR citing Inv-8 resolves to a live record.
+    """The mechanical half: every ADR citing `Inv-8` (every new mechanism
+    no-ops on a project that has not adopted it) resolves to a live record.
 
-    The scenario is written about re-homing Inv-8, which this change does not
-    do. Checked anyway, because the failure it describes is silent - a
+    The scenario is written about re-homing `Inv-8`, which this change does
+    not do. Checked anyway, because the failure it describes is silent - a
     citation to a superseded record reads exactly like a citation to a live
     one.
     """
@@ -318,7 +321,8 @@ def test_orphaning_inv_8_fails_the_change():
     for adr in citing:
         front = _frontmatter(_record(adr))
         # A record may itself be superseded; what must not happen is the
-        # record DEFINING Inv-8 going away under it.
+        # record DEFINING `Inv-8` (every new mechanism no-ops on a project
+        # that has not adopted it) going away under it.
         if front.get("superseded_by") and adr == "ADR-006":
             dangling.append(adr)
     assert not dangling, (

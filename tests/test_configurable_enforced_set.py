@@ -1,23 +1,24 @@
-"""The guarded file set must be declared, not folklore (report R12, ADR-011).
+"""The guarded file set must be declared, not assumed (ADR-011).
 
-The hook blocked edits-without-a-red for `.py`, `.go` and - surprisingly -
-`.github/workflows/ci.yml`, while letting `docker-compose.yml`, `.gitignore` and
-`*.sha256` through. The reporter could not predict which edit would block and
-hit it mid-way through a multi-file change: a `docker-compose.yml` edit
-succeeded, then the sibling `ci.yml` edit in the *same* infra task was blocked.
-Why is one YAML guarded and another not? Nothing said.
+The guarded set is project-configurable and only adds to the built-in
+defaults, because a hard-coded set cannot predict which files a project
+needs to guard. The hook blocked edits-without-a-red for `.py`, `.go` and -
+surprisingly - `.github/workflows/compass.yml`, while letting
+`docker-compose.yml`, `.gitignore` and `*.sha256` through, with no way for a
+project to add its own files to the set.
 
-ADR-011 arrives at the same fix from the other side: shell scripts are in none
-of the lists, so this repository's own `hooks/` and `scripts/` are unprotected
-by the mechanism they implement - and adding `.sh` to the *default* would demand
-a failing test for every shell edit in every project on upgrade.
+ADR-011 reaches the same fix for a different reason: shell scripts are in
+none of the lists, so this repository's own `hooks/` and `scripts/` are
+unprotected by the mechanism they implement - and adding `.sh` to the
+*default* would demand a failing test for every shell edit in every project
+on upgrade.
 
 So the set becomes project-configurable, ADDING to the built-in defaults.
 Nothing removes framework enforcement: Compass's model is that project rules
-ratchet up, and a key that exempted `*.py` would be a disable switch wearing the
-clothes of configuration.
+ratchet up, and a key that exempted `*.py` would be a way to switch
+enforcement off, presented as configuration.
 
-Scenarios: docs/compass/2026-08-06-configurable-enforced-set/acceptance-criteria.md
+Scenarios: configurable-enforced-set/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -36,7 +37,7 @@ HOOK = ROOT / "hooks" / "pre-tool.sh"
 
 
 def _project(config=None, *, raw_config=None):
-    """A framed project with no red on record. Path contains no 'test'/'spec'."""
+    """An initialised project with no red on record. Path contains no 'test'/'spec'."""
     root = Path(tempfile.mkdtemp(prefix="compass-fix-"))
     task_dir = root / ".compass" / "work" / "t"
     task_dir.mkdir(parents=True)
@@ -105,8 +106,8 @@ def test_scn_a3_no_config_unchanged():
 
 
 def test_scn_a4_cannot_exempt_framework_types():
-    """Project rules ratchet up. A key that exempted `*.py` would be a disable
-    switch wearing the clothes of configuration."""
+    """Project rules ratchet up. A key that exempted `*.py` would be a way
+    to switch enforcement off, presented as configuration."""
     root = _project({"version": "1.0.0", "mode": "enforced",
                      "enforcement": {"code_globs": [], "exempt_globs": ["*.py"]}})
     try:

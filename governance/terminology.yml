@@ -1,7 +1,7 @@
 # =============================================================================
 # Compass v2 - the frozen vocabulary
 # =============================================================================
-# The single source of truth for what every v2 word means. The planned
+# The single source of truth for what every v2 word means. The
 # `compass terminology [term]` command renders these entries;
 # tests/test_terminology.py enforces the bans and the ratchet.
 #
@@ -12,15 +12,15 @@
 #            which still await their rename slice (pending_surfaces)
 #
 # Naming rule: if a term is not in common use across the industry, it does
-# not ship. Recorded reading (maintainer ruling, 2026-08-07, from the
-# command-rename review): the rule's intent is anti-jargon, not grammatical
-# purity - an industry-standard noun like "breakdown" (work breakdown
-# structure) satisfies it; an invented coinage does not. The rule governs
-# renamed commands; established, unbanned names keep theirs.
+# not ship. Recorded reading (maintainer ruling, 2026-08-07): the rule's
+# intent is anti-jargon, not grammatical purity - an industry-standard noun
+# like "breakdown" (work breakdown structure) satisfies it; an invented
+# coinage does not. The rule governs renamed commands; established,
+# unbanned names keep theirs.
 #
-# This vocabulary is frozen. Changing it carries the same ceremony as a
-# decision record; the house test pins each ban to tuned patterns and pins
-# pending_surfaces to a shrink-only baseline.
+# This vocabulary is frozen. Changing it needs a decision record; the house
+# test pins each ban to tuned patterns and pins pending_surfaces to a
+# shrink-only baseline.
 # =============================================================================
 
 version: 2.0.0-pre15
@@ -34,15 +34,14 @@ terms:
       `.compass/work/<issue-slug>/manifest.yml`. It holds the assessment, the
       computed delivery approach, the stages and gates, the scenarios, the
       evidence registry and the changed files, and it points at the prose
-      artifacts beside it. Every command reads it; `compass check` verifies
+      artifacts beside it. Every command reads it; `compass check` checks
       the guardrails against it.
     github: none
     not: >
-      Not the prose artifacts it points at, and not "spine" - that word was a
-      metaphor the framework had to teach, and it was glossed in 26 places
-      because it did not land on its own. A manifest is what a package.json,
-      a Cargo.toml or a Kubernetes manifest is: a machine-readable list of
-      what a thing contains.
+      Not the prose artifacts it points at, and not "spine" - a metaphor
+      that needed explaining each time it was used. A manifest is what a
+      package.json, a Cargo.toml or a Kubernetes manifest is: a
+      machine-readable list of what a thing contains.
     related: [issue, evidence, scenario, acceptance-criteria]
 
   # --- Work hierarchy (GitHub-aligned) --------------------------------------
@@ -64,7 +63,7 @@ terms:
     related: [initiative, issue]
   issue:
     means: >
-      The atomic tracked unit of work: one triaged piece of work, one
+      The atomic tracked unit of work: one assessed piece of work, one
       delivery approach, shipping as one PR or a small PR series. Carries a
       type, labels, and a workflow state.
     github: Issue
@@ -89,11 +88,11 @@ terms:
     github: Pull request
     related: [issue, ship]
 
-  # --- Issue types (what triage assigns) ------------------------------------
+  # --- Issue types (what the assess stage assigns) --------------------------
   issue-type:
     means: >
-      The classification triage assigns to an issue: quick fix, bug fix,
-      hotfix, feature, or spike. Together with labels it determines the
+      The classification the assess stage assigns to an issue: quick fix,
+      bug fix, hotfix, feature, or spike. Together with labels it determines the
       delivery approach - which artifacts exist and which gates apply.
     github: Issue type
     related: [issue, assess, delivery-approach, label]
@@ -130,9 +129,9 @@ terms:
     related: [issue-type]
 
   # --- The two words this rename freed ---------------------------------------
-  # `design` is why this issue existed: it named a command, an artifact, an
-  # artifact kind, a CLI verb and a role, and had no entry. `plan` took the
-  # engineering half. Both are defined here so neither can drift back.
+  # `design` needed an entry because it named a command, an artifact, an
+  # artifact kind, a CLI verb and a role. `plan` took the engineering half.
+  # Both are defined here so neither is used for the other again.
   design:
     means: >
       The DESIGNER's stage and its command, /compass:design. It produces the
@@ -141,9 +140,9 @@ terms:
       reads as UI work to most people, which is why the designer has it.
     not: >
       NOT the engineering design. That is the plan stage (/compass:plan),
-      whose output is technical-design.md. Until 2026-08-25 `design` meant
-      both, and a reader following the wrong one wrote a UI contract where a
-      technical design was wanted and was told it worked. Also NOT the CLI
+      whose output is technical-design.md: the rule is that `design` names
+      the UI contract and `plan` names the technical design, never the
+      other way round. Also NOT the CLI
       verb: the placeholder scan is `compass plan lint`. Its retired spelling
       was kept as a hidden second name through 3.x and removed at 4.0.0
       (ADR-024); it is now an unknown verb.
@@ -153,14 +152,13 @@ terms:
       The engineering design stage: the command /compass:plan, the machine
       key `plan` in a manifest's stages block, the `plan-authoring` skill, the
       `planner` agent, and the CLI verb `compass plan lint`. Its output is
-      technical-design.md. Every one of those already said `plan` before the
-      command did.
+      technical-design.md.
     not: >
       NOT a schedule or a project plan - Compass has no such artifact. NOT
       the delivery approach either, which is computed at the assess stage and
       recorded in delivery-approach.md. `plan.md` was this artifact's v1
       filename and is retired; a name that was retired can come back for the
-      thing it best describes, which is what happened here.
+      thing it best describes.
     related: [technical-design, delivery-approach, design]
 
   # --- Intake artifacts -----------------------------------------------------
@@ -174,9 +172,8 @@ terms:
       NOT the designer's work. That is the UI contract (ui-contract.md), from
       /compass:design. `design` alone named a command, an artifact, an
       artifact kind, a CLI verb and a role, and was the only overloaded word
-      in this framework with no entry here - which is how it stayed
-      ambiguous. NEVER abbreviate this to TDD: in this repository TDD is
-      red-green-refactor and nothing else.
+      in this framework with no entry here. NEVER abbreviate this to TDD: in
+      this repository TDD is red-green-refactor and nothing else.
     related: [technical-design, delivery-approach]
   first-slice:
     means: >
@@ -206,12 +203,12 @@ terms:
     related: [scenario, step, acceptance-criteria]
   assessment:
     means: >
-      The four-dimension judgement triage produces - risk, familiarity, size
+      The four-dimension judgement the assess stage produces - risk, familiarity, size
       and goal, plus the domain labels. It is the only judgement field in the
       issue manifest; everything below it is computed from it deterministically.
     not: >
-      A choice of process. The assessment is read; the delivery approach is
-      computed from it by `compass approach evaluate`.
+      A choice of process. The assessment is read; `compass approach
+      evaluate` computes the delivery approach from it.
     related: [assess, delivery-approach, router]
   traceability:
     means: >
@@ -311,7 +308,7 @@ terms:
   delivery-approach:
     means: >
       The chosen shape for an issue: which artifacts exist, which gates
-      apply, solo or parallel. Deterministic - same triage plus same policy
+      apply, solo or parallel. Deterministic - same assessment plus same policy
       always gives the same approach.
     related: [assess, quality-gate]
   guardrail:
@@ -335,7 +332,7 @@ terms:
     related: [workflow-state, definition-of-ready, definition-of-done]
   definition-of-ready:
     means: >
-      The gate between requirements and design/build: acceptance criteria
+      The gate between requirements and plan/implementation: acceptance criteria
       exist, ambiguities resolved, intent.md reviewed where one exists.
       Trivially
       satisfied for a quick fix.
@@ -343,7 +340,7 @@ terms:
     related: [quality-gate, workflow-state]
   requirements-review:
     means: >
-      The review pass that hardens requirements before design or build:
+      The review pass that hardens requirements before plan or implementation:
       ambiguities resolved into recorded decisions, contradictions and
       gaps closed, intent.md reviewed where one exists. Satisfying it is
       # vocabulary-scan: allow - a note recording what v1 called this, which
@@ -419,11 +416,10 @@ terms:
   label-rule:
     means: >
       The deterministic consequence of a label, declared in policy:
-      security/payments/personal-data/migration require a security review;
-      user-facing requires a rollout plan; breaking-change requires human
-      sign-off; ops-surface requires the operability section. Assess
-      suggests labels, the human confirms; the rules then apply
-      mechanically.
+      security/payments/personal-data/migration needs a security review,
+      user-facing needs a rollout plan, breaking-change needs human sign-off,
+      and ops-surface needs the operability section. Assess suggests labels,
+      the human confirms; the rules then apply mechanically.
     related: [label, quality-gate]
 
   # --- Ship & operate ------------------------------------------------------------
@@ -431,7 +427,7 @@ terms:
     means: >
       Merging and releasing the change: the PR lands, follow-ups are
       # vocabulary-scan: allow - a note recording what v1 called this.
-      recorded, the derived system spec accretes. v1 called this "Land".
+      recorded, the derived system spec is regenerated. v1 called this "Land".
     related: [pr, rollout-plan]
   rollout-plan:
     means: >
@@ -490,39 +486,33 @@ terms:
     related: [retrospective-signal]
   retrospective-signal:
     means: >
-      Compass's cross-issue self-check: is triage consistently over- or
+      Compass's cross-issue self-check: is assess consistently over- or
       under-sizing the process? Advisory, surfaced in retro language. v1
       called this "calibration".
     related: [dora-metrics, assess]
 
 # =============================================================================
-# BANNED v1 VOCABULARY - the house test scans user-facing surfaces for these.
-# Each ban is pattern plus context, never a bare word: the context note here
-# is the intent, and the tuned, executable patterns live in
-# tests/test_terminology.py beside the fixtures that prove them.
-# =============================================================================
-# =============================================================================
 # CODES - the id prefixes that appear in artifacts
 # =============================================================================
 # `terms:` above defines the words. This defines the short codes a reader
-# actually meets: TRC-A1 in a spec, EV-003 in a spine, RP-FLOOR-001 in a
-# delivery-approach record. Until 3.0.0 there was nowhere to look any of them
-# up. See ADR-016.
+# actually meets: `TRC-A1` in a spec, `EV-003` in a manifest, `RP-FLOOR-001` in a
+# delivery-approach record. See ADR-016.
 #
 # docs/glossary.md is DERIVED from this section and from terms: above. Edit
 # here; the page is regenerated at ship and a drift guard fails the build if
 # the two disagree.
 #
 # The set is not maintained by hand: a guard scans shipped artifacts for
-# prefixes and requires an entry for each one it finds, so a new prefix
+# prefixes and needs an entry for each one it finds, so a new prefix
 # introduced without a definition fails on arrival.
 # A CHECK DERIVES FROM THIS BLOCK'S STRUCTURE.
 # tests/plain_language_check.py reads each entry's `means:` to know what plain
 # words count as explaining that prefix. Rename the block or the field and the
 # derivation fails loudly, naming this file. It is deliberately not a
-# hand-written table elsewhere: that would drift from this block in silence,
-# and the check would keep passing while describing codes that had been
-# renamed. See TRC-C9 in plain-language-3-2-0.
+# hand-written table elsewhere: a second table would stop matching this block
+# without any test failing, and the check would keep passing while
+# describing codes that had been renamed. This is the derivation-failure
+# criterion (`TRC-C9`).
 
 codes:
   TRC:
@@ -532,7 +522,7 @@ codes:
       on it - changed_files, claims, evidence records and Definition-of-Done
       tags all point at it.
     referent: The traced item, normally a scenario.
-    appears_in: [acceptance-criteria.md, "task.yml scenarios[].id"]
+    appears_in: [acceptance-criteria.md, "manifest.yml scenarios[].id"]
     related: [INT, EV, SCN]
   SCN:
     means: >
@@ -551,16 +541,16 @@ codes:
       UI contract, or the issue description. A goal, not a requirement; the
       requirement is the scenario.
     referent: A stated desired outcome.
-    appears_in: [intent.md, acceptance-criteria.md, "task.yml scenarios[].intent"]
+    appears_in: [intent.md, acceptance-criteria.md, "manifest.yml scenarios[].intent"]
     related: [TRC, intent]
   EV:
     means: >
       Evidence id. Identifies one typed record in the issue's evidence
       registry that clears a quality gate. One record can clear several
       gates. The accepted types are fixed by guardrails.yml; a gate that
-      requires a mechanical type cannot be cleared with a written note.
+      needs a mechanical type cannot be cleared with a written note.
     referent: One typed evidence record.
-    appears_in: ["task.yml evidence[].id", "gates[].evidence", verification-report.md]
+    appears_in: ["manifest.yml evidence[].id", "gates[].evidence", verification-report.md]
     related: [quality-gate, evidence]
   FU:
     means: >
@@ -569,7 +559,7 @@ codes:
       work": a newly found defect gets its own issue named by slug. A
       follow-up may carry target_task, naming the issue whose ship it blocks.
     referent: One piece of work this issue deferred and still owes.
-    appears_in: ["task.yml follow_ups[].id", verification-report.md]
+    appears_in: ["manifest.yml follow_ups[].id", verification-report.md]
     related: [follow-up, definition-of-done]
   BF:
     means: >
@@ -580,11 +570,11 @@ codes:
     related: [FU]
   DD:
     means: >
-      Design decision. Numbered within one design.md: what was chosen, what
-      was rejected, and why. A decision with no alternative recorded is not
-      yet a decision.
-    referent: One decision inside a single issue's design.
-    appears_in: [design.md]
+      Design decision. Numbered within one technical-design.md: what was
+      chosen, what was rejected, and why. A decision with no alternative
+      recorded is not yet a decision.
+    referent: One decision inside a single issue's technical design.
+    appears_in: [technical-design.md]
     related: [ADR, design]
   ADR:
     means: >
@@ -600,7 +590,7 @@ codes:
       Every claim must trace to a passing scenario before the issue ships;
       the claims gate blocks on it.
     referent: One planned public claim.
-    appears_in: [positioning.md, launch-readiness.md, "task.yml claims[].id"]
+    appears_in: [positioning.md, launch-readiness.md, "manifest.yml claims[].id"]
     related: [TRC, launch-readiness]
   PX:
     means: >
@@ -629,7 +619,7 @@ codes:
       with. The prefix said RG- until 3.0.0, which is why this distinction
       needs stating.
     referent: One rule in the routing policy.
-    appears_in: [routing-policy.yml, delivery-approach.md, "task.yml policy_rules_fired[].id"]
+    appears_in: [routing-policy.yml, delivery-approach.md, "manifest.yml policy_rules_fired[].id"]
     related: [routing-policy, delivery-approach, guardrail]
   RG:
     means: The retired spelling of RP-. Kept in archived records, which keep the id that fired.
@@ -642,6 +632,12 @@ codes:
     appears_in: [".compass/work/ (archive)"]
     related: [RP]
 
+# =============================================================================
+# BANNED v1 VOCABULARY - the house test scans user-facing surfaces for these.
+# Each ban is pattern plus context, never a bare word: the context note here
+# is the intent, and the tuned, executable patterns live in
+# tests/test_terminology.py beside the fixtures that prove them.
+# =============================================================================
 banned:
   - term: "spine / issue spine"
     replacement: manifest
@@ -732,7 +728,7 @@ banned:
   - term: "task"
     replacement: issue
     context: "In human-facing prose only; machine state files exempt during transition."
-  - term: "G1..G5 / S1..S12 codes, bare"
+  - term: "G1..G5 / S1..S14 codes, bare"
     replacement: "the code followed by its plain statement, on first use"
     context: "In anything a human reads - agent speech, printed output, generated artifacts. Expand on FIRST use in that piece of output; the bare code is correct and preferable afterwards. Never drop the code: it carries the traceability the machine checks read. `compass check` is the shipped example - it prints 'G5 A human signs off on the irreversible'. Codes may live bare in governance config, which is machine input rather than something a newcomer reads."
   - term: "seam / seams"
@@ -777,26 +773,21 @@ scan:
                            # split; same string-literals-only rule
     - README.md
     - docs/five-minutes.md
-    # The article written for publication - the most reader-facing prose the
-    # project has, and the first document a stranger meets. Added 2026-08-15
-    # once it was tracked (design decision DD-5 of plain-language-3-2-0).
+    # The most reader-facing prose the project has, and the first document a
+    # stranger meets.
     - docs/launch-article.md
     - governance/          # prose files
     - .claude-plugin/      # manifests - first prose an adopter reads
-    # Session-facing instruction files, added clean (never pending): these
-    # teach every agent session the register it must write, so they are
-    # enforced from the day they were rewritten. In markdown surfaces the
-    # scan reads prose only - fenced blocks and inline code spans are
-    # machine identifiers, exempt while their referents keep v1 names.
+    # Session-facing instruction files: these teach every agent session the
+    # register it must write. In markdown surfaces the scan reads prose
+    # only - fenced blocks and inline code spans are machine identifiers,
+    # exempt while their referents keep v1 names.
     - CLAUDE.md
     - AGENTS.md
-    - agents/            # the ten agent definitions - added clean at the
-                         # skills-prose slice, never pending, same shape as
-                         # the root instruction files
-    # Added at the docs-prose slice, the one that emptied the pending
-    # list: the delivery-approach reference docs and the remaining docs
-    # prose, clean on arrival. docs/system-spec.md stays exempt below -
-    # it is derived at ship time and hand-editing it is forbidden.
+    - agents/            # the ten agent definitions, same shape as the
+                         # root instruction files
+    # docs/system-spec.md stays exempt below - it is derived at ship time
+    # and hand-editing it is forbidden.
     - approaches/
     - docs/roles-guide.md
     - docs/safety-contract.md
@@ -805,18 +796,11 @@ scan:
     - docs/quickstart.md
     - docs/portability.md
     - docs/routing-deep-dive.md
-    - docs/desired-state.md  # graduated from proposals at the 2.0.0
-                              # release - an adopter surface, no longer
-                              # exempt history
-    # Added at the 2.1.0 release. It was never on this list, so the ratchet
-    # that reached zero pending surfaces was never reading it - and it went
-    # on describing v1 commands and v1 spine keys for the whole of v2. Zero
-    # pending means the listed surfaces came clean, not the repository.
+    - docs/desired-state.md
     - docs/install-smoke-test.md
-    # Added after five published docs were found outside the list entirely.
-    # docs/glossary.md is NOT among them: it is derived from this file, so it
-    # is checked at its source. Hand-editing a derived page is how a derivation
-    # silently stops matching, and its drift guard caught exactly that attempt.
+    # docs/glossary.md is NOT scanned: it is derived from this file, so it
+    # is checked at its source. Hand-editing a derived page is how a
+    # derivation silently stops matching.
     - docs/releasing.md
     - docs/writing-specs-and-plans.md
     - docs/receipt.md
@@ -824,15 +808,11 @@ scan:
   # ---------------------------------------------------------------------------
   # POSITION EXEMPTIONS - the inverted default.
   #
-  # The scan reads every position in a scanned file. Three positions were once
-  # excluded - markdown fenced blocks, Python string literals, YAML values -
-  # each justified with the same sentence ("machine identifiers, not prose"),
-  # and each turned out to be wrong for the same reason: a string that gets
-  # printed is prose wherever it lives.
-  #
-  # So an exclusion is now declared here, names the positions it covers, and
-  # states why a string in that position cannot reach a user. A position not
-  # listed here is scanned. Adding an entry is a governance change.
+  # The scan reads every position in a scanned file. A string that gets
+  # printed is prose wherever it lives, so an exclusion must be declared
+  # here, must name the positions it covers, and must state why a string in
+  # that position cannot reach a user. A position not listed here is
+  # scanned. Adding an entry is a governance change.
   # ---------------------------------------------------------------------------
   position_exemptions:
     - id: PX-1
@@ -868,12 +848,6 @@ scan:
     # concept's rename slice lands.
     - templates/architecture/decisions/ADR-0
     - templates/architecture/decisions/README.md
-  # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
-  # its surface from this list; removed surfaces must stay clean forever.
-  # A meta-test asserts this list only ever shrinks.
-  # EMPTY since the second half of the docs-prose slice - the ratchet
-  # reached zero. Every scanned surface is enforced, forever; this list
-  # never grows again.
   # Line ranges inside a scanned file where naming a retired term IS the job.
   # A region rather than a whole-file exemption: exempting terminology.yml
   # outright would stop scanning the glossary's prose, which is the half that
@@ -889,29 +863,12 @@ scan:
         Everything else in the file - `terms:`, `codes:`, `id_prefixes:` - is
         read like any other surface.
 
+  # The ratchet: surfaces not yet renamed. A slice's DoD includes removing
+  # its surface from this list; removed surfaces must stay clean forever.
+  # A meta-test asserts this list only ever shrinks. Every scanned surface
+  # is now enforced; this list never grows again.
   pending_surfaces: []
 
-# =============================================================================
-# RETIRED MACHINE NAMES - the identifiers, not the prose
-# =============================================================================
-# `banned:` above governs what a surface *teaches*: prose, printed sentences,
-# headings. This list governs what the code *uses*: spine keys, artifact
-# filenames, flag spellings - names with no whitespace in them, which read as
-# machine identifiers rather than as English.
-#
-# It exists because the prose scan could not see them. Its patterns are
-# sentence-shaped (`route.md`, `route evaluate`), and the Python scan skipped
-# string literals with no whitespace on the reasoning that a single token is a
-# machine identifier rather than prose. That reasoning was sound for the
-# surface it was written for and wrong for the one it was applied to: a bare
-# `'route'` used as a dict key is exactly that shape. `compass check` printed
-# a placeholder header on every run and the cross-issue board printed one on
-# every row, for months, past a green scan. See ADR-015.
-#
-# NOT listed here: `task`. `task.yml` is still the live artifact filename and
-# `dest="task"` is internal plumbing - `banned:` already says the word is
-# banned in human-facing prose only, with machine state exempt. Listing it
-# would flag correct code.
 # =============================================================================
 # How an exemption is written: per line, never by path prefix
 # =============================================================================
@@ -925,17 +882,18 @@ scan:
 # number of instances, and nothing can report what it covers - not the scan, not
 # a reviewer, not the person who added it.
 #
-# This is the same finding as the printed-output guard one level across: what
-# was missing there was never coverage but ENUMERATION. With no list of print
-# sites, nothing could report what was uncovered, so 2 commands out of 24 looked
-# exactly like 24.
+# This is the same finding as `tests/test_printed_output_vocabulary.py`'s own
+# guard one level across: what was missing there was never coverage but
+# ENUMERATION. With no list of print sites, nothing could report what was
+# uncovered, so 2 commands out of 24 looked exactly like 24.
 #
 # It matters because the instinct when a check is too noisy is always to reach
 # for a prefix, and a prefix is the one form of exemption that cannot be
 # audited. Measured 2026-08-14: narrowing ONE prefix - the bare-codes ban's
 # `governance/`, covering about five prose files - surfaced a real defect nobody
-# had noticed. Two prefixes in the `exempt:` list below still hide 197 tracked
-# files between them. Tracked in `path-prefix-exemptions-hide-their-contents`.
+# had noticed. Two prefixes in the `exempt:` list below still hide 30 tracked
+# files between them. Tracked as its own issue by slug
+# `path-prefix-exemptions-hide-their-contents`.
 #
 # So: reach for the marker first. Reach for a file list second. Reach for a
 # prefix only when the directory genuinely has no scannable content, and say so.
@@ -945,7 +903,7 @@ scan:
 # =============================================================================
 # A ban exists so a reader is not made to look something up. That reason stops
 # applying when the word is not ours: if a tool's output, an API, a spec or a
-# standard uses the word, the reader needs the exact string in order to search
+# standard uses the word, the reader needs the exact string to search
 # for it, and paraphrasing it costs them the thing the ban was protecting.
 #
 # So a banned word may stay when BOTH hold:
@@ -982,7 +940,7 @@ quoted_term_exception:
 # WHAT IS TRUE TODAY, which is not that:
 #   - The shipped list above applies as-is. That part works.
 #   - Project-specific additions are NOT SUPPORTED YET. A project-local
-#     governance/ currently REPLACES the shipped defaults wholesale rather than
+#     governance/ now REPLACES the shipped defaults wholesale rather than
 #     layering onto them, and only when routing-policy.yml sits beside it - so
 #     there is no layer for a project's entries to be added to.
 #   - Tracked in `governance-merge-not-replace`. The acceptance criterion for
@@ -996,6 +954,23 @@ project_additions:
   shipped_list_applies: true
   tracked_in: governance-merge-not-replace
 
+# =============================================================================
+# RETIRED MACHINE NAMES - the identifiers, not the prose
+# =============================================================================
+# `banned:` above governs what a surface *teaches*: prose, printed sentences,
+# headings. This list governs what the code *uses*: manifest keys, artifact
+# filenames, flag spellings - names with no whitespace in them, which read as
+# machine identifiers rather than as English.
+#
+# The prose scan patterns are sentence-shaped (`route.md`, `route evaluate`),
+# so they miss a single-token identifier such as a dict key `'route'`. See
+# ADR-015.
+#
+# NOT listed here: `task`. `task.yml` is a legacy filename the loader still
+# reads, and `dest="task"` is an internal argument name - `banned:` already
+# says the word is banned in human-facing prose only, with machine state
+# exempt. Listing it would flag correct code.
+# =============================================================================
 retired_machine_names:
   # spine keys, renamed at the v2 freeze
   - name: route

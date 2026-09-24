@@ -1,6 +1,6 @@
 # Spec - fix-timeout-error-message
 
-> **Phase:** define · **Last updated:** 2026-05-04 · **Owning agent:** spec-author
+> **Stage:** define · **Last updated:** 2026-05-04 · **Owning agent:** spec-author
 > **Familiarity:** brownfield-mapped - the timeout branch already exists; this is one scenario for its corrected behaviour, not a discovery.
 
 ## How each role reads this file
@@ -40,6 +40,6 @@ Scenario: Upload timeout reports the real cause and the real limit
 
 ## Coverage ledger
 
-| Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
+| Traceability id | Serves intent | Has a failing test (implement) | Passes as acceptance (verify) |
 |---|---|---|---|
-| TRC-001 | INT-1 | [x] | [x] |
+| `TRC-001` | INT-1 | [x] | [x] |

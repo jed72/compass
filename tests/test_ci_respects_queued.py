@@ -1,11 +1,11 @@
 """`compass ci` does not fail an issue that has not started.
 
-The framework asks people to triage work early so nothing happens off the
-books. Until now the reward for doing that was a red sweep: an issue with a
-delivery approach but no acceptance criteria yet fails `scenarios-have-tests`,
-`scenario-has-id-and-intent` and `suite-passed`, and takes the sweep down
-with it. A tool that penalises the behaviour it asks for teaches people to
-stop complying.
+The framework asks people to assess work early so nothing happens
+unrecorded. Without this rule, doing that turns the sweep red: an issue
+with a delivery approach but no acceptance criteria yet fails
+`scenarios-have-tests`, `scenario-has-id-and-intent` and `suite-passed`,
+and fails the whole sweep. A tool that penalises the behaviour it asks for
+teaches people to stop complying.
 
 This repository only avoids the problem because `.compass/work/` is
 gitignored, so the sweep in continuous integration finds nothing to check and
@@ -15,7 +15,7 @@ tells them to do, since it is their audit trail - meets it on day one.
 The sweep still lists every issue it saw and says why one was not checked.
 Nothing hides; a queued issue simply does not fail a build for being queued.
 
-Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, `TRC-2`).
 """
 from __future__ import annotations
 
@@ -111,8 +111,8 @@ def test_trc_2_the_sweep_still_names_what_it_did_not_check(tmp_path):
 def test_trc_3_an_active_issue_is_still_checked(tmp_path):
     """The guard must not become a way to switch checking off.
 
-    An issue that is genuinely in flight with no scenarios is a real
-    failure, and must stay one.
+    An issue that is genuinely active with no scenarios is a real failure,
+    and must stay one.
     """
     project = _project(tmp_path, "in-flight", "active")
     result = _run_ci(project)

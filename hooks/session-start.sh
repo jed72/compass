@@ -5,10 +5,9 @@
 # Runs as a Claude Code SessionStart hook, on startup, clear and compact.
 #
 # WHY IT EXISTS
-#   The contract only ever reached a session if the model chose to load the
-#   `compass-runtime` skill from its description. CLAUDE.md applies inside the
-#   Compass repository and nowhere else, so an adopter's session got nothing
-#   and Compass's own rules were invisible to the model meant to follow them.
+#   Without this hook, the contract reaches a session only when the model
+#   loads the `compass-runtime` skill. CLAUDE.md applies only inside the
+#   Compass repository, so an adopter's session gets no rules.
 #
 # WHAT IT DOES
 #   Prints a JSON object carrying the contract as `additionalContext`, which
@@ -24,9 +23,7 @@
 #
 # WHERE THE CONTRACT LIVES
 #   compass-contract.md at the framework root, and only there. CLAUDE.md and
-#   skills/compass-runtime/SKILL.md point at it. Before this, those two
-#   restated it: 46 sentences appeared verbatim in both, and they had already
-#   drifted - the skill named nine agents, having lost `architect-lens`.  # vocabulary-scan: allow - names the file's former name, which is the point of the sentence
+#   skills/compass-runtime/SKILL.md point at it and do not restate it.
 # =============================================================================
 set -uo pipefail
 
@@ -56,8 +53,7 @@ fi
 
 # Not a Compass project: say nothing. An explicit CLAUDE_PROJECT_DIR is the
 # runtime naming a directory, not a statement that Compass lives in it - the
-# runtime sets it for every repository, which is what made the pre-tool hook
-# refuse edits everywhere before hook-as-guest.
+# runtime sets it for every repository.
 [ -d "$PROJECT_DIR/.compass" ] || exit 0
 
 [ -f "$CONTRACT" ] || exit 0

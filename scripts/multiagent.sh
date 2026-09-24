@@ -16,8 +16,8 @@
 # WHAT IT RESPECTS
 #   - .compass/config.yml  multiagent.worktree_root   (default ../.compass-worktrees)
 #   - .compass/config.yml  multiagent.max_worktrees   (default 6) - hard ceiling
-#   - any adaptivity `cap` recorded in delivery-approach.md, in particular the STANDING CAP:
-#       critical risk => max_worktrees: 1.
+#   - the cap in manifest.yml: critical risk (assessment.risk) or a fired
+#     RP-CAP-001 rule gives max_worktrees 1.
 #     If the cap is below the subtask count, the cap WINS and multiagent.sh refuses to
 #     over-provision - it tells you to fold/sequence subtasks in the map first.
 #
@@ -82,11 +82,11 @@ case "$WORKTREE_ROOT_REL" in
   *)  WORKTREE_ROOT="$(cd "$PROJECT_DIR" && cd "$(dirname "$WORKTREE_ROOT_REL")" 2>/dev/null && pwd || echo "$PROJECT_DIR/$WORKTREE_ROOT_REL")/$(basename "$WORKTREE_ROOT_REL")" ;;
 esac
 
-# --- the cap from manifest.yml (R4) ---------------------------------------------
-# The cap is a MACHINE FACT and must come from the structured assessment, not from
-# grepping delivery-approach.md prose - a well-formed delivery-approach.md quotes 'risk: critical'
-# and 'RP-CAP-001' in its "guardrails that did NOT fire" audit notes, and the old
-# prose grep false-positived on exactly those, capping a non-critical multiagent to 1.
+# --- the cap from manifest.yml ---------------------------------------------
+# The cap is a MACHINE FACT and must come from the structured assessment, not
+# from grepping delivery-approach.md prose: delivery-approach.md quotes
+# "risk: critical" and "RP-CAP-001" in its notes on rules that did not fire,
+# so a grep of the prose caps non-critical work at 1.
 # The standing cap (RP-CAP-001): critical risk => max_worktrees 1. We read
 # it from assessment.risk and policy_rules_fired. Absent assessment is a hard
 # error - never a silent cap, never a fall back to prose.
@@ -127,7 +127,7 @@ esac
 
 # --- parse subtasks from the distribution map --------------------------------
 # The map's §3 table has rows like:
-#   | subtask-1 | U1 | TRC-A1, TRC-A2 | compass/<slug>/subtask-1 |
+#   | subtask-1 | U1 | PBW-A1, PBW-A2 | compass/<slug>/subtask-1 |
 # We pull (subtask id, branch name) pairs from any table row whose first cell
 # starts with "subtask-". This is intentionally forgiving so a hand-filled map
 # still parses.
@@ -141,7 +141,7 @@ while IFS= read -r line; do
     \|*stream-*) ;;  # vocabulary-scan: allow - reads the retired spelling for back-compat (ADR-006)
     *) continue ;;
   esac
-  # R4: count only worktree-provisioning subtasks. A map may mark an
+  # Count only worktree-provisioning subtasks. A map may mark an
   # integration/verify subtask as non-provisioning - exclude it from the cap
   # arithmetic and from worktree creation.
   case "$line" in
@@ -216,11 +216,12 @@ for i in "${!SUBTASKS[@]}"; do
 
   # --- seed the worktree with the issue's artifacts --------------------------
   # `git worktree add` brings across only what git TRACKS. A project that
-  # commits .compass/work/ gets the issue directory for free; one that treats
-  # issue state as local - as this framework repo does, see .gitignore - does
-  # not, and its builder lands in a worktree with no spec, no plan, and no
-  # assignment. `compass next`, `compass check`, and `compass tdd-red` all fail
-  # there, because resolve_task_dir has no work directory to resolve against.
+  # commits .compass/work/ gets the issue directory in each worktree
+  # automatically. One that treats issue state as local - as this framework
+  # repo does, see .gitignore - does not, and its builder lands in a worktree
+  # with no spec, no plan, and no assignment. `compass next`, `compass check`,
+  # and `compass tdd-red` all fail there, because resolve_task_dir has no work
+  # directory to resolve against.
   #
   # NON-DESTRUCTIVE ON PURPOSE. multiagent.sh is documented as idempotent, and the
   # second run is the one where a builder has work to lose - a devlog entry, a
@@ -231,13 +232,13 @@ for i in "${!SUBTASKS[@]}"; do
       echo "      issue dir already present - left as-is"
     else
       mkdir -p "$wt_task_dir"
-      # Copy the ARTIFACTS a builder needs to work - and nothing that would
-      # hand them credit they did not earn. `.red` is the marker
-      # hooks/pre-tool.sh reads to permit a production-code edit, and it means
-      # "a real failure was observed HERE". Copying it lets a builder edit
-      # production code on a red someone else recorded in another worktree.
-      # `evidence/` is the same argument: a green run belongs to the run that
-      # produced it.
+      # Do not copy .red or evidence/: each records a run in another
+      # worktree. The `*` glob also skips dotfiles, so .spike and
+      # .acceptance do not copy either - those mark the issue's own state
+      # (is it a spike, is it defined), not a per-worktree run, so a spike
+      # or already-defined issue loses that marker in the new worktree.
+      # Looks unintended; not fixed here (found defects get their own
+      # issue).
       for _f in "$TASK_DIR"/*; do
         case "$(basename "$_f")" in
           evidence) continue ;;

@@ -2,20 +2,15 @@
 the same failures but exits 0. The banner makes the mode visible so a run
 is never mistaken."""
 
-# RE-POINT REVERTED on 2026-08-24. These tests guard something that belongs
-# in the DEFAULT view, not in --verbose, and moving them there left the
-# default view unguarded: the adoption-mode banner, and the warning that a
-# guardrail is absent from this project's governance. A fresh reader found
-# both missing from the default output, which is the case each was written
-# to prevent. The behaviour is back on the first screen and these assert it
-# there.
+# These tests read the default view, not --verbose: the adoption-mode
+# banner and the absent-guardrail warning must appear on the first screen.
 from __future__ import annotations
 
 import json
 
 
 def _failing_task_body():
-    """A task with a missing test-run binding - fails the suite-passed check."""
+    """An issue with a missing test-run binding - fails the suite-passed check."""
     return {
         "task": "fail-me",
         "created": "2026-05-15",
@@ -74,7 +69,7 @@ def test_advisory_banner_is_visible(run_cli, project, make_task):
 
 
 def test_ci_respects_advisory_mode(run_cli, project, make_task):
-    """compass ci should also exit 0 in advisory mode even when checks fail."""
+    """compass ci must also exit 0 in advisory mode even when checks fail."""
     _set_mode(project, "advisory")
     make_task("fail-1", _failing_task_body())
     r = run_cli("ci")
@@ -83,7 +78,7 @@ def test_ci_respects_advisory_mode(run_cli, project, make_task):
 
 
 def test_same_task_different_exit_under_two_modes(run_cli, project, make_task):
-    """Same failing task, same machine, different exit code per mode - that
+    """Same failing issue, same machine, different exit code per mode - that
     is the entire point of adoption-mode."""
     make_task("twin", _failing_task_body())
 

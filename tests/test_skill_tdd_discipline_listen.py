@@ -1,10 +1,11 @@
-"""TRC-C2 - tdd-discipline contains a "Listen to your tests" section.
-TRC-C3 - tdd-discipline contains a "test behaviour, not implementation" anti-pattern.
+"""tdd-discipline contains a "Listen to your tests" section (TRC-C2).
+tdd-discipline contains a "test behaviour, not implementation" anti-pattern
+(TRC-C3).
 
 Serves: INT-6
 Spec:
   - skills/tdd-discipline/SKILL.md must have a section on "Listen to your tests"
-  - that section says: a hard-to-write test is a design smell - change the design, not the test
+  - that section says: a hard-to-write test is a sign of a problem in the design - change the design, not the test
   - must have an anti-pattern about testing behaviour not implementation
   - the anti-pattern includes "swap the implementation - does the test survive?"
 """
@@ -14,16 +15,9 @@ from pathlib import Path
 SKILL_MD = Path(__file__).parent.parent / "skills" / "tdd-discipline" / "SKILL.md"
 
 def _skill_text(skill_name):
-    """Everything the skill says, across every file in its directory.
-
-    A skill used to be one file. The long ones are now split - the parts load
-    when they are needed instead of the whole thing loading to answer one
-    question - so a guard that reads only SKILL.md reports content missing
-    when it has merely moved next door.
-
-    The strings each guard looks for are unchanged. Only where it looks has
-    widened, and deleting the content still fails.
-    """
+    """Reads every file in the skill's directory. Long skills are split into
+    parts that load on demand, so a guard that reads only SKILL.md reports
+    moved content as missing."""
     import pathlib as _p
     d = _p.Path(__file__).parent.parent / "skills" / skill_name
     return "\n".join(sorted(
@@ -35,7 +29,7 @@ def _read_skill() -> str:
     return _skill_text("tdd-discipline")
 
 
-# --- TRC-C2 tests ---
+# --- `TRC-C2` tests ---
 
 def test_tdd_discipline_has_listen_to_tests_section():
     """Must have a section titled in the spirit of 'Listen to your tests'."""
@@ -48,7 +42,8 @@ def test_tdd_discipline_has_listen_to_tests_section():
 
 
 def test_tdd_discipline_listen_section_has_design_smell_message():
-    """The Listen section must say: a hard-to-write test is a design smell - change the design."""
+    """The Listen section must say: a hard-to-write test is a sign of a
+    problem in the design - change the design."""
     text = _read_skill()
     text_lower = text.lower()
     assert "hard-to-write" in text_lower or "hard to write" in text_lower, (
@@ -63,7 +58,7 @@ def test_tdd_discipline_listen_section_has_design_smell_message():
     )
 
 
-# --- TRC-C3 tests ---
+# --- `TRC-C3` tests ---
 
 def test_tdd_discipline_has_behaviour_not_implementation_antipattern():
     """Must have an anti-pattern about testing behaviour, not implementation."""
@@ -75,12 +70,20 @@ def test_tdd_discipline_has_behaviour_not_implementation_antipattern():
     assert "implementation" in text_lower, (
         "tdd-discipline must contain 'implementation'."
     )
-    # Must have the concept together
+    # Must have the concept together, in the phrasing the skill uses:
+    # "Testing implementation, not behaviour" (anti-patterns.md). Only the
+    # American spelling stands beside it.
+    #
+    # NARROWED from seven alternatives to two. The widest of the seven was a
+    # bare "testing implementation", which passed if those two words appeared
+    # anywhere in the skill at all - and they do, in prose that never states
+    # the rule. A check that accepts every phrasing anyone might write cannot
+    # fail, so it stops holding the property it names. If the skill's wording
+    # changes again, this assertion changes with it, in the same commit as the
+    # prose (DD-6).
     assert (
-        "test behaviour" in text_lower
-        or "behaviour, not implementation" in text_lower
-        or "behavior, not implementation" in text_lower
-        or "test behavior" in text_lower
+        "implementation, not behaviour" in text_lower
+        or "implementation, not behavior" in text_lower
     ), (
         "tdd-discipline must contain an anti-pattern about testing behaviour not implementation."
     )

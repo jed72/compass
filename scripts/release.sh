@@ -8,15 +8,13 @@
 #   1. Runs the self-check (validate.sh) - refuses to package a broken repo.
 #   2. Runs `compass policy lint` - refuses to package broken governance.
 #   3. Runs the test suite - refuses to package with a red CLI.
-#   4. Confirms the worked examples are actually present (the v1 review caught
-#      a packaging miss where examples/README.md shipped without the examples).
-#   5. Builds the tarball, EXCLUDING noise (.DS_Store, __pycache__, *.bak,
+#   4. Confirms the worked examples are present.
+#   5. Builds the tarball, excluding noise (.DS_Store, __pycache__, *.bak,
 #      .pytest_cache, __MACOSX, *.pyc) and dev-only state (.git, .compass/work).
-#   6. Prints what is inside the tarball and its size, so the human can see.
+#   6. Prints what is inside the tarball and its size.
 #
-# This script is the answer to the review's "release packaging hygiene"
-# concern: users infer quality from the artifact, and a manual Finder zip
-# carrying .DS_Store is not the artifact you want.
+# A tarball carrying .DS_Store looks careless, so the build excludes noise
+# and fails if any is found.
 # =============================================================================
 
 set -euo pipefail
@@ -30,10 +28,9 @@ set -euo pipefail
 #   GNU tar (Linux, CI)   --transform 's,^\./,compass-<v>/,'
 #   BSD tar (macOS)       -s ',^\./,compass-<v>/,'
 #
-# The script previously hard-coded the GNU form, so on macOS it ran all four
-# pre-flight checks, passed them, and then exited 1 at the packaging step
-# having produced nothing. Detection is on `tar --version` because that is the
-# only thing both tars agree to answer.
+# Choose the flag at run time: the wrong one makes tar exit 1 after every
+# check has passed. Detection runs `tar --version`, because that is the one
+# command both tars answer.
 #
 # The pattern anchors on `^\./` rather than `^` because the archive is built
 # from `.`, so entries arrive as `./path`. Anchoring on `^` alone would produce
@@ -50,17 +47,19 @@ tar_prefix_flags() {
 # --- what goes in the tarball -----------------------------------------------
 # The list of paths to package, one per line, each prefixed `./`.
 #
-# This is driven from `git ls-files` rather than from the working tree, which
-# fixes two defects that a working-tree archive could not:
+# This is driven from `git ls-files` rather than from the working tree, and
+# the excludes below are shell `grep -Ev` patterns anchored with `^`, never a
+# tar `--exclude`:
 #
-#   * BSD tar has no `--anchored`, so the `./.compass/work` exclude patterns
-#     this script used to rely on matched at ANY depth and stripped
-#     `examples/<x>/.compass/work/<slug>/manifest.yml` along with the repo's own
-#     dev state. Selecting paths in shell lets us anchor exactly.
-#   * Anything untracked shipped. A local `.mcp.json` went out in a release
-#     tarball and the noise check reported clean, because an untracked config
-#     file matches no noise pattern. Tracked-only excludes it by construction,
-#     and gitignored dev state (the repo's `.compass/work`) never appears.
+#   * A tar `--exclude` of `.compass/work` is not anchored on BSD tar, so it
+#     would match at any depth and strip
+#     examples/<x>/.compass/work/<slug>/manifest.yml along with the real
+#     target. Selecting paths in shell and handing tar a fixed list (`-T`)
+#     avoids the flag, and the anchor, entirely.
+#   * An untracked file, such as a local .mcp.json, matches no noise
+#     pattern, so a working-tree archive ships it. Tracked-only excludes it
+#     by construction, and gitignored dev state (the repo's `.compass/work`)
+#     never appears.
 #
 # The remaining excludes are for paths that ARE tracked but are not part of
 # what an adopter installs.
@@ -92,9 +91,9 @@ vendor_integrity_missing() {
   printf '%s' "$missing"
 }
 
-# Allow the test suite to source this file for `tar_prefix_flags` and
-# `release_file_list` without running a release. Nothing above this line has
-# side effects.
+# Allow the test suite to source this file for `tar_prefix_flags`,
+# `release_file_list` and `vendor_integrity_missing` without running a
+# release. Nothing above this line has side effects.
 if [ "${1:-}" = "--source-only" ]; then
   return 0 2>/dev/null || exit 0
 fi
@@ -160,7 +159,8 @@ required_examples="quick-fix-typo feature-api-change hotfix-regression initiativ
 missing=""
 for e in $required_examples; do
   if [ ! -f "examples/$e/.compass/work"/*/manifest.yml ] 2>/dev/null; then
-    # the glob expands; check more carefully
+    # `[ -f glob ]` fails when the glob matches no file or several, so fall
+    # back to find.
     if ! find "examples/$e" -name manifest.yml -type f 2>/dev/null | grep -q .; then
       missing="$missing $e"
     fi
@@ -175,14 +175,13 @@ echo "    PASS - all 5 example manifest.yml(s) present"
 # --- 5. clear stale artifacts and build the tarball -------------------------
 echo "[5] building tarball"
 mkdir -p dist
-# Wipe any previous tarball - the v1 review caught a state where dist/
-# carried both the rc and the final tarball, which is confusing. One
-# artifact per build. (The || true handles read-only filesystems / sandbox
-# locks gracefully - on a real machine this deletes cleanly.)
+# Wipe any previous tarball, so dist/ never carries both an old and the new
+# one. The || true handles read-only filesystems / sandbox locks gracefully -
+# on a real machine this deletes cleanly.
 find dist -maxdepth 1 -type f \( -name '*.tar.gz' -o -name '*.zip' \) \
   -exec rm -f {} + 2>/dev/null || true
-# If anything is still hanging around (sandbox-locked), refuse to ship -
-# we will not publish a dist/ with multiple artifacts.
+# If an old tarball survives (a sandbox lock), warn that dist/ will hold
+# more than one tarball.
 STALE="$(find dist -maxdepth 1 -type f \( -name '*.tar.gz' -o -name '*.zip' \) 2>/dev/null || true)"
 if [ -n "$STALE" ]; then
   echo "release.sh: WARNING - dist/ still contains stale artifact(s):" >&2
@@ -191,10 +190,9 @@ if [ -n "$STALE" ]; then
 fi
 OUT="dist/compass-${VERSION}.tar.gz"
 
-# The exclude patterns that used to live here are gone: the file list is
-# built by release_file_list() above, which anchors exactly and ships only
-# tracked paths. Noise (.DS_Store, __pycache__, *.bak) cannot appear in a
-# tracked-file list, and the noise check below still verifies that.
+# release_file_list() builds the list from tracked paths only, so noise from
+# an untracked file cannot appear. The noise check below still runs, to
+# catch a tracked file that should not ship.
 TMP_LIST="$(mktemp)"
 trap 'rm -f "$TMP_LIST"' EXIT
 release_file_list > "$TMP_LIST"
@@ -218,13 +216,12 @@ echo ""
 # this string rather than re-piping `tar | grep` per check - `tar | grep -q`
 # under `set -o pipefail` triggers SIGPIPE in tar when grep exits on first
 # match, which makes the pipeline status non-zero even though grep matched.
-# Reading the listing into a variable side-steps that entirely.
+# Reading the listing into a variable avoids that.
 TAR_LIST="$(tar -tzf "$OUT")"
 
 # --- noise check (HARD FAIL) -----------------------------------------------
-# The previous release printed noise but did not fail on it. The v1 review
-# rightly called that out: a release script that *reports* dirt is not the
-# same as a release script that *refuses to ship* dirt.
+# A release script that reports dirt is not the same as one that refuses to
+# ship dirt, so this fails the build rather than only printing a warning.
 echo "  noise check (must be empty):"
 NOISE="$(printf '%s\n' "$TAR_LIST" | grep -E '\.DS_Store$|__MACOSX|__pycache__|\.pytest_cache|\.bak$|_deltest|pytest-cache-files-' || true)"
 if [ -n "$NOISE" ]; then
@@ -235,9 +232,9 @@ fi
 echo "    (clean - none)"
 
 # --- examples integrity check (HARD FAIL) ----------------------------------
-# The previous tarball stripped `examples/<x>/.compass/work/<slug>/manifest.yml`
-# because the .compass/work exclude was not root-anchored. Verify directly:
-# every example must have its manifest.yml in the tarball.
+# Every example's manifest.yml must be in the tarball. Check the listing
+# directly, so a mistake in release_file_list()'s excludes is caught here
+# rather than assumed away.
 echo "  examples integrity (every example must have its manifest.yml):"
 required_examples="quick-fix-typo feature-api-change hotfix-regression initiative-new-subsystem spike-technical-unknown"
 missing=""
@@ -249,6 +246,12 @@ for e in $required_examples; do
 done
 if [ -n "$missing" ]; then
   echo "    !!  missing example manifest.yml in tarball:$missing" >&2
+  # The message below is the pre-issue wording, restored on purpose. Its
+  # advice is stale - this script hands tar a fixed list and passes no
+  # --exclude at all, as the header now explains - but correcting it changes
+  # printed output, and prose-breaks-the-writing-style claims no printed
+  # string changed. The correction belongs with the other printed-output
+  # fixes, in their own issue.
   echo "release.sh: FAIL - examples were not packaged correctly. Check the .compass/work exclude is root-anchored (./.compass/work, not .compass/work)." >&2
   exit 1
 fi
@@ -259,12 +262,8 @@ for e in $required_examples; do
 done
 
 # --- vendored PyYAML integrity check (HARD FAIL) ----------------------------
-# The whole point of bundling is that a machine with only python3 can run
-# Compass. A tarball missing the vendored copy or its licence turns every
-# install back into the exact "PyYAML required" error this issue removes -
-# and this repository has shipped a tarball missing files it contained
-# before (the examples check above exists for the same reason). Same class
-# of check, same hard fail.
+# Without the vendored copy or its licence, every install fails with
+# "PyYAML required". Fail hard, as the examples check above does.
 echo "  vendored PyYAML integrity (bundle + licence must be in the tarball):"
 vendor_missing="$(vendor_integrity_missing "$TAR_LIST" "$VERSION")"
 if [ -n "$vendor_missing" ]; then

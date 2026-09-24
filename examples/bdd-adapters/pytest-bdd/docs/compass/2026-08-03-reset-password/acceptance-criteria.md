@@ -1,20 +1,21 @@
 # Spec - reset-password
 
-> **Phase:** define · **Last updated:** 2026-08-03 · **Owning agent:** spec-author
+> **Stage:** define · **Last updated:** 2026-08-03 · **Owning agent:** spec-author
 > **Familiarity:** greenfield
 
 ## Summary
 
 **Goal:** A user with a valid reset link can set a new password, and a user
-whose link has gone stale cannot.
+whose link has expired cannot.
 
-**Approach:** One rule object holds the token lifetime and the password floor.
-Every rejected reset must leave the store untouched, which is what makes the
-failure scenarios worth writing.
+**Approach:** One rule object holds the token lifetime and the minimum password
+length. Every rejected reset must leave the store untouched, which is what
+makes the failure scenarios worth writing.
 
-**Why now / what changes:** This is the worked example for the pytest-bdd
-adapter. The scenarios below are extracted by `compass bdd extract` and run as
-the acceptance suite - they are the same text in both roles.
+**Why now / what changes:** This is the worked example for the BDD adapters -
+identical across `behave`, `cucumber-js`, `godog` and `pytest-bdd`. `compass
+bdd extract` extracts the scenarios below, and the runner runs them as the
+acceptance suite - they are the same text in both roles.
 
 ---
 
@@ -68,8 +69,8 @@ Scenario: a password below the length floor should be rejected
 
 ## Coverage ledger
 
-| Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
+| Traceability id | Serves intent | Has a failing test (implement) | Passes as acceptance (verify) |
 |---|---|---|---|
-| TRC-A1 | INT-1 | [x] | [x] |
-| TRC-A2 | INT-2 | [x] | [x] |
-| TRC-A3 | INT-2 | [x] | [x] |
+| `TRC-A1` | INT-1 | [x] | [x] |
+| `TRC-A2` | INT-2 | [x] | [x] |
+| `TRC-A3` | INT-2 | [x] | [x] |

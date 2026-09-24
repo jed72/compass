@@ -1,34 +1,31 @@
-"""Tests for invisible triggering - TRC-C1, TRC-C2, TRC-C3, TRC-F3.
+"""Tests for invisible triggering (`TRC-C1`, `TRC-C2`, `TRC-C3`, `TRC-F3`).
 
 These are static content-assertion tests. Invisible triggering is prompt-only
 (no new hook code). The test strategy:
-  - Read CLAUDE.md and assert the intent-triggering rule paragraph is present.
+  - Read compass-contract.md and assert the intent-triggering rule paragraph
+    is present.
   - Read each agent file and assert the supporting sentence is present.
-  - Assert the rule does NOT instruct re-running Frame when a framed task is
-    already active (TRC-F3 guard).
-  - Assert the rule is ADDITIVE (the existing "Never skip Frame" text still
-    present and untouched).
+  - Assert the rule does not instruct re-running assess when an already-
+    assessed issue is active (TRC-F3 guard).
+  - Assert the rule is additive (the existing "Never skip assessment" text
+    still present and untouched).
 
-Manual-verification note (TRC-C1 / TRC-C3 behaviour at runtime):
-  These tests verify the static content that produces the agent behaviour.
-  The runtime behaviour (agent actually calling /compass:assess on natural-
-  language intent) requires a live agent session; that is recorded as
-  manual-review evidence in manifest.yml (EV-MANUAL-C1, EV-MANUAL-C3).
+Manual-verification note (behaviour at runtime, `TRC-C1` / `TRC-C3`):
+  These tests check the static content that produces the agent behaviour.
+  The runtime behaviour (an agent actually calling /compass:assess on
+  natural-language intent) needs a live agent session; the manual-review
+  record is in the gitignored issue archive.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-# The rule moved out of the adapter file and into the contract the
-# SessionStart hook injects, so it now reaches an adopter's session too.
+# The rule lives in compass-contract.md, which the SessionStart hook
+# injects, so it reaches an adopter's session too.
 CONTRACT = REPO_ROOT / "compass-contract.md"
 
 CLAUDE_MD = REPO_ROOT / "CLAUDE.md"
@@ -39,9 +36,8 @@ AGENTS = {
     "orchestrator": REPO_ROOT / "agents" / "orchestrator.md",
 }
 
-# The exact paragraph that DD-6 requires (from plan.md §DD-6). The wording
-# moved to the frozen v2 vocabulary in the session-instructions rename
-# slice; the rule it pins is unchanged.
+# The paragraph that makes the agent run /compass:assess when a user
+# states intent (DD-6).
 DD6_HEADING = "**Trigger on intent, not on the command.**"
 DD6_CONTENT = (
     "If someone describes work to build,\nchange or fix, assess first even "
@@ -51,8 +47,9 @@ DD6_CONTENT = (
 # The existing paragraph that must remain untouched (additive-only check)
 EXISTING_PARAGRAPH = "**Never skip assessment.**"
 
-# The phrase that must NOT appear as a re-frame trigger when a task is already
-# active (TRC-F3 guard: invisible triggering must not re-frame an active task)
+# The phrase that must not appear as a reassessment trigger when an issue is
+# already active (TRC-F3 guard: invisible triggering must not reassess an
+# active issue)
 RE_FRAME_TRIGGER_PHRASES = [
     "re-run /compass:assess",
     "re-frame the task",
@@ -60,20 +57,26 @@ RE_FRAME_TRIGGER_PHRASES = [
     "invoke /compass:assess again",
 ]
 
-# Supporting sentence that must appear in each agent description
-# The sentence follows the command rename: triage, not Frame.
-AGENT_TRIGGER_SENTENCE = "Trigger triage on intent"
+# Supporting sentence that must appear in each agent description. Cut before
+# "typed" - the sentence wraps there in the four agent files, and a raw
+# substring check cannot cross the line break.
+AGENT_TRIGGER_SENTENCE = (
+    "Assess the work when the request describes it, not only when the "
+    "command is"
+)
 
 
 class TestCLAUDEMdInvisibleTriggering:
-    """TRC-C1 / TRC-C2 / TRC-C3 - CLAUDE.md carries the intent-trigger rule."""
+    """compass-contract.md carries the intent-trigger rule
+    (`TRC-C1` / `TRC-C2` / `TRC-C3`)."""
 
     def test_claude_md_exists(self):
-        """compass-contract.md must exist."""
+        """CLAUDE.md must exist."""
         assert CLAUDE_MD.is_file(), f"CLAUDE.md not found at {CLAUDE_MD}"
 
     def test_intent_trigger_heading_present(self):
-        """TRC-C1 / TRC-C3 - compass-contract.md must contain the DD-6 trigger heading."""
+        """compass-contract.md must contain the intent-trigger heading
+        (`TRC-C1` / `TRC-C3`, `DD-6`)."""
         content = CONTRACT.read_text(encoding="utf-8")
         assert DD6_HEADING in content, (
             f"compass-contract.md is missing the intent-trigger heading:\n  {DD6_HEADING!r}\n"
@@ -81,7 +84,8 @@ class TestCLAUDEMdInvisibleTriggering:
         )
 
     def test_intent_trigger_content_present(self):
-        """TRC-C1 / TRC-C3 - compass-contract.md must contain the DD-6 trigger body."""
+        """compass-contract.md must contain the intent-trigger body
+        (`TRC-C1` / `TRC-C3`, `DD-6`)."""
         content = CONTRACT.read_text(encoding="utf-8")
         assert DD6_CONTENT in content, (
             "compass-contract.md is missing the intent-trigger body text. "
@@ -89,7 +93,8 @@ class TestCLAUDEMdInvisibleTriggering:
         )
 
     def test_explicit_invocation_still_works(self):
-        """TRC-C2 - compass-contract.md must state that explicit invocation always works."""
+        """compass-contract.md must state that explicit invocation always
+        works (TRC-C2)."""
         content = CONTRACT.read_text(encoding="utf-8")
         assert "typing any Compass command\nalways works" in content, (
             "compass-contract.md must clarify that explicit invocation still works "
@@ -98,7 +103,8 @@ class TestCLAUDEMdInvisibleTriggering:
         )
 
     def test_existing_never_skip_frame_preserved(self):
-        """TRC-C2 - the existing 'Never skip Frame' paragraph is untouched."""
+        """The existing 'Never skip assessment' paragraph is untouched
+        (TRC-C2)."""
         content = CONTRACT.read_text(encoding="utf-8")
         assert EXISTING_PARAGRAPH in content, (
             f"The existing paragraph {EXISTING_PARAGRAPH!r} is missing from "
@@ -119,13 +125,15 @@ class TestCLAUDEMdInvisibleTriggering:
 
 
 class TestCLAUDEMdNoReframe:
-    """TRC-F3 - invisible triggering must NOT instruct re-framing an active task."""
+    """Invisible triggering must not instruct reassessing an active
+    issue (TRC-F3)."""
 
     def test_no_re_frame_trigger_phrases(self):
-        """TRC-F3 - compass-contract.md must not instruct re-running Frame on an active task."""
+        """compass-contract.md must not instruct re-running assess on an
+        active issue (TRC-F3)."""
         content = CONTRACT.read_text(encoding="utf-8").lower()
         # Check around the intent-trigger paragraph specifically
-        trigger_idx = content.find("trigger triage on intent")
+        trigger_idx = content.find("trigger on intent, not on the command")
         if trigger_idx == -1:
             # If paragraph not yet there, the test for its presence will catch it
             return
@@ -140,10 +148,10 @@ class TestCLAUDEMdNoReframe:
 
 
 class TestAgentDescriptionsTrigger:
-    """TRC-C1 / TRC-C3 - agent descriptions mention the intent-trigger."""
+    """Agent descriptions mention the intent-trigger (`TRC-C1` / `TRC-C3`)."""
 
     def test_spec_author_has_trigger_sentence(self):
-        """spec-author.md must mention intent-driven Frame triggering."""
+        """spec-author.md must mention intent-driven assess triggering."""
         content = AGENTS["spec-author"].read_text(encoding="utf-8")
         assert AGENT_TRIGGER_SENTENCE in content, (
             f"agents/spec-author.md is missing the intent-trigger sentence "
@@ -152,7 +160,7 @@ class TestAgentDescriptionsTrigger:
         )
 
     def test_planner_has_trigger_sentence(self):
-        """planner.md must mention intent-driven Frame triggering."""
+        """planner.md must mention intent-driven assess triggering."""
         content = AGENTS["planner"].read_text(encoding="utf-8")
         assert AGENT_TRIGGER_SENTENCE in content, (
             f"agents/planner.md is missing the intent-trigger sentence "
@@ -160,7 +168,7 @@ class TestAgentDescriptionsTrigger:
         )
 
     def test_builder_has_trigger_sentence(self):
-        """builder.md must mention intent-driven Frame triggering."""
+        """builder.md must mention intent-driven assess triggering."""
         content = AGENTS["builder"].read_text(encoding="utf-8")
         assert AGENT_TRIGGER_SENTENCE in content, (
             f"agents/builder.md is missing the intent-trigger sentence "
@@ -168,7 +176,7 @@ class TestAgentDescriptionsTrigger:
         )
 
     def test_orchestrator_has_trigger_sentence(self):
-        """orchestrator.md must mention intent-driven Frame triggering."""
+        """orchestrator.md must mention intent-driven assess triggering."""
         content = AGENTS["orchestrator"].read_text(encoding="utf-8")
         assert AGENT_TRIGGER_SENTENCE in content, (
             f"agents/orchestrator.md is missing the intent-trigger sentence "

@@ -1,14 +1,14 @@
 <!--
 TEMPLATE: verification-report.md
-Produced by: the test & review stage (`/compass:verify`); owning role QA, agents
+Produced by: the verify stage (`/compass:verify`); owning role QA, agents
              `verifier` (runs the suites) and `reviewer` (applies the
              review dimensions).
 Lives at:    docs/compass/<created>-<issue-slug>/verification-report.md
 Role in the pipeline: the Verify output. Proves the work with EVIDENCE -
 recorded command output and artifacts a reader can open, never assertion. "It works" is not a
-gate-passing statement on any route. The route's gate set and review
+gate-passing statement on any delivery approach. The delivery approach's gate set and review
 dimensions come from delivery-approach.md; the `immovable_gates` from
-governance/routing-policy.md are stapled on regardless.
+governance/routing-policy.md are added regardless.
 
 Fill every {{PLACEHOLDER}}. Every pass needs evidence attached - an empty
 evidence block is an automatic fail.
@@ -16,10 +16,10 @@ evidence block is an automatic fail.
 
 # Verification Report - {{ISSUE_SLUG}}
 
-> **Stage:** test & review · **Date:** {{DATE}} · **Owning role:** QA
+> **Stage:** verify · **Date:** {{DATE}} · **Owning role:** QA
 > **Agents:** `verifier`, `reviewer`{{, `product-marketer` if the claims dimension applies}}
 > **Approach (from delivery-approach.md):** {{reference shape}} · **Gate count:** {{1 \| 2 \| all}}
-> **Orchestration:** {{solo \| pair \| multiagent - multiagent verifies per-stream then combined}}
+> **Orchestration:** {{solo \| pair \| multiagent orchestration - verifies per subtask, then combined}}
 
 ---
 
@@ -30,21 +30,22 @@ evidence block is an automatic fail.
 
 | Scenario id | Title | Result | Evidence (the record id - §2 links it) |
 |---|---|---|---|
-| TRC-A1 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
-| TRC-A2 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
-| TRC-B1 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
-| TRC-F1 | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| `TRC-A1` | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| `TRC-A2` | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| `TRC-B1` | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
+| `TRC-F1` | {{…}} | {{PASS \| FAIL}} | {{EV-id}} |
 
 ## 2. Test suite evidence
 
 <!-- LINKED, NOT REPRODUCED. The run itself lives in an evidence record that
      `compass tdd-green` wrote; this section gives the command, the headline
-     numbers, and the record to open. A report that reproduces its evidence
-     stops being two screens and stops being read, and the reader who wants
-     the raw run can open the file - which is more than a paste gives them,
-     because a paste cannot be re-run.
+     numbers, and the record to open. A report that pastes its evidence grows
+     past two screens and stops being read. The reader who wants the raw run
+     can open the file, and a file can be re-run where a paste cannot.
 
-     On a multiagent, list each subtask's record, then the combined one. -->
+     On multiagent orchestration, list each subtask's record, then the combined one. -->
+<!-- absorbed: "the raw run can open the file - which is more than a paste gives them," -->
+<!-- absorbed: "because a paste cannot be re-run." -->
 
 **Command run:** `{{e.g. npm test}}`
 
@@ -52,14 +53,14 @@ evidence block is an automatic fail.
 |---|---|---|
 | `evidence/{{green-TRC-x.json}}` | {{which scenarios}} | {{e.g. 214 passed, 0 failed}} |
 
-**Coverage (against the tested-before-ship guardrail's floor):**
+**Coverage (against the "Tested before it lands" guardrail's floor, `G1`):**
 {{e.g. 87.4% lines, floor 80% - record: `evidence/{{coverage.json}}`}}
 
 ## 3. Review dimensions
 
 <!-- Apply each dimension delivery-approach.md lists. correctness, governance,
      traceability are ALWAYS on for delivery work - they are the default
-     guardrails in review form. Others as the approach requires: regression,
+     guardrails in review form. Others as the approach needs: regression,
      security (scaled or full), clarity, claims. Each gets pass/fail AND
      evidence.
 
@@ -74,12 +75,12 @@ evidence block is an automatic fail.
      independently reviewed. The mechanical checks (`compass check`, the test
      suite) are unaffected either way - they do not care who ran them. -->
 
-| Dimension | Applies on this route? | Result | Assessed by | Evidence |
+| Dimension | Applies on this delivery approach? | Result | Assessed by | Evidence |
 |---|---|---|---|---|
 | correctness | always | {{PASS \| FAIL}} | {{reviewer \| name \| author}} | {{every scenario in §1 passes}} |
 | governance | always | {{PASS \| FAIL}} | {{…}} | {{honours governance/ - guardrails clear with evidence, strategy deviations recorded; cite checks}} |
 | traceability | always | {{PASS \| FAIL}} | {{…}} | {{code→scenario→intent and claim→scenario chains intact}} |
-| regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{nothing previously passing now fails - link the record}} |
+| regression | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{nothing that was passing before now fails - link the record}} |
 | security | {{full / scaled / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{OWASP-style pass, scaled to the assessed risk}} |
 | clarity | {{yes / no}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{a future reader can follow it}} |
 | claims | {{if role / yes}} | {{PASS \| FAIL \| n/a}} | {{…}} | {{see launch-readiness.md - every claim traces to a passing scenario}} |
@@ -93,16 +94,17 @@ evidence block is an automatic fail.
 |---|---|---|
 | verify.correctness | immovable + approach | {{GREEN \| RED}} |
 | verify.governance | immovable + approach | {{GREEN \| RED}} |
-| verify.regression | immovable | {{GREEN \| RED}} |
-| verify.claims | immovable (if marketer in play) | {{GREEN \| RED \| n/a}} |
-| {{verify.traceability / verify.security / verify.clarity …}} | approach | {{GREEN \| RED}} |
+| verify.traceability | immovable + approach | {{GREEN \| RED}} |
+| verify.regression | approach | {{GREEN \| RED}} |
+| verify.claims | role rule (marketer in play) | {{GREEN \| RED \| n/a}} |
+| {{verify.security / verify.clarity …}} | approach | {{GREEN \| RED}} |
 
 **Overall:** {{PASS - advance to ship \| FAIL - the issue does not advance}}
 
 <!-- If FAIL: the issue does not advance. Fix it, or QA sends it back to
-     the acceptance-criteria stage if the scenarios are uncoverable. -->
+     the define stage if the scenarios are uncoverable. -->
 
-**If FAIL - disposition:** {{"fix and re-verify" \| "sent back to the acceptance-criteria stage: scenarios TRC-… are uncoverable because …"}}
+**If FAIL - disposition:** {{"fix and re-check" \| "sent back to the define stage: scenarios TRC-… are uncoverable because …"}}
 
 ---
 
@@ -115,8 +117,8 @@ evidence block is an automatic fail.
 ### Definition of Done
 
 <!-- The crisp exit check. The Definition of Ready (requirements-review.md)
-     was the entry gate into design; this is the exit gate out of test &
-     review. Items 1-5 are proven here, with evidence above. Items 6-7 are
+     was the entry gate into plan; this is the exit gate out of verify.
+     Items 1-5 are proven here, with evidence above. Items 6-7 are
      carried into shipping - listed so the close-out is one continuous
      checklist, not two.
 
@@ -134,7 +136,7 @@ guardrail applies to the checklist itself):
 
     - [ ] (follow-up: FU-<id>) <description>
         Passes (defers) when FU-<id> is in the manifest's follow-up ledger
-        (the follow_ups: list) with status: owed. Add target_task: <slug>
+        (the follow_ups: list) with status: outstanding. Add target_task: <slug>
         on the entry to block that issue's shipping until this one is
         settled (compass follow-up resolve --issue <source-slug> FU-<id>).
 
@@ -147,23 +149,23 @@ guardrail applies to the checklist itself):
         not assertion.
 
   Cross-issue: if another issue's follow-up ledger has target_task pointing
-  at the issue being shipped, and that entry is still owed, compass check
-  fails at ship time until it is settled.
+  at the issue being shipped, and that entry is still outstanding, compass
+  check fails at ship time until it is settled.
 -->
 
 - [ ] (evidence: {{EV-id}}) **Every scenario passes** - §1 is all PASS; the
       spec, read as the acceptance suite, is green.
 - [ ] (evidence: {{EV-id}}) **TDD suite green** - §2 links the record of the
       full suite passing.
-- [ ] (evidence: {{EV-id}}) **Coverage meets the tested-before-ship
-      guardrail's floor** - evidence in §2.
+- [ ] (evidence: {{EV-id}}) **Coverage meets the "Tested before it lands"
+      guardrail's floor (`G1`)** - evidence in §2.
 - [ ] (evidence: {{EV-id}}) **No lint / format / type errors** - clean, with
       the record linked.
 - [ ] (evidence: {{EV-id}}) **Traceability intact** - code → scenario → intent
       holds; claim → scenario holds where the marketer is in play.
 - [ ] (follow-up: {{FU-id}}) *(carried to ship)* Living docs updated to match
       reality.
-- [ ] (follow-up: {{FU-id}}) *(carried to ship)* Every owed follow-up settled -
-      no unsettled hotfix follow-up, no unbacked marketing claim.
+- [ ] (follow-up: {{FU-id}}) *(carried to ship)* Every outstanding follow-up
+      settled - no unsettled hotfix follow-up, no unbacked marketing claim.
 
 Next stage: **ship** (`/compass:ship`) - only on overall PASS.

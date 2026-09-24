@@ -1,6 +1,6 @@
 ---
 id: ADR-011
-title: Which file types require a red should be project-configurable, not a fixed list
+title: Which file types need a red should be project-configurable, not a fixed list
 status: accepted
 date: 2026-08-04
 supersedes: ''
@@ -23,14 +23,14 @@ outside the mechanism they implement: `scripts/release.sh` cuts releases and
 test on record.
 
 This was found by a false-negative sweep while adding Bash-command detection
-to the hook (task `hook-bash-write-bypass`). The sweep asked which write
+to the hook. The sweep asked which write
 shapes the new branch blocked, and one case came back allowed:
 `python3 -c 'open("hooks/post-tool.sh","w")'`. The command shape was detected
 correctly; the *path* was classified as not-production.
 
 ## Decision
 
-**Accepted and implemented 2026-08-06.** The enforced set is now project
+**Accepted and implemented 2026-08-06.** The enforced set is project
 configuration - `enforcement.code_globs` in `.compass/config.yml`, added to the
 framework's built-in set - and this repository declares `hooks/*.sh` and
 `scripts/*.sh`, closing the gap where its own enforcement scripts were outside
@@ -39,45 +39,39 @@ the mechanism they implement.
 Two things the implementation settled that this ADR had left open:
 
 1. **A project may only add.** There is no key that removes framework
-   enforcement. Compass's model is that project rules ratchet up - a project
+   enforcement. Compass's model is that project rules can only add - a project
    guardrail may exceed a floor, never fall short of one - and an exemption key
-   would be a disable switch wearing the clothes of configuration.
+   would let a project switch enforcement off while appearing to configure it.
 2. **Every block names the rule that matched**, built-in or project-declared.
    That is the other half of the reported problem: the surface was not just
    narrow, it was invisible, and an author could not predict which edit would
    block until one did.
 
-The original reasoning for not simply adding `.sh` to the default follows, and
-still holds - it is why this shape was chosen over the one-line version.
-
-**Not fixed by adding `.sh` to the extension list.**
-
-Adding one line is technically sufficient for this repository - all eight
-shipped scripts already have test coverage. It is the wrong default for
-adopters:
+Adding `.sh` to the framework's own default extension list, rather than making
+the set project-configurable, was rejected. Enough is not the same as right
+for adopters:
 
 1. **Shell scripts are the least-tested file type in most repositories.**
    `deploy.sh`, `setup.sh`, `entrypoint.sh`, typically with no bats or
    shellspec harness anywhere in the project. The first edit after upgrading
    would block, with an instruction to write a failing test the project has no
    way to run.
-2. **The hook has no per-project dial.** It never reads `.compass/config.yml`;
-   the `mode: advisory | enforced` setting governs `compass check`, not the
-   hook. So there is no supported way to soften this short of unregistering the
+2. **A fixed default gives a project no dial.** Without `enforcement.code_globs`,
+   there would be no supported way to soften this short of unregistering the
    hook - which would remove red-before-green for `.py` and everything else
-   too. That is the trade recorded in the shell-detection design: an
-   enforcement teams switch off is worth less than a partial one they keep.
+   too. An enforcement a team would switch off entirely is worth less than a
+   partial one it keeps, which is why the setting exists instead.
 3. **`.sh` alone is arbitrary.** `Makefile`, `justfile`, `package.json`
    scripts, `.bash`/`.zsh`, and extensionless files with a shebang are equally
    production-impacting and equally unclassified. Doing this consistently means
    a shebang check or a considered list, not an extension.
-4. **It would enforce edits to the hook against itself.** A project whose hook
-   misbehaves would have to satisfy it in order to repair it. A recovery path
-   exists (record a red, or re-frame as a Spike), but shipping that failure
-   mode needs an explicit self-exemption and a documented recovery line.
+4. **It enforces edits to the hook against itself.** A project whose hook
+   misbehaves has to satisfy it to repair it. A recovery path
+   exists (record a red, or re-frame as a Spike), and that recovery line is
+   documented alongside the setting.
 
-**The shape the fix should take instead:** the enforced set becomes project
-configuration, with the current list as the default.
+The enforced set is project configuration, with the framework's list as the
+default:
 
 ```yaml
 # .compass/config.yml
@@ -86,20 +80,17 @@ enforcement:
 ```
 
 A project that says nothing keeps exactly today's behaviour (Inv-8, backward
-compatibility). A project that wants its shell scripts covered opts in, and
-this repository would opt in on the same commit that ships the knob.
+compatibility). A project that wants its shell scripts covered opts in; this
+repository opts in on the same commit that shipped the setting.
 
 ## Consequences
 
-**Until it ships,** shell scripts are unenforced everywhere including here, and
-`docs/safety-contract.md` says so under what Compass does not claim. The gap is
-visible rather than implied, which is the minimum this framework owes its own
-guardrail G4.
-
-**When it ships,** the classifier stops being a fixed list the framework
-decides and becomes a floor the framework sets and a project can raise -
-matching how guardrails already work, where project guardrails only ratchet
-up. That is a better fit than the current all-or-nothing default.
+The classifier is a floor the framework sets and a project can raise -
+matching how guardrails already work, where project guardrails only add.
+That is a better fit than an all-or-nothing default. Naming the enforced set
+in `.compass/config.yml` also makes the gap visible rather than implied,
+which is the minimum this framework owes its own evidence-not-assertion
+guardrail (`G4`).
 
 **What it does not change.** The exemptions stay exempt in either version: test
 files must remain editable so the red can be written, and Compass's own
@@ -107,24 +98,24 @@ artifacts under `.compass/` are never production code.
 
 ## Alternatives considered
 
-- **Add `.sh` to the default list now.** One line, and correct for this
+- **Add `.sh` to the default list.** One line, and correct for this
   repository. Rejected as a default for the four reasons above; the friction
-  lands on every adopter and the escape hatch does not exist yet.
+  would land on every adopter with no setting to soften it.
 - **Special-case `hooks/` and `scripts/` as production paths.** Fixes the
   framework's own gap without touching adopters. Rejected: it is a rule that
   only makes sense inside this repository, shipped to everyone, and the
   path-scoped rules are supposed to describe categories (migrations,
   manifests), not one project's layout.
 - **Detect a shebang rather than an extension.** More accurate than any
-  extension list and catches extensionless scripts. Worth revisiting when the
-  knob exists - it needs the hook to read file contents, which it does not do
-  today for any classification.
+  extension list and catches extensionless scripts. Rejected for now - it
+  needs the hook to read file contents, which it does not do today for any
+  classification. Worth revisiting if the setting proves too coarse.
 
 ## References
 
-- Task `hook-bash-write-bypass` - the Bash-detection work whose false-negative
-  sweep found this; its `verification-report.md` records the finding and the
-  decision to leave it out of scope.
+- The Bash-detection work whose false-negative sweep found this; its
+  `verification-report.md` records the finding and the decision to leave it
+  out of scope.
 - `docs/safety-contract.md` - states, under what Compass does not claim, both
   that shell-command detection is best-effort and that shell script *files* are
   not classified as production code.

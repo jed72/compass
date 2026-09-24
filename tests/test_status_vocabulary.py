@@ -1,19 +1,13 @@
-"""A task must be able to say it stopped (reports R22, R16 part 2, R9-followup).
+"""An issue must be able to say it stopped.
 
-`manifest.yml`'s status enum was `['active', 'landed']`. Real work gets parked -
-deprioritised, blocked on a decision, superseded by a change of direction - and
-the schema had no way to say so. The only valid options were to lie by omission
-(`active`) or outright (`landed`), so a parked task and one genuinely in flight
-were indistinguishable, and `flow` reported parked work as in progress
-indefinitely. The gap widens over time, because parked tasks accumulate while
-active ones close.
+Real work gets parked - deprioritised, blocked on a decision, superseded by a
+change of direction. Without a `parked` status, `compass flow` reported parked
+work as in progress, indistinguishable from an issue genuinely under way.
 
-The board shipped already; what it could not answer was "what's next up",
-because nothing on disk said so. And with no `compass issue set-status`, every
-status change - including each new value here - was a hand-edited `str.replace`
-on the manifest.
+With no `compass issue set-status`, every status change - including each
+new value here - was a hand-edited `str.replace` on the manifest.
 
-Scenarios: docs/compass/2026-08-06-status-vocabulary/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: status-vocabulary/acceptance-criteria.md (SCN-A1..F2).
 """
 from __future__ import annotations
 
@@ -54,7 +48,7 @@ def _task(status=None, *, gates_pass=True, extra=None):
 
 
 def _project(tmp_path, tasks):
-    """tasks: {slug: task-dict}"""
+    """tasks: {slug: issue-dict}"""
     root = tmp_path / "proj"
     shutil.copytree(ROOT / "governance", root / "governance")
     (root / ".compass").mkdir(parents=True)
@@ -124,8 +118,8 @@ def test_scn_b2_set_status_refuses_unknown(tmp_path):
 
 
 def test_scn_b3_set_status_landed_respects_gates(tmp_path):
-    """`land-commit` refuses to mark landed over unpassed gates. A second door
-    into the same field must not be an easier one."""
+    """`compass ship-commit` refuses to mark landed over unpassed gates. A
+    second door into the same field must not be an easier one."""
     root = _project(tmp_path, {"t": _task(gates_pass=False)})
     r = _run(root, "issue", "set-status", "landed", "--issue", "t")
     body = yaml.safe_load((root / ".compass" / "work" / "t" / "manifest.yml").read_text())
@@ -160,7 +154,7 @@ def test_scn_c2_calibration_excludes_parked_and_abandoned(tmp_path):
 
 
 def test_scn_c3_derivation_only_from_landed(tmp_path):
-    """ADR-008: the living system spec derives from landed tasks only. Every
+    """ADR-008: the living system spec derives from landed issues only. Every
     value added here is non-terminal or abandoned, so none may contribute a
     scenario - checked by running the derivation, not by reading the code."""
     scenarios = [{"id": "SCN-KEEP-OUT", "title": "must not be derived",
@@ -184,7 +178,8 @@ def test_scn_c3_derivation_only_from_landed(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_scn_f1_absent_status_is_active(tmp_path):
-    """Every manifest.yml written before this change omits status entirely."""
+    """Every manifest.yml written before the status field existed omits it
+    entirely."""
     root = _project(tmp_path, {"t": _task()})
     assert _run(root, "issue", "lint", "--issue", "t").returncode == 0
     r = _run(root, "flow")
@@ -194,9 +189,9 @@ def test_scn_f1_absent_status_is_active(tmp_path):
 
 def test_scn_f2_landed_is_the_only_privileged_value(tmp_path):
     """The schema is the vocabulary's source of truth, and `landed` is the only
-    value that grants eligibility anywhere. Asserted behaviourally: a task in
+    value that grants eligibility anywhere. Asserted behaviourally: an issue in
     every other state must be treated as not-landed, so a value added later
-    cannot silently acquire landed's privileges."""
+    cannot silently get landed's privileges."""
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     enum = schema["properties"]["status"]["enum"]
     assert set(enum) == {"active", "queued", "parked", "landed", "abandoned"}, enum

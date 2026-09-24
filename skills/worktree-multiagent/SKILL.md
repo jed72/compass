@@ -6,8 +6,9 @@ description: How parallel subtasks are created, isolated and integrated across g
 # Worktree Multiagent
 
 Parallelism in Compass is **decided in Plan** (the distribution map) and
-**executed in breakdown** (the worktree orchestration). This skill covers both
+**carried out in breakdown** (the worktree orchestration). This skill covers both
 halves: how to decompose work correctly, and how to run and land the multiagent
+orchestration
 without the parallelism costing more than it saves.
 
 ## Orchestration - what runs when
@@ -18,7 +19,7 @@ without the parallelism costing more than it saves.
 | **Pair** | 2–3 | One worktree per subtask; one `builder` each; no dedicated orchestrator. | The lead builder. |
 | **Multiagent** | 4+ | One worktree per subtask; one `builder` each; plus one `orchestrator`. | The orchestrator. |
 
-Assess's size and risk assessment set the default orchestration; the
+The assessment's size and risk values set the default orchestration; the
 distribution map sets the subtask count; `.compass/config.yml` thresholds and the
 routing-guardrail caps bound it.
 
@@ -81,32 +82,32 @@ suite, without destabilising siblings.
 **The orchestrator** writes no feature code. Its job is coordination, collision
 detection, and integration:
 
-- Hands each builder a assignment: its worktree, its scenario group, its slice of
+- Hands each builder an assignment: its worktree, its scenario group, its slice of
   the plan.
-- Monitors subtasks during Build for convergence on shared surface - shared
+- Monitors subtasks during implementation for convergence on shared surface - shared
   files, shared interfaces, a scenario whose implementation reaches outside its
   group.
 - Intervenes *before* a collision: re-sequences subtasks, re-cuts a boundary, or
   escalates to a re-assess if the distribution map was wrong.
-- Is the **only** agent permitted to make a cross-stream change.
+- Is the **only** agent permitted to make a cross-subtask change.
 
 **A builder** owns its subtask and nothing else:
 
 - Works only inside its assigned worktree. Never touches a sibling's.
-- Routes every cross-stream need through the orchestrator - "I need to change
+- Routes every cross-subtask need through the orchestrator - "I need to change
   an interface another subtask owns" is an orchestrator message, never a reach
   across.
 - Runs full TDD inside its worktree (see `tdd-discipline`).
 
 ## Integration discipline (ship)
 
-1. Confirm every subtask is independently green - the `verifier` has per-stream
+1. Confirm every subtask is independently green - the `verifier` has per-subtask
    evidence.
 2. The orchestrator runs `scripts/integrate.sh` to merge worktrees in a
    coordinated order (foundations first, dependents after).
-3. The orchestrator resolves any merge conflicts - no one else may.
+3. Only the orchestrator resolves a merge conflict - a builder must not.
 4. **Run combined regression across the integrated result.** This is
-   non-negotiable on initiative. Per-stream green does not imply integrated
+   non-negotiable on initiative. Per-subtask green does not imply integrated
    green; proving the combination is the entire reason the orchestrator owns
    ship. Record the run and link the record.
 5. Resolve every owed follow-up, update living docs, write the integration
@@ -118,8 +119,9 @@ Never stash in one worktree and pop in another - and never stash at all
 inside a temporary worktree. A stash lives in the shared repository, but
 the working state it captures belongs to one checkout: a stash popped
 inside a temporary worktree that is then removed
-destroys the stashed work along with the worktree. Learned the hard way during a CI fix - the
-change survived only because it had been committed elsewhere first. If
+destroys the stashed work along with the worktree. A CI fix nearly lost work
+this way - the change survived only because it had already been committed
+elsewhere. If
 work must move between worktrees, commit it (a WIP commit on the
 subtask's branch is fine and can be amended); the branch is durable, the
 stash is not.
@@ -133,7 +135,7 @@ stash is not.
   unblock myself." It destroys the isolation guarantee for everyone.
 - **The coding orchestrator** - an orchestrator writing feature code. If it is
   tempted to, the decomposition was wrong; fix the decomposition.
-- **Skipping combined regression** - trusting per-stream green. The integration
+- **Skipping combined regression** - trusting per-subtask green. The integration
   is exactly where the untested interactions live.
-- **Swarming a critical change** - ignoring the cap. The cap is a routing
+- **Running a critical change as a multiagent** - ignoring the cap. The cap is a routing
   guardrail; honour it.

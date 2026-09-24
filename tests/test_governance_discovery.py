@@ -1,6 +1,6 @@
 """Governance discovery never silently substitutes the shipped defaults.
 
-Issue: claims-match-what-is-proved. Scenarios TRC-A1 to TRC-A6 and TRC-F1.
+Issue: claims-match-what-is-proved. Scenarios `TRC-A1` to `TRC-A6` and `TRC-F1`.
 
 The bug these cover: `find_governance` looked upward for
 `governance/routing-policy.yml`. A project that shipped `governance/guardrails.yml`
@@ -57,10 +57,10 @@ def _boundary(root: Path) -> None:
     (root / ".compass").mkdir(parents=True, exist_ok=True)
 
 
-# --- TRC-A1 -----------------------------------------------------------------
+# --- `TRC-A1` ----------------------------------------------------------------
 
 def test_a1_incomplete_project_governance_is_refused(tmp_path, in_dir):
-    """TRC-A1 - guardrails declared with no routing policy is refused, not replaced."""
+    """`TRC-A1` - guardrails declared with no routing policy is refused, not replaced."""
     proj = tmp_path / "proj"
     _gov(proj, guardrails=True)
     _boundary(proj)
@@ -77,10 +77,10 @@ def test_a1_incomplete_project_governance_is_refused(tmp_path, in_dir):
         "the refusal does not name the project directory it is refusing")
 
 
-# --- TRC-A2 -----------------------------------------------------------------
+# --- `TRC-A2` ----------------------------------------------------------------
 
 def test_a2_refusal_names_found_and_missing_paths(tmp_path, in_dir):
-    """TRC-A2 - the message is the migration path, not just a complaint.
+    """`TRC-A2` - the message is the migration path, not just a complaint.
 
     A project in this state works today, because its guardrails are quietly
     ignored, and fails on its first command after upgrading. The message has to
@@ -106,12 +106,12 @@ def test_a2_refusal_names_found_and_missing_paths(tmp_path, in_dir):
         "declaration and using the shipped defaults")
 
 
-# --- TRC-A3 -----------------------------------------------------------------
+# --- `TRC-A3` ----------------------------------------------------------------
 
 def test_a3_no_project_governance_still_falls_back_silently(tmp_path, in_dir, capsys):
-    """TRC-A3 - a project that has said nothing keeps working, silently.
+    """`TRC-A3` - a project that has said nothing keeps working, silently.
 
-    This is the compatibility promise: triage-and-go on day one with zero
+    This is the compatibility promise: assess and go on day one with zero
     project setup. It is why the fix is not 'fail whenever there is no routing
     policy'.
     """
@@ -128,7 +128,7 @@ def test_a3_no_project_governance_still_falls_back_silently(tmp_path, in_dir, ca
 
 
 def test_a3b_governance_dir_with_neither_file_counts_as_saying_nothing(tmp_path, in_dir):
-    """TRC-A3 - a directory that merely shares the name has declared nothing.
+    """`TRC-A3` - a directory that merely shares the name has declared nothing.
 
     Refusing here would mean any directory called `governance/` could stop
     Compass. The rule is about what a project has *declared*, not what its
@@ -143,10 +143,10 @@ def test_a3b_governance_dir_with_neither_file_counts_as_saying_nothing(tmp_path,
     assert Path(find_governance()).resolve() == SHIPPED.resolve()
 
 
-# --- TRC-A4 -----------------------------------------------------------------
+# --- `TRC-A4` ----------------------------------------------------------------
 
 def test_a4_complete_project_governance_is_used(tmp_path, in_dir, capsys):
-    """TRC-A4 - the case that already worked keeps working."""
+    """`TRC-A4` - the case that already worked keeps working."""
     proj = tmp_path / "proj"
     gov = _gov(proj, policy=True, guardrails=True)
     _boundary(proj)
@@ -157,10 +157,10 @@ def test_a4_complete_project_governance_is_used(tmp_path, in_dir, capsys):
     assert out.out == "" and out.err == ""
 
 
-# --- TRC-A5 -----------------------------------------------------------------
+# --- `TRC-A5` ----------------------------------------------------------------
 
 def test_a5_replace_or_merge_is_documented():
-    """TRC-A5 - an adopter can find out what happens to the shipped defaults.
+    """`TRC-A5` - an adopter can find out what happens to the shipped defaults.
 
     Measured during the requirements review: project governance REPLACES the
     shipped defaults, and a shipped guardrail the project omits is reported
@@ -198,10 +198,10 @@ def test_a5_replace_or_merge_is_documented():
         "enforced or merely reported")
 
 
-# --- TRC-A6 -----------------------------------------------------------------
+# --- `TRC-A6` ----------------------------------------------------------------
 
 def test_a6_incomplete_governance_outside_the_project_is_ignored(tmp_path, in_dir):
-    """TRC-A6 - a stray directory above the project cannot stop work inside it.
+    """`TRC-A6` - a stray directory above the project cannot stop work inside it.
 
     Discovery walks upward. Refusing on anything it finds would let an outer
     repository, a monorepo root, or a home directory with a stray file break a
@@ -218,7 +218,7 @@ def test_a6_incomplete_governance_outside_the_project_is_ignored(tmp_path, in_di
 
 
 def test_a6b_the_walk_stops_at_the_project_boundary(tmp_path, in_dir):
-    """TRC-A6 - the boundary holds even when the project declares nothing.
+    """`TRC-A6` - the boundary holds even when the project declares nothing.
 
     Nearest-wins alone does not cover this: a project with no governance of its
     own, sitting under a parent that has an incomplete one. Without a boundary
@@ -234,14 +234,14 @@ def test_a6b_the_walk_stops_at_the_project_boundary(tmp_path, in_dir):
     assert Path(find_governance()).resolve() == SHIPPED.resolve()
 
 
-# --- TRC-F1 -----------------------------------------------------------------
+# --- `TRC-F1` ----------------------------------------------------------------
 
 def test_f1_project_governance_without_guardrails_is_refused(tmp_path, in_dir):
-    """TRC-F1 - the mirror-image bug nobody had looked at.
+    """`TRC-F1` - a routing policy with no guardrails is refused too.
 
     A project holding a routing policy and no guardrails passed the old
-    discovery test, because discovery only looked for the routing policy. What
-    happened next was never established.
+    discovery test, because discovery only looked for the routing policy. The
+    behaviour after discovery was not checked.
     """
     proj = tmp_path / "proj"
     gov = _gov(proj, policy=True)

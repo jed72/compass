@@ -1,16 +1,15 @@
 """A different test command is a different assertion, not a rerun-to-green.
 
 `compass tdd-green` flags `rerun_without_change` when the source tree hash is
-unchanged since the previous green. The flag exists to catch running the same
-failing test again until it happens to pass - flaky-test laundering, which
-`compass check`'s no-trusted-rerun check then refuses.
+unchanged since the previous green. The flag exists to catch passing a
+flaky test by running it until it passes, which `compass check`'s
+no-trusted-rerun check then refuses.
 
-It hashed only the source, not the command, so the ordinary Verify sequence -
-run the unit tests, then run the full suite, with no code change in between -
-was recorded as a rerun-to-green and failed the check. That punishes the exact
-behaviour Verify asks for.
+The flag compares the command as well as the source hash, so the verify stage's
+sequence - run the unit tests, then run the full suite, with no code
+change - is not a rerun.
 
-Scenario: docs/compass/2026-08-04-release-blockers-2026-08/acceptance-criteria.md (SCN-17).
+Scenario: release-blockers-2026-08/acceptance-criteria.md (SCN-17).
 """
 from __future__ import annotations
 
@@ -62,7 +61,8 @@ def _record(task_dir: pathlib.Path) -> dict:
 
 
 def test_a_different_command_is_not_a_rerun_without_change(project):
-    """The Verify sequence - narrow suite, then full suite - must stay clean."""
+    """The verify stage's sequence - narrow suite, then full suite - must
+    stay clean."""
     root, task_dir = project
     _green(root, sys.executable, "-c", "print('unit tests')")
     _green(root, sys.executable, "-c", "print('the full suite')")

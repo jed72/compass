@@ -9,8 +9,10 @@ superseded_by: ''
 
 > **Vocabulary note (ADR-023, 2026-08-27):** the concept this record calls a
 > *lens* is now called a **role**, and the three agents it describes are named
-> after their roles: `product-owner`, `product-marketer`, `architect`. The
-> record keeps the word it was decided in; only the name has moved.
+> after their roles: `product-owner`, `product-marketer`, `architect`.
+> `spec.feature.md` is now `acceptance-criteria.md`; `brief.md` is now
+> `intent.md`; "task" is now "issue". The record keeps the words it was
+> decided in; only the names have moved.
 
 
 ## Context
@@ -55,7 +57,7 @@ annotations, candidate ADR titles, and boundary-risk flags."
 | Alternative | Why considered | Why rejected |
 |---|---|---|
 | Let each role maintain its own spec format (engineering: Gherkin; product: user stories; QA: risk register) | Matches many teams' existing practice; roles feel less constrained | When specs diverge, there is no single acceptance criterion. "Does this feature pass?" becomes unanswerable without reconciling multiple documents. Compass is designed to make that question have one answer. |
-| Keep one spec file but allow lenses to append scenarios to it | Ensures scenarios stay in one file; lenses can add missing coverage | A lens that writes scenarios becomes a parallel spec author. The lens's scenarios may not be reviewed to the same standard as the spec-author's. Traceability (G3) requires knowing who wrote each scenario and why - a mixed-authorship file defeats this. |
+| Keep one spec file but allow lenses to append scenarios to it | Makes sure scenarios stay in one file; lenses can add missing coverage | A lens that writes scenarios becomes a parallel spec author. The lens's scenarios may not be reviewed to the same standard as the spec-author's. Traceability (G3) needs to know who wrote each scenario and why - a mixed-authorship file defeats this. |
 
 ## Consequences
 
@@ -82,8 +84,8 @@ annotations, candidate ADR titles, and boundary-risk flags."
 
 ## References
 
-- Invariant Inv-5 (one spec, many lenses; lenses annotate, never fork), defined in `architecture/decisions/README.md`
+- The invariant that one spec serves many lenses, which annotate and never fork it (Inv-5), defined in `architecture/decisions/README.md`
 - Boundary rule: a lens never emits Given/When/Then scenarios; those live only in `spec.feature.md` (`architecture/ownership.md`)
-- `agents/architect-lens.md` §"What you do NOT do"
-- `docs/methodology.md` §"Roles"
+- `agents/architect.md` §"What you do NOT do"
+- `docs/methodology.md` §7 "One specification, several roles"
 - `CLAUDE.md` §"Roles"

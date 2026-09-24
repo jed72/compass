@@ -7,8 +7,8 @@ key is `issue:`, the path slug is `<issue-slug>`, and the module is
 Measured before the change: `spine` appeared 521 times and had no `terms:`
 entry, so the most-used noun in the framework was the one word the vocabulary
 scan never checked. 26 of those uses glossed it in place - "the
-machine-readable issue spine" - which is the sentence you write when you know
-the word will not land on its own.
+machine-readable issue spine" - which is the sentence you write when a
+reader will not understand the word alone.
 
 The compatibility path is not new. `cli/migrate-map.yml` already maps retired
 filenames forward and `normalize_spine()` already maps retired keys; this adds
@@ -17,7 +17,7 @@ still loads, because `.compass/work/` is gitignored in this repository and
 176 records have no git history behind them.
 
 Scenario ids: NIR-A1, NIR-A2, NIR-B1, NIR-B2, NIR-C1, NIR-D1, NIR-D2, NIR-E1
-in docs/compass/2026-08-27-name-the-issue-record/acceptance-criteria.md
+in name-the-issue-record/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -36,10 +36,10 @@ from compass_pkg.core import is_issue_document as _own_archive
 #: An issue's own documents live at `docs/compass/<created>-<slug>/` since
 #: `compass migrate` relocated them out of `.compass/work/`, which every scan
 #: here already skipped. They record the vocabulary and file layout in force
-#: when they were written, so enforcing today's surface over them reports the
-#: account as a defect. Applied at the repository root only: the worked
-#: examples' documents moved too and stay scanned, because an adopter reads
-#: them to learn the pipeline.
+#: when they were written, so enforcing today's surface over them reports
+#: their historical wording as a defect. Applied at the repository root
+#: only: the worked examples' documents moved too and stay scanned, because
+#: an adopter reads them to learn the pipeline.
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -146,8 +146,7 @@ OLD_NAME_ALLOWED = (
     "tests/test_fresh_eyes_verify_sweeps.py",
     # Issue directories keep the slug they were created under. Four archived
     # issues have `spine` in their slug, and a citation that renames itself
-    # points at a directory that does not exist - which is how this rename
-    # broke `tests/test_archive_citations_resolve.py` on its first pass.
+    # points at a directory that does not exist.
     "tests/test_spine_records_the_truth.py",
     "docs/system-spec.md",
     # Quotes this repository's archive verbatim; the quoted sessions used the
@@ -163,12 +162,38 @@ OLD_NAME_ALLOWED = (
 
 
 def test_nir_b2_the_old_name_survives_only_where_history_needs_it():
+    # The scan reads tracked files, because the question it asks is what the
+    # repository ships. `tests/test_house_style.py` argues this in its module
+    # docstring: a guard that reads the working tree answers differently on
+    # every machine, since it sees whatever each contributor happens to keep on
+    # disk, and it passes in continuous integration where those files are
+    # absent. `git grep` searches the content of tracked files only, so an
+    # untracked working note is neither read nor reported.
+    #
+    # `OLD_NAME_ALLOWED` keeps its `.compass/` and `docs/compass/` entries even
+    # though this repository does not track either directory. An adopting
+    # project commits its issue records, and there the old name is history the
+    # entries exist to permit.
+    # Reported per LINE, not per file, so a single line that must name the
+    # retired word carries a marker instead of the whole file being excused.
+    # tests/test_writing_style.py needs it twice: a named exemption there
+    # quotes another test's comment verbatim, because that sweep matches on
+    # substrings, and the quote is what tells a deliberate mention from a live
+    # use. Excusing the file would also excuse any future use anywhere in it.
+    # The four entries in OLD_NAME_ALLOWED that are whole files stay whole:
+    # the word runs throughout each of them.
     out = subprocess.run(
-        ["grep", "-rIl", "--exclude-dir=.git", "--exclude-dir=__pycache__",
-         r"\bspine\b", "."],
+        ["git", "grep", "-nI", "-e", r"\bspine\b"],
         cwd=str(ROOT), capture_output=True, text=True)
-    files = [f[2:] if f.startswith("./") else f
-             for f in out.stdout.splitlines() if f.strip()]
+    files = []
+    for hit in out.stdout.splitlines():
+        if not hit.strip():
+            continue
+        path, _, rest = hit.partition(":")
+        _, _, text = rest.partition(":")
+        if "vocabulary-scan: allow" in text:
+            continue
+        files.append(path)
 
     stray = [f for f in files
              if not any(f.startswith(a) or f == a for a in OLD_NAME_ALLOWED)]
@@ -187,10 +212,8 @@ def test_nir_c1_the_module_carries_the_name():
 
     NOTE for anyone running a rename sweep over this repository: the retired
     names below are BUILT FROM PARTS on purpose. A sweep that rewrites them
-    would rewrite this test's own expectations - which is exactly what
-    happened the first time, leaving a test that asserted the new module must
-    NOT exist. The test that checks a rename is the one a rename must not
-    touch.
+    would rewrite this test's own expectations. The test that checks a
+    rename is the one a rename must not touch.
     """
     retired_module = "_".join(("task", "spine")) + ".py"
     pkg = ROOT / "cli" / "compass_pkg"
@@ -300,13 +323,13 @@ def test_nir_d2b_migrating_twice_changes_nothing(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# NIR-E1 - the freeze ceremony is paid
+# NIR-E1 - the freeze needs a decision record
 # ---------------------------------------------------------------------------
 
 def test_nir_e1_a_decision_record_covers_the_vocabulary_change():
-    """terminology.yml says changing the vocabulary carries the ceremony of a
-    decision record. ADR-012 froze it "for years" and a second rename landed
-    three weeks later; the ceremony is what stops a third being informal."""
+    """terminology.yml says changing the vocabulary needs a decision record.
+    ADR-012 froze it "for years" and a second rename landed three weeks
+    later; the decision record is what stops a third being informal."""
     adrs = sorted((ROOT / "architecture" / "decisions").glob("ADR-*.md"))
     hits = [p for p in adrs
             if re.search(r"\bmanifest\b", p.read_text(encoding="utf-8"), re.I)
@@ -320,15 +343,9 @@ def test_nir_e1_a_decision_record_covers_the_vocabulary_change():
 def test_nir_d3_the_compatibility_pair_is_not_an_identity():
     """The fallback must actually be a fallback.
 
-    A blanket rename over this tree has collapsed a compatibility map to an
-    identity twice now. The first was 2026-08-25, when both values of
-    `_RENAMED_KIND_FILES` became the current filenames and every landed issue
-    stopped resolving. The second was this issue's own sweep, which rewrote
-    `manifest_path`'s candidate pair to ("manifest.yml", "manifest.yml") and
-    took backward compatibility with it - caught only because NIR-D1 went red.
-
-    A pair whose members are equal is not a fallback, and it fails silently:
-    everything current keeps working and only unmigrated projects break.
+    A blanket rename can make both members of a compatibility pair equal.
+    That breaks unmigrated projects silently, so this asserts the members
+    differ.
     """
     sys.path.insert(0, str(ROOT / "cli"))
     from compass_pkg.core import MANIFEST_NAMES
@@ -349,12 +366,8 @@ def test_nir_d4_no_module_opens_the_manifest_by_a_hard_coded_name():
     """Every reader resolves the filename through `manifest_path`.
 
     A hard-coded `os.path.join(task_dir, "manifest.yml")` reads only migrated
-    projects. That is not hypothetical: this issue's sweep rewrote seventeen
-    such joins from the retired name to the current one across eleven modules,
-    including both halves of the migrator's own two-line fallback - so
-    `compass issue receipt` answered "not found" for a project still holding
-    task.yml, and the migrator could no longer find the file it was migrating.
-    The receipt fixture caught it; nothing else did.
+    projects. A project still holding task.yml then answers "not found",
+    including from the migrator's own reader.
 
     core.py is excluded because it defines the resolver, and migrate-map.yml is
     data rather than code.
@@ -379,11 +392,9 @@ def test_nir_d4_no_module_opens_the_manifest_by_a_hard_coded_name():
 def test_nir_c1c_the_shipped_template_writes_the_current_root_key():
     """A new issue is born current, not born needing migration.
 
-    templates/manifest.yml is what every issue's record is copied from. It kept
-    the retired root key after the rename, so `compass approach evaluate` read a
-    fresh manifest through the compatibility map that exists for records written
-    years ago. That works, and it is still wrong: the retired key would keep
-    entering the tree, and the migration would never be finished.
+    templates/manifest.yml is what every issue's record is copied from. A
+    template with the retired root key sends every new manifest through the
+    compatibility map that exists for records written years ago.
 
     The placeholder is checked with it. A template that says {{TASK_SLUG}} while
     the key says `issue` teaches the old word in the one file an author copies.

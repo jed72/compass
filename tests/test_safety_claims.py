@@ -1,16 +1,16 @@
 """What Compass promises about itself matches what it can demonstrate.
 
-Issue: claims-match-what-is-proved. Scenarios TRC-B1 to TRC-B4, TRC-D1, TRC-D2
-and TRC-F2.
+Issue: claims-match-what-is-proved. Scenarios `TRC-B1` to `TRC-B4`, `TRC-D1`,
+`TRC-D2` and `TRC-F2`.
 
 The finding these cover, from an outside engineering review of 3.2.0: the
 tested-before-ship promise reads as "the declared test ran", and what Compass
 establishes is that the code declares a scenario, the scenario declares a test,
 and some command exited zero. `_check_suite_passed` says so in its own comment.
 
-Two separate jobs here. Narrow the wording so it stops overclaiming (group B),
-and hold the safety contract to naming a real mechanism behind every guarantee
-so it cannot drift back (group D).
+Two separate jobs here. Narrow the wording so it stops overclaiming, and hold
+the safety contract to naming a real mechanism behind every guarantee so it
+cannot drift back.
 """
 
 import re
@@ -34,7 +34,8 @@ OVERCLAIM = "No code reaches main without a passing automated test it traces to"
 
 
 def _g1_statement() -> str:
-    """G1's statement, read from the machine-readable file that owns it."""
+    """The tested-before-it-lands guardrail's statement (`G1`), read from the
+    machine-readable file that owns it."""
     import yaml
     data = yaml.safe_load(GUARDRAILS_YML.read_text(encoding="utf-8"))
     for g in (data.get("defaults") or []):
@@ -54,10 +55,10 @@ def _normalise(text: str) -> str:
     return " ".join(text.split())
 
 
-# --- TRC-B1 -----------------------------------------------------------------
+# --- `TRC-B1` ---------------------------------------------------------------
 
 def test_b1_tested_before_ship_promise_is_narrowed():
-    """TRC-B1 - the promise says what a green record establishes.
+    """The promise says what a green record establishes (TRC-B1).
 
     A test-run record holds one exit code for one command. It does not
     enumerate the tests the command collected, so "a passing automated test it
@@ -82,19 +83,20 @@ def test_b1_tested_before_ship_promise_is_narrowed():
 
 
 def test_b1b_the_statement_points_at_where_the_stronger_guarantee_is_built():
-    """TRC-B1 - a limit with no route out reads as a permanent one."""
+    """A limit with no route out reads as a permanent one (TRC-B1)."""
     statement = _g1_statement().lower()
     assert "safety-contract" in statement or "safety contract" in statement, (
         "the statement does not point the reader at the contract that "
         "explains the limit in full")
 
 
-# --- TRC-B2 -----------------------------------------------------------------
+# --- `TRC-B2` ---------------------------------------------------------------
 
 def test_b2_promise_reads_the_same_in_all_three_files():
-    """TRC-B2 - correct every place at once, or a reader finds a contradiction.
+    """Correct every place at once, or a reader finds a contradiction
+    (TRC-B2).
 
-    The canonical wording lives in G1's `statement:`. The two prose files must
+    The canonical wording lives in `G1`'s `statement:`. The two prose files must
     carry it. Reading it from the YAML rather than hardcoding it here keeps the
     sentence in one place instead of four.
     """
@@ -115,20 +117,20 @@ def test_b2_promise_reads_the_same_in_all_three_files():
 
 
 def test_b2b_the_old_overclaim_is_gone_from_every_file():
-    """TRC-B2 - the removal is checked, not assumed."""
+    """The removal is checked, not assumed (TRC-B2)."""
     for path in (GUARDRAILS_YML, GUARDRAILS_MD, METHODOLOGY, CONTRACT):
         body = _normalise(path.read_text(encoding="utf-8"))
         assert OVERCLAIM.lower() not in body.lower(), (
             f"{path.relative_to(REPO_ROOT)} still carries the overclaim")
 
 
-# --- TRC-F2 -----------------------------------------------------------------
+# --- `TRC-F2` ---------------------------------------------------------------
 
 def test_f2_narrowed_wording_does_not_soften_the_check():
-    """TRC-F2 - the words get smaller; the machine does not.
+    """The words get smaller; the machine does not (TRC-F2).
 
     The risk in a wording change is that someone reads the softer sentence as
-    permission to soften the check. G1's `checks:` list is what actually runs,
+    permission to soften the check. `G1`'s `checks:` list is what actually runs,
     and it must be untouched by this issue.
     """
     import yaml
@@ -145,10 +147,10 @@ def test_f2_narrowed_wording_does_not_soften_the_check():
         f"  found   : {sorted(g1.get('checks') or [])}")
 
 
-# --- TRC-B3 -----------------------------------------------------------------
+# --- `TRC-B3` ---------------------------------------------------------------
 
 def test_b3_contract_states_the_evidence_limit():
-    """TRC-B3 - the contract says what a green record does not establish.
+    """The contract says what a green record does not establish (TRC-B3).
 
     It already has the right section for this - 'What Compass does NOT claim' -
     sitting next to the honest note about the hook failing open on shell
@@ -167,7 +169,7 @@ def test_b3_contract_states_the_evidence_limit():
         "code when it was made, so a stale green satisfies it")
 
 
-# --- TRC-B4, TRC-D1, TRC-D2 -------------------------------------------------
+# --- `TRC-B4`, `TRC-D1`, `TRC-D2` --------------------------------------------
 
 from safety_contract_check import (  # noqa: E402
     EmptyContract, Problem, check, parse_backing, parse_guarantees,
@@ -175,13 +177,14 @@ from safety_contract_check import (  # noqa: E402
 
 
 def test_b4_every_guarantee_names_a_backing_mechanism():
-    """TRC-B4 - run against the real contract; it must come back clean."""
+    """Run against the real contract; it must come back clean (TRC-B4)."""
     problems = check(CONTRACT.read_text(encoding="utf-8"), str(REPO_ROOT))
     assert not problems, "\n".join(str(p) for p in problems)
 
 
 def test_b4b_the_check_actually_inspected_something():
-    """TRC-B4 - a clean result is only worth having if the parse found rows.
+    """A clean result is only worth having if the parse found rows
+    (TRC-B4).
 
     Paired with the test above on purpose. 'No problems' and 'no input' produce
     the same empty list, and this is the assertion that tells them apart.
@@ -192,17 +195,14 @@ def test_b4b_the_check_actually_inspected_something():
 
 
 def test_d1_guarantee_without_backing_fails():
-    """TRC-D1 - a guarantee nothing accounts for is reported by number."""
+    """A guarantee nothing accounts for is reported by number (TRC-D1)."""
     text = CONTRACT.read_text(encoding="utf-8")
     n = max(parse_guarantees(text)) + 1
     # Anchored on the section heading by shape rather than by its exact
     # words. Pinning the version in it is what broke this check when the
     # contract's headings stopped carrying one.
-    # Either spelling of the limits heading. It was "What Compass does NOT
-    # claim" and became "Deliberate limits" when the docs were slimmed on
-    # 2026-08-26 - the second time a rename has broken this anchor, the first
-    # being a version number in the heading. What the test needs is the
-    # section AFTER the guarantees, not its wording.
+    # Find the section after the guarantees by its shape, not its heading
+    # text: the heading has changed twice.
     m = re.search(r"^## (?:What Compass.*does NOT claim|Deliberate limits).*$",
                    text, re.M)
     assert m, (
@@ -220,7 +220,7 @@ def test_d1_guarantee_without_backing_fails():
 
 
 def test_d2_missing_named_mechanism_fails():
-    """TRC-D2 - a row naming a file that is not there is reported."""
+    """A row naming a file that is not there is reported (TRC-D2)."""
     text = CONTRACT.read_text(encoding="utf-8")
     backing = parse_backing(text)
     n = min(backing)
@@ -234,7 +234,7 @@ def test_d2_missing_named_mechanism_fails():
 
 
 def test_d2b_a_row_naming_a_command_the_cli_lacks_fails():
-    """TRC-D2 - the same for a command, since half the rows name one."""
+    """The same for a command, since half the rows name one (TRC-D2)."""
     text = CONTRACT.read_text(encoding="utf-8")
     backing = parse_backing(text)
     n = min(backing)
@@ -247,9 +247,10 @@ def test_d2b_a_row_naming_a_command_the_cli_lacks_fails():
 def test_d3_an_unparseable_contract_raises_rather_than_passing():
     """The design decision that keeps this from being a check that cannot fail.
 
-    Four checks have shipped in this project that passed because they found
-    nothing to inspect. Fed a contract with no guarantees, this one must refuse
-    to answer rather than answer 'clean'.
+    tests/test_version_guard_covers_every_location.py:12-15 names four checks
+    that have shipped in this project and passed because they found nothing
+    to inspect. Fed a contract with no guarantees, this one must refuse to
+    answer rather than answer 'clean'.
     """
     with pytest.raises(EmptyContract):
         parse_guarantees("# Not a contract\n\nNothing here.\n")

@@ -20,7 +20,7 @@ def _incomplete_install(detail):
     """Print the same "this install is incomplete" message every entry point
     already shows on a missing PyYAML, then exit 3. Centralised here so the
     message and the exit code are one fact this module owns, not something
-    duplicated - and drifting - per caller."""
+    each caller copies and can get wrong."""
     sys.stderr.write(
         "compass: this install is incomplete - PyYAML did not resolve from "
         f"the bundled copy at {_VENDOR_YAML}.\n"
@@ -31,14 +31,10 @@ def _incomplete_install(detail):
     sys.exit(3)
 
 
-# Inserting a path at sys.path[0] that does not exist is a silent no-op:
-# Python just keeps looking further down sys.path, and on a machine that also
-# has a system PyYAML - exactly the population that followed the old
-# instruction to install it by hand - `import yaml` below would succeed
-# against THAT copy instead, with no warning at all. That is the opposite of
-# "the bundled copy always wins, unconditionally" (DD-3, ADR-013 Decision 3),
-# so absence is checked explicitly, before any import is attempted, rather
-# than inferred from whether an import happens to fail.
+# A path at sys.path[0] that does not exist is silently skipped. On a
+# machine with a system PyYAML, `import yaml` would then load that copy
+# with no warning. So check that the directory exists before importing
+# (ADR-013, Decision 3).
 if not os.path.isdir(_VENDOR_YAML):
     _incomplete_install(
         f"{_VENDOR_YAML} does not exist - the vendored directory is absent.")
@@ -56,11 +52,9 @@ except ImportError as _exc:
 else:
     # The import succeeded, but from where? Nothing above guarantees it was
     # the bundled copy - only that Python found *a* module named `yaml`
-    # somewhere on sys.path. Compare the file it actually loaded against the
-    # directory this module just inserted; if they disagree, some other
-    # PyYAML on the machine answered first, and running against an
-    # undocumented copy at an undocumented version is not what "the bundled
-    # copy always wins" means.
+    # somewhere on sys.path. Compare the loaded file with the directory this
+    # module inserted. If they differ, another PyYAML on the machine loaded
+    # first, and Compass must not run against it.
     _resolved_dir = os.path.dirname(
         os.path.realpath(os.path.abspath(_compass_vendor_check.__file__)))
     _vendor_real = os.path.realpath(_VENDOR_YAML)

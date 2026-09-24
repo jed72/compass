@@ -61,7 +61,7 @@ def _manifest(*, register):
                    "verify": "full", "ship": "full"},
         "artifacts": artifacts, "evidence": [], "gates": [],
         # A stated criterion, so the acceptance-before-code guardrail is
-        # satisfied and the only thing these tests can trip on is where the
+        # satisfied and the only thing these tests can fail on is where the
         # delivery-approach record lives.
         "scenarios": [{"id": "MV-1", "title": "it works", "intent": "INT-1",
                        "tests": ["tests/test_x.py::test_mv_1"]}],
@@ -80,10 +80,9 @@ def _project(tmp_path, *, documents=True, register=True, red=True,
     (work / "manifest.yml").write_text(_manifest(register=register),
                                        encoding="utf-8")
     if red:
-        # A REAL red, written by the CLI. The hook reads the record beside the
-        # marker and rejects a marker with nothing behind it - which is the
-        # point of the marker - so an empty file here would make these tests
-        # measure that rejection instead of where the delivery-approach record
+        # A REAL red, written by the CLI. The hook rejects a marker with no
+        # record beside it. An empty file here would make these tests
+        # measure that rejection, not where the delivery-approach record
         # lives.
         r = subprocess.run(
             [sys.executable, str(COMPASS_CLI), "tdd-red", "--issue", SLUG,
@@ -173,7 +172,7 @@ def test_the_verb_exits_non_zero_when_the_document_is_absent(tmp_path):
         + r.stdout + r.stderr)
 
 
-# --- TRC-D1 ------------------------------------------------------------------
+# --- `TRC-D1` ------------------------------------------------------------------
 
 def test_trc_d1_the_hook_accepts_a_relocated_delivery_approach_record(tmp_path):
     project = _project(tmp_path)
@@ -187,7 +186,7 @@ def test_trc_d1_the_hook_accepts_a_relocated_delivery_approach_record(tmp_path):
         f"complete:\n{r.stderr}")
 
 
-# --- TRC-D2 ------------------------------------------------------------------
+# --- `TRC-D2` ------------------------------------------------------------------
 
 def test_trc_d2_the_hook_still_blocks_with_no_record_anywhere(tmp_path):
     """The control. Reading the registry must not stop the hook firing."""
@@ -216,7 +215,7 @@ def test_trc_d2_a_moved_document_the_registry_does_not_know_about_blocks(tmp_pat
         f"one:\n{r.stderr}")
 
 
-# --- TRC-D3 ------------------------------------------------------------------
+# --- `TRC-D3` ------------------------------------------------------------------
 
 def test_trc_d3_the_stop_hook_reads_relocated_documents(tmp_path):
     project = _project(tmp_path, gate_decision="FAIL")

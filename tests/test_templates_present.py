@@ -1,7 +1,7 @@
 """Tests that the shipped architecture templates are present.
 
 Covers:
-  TRC-A4 - Compass ships templates for the architecture artifacts
+  Compass ships templates for the architecture artifacts (TRC-A4)
 """
 from __future__ import annotations
 
@@ -16,12 +16,12 @@ TEMPLATES_DECISIONS = TEMPLATES_ARCH / "decisions"
 
 
 # ---------------------------------------------------------------------------
-# TRC-A4 - templates exist
+# Templates exist (TRC-A4)
 # ---------------------------------------------------------------------------
 
 def test_architecture_templates_exist():
-    """TRC-A4: The framework ships templates for the three narrative files,
-    the ADR template, and the decisions README."""
+    """The framework ships templates for the three narrative files, the
+    ADR template, and the decisions README (TRC-A4)."""
     required = [
         TEMPLATES_ARCH / "system-context.md",
         TEMPLATES_ARCH / "relations.md",
@@ -35,7 +35,8 @@ def test_architecture_templates_exist():
 
 
 def test_narrative_templates_have_content():
-    """Each narrative template must be non-empty and mention how Frame uses it."""
+    """Each narrative template must be non-empty and mention how the assess
+    stage uses it."""
     for name in ("system-context.md", "relations.md", "ownership.md"):
         p = TEMPLATES_ARCH / name
         if not p.exists():

@@ -1,12 +1,9 @@
 """Every shipped example does what the framework says it does.
 
-`examples/README.md` tells an adopter that `compass check --issue <slug>` passes
-inside any example. Three independent reviews found that four of five failed it,
-and that `compass bdd extract` - the release's headline feature - worked on none
-of them. Both had shipped unnoticed because nothing exercised the examples.
-
-That is the gap this file closes. Reference material is the first thing a
-newcomer runs, and an example that fails the guardrail it is demonstrating
+Every example passes `compass check` and `compass bdd extract`.
+`examples/README.md` tells an adopter that `compass check --issue <slug>`
+passes inside any example, and reference material is the first thing a
+newcomer runs, so an example that fails the guardrail it is demonstrating
 teaches exactly the wrong lesson.
 """
 from __future__ import annotations
@@ -26,7 +23,7 @@ EXAMPLES = ROOT / "examples"
 
 
 def _route_examples():
-    """Example directories that carry a Compass task (not the BDD adapters)."""
+    """Example directories that carry a Compass issue (not the BDD adapters)."""
     out = []
     for d in sorted(EXAMPLES.iterdir()):
         if not d.is_dir() or d.name == "bdd-adapters":
@@ -57,7 +54,7 @@ def test_there_are_route_examples_to_check():
 
 @pytest.mark.parametrize("name,slug", ROUTE_EXAMPLES)
 def test_every_example_passes_its_own_check(name, slug):
-    """examples/README.md promises this. It was false for four of five."""
+    """examples/README.md promises this."""
     tmp, work = _sandbox(name)
     try:
         r = subprocess.run([sys.executable, str(CLI), "check", "--issue", slug],
@@ -74,8 +71,7 @@ def test_every_example_passes_its_own_check(name, slug):
 def test_every_example_spec_extracts(name, slug):
     """`compass bdd extract` must read the framework's own specs.
 
-    Both id conventions ship - templates/ uses TRC-, examples/ use SCN- - and
-    the extractor accepted only one, so every example failed with 'contains no
+    A spec with no scenario the extractor recognises fails with 'contains no
     Gherkin scenarios', which reads as 'your spec is malformed'.
     """
     tmp, work = _sandbox(name)

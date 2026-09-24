@@ -46,7 +46,7 @@ shipped governance defaults stay in force, and adopting your own is what
      become the seeds of scenarios and, later, of the marketer's claims.
    - **Constraints** - what is fixed: deadlines, platforms, things that
      must not change.
-2. **Check against governance.** Does this intent document hold the guardrails and
+2. **Check against governance.** Does this intent document meet the guardrails and
    respect the product strategies? If it pulls against a product strategy,
    name the tension now - do not pass it downstream silently.
 3. **Write `intent.md`** into `docs/compass/<created>-<issue-slug>/`, then
@@ -55,10 +55,10 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## How this shapes the delivery approach
 
-When an issue with an `intent.md` is assessed, the `product-owner` role adds two
-things (see the delivery-approach rubric and the routing policy's
-`role_rules`): the `intent.md` artifact, and the **intent-fidelity gate** - the
-spec must be checked against `intent.md` before the design stage. Assess reads
+When an issue with an `intent.md` is assessed, the `product-owner` role adds
+two things (see the delivery-approach rubric and the routing policy's
+`role_rules`): the `intent.md` artifact, and the **intent-fidelity gate**.
+The spec must be checked against `intent.md` before the plan stage. Assess reads
 `intent.md` as the *actual outcome wanted*, not just the literal request.
 
 ## Gate
@@ -66,4 +66,4 @@ spec must be checked against `intent.md` before the design stage. Assess reads
 `intent.md` exists with all four sections real; it is consistent with the
 product strategies and guardrails in `governance/`, or the tension is named.
 Next: `/compass:assess` to compute the delivery approach - `intent.md` is now an
-input triage reads.
+input the assess stage reads.

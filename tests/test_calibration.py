@@ -1,9 +1,10 @@
-"""Re-frame recording + `compass retro`.
+"""Reassessment recording + `compass retro`.
 
-When `compass approach evaluate --write` computes a route that differs from
-the one already recorded in manifest.yml, the diff is logged under
-`reframes:`. `compass retro` aggregates these across every task and
-classifies the trend as up (Needle under-sizing) or down (over-sizing).
+When `compass approach evaluate --write` computes a delivery approach that
+differs from the one already recorded in manifest.yml, the diff is logged
+under `reassessments:`. `compass retro` aggregates these across every issue
+and classifies the trend as up (assessment under-sizing) or down
+(over-sizing).
 """
 from __future__ import annotations
 
@@ -24,9 +25,10 @@ def _readings_to_args(d):
 
 
 def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
-    """A task that ALREADY had a route (express) gets re-evaluated as
-    expedition (after a touches: [auth] is added) - the diff must be
-    appended to `reframes:`."""
+    """An issue that already had a delivery approach (the legacy value
+    `express`, written on purpose) gets re-evaluated as initiative (after
+    `auth` is added to its labels) - the diff must be appended to
+    `reassessments:`."""
     body = {
         "task": "rf-task",
         "created": "2026-05-15",
@@ -37,10 +39,10 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
             "intent": "delivery",
             "labels": [],
         },
-        "delivery_approach": "express",   # the recorded route the next eval will diff against
+        "delivery_approach": "express",   # the recorded approach the next eval will diff against
     }
     task_dir = make_task("rf-task", body)
-    # mutate the readings (touches=auth) so the next evaluate computes expedition
+    # mutate the assessment (labels=auth) so the next evaluate computes initiative
     body["assessment"]["labels"] = ["auth"]
     (task_dir / "manifest.yml").write_text(yaml.safe_dump(body, sort_keys=False))
 
@@ -59,8 +61,8 @@ def test_route_evaluate_write_logs_reframe(run_cli, make_task, project):
 def test_route_evaluate_does_not_log_reframe_when_route_unchanged(run_cli,
                                                                   make_task,
                                                                   project):
-    """Re-running --write with the same readings should NOT spuriously log
-    a re-frame."""
+    """Re-running --write with the same assessment must not spuriously log
+    a reassessment."""
     body = {
         "task": "no-rf",
         "created": "2026-05-15",
@@ -100,7 +102,7 @@ def test_route_evaluate_warns_when_reframe_has_no_reason(run_cli, make_task,
     r = run_cli("approach", "evaluate", "--issue", "rf-noreason", "--write")
     assert r.returncode == 0, r
     combined = r.stdout + r.stderr
-    # the CLI should mention the missing reason on stderr
+    # the CLI must mention the missing reason on stderr
     assert "reason" in combined.lower(), r
 
 
@@ -135,7 +137,7 @@ def test_calibration_no_tasks(run_cli):
 
 def test_calibration_aggregates_up_reframes(run_cli, make_task):
     """Three up-reframes (express -> expedition, standard -> expedition,
-    express -> standard) should report 'UNDER-sizing'."""
+    express -> standard) must report 'UNDER-sizing'."""
     make_task("t1", _task_with_reframes(
         "t1", [("express", "expedition")], base_route="expedition"))
     make_task("t2", _task_with_reframes(
@@ -169,20 +171,20 @@ def test_calibration_balanced(run_cli, make_task):
     r = run_cli("retro")
     assert r.returncode == 0, r
     out = r.stdout
-    # neither verdict should be selected when ups == downs == 1
+    # neither verdict must be selected when ups == downs == 1
     assert "UNDER-sizing" not in out, r
     assert "OVER-sizing" not in out, r
     # and the route distribution must be reported
     assert "Route distribution" in out, r
 
 
-# --- TRC-C5: reframe-debt section in calibration output ---------------------
+# --- `TRC-C5`: reframe-debt section in calibration output ---------------------
 
 
 def test_reframe_debt_section(run_cli, make_task, project):
-    """TRC-C5: compass retro surfaces absorbed mis-frames.
+    """`TRC-C5`: compass retro surfaces absorbed mis-frames.
 
-    A task with scope-bloat devlog phrases and an empty reframes list is
+    An issue with scope-bloat devlog phrases and an empty reframes list is
     reported in a 'reframe debt' section, with the matched devlog signal
     and explicit mention that the signal was absorbed/lost.
 
@@ -192,13 +194,13 @@ def test_reframe_debt_section(run_cli, make_task, project):
     import pathlib
     import shutil
 
-    # Ensure signals.yml is in the project's governance/ so the CLI can find it
+    # Make sure signals.yml is in the project's governance/ so the CLI can find it
     gov_dir = project / "governance"
     signals_src = pathlib.Path(__file__).resolve().parent.parent / "governance" / "signals.yml"
     if signals_src.is_file() and not (gov_dir / "signals.yml").is_file():
         shutil.copy(signals_src, gov_dir / "signals.yml")
 
-    # Task with a scope-bloat devlog phrase and no reframes
+    # Issue with a scope-bloat devlog phrase and no reframes
     task_dir = make_task("reframe-debt-task", {
         "task": "reframe-debt-task",
         "created": "2026-05-20",
@@ -222,7 +224,7 @@ def test_reframe_debt_section(run_cli, make_task, project):
         "Expected a 'reframe debt' section in calibration output.\n"
         f"Got:\n{r.stdout}"
     )
-    # Must name the task
+    # Must name the issue
     assert "reframe-debt-task" in r.stdout.lower(), (
         "Reframe-debt section must name the affected task.\n"
         f"Got:\n{r.stdout}"
@@ -235,7 +237,7 @@ def test_reframe_debt_section(run_cli, make_task, project):
 
 
 def test_reframe_debt_empty_when_no_bloat(run_cli, make_task, project):
-    """TRC-C5 negative case: tasks with no scope-bloat phrases get no reframe-debt section."""
+    """`TRC-C5` negative case: issues with no scope-bloat phrases get no reframe-debt section."""
     import pathlib
     import shutil
 
@@ -266,7 +268,7 @@ def test_reframe_debt_empty_when_no_bloat(run_cli, make_task, project):
 
 
 def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project):
-    """TRC-C5 suppression case: a filed reframe removes the debt for that task."""
+    """`TRC-C5` suppression case: a filed reframe removes the debt for that issue."""
     import pathlib
     import shutil
 
@@ -299,8 +301,8 @@ def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project)
 
     r = run_cli("retro")
     assert r.returncode == 0, r
-    # The task had a bloat phrase BUT a reframe was filed after - no debt
-    # (If the section is absent entirely, or the task is not in it, pass.)
+    # The issue had a bloat phrase BUT a reframe was filed after - no debt
+    # (If the section is absent entirely, or the issue is not in it, pass.)
     out = r.stdout.lower()
     if "reframe debt" in out:
         assert "reframed-ok" not in out, (
@@ -311,7 +313,7 @@ def test_reframe_debt_suppressed_when_reframe_filed(run_cli, make_task, project)
 
 
 # --- friction aggregation: calibration --friction --------------------------
-# TRC-B1, TRC-B2, TRC-B3, TRC-F1, TRC-F2, TRC-F3.
+# `TRC-B1`, `TRC-B2`, `TRC-B3`, `TRC-F1`, `TRC-F2`, `TRC-F3`.
 
 
 def _task_with_friction(slug, friction, base_route="standard"):
@@ -343,7 +345,7 @@ PC_CLARIFY = "routing-policy.yml: lower Clarify weight for size=small."
 
 
 def test_friction_groups_recurring_by_category_and_target(run_cli, make_task):
-    """TRC-B1: friction recurring across tasks is grouped by category and by
+    """`TRC-B1`: friction recurring across issues is grouped by category and by
     proposed_change target, and reports the contributing count."""
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
@@ -357,7 +359,7 @@ def test_friction_groups_recurring_by_category_and_target(run_cli, make_task):
 
 
 def test_friction_one_off_below_threshold(run_cli, make_task):
-    """TRC-B2: a single occurrence (below the default threshold of 2) is not
+    """`TRC-B2`: a single occurrence (below the default threshold of 2) is not
     surfaced as a recurring trend."""
     make_task("ft1", _task_with_friction(
         "ft1", [_friction("a one-off proposal nobody else made")]))
@@ -381,8 +383,8 @@ def test_friction_one_off_below_threshold(run_cli, make_task):
 
 
 def test_friction_json_format(run_cli, make_task):
-    """TRC-B3: --friction --format json emits machine-consumable JSON carrying
-    the grouped, threshold-filtered clusters with contributing task slugs."""
+    """`TRC-B3`: --friction --format json emits machine-consumable JSON carrying
+    the grouped, threshold-filtered clusters with contributing issue slugs."""
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))
     r = run_cli("retro", "--friction", "--format", "json")
@@ -397,7 +399,7 @@ def test_friction_json_format(run_cli, make_task):
 
 
 def test_friction_view_writes_nothing(run_cli, make_task, project):
-    """TRC-F2: the friction view is read-only - it writes no manifest.yml and no
+    """`TRC-F2`: the friction view is read-only - it writes no manifest.yml and no
     file under governance/, and exits 0."""
     import hashlib
 
@@ -425,16 +427,13 @@ def test_friction_view_writes_nothing(run_cli, make_task, project):
 
 
 def test_friction_never_in_land_gate(framework_root):
-    """TRC-F1: friction is a strategy-class signal - it never appears as a
-    guardrail check or in Land's gate. A regression guard against the design
-    drifting across ADR-002."""
+    """`TRC-F1`: friction is a strategy-class signal - it never appears as a
+    guardrail check or in the ship gate. A regression guard against the
+    design breaking ADR-002."""
     guardrails = (framework_root / "governance" / "guardrails.yml").read_text().lower()
     assert "friction" not in guardrails, (
         "TRC-F1 violated: guardrails.yml references friction - it must never "
         "be a gate (ADR-002).")
-    # commands/ship.md - the ship stage. This read commands/land.md until
-    # ADR-014 deleted the retired command names at the major version; the
-    # stage and the assertion are unchanged, only the filename moved.
     ship = (framework_root / "commands" / "ship.md").read_text()
     # The gate is the checklist under the '## Gate - ship refuses to close …'
     # heading (not the intro, and not the Procedure, where friction capture is
@@ -446,7 +445,7 @@ def test_friction_never_in_land_gate(framework_root):
 
 def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
         run_cli, make_task):
-    """A task that recorded friction with no proposed_change (e.g. a derived
+    """An issue that recorded friction with no proposed_change (e.g. a derived
     reframe entry, or a human note without a proposal) must NOT be reported as
     'No friction recorded' - that line is for an empty corpus only. The entry is
     still surfaced (by category), it just hasn't clustered into a trend."""
@@ -465,7 +464,7 @@ def test_friction_recorded_but_unclusterable_is_not_reported_as_none(
 
 
 def test_calibration_without_friction_unchanged(run_cli, make_task):
-    """TRC-F3: plain `compass retro` (no --friction) ignores friction
+    """`TRC-F3`: plain `compass retro` (no --friction) ignores friction
     entirely - its output never mentions friction. The no-op guarantee."""
     make_task("ft1", _task_with_friction("ft1", [_friction(PC_CLARIFY)]))
     make_task("ft2", _task_with_friction("ft2", [_friction(PC_CLARIFY)]))

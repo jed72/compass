@@ -3,7 +3,7 @@
 # Compass script: validate.sh  -  SELF-CHECK FOR THE FRAMEWORK REPO
 # =============================================================================
 # A consistency check for the Compass repository ITSELF - not for a project using
-# Compass. It verifies the directory structure is intact and that the adapter
+# Compass. It checks the directory structure is intact and that the adapter
 # layer's internal references resolve: commands referencing skills, agents, and
 # templates that actually exist; no dangling pointers.
 #
@@ -19,22 +19,20 @@
 #   1  one or more checks failed (details printed)
 #
 # WHAT IT CHECKS
-#   1. Required directories and top-level files are present.
+#   1. The directories and top-level files the repo needs are present.
 #   2. Every expected artifact template exists in templates/.
 #   3. Every agent referenced anywhere in commands/ exists in agents/.
 #   4. Every skill referenced anywhere in commands/ exists in skills/.
 #   5. Every template referenced in commands/ exists in templates/.
 #   6. Every script and hook referenced in the repo exists and is executable.
-#   7. The five reference shape docs exist and the rubric references them.
+#   7. The five reference approach docs exist and the rubric references them.
 #   8. The kit layer is present: the CLI, the machine-readable governance,
 #      the schemas, and the manifest.yml template - and `compass policy lint`
 #      passes if python3 and the CLI are runnable.
 #
 # This script is deliberately dependency-free (pure bash + coreutils + grep).
-# The `compass policy lint` step needs only python3 - PyYAML travels inside
-# the plugin (cli/vendor/yaml/), so there is nothing left to be absent. If
-# `compass policy lint` fails, that is a real lint failure and this script
-# reports it as one; it no longer guesses at a missing package.
+# PyYAML ships in cli/vendor/yaml/, so a `compass policy lint` failure is a
+# real lint failure and the script reports it as one.
 # =============================================================================
 
 set -euo pipefail
@@ -141,12 +139,10 @@ say ""
 
 # --- 6. scripts and hooks referenced exist and are executable ---------------
 say "6. Script and hook references"
-# Scan only files git tracks. A bare recursive grep also walks untracked and
-# ignored trees - and the cucumber-js reference adapter's node_modules/ is full
-# of package.json files naming scripts that are not ours, which failed this
-# check (and therefore `make release`) for anyone who ran `npm install` in that
-# example. Fall back to the recursive form outside a git checkout, e.g. inside
-# an unpacked release tarball.
+# Scan tracked files only. A recursive grep also reads untracked trees such
+# as the cucumber-js adapter's node_modules/, whose package.json files name
+# scripts that are not ours. Fall back to the recursive form outside a git
+# checkout, e.g. inside an unpacked release tarball.
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   REFS="$(git ls-files -z -- '*.md' '*.json' 2>/dev/null \
           | xargs -0 grep -ohE '(scripts|hooks)/[a-z-]+\.sh' 2>/dev/null \
@@ -171,7 +167,7 @@ for f in hooks/pre-tool.sh hooks/post-tool.sh hooks/stop.sh \
 done
 say ""
 
-# --- 7. the five reference approaches -------------------------------------------
+# --- 7. the five reference approach docs -------------------------------------
 say "7. Reference approaches"
 for r in quick-fix feature initiative hotfix spike; do
   if [ -f "approaches/$r.md" ]; then
@@ -216,10 +212,7 @@ fi
 # 8d. the issue manifest template
 if [ -f "templates/manifest.yml" ]; then ok "file templates/manifest.yml"
 else fail "missing issue manifest template: templates/manifest.yml"; fi
-# 8e. run `compass policy lint` if python3 and the CLI are runnable. PyYAML
-# is bundled inside the plugin (cli/vendor/yaml/), so there is no longer a
-# "missing dependency" branch to distinguish from a real failure - a lint
-# failure is a lint failure (TRC-A6).
+# 8e. run `compass policy lint` if python3 and the CLI are runnable.
 if command -v python3 >/dev/null 2>&1 && [ -x "cli/compass" ]; then
   if LINT_OUT="$(python3 cli/compass policy lint 2>&1)"; then
     ok "compass policy lint  <- PASS"

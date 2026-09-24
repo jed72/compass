@@ -11,8 +11,8 @@ repositories available to your user account.
 | Claude Code hooks | Inspect and block tool calls; write issue state | Review the scripts and pin the installed source. |
 | Compass CLI | Read project files, write `.compass/`, run configured checks | Limit project-command execution and CI permissions. |
 | Commands, agents and skills | Instruct Claude Code how to act on a repository | Install only from a trusted, reviewed revision. |
-| Project governance | Change routing and, when enabled, execute project checks | Treat governance changes as code changes. |
-| `.compass/` artefacts | Persist issue content and command evidence in Git | Keep secrets and sensitive output out of artefacts. |
+| Project governance | Change routing and, when enabled, run project checks | Treat governance changes as code changes. |
+| `.compass/` artifacts | Persist issue content and command evidence in Git | Keep secrets and sensitive output out of artifacts. |
 
 ## Before installing
 
@@ -42,21 +42,22 @@ governance/*.yml
 ```
 
 Commands, agents, skills and always-loaded instructions are also security
-relevant: they influence an agent that can modify your repository.
+relevant: they influence an agent that can change your repository.
 
 ### Understand the hooks
 
-The Claude Code adapter registers three local hooks:
+The Claude Code adapter registers four local hooks:
 
 | Hook | Purpose | Can block? |
 |---|---|---|
-| `pre-tool.sh` | Applies route-aware red-before-green checks before edits. | Yes |
+| `pre-tool.sh` | Applies approach-aware red-before-green checks before edits. | Yes |
 | `post-tool.sh` | Updates the issue history after relevant actions. | No |
 | `stop.sh` | Warns about unfinished or inconsistent issue state. | No |
+| `session-start.sh` | Loads the operating contract into the session. | No |
 
 They run locally with the same permissions as your user. The shipped hooks do
-not need network access, but you should verify the installed revision rather
-than relying on this document.
+not need network access, but check the installed revision rather than
+relying on this document.
 
 ## Dependencies
 
@@ -78,7 +79,7 @@ Run `compass --version` to see which Compass and PyYAML versions are active.
 A project guardrail can use `command-passes` - a shipped check **whose
 parameter is the command**, not a setting that selects one. `compass check`
 runs that string with `subprocess.run(..., shell=True)` from the project root. Its `command:` form still runs a shell; the `script:`
-form does not - it executes a file directly, so a value cannot smuggle in a
+form does not - it runs a file directly, so a value cannot smuggle in a
 pipeline or a substitution. That difference is the reason to prefer the script
 form, and it is the only reason.
 
@@ -91,7 +92,7 @@ params:
   command: "python3 scripts/architecture-fitness.py"
 ```
 
-Treat those files **as code, not as configuration** - anything a shell can do, a project guardrail can do. It matters because
+Treat governance files that declare `command-passes` **as code, not as configuration** - anything a shell can do, a project guardrail can do. It matters because
 continuous integration normally runs on a pull request **before** it is
 approved, so a contribution's command runs before anyone has read it. The
 explicit opt-in that closes this gap is
@@ -106,7 +107,7 @@ allow_project_commands: true
 ```
 
 This prevents accidental execution; it is not a security boundary because a
-repository change can alter both the command and the setting.
+repository change can edit both the command and the setting.
 
 Prefer the non-shell script form:
 
@@ -128,7 +129,7 @@ the contribution as trusted. Unknown, blank or unreadable trust state is a
 refusal, not permission.
 
 This reduces exposure but is not an unforgeable sandbox. A pull-request branch
-can often modify its workflow and environment. The effective boundary remains
+can often change its workflow and environment. The effective boundary remains
 the CI provider's controls, including restricted secrets, read-only tokens and
 approval policy.
 
@@ -143,7 +144,7 @@ Do this only for a job whose trigger and source are genuinely trusted.
 
 ## CI hardening
 
-**A contributor with push access to your repository is not defended against.**
+**Compass cannot defend against a contributor with push access.**
 They can add a command, set the opt-in and merge. No arrangement of in-repo
 configuration defends a repository against its own contents - GitHub's own
 answer to the same problem is to withhold secrets from forks rather than to
@@ -159,23 +160,24 @@ event payload written outside the checkout and pointed at. That takes real
 work rather than one line of YAML - and you should know it is there.
 
 What actually bounds a fork pull request is that GitHub withholds your secrets
-from it and issues a read-only token. That is the boundary; everything below reduces blast
-area inside it.
+from it and issues a read-only token. That is the boundary; the steps below
+limit what a fork can reach inside it.
 
 - Declare minimum token permissions. The reference workflow uses
   `permissions: contents: read`.
 - Do not expose secrets to untrusted contributions.
-- Avoid `pull_request_target` for workflows that check out and execute
+- Avoid `pull_request_target` for workflows that check out and run
   untrusted code.
-- Require approval before running workflows from forks where appropriate.
+- Add a required-approval gate for workflows from forks where appropriate.
 - Review changes to workflows, governance, scripts and hooks using code-owner
   rules or equivalent protection.
 - Run project commands in an isolated, short-lived runner where possible.
 
-## Persistent artefacts
+## Persistent artifacts
 
-`.compass/work/` is intended to be committed. It may contain command output,
-test evidence, approvals, decisions and an append-only development log.
+`.compass/work/` is committed to the repository. It can contain command
+output, test evidence, approvals, decisions and an append-only development
+log.
 
 Do not place secrets, access tokens, personal data or sensitive production
 output in these files. Redact evidence before committing it, while retaining
@@ -185,8 +187,8 @@ enough information for the gate to remain meaningful.
 
 - Shell commands can hide file writes inside scripts and build tools. Hook
   detection is best-effort for shell activity.
-- Shell scripts, makefiles and extensionless scripts are not currently part of
-  the default production-file classification for red-before-green checks.
+- Shell scripts, makefiles and extensionless scripts are not part of the
+  default production-file classification for red-before-green checks.
 - A contributor with trusted push and merge rights is inside the repository's
   trust boundary.
 - Agent instructions are powerful even when they are Markdown rather than

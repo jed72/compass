@@ -35,8 +35,8 @@ repository has installed Compass, so every redirect is a promise kept to
 nobody - and the window closes the moment someone installs from the
 marketplace, at which point removing them stops being free.
 
-This sits against **Inv-8**: every new mechanism no-ops on projects that have
-not adopted it. Inv-8 is about not breaking people. ADR-006 already states
+This sits against `Inv-8`: every new mechanism no-ops on projects that have
+not adopted it. `Inv-8` is about not breaking people. ADR-006 already states
 the condition under which a break is allowed - it is paid once, behind a
 major version - and ADR-012 relied on exactly that when it froze the
 vocabulary.
@@ -58,7 +58,7 @@ reads a file that used it. Deleting the second would strand exactly the
 historical records Compass tells people to keep.
 
 **Kept: the archive as written.** `.compass/work/` is historical record. If a
-tightened scan trips on it, the archive is exempted, never edited. A project
+tightened scan reports it, the archive is exempted, never edited. A project
 whose selling point is an audit trail cannot rewrite its own audit trail to
 make a check pass.
 
@@ -75,10 +75,11 @@ thing, and no live surface teaching the old one. That is what makes ADR-015's
 scan tightening possible at all - a scan cannot ban a name the machinery
 still answers to.
 
-**Good.** The redirect layer stops being a place for bugs to hide. Three of
-the six defects this issue fixes were the *absence* of a rename in a code
-position; carrying a half-renamed surface indefinitely is what let them sit
-undetected.
+**Good.** The redirect layer stops being a place for bugs to hide. Three
+defects found during the 3.0.0 rename were the *absence* of a rename in a
+code position - a whitespace-free string literal holding a retired name,
+such as a retired manifest key read back with `.get('route', '?')`; carrying
+a half-renamed surface indefinitely is what let them sit undetected.
 
 **Cost, accepted.** Anyone who installed a 2.x plugin and typed a v1 command
 gets an unrecognised-command error rather than a helpful pointer. With no
@@ -86,7 +87,7 @@ adopters, that population is empty today and grows the longer this waits -
 which is the argument for doing it now rather than the argument against.
 
 **Cost, accepted.** 337 call sites change spelling in one sweep. Mechanical,
-and verified by count rather than by reading: the replacement spellings
+and checked by count rather than by reading: the replacement spellings
 already worked before the old ones were removed, so no behaviour changes with
 them.
 
@@ -96,11 +97,11 @@ them.
 by then the population of affected users is non-empty, and the redirect layer
 has had another major version to accumulate half-renamed code behind it.
 
-**Delete the commands, keep the flag aliases.** The author's recommendation,
-overturned by the maintainer after the call sites were counted. The argument
-for keeping them was that the sweep would sprawl; 268 and 69 occurrences
-across ~70 files, all mechanical, is not sprawl. Recorded because the
-measurement is the reason the decision went the other way (`S11`).
+**Delete the commands, keep the flag aliases.** Rejected once the call sites
+were counted. The argument for keeping them was that the sweep would sprawl;
+268 and 69 occurrences across ~70 files, all mechanical, is not sprawl.
+Recorded because the measurement is the reason the decision went the other
+way (`S11`).
 
 **Deprecation warnings instead of removal.** A warning is a redirect that
 also prints. It keeps the old name live, so it blocks ADR-015 for the same

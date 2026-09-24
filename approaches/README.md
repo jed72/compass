@@ -2,7 +2,7 @@
 
 A **delivery approach** is the computed shape of the pipeline for one issue:
 how heavy each of the eight stages is, which gates apply, and whether the work
-runs solo or as a multiagent. Approaches are *composed* from the four assessment
+runs solo or as a multiagent orchestration. Approaches are *composed* from the four assessment
 dimensions - see `rubric.md` - not picked from this list.
 
 The five files here are **reference shapes**: the common shapes that
@@ -15,14 +15,14 @@ dimension" is a normal, expected output.
 |---|---|---|---|
 | **quick fix** | The change is small, safe, and on mapped ground - stay out of the way, but still tested before it lands. | 3 | `quick-fix.md` |
 | **feature** | The default working shape - full pipeline, solo or pair. | 6 | `feature.md` |
-| **initiative** | Big, cross-cutting, or greenfield - full weight, governance check, agent multiagent across worktrees. | 9 | `initiative.md` |
-| **hotfix** | Something is broken in production now - reproduce-first, expedited implementation, mandatory follow-up. | 3 | `hotfix.md` |
+| **initiative** | Big, cross-cutting, or greenfield - full weight, governance check, multiagent orchestration across worktrees. | 7 | `initiative.md` |
+| **hotfix** | Something is broken in production now - reproduce-first, expedited implementation, mandatory follow-up. | 5 | `hotfix.md` |
 | **spike** | You do not understand the problem well enough to state it - explore freely, then graduate or discard. Nothing ships from here. | 1 | `spike.md` |
 
 The gate counts are what `governance/routing-policy.yml` computes for the
 shape's own assessment, before any floor or requirement adds more. A policy
-rule can raise them: a critical risk reading turns a feature into an
-initiative and staples further gates on. `compass approach evaluate --verbose`
+rule can raise them: a `critical` risk value turns a feature into an
+initiative and adds further gates. `compass approach evaluate --verbose`
 prints the set for any assessment, and it is the authority - this table is a
 summary of it.
 
@@ -36,7 +36,12 @@ file: `docs/methodology.md` and `governance/guardrails.md` are the authority.
 
 ## How to read an approach file
 
-Each states, in order: when composition points toward it; the per-stage
-weight; the gate set; the multiagent orchestration; the de-scope ledger, listing what it
-collapses or skips with the standing justification for each; and what it is
-*not* allowed to do.
+Each states, in order:
+
+- when composition points towards it;
+- the per-stage weight;
+- the gate set;
+- the multiagent orchestration;
+- the de-scope ledger, listing what it collapses or skips with the standing
+  justification for each;
+- what it is *not* allowed to do.

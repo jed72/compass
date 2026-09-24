@@ -1,6 +1,6 @@
 # How test surface scales with risk, working in a worktree, and listening to your tests
 
-Split out of `SKILL.md`: reference for how much test to write and what the tests are telling you, plus the worktree rules that apply only on a multiagent.
+Reference for how much test to write and what the tests are telling you, plus the worktree rules that apply only on a multiagent.
 
 ## How test surface scales with risk
 
@@ -18,9 +18,9 @@ adversarial inputs - not "tests at all," which is constant.
   path, and the failure modes that lose data or money. Plus whatever any
   project coverage or security guardrail floor requires.
 
-An approach may never go *below* a project coverage-floor guardrail in
-`governance/guardrails.md`. It may require *more* for higher risk; it may
-never require less.
+An approach must never go *below* a project coverage-floor guardrail in
+`governance/guardrails.md`. It can need *more* for higher risk, and must
+never need less.
 
 ## Working inside a worktree (multiagent orchestrations)
 
@@ -32,10 +32,10 @@ orchestrator, not a reason to reach across.
 
 ## Listen to your tests
 
-A hard-to-write test is a design smell - not a reason to write a clever test,
+A hard-to-write test is a sign of a design problem - not a reason to write a clever test,
 but a signal to change the design.
 
-When a test requires extensive setup, elaborate mocking, or deep knowledge of
+When a test needs extensive setup, elaborate mocking, or deep knowledge of
 internal state to run, the code under test is telling you something: it has too
 many dependencies, it couples the what to the how, or it lives in the wrong
 place. The test is the first client of your code; if that client is struggling,
@@ -44,9 +44,9 @@ the next client will too.
 The response to a hard-to-write test is **not** to write a harder test. It is
 to ask: *what would make this test easy to write?* Then change the design to
 match. This is TDD's second payoff - not just coverage, but continuous
-design pressure toward simplicity.
+design pressure towards simplicity.
 
-Signals that your test is listening to a design problem:
+Signs of a design problem:
 
 - You cannot test the new behaviour without instantiating five other classes.
 - Your test setup is longer than the assertion.

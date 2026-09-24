@@ -11,7 +11,7 @@ import yaml
 
 
 def test_policy_lint_passes_on_shipped_governance(run_cli):
-    """The governance/ that ships should always lint clean."""
+    """The governance/ that ships must always lint clean."""
     r = run_cli("policy", "lint")
     assert r.returncode == 0, r
     assert "PASS" in r.stdout
@@ -40,7 +40,7 @@ def test_policy_lint_fails_on_missing_check_implementation(run_cli, edit_governa
 
 def test_check_fails_on_missing_check_implementation(run_cli, edit_governance, make_task):
     """The same defect must also be caught by `compass check` at run time -
-    not just at lint. This is the integrity belt-and-braces."""
+    not just at lint. This is the integrity second check."""
     with edit_governance("guardrails.yml") as gr:
         gr.setdefault("checks", {})
         gr["checks"]["my-fake-check"] = {"description": "fake"}
@@ -51,7 +51,7 @@ def test_check_fails_on_missing_check_implementation(run_cli, edit_governance, m
             "checks": ["my-fake-check"],
             "checked_at": ["verify"],
         })
-    # set up a minimum task so `compass check` has something to run against
+    # set up a minimal issue so `compass check` has something to run against
     make_task("integrity-probe", {
         "assessment": {
             "risk": "contained",
@@ -74,7 +74,7 @@ def test_check_fails_on_missing_check_implementation(run_cli, edit_governance, m
 
 def test_policy_lint_jsonschema_validation_runs_when_installed(run_cli):
     """When jsonschema is installed (it is, in this test env), the policy
-    lint command should not warn that it is not installed."""
+    lint command must not warn that it is not installed."""
     r = run_cli("policy", "lint")
     assert r.returncode == 0, r
     assert "jsonschema not installed" not in r.stdout, r
@@ -96,11 +96,11 @@ def test_policy_lint_fails_on_invalid_yaml_structure(run_cli, edit_governance):
 
 
 # ---------------------------------------------------------------------------
-# TRC-E6 - guardrails.yml registers the new DoD check
+# `TRC-E6` - guardrails.yml registers the new DoD check
 # ---------------------------------------------------------------------------
 
 def test_dod_check_registered(run_cli):
-    """TRC-E6: governance/guardrails.yml must contain a check entry named
+    """`TRC-E6`: governance/guardrails.yml must contain a check entry named
     'dod-evidence-typed', and the CLI must implement CHECK_FNS for that key.
     `compass policy lint` must still pass - the new entry is well-formed."""
     import yaml
@@ -115,7 +115,7 @@ def test_dod_check_registered(run_cli):
     assert "dod-evidence-typed" in (gr.get("checks") or {}), (
         "guardrails.yml `checks:` must declare 'dod-evidence-typed'")
 
-    # 2. It must be referenced by at least one guardrail (must be under G4)
+    # 2. It must be referenced by at least one guardrail (must be under `G4`)
     all_guardrails = (
         list(gr.get("defaults") or []) +
         list(gr.get("project") or [])
@@ -133,25 +133,26 @@ def test_dod_check_registered(run_cli):
         f"assertion), not under {registered_guardrail_id!r} - a check belongs "
         f"in architecture-notes.md")
 
-    # 3. The CLI must implement CHECK_FNS for this key - `policy lint` verifies it
+    # 3. The CLI must implement CHECK_FNS for this key - `policy lint` checks it
     r = run_cli("policy", "lint")
     assert r.returncode == 0, (
         f"policy lint must pass after adding dod-evidence-typed: {r}")
 
 
 # ---------------------------------------------------------------------------
-# TRC-F2 - Guardrail count is still five
+# `TRC-F2` - Guardrail count is still five
 # ---------------------------------------------------------------------------
 
 def test_guardrail_count_unchanged():
-    """TRC-F2: No sixth guardrail has been added.
+    """`TRC-F2`: No sixth guardrail has been added.
 
-    governance/guardrails.md must list exactly five guardrails (G1..G5).
-    governance/guardrails.yml must have no guardrail entries beyond G1..G5
+    governance/guardrails.md must list exactly five guardrails (`G1`..`G5`).
+    governance/guardrails.yml must have no guardrail entries beyond `G1`..`G5`
     in its `defaults:` block.
 
     This is a regression test over the framework's shipped content - it
-    verifies Inv-2 (defined in architecture/decisions/README.md) is preserved.
+    checks `Inv-2` (five guardrails, not more; architecture/decisions/README.md)
+    is preserved.
     """
     import re
 
@@ -164,9 +165,8 @@ def test_guardrail_count_unchanged():
 
     # --- guardrails.md: parse the canonical G<N> headings -------------------
     # The canonical guardrails use H3 headings with the machine id as a
-    # code-span suffix: "### <plain name> (`G<N>`)". The id moved out of
-    # the prose position at the docs-prose slice - codes live in config
-    # and code spans, the plain statement leads.
+    # code-span suffix: "### <plain name> (`G<N>`)". Codes live in config
+    # and code spans; the plain statement leads.
     md_text = guardrails_md.read_text(encoding="utf-8")
     g_headings = re.findall(r"^###\s+.*\(`(G\d+)`\)", md_text, re.MULTILINE)
     assert len(g_headings) == 5, (
@@ -179,7 +179,7 @@ def test_guardrail_count_unchanged():
         f"Guardrail headings must be G1..G5, got: {g_headings}"
     )
 
-    # --- guardrails.yml: assert defaults block has exactly G1..G5 -----------
+    # --- guardrails.yml: assert defaults block has exactly `G1`..`G5` -----------
     yml_data = yaml.safe_load(guardrails_yml.read_text(encoding="utf-8"))
     defaults = yml_data.get("defaults", [])
     default_ids = [g.get("id") for g in defaults]
@@ -191,7 +191,7 @@ def test_guardrail_count_unchanged():
         f"guardrails.yml `defaults:` must have G1..G5, got: {default_ids}"
     )
 
-    # --- guardrails.yml: no project guardrail id collides with G1..G5 ------
+    # --- guardrails.yml: no project guardrail id collides with `G1`..`G5` ------
     project_gs = yml_data.get("project", []) or []
     project_ids = [g.get("id") for g in project_gs]
     g_pattern = re.compile(r"^G\d+$")
@@ -203,7 +203,7 @@ def test_guardrail_count_unchanged():
 
 
 def test_guardrail_ids_in_yml_match_md():
-    """TRC-F2 (supplementary): the five G-ids in guardrails.yml match those
+    """`TRC-F2` (supplementary): the five G-ids in guardrails.yml match those
     in guardrails.md - no silent split between the prose and the machine file.
     """
     import re

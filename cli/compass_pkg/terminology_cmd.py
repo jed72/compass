@@ -25,8 +25,8 @@ def _load_terms():
 def cmd_terminology(args):
     doc = _load_terms()
     terms = doc["terms"]
-    # Codes are the other half of the vocabulary: a reader meeting TRC-A1 is
-    # looking something up just as much as one meeting "initiative". Looked up
+    # Codes are the other half of the vocabulary: a reader meeting `TRC-A1`
+    # is looking something up just as much as one meeting "initiative". Looked up
     # by their bare prefix, with or without the trailing hyphen.
     codes = doc.get("codes") or {}
     version = doc.get("version", "?")
@@ -58,8 +58,8 @@ def cmd_terminology(args):
     raw = args.term.strip()
     code_key = raw.rstrip("-").upper()
     # A term wins a bare lookup; the code is reachable by its hyphenated form.
-    # `adr` exists in both blocks, and checking codes first made the term
-    # entry unreachable from the CLI entirely.
+    # `adr` exists in both blocks, and checking codes first would make the
+    # `adr` term unreachable.
     if code_key in codes and (raw.endswith("-") or raw.lower() not in terms):
         entry = codes[code_key]
         print(f"{code_key}-  (vocabulary {version})")
@@ -99,8 +99,7 @@ def cmd_terminology(args):
 # --- the derived glossary ---------------------------------------------------
 # docs/glossary.md is generated from governance/terminology.yml so the page a
 # reader opens and the file the build enforces cannot disagree. A hand-written
-# page is correct on the day it is written; this repository has produced three
-# separate documents that restated a machine-readable source and drifted.
+# copy of a machine-readable source goes out of date when the source changes.
 #
 # Private, like _derive-system-spec: called at ship, not a public verb.
 

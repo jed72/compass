@@ -2,13 +2,9 @@
 # =============================================================================
 # compass - the contribution trust decision
 # =============================================================================
-# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
-# the only third-party code Compass ships; everything else is the Python 3
-# standard library. THIS module uses none of it - json and os only, which is
-# deliberate: the fewer things it touches, the easier it is to check that it
-# touches nothing the contribution being judged could have written.
-#
+# DEPENDENCY: standard library only (json, os), on purpose: the fewer things
+# it touches, the easier it is to check that it reads nothing the
+# contribution could have written.
 # =============================================================================
 """Is the contribution this process is checking a trusted one?
 
@@ -18,9 +14,9 @@ reviewed, so the command runs only when this module says the contribution is
 not untrusted.
 
 WHAT THIS MODULE IS ALLOWED TO READ, AND WHY IT MATTERS.
-The answer has to rest on something the contribution cannot forge. Everything
-inside the repository checkout can be edited by the pull request being judged -
-and on a GitHub `pull_request` event that includes the workflow file itself,
+The answer has to rest on something the contribution cannot forge. The pull
+request being judged can edit everything inside the checkout - and on a
+GitHub `pull_request` event that includes the workflow file itself,
 because the workflow runs from the pull request's own merge ref. So a value
 passed through a workflow `env:` block is repository-controlled and useless
 here, as is any project configuration file.
@@ -116,12 +112,11 @@ def contribution_trust(env=None, project_root=None):
     is one they will switch off.
 
     THE RULE IS POSITIVE CONFIRMATION, AND THAT IS THE POINT.
-    An earlier version asked "has anything told me this is untrusted?" and ran
-    the command when nothing had. That is exactly backwards on a
-    `pull_request` event, where the workflow file comes from the contribution
-    itself: a fork could blank GITHUB_EVENT_NAME and CI, present as a
-    developer's laptop, and have its command run. Erasing a signal was easier
-    than forging one.
+    Asking "has anything told me this is untrusted?" is backwards on a
+    `pull_request` event, where the workflow file comes from the contribution:
+    a fork could blank GITHUB_EVENT_NAME and CI, look like a developer's
+    laptop, and have its command run. Erasing a signal is easier than forging
+    one.
 
     So a CI run must be positively confirmed as trusted or it refuses. The
     confirmation has to come from the runner's own event payload, which must be

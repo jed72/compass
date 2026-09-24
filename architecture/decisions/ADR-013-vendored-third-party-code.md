@@ -9,27 +9,26 @@ superseded_by: ''
 
 ## Context
 
-Reaching a completed first triage required a machine to already have PyYAML
-installed - the CLI's one hard dependency, and the only step of the
+Reaching a completed first assessment required a machine to already have
+PyYAML installed - the CLI's one hard dependency, and the only step of the
 quickstart that could fail. It is the step a newcomer meets first, before
-they have any reason to persist through it, and it fails silently in one
+they have any reason to persist through it. It also fails silently in one
 place worse than an error: on a machine that never had PyYAML,
 `hooks/pre-tool.sh`'s acceptance-before-code check raised on the missing
-import, the hook exited
-silently, and the edit was allowed - a guardrail that looked like it was
-enforcing G2 was not enforcing anything at all.
+import, the hook exited silently, and the edit was allowed - a guardrail
+that looked like it was enforcing `G2` was not enforcing anything at all.
 
 Two routes were open. Vendor a minimal YAML reader Compass would write and
 maintain itself, or bundle an unmodified copy of PyYAML inside the plugin.
 The first was assumed cheaper until the CLI's write path was read: `yaml.
-safe_dump` appears at four sites, one of them the issue spine. A vendored
+safe_dump` appears at four sites, one of them the issue manifest. A vendored
 reader is not enough - the subset route needed an emitter too, and the
 emitter would have to round-trip the parity set (135 `.yml` files, plus the
 YAML frontmatter of every ADR - no `.yml` glob would have found that) without
 changing a byte of meaning. That is a parser, an emitter, and a conformance
-proof, not the one-session fix the guide estimated. Bundling makes none of
-that necessary: the library parsing YAML after this change is the library
-parsing it today, so there is nothing to prove agreement with.
+proof, not a one-session fix. Bundling makes none of that necessary: the
+library parsing YAML after this change is the library parsing it today, so
+there is nothing to prove agreement with.
 
 Compass has never redistributed third-party code before. This is the first
 time, and the architecture had no position on it - `architecture/ownership.md`
@@ -49,10 +48,10 @@ system-installed copy, deterministically.**
    sdist's `LICENSE`), and `THIRD-PARTY-NOTICES.md` at the repository root
    declares the package, the version, the upstream URL, the sdist's sha256,
    the licence, the path, and that it is unmodified. Only names that are not
-   already in the Python standard library may ever be vendored this way,
-   since the resolution mechanism below shadows the standard library too if
-   it does not take care - PyYAML does not, and any future addition must be
-   checked the same way.
+   already in the Python standard library may ever be vendored this way. The
+   resolution mechanism below shadows the standard library, so a vendored
+   package must not reuse a standard-library name. PyYAML does not; check
+   any future addition the same way.
 2. **One resolution mechanism, written down once.**
    `cli/compass_pkg/__init__.py` inserts `cli/vendor` at `sys.path[0]` -
    position 0, ahead of `PYTHONPATH` and site-packages both. Because Python
@@ -76,8 +75,8 @@ system-installed copy, deterministically.**
 4. **The cost, stated rather than left implicit.** Precedence means Compass,
    not the adopter, decides which parser version runs inside every one of
    Compass's own invocations. An adopter who pinned or patched their own
-   system PyYAML - the exact posture `docs/security.md` recommends to them a
-   few lines above this - has that choice shadowed. Two things bound it:
+   system PyYAML - the exact posture `docs/security.md` §"Dependencies"
+   recommends to them - has that choice shadowed. Two things bound it:
    the shadowing is process-scoped, so an adopter's other tooling and their
    system PyYAML itself are untouched; and the version is a pinned,
    published fact rather than something ambient.
@@ -98,7 +97,7 @@ system-installed copy, deterministically.**
 | A committed `.whl` on `sys.path` via zipimport | Avoids committing ~300KB of extracted source | `.gitignore` already ignores archives at the root, and the pattern is easy to widen by accident; a zip is not diffable, which damages rather than repairs the audit posture this issue also has to fix |
 | Prefer a system-installed copy when present, bundle only as fallback | Seemed to respect an adopter's own environment more | Reintroduces exactly the two-behaviour, machine-dependent CLI this issue exists to remove - the parser that ran on the maintainer's machine would not be the one that ran on a fresh install, and nothing would prove the two agree |
 | Warn when the bundled copy and a system copy disagree | A softer version of precedence, more transparent-seeming | Reintroduces the friction this issue exists to remove, and still leaves two behaviours to reason about rather than one |
-| pip install into a target directory on first run | Keeps the repository unchanged; installs the dependency lazily | This is the pip step, only moved to happen automatically instead of by hand - it still requires network access and a working `pip`, which is exactly the failure mode on the machine this issue is for |
+| pip install into a target directory on first run | Keeps the repository unchanged; installs the dependency lazily | This is the pip step, only moved to happen automatically instead of by hand - it still needs network access and a working `pip`, which is exactly the failure mode on the machine this issue is for |
 
 ## Consequences
 
@@ -130,18 +129,20 @@ system-installed copy, deterministically.**
 
 **Neutral / follow-on:**
 - `architecture/ownership.md` still has no row naming who keeps a
-  redistributed dependency's currency, beyond what this record states. That
-  row is issue `vendored-dependency-ownership`, written so
-  `cli/vendor/README.md`'s answer lifts into it directly rather than being
-  re-derived. It matters because an adopter gets a PyYAML security fix only
-  when Compass ships a new copy, and nobody is currently watching for that.
+  redistributed dependency's currency, beyond what this record states. The
+  `vendored-dependency-ownership` issue was filed to write that row, so
+  `cli/vendor/README.md`'s answer could lift into it directly rather than
+  being re-derived - it was abandoned rather than solved
+  (`docs/case-study-compass-rebuilt-itself.md`). It matters because an
+  adopter gets a PyYAML security fix only when Compass ships a new copy, and
+  nobody is watching for that.
 - The five pre-existing shell readers that embed their own Python instead of
   calling the CLI (`docs/portability.md`'s "call the kit, do not
   reimplement it") are unchanged in shape by this decision - they still
   embed a reader - but now all resolve the bundled copy through one shared
   mechanism rather than five independently-written ones. Migrating them to
-  call the CLI instead is issue `shell-readers-use-the-kit`; this record
-  does not decide it.
+  call the CLI instead is a separate, undecided follow-up issue
+  (`shell-readers-use-the-kit`).
 
 ## References
 
@@ -149,19 +150,19 @@ system-installed copy, deterministically.**
   it, written so this record and that file agree.
 - `THIRD-PARTY-NOTICES.md` - the declaration: package, version, URL, sha256,
   licence, path, unmodified.
-- `docs/security.md` §"CLI dependencies" and §"Supply-chain stance" - the
-  corrected audit posture: nothing installs onto an adopter's Python path,
-  and how to reproduce and verify the vendored tree.
+- `docs/security.md` §"Dependencies" - the corrected audit posture: nothing
+  installs onto an adopter's Python path, and how to reproduce and check
+  the vendored tree.
 - `docs/portability.md` - the adapter contract's clause for a port that
   embeds Python parsing YAML.
-- `docs/compass/2026-08-10-zero-friction-install/technical-design.md` - the design record this
-  ADR is drawn from (DD-1 through DD-3, DD-7), including the full cost/
-  benefit reasoning behind each alternative above. `.compass/work/` is
-  gitignored in this repository, which is exactly why this decision is
+- The `zero-friction-install` issue's technical design (decisions `DD-1`
+  through `DD-3` and `DD-7`) holds the full cost/benefit reasoning behind
+  each alternative above.
+  It is not in the repository, which is exactly why this decision is
   recorded here as well rather than only there.
 - **ADR-006** (backward compatibility is non-negotiable) - an adopting
-  project that never touches this surface sees no behaviour change; TRC-F4
-  and TRC-F5 hold that as scenarios.
+  project that never touches this surface sees no behaviour change;
+  `tests/test_release_invariants.py` holds `TRC-F4` and `TRC-F5` as scenarios.
 - **ADR-002** (the framework grows by adding artifacts, not rules) - this
   decision adds no guardrail and no routing dimension; it is a supply-chain
   position, recorded the way Compass records its own structural decisions.

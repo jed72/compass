@@ -1,23 +1,21 @@
 """The command, agent and skill names renamed to match Anthropic's vocabulary.
 
-ADR-023 records the rule. Eight filenames move under it. Each retired command
-name was kept on disk as a redirect stub through 3.x under ADR-019, and all
-of them were removed at 4.0.0 under ADR-024 - so a retired name is now an
-unknown command, and `docs/releasing.md` is where a caller finds out what to
-type instead.
+ADR-023 records the rule. Eight filenames move under it. Since 4.0.0
+(ADR-024) a retired command name is an unknown command. `docs/releasing.md`
+tells a caller what to type instead.
 
 | Was | Is | Why |
 |---|---|---|
-| `agents/navigator.md` | `agents/router.md` | their "Routing" workflow pattern, and it runs routing-policy.yml |
-| `agents/product-lens.md` | `agents/product-owner.md` | named for the role, which governance already lists |
-| `agents/marketing-lens.md` | `agents/product-marketer.md` | same |
-| `agents/architect-lens.md` | `agents/architect.md` | same |
-| `commands/roundtable.md` | `commands/consult.md` | an advisor is "consulted mid-turn" |
-| `skills/intent-elicitation` | `skills/intent-interview` | their onboarding doc runs an "interview" |
-| `skills/blueprint-distillation` | `skills/behaviour-mapping` | distillation means model distillation to this audience |
-| `skills/worktree-swarm` | `skills/worktree-multiagent` | swarm is another vendor's framework name |
+| `agents/navigator.md` | `agents/router.md` | their "Routing" workflow pattern, and it runs routing-policy.yml <!-- vocabulary-scan: allow - the rename table must name the retired filename --> |
+| `agents/product-lens.md` | `agents/product-owner.md` | named for the role, which governance already lists <!-- vocabulary-scan: allow - the rename table must name the retired filename --> |
+| `agents/marketing-lens.md` | `agents/product-marketer.md` | same <!-- vocabulary-scan: allow - the rename table must name the retired filename --> |
+| `agents/architect-lens.md` | `agents/architect.md` | same <!-- vocabulary-scan: allow - the rename table must name the retired filename --> |
+| `commands/roundtable.md` | `commands/consult.md` | an advisor is "consulted mid-turn" <!-- vocabulary-scan: allow - the rename table must name the retired filename --> |
+| `skills/intent-elicitation` | `skills/intent-interview` | their onboarding doc runs an "interview" <!-- vocabulary-scan: allow - the rename table must name the retired directory --> |
+| `skills/blueprint-distillation` | `skills/behaviour-mapping` | distillation means model distillation to this audience <!-- vocabulary-scan: allow - the rename table must name the retired directory --> |
+| `skills/worktree-swarm` | `skills/worktree-multiagent` | swarm is another vendor's framework name <!-- vocabulary-scan: allow - the rename table must name the retired directory --> |
 
-Scenario ids: docs/compass/2026-08-27-anthropic-aligned-vocabulary/acceptance-criteria.md
+Scenario ids: anthropic-aligned-vocabulary/acceptance-criteria.md
 """
 
 from __future__ import annotations
@@ -32,10 +30,10 @@ from compass_pkg.core import is_issue_document as _own_archive
 #: An issue's own documents live at `docs/compass/<created>-<slug>/` since
 #: `compass migrate` relocated them out of `.compass/work/`, which every scan
 #: here already skipped. They record the vocabulary and file layout in force
-#: when they were written, so enforcing today's surface over them reports the
-#: account as a defect. Applied at the repository root only: the worked
-#: examples' documents moved too and stay scanned, because an adopter reads
-#: them to learn the pipeline.
+#: when they were written, so enforcing today's names on them would report
+#: their historical wording as a defect. Applied at the repository root only:
+#: the worked examples' documents moved too and stay scanned, because an
+#: adopter reads them to learn the pipeline.
 
 
 REPO_ROOT = Path(__file__).parent.parent
@@ -86,16 +84,16 @@ def _live_files():
             yield path
 
 
-# --- TRC-C5 / TRC-C3 - the agents -----------------------------------------
+# --- `TRC-C5` / `TRC-C3` - the agents -----------------------------------------
 
 def test_the_routing_agent_is_named_router():
-    """TRC-C5: the agent that runs routing-policy.yml is called router."""
+    """`TRC-C5`: the agent that runs routing-policy.yml is called router."""
     assert (AGENTS / "router.md").is_file()
     assert not (AGENTS / "navigator.md").exists()
 
 
 def test_the_role_agents_are_named_after_their_role():
-    """TRC-C3: no agent filename ends in -lens; each names a governance role."""
+    """`TRC-C3`: no agent filename ends in -lens; each names a governance role. <!-- vocabulary-scan: allow - names the retired filename suffix the check refuses -->"""
     names = {p.stem for p in AGENTS.glob("*.md")}
     assert {"product-owner", "product-marketer", "architect"} <= names
     assert not [n for n in names if n.endswith("-lens")]
@@ -106,19 +104,18 @@ def test_no_agent_file_keeps_a_retired_name():
         assert not (AGENTS / f"{old}.md").exists(), f"{old}.md still present"
 
 
-# --- TRC-C1 / TRC-C2 - the command, and the absence of its stub -----------
+# --- `TRC-C1` / `TRC-C2` - the command, and the absence of its stub -----------
 
 def test_the_renamed_command_exists():
-    """TRC-C1."""
+    """`TRC-C1`."""
     assert (COMMANDS / "consult.md").is_file()
 
 
 def test_the_retired_command_name_no_longer_resolves():
-    """TRC-C2: removed at 4.0.0, the boundary ADR-019 scheduled it for.
+    """`TRC-C2`: removed at 4.0.0, the boundary ADR-019 scheduled it for.
 
-    This asserted the opposite through 3.x, when `roundtable.md` was a
-    redirect stub. Inverted rather than deleted so something still objects if
-    a stub reappears; ADR-024 records why the redirect was not carried on.
+    The test stays so that something objects if a stub reappears; ADR-024
+    records why the redirect ended.
     """
     assert not (COMMANDS / "roundtable.md").is_file(), (
         "`/compass:roundtable` still ships. It was a redirect stub through "
@@ -128,25 +125,23 @@ def test_the_retired_command_name_no_longer_resolves():
         "the rename left a reader nowhere to go")
 
 
-# --- TRC-C6 - the skills --------------------------------------------------
+# --- `TRC-C6` - the skills --------------------------------------------------
 
 def test_the_renamed_skills_exist_under_their_new_names():
-    """TRC-C6."""
+    """`TRC-C6`."""
     for old, new in RENAMED_SKILLS.items():
         assert (SKILLS / new / "SKILL.md").is_file(), f"{new} missing"
         assert not (SKILLS / old).exists(), f"{old} still present"
 
 
-# --- TRC-C6 - nothing live still points at a retired name -----------------
+# --- `TRC-C6` - nothing live still points at a retired name -----------------
 
 def test_no_live_surface_points_at_a_retired_name():
-    """A rename that leaves the cross-references behind is half a rename.
+    """Only `docs/releasing.md` may name a retired command, and only in its
+    upgrade table, where it tells a broken caller what to type instead.
 
-    Through 3.x the redirect stub was the one file allowed to name its own
-    retired command. The stubs went at 4.0.0, so the only page that still
-    needs to name one is `docs/releasing.md`, where the upgrade table tells a
-    broken caller what to type instead - and it is excused for that name
-    alone, not for the page.
+    A rename that leaves the cross-references behind is half a rename, and
+    the page is excused for that one name, not for the whole page.
     """
     retired = set(RENAMED_AGENTS) | set(RENAMED_SKILLS) | set(RENAMED_COMMANDS)
     # Per name where a name is what needs excusing. Exempting a whole page
@@ -160,9 +155,10 @@ def test_no_live_surface_points_at_a_retired_name():
         # because a reader whose script broke has to find their spelling here.
         REPO_ROOT / "docs" / "releasing.md": {"roundtable"},
         # Generated from governance/terminology.yml. Hand-editing a derived
-        # page is how a derivation silently stops matching its source - the
-        # terminology file records its drift guard catching exactly that - so
-        # this page moves when its source does, not before.
+        # page is how a derivation silently stops matching its source -
+        # terminology.yml records the check that compares this page with its
+        # source catching exactly that - so this page moves when its source
+        # does, not before.
         REPO_ROOT / "docs" / "glossary.md": set(retired),
     }
     hits = []

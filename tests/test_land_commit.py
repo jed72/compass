@@ -1,10 +1,11 @@
-"""compass ship-commit (R5): the Land commit step must survive auto-fixing
-pre-commit hooks and never silently believe a land that didn't move HEAD.
+"""`compass ship-commit`: the ship commit step must survive auto-fixing
+pre-commit hooks and never silently believe a ship commit that did not move
+HEAD.
 
 The defect: an auto-fixing pre-commit hook (ruff format/--fix) rewrites a
 staged file and aborts the commit; HEAD does not move, but nothing notices.
-land-commit detects the no-op, re-stages the hook's fixes, retries once, and
-always verifies HEAD advanced - erroring loudly if not.
+`ship-commit` detects the no-op, re-stages the hook's fixes, retries once,
+and always checks HEAD advanced - erroring loudly if not.
 """
 from __future__ import annotations
 
@@ -58,8 +59,8 @@ def _head(d: Path) -> str:
 
 
 def test_single_commit_noops_under_autofix_hook(run_cli, tmp_path):
-    """TRC-R5-1 (distillation): a bare `git commit` no-ops under an auto-fixing
-    hook - HEAD does not move. This is the trap land-commit must defeat."""
+    """`TRC-R5-1` (baseline): a bare `git commit` no-ops under an auto-fixing
+    hook - HEAD does not move. This is the case `ship-commit` must handle."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
@@ -72,7 +73,7 @@ def test_single_commit_noops_under_autofix_hook(run_cli, tmp_path):
 
 
 def test_clean_then_commit_advances_head(run_cli, tmp_path):
-    """TRC-R5-2: land-commit lands the staged change despite the auto-fix hook."""
+    """`TRC-R5-2`: ship-commit lands the staged change despite the auto-fix hook."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
@@ -86,7 +87,7 @@ def test_clean_then_commit_advances_head(run_cli, tmp_path):
 
 
 def test_noop_detected_retry_advances_head(run_cli, tmp_path):
-    """TRC-R5-3: the no-op is detected, fixes re-staged, retry advances HEAD,
+    """`TRC-R5-3`: the no-op is detected, fixes re-staged, retry advances HEAD,
     and the retry is reported (not silent)."""
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -103,7 +104,8 @@ def test_noop_detected_retry_advances_head(run_cli, tmp_path):
 
 
 def test_head_advance_always_verified(run_cli, tmp_path):
-    """TRC-R5-4: a successful land prints the advanced HEAD as evidence."""
+    """`TRC-R5-4`: a successful ship commit prints the advanced HEAD as
+    evidence."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
@@ -118,12 +120,13 @@ def test_head_advance_always_verified(run_cli, tmp_path):
 
 
 def test_persistent_noop_errors_loudly(run_cli, tmp_path):
-    """TRC-R5-F1: a hook that keeps aborting → land-commit errors, HEAD unmoved,
-    and any --issue status stays active (never a silent false land)."""
+    """`TRC-R5-F1`: a hook that keeps aborting → ship-commit errors, HEAD
+    unmoved, and any --issue status stays active (never a silent false
+    ship)."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)
-    # a task to prove status is not flipped to landed
+    # an issue to prove status is not flipped to landed
     task_dir = repo / ".compass" / "work" / "slug"
     task_dir.mkdir(parents=True)
     (task_dir / "manifest.yml").write_text(
@@ -142,7 +145,7 @@ def test_persistent_noop_errors_loudly(run_cli, tmp_path):
 
 
 def test_empty_staging_is_explicit_error(run_cli, tmp_path):
-    """TRC-R5-F2: nothing staged → an explicit error, not a retry loop."""
+    """`TRC-R5-F2`: nothing staged → an explicit error, not a retry loop."""
     repo = tmp_path / "repo"
     repo.mkdir()
     _init_repo(repo)

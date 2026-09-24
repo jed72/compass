@@ -7,10 +7,8 @@ expected output in the install smoke test. A release that updates some but
 not all of them ships a plugin whose manifest disagrees with the CLI it
 installs.
 
-This list said five for two releases while there were seven, and the two it
-omitted were the ones no manifest carries. `tests/test_version_guard_covers_every_location.py`
-now derives the set from the files themselves rather than from a list anyone
-has to remember to extend.
+`tests/test_version_guard_covers_every_location.py` derives the set from the
+files themselves.
 
 EXPECTED_VERSION below is deliberately hardcoded rather than read from the
 VERSION file. Reading it would make this test self-maintaining but blind to
@@ -29,13 +27,6 @@ import pytest
 FRAMEWORK_ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_VERSION = "4.0.1"
 
-# OLD_VERSIONS used to live here: a set of every version shipped before this
-# one. Nothing ever read it, and a missing comma had concatenated two of its
-# entries into "1.0.0-rc.11.8.1", quietly dropping 1.8.1 - which nothing
-# noticed, because nothing was looking. It was removed rather than repaired.
-# A constant that only exists to look careful is reassurance the repository
-# has not earned.
-
 
 def _read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -52,8 +43,8 @@ def _read_core_version_constant() -> str:
     """The package's own constant.
 
     `cli/compass` asserts equality with this at import time, so a mismatch
-    crashes the CLI - a stronger guard than a test, but an accidental one:
-    it was never named in the release procedure and nothing checked it here.
+    crashes the CLI - a stronger guard than a test, but an accidental one.
+    This test names it because the release procedure does not.
     """
     text = (FRAMEWORK_ROOT / "cli" / "compass_pkg" / "core.py").read_text(encoding="utf-8")
     m = re.search(r'^COMPASS_VERSION\s*=\s*"([^"]+)"', text, re.MULTILINE)
@@ -65,7 +56,7 @@ def _read_smoke_test_version() -> str:
     """The version in the smoke test's expected `compass --version` output.
 
     docs/releasing.md calls this "the one that gets forgotten, because it
-    lives in prose rather than in a manifest". It was forgotten.
+    lives in prose rather than in a manifest".
     """
     text = (FRAMEWORK_ROOT / "docs" / "install-smoke-test.md").read_text(encoding="utf-8")
     m = re.search(r'^compass (\d+\.\d+\.\d+) \(', text, re.MULTILINE)

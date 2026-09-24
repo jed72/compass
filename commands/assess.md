@@ -12,7 +12,7 @@ dimensions - that is **judgement** - and then hands them to the CLI, which
 process, and you do not compose the approach in your head: you assess the
 work, record the assessment, and `compass approach evaluate` applies
 `governance/routing-policy.yml` to produce the approach. This is the
-determinism boundary - see `docs/methodology.md` §6.
+determinism boundary - see `docs/methodology.md` §2.
 
 Assess works on day one with **zero project setup**: the shipped default
 guardrails, strategies, and routing policy apply as-is, so `/compass:init` is
@@ -39,10 +39,10 @@ shipped governance defaults stay in force, and adopting your own is what
   delivery-approach rubric (`${CLAUDE_PLUGIN_ROOT}/approaches/rubric.md`).
 - Read `governance/routing-policy.md` for the *why*. The machine-readable
   `governance/routing-policy.yml` is what `compass approach evaluate` actually
-  runs: triage is bound by its **policy floors, caps, immovable gates, and
-  blocking role rules** (hard) and biased by its **default shapes and
+  runs: the CLI applies its **policy floors, caps, immovable gates, and
+  blocking role rules** (hard) and its **default shapes and
   tie-breaking biases** (soft). You do not apply these by hand; the CLI does.
-- Read `.compass/config.yml` for genuine project knobs (test command, multiagent
+- Read `.compass/config.yml` for project settings (test command, multiagent
   worktree root). Routing rules are not here - they live in
   `routing-policy.yml`.
 - For a non-trivial or ambiguous issue, invoke the `router` agent to read
@@ -53,8 +53,8 @@ shipped governance defaults stay in force, and adopting your own is what
 
 ## `--reassess`
 
-If `--reassess` is passed, this is a mid-flight re-assessment, not a fresh
-triage - typically because implementation revealed the assessment was
+If `--reassess` is passed, this is a re-assessment during the work, not a new
+assessment - typically because implementation revealed the assessment was
 misread. Read the existing `delivery-approach.md` and `manifest.yml`, re-read the
 four dimensions, update the manifest's `assessment:` block, then re-run
 `compass approach evaluate --write --reason "..."` to recompute the approach.
@@ -62,12 +62,12 @@ four dimensions, update the manifest's `assessment:` block, then re-run
 change, it records the event in the manifest's `reassessments:` log, and the
 reason is the signal `compass retro` reads. Then write a **new
 revision** of `delivery-approach.md` (keep the prior revision visible). A
-re-assessment is a normal event. An approach quietly outgrown is the
-failure - and a re-assessment with no recorded reason is a signal thrown
-away.
+re-assessment is a normal event. The failure is an issue that outgrows its
+approach unrecorded; a re-assessment with no reason gives `compass retro`
+nothing to read.
 
 Re-assessing is also how a **spike graduates**: the spike's findings become
-an input to a fresh triage for the real delivery work. If the new approach is
+an input to a fresh assessment for the real delivery work. If the new approach is
 no longer a spike, remove the `.spike` marker so the TDD strategy is back in
 force; if it is still a spike, leave the marker in place.
 
@@ -77,22 +77,19 @@ force; if it is still a spike, leave the marker in place.
    and write `manifest.yml` from `${CLAUDE_PLUGIN_ROOT}/templates/manifest.yml` into it. This is the
    machine-readable manifest the CLI reads and writes.
 1a. **Load project architecture if present.** If the project has an
-    `architecture/` directory beside `governance/`, its narrative files,
-    `invariants.yml` and decision records are loaded into
+    `architecture/` directory beside `governance/`, write its narrative files,
+    `invariants.yml` and decision records yourself into
     `architecture-loaded.yml` in the issue directory - that file is what
-    downstream agents read for architectural context. A project without one
-    keeps working. Do **not** write load state into the manifest's `assessment:`
-    block; that block is the judgement only.
-
-    (No CLI verb wraps this yet, so it does not happen on its own - see the
-    `architecture-load-has-no-verb` issue.)
+    downstream agents read for architectural context; no CLI verb does this
+    yet. A project without one keeps working. Do **not** write load state
+    into the manifest's `assessment:` block; that block is the judgement only.
 
 2. **Read the four dimensions - this is the judgement** - risk, familiarity,
    size, goal & role, plus the `labels:` domain tags. Each gets a value and a
    one-line justification. If a value cannot be justified, ask the user
    rather than guessing. When size is unsure, estimate *up*. Note:
    **exploration goal** - "I cannot state this well enough to deliver it
-   yet" - leads toward a **spike**, the way live-defect urgency leads toward
+   yet" - leads towards a **spike**, the way live-defect urgency leads towards
    a hotfix. Write these into the manifest's `assessment:` block. The assessment
    is the only part of the computation that is judgement - everything below
    is mechanism.
@@ -107,13 +104,16 @@ force; if it is still a spike, leave the marker in place.
    is a misclassification, the CLI fails loudly; re-read the dimension it
    rejected.
 4. **Write `delivery-approach.md`** from `${CLAUDE_PLUGIN_ROOT}/templates/delivery-approach.md`
-   into the issue directory, from the CLI's output. It must contain: the four
-   dimensions with justifications; the computed approach; every policy rule
-   the CLI reported as fired (with its rationale); the final per-stage
-   weight, gate set, and orchestration; and **the de-scope ledger** - every stage
-   the CLI marked collapsed or skipped, each with an explicit "safe to skip
-   because..." line. A stage with no justification runs.
-   `delivery-approach.md` is the human-readable face of what `manifest.yml`
+   into the issue directory, from the CLI's output. It must contain:
+   - the four dimensions with justifications;
+   - the computed approach;
+   - every policy rule the CLI reported as fired (with its rationale);
+   - the final per-stage weight, gate set, and orchestration;
+   - **the de-scope ledger** - every stage the CLI marked collapsed or
+     skipped, each with an explicit "safe to skip because..." line. A stage
+     with no justification runs.
+
+   `delivery-approach.md` is the human-readable version of what `manifest.yml`
    records mechanically.
 5. **Write the `.compass/current-task` pointer.** Write the slug into
    `.compass/current-task` so every later `compass` call resolves to this
@@ -127,9 +127,9 @@ force; if it is still a spike, leave the marker in place.
    approach, invite override of any *dimension*, and if a dimension changes,
    re-run `compass approach evaluate --write` - never hand-edit the computed
    approach. Record overrides in `delivery-approach.md` with who and why.
-   Immovable gates and floors cannot be overridden - a policy floor is
-   governance speaking; changing one means amending
-   `governance/routing-policy.yml`, not overriding one issue's approach.
+   Immovable gates and floors cannot be overridden; changing one means
+   amending `governance/routing-policy.yml`, not overriding one issue's
+   approach.
 
 ## Voice
 

@@ -7,12 +7,12 @@ supersedes: ''
 superseded_by: ''
 ---
 
-<!-- HOW TRIAGE AND THE ARCHITECT PERSPECTIVE USE THIS FILE
+<!-- HOW ASSESS AND THE ARCHITECT PERSPECTIVE USE THIS FILE
      Assess scans architecture/decisions/ADR-*.md and includes a summary of
      each record (id, title, status) in architecture-loaded.yml.  The
      `architect` agent reads these summaries to know which decisions
      are already recorded, so it can cite them in architecture-notes.md
-     rather than re-litigating closed decisions.
+     rather than reopening settled decisions.
 
      Use `compass adr new <slug>` to create a new ADR from this template -
      it assigns the next sequential number and registers the file in README.md.
@@ -33,7 +33,7 @@ superseded_by: ''
 
 ## Context
 
-<!-- Describe the situation that necessitated this decision.  What forces
+<!-- Describe the situation that needed this decision.  What forces
      were in play?  What changed in the system, team, or requirements that
      made the status quo unsatisfactory? -->
 

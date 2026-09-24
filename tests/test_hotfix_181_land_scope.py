@@ -1,17 +1,17 @@
-"""`compass ship-commit` must commit only what the task owns (field report R11).
+"""`compass ship-commit` must commit only what the issue owns.
 
-`land-commit` survives auto-fixing pre-commit hooks by re-staging what the hook
+`ship-commit` survives auto-fixing pre-commit hooks by re-staging what the hook
 rewrote and retrying. The re-stage was `git add -A`, which stages the whole
-tree - so anything the task does not own goes into the commit: a second agent's
+tree - so anything the issue does not own goes into the commit: a second agent's
 uncommitted edits, untracked scratch, or the N unrelated files a repo-wide
 formatter just touched.
 
 Reported from the field: a repo-wide `ruff format` hook touched 94 files and
-the index went from ~23 task files to 1,574, including a concurrent agent's
-work. Only a manual inspection caught it before it committed. This is R5's cure
-over-applied - the fix for a real problem, scoped too broadly.
+the index went from ~23 issue files to 1,574, including a concurrent agent's
+work. Only a manual inspection caught it before it committed. The fix for the
+no-op commit was scoped too broadly.
 
-Scenarios: docs/compass/2026-08-04-hotfix-1-8-1-false-blocks-and-land-scope/acceptance-criteria.md
+Scenarios: hotfix-1-8-1-false-blocks-and-land-scope/acceptance-criteria.md
 (SCN-B1..B3).
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ def _git(repo, *args, check=True):
 
 @pytest.fixture
 def repo(tmp_path):
-    """A git repo with one Compass task declaring exactly one owned file."""
+    """A git repo with one Compass issue declaring exactly one owned file."""
     r = tmp_path / "proj"
     (r / "src").mkdir(parents=True)
     _git(r.parent, "init", "-q", "-b", "main", str(r))
@@ -71,7 +71,7 @@ def _install_autofixing_hook(repo):
     """A git pre-commit hook that behaves like `ruff format` under pre-commit:
     it rewrites a staged file and aborts the commit the first time, then passes.
 
-    This is what triggers land-commit's retry path - the one that re-staged the
+    This is what triggers ship-commit's retry path - the one that re-staged the
     whole tree. Without it the retry never runs and the scope assertions below
     would pass without checking anything.
     """
@@ -102,7 +102,7 @@ def _committed_files(repo):
 
 
 def test_scn_b1_unrelated_dirty_file_is_not_swept_into_the_land_commit(repo):
-    """The concurrent-agent case: another file is modified but not staged."""
+    """The concurrent-agent case: another file is changed but not staged."""
     _install_autofixing_hook(repo)
     (repo / "src" / "owned.py").write_text("x = 2\n")
     (repo / "src" / "other.py").write_text("y = 999  # another agent's work\n")
@@ -137,8 +137,8 @@ def test_scn_b1_untracked_scratch_is_not_swept_in(repo):
 
 
 def test_scn_b2_out_of_scope_staged_path_aborts_the_commit(repo):
-    """If something else staged a path the task does not declare, refuse rather
-    than commit it under this task's message."""
+    """If something else staged a path the issue does not declare, refuse
+    rather than commit it under this issue's message."""
     (repo / "src" / "owned.py").write_text("x = 4\n")
     (repo / "src" / "other.py").write_text("y = 4\n")
     _git(repo, "add", "--", "src/owned.py", "src/other.py")
@@ -158,8 +158,8 @@ def test_scn_b2_out_of_scope_staged_path_aborts_the_commit(repo):
 
 
 def test_the_tasks_own_artifact_directory_is_always_in_scope(repo):
-    """A Land commits the task's artifacts alongside its code; they are owned by
-    definition and must not trip the scope check."""
+    """A ship commit commits the issue's artifacts alongside its code; they
+    are owned by definition and must not trip the scope check."""
     (repo / "src" / "owned.py").write_text("x = 5\n")
     (repo / ".compass" / "work" / SLUG / "devlog.md").write_text("# Devlog\n")
     _git(repo, "add", "--", "src/owned.py",

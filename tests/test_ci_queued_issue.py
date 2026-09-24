@@ -1,7 +1,7 @@
 """A queued issue is not asked for an assessment it cannot have.
 
-`compass ci` is a release gate (docs/releasing.md step 4), and it was failing
-eight queued issues for not having been assessed - which is what queued means.
+`compass ci` is a release gate (docs/releasing.md step 4). It must not fail
+a queued issue for having no assessment - that is what queued means.
 
 The fix is deliberately one field for one status. `cmd_ci`'s own comment says
 why the lint must otherwise run for every issue at every stage: "a malformed
@@ -10,7 +10,7 @@ manifest the linter rejects outright sit in a repository while the sweep reporte
 everything clean." So the boundary tests below matter as much as the first one.
 
 Scenario id: CIQ-A1 in
-docs/compass/2026-08-26-ci-fails-a-queued-issue-for-being-queued/acceptance-criteria.md
+ci-fails-a-queued-issue-for-being-queued/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ _BASE = {"schema_version": "2.0", "task": "demo", "created": "2026-08-26"}
 
 
 def test_ciq_a1_a_queued_issue_needs_no_assessment(tmp_path):
-    """The defect: filing work early should not redden the repository.
+    """The defect: filing work early must not turn the build red.
 
     `cmd_ci`'s own words - the framework "asks for work to be triaged early,
     and failing the sweep for complying teaches people to stop".
@@ -52,9 +52,10 @@ def test_ciq_a1_a_queued_issue_needs_no_assessment(tmp_path):
 def test_ciq_a1b_an_active_issue_still_needs_one(tmp_path):
     """The boundary, and the reason this is one field rather than a status skip.
 
-    An active issue with no assessment is work started without triage - the one
-    rule Compass says is never skipped. Relaxing it for `active` would waive
-    that rule rather than acknowledge that a queued issue has not reached it.
+    An active issue with no assessment is work started without an
+    assessment - the one rule Compass says is never skipped. Relaxing it
+    for `active` would waive that rule rather than acknowledge that a
+    queued issue has not reached it.
     """
     run = _lint(tmp_path, dict(_BASE, status="active"))
     assert run.returncode != 0, (
@@ -64,7 +65,8 @@ def test_ciq_a1b_an_active_issue_still_needs_one(tmp_path):
 
 
 def test_ciq_a1c_a_queued_issue_malformed_otherwise_still_fails(tmp_path):
-    """The other boundary. The lint still runs; only one field stands down.
+    """The other boundary. The lint still runs; only the assessment field
+    is skipped.
 
     Skipping the lint wholesale for queued issues is what `cmd_ci` warns
     against in as many words: it "let a manifest the linter rejects outright sit

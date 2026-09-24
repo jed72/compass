@@ -1,10 +1,8 @@
 """The five entry-point commands initialise the project, and nothing else does.
 
-A user's first Compass command should work in a repository that has never used
-Compass. Four of the five role entry points wrote into `.compass/work/<slug>/`
-while assuming somebody else had created it - `commands/intent.md` and
-`commands/position.md` named the path, `wireframe.md` and `consult.md` did
-not mention it at all.
+A user's first Compass command must work in a repository that has never
+used Compass. Each of the five entry points must initialise the project
+before it writes into `.compass/work/<slug>/`.
 
 These are checks on the COMMAND PROSE, because the commands are instructions to
 an agent rather than code with a call site to assert on. What they check is
@@ -12,7 +10,7 @@ that each entry point tells the agent to initialise, and that the commands
 which only read state do not.
 
 Scenario ids: IOI-B1, IOI-C2, IOI-D2 in
-docs/compass/2026-08-26-init-is-the-opt-in/acceptance-criteria.md
+init-is-the-opt-in/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -22,12 +20,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 COMMANDS = REPO_ROOT / "commands"
 
-# Settled in requirements-review.md AMB-1: the five ways a user can arrive
-# first. Every other command needs an issue a previous command created.
+# The five ways a user can arrive first. Every other command needs an issue
+# a previous command created.
 #
 # `design` is the designer entry point that produces the UI contract.
-# `wireframe` was the retired redirect stub pointing at it, and was removed
-# at 4.0.0 - so it is no longer in either list below.
 ENTRY_POINTS = ["assess", "intent", "design", "position", "consult"]
 
 # Commands that report on existing state. Creating a directory because
@@ -61,7 +57,7 @@ def test_ioi_b1b_every_entry_point_reports_that_it_initialised():
         m = INIT_CALL.search(text)
         if not m:
             continue
-        # The instruction to say so should sit with the instruction to run it,
+        # The instruction to say so must sit with the instruction to run it,
         # not three sections away where an agent will not connect them.
         window = text[max(0, m.start() - 400):m.end() + 400].lower()
         if not any(w in window for w in ("report", "say", "tell")):
@@ -76,7 +72,7 @@ def test_ioi_d2_reading_commands_do_not_initialise():
 
     Commands that do not initialise today already do not, so this passes
     against HEAD before anything is built. Its red has to be demonstrated
-    against a build that over-initialises - see technical-design.md DD-5.
+    against a build that over-initialises.
     """
     offenders = [name for name in MUST_NOT_INITIALISE
                  if INIT_CALL.search(_read(name))]

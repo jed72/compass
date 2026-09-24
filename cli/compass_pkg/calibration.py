@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.calibration - `compass retro` and its `--friction` and `--impact` views
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +21,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -99,12 +36,10 @@ from compass_pkg.core import CompassError, find_compass_dir, find_governance, lo
 
 
 
-# --- command: calibration ---------------------------------------------------
-# The Needle's feedback loop. The Needle reads context - judgement - and a
-# framework about right-sizing process owes an answer to "is the right-sizing
-# any good?" `compass calibration` is that answer: it reads the re-frame log
-# across every task and reports whether the Needle is systematically over- or
-# under-sizing. Read-only; it advises, it does not gate.
+# --- command: retro -----------------------------------------------------
+# `compass retro` reads the re-assessment log across every issue and reports
+# whether assessment is systematically over- or under-sizing the process.
+# Read-only: it advises and never gates.
 
 def _load_scope_bloat_phrases():
     """Load scope_bloat_phrases from signals.yml at runtime.
@@ -125,18 +60,18 @@ def _load_scope_bloat_phrases():
 
 
 def _find_reframe_debt(tasks, work):
-    """Return a list of absorbed mis-frame records.
+    """Return a list of absorbed mis-assessment records.
 
     For each issue, scan its devlog.md for scope_bloat_phrases.  An issue
     qualifies as 'reframe debt' when:
       - at least one scope-bloat phrase appears as the start of a devlog line
         (column-0 anchor - same rule as the stop-hook, for consistency), AND
-      - manifest.yml.reframes has no entry whose date is >= the date of the
-        matching devlog line.
+      - manifest.yml's `reassessments` has no entry whose date is >= the date
+        of the matching devlog line.
 
     This function is strictly READ-ONLY; it never writes to any
     manifest.yml or any other file.
-    Patterns are supplied by the caller from signals.yml.
+    The caller passes the patterns, read from signals.yml.
     """
     phrases = _load_scope_bloat_phrases()
     if not phrases:
@@ -154,7 +89,7 @@ def _find_reframe_debt(tasks, work):
         except OSError:
             continue
 
-        # Latest reframe date for this task
+        # Latest reframe date for this issue
         reframes = task.get("reassessments") or []
         reframe_dates = sorted(
             r.get("date", "") for r in reframes if r.get("date")
@@ -165,7 +100,7 @@ def _find_reframe_debt(tasks, work):
         # quotes/indentation).  The phrase must appear at column 0 OR
         # immediately after an optional YYYY-MM-DD[: ] date prefix.
         # Lines starting with whitespace are skipped (indented/quoted context
-        # must not fire - consistency with the stop-hook's TRC-X3 rule).
+        # must not fire - consistency with the stop-hook's own rule).
         import re as _re
         _DATE_PREFIX_PAT = r'^(?:\d{4}-\d{2}-\d{2}[: ]+)?'
 
@@ -196,7 +131,7 @@ def _find_reframe_debt(tasks, work):
                     "devlog_line": line,
                     "phrase": phrase,
                 })
-                break  # one match per phrase per task is enough
+                break  # one match per phrase per issue is enough
 
     return debts
 
@@ -207,7 +142,7 @@ def _load_friction_threshold():
     Mirrors _load_scope_bloat_phrases (never hardcode the value in
     the CLI - read it from the governance file). Defaults to 2 when signals.yml
     is absent or the block is unset (ADR-006: clean no-op for non-adopters; and
-    2 mirrors `calibration`'s own >=2 up/down-sizing thresholds).
+    2 mirrors `retro`'s own >=2 up/down-sizing thresholds).
     """
     default = 2
     try:
@@ -327,8 +262,9 @@ def derive_friction(slug, task, work):
     """Assemble the `source: derived` friction entries for one issue from signals
     the CLI already computes - recorded reframes and absorbed reframe-debt.
 
-    A reframe is a Frame that mis-read the terrain; reframe-debt is a mis-frame
-    absorbed without one being filed. Both are friction by definition. Pure: it
+    A re-assessment records an assessment that misjudged the work.
+    Reframe debt is a misjudgement nobody recorded. Both are friction
+    by definition. Pure: it
     reads manifest.yml + devlog (via _find_reframe_debt) and writes nothing. Derived
     entries carry no `proposed_change` - a reframe does not propose a specific
     governance change; it is the recurrence of *human*-proposed changes that the
@@ -362,14 +298,14 @@ def derive_friction(slug, task, work):
 
 
 def cmd_friction_capture(args):
-    """Private entry point for `compass _friction-capture --internal`, called by
-    the Land procedure. Assembles the issue's `friction:` list from derived
-    signals plus an optional human note and writes it into the manifest.
+    """Private entry point for `compass _friction-capture --internal`, called
+    at ship. Assembles the issue's `friction:` list from derived signals plus
+    an optional human note and writes it into the manifest.
 
     It writes ONLY the friction section - never a follow-up or a gate. Friction
-    is a strategy-class signal and must never become something that blocks Land
-    (ADR-002). The derivation is mechanism; the `--note` is the only
-    judgement input, supplied human-side (ADR-001).
+    is a strategy-class signal and must never become something that blocks
+    shipping (ADR-002). The derivation is mechanism; the `--note` is the only
+    judgement input, given by a person (ADR-001).
     """
     if not getattr(args, "internal", False):
         raise CompassError(
@@ -396,10 +332,10 @@ def cmd_friction_capture(args):
         entries.append(human)
 
     # Merge rather than replace. Derived entries are a pure function of the
-    # task's current state, so they are recomputed and replace the previous
+    # issue's current state, so they are recomputed and replace the previous
     # derived set; human notes are observations that cannot be recomputed, so
-    # they accumulate. An earlier version assigned the whole list, which meant a
-    # second run silently discarded every note the first had recorded.
+    # they accumulate. Assigning the whole list would discard every note an
+    # earlier run recorded.
     existing = task.get("friction") or []
     kept_human = [e for e in existing if e.get("source") == "human"]
     new_human = [e for e in entries if e.get("source") == "human"]
@@ -415,8 +351,8 @@ def cmd_friction_capture(args):
         for e in entries:
             print(f"  [{e['source']}/{e['category']}] {e.get('observation', '')}")
     else:
-        # Recording nothing is a valid, common outcome (TRC-A5). Leave the key
-        # absent so a task that hit no friction stays a clean no-op (ADR-006).
+        # Recording nothing is a valid, common outcome. Leave the key
+        # absent so an issue that hit no friction stays a clean no-op (ADR-006).
         print("compass _friction-capture: no friction derived and no note "
               "supplied - nothing recorded (a valid, common outcome).")
     return 0
@@ -424,18 +360,19 @@ def cmd_friction_capture(args):
 
 
 # --- process-impact telemetry ------------------------------------------------
-# "Earn the gate": does the process weight a route buys correlate with shipping faster
-# or breaking less? Computed from manifest.yml alone - `created` and
-# `land_timestamp` are already in the manifest, so no git call is needed and the
-# report is deterministic by construction rather than by discipline.
+# "Earn the gate": does the process weight a delivery approach adds correlate
+# with shipping faster or breaking less? Computed from manifest.yml alone -
+# `created` and `land_timestamp` are already in the manifest, so no git call
+# is needed and the report is deterministic by construction rather than by
+# discipline.
 #
 # The hard part is not the arithmetic, it is refusing to report what the data
 # cannot support. A project with no hotfixes has a change-fail rate that is
 # UNMEASURABLE, not zero; printing "0%" would read as excellent stability and
 # mean silence.
 
-IMPACT_SAMPLE_FLOOR = 20   # landed tasks before any correlation is reported
-IMPACT_GROUP_FLOOR = 3     # tasks in a route group before that group is shown
+IMPACT_SAMPLE_FLOOR = 20   # landed issues before any correlation is reported
+IMPACT_GROUP_FLOOR = 3     # issues in a delivery-approach group before that group is shown
 
 
 def _impact_days(created, landed):
@@ -490,9 +427,9 @@ def compute_impact(tasks):
     declared = [(s, d) for s, d in hotfixes if d.get("repairs")]
     delivery_slugs = {s for s, _ in delivery}
 
-    # Count DISTINCT delivery tasks that were repaired - not the number of
-    # hotfixes that named one. Three hotfixes against one task is one failed
-    # task, not three; the earlier formula reported 150%.
+    # Count DISTINCT delivery issues that were repaired - not the number of
+    # hotfixes that named one. Three hotfixes against one issue is one failed
+    # issue, not three.
     repaired = sorted({str(d["repairs"]) for _, d in declared
                        if str(d["repairs"]) in delivery_slugs})
     unknown_targets = sorted({str(d["repairs"]) for _, d in declared
@@ -547,7 +484,7 @@ def render_impact(r):
     if r["change_fail_rate"] is None:
         # NOT "0%". Gate on the RATE, not on hotfix presence: a project with
         # hotfixes that declare no target is just as unmeasurable, and gating on
-        # presence crashed on a hotfix-only history.
+        # presence fails on a history of only hotfixes.
         if not r["hotfixes"]:
             why = "no hotfixes recorded"
         elif not r["hotfixes_declared"]:
@@ -623,7 +560,7 @@ def cmd_calibration(args):
                 except CompassError:
                     pass
 
-    # --- friction view (TRC-B*) - a flag on calibration, not a new verb.
+    # --- friction view - a flag on retro, not a new verb.
     # Read-only, exit 0 always; handles the empty corpus gracefully.
     if getattr(args, "friction", False):
         return _cmd_calibration_friction(args, tasks)
@@ -660,9 +597,9 @@ def cmd_calibration(args):
             else:
                 sideways += 1
 
-    # The retrospective is a REPORT. Its summary is the SIGNAL - whether triage
-    # is systematically over- or under-sizing - because that is the one thing a
-    # reader is here for, and it used to sit eighteen lines down.
+    # The retrospective is a REPORT. Its summary is the SIGNAL - whether
+    # assessment is systematically over- or under-sizing - because that is
+    # the one thing a reader is here for.
     pct_head = round(100 * reframed_tasks / len(tasks))
     if total == 0:
         _signal = ("no re-frames recorded - either routing is well-calibrated "
@@ -725,11 +662,11 @@ def cmd_calibration(args):
               f"{pct}%.")
         print("  Routing looks reasonably calibrated; keep watching the trend.")
 
-    # --- Reframe debt (TRC-C5) -----------------------------------------------
+    # --- Reframe debt ---------------------------------------------------------
     # Read devlogs for scope-bloat signals that were absorbed without a reframe.
     # Strictly read-only - no manifest.yml is written here.
     # Patterns loaded from signals.yml at runtime (never hardcoded).
-    # Inv-4: advisory only - this section reports, never gates.
+    # Advisory only - this section reports, never gates (Inv-4).
     debts = _find_reframe_debt(tasks, work)
     if debts:
         print()

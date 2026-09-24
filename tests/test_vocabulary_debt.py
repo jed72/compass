@@ -1,21 +1,14 @@
 """The public surface does not carry stale references or wrong claims.
 
-Four items, each counted against HEAD before this file was written. Most of
-what the comparison review listed under this heading was already paid by the
-documentation slimming pass, which landed after the review was taken - the
-delivery-approach record has the table.
+Three requirements:
 
-What remained:
-
-- `approaches/README.md` linked five files that do not exist.
-- `CLAUDE.md` and `AGENTS.md` said the CLI's verbs and artifact filenames keep
-  their v1 names "until their rename slice ships". Those slices shipped.
-- `docs/routing-deep-dive.md` named the immovable gates as correctness,
-  governance, regression and claims. The policy's are correctness, governance
-  and traceability - regression is approach-scoped and claims is role-scoped.
+- `approaches/README.md` links only files that exist.
+- `CLAUDE.md` and `AGENTS.md` do not say a shipped rename is pending.
+- `docs/routing-deep-dive.md` names the immovable gates the policy names:
+  correctness, governance, traceability.
 
 Scenario ids: VOC-A1, VOC-B1, VOC-C1, VOC-C2 in
-docs/compass/2026-08-26-vocabulary-debt/acceptance-criteria.md
+vocabulary-debt/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -88,17 +81,11 @@ def _policy_immovable_gates():
 
 
 def _immovable_claim():
-    """The gates routing-deep-dive.md CLAIMS are immovable.
+    """The gates routing-deep-dive.md claims are immovable.
 
-    The parenthesised list immediately after the phrase, not the surrounding
-    prose. Two anchors were wrong before this one:
-
-    - the first "immovable gates" mention is a sentence about stapling that
-      names no gate, so anchoring there passed over empty text;
-    - a 400-character window around the right mention catches the sentences
-      that explain which gates are NOT immovable, so correct prose failed.
-
-    The claim is the list. That is what this reads.
+    Read the parenthesised list right after the phrase: the first mention
+    names no gate, and a wider window catches sentences about gates that
+    are not immovable.
     """
     text = DEEP_DIVE.read_text(encoding="utf-8")
     m = re.search(r"immovable gates?\b[^(]{0,40}\(([^)]*)\)", text, re.I | re.S)

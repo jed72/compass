@@ -1,9 +1,8 @@
 """The two documents the routing policy names, and the shapes they borrowed.
 
 `governance/routing-policy.yml` promises a threat model on auth, payments or
-personal-data work, and a rollback plan on migrations. Neither kind had a
-template, so an issue was told it earned a document and given nothing to start
-from.
+personal-data work, and a rollback plan on migrations. Each kind needs a
+template, so an issue that earns the document has something to start from.
 
 WHY THESE SHAPES AND NOT OURS. Both are borrowed from published sources rather
 than invented, and the criteria quote them so a reviewer can check the
@@ -18,15 +17,11 @@ borrowing rather than the author's taste:
                        First Law of Documentation
 
 Scenario ids trace to
-docs/compass/2026-08-23-adaptive-artifact-composition/acceptance-criteria.md.
+adaptive-artifact-composition/acceptance-criteria.md.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import re
@@ -41,12 +36,12 @@ THREAT = TEMPLATES / "threat-model.md"
 ROLLBACK = TEMPLATES / "rollback-plan.md"
 
 # Measured, not felt: intent.md is 106 lines and technical-design.md - the largest, carrying
-# six optional sections - is 223. 120 sits above the PRD and far below the
+# six optional sections - is 223. 120 sits above intent.md and far below the
 # design: room for a worked example, not for a form.
 TEMPLATE_LINE_CAP = 120
 
-# The Manifesto's four questions, verbatim. A paraphrase is a fork of a
-# standard with none of its authority.
+# The Manifesto's four questions, verbatim. A paraphrase changes the
+# standard and loses its authority.
 FOUR_QUESTIONS = [
     "What are we working on?",
     "What can go wrong?",
@@ -58,10 +53,10 @@ FOUR_QUESTIONS = [
 def _without_comments(text):
     """The template with its instructional comments removed.
 
-    Three guards here were defeated by reading them: the comment blocks quote
-    the sources, so they contain "rehearsal", "scenario" and "evidence"
-    whatever the headings say. A guard that searches the instructions is
-    checking the thing that tells you what to write, not the thing you write.
+    The comment blocks quote the sources, so a whole-file search finds
+    "rehearsal", "scenario" and "evidence" whatever the headings say. A
+    guard that searches the instructions is checking the thing that tells
+    you what to write, not the thing you write.
     """
     return re.sub(r"<!--.*?-->", "", text, flags=re.S)
 
@@ -84,7 +79,7 @@ def _read(p):
 # ---------------------------------------------------------------------------
 
 def test_trc_a1():
-    """TRC-A1: the template asks the four questions and no others."""
+    """`TRC-A1`: the template asks the four questions and no others."""
     text = _read(THREAT)
     headings = [l.lstrip("#").strip() for l in text.splitlines()
                 if l.startswith("## ")]
@@ -96,7 +91,7 @@ def test_trc_a1():
 
 
 def test_trc_a2():
-    """TRC-A2: a threat with no scenario is reported, not admired.
+    """`TRC-A2`: a threat with no scenario is reported, not admired.
 
     The Manifesto's named anti-pattern is "Admiration for the Problem" - a
     document that lists threats and mitigates none. The check answers it: a
@@ -131,7 +126,7 @@ def test_trc_a2():
 
 
 def test_trc_a3():
-    """TRC-A3: the fourth question is answered by evidence, not self-grading."""
+    """`TRC-A3`: the fourth question is answered by evidence, not self-grading."""
     text = _read(THREAT)
     body = _without_comments(text)
     i = body.index("## Did we do a good enough job?")
@@ -151,7 +146,7 @@ def test_trc_a3():
 # ---------------------------------------------------------------------------
 
 def test_trc_b1():
-    """TRC-B1: the template asks when the rollback was last rehearsed."""
+    """`TRC-B1`: the template asks when the rollback was last rehearsed."""
     text = _read(ROLLBACK)
     # A HEADING, not the word somewhere. The instructional comment quotes
     # SWEBOK, so searching the whole file for "rehears" passed even when the
@@ -168,7 +163,7 @@ def test_trc_b1():
 
 
 def test_trc_b2():
-    """TRC-B2: the evidence type demands a rehearsal, and no type is added."""
+    """`TRC-B2`: the evidence type demands a rehearsal, and no type is added."""
     import yaml
 
     g = yaml.safe_load((REPO_ROOT / "governance" / "guardrails.yml")
@@ -178,9 +173,9 @@ def test_trc_b2():
     assert "rehears" in desc, (
         "the `rollback-plan` evidence type still describes a PLAN, which is "
         "the assertion this change exists to reject:\n  " + desc)
-    # It must not merely QUOTE the word while still describing a plan - the
-    # first version of this passed on a description whose opening clause had
-    # been reverted, because the SWEBOK quote after it still said "rehearsed".
+    # It must not merely QUOTE the word while still describing a plan - a
+    # bare substring search passes on an opening clause that describes a
+    # plan again, because the SWEBOK quote after it still says "rehearsed".
     assert "a recorded plan for reverting" not in desc, (
         "the description opens by describing a plan again. The quote that "
         "follows it does not change what the type demands:\n  " + desc)
@@ -198,7 +193,7 @@ def test_trc_b2():
 
 
 def test_trc_b3():
-    """TRC-B3: a rollback plan with no rehearsal is caught; neither file
+    """`TRC-B3`: a rollback plan with no rehearsal is caught; neither file
     present reports nothing to check, not a pass."""
     from compass_pkg.check_results import NOTHING_TO_CHECK
     from compass_pkg.borrowed_docs import _check_borrowed_documents_answered
@@ -251,7 +246,7 @@ def _optional_sections(text):
 
 
 def test_trc_c1():
-    """TRC-C1: the design template offers a cross-cutting concerns section."""
+    """`TRC-C1`: the design template offers a cross-cutting concerns section."""
     text = (TEMPLATES / "technical-design.md").read_text(encoding="utf-8")
     names = _optional_sections(text)
     match = [n for n in names if "cross-cutting" in n.lower()]
@@ -261,8 +256,8 @@ def test_trc_c1():
         "that - sections of the design, not separate documents. Optional "
         "sections found: %s" % names)
 
-    # The whole section, not a fixed window. A 1200-character window stopped
-    # before "observability" and reported it missing when it was there - a
+    # The whole section, not a fixed window. A fixed-length window can stop
+    # short of "observability" and report it missing when it is there - a
     # guard failing on its own arbitrary constant rather than on the code.
     i = text.index("## " + match[0])
     rest = text[i + 3:]
@@ -280,7 +275,7 @@ def test_trc_c1():
 
 
 def test_trc_c2():
-    """TRC-C2: the skill governing the optional sections knows about it.
+    """`TRC-C2`: the skill governing the optional sections knows about it.
 
     Asserts the set is NON-EMPTY and the expected size before comparing. Two
     empty sets are equal, and this repository has already shipped one guard
@@ -315,11 +310,11 @@ def test_trc_c2():
 def _policy_artifact_kinds():
     """Every artifact kind the routing policy names, found by walking it all.
 
-    RECURSIVE ON PURPOSE. The first version of this read a hard-coded path,
-    `rules.floors_and_requirements`, which does not exist - the policy has no
-    top-level `rules` key, and the artifact-adding rules live under
-    `routing_guardrails.floors`. It reported ZERO missing templates while two
-    were missing. A scan that finds nothing must fail, not pass.
+    RECURSIVE ON PURPOSE. A fixed path such as `rules.floors_and_requirements`
+    does not exist - the policy has no top-level `rules` key, and the
+    artifact-adding rules live under `routing_guardrails.floors` - so a
+    reader pinned to one path would report zero missing templates while some
+    are missing. A scan that finds nothing must fail, not pass.
     """
     import yaml
 
@@ -349,7 +344,7 @@ def _policy_artifact_kinds():
 
 
 def test_trc_d1():
-    """TRC-D1: every kind the policy names has a template."""
+    """`TRC-D1`: every kind the policy names has a template."""
     kinds, shape_kinds, where = _policy_artifact_kinds()
 
     assert shape_kinds, (
@@ -371,11 +366,11 @@ def test_trc_d1():
 
 
 def test_trc_d3():
-    """TRC-D3: both templates stay shorter than the framework's own PRD."""
-    # THE CAP ITSELF HAS TO BITE. Raising it to 10,000 changed nothing
-    # observable, because nothing breached it - a budget so high nothing can
-    # exceed it is the shape this repository keeps finding. Bounding it against
-    # the framework's own largest template makes that raise fail here.
+    """`TRC-D3`: both templates stay shorter than intent.md."""
+    # THE CAP MUST BE ABLE TO FAIL. A budget so high nothing can exceed it
+    # proves nothing, which is the shape this repository keeps finding.
+    # Bounding it against the framework's own largest template makes an
+    # over-wide cap fail here.
     design_lines = len((TEMPLATES / "technical-design.md").read_text(
         encoding="utf-8").splitlines())
     assert TEMPLATE_LINE_CAP < design_lines, (

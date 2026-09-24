@@ -26,7 +26,7 @@ def test_task_lint_passes_on_valid_task(run_cli, make_task):
 
 
 def test_task_lint_fails_on_missing_readings(run_cli, make_task):
-    """A manifest.yml without readings is not a Compass task."""
+    """A manifest.yml without an assessment is not a Compass issue."""
     body = _valid_task_body()
     body.pop("assessment")
     make_task("no-readings", body)
@@ -117,12 +117,12 @@ def test_task_lint_with_explicit_file_path(run_cli, make_task, project):
 
 
 # --- friction (the self-calibration signal) --------------------------------
-# TRC-A1, TRC-F3 - the optional `friction:` block on the task manifest.
+# The optional `friction:` block on the issue manifest (`TRC-A1`, `TRC-F3`).
 
 
 def test_friction_block_validates(run_cli, make_task):
-    """TRC-A1: an optional friction list with the documented fields validates,
-    and category/source are constrained to their enums."""
+    """An optional friction list with the documented fields passes validation,
+    and category and source are constrained to their enums (`TRC-A1`)."""
     body = _valid_task_body(friction=[
         {
             "phase": "plan",
@@ -144,7 +144,7 @@ def test_friction_block_validates(run_cli, make_task):
 
 
 def test_friction_bad_category_rejected(run_cli, make_task):
-    """TRC-A1: a category outside the documented set fails validation."""
+    """A category outside the documented set fails validation (`TRC-A1`)."""
     body = _valid_task_body(friction=[
         {"category": "vibes", "observation": "x", "source": "derived"},
     ])
@@ -156,7 +156,7 @@ def test_friction_bad_category_rejected(run_cli, make_task):
 
 
 def test_friction_bad_source_rejected(run_cli, make_task):
-    """TRC-A1: source is constrained to derived | human."""
+    """Source is constrained to derived | human (`TRC-A1`)."""
     body = _valid_task_body(friction=[
         {"category": "tooling", "observation": "x", "source": "guessed"},
     ])
@@ -168,7 +168,7 @@ def test_friction_bad_source_rejected(run_cli, make_task):
 
 
 def test_friction_absent_is_valid(run_cli, make_task):
-    """TRC-F3: a 1.x manifest.yml with no friction key stays valid (ADR-006 no-op)."""
+    """A 1.x manifest.yml with no friction key stays valid, per ADR-006's no-op rule (`TRC-F3`)."""
     body = _valid_task_body()
     body.pop("friction", None)
     make_task("friction-absent", body)

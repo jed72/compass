@@ -1,32 +1,15 @@
 """`compass plan lint` resolves the artifact it is named after.
 
-The verb and the artifact have both been renamed twice, and the default path
-was left behind at every step:
-
-  v1                   `compass plan lint`   ->  plan.md
-  v2                   `compass plan lint`   ->  design.md
-  2026-08-25           `compass plan lint`   ->  technical-design.md
-
-The first time, the path stayed at `plan.md` while the advice underneath
-already named `design.md` - one filename in the search line and a different
-one in the explanation, which cannot both be right. The second time, the path
-moved to `technical-design.md` with no fallback, so the command reported "no
-such file" on every issue that landed holding `design.md`.
-
-The effect on a real run either way: the plan stage reports a visible error on
-an issue that has a design, and the way past it is a `--file` argument nobody
-should need. The default path now goes through `artifact_path`, which knows
-both names.
+The default path goes through `artifact_path`, which knows both `design.md`
+and `technical-design.md`. Without it, the plan stage reports a visible
+error on an issue that has a design, and the way past it is a `--file`
+argument that the default path must make unnecessary.
 
 Scenario ids: see docs/system-spec.md (group B).
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import pathlib
@@ -112,14 +95,7 @@ def test_rcd_b1_defaults_to_design_md(tmp_path):
 def test_rcd_b2_message_names_path_used(tmp_path):
     """When there is nothing to lint, the message must name what it looked for.
 
-    The v1 error named `plan.md` in the search line and `design.md` in the
-    advice below it. A reader following that advice looks for a file the
-    command never sought.
-
-    `plan` is the LIVE verb again since the vocabulary rename of 2026-08-25,
-    so the message labelling itself `compass plan lint` is now correct rather
-    than a leftover - what must not appear is a filename the command did not
-    look for.
+    The message must name only the file the command looked for.
     """
     project = _project(tmp_path, with_design=False)
     result = _lint(project)
@@ -142,11 +118,9 @@ def test_rcd_b2_message_names_path_used(tmp_path):
 def test_rcd_b3_absence_is_explained_against_the_record(tmp_path):
     """The reason given for a missing design must be checked, not assumed.
 
-    The command already knows the issue's approach, and said "the design stage
-    collapses on quick-fix, hotfix and spike approaches" whatever that approach
-    was - explaining away an absence on an issue whose plan stage is full and
-    therefore cannot have collapsed. A reader is told the missing file is fine
-    when it is the thing that is wrong.
+    The command must explain a missing design from the issue's recorded
+    approach, not with a fixed sentence - otherwise a reader is told the
+    missing file is fine when it is the thing that is wrong.
     """
     project = _project(tmp_path, with_design=False)
     manifest = project / ".compass" / "work" / "demo" / "manifest.yml"

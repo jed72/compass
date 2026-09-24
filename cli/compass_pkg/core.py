@@ -1,51 +1,13 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.core - shared helpers: governance discovery, manifest loading
+# and key mapping, and the document resolver
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,38 +22,14 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
-
-# --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
-# .compass/work/) and detects add-then-delete patterns within the configured
-# window. Output is Markdown (default) or JSON (--format json). This is a
-# SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
-# Patterns are loaded from governance/signals.yml at runtime, never hardcoded.
-# Suitable for piping into .compass/flow/rework-<date>.md.
-#
-# Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
-#   2. Public-surface churn: the path matches a public_surface_patterns regex
-#      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
-#
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
 
 import fnmatch
 import re as _re
@@ -183,11 +121,9 @@ def find_governance():
     - neither file    -> keep walking; the directory declared nothing
     - nothing at all  -> the framework's shipped defaults, silently
 
-    The refusal is the point. Discovery used to look for `routing-policy.yml`
-    alone, so a project shipping `guardrails.yml` beside no policy silently got
-    the framework's governance and never learned its own was being ignored -
-    which contradicts the promise that a declared guardrail cannot quietly
-    become advisory.
+    The refusal is the point. Refuse, because otherwise a project that ships
+    `guardrails.yml` without a policy gets the framework's governance with
+    no warning, and a declared guardrail must not quietly become advisory.
     """
     cur = os.path.abspath(os.getcwd())
     while True:
@@ -201,14 +137,13 @@ def find_governance():
                 missing = next(f for f in GOVERNANCE_FILES if f not in present)
                 raise _governance_refusal(gov_dir, present[0], missing)
             # Neither file: a directory that shares the name has declared
-            # nothing. Walk past it, exactly as before.
+            # nothing. Walk past it.
 
         # Stop at the project's own boundary, inclusive of the directory that
         # marks it. Without this a project that declares no governance would
         # inherit - and could be refused by - a directory its author may not
-        # know exists. When no marker is ever found the walk reaches the
-        # filesystem root, which is the behaviour that shipped before this and
-        # is left alone deliberately.
+        # know exists. When no marker is found the walk reaches the
+        # filesystem root; that is deliberate.
         if any(os.path.exists(os.path.join(cur, m)) for m in BOUNDARY_MARKERS):
             break
         parent = os.path.dirname(cur)
@@ -271,7 +206,7 @@ def resolve_issue_dir(slug=None):
     """Resolve an issue's working directory.
 
     Priority: explicit slug > .compass/current-task pointer > most recently
-    modified dir under .compass/work/ (with a warning - ambiguous).
+    changed dir under .compass/work/ (with a warning - ambiguous).
     """
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
@@ -292,7 +227,7 @@ def resolve_issue_dir(slug=None):
                 f"compass: .compass/current-task points at '{s}' but that "
                 f"issue directory does not exist - ignoring.\n"
             )
-    # fallback: most recently modified - warn, because this is the fragile path
+    # fallback: most recently changed - warn, because this is the fragile path
     if not os.path.isdir(work):
         raise CompassError(f"no issues found: {work} does not exist")
     candidates = [
@@ -327,7 +262,7 @@ def manifest_path(task_dir):
 
     Current name first, retired name second - the same order every other
     renamed artifact resolves in. A project that has not run `compass migrate`
-    still reads, which ADR-006 requires and which matters more here than
+    still reads, which ADR-006 needs and which matters more here than
     anywhere else: `.compass/work/` is gitignored in this repository, so its
     records have no git history to restore from.
     """
@@ -369,9 +304,8 @@ def load_manifest(task_dir):
 # un-migrated 1.x manifest (an adopter tree mid-upgrade, or the migration tool
 # reading its own input) keeps working. Writers always emit 2.0.
 SPINE_KEY_MAP = {
-    # The root key naming the issue. It was `task`, which terminology.yml
-    # bans with replacement `issue` - so half the artifact's name was retired
-    # and the other half ungoverned. Old files still load through this row.
+    # The root key naming the issue is `issue`. Files written with the
+    # retired `task` key still load through this row.
     "task": "issue",
     "readings": "assessment",
     "route": "delivery_approach",
@@ -405,8 +339,8 @@ def migrate_map_section(name, fallback):
 
     THE READER LIVES HERE, not in the migration module, because `core` must not
     import `migrate` - that is the import cycle `test_cli_module_split` exists
-    to prevent, and it caught this on the first run. `migrate` imports `core`
-    already, so the dependency runs one way.
+    to prevent. `migrate` imports `core` already, so the dependency runs one
+    way.
 
     The mapping itself stays in the data file: this module is a scanned
     surface, and the map has to name six retired words. The fallback is for a
@@ -462,9 +396,9 @@ def normalize_spine(task):
         if k2 in out and k in SPINE_KEY_MAP:
             continue
         out[k2] = v
-    # Stage keys. `frame` was banned as a phase name at the v2 freeze and
+    # Stage keys. `frame` was banned as a stage name at the v2 freeze and
     # survived as a live machine key, because governance/*.yml is not a scanned
-    # surface. Ninety-four landed issues carry the retired spellings, so they
+    # surface. Archived issues carry the retired spellings, so they
     # are mapped forward on load and rewritten on disk by `compass migrate`
     # (ADR-006: accept both, remove the old at the major version).
     st = out.get("stages")
@@ -487,9 +421,9 @@ def normalize_spine(task):
                 continue
             a2[k2] = v
         out["assessment"] = a2
-    # Follow-up states renamed with the CLI-voice slice: 1.x manifests carry
-    # owed/paid; readers see outstanding/resolved. Value map, mirroring the
-    # key map above; the migrate tool rewrites them on disk in its slice.
+    # 1.x manifests carry owed/paid; readers see outstanding/resolved, and
+    # `compass migrate` rewrites them on disk. Value map, mirroring the key
+    # map above.
     if out.get("delivery_approach") in SHAPE_VALUE_MAP:
         out["delivery_approach"] = SHAPE_VALUE_MAP[out["delivery_approach"]]
     fups = out.get("follow_ups")
@@ -527,12 +461,12 @@ def normalize_spine(task):
         for entry in friction:
             if isinstance(entry, dict) and entry.get("category") in renames:
                 entry["category"] = renames[entry["category"]]
-    # Assess used to record an orchestration word; it now records a
-    # `subtask_ceiling:` number, because it cannot know the shape before the
-    # distribution map exists. A manifest written before that change carries the
-    # word and no ceiling, so the word is read as the ceiling it always
-    # implied. The recorded word is KEPT: an archived manifest says what it
-    # said, and breakdown legitimately writes an orchestration of its own.
+    # Assess records a `subtask_ceiling:` number, because it cannot know the
+    # shape before the distribution map exists. A manifest written before
+    # that carries an orchestration word and no ceiling, so the word is read
+    # as the ceiling it implied. The recorded word is KEPT: an archived
+    # manifest says what it said, and breakdown legitimately writes an
+    # orchestration of its own.
     if out.get("subtask_ceiling") is None:
         word = out.get("orchestration")
         if isinstance(word, str) and word:
@@ -550,11 +484,8 @@ def normalize_spine(task):
 # each always implied. `multiagent` is None - unbounded - for the same reason the
 # evaluator's table said so: no number for it exists anywhere in the policy.
 #
-# This table is why ADR-023 could retire the words rather than rename them.
-# They were already only being converted to these three numbers before
-# anything used them, so the route shapes now declare the number and the
-# conversion is gone from `routing`. The table stays here because archived
-# manifests still carry the words and have to keep reading.
+# The table stays here because archived manifests still carry the words and
+# have to keep reading.
 RETIRED_ORCHESTRATION_CEILING = {"solo": 1, "solo-or-pair": 2, "swarm": None}  # vocabulary-scan: allow - names the retired words archived manifests carry (ADR-006)
 
 
@@ -619,14 +550,10 @@ def display_shape(value):
 # key is already `assess`, `define` and so on - a map still keyed on `frame`
 # would silently stop matching and print the raw key.
 #
-# It IS an identity map now, and that is the point rather than an oversight.
-# The accept phase kept `assess` displaying as "triage" and `plan` as "design"
-# so the internals could move without changing a word anyone read; the command
-# renames landed next, and the two halves finally agree.
-#
-# The map stays rather than being deleted, so the display layer remains the one
-# place a stage name is chosen. The next rename edits this table instead of
-# hunting for print sites - which is what the two entries above used to be for.
+# The map is keyed on the current keys, because `normalize_spine` maps
+# retired keys forward before display. It is an identity map. It stays so
+# the display layer is the one place a stage name is chosen; the next
+# rename edits this table, not the print sites.
 STAGE_DISPLAY = {
     "assess": "assess",
     "define": "define",
@@ -649,14 +576,15 @@ def save_manifest(task, path):
         yaml.safe_dump(task, fh, sort_keys=False, default_flow_style=False)
 
 
-# --- architecture loading (Frame mechanism) ----------------------------------
-# Inv-1: readings stays judgement-only. The load record goes to
-# architecture-loaded.yml (a separate file), never into manifest.yml.readings.
-# Inv-7: deterministic - same inputs produce same output; sha256 per artifact
-#         lets downstream agents detect mid-task drift.
-# Inv-8: backward compat - absence of architecture/ is silent (empty record).
+# --- architecture loading (assess) --------------------------------------------
+# `Inv-1`: the assessment stays judgement only. The load record goes to
+# architecture-loaded.yml (a separate file), never into the manifest's
+# `assessment`.
+# `Inv-7`: deterministic - same inputs produce same output; sha256 per artifact
+#         lets later agents see that a file changed during the issue.
+# `Inv-8`: backward compat - absence of architecture/ is silent (empty record).
 
-#: Narrative files Frame looks for under architecture/ (in order).
+#: Narrative files assess looks for under architecture/ (in order).
 _NARRATIVE_FILES = [
     "architecture/system-context.md",
     "architecture/relations.md",
@@ -784,7 +712,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
         "adrs": adrs,
     }
 
-    # Write to task dir (never to manifest.yml.readings - Inv-1)
+    # Write to the issue directory (never to the manifest's `assessment` - `Inv-1`)
     os.makedirs(task_dir, exist_ok=True)
     out_path = os.path.join(task_dir, "architecture-loaded.yml")
     with open(out_path, "w", encoding="utf-8") as fh:
@@ -794,7 +722,7 @@ def frame_load_architecture(project_root: str, task_dir: str) -> dict:
     return record
 
 
-# --- the route evaluator (the deterministic core) ---------------------------
+# --- the delivery-approach evaluator (the deterministic core) ---------------
 
 # when-condition dimension keys: a project policy written against the v1
 # names keeps matching until it migrates.
@@ -839,7 +767,7 @@ def reading_matches(when, assessment):
     fire on genuinely alternative conditions - the human-sign-off guardrail
     applies to the four irreversible domains OR to critical risk, and
     expressing that as separate rules would split one rule into two that can
-    drift apart.
+    come to disagree.
     """
     for key, val in (when or {}).items():
         key = _WHEN_KEY_MAP.get(key, key)
@@ -860,9 +788,8 @@ def reading_matches(when, assessment):
 
 
 # --- per-issue artifact names ------------------------------------------------
-# The archive speaks the v2 filenames; the v1 fallback this function once
-# carried retired when the repository's own archive migrated. The old-name
-# map lives in compass_pkg.migrate, which is what reads un-migrated trees.
+# The archive uses the v2 filenames. The old-name map lives in
+# compass_pkg.migrate, which reads un-migrated trees.
 # The five answers a lookup can give. OMITTED and UNRESOLVABLE both mean "no
 # document here" and they mean opposite things - one is a decision, the other is
 # a broken record. Collapsing them is how a document stops being read while the
@@ -872,13 +799,11 @@ OMITTED = "omitted"
 UNRESOLVABLE = "unresolvable"
 ABSENT = "absent"
 #: A registered path resolved to somewhere outside the project. A manifest is
-#: an ordinary file in the repository, so a `path` in it is data a contributor
-#: can write, and since these paths are now measured from the project root
-#: rather than from the issue directory, nothing about the shape of the string
-#: bounds where it lands. Reading is all a caller does with the answer, so the
-#: worst case is narrow - but a refusal costs one comparison and removes the
-#: argument. REFUSED never falls back to the flat filename: a rescue would mean
-#: the refusal fires only when it changes nothing, which is a check that cannot
+#: a file a contributor can write; paths are measured from the project root,
+#: so the string can point anywhere. Reading is all a caller does with the
+#: answer, so the worst case is narrow - but refusing costs one comparison.
+#: REFUSED never falls back to the flat filename: a rescue would mean the
+#: refusal fires only when it changes nothing, which is a check that cannot
 #: fail.
 REFUSED = "refused"
 
@@ -981,7 +906,7 @@ def artifact_location(task_dir, name):
 def _registry(task_dir):
     """The issue's artifact registry, or [] when it has none.
 
-    148 issue directories predate the registry. A missing one is the
+    Older issue directories predate the registry. A missing one is the
     ordinary case, never a fault.
     """
     path = manifest_path(task_dir)
@@ -1011,10 +936,8 @@ _RENAMED_KIND_FILES = {
     # shipped before the rename still resolves. It is a FALLBACK the lookup
     # tries SECOND, never a substitution for the current name.
     #
-    # A blanket rename over the tree rewrote both values to the current
-    # filenames on 2026-08-25, quietly collapsing the map to an identity and
-    # taking the compatibility path with it. `test_trc_b2` asserts each value
-    # differs from its key, so the same edit fails instead of passing.
+    # `test_trc_b2` asserts each value differs from its key, so a blanket
+    # rename that turns this map into an identity fails.
     "technical-design": "design.md",
     "intent": "prd.md",
 }
@@ -1027,12 +950,10 @@ def _flat_names(kind):
     appends the retired filename, so an issue that landed before the rename
     still resolves.
 
-    The order is load-bearing in both directions, and getting it wrong is
-    silent either way. This returned the retired name ALONE until 2026-08-25,
-    which made the lookup blind to every document written after the rename -
-    `compass issue dashboard` reported a technical design sitting on disk as
-    "not written yet". Preferring the retired name where both files exist is
-    the opposite failure: every reader would quietly take the stale document.
+    The order matters both ways, and a wrong order fails silently. Returning
+    the retired name alone would hide every document written after the
+    rename. Preferring the retired name where both exist would make every
+    reader take the out-of-date copy.
     """
     current = kind if kind.endswith(".md") else kind + ".md"
     retired = _RENAMED_KIND_FILES.get(kind)
@@ -1062,10 +983,8 @@ def _first_flat_on_disk(task_dir, kind):
 def artifact_path(task_dir, name):
     """The on-disk path of a per-issue artifact, by its v2 filename.
 
-    Registry-aware, and unchanged for its callers: it still returns a path. A
-    registered path wins; the flat filename is the fallback, so an issue with
-    no registry - or one whose registry does not mention this document - keeps
-    working exactly as before.
+    A registered path wins; the flat filename is the fallback, so an issue
+    with no registry entry for this document still resolves.
 
     Callers that need to know WHY that is the answer want resolve_artifact().
     """
@@ -1083,9 +1002,7 @@ def artifact_path(task_dir, name):
             return registered
     # Current name first, then the retired one - the same order, through the
     # same helper, as `resolve_artifact`. Two functions that both find an
-    # artifact must not disagree about which file they found, and they did:
-    # this one grew the fallback while the other kept looking only for the
-    # retired name.
+    # artifact must not disagree about which file they found.
     flat = _first_flat_on_disk(task_dir, kind)
     if flat is not None:
         return flat
@@ -1152,9 +1069,8 @@ def resolve_artifact(task_dir, kind):
 def issue_arg(p):
     """The `--issue SLUG` argument, which many verbs take identically.
 
-    One line repeated is one line to drift, and it was what pushed this file
-    past the cap that keeps logic out of the entry point. The cap surfaced real
-    duplication rather than an arbitrary limit, so the duplication went.
+    One helper instead of the same line in every verb, which also keeps
+    `cli/compass` under its line cap.
     """
     p.add_argument("--issue", dest="task", metavar="SLUG",
                    help="issue slug (default: current-task pointer)")

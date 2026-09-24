@@ -11,7 +11,7 @@ docs/safety-contract.md. Blocking on suspicion would block `make`, `npm test`,
 and every unrecognised command, and an enforcement people disable protects
 nothing at all.
 
-Scenarios: docs/compass/2026-08-04-hook-bash-write-bypass/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: hook-bash-write-bypass/acceptance-criteria.md (SCN-A1..F2).
 """
 from __future__ import annotations
 
@@ -32,11 +32,14 @@ HOOKS_JSON = FRAMEWORK_ROOT / "hooks" / "hooks.json"
 
 
 def _fresh_project_dir() -> Path:
-    """A temp dir whose path contains no 'test'/'spec' substring.
+    """A temp dir whose path contains no 'test'/'spec' substring, as a
+    matching convention with the fixtures above it.
 
-    The hook exempts those paths so the failing test can always be written; a
-    fixture living under one would be exempt for the wrong reason and every
-    assertion below would pass without checking anything.
+    The hook exempts a target file whose own basename or project-relative
+    path matches, not the project directory's name; a fixture whose target
+    lived under a path matching by basename or relative path would be
+    exempt for the wrong reason and every assertion below would pass
+    without checking anything.
     """
     return Path(tempfile.mkdtemp(prefix="compass-fix-"))
 
@@ -208,10 +211,10 @@ def test_safety_contract_states_the_shell_detection_limit():
 def test_read_only_command_does_not_consult_task_state():
     """SCN-F2 - the hook now runs on every Bash call; it must be cheap.
 
-    A command with no write-shaped token is allowed without resolving the task,
-    which is checked here by removing .compass entirely: the Edit path treats a
-    missing .compass as "Frame has not run" and blocks, so if this command is
-    allowed, the hook returned before looking.
+    A command with no write-shaped token is allowed without resolving the
+    issue, which is checked here by removing .compass entirely: the Edit
+    path treats a missing .compass as "assessment has not run" and blocks,
+    so if this command is allowed, the hook returned before looking.
     """
     project = _fresh_project_dir()
     try:

@@ -1,11 +1,10 @@
-"""The receiving-code-review skill (task phase-2-skills-check-and-cli-split).
+"""The receiving-code-review skill (issue phase-2-skills-check-and-cli-split).
 
-Small and focused: how to answer a reviewer without either capitulating to a
-wrong suggestion or digging in against a right one. Compass already has a
-`reviewer` agent and a `verifier`; nothing described the other side of that
-conversation.
+Small and focused: how to answer a reviewer without accepting a wrong
+suggestion or refusing a right one. Compass already has a `reviewer` agent
+and a `verifier`; nothing described the other side of that conversation.
 
-Spec: docs/compass/2026-08-03-phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-B1..B3).
+Spec: phase-2-skills-check-and-cli-split/acceptance-criteria.md (`TRC-B1`..`TRC-B3`).
 """
 from __future__ import annotations
 

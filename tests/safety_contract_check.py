@@ -1,18 +1,19 @@
 """Does the safety contract name a real mechanism behind every guarantee?
 
-Issue: claims-match-what-is-proved. Backs scenarios TRC-B4, TRC-D1 and TRC-D2.
+Issue: claims-match-what-is-proved. Backs scenarios `TRC-B4`, `TRC-D1` and
+`TRC-D2`.
 
 Why this exists. An outside review of 3.2.0 found several public promises
-stronger than the code behind them. Repairing the wording without a check buys
-one release: the next person to add a guarantee has nothing stopping them
-adding one nothing backs, and a table row can go on naming a file that was
-renamed years ago.
+stronger than the code behind them. A wording fix with no check lasts until
+the next person adds a guarantee nothing backs, and a table row can go on
+naming a file that was renamed since.
 
 Why it is built the way it is. The obvious version of this check parses two
 markdown sections, compares them, and passes. Fed a file it cannot parse it
 finds no guarantees, compares two empty sets, and reports success having
-inspected nothing. Four checks have shipped in this project that failed exactly
-that way. So an empty parse raises here rather than passing - see EmptyContract.
+inspected nothing. tests/test_version_guard_covers_every_location.py:12-15
+names four checks that have shipped in this project and failed exactly that
+way. So an empty parse raises here rather than passing - see EmptyContract.
 """
 
 from __future__ import annotations
@@ -34,13 +35,9 @@ class EmptyContract(RuntimeError):
 
 
 #: A guarantee is a numbered list item whose first bold run is its title.
-#: DOTALL matters: several titles wrap across a line, and without it this
-#: silently skipped them - the rows were then reported as orphans while the
-#: guarantees themselves went uninspected.
-#: Two shapes, because the contract carries its guarantees as `### 5. Title`
-#: headings and carried them as `5. **Title**` list items before the docs were
-#: slimmed on 2026-08-26. Reading both means the check follows the document
-#: rather than the document being held to a layout to keep a regex happy.
+#: DOTALL is needed because titles wrap. The contract uses `### 5. Title`
+#: headings; the `5. **Title**` list form is read too, so the check does not
+#: dictate the document's layout.
 _GUARANTEE = re.compile(
     r"^(?:###\s+(\d+)\.\s+(.+?)$|(\d+)\.\s+\*\*(.+?)\*\*)", re.M)
 

@@ -9,8 +9,8 @@ This is ADR-017's principle applied to ordinary words rather than short
 codes. An unexplained term is a defect whether it is `G5` or `vacuity`, and
 the fix is the same: say the thing in words the reader already has.
 
-Scoped to what a user reads - printed output, governance a project adopts, the
-docs. Test names and internal comments are for someone reading the code.
+Scoped to everything written for a person: printed output, adopted
+governance, the docs, and comments, test names and docstrings.
 """
 from __future__ import annotations
 
@@ -71,18 +71,26 @@ def test_ff_5b_the_vocabulary_bans_it():
         "the vocabulary does not ban 'vacuous'/'vacuity', so nothing stops it "
         "returning the next time someone needs a word for this")
 
-# Files that must name the banned words in order to ban them.
+# Files that must name the banned words to ban them, whole-file, because the
+# words appear throughout each one.
 _NAMES_THE_BAN = {"test_plain_words.py", "test_terminology.py",
                   "terminology.yml", "banned_usage.md"}
+
+# A single line that must name a banned word carries this marker instead.
+# tests/test_writing_style.py needs it on two lines: a named exemption there
+# quotes the offending sentence verbatim, because that sweep matches on
+# substrings, and the quote is what tells that use from an ordinary one. It
+# had a whole-file entry above, which also excused any future use of these
+# words anywhere in a 3,952-line mechanism file, silently. A marker is
+# greppable and names the line; a filename is neither.
+_ALLOW_RE = re.compile(r"plain-words:\s*allow")
 
 
 def test_ff_5c_not_in_comments_test_names_or_docstrings_either():
     """The rule covers everything written for a person, not only what is printed.
 
     A test name appears in every run's output; a docstring is read by whoever
-    opens the file; a comment is read by whoever maintains it. Scoping the
-    sweep to printed strings left the word in sixty places and called the job
-    done.
+    opens the file; a comment is read by whoever maintains it.
     """
     hits = []
     for root in ("cli", "tests", "scripts", "commands", "architecture",
@@ -94,7 +102,7 @@ def test_ff_5c_not_in_comments_test_names_or_docstrings_either():
                 continue
             for lineno, line in enumerate(
                     p.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
-                if OBSCURE.search(line):
+                if OBSCURE.search(line) and not _ALLOW_RE.search(line):
                     hits.append(f"{p.relative_to(ROOT)}:{lineno}")
 
     assert not hits, (

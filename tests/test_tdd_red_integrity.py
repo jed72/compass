@@ -14,14 +14,12 @@ pytest's exit codes:
     5  no tests were collected                         <- no test ran
 
 Exits 4 and 5 are what a *misconfigured command* produces, which is precisely
-when a false red is most likely and most damaging. This was found in the field:
-`_neutralise_coverage` appends `--cov-fail-under=0` to any recognised pytest
-command so a project coverage floor cannot refuse a passing targeted test, but
-that flag only exists when pytest-cov is loaded. On a project that disables
-pytest plugin autoload - as this repository does everywhere by design - pytest
-rejected the argument, exited 4, and `tdd-red` recorded it as a failing test.
+when a false red is most likely and most damaging. `_neutralise_coverage`
+appends `--cov-fail-under=0`, a flag that exists only when pytest-cov is
+loaded. On a project that disables plugin autoload, pytest rejects it and
+exits 4, which must not count as red.
 
-Spec: docs/compass/2026-08-03-executable-bdd-and-richer-plans/acceptance-criteria.md (TRC-G1..G3).
+Spec: executable-bdd-and-richer-plans/acceptance-criteria.md (`TRC-G1`..`G3`).
 """
 from __future__ import annotations
 
@@ -41,7 +39,7 @@ def _markers(task_dir):
 
 
 # ---------------------------------------------------------------------------
-# TRC-G1 - a command that fails to RUN is not a red
+# A command that fails to run is not a red (TRC-G1)
 # ---------------------------------------------------------------------------
 
 def test_trc_g1_usage_error_is_not_a_red(make_task, run_cli, project):
@@ -71,7 +69,7 @@ def test_trc_g1_usage_error_is_not_a_red(make_task, run_cli, project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-G2 - a run that collects no tests is not a red
+# A run that collects no tests is not a red (TRC-G2)
 # ---------------------------------------------------------------------------
 
 def test_trc_g2_no_tests_collected_is_not_a_red(make_task, run_cli, project):
@@ -95,7 +93,7 @@ def test_trc_g2_no_tests_collected_is_not_a_red(make_task, run_cli, project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-G3 - a genuinely failing test IS still a red
+# A genuinely failing test is still a red (TRC-G3)
 # ---------------------------------------------------------------------------
 
 def test_trc_g3_real_failure_is_still_a_red(make_task, run_cli, project):

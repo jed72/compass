@@ -1,20 +1,15 @@
 """The vocabulary scan scans every position unless something says otherwise.
 
-Three positions were excluded from the scan at different times - markdown
-fenced blocks, Python string literals, YAML values - and each exclusion was
-justified with the same sentence: these are machine identifiers, not prose.
-Each turned out to be wrong, for the same reason: a string that gets printed
-is prose wherever it lives. A YAML `rationale:` value is printed verbatim by
+Every position is scanned unless an exemption names the positions it covers
+and says why a string there cannot reach a user. A string that gets printed
+is prose wherever it lives: a YAML `rationale:` value is printed verbatim by
 `compass approach evaluate`; a Python literal is printed by every command; a
-fenced block is read by whoever opens the file.
+fenced block is read by whoever opens the file. Markdown fenced blocks,
+Python string literals and YAML values were each excluded from the scan in
+turn, and each exclusion turned out wrong for that reason, so the scan now
+defaults to scanning rather than to excluding.
 
-Patching the fourth position would leave the default intact. So the default
-inverts: every position is scanned, and an exclusion has to be declared, has
-to name the positions it covers, and has to say why a string in that position
-cannot reach a user.
-
-Scenario ids: see docs/compass/2026-08-14-dry-run-2-rulings/acceptance-criteria.md
-(group D).
+Scenario ids: see dry-run-2-rulings/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -44,16 +39,12 @@ def _hits(path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D1 - a YAML value is scanned
+# A YAML value is scanned (TRC-D1)
 # ---------------------------------------------------------------------------
 
 def test_trc_d1_yaml_values_are_scanned(tmp_path):
-    """The position that prompted the inversion.
-
-    `routing-policy.yml`'s `rationale:` values are printed straight to the
-    terminal by the evaluator, and the scan read only comments - which is how
-    "checked before Land" reached a screen past a green scan.
-    """
+    """`routing-policy.yml`'s `rationale:` values print to the terminal, so
+    a YAML value must be scanned."""
     f = tmp_path / "policy.yml"
     f.write_text('rationale: "checked before Land."\n', encoding="utf-8")
 
@@ -63,7 +54,7 @@ def test_trc_d1_yaml_values_are_scanned(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D2 - every exemption names its positions and its reason
+# Every exemption names its positions and its reason (TRC-D2)
 # ---------------------------------------------------------------------------
 
 def test_trc_d2_every_exemption_states_a_reason():
@@ -85,7 +76,7 @@ def test_trc_d2_every_exemption_states_a_reason():
 
 
 # ---------------------------------------------------------------------------
-# TRC-D3 - the widened scan can fail, and does not fire on the exempt position
+# The widened scan can fail, and does not fire on the exempt position (TRC-D3)
 # ---------------------------------------------------------------------------
 
 def test_trc_d3_the_widened_scan_can_fail(tmp_path):
@@ -117,12 +108,8 @@ def test_trc_d3_the_widened_scan_can_fail(tmp_path):
 
 
 def test_trc_d3b_an_unknown_file_type_is_scanned_whole(tmp_path):
-    """The inversion itself.
-
-    Before this, a file type the scanner had no rule for fell through to a
-    default. The default is now to scan it: a new position has to be
-    *excluded* deliberately, rather than being missed silently.
-    """
+    """A file type with no rule is scanned whole, so a new position must be
+    excluded on purpose."""
     f = tmp_path / "notes.txt"
     f.write_text("the expedition route was raised\n", encoding="utf-8")
     assert _scan(f), "an unrecognised file type contributes no scanned lines"

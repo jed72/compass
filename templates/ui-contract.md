@@ -5,9 +5,9 @@ Lives at:    docs/compass/<created>-<issue-slug>/ui-contract.md
 Role in the pipeline: the designer's artifact. The designer feeds INTO
 Define - UI behaviour here is authored as Given/When/Then scenarios so it
 flows directly into acceptance-criteria.md as scenarios, not as a separate track.
-That is how the designer is a full pipeline citizen and not a downstream
-consumer. Accessibility commitments here are checked against the
-accessibility strategy in governance/strategies.md.
+That is how the designer is a full participant in the pipeline and not a
+downstream consumer. Accessibility commitments here are checked against the
+project's accessibility strategy, if governance/strategies.md has one.
 
 Fill every {{PLACEHOLDER}}. Write behaviour as scenarios - the same Gherkin
 shape the spec uses - so the handoff into the define stage is mechanical.
@@ -17,7 +17,7 @@ shape the spec uses - so the handoff into the define stage is mechanical.
 
 > **Author:** {{DESIGNER NAME}} · **Date:** {{DATE}}
 > **Feeds into:** acceptance-criteria.md (the scenarios below become spec scenarios)
-> **Governance check:** accessibility commitments honour the accessibility strategy in `governance/strategies.md`.
+> **Governance check:** accessibility commitments honour the project's accessibility strategy, if `governance/strategies.md` has one.
 
 ---
 
@@ -69,9 +69,9 @@ Scenario: {{scenario title}}
 ## Accessibility commitments
 
 <!-- Stated as commitments that become scenarios or acceptance checks.
-     Must meet or exceed the accessibility strategy in governance/strategies.md. -->
+     Must meet or exceed the project's accessibility strategy, if governance/strategies.md has one. -->
 
-| Commitment | How it is verified |
+| Commitment | How it is checked |
 |---|---|
 | {{e.g. "Keyboard-operable: every interaction reachable without a pointer"}} | {{scenario id, or the check QA runs}} |
 | {{e.g. "Visible focus state on all interactive elements"}} | {{…}} |
@@ -83,7 +83,7 @@ Scenario: {{scenario title}}
 ## Handoff to define
 
 - [ ] Every interaction scenario above has a traceability id and an intent link.
-- [ ] Accessibility commitments meet or exceed the accessibility strategy in `governance/strategies.md`.
+- [ ] Accessibility commitments meet or exceed the project's accessibility strategy, if `governance/strategies.md` has one.
 - [ ] These scenarios are copied into `acceptance-criteria.md` under a UI scenario group.
 
 Next: the scenarios flow into the acceptance criteria (`/compass:define`).

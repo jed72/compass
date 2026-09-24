@@ -10,7 +10,7 @@ straight is the whole point.
 
 - **The guardrail is tested-before-ship** - hard, checkable, universal. No
   code reaches `main` without a passing automated test it traces to. It is
-  checked at verify and at ship time, with evidence. It never adapts and it
+  checked at the verify stage and at ship time, with evidence. It never adapts and it
   has no exception.
 - **TDD is the strategy** - red-before-green, the strong, shipped-on
   default way to satisfy that guardrail on every delivery approach. But it
@@ -19,10 +19,9 @@ straight is the whole point.
   non-negotiable; the *ritual* (red-first) is the default method,
   suspendable in one defined place.
 
-This is the distinction that keeps Compass from being a sledgehammer. A
-one-character typo fix still has to satisfy the guardrail - tested before
-it ships - but the delivery approach may decide it does not need the full
-red-before-green ritual to get there. What the approach adapts is how much
+This is the distinction that keeps Compass from applying full process to
+every change: a one-character typo fix still goes red first; what the
+approach adapts is how much
 *surface* the tests cover, and on a spike, whether the ritual runs at all.
 What no delivery approach adapts is the outcome.
 
@@ -37,13 +36,13 @@ This is safe because of the hard rule under it: **nothing ships from a
 spike.** A spike's code reaches production only by *graduating* -
 re-assessing into a real delivery approach - and at that point the
 guardrail applies in full: graduated code is tested before it ships,
-usually rewritten under TDD, sometimes kept and retro-tested. The strategy
+usually rewritten under TDD, sometimes kept and tested afterwards. The strategy
 is suspended; the guardrail is only *deferred to graduation*, never
 skipped.
 
 On every other approach - quick fix, feature, initiative, hotfix - the TDD
 strategy applies. Red comes first. It is on the quick fix, and it is on
-the hotfix at 3am.
+the hotfix under time pressure.
 
 ## The cycle
 
@@ -80,7 +79,7 @@ the step was too big.
 
 `hooks/pre-tool.sh` enforces the red-before-green strategy mechanically: it will
 **block a code edit that has no corresponding failing test.** It is the TDD
-strategy made physical, in service of the guardrail. It is also
+strategy enforced by a hook, in service of the guardrail. It is also
 **approach-aware**: it reads a `.compass/work/<task>/.spike` marker file
 and does **not** block on a spike, because the TDD strategy is suspended
 there.

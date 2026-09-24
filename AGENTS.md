@@ -4,56 +4,70 @@ This file is the portable expression of Compass. `CLAUDE.md` is the Claude
 Code adapter; this file is the same intent without runtime-specific syntax,
 for any other agent runtime (Codex, Amp, Cursor, OpenCode, a custom harness).
 
-It speaks the frozen v2 vocabulary (`governance/terminology.yml`). The
-commands, filenames and machine keys carry their v2 names - the rename slices
-have shipped - and where a name still reads oddly it appears as code, exactly
-as the machinery spells it.
+It speaks the frozen v2 vocabulary (`governance/terminology.yml`). Commands,
+filenames and machine keys use their v2 names; a name that reads oddly
+appears in code spans, as the machinery spells it.
 
-Compass is built in three layers. The **methodology layer** - `docs/`,
-`governance/` `.md` files, the delivery-approach reference docs, `templates/`
-- *is* the framework, in plain markdown. The **kit layer** - `cli/compass`,
-`governance/*.yml`, `schemas/` (executable JSON Schema, draft-07, validated
-against when the optional `jsonschema` library is installed), the `manifest.yml`
-issue manifest - is the deterministic mechanism: a plain CLI that bundles the
-one third-party library it needs (PyYAML, at `cli/vendor/yaml/` - see
-`THIRD-PARTY-NOTICES.md`), **not** runtime-specific. The **adapter layer** wires
-both into one runtime. Porting Compass means satisfying the contract below by
-rewriting *only the adapter layer* - the methodology and kit layers are
-already runtime-neutral, and a portable adapter should *shell out to the
-kit-layer CLI* for the deterministic parts rather than reimplement them. See
-`docs/portability.md` for the full contract.
+Compass is built in three layers:
+
+- **Methodology layer** - `docs/`, `governance/` `.md` files, the
+  delivery-approach reference docs, `templates/` - *is* the framework, in
+  plain markdown.
+- **Kit layer** - `cli/compass`, `governance/*.yml`, `schemas/` (executable
+  JSON Schema, draft-07, checked against when the optional `jsonschema`
+  library is installed), the `manifest.yml` issue manifest - the
+  deterministic mechanism: a plain CLI that bundles the one third-party
+  library it needs (PyYAML, at `cli/vendor/yaml/` - see
+  `THIRD-PARTY-NOTICES.md`), **not** runtime-specific.
+- **Adapter layer** - wires both into one runtime.
+
+Porting Compass means satisfying the contract below by rewriting *only the
+adapter layer*: the methodology and kit layers are already runtime-neutral,
+and a portable adapter must *shell out to the kit-layer CLI* for the
+deterministic parts rather than reimplement them. See `docs/portability.md`
+for the full contract.
 
 ---
 
 ## What any Compass runtime must do
 
-**1. Assess before changing anything.** Before an issue modifies code, specs,
-or product artifacts, run triage: read the four assessment dimensions - risk,
-familiarity, size, and goal - that is judgement, and judgement is the
-adaptivity, so the runtime must produce it. Composing the delivery approach
-*from* that assessment is mechanism, not judgement: a portable runtime should
-shell out to `compass approach evaluate` (the kit-layer CLI) rather than
-reimplement the composition, so that the same assessment plus the same policy
-yield the same approach on every runtime. The runtime records the assessment
-in the manifest (`manifest.yml`), runs the evaluator, and writes the
-human-readable approach record (`delivery-approach.md`). The approach is computed from
-context, not chosen from a menu. Genuinely exploratory work is not exempt
-from triage - it composes a **spike**.
+**1. Assess before changing anything.** Before an issue changes code, specs,
+or product artifacts, assess it: read the four assessment dimensions - risk,
+familiarity, size, and goal. Reading the four dimensions is judgement, so the
+runtime must do it. Composing the delivery approach *from* that assessment is
+mechanism, not judgement: a portable runtime must shell out to
+`compass approach evaluate` (the kit-layer CLI) rather than reimplement the
+composition, so that the same assessment plus the same policy yield the same
+approach on every runtime. The runtime records the assessment in the manifest
+(`manifest.yml`), runs the evaluator, and writes the human-readable approach
+record (`delivery-approach.md`). The approach is computed from context, not
+chosen from a menu. Genuinely exploratory work is not exempt from
+assessment - it composes a **spike**.
 
-**Trigger triage on intent, not just on the literal command.** When the user
+**Assess the work when the request describes it, not only when the command is typed.** When the user
 describes intent to build, change, or fix code - even when they do not type
-the adapter's triage command - the adapter must run triage before any
+the adapter's assess command - the adapter must assess before any
 artifact-changing tool call. Explicit invocation always works regardless. If
-`.compass/current-task` already points at a triaged issue, do not re-triage -
-proceed with the issue's recorded delivery approach. This intent-recognition
-is an adapter responsibility (it is *when* to trigger triage, not what triage
-does); methodology describes the stage, this rule describes the trigger.
+`.compass/current-task` already points at an assessed issue, do not
+re-assess - proceed with the issue's recorded delivery approach. This
+intent-recognition is an adapter responsibility (it is *when* to trigger
+assessment, not what assessment does); methodology describes the stage,
+this rule describes the trigger.
 
-**2. Walk the eight-stage pipeline.** Assess, define acceptance criteria,
-requirements review, design, break down the work, implement, test & review,
-ship. The delivery approach says which stages are full-weight, which
-collapse, and which are skipped - and why. Each stage emits its artifact
-(templates in `templates/`) to the issue's working directory.
+**2. Walk the eight-stage pipeline:**
+
+1. assess
+2. define acceptance criteria
+3. requirements review
+4. plan
+5. break down the work
+6. implement
+7. test & review
+8. ship
+
+The delivery approach says which stages are full-weight, which collapse, and
+which are skipped - and why. Each stage emits its artifact (templates in
+`templates/`) to the issue's working directory.
 
 **3. Enforce the guardrails - few, hard, never crossed:**
    - **Tested before it ships:** no code reaches `main` without a passing
@@ -64,23 +78,23 @@ collapse, and which are skipped - and why. Each stage emits its artifact
    - **Evidence, not assertion:** guardrails clear with command output, not
      claims. The Definition of Done is itself a typed gate - every unchecked
      item must reference typed inline evidence as `(evidence: EV-<id>)` or a
-     filed follow-up as `(follow-up: BF-<id>)`, or be ticked `[x]` if a human
+     filed follow-up as `(follow-up: FU-<id>)`, or be ticked `[x]` if a human
      has actually done the work. Bare unchecked items fail `compass check`'s
      `dod-evidence-typed` rule. An adapter that emits Definition of Done
-     output is responsible for emitting it in this form.
+     output must emit it in this form.
    - **Human sign-off on the irreversible:** data, money, auth, privacy get a
      human checkpoint.
 
    **BDD and TDD are default *strategies*, not guardrails** - the strong,
-   shipped-on way to satisfy the first two guardrails. A runtime should
-   enforce the red-before-green strategy *mechanically* if it can (Claude
-   Code uses a pre-tool hook that is aware of the delivery approach and does
-   not block on a spike); if it cannot, it enforces it procedurally. But the
-   hard line a runtime must never let slip is the guardrail *outcome*
-   (tested before it ships), not the ritual.
+   shipped-on way to satisfy the first two guardrails. A runtime enforces
+   the red-before-green strategy *mechanically* when its own mechanism
+   allows it (Claude Code uses a pre-tool hook that is aware of the
+   delivery approach and does not block on a spike); otherwise it enforces
+   it procedurally. But what a runtime must always enforce is the
+   guardrail *outcome* (tested before it ships), not the ritual.
 
    The guardrail *checks* are mechanism, not judgement - so a portable
-   runtime should run them via the kit-layer CLI rather than reimplement
+   runtime must run them via the kit-layer CLI rather than reimplement
    them: `compass check` runs the `governance/guardrails.yml` checks against
    the issue's manifest and `evidence/`, and `compass tdd-red` /
    `compass tdd-green` run a test, assert fail/pass, and write the evidence
@@ -89,9 +103,8 @@ collapse, and which are skipped - and why. Each stage emits its artifact
    which evidence types each gate accepts, so a mechanical gate cannot be
    cleared with a written note; `compass check` enforces that. The runtime's
    job is to *call* these at the right stages, not to re-derive what they do.
-   Governance is a gradient: the shipped default guardrails and strategies
-   apply with zero project setup; project-specific governance is accreted,
-   not required up front.
+   The shipped guardrails and strategies apply with no setup; a project adds
+   its own governance later.
 
    **Artifacts are written for a cold reader.** Every artifact a runtime
    emits is read later by someone who was not in the conversation, so it
@@ -102,39 +115,39 @@ collapse, and which are skipped - and why. Each stage emits its artifact
    the manifest already record provenance in a form the framework can read.
    Like every strategy this is assessed at review, never gating.
 
-**4. Support five roles as full citizens.** Engineer, product owner/manager,
-product marketer, designer, QA. Each has an entry point and artifacts that
-plug into the same pipeline. The acceptance-criteria file is the shared
-substrate read through five role perspectives - do not reduce it to an
-engineering-only artifact.
+**4. Support five roles, each with its own entry point.** Engineer, product
+owner/manager, product marketer, designer, QA. Each has an entry point and
+artifacts that plug into the same pipeline. The acceptance-criteria file is
+the one file all five roles read - do not reduce it to an engineering-only
+artifact.
 
 **5. Support solo / pair / multiagent orchestrations.** On larger delivery
-approaches, design produces a distribution map and the breakdown stage
-parallelises across isolated workspaces (git worktrees in the reference
-implementation), one agent per subtask, with a coordinating orchestrator that
-owns integration at ship time. A runtime without worktrees must provide
-equivalent isolation or cap itself at solo/pair.
+approaches, the plan stage produces a distribution map and the breakdown
+stage parallelises across isolated workspaces (git worktrees in the
+reference implementation), one agent per subtask, with a coordinating
+orchestrator that owns integration at ship time. A runtime without
+worktrees must give equivalent isolation or cap itself at solo/pair.
 
 **6. Shell out for CI and the feedback loop too.** Two cross-issue kit
-commands round out the contract, and a portable runtime should call them
+commands complete the contract, and a portable runtime must call them
 rather than reinvent them. `compass ci` runs the full mechanical gate suite
 (`policy lint` + `issue lint` + `check` for every issue) and aggregates exit
 codes - the CI integration is "run `compass ci`, honour the exit code" (see
 `ci/README.md`). `compass retro` aggregates the `reassessments` log across
-issues and reports whether triage is systematically over- or under-sizing
+issues and reports whether assessment is systematically over- or under-sizing
 the process - the framework's own retrospective signal. The adapter wires
 these into the runtime's CI and reporting surfaces; it does not re-derive
 them.
 
-## What a runtime adapter must provide
+## What a runtime adapter must give
 
 | Methodology concept | Adapter must map it to… |
 |---|---|
 | The eight stages | Invocable commands or equivalent |
 | Assess | A routine that produces the assessment, then *calls the kit* (`compass approach evaluate`) to compose the delivery approach |
-| The kit-layer CLI | A shell-out, not a reimplementation - the adapter runs `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact coherence) for the deterministic parts |
-| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the retrospective signal), `compass rework-scan` (cross-issue rework signal), and `compass flow` (cross-issue view; `--digest` writes a dated digest combining rework-scan and calibration) |
-| Subagents (`router`, `spec-author`, `planner`, `orchestrator`, `builder`, `verifier`, `reviewer`, `product-owner`, `product-marketer`, `architect`) | Distinct agent contexts or personas. The 10th - `architect` - applies the architect perspective (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, decision records) at triage and annotates the design via `architecture-notes.md`. Consulted by `spec-author` and `planner`; never writes feature code |
+| The kit-layer CLI | A shell-out, not a reimplementation - the adapter runs `compass approach evaluate`, `compass check`, `compass tdd-red/green`, and `compass analyze` (cross-artifact consistency check) for the deterministic parts |
+| CI and the feedback loop | A shell-out to `compass ci` (honour the exit code), `compass retro` (the retrospective signal), `compass rework-scan` (cross-issue rework signal), and `compass flow` (cross-issue view; `--digest` writes a dated digest combining rework-scan and the retrospective signal) |
+| Subagents (`router`, `spec-author`, `planner`, `orchestrator`, `builder`, `verifier`, `reviewer`, `product-owner`, `product-marketer`, `architect`) | Distinct agent contexts or personas. The 10th - `architect` - applies the architect perspective (not an entry-point role): reads the project's `architecture/` artifacts (system-context, relations, ownership, decision records) at the assess stage and annotates the technical design via `architecture-notes.md`. Consulted by `spec-author` and `planner`; never writes feature code |
 | Skills | Loadable procedural-knowledge modules |
 | Guardrail enforcement | `compass check` for the mechanical checks; hooks if available for red-before-green, procedural checks otherwise |
 | Role entry points | Distinct session-start modes |
@@ -155,7 +168,7 @@ narrates the pipeline instead of communicating a decision teaches nothing.
 carries real before/after pairs harvested from this project's own archive,
 and names the tells that mark the narrating kind. A runtime's session-facing
 output - devlog entries, requirements reviews, replies to the person driving
-it - should read the way that reference asks: what happened, what is
+it - must read the way that reference asks: what happened, what is
 needed, never which stage is running.
 
 ### Plain English
@@ -210,26 +223,36 @@ Use the shorter word:
 ### Reporting to the person driving the runtime
 
 Read a report back for terms of art before sending it; afterwards is too late,
-because a sentence in conversation lands once. Give it four parts: what I did,
-outstanding questions numbered when there is more than one, what I need from
-you, and what I intend to do next. Sections stay short, a snippet sits under the
-point it belongs to, and a large change may run long - cut the account of how
-the work went, never the substance. Each heading answers a question the reader
-already has, which is what leaves jargon nowhere to hide.
+because a reader cannot re-read a spoken sentence. Give it four parts:
+
+- what I did;
+- outstanding questions, numbered when there is more than one;
+- what I need from you;
+- what I intend to do next.
+
+Sections stay short, a snippet sits under the point it belongs to, and a
+large change may run long - cut the account of how the work went, never the
+substance. Each heading answers a question the reader already has, which is
+what shows any jargon.
 
 ## State on disk
 
-All issue state is files, not conversation. `governance/` at the project
-root - the `.md` files and the `.yml` files the CLI runs - or the framework's
-shipped defaults if a project has not run init; per-issue artifacts in a
-`.compass/work/<issue-slug>/` directory, including `manifest.yml` (the
-manifest), `evidence/` (the CLI's test and gate records),
-and - when the project ships an `architecture/` directory - two derived
-files triage writes when present: `architecture-loaded.yml` (the per-issue
-snapshot of which cross-issue architectural state was loaded) and
-`architecture-notes.md` (annotations the architect perspective writes on the
-design, *not* a parallel spec); a `.compass/current-task` pointer so the CLI
-and any hooks resolve the current issue unambiguously. A different session,
-agent, or runtime must be able to resume an issue by reading the approach
-record (`delivery-approach.md`), the manifest, and the artifacts - nothing essential lives
-only in context.
+All issue state is files, not conversation:
+
+- `governance/` at the project root - the `.md` files and the `.yml` files
+  the CLI runs - or the framework's shipped defaults if a project has not run
+  init;
+- per-issue artifacts in a `.compass/work/<issue-slug>/` directory, including
+  `manifest.yml` (the manifest) and `evidence/` (the CLI's test and gate
+  records);
+- when the project ships an `architecture/` directory, two derived files the
+  assess stage writes when present: `architecture-loaded.yml` (the per-issue
+  snapshot of which cross-issue architectural state was loaded) and
+  `architecture-notes.md` (annotations the architect perspective writes on
+  the technical design, *not* a parallel spec);
+- a `.compass/current-task` pointer so the CLI and any hooks resolve the
+  current issue unambiguously.
+
+A different session, agent, or runtime must be able to resume an issue by
+reading the approach record (`delivery-approach.md`), the manifest, and the
+artifacts - nothing essential lives only in context.

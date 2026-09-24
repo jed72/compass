@@ -8,11 +8,9 @@ That is a substring match, so `latest.py`, `inspector.py` and `protest.py` are
 all "tests". Both guardrail checks are skipped for them, silently, on the allow
 path where the hook prints nothing.
 
-An earlier fix narrowed this from the absolute path to the basename, after
-anyone who cloned under `/Users/testuser/` found enforcement switched off
-entirely. That narrowed the class without closing it.
+Matching the basename is not enough; the match must be anchored.
 
-Spec: docs/compass/2026-08-13-pr-50-review-findings/acceptance-criteria.md.
+Spec: pr-50-review-findings/acceptance-criteria.md.
 """
 from __future__ import annotations
 
@@ -75,8 +73,8 @@ def _verdict(project, relpath):
     ).returncode
 
 
-# Production files whose names merely contain a test-ish substring. Every one
-# of these was allowed through before the exemption was anchored.
+# Production files whose names merely contain a test-ish substring. Each of
+# these is production code and must be guarded.
 @pytest.mark.parametrize("relpath", [
     "src/latest.py",
     "src/inspector.py",

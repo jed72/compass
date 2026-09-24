@@ -1,8 +1,8 @@
 # Verification Report - rate-limit-search-endpoint
 
-> **Phase:** Verify · **Date:** 2026-04-24 · **Owning role:** QA
+> **Stage:** verify · **Date:** 2026-04-24 · **Owning role:** QA
 > **Agents:** verifier, reviewer
-> **Route (from delivery-approach.md):** Standard · **Gate count:** 1 (the Standard Verify gate; the mid-Build checkpoint was logged in `devlog.md`)
+> **Approach (from delivery-approach.md):** feature · **Gate count:** 1 (the feature's verify gate; the mid-implement check was logged in `devlog.md`)
 > **Orchestration:** solo
 
 ---
@@ -11,11 +11,11 @@
 
 | Scenario id | Title | Result | Evidence |
 |---|---|---|---|
-| TRC-001 | Requests under the limit pass through unchanged | PASS | §2 |
-| TRC-002 | The request over the limit is rejected with 429 | PASS | §2 |
-| TRC-003 | A 429 response tells the client when to retry | PASS | §2 |
-| TRC-004 | The window resets and the client can call again | PASS | §2 |
-| TRC-005 | Two clients have independent limits | PASS | §2 |
+| `TRC-001` | Requests under the limit pass through unchanged | PASS | §2 |
+| `TRC-002` | The request over the limit is rejected with 429 | PASS | §2 |
+| `TRC-003` | A 429 response tells the client when to retry | PASS | §2 |
+| `TRC-004` | The window resets and the client can call again | PASS | §2 |
+| `TRC-005` | Two clients have independent limits | PASS | §2 |
 
 ## 2. Test suite evidence
 
@@ -51,23 +51,23 @@ project line coverage                87%   (floor: 80% - met)
 | Dimension | Applies on this approach? | Result | Evidence |
 |---|---|---|---|
 | correctness | always | PASS | All five scenarios in §1 pass - the spec, read as the acceptance suite, is green. |
-| governance | always | PASS | `G1`: every scenario has a passing test it traces to (§2). `G2`: all five scenarios were stated and the requirements review-closed before Build (`requirements-review.md` DoR ticked). `G3`: see traceability. `G4`: every gate below has a resolving evidence pointer. `G5`: not applicable - no irreversible surface. `S2` red-before-green followed - `evidence/red-TRC-001.json` (5 failing) precedes `evidence/green-TRC-001.json`. |
+| governance | always | PASS | `G1`: every scenario has a passing test it traces to (§2). `G2`: all five scenarios were stated, and the requirements review closed before implement (`requirements-review.md` DoR ticked). `G3`: see traceability. `G4`: every gate below has a resolving evidence pointer. `G5`: not applicable - no irreversible surface. `S2` red-before-green followed - `evidence/red-`TRC-001`.json` (5 failing) precedes `evidence/green-`TRC-001`.json`. |
 | traceability | always | PASS | `changed_files` in `manifest.yml` all trace to scenario ids; every scenario traces to INT-1 or INT-2; `compass check` confirms the chains. |
-| regression | yes | PASS | The 39 pre-existing API tests in §2 still pass alongside the 5 new ones - nothing previously green is now red. |
+| regression | yes | PASS | The 39 pre-existing API tests in §2 still pass alongside the 5 new ones - nothing that was green before is now red. |
 | security | scaled | PASS | Scaled to `contained` risk: focused review of the new reject path. The 429 leaks no internal state; `Retry-After` exposes only the window remainder; the fail-closed-on-unknown-client default (DD-2) was confirmed by `test_rate_limit.py::test_over_limit_returns_429`'s unknown-client variant. No full adversarial sweep - proportionate to the delivery approach. |
-| clarity | yes | PASS | `RateLimitMiddleware` is ~50 lines, one responsibility; DD-1 and DD-2 in `technical-design.md` explain the two non-obvious choices (Redis, fixed window) for a future reader. |
+| clarity | yes | PASS | `RateLimitMiddleware` is ~50 lines, one responsibility; `DD-1` and `DD-2` in `technical-design.md` explain the two non-obvious choices (Redis, fixed window) for a future reader. |
 | claims | n/a | n/a | No product-marketer in play - `verify.claims` is role-scoped and not in this approach's set. |
 
 ## 4. Gate decision
 
 | Gate | Required by | Status |
 |---|---|---|
-| verify.correctness | immovable + route | GREEN |
-| verify.governance | immovable + route | GREEN |
-| verify.traceability | immovable + route | GREEN |
-| verify.regression | route | GREEN |
-| verify.clarity | route | GREEN |
-| verify.security | route | GREEN |
+| verify.correctness | immovable + approach | GREEN |
+| verify.governance | immovable + approach | GREEN |
+| verify.traceability | immovable + approach | GREEN |
+| verify.regression | approach | GREEN |
+| verify.clarity | approach | GREEN |
+| verify.security | approach | GREEN |
 
 **Overall:** PASS - advance to ship.
 

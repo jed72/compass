@@ -1,28 +1,26 @@
 """Resolving a scenario's declared test ids against the tree.
 
 A scenario names the test(s) that exercise it, and two questions follow from
-that name: does the test exist, and does it actually run. Both are answered by
-reading the file rather than by asking a test runner - Compass ships to
-projects using pytest, jest, go test and cargo, and a per-runner adapter is
-far more surface than the problem needs.
+that name: does the test exist, and does it actually run. Compass answers
+both by reading the file, not by asking a test runner - it ships to projects
+using pytest, jest, go test and cargo, and a per-runner adapter is far more
+surface than the problem needs.
 
-Split out of checks.py when that module passed its size cap; these two
-functions are one job and were the natural boundary to split on.
+Kept apart from checks.py, which has a line cap; these two functions are one
+job.
 """
 from __future__ import annotations
 
-# DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
-# the only third-party code Compass ships; everything else is the Python 3
-# standard library. This module itself needs nothing beyond the stdlib.
+# DEPENDENCY: standard library only.
 
 import os
 import re as _re
 
 
 # Markers that mean "this test does not run". A scenario naming a permanently
-# skipped test satisfies "the test exists" while proving nothing, which is the
-# declaration-dressed-as-coverage the traceability guardrail exists to stop.
+# skipped test satisfies "the test exists" while proving nothing - a
+# declaration that looks like coverage, which the traceability guardrail
+# exists to stop.
 #
 # Text-based, like _test_id_resolves and for the same reason: Compass ships to
 # pytest, jest, go test and cargo, and a per-runner adapter is more surface
@@ -131,7 +129,7 @@ def _test_id_resolves(test_id, project_root):
 def _name_appears(name, body):
     """Is this test name written in this file?
 
-    Two id shapes have to work, and the original handled only the first.
+    Two id shapes have to work.
 
     A flat id names the test directly. A NESTED id - jest's
     `outer > inner > the test` - names a path through describe blocks, and
@@ -140,8 +138,8 @@ def _name_appears(name, body):
     any correctly-declared id.
 
     Word boundaries are applied only on an end where they can be satisfied.
-    `\\b` after a name ending in `@`, `)` or `.` requires a word character
-    next, so such ids were unresolvable whatever was on disk. Dropping the
+    `\\b` after a name ending in `@`, `)` or `.` needs a word character
+    next, so such ids would never resolve, whatever is on disk. Dropping the
     boundaries entirely would be the opposite error - `test_plain` would match
     `test_plain_name`, letting a truncated or misspelled id pass - so each end
     keeps its boundary when that end is a word character.

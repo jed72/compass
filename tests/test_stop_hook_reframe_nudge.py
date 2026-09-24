@@ -1,22 +1,19 @@
 """Stop-hook scope-bloat phrase detection.
 
-TRC-C1 - Stop-hook nudges when scope-bloat phrases appear in devlog
-TRC-C2 - Stop-hook stays silent when no scope-bloat is detected
-TRC-C3 - Stop-hook stays silent when a reframe has already been filed
-TRC-X3 - Stop-hook regex doesn't produce false positives on quoted context
+Stop-hook prompts when scope-bloat phrases appear in devlog (`TRC-C1`).
+Stop-hook stays silent when no scope-bloat is detected (`TRC-C2`).
+Stop-hook stays silent when a reassessment has already been filed (`TRC-C3`).
+Stop-hook regex does not produce false positives on quoted context
+(`TRC-X3`).
 
 The hook reads patterns from governance/signals.yml at runtime (
-never hardcoded), emits a nudge to stderr, and exits 0 (non-blocking).
+never hardcoded), emits a prompt to stderr, and exits 0 (non-blocking).
 
 Each test invokes hooks/stop.sh as a subprocess with a crafted temp project.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current file names; files written under older
+# names still load (ADR-006).
 from __future__ import annotations
 
 import os
@@ -53,11 +50,12 @@ def _make_task(project: Path, slug: str, *,
                devlog_lines: list[str] | None = None,
                reframes: list[dict] | None = None,
                route: str = "standard") -> Path:
-    """Materialise a task directory with route.md, devlog.md, and manifest.yml."""
+    """Materialise an issue directory with delivery-approach.md, devlog.md,
+    and manifest.yml."""
     task_dir = project / ".compass" / "work" / slug
     task_dir.mkdir(parents=True, exist_ok=True)
 
-    # route.md - minimal so the hook can see it
+    # delivery-approach.md - minimal so the hook can see it
     (task_dir / "delivery-approach.md").write_text(
         f"# Route - {slug}\n\n> **Reference route:** {route}\n"
     )
@@ -102,11 +100,12 @@ def _run_hook(project: Path) -> subprocess.CompletedProcess:
 
 
 # ---------------------------------------------------------------------------
-# TRC-C1 - nudge fires when scope-bloat phrase is in devlog and no reframe
+# The prompt fires when a scope-bloat phrase is in devlog and no reassessment (TRC-C1)
 # ---------------------------------------------------------------------------
 
 def test_nudge_on_bloat(tmp_path):
-    """TRC-C1: A known scope-bloat phrase in devlog triggers a stderr nudge."""
+    """A known scope-bloat phrase in devlog triggers a stderr prompt
+    (TRC-C1)."""
     project = _make_project(tmp_path)
     _make_task(
         project,
@@ -129,11 +128,11 @@ def test_nudge_on_bloat(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C2 - silent when no scope-bloat detected
+# Silent when no scope-bloat detected (TRC-C2)
 # ---------------------------------------------------------------------------
 
 def test_silent_on_clean(tmp_path):
-    """TRC-C2: A clean devlog produces no reframe nudge."""
+    """A clean devlog produces no reassessment prompt (TRC-C2)."""
     project = _make_project(tmp_path)
     _make_task(
         project,
@@ -146,18 +145,19 @@ def test_silent_on_clean(tmp_path):
     )
     result = _run_hook(project)
     assert result.returncode == 0, result.stderr
-    # No nudge expected
+    # No prompt expected
     assert "reframe" not in result.stderr.lower(), (
         "Expected no reframe nudge for a clean devlog, got:\n" + result.stderr
     )
 
 
 # ---------------------------------------------------------------------------
-# TRC-C3 - silent when a reframe has already been filed after the bloat line
+# Silent when a reassessment has already been filed after the bloat line (TRC-C3)
 # ---------------------------------------------------------------------------
 
 def test_silent_when_reframed(tmp_path):
-    """TRC-C3: An honest reframe entry after the bloat line suppresses the nudge."""
+    """An honest reassessment entry after the bloat line suppresses the
+    prompt (TRC-C3)."""
     project = _make_project(tmp_path)
     _make_task(
         project,
@@ -183,11 +183,12 @@ def test_silent_when_reframed(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-X3 - no false positives on quoted or cited context
+# No false positives on quoted or cited context (TRC-X3)
 # ---------------------------------------------------------------------------
 
 def test_no_false_positive_in_quoted_context(tmp_path):
-    """TRC-X3: A phrase nested in quotes or backtick context does not fire."""
+    """A phrase nested in quotes or backtick context does not fire
+    (TRC-X3)."""
     project = _make_project(tmp_path)
     _make_task(
         project,
@@ -215,7 +216,7 @@ def test_no_false_positive_in_quoted_context(tmp_path):
 def test_hook_reads_signals_at_runtime(tmp_path):
     """The hook loads patterns from signals.yml, not hardcoded.
 
-    Modify signals.yml to use a custom phrase; verify the hook fires on that
+    Change signals.yml to use a custom phrase; check the hook fires on that
     phrase and not on one of the default phrases that was removed.
     """
     project = _make_project(tmp_path)

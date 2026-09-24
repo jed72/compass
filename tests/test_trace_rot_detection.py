@@ -1,25 +1,18 @@
-"""A traced path that no longer exists must not pass as traced (field report R17).
+"""A `changed_files` path that no longer exists must fail
+`changed-code-traces-to-scenario`, even when it maps to a scenario
+(field report `R17`).
 
-`changed-code-traces-to-scenario` checked that every `changed_files` entry maps
-to a scenario id, and never checked the file was still there. So a trace rotted
-the moment a file was renamed and every gate stayed green.
+A path breaks when a project moves a spec from `docs/specs/backlog/` to
+`docs/specs/implemented/` on ship, which is what that convention asks for -
+so the trace breaks precisely when the project does the right thing, and
+nothing was wrong except the record, which is the only thing a reader six
+months out will have.
 
-The reporter found a task at 6/6 gates and `compass check` PASS whose recorded
-paths were two-of-four dead: one moved by a refactor, one moved from
-`docs/specs/backlog/` to `docs/specs/implemented/` when the work shipped - which
-is what that project's convention asks for. The trace breaks precisely when the
-project does the right thing, and nothing was wrong except the record, which is
-the only thing a reader six months out will have.
-
-Scenarios: docs/compass/2026-08-04-trace-rot-detection/acceptance-criteria.md (SCN-A1..F2).
+Scenarios: trace-rot-detection/acceptance-criteria.md (SCN-A1..F2).
 """
 
-# These tests read `compass check`'s PER-CHECK detail - a check's name,
-# its PASS/FAIL and the reason it gave. That detail moved to --verbose on
-# 2026-08-24 when the gate verdict came under the terminal output contract;
-# the checks themselves are unchanged. The assertions are re-pointed rather
-# than rewritten, because what they assert still holds - only where it is
-# printed changed.
+# These tests read `compass check`'s per-check detail, which it prints only
+# under `--verbose`.
 from __future__ import annotations
 
 import os
@@ -100,7 +93,7 @@ def _trace_line(out):
 
 
 # ---------------------------------------------------------------------------
-# Group A - a dead trace fails the task claiming it
+# Group A - a dead trace fails the issue claiming it
 # ---------------------------------------------------------------------------
 
 def test_scn_a1_missing_path_fails_a_task_claiming_correctness(tmp_path):

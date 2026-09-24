@@ -7,7 +7,7 @@ now proceed to the requirements review stage" - the human can already see the
 pipeline; naming the stage tells them nothing they did not know. It
 communicates a decision when it says what changed and what it needs next. The
 difference is not vocabulary - both sentences can use exactly the same v2
-terms - it is whether the sentence performs a process or reports on one.
+terms - it is whether the sentence acts out a process or reports on one.
 
 **The calibration sample.** Before writing anything in this register, read the
 "Never stash across a worktree hop" section of
@@ -74,9 +74,9 @@ Before:
 
 After:
 
-> Ran the requirements review as a light pass, since this was Standard-sized work.
+> Ran the requirements review as a light pass, since this was feature-sized work.
 
-What changed: says why the pass was light in the same breath as what ran, instead of a bare command name with its parameters trailing in parentheses like a log line.
+What changed: says why the pass was light in the same sentence as what ran, instead of a bare command name with its parameters trailing in parentheses like a log line.
 
 ### Pair 5 - a field label does the talking
 
@@ -134,11 +134,11 @@ After:
 
 What changed: tells the reader directly that action follows, instead of a label-and-value row answering a question nobody asked out loud.
 
-## The terms that leak, and what to say instead
+## The terms a reader cannot follow, and what to say instead
 
 A cold reader hit six of these in one message on 2026-08-15 and named every one
-unprompted. Their words are kept because that is what makes the next one
-noticeable: the failure was not ignorance of the rule, it was not noticing these
+unprompted. Their words are kept because that is what makes the next such
+term noticeable: the failure was not ignorance of the rule, it was not noticing these
 words were jargon. Someone a day inside the vocabulary cannot see them.
 
 | Written | What the reader said | Say instead |
@@ -159,7 +159,7 @@ reader has to ask:
 - **evidence types** - `test-run`, `command-output`, `manual-review`,
   `human-approval`. Say what the thing is: a recorded test run, the output of a
   command, someone's written review, a person's sign-off.
-- **routing shapes** - quick fix, feature, initiative, hotfix, spike. Say how
+- **delivery approaches** - quick fix, feature, initiative, hotfix, spike. Say how
   much process the change is getting and why.
 
 Not one of these is a hard idea. Each took a single sentence to say plainly.
@@ -181,10 +181,10 @@ links back here, or names only the three the check greps.
 3. **"the X stage" used as dialogue** - **judgement**. Look for a pipeline
    stage name doing the work of a sentence - "ready for the verify stage"
    reports to a dashboard, not to a person.
-4. **"accordingly"** - **judgement**. It has honest uses in conditional prose;
-   a repository-wide search turned up exactly one hit, a sentence nobody
-   would touch, so it stays a reader's call rather than a grep that would
-   cry wolf on its first real use.
+4. **"accordingly"** - **judgement**. It has honest uses in conditional prose,
+   so a grep for it would raise false alarms; a repository-wide search
+   turned up exactly one hit, a sentence nobody would touch, so it stays a
+   reader's call.
 5. **"utilize"** - **findable**. The check greps this exact string; "use"
    always beats it.
 6. **"Upon completion"** - **findable**. The check greps this exact string.
@@ -192,8 +192,10 @@ links back here, or names only the three the check greps.
    *labelling* the prose beneath it - "## Summary" over a summary, "## Status"
    over a status. The test is whether the heading answers a question the reader
    was already going to ask. "## Summary" does not; nobody asked for a summary.
-   "What I need from you" does, and that is the reply shape in `CLAUDE.md`
-   working rather than this tell firing. A label is the tell; an answer is not.
+   "What I need from you" does - it is one part of the reply shape (what I
+   did, outstanding questions, what I need from you, what I intend to do
+   next) working rather than this tell firing. A label is the tell; an
+   answer is not.
 8. **restating the request before answering it** - **judgement**. Look for a
    paragraph that repeats what was asked before it answers it - the person
    already knows what they asked.

@@ -1,20 +1,17 @@
 """The operating contract reaches a session without the model choosing it.
 
-Before this, the contract reached a Claude Code session only if the model
-picked `compass-runtime` from its description. `CLAUDE.md` applies inside the
-Compass repository and nowhere else, so an adopter's session got nothing.
-
-It also existed twice. Measured sentence by sentence before the change:
-`CLAUDE.md` and `skills/compass-runtime/SKILL.md` shared 46 sentences
-verbatim - 39% of `CLAUDE.md` - and they had already drifted, with
+The SessionStart hook injects compass-contract.md, so the contract reaches
+every session, including an adopter's. The contract exists once: `CLAUDE.md`
+and `skills/compass-runtime/SKILL.md` shared 46 sentences verbatim - 39% of
+`CLAUDE.md` - before this, and they had already drifted, with
 `compass-runtime` naming nine agents and omitting `architect`.
 
-`AGENTS.md` is deliberately NOT part of this. It shares no sentence with
+`AGENTS.md` is deliberately not part of this. It shares no sentence with
 either, because it is the runtime-neutral expression for Codex, Amp and
-Cursor, and other runtimes are this cycle's non-goal.
+Cursor. Other runtimes are out of scope for this contract.
 
 Scenario ids: SB-A1..A3, SB-B1..B4, SB-C1, SB-C2, SB-D1, SB-D2 in
-docs/compass/2026-08-26-session-bootstrap/acceptance-criteria.md
+session-bootstrap/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -30,8 +27,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 # Named so it cannot collide: a bare `contract.md` is a substring of
 # `docs/safety-contract.md` and `templates/ui-contract.md`, and a test that
-# greps for it passes on either - which is how this check first passed
-# before the file existed.
+# greps for it passes on either.
 CONTRACT = ROOT / "compass-contract.md"
 HOOKS_JSON = ROOT / "hooks" / "hooks.json"
 SESSION_HOOK = ROOT / "hooks" / "session-start.sh"
@@ -47,7 +43,7 @@ MAX_CONTRACT_WORDS = 400
 # ---------------------------------------------------------------------------
 
 def _sentences(text):
-    """The same split that measured the 46-sentence overlap.
+    """Splits prose into sentences for the overlap check.
 
     Code blocks and frontmatter out; split on sentence ends and blank lines;
     keep fragments over 40 characters, which is what makes this about prose
@@ -126,7 +122,8 @@ def test_sb_a1b_the_hook_injects_the_contract_in_a_project(tmp_path, source):
 
 
 def test_sb_a2_the_contract_is_short_enough_to_always_carry():
-    """The cost is paid on every session start, clear and compact."""
+    """The hook injects the contract at every session start, clear and
+    compact, so it must stay short."""
     assert CONTRACT.exists(), (
         "there is no single contract file - the contract still exists only as "
         "prose inside CLAUDE.md and the compass-runtime skill")
@@ -138,7 +135,8 @@ def test_sb_a2_the_contract_is_short_enough_to_always_carry():
 
 
 def test_sb_a3_the_hook_is_silent_outside_a_compass_project(tmp_path):
-    """Same boundary as hook-as-guest, minus the half that cannot apply.
+    """Same boundary as tests/test_hook_as_guest.py, minus the half that
+    cannot apply.
 
     A SessionStart hook has nothing to refuse - it injects or it does not -
     so there is no fail-closed case here, only the guest case.
@@ -168,9 +166,8 @@ def test_sb_b1_both_claude_code_documents_point_at_the_contract():
 def test_sb_b2_the_two_claude_code_documents_share_no_sentence():
     """The mechanical form of "the contract exists once".
 
-    46 shared sentences is how these two drifted apart in the first place, so
-    the check is on the text rather than on anyone's intention to keep them in
-    step.
+    The check reads the text, because nothing else keeps two copies the
+    same.
     """
     a = _normalised(CLAUDE_MD.read_text(encoding="utf-8"))
     b = _normalised(RUNTIME_SKILL.read_text(encoding="utf-8"))
@@ -187,9 +184,8 @@ def test_sb_b3_the_runtime_neutral_document_is_untouched():
     """AGENTS.md is not a third copy and is not this cycle's work.
 
     It shares no sentence with either Claude Code document, because it is the
-    portable expression for Codex, Amp and Cursor - and other runtimes are the
-    brief's non-goal. Merging it would mean rewriting a document for an
-    audience we are deliberately not serving.
+    portable expression for Codex, Amp and Cursor. Other runtimes are out of
+    scope for this contract.
     """
     text = AGENTS_MD.read_text(encoding="utf-8")
     assert "Runtime-Neutral" in text, (
@@ -201,8 +197,8 @@ def test_sb_b3_the_runtime_neutral_document_is_untouched():
 
 
 def test_sb_b4_the_contract_does_not_carry_a_stale_agent_roster():
-    """The measured drift: compass-runtime named nine agents, omitting
-    architect, and nobody noticed.
+    """The contract names every shipped agent or none: a roster kept by
+    hand goes out of date.
 
     A roster maintained in prose drifts again. Either the contract names every
     shipped agent, or it names none and points at where they are listed.
@@ -290,13 +286,9 @@ def test_sb_d2_the_portability_mapping_names_the_hook():
 
 
 def test_sb_d3_a_source_install_enforces_what_the_plugin_enforces():
-    """The matchers must agree, or one install path is weaker than the other.
-
-    install.sh registered `Edit|Write|MultiEdit` while hooks.json registered
-    Bash as well, so a source install had NO shell-write enforcement: `sed -i`,
-    `>` redirects and heredocs went unchecked. The plugin caught them. Nothing
-    compared the two.
-    """
+    """install.sh and hooks.json must register the same matchers. Otherwise
+    a source install does not check shell writes (`sed -i`, redirects,
+    heredocs)."""
     spec = json.loads(HOOKS_JSON.read_text(encoding="utf-8"))
     plugin = {ev: entries[0].get("matcher", "")
               for ev, entries in spec["hooks"].items()}
@@ -314,8 +306,7 @@ def test_sb_d3_a_source_install_enforces_what_the_plugin_enforces():
             f"install is weaker than a plugin one.")
 
     # Registrations, not prose: the comment above register_hooks() explains
-    # why MultiEdit was removed, and naming it there is the record, not a
-    # relapse.
+    # why MultiEdit was removed, and naming it there is not a registration.
     assert not [m for m in written if "MultiEdit" in m], (
         f"install.sh still registers MultiEdit, which is no longer a Claude "
         f"Code tool: {sorted(written)}")

@@ -1,11 +1,9 @@
-"""Flow digest tests - TRC-F4, TRC-C6, TRC-D5.
+"""Flow digest tests - `TRC-F4`, `TRC-C6`, `TRC-D5`.
 
-Unified after integration of streams 3, 4, and 6:
-
-- TRC-F4 (stream-6, canonical): Flow advises, never gates. Snapshot SHA256 of
-  every manifest.yml before/after running advisory commands; assert byte-identity.
-- TRC-D5 (stream-4): `compass flow --digest` includes a Rework scan section.
-- TRC-C6 (stream-3): the digest surfaces calibration's reframe-debt section.
+- `TRC-F4`: Flow advises, never gates. Snapshot SHA256 of every manifest.yml
+  before/after running advisory commands; assert byte-identity.
+- `TRC-D5`: `compass flow --digest` includes a Rework scan section.
+- `TRC-C6`: the digest surfaces calibration's `reframe debt` section.
 """
 from __future__ import annotations
 
@@ -44,7 +42,7 @@ def _snapshot_task_ymls(compass_work_dir: Path) -> Dict[str, str]:
 
 def write_task_yml(directory: Path, slug: str, changed_files: list,
                    created: str = "2026-05-01") -> None:
-    """Write a minimal manifest.yml for testing (stream-4 helper)."""
+    """Write a minimal manifest.yml for testing."""
     directory.mkdir(parents=True, exist_ok=True)
     data = {
         "slug": slug,
@@ -65,7 +63,7 @@ def write_task_yml(directory: Path, slug: str, changed_files: list,
 
 
 def write_signals_yml(directory: Path, window_days: int = 14) -> Path:
-    """Write a signals.yml for tests (stream-4 helper)."""
+    """Write a signals.yml for tests."""
     data = {
         "version": "1.0.0",
         "scope_bloat_phrases": [],
@@ -82,7 +80,7 @@ def write_signals_yml(directory: Path, window_days: int = 14) -> Path:
 
 
 def run_subprocess_cli(*args, cwd=None, env_extra=None) -> subprocess.CompletedProcess:
-    """Run the compass CLI via subprocess in an isolated cwd (stream-4 helper)."""
+    """Run the compass CLI via subprocess in an isolated cwd."""
     env = dict(os.environ)
     if env_extra:
         env.update(env_extra)
@@ -96,25 +94,25 @@ def run_subprocess_cli(*args, cwd=None, env_extra=None) -> subprocess.CompletedP
 
 
 # ---------------------------------------------------------------------------
-# TRC-F4 (stream-6, canonical) - Advisory commands must not mutate manifest.yml
+# `TRC-F4` - Advisory commands must not mutate manifest.yml
 # ---------------------------------------------------------------------------
 
 def test_does_not_mutate_tasks(run_cli, make_task, project):
-    """TRC-F4: Flow still advises, never gates.
+    """`TRC-F4`: Flow still advises, never gates.
 
-    Given multiple tasks exist in .compass/work/
+    Given multiple issues exist in .compass/work/
     When compass retro runs (the primary advisory/reporting command)
-    Then no manifest.yml under .compass/work/ is modified (byte-identical after)
-    And no task is automatically reframed, downgraded, or blocked.
+    Then no manifest.yml under .compass/work/ is changed (byte-identical after)
+    And no issue is automatically reassessed, downgraded, or blocked.
 
-    This tests Inv-4 (defined in architecture/decisions/README.md): Flow reads disk
-    and reports;
-    it does not write task state, does not block, does not reframe.
+    This tests `Inv-4` (Flow advises; it never gates or mutates): Flow reads
+    disk and reports; it does not write issue state, does not block, does
+    not reassess.
     """
     compass_work = project / ".compass" / "work"
 
-    # --- Given: set up multiple tasks with varying reframe states -----------
-    # Task with no reframes - calibration should report but not modify.
+    # --- Given: set up multiple issues with varying reassessment states -----
+    # Issue with no reassessments - calibration must report and not change.
     make_task("alpha-task", {
         "assessment": {
             "risk": "contained",
@@ -128,7 +126,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
         "changed_files": [],
     }, set_current=False)
 
-    # Task with a reframe - calibration should count it but not modify.
+    # Issue with a reassessment - calibration must count it and not change it.
     make_task("beta-task", {
         "assessment": {
             "risk": "contained",
@@ -157,7 +155,7 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
         f"stdout: {r.stdout}\nstderr: {r.stderr}"
     )
 
-    # --- Then: task.ymls must be byte-identical after -----------------------
+    # --- Then: manifests must be byte-identical after -----------------------
     after = _snapshot_task_ymls(compass_work)
 
     assert before == after, (
@@ -172,8 +170,8 @@ def test_does_not_mutate_tasks(run_cli, make_task, project):
 
 
 def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
-    """TRC-F4 (supplementary): calibration must not create NEW files in
-    .compass/work/ - any output should go to .compass/flow/ or stdout only.
+    """`TRC-F4` (supplementary): calibration must not create NEW files in
+    .compass/work/ - any output must go to .compass/flow/ or stdout only.
     """
     compass_work = project / ".compass" / "work"
 
@@ -207,11 +205,11 @@ def test_calibration_does_not_write_to_work_dir(run_cli, make_task, project):
 
 
 # ---------------------------------------------------------------------------
-# TRC-D5 (stream-4) - Flow digest absorbs rework-scan
+# `TRC-D5` - Flow digest absorbs rework-scan
 # ---------------------------------------------------------------------------
 
 def test_includes_rework_scan(tmp_path):
-    """TRC-D5: `compass flow --digest` output includes a Rework scan section."""
+    """`TRC-D5`: `compass flow --digest` output includes a Rework scan section."""
     work_root = tmp_path / "work"
     write_task_yml(work_root / "task-adds", "task-adds", [
         {"path": "services/foo/handler.go", "action": "added"},
@@ -241,12 +239,12 @@ def test_includes_rework_scan(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# TRC-C6 (stream-3) - Flow digest includes calibration's reframe-debt section
+# `TRC-C6` - Flow digest includes calibration's `reframe debt` section
 # ---------------------------------------------------------------------------
 
 def test_includes_reframe_debt(tmp_path):
-    """TRC-C6: calibration output includes a 'reframe debt' section when at
-    least one task has a devlog scope-bloat phrase and an empty reframes list.
+    """`TRC-C6`: calibration output includes a 'reframe debt' section when at
+    least one issue has a devlog scope-bloat phrase and an empty reframes list.
     """
     import shutil
 

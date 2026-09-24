@@ -32,12 +32,12 @@ dated digest file (see below).
 1. **Enumerate.** List every issue directory under `.compass/work/`. For
    each, read `delivery-approach.md`, `manifest.yml` (the machine-readable
    manifest), and whichever stage artifacts exist. To report an issue's
-   *mechanical* gate status you may run `compass check --issue <slug>` - it
+   *mechanical* gate status you can run `compass check --issue <slug>` - it
    is read-only and changes nothing.
 
 2. **Assess each issue.** Apply the `flow-management` heuristics:
    - **No `delivery-approach.md`** -> a guardrail violation (work started
-     without triage). Surface this above everything else.
+     without an assessment). Surface this above everything else.
    - **Stalled** -> an in-progress stage with no `devlog.md` movement for
      longer than the approach's expected cadence. Flag it and name the
      likely blocker.
@@ -45,7 +45,7 @@ dated digest file (see below).
      fits its delivery approach. Recommend `/compass:assess --reassess`.
    - **Healthy** -> progressing in line with its approach.
 
-3. **Build the board.** Group every issue by pipeline stage: triaged ·
+3. **Build the board.** Group every issue by pipeline stage: assessed ·
    defining criteria · reviewing requirements · designing · implementing ·
    verifying · shipping · shipped. One line per issue: slug · approach ·
    stage · health · owner.
@@ -60,26 +60,27 @@ dated digest file (see below).
    artifact still owed, across all issues.
 
 6. **Read the retrospective signal.** Run `compass retro` - it reads
-   the `reassessments:` log across every issue and reports whether triage
-   is systematically over- or under-sizing the process (a run of "up"
-   re-assessments means triage keeps reading work lighter than it is).
+   the `reassessments:` log across every issue and reports whether the
+   assess stage is systematically over- or under-sizing the process (a run
+   of "up" re-assessments means the assess stage keeps rating work lighter
+   than it is).
    This is the framework's own feedback loop: a framework about
    right-sizing process has to be able to tell whether the right-sizing is
-   any good. Surface the signal; if it leans, the fix is in
-   `governance/routing-policy.yml` or the triage rubric, not in any one
-   issue.
+   any good. Report the signal; if most re-assessments go the same way, the
+   fix is in `governance/routing-policy.yml` or the delivery-approach
+   rubric, not in any one issue.
 
 7. **Run rework-scan.** Run `compass rework-scan --format markdown` and
    embed the output in the report as a "Rework scan" section. This surfaces
    cross-issue add-then-delete patterns within the configured window
    (`governance/signals.yml rework_scan.window_days`). The scan is a
-   signal - it never gates, never modifies issue state, and always exits 0
+   signal - it never gates, never changes issue state, and always exits 0
    on detection (Flow advises, never gates). If the section is empty,
    record "0 rework instances detected" to confirm the scan ran.
 
 8. **Report**, ordering by what needs attention first: human decisions ->
    guardrail violations -> blockers -> owed follow-ups -> rework signals ->
-   retrospective signal -> healthy in-flight -> shipped.
+   retrospective signal -> healthy in progress -> shipped.
 
 ## `--digest`
 
@@ -100,5 +101,5 @@ block or gate anything.
 
 `/compass:flow` advises; it does not gate. The gates live in the per-issue
 pipeline where the evidence is. Flow's job is to make sure no issue is
-quietly stuck, off-approach, or sitting on an unpaid debt - not to add
+quietly stuck, off-approach, or owing a follow-up - not to add
 another gate.

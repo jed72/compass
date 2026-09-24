@@ -1,6 +1,6 @@
 """
-Tests for TRC-B4, TRC-B5, TRC-B8 - verify.architecture route promotion and
-architecture documentation.
+Tests for `TRC-B4`, `TRC-B5`, `TRC-B8` - verify.architecture route promotion
+and architecture documentation.
 """
 from __future__ import annotations
 
@@ -46,16 +46,16 @@ def _setup_gov(tmp_path: Path) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B4: verify.architecture promoted when blast_radius is cross-cutting or critical
+# verify.architecture promoted when risk is cross-cutting or critical (`TRC-B4`)
 # ---------------------------------------------------------------------------
 
 class TestVerifyFitnessPromotionBlastRadius:
-    """TRC-B4: verify.architecture is promoted to blocking when blast_radius reaches
-    cross-cutting or critical."""
+    """verify.architecture is promoted to blocking when risk reaches
+    cross-cutting or critical (`TRC-B4`)."""
 
     def test_cross_cutting_blast_radius_adds_verify_fitness(self, tmp_path):
-        """route evaluate on risk=cross-cutting includes verify.architecture
-        in the gate set."""
+        """`compass approach evaluate` on risk=cross-cutting includes
+        verify.architecture in the gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -75,7 +75,7 @@ class TestVerifyFitnessPromotionBlastRadius:
         )
 
     def test_critical_blast_radius_adds_verify_fitness(self, tmp_path):
-        """route evaluate on risk=critical includes verify.architecture."""
+        """`compass approach evaluate` on risk=critical includes verify.architecture."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -127,16 +127,16 @@ class TestVerifyFitnessPromotionBlastRadius:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B5: verify.architecture promoted when touches includes an irreversible domain
+# verify.architecture promoted when touches includes an irreversible domain (`TRC-B5`)
 # ---------------------------------------------------------------------------
 
 class TestVerifyFitnessPromotionTouches:
-    """TRC-B5: verify.architecture is promoted to blocking when touches lists an
-    irreversible domain."""
+    """verify.architecture is promoted to blocking when touches lists an
+    irreversible domain (`TRC-B5`)."""
 
     @pytest.mark.parametrize("domain", ["auth", "payments", "personal-data", "migrations"])
     def test_irreversible_domain_adds_verify_fitness(self, tmp_path, domain):
-        """touches: [<domain>] causes verify.architecture to be added to gate set."""
+        """labels: [<domain>] causes verify.architecture to be added to gate set."""
         project_root = _setup_gov(tmp_path)
         result = _run_cli(
             "approach", "evaluate", "--json",
@@ -196,11 +196,11 @@ class TestVerifyFitnessPromotionTouches:
 
 
 # ---------------------------------------------------------------------------
-# TRC-B8: architecture/ documents the fitness-functions pattern
+# architecture/ documents the architecture-check pattern (`TRC-B8`)
 # ---------------------------------------------------------------------------
 
 class TestArchitectureDocumentation:
-    """TRC-B8: architecture/ documents the fitness-functions pattern."""
+    """architecture/ documents the architecture-check pattern (`TRC-B8`)."""
 
     ARCH_DIR = FRAMEWORK_ROOT / "architecture"
     DECISIONS_DIR = FRAMEWORK_ROOT / "architecture" / "decisions"
@@ -265,12 +265,12 @@ class TestArchitectureDocumentation:
         )
 
     def test_evidence_gates_skill_mentions_fitness_functions(self):
-        """The evidence-gates skill must describe the fitness-functions
+        """The evidence-gates skill must describe the architecture-check
         pattern citing ADR-009.
 
         Reads the whole skill directory: the detail lives in
-        fitness-functions.md since the skill was split, and it applies only
-        where a project has declared a fitness function.
+        architecture-checks.md since the skill was split, and it applies only
+        where a project has declared an architecture check.
         """
         skill_dir = FRAMEWORK_ROOT / "skills" / "evidence-gates"
         assert skill_dir.is_dir()

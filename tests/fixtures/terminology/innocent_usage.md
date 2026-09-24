@@ -15,12 +15,8 @@ Planes land safely when checklists hold, and boats land their catch.
 The change touches the parser but nothing else.
 One machine form of the follow-up ledger stays legal until the CLI verbs
 rename: the data team backfilled last month's metrics overnight.
-Code spans and fenced blocks are NO LONGER a shelter. They were, while the
-rename was in flight - a backticked command name really did name a live
-command. ADR-014 removed those names at the major version and ADR-015 closed
-the exclusion, so this fixture no longer claims a retired name is innocent
-merely for being inside backticks. The live spellings are innocent, and they
-are what belongs here: run `/compass:assess`, `compass approach evaluate`,
+Code spans and fenced blocks are scanned (ADR-015), so only live spellings
+belong here: run `/compass:assess`, `compass approach evaluate`,
 open `delivery-approach.md`, `intent.md`, or `acceptance-criteria.md`, settle
 what is outstanding with `compass follow-up resolve`, and read the
 `assessment:` block or the `labels:` list in the manifest.

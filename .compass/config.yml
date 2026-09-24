@@ -1,17 +1,18 @@
 # Compass - per-project configuration
-# Copied into a project by `/compass:init` (which is optional - the shipped
-# governance/ defaults apply with zero setup).
+# This is the framework repository's own config. A project gets a minimal
+# one from `compass init` (which is optional - the shipped governance/
+# defaults apply with zero setup).
 #
 # AUTHORITATIVE GOVERNANCE LIVES IN governance/, NOT HERE.
 #   - governance/routing-policy.yml - the machine-readable routing policy:
-#     route shapes, default_shapes, floors, caps, immovable_gates, role_rules.
-#     `compass route evaluate` runs this. It is the single source of truth for
-#     how a route is composed and constrained.
+#     delivery-approach shapes, default_shapes, floors, caps, immovable_gates,
+#     role_rules. `compass approach evaluate` runs this. It is the single
+#     source of truth for how a delivery approach is composed and constrained.
 #   - governance/guardrails.yml - the machine-readable guardrail checks.
 #     `compass check` runs this.
-# This file holds only genuine PROJECT KNOBS - things routing-policy.yml has no
-# opinion on. Routing rules are deliberately NOT duplicated here: a value in
-# two places is a value that drifts.
+# This file holds only genuine PROJECT SETTINGS - things routing-policy.yml has no
+# opinion on. Routing rules are deliberately NOT duplicated here: a value kept
+# in two places ends up with two values.
 
 version: 1.0.0
 
@@ -44,10 +45,8 @@ governance_drift: advisory
 # It only ever ADDS. There is no key HERE that removes framework enforcement -
 # project rules ratchet up, the same way a project guardrail may exceed a floor
 # but never fall short of one. That rule is about this `enforcement:` block.
-# `allow_project_commands` below is the one setting in this file that gates a
-# check rather than adding one, and it is not an exception to the rule so much
-# as a different thing: it decides whether Compass executes code the project
-# wrote, and the answer defaults to no.
+# `allow_project_commands` below does not add a check. It decides whether
+# Compass runs code the project wrote, and it defaults to no.
 #
 # This repository declares its own shell scripts, because `hooks/*.sh` and
 # `scripts/*.sh` ARE the production code here: pre-tool.sh is the enforcement
@@ -61,7 +60,7 @@ enforcement:
 
 # --- running commands a project guardrail declares -------------------------
 # A project guardrail may declare `check: command-passes`, which runs a command
-# the project wrote. That is useful for architectural fitness functions and it
+# the project wrote. That is useful for architecture checks and it
 # is code execution, so it is off unless you say otherwise.
 #
 # Set this to true to run declared project commands:
@@ -88,16 +87,16 @@ project:
   # (framework)" into your project's `.compass/config.yml`.
   name: "Compass (framework)"
 
-  # The command Compass runs to execute the test suite. Passed to
+  # The command Compass runs to run the test suite. Passed to
   # `compass tdd-red`/`compass tdd-green` as the test command, and used by
   # scripts/integrate.sh for combined regression. If unset, the hooks fall
   # back to detecting npm/Make/pytest conventions.
   test_command: "pytest -q"   # e.g. "npm test", "pytest -q", "go test ./..."
 
   # --- executable BDD (all optional) ----------------------------------------
-  # `compass bdd extract` lifts the Gherkin out of a task's acceptance-criteria.md
+  # `compass bdd extract` lifts the Gherkin out of an issue's acceptance-criteria.md
   # into a plain .feature file, tagged with each scenario's TRC id. It works
-  # with none of the keys below set - it writes the .feature into the task
+  # with none of the keys below set - it writes the .feature into the issue
   # directory and stops there.
   #
   # The keys exist for wiring that output to a real BDD runner, so the
@@ -111,10 +110,10 @@ project:
   # bdd_runner: pytest-bdd        # pytest-bdd | cucumber-js | behave | godog
   #
   #   bdd_features_dir  Where `compass bdd extract` writes the .feature file.
-  #                     Unset, it writes `acceptance-criteria.feature` into the task's own
+  #                     Unset, it writes `acceptance-criteria.feature` into the issue's own
   #                     directory. Set it when your runner expects a
   #                     conventional features/ directory; the file is then
-  #                     written as <dir>/<task-slug>.feature.
+  #                     written as <dir>/<issue-slug>.feature.
   # bdd_features_dir: features
   #
   #   bdd_steps_dir     Where your step definitions live. Compass does not read
@@ -135,15 +134,15 @@ multiagent:
   worktree_root: "../.compass-worktrees"
 
 artifacts:
-  # Where per-task working state lives. This directory IS committed in a real
-  # project - it is the audit trail, not scratch. Holds work/<task-slug>/
-  # (each task's delivery-approach.md, task.yml, acceptance-criteria.md, …) and the
-  # .compass/current-task pointer the CLI uses to resolve the active task.
+  # Where per-issue working state lives. This directory IS committed in a real
+  # project - it is the audit trail, not scratch. Holds work/<issue-slug>/
+  # (manifest.yml, devlog.md, evidence/) and the
+  # .compass/current-task pointer the CLI uses to resolve the active issue.
   work_dir: ".compass/work"
 
 roles:
   # Which role entry points are enabled for this project. All five ship
-  # enabled by default - Compass treats them as full pipeline citizens.
+  # enabled by default - Compass treats them as full participants in the pipeline.
   enabled:
     - engineer
     - product-owner

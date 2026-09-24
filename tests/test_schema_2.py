@@ -1,16 +1,21 @@
 """Schema 2.0 - the machine manifest speaks the frozen v2 vocabulary.
 
-The machine-manifest slice of the v2 plan: the manifest's keys take their
-v2 names (assessment/risk/familiarity/size/goal, labels, delivery_approach,
-stages, policy_rules_fired, follow_ups, reassessments), writers emit
-schema_version "2.0", readers accept a 1.x manifest by normalising its keys on
-load (the substrate the full migration tool wraps in its own slice), and
-the repository's own work archive - plus the example work dirs - migrates
-in the same change. Two transition aids retire with the archive migration:
-the artifact-name v1 fallback in the runtime resolver, and the
-templates/manifest.yml scan exemption.
+These tests check:
 
-No behaviour change: same manifest, new names, the suite moved in lockstep.
+  * the manifest's keys use their v2 names (assessment/risk/familiarity/size/
+    goal, labels, delivery_approach, stages, policy_rules_fired, follow_ups,
+    reassessments);
+  * writers emit schema_version "2.0";
+  * readers accept a 1.x manifest by normalising its keys on load;
+  * the repository's own work archive, and the example work directories,
+    migrate in the same change.
+
+The templates/manifest.yml scan exemption is gone. The runtime resolver's
+v1 artifact-name fallback stays, by design (ADR-006), for a landed issue
+that still carries the old filenames.
+
+No behaviour change: same manifest, new names, the tests changed in the
+same commit.
 """
 from __future__ import annotations
 
@@ -75,9 +80,9 @@ def _run(root, *args):
 
 
 def test_route_evaluate_writes_a_v2_spine(tmp_path):
-    """TRC-A1: the evaluator reads a v2 manifest and folds its results back
+    """The evaluator reads a v2 manifest and folds its results back
     under the v2 keys, stamping schema 2.0 - no v1 key appears in what it
-    writes."""
+    writes (TRC-A1)."""
     root = _project(tmp_path, dict(V2_SPINE))
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-500:] + r.stdout[-500:]
@@ -91,10 +96,10 @@ def test_route_evaluate_writes_a_v2_spine(tmp_path):
 
 
 def test_a_v1_spine_is_still_readable(tmp_path):
-    """TRC-A2: a 1.x manifest loads by key normalisation - the evaluator works,
-    and what it writes back is a v2 manifest. This is the substrate the full
-    migration tool wraps; an un-migrated tree degrades gracefully instead
-    of crashing."""
+    """A 1.x manifest loads by key normalisation (TRC-A2) - the evaluator works,
+    and what it writes back is a v2 manifest. The full migration tool wraps
+    this key-normalisation layer; an un-migrated tree degrades gracefully
+    instead of crashing."""
     root = _project(tmp_path, dict(V1_SPINE))
     r = _run(root, "approach", "evaluate", "--issue", "t", "--write")
     assert r.returncode == 0, r.stderr[-500:] + r.stdout[-500:]
@@ -105,9 +110,9 @@ def test_a_v1_spine_is_still_readable(tmp_path):
 
 
 def test_the_repository_archive_speaks_schema_2():
-    """TRC-A3: every manifest in the repository's own work archive and in the
+    """Every manifest in the repository's own work archive and in the
     example work dirs carries v2 keys - the repo is a migration fixture,
-    and the migration ran."""
+    and the migration ran (TRC-A3)."""
     stale = []
     for pattern in [".compass/work/*/manifest.yml",
                     "examples/*/.compass/work/*/manifest.yml",
@@ -121,9 +126,9 @@ def test_the_repository_archive_speaks_schema_2():
 
 
 def test_the_archive_carries_v2_artifact_names():
-    """TRC-A4: the archive migration renamed the per-issue artifact files
-    too - no route.md, spec.feature.md, brief.md, clarifications.md, or
-    plan.md remains in any work dir."""
+    """The archive migration renamed the per-issue artifact files too -
+    no route.md, spec.feature.md, brief.md, clarifications.md, or plan.md
+    remains in any work dir (TRC-A4)."""
     old_names = {"route.md", "spec.feature.md", "brief.md",
                  "clarifications.md", "plan.md", "spec.feature"}
     stale = []
@@ -139,9 +144,10 @@ def test_the_archive_carries_v2_artifact_names():
 
 
 def test_the_artifact_name_fallback_is_retired():
-    """TRC-A5: with the archive migrated, the runtime resolver no longer
-    consults v1 filenames - the migration module owns the old-name map
-    now, and the resolver resolves v2 names only."""
+    """`core` no longer carries the old `ARTIFACT_FALLBACKS` attribute
+    (TRC-A5). `core._RENAMED_KIND_FILES` still resolves a retired filename
+    for a landed issue that carries one, by design (ADR-006); this test
+    checks only that the old attribute name is gone."""
     from compass_pkg import core
     assert not hasattr(core, "ARTIFACT_FALLBACKS"), (
         "core still carries the v1 filename fallback map; it moved to the "
@@ -150,8 +156,9 @@ def test_the_artifact_name_fallback_is_retired():
 
 
 def test_templates_task_yml_speaks_v2_and_is_scanned():
-    """TRC-A6: the manifest template carries v2 keys, and its scan exemption
-    is retired - the vocabulary scan covers it like any other template."""
+    """The manifest template carries v2 keys, and its scan exemption is
+    retired - the vocabulary scan covers it like any other template
+    (TRC-A6)."""
     t = yaml.safe_load((REPO_ROOT / "templates" / "manifest.yml").read_text())
     assert "assessment" in t and "readings" not in t, (
         "templates/manifest.yml still carries the v1 assessment block"
@@ -164,9 +171,9 @@ def test_templates_task_yml_speaks_v2_and_is_scanned():
 
 
 def test_policy_keys_speak_v2():
-    """TRC-A7: the routing policy's machine keys follow the manifest - the
+    """The routing policy's machine keys follow the manifest - the
     dimension keys in shapes and rules use risk/familiarity/size/goal and
-    labels, not the v1 names."""
+    labels, not the v1 names (TRC-A7)."""
     text = (REPO_ROOT / "governance" / "routing-policy.yml").read_text()
     for stale in ("blast_radius", "terrain:", "magnitude", "touches_any",
                   "touches_common"):

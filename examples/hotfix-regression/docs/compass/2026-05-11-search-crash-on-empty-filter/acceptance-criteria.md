@@ -1,7 +1,7 @@
 # Spec - search-crash-on-empty-filter
 
-> **Phase:** define (reproduce-first) · **Last updated:** 2026-05-11 · **Owning agent:** spec-author
-> **Familiarity:** brownfield-mapped - on Hotfix the spec begins as the failing regression test; this file is its promoted, readable form (follow-up FU-001).
+> **Stage:** define (reproduce-first) · **Last updated:** 2026-05-11 · **Owning agent:** spec-author
+> **Familiarity:** brownfield-mapped - on a hotfix the spec begins as the failing regression test; this file is its promoted, readable form (follow-up FU-001).
 
 ## How each role reads this file
 
@@ -13,12 +13,12 @@
 
 ---
 
-## On a Hotfix, the reproduction is the spec
+## On a hotfix, the reproduction is the spec
 
-This file was not written before the work - on Hotfix it cannot be, the bug is
+This file was not written before the work - on a hotfix it cannot be, the bug is
 the starting point. The sequence was: a failing regression test
 (`test_empty_filter_object_does_not_crash`) was written first and watched fail
-(`evidence/red-TRC-001.json`) - that *was* define. At ship, follow-up FU-001 promoted
+(`evidence/red-`TRC-001`.json`) - that *was* define. At ship, follow-up FU-001 promoted
 that test into the proper Given/When/Then below, so the spec reads like every
 other Compass spec and the next person finds it where they expect it.
 
@@ -52,6 +52,6 @@ Scenario: Search with an empty filter object returns results, does not crash
 
 ## Coverage ledger
 
-| Traceability id | Serves intent | Has a failing test (Build) | Passes as acceptance (Verify) |
+| Traceability id | Serves intent | Has a failing test (implement) | Passes as acceptance (verify) |
 |---|---|---|---|
-| TRC-001 | INT-1 | [x] | [x] |
+| `TRC-001` | INT-1 | [x] | [x] |

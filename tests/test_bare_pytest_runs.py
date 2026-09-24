@@ -1,17 +1,13 @@
 """The suite runs with nothing added to PYTHONPATH.
 
-Scenario BPF-1 of `bare-pytest-fails-on-two-tests`.
+Scenario BPF-1, in `bare-pytest-fails-on-two-tests/delivery-approach.md`.
 
-Two tests import from the `tests` package. Nothing put the repository root on
-`sys.path`, so `pytest -q` from the root failed both with
-`ModuleNotFoundError: No module named 'tests'` and only passed when the caller
-exported PYTHONPATH first.
-
-That is worse than an inconvenience. `compass tdd-green -- pytest -q` is the
-documented way to record a passing suite and it spawns the command without the
-caller's shell prefix, so the `verify.regression` gate could not be cleared by
-following the instructions Compass gives. The two failures also read exactly
-like real ones on a clean checkout.
+`pytest.ini` puts the repository root on `sys.path`, so a bare `pytest -q`
+runs the two tests that import from the `tests` package. The suite must pass
+with no PYTHONPATH set, because `compass tdd-green -- pytest -q` runs the
+command without the caller's shell prefix. If it cannot, the
+`verify.regression` gate cannot be cleared by following Compass's own
+instructions.
 """
 from __future__ import annotations
 
@@ -32,10 +28,9 @@ def test_bpf_1_the_repository_root_is_importable_without_pythonpath():
     import os
 
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
-    # The console script, and the bodies actually run. `python -m pytest` puts
-    # the working directory on sys.path and would pass whatever the config
-    # says; `--collect-only` never reaches the import that fails. The first
-    # version of this test did both, and passed against the live defect.
+    # The test runs the console script and runs the test bodies.
+    # `python -m pytest` adds the working directory to sys.path, and
+    # `--collect-only` never reaches the import that fails.
     r = subprocess.run(
         ["pytest", "-q", "-p", "no:randomly",
          "tests/test_long_sentences.py", "tests/test_trace_rot_detection.py"],

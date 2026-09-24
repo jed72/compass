@@ -1,51 +1,12 @@
 #!/usr/bin/env python3
 # =============================================================================
-# compass - the Compass CLI
+# compass_pkg.rework - the cross-issue rework scanner (compass rework-scan)
 # =============================================================================
-# The deterministic half of Compass. The Needle (an LLM or a human) produces
-# the four-dimension *readings* - that is judgement, and judgement is the
-# adaptivity. Everything downstream of the readings is mechanical, and this is
-# where the mechanism lives:
-#
-#   compass route evaluate   Apply governance/routing-policy.yml to a task's
-#                            readings -> the final route, deterministically.
-#                            Same readings + same policy => same route, always.
-#   compass check            Run the governance/guardrails.yml checks against a
-#                            task's manifest.yml + evidence/. The checkable backbone
-#                            of the Verify gate.
-#   compass tdd-red CMD...    Run a test command, assert it FAILS, record the
-#                            red + the .red marker (honestly - the marker is
-#                            only written after a real failure).
-#                            --scenario TRC-xxx binds the red to a scenario, so
-#                            it proves relevance, not just that something broke.
-#   compass tdd-green CMD...  Run a test command, assert it PASSES, record the
-#                            green, clear the .red marker.
-#                            --scenario binds the green the same way.
-#                            THE BINDING DECIDES THE FILENAME: a bound run
-#                            writes evidence/green-<scenario>.json, an unbound
-#                            one writes evidence/green.json, and only that file
-#                            is written - so recording one scenario cannot
-#                            destroy a record another gate is citing.
-#   compass policy lint       Structurally validate routing-policy.yml and
-#                            guardrails.yml - including that every guardrail's
-#                            declared check is actually implemented in the CLI.
-#   compass task lint [F]     Structurally validate a manifest.yml.
-#   compass calibration       The Needle's feedback loop - aggregate the
-#                            re-frame log across all tasks and report whether
-#                            routing is systematically over- or under-sizing.
-#   compass ci               The full mechanical gate suite (policy lint +
-#                            task lint + check for every task) - for CI.
 #
 # DEPENDENCY: PyYAML, bundled at cli/vendor/yaml/ and pinned in
-# THIRD-PARTY-NOTICES.md. It is resolved by compass_pkg/__init__.py and is
+# THIRD-PARTY-NOTICES.md. cli/compass_pkg/__init__.py resolves it, and it is
 # the only third-party code Compass ships; everything else is the Python 3
 # standard library.
-#
-# GOVERNANCE RESOLUTION: the CLI looks for a project-local `governance/`
-# (walking up from the working directory); if there is none, it falls back to
-# the framework's shipped `governance/` next to this script. That fallback is
-# the "gradient, not threshold" rule in code - the defaults work with zero
-# project setup.
 # =============================================================================
 
 import argparse
@@ -60,21 +21,17 @@ import sys
 import tempfile
 
 # --- dependency check --------------------------------------------------------
-# compass_pkg/__init__.py already verified the bundled copy resolves - or
-# exited 3 with a clear message naming the absolute path it checked - before
-# this module's own code ever runs (DD-2 of zero-friction-install). By the
-# time this line runs, `yaml` is already imported and cached, so this is
-# never anything but a normal import.
+# cli/compass_pkg/__init__.py already checked that the bundled copy resolves,
+# or exited 3 naming the absolute path it checked, before this module's own
+# code runs, so this is never anything but a normal import.
 import yaml
 
 
-# Regex to match a DoD checklist item:
-#   - [ ] ...  or  - [x] ...  (allow variable whitespace after the dash)
 import re as _re
 
 
 # --- command: rework-scan ---------------------------------------------------
-# Cross-task rework scanner (R4). Reads every manifest.yml under --root (default:
+# Cross-issue rework scanner. Reads every manifest.yml under --root (default:
 # .compass/work/) and detects add-then-delete patterns within the configured
 # window. Output is Markdown (default) or JSON (--format json). This is a
 # SIGNAL, not a gate - exit code is always 0 unless the scan itself errors.
@@ -82,16 +39,15 @@ import re as _re
 # Suitable for piping into .compass/flow/rework-<date>.md.
 #
 # Detection modes:
-#   1. Simple add-then-delete: file added by task A, deleted by task B within
-#      window_days.
+#   1. Simple add-then-delete: file added by issue A, deleted by issue B
+#      within window_days.
 #   2. Public-surface churn: the path matches a public_surface_patterns regex
 #      AND the same file is added then deleted.
-#   3. Migration pair: a file matching migration_paths (glob) is added in task
-#      A, and a semantically paired drop migration is added in task B within
-#      window_days.
+#   3. Migration pair: a file matching migration_paths (glob) is added in
+#      issue A, and a semantically paired drop migration is added in issue B
+#      within window_days.
 #
-# Architectural invariant: Inv-4 (Flow advises, never gates). This command is
-# read-only over the task directory tree; it writes nothing.
+# Read-only over the issue directories (Inv-4); it writes nothing.
 
 import fnmatch
 import re as _re
@@ -291,7 +247,7 @@ def cmd_rework_scan(args):
         deletes = [r for r in path_records if r["action"] == "deleted"]
         for add in adds:
             for delete in deletes:
-                # The delete must be from a different task
+                # The delete must be from a different issue
                 if add["slug"] == delete["slug"]:
                     continue
                 # Both must have dates; delete must be after add
@@ -328,12 +284,12 @@ def cmd_rework_scan(args):
                 })
 
     # Mode 3: migration pairs
-    # For each migration added by task A, look for a drop migration added by task B
+    # For each migration added by issue A, look for a drop migration added by issue B
     add_migrations = [r for r in records
                       if r["action"] == "added"
                       and _matches_migration_glob(r["path"], migration_paths)]
     for add in add_migrations:
-        # Look for a corresponding drop migration added by another task
+        # Look for a corresponding drop migration added by another issue
         drop_candidates = [
             r for r in records
             if r["action"] == "added"
@@ -422,11 +378,10 @@ def _emit_markdown_report(instances, tasks, skipped, window_days, root):
     print("> This report is advisory only. Flow advises, never gates (Inv-4).")
 
 
-# --- command: backfill pay --------------------------------------------------
-# Mark a named backfill as paid. This is the complement to the cross-task
-# check in `dod-evidence-typed`: once a backfill is paid, the target task's
-# Land check can proceed. The command writes to manifest.yml - the only write
-# path in this subtask, because Flow/calibration are read-only advisors.
+# --- command: follow-up resolve ----------------------------------------------
+# Marks a named follow-up resolved, which lets the target issue ship. It is
+# the only command here that writes a manifest; flow and retro are
+# read-only.
 
 def cmd_backfill_pay(args):
     """Flip the named follow-up to status: resolved in the issue's

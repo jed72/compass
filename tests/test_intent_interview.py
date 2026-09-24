@@ -5,14 +5,13 @@ needed", so Compass rewrites someone else's document. That is the whole value
 and the whole danger: an invented non-goal reads exactly like a decided one,
 and a reader cannot tell them apart afterwards.
 
-`requirements-review.md` Q2 turned that into a rule a test can hold - **every
-statement in intent.md traces to the source or to a recorded answer, and there
-is no third origin** - and this file is where it is held. The skill teaches the
-discipline; the validator below is what makes the discipline checkable rather
-than aspirational.
+The rule: **every statement in intent.md traces to the source or to a
+recorded answer, and there is no third origin** - and this file is where it
+is held. The skill teaches the discipline; the check below is what makes the
+discipline checkable rather than aspirational.
 
 Scenario ids: ING-B1..B4 in
-docs/compass/2026-08-24-ingest-an-existing-brief/acceptance-criteria.md
+ingest-an-existing-brief/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -78,7 +77,7 @@ def test_ing_b3_a_section_with_no_recorded_origin_is_refused(tmp_path):
 
 
 def test_ing_b3b_an_answer_origin_must_name_an_answer_that_exists(tmp_path):
-    """`from: answer` pointing at nothing is the same failure, dressed up.
+    """`from: answer` pointing at nothing is the same failure in another form.
 
     Without this, the origin record becomes a formality: write `from: answer`
     beside anything and the check clears. A citation is only as good as the
@@ -103,7 +102,7 @@ def test_ing_b3c_a_declined_question_may_not_be_cited_as_an_answer(tmp_path):
 
     The sharpest version of the rule. The question was asked, the person
     declined - and material appearing under that section anyway is invention
-    with a paper trail, which is worse than invention without one because it
+    with a record, which is worse than invention without one because it
     looks audited.
     """
     from compass_pkg.ingest import validate_intent_origins
@@ -121,7 +120,7 @@ def test_ing_b3c_a_declined_question_may_not_be_cited_as_an_answer(tmp_path):
 
 
 def test_ing_b3d_a_fully_traced_document_passes(tmp_path):
-    """The control. Without it, a validator that refused everything would pass
+    """The control. Without it, a check that refused everything would pass
     all three tests above while making the feature unusable."""
     from compass_pkg.ingest import validate_intent_origins
 
@@ -143,7 +142,7 @@ def test_ing_b3d_a_fully_traced_document_passes(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_ing_b4_a_declined_section_says_so_and_the_document_stands(tmp_path):
-    """The loop must not become a wall.
+    """Declining every question must still produce a document.
 
     Someone in a hurry, or without the answers to hand, still needs to start.
     A section they declined is recorded as unanswered and says so in words -
@@ -227,12 +226,10 @@ def test_ing_b2_the_skill_requires_asking_rather_than_writing_tbd():
 
 
 def test_ing_b2b_the_skill_steps_aside_when_intake_already_exists():
-    """P0-C's own open question, which this issue is the answer to.
-
-    "Does the elicitation loop annoy experienced users who arrive with a
-    finished PRD? It must step aside instantly when intake already exists."
-    A loop that interrogates someone who already has a complete brief is the
-    failure mode, not a thorough one.
+    """The interview loop must not annoy an experienced user who arrives
+    with a finished intent.md: it must step aside instantly when intake
+    already exists. A loop that interrogates someone who already has a
+    complete document is the failure mode, not a thorough one.
     """
     text = SKILL.read_text(encoding="utf-8").lower()
     assert "step aside" in text or "steps aside" in text, (
@@ -325,7 +322,7 @@ def test_ing_c2c_an_answered_question_no_section_uses_is_surfaced(tmp_path):
 
     The quiet loss: someone was asked, they answered, and the answer never
     landed in a section. Reporting only that the question was asked hides what
-    went missing - and the person who supplied it will assume it is in there.
+    went missing - and the person who gave it will assume it is in there.
     """
     from compass_pkg.ingest import describe_intent_origins
 

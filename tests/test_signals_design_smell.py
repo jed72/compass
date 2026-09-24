@@ -1,4 +1,4 @@
-"""TRC-C4 - signals.yml defines a design_smell advisory category.
+"""signals.yml defines a design_smell advisory category (TRC-C4).
 
 Serves: INT-6
 Spec:
@@ -6,7 +6,7 @@ Spec:
   - it must be a sibling to scope_bloat_phrases
   - it must list at least: tests dominated by mocking/setup,
     assertions on internal method calls
-  - the reviewer agent assesses these at Verify (judgement, never a gate)
+  - the reviewer agent assesses these at the verify stage (judgement, never a gate)
   - schemas/signals.schema.json must accept the design_smell property
 """
 from __future__ import annotations
@@ -86,7 +86,7 @@ def test_signals_schema_accepts_design_smell():
 
 
 def test_signals_yml_validates_against_schema():
-    """The updated signals.yml must validate against its schema."""
+    """The updated signals.yml must pass its schema check."""
     try:
         import jsonschema
     except ImportError:

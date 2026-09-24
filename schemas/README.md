@@ -1,7 +1,7 @@
 # Schemas
 
-Schemas for the three machine-readable Compass files. Each one comes in two
-forms:
+Schemas for the four machine-readable Compass files. Each of the first three
+comes in two forms; `signals.yml` has no readable companion.
 
 | File | Executable schema | Readable companion |
 |---|---|---|
@@ -9,6 +9,7 @@ forms:
 | `governance/guardrails.yml` | `guardrails.schema.json` | `guardrails.reference.yml` |
 <!-- vocabulary-scan: allow - the row names files on disk by their real names -->
 | `.compass/work/<issue>/manifest.yml` | `manifest.schema.json` | `manifest.reference.yml` |
+| `governance/signals.yml` | `signals.schema.json` | none |
 
 **The `.schema.json` files are real, executable JSON Schema** (draft-07) and
 are the authority for structure. **The `.reference.yml` files are the
@@ -18,13 +19,13 @@ the two could be read to differ, the `.schema.json` wins.
 
 ## How validation works
 
-`compass policy lint` and `compass issue lint` validate in two layers:
+`compass policy lint` and `compass issue lint` check in two layers:
 
-1. **The built-in structural linter - always runs.** No dependencies. It is
-   the floor, and it does the one thing JSON Schema *cannot*: cross-check that
-   every guardrail's declared `checks` is actually implemented in the CLI's
-   `CHECK_FNS`. A declared check with no implementation is the integrity hole
-   the linter exists to close - see `governance/guardrails.md`.
+1. **The built-in structural linter - always runs.** No dependencies. It
+   does the one thing JSON Schema *cannot*: cross-check that every
+   guardrail's declared `checks` is actually implemented in the CLI's
+   `CHECK_FNS`. A declared check with no implementation is the gap the
+   linter exists to catch - see `governance/guardrails.md`.
 2. **JSON Schema validation - runs when `jsonschema` is installed.** Fuller
    structural coverage (required keys, enums, nested shapes) against the
    `.schema.json` files. `jsonschema` is an *optional* dependency Compass does
@@ -32,8 +33,7 @@ the two could be read to differ, the `.schema.json` wins.
    plugin (`cli/vendor/yaml/`) instead. If `jsonschema` is absent, the lint
    commands say so and run on the built-in linter alone.
 
-So: `pip install jsonschema` for the full check; the CLI is still useful and
-honest without it.
+So: `pip install jsonschema` for the full check; the CLI works without it.
 
 If you extend a policy file, keep it consistent with both forms and re-run the
 linter.

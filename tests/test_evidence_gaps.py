@@ -1,19 +1,18 @@
 """The evidence chain is as strong as the documents say it is.
 
-Four gaps, each reproduced against HEAD before this file was written:
+Four rules these tests hold:
 
-- `compass tdd-green --scenario X` recorded a green with no red on record for
-  X, and printed "red -> green is on record" with zero red records on disk.
-- An empty `.red` file - a bare `touch` - took the hook from exit 2 to exit 0
-  and unlocked every production file for the issue.
-- The hook refuses on manifest-reader exit 3 and falls through on every other
-  non-zero status, so an ImportError (exit 1) turned the acceptance check into
-  a silent pass. Not visible from the obvious test: with no red on record the
-  later check refuses first and masks it.
-- `stop.sh` exited 127 without python3 instead of degrading.
+- `compass tdd-green --scenario X` refuses when X has no red on record, and
+  must not print "red -> green is on record" with zero red records on disk.
+- An empty `.red` file - a bare `touch` - must not take the hook from exit 2
+  to exit 0 and unlock every production file for the issue.
+- The hook refuses on manifest-reader exit 3 and must not fall through on
+  another non-zero status such as an ImportError (exit 1) and pass the
+  acceptance check silently.
+- `stop.sh` must degrade rather than exit 127 without python3.
 
 Scenario ids: EVG-A1..A3, B1..B3, C1..C3, D1, D2 in
-docs/compass/2026-08-26-evidence-gaps/acceptance-criteria.md
+evidence-gaps/acceptance-criteria.md
 """
 from __future__ import annotations
 
@@ -109,7 +108,7 @@ def test_evg_a1_a_bound_green_needs_a_red_for_the_same_binding(tmp_path):
 
 
 def test_evg_a1b_the_refusal_does_not_claim_a_red_happened(tmp_path):
-    """The original defect was a false sentence, not only a missing check."""
+    """The refusal must not say a red happened."""
     root, _, _ = _project(tmp_path)
     r = _cli(root, "tdd-green", "--issue", "demo", "--scenario", "DEMO-1",
              "--", "true")
@@ -194,7 +193,8 @@ def test_evg_b2_a_real_red_still_unlocks_the_edit(tmp_path):
 
 
 def test_evg_b3_an_edited_record_does_not_unlock_the_edit(tmp_path):
-    """Tamper evidence, not forgery resistance - see requirements-review AMB-1.
+    """Tamper evidence, not forgery resistance - the digest detects edits;
+    it does not resist forgery.
 
     The digest is a plain sha256 with no secret, so a record written from
     scratch with a matching digest still passes. What this catches is a record
@@ -242,7 +242,7 @@ def test_evg_c1_every_reader_failure_refuses(tmp_path, code):
 
 def test_evg_c1b_exit_three_keeps_its_own_message(tmp_path):
     """Exit 3 names a broken install, which is more useful than a generic
-    sentence, and losing that specificity is how this drifted."""
+    sentence."""
     root, _, target = _project(tmp_path, define="full")
     _cli(root, "tdd-red", "--issue", "demo", "--scenario", "DEMO-1", "--", "false")
 
@@ -255,7 +255,7 @@ def test_evg_c1b_exit_three_keeps_its_own_message(tmp_path):
 
 
 def test_evg_c2_a_healthy_install_is_unchanged(tmp_path):
-    """Every change here makes a broken install refuse. None should change a
+    """Every change here makes a broken install refuse. None must change a
     working one."""
     root, _, target = _project(tmp_path)
     _cli(root, "tdd-red", "--issue", "demo", "--scenario", "DEMO-1", "--", "false")

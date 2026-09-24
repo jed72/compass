@@ -1,12 +1,12 @@
 # The review dimensions, one checklist each
 
-Split out of `SKILL.md` because it is reference: you read the checklist for the dimension you are applying, not all of them at once. The skill names which dimensions an approach carries; this says what each asks.
+Reference: read the checklist for the dimension you are applying, not all of them at once. The skill names which dimensions an approach carries; this says what each asks.
 
 ## The review-dimension checklists
 
-Which dimensions apply is set by the route (see the table in `approaches/rubric.md`).
+Which dimensions apply is set by the delivery approach (see the table in `approaches/composition-reference.md`).
 `correctness`, `governance`, `traceability` are on every delivery approach - the
-default guardrails in review form. The route and routing policy can add; they
+default guardrails in review form. The delivery approach and routing policy can add; they
 can never remove those or an `immovable_gate`. (Spike runs none of these - it
 ships nothing, so it has only its own Conclude gate.)
 
@@ -26,32 +26,33 @@ distinct *is* the check:
   clearly separated from the guardrail evidence. A strategy not followed is a
   note, not an automatic gate failure. On a sweep, rename, or cleanup that
   touches many files, this includes whether verification came from a fresh
-  agent rather than the implementer - `governance/strategies.md` `S9` names A new or changed guard is accepted on a demonstrated failure, not a passing test - see `governance/strategies.md` `S10`.
-  the practice.
+  agent rather than the implementer - `governance/strategies.md` `S9` names
+  the practice. A new or changed guard is accepted on a demonstrated
+  failure, not a passing test (`S10`).
 
 **traceability** - Are both chains intact and current - code → scenario →
-intent, and claim → scenario? A break is a no-pass. See the `traceability` skill.
+intent, and claim → scenario? A break is a no-pass. See `traceability.md` in this directory.
 
-**regression** - Does the evidence show nothing previously passing now fails?
-On a multiagent, this is per-stream at the checkpoint gates and *combined* at ship time -
-per-stream green does not imply integrated green.
+**regression** - Does the evidence show nothing that passed before now fails?
+On a multiagent, this is per-subtask at the checkpoint gates and *combined* at ship time -
+per-subtask green does not imply integrated green.
 
-**security** - Full on initiative and Hotfix, scaled to risk on
-Standard, off on quick-fix unless a `touches:` tag stapled it on. OWASP floor;
-dependency-CVE scan where a project security guardrail requires it; evidence is
+**security** - Full on initiative and hotfix, scaled to risk on
+feature, off on quick fix unless a label added it. OWASP floor;
+dependency-CVE scan where a project security guardrail needs it; evidence is
 scan output, not "looks fine."
 
 **clarity** - Is the code and are its tests legible to the next person - names,
-structure, no surprising control flow? Off on quick-fix; deferred to the
-mandatory follow-up on Hotfix. This is also where the writing-voice tells
+structure, no surprising control flow? Off on quick fix; deferred to the
+mandatory follow-up on hotfix. This is also where the writing-voice tells
 named in `skills/compass-runtime/writing-voice.md` are judged - does the
 artifact communicate a decision, or does it narrate the pipeline? Run
 `scripts/voice-tells.py` over the issue's artifacts for the three tells a fixed string can find; a hit is a note and a conversation, never an automatic gate failure.
-This audition is standing, not scoped to any one cycle - `governance/strategies.md`
-`S8` names the calibration sample it is read against.
+This check applies to every issue - the calibration sample it is read
+against is named in `governance/strategies.md` (`S8`).
 
-**claims** - When the product-marketer role is in play (and `verify.claims` is
-an immovable gate, so it is always at least live for the marketer): does every
+**claims** - When the product-marketer role is in play (`verify.claims` is
+an immovable gate, so it applies whenever the marketer takes part): does every
 public claim trace to a *passing* scenario? Evidence is `launch-readiness.md`
 with no red rows.
 

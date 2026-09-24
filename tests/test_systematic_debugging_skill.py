@@ -1,15 +1,15 @@
-"""The systematic-debugging skill (task phase-2-skills-check-and-cli-split).
+"""The systematic-debugging skill (issue phase-2-skills-check-and-cli-split).
 
-Compass has always had `--reassess` for when the terrain was misread. It has
-never said how to *notice*. This skill supplies the signal: three consecutive
-failed fixes means the framing is wrong, not that a fourth fix is needed.
+`--reassess` exists for a misjudged assessment. This skill gives the signal
+to notice one: three failed fixes in a row mean the framing is wrong, not
+that a fourth fix is needed.
 
 These assertions are over prose, which is the weakest kind of scenario Compass
 writes - a skill can satisfy every regex and still be useless. What they can
 enforce is that the method is present, ordered, actionable, and reachable from
 the place the failure actually happens.
 
-Spec: docs/compass/2026-08-03-phase-2-skills-check-and-cli-split/acceptance-criteria.md (TRC-A1..A3).
+Spec: phase-2-skills-check-and-cli-split/acceptance-criteria.md (`TRC-A1`..`A3`).
 """
 from __future__ import annotations
 
@@ -81,7 +81,7 @@ def test_trc_a3_the_skill_should_be_reachable_from_where_the_failure_happens():
         "the description does not say the skill triggers on a failure, so "
         "nothing tells a reader when to load it")
 
-    # and the Build guidance points at it, because that is where a test goes red
+    # and the implement guidance points at it, because that is where a test goes red
     pointers = [ROOT / "commands" / "implement.md",
                 ROOT / "skills" / "tdd-discipline" / "SKILL.md"]
     naming = [p for p in pointers

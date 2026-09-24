@@ -1,7 +1,7 @@
 // Step definitions for cucumber-js.
 //
-// Only this file differs from the other three adapters. The spec, the extract
-// command and the run command are the same four steps in another idiom.
+// Apart from the runner config, only the step bindings differ. The spec, the
+// extract command and the run command are the same four steps in another idiom.
 const { Given, When, Then, Before } = require('@cucumber/cucumber');
 const assert = require('node:assert');
 

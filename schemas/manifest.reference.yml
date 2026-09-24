@@ -2,35 +2,46 @@
 # The manifest. `compass issue lint` enforces this.
 # Notation: (required) / (optional); `type`; [enum] where the set is closed.
 
-task:            # (required) string - the issue slug, matches the directory name
-created:         # (required) string - ISO date the issue was framed
+schema_version:  # (optional, recommended) string - the manifest schema version this file follows
+issue:           # (required) string - the issue slug, matches the directory name
+created:         # (required) string - ISO date the issue was assessed
+status:          # (optional) [active, queued, parked, landed, abandoned] - defaults to active
 
-assessment:        # (required) map - the four-dimension JUDGEMENT assessment (Frame)
+assessment:        # (required) map - the four-dimension JUDGEMENT assessment (assess)
   risk:  # (required) [trivial, contained, cross-cutting, critical]
   familiarity:       # (required) [greenfield, brownfield-mapped, brownfield-unmapped]
   size:     # (required) [atomic, small, standard, large, product]
-  intent:        # (optional) [delivery, exploration]   - defaults to delivery
+  goal:          # (optional) [delivery, exploration]   - defaults to delivery
   urgency:       # (optional) [none, live-defect]        - defaults to none
   role:          # (optional) [engineer, product-owner, product-marketer, designer, qa]
-  touches:       # (optional) list of strings - domain tags (auth, payments, …)
+  labels:        # (optional) list of strings - domain tags (auth, payments, …)
 
-route:           # (optional until approach evaluate) string - the final route name
-orchestration:        # (optional until approach evaluate) string - solo | pair | multiagent | …
-fired_guardrails:# (optional) list of maps {id, kind, rationale, changed[]}
-phases:          # (optional until approach evaluate) map of phase -> weight string
+delivery_approach:  # (optional until approach evaluate) string - the final delivery approach name
+orchestration:       # (optional until approach evaluate) string - solo | pair | multiagent | …
+subtask_ceiling: # (optional) integer or null - how many parallel subtasks the delivery approach permits
+policy_rules_fired: # (optional) list of maps {id, kind, rationale, changed[]}
+stages:          # (optional until approach evaluate) map of stage -> weight string
+
+evidence:        # (optional) list of maps - the typed evidence registry gates reference by id:
+  - id:          #   (required in entry) string - e.g. EV-001 or EV-A1
+    type:        #   (required in entry) [artifact, claim-review, consistency-check,
+                 #     command-output, human-approval, manual-review, migration-plan,
+                 #     rollback-plan, security-review, spike-conclusion, test-run]
+    path:        #   (optional) string - path to the evidence file
+    scenario:    #   (optional) string - the scenario id this evidence is for
 
 gates:           # (optional until approach evaluate) list of maps:
   - id:          #   (required in entry) string - e.g. verify.correctness
     status:      #   (required in entry) [pending, pass, fail]
-    evidence:    #   (optional) string - path, relative to the issue dir, or null
+    evidence:    #   (optional) list of strings, or null - evidence ids from the registry above
 
 scenarios:       # (optional until the define stage) list of maps:
-  - id:          #   (required in entry) string - stable id, e.g. SCN-001
+  - id:          #   (required in entry) string - stable id, e.g. TRC-001
     title:       #   (optional) string
-    intent:      #   (required in entry) string - intent id it traces to
-    tests:       #   (optional until Build/Verify) list of strings - test refs
+    intent:      #   (required in entry) string or list of strings - intent id(s) it traces to
+    tests:       #   (optional until implement/verify) list of strings - test refs
 
-changed_files:   # (optional until Build) list of maps:
+changed_files:   # (optional until implement) list of maps:
   - path:        #   (required in entry) string - the production file path
     scenarios:   #   (required in entry) list of scenario ids it traces to
 
@@ -39,14 +50,23 @@ claims:          # (optional; only when a marketer is in play) list of maps:
     text:        #   (required in entry) string - the public claim
     scenario:    #   (required in entry) string - the backing scenario id
 
-approvals:       # (optional; only when guardrail G5 applies) list of maps:
-  - gate:        #   (required in entry) string
-    approver:    #   (required in entry) string
-    status:      #   (required in entry) [pending, approved]
-    timestamp:   #   (optional) string - ISO 8601
-    evidence:    #   (optional) string
-
-follow_ups:       # (optional) list of maps - work still owed:
+follow_ups:       # (optional) list of maps - work still outstanding:
   - id:          #   (required in entry) string
-    description: #   (required in entry) string
+    description: #   (optional) string
     status:      #   (required in entry) [outstanding, resolved]
+
+reassessments:   # (optional) list of maps - the append-only re-assessment log:
+  - from_route:  #   (required in entry) string - the delivery approach before
+    to_route:    #   (required in entry) string - the delivery approach after
+    reason:      #   (required in entry) string
+    date:        #   (optional) string
+
+artifacts:       # (optional) list of maps - the issue's document registry:
+  - id:          #   (required in entry) string - e.g. ART-INTENT
+    kind:        #   (required in entry) string - what kind of document this is
+    status:      #   (required in entry) string
+    reason:      #   (required in entry) string - why this document exists, or was deliberately not written
+    path:        #   (optional) string - project-root-relative path to the document
+
+# Human approval (guardrail `G5`) is not a separate top-level key: it is a
+# `human-approval` entry in the `evidence:` registry above.

@@ -71,9 +71,7 @@ Run `/compass:specify`, then `/compass:clarify`, `/compass:distribute` and
 The manifest recorded touches: as a list of the domains a change reaches.
 
 When a PRD exists, invoke the product-owner agent. That names the intake
-document by its retired acronym; it lived in innocent_usage.md until
-2026-08-25, when the bare acronym was found on 24 live surfaces
-including the description a user reads in the slash-command menu.
+document by its retired acronym.
 
 Triage writes the issue spine, and every later stage fills its section of the
 spine. The task spine records the assessment; read the spine before you start.

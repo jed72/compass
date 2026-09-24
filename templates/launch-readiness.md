@@ -3,14 +3,14 @@ TEMPLATE: launch-readiness.md
 Produced by: the product marketer via `/compass:position`; completed at ship time.
 Lives at:    docs/compass/<created>-<issue-slug>/launch-readiness.md
 Role in the pipeline: the marketer's GATE artifact. The routing-policy
-role_rule for `product-marketer` requires this file and blocks shipping until
+role_rule for `product-marketer` needs this file and blocks shipping until
 every claim in positioning.md traces to a PASSING scenario. This is where
 the claims→scenario chain is proven before anything ships publicly. The
 `claims` review dimension and the `verify.claims` immovable gate both read
 this file.
 
-Fill every {{PLACEHOLDER}}. A claim with no passing scenario is a no-go,
-full stop - ship refuses to close on it.
+Fill every {{PLACEHOLDER}}. A claim with no passing scenario is a no-go -
+ship refuses to close on it.
 -->
 
 # Launch Readiness - {{ISSUE_SLUG}}
@@ -29,36 +29,36 @@ full stop - ship refuses to close on it.
 
 | Claim # | Claim | Backing scenario id | Scenario passed at Verify? | Cleared to ship? |
 |---|---|---|---|---|
-| C1 | {{from positioning.md}} | {{TRC-id}} | {{[ ] / [x] - from verification-report.md}} | {{[ ] / [x]}} |
-| C2 | {{…}} | {{TRC-id}} | {{[ ]}} | {{[ ]}} |
-| C3 | {{…}} | {{TRC-id}} | {{[ ]}} | {{[ ]}} |
+| CLM-001 | {{from positioning.md}} | {{`TRC-id`}} | {{[ ] / [x] - from verification-report.md}} | {{[ ] / [x]}} |
+| CLM-002 | {{…}} | {{`TRC-id`}} | {{[ ]}} | {{[ ]}} |
+| CLM-003 | {{…}} | {{`TRC-id`}} | {{[ ]}} | {{[ ]}} |
 
-## What is verified vs. not
+## What is checked vs. not
 
-### Verified - cleared to ship
-- {{claim # - backed by a passing scenario}}
+### Checked - cleared to ship
+- {{claim id - backed by a passing scenario}}
 
-### Not verified - may NOT ship
+### Not checked - may NOT ship
 <!-- A claim lands here if: it has no backing scenario, or its scenario
      failed/was not run. Each one is either cut from the launch copy, or
      the issue does not ship. -->
-- {{claim # - reason: no backing scenario / scenario TRC-id failed at Verify}}
+- {{claim id - reason: no backing scenario / scenario `TRC-id` failed at Verify}}
 
 ## Voice & positioning check
 
-- [ ] Every shipping claim respects the voice and word-discipline strategies in `governance/strategies.md`.
-- [ ] No claim overstates what the product can do - the honesty-policy strategy.
+- [ ] Every shipping claim respects the project's voice and positioning strategies in `governance/strategies.md`, if it has any.
+- [ ] No claim overstates what the product can do.
 
 ---
 
 ## Go / No-Go
 
-<!-- The marketer's gate decision. NO-GO if any claim in the "not verified"
+<!-- The marketer's gate decision. NO-GO if any claim in the "not checked"
      list is still in the launch copy. -->
 
 **Decision:** {{GO \| NO-GO}}
 
-**Rationale:** {{e.g. "All three claims trace to passing scenarios; cleared." - or "C2 has no backing scenario; either cut C2 from launch copy or the issue does not ship."}}
+**Rationale:** {{e.g. "All three claims trace to passing scenarios; cleared." - or "CLM-002 has no backing scenario; either cut CLM-002 from launch copy or the issue does not ship."}}
 
 **Decided by:** {{NAME}} on {{DATE}}.
 

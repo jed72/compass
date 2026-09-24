@@ -1,21 +1,14 @@
-"""Slice 8: `compass migrate` - the user-facing wrap around the migration
-core the machine-manifest slice proved on this repository's own archive.
+"""`compass migrate` reports by default; `--apply` makes the change; a second
+apply changes nothing. The v1-to-v2 mapping lives in cli/migrate-map.yml.
 
-Dry-run by default with a human-readable report of what would change;
-`--apply` executes; a second apply is a no-op; and the v1-to-v2 mapping
-lives in the scan-exempt cli/migrate-map.yml, which the migrator consumes -
-so the enforced CLI never carries a v1 spelling in a literal. The 1.x
-fixtures are constructed here: nothing current serves as un-migrated
-input (the archive migrated at the machine-manifest slice), per the recorded
-exception.
+The mapping lives in the scan-exempt cli/migrate-map.yml, which the migrator
+consumes, so the enforced CLI never carries a v1 spelling in a literal. The
+1.x fixtures are constructed here: nothing current serves as un-migrated
+input, because this repository's own archive is already migrated.
 """
 
-# The vocabulary rename landed on 2026-08-25: the assess and plan stages took
-# the names their machine keys, skills and agents already used; `design` went
-# back to the designer; design.md became technical-design.md and prd.md became
-# intent.md. Spines and documents written before still load and resolve
-# (ADR-006), so what moved is the CANONICAL spelling these tests assert - not
-# what the framework computes. Re-pointed, not relaxed.
+# These tests assert the current names (technical-design.md, intent.md).
+# Older manifests and documents still load (ADR-006).
 from __future__ import annotations
 
 import subprocess
@@ -57,7 +50,7 @@ def _run(root, *args):
 
 
 def test_dry_run_reports_and_writes_nothing(tmp_path):
-    """TRC-1: the default run is a report, not a change - it names what
+    """`TRC-1`: the default run is a report, not a change - it names what
     would happen and how to make it happen, and touches nothing."""
     root = _v1_project(tmp_path)
     before = sorted(p.name for p in
@@ -77,16 +70,14 @@ def test_dry_run_reports_and_writes_nothing(tmp_path):
 
 
 def test_apply_migrates_a_v1_tree(tmp_path):
-    """TRC-2: --apply renames the v1 artifacts and rewrites the manifest to
+    """`TRC-2`: --apply renames the v1 artifacts and rewrites the manifest to
     schema 2.0 - keys, values, and filenames."""
     root = _v1_project(tmp_path)
     r = _run(root, "migrate", "--apply")
     assert r.returncode == 0, r.stderr[-400:]
     d = root / ".compass" / "work" / "old-one"
-    # The rename still happens; the destination moved. `migrate` now also
-    # relocates a human document to `docs/compass/<created>-<slug>/` and
-    # registers the path, so the renamed file is asked for through the
-    # resolver rather than looked for beside the manifest.
+    # `migrate` renames the file and moves it to
+    # `docs/compass/<created>-<slug>/`, so ask the resolver for it.
     import sys as _sys
     _sys.path.insert(0, str(REPO_ROOT / "cli"))
     from compass_pkg.core import FOUND, resolve_artifact
@@ -98,7 +89,7 @@ def test_apply_migrates_a_v1_tree(tmp_path):
         assert "docs/compass" in path.replace("\\", "/"), (
             f"{kind} was renamed but not relocated: {path}")
     assert not (d / "route.md").exists()
-    # TRC-E5 leaves a pointer at this one name, so an install predating the
+    # `TRC-E5` leaves a pointer at this one name, so an install predating the
     # artifact registry is not locked out of every code edit. A pointer holds
     # the new path and nothing else, so it is not the record left behind.
     left = (d / "delivery-approach.md").read_text(encoding="utf-8")
@@ -113,7 +104,7 @@ def test_apply_migrates_a_v1_tree(tmp_path):
 
 
 def test_second_apply_is_a_no_op(tmp_path):
-    """TRC-3: idempotent - the second apply changes nothing and says so."""
+    """`TRC-3`: idempotent - the second apply changes nothing and says so."""
     root = _v1_project(tmp_path)
     _run(root, "migrate", "--apply")
     d = root / ".compass" / "work" / "old-one"
@@ -127,7 +118,7 @@ def test_second_apply_is_a_no_op(tmp_path):
 
 
 def test_mapping_lives_in_the_exempt_data_file():
-    """TRC-4: the artifact map is data in cli/migrate-map.yml, and the
+    """`TRC-4`: the artifact map is data in cli/migrate-map.yml, and the
     migration module consumes it - the enforced CLI never spells a v1
     name in a literal that teaches."""
     data = yaml.safe_load(
@@ -143,10 +134,10 @@ def test_mapping_lives_in_the_exempt_data_file():
 
 
 def test_apply_migrates_the_shape_value(tmp_path):
-    """Review fix on the slice-8 PR: a migrated manifest must speak the v2
-    change-type value, not the v1 shape name - all five cases, with
-    hotfix and spike keeping their spelling. The normalizer and the
-    receipt's display layer agree with the migrated output."""
+    """A migrated manifest must speak the v2 change-type value, not the v1
+    shape name - all five cases, with hotfix and spike keeping their
+    spelling. The normaliser and the receipt's display layer agree with the
+    migrated output."""
     cases = {"express": "quick-fix", "standard": "feature",
              "expedition": "initiative", "hotfix": "hotfix",
              "spike": "spike"}
@@ -173,7 +164,7 @@ def test_apply_migrates_the_shape_value(tmp_path):
 
 
 def test_report_pluralises_properly(tmp_path):
-    """Review fix: '1 issue directorie(s)' is not a sentence."""
+    """'1 issue directorie(s)' is not a sentence."""
     root = _v1_project(tmp_path)
     r = _run(root, "migrate")
     assert "directorie(s)" not in r.stdout, r.stdout

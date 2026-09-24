@@ -6,9 +6,8 @@ description: "The stage-to-command map: which command runs each pipeline stage, 
 # Compass - the stage map
 
 The rules of behaviour are in `compass-contract.md`, and the SessionStart hook
-puts them in every session before you read this. They are not repeated here:
-they used to be, and the two copies drifted until this skill was naming nine
-agents where the contract named ten.
+puts them in every session before you read this. They are not repeated here,
+so the two cannot disagree.
 
 What this file carries is the mapping a session needs once it is already
 following the contract - which command runs which stage, what each writes,
@@ -52,10 +51,10 @@ pointer (ADR-024). `governance/terminology.yml` names each retired word beside
 the one that replaced it, and `docs/glossary.md` says the same in prose; the
 current verbs are whatever `compass --help` lists.
 
-**The binding decides the filename.** `compass tdd-red --scenario TRC-x` and
-`compass tdd-green --scenario TRC-x` write `evidence/red-TRC-x.json` and
-`evidence/green-TRC-x.json`; a run with no `--scenario` writes
-`evidence/red.json` and `evidence/green.json`. Nothing else is touched, so
+**The binding decides the filename.** `compass tdd-red --scenario <id>` and
+`compass tdd-green --scenario <id>` write `evidence/red-<id>.json` and
+`evidence/green-<id>.json`; a run with no `--scenario` writes
+`evidence/red.json` and `evidence/green.json` instead. Nothing else is touched, so
 recording one scenario cannot overwrite the record another gate is citing -
 and a reader knows where their evidence went without guessing.
 
@@ -77,7 +76,7 @@ and a reader knows where their evidence went without guessing.
   comments.
 - **An unexpected test failure while implementing** - load
   `systematic-debugging`, and after three failed fixes re-assess rather than
-  attempt a fourth.
+  try a fourth.
 - **Role-facing work** - load `intent-interview` and read its
   `role-translation.md`, which is how one set of
   acceptance criteria is read through five role perspectives. The
@@ -86,8 +85,7 @@ and a reader knows where their evidence went without guessing.
 - `evidence-gates` carries `traceability.md`, read whenever an artifact is
   written.
 
-The full set is in `agents/`. Read there rather than trusting a list in prose:
-this one has been wrong before.
+The full set is in `agents/`. The files in `agents/` are the authority.
 
 ## Worktrees and multiagent
 
@@ -128,12 +126,17 @@ framework's shipped defaults otherwise.
 
 ## Writing voice
 
-Before writing a devlog entry, a requirements review, or anything else this
-skill produces, read `skills/compass-runtime/writing-voice.md` - the
-skill produces, read `text-sweeps.md` - what a text sweep must not touch.
-principle and the tells that mark prose narrating the pipeline instead of
-communicating a decision. `writing-voice-worked-example.md` beside it carries
-the before-and-after pairs from this project's own archive, for when the
+Before you write:
+
+- a devlog entry, a requirements review, or anything else this skill
+  produces - read `skills/compass-runtime/writing-voice.md`, the principle
+  and the tells that mark prose narrating the pipeline instead of
+  communicating a decision;
+- a repository-wide replacement - read `text-sweeps.md`, what a text sweep
+  must not touch.
+
+`writing-voice-worked-example.md` beside `writing-voice.md` carries the
+before-and-after pairs from this project's own archive, for when the
 principle alone does not settle a sentence.
 
 ## When you are unsure

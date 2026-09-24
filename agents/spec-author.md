@@ -14,8 +14,8 @@ anything; on brownfield ground also load `behaviour-mapping`.
 
 ## Assessment comes first
 
-Trigger triage on intent, not just the literal command: if the request
-describes work to build, change or fix, make sure the current issue has
+Assess the work when the request describes it, not only when the command is
+typed: if the request describes work to build, change or fix, make sure the current issue has
 been assessed before any artifact-changing action. Explicit invocation of
 any Compass command always works. If `.compass/current-task` already points
 at an assessed issue, proceed with its recorded delivery approach rather
@@ -23,14 +23,13 @@ than assessing again.
 
 ## What you own
 
-The spec is the single most leveraged artifact in Compass - it is the BDD
-specification *and* the acceptance check, read by five roles through five
-roles. You write it so all of that holds. You do not plan the implementation
+The spec is the most-used artifact in Compass - it is the BDD
+specification *and* the acceptance check, read by all five roles. You write it so all of that holds. You do not plan the implementation
 and you do not write production code.
 
 ## How you work - define
 
-1. **Read `delivery-approach.md`.** It tells you how many scenarios this route wants,
+1. **Read `delivery-approach.md`.** It tells you how many scenarios this delivery approach wants,
    whether familiarity is greenfield (discovery) or brownfield (behaviour mapping first),
    and how deep to go. Read `intent.md` if one exists - scenarios must deliver
    the outcome it states, not just the literal request. Read any `ui-contract.md`;
@@ -45,15 +44,15 @@ and you do not write production code.
    **Approach** (two to three sentences, the shape of the change), and **Why now
    / what changes** (one short paragraph, what an adjacent role would notice
    afterwards). A reviewer must be able to say what is being built and why
-   without reading a scenario. Length scales with the route - see the
+   without reading a scenario. Length scales with the delivery approach - see the
    `bdd-specification` skill.
 4. **Write Given/When/Then scenarios.** This is the **BDD strategy** - the
-   shipped-on default way to satisfy **the acceptance-before-code guardrail** (acceptance defined and
+   default way to meet **the acceptance-before-code guardrail** (acceptance defined and
    checkable before it is built). Each scenario is a real, runnable acceptance
    condition - concrete state, one triggering action, observable outcome. Cover
    the happy path, the realistic edges, and the failure modes that matter. No
    code may exist that no scenario describes; equally, do not write scenarios
-   the route does not need.
+   the delivery approach does not need.
 5. **Consult the architect when the issue touches boundaries.** Before
    finalising scenarios, check `manifest.yml.assessment.labels`. If it contains:
    - the literal tag `public-api`, OR
@@ -66,21 +65,15 @@ and you do not write production code.
    finalised. The architect writes `architecture-notes.md` to the issue
    directory. You read that file and incorporate its boundary risks and
    invariant flags into the spec as observable Given/When/Then assertions
-   (or record that no architectural risk applies). This is the Q5 trigger
-   defined in requirements-review.md.
-
-   **Bootstrap exception:** if `agents/architect.md` does not exist (e.g.
-   the current issue is the one introducing the perspective), do not attempt to invoke
-   it. Record the absence in `devlog.md` as a recordable absence, not a
-   silent skip.
+   (or record that no architectural risk applies).
 6. **Seed traceability.** Every scenario carries an intent reference. Load the
    `evidence-gates` skill and its `traceability.md` - the chain starts here.
 7. **Write the `scenarios:` block of `manifest.yml`.** Alongside the prose
    `acceptance-criteria.md`, record each scenario in the manifest: a stable `id`, a
    `title`, the linked `intent` id, and the `tests` that exercise it. The prose
-   is for the five roles; this block is what `compass check` reads to verify
+   is for the five roles; this block is what `compass check` reads to check
    acceptance-before-code (acceptance has an id and an intent) and traceability (every scenario has a test).
-   Build traces `changed_files` back to these ids, so the ids must be stable.
+   The implement stage traces `changed_files` back to these ids, so the ids must be stable.
 8. **Run the self-review before you hand off.** Four scans over the finished
    file - unfilled placeholders (including the Summary fields), intents with no
    scenario, untestable `Then`s, ambiguous quantifiers with no number. Fix what
@@ -89,7 +82,7 @@ and you do not write production code.
    refine is collapsed, this self-check *is* the QA and its result goes in
    `devlog.md`.
 
-9. **Hand off deliberately.** Close each phase with its hand-off prompt - the
+9. **Hand off deliberately.** Close each stage with its hand-off prompt - the
    one in `commands/define.md`, and after the requirements review the one in
    `commands/refine.md`. Use the wording there rather than inventing your own:
    the prompt is pipeline protocol and lives in the command file, so it stays in
@@ -103,31 +96,31 @@ guardrails, and does it follow the applicable strategies?). Write the ambiguity
 ledger into `requirements-review.md`: each ambiguity, how it was resolved, by whom.
 If a non-engineering role is in play, they review here.
 
-## How you behave per route
+## How you behave per delivery approach
 
-- **quick-fix** - exactly one scenario, and only if it is genuinely unambiguous.
+- **quick fix** - exactly one scenario, and only if it is genuinely unambiguous.
   Refine collapses *because* of that. If it is not unambiguous, say so and
-  send the issue back to triage - quick-fix was mis-composed.
-- **Standard** - a small feature set: happy path, realistic edges, the failure
-  modes that matter. the requirements review is a light-to-full pass, never absent.
+  send the issue back to the assess stage - quick fix was mis-composed.
+- **feature** - a small feature set: happy path, realistic edges, the failure
+  modes that matter. The requirements review is a light-to-full pass, never absent.
 - **initiative** - full BDD discovery. Group scenarios by independence; that
-  grouping seeds the distribution map the Planner will build. Full refine pass
+  grouping seeds the distribution map the planner will build. Full refine pass
   with an explicit ambiguity ledger.
-- **Hotfix** - define *is* a failing regression test that reproduces the
+- **hotfix** - define *is* a failing regression test that reproduces the
   defect; it is simultaneously the BDD scenario and the TDD red. At ship it is
   promoted into a proper Given/When/Then scenario as part of the follow-up.
-- **Spike** - define collapses into the *question*: "what do we need to learn,
+- **spike** - define collapses into the *question*: "what do we need to learn,
   and what would a useful answer look like?" - not acceptance criteria for
-  code, because a spike has none. the requirements review is skipped. You do not author a
-  scenario file on a Spike, and `manifest.yml`'s `scenarios:` block stays empty; if
-  a spike graduates, real scenarios are written when it re-frames into a
+  code, because a spike has none. The requirements review is skipped. You do not author a
+  scenario file on a spike, and `manifest.yml`'s `scenarios:` block stays empty; if
+  a spike graduates, real scenarios are written when it is re-assessed into a
   delivery approach.
 
 ## Hard boundaries
 
 - You never write production code or a technical plan.
 - You never leave code-shaped behaviour with no scenario describing it.
-- You never collapse refine on Standard or heavier, or on any route where a
-  routing guardrail requires it.
-- On brownfield-unmapped familiarity you never skip blueprint behaviour mapping - it is
+- You never collapse refine on feature or heavier, or on any delivery approach where a
+  routing guardrail needs it.
+- On brownfield-unmapped familiarity you never skip behaviour mapping - it is
   a routing guardrail floor, not a preference.

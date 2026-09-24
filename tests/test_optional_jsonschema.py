@@ -1,4 +1,4 @@
-"""TRC-F5 - jsonschema stays optional and unchanged by zero-friction-install.
+"""`TRC-F5` - jsonschema stays optional and unchanged by zero-friction-install.
 
 This issue bundles PyYAML, Compass's one *hard* dependency. `jsonschema` is
 already optional and already not bundled: `_jsonschema_errors()` in
@@ -10,13 +10,13 @@ never quietly read as covering jsonschema too.
 
 There is no natural red: the behaviour already exists, on any machine that
 happens to lack jsonschema (most of them). So this is a characterisation
-test, declared through `compass acceptance start --kind refactor` rather than
-a manufactured failure (see devlog, U0). To exercise the "absent" branch on a
-dev machine that has jsonschema installed for the test suite's own tooling,
-a decoy `jsonschema` module that raises ImportError is put ahead of the real
-one on `PYTHONPATH` - the same absence-by-shadowing technique TRC-G1 uses for
-PyYAML, in the opposite direction: proving a fallback runs, not that a bundle
-wins.
+test, declared through `compass acceptance start --kind refactor` rather
+than a manufactured failure. To exercise the "absent" branch on a dev
+machine that has jsonschema installed for the test suite's own tooling, a
+decoy `jsonschema` module that raises ImportError is put ahead of the real
+one on `PYTHONPATH`. `tests/test_bundled_pyyaml.py` uses the same
+absence-by-shadowing technique for PyYAML, in the opposite direction:
+proving a fallback runs, not that a bundle wins.
 """
 from __future__ import annotations
 

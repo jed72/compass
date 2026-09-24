@@ -1,16 +1,16 @@
 # =============================================================================
 # TEMPLATE: manifest.yml  -  the manifest
-# Produced by: triage (creates it), then every later stage fills its part.
+# Produced by: the assess stage (creates it), then every later stage fills its part.
 #              Lives at: .compass/work/<issue-slug>/manifest.yml
 # =============================================================================
 # manifest.yml is the structured counterpart to the prose artifacts
 # (delivery-approach.md, acceptance-criteria.md, technical-design.md, …). The prose is
 # for humans; this is for the CLI. `compass approach evaluate` reads
 # `assessment` and writes `delivery_approach`/`stages`/`gates`;
-# `compass check` reads the rest and verifies the guardrail checks.
+# `compass check` reads the rest and checks the guardrails.
 #
 # It is NOT extra process weight you hand-author. Each stage's command/agent fills
-# its section as a by-product of doing the stage - triage writes the
+# its section as a by-product of doing the stage - the assess stage writes the
 # assessment, the acceptance stage adds scenarios, implementation adds
 # changed_files, and so on. On a quick fix this file stays tiny.
 # `compass issue lint` checks it is well-formed.
@@ -28,7 +28,7 @@ status: active            # lifecycle: active (in-flight) | queued (next up,
                           # landed (complete) | abandoned (will not resume)
 
 # --- the delivery approach ---------------------------------------------------
-# `assessment` is JUDGEMENT - triage (an LLM or a human) produces it.
+# `assessment` is JUDGEMENT - the assess stage (an LLM or a human) produces it.
 # Everything below `assessment` is MECHANICAL - the evaluator
 # (`compass approach evaluate --write`) computes it deterministically from
 # `assessment` + routing-policy.yml.
@@ -44,14 +44,14 @@ assessment:
 delivery_approach: null      # filled by the evaluator (--write)
 orchestration: null               # filled by the evaluator
 policy_rules_fired: []       # filled by the evaluator - [{id, kind, rationale, changed}]
-stages: {}                   # filled by the evaluator - {frame: full, specify: light, …}
+stages: {}                   # filled by the evaluator - {assess: full, define: light, …}
 
 # --- evidence (the registry) -----------------------------------------------
 # A typed, id-tagged registry of every piece of evidence this issue has.
 # Built incrementally: `compass tdd-green --scenario TRC-... -- <cmd>` appends
 # a `test-run` entry; reviews and approvals are added by their stage/agent.
 # Gates below reference these entries by id - multiple gates can share one
-# piece of evidence, and `compass check` verifies the *type* each gate
+# piece of evidence, and `compass check` checks the *type* each gate
 # accepts. Types declared in governance/guardrails.yml.
 evidence: []
 #  - id: EV-001
@@ -62,13 +62,13 @@ evidence: []
 
 # --- gates -----------------------------------------------------------------
 # Seeded by the evaluator (status: pending). Each stage updates the gates it
-# clears. `compass check` verifies every `pass` gate references evidence in
+# clears. `compass check` checks that every `pass` gate references evidence in
 # the registry above, of a type that gate accepts. Flip a gate with
-# `compass gate pass <id> --evidence <ids>`, which validates the type at
+# `compass gate pass <id> --evidence <ids>`, which checks the type at
 # write time and rejects a mismatch.
-# On `--write` each seeded gate is annotated with an `# accepts: [...]`
-# comment naming the evidence types it will accept - so the author knows the
-# accepted types up front, not by trial at `compass check`.
+# On `--write`, each seeded gate gets an `# accepts: [...]` comment. It
+# names the evidence types the gate accepts, so the author knows them
+# before running `compass check`.
 #   accepts (from guardrails.yml gate_evidence_requirements):
 #     verify.correctness -> [test-run]
 #     verify.regression  -> [test-run]
@@ -86,7 +86,7 @@ gates: []
 scenarios: []
 #  - id: TRC-001
 #    title: "Finance exports the month-end ledger"
-#    intent: INT-1            # traces to intent.md / the triage request
+#    intent: INT-1            # traces to intent.md / the issue description
 #    tests:
 #      - "tests/api/test_ledger_export.py::test_excludes_drafts"
 
@@ -113,22 +113,22 @@ claims: []
 # zero.
 # repairs: the-issue-this-fixes
 
-# --- follow_ups (owed process weight - e.g. a hotfix's, or a de-scoped artifact) --
-# `compass check` fails while any follow-up is owed. Shipping refuses to
+# --- follow_ups (work deferred - e.g. a hotfix's, or a de-scoped artifact) --
+# `compass check` fails while any follow-up is outstanding. Shipping refuses to
 # close the issue.
 follow_ups: []
-#  - id: BF-001
+#  - id: FU-001
 #    description: "Promote the reproduction test into a real scenario"
-#    status: "{{owed | paid}}"
+#    status: "{{outstanding | resolved}}"
 
-# --- reassessments (triage's feedback signal) --------------------------------
+# --- reassessments (the assess stage's feedback signal) ----------------------
 # Append-only. `compass approach evaluate --write` adds an entry here whenever
 # it computes a delivery approach that differs from the one already recorded
 # - i.e. a re-assessment. `compass retro` aggregates these across all
-# issues: a pattern of "up" re-assessments means triage is systematically
-# under-sizing and the routing policy (or the triage rubric) needs tuning. A
-# re-assessment is a normal event; an unexamined pattern of them is the
-# failure.
+# issues: a pattern of "up" re-assessments means assessment is systematically
+# under-sizing and the routing policy (or the assessment rubric) needs
+# tuning. A re-assessment is a normal event; an unexamined pattern of them
+# is the failure.
 reassessments: []
 #  - from_route: express
 #    to_route: standard
@@ -146,4 +146,4 @@ friction: []
 #                                # missing-strategy | tooling | docs | other
 #    observation: "The full requirements review added a gate the change didn't need."
 #    proposed_change: "routing-policy.yml: lower the review weight for size=small."
-#    source: derived             # derived (auto) | human (author-supplied)
+#    source: derived             # derived (auto) | human (given by the author)

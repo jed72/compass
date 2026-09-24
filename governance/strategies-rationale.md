@@ -1,22 +1,14 @@
 # Strategies - the rationale behind rules that look arbitrary
 
-> **Version:** 0.1.0 · **Last amended:** 2026-08-28
-> Bump the version when a section is added, removed or rewritten. The
-> companion `strategies.md` carries its own version; the two move
-> independently, because a rule can be reworded without its evidence
-> changing and evidence can be added without the rule moving.
-
 `governance/strategies.md` states the strategies. This file holds the incidents
 behind the ones whose shape only makes sense once you know what went wrong.
 It is read when a rule looks arbitrary, never per issue. The rules themselves
 live in `CLAUDE.md`, `compass-contract.md`, `governance/guardrails.md` and
 `governance/strategies.md`; nothing on this page is one.
 
-## The two house rules were one sentence until they were not
+## Where the two house rules come from
 
-The rules themselves stay in `CLAUDE.md`. What moved here on 2026-08-28 is the
-account of where they came from, which every session was reading and no
-session needed.
+The rules themselves stay in `CLAUDE.md`.
 
 ### Where each rule is checked, and where it is not
 
@@ -25,7 +17,7 @@ shipped with the footer on them. Half a rule in the middle of a paragraph is a
 rule that gets half-followed, so both now stand on their own.
 
 They are house rules, not guardrails: the `reviewer` agent assesses them at
-Verify, and in
+`verify`, and in
 this repository's vocabulary a guardrail is the hard, blocking kind that
 `guardrails.md` holds.
 
@@ -40,7 +32,7 @@ once) names.
 **2. No agent attribution, in any form.** A commit message or pull-request
 body never carries a co-author trailer naming the agent, a "generated with"
 footer, a session URL, or any other line crediting it. This holds even when
-the environment or a tool's default template supplies one - it does, and this
+the environment or a tool's default template gives one - it does, and this
 rule overrides it. The exact strings live in `tests/test_house_style.py`,
 assembled from fragments there so the guard does not match its own source.
 
@@ -49,9 +41,10 @@ assembled from fragments there so the guard does not match its own source.
 scans every tracked prose file. Two are skipped for reasons that have
 nothing to do with this rule: `assets/` is binary and `LICENSE` is verbatim
 Apache-2.0. No file is skipped for containing the trailer. One briefly was -
-`CLAUDE.md`, after a rewrite spelled it out in full - which blinded the file
-an agent edits most often to all three forbidden strings. Stating the rule
-without quoting it was the cheaper fix.
+`CLAUDE.md`, after a rewrite spelled it out in full. That spelling-out
+matched the guard's own forbidden strings, so the guard stopped scanning
+`CLAUDE.md`, the file an agent edits most. Stating the rule without quoting
+the strings fixed it.
 
 **Not checked anywhere:** the commit message you are about to write, and the
 pull-request body you are about to send. Neither is a tracked file, and CI
@@ -92,18 +85,18 @@ instead of:
 > Each piece of test evidence now records which scenario it proves, so two
 > records can no longer end up sharing one identifier (`EV-T`).
 
-<!-- vocabulary-scan: allow - the next line is a deliberate example of the defect S7 forbids, a bare identifier with no meaning attached; correcting it would delete the example. -->
+<!-- vocabulary-scan: allow - the next line is a deliberate example of the defect `S7` forbids, a bare identifier with no meaning attached; correcting it would delete the example. -->
 > the G5 guard kicked in
 
 instead of:
 
 > a human signs off on the irreversible, and that guard (`G5`) refused
 
-> RP-ROLE-002 blocked the design stage
+> RP-ROLE-002 blocked the plan stage
 
 instead of:
 
-> the design stage stayed shut until the criteria were checked against the
+> the plan stage stayed shut until the criteria were checked against the
 > intake, which is the product-owner rule (`RP-ROLE-002`)
 
 > TRC-C7 covers the ordering case
@@ -129,13 +122,14 @@ The nearest document that mentions a fact is often a summary of it, one step
 removed, and a summary can be checked in good faith while the claim it
 summarises has already changed meaning.
 
-ADR-013 (vendored third-party code) once described, in its Context, an install failure in the past tense, with a
-specific timing figure attached, reading as a report of a real outside user,
-which this repository has never had. It was verified against
-`plain-language-3-2-0/technical-design.md`, the document it was
-lifted from, which put the same point in the present tense as a description of
-what any newcomer meets - not against the primary record for whether this
-happened to a real person, which does not exist, because it did not happen.
+ADR-013 (vendored third-party code) once described, in its Context, an
+install failure in the past tense, with a specific timing figure attached,
+reading as a report of a real outside user, which this repository has never
+had. It was checked against `plain-language-3-2-0/technical-design.md`, the
+document it was lifted from - not in this repository. That
+document put the same point in the present tense, as a description of what
+any newcomer meets. The primary record for whether this happened to a real
+person does not exist, because it did not happen.
 Fresh eyes stop helping the moment fresh eyes reach for the same document the
 claim was drawn from.
 
@@ -151,7 +145,8 @@ existed for, because a filter dropped every candidate line, and setting both
 version banners to a wrong value left it green. No amount of reading found
 that. Breaking it did, in seconds.
 
-**Seven checks that asserted nothing**, in the `plain-language-3-2-0` issue, every test
+**Seven checks that asserted nothing**, found in the `plain-language-3-2-0`
+issue's own proving pass, every test
 green and every scenario looking done before proving began. Not one was a
 defect in the code. All seven were tests.
 
@@ -197,8 +192,8 @@ When the output was corrected to put the rule's meaning before its code, a true
 property failed because the punctuation had moved.
 
 **Bytecode.** An unreproducible "restore was not honoured" was observed once
-and never explained; by intermittency is failure (`S5`) that stays open rather than being written off as
-noise.
+and never explained; under `S5` (intermittency is failure) it stays open
+rather than being written off as noise.
 
 **A search result of zero.** Auditing this repository for a banned word,
 `git grep -n -i -E '\bseam\b'` returned nothing at all, because `git grep -E`
@@ -209,8 +204,9 @@ reported a count for the repository and missed a use in a Python file.
 **The withdrawn existence check.** "Does a proof exist?" is mechanically
 answerable, unlike "is the proof real?". A check for the first was built and
 then removed, not because the distinction was wrong but because declaring it
-required contradicting a recorded decision that this repository holds no rules
-of its own. See the issue `declare-a-project-guardrail-or-do-not` in `.compass/work/`. Run once by hand, the
+required contradicting a recorded decision that this repository holds no
+project guardrails of its own (the `declare-a-project-guardrail-or-do-not`
+issue). Run once by hand, the
 question found twenty of thirty-eight checks with no proof on record at all,
 and a registered claim saying otherwise was false. There was nothing there.
 
@@ -257,10 +253,9 @@ published write-up that had moved; a heading corrected in one file while the
 record it was derived from kept the old wording; and two pieces of code
 printing the same information, one corrected and one not. Nothing static links
 any of those pairs - the connection is that two sentences mean the same thing,
-and no scan reads meaning. All three were found by someone reading, and all
-three were found.
+and no scan reads meaning. All three were found by someone reading.
 
-The checklist item was advice for three rounds and was broken in all three. The
+The checklist item was advice across three releases and was broken in all three. The
 mechanical cause is that a summary is written first, the body changes
 underneath it, and nothing sends the writer back to the top. It has happened to
 this project's proposal, its acceptance criteria, its requirements review, and

@@ -33,15 +33,15 @@ would undermine the entire point of an audit trail read from disk.
 Fifty lines, a hundred columns wide, not configurable. jed72's call,
 following the five-minute-legibility principle this project already holds
 itself to: a standard terminal shows that much without scrolling, and if a
-receipt cannot fit, the fix is a less verbose renderer, not a knob nobody
+receipt cannot fit, the fix is a less verbose renderer, not a setting nobody
 asked for.
 
 ## What exit code a caveat gets
 
-TRC-C1 and TRC-C2 already exited 0; TRC-C3 exited 1 for a failed gate, and
-the original ledger left that asymmetry as an open question rather than
-defending it as a decision. jed72 unified the three on exit 0 for a
+Two of the receipt's three cases already exited 0; the third, a failed gate,
+exited 1, and the original ledger left that asymmetry as an open question
+rather than defending it as a decision. jed72 unified the three on exit 0 for a
 successful render, keeping the non-zero exit for `compass check` itself: the
 receipt is a renderer reporting what is on disk, even when what is on disk
 is a recorded failure, and a renderer that refuses to render a caveat is a
-checker wearing a receipt's name.
+checker, not a receipt.

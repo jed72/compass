@@ -9,8 +9,8 @@ choice made, the alternatives considered, and the consequences.
 
 Architectural decisions tend to be made once and then forgotten.  Six months
 later, a new team member asks "why do we do it this way?" and no one remembers.
-ADRs make the *why* a first-class, searchable artifact.  They also give the
-`architect` agent a corpus to cite rather than re-litigating decisions
+ADRs make the *why* a searchable record.  They also give the
+`architect` agent a corpus to cite rather than reopening decisions
 that were already made deliberately.
 
 ## Numbering
@@ -23,7 +23,7 @@ ADRs are numbered sequentially (`ADR-001`, `ADR-002`, ...).  Use
 time they may each produce an `ADR-NNN` with the same number.  This surfaces
 as a normal git merge conflict on this README at integration.  The orchestrator
 resolves it by renumbering one side.  This is deliberate - sequential numbers
-matter more than collision-freedom (see ADR-001 for the decision).
+matter more than collision-freedom.
 
 ## Supersession
 
@@ -41,5 +41,5 @@ The chain is navigable: `superseded_by` and `supersedes` form a linked list.
 | [ADR-001](ADR-001-architecture-directory-location.md) | Architecture Directory Location | accepted |
 | [ADR-002](ADR-002-architecture-loaded-yml-schema.md) | Architecture-Loaded Yml Schema | accepted |
 | [ADR-003](ADR-003-inline-tag-dod-syntax.md) | Inline Tag Dod Syntax | accepted |
-| [ADR-004](ADR-004-lens-first-planner-second.md) | Lens First Planner Second | accepted |
+| [ADR-004](ADR-004-lens-first-planner-second.md) | Architect First Planner Second | accepted |
 | [ADR-005](ADR-005-signals-yml-governance-file.md) | Signals Yml Governance File | accepted |

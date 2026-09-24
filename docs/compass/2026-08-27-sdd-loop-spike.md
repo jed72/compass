@@ -1,7 +1,7 @@
 # Spike conclusion - the subagent-driven-development loop
 
 > **Author:** jed72 · **Date:** 2026-08-27
-> **Issue:** `sdd-loop-spike` (parent brief:
+> **Issue:** `sdd-loop-spike` (parent intent document:
 > `docs/compass/2026-08-26-first-hour-intent.md`, INT-7)
 > **Question:** which parts of Superpowers' subagent-driven-development loop
 > should Compass's orchestrator/builder protocol adopt, which should it not,
@@ -34,13 +34,15 @@ one, and is written repo-first so it stays openable: read it at
 On the Compass side: `skills/worktree-multiagent/SKILL.md` (139),
 `agents/orchestrator.md` (74), `agents/builder.md` (102),
 `scripts/multiagent.sh` (13,353 bytes), `scripts/integrate.sh` (11,144 bytes),
-and the archive of 28 issues whose breakdown stage was a multiagent.
+and the archive of 28 issues whose breakdown stage was a multiagent
+orchestration.
 
 ## The premise, checked
 
-The brief opens: "Compass's orchestrator/builder protocol runs builders in
-parallel across worktrees, which Superpowers cannot do." That is two claims,
-and measuring them changes what this spike is about.
+This spike set out to test the premise that Compass's orchestrator/builder
+protocol runs builders in parallel across worktrees, which Superpowers
+cannot do. That is two claims, and measuring them changes what this spike is
+about.
 
 ### Compass does run builders in parallel - it has, for real
 
@@ -52,7 +54,7 @@ and 107 tests on the first three - and `integrate.sh` merged them with a
 combined regression of 161/161. Twenty-eight issues in the archive carry a
 multiagent breakdown.
 
-The run also found a real defect in the first attempt: `multiagent.sh` read the
+The run also found a real defect in the first try: `multiagent.sh` read the
 distribution map's branch-name cell verbatim, so branch names wrapped in
 markdown backticks produced git branches containing literal backticks. Git
 accepted them. The worktrees were torn down and recreated.
@@ -88,16 +90,17 @@ implementation, because its workers share one workspace - its
 its first instruction is "detect existing isolation first... Do NOT create
 another worktree."
 
-**Compass's differentiator is not a capability Superpowers lacks. It is a bet
-Superpowers considered and declined**: that one worktree per subtask makes
-parallel implementers safe. The `cross-task-architectural-integrity` run is
-one data point that the bet pays. One.
+**Compass's differentiator is not a capability Superpowers lacks. It is a
+design choice Superpowers considered and rejected**: that one worktree per
+subtask makes parallel implementers safe. The
+`cross-task-architectural-integrity` run is one data point that it works.
+One.
 
-That is worth saying plainly because it changes the posture of everything
+That is worth saying plainly because it changes how to read everything
 below. Compass is not catching up to a more mature loop. It is running an
 experiment the other framework decided against, with a sample size of
-roughly one, against a loop that was shaped by donated sessions and eval
-campaigns with published numbers.
+roughly one, against a loop shaped by donated sessions and eval campaigns
+with published numbers.
 
 ## The mechanism walk
 
@@ -109,28 +112,28 @@ Fifteen mechanisms, each marked against `worktree-multiagent`,
 | 1 | File-based briefs and reports | **adopt** | Compass hands assignments as prose in a dispatch; nothing bounds what a session pastes. |
 | 2 | Recorded base SHA before dispatch | **adopt** | Compass records no base SHA anywhere except `integrate.sh`'s merge-base. |
 | 3 | Review package as a file | **adopt** | The verifier and reviewer re-derive the diff themselves, in the controller's context. |
-| 4 | Ban on the controller coaching reviewers | **adopt** | Nothing in Compass forbids pre-judging a review, and this session did exactly that kind of thing while verifying its own sweep. |
+| 4 | Ban on the controller coaching reviewers | **adopt** | Nothing in Compass forbids pre-judging a review, and this session did exactly that kind of thing while checking its own sweep. |
 | 5 | Five-round fix breaker with adjudication | **adapt** | Compass has no fix loop at all - the reviewer renders a verdict and the protocol stops there. |
 | 6 | Rulings, not stalls | **reject as written; adapt the ledger half** | Compass's stop conditions are guardrails, and a guardrail is not a thing an agent rules past. |
 | 7 | The ledger as recovery map | **reject - already stronger** | `manifest.yml` plus `/compass:resume` is a structured, machine-checked version of the same idea. |
 | 8 | Explicit model per dispatch | **adopt** | Compass pins a model in agent frontmatter but says nothing about scaling it to the work. |
 | 9 | Batch small same-shape work | **adopt** | Compass's unit of dispatch is the subtask, with no guidance below it. |
 | 10 | No-subagents contract for workers | **adopt** | Nothing stops a Compass builder spawning its own reviewer. |
-| 11 | Never dispatch implementers in parallel | **reject** | This is the bet Compass is deliberately taking the other side of. |
-| 12 | "Rulings I made" exhaustive final list | **adapt** | Compass has the artefacts but no rule that decisions taken on the user's behalf are surfaced as a list. |
+| 11 | Never dispatch implementers in parallel | **reject** | This is the mechanism Superpowers rejected and Compass adopts. |
+| 12 | "Rulings I made" exhaustive final list | **adapt** | Compass has the artifacts but no rule that decisions taken on the user's behalf are surfaced as a list. |
 | 13 | Scoped re-review | **adapt** | Follows mechanism 5; meaningless without a fix loop. |
 | 14 | Deferred-minors roll-up into the final review | **adapt** | Compass has `follow_ups:`, which is stronger, but nothing points the reviewer at it. |
-| 15 | Bounded waits when idle | **reject** | Harness-specific, and Compass's orchestrator does not currently wait on anything. |
+| 15 | Bounded waits when idle | **reject** | Harness-specific, and Compass's orchestrator does not wait on anything. |
 
-### The four that matter most
+### The five that matter most
 
-**1, 3 - artefacts as files.** Superpowers' rule is blunt: "Everything you
+**1, 3 - artifacts as files.** Superpowers' rule is blunt: "Everything you
 paste into a dispatch prompt - and everything a subagent prints back - stays
 resident in your context for the rest of the session and is re-read on every
 later turn. Hand artifacts over as files." It cites a real session whose
 dispatch reached 42,000 characters, 99% of it pasted history.
 
-Compass has the artefacts already - `delivery-approach.md`,
+Compass has the artifacts already - `delivery-approach.md`,
 `technical-design.md`, `acceptance-criteria.md`, `distribution-map.md` - and
 an orchestrator instruction to "hand each builder its assignment." What it does
 not have is the rule that the assignment is a *path*, not a paste. This is the
@@ -152,10 +155,10 @@ failing it.
 
 **5, 13 - the fix loop.** This is the real gap. Compass's `reviewer` renders
 a gate decision; `/compass:verify` says "If anything fails, the issue does
-not advance - fix it or send it back." Who fixes it, how many attempts are
-allowed, what happens when attempts stop converging, and where the decision
+not advance - fix it or send it back." Who fixes it, how many tries are
+allowed, what happens when tries stop converging, and where the decision
 is recorded are all unspecified. Superpowers has a five-round cap, a
-capability escalation at round four, a scoped re-review that verifies fixes
+capability escalation at round four, a scoped re-review that checks fixes
 without wandering, and a mandatory adjudication when the breaker trips, every
 one of which is a ledger entry.
 
@@ -169,8 +172,9 @@ hours on a question the controller could have decided." The fix was to let
 the controller rule on anything short of destructive, and record it.
 
 Compass's stop conditions are different in kind. `G5` is a human sign-off on
-irreversible change; a policy floor is governance speaking; a re-assess
-happens because the assessment was wrong. These are not questions an agent
+irreversible change; a policy floor is a rule in
+`governance/routing-policy.yml`; a re-assess happens because the assessment
+was wrong. These are not questions an agent
 should rule past, and the framework is built so it cannot. Adopting
 "rulings, not stalls" wholesale would put an agent above a guardrail.
 
@@ -181,13 +185,14 @@ only where it happened to be made - is mechanism 12, and it is an adapt.
 
 **7 - the ledger: reject, because Compass already has better.** Superpowers
 built the ledger because "conversation memory does not survive compaction"
-and controllers were re-dispatching completed task sequences. Compass's
+and controllers were re-dispatching sequences of already-completed work.
+Compass's
 answer is `manifest.yml` - stages, gates with typed evidence, changed files,
 scenarios - plus `/compass:resume`, which reads the delivery approach and
 works out where things stand. It is structured where the ledger is prose, and
-`compass check` can verify it where nothing verifies a ledger.
+`compass check` can check it where nothing checks a ledger.
 
-The one idea worth stealing is the *identity line*: Superpowers' ledger names
+The one idea worth adopting is the *identity line*: Superpowers' ledger names
 its plan on its first line because a follow-up plan in the same tree read the
 previous plan's progress as its own. Compass has a filed defect of exactly
 this shape - `work-dir-is-shared-across-branches`. That is already an issue;
@@ -209,8 +214,8 @@ it does not need a new one.
 | 14 | Point the final review at the follow-up ledger | `agents/reviewer.md`; `/compass:verify` | Prose. ~1 hour. |
 
 **Everything except 2, 3 and the fix loop is prose.** That is the headline
-for sizing: roughly a day of writing gets nine of the twelve, and the
-remaining three are where the real work is.
+for sizing: roughly a day of writing gets seven of the ten rows in the table
+above, and the remaining three are where the real work is.
 
 ## Recommendation
 
@@ -231,7 +236,7 @@ job), familiarity **brownfield-mapped**, size **standard**, goal
 
 ### `orchestrator-loop-hardening` - file it, size it as a feature, not an initiative
 
-The nine prose adoptions plus base SHA and the review package. Deliberately
+The seven prose adoptions plus base SHA and the review package. Deliberately
 excludes the fix loop.
 
 Suggested assessment: risk **contained** (prose and two small scripts,
@@ -249,9 +254,10 @@ it.
 
 **The honest order is: record the rounds first, then decide the cap.** That
 is a small piece of mechanism 5 - a `review_rounds:` list in the manifest,
-written by the reviewer - and it can ride in `orchestrator-loop-hardening`.
-Once there is a season of data, the cap is a decision with numbers behind it,
-which is what `S11` asks for.
+written by the reviewer - and it can go into `orchestrator-loop-hardening`.
+Once enough review rounds are recorded, the cap is a decision with numbers
+behind it, which is what `S11` (measure the disputed quantity before
+deciding) asks for.
 
 ### What should not be adopted
 
@@ -261,7 +267,7 @@ implementers in parallel - is the thing Compass exists to do differently.
 
 ## One thing this spike did not do, and it is the most important gap
 
-Superpowers' loop is shaped by donated real sessions with numbers attached: a
+Donated real sessions with numbers attached shaped Superpowers' loop: a
 nine-hour stall, a 42,000-character dispatch, 6-13 tool calls of forensics
 per resume, an eval where deleting a section moved test-first behaviour from
 8/10 to 5/10.
@@ -276,9 +282,9 @@ cheap and reversible. It is a poor basis for the fix loop, which is why the
 recommendation defers it.
 
 The measurement Compass is missing is not of Superpowers. It is of itself:
-how often a multiagent is actually used, what the subtasks cost, how often a review
-round repeats. `compass retro` already aggregates re-assessments. Nothing
-aggregates the multiagent.
+how often a multiagent orchestration is actually used, what the subtasks
+cost, how often a review round repeats. `compass retro` already aggregates
+re-assessments. Nothing aggregates the multiagent orchestration.
 
 ---
 

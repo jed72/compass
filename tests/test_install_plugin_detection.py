@@ -1,9 +1,10 @@
-"""Acceptance tests for task fix-hook-double-fire.
+"""Acceptance tests for issue fix-hook-double-fire.
 
-Each test_trc_* function asserts the fix for one scenario in
-.compass/work/fix-hook-double-fire/spec.feature.md. Tests shell out to
-`scripts/install.sh` against a `tmp_path` directory pre-seeded for the case
-and inspect exit code, stdout, and the resulting `.claude/settings.json`.
+Each test_trc_* function asserts the fix for one scenario: `scripts/install.sh`
+must not register a hook twice when it runs against a project an older
+install already set up. Tests shell out to `scripts/install.sh` against a
+`tmp_path` directory pre-seeded for the case and inspect exit code, stdout,
+and the resulting `.claude/settings.json`.
 
 These tests are independent of `tests/conftest.py`'s `project` fixture
 (which is shaped for the CLI's behaviour) - install.sh's behaviour is the
@@ -37,9 +38,12 @@ def _seed_plugin_manifest(target_dir):
 
 
 def _seed_existing_compass_hooks(target_dir):
-    """Plant a settings.json that already contains all three Compass hook
-    entries, as if `install.sh --project` had been run against this dir
-    before the fix. Simulates the current bad state."""
+    """Plant a settings.json that already contains three of Compass's four
+    hook entries (PreToolUse, PostToolUse, Stop - this fixture does not seed
+    SessionStart), as if `install.sh --project` had already been run against
+    this dir once. `test_trc_a2` reruns install.sh against this seed, inside
+    a plugin-source target, to check that the existing entries are stripped
+    rather than left in place."""
     claude_dir = target_dir / ".claude"
     claude_dir.mkdir(parents=True, exist_ok=True)
     pre = {
@@ -206,7 +210,7 @@ def test_trc_c1_uninstall_strips_hooks_regardless_of_plugin(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_detection_requires_actual_manifest_file(tmp_path):
-    """Detection requires plugin.json - a directory without it is not a plugin source."""
+    """Detection needs plugin.json - a directory without it is not a plugin source."""
     # A .claude-plugin/ dir exists but contains NO plugin.json.
     (tmp_path / ".claude-plugin").mkdir(parents=True, exist_ok=True)
 

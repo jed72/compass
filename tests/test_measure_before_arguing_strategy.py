@@ -1,17 +1,9 @@
 """Measure before arguing is standing practice, not one issue's lesson.
 
 When a recommendation and an instruction disagree, the cheap move is to
-restate the recommendation more forcefully. Twice now, measuring the disputed
-quantity instead has changed the outcome:
-
-  * The vendored-YAML fork. The argument was about whether bundling PyYAML
-    was worth its cost; the measurement was the artifact size and a run on an
-    interpreter that genuinely could not import it.
-  * Two of three decisions on the 3.0.0 stub removal. The author recommended
-    against deleting the flag aliases and against scanning fenced code
-    blocks. Counting the call sites (268 and 69) and the tightened scan's
-    hits (200 across 38 files) showed both objections were about a sprawl
-    that was not there.
+restate the recommendation more forcefully. Measuring the disputed quantity
+instead is the practice; `governance/strategies-rationale.md` holds the
+incidents that established it.
 
 The practice is written down because it has to reach a session that has never
 read this file's history.
@@ -28,7 +20,7 @@ STRATEGIES = ROOT / "governance" / "strategies.md"
 
 # Where a session needs the pointer. CLAUDE.md is loaded every session, and
 # commands/verify.md is where the reviewer assesses the practice - the same
-# two-surface pattern S10 uses.
+# two-surface pattern `S10` (mutation proof) uses.
 #
 # skills/receiving-code-review/SKILL.md would be the natural third home, since
 # disagreeing with a reviewer is exactly its subject. It is deliberately not
@@ -47,7 +39,7 @@ def _rationale_section(s_number: str) -> str:
 
     `governance/strategies.md` states the rules; the incidents and worked
     examples that justify them are in `governance/strategies-rationale.md`,
-    one `## ...(`Sn`)` section each. Both halves are required - a rule with no
+    one `## ...(`Sn`)` section each. Both halves are needed - a rule with no
     incident behind it is an assertion.
 
     Scoped to the one section on purpose. Searching the whole file would let a
@@ -94,10 +86,8 @@ def test_rr_6_strategy_states_method_and_reason():
         "the heading must carry an S-number, matching the file's convention"
     )
 
-    # The method as ONE instruction, in order. Checking the words separately
-    # would survive deleting the method sentence, because "measure",
-    # "numbers" and "report" all occur elsewhere in the entry - which is the
-    # exact way S10's own first test failed to be able to fail.
+    # Checks the method as one sentence, because each word also occurs
+    # elsewhere in the entry.
     method = re.search(
         r"measure[^.]*?disputed[^.]*?report[^.]*?number[^.]*?"
         r"before[^.]*?defend",

@@ -1,12 +1,9 @@
 """The voice audition becomes a standing strategy (issue voice-audition-standing).
 
-Slice 1 (`tests/test_human_voice.py`) wrote the reference (`writing-voice.md`),
-its worked example, and the reviewer's clarity-dimension pointer for one
-cycle. The maintainer's instruction at the close of that cycle was that the
-audition does not lapse: it is a permanent review dimension for any slice
-that writes prose, judged against a joint calibration sample - the worked
-example rewrite and the "Never stash across a worktree hop" section of
-`skills/worktree-multiagent/SKILL.md`. This file pins that the standing strategy
+The voice audition is a standing strategy: a permanent review dimension for
+any change that writes prose, judged against a calibration sample (the
+worked-example rewrite and the "Never stash across a worktree hop" section of
+`skills/worktree-multiagent/SKILL.md`). This file checks that the strategy
 says so, and that the reviewer's clarity dimension points at it without
 repeating it.
 
@@ -19,8 +16,6 @@ same ids in the same file would make two different scenarios answer to one
 traceability id, which breaks the very chain this strategy is about.
 
 Criteria: docs/system-spec.md
-(Requirements review and design collapsed on this quick fix - see
-`docs/compass/2026-08-10-voice-audition-standing/delivery-approach.md` §5.)
 """
 from __future__ import annotations
 
@@ -57,15 +52,9 @@ STASH_SECTION_PATH = "skills/worktree-multiagent/SKILL.md"
 STASH_SECTION_HEADING = "Never stash across a worktree hop"
 
 def _evidence_gates_text():
-    """Everything the evidence-gates skill says, across its whole directory.
-
-    The skill was split so its parts load when needed - the review-dimension
-    checklists, the evidence vocabulary, the fitness-function detail and the
-    coverage notes are siblings of SKILL.md now. A guard reading only SKILL.md
-    reports content missing when it has moved next door.
-
-    The strings below are unchanged; only where they are looked for widened.
-    """
+    """Reads every file in the skill's directory. Long skills are split into
+    parts that load on demand, so a guard that reads only SKILL.md reports
+    moved content as missing."""
     import pathlib as _p
     d = _p.Path(__file__).resolve().parent.parent / "skills" / "evidence-gates"
     return "\n".join(sorted(p.read_text(encoding="utf-8") for p in d.glob("*.md")))
@@ -92,9 +81,9 @@ def _strategy_entry() -> str:
     """The new strategy's own section, isolated from the rest of the file.
 
     Found by its heading naming "audition" rather than by body text, so a
-    coincidental match elsewhere in the file (S7 already uses the word
-    "permanent" in an unrelated sentence about commit trailers) cannot grab
-    the wrong section.
+    coincidental match elsewhere in the file (`S7`, the cold-reader strategy,
+    already uses the word "permanent" in an unrelated sentence about commit
+    trailers) cannot grab the wrong section.
     """
     text = _strategies_text()
     sections = re.split(r"(?m)^### ", text)
@@ -106,7 +95,7 @@ def _strategy_entry() -> str:
 
 
 # ---------------------------------------------------------------------------
-# TRC-A1 - the strategy records permanence and the calibration sample
+# The strategy records permanence and the calibration sample (`TRC-A1`)
 # ---------------------------------------------------------------------------
 
 def test_trc_a1_strategy_states_permanence_and_names_the_calibration_sample():
@@ -151,7 +140,7 @@ def test_trc_a1_strategy_states_permanence_and_names_the_calibration_sample():
 
 
 # ---------------------------------------------------------------------------
-# TRC-A2 - the strategy states its own test and its own failure mode
+# The strategy states its own test and its own failure mode (`TRC-A2`)
 # ---------------------------------------------------------------------------
 
 def test_trc_a2_strategy_states_its_test_and_its_failure_mode():
@@ -190,7 +179,7 @@ def test_trc_a2_strategy_states_its_test_and_its_failure_mode():
 
 
 # ---------------------------------------------------------------------------
-# TRC-B1 - the reviewer's clarity dimension points at the strategy
+# The reviewer's clarity dimension points at the strategy (`TRC-B1`)
 # ---------------------------------------------------------------------------
 
 def test_trc_b1_reviewer_and_evidence_gates_point_at_the_strategy_not_repeat_it():
@@ -223,7 +212,7 @@ def test_trc_b1_reviewer_and_evidence_gates_point_at_the_strategy_not_repeat_it(
 
 
 # ---------------------------------------------------------------------------
-# TRC-F1 - no new mechanism
+# No new gate, guardrail, CLI verb or vocabulary (`TRC-F1`)
 # ---------------------------------------------------------------------------
 
 def test_trc_f1_no_new_gate_guardrail_cli_verb_or_vocabulary():

@@ -7,14 +7,14 @@ honest re-assessment left the issue failing `compass issue lint`.
 
 That punished the behaviour the methodology asks for. Re-assessing is
 described as a normal event, and an approach quietly outgrown is the failure
-it warns about - so a tool that reddens the build for recording one teaches
+it warns about - so a tool that fails the build for recording one teaches
 people not to record them.
 
 Both keys earn their place: `kind` is what separates a judgement re-assessment
 from a scope change in `compass retro`'s re-sizing signal, and `changed` is the
-audit detail. The schema was what needed correcting.
+audit detail.
 
-Scenario ids: see docs/system-spec.md (TRC-1, TRC-2).
+Scenario ids: see docs/system-spec.md (TRC-1, `TRC-2`).
 """
 from __future__ import annotations
 
