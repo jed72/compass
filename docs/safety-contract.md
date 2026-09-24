@@ -164,6 +164,15 @@ rather than blocking ordinary development indiscriminately.
 Shell scripts, makefiles and extensionless scripts are not classified
 as production-code file types for red-before-green enforcement.
 
+Inside a worktree, Edit and Write are checked against that worktree's own red
+state, because they name their file and the hook resolves the project from
+it. A shell write is not. Its targets are found against the session's
+project, with two results:
+
+- a relative path is checked against the session's issue, not the worktree's
+- an absolute path into a worktree outside the project - the default place
+  for worktrees - is not checked at all
+
 See [Security](security.md) for the exact trust boundaries and hardening
 guidance.
 

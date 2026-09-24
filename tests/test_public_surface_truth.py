@@ -353,9 +353,11 @@ def test_d2_repairs_change_only_retired_names():
       declare - a stated fact the audit found the source contradicted, not
       a wording swap.
 
-    One was re-baselined by `red-record-identity-cutoff`:
-    `docs/safety-contract.md` (list_items 19 -> 21), where the two conditions
-    under which an unstamped red record still counts became a vertical list.
+    One was re-baselined twice, by two issues: `docs/safety-contract.md`
+    (list_items 19 -> 21 -> 23). `red-record-identity-cutoff` made the two
+    conditions under which an unstamped red record still counts a vertical
+    list, and `hook-failure-matrix` did the same for the two gaps in checking
+    a shell write inside a worktree.
 
     The other 49 are untouched, and a NEW structural change to any of the 59
     still fails.

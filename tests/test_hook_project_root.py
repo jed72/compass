@@ -157,7 +157,7 @@ def test_rcd_a3_an_opted_in_project_names_the_real_cause(tmp_path):
     assert "could not locate" not in err, (
         f"the hook blames a working directory that is already correct:\n{err}")
 def test_rcd_a4_missing_work_dir_still_says_so(tmp_path):
-    """The control for A3: a genuine 'triage has not run' still says so.
+    """The control for A3: a genuine "no issue has been assessed" still says so.
 
     Without this, A3 passes against a hook that has simply stopped telling
     the two cases apart.
@@ -171,10 +171,10 @@ def test_rcd_a4_missing_work_dir_still_says_so(tmp_path):
     assert result.returncode == BLOCK, (
         f"a project with no triaged issue must block, got {result.returncode}"
     )
-    assert "triage" in err, (
-        f"the hook resolved the project but did not say that triage has not "
-        f"run - the two failures are now indistinguishable in the other "
-        f"direction:\n{err}"
+    assert "no issue has been assessed" in err, (
+        f"the hook resolved the project but did not say that no issue has "
+        f"been assessed - the two failures are now indistinguishable in the "
+        f"other direction:\n{err}"
     )
 
 

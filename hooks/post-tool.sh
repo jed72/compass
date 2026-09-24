@@ -2,7 +2,7 @@
 # =============================================================================
 # Compass hook: post-tool.sh  -  DEVLOG APPENDER
 # =============================================================================
-# Runs as a Claude Code PostToolUse hook, after an Edit/Write/MultiEdit tool
+# Runs as a Claude Code PostToolUse hook, after an Edit or Write tool
 # call completes. It does one thing: appends a short line to the current
 # issue's devlog.md, so "persistence over conversation" holds without the
 # agent having to remember to log every touch.
@@ -19,7 +19,7 @@
 #   {
 #     "hooks": {
 #       "PostToolUse": [
-#         { "matcher": "Edit|Write|MultiEdit",
+#         { "matcher": "Edit|Write",
 #           "hooks": [ { "type": "command",
 #                        "command": "$CLAUDE_PROJECT_DIR/hooks/post-tool.sh" } ] }
 #       ]

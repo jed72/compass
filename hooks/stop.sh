@@ -138,7 +138,7 @@ PYEOF
     # just be an empty scaffold; but if anything else is in it, work started
     # without the assess stage.
     if [ -n "$(ls -A "$TASK_DIR" 2>/dev/null)" ]; then
-      WARNINGS+=("[$SLUG] the delivery-approach record is MISSING but the issue has artifacts - work started without triage. Run /compass:assess.")
+      WARNINGS+=("[$SLUG] the delivery-approach record is MISSING but the issue has artifacts - work started without an assessment. Run /compass:assess.")
     fi
     continue
   fi
