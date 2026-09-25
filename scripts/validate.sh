@@ -47,7 +47,10 @@ cd "$COMPASS_HOME"
 QUIET=0
 case "${1:-}" in
   --quiet) QUIET=1 ;;
-  -h|--help) grep -E '^# (USAGE|  scripts|EXIT|WHAT|   [0-9])' "$0" | sed 's/^# //'; exit 0 ;;
+  # The header from USAGE to its closing rule, with the comment marker
+  # stripped. A line filter picked lines by their indent, missed the
+  # numbered ones, and printed headings with nothing under them.
+  -h|--help) sed -n '/^# USAGE/,/^# =====/p' "$0" | sed '$d; s/^# \{0,1\}//'; exit 0 ;;
   "") ;;
   *) echo "validate.sh: unknown argument: $1" >&2; exit 1 ;;
 esac
