@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A rewrite that swaps one idiom for another is refused
+### the removal guard accepts a later major
 
-- **Scenario id:** `PBW-F4`
+- **Scenario id:** `REL-2`
 - **Intent:** `INT-1`
-- **Source issue:** `prose-breaks-the-writing-style`
-- **Landed:** 2026-09-23
+- **Source issue:** `release-5-0-0`
+- **Landed:** 2026-09-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -43,12 +43,12 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### A clarity review that read less than the sampling rule is refused
+### the upgrade notes name the removed skills
 
-- **Scenario id:** `PBW-F8`
+- **Scenario id:** `REL-3`
 - **Intent:** `INT-2`
-- **Source issue:** `prose-breaks-the-writing-style`
-- **Landed:** 2026-09-23
+- **Source issue:** `release-5-0-0`
+- **Landed:** 2026-09-24
 
 ### A clarity review that read less than the sampling rule is refused
 
@@ -8106,6 +8106,13 @@
 - **Source issue:** `prose-breaks-the-writing-style`
 - **Landed:** 2026-09-23
 
+### A rewrite that swaps one idiom for another is refused _(archived)_
+
+- **Scenario id:** `PBW-F4`
+- **Intent:** `INT-1`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
 ### An edit made from a stale line number is refused _(archived)_
 
 - **Scenario id:** `PBW-F5`
@@ -8126,3 +8133,17 @@
 - **Intent:** `INT-6`
 - **Source issue:** `prose-breaks-the-writing-style`
 - **Landed:** 2026-09-23
+
+### A clarity review that read less than the sampling rule is refused _(archived)_
+
+- **Scenario id:** `PBW-F8`
+- **Intent:** `INT-2`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
+### every published surface reports 5.0.0 _(archived)_
+
+- **Scenario id:** `REL-1`
+- **Intent:** `INT-1`
+- **Source issue:** `release-5-0-0`
+- **Landed:** 2026-09-24
