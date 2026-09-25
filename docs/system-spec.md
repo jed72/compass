@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A list of strings behaves as today
+### Every registered claim is found exactly once
 
-- **Scenario id:** `CGS-2`
+- **Scenario id:** `FDG-5`
 - **Intent:** `INT-1`
-- **Source issue:** `code-globs-as-a-string`
+- **Source issue:** `facts-drift-guard`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8440,4 +8440,39 @@
 - **Scenario id:** `CGS-1`
 - **Intent:** `INT-1`
 - **Source issue:** `code-globs-as-a-string`
+- **Landed:** 2026-09-25
+
+### A list of strings behaves as today _(archived)_
+
+- **Scenario id:** `CGS-2`
+- **Intent:** `INT-1`
+- **Source issue:** `code-globs-as-a-string`
+- **Landed:** 2026-09-25
+
+### The deep dive's gate counts match the evaluator _(archived)_
+
+- **Scenario id:** `FDG-1`
+- **Intent:** `INT-1`
+- **Source issue:** `facts-drift-guard`
+- **Landed:** 2026-09-25
+
+### The immovable list and never_skip match the policy, and verify.claims is not called immovable _(archived)_
+
+- **Scenario id:** `FDG-2`
+- **Intent:** `INT-1`
+- **Source issue:** `facts-drift-guard`
+- **Landed:** 2026-09-25
+
+### The contract's document home matches the CLI's naming rule _(archived)_
+
+- **Scenario id:** `FDG-3`
+- **Intent:** `INT-1`
+- **Source issue:** `facts-drift-guard`
+- **Landed:** 2026-09-25
+
+### The derived-spec header names the real command and input _(archived)_
+
+- **Scenario id:** `FDG-4`
+- **Intent:** `INT-1`
+- **Source issue:** `facts-drift-guard`
 - **Landed:** 2026-09-25
