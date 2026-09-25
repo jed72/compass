@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### Every registered claim is found exactly once
+### A test record names the tree it ran on
 
-- **Scenario id:** `FDG-5`
+- **Scenario id:** `EVB-1`
 - **Intent:** `INT-1`
-- **Source issue:** `facts-drift-guard`
+- **Source issue:** `evidence-binding`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,26 +43,26 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### A config that does not parse does not unguard code_globs
+### An edit to an ignored path does not make a green stale
 
-- **Scenario id:** `HFM-3`
+- **Scenario id:** `EVB-4`
 - **Intent:** `INT-2`
-- **Source issue:** `hook-failure-matrix`
-- **Landed:** 2026-09-24
+- **Source issue:** `evidence-binding`
+- **Landed:** 2026-09-25
 
-### The safety contract scopes the worktree redirect gap
+### Records without a tree are not judged
 
-- **Scenario id:** `HFM-5`
+- **Scenario id:** `EVB-6`
 - **Intent:** `INT-3`
-- **Source issue:** `hook-failure-matrix`
-- **Landed:** 2026-09-24
+- **Source issue:** `evidence-binding`
+- **Landed:** 2026-09-25
 
-### The hooks use no retired word or tool name
+### The safety contract states the boundary
 
-- **Scenario id:** `HFM-6`
+- **Scenario id:** `EVB-7`
 - **Intent:** `INT-4`
-- **Source issue:** `hook-failure-matrix`
-- **Landed:** 2026-09-24
+- **Source issue:** `evidence-binding`
+- **Landed:** 2026-09-25
 
 ### A CLI module's header describes that module
 
@@ -8316,10 +8316,31 @@
 - **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
 
+### A config that does not parse does not unguard code_globs _(archived)_
+
+- **Scenario id:** `HFM-3`
+- **Intent:** `INT-2`
+- **Source issue:** `hook-failure-matrix`
+- **Landed:** 2026-09-24
+
 ### A missing approach record is still reported as missing _(archived)_
 
 - **Scenario id:** `HFM-4`
 - **Intent:** `INT-1`
+- **Source issue:** `hook-failure-matrix`
+- **Landed:** 2026-09-24
+
+### The safety contract scopes the worktree redirect gap _(archived)_
+
+- **Scenario id:** `HFM-5`
+- **Intent:** `INT-3`
+- **Source issue:** `hook-failure-matrix`
+- **Landed:** 2026-09-24
+
+### The hooks use no retired word or tool name _(archived)_
+
+- **Scenario id:** `HFM-6`
+- **Intent:** `INT-4`
 - **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
 
@@ -8475,4 +8496,32 @@
 - **Scenario id:** `FDG-4`
 - **Intent:** `INT-1`
 - **Source issue:** `facts-drift-guard`
+- **Landed:** 2026-09-25
+
+### Every registered claim is found exactly once _(archived)_
+
+- **Scenario id:** `FDG-5`
+- **Intent:** `INT-1`
+- **Source issue:** `facts-drift-guard`
+- **Landed:** 2026-09-25
+
+### A green for a changed tree fails at ship _(archived)_
+
+- **Scenario id:** `EVB-2`
+- **Intent:** `INT-2`
+- **Source issue:** `evidence-binding`
+- **Landed:** 2026-09-25
+
+### Before ship a stale green is a note, not a failure _(archived)_
+
+- **Scenario id:** `EVB-3`
+- **Intent:** `INT-2`
+- **Source issue:** `evidence-binding`
+- **Landed:** 2026-09-25
+
+### A landed issue is checked against the commit that landed it _(archived)_
+
+- **Scenario id:** `EVB-5`
+- **Intent:** `INT-3`
+- **Source issue:** `evidence-binding`
 - **Landed:** 2026-09-25
