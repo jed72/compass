@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### compass acceptance record carries declared_at
+### A command where the plugin loads keeps the flag
 
-- **Scenario id:** `ADW-4`
+- **Scenario id:** `CFA-3`
 - **Intent:** `INT-1`
-- **Source issue:** `acceptance-declared-after-the-work`
+- **Source issue:** `coverage-flag-with-autoload-off`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8384,4 +8384,25 @@
 - **Scenario id:** `ADW-3`
 - **Intent:** `INT-1`
 - **Source issue:** `acceptance-declared-after-the-work`
+- **Landed:** 2026-09-25
+
+### compass acceptance record carries declared_at _(archived)_
+
+- **Scenario id:** `ADW-4`
+- **Intent:** `INT-1`
+- **Source issue:** `acceptance-declared-after-the-work`
+- **Landed:** 2026-09-25
+
+### A command that turns the plugin off gets no coverage flag _(archived)_
+
+- **Scenario id:** `CFA-1`
+- **Intent:** `INT-1`
+- **Source issue:** `coverage-flag-with-autoload-off`
+- **Landed:** 2026-09-25
+
+### The variable in the calling environment gets no flag _(archived)_
+
+- **Scenario id:** `CFA-2`
+- **Intent:** `INT-1`
+- **Source issue:** `coverage-flag-with-autoload-off`
 - **Landed:** 2026-09-25
