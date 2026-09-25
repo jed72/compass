@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### validate.sh skips an issue's own documents and still fails a broken reference in a living file
+### The governance text states the rule
 
-- **Scenario id:** `VSA-1`
+- **Scenario id:** `UGR-8`
 - **Intent:** `INT-1`
-- **Source issue:** `validate-scan-vs-archive`
+- **Source issue:** `unbound-green-needs-no-red`
 - **Landed:** 2026-09-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,26 +43,26 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### the upgrade notes name the removed skills
+### An acceptance record stands in for a red
 
-- **Scenario id:** `REL-3`
+- **Scenario id:** `UGR-3`
 - **Intent:** `INT-2`
-- **Source issue:** `release-5-0-0`
+- **Source issue:** `unbound-green-needs-no-red`
 - **Landed:** 2026-09-24
 
-### A clarity review that read less than the sampling rule is refused
+### An issue created before the cutoff keeps its result
 
-- **Scenario id:** `PBW-F8`
+- **Scenario id:** `UGR-5`
 - **Intent:** `INT-3`
-- **Source issue:** `prose-breaks-the-writing-style`
-- **Landed:** 2026-09-23
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
 
-### A test docstring says what the file tests and cites its issue by slug
+### An unbound green with no red does not claim a red
 
-- **Scenario id:** `PBW-C5`
+- **Scenario id:** `UGR-7`
 - **Intent:** `INT-4`
-- **Source issue:** `prose-breaks-the-writing-style`
-- **Landed:** 2026-09-23
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
 
 ### A CLI module's header describes that module
 
@@ -7987,6 +7987,13 @@
 - **Source issue:** `prose-breaks-the-writing-style`
 - **Landed:** 2026-09-23
 
+### A test docstring says what the file tests and cites its issue by slug _(archived)_
+
+- **Scenario id:** `PBW-C5`
+- **Intent:** `INT-4`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
 ### Every identifier keeps its spelling _(archived)_
 
 - **Scenario id:** `PBW-D1`
@@ -8141,6 +8148,13 @@
 - **Source issue:** `prose-breaks-the-writing-style`
 - **Landed:** 2026-09-23
 
+### A clarity review that read less than the sampling rule is refused _(archived)_
+
+- **Scenario id:** `PBW-F8`
+- **Intent:** `INT-3`
+- **Source issue:** `prose-breaks-the-writing-style`
+- **Landed:** 2026-09-23
+
 ### every published surface reports 5.0.0 _(archived)_
 
 - **Scenario id:** `REL-1`
@@ -8155,9 +8169,51 @@
 - **Source issue:** `release-5-0-0`
 - **Landed:** 2026-09-24
 
+### the upgrade notes name the removed skills _(archived)_
+
+- **Scenario id:** `REL-3`
+- **Intent:** `INT-2`
+- **Source issue:** `release-5-0-0`
+- **Landed:** 2026-09-24
+
 ### The injected contract names docs/compass as the home of an issue's documents _(archived)_
 
 - **Scenario id:** `CF-1`
 - **Intent:** `INT-1`
 - **Source issue:** `contract-facts`
+- **Landed:** 2026-09-24
+
+### validate.sh skips an issue's own documents and still fails a broken reference in a living file _(archived)_
+
+- **Scenario id:** `VSA-1`
+- **Intent:** `INT-1`
+- **Source issue:** `validate-scan-vs-archive`
+- **Landed:** 2026-09-24
+
+### An issue whose only evidence is an unbound green fails suite-passed _(archived)_
+
+- **Scenario id:** `UGR-1`
+- **Intent:** `INT-1`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### One red of either binding satisfies the rule _(archived)_
+
+- **Scenario id:** `UGR-2`
+- **Intent:** `INT-1`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### An issue with no scenarios is not asked for a red _(archived)_
+
+- **Scenario id:** `UGR-4`
+- **Intent:** `INT-1`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### The bound-green refusal names acceptance, not the bypass _(archived)_
+
+- **Scenario id:** `UGR-6`
+- **Intent:** `INT-4`
+- **Source issue:** `unbound-green-needs-no-red`
 - **Landed:** 2026-09-24

@@ -253,6 +253,7 @@ def _check_scenarios_are_executable(task, task_dir):
 
 
 from compass_pkg.test_ids import _test_id_resolves, _test_is_skipped
+from compass_pkg.red_first import missing_first_failure
 
 
 
@@ -261,7 +262,9 @@ def _check_suite_passed(task, task_dir):
     # Read test-run entries from the registry. An issue may have multiple
     # test-run entries (one per scenario binding); at least one must resolve
     # to a green-recorded file (exit_code 0), and any scenario binding must be
-    # a real scenario in manifest.yml.
+    # a real scenario in manifest.yml. A green shows the suite passes, not
+    # that a test failed first, so a newer issue with scenarios also needs a
+    # red or an acceptance record (red_first.py).
     registry = [e for e in (task.get("evidence") or [])
                 if isinstance(e, dict) and e.get("type") == "test-run"]
     if not registry:
@@ -288,6 +291,9 @@ def _check_suite_passed(task, task_dir):
             return False, (f"test-run evidence {entry.get('id', '?')} is bound "
                            f"to scenario '{scn}' which is not in manifest.yml")
         green.append(entry)
+    missing = missing_first_failure(task, task_dir)
+    if missing:
+        return False, missing
     # What this establishes, stated exactly. A test-run record holds ONE exit
     # code for ONE command; it does not enumerate the tests that ran. So a
     # green suite does not establish which scenarios it exercised, and naming
