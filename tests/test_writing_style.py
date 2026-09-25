@@ -27,10 +27,13 @@ shared matcher would fit none of them well.
 from __future__ import annotations
 
 import ast
+import dataclasses
 import io
 import json
+import os
 import re
 import subprocess
+import sys
 import tokenize
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -3616,28 +3619,96 @@ def test_pbw_e2_each_sweep_reports_the_files_it_scanned():
         assert 0 < real_report.files_reachable <= real_report.files_scanned
 
 
+#: The rules whose reach grows with the tree, each with the test's own copy of
+#: its reach condition and the number of files inside that reach that yield no
+#: prose. The copy is independent of the rule's `reach`, so widening a rule's
+#: reach fails the test. The no-prose count moves only when a file with no
+#: docstring or comment enters the reach - rare, and worth a visible edit.
+_GROWING_REACH = {
+    "PBW-C3": (lambda path: path.startswith("cli/compass_pkg/"), 0),
+    "PBW-C5": (lambda path: path.startswith("tests/") and path.endswith(".py"), 3),
+    "PBW-C4": (lambda path: path.startswith("tests/"), 11),
+}
+
+#: The rules whose reach is a fixed set of files, pinned exactly.
+_FIXED_REACH = {"PBW-A10": 9}
+
+
 def test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans():
     """The four rules finding 11 measured - each reaches only the files its
-    own `find` function can ever report on, not the whole 545-file scan.
+    own `find` function can ever report on, not the whole scan.
 
-    A number here moves only when the set of files a rule can reach moves.
-    PBW-C5 and PBW-C4 reach every test file, so each new test file raises
-    both by one. That is the check reporting a real change rather than
-    drift. PBW-A10 and PBW-C3 reach no test file, so a new test file does
-    not move them."""
+    PBW-A10 reaches a fixed set of registry files, so its count is pinned.
+    PBW-C3 reaches every module under `cli/compass_pkg/`, and PBW-C5 and
+    PBW-C4 every test file, so each new file raised their pinned counts by
+    one and failed this test after the commit that added it. Their expected
+    reach is now the files their reach admits, less those that hold no prose:
+    a new file with prose moves both sides, and the test stays green
+    (`reach-counts-move-with-every-test`)."""
     paths = scanned_paths()
-    expected = {
-        "PBW-A10": 9,
-        "PBW-C3": 33,
-        "PBW-C5": 217,
-        "PBW-C4": 236,
-    }
+    rels = [str(p.relative_to(REPO_ROOT)) for p in paths]
+    expected = dict(_FIXED_REACH)
+    for rule_id, (admits, no_prose) in _GROWING_REACH.items():
+        expected[rule_id] = sum(1 for rel in rels if admits(rel)) - no_prose
     for rule_id, reach in expected.items():
         report = run_sweep(RULES[rule_id], paths)
         assert report.files_reachable == reach, (
             f"{rule_id} reach drifted: expected {reach}, got "
-            f"{report.files_reachable}")
+            f"{report.files_reachable}. For a growing rule, a file with no "
+            f"prose entered its reach, or its reach condition changed")
         assert report.files_reachable < report.files_scanned
+
+
+def _planted(rel: str, text: str):
+    """Write a file into the tree for one test, and return its path. The
+    caller removes it; the name carries the process id so two runs cannot
+    collide."""
+    path = REPO_ROOT / rel
+    assert not path.exists(), f"{rel} already exists; refusing to overwrite"
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def _with_planted(monkeypatch, *planted):
+    real = scanned_paths()
+    monkeypatch.setattr(sys.modules[__name__], "scanned_paths",
+                        lambda: real + list(planted))
+
+
+def test_pbw_e2_a_new_file_with_prose_leaves_the_reach_test_green(monkeypatch):
+    """A new test file or CLI module is the ordinary case, and the reach test
+    must not need a count raised for it (`reach-counts-move-with-every-test`)."""
+    probe = f"_reach_probe_{os.getpid()}"
+    files = [_planted(f"tests/{probe}.py", f'"""{probe}: a planted test."""\n'),
+             _planted(f"cli/compass_pkg/{probe}.py",
+                      f'"""{probe}: a planted module."""\n')]
+    try:
+        _with_planted(monkeypatch, *files)
+        test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans()
+    finally:
+        for f in files:
+            f.unlink()
+
+
+def test_pbw_e2_a_new_file_with_no_prose_fails_the_reach_test(monkeypatch):
+    """A file in a rule's reach that yields no prose moves the pinned count,
+    so it must fail and name the rule rather than pass unseen."""
+    probe = f"_reach_probe_{os.getpid()}"
+    empty = _planted(f"tests/{probe}.py", "")
+    try:
+        _with_planted(monkeypatch, empty)
+        with pytest.raises(AssertionError, match="PBW-C5"):
+            test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans()
+    finally:
+        empty.unlink()
+
+
+def test_pbw_e2_a_widened_reach_fails_the_reach_test(monkeypatch):
+    rule = RULES["PBW-C5"]
+    monkeypatch.setitem(RULES, "PBW-C5", dataclasses.replace(
+        rule, reach=lambda path: path.startswith(("tests/", "docs/"))))
+    with pytest.raises(AssertionError, match="PBW-C5"):
+        test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans()
 
 
 def test_pbw_e3_every_exemption_names_a_file_and_a_reason():
