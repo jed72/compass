@@ -249,6 +249,27 @@ def _pytest_cov_available():
         return False
 
 
+def _command_turns_cov_off(cmd):
+    """Does the command itself stop pytest-cov loading?
+
+    `_pytest_cov_available` reads the calling environment. A command can set
+    the same variable for itself - `env PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+    python3 -m pytest`, which is how `make test` runs - or pass `-p no:cov`.
+    Either way pytest rejects the flag and runs nothing, unless the command
+    also loads the plugin by name with `-p pytest_cov`.
+    """
+    words = [str(c) for c in cmd]
+    pairs = list(zip(words, words[1:]))
+    if any(a == "-p" and b == "pytest_cov" for a, b in pairs) \
+            or "-ppytest_cov" in words:
+        return False
+    if any(w.startswith("PYTEST_DISABLE_PLUGIN_AUTOLOAD=")
+           and w.split("=", 1)[1] not in ("", "0") for w in words):
+        return True
+    return any(a == "-p" and b in ("no:cov", "no:pytest_cov") for a, b in pairs) \
+        or "-pno:cov" in words or "-pno:pytest_cov" in words
+
+
 def _neutralise_coverage(cmd):
     """For a recognised pytest micro-run, inject --cov-fail-under=0 so a
     project-wide coverage floor cannot refuse a passing targeted test. The
@@ -264,7 +285,8 @@ def _neutralise_coverage(cmd):
         return cmd
     if any("--cov-fail-under" in str(c) for c in cmd):
         return cmd
-    if _is_pytest_command(cmd) and _pytest_cov_available():
+    if _is_pytest_command(cmd) and _pytest_cov_available() \
+            and not _command_turns_cov_off(cmd):
         return list(cmd) + ["--cov-fail-under=0"]
     return cmd
 
