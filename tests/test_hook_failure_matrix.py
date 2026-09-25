@@ -301,3 +301,20 @@ def test_hfm_5_the_contract_names_the_absolute_path_gap():
                     .read_text(encoding="utf-8").split())
     assert "absolute path" in text
     assert "outside the project" in text
+
+
+# ---------------------------------------------------------------------------
+# `code-globs-as-a-string`: a value of the wrong shape is a config the reader
+# cannot read. As a string, the reader walked it one character at a time, so
+# `*` guarded every path and nothing said the value was wrong.
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("value", ["'packaging/**'", "[1, 2]", "{a: b}"])
+def test_cgs_1_code_globs_of_the_wrong_shape_refuses(install, value):
+    (install / ".compass" / "config.yml").write_text(
+        f"version: 1.0.0\nmode: enforced\nenforcement:\n  code_globs: {value}\n")
+    result = _hook(install, "packaging/app.cfg")
+    assert result.returncode == 2, (result.returncode, result.stderr)
+    text = " ".join(result.stderr.split())
+    assert "Fix .compass/config.yml and re-try" in text, text
+    assert "a list of strings" in text, text
