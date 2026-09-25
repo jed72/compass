@@ -210,7 +210,7 @@ def test_ric_1_a_reader_that_crashes_refuses_with_a_reason(install):
     reader.write_text("raise RuntimeError('broken install')\n")
     result = _hook_at(root)
     assert result.returncode == 2, (result.returncode, result.stderr)
-    assert "could not read the red record" in result.stderr
+    assert "red-record reader could not run" in " ".join(result.stderr.split())
 
 
 @pytest.mark.parametrize("line", [

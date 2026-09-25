@@ -58,7 +58,7 @@
 #   {
 #     "hooks": {
 #       "PreToolUse": [
-#         { "matcher": "Edit|Write|MultiEdit",
+#         { "matcher": "Edit|Write|Bash",
 #           "hooks": [ { "type": "command",
 #                        "command": "$CLAUDE_PROJECT_DIR/hooks/pre-tool.sh" } ] }
 #       ]
@@ -79,7 +79,52 @@ set -euo pipefail
 # The shared loader in scripts/lib/compass-python.sh: compass_python() below
 # reaches the bundled PyYAML the same way cli/compass does, rather than this
 # hook inventing its own answer to "where is the vendored copy".
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-python.sh"
+#
+# A missing helper must not end this script under `set -e` with exit 1, which
+# the runtime lets through. Without it, a stand-in answers every reader with
+# exit 3 and a reason, so an opted-in project refuses and names the file, and
+# a repository that never opted in reaches its silent exit 0 as before.
+COMPASS_PYTHON_SH="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/lib/compass-python.sh"
+if [ -f "$COMPASS_PYTHON_SH" ]; then
+  source "$COMPASS_PYTHON_SH"
+else
+  compass_python() {
+    cat >/dev/null
+    echo "the shared loader $COMPASS_PYTHON_SH is missing" >&2
+    return 3
+  }
+fi
+
+# --- one failure rule -------------------------------------------------------
+# Inside an opted-in project, a check that cannot run refuses with exit 2 and
+# names what could not run. Exit 1 is not a refusal - the runtime treats it as
+# a non-blocking error and lets the edit through - and a refusal that blames
+# the issue when the install is broken sends the user to the wrong fix. Every
+# Python reader below calls this on any non-zero status.
+compass_reader_failed() {
+  local reader="$1" status="$2" errfile="${3:-}" fix="${4:-}" cause
+  if [ "$status" = "tmp" ]; then
+    cause="It could not create a temporary file for its output."
+  elif ! command -v python3 >/dev/null 2>&1; then
+    cause="python3 not found on the PATH."
+  else
+    cause="It exited $status."
+  fi
+  {
+    echo "Compass: BLOCKED - the $reader could not run."
+    echo ""
+    echo "  $cause"
+    if [ -n "$errfile" ] && [ -s "$errfile" ]; then
+      sed -n '1,5s/^/  /p' "$errfile"
+    fi
+    echo "  The hook cannot tell whether this edit is allowed, so it refuses."
+    echo "  Edit target: ${TARGET:-${candidate:-?}}  (tool: ${TOOL:-?})"
+    echo ""
+    echo "  ${fix:-Fix the install and re-try. Nothing about this issue is wrong.}"
+  } >&2
+  [ -n "$errfile" ] && rm -f "$errfile"
+  exit 2
+}
 
 # --- read the tool call from stdin ------------------------------------------
 INPUT="$(cat || true)"
@@ -185,8 +230,9 @@ PROJECT_RESOLVED=1
 # by a classifier that resolves candidates against PROJECT_DIR, and
 # re-running resolution inside that loop would break every write shape it
 # guards. So the worktree fix covers the tools that name a file directly -
-# Edit, Write, MultiEdit - which is where a builder in a worktree actually
-# works. A Bash redirect inside a worktree still resolves from the session.
+# Edit and Write - which is where a builder in a worktree actually works. A
+# Bash redirect inside a worktree still resolves from the session;
+# docs/safety-contract.md states that scope.
 if [ "${TOOL:-}" = "Bash" ]; then
   resolve_project ""
 else
@@ -324,14 +370,15 @@ is_enforced_path() {
   # Why this exists: without a declared list an author cannot predict which
   # edit will block (`.github/workflows/ci.yml` is guarded, `docker-compose.yml`
   # is not).
-  if [ -f "$PROJECT_DIR/.compass/config.yml" ] && command -v python3 >/dev/null 2>&1; then
+  if [ -f "$PROJECT_DIR/.compass/config.yml" ]; then
     local hit glob_status glob_err
-    # Same two-failures-look-alike problem as the manifest read below. A reader
-    # that ran and matched nothing means the path is not project-guarded. A
-    # reader that could not start means we do not know whether it is - and
-    # answering "not guarded" to a question we could not ask is how a broken
-    # install quietly stops guarding the very scripts that broke it.
-    glob_err="$(mktemp)"
+    # A reader that ran and matched nothing means the path is not
+    # project-guarded. A reader that could not run - no python3, a broken
+    # install, or a config it cannot parse - means we do not know whether it
+    # is, and answering "not guarded" to a question we could not ask is how a
+    # broken install quietly stops guarding the very scripts that broke it.
+    glob_err="$(mktemp 2>/dev/null)" \
+      || compass_reader_failed "enforcement.code_globs reader" tmp
     set +e
     hit="$(compass_python - "$PROJECT_DIR/.compass/config.yml" "$rel" 2>"$glob_err" <<'PYEOF'
 import fnmatch, sys
@@ -341,8 +388,10 @@ try:
     with open(sys.argv[1], encoding="utf-8") as fh:
         cfg = yaml.safe_load(fh) or {}
     globs = ((cfg.get("enforcement") or {}).get("code_globs")) or []
-except Exception:
-    sys.exit(0)                     # unreadable config -> built-in set only
+except Exception as exc:            # unreadable config -> cannot answer
+    print("could not read enforcement.code_globs from .compass/config.yml: "
+          "%s" % exc, file=sys.stderr)
+    sys.exit(4)
 path = sys.argv[2]
 for g in globs:
     if fnmatch.fnmatch(path, g) or fnmatch.fnmatch(path, g.rstrip("/") + "/*") \
@@ -353,13 +402,11 @@ PYEOF
 )"
     glob_status=$?
     set -e
-    if [ "$glob_status" -eq 3 ]; then
-      # Treat the path as guarded. The manifest read that follows will refuse
-      # with the install's own diagnostics, so the person gets one clear
-      # message rather than a silent pass here and a puzzle later.
-      MATCHED_RULE="unknown - the project's declared paths could not be read ($(head -1 "$glob_err"))"
-      rm -f "$glob_err"
-      return 0
+    if [ "$glob_status" -eq 4 ]; then
+      compass_reader_failed "enforcement.code_globs reader" "$glob_status" \
+        "$glob_err" "Fix .compass/config.yml and re-try."
+    elif [ "$glob_status" -ne 0 ]; then
+      compass_reader_failed "enforcement.code_globs reader" "$glob_status" "$glob_err"
     fi
     rm -f "$glob_err"
     if [ -n "${hit:-}" ]; then
@@ -502,8 +549,10 @@ fi
 compass_say_how_this_project_opted_in() {
   _cfg="$COMPASS_DIR/config.yml"
   [ -f "$_cfg" ] || return 0
-  _by="$(sed -n 's/^  by: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$_cfg" | head -1)"
-  _at="$(sed -n 's/^  at: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$_cfg" | head -1)"
+  # `|| true`: this only adds a sentence to a refusal already on its way. An
+  # unreadable config must not end the script under pipefail with exit 1.
+  _by="$(sed -n 's/^  by: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$_cfg" 2>/dev/null | head -1 || true)"
+  _at="$(sed -n 's/^  at: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' "$_cfg" 2>/dev/null | head -1 || true)"
   [ -n "$_by" ] || return 0
   if [ -n "$_at" ]; then
     echo "  This project was initialised by $_by on $_at, which is when it opted into Compass." >&2
@@ -535,7 +584,7 @@ if [ ! -d "$COMPASS_DIR" ]; then
 fi
 
 if [ ! -d "$WORK_DIR" ]; then
-  echo "Compass: no .compass/work/ in $PROJECT_DIR - triage has not run. Run /compass:assess before changing code." >&2
+  echo "Compass: no .compass/work/ in $PROJECT_DIR - no issue has been assessed. Run /compass:assess before changing code." >&2
   compass_say_how_this_project_opted_in
   exit 2
 fi
@@ -562,7 +611,7 @@ if [ -z "$TASK_DIR" ]; then
 fi
 
 if [ -z "${TASK_DIR:-}" ]; then
-  echo "Compass: no issue under $PROJECT_DIR/.compass/work/ - triage has not run for this change." >&2
+  echo "Compass: no issue under $PROJECT_DIR/.compass/work/ - this change has not been assessed. Run /compass:assess." >&2
   compass_say_how_this_project_opted_in
   exit 2
 fi
@@ -583,29 +632,29 @@ TASK_SLUG="$(basename "$TASK_DIR")"
 # Both filename generations still resolve: the resolver falls back to the
 # retired name for an archive that predates the artifact rename, and to the
 # flat filename for an issue that has not migrated.
-ROUTE_PROBE_ERR="$(mktemp)"
+#
+# The answer is printed and the status only says whether the reader ran, so a
+# crash cannot read as "no record" - that would send the user to re-assess
+# when the install is what is broken.
+ROUTE_PROBE_ERR="$(mktemp 2>/dev/null)" \
+  || compass_reader_failed "delivery-approach reader" tmp
 set +e
-compass_python - "$TASK_DIR" 2>"$ROUTE_PROBE_ERR" <<'PYEOF'
+ROUTE_PROBE="$(compass_python - "$TASK_DIR" 2>"$ROUTE_PROBE_ERR" <<'PYEOF'
 import sys
 import compass_pkg                      # noqa: F401 - puts vendor on sys.path
 from compass_pkg.core import FOUND, resolve_artifact
 state, _path, _reason = resolve_artifact(sys.argv[1], "delivery-approach")
-sys.exit(0 if state == FOUND else 1)
+print("found" if state == FOUND else "absent")
 PYEOF
+)"
 ROUTE_PROBE_STATUS=$?
 set -e
-if [ "$ROUTE_PROBE_STATUS" -eq 3 ]; then
-  # The reader could not start. That is a broken install, not an answer, and
-  # answering "assessment ran" to a question we could not ask is how this hook
-  # switches itself off. Fail closed and say why.
-  echo "Compass: could not run the bundled reader for issue '$TASK_SLUG' - the install is incomplete:" >&2
-  cat "$ROUTE_PROBE_ERR" >&2
-  rm -f "$ROUTE_PROBE_ERR"
-  exit 2
+if [ "$ROUTE_PROBE_STATUS" -ne 0 ] || [ -z "$ROUTE_PROBE" ]; then
+  compass_reader_failed "delivery-approach reader" "$ROUTE_PROBE_STATUS" "$ROUTE_PROBE_ERR"
 fi
 rm -f "$ROUTE_PROBE_ERR"
-if [ "$ROUTE_PROBE_STATUS" -ne 0 ]; then
-  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - triage did not complete. Run /compass:assess." >&2
+if [ "$ROUTE_PROBE" != "found" ]; then
+  echo "Compass: issue '$TASK_SLUG' has no delivery-approach.md - its assessment did not finish. Run /compass:assess." >&2
   exit 2
 fi
 
@@ -634,15 +683,16 @@ fi
 # red-before-green.
 #
 # A false block on unreadable state is how a hook teaches people to bypass it,
-# so if the manifest cannot be read - no manifest.yml, unparseable YAML, no
-# python3, no PyYAML - the hook skips this check and goes on to the red check.
-if [ -f "$TASK_DIR/manifest.yml" ] && command -v python3 >/dev/null 2>&1; then
+# so if there is no manifest.yml, or its YAML does not parse, the hook skips
+# this check and goes on to the red check. A reader that cannot RUN is
+# different - no python3, a broken install - and refuses.
+if [ -f "$TASK_DIR/manifest.yml" ]; then
   # Two failures look alike from here and must not be treated alike. A reader
   # that RAN and found nothing is ordinary - stay quiet, as below. A reader
-  # that could not START means the install is broken, and a guardrail that
+  # that could not RUN means the install is broken, and a guardrail that
   # cannot read its own state must refuse rather than wave the edit through.
-  # compass_python exits 3 for exactly that, with the reason on stderr.
-  G2_ERR="$(mktemp)"
+  G2_ERR="$(mktemp 2>/dev/null)" \
+    || compass_reader_failed "acceptance-criteria reader" tmp
   set +e
   G2_VERDICT="$(compass_python - "$TASK_DIR/manifest.yml" 2>"$G2_ERR" <<'PYEOF'
 import sys
@@ -660,8 +710,8 @@ except Exception:
     # state trains people to bypass the hook, which costs more than the case
     # it would catch. Pinned by
     # tests/test_hook_enforces_g2.py::test_scn_f1_an_unreadable_spine_does_not_block.
-    # The separate status-3 path below is for the check being unable to RUN (a
-    # broken install), which is a different thing from the manifest being
+    # Any non-zero status below is the check being unable to RUN (a broken
+    # install), which is a different thing from the manifest being
     # unreadable.
     sys.exit(0)
 stages = task.get("stages") or task.get("phases") or {}
@@ -676,36 +726,17 @@ PYEOF
 )"
   G2_STATUS=$?
   set -e
-  # Refuse on every non-zero status. Exit 3 (the vendored PyYAML is missing)
-  # prints its own cause; any other status prints the status number, because
-  # "it exited 1" is the first thing anyone debugging wants. A test exercising
-  # this check's success path also needs a `.red` marker in place, because the
-  # red-before-green check further down still runs and refuses without one.
+  # Refuse on every non-zero status, with the reader's own stderr as the
+  # cause. A test exercising this check's success path also needs a `.red`
+  # marker in place, because the red-before-green check further down still
+  # runs and refuses without one.
   if [ "$G2_STATUS" -ne 0 ]; then
-    if [ "$G2_STATUS" -eq 3 ]; then
-      _g2_cause="$(cat "$G2_ERR")"
-    else
-      _g2_cause="  The manifest reader exited $G2_STATUS."
-    fi
-    cat >&2 <<EOF
-Compass: BLOCKED - the enforcement check could not run.
-
-$_g2_cause
-  This hook cannot read the manifest, so it cannot tell whether the
-  acceptance criteria exist. It refuses rather than allowing an edit it was
-  unable to check - a guardrail that cannot read its own state must fail
-  closed, or it is not a guardrail.
-  Edit target: $TARGET  (tool: ${TOOL:-?})
-
-  Fix the install and re-try. Nothing about this issue is wrong.
-EOF
-    rm -f "$G2_ERR"
-    exit 2
+    compass_reader_failed "acceptance-criteria reader" "$G2_STATUS" "$G2_ERR"
   fi
   rm -f "$G2_ERR"
   if [ "${G2_VERDICT:-}" = "block" ]; then
     cat >&2 <<EOF
-Compass: BLOCKED - the delivery approach says specify: full, but manifest.yml has no scenarios.
+Compass: BLOCKED - the delivery approach says define: full, but manifest.yml has no scenarios.
 
   The acceptance-before-code guardrail. No code is written that no stated,
   checkable acceptance criterion describes - and a guardrail beats a
@@ -714,7 +745,8 @@ Compass: BLOCKED - the delivery approach says specify: full, but manifest.yml ha
   Guarded by  : ${MATCHED_RULE:-the built-in production-code set}
 
   To proceed the Compass way:
-    1. Write the scenarios into .compass/work/$TASK_SLUG/acceptance-criteria.md.
+    1. Write the scenarios into the issue's acceptance-criteria.md, under
+       docs/compass/<created>-$TASK_SLUG/.
     2. Mirror them into manifest.yml's \`scenarios:\` block - each with an id, a
        linked intent, and the test(s) that will exercise it:
          compass scenario add SCN-001 --title "..." --intent INT-1
@@ -765,7 +797,9 @@ if [ -f "$TASK_DIR/.red" ]; then
   # non-blocking error and lets the edit through. The status is checked below
   # and a failed reader refuses.
   set +e
-  RED_VERDICT="$(compass_python - "$TASK_DIR" "$COMPASS_DIR" <<'PYEOF' 2>/dev/null
+  RED_ERR="$(mktemp 2>/dev/null)" \
+    || compass_reader_failed "red-record reader" tmp
+  RED_VERDICT="$(compass_python - "$TASK_DIR" "$COMPASS_DIR" <<'PYEOF' 2>"$RED_ERR"
 # One verdict, shared with `suite-passed`, so the hook and the check cannot
 # disagree about what counts as a red. red_first.py documents each word.
 import sys
@@ -780,19 +814,9 @@ PYEOF
   set -e
 
   if [ "$RED_STATUS" -ne 0 ] || [ -z "${RED_VERDICT:-}" ]; then
-    # The reader could not run. A hook that cannot check must not permit.
-    cat >&2 <<EOF
-Compass: BLOCKED - could not read the red record for issue '$TASK_SLUG'.
-
-  The .red marker is present, but the reader that verifies the record behind
-  it exited $RED_STATUS. This hook refuses rather than allowing an edit it was
-  unable to check.
-  Edit target: $TARGET  (tool: ${TOOL:-?})
-
-  Fix the install and re-try. Nothing about this issue is wrong.
-EOF
-    exit 2
+    compass_reader_failed "red-record reader" "$RED_STATUS" "$RED_ERR"
   fi
+  rm -f "$RED_ERR"
 
   if [ "$RED_VERDICT" = "ok" ]; then
     # An observed failure is on record for this issue. Red came before green.

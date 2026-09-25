@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### compass init declares the cutoff for a new project
+### A missing approach record is still reported as missing
 
-- **Scenario id:** `RIC-5`
+- **Scenario id:** `HFM-4`
 - **Intent:** `INT-1`
-- **Source issue:** `red-record-identity-cutoff`
+- **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,25 +43,25 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### A stamped red is judged by its digest in every project
+### A config that does not parse does not unguard code_globs
 
-- **Scenario id:** `RIC-4`
+- **Scenario id:** `HFM-3`
 - **Intent:** `INT-2`
-- **Source issue:** `red-record-identity-cutoff`
+- **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
 
-### The safety contract states the cutoff
+### The safety contract scopes the worktree redirect gap
 
-- **Scenario id:** `RIC-8`
+- **Scenario id:** `HFM-5`
 - **Intent:** `INT-3`
-- **Source issue:** `red-record-identity-cutoff`
+- **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
 
-### The hook has no identity rule of its own
+### The hooks use no retired word or tool name
 
-- **Scenario id:** `RIC-7`
+- **Scenario id:** `HFM-6`
 - **Intent:** `INT-4`
-- **Source issue:** `red-record-identity-cutoff`
+- **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
 
 ### A CLI module's header describes that module
@@ -8267,9 +8267,51 @@
 - **Source issue:** `red-record-identity-cutoff`
 - **Landed:** 2026-09-24
 
+### A stamped red is judged by its digest in every project _(archived)_
+
+- **Scenario id:** `RIC-4`
+- **Intent:** `INT-2`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### compass init declares the cutoff for a new project _(archived)_
+
+- **Scenario id:** `RIC-5`
+- **Intent:** `INT-1`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
 ### suite-passed applies the same identity rule _(archived)_
 
 - **Scenario id:** `RIC-6`
 - **Intent:** `INT-4`
 - **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### The hook has no identity rule of its own _(archived)_
+
+- **Scenario id:** `RIC-7`
+- **Intent:** `INT-4`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### The safety contract states the cutoff _(archived)_
+
+- **Scenario id:** `RIC-8`
+- **Intent:** `INT-3`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### Every reader that cannot run refuses and names itself _(archived)_
+
+- **Scenario id:** `HFM-1`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-failure-matrix`
+- **Landed:** 2026-09-24
+
+### With no python3 the refusal says so _(archived)_
+
+- **Scenario id:** `HFM-2`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
