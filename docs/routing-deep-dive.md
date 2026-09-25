@@ -58,7 +58,7 @@ lives, not how scary it looks.
 Atomic size, trivial risk, mapped familiarity, engineer role. This is
 the textbook quick fix case. The candidate delivery approach is **quick
 fix**: one scenario, the requirements review collapsed, plan collapsed to a
-one-liner, breakdown skipped, full TDD on a tiny surface, one light gate at
+one-liner, breakdown skipped, full TDD on a tiny surface, three gates at
 verify.
 
 ### Constrain
@@ -120,7 +120,7 @@ policy's floor list (`auth`, `payments`, `personal-data`, `migrations`,
 Standard size, contained risk, mapped familiarity. The candidate is
 **feature**, plainly: a small feature set of scenarios, a light-to-full
 requirements review pass, a real `technical-design.md` with the design decisions recorded, solo or
-pair orchestration, two gates at verify. No deviation from the reference shape is
+pair orchestration, six gates at verify. No deviation from the reference shape is
 warranted - risk is only `contained`, so `security` stays scaled
 rather than full and `clarity` and `regression` are on as feature always has
 them.
@@ -474,8 +474,9 @@ The `product-marketer` role rule fires: `positioning.md` and
 blocked** until every claim ("export your data in one click", "works with
 spreadsheets you already use") traces to a passing scenario. The engineering
 work might be quick fix-sized, but the delivery approach carries the claims
-gate to ship regardless - `verify.claims` is immovable. Same three words; an
-extra gate that did not exist in the other three cases.
+gate to ship regardless - `verify.claims` blocks shipping whenever a marketer
+is in play. Same three words; an extra gate that did not exist in the other
+three cases.
 
 Four delivery approaches, one request. The request did not change. The
 assessment did - and Compass computes the delivery approach from the
