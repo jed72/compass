@@ -164,9 +164,11 @@ def test_b3_contract_states_the_evidence_limit():
     assert "which tests" in section or "which test" in section, (
         "the contract does not say the record leaves the collected tests "
         "unrecorded - which is the whole limit")
-    assert "not bound" in section or "state of the code" in section, (
-        "the contract does not say the record is unbound to the state of the "
-        "code when it was made, so a stale green satisfies it")
+    # A record now names the tree it ran on (`evidence-binding`). The limit
+    # that remains is who made the record, and the contract must say so.
+    assert "tree_id" in section and "trusted runner" in section, (
+        "the contract does not say what a record's tree id proves and what "
+        "it does not")
 
 
 # --- `TRC-B4`, `TRC-D1`, `TRC-D2` --------------------------------------------

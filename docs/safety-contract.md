@@ -96,11 +96,24 @@ proves. It does not prove:
 
 - which tests were collected or ran;
 - that the run exercised every declared scenario; or
-- that the record is bound to the state of the code when it was made, so a passing record can outlast the code it tested.
+- that a trusted runner made the record.
 
-Teams must keep their normal CI controls. Binding evidence to code and
-specification identity would strengthen this guarantee; the current contract
-does not claim it.
+Each record does name the tree it ran on, with two git tree ids: `tree_id`,
+the tracked files on disk plus the issue's own new files, and `changes_id`,
+the issue's changed files alone. `compass check` judges the issue's newest
+record:
+
+- in flight, once every gate has passed, it fails if the tree has changed
+  since the record was made
+- landed, it fails if the issue's changed files in the commit that landed it
+  are not the files that were tested
+
+The ids show which tree a record claims; they do not prove that a trusted
+runner produced the record, and an older record is not judged. A record
+written outside a git repository, or before records carried a tree id, is
+not judged either.
+
+Teams must keep their normal CI controls.
 
 ### Compass enforces nothing in a project that has not opted in
 

@@ -238,6 +238,9 @@ def cmd_land_commit(args):
                     else:
                         task["status"] = "landed"
                         task["land_timestamp"] = now_iso()
+                        # The commit this issue landed in. A green is checked
+                        # against its tree after HEAD has moved on.
+                        task["land_commit"] = head_after
                         save_manifest(task, task_path)
                         landed_note = "\n  issue marked landed."
         except CompassError:

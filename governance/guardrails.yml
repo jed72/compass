@@ -27,7 +27,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.22.0
+version: 1.23.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -115,6 +115,20 @@ checks:
       with no record_id predates stamping and is UNVERIFIABLE - reported and
       counted apart from the passes, never treated as checked, because an
       unstamped record cannot be checked against its citation.
+
+  evidence-matches-tree:
+    description: >
+      The newest test record still names the tree that ships. Every red,
+      green and acceptance record carries tree_id, the git tree id of the
+      tracked files on disk plus the issue's untracked changed files, less
+      .compass/ and docs/compass/, and changes_id, a tree of the changed files
+      alone. For an issue in flight the check compares tree_id with the tree
+      now, and fails only once every gate has passed; before that a stale
+      record is a note. For a landed issue it compares changes_id with the
+      same files in land_commit, the commit ship-commit made. A record with
+      no tree_id, or a landed issue with no land_commit, is not judged; a
+      land_commit that is not a commit id fails. It shows which tree a record
+      claims, not that a trusted runner made the claim.
 
   command-passes:
     description: "Runs the project guardrail's declared `command:` via subprocess and checks it exits 0. On success: emits a command-output evidence entry. On failure: emits a command-output evidence entry with exit code + stderr. When verify.architecture is in the gate set and zero project guardrails declare command-passes, it passes without checking anything (no declarations means there are no architecture checks to run)."
@@ -229,7 +243,7 @@ defaults:
       The Definition of Done is a typed gate: every unchecked DoD box must
       reference typed evidence or a filed follow-up - narrative notes never clear it.
     checks: [gate-evidence-present, dod-evidence-typed, consistency-check-passes, no-trusted-rerun, command-passes,
-             evidence-identity-matches, dashboard-current,
+             evidence-identity-matches, evidence-matches-tree, dashboard-current,
              borrowed-documents-answered]
     checked_at: [verify, land]
 
