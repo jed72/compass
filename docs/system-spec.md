@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### The governance text states the rule
+### compass init declares the cutoff for a new project
 
-- **Scenario id:** `UGR-8`
+- **Scenario id:** `RIC-5`
 - **Intent:** `INT-1`
-- **Source issue:** `unbound-green-needs-no-red`
+- **Source issue:** `red-record-identity-cutoff`
 - **Landed:** 2026-09-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -43,25 +43,25 @@
 - **Source issue:** `framework-field-feedback`
 - **Landed:** 2026-06-23
 
-### An acceptance record stands in for a red
+### A stamped red is judged by its digest in every project
 
-- **Scenario id:** `UGR-3`
+- **Scenario id:** `RIC-4`
 - **Intent:** `INT-2`
-- **Source issue:** `unbound-green-needs-no-red`
+- **Source issue:** `red-record-identity-cutoff`
 - **Landed:** 2026-09-24
 
-### An issue created before the cutoff keeps its result
+### The safety contract states the cutoff
 
-- **Scenario id:** `UGR-5`
+- **Scenario id:** `RIC-8`
 - **Intent:** `INT-3`
-- **Source issue:** `unbound-green-needs-no-red`
+- **Source issue:** `red-record-identity-cutoff`
 - **Landed:** 2026-09-24
 
-### An unbound green with no red does not claim a red
+### The hook has no identity rule of its own
 
-- **Scenario id:** `UGR-7`
+- **Scenario id:** `RIC-7`
 - **Intent:** `INT-4`
-- **Source issue:** `unbound-green-needs-no-red`
+- **Source issue:** `red-record-identity-cutoff`
 - **Landed:** 2026-09-24
 
 ### A CLI module's header describes that module
@@ -8204,10 +8204,24 @@
 - **Source issue:** `unbound-green-needs-no-red`
 - **Landed:** 2026-09-24
 
+### An acceptance record stands in for a red _(archived)_
+
+- **Scenario id:** `UGR-3`
+- **Intent:** `INT-2`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
 ### An issue with no scenarios is not asked for a red _(archived)_
 
 - **Scenario id:** `UGR-4`
 - **Intent:** `INT-1`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### An issue created before the cutoff keeps its result _(archived)_
+
+- **Scenario id:** `UGR-5`
+- **Intent:** `INT-3`
 - **Source issue:** `unbound-green-needs-no-red`
 - **Landed:** 2026-09-24
 
@@ -8216,4 +8230,46 @@
 - **Scenario id:** `UGR-6`
 - **Intent:** `INT-4`
 - **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### An unbound green with no red does not claim a red _(archived)_
+
+- **Scenario id:** `UGR-7`
+- **Intent:** `INT-4`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### The governance text states the rule _(archived)_
+
+- **Scenario id:** `UGR-8`
+- **Intent:** `INT-1`
+- **Source issue:** `unbound-green-needs-no-red`
+- **Landed:** 2026-09-24
+
+### An unstamped red written since the cutoff does not unlock _(archived)_
+
+- **Scenario id:** `RIC-1`
+- **Intent:** `INT-1`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### An unstamped red written before the cutoff still unlocks _(archived)_
+
+- **Scenario id:** `RIC-2`
+- **Intent:** `INT-2`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### A project with no cutoff behaves as today _(archived)_
+
+- **Scenario id:** `RIC-3`
+- **Intent:** `INT-2`
+- **Source issue:** `red-record-identity-cutoff`
+- **Landed:** 2026-09-24
+
+### suite-passed applies the same identity rule _(archived)_
+
+- **Scenario id:** `RIC-6`
+- **Intent:** `INT-4`
+- **Source issue:** `red-record-identity-cutoff`
 - **Landed:** 2026-09-24

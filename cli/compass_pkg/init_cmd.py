@@ -54,6 +54,12 @@ initialised:
   by: "{by}"
   at: "{at}"
 
+# From this date, a red record must carry the identity `compass tdd-red`
+# stamps on it (record_id and content_digest) before it unlocks a code edit.
+# A record with no identity counts only if its own timestamp is earlier.
+# Delete the line to accept unstamped records again.
+records_signed_since: '{at}'
+
 project:
   # Shown in artifact headers and the devlog.
   name: ""

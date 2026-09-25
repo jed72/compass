@@ -11,16 +11,24 @@
 #
 # Kept apart from checks.py, which is near its line cap.
 #
-# DEPENDENCY: standard library only (datetime, json, os, stat). tdd.py
-# imports from here, so this module must not import tdd.py.
+# It also gives the one verdict on an issue's red records that the pre-tool
+# hook and `suite-passed` both use, so the two cannot disagree about what
+# counts as a red.
+#
+# DEPENDENCY: standard library (datetime, hashlib, json, os, stat) and
+# compass_pkg.core for the config reader. tdd.py imports from here, so this
+# module must not import tdd.py.
 # =============================================================================
 """Does an issue that declares scenarios show a failure observed first?"""
 from __future__ import annotations
 
 import datetime
+import hashlib
 import json
 import os
 import stat
+
+from compass_pkg.core import CompassError, find_upwards, load_yaml
 
 #: Issues created on or after this date must show a failure first. Issues
 #: created before it keep the result they had: their records say what was
@@ -60,21 +68,127 @@ def _is_failed_run(record):
             and not isinstance(code, bool) and code != 0)
 
 
-def has_red(task_dir):
-    """Is a failed run on record? `compass tdd-red` writes `evidence/red.json`
-    unbound and `evidence/red-<scenario>.json` bound. A red record is not
-    registered in `evidence:`, so this reads the directory."""
+def signed_since(task_dir, compass_dir=None):
+    """The project's `records_signed_since` date, or None when it declares none.
+
+    From that date on, a red record must carry the identity `compass tdd-red`
+    stamps on it. A project that declares nothing keeps the older allowance
+    for unstamped records.
+
+    `compass_dir` names the project's `.compass/` when the caller has already
+    resolved it, as the pre-tool hook has; the issue directory's own ancestors
+    are the fallback.
+
+    Returns None - no cutoff - only when the key is absent or empty, or when
+    there is no config file. Anything else that cannot be read as a date,
+    including a config file that does not parse, counts as a cutoff in the far
+    past: a broken config must not turn the cutoff off without a word.
+    """
+    if compass_dir is None:
+        root = find_upwards(task_dir, ".compass")
+        if not root:
+            return None
+        compass_dir = os.path.join(root, ".compass")
+    path = os.path.join(compass_dir, "config.yml")
+    if not os.path.exists(path):
+        return None
+    try:
+        config = load_yaml(path)
+    except (CompassError, OSError, ValueError):
+        return datetime.date.min
+    if not isinstance(config, dict):
+        return datetime.date.min
+    value = config.get("records_signed_since")
+    if value is None or str(value).strip() == "":
+        return None
+    if isinstance(value, datetime.datetime):
+        return value.date()
+    if isinstance(value, datetime.date):
+        return value
+    try:
+        return datetime.date.fromisoformat(str(value).strip()[:10])
+    except ValueError:
+        return datetime.date.min
+
+
+def content_digest(payload):
+    """A stable digest over a record's content, excluding the digest itself.
+    `compass tdd-red` stamps records with it, and `red_verdict` checks them
+    with it, so writer and reader cannot drift apart."""
+    body = {k: v for k, v in payload.items() if k != "content_digest"}
+    encoded = json.dumps(body, sort_keys=True, default=str).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _written_before(record, cutoff):
+    """Does the record's own timestamp put it before the cutoff? A record
+    with no readable timestamp is not."""
+    try:
+        written = datetime.date.fromisoformat(str(record.get("timestamp"))[:10])
+    except ValueError:
+        return False
+    return written < cutoff
+
+
+def red_verdict(task_dir, compass_dir=None):
+    """The verdict on an issue's red records, as one word:
+
+      ok               a failed run is on record and counts
+      no-record        no red record file at all
+      unsigned         failed runs are on record, but each lacks the identity
+                       this project has required since `records_signed_since`
+      no-valid-record  anything else: no failed run, or a stamped record
+                       edited after it was written
+
+    `compass tdd-red` writes `evidence/red.json` unbound and
+    `evidence/red-<scenario>.json` bound. A red record is not registered in
+    `evidence:`, so this reads the directory.
+    """
     evidence = os.path.join(task_dir, "evidence")
     if os.path.islink(evidence):
-        return False
+        return "no-valid-record"
     try:
-        names = os.listdir(evidence)
+        names = sorted(os.listdir(evidence))
     except OSError:
-        return False
-    return any(
-        (name == "red.json" or (name.startswith("red-") and name.endswith(".json")))
-        and _is_failed_run(_load(os.path.join(evidence, name)))
-        for name in names)
+        return "no-record"
+    names = [n for n in names
+             if n == "red.json" or (n.startswith("red-") and n.endswith(".json"))]
+    if not names:
+        return "no-record"
+    cutoff = signed_since(task_dir, compass_dir)
+    unsigned = False
+    for name in names:
+        record = _load(os.path.join(evidence, name))
+        if not _is_failed_run(record):
+            continue
+        if record.get("content_digest"):
+            if content_digest(record) == record["content_digest"]:
+                return "ok"
+            continue
+        # Written before records carried an identity. Accepted unless the
+        # project has declared a date from which every record must carry one.
+        if cutoff is None or _written_before(record, cutoff):
+            return "ok"
+        unsigned = True
+    return "unsigned" if unsigned else "no-valid-record"
+
+
+def verdict_line(task_dir, compass_dir=None):
+    """The verdict and the cutoff it applied, on one line, for the pre-tool
+    hook: `unsigned 2026-09-24`. The hook prints the date from here rather
+    than parsing the config itself, so the refusal names the date the reader
+    actually used."""
+    verdict = red_verdict(task_dir, compass_dir)
+    if verdict != "unsigned":
+        return verdict
+    cutoff = signed_since(task_dir, compass_dir)
+    shown = "an unreadable value" if cutoff == datetime.date.min else cutoff.isoformat()
+    return "unsigned " + shown
+
+
+def has_red(task_dir):
+    """Is a failed run on record that counts? See `red_verdict`."""
+    return red_verdict(task_dir) == "ok"
 
 
 def _has_acceptance(task, task_dir):
