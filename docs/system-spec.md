@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### validate.sh --help prints both exit codes and every check
+### An issue created and worked before the cutoff keeps its result
 
-- **Scenario id:** `VHP-1`
+- **Scenario id:** `CDB-2`
 - **Intent:** `INT-1`
-- **Source issue:** `validate-help-prints-headings-only`
+- **Source issue:** `created-date-can-be-backdated`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8342,4 +8342,18 @@
 - **Scenario id:** `RCM-3`
 - **Intent:** `INT-1`
 - **Source issue:** `reach-counts-move-with-every-test`
+- **Landed:** 2026-09-25
+
+### validate.sh --help prints both exit codes and every check _(archived)_
+
+- **Scenario id:** `VHP-1`
+- **Intent:** `INT-1`
+- **Source issue:** `validate-help-prints-headings-only`
+- **Landed:** 2026-09-25
+
+### A backdated issue with evidence dated after the cutoff gets the rule _(archived)_
+
+- **Scenario id:** `CDB-1`
+- **Intent:** `INT-1`
+- **Source issue:** `created-date-can-be-backdated`
 - **Landed:** 2026-09-25
