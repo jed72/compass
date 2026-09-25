@@ -388,6 +388,11 @@ try:
     with open(sys.argv[1], encoding="utf-8") as fh:
         cfg = yaml.safe_load(fh) or {}
     globs = ((cfg.get("enforcement") or {}).get("code_globs")) or []
+    # A string would be walked one character at a time, and `*` alone
+    # guards every path. Any other shape is a config this cannot read.
+    if not isinstance(globs, list) or not all(isinstance(g, str) for g in globs):
+        raise ValueError("enforcement.code_globs must be a list of strings, "
+                         "not %r" % (globs,))
 except Exception as exc:            # unreadable config -> cannot answer
     print("could not read enforcement.code_globs from .compass/config.yml: "
           "%s" % exc, file=sys.stderr)
