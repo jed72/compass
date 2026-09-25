@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### An ordinary slug behaves as today
+### A list of strings behaves as today
 
-- **Scenario id:** `CTP-3`
+- **Scenario id:** `CGS-2`
 - **Intent:** `INT-1`
-- **Source issue:** `pointer-path-traversal`
+- **Source issue:** `code-globs-as-a-string`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8426,4 +8426,18 @@
 - **Scenario id:** `CTP-2`
 - **Intent:** `INT-1`
 - **Source issue:** `pointer-path-traversal`
+- **Landed:** 2026-09-25
+
+### An ordinary slug behaves as today _(archived)_
+
+- **Scenario id:** `CTP-3`
+- **Intent:** `INT-1`
+- **Source issue:** `pointer-path-traversal`
+- **Landed:** 2026-09-25
+
+### code_globs of the wrong shape refuses and names the config _(archived)_
+
+- **Scenario id:** `CGS-1`
+- **Intent:** `INT-1`
+- **Source issue:** `code-globs-as-a-string`
 - **Landed:** 2026-09-25
