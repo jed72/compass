@@ -29,12 +29,12 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A missing approach record is still reported as missing
+### A widened reach fails the reach test, naming the rule
 
-- **Scenario id:** `HFM-4`
+- **Scenario id:** `RCM-3`
 - **Intent:** `INT-1`
-- **Source issue:** `hook-failure-matrix`
-- **Landed:** 2026-09-24
+- **Source issue:** `reach-counts-move-with-every-test`
+- **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
 
@@ -8315,3 +8315,24 @@
 - **Intent:** `INT-1`
 - **Source issue:** `hook-failure-matrix`
 - **Landed:** 2026-09-24
+
+### A missing approach record is still reported as missing _(archived)_
+
+- **Scenario id:** `HFM-4`
+- **Intent:** `INT-1`
+- **Source issue:** `hook-failure-matrix`
+- **Landed:** 2026-09-24
+
+### A new file with prose leaves the reach test green _(archived)_
+
+- **Scenario id:** `RCM-1`
+- **Intent:** `INT-1`
+- **Source issue:** `reach-counts-move-with-every-test`
+- **Landed:** 2026-09-25
+
+### A new file with no prose fails the reach test, naming the rule _(archived)_
+
+- **Scenario id:** `RCM-2`
+- **Intent:** `INT-1`
+- **Source issue:** `reach-counts-move-with-every-test`
+- **Landed:** 2026-09-25
