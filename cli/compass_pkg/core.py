@@ -202,6 +202,20 @@ def exit_for_mode(failures, mode):
     return 1 if failures else 0
 
 
+def _one_segment(slug, where):
+    """Refuse a slug that is not one path segment.
+
+    A slug is joined onto `.compass/work/`. `../side` or `a/b` would resolve
+    outside it or below another issue, and every reader - the pre-tool hook
+    included - would then judge the edit by another directory's state.
+    """
+    if slug in (".", "..") or "/" in slug or "\\" in slug:
+        raise CompassError(
+            f"{where} names '{slug}', which is not one path segment. An issue "
+            f"slug names a directory directly under .compass/work/.")
+    return slug
+
+
 def resolve_issue_dir(slug=None):
     """Resolve an issue's working directory.
 
@@ -211,7 +225,7 @@ def resolve_issue_dir(slug=None):
     compass_dir = find_compass_dir()
     work = os.path.join(compass_dir, "work")
     if slug:
-        d = os.path.join(work, slug)
+        d = os.path.join(work, _one_segment(slug, "--issue"))
         if not os.path.isdir(d):
             raise CompassError(f"no issue directory for slug '{slug}' under {work}")
         return d
@@ -220,7 +234,7 @@ def resolve_issue_dir(slug=None):
         with open(pointer, "r", encoding="utf-8") as fh:
             s = fh.read().strip()
         if s:
-            d = os.path.join(work, s)
+            d = os.path.join(work, _one_segment(s, ".compass/current-task"))
             if os.path.isdir(d):
                 return d
             sys.stderr.write(

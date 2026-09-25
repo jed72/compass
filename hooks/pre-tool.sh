@@ -599,6 +599,13 @@ TASK_DIR=""
 POINTER="$COMPASS_DIR/current-task"
 if [ -f "$POINTER" ]; then
   SLUG="$(tr -d '[:space:]' < "$POINTER" 2>/dev/null || true)"
+  # A slug is one path segment. `../side` would resolve outside the work
+  # directory, and this hook would judge the edit by that directory's red.
+  case "$SLUG" in
+    .|..|*/*|*\\*)
+      echo "Compass: BLOCKED - .compass/current-task names '$SLUG', which is not one path segment. An issue slug names a directory directly under .compass/work/." >&2
+      exit 2 ;;
+  esac
   if [ -n "$SLUG" ] && [ -d "$WORK_DIR/$SLUG" ]; then
     TASK_DIR="$WORK_DIR/$SLUG"
   fi

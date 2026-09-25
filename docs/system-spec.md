@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A command where the plugin loads keeps the flag
+### An ordinary slug behaves as today
 
-- **Scenario id:** `CFA-3`
+- **Scenario id:** `CTP-3`
 - **Intent:** `INT-1`
-- **Source issue:** `coverage-flag-with-autoload-off`
+- **Source issue:** `pointer-path-traversal`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8405,4 +8405,25 @@
 - **Scenario id:** `CFA-2`
 - **Intent:** `INT-1`
 - **Source issue:** `coverage-flag-with-autoload-off`
+- **Landed:** 2026-09-25
+
+### A command where the plugin loads keeps the flag _(archived)_
+
+- **Scenario id:** `CFA-3`
+- **Intent:** `INT-1`
+- **Source issue:** `coverage-flag-with-autoload-off`
+- **Landed:** 2026-09-25
+
+### A pointer holding a path makes the hook refuse _(archived)_
+
+- **Scenario id:** `CTP-1`
+- **Intent:** `INT-1`
+- **Source issue:** `pointer-path-traversal`
+- **Landed:** 2026-09-25
+
+### The CLI refuses a slug holding a path _(archived)_
+
+- **Scenario id:** `CTP-2`
+- **Intent:** `INT-1`
+- **Source issue:** `pointer-path-traversal`
 - **Landed:** 2026-09-25
