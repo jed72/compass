@@ -61,6 +61,10 @@ def _load(path):
     return data if isinstance(data, dict) else {}
 
 
+#: The public name for other modules; `_load` stays for this module's own use.
+load_record = _load
+
+
 def _is_failed_run(record):
     """True only for what `compass tdd-red` writes: `passed` false and an
     integer exit code that is not 0. Either field alone is not enough - a

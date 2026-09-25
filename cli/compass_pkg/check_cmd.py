@@ -37,6 +37,7 @@ from compass_pkg.landed_by import LANDED_BY_RELAXES, landed_by_holds, _check_lan
 from compass_pkg.checks import NOTHING_TO_CHECK, _check_backfills_paid, _check_changed_code_traces, _check_claim_traces, _check_coherence_check_passes, _check_evidence_identity_matches, _check_command_passes, _check_declared_tests_resolve, _check_dod_evidence_typed, _check_gate_evidence, _check_human_approval, _check_no_trusted_rerun, _check_scenario_has_id_and_intent, _check_scenarios_are_executable, _check_scenarios_have_tests, _check_spike_conclusion_present, _check_spike_no_production_changes, _check_suite_passed
 from compass_pkg.borrowed_docs import _check_borrowed_documents_answered
 from compass_pkg.dashboard import _check_dashboard_current
+from compass_pkg.binding import _check_evidence_matches_tree
 from compass_pkg.core import FRAMEWORK_ROOT, exit_for_mode, find_governance, load_mode, load_manifest, load_yaml, mode_banner, reading_matches, resolve_issue_dir
 
 
@@ -60,6 +61,7 @@ CHECK_FNS = {
     "no-trusted-rerun": _check_no_trusted_rerun,
     "command-passes": _check_command_passes,
     "evidence-identity-matches": _check_evidence_identity_matches,
+    "evidence-matches-tree": _check_evidence_matches_tree,
     "dashboard-current": _check_dashboard_current,
     "borrowed-documents-answered": _check_borrowed_documents_answered,
 }
@@ -100,6 +102,11 @@ CHECK_GUIDANCE = {
         "why": 'A gate cites an evidence record by id. If the file has changed since, the gate is cleared by something other than what was reviewed - which is the difference between evidence and a filename.',
         "fix": 'Re-run whatever produced the record so it is stamped afresh (`compass tdd-green` for a test run), or point the gate at the record that actually backs it.',
         "do": 'Re-record the evidence, or point the gate at the record that backs it.',
+    },
+    "evidence-matches-tree": {
+        "why": "A green proves a command passed on the tree it ran on. Once that tree changes, the record says nothing about the code that is about to ship - or, for a landed issue, about the commit that landed it.",
+        "fix": "Re-run the suite through `compass tdd-green -- <test command>` on the tree you intend to ship, so the newest record names it. For a landed issue, the files the commit landed are not the files that were tested: check out a tree whose changed files match the landing commit, re-run the suite through `compass tdd-green`, and the newest record will name them.",
+        "do": "Re-run the suite with `compass tdd-green` on the tree you ship.",
     },
     "no-trusted-rerun": {
         "why": "A green recorded from a run nobody observed is an assertion wearing evidence's clothes. The tested-before-ship guardrail wants the run, not a note about it.",

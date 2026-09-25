@@ -35,6 +35,7 @@ import fnmatch
 import re as _re
 from compass_pkg.terminal import say
 from compass_pkg.core import CompassError, find_upwards, load_manifest, load_yaml, manifest_path, now_iso, resolve_issue_dir, save_manifest
+from compass_pkg.binding import ids_for
 from compass_pkg.red_first import (
     ACCEPTANCE_KINDS as _ACCEPTANCE_KINDS, content_digest as _content_digest, has_red)
 
@@ -335,6 +336,7 @@ def cmd_tdd_red(args):
                            "`compass tdd-red --scenario TRC-A1 -- pytest tests/test_x.py`"
                            " (or set project.test_micro_command in .compass/config.yml)")
     command = _neutralise_coverage(command)
+    tree_ids = ids_for(task_dir)   # the tree the test runs on, named before it runs
     code, out, warnings = _run_test(command)
     for w in warnings:
         sys.stderr.write(f"compass tdd-red: warning - {w}\n")
@@ -367,6 +369,7 @@ def cmd_tdd_red(args):
     }
     if verified_by:
         payload["verified_by"] = verified_by   # a sanctioned non-unit red
+    _bind_to_tree(payload, tree_ids)
     # The binding decides the path here too, so one scenario's red cannot
     # overwrite another's.
     red_name = "red"
@@ -421,6 +424,15 @@ def _source_tree_hash(project_root):
             except OSError:
                 pass  # file disappeared mid-walk - skip it
     return h.hexdigest()
+
+
+def _bind_to_tree(payload, tree_ids):
+    """Name the tree this run tested, before the record is stamped, so the
+    digest covers the name. The ids are taken before the test runs: a test
+    that rewrites files must be recorded against the tree it ran on, not the
+    one it left behind. Outside a git repository there are no ids. See
+    binding.py."""
+    payload.update(tree_ids)
 
 
 def _tdd_state_path(task_dir):
@@ -518,6 +530,7 @@ def cmd_tdd_green(args):
         )
 
     command = _neutralise_coverage(command)
+    tree_ids = ids_for(task_dir)   # the tree the test runs on, named before it runs
     code, out, warnings = _run_test(command)
     for w in warnings:
         sys.stderr.write(f"compass tdd-green: warning - {w}\n")
@@ -592,6 +605,7 @@ def cmd_tdd_green(args):
     # red→green path).
     if attempts > 1:
         payload["rerun_without_change"] = rerun_without_change
+    _bind_to_tree(payload, tree_ids)
     if verified_by:
         payload["verified_by"] = verified_by   # carry the guard kind forward
     # THE BINDING DECIDES THE PATH. One record per run, and nothing else is
@@ -822,6 +836,7 @@ def cmd_acceptance_record(args):
                 "between is two runs, not a refactor - there is no behaviour "
                 "preservation to record.")
 
+    tree_ids = ids_for(task_dir)   # the tree the test runs on, named before it runs
     code, out, warnings = _run_test(_neutralise_coverage(command))
     excerpt = out[-2000:]
     if code != 0:
@@ -846,6 +861,7 @@ def cmd_acceptance_record(args):
     if kind == "refactor":
         payload["baseline"] = state.get("baseline", {})
         payload["baseline"]["command"] = state.get("command")
+    _bind_to_tree(payload, tree_ids)
 
     # The binding decides the path, as in cmd_tdd_green.
     scenario = getattr(args, "scenario", None)

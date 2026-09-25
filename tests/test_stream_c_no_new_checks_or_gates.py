@@ -52,6 +52,11 @@ BASELINE_CHECKS = {
     # a record from a different run. Joins `G4` rather than becoming a
     # sixth guardrail (ADR-002).
     "evidence-identity-matches",
+    # Added by evidence-binding. A green record names the tree it ran on,
+    # and this checks the newest one still names the tree that ships, or,
+    # for a landed issue, the files the landing commit holds. Joins `G4`
+    # rather than becoming a sixth guardrail (ADR-002).
+    "evidence-matches-tree",
     "human-approval-present",
     "backfills-paid",
     "spike-conclusion-present",
