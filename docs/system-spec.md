@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### The injected contract names docs/compass as the home of an issue's documents
+### validate.sh skips an issue's own documents and still fails a broken reference in a living file
 
-- **Scenario id:** `CF-1`
+- **Scenario id:** `VSA-1`
 - **Intent:** `INT-1`
-- **Source issue:** `contract-facts`
+- **Source issue:** `validate-scan-vs-archive`
 - **Landed:** 2026-09-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8153,4 +8153,11 @@
 - **Scenario id:** `REL-2`
 - **Intent:** `INT-1`
 - **Source issue:** `release-5-0-0`
+- **Landed:** 2026-09-24
+
+### The injected contract names docs/compass as the home of an issue's documents _(archived)_
+
+- **Scenario id:** `CF-1`
+- **Intent:** `INT-1`
+- **Source issue:** `contract-facts`
 - **Landed:** 2026-09-24
