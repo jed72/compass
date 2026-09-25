@@ -34,9 +34,10 @@ through the CLI: `compass tdd-red -- <cmd>` proves a test fails and records it;
 `compass tdd-green -- <cmd>` proves it passes. `compass check` runs the
 guardrail checks against what is on disk.
 
-**If it is not on disk, it did not happen.** Each stage writes its artifact
-under `.compass/work/<issue>/`. A later session, or another agent, picks the
-work up from those files without re-deriving anything.
+**If it is not on disk, it did not happen.** Stage documents go to
+`docs/compass/<created>-<slug>/`, registered in the manifest. The manifest,
+evidence and markers live in `.compass/work/<slug>/`. A later session, or
+another agent, picks the work up from those files.
 
 **Stages, in order**, each with a `/compass:*` command:
 
@@ -53,7 +54,7 @@ The delivery approach written at assessment says which run at what weight and
 why any was skipped. Honour it.
 
 **Where to look.** `compass <verb> --help` explains any verb; the
-`compass-runtime` skill has the stage map, the agents and the on-disk layout.
+`compass-runtime` skill has the stage map, agents and on-disk layout.
 
 **Write for someone with no context.** Why before what, no reference a reader
 cannot follow, and stop once you have said it.

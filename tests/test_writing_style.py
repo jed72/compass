@@ -3629,8 +3629,8 @@ def test_pbw_e2_four_rules_reach_fewer_files_than_the_repository_scans():
     expected = {
         "PBW-A10": 9,
         "PBW-C3": 32,
-        "PBW-C5": 212,
-        "PBW-C4": 231,
+        "PBW-C5": 213,
+        "PBW-C4": 232,
     }
     for rule_id, reach in expected.items():
         report = run_sweep(RULES[rule_id], paths)

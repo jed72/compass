@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### the removal guard accepts a later major
+### The injected contract names docs/compass as the home of an issue's documents
 
-- **Scenario id:** `REL-2`
+- **Scenario id:** `CF-1`
 - **Intent:** `INT-1`
-- **Source issue:** `release-5-0-0`
+- **Source issue:** `contract-facts`
 - **Landed:** 2026-09-24
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8144,6 +8144,13 @@
 ### every published surface reports 5.0.0 _(archived)_
 
 - **Scenario id:** `REL-1`
+- **Intent:** `INT-1`
+- **Source issue:** `release-5-0-0`
+- **Landed:** 2026-09-24
+
+### the removal guard accepts a later major _(archived)_
+
+- **Scenario id:** `REL-2`
 - **Intent:** `INT-1`
 - **Source issue:** `release-5-0-0`
 - **Landed:** 2026-09-24
