@@ -30,10 +30,12 @@ import stat
 
 from compass_pkg.core import CompassError, find_upwards, load_yaml
 
-#: Issues created on or after this date must show a failure first. Issues
-#: created before it keep the result they had: their records say what was
-#: required when they were written, and failing them now would rewrite that.
-#: A manifest with no `created:` predates the field and counts as before.
+#: Issues created on or after this date, or with evidence recorded on or
+#: after it, must show a failure first. Issues created and worked before it
+#: keep the result they had: their records say what was required when they
+#: were written, and failing them now would rewrite that. A manifest with no
+#: `created:` predates the field and counts as before, unless its evidence
+#: is dated since.
 RED_REQUIRED_FROM = datetime.date(2026, 9, 24)
 
 #: The kinds `compass acceptance start` accepts, for work with no natural red.
@@ -223,16 +225,57 @@ def _rule_applies(created):
         return True
 
 
-def missing_first_failure(task, task_dir):
-    """The failure message when the rule applies and is not met, else None."""
-    if not task.get("scenarios") or not _rule_applies(task.get("created")):
+def _work_dated_since(task_dir):
+    """The first evidence record dated on or after the cutoff, as
+    (relative path, date), or None.
+
+    `created:` can be edited; the evidence the CLI writes carries the time of
+    the run. So work recorded since the cutoff brings an issue under the rule
+    whatever `created:` says. Symlinks and anything that is not a JSON object
+    are skipped by `_load`, as for red records.
+    """
+    evidence = os.path.join(task_dir, "evidence")
+    if os.path.islink(evidence):
         return None
+    try:
+        names = sorted(os.listdir(evidence))
+    except OSError:
+        return None
+    for name in names:
+        if not name.endswith(".json"):
+            continue
+        stamp = _load(os.path.join(evidence, name)).get("timestamp")
+        try:
+            day = datetime.date.fromisoformat(str(stamp)[:10])
+        except ValueError:
+            continue
+        if day >= RED_REQUIRED_FROM:
+            return "evidence/" + name, day
+    return None
+
+
+def missing_first_failure(task, task_dir):
+    """The failure message when the rule applies and is not met, else None.
+
+    The rule applies to an issue created on or after the cutoff, or with any
+    evidence record dated on or after it."""
+    if not task.get("scenarios"):
+        return None
+    dated_by = None
+    if not _rule_applies(task.get("created")):
+        dated_by = _work_dated_since(task_dir)
+        if dated_by is None:
+            return None
     if has_red(task_dir) or _has_acceptance(task, task_dir):
         return None
+    why = ""
+    if dated_by:
+        why = (" The rule applies although `created:` is earlier, because "
+               "%s is dated %s." % (dated_by[0], dated_by[1].isoformat()))
     return ("the greens on record show the suite passes, but no red is on "
             "record for this issue, so nothing shows a test failed first. Run "
             "`compass tdd-red -- <test command>` on a failing test. For work "
             "with no natural red - config, docs, a behaviour-preserving "
             "refactor - declare it before the change with `compass "
             "acceptance start --kind validation|refactor -- <command>` and "
-            "finish with `compass acceptance record`")
+            "finish with `compass acceptance record`." + why)

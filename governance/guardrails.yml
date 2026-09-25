@@ -27,7 +27,7 @@
 # schemas/guardrails.schema.json.
 # =============================================================================
 
-version: 1.21.0
+version: 1.22.0
 # -----------------------------------------------------------------------------
 # Named checks - the mechanical checks `compass check` knows how to run. Each
 # guardrail below references one or more of these by name. The check reads
@@ -58,7 +58,8 @@ checks:
       record is named by its binding - evidence/green-<scenario>.json when
       bound, evidence/green.json when not - and the registry entry names
       whichever was written. When the issue declares scenarios and was
-      created on or after 2026-09-24, a red record (evidence/red.json or
+      created on or after 2026-09-24, or has an evidence record dated on or
+      after it, a red record (evidence/red.json or
       evidence/red-<scenario>.json, recording a failed run) or an acceptance
       record from `compass acceptance record` must also be on the issue. A
       green alone shows the suite passes, not that a test failed first.
