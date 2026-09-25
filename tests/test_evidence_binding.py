@@ -57,6 +57,11 @@ def repo(tmp_path):
     root = tmp_path / "repo"
     root.mkdir()
     _git(root, "init", "-q")
+    # `compass ship-commit` runs its own `git commit`, which the -c flags in
+    # GIT do not reach. A CI runner has no global identity, so the repository
+    # must carry one.
+    _git(root, "config", "user.email", "t@example.com")
+    _git(root, "config", "user.name", "t")
     (root / "src").mkdir()
     (root / "src" / "app.py").write_text("x = 1\n")
     (root / ".gitignore").write_text("/.compass/work/\nprivate/\n")
