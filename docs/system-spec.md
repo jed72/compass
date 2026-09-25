@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A widened reach fails the reach test, naming the rule
+### validate.sh --help prints both exit codes and every check
 
-- **Scenario id:** `RCM-3`
+- **Scenario id:** `VHP-1`
 - **Intent:** `INT-1`
-- **Source issue:** `reach-counts-move-with-every-test`
+- **Source issue:** `validate-help-prints-headings-only`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8333,6 +8333,13 @@
 ### A new file with no prose fails the reach test, naming the rule _(archived)_
 
 - **Scenario id:** `RCM-2`
+- **Intent:** `INT-1`
+- **Source issue:** `reach-counts-move-with-every-test`
+- **Landed:** 2026-09-25
+
+### A widened reach fails the reach test, naming the rule _(archived)_
+
+- **Scenario id:** `RCM-3`
 - **Intent:** `INT-1`
 - **Source issue:** `reach-counts-move-with-every-test`
 - **Landed:** 2026-09-25
