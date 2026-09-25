@@ -193,19 +193,55 @@ def has_red(task_dir):
     return red_verdict(task_dir) == "ok"
 
 
-def _has_acceptance(task, task_dir):
-    """Is an acceptance record among the issue's test-run evidence? Only a
-    path inside the issue directory counts."""
+def _first_green(task, task_dir):
+    """The earliest timestamp among the issue's green records that are not
+    acceptance records, as an ISO string, or None."""
     root = os.path.realpath(task_dir)
+    stamps = []
     for entry in task.get("evidence") or []:
         if not isinstance(entry, dict) or entry.get("type") != "test-run":
             continue
         full = os.path.realpath(os.path.join(task_dir, entry.get("path") or ""))
         if os.path.commonpath([root, full]) != root:
             continue
-        if _load(full).get("kind") in ACCEPTANCE_KINDS:
-            return True
-    return False
+        record = _load(full)
+        if record.get("kind") in ACCEPTANCE_KINDS:
+            continue
+        if isinstance(record.get("timestamp"), str):
+            stamps.append(record["timestamp"])
+    return min(stamps) if stamps else None
+
+
+def _acceptance(task, task_dir):
+    """Is an acceptance record among the issue's test-run evidence, and was
+    it declared in time? Returns (counts, late) where `late` names a record
+    declared after the first green, for the failure message.
+
+    Only a path inside the issue directory counts. A record with no
+    `declared_at` was written before records carried one, and counts as it
+    did then."""
+    root = os.path.realpath(task_dir)
+    first_green = _first_green(task, task_dir)
+    late = None
+    for entry in task.get("evidence") or []:
+        if not isinstance(entry, dict) or entry.get("type") != "test-run":
+            continue
+        full = os.path.realpath(os.path.join(task_dir, entry.get("path") or ""))
+        if os.path.commonpath([root, full]) != root:
+            continue
+        record = _load(full)
+        if record.get("kind") not in ACCEPTANCE_KINDS:
+            continue
+        declared = record.get("declared_at")
+        if not isinstance(declared, str) or first_green is None \
+                or declared < first_green:
+            return True, None
+        late = (entry.get("path"), declared, first_green)
+    return False, late
+
+
+def _has_acceptance(task, task_dir):
+    return _acceptance(task, task_dir)[0]
 
 
 def _rule_applies(created):
@@ -266,9 +302,16 @@ def missing_first_failure(task, task_dir):
         dated_by = _work_dated_since(task_dir)
         if dated_by is None:
             return None
-    if has_red(task_dir) or _has_acceptance(task, task_dir):
+    if has_red(task_dir):
+        return None
+    counts, late = _acceptance(task, task_dir)
+    if counts:
         return None
     why = ""
+    if late:
+        why += (" The acceptance in %s was declared at %s, after the first "
+                "green at %s, so it does not stand in for a red."
+                % late)
     if dated_by:
         why = (" The rule applies although `created:` is earlier, because "
                "%s is dated %s." % (dated_by[0], dated_by[1].isoformat()))

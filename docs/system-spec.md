@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### An issue created and worked before the cutoff keeps its result
+### compass acceptance record carries declared_at
 
-- **Scenario id:** `CDB-2`
+- **Scenario id:** `ADW-4`
 - **Intent:** `INT-1`
-- **Source issue:** `created-date-can-be-backdated`
+- **Source issue:** `acceptance-declared-after-the-work`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8356,4 +8356,32 @@
 - **Scenario id:** `CDB-1`
 - **Intent:** `INT-1`
 - **Source issue:** `created-date-can-be-backdated`
+- **Landed:** 2026-09-25
+
+### An issue created and worked before the cutoff keeps its result _(archived)_
+
+- **Scenario id:** `CDB-2`
+- **Intent:** `INT-1`
+- **Source issue:** `created-date-can-be-backdated`
+- **Landed:** 2026-09-25
+
+### An acceptance declared after the first green does not satisfy suite-passed _(archived)_
+
+- **Scenario id:** `ADW-1`
+- **Intent:** `INT-1`
+- **Source issue:** `acceptance-declared-after-the-work`
+- **Landed:** 2026-09-25
+
+### An acceptance declared before any green counts _(archived)_
+
+- **Scenario id:** `ADW-2`
+- **Intent:** `INT-1`
+- **Source issue:** `acceptance-declared-after-the-work`
+- **Landed:** 2026-09-25
+
+### An acceptance record with no declared_at counts as today _(archived)_
+
+- **Scenario id:** `ADW-3`
+- **Intent:** `INT-1`
+- **Source issue:** `acceptance-declared-after-the-work`
 - **Landed:** 2026-09-25

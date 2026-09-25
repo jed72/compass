@@ -816,6 +816,10 @@ def cmd_acceptance_record(args):
         "timestamp": now_iso(),
         "log_excerpt": excerpt,
         "scenario": getattr(args, "scenario", None),
+        # When the acceptance was declared, from the baseline. suite-passed
+        # counts an acceptance in place of a red only when it was declared
+        # before the issue's first green - declared, not chosen afterwards.
+        "declared_at": state.get("declared_at"),
     }
     if kind == "refactor":
         payload["baseline"] = state.get("baseline", {})
