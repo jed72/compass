@@ -29,11 +29,11 @@
 - **Source issue:** `stale-active-issue-sweep`
 - **Landed:** 2026-08-13
 
-### A branch with no ignored record merges
+### A same-size edit in the same second changes the tree id
 
-- **Scenario id:** `MIR-2`
+- **Scenario id:** `TSE-1`
 - **Intent:** `INT-1`
-- **Source issue:** `merge-overwrites-an-ignored-record`
+- **Source issue:** `tree-id-misses-a-same-second-edit`
 - **Landed:** 2026-09-25
 
 ### Backward-compat - guardrail count and gate set unchanged by S6
@@ -8809,6 +8809,13 @@
 ### A branch that committed an ignored record is refused _(archived)_
 
 - **Scenario id:** `MIR-1`
+- **Intent:** `INT-1`
+- **Source issue:** `merge-overwrites-an-ignored-record`
+- **Landed:** 2026-09-25
+
+### A branch with no ignored record merges _(archived)_
+
+- **Scenario id:** `MIR-2`
 - **Intent:** `INT-1`
 - **Source issue:** `merge-overwrites-an-ignored-record`
 - **Landed:** 2026-09-25
